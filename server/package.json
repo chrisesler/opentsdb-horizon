@@ -1,0 +1,19 @@
+{
+  "name": "horizon-server",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "NODE_ENV=dev nodemon ./bin/www",
+    "debug": "NODE_ENV=dev nodemon --debug ./bin/www",
+    "inspect": "NODE_ENV=dev nodemon --inspect ./bin/www"
+  },
+  "dependencies": {
+    "compression": "^1.7.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "express": "~4.16.0",
+    "http-errors": "~1.6.2",
+    "morgan": "~1.9.0",
+    "nodemon": "^1.17.3"
+  }
+}
