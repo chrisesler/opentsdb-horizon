@@ -12,20 +12,20 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { AdhocModule } from './adhoc/adhoc.module';
 
 // custom services
-import { D3Service } from './shared/services/d3.service';
+import { D3Service } from './core/services/d3.service';
 
 // component
 import { AppComponent } from './app.component';
-import { NavbarComponent } from './shared/components/navbar/navbar.component';
+import { CoreModule } from './core/core.module';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    NavbarComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    CoreModule,
     MaterialModule,
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     AppRoutingModule,
