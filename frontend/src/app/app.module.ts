@@ -1,41 +1,41 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MaterialModule } from './shared/modules/material/material.module';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 
+// component
+import { AppComponent } from './app.component';
+
 // custom modules
+import { CoreModule } from './core/core.module';
+import { MaterialModule } from './shared/modules/material/material.module';
 import { AppRoutingModule } from './app-routing.module';
 import { AdminModule } from './admin/admin.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { AdhocModule } from './adhoc/adhoc.module';
 import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
+import { NavbarModule } from './navbar/navbar.module';
 
-// custom services
-import { D3Service } from './shared/services/d3.service';
-
-// component
-import { AppComponent } from './app.component';
-import { NavbarComponent } from './shared/components/navbar/navbar.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    NavbarComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    CoreModule,
     MaterialModule,
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     AppRoutingModule,
     AdminModule,
     DashboardModule,
     AdhocModule,
-    KitchenSinkModule
+    KitchenSinkModule,
+    NavbarModule
   ],
-  providers: [D3Service],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
