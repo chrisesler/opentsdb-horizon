@@ -1,4 +1,20 @@
-@import '~@angular/material/theming';
-@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+@charset "utf-8";
 
-@include mat-core();
+////// APP ROLLUP //////
+
+// material theming support
+// NOTE: we only include this here so we have access to the
+// material mixins (such as colors). All the actual theming work is done in src/themes.scss
+@import '~@angular/material/theming';
+
+// Config
+@import 'styles/config'; // basic config items, like sizes, fonts, maps, etc
+
+// Resets
+@import 'styles/resets';
+
+// app base
+@import 'styles/base/all';
+
+// overrides
+@import 'styles/overrides/all';

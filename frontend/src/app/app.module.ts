@@ -10,6 +10,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AdminModule } from './admin/admin.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { AdhocModule } from './adhoc/adhoc.module';
+import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
 
 // custom services
 import { D3Service } from './shared/services/d3.service';
@@ -31,7 +32,8 @@ import { NavbarComponent } from './shared/components/navbar/navbar.component';
     AppRoutingModule,
     AdminModule,
     DashboardModule,
-    AdhocModule
+    AdhocModule,
+    KitchenSinkModule
   ],
   providers: [D3Service],
   bootstrap: [AppComponent]
