@@ -4,6 +4,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 
+// component
+import { AppComponent } from './app.component';
+
 // custom modules
 import { CoreModule } from './core/core.module';
 import { MaterialModule } from './shared/modules/material/material.module';
@@ -12,9 +15,7 @@ import { AdminModule } from './admin/admin.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { AdhocModule } from './adhoc/adhoc.module';
 import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
-
-// component
-import { AppComponent } from './app.component';
+import { NavbarModule } from './navbar/navbar.module';
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import { AppComponent } from './app.component';
     AdminModule,
     DashboardModule,
     AdhocModule,
-    KitchenSinkModule
+    KitchenSinkModule,
+    NavbarModule
   ],
   providers: [],
   bootstrap: [AppComponent]
