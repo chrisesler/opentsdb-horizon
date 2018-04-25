@@ -6,6 +6,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 
 // custom modules
+import { AppRoutingModule } from './app-routing.module';
 import { AdminModule } from './admin/admin.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { AdhocModule } from './adhoc/adhoc.module';
@@ -27,6 +28,7 @@ import { NavbarComponent } from './shared/components/navbar/navbar.component';
     BrowserAnimationsModule,
     MaterialModule,
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
+    AppRoutingModule,
     AdminModule,
     DashboardModule,
     AdhocModule
