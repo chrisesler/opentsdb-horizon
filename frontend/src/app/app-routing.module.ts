@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  // { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  // { path: '', redirectTo: 'ks', pathMatch: 'full' },
   // { path: 'adhoc', loadChildren: 'app/adhoc/adhoc.module#AdhocModule' },
   // { path: 'admin', loadChildren: 'app/admin/admin.module#AdminModule' },
   { path: 'dashboard', loadChildren: 'app/dashboard/dashboard.module#DashboardModule' },

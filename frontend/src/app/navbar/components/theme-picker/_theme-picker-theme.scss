@@ -1,6 +1,5 @@
-
-@mixin nav-bar-theme($theme, $name) {
-    /* --- NAV BAR THEME [ #{$name} ] -- */
+@mixin theme-picker-theme($theme, $name) {
+    /* --- THEME PICKER THEME [ #{$name} ] -- */
     // NOTE: See steps for this in app/styles/themes/component-themes.scss
 
     // MIXIN VARIABLES
@@ -15,15 +14,16 @@
     $ripple-opacity: .25;
 
     // THEME STYLES FOR COMPONENT
-    .app-navbar {
-        @include debug-map($primary);
+    .app-themepicker {
+        //@include debug-map($accent);
 
         color: mat-color($primary, default-contrast);
 
-        .mat-toolbar {
-            background: mat-color($background, app-bar);
+        &:hover {
+            background-color: rgba(mat-color($primary, 50), .10);
         }
 
+        // buttons
         .mat-button {
             color: white;
 
@@ -35,6 +35,7 @@
                 background-color: rgba($ripple-base, $ripple-opacity);
              }
         }
+
 
     }
 }
