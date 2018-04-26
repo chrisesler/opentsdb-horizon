@@ -7,13 +7,12 @@ import { KitchenSinkRoutingModule } from './kitchen-sink-routing.module';
 import { KSMainComponent } from './containers/main/main.component';
 
 // Components
-import { KSNavbarComponent } from './components/navbar/navbar.component';
 
 @NgModule({
   imports: [
     CommonModule,
     KitchenSinkRoutingModule
   ],
-  declarations: [KSMainComponent, KSNavbarComponent]
+  declarations: [KSMainComponent]
 })
 export class KitchenSinkModule { }

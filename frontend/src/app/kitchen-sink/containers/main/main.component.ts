@@ -8,7 +8,6 @@ import { Component, OnInit, HostBinding } from '@angular/core';
 export class KSMainComponent implements OnInit {
 
   @HostBinding('class.ks-main') hostClass = true;
-  @HostBinding('attr.fxFlex') hostFlex = true;
 
   constructor() { }
 
