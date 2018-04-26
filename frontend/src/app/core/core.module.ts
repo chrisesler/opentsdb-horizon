@@ -7,8 +7,7 @@ import { UtilsService } from './services/utils.service';
   imports: [
     CommonModule
   ],
-  declarations: [
-  ],
+  declarations: [],
   exports: [
     CommonModule
   ],

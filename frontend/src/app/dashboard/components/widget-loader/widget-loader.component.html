@@ -1,3 +1,8 @@
-<p>
-  widget-loader works!
-</p>
+<div class="panel-heading">
+  <h5 class="panel-title">{{widgetconf.title}}</h5>
+  <button mat-raised-button (click)="widgetView(widgetconf)">view full</button>
+</div>
+
+<div class="panel-body">
+  <div widget-container></div>
+</div>
