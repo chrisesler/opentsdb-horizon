@@ -1,0 +1,22 @@
+/* --- NAV BAR THEME -- */
+
+// NOTE: See steps for this in app/styles/themes/component-themes.scss
+
+@mixin nav-bar-theme($theme) {
+    // MIXIN VARIABLES
+    $primary: map-get($theme, primary);
+    $accent: map-get($theme, accent);
+    $warn: map-get($theme, warn);
+    $background: map-get($theme, background);
+    $foreground: map-get($theme, foreground);
+
+    // THEME STYLES FOR COMPONENT
+    app-navbar {
+        color: mat-color($primary, default-contrast);
+
+        .app-navbar,
+        .app-navbar-header {
+            background: mat-color($primary);
+        }
+    }
+}
