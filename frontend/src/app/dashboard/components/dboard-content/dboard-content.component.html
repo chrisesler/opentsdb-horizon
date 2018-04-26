@@ -1,3 +1,18 @@
-<p>
-  dboard-content works!
-</p>
+<div  widget-view-container>
+  <button *ngIf="viewEditMode" mat-raised-button (click)="closeViewEdit()">Close</button>
+</div>
+
+
+<gridster [style.display]="viewEditMode ? 'none' : 'block'" [options]="gridsterOptions" #gridster1 class="dashboard" 
+(optionsChange)="breakpointChange($event)" (reflow)="gridsterFlow($event)"
+[draggableOptions]="{ handlerClass: 'panel-heading' }">
+
+<gridster-item *ngFor="let widget of widgets; let idx = index" #itemComp 
+  [dragAndDrop]="widget.gPosition.dragAndDrop" [resizable]="widget.gPosition.resizable"
+  [(x)]="widget.gPosition.x" [(y)]="widget.gPosition.y"
+  [(xMd)]="widget.gPosition.xMd" [(yMd)]="widget.gPosition.yMd"
+  [(w)]="widget.gPosition.w" [(h)]="widget.gPosition.h" (end)="gridEventEnd($event)">
+
+  <app-widget-loader (viewComponent)="viewComponent($event)" [widgetconf]="widget.config"></app-widget-loader>
+</gridster-item>
+</gridster>
