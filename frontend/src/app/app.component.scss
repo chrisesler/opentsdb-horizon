@@ -1,0 +1,15 @@
+:host {
+    display: flex;
+    flex: 1 1 100%;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+.app-navigation {
+    z-index: 2;
+}
+
+router-outlet + * {
+  width: 100%;
+  overflow: auto;
+}

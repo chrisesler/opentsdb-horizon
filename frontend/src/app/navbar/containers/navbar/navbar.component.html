@@ -1,3 +1,24 @@
-<p>
-  navbar works!
-</p>
+<!--
+<nav class="app-navbar-header">
+    <a class="app-navbar-button" mat-button routerLink="/ks">
+        <img src="/assets/Yamas_Logo_White_Large.png" class="app-yamas-logo"/>
+    </a>
+    <span class="flex-spacer"></span>
+    <theme-picker (themeChange)="selectTheme($event)"></theme-picker>
+</nav>
+-->
+
+<mat-toolbar>
+    <mat-toolbar-row fxLayout fxLayoutAlign="start stretch">
+        <a mat-button routerLink="ks" class="app-home-link">
+            <img src="/assets/yamas-logo-icon-only.png"  class="app-yamas-logo"/>
+        </a>
+        <a mat-button
+            *ngFor="let routeLink of routeLinks"
+            routerLink="{{routeLink.link}}">
+            {{routeLink.label}}
+        </a>
+        <span class="flex-spacer"></span>
+        <theme-picker (themeChange)="selectTheme($event)" [theme]="theme" mat-button></theme-picker>
+    </mat-toolbar-row>
+</mat-toolbar>

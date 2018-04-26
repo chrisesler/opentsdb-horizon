@@ -1,6 +1,5 @@
 import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarComponent} from './components/navbar/navbar.component';
 import { D3Service } from './services/d3.service';
 import { UtilsService } from './services/utils.service';
 
@@ -9,11 +8,9 @@ import { UtilsService } from './services/utils.service';
     CommonModule
   ],
   declarations: [
-    NavbarComponent
   ],
   exports: [
-    CommonModule,
-    NavbarComponent
+    CommonModule
   ],
   providers: [
     D3Service,

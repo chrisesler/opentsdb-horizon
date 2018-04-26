@@ -6,7 +6,7 @@ const routes: Routes = [
   //{ path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   //{ path: 'adhoc', loadChildren: 'app/adhoc/adhoc.module#AdhocModule' },
   //{ path: 'admin', loadChildren: 'app/admin/admin.module#AdminModule' },
-  //{ path: 'dashboard', loadChildren: 'app/dashboard/dashboard.module#DashboardModule' },
+  { path: 'dashboard', loadChildren: 'app/dashboard/dashboard.module#DashboardModule' },
   { path: 'ks', loadChildren: 'app/kitchen-sink/kitchen-sink.module#KitchenSinkModule' }
 ];
 

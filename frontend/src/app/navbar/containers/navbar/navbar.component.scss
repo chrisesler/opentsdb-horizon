@@ -1,0 +1,40 @@
+/* NAVBAR COMPONENT */
+//@import "~@angular/material/theming";
+//@import "../../../../styles/config";
+/*.app-navbar-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 8px 16px;
+
+  > .mat-button {
+    &:last-child {
+      margin-left: auto;
+    }
+  }
+}*/
+.flex-spacer {
+    flex: 1 1 auto;
+}
+
+.app-home-link {
+    min-width: auto;
+}
+
+.app-yamas-logo {
+    height: 26px;
+    margin: 0 4px 3px 0;
+    vertical-align: middle;
+}
+
+.mat-toolbar {
+    .mat-toolbar-row {
+        padding-left: initial;
+    }
+}
+
+.mat-button {
+    align-items: center;
+    justify-content: center;
+    display: inline-flex;
+}
