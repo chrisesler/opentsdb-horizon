@@ -1,0 +1,35 @@
+//* NAVBAR MODULE LOADER */
+//*
+//* NOTE: Why are there two different mixins?
+//*
+//* Structure mixins are included only once in app-core(),
+//* whereas theme mixins get included as many times
+//* as there are themes in the themeloop.
+//* Primarily it is just to help reduce code duplication
+
+// NOTE: First time only after creating this file,
+// after you have completed the three steps below
+// be sure to add this file to src/app/app.style-module.scss
+// and follow the steps in that file
+
+// [ STEP 1 ] - IMPORT MODULE COMPONENT SCSS FILES
+// import your component scss
+// example: @import './components/componentName/componentName.component.scss';
+@import './containers/navbar/navbar.component.scss';
+@import './components/theme-picker/theme-picker.component.scss';
+
+// [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
+@mixin navbar-module-core() {
+    // include your core mixins
+    // example: @include componentName-component-core();
+    @include navbar-component-base();
+    @include theme-picker-component-base();
+}
+
+// [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
+@mixin navbar-module-theme($theme-config) {
+    // include your theme mixins, passing along the $theme-config
+    // example: @include componentName-component-theme($theme-config);
+    @include navbar-component-theme($theme-config);
+    @include theme-picker-component-theme($theme-config);
+}

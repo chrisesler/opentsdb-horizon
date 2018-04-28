@@ -1,3 +1,12 @@
-.app-themepicker {
-    display: inline-flex;
+/* THEME-PICKER COMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+
+@mixin theme-picker-component-base() {
+    .app-themepicker {
+        display: inline-flex;
+    }
+}
+
+@mixin theme-picker-component-theme($theme-config) {
+
 }

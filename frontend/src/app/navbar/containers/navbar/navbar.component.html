@@ -1,13 +1,4 @@
-<!--
-<nav class="app-navbar-header">
-    <a class="app-navbar-button" mat-button routerLink="/ks">
-        <img src="/assets/Yamas_Logo_White_Large.png" class="app-yamas-logo"/>
-    </a>
-    <span class="flex-spacer"></span>
-    <theme-picker (themeChange)="selectTheme($event)"></theme-picker>
-</nav>
--->
-
+<!-- Navbar Theme -->
 <mat-toolbar>
     <mat-toolbar-row fxLayout fxLayoutAlign="start stretch">
         <a mat-button routerLink="ks" class="app-home-link">
@@ -19,6 +10,6 @@
             {{routeLink.label}}
         </a>
         <span class="flex-spacer"></span>
-        <theme-picker (themeChange)="selectTheme($event)" [theme]="theme" mat-button></theme-picker>
+        <theme-picker mat-button></theme-picker>
     </mat-toolbar-row>
 </mat-toolbar>
