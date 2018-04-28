@@ -18,8 +18,13 @@
       "tsconfig": "tsconfig.app.json",
       "testTsconfig": "tsconfig.spec.json",
       "prefix": "app",
+      "stylePreprocessorOptions": {
+        "includePaths": [
+          "."
+        ]
+      },
       "styles": [
-        "themes.scss",
+        "debug.scss",
         "styles.scss"
       ],
       "scripts": [],
