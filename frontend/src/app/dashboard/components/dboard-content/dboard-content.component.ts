@@ -1,6 +1,7 @@
 import {
   Component, OnInit, Input, ViewChild, ViewEncapsulation,
-  ChangeDetectionStrategy, OnChanges, SimpleChanges, ComponentFactoryResolver
+  ChangeDetectionStrategy, OnChanges, SimpleChanges, ComponentFactoryResolver,
+  HostBinding
 } from '@angular/core';
 import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDraggableOptions } from 'angular2gridster';
 import { WidgetViewDirective } from '../../directives/widgetview.directive';
@@ -14,6 +15,8 @@ import { DashboardService } from '../../services/dashboard.service';
   encapsulation: ViewEncapsulation.None
 })
 export class DboardContentComponent implements OnInit, OnChanges {
+  @HostBinding('class.app-dboard-content') private hostClass: Boolean = true;
+
   @ViewChild(WidgetViewDirective) widgetViewContainer: WidgetViewDirective;
   @ViewChild(GridsterComponent) gridster: GridsterComponent;
   @Input() widgets: any[];

@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, HostBinding } from '@angular/core';
 
 @Component({
   selector: 'app-dboard-header',
@@ -6,6 +6,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./dboard-header.component.scss']
 })
 export class DboardHeaderComponent implements OnInit {
+  @HostBinding('class.dashboard-header') private hostClass: Boolean = true;
 
   @Output() addWidget = new EventEmitter;
 
@@ -19,4 +20,3 @@ export class DboardHeaderComponent implements OnInit {
   }
 
 }
-

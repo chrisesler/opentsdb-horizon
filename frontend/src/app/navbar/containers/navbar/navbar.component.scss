@@ -3,9 +3,6 @@
 // core (aka structure)
 @mixin navbar-component-base() {
     .app-navbar {
-        .flex-spacer {
-            flex: 1 1 auto;
-        }
 
         .app-home-link {
             min-width: auto;
@@ -38,5 +35,29 @@
 }
 // theme (aka look-n-feel)
 @mixin navbar-component-theme($theme-config) {
-    .app-navbar {}
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+    $navbar-background: map-get($primary, default);
+
+    @if $is-dark-theme == true {
+
+    }
+
+
+
+    .app-navbar {
+
+        .mat-toolbar {
+            background: $navbar-background;
+            color: map-get($primary, default-contrast);
+        }
+
+    }
 }

@@ -2,11 +2,26 @@
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
 @mixin theme-picker-component-base() {
-    .app-themepicker {
+    .theme-picker {
         display: inline-flex;
     }
 }
 
 @mixin theme-picker-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+
+    .theme-picker {
+        .mat-menu-item.is-active {
+            .mat-icon {
+                color: map-get($accent, default);
+            }
+        }
+    }
 
 }

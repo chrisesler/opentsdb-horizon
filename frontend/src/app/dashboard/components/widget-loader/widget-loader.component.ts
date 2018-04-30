@@ -8,16 +8,22 @@ import { WidgetDirective } from '../../directives/widget.directive';
 import { WidgetComponent } from '../../widgets/widgetcomponent';
 import { IntercomService, IMessage } from '../../services/intercom.service';
 
+import { MatMenu, MatMenuTrigger } from '@angular/material';
+
 @Component({
   selector: 'app-widget-loader',
   templateUrl: './widget-loader.component.html',
   styleUrls: ['./widget-loader.component.scss']
 })
 export class WidgetLoaderComponent implements OnInit, OnChanges {
+  @HostBinding('class.widget-loader') private hostClass: Boolean = true;
   // @HostBinding('style.display') display: string;
+
   @Input() widgetconf: any; // will need to define widget conf type
   @ViewChild(WidgetDirective) widgetContainer: WidgetDirective;
   @Output('viewComponent') viewComponent = new EventEmitter<any>();
+
+  @ViewChild( MatMenuTrigger ) trigger: MatMenuTrigger;
 
   _component: any = null;
   componentFactory: any = null;

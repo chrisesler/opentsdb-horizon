@@ -16,15 +16,44 @@
 // import your component scss
 // example: @import './components/componentName/componentName.component.scss';
 
+// containers
+//@import '/containers/dashboard/dashboard.component.scss'; // nothing to style yet
+
+// components
+@import './components/dboard-header/dboard-header.component';
+@import './components/dboard-content/dboard-content.component';
+@import './components/widget-loader/widget-loader.component';
+
+// widgets
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin dashboard-module-core() {
   // include your core mixins
   // example: @include componentName-component-core();
+
+  // containers
+  //@include dashboard-component-base(); // nothing to style yet
+
+  // components
+  @include dboard-header-component-base();
+  @include dboard-content-component-base();
+  @include widget-loader-component-base();
+
+  // widgets
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
-@mixin navbar-module-theme($theme-config) {
+@mixin dashboard-module-theme($theme-config) {
   // include your theme mixins, passing along the $theme-config
   // example: @include componentName-component-theme($theme-config);
+
+  // container
+  //@include dashboard-component-theme($theme-config); //nothing to style yet
+
+  // components
+  @include dboard-header-component-theme($theme-config);
+  @include dboard-content-component-theme($theme-config);
+  @include widget-loader-component-theme($theme-config);
+
+  // widgets
 }
