@@ -1,0 +1,21 @@
+//* APPLICATION MODULE STYLE LOADER */
+//*
+//* NOTE: Why are there two different mixins?
+//*
+//* Structure mixins are included only once in app-core(),
+//* whereas theme mixins get included as many times
+//* as there are themes in the themeloop.
+//* Primarily it is just to help reduce code duplication
+
+// [ STEP 1 ] - IMPORT APPLICATION STYLE MODULE SCSS
+@import 'navbar/navbar.style-module';
+
+// [ STEP 2 ] - ADD MODULE'S BASE MIXINS (aka structure)
+@mixin app-core() {
+    @include navbar-module-core();
+}
+
+// [ STEP 3 ] - ADD MODULES'S THEME MIXINS (aka look-n-feel)
+@mixin generate-app-theme ($theme-config) {
+    @include navbar-module-theme($theme-config);
+}

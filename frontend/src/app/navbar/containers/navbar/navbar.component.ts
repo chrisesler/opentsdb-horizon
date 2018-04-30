@@ -10,8 +10,8 @@ import { Router } from '@angular/router';
 })
 export class NavbarComponent implements OnInit {
 
-  @HostBinding('class.app-navbar') hostClass = true;
-  @HostBinding('class.mat-elevation-z6') mat = true;
+  @HostBinding('class.app-navbar') private hostClass: Boolean = true;
+  @HostBinding('class.mat-elevation-z6') private matElevation: Boolean = true;
 
   @Input() theme: string;
   @Output() themeChange = new EventEmitter<string>();
@@ -39,8 +39,6 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  selectTheme(theme: string) {
-    this.themeChange.emit(theme);
-  }
+
 
 }

@@ -1,40 +1,42 @@
 /* NAVBAR COMPONENT */
-//@import "~@angular/material/theming";
-//@import "../../../../styles/config";
-/*.app-navbar-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  padding: 8px 16px;
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+// core (aka structure)
+@mixin navbar-component-base() {
+    .app-navbar {
+        .flex-spacer {
+            flex: 1 1 auto;
+        }
 
-  > .mat-button {
-    &:last-child {
-      margin-left: auto;
+        .app-home-link {
+            min-width: auto;
+        }
+
+        .app-yamas-logo {
+            height: 26px;
+            margin: 0 4px 3px 0;
+            vertical-align: middle;
+        }
+
+        .mat-toolbar {
+            .mat-toolbar-row {
+                padding-left: initial;
+            }
+        }
+
+        .mat-toolbar-multiple-rows,
+        .mat-toolbar-single-row {
+            min-height: 48px !important;
+            height: 48px;
+        }
+
+        .mat-button {
+            align-items: center;
+            justify-content: center;
+            display: inline-flex;
+        }
     }
-  }
-}*/
-.flex-spacer {
-    flex: 1 1 auto;
 }
-
-.app-home-link {
-    min-width: auto;
-}
-
-.app-yamas-logo {
-    height: 26px;
-    margin: 0 4px 3px 0;
-    vertical-align: middle;
-}
-
-.mat-toolbar {
-    .mat-toolbar-row {
-        padding-left: initial;
-    }
-}
-
-.mat-button {
-    align-items: center;
-    justify-content: center;
-    display: inline-flex;
+// theme (aka look-n-feel)
+@mixin navbar-component-theme($theme-config) {
+    .app-navbar {}
 }

@@ -11,6 +11,7 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { MaterialModule } from './shared/modules/material/material.module';
 import { AppRoutingModule } from './app-routing.module';
+
 import { AdminModule } from './admin/admin.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { AdhocModule } from './adhoc/adhoc.module';

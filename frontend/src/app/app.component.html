@@ -1,6 +1,7 @@
+
 <div fxLayout="column" fxFlexFill>
     <header fxFlex="1 1 48px" fxLayout="row" fxLayoutAlign="stretch stretch" class="app-navigation">
-        <app-navbar (themeChange)="selectTheme($event)" [theme]="apptheme" fxFill fxLayout fxLayoutAlign="stretch stretch"></app-navbar>
+        <app-navbar fxFill fxLayout fxLayoutAlign="stretch stretch"></app-navbar>
     </header>
     <main fxFlex="1 1 100%" class="router-outlet">
         <router-outlet></router-outlet>
