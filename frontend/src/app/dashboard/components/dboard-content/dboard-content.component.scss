@@ -48,7 +48,8 @@
 
         .dashboard {
             //flex: 1 1 auto;
-            //overflow: auto;
+            overflow: auto;
+            width: 100%;
         }
 
         .gridster-stage {
@@ -128,6 +129,9 @@
             -webkit-transition: background 3s;
             transition: background 3s;
             border-radius: 3px;
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
         }
 
         &.is-dragging {
@@ -162,9 +166,9 @@
     .gridster-container {
         .position-highlight {
             .inner {
+                @include mat-elevation(3);
                 background-color: rgba(map-get($primary, default-contrast), .08);
                 border: 1px solid transparent;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
             }
         }
     }
@@ -173,15 +177,13 @@
         .gridster-item-inner {
             //background: #fff;
             //border: 1px solid transparent;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-            display: flex;
-            align-items: stretch;
-            justify-content: stretch;
+            //box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+
         }
 
         &.is-dragging {
             .gridster-item-inner {
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24), 0 2px 4px rgba(0, 0, 0, 0.48);
+                @include mat-elevation(10);
             }
         }
     }

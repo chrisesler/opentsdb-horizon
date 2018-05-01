@@ -108,19 +108,71 @@
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
 
     .widget-loader {
         .mat-card {
-            .panel-heading {
-                .mat-toolbar {
-                    //background-color: map-get($accent, A700);
+            box-shadow: none;
+            background-color: map-get($background, nav-bar);
+
+            .mat-card-header {
+                background-color: transparent;
+
+                & {
+                    @include transition(background-color 0.2s ease-in-out);
                 }
 
+                .mat-toolbar {
+                    @include transition(none);
+                    background: transparent;
+
+                    .mat-icon-button {
+                        @include opacity(.5);
+                    }
+                }
+
+                &:hover {
+                    @if $is-dark-theme {
+                    background-color: rgba(map-get($primary, default-contrast), .1);
+                    }
+                    @else {
+                    background-color: rgba(map-get($accent, A700), .1);
+                    }
+
+                    .mat-toolbar {
+                        .mat-icon-button {
+                            @include opacity(1);
+                        }
+                    }
+                }
             }
         }
-
     }
 
+    // Gridster
+    .gridster-item.is-dragging {
+        .gridster-item-inner {
+            .widget-loader {
+                .mat-card-header {
+                    @if $is-dark-theme {
+                    background-color: rgba(map-get($primary, default-contrast), .1);
+                    }
+                    @else {
+                    background-color: rgba(map-get($accent, A700), .1);
+                    }
+
+                    .mat-toolbar {
+                        .mat-icon-button {
+                            @include opacity(1);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    // CDK items are outside of the component namespace class - be sure to give them a unique class name
     .widget-menu,
     .widget-submenu {
         .menu-seperator {
