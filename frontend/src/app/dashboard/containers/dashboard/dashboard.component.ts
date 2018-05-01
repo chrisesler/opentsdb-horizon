@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy  } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding  } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../services/intercom.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -9,6 +9,8 @@ import { Subscription } from 'rxjs/Subscription';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+
+  @HostBinding('class.app-dashboard') private hostClass = true;
 
   listenSub: Subscription;
   dashboard: any;

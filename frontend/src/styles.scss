@@ -2,19 +2,16 @@
 
 ////// APP ROLLUP //////
 
-// material theming support
-// NOTE: we only include this here so we have access to the
-// material mixins (such as colors). All the actual theming work is done in src/themes.scss
-@import '~@angular/material/theming';
+// mixins
+@import 'scss/mixins';
 
-// Config
-@import 'styles/config'; // basic config items, like sizes, fonts, maps, etc
+// Style Resets
+@import 'scss/resets';
 
-// Resets
-@import 'styles/resets';
+// Helper classes
+@import 'scss/helpers';
 
-// app base
-@import 'styles/base/all';
+// application theme definitions
+@import 'scss/theming';
 
-// overrides
-@import 'styles/overrides/all';
+// YUP... Thats all there is to it (for now)

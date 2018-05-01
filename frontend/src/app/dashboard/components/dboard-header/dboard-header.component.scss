@@ -1,3 +1,28 @@
-.spacer {
-    flex: 1 1 auto;
+/* DASHBOARD CONTAINER COMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+
+@mixin dboard-header-component-base() {
+    .dashboard-header {
+        .flex-spacer {
+            flex: 1 1 auto;
+        }
+    }
+}
+
+@mixin dboard-header-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+
+    .dashboard-header {
+
+        .mat-toolbar {
+            background-color: map-get($accent, A700);
+        }
+    }
+
 }

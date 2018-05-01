@@ -1,8 +1,131 @@
-:host {
-    display: flex;
-    flex: 1 1 auto;
+/* DBOARD-CONTEMT COMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+
+@mixin widget-loader-component-base() {
+    .widget-loader {
+        display: flex;
+        flex: 1 1 auto;
+
+        .mat-card {
+            padding: initial;
+        }
+
+        .mat-card-header .mat-card-header-text {
+            display: none;
+        }
+
+        // .mat-card-header.panel-heading
+        .panel-heading {
+            display: inline-block;
+            position: relative;
+            width: 100%;
+            top: 0;
+            cursor: move;
+
+            .panel-title {
+                display: inline-block;
+                padding: 2px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        .mat-toolbar,
+        .mat-toolbar-row {
+            font-size: 12px;
+            height: 28px;
+            min-height: 28px !important;
+        }
+
+        .mat-toolbar {
+            -webkit-transition: background 500ms;
+            transition: background 500ms;
+        }
+
+        .mat-toolbar-row {
+            //@include mat-elevation(1);
+            padding: initial;
+        }
+
+        .mat-icon-button {
+            &,
+            .mat-icon {
+                width: 28px;
+                height: 28px;
+            }
+
+            &,
+            .mat-button-wrapper {
+                line-height: 28px;
+            }
+
+            .mat-icon {
+                font-size: 18px;
+                line-height: 24px;
+            }
+        }
+
+
+
+        // .mat-card-content.panel-body
+        .panel-body {
+            overflow: auto;
+            // padding: 0 10px 10px;
+            position: absolute;
+            top: 37px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+        }
+
+
+    }
+
+    .widget-menu,
+    .widget-submenu {
+
+        .mat-menu-item {
+            font-size: 12px;
+            height: 36px;
+            line-height: 36px;
+        }
+
+        .menu-seperator {
+            display: block;
+            height: 1px;
+            width: 100%;
+            margin: 8px auto;
+        }
+    }
 }
-.panel-body {
-    display: flex;
-    flex: 1 1 auto;
+
+@mixin widget-loader-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+
+    .widget-loader {
+        .mat-card {
+            .panel-heading {
+                .mat-toolbar {
+                    //background-color: map-get($accent, A700);
+                }
+
+            }
+        }
+
+    }
+
+    .widget-menu,
+    .widget-submenu {
+        .menu-seperator {
+            background-color: rgba(map-get($primary, default-contrast), .1);
+        }
+    }
+
 }

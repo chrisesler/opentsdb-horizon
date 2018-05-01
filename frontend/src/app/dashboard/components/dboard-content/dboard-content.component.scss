@@ -1,152 +1,188 @@
+/* DBOARD-CONTEMT COMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
-app-dboard-content {
-    position: relative;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-}
-h1 {
-    position: relative;
-    flex: 0;
-    font-size: 22px;
-    padding: 0 20px;
-    height: 50px;
-    margin: 0;
-}
+@mixin dboard-content-component-base() {
+    .app-dboard-content {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+
+        h1 {
+            position: relative;
+            flex: 0;
+            font-size: 22px;
+            padding: 0 20px;
+            height: 50px;
+            margin: 0;
+        }
+
+        .omnibar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            position: relative;
+            flex: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            position: relative;
+            padding-left: 10px;
+        }
+
+        .widgetbar {
+            position: relative;
+            padding: 10px 0;
+            width: 275px;
+        }
+
+        .main-content {
+            //width: 100%;
+            flex: 1 0px;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+        }
+
+        .dashboard {
+            //flex: 1 1 auto;
+            //overflow: auto;
+        }
+
+        .gridster-stage {
+            .is-scroller {
+                //@include is-scroller();
+                padding: 10px;
+            }
+        }
 
 
-.omnibar {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    position: relative;
-    flex: 0;
-    width: 100%;
-    overflow: hidden;
+    }
+
+    /* GRIDSTER */
+
+    .gridster-container {
+        min-height: 100%;
+
+        .position-highlight {
+            z-index: 0;
+
+            .inner {
+                position: absolute;
+                top: 5px;
+                bottom: 5px;
+                left: 5px;
+                right: 5px;
+
+                -webkit-transition: background 3s;
+                transition: background 3s;
+                border-radius: 3px;
+
+            }
+        }
+    }
+
+    .gridster-item-prototype {
+        display: block;
+        position: relative;
+        float: left;
+        z-index: 99;
+        text-align: center;
+        font-weight: bold;
+        margin: 5px;
+        width: 80px;
+        height: 60px;
+
+        &.is-over {
+            .gridster-item-inner {
+                visibility: visible;
+            }
+        }
+
+        .gridster-item-inner {
+            position: absolute;
+            top:0;
+            left: 0;
+            overflow: auto;
+            width: 80px;
+            height: 60px;
+            visibility: hidden;
+
+            -webkit-transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
+            -moz-transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
+            -o-transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
+            transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
+        }
+    }
+
+    .gridster-item {
+        .gridster-item-inner {
+            position: absolute;
+            border: 1px solid transparent;
+            top: 5px;
+            bottom: 5px;
+            left: 5px;
+            right: 5px;
+            -webkit-transition: background 3s;
+            transition: background 3s;
+            border-radius: 3px;
+        }
+
+        &.is-dragging {
+            .gridster-item-inner {
+                top: -3px;
+                bottom: 13px;
+            }
+        }
+    }
 }
 
-.toolbar {
-    position: relative;
-    padding-left: 10px;
-}
+@mixin dboard-content-component-theme($theme-config) {
 
-.widgetbar {
-    position: relative;
-    padding: 10px 0;
-    width: 275px;
-}
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
 
-.main-content {
-    //width: 100%;
-    flex: 1 0px;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-}
+    .app-dboard-content {
 
-.dashboard {
-    flex: 1 1 auto;
-}
 
-.panel-heading {
-    border-bottom: 1px solid #F0F0F0;
-    display: inline-block;
-    position: relative;
-    width: 100%;
-    top: 0;
-    cursor: move;
-}
-app-widget-loader .panel-heading:hover {
-    color: white;
-    background: #ccc;
-}
-.panel-heading .panel-title {
-    display: inline-block;
-    padding: 2px;
-    margin-left: auto;
-    margin-right: auto;
-}
+    }
 
-.panel-body {
-    overflow: auto;
-    // padding: 0 10px 10px;
-    position: absolute;
-    top: 37px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-}
+    /* GRIDSTER */
 
-.gridster-container {
-    min-height: 100%;
-}
-.gridster-item-prototype {
-    display: block;
-    background-color: #afafaf;
-    position: relative;
-    float: left;
-    z-index: 99;
-    text-align: center;
-    font-weight: bold;
-    margin: 5px;
-    width: 80px;
-    height: 60px;
+    .gridster-item-prototype {
+        background-color: map-get($primary, darker);
+    }
 
-}
+    .gridster-container {
+        .position-highlight {
+            .inner {
+                background-color: rgba(map-get($primary, default-contrast), .08);
+                border: 1px solid transparent;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            }
+        }
+    }
 
-.gridster-item-prototype.is-over .gridster-item-inner {
+    .gridster-item {
+        .gridster-item-inner {
+            //background: #fff;
+            //border: 1px solid transparent;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
+        }
 
-    visibility: visible;
-}
-
-.gridster-item-prototype .gridster-item-inner {
-    position: absolute;
-    top:0;
-    left: 0;
-    overflow: auto;
-    width: 80px;
-    height: 60px;
-    visibility: hidden;
-
-    -webkit-transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
-    -moz-transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
-    -o-transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
-    transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
-}
-.position-highlight {
-    z-index: 0;
-}
-.position-highlight .inner {
-    position: absolute;
-    top: 5px;
-    bottom: 5px;
-    left: 5px;
-    right: 5px;
-
-    //background-color: #768294;
-    border: 1px solid transparent;
-    -webkit-transition: background 3s;
-    transition: background 3s;
-    border-radius: 3px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-}
-
-.gridster-item-inner {
-    position: absolute;
-    background: #fff;
-    border: 1px solid transparent;
-    top: 5px;
-    bottom: 5px;
-    left: 5px;
-    right: 5px;
-    -webkit-transition: background 3s;
-    transition: background 3s;
-    border-radius: 3px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-}
-.is-dragging .gridster-item-inner {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24), 0 2px 4px rgba(0, 0, 0, 0.48);
-    top: -3px;
-    bottom: 13px;
+        &.is-dragging {
+            .gridster-item-inner {
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24), 0 2px 4px rgba(0, 0, 0, 0.48);
+            }
+        }
+    }
 }

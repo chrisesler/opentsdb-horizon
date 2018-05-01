@@ -39,7 +39,7 @@
     // avoid 'default' theme sincewe already declared it
     @if $theme != 'default' {
         /* [[  THEME  ]] #($theme)  */
-        [data-theme='#{$theme}'] {
+        [theme='#{$theme}'] {
 
             //* Material core theme */
             @include angular-material-theme($theme-config);

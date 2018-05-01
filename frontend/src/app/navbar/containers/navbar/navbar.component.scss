@@ -1,40 +1,65 @@
 /* NAVBAR COMPONENT */
-//@import "~@angular/material/theming";
-//@import "../../../../styles/config";
-/*.app-navbar-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  padding: 8px 16px;
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+// core (aka structure)
+@mixin navbar-component-base() {
+    .app-navbar {
+        @include mat-elevation(6);
+        z-index: 2;
 
-  > .mat-button {
-    &:last-child {
-      margin-left: auto;
+        .app-home-link {
+            min-width: auto;
+        }
+
+        .app-yamas-logo {
+            height: 26px;
+            margin: 0 4px 3px 0;
+            vertical-align: middle;
+        }
+
+        .mat-toolbar {
+            .mat-toolbar-row {
+                padding-left: initial;
+            }
+        }
+
+        .mat-toolbar-multiple-rows,
+        .mat-toolbar-single-row {
+            min-height: 48px !important;
+            height: 48px;
+        }
+
+        .mat-button {
+            align-items: center;
+            justify-content: center;
+            display: inline-flex;
+        }
     }
-  }
-}*/
-.flex-spacer {
-    flex: 1 1 auto;
 }
+// theme (aka look-n-feel)
+@mixin navbar-component-theme($theme-config) {
 
-.app-home-link {
-    min-width: auto;
-}
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
 
-.app-yamas-logo {
-    height: 26px;
-    margin: 0 4px 3px 0;
-    vertical-align: middle;
-}
+    $navbar-background: map-get($primary, default);
 
-.mat-toolbar {
-    .mat-toolbar-row {
-        padding-left: initial;
+    @if $is-dark-theme == true {
+
     }
-}
 
-.mat-button {
-    align-items: center;
-    justify-content: center;
-    display: inline-flex;
+
+
+    .app-navbar {
+
+        .mat-toolbar {
+            background: $navbar-background;
+            color: map-get($primary, default-contrast);
+        }
+
+    }
 }
