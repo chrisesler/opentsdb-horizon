@@ -33,6 +33,7 @@
             justify-content: center;
             display: inline-flex;
         }
+
     }
 }
 // theme (aka look-n-feel)
@@ -57,8 +58,14 @@
     .app-navbar {
 
         .mat-toolbar {
-            background: $navbar-background;
-            color: map-get($primary, default-contrast);
+            background: map-get($background, nav-bar);
+            color: map-get($foreground, nav-bar-text);
+
+            .mat-icon-button {
+                .mat-icon {
+                    color: map-get($foreground, nav-bar-icons)
+                }
+            }
         }
 
     }

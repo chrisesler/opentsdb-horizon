@@ -17,11 +17,18 @@
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
 
     .dashboard-header {
 
         .mat-toolbar {
-            background-color: map-get($accent, A700);
+            @if $is-dark-theme {
+                background-color: map-get($foreground, divider);
+            }
+            @else {
+                background-color: map-get($accent, A700);
+            }
+
         }
     }
 

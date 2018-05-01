@@ -7,11 +7,13 @@
 // IMPORT THEME CONFIGS
 @import 'themes/dark-theme';
 @import 'themes/light-theme';
+@import 'themes/developing-theme';
 
 // DEFINE THEME MAP
 $app-available-themes: (
-  light: $light-theme,
-  dark: $dark-theme
+    developing: $developing-theme,
+    light: $light-theme,
+    dark: $dark-theme
 );
 
 // NOTE: Sometimes there is a weird browser console warning saying something about theme not being loaded.

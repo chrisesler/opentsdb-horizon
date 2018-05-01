@@ -18,6 +18,8 @@ $dark-theme: (
       secondary-text:    $light-secondary-text,
       icon:              white,
       icons:             white,
+      nav-bar-icons:     white,
+      nav-bar-text:      white,
       text:              white,
       slider-min:        white,
       slider-off:        rgba(white, 0.3),
@@ -26,6 +28,7 @@ $dark-theme: (
     background: (
       status-bar: black,
       app-bar:    map_get($mat-blue-grey, 900),
+      nav-bar:    map_get($mat-pink, 700),
       background: #303030,
       hover:      rgba(white, 0.04), // TODO(kara): check style with Material Design UX
       card:       map_get($mat-grey, 800),
