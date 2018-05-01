@@ -47,34 +47,17 @@
         }
 
         .dashboard {
-            flex: 1 1 auto;
+            //flex: 1 1 auto;
+            //overflow: auto;
         }
 
-        .panel-heading {
-            display: inline-block;
-            position: relative;
-            width: 100%;
-            top: 0;
-            cursor: move;
-
-            .panel-title {
-                display: inline-block;
-                padding: 2px;
-                margin-left: auto;
-                margin-right: auto;
+        .gridster-stage {
+            .is-scroller {
+                padding: 10px;
             }
         }
 
-        .panel-body {
-            overflow: auto;
-            // padding: 0 10px 10px;
-            position: absolute;
-            top: 37px;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-        }
+
     }
 
     /* GRIDSTER */
@@ -166,14 +149,7 @@
 
     .app-dboard-content {
 
-        .panel-heading {
-            //border-bottom: 1px solid #F0F0F0;
 
-            &:hover {
-                //color: white;
-                //background: #ccc;
-            }
-        }
     }
 
     /* GRIDSTER */

@@ -3,3 +3,35 @@
 .flex-spacer {
     flex: 1 1 auto;
 }
+
+.can-truncate {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+}
+
+// Scroller
+.has-scroller {
+    @include has-scroller();
+}
+
+.is-scroller {
+    @include is-scroller();
+}
+
+// Content Editable (Single Line)
+[contenteditable="true"].is-single-line {
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+}
+
+[contenteditable="true"].is-single-line br {
+    display: none;
+}
+
+[contenteditable="true"].is-single-line * {
+    display: inline;
+    white-space: nowrap;
+}

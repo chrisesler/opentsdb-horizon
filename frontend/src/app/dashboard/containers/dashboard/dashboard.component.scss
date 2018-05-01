@@ -3,7 +3,8 @@
 
 @mixin dashboard-component-base() {
     .app-dashboard {
-
+        display: flex;
+        flex: 1 1 100%;
     }
 }
 

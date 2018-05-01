@@ -3,6 +3,8 @@
 // core (aka structure)
 @mixin navbar-component-base() {
     .app-navbar {
+        @include mat-elevation(6);
+        z-index: 2;
 
         .app-home-link {
             min-width: auto;

@@ -1,19 +1,31 @@
 <div  widget-view-container>
-  <button *ngIf="viewEditMode" mat-raised-button (click)="closeViewEdit()">Close</button>
+    <button *ngIf="viewEditMode" mat-raised-button (click)="closeViewEdit()">Close</button>
 </div>
 
+<div class="gridster-stage has-scroller" fxFlex="1 1 100%" [style.display]="viewEditMode ? 'none' : 'block'">
+    <div class="is-scroller">
+        <gridster #gridster1 class="dashboard"
+            [options]="gridsterOptions"
+            (optionsChange)="breakpointChange($event)"
+            (reflow)="gridsterFlow($event)"
+            [draggableOptions]="{ handlerClass: 'panel-heading' }">
 
-<gridster [style.display]="viewEditMode ? 'none' : 'block'" [options]="gridsterOptions" #gridster1 class="dashboard"
-(optionsChange)="breakpointChange($event)" (reflow)="gridsterFlow($event)"
-[draggableOptions]="{ handlerClass: 'panel-heading' }">
+            <gridster-item #itemComp class="gridster-item"
+                *ngFor="let widget of widgets; let idx = index"
+                [dragAndDrop]="widget.gPosition.dragAndDrop"
+                [resizable]="widget.gPosition.resizable"
+                [(x)]="widget.gPosition.x"
+                [(y)]="widget.gPosition.y"
+                [(xMd)]="widget.gPosition.xMd"
+                [(yMd)]="widget.gPosition.yMd"
+                [(w)]="widget.gPosition.w"
+                [(h)]="widget.gPosition.h"
+                (end)="gridEventEnd($event)">
 
-<gridster-item *ngFor="let widget of widgets; let idx = index" #itemComp
-  [dragAndDrop]="widget.gPosition.dragAndDrop" [resizable]="widget.gPosition.resizable"
-  [(x)]="widget.gPosition.x" [(y)]="widget.gPosition.y"
-  [(xMd)]="widget.gPosition.xMd" [(yMd)]="widget.gPosition.yMd"
-  [(w)]="widget.gPosition.w" [(h)]="widget.gPosition.h" (end)="gridEventEnd($event)"
-  class="gridster-item">
-
-  <app-widget-loader (viewComponent)="viewComponent($event)" [widgetconf]="widget.config"></app-widget-loader>
-</gridster-item>
-</gridster>
+              <app-widget-loader
+                (viewComponent)="viewComponent($event)"
+                [widgetconf]="widget.config"></app-widget-loader>
+            </gridster-item>
+        </gridster>
+    </div>
+</div>

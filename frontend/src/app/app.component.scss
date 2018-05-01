@@ -6,17 +6,18 @@
         display: flex;
         flex: 1 1 100%;
         flex-direction: column;
-        overflow-x: hidden;
+        //overflow-x: hidden;
+        overflow: hidden;
 
         .app-navigation {
             z-index: 2;
         }
     }
 
-    router-outlet + * {
+    /*router-outlet + * {
         width: 100%;
         overflow: auto;
-    }
+    }*/
 }
 // theme (aka look-n-feel)
 @mixin app-root-theme($theme-config) {

@@ -1,9 +1,15 @@
-
-<div fxLayout="column" fxFlexFill>
+<!--<div fxLayout="column" fxFlexFill>
     <header fxFlex="1 1 48px" fxLayout="row" fxLayoutAlign="stretch stretch" class="app-navigation">
         <app-navbar fxFill fxLayout fxLayoutAlign="stretch stretch"></app-navbar>
     </header>
-    <main fxFlex="1 1 100%" class="router-outlet">
+    <div fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" class="router-outlet">
         <router-outlet></router-outlet>
     </main>
+</div>-->
+
+<div class="app-root-wrap" fxLayout="column" fxFlexFill>
+    <app-navbar fxFlex="1 1 48px" fxLayout fxLayoutAlign="stretch stretch" fxFlexFill></app-navbar>
+    <div class="router-outlet" fxFlex="1 1 100%" fxLayout fxLayoutAlign="stretch stretch">
+        <router-outlet></router-outlet>
+    </div>
 </div>
