@@ -26,6 +26,10 @@ export class ThemePickerComponent implements OnInit {
 
   themeOptions: Array<object> = [
     {
+      label: 'Developing',
+      value: 'developing'
+    },
+    {
       label: 'Light',
       value: 'light' // light theme
     },
@@ -41,7 +45,7 @@ export class ThemePickerComponent implements OnInit {
 
   ngOnInit() {
     // NOTE: need some way get user settings for theme
-    this.themeClass = 'dark';
+    this.themeClass = 'developing';
     this.setTheme();
   }
 

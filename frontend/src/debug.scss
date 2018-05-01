@@ -21,11 +21,13 @@
 // IMPORT THEME CONFIGS
 @import 'scss/themes/dark-theme';
 @import 'scss/themes/light-theme';
+@import 'scss/themes/developing-theme';
 
 // DEFINE THEME MAP
 $app-available-themes: (
-  light: $light-theme,
-  dark: $dark-theme
+    developing: $developing-theme,
+    light: $light-theme,
+    dark: $dark-theme
 );
 
 // OUTPUT EACH PROPERTY OF THE THEME CONFIG MAP
