@@ -1,12 +1,12 @@
-import { Component, OnInit, ComponentRef } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
-  // tslint:disable-next-line:component-selector
-  selector: 'app-widgetbase',
+  selector: 'app-widget-base',
   templateUrl: './widgetbase.component.html',
   styleUrls: ['./widgetbase.component.scss']
 })
 export class WidgetbaseComponent implements OnInit {
+  @Input() config: any;
 
   constructor() { }
 
