@@ -53,6 +53,7 @@
 
         .gridster-stage {
             .is-scroller {
+                //@include is-scroller();
                 padding: 10px;
             }
         }

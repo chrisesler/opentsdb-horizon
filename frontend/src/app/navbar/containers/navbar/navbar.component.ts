@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 })
 export class NavbarComponent implements OnInit {
 
-  @HostBinding('class.app-navbar') private hostClass: Boolean = true;
+  @HostBinding('class.app-navbar') private hostClass = true;
 
   @Input() theme: string;
   @Output() themeChange = new EventEmitter<string>();

@@ -16,7 +16,7 @@ import { MatMenu, MatMenuTrigger } from '@angular/material';
   styleUrls: ['./widget-loader.component.scss']
 })
 export class WidgetLoaderComponent implements OnInit, OnChanges {
-  @HostBinding('class.widget-loader') private hostClass: Boolean = true;
+  @HostBinding('class.widget-loader') private hostClass = true;
   // @HostBinding('style.display') display: string;
 
   @Input() widgetconf: any; // will need to define widget conf type

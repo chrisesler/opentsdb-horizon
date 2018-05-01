@@ -15,7 +15,7 @@ import { DashboardService } from '../../services/dashboard.service';
   encapsulation: ViewEncapsulation.None
 })
 export class DboardContentComponent implements OnInit, OnChanges {
-  @HostBinding('class.app-dboard-content') private hostClass: Boolean = true;
+  @HostBinding('class.app-dboard-content') private hostClass = true;
 
   @ViewChild(WidgetViewDirective) widgetViewContainer: WidgetViewDirective;
   @ViewChild(GridsterComponent) gridster: GridsterComponent;

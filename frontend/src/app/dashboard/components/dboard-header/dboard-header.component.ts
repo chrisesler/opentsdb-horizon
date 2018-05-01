@@ -6,7 +6,7 @@ import { Component, OnInit, Output, EventEmitter, HostBinding } from '@angular/c
   styleUrls: ['./dboard-header.component.scss']
 })
 export class DboardHeaderComponent implements OnInit {
-  @HostBinding('class.dashboard-header') private hostClass: Boolean = true;
+  @HostBinding('class.dashboard-header') private hostClass = true;
 
   @Output() addWidget = new EventEmitter;
 

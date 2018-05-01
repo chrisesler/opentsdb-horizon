@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
-  @HostBinding('class.app-dashboard') private hostClass: Boolean = true;
+  @HostBinding('class.app-dashboard') private hostClass = true;
 
   listenSub: Subscription;
   dashboard: any;
