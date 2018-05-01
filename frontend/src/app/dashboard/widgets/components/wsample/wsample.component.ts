@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
   selector: 'app-wsample',
@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./wsample.component.scss']
 })
 export class WsampleComponent implements OnInit {
-
+  @Input() config: any;
   constructor() { }
 
   ngOnInit() {

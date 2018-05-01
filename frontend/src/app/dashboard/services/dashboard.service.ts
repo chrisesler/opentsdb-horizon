@@ -27,7 +27,7 @@ export class DashboardService {
         },
         config: {
           title: 'One',
-          component_type: 'StaticImageComponent'
+          component_type: 'WsampleComponent'
         }
       },
       {
@@ -36,7 +36,8 @@ export class DashboardService {
           w: 6, h: 5,
         },
         config: {
-          title: 'Two'
+          title: 'Two',
+          component_type: 'WsampleComponent'
         }
       },
       {
