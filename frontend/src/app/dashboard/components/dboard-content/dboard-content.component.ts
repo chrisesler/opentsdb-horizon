@@ -50,27 +50,15 @@ export class DboardContentComponent implements OnInit, OnChanges {
     useCSSTransforms: true,
     responsiveView: true, // turn on adopting items sizes on window resize and enable responsiveOptions
     responsiveDebounce: 200, // window resize debounce time
-    // List of different gridster configurations for different breakpoints.
-    // Each breakpoint is defined by name stored in "breakpoint" property. There is fixed set of breakpoints
-    // available to use with default minWidth assign to each.
-    // - sm: 576 - Small devices
-    // - md: 768 - Medium devices
-    // - lg: 992 - Large devices
-    // - xl: 1200 - Extra large
-    // MinWidth for each breakpoint can be overwritten like it's visible below.
-    // ResponsiveOptions can overwrite default configuration with any option available.
     responsiveOptions: [
       {
         breakpoint: 'sm',
-        direction: 'vertical',
         lanes: 1,
       },
       {
         breakpoint: 'md',
         minWidth: 768,
-        direction: 'verical',
         lanes: 12,
-        resizable: true
       }
     ]
   };
