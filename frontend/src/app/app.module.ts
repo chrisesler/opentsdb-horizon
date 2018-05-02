@@ -11,12 +11,20 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { MaterialModule } from './shared/modules/material/material.module';
 import { AppRoutingModule } from './app-routing.module';
-
+// store
+import { StoreModule } from '@ngrx/store';
+import { rootReducers, metaReducers } from './core/store/root.reducer';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { StoreRouterConnectingModule, RouterStateSerializer } from '@ngrx/router-store';
+import { CustomRouterStateSerializer } from './core/store/routerState';
+// our
 import { AdminModule } from './admin/admin.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { AdhocModule } from './adhoc/adhoc.module';
 import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
 import { NavbarModule } from './navbar/navbar.module';
+import { HomeModule } from './home/home.module';
+
 
 
 @NgModule({
@@ -28,15 +36,30 @@ import { NavbarModule } from './navbar/navbar.module';
     BrowserAnimationsModule,
     CoreModule,
     MaterialModule,
+    StoreModule.forRoot(rootReducers, { metaReducers }),
+    !environment.production ? StoreDevtoolsModule.instrument({
+      name: 'Horizon State Devtools'
+    }) : [],
+    StoreRouterConnectingModule.forRoot({
+      stateKey: 'router',
+    }),
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     AppRoutingModule,
     AdminModule,
     DashboardModule,
     AdhocModule,
     KitchenSinkModule,
-    NavbarModule
+    NavbarModule,
+    HomeModule
   ],
-  providers: [],
+  providers: [
+    /**
+     * The `RouterStateSnapshot` provided by the `Router` is a large complex structure.
+     * A custom RouterStateSerializer is used to parse the `RouterStateSnapshot` provided
+     * by `@ngrx/router-store` to include only the desired pieces of the snapshot.
+     */
+    { provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
