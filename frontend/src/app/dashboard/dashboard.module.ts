@@ -16,17 +16,24 @@ import { WidgetLoaderComponent } from './components/widget-loader/widget-loader.
 import { WidgetDirective } from './directives/widget.directive';
 import { WidgetViewDirective } from './directives/widgetview.directive';
 
+// dashboard state stote
+import { StoreModule } from '@ngrx/store';
+import * as fromDashboard from './store/dashboard.reducer';
+import { EffectsModule } from '@ngrx/effects';
+import { DashboardEffects } from './store/dashboard.effects';
+
 // widget-type component for dynamic load
 import { WidgetbaseComponent } from './widgets/components/widgetbase/widgetbase.component';
 import { WsampleComponent } from './widgets/components/wsample/wsample.component';
-
 
 @NgModule({
   imports: [
     CommonModule,
     MaterialModule,
     GridsterModule,
-    DashboardRoutingModule
+    DashboardRoutingModule,
+    StoreModule.forFeature('dashboard', fromDashboard.reducer),
+    // EffectsModule.forFeature([DashboardEffects])
   ],
   declarations: [
     DashboardComponent,
