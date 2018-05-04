@@ -18,6 +18,14 @@
 // IMPORT MATERIAL THEMING SUPPORT
 @import '~@angular/material/theming';
 
+// Typography
+$type-config: mat-typography-config();
+
+/* TYPOGRAPHY CONFIG */
+@include debug-map($type-config);
+
+
+
 // IMPORT THEME CONFIGS
 @import 'scss/themes/dark-theme';
 @import 'scss/themes/light-theme';
