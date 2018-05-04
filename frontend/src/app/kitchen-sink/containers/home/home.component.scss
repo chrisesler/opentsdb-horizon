@@ -1,13 +1,13 @@
-/* KITCHEN SINK COMPONENT */
+/* KITCHEN SINK HOME COMPONENT */
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
-@mixin ks-main-container-base() {
-    .ks-main {
+@mixin ks-home-container-base() {
+    .ks-home {
         flex: 1 1 100%;
     }
 }
 
-@mixin ks-main-container-theme($theme-config) {
+@mixin ks-home-container-theme($theme-config) {
 
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
@@ -17,7 +17,7 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
-    .ks-main {
+    .ks-home {
 
     }
 

@@ -7,7 +7,7 @@ import { MatMenu, MatMenuTrigger } from '@angular/material';
   // tslint:disable-next-line:component-selector
   selector: 'theme-picker',
   templateUrl: './theme-picker.component.html',
-  styleUrls: ['./theme-picker.component.scss']
+  styleUrls: []
 })
 export class ThemePickerComponent implements OnInit {
 
@@ -15,7 +15,7 @@ export class ThemePickerComponent implements OnInit {
 
   @ViewChild( MatMenuTrigger ) trigger: MatMenuTrigger;
 
-  //@Input() theme: string;
+  // @Input() theme: string;
   @Output() themeChange = new EventEmitter<string>();
 
   private themeClass: string;
@@ -59,11 +59,11 @@ export class ThemePickerComponent implements OnInit {
     const OC = this.overlayContainer.getContainerElement();
     const docBody = OC.closest('body');
 
-    //const docBodyClasses = docBody.classList;
-    //const themeClassesToRemove = Array.from(docBodyClasses).filter((item: string) => item.includes('-theme'));
+    // const docBodyClasses = docBody.classList;
+    // const themeClassesToRemove = Array.from(docBodyClasses).filter((item: string) => item.includes('-theme'));
 
-    //docBodyClasses.remove(...themeClassesToRemove);
-    //docBodyClasses.add(this.themeClass + '-theme');
+    // docBodyClasses.remove(...themeClassesToRemove);
+    // docBodyClasses.add(this.themeClass + '-theme');
     docBody.setAttribute('theme', this.themeClass);
     console.log('OVERLAY CONTAINER', OC);
   }
