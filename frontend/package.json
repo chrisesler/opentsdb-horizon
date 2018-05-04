@@ -28,6 +28,7 @@
     "@angular/platform-browser-dynamic": "^5.2.0",
     "@angular/router": "^5.2.0",
     "@angular/service-worker": "^5.2.0",
+    "@ibm/plex": "^1.0.2",
     "@types/d3": "^5.0.0",
     "@types/jasmine": "~2.8.3",
     "@types/jasminewd2": "~2.0.2",
@@ -52,6 +53,10 @@
     "rxjs": "^5.5.6",
     "ts-node": "~4.1.0",
     "tslint": "~5.9.1",
+    "typeface-roboto": "0.0.54",
+    "typeface-roboto-mono": "0.0.54",
+    "typeface-ubuntu": "0.0.54",
+    "typeface-ubuntu-mono": "0.0.54",
     "typescript": "~2.5.3",
     "zone.js": "^0.8.19"
   }
