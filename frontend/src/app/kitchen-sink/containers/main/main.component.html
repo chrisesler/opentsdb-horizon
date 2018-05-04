@@ -1,3 +1,8 @@
-<p>
-  Kitchen Sink works!
-</p>
+<ks-page-header>Kitchen Sink</ks-page-header>
+<mat-sidenav-container class="ks-container">
+    <mat-sidenav #sidenav mode="side" opened="true" class="ks-sidenav">
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <router-outlet></router-outlet>
+    </mat-sidenav-content>
+</mat-sidenav-container>

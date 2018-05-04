@@ -1,0 +1,50 @@
+/* KITCHEN SINK COMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+
+@mixin ks-page-header-component-base() {
+    .ks-page-header {
+        flex: 1 1 100%;
+    }
+}
+
+@mixin ks-page-header-component-theme($theme-config) {
+
+    $type-config: map-get($app-fontface-config, sans);
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+
+
+    .ks-page-header {
+        @include mat-typography-level-to-styles($type-config, headline);
+
+        @if $is-dark-theme {
+            background-color: map-get($foreground, divider);
+        }
+        @else {
+            background-color: map-get($accent, A700);
+        }
+        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+
+
+        
+
+        .ks-primary-header {
+            color: map-get($primary, default-contrast);
+            font-weight: bold
+        }
+
+    }
+
+
+}
+

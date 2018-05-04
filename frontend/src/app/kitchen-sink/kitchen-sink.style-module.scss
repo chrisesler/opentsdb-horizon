@@ -1,0 +1,58 @@
+//* KITCHEN SINK MODULE LOADER */
+//*
+//* NOTE: Why are there two different mixins?
+//*
+//* Structure mixins are included only once in app-core(),
+//* whereas theme mixins get included as many times
+//* as there are themes in the themeloop.
+//* Primarily it is just to help reduce code duplication
+
+// NOTE: First time only after creating this file,
+// after you have completed the three steps below
+// be sure to add this file to src/app/app.style-module.scss
+// and follow the steps in that file
+
+// [ STEP 1 ] - IMPORT MODULE COMPONENT SCSS FILES
+// import your component scss
+// example: @import './components/componentName/componentName.component.scss';
+
+// containers
+@import 'containers/main/main.component.scss';
+@import 'containers/home/home.component.scss';  
+
+// components
+@import 'components/page-header/page-header.component.scss';
+
+// widgets
+
+// [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
+@mixin kitchen-sink-module-core() {
+  // include your core mixins
+  // example: @include componentName-component-core();
+
+  // containers
+  //@include dashboard-component-base(); // nothing to style yet
+  @include ks-main-container-base();
+  @include ks-home-container-base();
+
+  // components
+    @include ks-page-header-component-base();
+
+  // widgets
+}
+
+// [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
+@mixin kitchen-sink-module-theme($theme-config) {
+  // include your theme mixins, passing along the $theme-config
+  // example: @include componentName-component-theme($theme-config);
+
+  // container
+  //@include dashboard-component-theme($theme-config); //nothing to style yet
+    @include ks-main-container-theme($theme-config);
+    @include ks-home-container-theme($theme-config);
+
+  // components
+    @include ks-page-header-component-theme($theme-config);
+
+  // widgets
+}
