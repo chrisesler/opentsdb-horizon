@@ -16,10 +16,10 @@ import { WidgetLoaderComponent } from './components/widget-loader/widget-loader.
 import { WidgetDirective } from './directives/widget.directive';
 import { WidgetViewDirective } from './directives/widgetview.directive';
 
+
 // widget-type component for dynamic load
 import { WidgetbaseComponent } from './widgets/components/widgetbase/widgetbase.component';
 import { WsampleComponent } from './widgets/components/wsample/wsample.component';
-
 
 @NgModule({
   imports: [

@@ -12,11 +12,14 @@ import { CoreModule } from './core/core.module';
 import { MaterialModule } from './shared/modules/material/material.module';
 import { AppRoutingModule } from './app-routing.module';
 
+// our
 import { AdminModule } from './admin/admin.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { AdhocModule } from './adhoc/adhoc.module';
 import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
 import { NavbarModule } from './navbar/navbar.module';
+import { HomeModule } from './home/home.module';
+
 
 
 @NgModule({
@@ -34,9 +37,11 @@ import { NavbarModule } from './navbar/navbar.module';
     DashboardModule,
     AdhocModule,
     KitchenSinkModule,
-    NavbarModule
+    NavbarModule,
+    HomeModule
   ],
-  providers: [],
+  providers: [
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

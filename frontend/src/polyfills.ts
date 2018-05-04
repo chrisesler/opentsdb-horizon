@@ -77,4 +77,3 @@ import 'zone.js/dist/zone';  // Included with Angular CLI.
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
-import 'intl'; // run npm install --save intl
