@@ -13,10 +13,10 @@ import { MaterialModule } from './shared/modules/material/material.module';
 import { AppRoutingModule } from './app-routing.module';
 // store
 import { StoreModule } from '@ngrx/store';
-import { rootReducers, metaReducers } from './core/store/root.reducer';
+import { appReducers, metaReducers } from './store/app.reducer';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { StoreRouterConnectingModule, RouterStateSerializer } from '@ngrx/router-store';
-import { CustomRouterStateSerializer } from './core/store/routerState';
+import { CustomRouterStateSerializer } from './store/routerState';
 // our
 import { AdminModule } from './admin/admin.module';
 import { DashboardModule } from './dashboard/dashboard.module';
@@ -36,7 +36,7 @@ import { HomeModule } from './home/home.module';
     BrowserAnimationsModule,
     CoreModule,
     MaterialModule,
-    StoreModule.forRoot(rootReducers, { metaReducers }),
+    StoreModule.forRoot(appReducers, { metaReducers }),
     !environment.production ? StoreDevtoolsModule.instrument({
       name: 'Horizon State Devtools'
     }) : [],

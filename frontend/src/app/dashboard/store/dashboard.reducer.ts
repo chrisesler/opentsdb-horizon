@@ -1,15 +1,15 @@
 import { Action } from '@ngrx/store';
 import { DashboardActions, DashboardActionTypes } from './dashboard.actions';
 
-export interface State {
+export interface DashboardState {
 
 }
 
-export const initialState: State = {
+export const initialState: DashboardState = {
 
 };
 
-export function reducer(state = initialState, action: DashboardActions): State {
+export function reducer(state = initialState, action: DashboardActions): DashboardState {
   switch (action.type) {
 
     case DashboardActionTypes.DashboardAction:
