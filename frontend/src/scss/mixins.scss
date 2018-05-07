@@ -1,12 +1,12 @@
-//**************************************
-//* FUNCTIONS & MIXINS
-//* Functions at top
-//* Mixins at bottom
-//**************************************/
+// **************************************
+// * FUNCTIONS & MIXINS
+// * Functions at top
+// * Mixins at bottom
+// **************************************
 
-/*
- * Functions
- */
+// *
+// * Functions
+// *
 
 // Math
 @function power-number($number, $exp) {
@@ -47,9 +47,9 @@
     @return $number;
 }
 
-/*
- * Mixins
- */
+// *
+// * Mixins
+// *
 
 %overlay {
     bottom: 0;

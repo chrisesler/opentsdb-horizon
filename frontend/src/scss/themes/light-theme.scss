@@ -2,12 +2,6 @@
 //* LIGHT THEME CONFIGURATION
 //**************************************/
 
-$light-theme-primary:  mat-palette($mat-indigo, 800, 300, 900);
-$light-theme-accent:   mat-palette($mat-light-blue);
-$light-theme-warn:     mat-palette($mat-pink, 600);
-$light-theme:          mat-light-theme($light-theme-primary, $light-theme-accent, $light-theme-warn);
-
-
 $light-theme: (
     primary: mat-palette($mat-indigo, 800, 300, 900),
     accent: mat-palette($mat-light-blue),
@@ -49,5 +43,13 @@ $light-theme: (
       disabled-button-toggle: map_get($mat-grey, 200),
       unselected-chip: map_get($mat-grey, 300),
       disabled-list-option: map_get($mat-grey, 200),
+    ),
+    navbar: (
+      background: map_get($mat-indigo, A700),
+      icons: white,
+      text: white
+    ),
+    dashboard: (
+
     )
 );
