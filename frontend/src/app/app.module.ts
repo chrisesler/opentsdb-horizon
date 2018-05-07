@@ -12,9 +12,14 @@ import { CoreModule } from './core/core.module';
 import { MaterialModule } from './shared/modules/material/material.module';
 import { AppRoutingModule } from './app-routing.module';
 
+// store
+import { NgxsModule } from '@ngxs/store';
+import { NgxsLoggerPluginModule, NgxsLoggerPlugin } from '@ngxs/logger-plugin';
+import { NgxsRouterPluginModule } from '@ngxs/router-plugin';
+import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
+import { AppState } from './store/app.state';
 // our
 import { AdminModule } from './admin/admin.module';
-import { DashboardModule } from './dashboard/dashboard.module';
 import { AdhocModule } from './adhoc/adhoc.module';
 import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
 import { NavbarModule } from './navbar/navbar.module';
@@ -31,10 +36,13 @@ import { HomeModule } from './home/home.module';
     BrowserAnimationsModule,
     CoreModule,
     MaterialModule,
-    ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
+    // ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     AppRoutingModule,
+    NgxsModule.forRoot([]),
+    NgxsRouterPluginModule.forRoot(),
+    NgxsLoggerPluginModule.forRoot(),
+    NgxsReduxDevtoolsPluginModule.forRoot({ disabled: environment.production }),
     AdminModule,
-    DashboardModule,
     AdhocModule,
     KitchenSinkModule,
     NavbarModule,
