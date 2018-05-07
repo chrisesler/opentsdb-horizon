@@ -33,6 +33,7 @@
     "@ngxs/logger-plugin": "^3.0.1",
     "@ngxs/router-plugin": "^3.0.1",
     "@ngxs/store": "^3.0.1",
+    "@ibm/plex": "^1.0.2",
     "@types/d3": "^5.0.0",
     "@types/jasmine": "~2.8.3",
     "@types/jasminewd2": "~2.0.2",
@@ -57,6 +58,10 @@
     "rxjs-compat": "^6.1.0",
     "ts-node": "~5.0.1",
     "tslint": "~5.9.1",
+    "typeface-roboto": "0.0.54",
+    "typeface-roboto-mono": "0.0.54",
+    "typeface-ubuntu": "0.0.54",
+    "typeface-ubuntu-mono": "0.0.54",
     "typescript": "2.7.2",
     "zone.js": "^0.8.26"
   }

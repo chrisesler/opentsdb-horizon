@@ -17,7 +17,7 @@ import { NgxsModule } from '@ngxs/store';
 import { NgxsLoggerPluginModule, NgxsLoggerPlugin } from '@ngxs/logger-plugin';
 import { NgxsRouterPluginModule } from '@ngxs/router-plugin';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
-import { AppState } from './store/app.state';
+// import { AppState } from './store/app.state';
 // our
 import { AdminModule } from './admin/admin.module';
 import { AdhocModule } from './adhoc/adhoc.module';

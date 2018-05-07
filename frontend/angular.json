@@ -23,7 +23,47 @@
             },
             "assets": [
               "src/assets",
-              "src/favicon.ico"
+              "src/favicon.ico",
+              {
+                "glob": "**/*", 
+                "input": "./node_modules/@ibm/plex/IBM-Plex-Mono/fonts/complete/woff", 
+                "output": "./assets/fonts/IBM-Plex/mono" 
+              },
+              {
+                "glob": "**/*", 
+                "input": "./node_modules/@ibm/plex/IBM-Plex-Mono/fonts/complete/woff2", 
+                "output": "./assets/fonts/IBM-Plex/mono" 
+              },
+              {
+                "glob": "**/*", 
+                "input": "./node_modules/@ibm/plex/IBM-Plex-Sans/fonts/complete/woff", 
+                "output": "./assets/fonts/IBM-Plex/sans" 
+              },
+              {
+                "glob": "**/*", 
+                "input": "./node_modules/@ibm/plex/IBM-Plex-Sans/fonts/complete/woff2", 
+                "output": "./assets/fonts/IBM-Plex/sans" 
+              },
+              {
+                "glob": "**/*", 
+                "input": "./node_modules/typeface-ubuntu-mono/files", 
+                "output": "./assets/fonts/Ubuntu/mono" 
+              },
+              {
+                "glob": "**/*", 
+                "input": "./node_modules/typeface-ubuntu/files", 
+                "output": "./assets/fonts/Ubuntu/sans" 
+              },
+              {
+                "glob": "**/*", 
+                "input": "./node_modules/typeface-roboto-mono/files", 
+                "output": "./assets/fonts/Roboto/mono" 
+              },
+              {
+                "glob": "**/*", 
+                "input": "./node_modules/typeface-roboto/files", 
+                "output": "./assets/fonts/Roboto/sans" 
+              }
             ],
             "styles": [
               "src/debug.scss",
