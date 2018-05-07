@@ -8,6 +8,9 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardService } from './services/dashboard.service';
 import { IntercomService } from './services/intercom.service';
 import { WidgetService } from './services/widget.service';
+// store
+import { NgxsModule } from '@ngxs/store';
+import { DashboardState } from './store/dashboard.state';
 // components
 import { DashboardComponent } from './containers/dashboard/dashboard.component';
 import { DboardContentComponent } from './components/dboard-content/dboard-content.component';
@@ -26,7 +29,8 @@ import { WsampleComponent } from './widgets/components/wsample/wsample.component
     CommonModule,
     MaterialModule,
     GridsterModule,
-    DashboardRoutingModule
+    DashboardRoutingModule,
+    NgxsModule.forFeature([DashboardState])
   ],
   declarations: [
     DashboardComponent,
