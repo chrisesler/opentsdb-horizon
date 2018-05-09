@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 // modules
 import { MaterialModule } from '../shared/modules/material/material.module';
 import { GridsterModule } from 'angular2gridster';
+
 import { DashboardRoutingModule } from './dashboard-routing.module';
 // services
 import { DashboardService } from './services/dashboard.service';
@@ -20,6 +21,7 @@ import { WidgetViewDirective } from './directives/widgetview.directive';
 // widget-type component for dynamic load
 import { WidgetbaseComponent } from './widgets/components/widgetbase/widgetbase.component';
 import { WsampleComponent } from './widgets/components/wsample/wsample.component';
+import { LineChartComponent } from './widgets/components/chartjs/line-chart.component';
 
 @NgModule({
   imports: [
@@ -36,13 +38,14 @@ import { WsampleComponent } from './widgets/components/wsample/wsample.component
     WidgetDirective,
     WidgetViewDirective,
     WidgetbaseComponent,
-    WsampleComponent
+    WsampleComponent,
+    LineChartComponent
   ],
   providers: [
     DashboardService,
     //IntercomService,
     WidgetService
   ],
-  entryComponents: [WidgetbaseComponent, WsampleComponent]
+  entryComponents: [WidgetbaseComponent, WsampleComponent,LineChartComponent]
 })
 export class DashboardModule { }

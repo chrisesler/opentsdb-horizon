@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from '../../core/services/utils.service';
+import { IntercomService, IMessage } from './intercom.service';
 
 @Injectable()
 export class DashboardService {
@@ -43,10 +44,11 @@ export class DashboardService {
       {
         gPosition: {
           x: 6, y: 0,
-          w: 6, h: 5
+          w: 6, h: 7
         },
         config: {
-          title: 'Three'
+          title: 'Three',
+          component_type: 'LineChartComponent'
         }
       },
       {
@@ -62,7 +64,7 @@ export class DashboardService {
     ]
   };
 
-  constructor(private utils: UtilsService) {
+  constructor(private interCom:IntercomService, private utils: UtilsService) {
     this.initWidgets();
   }
 
@@ -70,7 +72,7 @@ export class DashboardService {
     // add extra info item behaviors
     for (let i = 0; i < this.dashboard.widgets.length; i++) {
       const wd: any = this.dashboard.widgets[i];
-      wd.id = this.utils.generateId();
+      wd.config.id = this.utils.generateId();
       const mod = { 'xMd': wd.gPosition.x, 'yMd': wd.gPosition.y, 'dragAndDrop': true, 'resizable': true };
       wd.gPosition = { ...wd.gPosition, ...mod };
     }
@@ -97,7 +99,9 @@ export class DashboardService {
         'height': height * pWidgets[i].gPosition.h
       };
       pWidgets[i].clientSize = clientSize;
+      this.interCom.responsePut({id:pWidgets[i].config.id,action:"resizeWidget",payload:clientSize});
     }
+
     this.dashboard.widgets = pWidgets;
   }
 }
