@@ -1,0 +1,45 @@
+/* CLOSE EDIT VIEW BUTTONCOMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+
+@mixin close-edit-view-component-base() {
+    .close-edit-view {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        .mat-raised-button {
+            ///@include mat-elevation-transition;
+            @include transition-property(background-color);
+            @include transition-duration(.3s);
+            @include mat-elevation(0);
+            padding: 0;
+            min-width: 32px;
+
+            &,
+            .mat-icon {
+                width: 32px;
+                height: 32px;
+            }
+        }
+    }
+}
+
+@mixin close-edit-view-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $success: map-get($theme-config, success);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+    .close-edit-view {
+        .mat-raised-button:hover {
+            background-color: map-get($accent, A200);
+        }
+    }
+
+
+}

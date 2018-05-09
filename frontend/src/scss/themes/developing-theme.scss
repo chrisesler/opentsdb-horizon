@@ -1,48 +1,57 @@
 //**************************************
-//* DARK THEME CONFIGURATION
+//* DEVELOPING THEME CONFIGURATION
 //**************************************/
 
-$developing-theme: (
-    primary: mat-palette($mat-blue-grey, 800, 700, 900),
-    accent: mat-palette($mat-light-blue, A200, A100, A400),
-    warn: mat-palette($mat-orange, 600),
-    success: mat-palette($mat-light-green, A400, A200, A700),
-    danger: mat-palette($mat-deep-orange, A400, A100, A700),
-    is-dark: true,
-    foreground: (
-      base:              white,
-      divider:           $light-dividers,
-      dividers:          $light-dividers,
-      disabled:          $light-disabled-text,
-      disabled-button:   rgba(white, 0.3),
-      disabled-text:     $light-disabled-text,
-      hint-text:         $light-disabled-text,
-      secondary-text:    $light-secondary-text,
-      icon:              white,
-      icons:             white,
-      nav-bar-icons:     #8ACFED,
-      nav-bar-text:      white,
-      text:              white,
-      slider-min:        white,
-      slider-off:        rgba(white, 0.3),
-      slider-off-active: rgba(white, 0.3),
-    ),
-    background: (
-      status-bar: black,
-      app-bar:    map_get($mat-blue-grey, 900),
-      nav-bar:    #1F262C,
-      //background: #303030,
-      background: #12191F,
-      hover:      rgba(white, 0.04), // TODO(kara): check style with Material Design UX
-      card:       map_get($mat-grey, 800),
-      dialog:     map_get($mat-grey, 800),
-      disabled-button: rgba(white, 0.12),
-      raised-button: map-get($mat-grey, 800),
-      focused-button: $light-focused,
-      selected-button: map_get($mat-grey, 900),
-      selected-disabled-button: map_get($mat-grey, 800),
-      disabled-button-toggle: black,
-      unselected-chip: map_get($mat-grey, 700),
-      disabled-list-option: black,
-    )
+$developing-theme: (  
+  primary:  mat-palette($mat-blue, 800, 300, 900),
+  accent:   mat-palette($mat-pink),
+  warn:     mat-palette($mat-amber, 600),
+  success:  mat-palette($mat-light-green, A400, A200, A700),
+  danger:   mat-palette($mat-deep-orange, A400, A100, A700),
+  is-dark:  false,
+  foreground: (
+    base:              black,
+    divider:           $dark-dividers,
+    dividers:          $dark-dividers,
+    disabled:          $dark-disabled-text,
+    disabled-button:   rgba(black, 0.26),
+    disabled-text:     $dark-disabled-text,
+    hint-text:         $dark-disabled-text,
+    secondary-text:    $dark-secondary-text,
+    icon:              rgba(black, 0.54),
+    icons:             rgba(black, 0.54),
+    link:              map-get($mat-blue, A200),
+    navbar-icons:      white,
+    navbar-text:       white,
+    text:              rgba(black, 0.87),
+    slider-min:        rgba(black, 0.87),
+    slider-off:        rgba(black, 0.26),
+    slider-off-active: rgba(black, 0.38),
+  ),
+  background: (
+    status-bar:               map_get($mat-grey, 300),
+    app-bar:                  map_get($mat-grey, 100),
+    navbar:                   map_get($mat-blue, 900),
+    background:               map_get($mat-grey, 100),
+    header:                   rgba(map_get($mat-blue, 900), 0.08),
+    hover:                    rgba(black, 0.04), // TODO(kara): check style with Material Design UX
+    card:                     white,
+    card-header-hover:        rgba(map-get($mat-blue, 900), 0.08),
+    dialog:                   white,
+    disabled-button:          rgba(black, 0.12),
+    raised-button:            white,
+    focused-button:           $dark-focused,
+    selected-button:          map_get($mat-grey, 300),
+    selected-disabled-button: map_get($mat-grey, 400),
+    disabled-button-toggle:   map_get($mat-grey, 200),
+    unselected-chip:          map_get($mat-grey, 300),
+    disabled-list-option:     map_get($mat-grey, 200),
+    menu:                     map_get($mat-grey, 50),
+    gridster-highlight:       rgba(map_get($mat-blue, 900), .15)
+  ),
+  ks: (
+    sidenav-background: map_get($mat-blue-grey, 800),
+    sidenav-panel: map_get($mat-blue-grey, 50),
+    sidenav-text: rgba(map_get($mat-grey,900), .85)
+  )
 );

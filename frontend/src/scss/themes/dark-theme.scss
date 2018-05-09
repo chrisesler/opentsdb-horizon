@@ -3,10 +3,12 @@
 //**************************************/
 
 $dark-theme: (
-    primary: mat-palette($mat-pink, 700, 500, 900),
-    accent: mat-palette($mat-blue-grey, A200, A100, A400),
-    warn: mat-palette($mat-orange, 600),
-    is-dark: true,
+    primary:  mat-palette($mat-blue-grey, 800, 700, 900),
+    accent:   mat-palette($mat-light-blue),
+    warn:     mat-palette($mat-orange, 600),
+    success:  mat-palette($mat-light-green, A400, A200, A700),
+    danger:   mat-palette($mat-deep-orange, A400, A100, A700),
+    is-dark:  true,
     foreground: (
       base:              white,
       divider:           $light-dividers,
@@ -18,28 +20,39 @@ $dark-theme: (
       secondary-text:    $light-secondary-text,
       icon:              white,
       icons:             white,
-      nav-bar-icons:     white,
-      nav-bar-text:      white,
+      navbar-icons:      #8ACFED,
+      navbar-text:       white,
       text:              white,
       slider-min:        white,
       slider-off:        rgba(white, 0.3),
       slider-off-active: rgba(white, 0.3),
     ),
     background: (
-      status-bar: black,
-      app-bar:    map_get($mat-blue-grey, 900),
-      nav-bar:    map_get($mat-pink, 700),
-      background: #303030,
-      hover:      rgba(white, 0.04), // TODO(kara): check style with Material Design UX
-      card:       map_get($mat-grey, 800),
-      dialog:     map_get($mat-grey, 800),
-      disabled-button: rgba(white, 0.12),
-      raised-button: map-get($mat-grey, 800),
-      focused-button: $light-focused,
-      selected-button: map_get($mat-grey, 900),
-      selected-disabled-button: map_get($mat-grey, 800),
-      disabled-button-toggle: black,
-      unselected-chip: map_get($mat-grey, 700),
-      disabled-list-option: black,
+      status-bar:               black,
+      app-bar:                  map_get($mat-blue-grey, 900),
+      navbar:                   #1F262C,
+      //background:             #303030,
+      //background:             #12191F,
+      background:               map_get($mat-blue-grey, 900),
+      header:                   lighten(map-get($mat-blue-grey, 900), 2%),
+      hover:                    rgba(white, 0.04), // TODO(kara): check style with Material Design UX
+      card:                     lighten(map-get($mat-blue-grey, 900), 3%),
+      card-header-hover:        rgba(#8ACFED, .1),
+      dialog:                   map_get($mat-blue-grey, 800),
+      disabled-button:          rgba(white, 0.12),
+      raised-button:            map-get($mat-blue-grey, 800),
+      focused-button:           $light-focused,
+      selected-button:          map_get($mat-blue-grey, 900),
+      selected-disabled-button: map_get($mat-blue-grey, 800),
+      disabled-button-toggle:   black,
+      unselected-chip:          map_get($mat-blue-grey, 700),
+      disabled-list-option:     black,
+      menu:                     map_get($mat-blue-grey, A700),
+      gridster-highlight:       rgba(#8ACFED, .2)
+    ),
+    ks: (
+      sidenav-background: rgba(map-get($mat-light-blue, 900), 0.25),
+      sidenav-panel: map_get($mat-light-blue, 100),
+      sidenav-text: rgba(map_get($mat-grey,900), .85)
     )
 );

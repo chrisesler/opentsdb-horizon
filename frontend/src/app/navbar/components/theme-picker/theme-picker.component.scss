@@ -4,6 +4,8 @@
 @mixin theme-picker-component-base() {
     .theme-picker {
         display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
@@ -13,6 +15,7 @@
     $primary: map-get($theme-config, primary);
     $accent: map-get($theme-config, accent);
     $warn: map-get($theme-config, warn);
+    $success: map-get($theme-config, success);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
@@ -23,13 +26,10 @@
 
     // CDK items are outside of component namespace class - be sure to give them very unique names
     .nav-bar-dropmenu {
-        @if $is-dark-theme {
-        background-color: map-get($mat-blue-grey, A700);
-        }
 
         .mat-menu-item.is-active {
             .mat-icon {
-                color: map-get($accent, default);
+                color: map-get($accent, A200)
             }
         }
     }

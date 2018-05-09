@@ -2,6 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter, HostBinding } from '@an
 
 import { Router } from '@angular/router';
 
+import { IntercomService, IMessage } from '../../../dashboard/services/intercom.service';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-navbar',
@@ -18,18 +20,28 @@ export class NavbarComponent implements OnInit {
   routeLinks: any[];
   activeLinkIndex = -1;
 
-  constructor(private router: Router) {
+  viewEditMode = false;
+
+  private listenSub: Subscription;
+
+  constructor(private router: Router, private interCom: IntercomService) {
     this.routeLinks = [
-      {
+      /*{
         label: 'Kitchen Sink',
-        link: 'ks',
-        index: 0
-      }, {
+        link: 'ks'
+      },*/ 
+      {
         label: 'Dashboard',
-        link: 'dashboard',
-        index: 1
+        link: 'dashboard'
       }
     ];
+
+    this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
+      console.log('NAVBAR listen to: ', JSON.stringify(message));
+      if (message.action === 'viewEditMode') {
+        this.viewEditMode = message.payload;
+      }
+    });
   }
 
   ngOnInit() {

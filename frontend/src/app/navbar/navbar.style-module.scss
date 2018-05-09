@@ -15,8 +15,13 @@
 // [ STEP 1 ] - IMPORT MODULE COMPONENT SCSS FILES
 // import your component scss
 // example: @import './components/componentName/componentName.component.scss';
+
+// containers
 @import './containers/navbar/navbar.component.scss';
+
+// components
 @import './components/theme-picker/theme-picker.component.scss';
+@import './components/close-edit-view/close-edit-view.component.scss';
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin navbar-module-core() {
@@ -24,6 +29,7 @@
     // example: @include componentName-component-core();
     @include navbar-component-base();
     @include theme-picker-component-base();
+    @include close-edit-view-component-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
@@ -32,4 +38,5 @@
     // example: @include componentName-component-theme($theme-config);
     @include navbar-component-theme($theme-config);
     @include theme-picker-component-theme($theme-config);
+    @include close-edit-view-component-theme($theme-config);
 }

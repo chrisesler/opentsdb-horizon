@@ -24,12 +24,7 @@
     .ks-page-header {
         @include mat-typography-level-to-styles($type-config, headline);
 
-        @if $is-dark-theme {
-            background-color: map-get($foreground, divider);
-        }
-        @else {
-            background-color: map-get($accent, A700);
-        }
+        background: map-get($background, header);
         padding: 8px 16px;
         display: flex;
         align-items: center;
@@ -39,7 +34,7 @@
         
 
         .ks-primary-header {
-            color: map-get($primary, default-contrast);
+            color: map-get($foreground, text);
             font-weight: bold
         }
 

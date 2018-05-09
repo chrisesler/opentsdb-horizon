@@ -6,7 +6,7 @@ import { GridsterModule } from 'angular2gridster';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 // services
 import { DashboardService } from './services/dashboard.service';
-import { IntercomService } from './services/intercom.service';
+//import { IntercomService } from './services/intercom.service';
 import { WidgetService } from './services/widget.service';
 // components
 import { DashboardComponent } from './containers/dashboard/dashboard.component';
@@ -40,7 +40,7 @@ import { WsampleComponent } from './widgets/components/wsample/wsample.component
   ],
   providers: [
     DashboardService,
-    IntercomService,
+    //IntercomService,
     WidgetService
   ],
   entryComponents: [WidgetbaseComponent, WsampleComponent]

@@ -1,8 +1,23 @@
-<ks-page-header>Kitchen Sink</ks-page-header>
-<mat-sidenav-container class="ks-container">
-    <mat-sidenav #sidenav mode="side" opened="true" class="ks-sidenav">
-    </mat-sidenav>
-    <mat-sidenav-content>
-        <router-outlet></router-outlet>
-    </mat-sidenav-content>
-</mat-sidenav-container>
+<div class="ks-sidenav" fxFlex="1 1 300px">
+    <mat-accordion>
+        <mat-expansion-panel *ngFor="let panel of sideNavSections">
+            <mat-expansion-panel-header [expandedHeight]="'48px'" [collapsedHeight]="'36px'">
+                <mat-panel-title>
+                    {{panel.label}}
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <ul class="ks-subnav">
+                <li *ngFor="let link of panel.links">
+                    <a mat-button routerLink="{{link.link}}">{{link.label}}</a> 
+                </li>
+            </ul>
+
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>
+<div class="ks-content" fxFlex="1 1 100%" fxLayout="column">
+    <ks-page-header fxFlex="1 1 48px">Kitchen Sink</ks-page-header>
+    <router-outlet></router-outlet>
+</div>
+
