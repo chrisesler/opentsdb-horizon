@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, HostBinding, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-widget-base',
@@ -6,6 +6,8 @@ import { Component, OnInit, Input } from '@angular/core';
   styleUrls: ['./widgetbase.component.scss']
 })
 export class WidgetbaseComponent implements OnInit {
+  @HostBinding('class.widget-panel-content') private hostClass = true;
+
   @Input() config: any;
 
   constructor() { }

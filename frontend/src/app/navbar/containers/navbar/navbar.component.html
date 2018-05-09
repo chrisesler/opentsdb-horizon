@@ -1,7 +1,7 @@
 <!-- Navbar Theme -->
 <mat-toolbar fxFlex="1 1 100%">
     <mat-toolbar-row fxLayout fxLayoutAlign="start stretch">
-        <a mat-button routerLink="ks" class="app-home-link">
+        <a mat-button routerLink="dashboard" class="app-home-link">
             <img src="/assets/yamas-logo-icon-only.png"  class="app-yamas-logo"/>
         </a>
         <a mat-button
@@ -11,5 +11,6 @@
         </a>
         <span class="flex-spacer"></span>
         <theme-picker mat-button></theme-picker>
+        <close-edit-view *ngIf="viewEditMode"></close-edit-view>
     </mat-toolbar-row>
 </mat-toolbar>

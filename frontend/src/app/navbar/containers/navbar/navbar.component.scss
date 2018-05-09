@@ -47,18 +47,15 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
-    // navbar specific
-    $navbar: map-get($theme-config, navbar);
-
     .app-navbar {
 
         .mat-toolbar {
-            background: map-get($navbar, background);
-            color: map-get($navbar, text);
+            background: map-get($background, navbar);
+            color: map-get($foreground, navbar-text);
 
             .mat-icon-button {
                 .mat-icon {
-                    color: map-get($navbar, icons)
+                    color: map-get($foreground, navbar-icons)
                 }
             }
         }

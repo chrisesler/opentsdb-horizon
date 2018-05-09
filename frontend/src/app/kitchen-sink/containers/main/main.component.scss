@@ -4,7 +4,43 @@
 @mixin ks-main-container-base() {
     .ks-main {
         flex: 1 1 100%;
+        display: flex;
+        align-items: stretch;
+        justify-content: stretch;
     }
+
+    .ks-sidenav {
+        
+        width: 300px;
+        padding: 16px;
+
+
+        
+
+        .mat-expansion-panel-header-title {
+            @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), button);
+        }
+
+        .mat-expansion-panel-body {
+            padding: 0;
+        }
+
+        .ks-subnav {
+            margin: 0;
+            padding: 0;
+
+
+
+            .mat-button {
+                padding-left: 24px;
+                width: 100%;
+                text-align: left;
+            }
+        }
+    }
+
+
+
 }
 
 @mixin ks-main-container-theme($theme-config) {
@@ -17,10 +53,35 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
+    $ks: map-get($theme-config, ks);
+
     .ks-main {
 
     }
 
+    .ks-sidenav {
+        background: map-get($ks, sidenav-background);
 
+        .mat-expansion-panel {
+            background: map-get($ks, sidenav-panel);
+            color: map-get($ks, sidenav-text);
+        }
+
+        .mat-expansion-panel-header-title,
+        .mat-expansion-indicator::after {
+            color: map-get($ks, sidenav-text);
+        }
+
+        .mat-expansion-panel-header.mat-expanded {
+            background-color: map-get($accent, default);
+
+            .mat-expansion-panel-header-title,
+            .mat-expansion-indicator::after {
+                color: map-get($accent, default-contrast);
+            }
+        }
+
+        
+    }
 }
 

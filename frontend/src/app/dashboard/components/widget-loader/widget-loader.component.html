@@ -10,19 +10,33 @@
     <mat-card-header fxFlex="1 1 28px" fxLayout="row" fxLayoutAlign="stretch stretch" class="panel-heading">
         <mat-toolbar >
             <mat-toolbar-row>
-                <span class="flex-spacer"></span>
                 <span class="panel-title">{{widgetconf.title}}</span>
                 <span class="flex-spacer"></span>
                 <button mat-icon-button [matMenuTriggerFor]="widgetMenu">
-                  <mat-icon>more_vert</mat-icon>
+                  <mat-icon>more_horiz</mat-icon>
                 </button>
                 <mat-menu #widgetMenu="matMenu" xPosition="before" class="widget-menu">
-                    <button mat-menu-item (click)="widgetView(widgetconf)">Full screen</button>
-                    <button mat-menu-item>Edit View</button>
-                    <button mat-menu-item>Share</button>
-                    <button mat-menu-item [matMenuTriggerFor]="subMenu">MOAR STUFFZ...</button>
+                    <button mat-menu-item (click)="widgetView(widgetconf)">
+                        <mat-icon>fullscreen</mat-icon>
+                        <span>Full screen</span>
+                    </button>
+                    <button mat-menu-item>
+                        <mat-icon>settings</mat-icon>
+                        <span>Edit View</span>
+                    </button>
+                    <button mat-menu-item>
+                        <mat-icon>share</mat-icon>
+                        <span>Share</span>
+                    </button>
+                    <button mat-menu-item [matMenuTriggerFor]="subMenu">
+                        <mat-icon></mat-icon>
+                        <span>More options</span>
+                    </button>
                     <span class="menu-seperator"></span>
-                    <button mat-menu-item>Remove</button>
+                    <button mat-menu-item>
+                        <mat-icon>delete</mat-icon>
+                        <span>Remove</span>
+                    </button>
                 </mat-menu>
                 <mat-menu #subMenu="matMenu" class="widget-submenu">
                     <button mat-menu-item>What</button>

@@ -59,6 +59,15 @@
             }
         }
 
+        &.view-edit-mode {
+            .widget-panel-content {
+                flex: 1 1 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: flex-start;
+            }
+        }
 
     }
 
@@ -167,7 +176,7 @@
         .position-highlight {
             .inner {
                 @include mat-elevation(3);
-                background-color: rgba(map-get($primary, default-contrast), .08);
+                background-color: map-get($background, gridster-highlight);
                 border: 1px solid transparent;
             }
         }

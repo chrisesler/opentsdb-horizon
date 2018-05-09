@@ -20,7 +20,7 @@ import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
 import { NavbarModule } from './navbar/navbar.module';
 import { HomeModule } from './home/home.module';
 
-
+import { IntercomService } from './dashboard/services/intercom.service';
 
 @NgModule({
   declarations: [
@@ -41,6 +41,7 @@ import { HomeModule } from './home/home.module';
     HomeModule
   ],
   providers: [
+    IntercomService
   ],
   bootstrap: [AppComponent]
 })

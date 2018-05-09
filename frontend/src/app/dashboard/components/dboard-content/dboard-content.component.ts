@@ -7,6 +7,7 @@ import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDr
 import { WidgetViewDirective } from '../../directives/widgetview.directive';
 import { WidgetComponent } from '../../widgets/widgetcomponent';
 import { DashboardService } from '../../services/dashboard.service';
+import { IntercomService, IMessage } from '../../services/intercom.service';
 
 @Component({
   selector: 'app-dboard-content',
@@ -15,18 +16,31 @@ import { DashboardService } from '../../services/dashboard.service';
   encapsulation: ViewEncapsulation.None
 })
 export class DboardContentComponent implements OnInit, OnChanges {
-  @HostBinding('class.app-dboard-content') private hostClass = true;
+  @HostBinding('class.app-dboard-content') private _hostClass = true;
+  @HostBinding('class.view-edit-mode') private _viewEditMode = false;
 
   @ViewChild(WidgetViewDirective) widgetViewContainer: WidgetViewDirective;
   @ViewChild(GridsterComponent) gridster: GridsterComponent;
+
   @Input() widgets: any[];
   @Input() rerender: any;
 
-  viewEditMode = false;
+  @Input()
+  get viewEditMode() {
+    return this._viewEditMode;
+  }
+
+  set viewEditMode(value: boolean) {
+    this._viewEditMode = value;
+    if(!value){
+      this.closeEditView();
+    }
+  }
+
   cellHeight = 0;
   cellWidth = 0;
 
-  constructor(private dbService: DashboardService) { }
+  constructor(private dbService: DashboardService, private interCom: IntercomService) { }
 
   gridsterOptions: IGridsterOptions = {
     // core configuration is default one - for smallest view. It has hidden minWidth: 0.
@@ -76,17 +90,23 @@ export class DboardContentComponent implements OnInit, OnChanges {
     }
   }
 
-  closeViewEdit() {
+  closeEditView() {
+    // clear out the editMode widget
     this.widgetViewContainer.viewContainerRef.clear();
-    this.viewEditMode = false;
   }
+
   // to load selected component factory
   viewComponent(comp: any) {
-    this.viewEditMode = true;
+    // get the view container
     const viewContainerRef = this.widgetViewContainer.viewContainerRef;
     viewContainerRef.clear();
+
+    // create component using existing widget factory
     const component = viewContainerRef.createComponent(comp.compFactory);
+
+    // give the widget it's config
     (<WidgetComponent>component.instance).config = comp.config;
+
   }
 
   breakpointChange(event: IGridsterOptions) {

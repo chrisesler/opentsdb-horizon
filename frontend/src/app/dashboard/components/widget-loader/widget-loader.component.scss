@@ -82,6 +82,7 @@
 
     }
 
+    // CDK items are outside of the component namespace class
     .widget-menu,
     .widget-submenu {
 
@@ -89,6 +90,12 @@
             font-size: 12px;
             height: 36px;
             line-height: 36px;
+
+            .mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+            }
         }
 
         .menu-seperator {
@@ -113,13 +120,17 @@
     .widget-loader {
         .mat-card {
             box-shadow: none;
-            background-color: map-get($background, nav-bar);
+            background-color: map-get($background, card);
 
             .mat-card-header {
                 background-color: transparent;
 
                 & {
                     @include transition(background-color 0.2s ease-in-out);
+                }
+
+                .panel-title {
+                    padding: 0 10px;
                 }
 
                 .mat-toolbar {
@@ -132,12 +143,8 @@
                 }
 
                 &:hover {
-                    @if $is-dark-theme {
-                    background-color: rgba(map-get($primary, default-contrast), .1);
-                    }
-                    @else {
-                    background-color: rgba(map-get($accent, A700), .1);
-                    }
+                    //background-color: rgba(map-get($accent, A700), .1);
+                    background-color: map-get($background, card-header-hover);
 
                     .mat-toolbar {
                         .mat-icon-button {
@@ -154,12 +161,7 @@
         .gridster-item-inner {
             .widget-loader {
                 .mat-card-header {
-                    @if $is-dark-theme {
-                    background-color: rgba(map-get($primary, default-contrast), .1);
-                    }
-                    @else {
-                    background-color: rgba(map-get($accent, A700), .1);
-                    }
+                    background-color: map-get($background, card-header-hover);
 
                     .mat-toolbar {
                         .mat-icon-button {
@@ -176,7 +178,7 @@
     .widget-menu,
     .widget-submenu {
         .menu-seperator {
-            background-color: rgba(map-get($primary, default-contrast), .1);
+            background-color: rgba(map-get($foreground, divider), .1);
         }
     }
 

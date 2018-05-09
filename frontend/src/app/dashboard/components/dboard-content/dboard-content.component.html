@@ -1,7 +1,4 @@
-<div  widget-view-container>
-    <button *ngIf="viewEditMode" mat-raised-button (click)="closeViewEdit()">Close</button>
-</div>
-
+<div widget-view-container></div>
 <div class="gridster-stage has-scroller" fxFlex="1 1 100%" [style.display]="viewEditMode ? 'none' : 'block'">
     <div class="is-scroller">
         <gridster #gridster1 class="dashboard"

@@ -22,12 +22,7 @@
     .dashboard-header {
 
         .mat-toolbar {
-            @if $is-dark-theme {
-                background-color: map-get($foreground, divider);
-            }
-            @else {
-                background-color: rgba(map-get($accent, 500), .2);
-            }
+            background: map-get($background, header);
 
         }
     }
