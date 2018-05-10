@@ -9,14 +9,14 @@
 
             <gridster-item #itemComp class="gridster-item"
                 *ngFor="let widget of widgets; let idx = index"
-                [dragAndDrop]="widget.gPosition.dragAndDrop"
-                [resizable]="widget.gPosition.resizable"
-                [(x)]="widget.gPosition.x"
-                [(y)]="widget.gPosition.y"
-                [(xMd)]="widget.gPosition.xMd"
-                [(yMd)]="widget.gPosition.yMd"
-                [(w)]="widget.gPosition.w"
-                [(h)]="widget.gPosition.h"
+                [dragAndDrop]="widget.gridPos.dragAndDrop"
+                [resizable]="widget.gridPos.resizable"
+                [(x)]="widget.gridPos.x"
+                [(y)]="widget.gridPos.y"
+                [(xMd)]="widget.gridPos.xMd"
+                [(yMd)]="widget.gridPos.yMd"
+                [(w)]="widget.gridPos.w"
+                [(h)]="widget.gridPos.h"
                 (end)="gridEventEnd($event)">
 
               <app-widget-loader
