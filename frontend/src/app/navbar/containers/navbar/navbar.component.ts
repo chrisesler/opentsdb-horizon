@@ -1,9 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter, HostBinding } from '@angular/core';
+import { Portal } from '@angular/cdk/portal';
 
 import { Router } from '@angular/router';
 
 import { IntercomService, IMessage } from '../../../dashboard/services/intercom.service';
 import { Subscription } from 'rxjs/Subscription';
+
+import { CdkService } from '../../../core/services/cdk.service';
 
 @Component({
   selector: 'app-navbar',
@@ -12,7 +15,7 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class NavbarComponent implements OnInit {
 
-  @HostBinding('class.app-navbar') private hostClass = true;
+  @HostBinding('class.app-navbar') private _hostClass = true;
 
   @Input() theme: string;
   @Output() themeChange = new EventEmitter<string>();
@@ -24,12 +27,18 @@ export class NavbarComponent implements OnInit {
 
   private listenSub: Subscription;
 
-  constructor(private router: Router, private interCom: IntercomService) {
+  navbarPortal: Portal<any>;
+
+  constructor(
+    private router: Router,
+    private interCom: IntercomService,
+    public cdkService: CdkService
+  ) {
     this.routeLinks = [
       /*{
         label: 'Kitchen Sink',
         link: 'ks'
-      },*/ 
+      }, */
       {
         label: 'Dashboard',
         link: 'dashboard'

@@ -1,8 +1,8 @@
-/* CLOSE EDIT VIEW BUTTONCOMPONENT */
+/* ADD NEW PANEL BUTTON COMPONENT */
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
-@mixin close-edit-view-component-base() {
-    .nav-close-edit-view {
+@mixin add-new-panel-component-base() {
+    .nav-add-new-panel {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -24,7 +24,7 @@
     }
 }
 
-@mixin close-edit-view-component-theme($theme-config) {
+@mixin add-new-panel-component-theme($theme-config) {
 
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
@@ -35,11 +35,7 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
-    .nav-close-edit-view {
-        .mat-raised-button:hover {
-            background-color: map-get($accent, A200);
-        }
-    }
+    //.nav-add-new-panel { }
 
 
 }

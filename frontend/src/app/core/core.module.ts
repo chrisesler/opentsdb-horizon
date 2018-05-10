@@ -4,6 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { D3Service } from './services/d3.service';
 import { UtilsService } from './services/utils.service';
 import { HttpService } from './http/http.service';
+
 @NgModule({
   imports: [
     CommonModule,
