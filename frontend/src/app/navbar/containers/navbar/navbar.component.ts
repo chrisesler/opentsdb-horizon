@@ -1,7 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter, HostBinding } from '@angular/core';
+import { Portal } from '@angular/cdk/portal';
 
 import { Router } from '@angular/router';
 
+import { IntercomService, IMessage } from '../../../dashboard/services/intercom.service';
+import { Subscription } from 'rxjs/Subscription';
+
+import { CdkService } from '../../../core/services/cdk.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,7 +15,7 @@ import { Router } from '@angular/router';
 })
 export class NavbarComponent implements OnInit {
 
-  @HostBinding('class.app-navbar') private hostClass = true;
+  @HostBinding('class.app-navbar') private _hostClass = true;
 
   @Input() theme: string;
   @Output() themeChange = new EventEmitter<string>();
@@ -18,18 +23,34 @@ export class NavbarComponent implements OnInit {
   routeLinks: any[];
   activeLinkIndex = -1;
 
-  constructor(private router: Router) {
+  viewEditMode = false;
+
+  private listenSub: Subscription;
+
+  navbarPortal: Portal<any>;
+
+  constructor(
+    private router: Router,
+    private interCom: IntercomService,
+    public cdkService: CdkService
+  ) {
     this.routeLinks = [
-      {
+      /*{
         label: 'Kitchen Sink',
-        link: 'ks',
-        index: 0
-      }, {
+        link: 'ks'
+      }, */
+      {
         label: 'Dashboard',
-        link: 'dashboard',
-        index: 1
+        link: 'dashboard'
       }
     ];
+
+    this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
+      console.log('NAVBAR listen to: ', JSON.stringify(message));
+      if (message.action === 'viewEditMode') {
+        this.viewEditMode = message.payload;
+      }
+    });
   }
 
   ngOnInit() {

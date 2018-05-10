@@ -1,12 +1,12 @@
-//**************************************
-//* FUNCTIONS & MIXINS
-//* Functions at top
-//* Mixins at bottom
-//**************************************/
+// **************************************
+// * FUNCTIONS & MIXINS
+// * Functions at top
+// * Mixins at bottom
+// **************************************
 
-/*
- * Functions
- */
+// *
+// * Functions
+// *
 
 // Math
 @function power-number($number, $exp) {
@@ -47,9 +47,15 @@
     @return $number;
 }
 
-/*
- * Mixins
- */
+// *
+// * Mixins
+// *
+
+@mixin md-icon-size($size: 24px) {
+    font-size: $size;
+    height: $size;
+    width: $size;
+}
 
 %overlay {
     bottom: 0;
@@ -135,6 +141,30 @@
     -ms-transition: $args;
     -o-transition: $args;
     transition: $args;
+}
+
+@mixin transition-property($args...){
+    -webkit-transition-property: $args;
+    -moz-transition-property: $args;
+    -ms-transition-property: $args;
+    -o-transition-property: $args;
+    transition-property: $args;
+}
+
+@mixin transition-duration($args) {
+    -webkit-transition-duration: $args;
+    -moz-transition-duration: $args;
+    -ms-transition-duration: $args;
+    -o-transition-duration: $args;
+    transition-duration: $args;
+}
+
+@mixin transition-timing-function($args) {
+    -webkit-transition-timing-function: $args;
+    -moz-transition-timing-function: $args;
+    -ms-transition-timing-function: $args;
+    -o-transition-timing-function: $args;
+    transition-timing-function: $args;
 }
 
 @mixin transform ($val) {

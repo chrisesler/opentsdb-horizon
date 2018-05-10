@@ -42,6 +42,11 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
   // emit component factory and config for edit/view full mode
   widgetView(wConfig) {
     this.viewComponent.emit({ 'compFactory': this.componentFactory, 'config': this.widgetconf });
+    // make dashboard header disappear
+    this.interCom.requestSend(<IMessage>{
+      action: 'viewEditMode',
+      payload: true
+    });
   }
 
   loadComponent() {

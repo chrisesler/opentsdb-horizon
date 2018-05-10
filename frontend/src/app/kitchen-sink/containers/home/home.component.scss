@@ -4,6 +4,7 @@
 @mixin ks-home-container-base() {
     .ks-home {
         flex: 1 1 100%;
+        padding: 16px;
     }
 }
 

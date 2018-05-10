@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from '../../core/services/utils.service';
+import { IntercomService, IMessage } from './intercom.service';
 
 @Injectable()
 export class DashboardService {
@@ -16,9 +17,7 @@ export class DashboardService {
     }
   };
 
-  constructor(private utils: UtilsService) {
-    
-  }
+  constructor(private interCom:IntercomService, private utils: UtilsService) { }
 
   modifyWidgets(dashboard: any) {
     // add extra info item behaviors
@@ -54,7 +53,7 @@ export class DashboardService {
         'height': height * pWidgets[i].gridPos.h
       };
       pWidgets[i].clientSize = clientSize;
-    }
-    
+      this.interCom.responsePut({id:pWidgets[i].config.id,action:"resizeWidget",payload:clientSize});
+    }   
   }
 }

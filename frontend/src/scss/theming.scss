@@ -29,8 +29,8 @@ $app-available-typefaces: (
 
 // right now 
 $app-fontface-config: (
-    mono: generate-material-compatible-typography-config(map-get($app-available-typefaces, ibm-plex-mono)),
-    sans: generate-material-compatible-typography-config(map-get($app-available-typefaces, ibm-plex-sans))
+    mono: generate-material-compatible-typography-config(map-get($app-available-typefaces, ubuntu-mono)),
+    sans: generate-material-compatible-typography-config(map-get($app-available-typefaces, ubuntu-sans))
 );
 
 // IMPORT APPLICATION MODULE STYLE/THEME LOADERS

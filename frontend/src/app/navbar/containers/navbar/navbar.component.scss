@@ -3,7 +3,7 @@
 // core (aka structure)
 @mixin navbar-component-base() {
     .app-navbar {
-        @include mat-elevation(6);
+        @include mat-elevation(2);
         z-index: 2;
 
         .app-home-link {
@@ -14,6 +14,12 @@
             height: 26px;
             margin: 0 4px 3px 0;
             vertical-align: middle;
+        }
+
+        .icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .mat-toolbar {
@@ -47,23 +53,15 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
-    $navbar-background: map-get($primary, default);
-
-    @if $is-dark-theme == true {
-
-    }
-
-
-
     .app-navbar {
 
         .mat-toolbar {
-            background: map-get($background, nav-bar);
-            color: map-get($foreground, nav-bar-text);
+            background: map-get($background, navbar);
+            color: map-get($foreground, navbar-text);
 
             .mat-icon-button {
                 .mat-icon {
-                    color: map-get($foreground, nav-bar-icons)
+                    color: map-get($foreground, navbar-icons)
                 }
             }
         }

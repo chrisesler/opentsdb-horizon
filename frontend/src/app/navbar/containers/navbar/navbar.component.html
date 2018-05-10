@@ -1,7 +1,7 @@
 <!-- Navbar Theme -->
 <mat-toolbar fxFlex="1 1 100%">
     <mat-toolbar-row fxLayout fxLayoutAlign="start stretch">
-        <a mat-button routerLink="ks" class="app-home-link">
+        <a mat-button routerLink="dashboard" class="app-home-link">
             <img src="/assets/yamas-logo-icon-only.png"  class="app-yamas-logo"/>
         </a>
         <a mat-button
@@ -10,6 +10,9 @@
             {{routeLink.label}}
         </a>
         <span class="flex-spacer"></span>
+        <add-new-panel *ngIf="!viewEditMode"></add-new-panel>
         <theme-picker mat-button></theme-picker>
+        <close-edit-view *ngIf="viewEditMode"></close-edit-view>
+        <ng-container [cdkPortalOutlet]="cdkService.navbarPortal$ | async"></ng-container>
     </mat-toolbar-row>
 </mat-toolbar>

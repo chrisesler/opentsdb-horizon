@@ -11,7 +11,7 @@ import { MatMenu, MatMenuTrigger } from '@angular/material';
 })
 export class ThemePickerComponent implements OnInit {
 
-  @HostBinding('class.theme-picker') hostClass = true;
+  @HostBinding('class.nav-theme-picker') private _hostClass = true;
 
   @ViewChild( MatMenuTrigger ) trigger: MatMenuTrigger;
 

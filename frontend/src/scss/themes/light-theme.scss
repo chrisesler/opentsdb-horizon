@@ -2,52 +2,55 @@
 //* LIGHT THEME CONFIGURATION
 //**************************************/
 
-$light-theme-primary:  mat-palette($mat-indigo, 800, 300, 900);
-$light-theme-accent:   mat-palette($mat-light-blue);
-$light-theme-warn:     mat-palette($mat-pink, 600);
-$light-theme:          mat-light-theme($light-theme-primary, $light-theme-accent, $light-theme-warn);
-
-
 $light-theme: (
-    primary: mat-palette($mat-indigo, 800, 300, 900),
-    accent: mat-palette($mat-light-blue),
-    warn: mat-palette($mat-pink, 600),
-    success: mat-palette($mat-light-green, A400, A200, A700),
-    danger: mat-palette($mat-deep-orange, A400, A100, A700),
-    is-dark: false,
+    primary:  mat-palette($mat-indigo, 800, 300, 900),
+    accent:   mat-palette($mat-light-blue),
+    warn:     mat-palette($mat-pink, 600),
+    success:  mat-palette($mat-light-green, A400, A200, A700),
+    danger:   mat-palette($mat-deep-orange, A400, A100, A700),
+    is-dark:  false,
     foreground: (
-      base:              black,
-      divider:           $dark-dividers,
-      dividers:          $dark-dividers,
-      disabled:          $dark-disabled-text,
-      disabled-button:   rgba(black, 0.26),
-      disabled-text:     $dark-disabled-text,
-      hint-text:         $dark-disabled-text,
-      secondary-text:    $dark-secondary-text,
-      icon:              rgba(black, 0.54),
-      icons:             rgba(black, 0.54),
-      nav-bar-icons:     white,
-      nav-bar-text:      white,
-      text:              rgba(black, 0.87),
-      slider-min:        rgba(black, 0.87),
-      slider-off:        rgba(black, 0.26),
-      slider-off-active: rgba(black, 0.38),
+      base:               black,
+      divider:            $dark-dividers,
+      dividers:           $dark-dividers,
+      disabled:           $dark-disabled-text,
+      disabled-button:    rgba(black, 0.26),
+      disabled-text:      $dark-disabled-text,
+      hint-text:          $dark-disabled-text,
+      secondary-text:     $dark-secondary-text,
+      icon:               rgba(black, 0.54),
+      icons:              rgba(black, 0.54),
+      navbar-icons:       white,      
+      navbar-text:        white,
+      text:               rgba(black, 0.87),
+      slider-min:         rgba(black, 0.87),
+      slider-off:         rgba(black, 0.26),
+      slider-off-active:  rgba(black, 0.38),
     ),
     background: (
-      status-bar: map_get($mat-grey, 300),
-      app-bar:    map_get($mat-grey, 100),
-      nav-bar:    map_get($mat-indigo, A500),
-      background: map_get($mat-grey, 50),
-      hover:      rgba(black, 0.04), // TODO(kara): check style with Material Design UX
-      card:       white,
-      dialog:     white,
-      disabled-button: rgba(black, 0.12),
-      raised-button: white,
-      focused-button: $dark-focused,
-      selected-button: map_get($mat-grey, 300),
+      status-bar:               map_get($mat-grey, 300),
+      app-bar:                  map_get($mat-grey, 100),
+      navbar:                  map_get($mat-indigo, A500),
+      background:               map_get($mat-grey, 50),
+      header:                   rgba(black, 0.08),
+      hover:                    rgba(black, 0.04), // TODO(kara): check style with Material Design UX
+      card:                     white,
+      card-header-hover:        rgba(map_get($mat-blue, 900), 0.08),
+      dialog:                   white,
+      disabled-button:          rgba(black, 0.12),
+      raised-button:            white,
+      focused-button:           $dark-focused,
+      selected-button:          map_get($mat-grey, 300),
       selected-disabled-button: map_get($mat-grey, 400),
-      disabled-button-toggle: map_get($mat-grey, 200),
-      unselected-chip: map_get($mat-grey, 300),
-      disabled-list-option: map_get($mat-grey, 200),
+      disabled-button-toggle:   map_get($mat-grey, 200),
+      unselected-chip:          map_get($mat-grey, 300),
+      disabled-list-option:     map_get($mat-grey, 200),
+      menu:                     map_get($mat-blue, 50),
+      gridster-highlight:       map_get($mat-blue-grey, 50)
+    ),
+    ks: (
+      sidenav-background: map_get($mat-blue-grey, 800),
+      sidenav-panel: map_get($mat-blue-grey, 50),
+      sidenav-text: rgba(map_get($mat-grey,900), .85)
     )
 );
