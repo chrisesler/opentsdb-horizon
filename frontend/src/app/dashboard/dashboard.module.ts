@@ -10,7 +10,7 @@ import { IntercomService } from './services/intercom.service';
 import { WidgetService } from './services/widget.service';
 // store
 import { NgxsModule } from '@ngxs/store';
-import { DashboardState } from './store/dashboard.state';
+import { DashboardState } from './state/dashboard.state';
 // components
 import { DashboardComponent } from './containers/dashboard/dashboard.component';
 import { DboardContentComponent } from './components/dboard-content/dboard-content.component';

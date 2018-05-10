@@ -7,6 +7,7 @@ import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDr
 import { WidgetViewDirective } from '../../directives/widgetview.directive';
 import { WidgetComponent } from '../../widgets/widgetcomponent';
 import { DashboardService } from '../../services/dashboard.service';
+import { Store } from '@ngxs/store';
 
 @Component({
   selector: 'app-dboard-content',
@@ -26,7 +27,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
   cellHeight = 0;
   cellWidth = 0;
 
-  constructor(private dbService: DashboardService) { }
+  constructor(private dbService: DashboardService, private store: Store) { }
 
   gridsterOptions: IGridsterOptions = {
     // core configuration is default one - for smallest view. It has hidden minWidth: 0.
@@ -102,22 +103,24 @@ export class DboardContentComponent implements OnInit, OnChanges {
   // this event will start first and set values of cellWidth and cellHeight
   // then update the this.widgets reference
   gridsterFlow(event: any) {
-    console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
+    //console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
     this.cellHeight = event.gridsterComponent.gridster.cellHeight;
     this.cellWidth = event.gridsterComponent.gridster.cellWidth;
     this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);
-    console.log('windows resize', this.widgets);
+    console.log('state', this.store.snapshot());
+    
   }
 
   // this event happened when item is dragged or resize
   // we call the function update all since we don't know which one for now.
+  // the width and height unit might change but not the cell width and height.
   gridEventEnd(event: any) {
-    // console.log(event, event.item.$element.getBoundingClientRect());
+    //console.log(event, event.item.$element.getBoundingClientRect());
     if (event.action === 'resize') {
       this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);
-      console.log('item resize', this.widgets);
+      //console.log('item resize', this.widgets);
     }
-
+    console.log('state', this.store.snapshot());
   }
 
 }
