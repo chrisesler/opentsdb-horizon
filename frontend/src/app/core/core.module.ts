@@ -1,9 +1,7 @@
 import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { D3Service } from './services/d3.service';
-import { UtilsService } from './services/utils.service';
-import { HttpService } from './http/http.service';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -15,9 +13,7 @@ import { HttpService } from './http/http.service';
     HttpClientModule
   ],
   providers: [
-    D3Service,
-    UtilsService,
-    HttpService
+    // set in service itself already
   ]
 })
 export class CoreModule {
