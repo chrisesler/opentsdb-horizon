@@ -16,6 +16,12 @@
             vertical-align: middle;
         }
 
+        .icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .mat-toolbar {
             .mat-toolbar-row {
                 padding-left: initial;

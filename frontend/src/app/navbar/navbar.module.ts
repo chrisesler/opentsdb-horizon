@@ -6,7 +6,7 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../shared/modules/material/material.module';
 
 // services
-//import { IntercomService } from '../dashboard/services/intercom.service';
+// import { IntercomService } from '../dashboard/services/intercom.service';
 
 // containers
 import { NavbarComponent } from './containers/navbar/navbar.component';
@@ -14,6 +14,7 @@ import { NavbarComponent } from './containers/navbar/navbar.component';
 // components
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 import { CloseEditViewComponent } from './components/close-edit-view/close-edit-view.component';
+import { AddNewPanelComponent } from './components/add-new-panel/add-new-panel.component';
 
 @NgModule({
   imports: [
@@ -27,10 +28,11 @@ import { CloseEditViewComponent } from './components/close-edit-view/close-edit-
   declarations: [
     NavbarComponent,
     ThemePickerComponent,
-    CloseEditViewComponent
+    CloseEditViewComponent,
+    AddNewPanelComponent
   ],
   providers: [
-    //IntercomService
+    // IntercomService
   ]
 })
 export class NavbarModule { }

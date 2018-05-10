@@ -9,7 +9,7 @@ import { IntercomService, IMessage } from '../../../dashboard/services/intercom.
   styleUrls: []
 })
 export class CloseEditViewComponent implements OnInit {
-  @HostBinding('class.close-edit-view') private hostClass = true;
+  @HostBinding('class.nav-close-edit-view') private _hostClass = true;
 
   constructor(private interCom: IntercomService) {
   }
@@ -17,11 +17,11 @@ export class CloseEditViewComponent implements OnInit {
   ngOnInit() {
   }
 
-  closeViewEditMode(){
+  closeViewEditMode() {
     this.interCom.requestSend(<IMessage>{
       action: 'viewEditMode',
       payload: false
-    })
+    });
   }
 
 }

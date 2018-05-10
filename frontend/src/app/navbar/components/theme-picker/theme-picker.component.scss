@@ -2,7 +2,7 @@
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
 @mixin theme-picker-component-base() {
-    .theme-picker {
+    .nav-theme-picker {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -20,9 +20,7 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
-    .theme-picker {
-
-    }
+    //.nav-theme-picker { }
 
     // CDK items are outside of component namespace class - be sure to give them very unique names
     .nav-bar-dropmenu {

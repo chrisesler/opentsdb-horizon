@@ -10,7 +10,9 @@
             {{routeLink.label}}
         </a>
         <span class="flex-spacer"></span>
+        <add-new-panel *ngIf="!viewEditMode"></add-new-panel>
         <theme-picker mat-button></theme-picker>
         <close-edit-view *ngIf="viewEditMode"></close-edit-view>
+        <ng-container [cdkPortalOutlet]="cdkService.navbarPortal$ | async"></ng-container>
     </mat-toolbar-row>
 </mat-toolbar>

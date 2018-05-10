@@ -1,4 +1,8 @@
-import { Component, OnInit, OnDestroy, HostBinding  } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef  } from '@angular/core';
+import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
+
+import { CdkService } from '../../../core/services/cdk.service';
+
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../services/intercom.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -12,6 +16,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   @HostBinding('class.app-dashboard') private hostClass = true;
 
+  @ViewChild('testTmpl') testTmpl: TemplateRef<any>;
+
   listenSub: Subscription;
   dashboard: any;
   // widgets: Array<any>;
@@ -20,7 +26,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   rerender: any = {'reload': false};
 
 
-  constructor(private interCom: IntercomService, private dbService: DashboardService) { }
+  constructor(
+    private interCom: IntercomService,
+    private dbService: DashboardService,
+    private cdkService: CdkService
+  ) { }
 
   ngOnInit() {
       // this.hasHeader = true;
@@ -35,7 +45,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
           // this.hasHeader = !message.payload;
           this.viewEditMode = message.payload;
         }
+        if (message.action === 'addNewWidget') {
+          this.addNewWidget();
+        }
       });
+
+      this.cdkService.setNavbarPortal(new TemplatePortal(this.testTmpl, undefined, {}));
+
    }
 
    addNewWidget() {
@@ -50,5 +66,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
    /*dashboardHasHeaderChange(value: any) {
       this.hasHeader = value;
    }*/
+
+   cdkTest() {
+     console.log('CDK TEST');
+     this.cdkService.setNavbarPortal(null);
+     //this.cdkService.setNavbarPortal(new TemplatePortal(this.testTmpl, undefined, {}));
+
+     
+   }
 
 }
