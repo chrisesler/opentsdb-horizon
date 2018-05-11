@@ -1,63 +1,73 @@
-import { Component, OnInit, OnChanges, OnDestroy, KeyValueDiffers, ElementRef, Input, Output, SimpleChange, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, KeyValueDiffers, ElementRef, Input, Output, SimpleChanges, EventEmitter } from '@angular/core';
 import { ChartBase } from './chartbase';
 import { IntercomService, IMessage } from '../../../services/intercom.service';
 import { Subscription } from 'rxjs/Subscription';
 
-
 @Component({
-  selector: 'line-chart',
-  templateUrl: './chartbase.component.html',
-  styleUrls: ['./chartbase.component.scss']
+	selector: 'line-chart',
+	templateUrl: './chartbase.component.html',
+	styleUrls: ['./chartbase.component.scss']
 })
 
-export class LineChartComponent  extends ChartBase implements OnDestroy {
-	listenSub:Subscription;
-	lineDefaultOptions:object = {
-								    elements: {
-							            line: {
-							                tension: 0,
-                    						borderWidth: 1,
-						                    bezierCurve: false,
-                    						fill: false
-							            },
-							            point: {
-							            	radius:0,
-							            	borderWidth:0
-							            }
-							        },
-									zoom :  {
-							          mode: "x|y",
-							          enabled:true
-							        },
-							        scales: {
-							            xAxes: [{
-							                type: "time",
-							                display: true
-							            }],
-							            yAxes: [{
-							                type: 'linear',
-							                position: 'left',
-							            }]
-							        }
-						    	};
+export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, OnChanges {
 
-	constructor(element:ElementRef,  differs : KeyValueDiffers,private interCom: IntercomService) {
+	listenSub: Subscription;
+	lineDefaultOptions: object = {
+		elements: {
+			line: {
+				tension: 0,
+				borderWidth: 1,
+				bezierCurve: false,
+				fill: false
+			},
+			point: {
+				radius: 0,
+				borderWidth: 0
+			}
+		},
+		zoom: {
+			mode: "x|y",
+			enabled: true
+		},
+		scales: {
+			xAxes: [{
+				type: "time",
+				display: true
+			}],
+			yAxes: [{
+				type: 'linear',
+				position: 'left',
+			}]
+		}
+	};
+
+	constructor(element: ElementRef, differs: KeyValueDiffers, private interCom: IntercomService) {
 		super(element, differs);
 		this.type = "line";
-		this.defaultOptions = Object.assign( this.defaultOptions, this.lineDefaultOptions);
-		this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-			if (message && message.id==this.config.id) {
+		this.defaultOptions = Object.assign(this.defaultOptions, this.lineDefaultOptions);		
+	}
+
+	ngOnInit() {
+		super.ngOnInit();
+		
+		this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {	
+			console.log('message', message, this.widget);
+			
+			if (message && message.id == this.widget.id) {
 				switch (message.action) {
 					case "resizeWidget":
-						this.setSize(message.payload.width -30 + "px", message.payload.height -60 + "px");
+						this.setSize(message.payload.width - 30 + "px", message.payload.height - 60 + "px");
 						return;
 				}
 			}
-			
-      	});
+		});
+	}
+
+	ngOnChanges(changes: SimpleChanges) {
+		console.log('widget chanages', changes);	
 	}
 
 	ngOnDestroy() {
-     this.listenSub.unsubscribe();
-   }
+		this.listenSub.unsubscribe();
+	}
 }
