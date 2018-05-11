@@ -1,13 +1,12 @@
 import {
   Type, Component, OnInit, Input, Output, ViewChild,
   ComponentFactoryResolver, EventEmitter,
-  OnChanges, SimpleChanges, HostBinding
+  OnChanges, SimpleChanges, HostBinding, ViewContainerRef
 } from '@angular/core';
 import { WidgetService } from '../../services/widget.service';
 import { WidgetDirective } from '../../directives/widget.directive';
 import { WidgetComponent } from '../../widgets/widgetcomponent';
 import { IntercomService, IMessage } from '../../services/intercom.service';
-
 import { MatMenu, MatMenuTrigger } from '@angular/material';
 
 @Component({
@@ -17,31 +16,30 @@ import { MatMenu, MatMenuTrigger } from '@angular/material';
 })
 export class WidgetLoaderComponent implements OnInit, OnChanges {
   @HostBinding('class.widget-loader') private hostClass = true;
-  // @HostBinding('style.display') display: string;
-
-  @Input() widgetconf: any; // will need to define widget conf type
-  @ViewChild(WidgetDirective) widgetContainer: WidgetDirective;
+  @Input() widget: any;
   @Output('viewComponent') viewComponent = new EventEmitter<any>();
 
+  @ViewChild(WidgetDirective) widgetContainer: WidgetDirective;
   @ViewChild( MatMenuTrigger ) trigger: MatMenuTrigger;
 
   _component: any = null;
   componentFactory: any = null;
+  viewContainerRef: any;
 
   constructor(private widgetService: WidgetService, private interCom: IntercomService,
     private componentFactoryResolver: ComponentFactoryResolver) { }
 
   ngOnInit() {
-    // this.display = 'block';
     this.loadComponent();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-
+    console.log('widget loader changes', changes);
+    
   }
   // emit component factory and config for edit/view full mode
-  widgetView(wConfig) {
-    this.viewComponent.emit({ 'compFactory': this.componentFactory, 'config': this.widgetconf });
+  widgetView() {  
+    this.viewComponent.emit({ 'compFactory': this.componentFactory, '_viewContainerRef': this.viewContainerRef, 'widget': this.widget });
     // make dashboard header disappear
     this.interCom.requestSend(<IMessage>{
       action: 'viewEditMode',
@@ -51,18 +49,17 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
 
   loadComponent() {
     let componentName = '__notfound__';
-    if (this.widgetconf.component_type) {
-      componentName = this.widgetconf.component_type;
+    if (this.widget.config.component_type) {
+      componentName = this.widget.config.component_type;
     }
     const componentToLoad: Type<any> = this.widgetService.getComponentToLoad(componentName);
     this.componentFactory = this.componentFactoryResolver.resolveComponentFactory(componentToLoad);
-    const viewContainerRef = this.widgetContainer.viewContainerRef;
-    viewContainerRef.clear();
-
+    this.viewContainerRef = this.widgetContainer.viewContainerRef;
+    this.viewContainerRef.clear();
     // const componentRef = viewContainerRef.createComponent(componentFactory);
     // (<WidgetComponent>componentRef.instance).config = this.widgetconf;
-    this._component = viewContainerRef.createComponent(this.componentFactory);
-    (<WidgetComponent>this._component.instance).config = this.widgetconf;
+    this._component = this.viewContainerRef.createComponent(this.componentFactory);
+    (<WidgetComponent>this._component.instance).widget = this.widget;
 
   }
 }
