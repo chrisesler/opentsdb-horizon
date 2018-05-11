@@ -41,7 +41,8 @@ export class HttpService {
           w: 6, h: 5
         },
         config: {
-          title: 'Three'
+          title: 'Three',
+          component_type: 'LineChartComponent'
         }
       },
       {
