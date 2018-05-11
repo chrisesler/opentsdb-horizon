@@ -6,13 +6,12 @@
         </a>
         <a mat-button
             *ngFor="let routeLink of routeLinks"
-            routerLink="{{routeLink.link}}">
+            routerLink="{{routeLink.link}}" class="navbar-item">
             {{routeLink.label}}
         </a>
         <span class="flex-spacer"></span>
-        <add-new-panel *ngIf="!viewEditMode"></add-new-panel>
+        <ng-container [cdkPortalOutlet]="cdkService.addNewDashboardPanelPortal$ | async"></ng-container>
         <theme-picker mat-button></theme-picker>
-        <close-edit-view *ngIf="viewEditMode"></close-edit-view>
-        <ng-container [cdkPortalOutlet]="cdkService.navbarPortal$ | async"></ng-container>
+        <ng-container [cdkPortalOutlet]="cdkService.editViewModePortal$ | async"></ng-container>
     </mat-toolbar-row>
 </mat-toolbar>

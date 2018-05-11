@@ -13,73 +13,74 @@ import { LoadDashboard } from '../../state/dashboard.actions';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
   @HostBinding('class.app-dashboard') private hostClass = true;
 
-  // @Select((state: any) => state.dashboardState.widgets)
-  // widgets$: Observable<any[]>;
-  @ViewChild('testTmpl') testTmpl: TemplateRef<any>;
+  // portal templates
+  @ViewChild('addDashboardPanelTmpl') addDashboardPanelTmpl: TemplateRef<any>;
+  @ViewChild('editViewModeTmpl') editViewModeTmpl: TemplateRef<any>;
 
+  // portal placeholders
+  addDashboardPanelPortal: TemplatePortal;
+  editViewModePortal: TemplatePortal;
+
+  //
   listenSub: Subscription;
   widgets$: Observable<any>;
-  viewEditMode = false;
+  viewEditMode: any = {'visible': false};
   rerender: any = {'reload': false};
+
   constructor(
-      private store: Store, 
-      private interCom: IntercomService, 
+      private store: Store,
+      private interCom: IntercomService,
       private dbService: DashboardService,
       private cdkService: CdkService
-  ) { 
+  ) {
     this.widgets$ = this.store.select(state => state.dashboardState.widgets);
   }
 
   ngOnInit() {
-    console.log('snapshot', this.store.snapshot());
-    
-      // this.hasHeader = true;
-      // this.dashboard = this.dbService.dashboard;
-      // console.log('dash', this.dashboard);
-      // this.widgets = this.dashboard.widgets;
+      // setup portals
+      this.addDashboardPanelPortal = new TemplatePortal(this.addDashboardPanelTmpl, undefined, {});
+      this.cdkService.setAddNewDashboardPanelPortal(this.addDashboardPanelPortal);
+
+      this.editViewModePortal = new TemplatePortal(this.editViewModeTmpl, undefined, {});
+      this.cdkService.setEditViewModePortal(this.editViewModePortal);
+
       // ready to handle request from children of DashboardModule
       this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
-        console.log('listen to: ', JSON.stringify(message));
+      //  console.log('listen to: ', JSON.stringify(message));
 
-        if (message.action === 'viewEditMode') {
-          // this.hasHeader = !message.payload;
-          this.viewEditMode = message.payload;
-        }
-        if (message.action === 'addNewWidget') {
-          this.addNewWidget();
+        switch (message.action) {
+            case 'viewEditMode':
+              this.viewEditMode = message.payload;
+              break;
+            case 'addNewWidget':
+              this.addNewWidget();
+              break;
+            default:
+              break;
         }
       });
+
       this.store.dispatch(new LoadDashboard('xyz'));
-      this.cdkService.setNavbarPortal(new TemplatePortal(this.testTmpl, undefined, {}));
-
-   }
-
-   addNewWidget() {
-     this.dbService.addNewWidget();
-     this.rerender = {'reload': true};
    }
 
    ngOnDestroy() {
      this.listenSub.unsubscribe();
    }
 
-   /*dashboardHasHeaderChange(value: any) {
-      this.hasHeader = value;
-   }*/
+  // navbar portal item behaviors
+  addNewWidget() {
+    this.dbService.addNewWidget();
+    this.rerender = { 'reload': true };
+  }
 
-   cdkTest() {
-     console.log('CDK TEST');
-     this.cdkService.setNavbarPortal(null);
-     //this.cdkService.setNavbarPortal(new TemplatePortal(this.testTmpl, undefined, {}));
-
-     
-   }
+  closeViewEditMode() {
+    this.viewEditMode = {'visible': false};
+  }
 
 }
