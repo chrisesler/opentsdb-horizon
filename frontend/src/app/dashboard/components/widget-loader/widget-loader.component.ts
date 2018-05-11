@@ -45,7 +45,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     // make dashboard header disappear
     this.interCom.requestSend(<IMessage>{
       action: 'viewEditMode',
-      payload: true
+      payload: {'visible': true}
     });
   }
 
