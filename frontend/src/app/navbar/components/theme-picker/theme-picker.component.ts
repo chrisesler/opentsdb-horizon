@@ -15,7 +15,6 @@ export class ThemePickerComponent implements OnInit {
 
   @ViewChild( MatMenuTrigger ) trigger: MatMenuTrigger;
 
-  // @Input() theme: string;
   @Output() themeChange = new EventEmitter<string>();
 
   private themeClass: string;

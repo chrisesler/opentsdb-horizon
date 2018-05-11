@@ -26,23 +26,10 @@ export class DboardContentComponent implements OnInit, OnChanges {
   @Output() widgetsLayoutUpdate = new EventEmitter();
   @Input() widgets: any[];
   @Input() rerender: any;
-
-  @Input()
-  get viewEditMode() {
-    return this._viewEditMode;
-  }
-
-  set viewEditMode(value: boolean) {
-    this._viewEditMode = value;
-    if(!value){
-      this.closeEditView();
-    }
-  }
+  @Input() viewEditMode: any;
 
   cellHeight = 0;
   cellWidth = 0;
-
-  constructor(private dbService: DashboardService, private interCom: IntercomService) { }
 
   gridsterOptions: IGridsterOptions = {
     // core configuration is default one - for smallest view. It has hidden minWidth: 0.
@@ -83,20 +70,21 @@ export class DboardContentComponent implements OnInit, OnChanges {
     handlerClass: 'panel-heading'
   };
 
-  ngOnInit() { }
+  constructor(private dbService: DashboardService, private interCom: IntercomService) { }
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log('dbaord-content-changes', changes);
-    
-    // need to reload grister view to update the UI
-    if (changes.rerender && changes.rerender.currentValue.reload) {
-       this.gridster.reload();
-    } 
+  ngOnInit() {
+    console.log('VIEW EDIT MODE', this.viewEditMode);
   }
 
-  closeEditView() {
-    // clear out the editMode widget
-    this.widgetViewContainer.viewContainerRef.clear();
+  ngOnChanges(changes: SimpleChanges) {
+    console.log('dbaord-content-changes', changes); 
+    // need to reload grister view to update the UI
+    if (changes.rerender && changes.rerender.currentValue.reload) {
+      this.gridster.reload();
+    }
+    if (changes.viewEditMode && !changes.viewEditMode.currentValue.visible) {
+        this.widgetViewContainer.viewContainerRef.clear();
+    }
   }
 
   // to load selected component factory
@@ -128,7 +116,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
   // this event will start first and set values of cellWidth and cellHeight
   // then update the this.widgets reference
   gridsterFlow(event: any) {
-    //console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
+    // console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
     this.cellHeight = event.gridsterComponent.gridster.cellHeight;
     this.cellWidth = event.gridsterComponent.gridster.cellWidth;
     this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);
@@ -141,7 +129,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
   // we call the function update all since we don't know which one for now.
   // the width and height unit might change but not the cell width and height.
   gridEventEnd(event: any) {
-    //console.log(event, event.item.$element.getBoundingClientRect());
+    // console.log(event, event.item.$element.getBoundingClientRect());
     if (event.action === 'resize') {
       this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);
       this.widgetsLayoutUpdate.emit(this.widgets);

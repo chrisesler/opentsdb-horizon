@@ -1,5 +1,5 @@
 <div widget-view-container></div>
-<div class="gridster-stage has-scroller" fxFlex="1 1 100%" [style.display]="viewEditMode ? 'none' : 'block'">
+<div class="gridster-stage has-scroller" fxFlex="1 1 100%" [style.display]="viewEditMode.visible ? 'none' : 'block'">
     <div class="is-scroller">
         <gridster #gridster1 class="dashboard"
             [options]="gridsterOptions"

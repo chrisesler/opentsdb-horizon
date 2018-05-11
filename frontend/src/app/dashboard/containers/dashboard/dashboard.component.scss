@@ -6,6 +6,24 @@
         display: flex;
         flex: 1 1 100%;
     }
+
+    // NAVBAR PORTAL ITEMS 
+    .nav-close-edit-view {
+        .mat-raised-button {
+            ///@include mat-elevation-transition;
+            @include transition-property(background-color);
+            @include transition-duration(.3s);
+            @include mat-elevation(0);
+            padding: 0;
+            min-width: 32px;
+
+            &,
+            .mat-icon {
+                width: 32px;
+                height: 32px;
+            }
+        }
+    }
 }
 
 @mixin dashboard-component-theme($theme-config) {
@@ -17,8 +35,12 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
 
-    .app-dashboard {
+    .app-dashboard { }
 
+    // 
+    .nav-close-edit-view {
+        .mat-raised-button:hover {
+            background-color: map-get($accent, A200);
+        }
     }
-
 }
