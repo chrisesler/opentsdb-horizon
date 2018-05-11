@@ -8,7 +8,7 @@ import { Component, OnInit, Input, Output, HostBinding, EventEmitter } from '@an
 export class WidgetbaseComponent implements OnInit {
   @HostBinding('class.widget-panel-content') private hostClass = true;
 
-  @Input() config: any;
+  @Input() widget: any;
 
   constructor() { }
 
