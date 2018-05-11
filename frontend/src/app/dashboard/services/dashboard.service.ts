@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from '../../core/services/utils.service';
-import { IntercomService, IMessage } from './intercom.service';
 
 @Injectable()
 export class DashboardService {
   private widgetPrototype = {
-    gPosition: {
+    gridPos: {
       x: 0, y: 0,
       h: 5, w: 6,
       xMd: 0, yMd: 0,
@@ -17,7 +16,7 @@ export class DashboardService {
     }
   };
 
-  constructor(private interCom:IntercomService, private utils: UtilsService) { }
+  constructor(private utils: UtilsService) { }
 
   modifyWidgets(dashboard: any) {
     // add extra info item behaviors
@@ -29,31 +28,28 @@ export class DashboardService {
     }
   }
 
-  addNewWidget() {
-    /*
+  addNewWidget(widgets: any[]) { 
     const widget: any = Object.assign({}, this.widgetPrototype);
     widget.id = this.utils.generateId();
     // before adding, we more the first one down
-    for (let i = 0; i < this.dashboard.widgets.length; i++) {
-      const wd: any = this.dashboard.widgets[i];
-      if (wd.gPosition.x === 0 && wd.gPosition.y === 0) {
-        wd.gPosition.y = wd.gPosition.yMd = 1;
+    for (let i = 0; i < widgets.length; i++) {
+      const wd: any = widgets[i];
+      if (wd.gridPos.x === 0 && wd.gridPos.y === 0) {
+        wd.gridPos.y = wd.gridPos.yMd = 1;
         break;
       }
     }
-    this.dashboard.widgets.unshift(widget);
-   */
+    widgets.unshift(widget);
+    return widgets;
   }
 
-  updateWidgetsDimension(width, height, pWidgets) {
-    
+  updateWidgetsDimension(width, height, pWidgets) { 
     for (let i = 0; i < pWidgets.length; i++) {
       const clientSize = {
         'width': width * pWidgets[i].gridPos.w,
         'height': height * pWidgets[i].gridPos.h
       };
       pWidgets[i].clientSize = clientSize;
-      this.interCom.responsePut({id:pWidgets[i].config.id,action:"resizeWidget",payload:clientSize});
     }   
   }
 }
