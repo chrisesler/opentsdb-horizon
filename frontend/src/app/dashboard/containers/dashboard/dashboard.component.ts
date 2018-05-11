@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef, ChangeDetectionStrategy  } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
@@ -7,8 +7,9 @@ import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../services/intercom.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Store, Select } from '@ngxs/store';
+import { DashboardState } from '../../state/dashboard.state';
 import { Observable } from 'rxjs';
-import { LoadDashboard } from '../../state/dashboard.actions';
+import * as dashboardActions from '../../state/dashboard.actions';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,7 +19,7 @@ import { LoadDashboard } from '../../state/dashboard.actions';
 export class DashboardComponent implements OnInit, OnDestroy {
 
   @HostBinding('class.app-dashboard') private hostClass = true;
-
+  @Select(state => state.dashboardState.widgets) widgets$: Observable<any>;
   // portal templates
   @ViewChild('addDashboardPanelTmpl') addDashboardPanelTmpl: TemplateRef<any>;
   @ViewChild('editViewModeTmpl') editViewModeTmpl: TemplateRef<any>;
@@ -29,58 +30,69 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   //
   listenSub: Subscription;
-  widgets$: Observable<any>;
-  viewEditMode: any = {'visible': false};
-  rerender: any = {'reload': false};
-
+  viewEditMode: any = { 'visible': false };
+  rerender: any = { 'reload': false };
+  widgets: any[] = [];
   constructor(
-      private store: Store,
-      private interCom: IntercomService,
-      private dbService: DashboardService,
-      private cdkService: CdkService
-  ) {
-    this.widgets$ = this.store.select(state => state.dashboardState.widgets);
-  }
+    private store: Store,
+    private interCom: IntercomService,
+    private dbService: DashboardService,
+    private cdkService: CdkService
+  ) { }
 
   ngOnInit() {
-      // setup portals
-      this.addDashboardPanelPortal = new TemplatePortal(this.addDashboardPanelTmpl, undefined, {});
-      this.cdkService.setAddNewDashboardPanelPortal(this.addDashboardPanelPortal);
+    // setup portals
+    this.addDashboardPanelPortal = new TemplatePortal(this.addDashboardPanelTmpl, undefined, {});
+    this.cdkService.setAddNewDashboardPanelPortal(this.addDashboardPanelPortal);
 
-      this.editViewModePortal = new TemplatePortal(this.editViewModeTmpl, undefined, {});
-      this.cdkService.setEditViewModePortal(this.editViewModePortal);
+    this.editViewModePortal = new TemplatePortal(this.editViewModeTmpl, undefined, {});
+    this.cdkService.setEditViewModePortal(this.editViewModePortal);
 
-      // ready to handle request from children of DashboardModule
-      this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
+    // ready to handle request from children of DashboardModule
+    this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
       //  console.log('listen to: ', JSON.stringify(message));
 
-        switch (message.action) {
-            case 'viewEditMode':
-              this.viewEditMode = message.payload;
-              break;
-            case 'addNewWidget':
-              this.addNewWidget();
-              break;
-            default:
-              break;
-        }
-      });
+      switch (message.action) {
+        case 'viewEditMode':
+          this.viewEditMode = message.payload;
+          break;
+        case 'addNewWidget':
+          this.addNewWidget();
+          break;
+        default:
+          break;
+      }
+    });
+    this.store.dispatch(new dashboardActions.LoadDashboard('xyz'));
+    this.widgets$.subscribe(widgets => {
+      this.widgets = widgets;
+    });
+  }
 
-      this.store.dispatch(new LoadDashboard('xyz'));
-   }
+  // this will call based on gridster reflow and size changes
+  widgetsLayoutUpdate(widgets: any[]) {
+    this.store.dispatch(new dashboardActions.UpdateWidgetsLayout({ widgets }));
+    // we the broadcast new dimention down to them for resizing
+    for (let i = 0; i < widgets.length; i++) {
+      this.interCom.responsePut({
+        id: widgets[i].id,
+        action: "resizeWidget",
+        payload: widgets[i].clientSize
+      }
+      );
+    }
+  }
 
-   ngOnDestroy() {
-     this.listenSub.unsubscribe();
-   }
-
-  // navbar portal item behaviors
   addNewWidget() {
-    this.dbService.addNewWidget();
+    this.widgets = this.dbService.addNewWidget(this.widgets);
     this.rerender = { 'reload': true };
   }
 
   closeViewEditMode() {
-    this.viewEditMode = {'visible': false};
+    this.viewEditMode = { 'visible': false };
   }
 
+  ngOnDestroy() {
+    this.listenSub.unsubscribe();
+  }
 }

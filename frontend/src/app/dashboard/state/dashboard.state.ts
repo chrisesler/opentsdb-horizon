@@ -38,7 +38,16 @@ export interface DashboardStateModel {
 export class DashboardState {
     constructor(private httpService: HttpService, private dashboardService: DashboardService) {}
 
+    // return a clone copy of state, keet global state immutable
+    @Selector()
+    static getWidgets(state: DashboardStateModel) {
+        return JSON.parse(JSON.stringify(state.widgets));
+    }
 
+    @Selector()
+    static getDashboard(state: DashboardStateModel) {
+        return JSON.parse(JSON.stringify(state));
+    }
 
     @Action(dashboardAction.LoadDashboard)
     loadDashboard(ctx: StateContext<DashboardStateModel>, { id }: dashboardAction.LoadDashboard) {
@@ -52,10 +61,7 @@ export class DashboardState {
     }
 
     @Action(dashboardAction.LoadDashboardSuccess)
-    loadDashboardSuccess(
-        ctx: StateContext<DashboardStateModel>,
-        { payload }: dashboardAction.LoadDashboardSuccess
-    ) {
+    loadDashboardSuccess(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.LoadDashboardSuccess) {
         const state = ctx.getState();
         // tranform dashboard information by adding some other properties
         // to enable rezise, drag and drop and responsive size
@@ -63,4 +69,14 @@ export class DashboardState {
        ctx.setState({...state, ...payload, loading: false, loaded: true});
     }
 
+    @Action(dashboardAction.LoadDashboardFail)
+    loadDashboardFail(ctx: StateContext<DashboardStateModel>, { error }: dashboardAction.LoadDashboardFail) {
+        
+    }
+
+    @Action(dashboardAction.UpdateWidgetsLayout)
+    updateWidgetsLayout(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.UpdateWidgetsLayout){
+        const state = ctx.getState();
+        ctx.patchState({...state, ...payload});
+    }
  }

@@ -1,13 +1,12 @@
 import {
   Component, OnInit, Input, ViewChild, ViewEncapsulation,
   ChangeDetectionStrategy, OnChanges, SimpleChanges, ComponentFactoryResolver,
-  HostBinding
+  HostBinding, Output, EventEmitter
 } from '@angular/core';
 import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDraggableOptions } from 'angular2gridster';
 import { WidgetViewDirective } from '../../directives/widgetview.directive';
 import { WidgetComponent } from '../../widgets/widgetcomponent';
 import { DashboardService } from '../../services/dashboard.service';
-import { Store } from '@ngxs/store';
 import { IntercomService, IMessage } from '../../services/intercom.service';
 
 @Component({
@@ -24,6 +23,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
   @ViewChild(WidgetViewDirective) widgetViewContainer: WidgetViewDirective;
   @ViewChild(GridsterComponent) gridster: GridsterComponent;
 
+  @Output() widgetsLayoutUpdate = new EventEmitter();
   @Input() widgets: any[];
   @Input() rerender: any;
   @Input() viewEditMode: any;
@@ -70,18 +70,15 @@ export class DboardContentComponent implements OnInit, OnChanges {
     handlerClass: 'panel-heading'
   };
 
-  constructor(
-    private dbService: DashboardService,
-    private interCom: IntercomService,
-    private store: Store
-  ) { }
+  constructor(private dbService: DashboardService, private interCom: IntercomService) { }
 
   ngOnInit() {
     console.log('VIEW EDIT MODE', this.viewEditMode);
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('sasas', changes);
+    console.log('dbaord-content-changes', changes); 
+    // need to reload grister view to update the UI
     if (changes.rerender && changes.rerender.currentValue.reload) {
       this.gridster.reload();
     }
@@ -92,6 +89,8 @@ export class DboardContentComponent implements OnInit, OnChanges {
 
   // to load selected component factory
   viewComponent(comp: any) {
+    console.log('view component', comp);
+ 
     // get the view container
     const viewContainerRef = this.widgetViewContainer.viewContainerRef;
     viewContainerRef.clear();
@@ -99,13 +98,12 @@ export class DboardContentComponent implements OnInit, OnChanges {
     // create component using existing widget factory
     const component = viewContainerRef.createComponent(comp.compFactory);
 
-    // give the widget it's config
-    (<WidgetComponent>component.instance).config = comp.config;
-
+    // assign @input widget
+    (<WidgetComponent>component.instance).widget = comp.widget; 
   }
 
+  // change ratio when breakpoint hits
   breakpointChange(event: IGridsterOptions) {
-    console.log('breakpoint', event);
     let ratio = 2;
     if (event.lanes === 1) {
       ratio = 4;
@@ -122,7 +120,9 @@ export class DboardContentComponent implements OnInit, OnChanges {
     this.cellHeight = event.gridsterComponent.gridster.cellHeight;
     this.cellWidth = event.gridsterComponent.gridster.cellWidth;
     this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);
-    console.log('state', this.store.snapshot());
+    // console.log('current widget', this.widgets);
+    this.widgetsLayoutUpdate.emit(this.widgets);
+    
   }
 
   // this event happened when item is dragged or resize
@@ -132,9 +132,9 @@ export class DboardContentComponent implements OnInit, OnChanges {
     // console.log(event, event.item.$element.getBoundingClientRect());
     if (event.action === 'resize') {
       this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);
-      // console.log('item resize', this.widgets);
+      this.widgetsLayoutUpdate.emit(this.widgets);
+      //console.log('item resize', this.widgets);
     }
-    console.log('state', this.store.snapshot());
   }
 
 }

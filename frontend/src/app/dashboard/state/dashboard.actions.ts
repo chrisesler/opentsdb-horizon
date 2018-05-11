@@ -1,4 +1,5 @@
-import { DashboardStateModel } from './dashboard.state'
+import { DashboardStateModel } from './dashboard.state';
+
 export class LoadDashboard {
     static readonly type = '[Dashboard] Load Dashboard';
     constructor(public id: string) {}
@@ -9,10 +10,17 @@ export class LoadDashboardSuccess {
     constructor(public readonly payload: DashboardStateModel) {}
 }
 
-
 export class LoadDashboardFail {
     static readonly type = '[Dashboard] Load Dashboard Fail';
     constructor(public readonly error: any) { }
 }
 
-export type DashboardActions = LoadDashboard | LoadDashboardSuccess | LoadDashboardFail;
+export class UpdateWidgetsLayout {
+    static readonly type = '[Dashboard] Update Wiget Layout';
+    constructor(public readonly payload: any) {}
+}
+
+export type DashboardActions = LoadDashboard 
+                                | LoadDashboardSuccess 
+                                | LoadDashboardFail
+                                | UpdateWidgetsLayout;

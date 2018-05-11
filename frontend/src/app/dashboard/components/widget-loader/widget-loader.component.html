@@ -10,13 +10,13 @@
     <mat-card-header fxFlex="1 1 28px" fxLayout="row" fxLayoutAlign="stretch stretch" class="panel-heading">
         <mat-toolbar >
             <mat-toolbar-row>
-                <span class="panel-title">{{widgetconf.title}}</span>
+                <span class="panel-title">{{widget.config.title}}</span>
                 <span class="flex-spacer"></span>
                 <button mat-icon-button [matMenuTriggerFor]="widgetMenu">
                   <mat-icon>more_horiz</mat-icon>
                 </button>
                 <mat-menu #widgetMenu="matMenu" xPosition="before" class="widget-menu">
-                    <button mat-menu-item (click)="widgetView(widgetconf)">
+                    <button mat-menu-item (click)="widgetView()">
                         <mat-icon>fullscreen</mat-icon>
                         <span>Full screen</span>
                     </button>

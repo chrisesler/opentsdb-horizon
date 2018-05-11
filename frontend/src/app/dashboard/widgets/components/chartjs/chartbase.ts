@@ -4,7 +4,7 @@ export class ChartBase implements OnInit,  DoCheck {
 	/** 
 	 * component configurations
 	 */
-	@Input() config: any;
+	@Input() widget: any;
 	
 	/** 
 	 * chart options. changes the default chart behavior. refer the {@link http://www.chartjs.org/docs/latest/configuration/|documentation}  for supporting options.
@@ -134,6 +134,7 @@ export class ChartBase implements OnInit,  DoCheck {
     _meta:any = {};
 
 	constructor(public element:ElementRef,  public differs: KeyValueDiffers) { 
+		
 	}
 
 	ngOnInit() {
