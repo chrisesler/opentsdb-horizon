@@ -1,3 +1,3 @@
 export interface WidgetComponent {
-    config: any;
+    widget: any;
 }
