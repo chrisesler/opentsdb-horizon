@@ -8,7 +8,7 @@
             [draggableOptions]="{ handlerClass: 'panel-heading' }">
 
             <gridster-item #itemComp class="gridster-item"
-                *ngFor="let widget of widgets; let idx = index"
+                *ngFor="let widget of widgets; let idx = index; trackBy: trackByWidget"
                 [dragAndDrop]="widget.gridPos.dragAndDrop"
                 [resizable]="widget.gridPos.resizable"
                 [(x)]="widget.gridPos.x"
