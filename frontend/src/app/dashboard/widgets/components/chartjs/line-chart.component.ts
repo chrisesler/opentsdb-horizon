@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, OnDestroy, KeyValueDiffers, ElementRef, Input, Output, SimpleChanges, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, KeyValueDiffers, ElementRef, Input, Output, SimpleChanges, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { ChartBase } from './chartbase';
 import { IntercomService, IMessage } from '../../../services/intercom.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -48,10 +48,9 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
 	}
 
 	ngOnInit() {
-		super.ngOnInit();
-		
+		super.ngOnInit();		
 		this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {	
-			console.log('message', message, this.widget);
+			// console.log('message', message, this.widget);
 			
 			if (message && message.id == this.widget.id) {
 				switch (message.action) {
