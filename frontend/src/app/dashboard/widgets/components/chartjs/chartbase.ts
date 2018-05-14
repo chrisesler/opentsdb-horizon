@@ -69,7 +69,7 @@ export class ChartBase implements OnInit,  DoCheck {
 	 * ]
 	 * </code></pre>
 	 */
-	data:any=[{ data:[ {x: 1513533630000,y: 20} , {x: 1513534630000,y: 30}, {x: 1513535630000,y: 30}] }];
+	data:any=[{ data:[ {x: 1513533630000,y: 20} , {x: 1513534630001,y: 10}, {x: 1513535630002,y: 30}] }];
 
 	/**
 	 * Outputs the threshold detail.

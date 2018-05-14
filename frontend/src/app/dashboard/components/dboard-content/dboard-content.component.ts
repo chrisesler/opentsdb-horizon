@@ -76,6 +76,10 @@ export class DboardContentComponent implements OnInit, OnChanges {
     console.log('VIEW EDIT MODE', this.viewEditMode);
   }
 
+  trackByWidget(index: number, widget: any) {
+    return widget.id;
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     console.log('dbaord-content-changes', changes); 
     // need to reload grister view to update the UI
@@ -130,7 +134,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
   // the width and height unit might change but not the cell width and height.
   gridEventEnd(event: any) {
     // console.log(event, event.item.$element.getBoundingClientRect());
-    if (event.action === 'resize') {
+    if (event.action === 'resize' || event.action === 'drag') {
       this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);
       this.widgetsLayoutUpdate.emit(this.widgets);
       //console.log('item resize', this.widgets);

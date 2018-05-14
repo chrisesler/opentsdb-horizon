@@ -10,11 +10,22 @@ export interface WidgetModel {
         width: number;
         height: number;
     }
-    settings: {
-
+    settings: {}
+    gridPos: {
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+        xMd?: number;
+        yMd?: number;
     }
-    config: any;
+    config: {
+        title: string;
+        component_type: string
+    }
 }
+
+
 
 export interface DashboardStateModel {
     id: string;
@@ -76,7 +87,7 @@ export class DashboardState {
 
     @Action(dashboardAction.UpdateWidgetsLayout)
     updateWidgetsLayout(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.UpdateWidgetsLayout){
-        const state = ctx.getState();
-        ctx.patchState({...state, ...payload});
+        const state = ctx.getState();        
+        ctx.setState({...state, ...payload});
     }
  }

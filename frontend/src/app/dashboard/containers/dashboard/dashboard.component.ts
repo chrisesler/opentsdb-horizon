@@ -19,7 +19,8 @@ import * as dashboardActions from '../../state/dashboard.actions';
 export class DashboardComponent implements OnInit, OnDestroy {
 
   @HostBinding('class.app-dashboard') private hostClass = true;
-  @Select(state => state.dashboardState.widgets) widgets$: Observable<any>;
+  // @Select(state => state.dashboardState.widgets) widgets$: Observable<any>;
+  @Select(DashboardState.getWidgets) widgets$: Observable<any>;
   // portal templates
   @ViewChild('addDashboardPanelTmpl') addDashboardPanelTmpl: TemplateRef<any>;
   @ViewChild('editViewModeTmpl') editViewModeTmpl: TemplateRef<any>;
