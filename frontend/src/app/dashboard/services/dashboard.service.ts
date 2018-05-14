@@ -35,7 +35,7 @@ export class DashboardService {
     for (let i = 0; i < widgets.length; i++) {
       const wd: any = widgets[i];
       if (wd.gridPos.x === 0 && wd.gridPos.y === 0) {
-        wd.gridPos.y = wd.gridPos.yMd = 1;
+        wd.gridPos.y = wd.gridPos.yMd = 5;
         break;
       }
     }
@@ -50,6 +50,10 @@ export class DashboardService {
         'height': height * pWidgets[i].gridPos.h
       };
       pWidgets[i].clientSize = clientSize;
+      // also update position from xMd and yMd
+      // since x,y not updated when resize, grad
+      pWidgets[i].gridPos.x = pWidgets[i].gridPos.xMd;
+      pWidgets[i].gridPos.y = pWidgets[i].gridPos.yMd;
     }   
   }
 }
