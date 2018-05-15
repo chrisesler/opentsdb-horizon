@@ -4,5 +4,6 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  tsdb_host: 'http://data.yamas.ops.yahoo.com:9999'
 };
