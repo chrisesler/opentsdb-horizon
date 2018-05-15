@@ -25,12 +25,11 @@ export interface WidgetModel {
     }
 }
 
-
-
 export interface DashboardStateModel {
     id: string;
     loading: boolean;
     loaded: boolean;
+    viewEditMode: boolean;
     settings: any;
     widgets: WidgetModel[];
 }
@@ -41,6 +40,7 @@ export interface DashboardStateModel {
       id: 'abc',
       loading: false,
       loaded: false,
+      viewEditMode: false,
       settings: {},
       widgets: []
     }
@@ -58,6 +58,11 @@ export class DashboardState {
     @Selector()
     static getDashboard(state: DashboardStateModel) {
         return JSON.parse(JSON.stringify(state));
+    }
+
+    @Selector()
+    static setViewEditMode(state: DashboardStateModel) {
+        return state.viewEditMode;
     }
 
     @Action(dashboardAction.LoadDashboard)
@@ -89,5 +94,11 @@ export class DashboardState {
     updateWidgetsLayout(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.UpdateWidgetsLayout){
         const state = ctx.getState();        
         ctx.setState({...state, ...payload});
+    }
+
+    @Action(dashboardAction.SetViewEditMode)
+    setViewEditMode(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.SetViewEditMode) {
+        const state = ctx.getState();
+        ctx.setState({...state, viewEditMode: payload});
     }
  }
