@@ -7,7 +7,7 @@ import { GridsterModule } from 'angular2gridster';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 // services
 import { DashboardService } from './services/dashboard.service';
-// import { IntercomService } from './services/intercom.service';
+import { IntercomService } from './services/intercom.service';
 import { WidgetService } from './services/widget.service';
 // store
 import { NgxsModule } from '@ngxs/store';
@@ -47,7 +47,7 @@ import { LineChartComponent } from './widgets/components/chartjs/line-chart.comp
   ],
   providers: [
     DashboardService,
-    // IntercomService,
+    IntercomService,
     WidgetService
   ],
   entryComponents: [WidgetbaseComponent, WsampleComponent, LineChartComponent]
