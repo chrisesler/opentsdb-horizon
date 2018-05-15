@@ -17,7 +17,7 @@ import { MatMenu, MatMenuTrigger } from '@angular/material';
 export class WidgetLoaderComponent implements OnInit, OnChanges {
   @HostBinding('class.widget-loader') private hostClass = true;
   @Input() widget: any;
-  @Output('viewComponent') viewComponent = new EventEmitter<any>();
+  @Output() viewComponent = new EventEmitter<any>();
 
   @ViewChild(WidgetDirective) widgetContainer: WidgetDirective;
   @ViewChild( MatMenuTrigger ) trigger: MatMenuTrigger;
@@ -34,7 +34,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('widget loader changes', changes);
+    // console.log('widget loader changes', changes);
     if(changes.widget) {
       // console.log(JSON.stringify(changes.widget.currentValue));
       // console.log(JSON.stringify(changes.widget.previousValue));
@@ -54,7 +54,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     // make dashboard header disappear
     this.interCom.requestSend(<IMessage>{
       action: 'viewEditMode',
-      payload: {'visible': true}
+      payload: true
     });
   }
 

@@ -67,6 +67,6 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
 	}
 
 	ngOnDestroy() {
-		this.listenSub.unsubscribe();
+		if (this.listenSub) this.listenSub.unsubscribe();
 	}
 }
