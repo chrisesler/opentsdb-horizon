@@ -1,0 +1,133 @@
+/* WIDGET COMPONENTS */
+// NOTE: These styles cover ALL of the widget panels generic classes.
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+
+@mixin widget-components-base() {
+    // class that goes on the widget components
+
+    $default-padding: 8px;
+    $edit-view-padding: 20px;
+    $tab-width: initial;
+    $action-bar-height: 30px;
+
+    .widget-panel-content {
+        @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
+
+        .widget-output,
+        .widget-config {
+            padding: $default-padding;
+        }
+
+        .widget-title {
+            padding: 0 $default-padding;
+        }
+
+        .widget-actions {
+            padding: $default-padding $edit-view-padding;
+        }
+
+        .widget-panel-content,
+        .widget-controls-container {
+            flex: 1 1 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+        }
+
+        .widget-output-container {
+            flex: 1 1 800px;
+            display: flex;
+            flex-direction: column;
+            
+            .widget-title {
+                @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), title);
+                flex: 1 1 $action-bar-height;
+            }
+
+            .widget-output {
+                flex: 1 1 100%;
+            }
+        }
+
+        .widget-controls-container {
+            .widget-actions {
+                flex: 1 1 $action-bar-height;
+            }
+        }
+
+        // mat-tab-group
+        .widget-configs {
+            flex: 1 1 100%;
+
+            .mat-tab-body-wrapper {
+                flex: 1 1 100%;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden auto;
+            }
+
+            .mat-tab-header {
+                padding: 0 $edit-view-padding;
+
+                .mat-tab-label {
+                    min-width: initial;
+                }
+            }
+
+            .mat-tab-body-content {
+                padding: $default-padding $edit-view-padding;
+            }
+        }
+        
+        // save/cancel buttons
+        .widget-actions {
+            .mat-raised-button:not(:last-child) {
+                margin-right: 6px;
+            }
+        }
+    }
+
+    .edit-view-container.is-active {
+        .widget-output-container {
+            padding: $default-padding $edit-view-padding 0;
+        }
+    }
+}
+
+@mixin widget-components-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+    .edit-view-container.is-active {
+        .widget-output-container {
+            background-color: map-get($background, card);
+        }
+    }
+
+
+    .widget-panel-content {
+
+        .widget-configs {
+            background-color: map-get($background, card);
+        }
+
+        .widget-configs {
+            .mat-tab-label:not(.mat-tab-disabled):focus {
+                background-color: transparent;
+            }
+        }
+
+        // .widget-tab-configs,
+        .widget-actions {
+            border-top: 1px solid map-get($foreground, dividers);
+        }
+    }
+
+}

@@ -59,6 +59,8 @@
 
     }
 
+    // MATERIAL2 OVERRIDES
+    
     // CDK items are outside of component namespace class - be sure to give them very unique names
     .mat-menu-panel {
         background-color: map-get($background, menu);
@@ -68,6 +70,11 @@
                 color: map-get($accent, default);
             }
         }
+    }
+
+    .mat-tab-group.mat-primary .mat-ink-bar,
+    .mat-tab-nav-bar.mat-primary .mat-ink-bar {
+        background: map-get($background, ink-bar);
     }
 
 

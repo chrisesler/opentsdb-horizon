@@ -44,7 +44,7 @@ export class ThemePickerComponent implements OnInit {
 
   ngOnInit() {
     // NOTE: need some way get user settings for theme
-    this.themeClass = 'developing';
+    this.themeClass = 'dark';
     this.setTheme();
   }
 

@@ -77,20 +77,23 @@ export class DboardContentComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('dbaord-content-changes', changes); 
+    console.log('dboard-content-changes', changes);
     // need to reload grister view to update the UI
     if (changes.rerender && changes.rerender.currentValue.reload) {
       this.gridster.reload();
     }
-    if (changes.viewEditMode && !changes.viewEditMode.currentValue.visible) {
+    if (changes.viewEditMode) {
+      if (!changes.viewEditMode.currentValue.visible) {
         this.widgetViewContainer.viewContainerRef.clear();
+      }
+      this._viewEditMode = changes.viewEditMode.currentValue.visible;
     }
   }
 
   // to load selected component factory
   viewComponent(comp: any) {
     console.log('view component', comp);
- 
+
     // get the view container
     const viewContainerRef = this.widgetViewContainer.viewContainerRef;
     viewContainerRef.clear();
@@ -99,7 +102,8 @@ export class DboardContentComponent implements OnInit, OnChanges {
     const component = viewContainerRef.createComponent(comp.compFactory);
 
     // assign @input widget
-    (<WidgetComponent>component.instance).widget = comp.widget; 
+    (<WidgetComponent>component.instance).widget = comp.widget;
+    (<WidgetComponent>component.instance).editMode =  { 'showConfig': true };
   }
 
   // change ratio when breakpoint hits
@@ -122,7 +126,6 @@ export class DboardContentComponent implements OnInit, OnChanges {
     this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);
     // console.log('current widget', this.widgets);
     this.widgetsLayoutUpdate.emit(this.widgets);
-    
   }
 
   // this event happened when item is dragged or resize
@@ -133,7 +136,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
     if (event.action === 'resize') {
       this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);
       this.widgetsLayoutUpdate.emit(this.widgets);
-      //console.log('item resize', this.widgets);
+      // console.log('item resize', this.widgets);
     }
   }
 

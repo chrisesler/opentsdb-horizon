@@ -1,5 +1,9 @@
-<div id="container" [style.width]="width" [style.height]="height">
-	    <canvas id="canvas"></canvas>
+<div class="widget-output-container">
+	<div class="widget-output" id="container" [style.width]="width" [style.height]="height">
+		<canvas id="canvas"></canvas>
+	</div>
 </div>
-
+<div class="widget-controls-container" *ngIf="editMode.showConfig">
+	CONFIGURE YOUR COMPONENT
+</div>
 

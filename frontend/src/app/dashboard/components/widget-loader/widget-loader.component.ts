@@ -35,10 +35,10 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     console.log('widget loader changes', changes);
-    
   }
+
   // emit component factory and config for edit/view full mode
-  widgetView() {  
+  widgetView() {
     this.viewComponent.emit({ 'compFactory': this.componentFactory, '_viewContainerRef': this.viewContainerRef, 'widget': this.widget });
     // make dashboard header disappear
     this.interCom.requestSend(<IMessage>{
@@ -60,6 +60,6 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     // (<WidgetComponent>componentRef.instance).config = this.widgetconf;
     this._component = this.viewContainerRef.createComponent(this.componentFactory);
     (<WidgetComponent>this._component.instance).widget = this.widget;
-
+    (<WidgetComponent>this._component.instance).editMode =  { 'showConfig': false };
   }
 }

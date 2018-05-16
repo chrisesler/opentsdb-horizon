@@ -1,3 +1,6 @@
-<p>
+<div class="widget-output-container">
   {{ widget.config.title }}
-</p>
+</div>
+<div class="widget-controls-container" *ngIf="editMode.showConfig">
+    CONFIGURE YOUR COMPONENT
+</div>
