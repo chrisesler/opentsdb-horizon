@@ -69,7 +69,7 @@ export class ChartBase implements OnInit,  DoCheck {
 	 * ]
 	 * </code></pre>
 	 */
-	data:any=[{ data:[ {x: 1513533630000,y: 20} , {x: 1513534630000,y: 30}, {x: 1513535630000,y: 30}] }];
+	data:any=[{ data:[ {x: 1513533630000,y: 20} , {x: 1513534630001,y: 10}, {x: 1513535630002,y: 30}] }];
 
 	/**
 	 * Outputs the threshold detail.
@@ -175,23 +175,23 @@ export class ChartBase implements OnInit,  DoCheck {
 
 	
 	private render() {
-	    let options = Object.assign(this.defaultOptions, this.options);
+		let options = Object.assign(this.defaultOptions, this.options);
 		this.updateDatasets(this.data);
 		let ctx = this.element.nativeElement.querySelector('canvas').getContext('2d');
 		if (this.chart) {
 			this.chart.destroy();
 		}
-		this.chart  = new Chart(ctx, {
-				        				type: this.type,
-				        				options: options,
-				        				data : { 
-				        							labels : options.categories,
-				        							datasets : this.data 
-				        						}
-			        				});
+		this.chart = new Chart(ctx, {
+			type: this.type,
+			options: options,
+			data: {
+				labels: options.categories,
+				datasets: this.data
+			}
+		});
 		let self = this;
 
-		this.chart.canvas.addEventListener("onThresholdSet", function(e) {
+		this.chart.canvas.addEventListener("onThresholdSet", function (e) {
 			self.ThresholdSet.emit(e.detail);
 		});
 	}
@@ -199,20 +199,19 @@ export class ChartBase implements OnInit,  DoCheck {
 	updateDatasets(datasets) {
 
 		this._meta = {
-						colors: this.colors.concat(),
-						metricColors: {}
-					};
+			colors: this.colors.concat(),
+			metricColors: {}
+		};
 
 		datasets.forEach((dataset, i) => {
 			this.setColor(dataset);
 		});
-
 	}
 	
 	setSize(width, height) {
 		this.width = width? width : this.width;
 		this.height = height? height : this.height;	
-		console.log("setSize",this.width, this.height)
+		// console.log("setSize",this.width, this.height)
 	}
 
 	setColor(dataset) {

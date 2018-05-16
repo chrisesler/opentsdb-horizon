@@ -1,7 +1,8 @@
-<div class="edit-view-container" [ngClass]="{'is-active': viewEditMode.visible}">
+<div class="edit-view-container" [ngClass]="{'is-active': viewEditMode}">
     <span widget-view-container></span>
 </div>
-<div class="gridster-stage has-scroller" fxFlex="1 1 100%" [style.display]="viewEditMode.visible ? 'none' : 'block'">
+<div class="gridster-stage has-scroller" fxFlex="1 1 100%" [style.display]="viewEditMode ? 'none' : 'block'">
+
     <div class="is-scroller">
         <gridster #gridster1 class="dashboard"
             [options]="gridsterOptions"
@@ -10,7 +11,7 @@
             [draggableOptions]="{ handlerClass: 'panel-heading' }">
 
             <gridster-item #itemComp class="gridster-item"
-                *ngFor="let widget of widgets; let idx = index"
+                *ngFor="let widget of widgets; let idx = index; trackBy: trackByWidget"
                 [dragAndDrop]="widget.gridPos.dragAndDrop"
                 [resizable]="widget.gridPos.resizable"
                 [(x)]="widget.gridPos.x"

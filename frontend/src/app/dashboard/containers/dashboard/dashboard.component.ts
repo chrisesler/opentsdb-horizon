@@ -19,7 +19,9 @@ import * as dashboardActions from '../../state/dashboard.actions';
 export class DashboardComponent implements OnInit, OnDestroy {
 
   @HostBinding('class.app-dashboard') private hostClass = true;
-  @Select(state => state.dashboardState.widgets) widgets$: Observable<any>;
+  // @Select(state => state.dashboardState.widgets) widgets$: Observable<any>;
+  @Select(DashboardState.getWidgets) widgets$: Observable<any>;
+  @Select(DashboardState.setViewEditMode) viewEditMode$: Observable<boolean>;
   // portal templates
   @ViewChild('addDashboardPanelTmpl') addDashboardPanelTmpl: TemplateRef<any>;
   @ViewChild('editViewModeTmpl') editViewModeTmpl: TemplateRef<any>;
@@ -27,11 +29,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // portal placeholders
   addDashboardPanelPortal: TemplatePortal;
   editViewModePortal: TemplatePortal;
-
   //
   listenSub: Subscription;
-  viewEditMode: any = { 'visible': false };
-  rerender: any = { 'reload': false };
+  rerender: any = { 'reload': false }; //-> make gridster re-render correctly
   widgets: any[] = [];
   constructor(
     private store: Store,
@@ -51,10 +51,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // ready to handle request from children of DashboardModule
     this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
       //  console.log('listen to: ', JSON.stringify(message));
-
       switch (message.action) {
         case 'viewEditMode':
-          this.viewEditMode = message.payload;
+          this.store.dispatch(new dashboardActions.SetViewEditMode(message.payload));
           break;
         case 'addNewWidget':
           this.addNewWidget();
@@ -89,7 +88,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   closeViewEditMode() {
-    this.viewEditMode = { 'visible': false };
+    this.store.dispatch(new dashboardActions.SetViewEditMode(false));
+    this.rerender = { 'reload': true };
   }
 
   ngOnDestroy() {

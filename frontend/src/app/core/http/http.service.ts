@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,32 @@ export class HttpService {
         },
         config: {
           title: 'One',
-          component_type: 'WsampleComponent'
+          component_type: 'LineChartComponent',
+          query: {
+            start: '1526250610000',
+            end: '1526337010000',
+            queries: [
+              {
+                aggregator: 'zimsum',
+                metric: 'Flickr.yapache.requests',
+                rate: false,
+                rateOptions: {
+                  counter: false,
+                  resetValue: 1
+                },
+                explicitTags: false,
+                downsample: '15m-avg-nan',
+                filters:[
+                  {
+                    type: 'wildcard',
+                    tagk: 'host',
+                    filter: '*',
+                    groupBy: true
+                  }
+                ]
+              }
+            ]
+          }
         }
       },
       {
