@@ -18,7 +18,6 @@ import { IntercomService, IMessage } from '../../services/intercom.service';
 })
 export class DboardContentComponent implements OnInit, OnChanges {
   @HostBinding('class.app-dboard-content') private _hostClass = true;
-  @HostBinding('class.view-edit-mode') private _viewEditMode = false;
 
   @ViewChild(WidgetViewDirective) widgetViewContainer: WidgetViewDirective;
   @ViewChild(GridsterComponent) gridster: GridsterComponent;
@@ -86,13 +85,9 @@ export class DboardContentComponent implements OnInit, OnChanges {
     if (changes.rerender && changes.rerender.currentValue.reload) {
       this.gridster.reload();
     }
-    if (changes.viewEditMode) {
-      if (!changes.viewEditMode.currentValue) {
+    if (changes.viewEditMode && !changes.viewEditMode.currentValue) {
         this.widgetViewContainer.viewContainerRef.clear();
-      }
-      this._viewEditMode = changes.viewEditMode.currentValue;
     }
-
   }
 
   // to load selected component factory
