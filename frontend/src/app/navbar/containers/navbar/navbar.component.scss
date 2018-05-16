@@ -8,6 +8,9 @@
 
         .app-home-link {
             min-width: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .app-yamas-logo {
@@ -39,7 +42,6 @@
             align-items: center;
             justify-content: center;
         }
-
     }
 }
 // theme (aka look-n-feel)

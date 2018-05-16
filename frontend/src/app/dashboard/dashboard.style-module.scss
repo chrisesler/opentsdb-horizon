@@ -50,7 +50,7 @@
   // example: @include componentName-component-theme($theme-config);
 
   // container
-  //@include dashboard-component-theme($theme-config); //nothing to style yet
+  @include dashboard-component-theme($theme-config); //nothing to style yet
 
   // components
   @include dboard-header-component-theme($theme-config);

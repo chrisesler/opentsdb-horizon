@@ -10,7 +10,7 @@
   </ng-template>
   <ng-template #editViewModeTmpl>
     <span class="navbar-item nav-close-edit-view" *ngIf="viewEditMode$ | async">
-      <button mat-raised-button color="accent" (click)="closeViewEditMode()">
+      <button mat-raised-button (click)="closeViewEditMode()">
         <mat-icon>reply</mat-icon>
       </button>
     </span>

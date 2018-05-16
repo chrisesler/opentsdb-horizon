@@ -27,7 +27,7 @@
 
         .mat-menu-item.is-active {
             .mat-icon {
-                color: map-get($accent, A200)
+                color: map-get($accent, A200);
             }
         }
     }
