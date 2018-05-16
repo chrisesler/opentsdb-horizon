@@ -18,7 +18,7 @@ import { locateHostElement } from '@angular/core/src/render3/instructions';
 export class WsampleComponent implements OnInit {
   @HostBinding('class.widget-panel-content') private hostClass = true;
 
-  @Input() editMode: any = false;
+  @Input() editMode: boolean;
   @Input() widget: any;
 
   constructor() { }
