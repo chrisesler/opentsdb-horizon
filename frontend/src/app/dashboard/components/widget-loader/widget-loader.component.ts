@@ -71,6 +71,6 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     // (<WidgetComponent>componentRef.instance).config = this.widgetconf;
     this._component = this.viewContainerRef.createComponent(this.componentFactory);
     (<WidgetComponent>this._component.instance).widget = this.widget;
-    (<WidgetComponent>this._component.instance).editMode =  { 'showConfig': false };
+    (<WidgetComponent>this._component.instance).editMode = false;
   }
 }

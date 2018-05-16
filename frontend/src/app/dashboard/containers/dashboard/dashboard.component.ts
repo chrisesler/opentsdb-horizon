@@ -31,7 +31,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   editViewModePortal: TemplatePortal;
   //
   listenSub: Subscription;
-  rerender: any = { 'reload': false }; //-> make gridster re-render correctly
+  rerender: any = { 'reload': false }; // -> make gridster re-render correctly
   widgets: any[] = [];
   constructor(
     private store: Store,

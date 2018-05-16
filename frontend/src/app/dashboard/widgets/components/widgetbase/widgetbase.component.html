@@ -1,13 +1,13 @@
 <div class="widget-output-container">
-    <div class="widget-title" *ngIf="editMode.showConfig">
+    <div class="widget-title" *ngIf="editMode">
         {{ widget.config.title }}
     </div>
     <div class="widget-output">
         <!-- Where the graph, or whatever lives -->
-        OUTPUT : GRAPH OR WHATEVER
+        BASE OUTPUT : Graph or whatever
     </div>
 </div>
-<div class="widget-controls-container" *ngIf="editMode.showConfig">
+<div class="widget-controls-container" *ngIf="editMode">
     <!-- tabs with config content -->
     <mat-tab-group class="widget-configs" [@.disabled]="'true'">
         <mat-tab label="Time Series">

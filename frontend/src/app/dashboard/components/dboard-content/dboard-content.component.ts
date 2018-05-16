@@ -105,7 +105,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
     const component = viewContainerRef.createComponent(comp.compFactory);
     // assign @input widget
     (<WidgetComponent>component.instance).widget = comp.widget;
-    (<WidgetComponent>component.instance).editMode =  { 'showConfig': true };
+    (<WidgetComponent>component.instance).editMode =  true; // let it know it is in edit mode so it shows the config controls
   }
 
   // change ratio when breakpoint hits

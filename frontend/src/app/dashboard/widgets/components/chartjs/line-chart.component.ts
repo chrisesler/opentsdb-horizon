@@ -24,9 +24,8 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, OnChanges {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
-    @HostBinding('class.widget-edit-mode') private _editMode = false;
 
-    @Input() editMode: any = { 'showConfig': false };
+    @Input() editMode: any = false;
     @Input() widget: any;
 
     listenSub: Subscription;

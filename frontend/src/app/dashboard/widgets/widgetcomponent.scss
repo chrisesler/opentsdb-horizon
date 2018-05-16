@@ -13,12 +13,12 @@
     .widget-panel-content {
         @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
 
-        .widget-output,
         .widget-config {
             padding: $default-padding;
         }
 
-        .widget-title {
+        .widget-title,
+        .widget-output {
             padding: 0 $default-padding;
         }
 
@@ -91,6 +91,10 @@
     .edit-view-container.is-active {
         .widget-output-container {
             padding: $default-padding $edit-view-padding 0;
+
+            .widget-output {
+                padding: $default-padding;
+            }
         }
     }
 }

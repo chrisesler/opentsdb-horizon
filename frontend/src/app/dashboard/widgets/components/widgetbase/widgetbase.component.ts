@@ -16,9 +16,8 @@ import {
 })
 export class WidgetbaseComponent implements OnInit, OnChanges {
   @HostBinding('class.widget-panel-content') private _hostClass = true;
-  @HostBinding('class.widget-edit-mode') private _editMode = false;
 
-  @Input() editMode: any = { 'showConfig': false };
+  @Input() editMode: any = false;
   @Input() widget: any;
 
   constructor() { }
