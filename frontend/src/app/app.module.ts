@@ -3,11 +3,7 @@ import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-
-
-
-
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 // component
 import { AppComponent } from './app.component';
@@ -43,7 +39,6 @@ import { AuthState } from './shared/state/auth.state';
     AppComponent
   ],
   imports: [
-    HttpClientModule,
     BrowserModule,
     BrowserAnimationsModule,
     CoreModule,
