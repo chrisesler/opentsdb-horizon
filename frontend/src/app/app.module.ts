@@ -56,9 +56,8 @@ import { AuthState } from './shared/state/auth.state';
     HomeModule
   ],
   providers: [
-    IntercomService,
     AuthService,
-        {
+    {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
