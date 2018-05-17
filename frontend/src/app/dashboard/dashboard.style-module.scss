@@ -25,6 +25,7 @@
 @import './components/widget-loader/widget-loader.component';
 
 // widgets
+@import './widgets/widgetcomponent'; // Common classes for widget components
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin dashboard-module-core() {
@@ -40,6 +41,7 @@
   @include widget-loader-component-base();
 
   // widgets
+  @include widget-components-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
@@ -48,7 +50,7 @@
   // example: @include componentName-component-theme($theme-config);
 
   // container
-  //@include dashboard-component-theme($theme-config); //nothing to style yet
+  @include dashboard-component-theme($theme-config); //nothing to style yet
 
   // components
   @include dboard-header-component-theme($theme-config);
@@ -56,4 +58,5 @@
   @include widget-loader-component-theme($theme-config);
 
   // widgets
+  @include widget-components-theme($theme-config);
 }

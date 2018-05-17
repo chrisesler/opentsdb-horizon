@@ -30,6 +30,7 @@ $developing-theme: (
   ),
   background: (
     status-bar:               map_get($mat-grey, 300),
+    ink-bar:                  map_get($mat-pink, A400),
     app-bar:                  map_get($mat-grey, 100),
     navbar:                   map_get($mat-blue, 900),
     background:               map_get($mat-grey, 100),

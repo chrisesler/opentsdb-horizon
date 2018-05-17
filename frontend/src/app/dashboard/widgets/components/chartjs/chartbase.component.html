@@ -1,5 +1,42 @@
-<div id="container" [style.width]="width" [style.height]="height">
-	    <canvas id="canvas"></canvas>
+<div class="widget-output-container">
+	<div class="widget-title" *ngIf="editMode">
+		{{ widget.config.title }}
+	</div>
+	<div class="widget-output">
+		<!-- Where the graph, or whatever lives -->
+		<div id="container" [style.width]="width" [style.height]="height">
+			<canvas id="canvas"></canvas>
+		</div>
+	</div>
 </div>
-
+<div class="widget-controls-container" *ngIf="editMode">
+	<!-- tabs with config content -->
+    <mat-tab-group class="widget-configs" [@.disabled]="'true'">
+		<mat-tab label="Time Series">
+			<p>time series tab</p>
+			<!-- Quick loop of items to test that the tab config overflow works -->
+			<p *ngFor="let dummy of ' '.repeat(100).split(''), let ttt = index">{{ ttt }}</p>
+		</mat-tab>
+		<mat-tab label="Settings">
+			<p>settings tab</p>
+		</mat-tab>
+		<mat-tab label="Time Configuration">
+			<p>Time Configuration tab</p>
+		</mat-tab>
+		<mat-tab label="Visual Appearance">
+			<p>Visual Appearance tab</p>
+		</mat-tab>
+		<mat-tab label="Legend">
+			<p>Legend tab</p>
+		</mat-tab>
+		<mat-tab label="Alerts">
+			<p>Alerts tab</p>
+		</mat-tab>
+	</mat-tab-group>
+	<div class="widget-actions">
+		<!-- controls to save/cancel -->
+		<button mat-raised-button color="primary" class="mat-elevation-z0">Save</button>
+		<button mat-raised-button color="accent" class="mat-elevation-z0">Cancel</button>
+	</div>
+</div>
 
