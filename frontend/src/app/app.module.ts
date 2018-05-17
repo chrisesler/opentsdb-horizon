@@ -27,8 +27,6 @@ import { NavbarModule } from './navbar/navbar.module';
 import { HomeModule } from './home/home.module';
 
 
-import { IntercomService } from './dashboard/services/intercom.service';
-
 import { AuthInterceptor } from './core/http/auth.interceptor';
 import { AuthService } from './core/services/auth.service';
 import { AuthState } from './shared/state/auth.state';
