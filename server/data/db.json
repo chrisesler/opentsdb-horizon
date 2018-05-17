@@ -13,7 +13,7 @@
             },
             "config": {
                 "title": "One",
-                "component_type": "WsampleComponent"
+                "component_type": "WidgetbaseComponent"
             }
         },
         {

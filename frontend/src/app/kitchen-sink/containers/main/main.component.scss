@@ -14,9 +14,6 @@
         width: 300px;
         padding: 16px;
 
-
-        
-
         .mat-expansion-panel-header-title {
             @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), button);
         }
@@ -28,8 +25,6 @@
         .ks-subnav {
             margin: 0;
             padding: 0;
-
-
 
             .mat-button {
                 padding-left: 24px;

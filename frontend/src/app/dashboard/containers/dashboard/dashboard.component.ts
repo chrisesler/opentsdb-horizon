@@ -34,7 +34,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   editViewModePortal: TemplatePortal;
   //
   listenSub: Subscription;
-  rerender: any = { 'reload': false }; //-> make gridster re-render correctly
+  rerender: any = { 'reload': false }; // -> make gridster re-render correctly
   widgets: any[] = [];
   constructor(
     private store: Store,
@@ -84,7 +84,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     for (let i = 0; i < widgets.length; i++) {
       this.interCom.responsePut({
         id: widgets[i].id,
-        action: "resizeWidget",
+        action: 'resizeWidget',
         payload: widgets[i].clientSize
       }
       );

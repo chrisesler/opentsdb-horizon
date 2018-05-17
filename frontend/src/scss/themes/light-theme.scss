@@ -29,8 +29,9 @@ $light-theme: (
     ),
     background: (
       status-bar:               map_get($mat-grey, 300),
+      ink-bar:                  #8ACFED,
       app-bar:                  map_get($mat-grey, 100),
-      navbar:                  map_get($mat-indigo, A500),
+      navbar:                   map_get($mat-indigo, A500),
       background:               map_get($mat-grey, 50),
       header:                   rgba(black, 0.08),
       hover:                    rgba(black, 0.04), // TODO(kara): check style with Material Design UX

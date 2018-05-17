@@ -59,13 +59,14 @@
             }
         }
 
-        &.view-edit-mode {
-            .widget-panel-content {
-                flex: 1 1 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
-                justify-content: flex-start;
+        .edit-view-container {
+            &.is-active {
+                &,
+                .widget-panel-content {
+                    flex: 1 1 100%;
+                    display: flex;
+                    flex-direction: column;
+                }
             }
         }
 
@@ -162,7 +163,6 @@
     $background: map-get($theme-config, background);
 
     .app-dboard-content {
-
 
     }
 

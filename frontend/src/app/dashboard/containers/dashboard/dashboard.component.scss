@@ -15,12 +15,15 @@
             @include transition-duration(.3s);
             @include mat-elevation(0);
             padding: 0;
-            min-width: 32px;
+            min-width: 38px;
+            margin-left: 20px;
+            
 
             &,
             .mat-icon {
-                width: 32px;
-                height: 32px;
+                width: 38px;
+                height: 38px;
+                line-height: 36px;
             }
         }
     }
@@ -34,13 +37,32 @@
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $is-dark: map-get($theme-config, is-dark);
+
+    $close-button-background: map-get($accent, A400);
+    $close-button-text: map-get($foreground, navbar-text);
+
+    @if $is-dark {
+    $close-button-background: map-get($foreground, navbar-icons);
+    $close-button-text: map-get($background, navbar);
+    }
+    
+
 
     .app-dashboard { }
 
     // 
     .nav-close-edit-view {
-        .mat-raised-button:hover {
-            background-color: map-get($accent, A200);
+
+        .mat-raised-button
+        {
+            // reversed since it is a blocked element
+            background-color: $close-button-background;
+            color: $close-button-text;
+
+            &:hover {
+                background-color: lighten($close-button-background, 15%);
+            }
         }
     }
 }

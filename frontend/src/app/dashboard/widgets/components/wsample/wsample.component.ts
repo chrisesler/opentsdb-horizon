@@ -1,4 +1,13 @@
-import { Component, OnInit, Input, Output, HostBinding, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnChanges,
+  Input,
+  Output,
+  HostBinding,
+  EventEmitter
+} from '@angular/core';
+
 import { locateHostElement } from '@angular/core/src/render3/instructions';
 
 @Component({
@@ -6,16 +15,14 @@ import { locateHostElement } from '@angular/core/src/render3/instructions';
   templateUrl: './wsample.component.html',
   styleUrls: ['./wsample.component.scss']
 })
-export class WsampleComponent implements OnInit, OnChanges {
+export class WsampleComponent implements OnInit {
   @HostBinding('class.widget-panel-content') private hostClass = true;
 
+  @Input() editMode: boolean;
   @Input() widget: any;
 
   constructor() { }
 
   ngOnInit() { }
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log(this.widget.id + ' => ' + changes);    
-  }
 }
