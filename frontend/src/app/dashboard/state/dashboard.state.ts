@@ -21,7 +21,8 @@ export interface WidgetModel {
     }
     config: {
         title: string;
-        component_type: string
+        component_type: string;
+        data_source?: string;
     }
 }
 
@@ -101,4 +102,15 @@ export class DashboardState {
         const state = ctx.getState();
         ctx.setState({...state, viewEditMode: payload});
     }
+
+    /* GetQueryData will make the call to API to get data.
+        More on settings up data source and other later
+    */
+   @Action(dashboardAction.GetQueryData)
+   GetQueryData(ctx: StateContext<DashboardStateModel>, action: dashboardAction.GetQueryData) {
+        this.httpService.getDataByPost(action.query).subscribe(
+            data => console.log('return data', data),
+            error => console.log('error from action', error)             
+        );
+   }
  }
