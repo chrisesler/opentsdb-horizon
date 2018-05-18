@@ -8,6 +8,7 @@ import { IntercomService, IMessage } from '../../services/intercom.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Store, Select } from '@ngxs/store';
 import { DashboardState } from '../../state/dashboard.state';
+import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
 import * as dashboardActions from '../../state/dashboard.actions';
 
@@ -22,6 +23,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // @Select(state => state.dashboardState.widgets) widgets$: Observable<any>;
   @Select(DashboardState.getWidgets) widgets$: Observable<any>;
   @Select(DashboardState.setViewEditMode) viewEditMode$: Observable<boolean>;
+  @Select(AuthState.getAuth) auth$: Observable<string>;
+
   // portal templates
   @ViewChild('addDashboardPanelTmpl') addDashboardPanelTmpl: TemplateRef<any>;
   @ViewChild('editViewModeTmpl') editViewModeTmpl: TemplateRef<any>;
@@ -69,6 +72,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.store.dispatch(new dashboardActions.LoadDashboard('xyz'));
     this.widgets$.subscribe(widgets => {
       this.widgets = widgets;
+    });
+    this.auth$.subscribe(auth => {
+        console.log("auth=", auth);
+        if (auth === "invalid") {
+            console.log("open auth dialog");
+        }
     });
   }
 
