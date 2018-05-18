@@ -25,8 +25,14 @@ export class SetViewEditMode {
     constructor(public readonly payload: boolean) {}
 }
 
+export class GetQueryData {
+    static readonly type = '[Dashboard] Get Query Data';
+    constructor(public readonly widgetid: string, public readonly query: any) {}
+}
+
 export type DashboardActions = LoadDashboard 
                                 | LoadDashboardSuccess 
                                 | LoadDashboardFail
                                 | UpdateWidgetsLayout
-                                | SetViewEditMode;
+                                | SetViewEditMode
+                                | GetQueryData;
