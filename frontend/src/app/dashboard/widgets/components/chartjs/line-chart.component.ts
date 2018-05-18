@@ -66,16 +66,24 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
 
     ngOnInit() {
         super.ngOnInit();
+        // subscribe to stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             // console.log('message', message, this.widget);
-
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'resizeWidget':
                         this.setSize(message.payload.width - 30 + 'px', message.payload.height - 60 + 'px');
-                        return;
+                        break;
+                    case 'getQueryData':
+                        break;
                 }
             }
+        });
+        // custom component 
+        this.interCom.requestSend({
+            id: this.widget.id,
+            action: 'getQueryData',
+            payload: this.widget.config,
         });
     }
 
