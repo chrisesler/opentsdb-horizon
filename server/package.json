@@ -14,6 +14,9 @@
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "morgan": "~1.9.0",
-    "nodemon": "^1.17.3"
+    "nodemon": "^1.17.3",
+    "properties-reader": "0.0.16",
+    "express-okta-oath": "^0.13.8",
+    "yby": "^1.0.7"
   }
 }

@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 // component
 import { AppComponent } from './app.component';
@@ -25,6 +26,12 @@ import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
 import { NavbarModule } from './navbar/navbar.module';
 import { HomeModule } from './home/home.module';
 
+
+import { AuthInterceptor } from './core/http/auth.interceptor';
+import { AuthService } from './core/services/auth.service';
+import { AuthState } from './shared/state/auth.state';
+
+
 @NgModule({
   declarations: [
     AppComponent
@@ -36,7 +43,7 @@ import { HomeModule } from './home/home.module';
     MaterialModule,
     // ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     AppRoutingModule,
-    NgxsModule.forRoot([]),
+    NgxsModule.forRoot([AuthState]),
     NgxsRouterPluginModule.forRoot(),
     NgxsLoggerPluginModule.forRoot(),
     NgxsReduxDevtoolsPluginModule.forRoot({ disabled: environment.production }),
@@ -47,6 +54,13 @@ import { HomeModule } from './home/home.module';
     HomeModule
   ],
   providers: [
+    AuthService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+
   ],
   bootstrap: [AppComponent]
 })
