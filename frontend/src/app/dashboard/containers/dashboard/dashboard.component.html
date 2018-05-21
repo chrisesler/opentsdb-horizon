@@ -1,6 +1,11 @@
 <div fxFlexLayout="column" fxFlexFill>
   <!--<app-dboard-header *ngIf="!viewEditMode" fxFlex="1 1 50px" (addWidget)="addNewWidget()"></app-dboard-header>-->
   <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" [rerender]="rerender" [widgets]="widgets$ | async" [viewEditMode]="viewEditMode$ | async"></app-dboard-content>
+  <ng-template #dashboardNameTmpl>
+      <a mat-button class="navbar-item" routerLink="dashboard">
+          <span class="dashboard-name">[[ Dashboard name ]]</span>
+      </a>
+  </ng-template>
   <ng-template #addDashboardPanelTmpl>
       <span class="navbar-item" *ngIf="!(viewEditMode$ | async)">
           <button mat-icon-button color="accent" (click)="addNewWidget()">

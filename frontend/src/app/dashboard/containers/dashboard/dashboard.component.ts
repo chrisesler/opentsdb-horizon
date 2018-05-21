@@ -23,16 +23,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   @Select(DashboardState.getWidgets) widgets$: Observable<any>;
   @Select(DashboardState.setViewEditMode) viewEditMode$: Observable<boolean>;
   // portal templates
+  @ViewChild('dashboardNameTmpl') dashboardNameTmpl: TemplateRef<any>;
   @ViewChild('addDashboardPanelTmpl') addDashboardPanelTmpl: TemplateRef<any>;
   @ViewChild('editViewModeTmpl') editViewModeTmpl: TemplateRef<any>;
 
   // portal placeholders
+  dashboardNamePortal: TemplatePortal;
   addDashboardPanelPortal: TemplatePortal;
   editViewModePortal: TemplatePortal;
-  //
+
+  // other variables
   listenSub: Subscription;
   rerender: any = { 'reload': false }; // -> make gridster re-render correctly
   widgets: any[] = [];
+
   constructor(
     private store: Store,
     private interCom: IntercomService,
@@ -42,6 +46,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // setup portals
+    this.dashboardNamePortal = new TemplatePortal(this.dashboardNameTmpl, undefined, {});
+    this.cdkService.setDashboardNamePortal(this.dashboardNamePortal);
+
     this.addDashboardPanelPortal = new TemplatePortal(this.addDashboardPanelTmpl, undefined, {});
     this.cdkService.setAddNewDashboardPanelPortal(this.addDashboardPanelPortal);
 

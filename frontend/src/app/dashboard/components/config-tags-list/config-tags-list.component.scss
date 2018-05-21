@@ -1,11 +1,21 @@
-/* DASHBOARD CONTAINER COMPONENT */
+
+/* CONFIG TAGS LIST COMPONENT */
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
-@mixin widgetbase-component-base() {
-    
+@mixin config-tags-list-component-base() {
+    .config-tags-list {
+        width: 100%;
+        display: flex;
+
+        .mat-chip {
+            .key {
+                margin-right: 4px;
+            }
+        }
+    }
 }
 
-@mixin widgetbase-component-theme($theme-config) {
+@mixin config-tags-list-component-theme($theme-config) {
 
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
