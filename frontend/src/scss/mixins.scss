@@ -47,6 +47,37 @@
     @return $number;
 }
 
+// color functions
+@function color-luminance($color) {
+    $colors: (
+        "red": red($color),
+        "green": green($color),
+        "blue": blue($color)
+    );
+
+    @each $name, $value in $colors {
+        $adjusted: 0;
+        $value: $value / 255;
+
+        @if $value < .03928 {
+            $value: $value / 12.92;
+        } @else {
+            $value: ($value + .055) / 1.055;
+            $value: power-number($value, 2.4);
+        }
+        $colors: map-merge($colors, ($name: $value));
+    }
+    @return (map-get($colors, "red") * .2126) + (map-get($colors, "green") * .7152) + (map-get($colors, "blue") * .0722);
+}
+
+@function find-color-invert($color) {
+    @if (color-luminance($color) > .55) {
+        @return rgba($black, .95);
+    } @else {
+        @return rgba($white, .95);
+    }
+}
+
 // *
 // * Mixins
 // *
