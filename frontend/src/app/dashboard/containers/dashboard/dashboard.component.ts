@@ -26,12 +26,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   @Select(AuthState.getAuth) auth$: Observable<string>;
 
   // portal templates
-  @ViewChild('dashboardNameTmpl') dashboardNameTmpl: TemplateRef<any>;
+  @ViewChild('dashboardSettingsTmpl') dashboardSettingsTmpl: TemplateRef<any>;
   @ViewChild('addDashboardPanelTmpl') addDashboardPanelTmpl: TemplateRef<any>;
   @ViewChild('editViewModeTmpl') editViewModeTmpl: TemplateRef<any>;
 
   // portal placeholders
-  dashboardNamePortal: TemplatePortal;
+  dashboardSettingsPortal: TemplatePortal;
   addDashboardPanelPortal: TemplatePortal;
   editViewModePortal: TemplatePortal;
 
@@ -49,8 +49,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // setup portals
-    this.dashboardNamePortal = new TemplatePortal(this.dashboardNameTmpl, undefined, {});
-    this.cdkService.setDashboardNamePortal(this.dashboardNamePortal);
+    this.dashboardSettingsPortal = new TemplatePortal(this.dashboardSettingsTmpl, undefined, {});
+    this.cdkService.setDashboardSettingsPortal(this.dashboardSettingsPortal);
 
     this.addDashboardPanelPortal = new TemplatePortal(this.addDashboardPanelTmpl, undefined, {});
     this.cdkService.setAddNewDashboardPanelPortal(this.addDashboardPanelPortal);

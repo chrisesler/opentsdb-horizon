@@ -7,17 +7,17 @@ import { Portal, TemplatePortal } from '@angular/cdk/portal';
 })
 export class CdkService {
 
-    private dashboardNamePortalSubject: BehaviorSubject<TemplatePortal<any>>;
+    private dashboardSettingsPortalSubject: BehaviorSubject<TemplatePortal<any>>;
     private editViewModeSubject: BehaviorSubject<TemplatePortal<any>>;
     private addNewDashboardPanelSubject: BehaviorSubject<TemplatePortal<any>>;
 
     // navbar portal setup
-    get dashboardNamePortal$() {
-        return this.dashboardNamePortalSubject.asObservable();
+    get dashboardSettingsPortal$() {
+        return this.dashboardSettingsPortalSubject.asObservable();
     }
 
-    setDashboardNamePortal(portal: TemplatePortal<any>) {
-        this.dashboardNamePortalSubject.next(portal);
+    setDashboardSettingsPortal(portal: TemplatePortal<any>) {
+        this.dashboardSettingsPortalSubject.next(portal);
     }
 
     // edit view mode
@@ -40,7 +40,7 @@ export class CdkService {
 
     // constructor
     constructor() {
-        this.dashboardNamePortalSubject = new BehaviorSubject(null);
+        this.dashboardSettingsPortalSubject = new BehaviorSubject(null);
         this.editViewModeSubject = new BehaviorSubject(null);
         this.addNewDashboardPanelSubject = new BehaviorSubject(null);
     }

@@ -4,7 +4,7 @@
         <a mat-button routerLink="dashboard" class="app-home-link">
             <img src="/assets/yamas-logo-icon-only.png"  class="app-yamas-logo"/>
         </a>
-        <ng-container [cdkPortalOutlet]="cdkService.dashboardNamePortal$ | async"></ng-container>
+        <ng-container [cdkPortalOutlet]="cdkService.dashboardSettingsPortal$ | async"></ng-container>
         <span class="flex-spacer"></span>
         <ng-container [cdkPortalOutlet]="cdkService.addNewDashboardPanelPortal$ | async"></ng-container>
         <theme-picker mat-button></theme-picker>

@@ -30,6 +30,8 @@
     $background: map-get($theme-config, background);
     $is-dark: map-get($theme-config, is-dark);
 
+    @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
+
     // App background on body
     &.mat-app-background {
         background-color: map-get($background, background);

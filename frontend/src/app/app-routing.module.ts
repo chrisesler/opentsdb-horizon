@@ -7,6 +7,7 @@ const routes: Routes = [
   // { path: 'adhoc', loadChildren: 'app/adhoc/adhoc.module#AdhocModule' },
   // { path: 'admin', loadChildren: 'app/admin/admin.module#AdminModule' },
   { path: 'dashboard', loadChildren: 'app/dashboard/dashboard.module#DashboardModule' },
+  { path: 'main', loadChildren: 'app/landing-page/landing-page.module#LandingPageModule' },
   { path: 'ks', loadChildren: 'app/kitchen-sink/kitchen-sink.module#KitchenSinkModule' }
 ];
 
