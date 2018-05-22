@@ -46,6 +46,12 @@ export class HttpService {
                     tagk: 'host',
                     filter: '*',
                     groupBy: true
+                  },
+                  {
+                    type: 'wildcard',
+                    tagk: 'colo',
+                    filter: '*',
+                    groupBy: true
                   }
                 ]
               }
@@ -111,18 +117,13 @@ export class HttpService {
 
   /* post the openTsdb query api */
   getDataByPost(wconfig: any): Observable<any> {
-    console.log('cookie', decodeURIComponent(document.cookie)); 
-    console.log('wconfig', wconfig);
-    
-    // if (wconfig.data_source === 'opentsdb' && wconfig.query) {
-      
-      let apiUrl = environment.tsdb_host + '/api/query';
-      return this.http.post(apiUrl, wconfig.query)
-        .pipe(
-          catchError(this.handleError)
-        );
-    } 
+    const headers = new HttpHeaders(
+      { 'Content-Type': 'application/json' });
 
+    //let apiUrl = environment.tsdb_host + '/api/query';
+    return this.http.post('/tsdb/queryData', wconfig.query, { headers, withCredentials: true })
+      .pipe(
+        catchError(this.handleError)
+      );
   }
-
 }
