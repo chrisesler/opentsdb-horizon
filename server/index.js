@@ -6,8 +6,10 @@ var logger = require('morgan');
 var utils = require('./lib/utils');
 var authUtil = require('./middlewares/auth-utils');
 var yby = require('yby');
-var expressOkta      = require('express-okta-oath');
+var expressOkta = require('express-okta-oath');
 
+var tsdb = require('./routes/tsdb');
+var index = require('./routes/index');
 
 var app = express();
 
@@ -40,42 +42,6 @@ else if (utils.getProperty('auth_mode') === 'bouncer') {
     app.use(authUtil.validateBouncerCredentials());
 }
 
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.get("/dummyapi", function (req, res) {
-        res.status(401).json({"status":"bad"});
-});
-
-
-app.get("/login", function (req, res) {
-        res.status(200).send("<script>window.opener.postMessage('login-success','*');window.close();</script>");
-});
-
-app.get("/heartbeat", function (req, res) {
-        var valid = false;
-        if ( (utils.getProperty('auth_mode') === 'bouncer' && req.ybyCookie!=null && req.ybyCookie.getStatus()== yby.STATUS_OK) || (utils.getProperty('auth_mode') === 'okta' && req.okta && req.okta.status == "VALID") ) {
-            valid = true;
-        }
-
-        if ( valid ) {
-                res.status(200).json({"status":"ok"});
-        } else {
-                res.status(401).json({"status":"bad"});
-        }
-});
-
-app.get("/heartbeatimg", function (req, res) {
-        var gifBuffer = new Buffer('R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==', 'base64');
-        res.writeHead(200, {'Content-Type': 'image/gif', 'Content-Length' : gifBuffer.length, 'Cache-Control': 'private, no-cache, no-store, must-revalidate' });
-        res.end(gifBuffer);
-});
-
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
@@ -86,5 +52,12 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+// routing
+app.use('/', index);
+app.use('/tsdb', tsdb);
+
 
 module.exports = app;
