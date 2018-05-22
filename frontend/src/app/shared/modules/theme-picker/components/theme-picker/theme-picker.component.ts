@@ -64,7 +64,6 @@ export class ThemePickerComponent implements OnInit {
     // docBodyClasses.remove(...themeClassesToRemove);
     // docBodyClasses.add(this.themeClass + '-theme');
     docBody.setAttribute('theme', this.themeClass);
-    console.log('OVERLAY CONTAINER', OC);
   }
 
 }
