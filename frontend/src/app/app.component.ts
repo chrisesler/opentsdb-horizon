@@ -1,4 +1,10 @@
 import { Component, OnInit, Input, HostBinding } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { AuthState } from './shared/state/auth.state';
+import { Observable } from 'rxjs';
+import { MatDialog } from '@angular/material';
+import { LoginExpireDialogComponent } from './core/components/login-expire-dialog/login-expire-dialog.component';
+import { Select } from '@ngxs/store';
 
 @Component({
   selector: 'app-root',
@@ -9,11 +15,20 @@ import { Component, OnInit, Input, HostBinding } from '@angular/core';
 })
 export class AppComponent implements OnInit {
   @HostBinding('class.app-root') hostClass = true;
+  @Select(AuthState.getAuth) auth$: Observable<string>;
 
   title = 'app';
 
-  constructor() {}
+  constructor(private http: HttpClient, private dialog: MatDialog) {  }
 
-  ngOnInit() {}
-
+  ngOnInit() {
+    this.auth$.subscribe(auth => {
+        if ( auth === 'unknown' ) {
+            console.log('open auth dialog');
+            this.dialog.open(LoginExpireDialogComponent);
+        } else if ( auth === 'valid' ) {
+            this.dialog.closeAll();
+        }
+    });
+  }
 }
