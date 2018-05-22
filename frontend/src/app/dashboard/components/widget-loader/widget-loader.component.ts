@@ -73,4 +73,10 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     (<WidgetComponent>this._component.instance).widget = this.widget;
     (<WidgetComponent>this._component.instance).editMode = false;
   }
+
+  // TODO: FOR DEV ONLY, NEED TO REMOVE
+  // NOTE: TEMPORARY
+  public openWidgetView() {
+    this.widgetView();
+  }
 }

@@ -1,5 +1,5 @@
 <div class="ks-sidenav" fxFlex="1 1 300px">
-    <mat-accordion>
+    <mat-accordion [multi]="true">
         <mat-expansion-panel *ngFor="let panel of sideNavSections">
             <mat-expansion-panel-header [expandedHeight]="'48px'" [collapsedHeight]="'36px'">
                 <mat-panel-title>

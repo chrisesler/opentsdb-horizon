@@ -26,16 +26,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   @Select(AuthState.getAuth) auth$: Observable<string>;
 
   // portal templates
+  @ViewChild('dashboardSettingsTmpl') dashboardSettingsTmpl: TemplateRef<any>;
   @ViewChild('addDashboardPanelTmpl') addDashboardPanelTmpl: TemplateRef<any>;
   @ViewChild('editViewModeTmpl') editViewModeTmpl: TemplateRef<any>;
 
   // portal placeholders
+  dashboardSettingsPortal: TemplatePortal;
   addDashboardPanelPortal: TemplatePortal;
   editViewModePortal: TemplatePortal;
-  //
+
+  // other variables
   listenSub: Subscription;
   rerender: any = { 'reload': false }; // -> make gridster re-render correctly
   widgets: any[] = [];
+
   constructor(
     private store: Store,
     private interCom: IntercomService,
@@ -45,6 +49,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // setup portals
+    this.dashboardSettingsPortal = new TemplatePortal(this.dashboardSettingsTmpl, undefined, {});
+    this.cdkService.setDashboardSettingsPortal(this.dashboardSettingsPortal);
+
     this.addDashboardPanelPortal = new TemplatePortal(this.addDashboardPanelTmpl, undefined, {});
     this.cdkService.setAddNewDashboardPanelPortal(this.addDashboardPanelPortal);
 

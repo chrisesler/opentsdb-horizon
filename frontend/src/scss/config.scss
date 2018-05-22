@@ -4,3 +4,32 @@
 //**************************************/
 
 // NOTE: if you are looking for theme configuration, please see scss/themes and scss/theming.scss
+
+$black: #000000;
+$white: #ffffff;
+
+$graph-colors: (
+    "black":        #000000,
+    "gray":         #808080,
+    "slategray":    #708090,
+    "maroon":       #800000,
+    "red":          #f1443c,
+    "pink":         #e62364,
+    "fuchsia":      #ff00ff,
+    "purple":       #9a2ead,
+    "indigo":       #4b0082,
+    "navy":         #000080,
+    "blue":         #0000ff,
+    "cyan":         #1ebbd1,
+    "aqua":         #00ffff,
+    "teal":         #008080,
+    "olive":        #808000,
+    "green":        #008000,
+    "limegreen":    #32cd32,
+    "lime":         #00ff00,
+    "yellow":       #fde84d,
+    "amber":        #fdbf2e,
+    "orange":       #ffa500,
+    "orangered":    #ff4500,
+    "white":        #ffffff
+);

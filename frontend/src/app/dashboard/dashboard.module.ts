@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // modules
 import { MaterialModule } from '../shared/modules/material/material.module';
 import { GridsterModule } from 'angular2gridster';
@@ -25,10 +26,13 @@ import { WidgetViewDirective } from './directives/widgetview.directive';
 import { WidgetbaseComponent } from './widgets/components/widgetbase/widgetbase.component';
 import { WsampleComponent } from './widgets/components/wsample/wsample.component';
 import { LineChartComponent } from './widgets/components/chartjs/line-chart.component';
+import { ConfigTagsListComponent } from './components/config-tags-list/config-tags-list.component';
 
 @NgModule({
   imports: [
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     MaterialModule,
     GridsterModule,
     DashboardRoutingModule,
@@ -43,7 +47,8 @@ import { LineChartComponent } from './widgets/components/chartjs/line-chart.comp
     WidgetViewDirective,
     WidgetbaseComponent,
     WsampleComponent,
-    LineChartComponent
+    LineChartComponent,
+    ConfigTagsListComponent
   ],
   providers: [
     DashboardService,

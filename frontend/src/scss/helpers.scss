@@ -35,3 +35,17 @@
     display: inline;
     white-space: nowrap;
 }
+
+// graph colors
+@each $name, $color in $graph-colors {
+    $color-invert: find-color-invert($color);
+
+    .graph-color-#{$name} {
+        color: $color;
+    }
+
+    .graph-bgcolor-#{$name} {
+        background-color: $color;
+        color: $color-invert;
+    }
+}
