@@ -31,6 +31,8 @@ import { AuthInterceptor } from './core/http/auth.interceptor';
 import { AuthService } from './core/services/auth.service';
 import { AuthState } from './shared/state/auth.state';
 
+import { CredentialsInterceptor } from './core/http/credentials.interceptor';
+
 
 @NgModule({
   declarations: [
@@ -55,11 +57,16 @@ import { AuthState } from './shared/state/auth.state';
   ],
   providers: [
     AuthService,
-    {
+    /*{
+      provide: HTTP_INTERCEPTORS,
+      useClass: CredentialsInterceptor,
+      multi: true
+    }*/
+    /*{
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    }
+    }*/
 
   ],
   bootstrap: [AppComponent]
