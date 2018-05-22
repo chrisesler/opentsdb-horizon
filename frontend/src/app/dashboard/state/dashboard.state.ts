@@ -23,6 +23,7 @@ export interface WidgetModel {
         title: string;
         component_type: string;
         data_source?: string;
+        rawdata?: any;
     }
 }
 
@@ -109,7 +110,17 @@ export class DashboardState {
    @Action(dashboardAction.GetQueryData)
    GetQueryData(ctx: StateContext<DashboardStateModel>, action: dashboardAction.GetQueryData) {
         this.httpService.getDataByPost(action.query).subscribe(
-            data => console.log('return data', data),
+            data => { 
+                console.log('return data', data);
+                const state = ctx.getState();
+                for (let w of state.widgets) {
+                    if (w.id === action.widgetid) {
+                        w.config.rawdata = data;
+                        break;
+                    }
+                }
+                ctx.setState(state);
+            },
             error => console.log('error from action', error)             
         );
    }
