@@ -11,6 +11,7 @@
 @import 'app.component';
 @import 'navbar/navbar.style-module';
 @import 'kitchen-sink/kitchen-sink.style-module';
+@import 'landing-page/landing-page.style-module';
 @import 'dashboard/dashboard.style-module';
 
 // [ STEP 2 ] - ADD MODULE'S BASE MIXINS (aka structure)
@@ -18,6 +19,7 @@
     @include app-root-base();
     @include navbar-module-core();
     @include kitchen-sink-module-core();
+    @include landing-page-module-core();
     @include dashboard-module-core();
 }
 
@@ -26,5 +28,6 @@
     @include app-root-theme($theme-config);
     @include navbar-module-theme($theme-config);
     @include kitchen-sink-module-theme($theme-config);
+    @include landing-page-module-theme($theme-config);
     @include dashboard-module-theme($theme-config);
 }

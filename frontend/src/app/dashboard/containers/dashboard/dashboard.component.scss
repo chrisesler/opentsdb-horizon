@@ -42,13 +42,11 @@
     $close-button-background: map-get($accent, A400);
     $close-button-text: map-get($foreground, navbar-text);
 
-    @if $is-dark {
-    $close-button-background: map-get($foreground, navbar-icons);
-    $close-button-text: map-get($background, navbar);
-    }
+    /*@if $is-dark {
+        $close-button-background: map-get($foreground, navbar-icons);
+        $close-button-text: map-get($background, navbar);
+    }*/
     
-
-
     .app-dashboard { }
 
     // 

@@ -32,7 +32,7 @@ $developing-theme: (
     status-bar:               map_get($mat-grey, 300),
     ink-bar:                  map_get($mat-pink, A400),
     app-bar:                  map_get($mat-grey, 100),
-    navbar:                   map_get($mat-blue, 900),
+    navbar:                   #172F33,
     background:               map_get($mat-grey, 100),
     header:                   rgba(map_get($mat-blue, 900), 0.08),
     hover:                    rgba(black, 0.04), // TODO(kara): check style with Material Design UX

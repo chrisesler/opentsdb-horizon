@@ -1,18 +1,24 @@
-/* DASHBOARD CONTAINER COMPONENT */
+/* THEME-PICKER COMPONENT */
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
-@mixin widgetbase-component-base() {
+@mixin landing-page-home-component-base() {
+    .landing-page-home {
+        display: flex;
+        flex: 1 1 100%;
     
+    }
 }
 
-@mixin widgetbase-component-theme($theme-config) {
+@mixin landing-page-home-component-theme($theme-config) {
 
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
     $accent: map-get($theme-config, accent);
     $warn: map-get($theme-config, warn);
+    $success: map-get($theme-config, success);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
 
     
 

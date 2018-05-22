@@ -1,13 +1,16 @@
 import {
   Component, OnInit, Input, ViewChild, ViewEncapsulation,
   ChangeDetectionStrategy, OnChanges, SimpleChanges, ComponentFactoryResolver,
-  HostBinding, Output, EventEmitter
+  HostBinding, Output, EventEmitter, AfterViewInit, ViewChildren, QueryList
 } from '@angular/core';
 import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDraggableOptions } from 'angular2gridster';
 import { WidgetViewDirective } from '../../directives/widgetview.directive';
 import { WidgetComponent } from '../../widgets/widgetcomponent';
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../services/intercom.service';
+
+// TODO: TEMP ITEMS ONLY FOR DEV. WILL REMOVE
+import { WidgetLoaderComponent } from '../widget-loader/widget-loader.component';
 
 @Component({
   selector: 'app-dboard-content',
@@ -16,7 +19,7 @@ import { IntercomService, IMessage } from '../../services/intercom.service';
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DboardContentComponent implements OnInit, OnChanges {
+export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges {
   @HostBinding('class.app-dboard-content') private _hostClass = true;
 
   @ViewChild(WidgetViewDirective) widgetViewContainer: WidgetViewDirective;
@@ -69,10 +72,23 @@ export class DboardContentComponent implements OnInit, OnChanges {
     handlerClass: 'panel-heading'
   };
 
-  constructor(private dbService: DashboardService, private interCom: IntercomService) { }
+  // TEMPORARY ITEMS
+  @ViewChildren(WidgetLoaderComponent) widgetItems: QueryList<WidgetLoaderComponent>;
+
+  constructor(
+    private dbService: DashboardService,
+    private interCom: IntercomService
+  ) { }
 
   ngOnInit() {
 
+  }
+
+  ngAfterViewInit() {
+      // TODO: FOR DEV ONLY
+      // Need to remove once developing done
+      // console.log('AVI ::', this.widgetItems);
+      // this.widgetItems.last.openWidgetView();
   }
 
   trackByWidget(index: number, widget: any) {
