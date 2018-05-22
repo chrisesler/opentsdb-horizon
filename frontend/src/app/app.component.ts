@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, HostBinding } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { AuthState } from './shared/state/auth.state';
 import { Observable } from 'rxjs';
 import { MatDialog } from '@angular/material';
@@ -19,7 +18,7 @@ export class AppComponent implements OnInit {
 
   title = 'app';
 
-  constructor(private http: HttpClient, private dialog: MatDialog) {  }
+  constructor(private dialog: MatDialog) {  }
 
   ngOnInit() {
     this.auth$.subscribe(auth => {
