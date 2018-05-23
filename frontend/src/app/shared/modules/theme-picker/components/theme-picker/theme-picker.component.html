@@ -1,7 +1,6 @@
 <button mat-icon-button [matMenuTriggerFor]="themeMenu">
     <mat-icon aria-label="Select Theme">format_color_fill</mat-icon>
 </button>
-
 <mat-menu #themeMenu="matMenu" [overlapTrigger]="false" class="nav-bar-dropmenu">
   <button mat-menu-item *ngFor="let option of themeOptions" [ngClass]="{ 'is-active': option.value === theme }" (click)="selectTheme(option)">
       <mat-icon *ngIf="option.value === theme">check</mat-icon>

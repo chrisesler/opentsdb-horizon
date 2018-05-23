@@ -2,8 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MaterialModule } from '../shared/modules/material/material.module';
-
 import { KitchenSinkRoutingModule } from './kitchen-sink-routing.module';
+import { ThemePickerModule } from '../shared/modules/theme-picker/theme-picker.module';
 
 // Containers
 import { KSMainComponent } from './containers/main/main.component';
@@ -16,18 +16,19 @@ import { KSPageHeaderComponent } from './components/page-header/page-header.comp
 // Components
 
 @NgModule({
-  imports: [
-    CommonModule,
-    MaterialModule,
-    KitchenSinkRoutingModule
-  ],
-  declarations: [
-    KSMainComponent,
-    KSHomeComponent,
-    KSPageHeaderComponent
-  ],
-  exports: [
-    KSMainComponent
-  ]
+    imports: [
+        CommonModule,
+        MaterialModule,
+        ThemePickerModule,
+        KitchenSinkRoutingModule
+    ],
+    declarations: [
+        KSMainComponent,
+        KSHomeComponent,
+        KSPageHeaderComponent
+    ],
+    exports: [
+        KSMainComponent
+    ]
 })
 export class KitchenSinkModule { }
