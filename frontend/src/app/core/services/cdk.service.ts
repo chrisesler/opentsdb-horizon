@@ -7,41 +7,18 @@ import { Portal, TemplatePortal } from '@angular/cdk/portal';
 })
 export class CdkService {
 
-    private dashboardSettingsPortalSubject: BehaviorSubject<TemplatePortal<any>>;
-    private editViewModeSubject: BehaviorSubject<TemplatePortal<any>>;
-    private addNewDashboardPanelSubject: BehaviorSubject<TemplatePortal<any>>;
+    private navbarPortalHostSubject: BehaviorSubject<TemplatePortal<any>>;
 
-    // navbar portal setup
-    get dashboardSettingsPortal$() {
-        return this.dashboardSettingsPortalSubject.asObservable();
+    get navbarPortal$() {
+        return this.navbarPortalHostSubject.asObservable();
     }
 
-    setDashboardSettingsPortal(portal: TemplatePortal<any>) {
-        this.dashboardSettingsPortalSubject.next(portal);
-    }
-
-    // edit view mode
-    get editViewModePortal$() {
-        return this.editViewModeSubject.asObservable();
-    }
-
-    setEditViewModePortal(portal: TemplatePortal<any>) {
-        this.editViewModeSubject.next(portal);
-    }
-
-    // add new dashboard panel subject
-    get addNewDashboardPanelPortal$() {
-        return this.addNewDashboardPanelSubject.asObservable();
-    }
-
-    setAddNewDashboardPanelPortal(portal: TemplatePortal<any>) {
-        this.addNewDashboardPanelSubject.next(portal);
+    setNavbarPortal(portal: TemplatePortal<any>) {
+        this.navbarPortalHostSubject.next(portal);
     }
 
     // constructor
     constructor() {
-        this.dashboardSettingsPortalSubject = new BehaviorSubject(null);
-        this.editViewModeSubject = new BehaviorSubject(null);
-        this.addNewDashboardPanelSubject = new BehaviorSubject(null);
+        this.navbarPortalHostSubject = new BehaviorSubject(null);
     }
 }

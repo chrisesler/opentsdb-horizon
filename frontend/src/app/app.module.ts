@@ -5,7 +5,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
-// component
+// components
 import { AppComponent } from './app.component';
 
 // custom modules
@@ -26,11 +26,9 @@ import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
 import { NavbarModule } from './navbar/navbar.module';
 import { HomeModule } from './home/home.module';
 
-
 import { AuthInterceptor } from './core/http/auth.interceptor';
 import { AuthService } from './core/services/auth.service';
 import { AuthState } from './shared/state/auth.state';
-
 
 @NgModule({
   declarations: [
