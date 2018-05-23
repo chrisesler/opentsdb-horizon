@@ -9,7 +9,6 @@ import { MaterialModule } from '../shared/modules/material/material.module';
 import { NavbarComponent } from './containers/navbar/navbar.component';
 
 // components
-import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 
 @NgModule({
   imports: [
@@ -21,8 +20,7 @@ import { ThemePickerComponent } from './components/theme-picker/theme-picker.com
     NavbarComponent
   ],
   declarations: [
-    NavbarComponent,
-    ThemePickerComponent
+    NavbarComponent
   ],
   providers: [ ]
 })

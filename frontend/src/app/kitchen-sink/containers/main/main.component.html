@@ -9,7 +9,7 @@
 
             <ul class="ks-subnav">
                 <li *ngFor="let link of panel.links">
-                    <a mat-button routerLink="{{link.link}}">{{link.label}}</a> 
+                    <a mat-button routerLink="{{link.link}}">{{link.label}}</a>
                 </li>
             </ul>
 
@@ -20,4 +20,10 @@
     <ks-page-header fxFlex="1 1 48px">Kitchen Sink</ks-page-header>
     <router-outlet></router-outlet>
 </div>
-
+<ng-template #kitchensinkNavbarTmpl>
+    <div class="navbar-item">
+        <span class="dashboard-name">Horizon Kitchen Sink</span>
+    </div>
+    <span class="flex-spacer"></span>
+    <theme-picker mat-button></theme-picker>
+</ng-template>

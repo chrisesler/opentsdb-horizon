@@ -1,4 +1,4 @@
-//* NAVBAR MODULE LOADER */
+//* LANDING PAGE STYLE MODULE LOADER */
 //*
 //* NOTE: Why are there two different mixins?
 //*
@@ -17,22 +17,24 @@
 // example: @import './components/componentName/componentName.component.scss';
 
 // containers
-@import './containers/navbar/navbar.component.scss';
 
 // components
+@import 'components/theme-picker/theme-picker.component';
+
+// widgets
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
-@mixin navbar-module-core() {
-    // include your core mixins
-    // example: @include componentName-component-core();
-    @include navbar-component-base();
+@mixin theme-picker-module-core() {
+  // include your core mixins
+  // example: @include componentName-component-core();
 
+  @include theme-picker-component-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
-@mixin navbar-module-theme($theme-config) {
-    // include your theme mixins, passing along the $theme-config
-    // example: @include componentName-component-theme($theme-config);
-    @include navbar-component-theme($theme-config);
+@mixin theme-picker-module-theme($theme-config) {
+  // include your theme mixins, passing along the $theme-config
+  // example: @include componentName-component-theme($theme-config);
 
+  @include theme-picker-component-theme($theme-config);
 }

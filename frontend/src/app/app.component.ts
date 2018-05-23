@@ -19,10 +19,9 @@ export class AppComponent implements OnInit {
   title = 'app';
 
   constructor(private dialog: MatDialog) {  }
-
   ngOnInit() {
     this.auth$.subscribe(auth => {
-        if ( auth === 'unknown' ) {
+        if ( auth === 'invalid' ) {
             console.log('open auth dialog');
             this.dialog.open(LoginExpireDialogComponent);
         } else if ( auth === 'valid' ) {
