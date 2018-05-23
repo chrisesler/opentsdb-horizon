@@ -1,4 +1,9 @@
 import { Component, OnInit, Input, HostBinding } from '@angular/core';
+import { AuthState } from './shared/state/auth.state';
+import { Observable } from 'rxjs';
+import { MatDialog } from '@angular/material';
+import { LoginExpireDialogComponent } from './core/components/login-expire-dialog/login-expire-dialog.component';
+import { Select } from '@ngxs/store';
 
 @Component({
   selector: 'app-root',
@@ -9,17 +14,19 @@ import { Component, OnInit, Input, HostBinding } from '@angular/core';
 })
 export class AppComponent implements OnInit {
   @HostBinding('class.app-root') hostClass = true;
+  @Select(AuthState.getAuth) auth$: Observable<string>;
 
   title = 'app';
 
-  constructor() {}
-
+  constructor(private dialog: MatDialog) {  }
   ngOnInit() {
-    // TODO: USER THEME PREFERENCE
-    // - need to set up some sort of service for user preferences
-    // - need to set global theme-class FIRST to avoid flickering of theme change
-    //   before theme-picker can set it. Theme-picker may not be best place to
-    //   affect the change.
+    this.auth$.subscribe(auth => {
+        if ( auth === 'invalid' ) {
+            console.log('open auth dialog');
+            this.dialog.open(LoginExpireDialogComponent);
+        } else if ( auth === 'valid' ) {
+            this.dialog.closeAll();
+        }
+    });
   }
-
 }

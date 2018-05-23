@@ -1,19 +1,27 @@
 import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { LoginExpireDialogComponent } from './components/login-expire-dialog/login-expire-dialog.component';
+
 
 @NgModule({
   imports: [
     CommonModule,
     HttpClientModule
   ],
-  declarations: [],
+  declarations: [
+    LoginExpireDialogComponent
+  ],
   exports: [
     CommonModule,
-    HttpClientModule
+    HttpClientModule,
+    LoginExpireDialogComponent
   ],
   providers: [
     // set in service itself already
+  ],
+  entryComponents: [
+    LoginExpireDialogComponent
   ]
 })
 export class CoreModule {
