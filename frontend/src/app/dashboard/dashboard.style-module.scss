@@ -20,6 +20,7 @@
 @import './containers/dashboard/dashboard.component.scss'; // nothing to style yet
 
 // components
+@import './components/search-metrics-dialog/search-metrics-dialog.component';
 @import './components/config-tags-list/config-tags-list.component';
 @import './components/dboard-header/dboard-header.component';
 @import './components/dboard-content/dboard-content.component';
@@ -37,6 +38,7 @@
   @include dashboard-component-base(); // nothing to style yet
 
   // components
+  @include search-metrics-dialog-component-base();
   @include config-tags-list-component-base();
   @include dboard-header-component-base();
   @include dboard-content-component-base();
@@ -55,6 +57,7 @@
   @include dashboard-component-theme($theme-config); //nothing to style yet
 
   // components
+  @include search-metrics-dialog-component-theme($theme-config);
   @include config-tags-list-component-theme($theme-config);
   @include dboard-header-component-theme($theme-config);
   @include dboard-content-component-theme($theme-config);

@@ -11,7 +11,10 @@ import {
 } from '@angular/core';
 
 import { MatMenu, MatMenuTrigger } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 import { Event } from '@angular/router';
+
+import { SearchMetricsDialogComponent } from '../../../components/search-metrics-dialog/search-metrics-dialog.component';
 
 @Component({
     selector: 'app-widget-base',
@@ -26,6 +29,11 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
     @Input() editMode: boolean;
     @Input() widget: any;
 
+    // search metrics dialog
+    searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
+    searchDialogSub: any;
+
+    // TODO: REMOVE FAKE METRICS
     fakeMetrics: Array<object> = [
         {
             id: 0,
@@ -96,7 +104,9 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
         }
     ];
 
-    constructor() { }
+    constructor(
+        public dialog: MatDialog
+    ) { }
 
     ngOnInit() {
         console.log('WBASE :: onInit', this.widget);
@@ -123,5 +133,49 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
         event.stopPropagation();
         // do something
     }
+
+    openTimeSeriesMetricDialog() {
+
+        // do something
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        dialogConf.width = '100%';
+        dialogConf.maxWidth = '100%';
+        dialogConf.height = 'calc(100% - 48px)';
+        dialogConf.backdropClass = 'search-metrics-dialog-backdrop';
+        dialogConf.panelClass = 'search-metrics-dialog-panel';
+        dialogConf.position = <DialogPosition>{
+            top: '48px',
+            bottom: '0px',
+            left: '0px',
+            right: '0px'
+        };
+        dialogConf.data = {
+            lala: true,
+            wtf: 'isthat',
+            iCanCount: 2,
+            basket: [1, 2, 3, 4, 5]
+        };
+
+        this.searchMetricsDialog = this.dialog.open(SearchMetricsDialogComponent, dialogConf);
+        this.searchMetricsDialog.updatePosition({top: '48px'});
+        this.searchDialogSub = this.searchMetricsDialog.componentInstance.onDialogApply.subscribe((data: any) => {
+            console.log('SUBSCRIPTION DATA', data);
+        });
+
+        this.searchMetricsDialog.beforeClose().subscribe((result: any) => {
+            console.log('DIALOG BEFORE CLOSE', result);
+        });
+
+        this.searchMetricsDialog.afterClosed().subscribe((result: any) => {
+            console.log('DIALOG AFTER CLOSED', result);
+            this.searchMetricsDialog.componentInstance.onDialogApply.unsubscribe();
+            this.searchMetricsDialog = null;
+        });
+    }
+
+    addTimeSeriesExpression() {
+        // do something
+    }
+
 
 }
