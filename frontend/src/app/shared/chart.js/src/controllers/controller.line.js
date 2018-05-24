@@ -47,7 +47,7 @@ module.exports = function(Chart) {
 			var i, ilen, custom;
 			var dataset = me.getDataset();
 			var showLine = lineEnabled(dataset, options);
-			var T1 = new Date().getTime();
+
 			// Update Line
 			if (showLine) {
 				custom = line.custom || {};
@@ -81,28 +81,27 @@ module.exports = function(Chart) {
 					steppedLine: custom.steppedLine ? custom.steppedLine : helpers.valueOrDefault(dataset.steppedLine, lineElementOptions.stepped),
 					cubicInterpolationMode: custom.cubicInterpolationMode ? custom.cubicInterpolationMode : helpers.valueOrDefault(dataset.cubicInterpolationMode, lineElementOptions.cubicInterpolationMode),
 				};
-				line._view = line._model;
-				line._start = null;
 				/* We don't require the following code as its required for animation */
 				//line.pivot();
+				line._view = line._model;
+				line._start = null;
 			}
+
 			// Update Points
 			for (i = 0, ilen = points.length; i < ilen; ++i) {
 				me.updateElement(points[i], i, reset);
 			}
+
+			if (showLine && line._model.tension !== 0) {
+				me.updateBezierControlPoints();
+			}
+
 			/* 
-				We don't need Bezier Curves on line.
-			*/
-			//if (showLine && line._model.tension !== 0) {
-				//me.updateBezierControlPoints();
-			//}
-			
-			/* 
-				We don't require the following code as its required for animation 
+				We don't require points to be drawn on the line. 
 			*/
 			// Now pivot the point for animation
 			//for (i = 0, ilen = points.length; i < ilen; ++i) {
-			//	points[i].pivot();
+				//points[i].pivot();
 			//}
 		},
 
@@ -176,6 +175,7 @@ module.exports = function(Chart) {
 
 			x = xScale.getPixelForValue(typeof value === 'object' ? value : NaN, index, datasetIndex);
 			y = reset ? yScale.getBasePixel() : me.calculatePointY(value, index, datasetIndex);
+
 			// Utility
 			point._xScale = xScale;
 			point._yScale = yScale;
@@ -295,6 +295,7 @@ module.exports = function(Chart) {
 			var area = chart.chartArea;
 			var ilen = points.length;
 			var i = 0;
+
 			helpers.canvas.clipArea(chart.ctx, area);
 
 			if (lineEnabled(me.getDataset(), chart.options)) {
@@ -307,7 +308,6 @@ module.exports = function(Chart) {
 			for (; i < ilen; ++i) {
 				points[i].draw(area);
 			}
-
 		},
 
 		setHoverStyle: function(point) {
