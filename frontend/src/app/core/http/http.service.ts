@@ -44,7 +44,7 @@ export class HttpService {
                   {
                     type: 'wildcard',
                     tagk: 'host',
-                    filter: '*',
+                    filter: '*.bf1.*',
                     groupBy: true
                   },
                   {
@@ -77,7 +77,39 @@ export class HttpService {
         },
         config: {
           title: 'Three',
-          component_type: 'WsampleComponent'
+          component_type: 'LineChartComponent',
+          data_source: 'opentsdb',
+          query: {
+            start: '1526250610000',
+            end: '1526337010000',
+            queries: [
+              {
+                aggregator: 'zimsum',
+                metric: 'Flickr.yapache.requests',
+                rate: false,
+                rateOptions: {
+                  counter: false,
+                  resetValue: 1
+                },
+                explicitTags: false,
+                downsample: '1m-avg-nan',
+                filters:[
+                  {
+                    type: 'wildcard',
+                    tagk: 'host',
+                    filter: '*.bf1.*',
+                    groupBy: false
+                  },
+                  {
+                    type: 'wildcard',
+                    tagk: 'colo',
+                    filter: '*',
+                    groupBy: true
+                  }
+                ]
+              }
+            ]
+          }
         }
       },
       {
@@ -119,7 +151,6 @@ export class HttpService {
   getDataByPost(wconfig: any): Observable<any> {
     const headers = new HttpHeaders(
       { 'Content-Type': 'application/json' });
-
     //let apiUrl = environment.tsdb_host + '/api/query';
     return this.http.post('/tsdb/queryData', wconfig.query, { headers, withCredentials: true })
       .pipe(
