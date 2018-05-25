@@ -1,4 +1,6 @@
-/* HELPERS */
+/** 
+ * YAMAS - HORIZON HELPER CLASSES
+ */
 
 .flex-spacer {
     flex: 1 1 auto;
@@ -11,7 +13,7 @@
     display: block;
 }
 
-// Scroller
+// * Scroller
 .has-scroller {
     @include has-scroller();
 }
@@ -20,7 +22,7 @@
     @include is-scroller();
 }
 
-// Content Editable (Single Line)
+// * Content Editable (Single Line)
 [contenteditable="true"].is-single-line {
     white-space: nowrap;
     max-width: 200px;
@@ -36,7 +38,7 @@
     white-space: nowrap;
 }
 
-// graph colors
+// * graph colors
 @each $name, $color in $graph-colors {
     $color-invert: find-color-invert($color);
 

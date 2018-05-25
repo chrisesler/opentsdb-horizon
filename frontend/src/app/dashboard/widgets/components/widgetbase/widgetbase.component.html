@@ -9,7 +9,7 @@
 </div>
 <div class="widget-controls-container" *ngIf="editMode">
     <!-- tabs with config content -->
-    <mat-tab-group class="widget-configs" [@.disabled]="'true'">
+    <mat-tab-group class="widget-configs" [@.disabled]="'true'" [selectedIndex]="0">
         <mat-tab label="Time Series" class="time-series-config">
             <div class="widget-config-tab time-series-config">
                 <mat-toolbar class="config-toolbar time-series-toolbar">

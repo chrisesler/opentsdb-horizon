@@ -79,5 +79,10 @@
         background: map-get($background, ink-bar);
     }
 
+    .mat-datepicker-content {
+        border: 1px solid map-get($accent, default);
+        background-color: map-get($background, menu); 
+    }
+
 
 }
