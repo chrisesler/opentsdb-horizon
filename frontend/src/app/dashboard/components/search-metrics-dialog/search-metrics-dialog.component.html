@@ -1,0 +1,63 @@
+<mat-toolbar mat-dialog-title>
+    <span>Add Time Series</span>
+    <span class="flex-spacer"></span>
+    <button mat-icon-button [mat-dialog-close]="true">
+        <mat-icon>close</mat-icon>
+    </button>
+</mat-toolbar>
+<mat-dialog-content>
+    <div class="content-container" *ngIf="!selectedNamespace">
+        <div class="namespace-search search-input-container">
+            <mat-form-field appearance="fill" class="input-form-field">
+                <mat-label>Select a namespace and then choose a time series to populate your line chart</mat-label>
+                <input matInput   [formControl]="namespaceControl" [matAutocomplete]="namespaceAuto" (keydown.enter)="namespaceKeydown($event)">
+                <mat-icon matSuffix>search</mat-icon>
+                <mat-autocomplete #namespaceAuto="matAutocomplete" (optionSelected)="namespaceOptionSelected($event)">
+                    <mat-option *ngFor="let option of filteredNamespaceOptions | async" [value]="option">
+                        {{ option }}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+        </div>
+    </div>
+    <div class="content-container" *ngIf="selectedNamespace">
+        <mat-toolbar class="">
+            <mat-toolbar-row>
+                <div class="navbar-item" fxLayout="column">
+                    <span class="mat-caption">Namespace</span>
+                    <span class="mat-title">
+                        <span>{{ selectedNamespace }}</span>
+                        <button mat-button color="primary" class="mat-caption">change</button>
+                    </span>
+                </div>
+                <span class="flex-spacer"></span>
+                <div class="navbar-item">
+                    <span>Include tag</span>
+                    <mat-button-toggle-group #includeTags="matButtonToggleGroup">
+                        <mat-button-toggle value="keyValue">Key + Value</mat-button-toggle>
+                        <mat-button-toggle value="value">Value Only</mat-button-toggle>
+                    </mat-button-toggle-group>
+                </div>
+                <div class="navbar-item">
+                    <span>Group results by</span>
+                    <mat-button-toggle-group #groupBy="matButtonToggleGroup">
+                        <mat-button-toggle value="metrics">Metrics</mat-button-toggle>
+                        <mat-button-toggle value="tags">Tags</mat-button-toggle>
+                    </mat-button-toggle-group>
+                </div>
+            </mat-toolbar-row>
+            <mat-toolbar-row>
+                <mat-form-field appearance="fill" class="input-form-field">
+                    <input matInput [formControl]="searchQueryControl" placeholder="search fo yo shiznit">
+                    <mat-icon matSuffix>search</mat-icon>
+                    <mat-hint>Displaying 2,000,000,000 results that include "blah blah" in tag keys and values. Grouping results by tags and other amazing stuffz</mat-hint>
+                </mat-form-field>
+            </mat-toolbar-row>
+        </mat-toolbar>
+        <!-- DUMP RESULTS STUFF HERE -->
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <a mat-button color="primary" (click)="onClick_Apply()">APPLY</a>
+    <a mat-button color="accent" (click)="onClick_Cancel()">CANCEL</a>
+</mat-dialog-actions>

@@ -13,14 +13,18 @@
         <mat-tab label="Time Series" class="time-series-config">
             <div class="widget-config-tab time-series-config">
                 <mat-toolbar class="config-toolbar time-series-toolbar">
-                    <a mat-stroked-button color="primary" class="has-icon" [matMenuTriggerFor]="addQueryItemMenu">
+                    <a mat-stroked-button color="primary" class="has-icon" style="margin-right: 5px;" (click)="openTimeSeriesMetricDialog()">
                         <mat-icon>add</mat-icon>
-                        <span>Add query item</span>
+                        <span>Add Time Series</span>
                     </a>
-                    <mat-menu #addQueryItemMenu="matMenu">
-                        <button mat-menu-item>Time Series Metric</button>
-                        <button mat-menu-item>Time Series Expression</button>
-                    </mat-menu>
+                    <a mat-stroked-button color="primary" class="has-icon" (click)="addTimeSeriesExpression()">
+                        <mat-icon>add</mat-icon>
+                        <span>Add Expression</span>
+                    </a>
+                    <!--<mat-menu #addQueryItemMenu="matMenu">
+                        <button mat-menu-item (click)="openTimeSeriesMetricDialog()">Time Series Metric</button>
+                        <button mat-menu-item (click)="addTimeSeriesExpression()">Time Series Expression</button>
+                    </mat-menu>-->
                     <span class="flex-spacer"></span>
                     <a mat-button color="primary">View Query Inspector</a>
                 </mat-toolbar>
