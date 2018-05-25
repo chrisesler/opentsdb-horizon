@@ -16,6 +16,10 @@ import { ChartBase } from './chartbase';
 import { IntercomService, IMessage } from '../../../services/intercom.service';
 import { Subscription } from 'rxjs/Subscription';
 
+// refactor the model location later
+import { WidgetModel } from '../../../state/dashboard.state';
+
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'line-chart',
@@ -26,7 +30,7 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
     @HostBinding('class.widget-panel-content') private _hostClass = true;
 
     @Input() editMode: boolean;
-    @Input() widget: any;
+    @Input() widget: WidgetModel;
 
     listenSub: Subscription;
     lineDefaultOptions: object = {
@@ -35,7 +39,7 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
                 tension: 0,
                 borderWidth: 1,
                 bezierCurve: false,
-                fill: false
+                fill: true
             },
             point: {
                 radius: 0,
@@ -46,6 +50,10 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
             mode: 'x|y',
             enabled: true
         },
+        threshold: {
+            draw: this.editMode,
+            maxLines: 2
+        },
         scales: {
             xAxes: [{
                 type: 'time',
@@ -55,7 +63,8 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
                 type: 'linear',
                 position: 'left',
             }]
-        }
+        },
+
     };
 
     constructor(element: ElementRef, differs: KeyValueDiffers, private interCom: IntercomService) {
@@ -74,7 +83,32 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
                     case 'resizeWidget':
                         this.setSize(message.payload.width - 30 + 'px', message.payload.height - 60 + 'px');
                         break;
-                    case 'getQueryData':
+                    case 'updatedWidget': 
+                        if(this.widget.id === message.id) {                    
+                            this.widget = message.payload;
+                            // now we need to update chart with new data
+                            if(message.payload.config.rawdata[0].dps) {
+                                // first let set the label
+                                //console.log('rawdata', Object.keys(message.payload.config.rawdata[0].dps));
+                                
+                                
+                                this.labels = Object.keys(message.payload.config.rawdata[0].dps);
+                                for (let i = 0; i < message.payload.config.rawdata.length; i++) {
+                                    let d = { data: Object.values(message.payload.config.rawdata[i].dps)};
+                                    this.dataset.push(d);
+                                }  
+                                
+                                // update data:
+                                this.chart.data = {
+                                    labels: this.labels,
+                                    datasets: this.dataset
+                                };
+
+                                this.updateDatasets(this.chart.data.datasets);
+                                console.log('this chart', this.chart);
+                                this.chart.update();
+                            }
+                        }
                         break;
                 }
             }
@@ -85,6 +119,28 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
             action: 'getQueryData',
             payload: this.widget.config,
         });
+    }
+
+    // transform data for chartjs
+    transformData() {
+        if(this.widget.config.rawdata[0].dps) {
+            // first let set the label
+            //console.log('rawdata', Object.keys(this.widget.config.rawdata[0].dps));
+            
+            
+            this.labels = Object.keys(this.widget.config.rawdata[0].dps);
+            for (let i = 0; i < 10; i++) {
+                let d = { data: Object.values(this.widget.config.rawdata[i].dps)};
+                this.dataset.push(d);
+            }  
+            // update data:
+            this.chart.data = {
+                labels: this.labels,
+                dataset: this.dataset
+            };
+            this.chart.update(0);
+            
+        }
     }
 
     ngOnChanges(changes: SimpleChanges) {
