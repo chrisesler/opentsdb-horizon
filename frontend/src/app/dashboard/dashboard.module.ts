@@ -30,6 +30,7 @@ import { WidgetbaseComponent } from './widgets/components/widgetbase/widgetbase.
 import { WsampleComponent } from './widgets/components/wsample/wsample.component';
 import { LineChartComponent } from './widgets/components/chartjs/line-chart.component';
 import { ConfigTagsListComponent } from './components/config-tags-list/config-tags-list.component';
+import { SearchMetricsDialogComponent } from './components/search-metrics-dialog/search-metrics-dialog.component';
 
 @NgModule({
     imports: [
@@ -52,13 +53,19 @@ import { ConfigTagsListComponent } from './components/config-tags-list/config-ta
         WidgetbaseComponent,
         WsampleComponent,
         LineChartComponent,
-        ConfigTagsListComponent
+        ConfigTagsListComponent,
+        SearchMetricsDialogComponent
     ],
     providers: [
         DashboardService,
         IntercomService,
         WidgetService
     ],
-    entryComponents: [WidgetbaseComponent, WsampleComponent, LineChartComponent]
+    entryComponents: [
+        WidgetbaseComponent,
+        WsampleComponent,
+        LineChartComponent,
+        SearchMetricsDialogComponent
+    ]
 })
 export class DashboardModule { }
