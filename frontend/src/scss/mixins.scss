@@ -27,7 +27,7 @@
     @return floor($number / 2) * 2;
 }
 
-// Units
+// * Units
 @function em($pixels, $context: $body-size) {
     @if (unitless($pixels)) {
         $pixels: $pixels * 1px;
@@ -47,7 +47,7 @@
     @return $number;
 }
 
-// color functions
+// * color functions
 @function color-luminance($color) {
     $colors: (
         "red": red($color),
@@ -165,7 +165,7 @@
     @include transition(all .18s ease-out .18s);
 }
 
-// Transitions
+// * Transitions
 @mixin transition ($args...) {
     -webkit-transition: $args;
     -moz-transition: $args;
@@ -212,7 +212,7 @@
     transform-origin: $val;
 }
 
-// GRADIENTS
+// * GRADIENTS
 
 // Horizontal gradient, from left to right
 //
@@ -238,7 +238,7 @@
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#{ie-hex-str($start-color)}', endColorstr='#{ie-hex-str($end-color)}', GradientType=0); // IE9 and down
 }
 
-// directional gradient, default angle 45deg
+// * directional gradient, default angle 45deg
 //
 // Creates two color stops
 @mixin gradient-directional($start-color: #555, $end-color: #333, $deg: 45deg) {
@@ -276,7 +276,7 @@
     background-image: linear-gradient($angle, $color 25%, transparent 25%, transparent 50%, $color 50%, $color 75%, transparent 75%, transparent);
 }
 
-// custom scrollbars
+// * custom scrollbars
 // NOTE: this works primarily in webkit browsers
 @mixin scrollbars($track-color: rgba(0, 0, 0, .1), $thumb-color: rgba(0, 0, 0, .4), $width: 10px , $thumb-radius: 4px) {
 
@@ -302,7 +302,7 @@
     }
 }
 
-// for debugging sass maps
+// * for debugging sass maps
 @mixin debug-map($map) {
     @at-root {
         @debug-map {

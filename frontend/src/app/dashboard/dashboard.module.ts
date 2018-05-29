@@ -7,6 +7,7 @@ import { MaterialModule } from '../shared/modules/material/material.module';
 import { GridsterModule } from 'angular2gridster';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { ThemePickerModule } from '../shared/modules/theme-picker/theme-picker.module';
+import { SimpleTimePickerModule } from '../shared/modules/simple-time-picker/simple-time-picker.module';
 
 // services
 import { DashboardService } from './services/dashboard.service';
@@ -40,6 +41,7 @@ import { SearchMetricsDialogComponent } from './components/search-metrics-dialog
         MaterialModule,
         GridsterModule,
         ThemePickerModule,
+        SimpleTimePickerModule,
         DashboardRoutingModule,
         NgxsModule.forFeature([DashboardState])
     ],
