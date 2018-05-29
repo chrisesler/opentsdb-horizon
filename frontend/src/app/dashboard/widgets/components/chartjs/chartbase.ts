@@ -69,8 +69,9 @@ export class ChartBase implements OnInit,  DoCheck {
 	 * ]
 	 * </code></pre>
 	 */
-	data:any=[{ data:[ {x: 1513533630000,y: 20} , {x: 1513534630001,y: 10}, {x: 1513535630002,y: 30}] }];
 
+	dataset:any = [];
+	labels:string[] = [];
 	/**
 	 * Outputs the threshold detail.
 	 */
@@ -121,7 +122,7 @@ export class ChartBase implements OnInit,  DoCheck {
     /**
      * @ignore
      */
-    colors:any = ["#000000","#8B0000","#C71585","#006400"];
+    colors:any = ["#0080FF","#FFFF00","#9999FF","#FFFF99"];
 
     /**
      * @ignore
@@ -142,7 +143,7 @@ export class ChartBase implements OnInit,  DoCheck {
 		this._differ.options = this.differs.find({}).create();
 		this._differ.data = this.differs.find({}).create();
 		this._differ.options.diff(this.options);
-		this._differ.data.diff(this.data);
+		this._differ.data.diff(this.dataset);
 
 		this.render();
 	}
@@ -155,28 +156,30 @@ export class ChartBase implements OnInit,  DoCheck {
 	    	this.chart.data.labels = this.options.categories || [];
 	    	this.chart.update(0);
 	    	console.log("options having new value...")
-	    }
-	    changes = this._differ['data'].diff(this.data) ;
+		}
+		/*
+	    changes = this._differ['data'].diff(this.dataset) ;
 	    if ( changes ) {
 			console.log("data changed...", changes)
 	    	this.chart.data.datasets.forEach((dataset) => {
         		dataset.data.pop();
     		});
 
-    		this.updateDatasets(this.data);
+    		this.updateDatasets(this.dataset);
 
-   	    	this.data.forEach((dataset, i) => {
+   	    	this.dataset.forEach((dataset, i) => {
 	    		this.chart.data.datasets[i] = dataset;
 	    	});
 
 		   	this.chart.update(0);
 		} 
+		*/
 	}
 
 	
 	private render() {
 		let options = Object.assign(this.defaultOptions, this.options);
-		this.updateDatasets(this.data);
+		this.updateDatasets(this.dataset);
 		let ctx = this.element.nativeElement.querySelector('canvas').getContext('2d');
 		if (this.chart) {
 			this.chart.destroy();
@@ -186,7 +189,7 @@ export class ChartBase implements OnInit,  DoCheck {
 			options: options,
 			data: {
 				labels: options.categories,
-				datasets: this.data
+				datasets: this.dataset
 			}
 		});
 		let self = this;

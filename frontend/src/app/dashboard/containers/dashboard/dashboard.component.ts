@@ -24,6 +24,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DashboardState.getWidgets) widgets$: Observable<any>;
     @Select(DashboardState.setViewEditMode) viewEditMode$: Observable<boolean>;
     @Select(AuthState.getAuth) auth$: Observable<string>;
+    @Select(DashboardState.getUpdatedWidgetId) updatedWidgetId$: Observable<string>;
 
     // portal templates
     @ViewChild('dashboardNavbarTmpl') dashboardNavbarTmpl: TemplateRef<any>;
@@ -58,6 +59,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'addNewWidget':
                     this.addNewWidget();
                     break;
+                case 'getQueryData':
+                    console.log('message', message);
+                    this.store.dispatch(new dashboardActions.GetQueryData(message.id, message.payload));  
+                    break;
                 default:
                     break;
             }
@@ -65,6 +70,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.store.dispatch(new dashboardActions.LoadDashboard('xyz'));
         this.widgets$.subscribe(widgets => {
             this.widgets = widgets;
+        });
+        // when an widget is updated by getting raw data, based on its component type
+        // we need to transform data to its data format to required format of wdget visualization to render
+        // transormation can be done here in dashboad service and passing back to data.
+        // or should it be done when setting state?
+        this.updatedWidgetId$.subscribe(wid => {
+            for (let i = 0; i < this.widgets.length; i++) {
+                if (this.widgets[i].id === wid) {
+                    this.interCom.responsePut({
+                        id: wid,
+                        action: 'updatedWidget',
+                        payload: this.widgets[i]
+                    });
+                    break;
+                }
+            }
         });
         this.auth$.subscribe(auth => {
             console.log('auth=', auth);
@@ -74,7 +95,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
-    // this will call based on gridster reflow and size changes
+    // this will call based on gridster reflow and size changes event
     widgetsLayoutUpdate(widgets: any[]) {
         this.store.dispatch(new dashboardActions.UpdateWidgetsLayout({ widgets }));
         // we the broadcast new dimention down to them for resizing

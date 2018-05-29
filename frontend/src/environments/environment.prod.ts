@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  tsdb_host: 'http://data.yamas.ops.yahoo.com:9999'
+  tsdb_host: 'https://data.yamas.ops.yahoo.com:4443'
 };

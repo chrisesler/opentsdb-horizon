@@ -21,7 +21,9 @@ export interface WidgetModel {
     }
     config: {
         title: string;
-        component_type: string
+        component_type: string;
+        data_source?: string;
+        rawdata?: any;
     }
 }
 
@@ -30,6 +32,7 @@ export interface DashboardStateModel {
     loading: boolean;
     loaded: boolean;
     viewEditMode: boolean;
+    updatedWidgetId: string;
     settings: any;
     widgets: WidgetModel[];
 }
@@ -41,12 +44,14 @@ export interface DashboardStateModel {
       loading: false,
       loaded: false,
       viewEditMode: false,
+      updatedWidgetId: '',
       settings: {},
       widgets: []
     }
 })
 
 export class DashboardState {
+
     constructor(private httpService: HttpService, private dashboardService: DashboardService) {}
 
     // return a clone copy of state, keet global state immutable
@@ -58,11 +63,16 @@ export class DashboardState {
     @Selector()
     static getDashboard(state: DashboardStateModel) {
         return JSON.parse(JSON.stringify(state));
-    }
+    }    
 
     @Selector()
     static setViewEditMode(state: DashboardStateModel) {
         return state.viewEditMode;
+    }
+
+    @Selector()
+    static getUpdatedWidgetId(state: DashboardStateModel) {
+        return state.updatedWidgetId;
     }
 
     @Action(dashboardAction.LoadDashboard)
@@ -101,4 +111,25 @@ export class DashboardState {
         const state = ctx.getState();
         ctx.setState({...state, viewEditMode: payload});
     }
+
+    /* GetQueryData will make the call to API to get data.
+        More on settings up data source and other later
+    */
+   @Action(dashboardAction.GetQueryData)
+   GetQueryData(ctx: StateContext<DashboardStateModel>, action: dashboardAction.GetQueryData) {
+        this.httpService.getDataByPost(action.query).subscribe(
+            data => { 
+                const state = ctx.getState();
+                for (let w of state.widgets) {
+                    if (w.id === action.widgetid) {
+                        // or transformation for data needed to be done here.
+                        w.config.rawdata = data;
+                        state.updatedWidgetId = w.id;
+                        break;
+                    }
+                }
+                ctx.setState(state);
+            }           
+        );
+   }
  }
