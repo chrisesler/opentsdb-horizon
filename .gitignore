@@ -18,6 +18,7 @@ artifacts
 frontend/vendor.js
 frontend/polyfills.js
 frontend/src/**/*.js
+!frontend/src/app/shared/**/*.js
 **/*.log
 
 /frontend/e2e/*.js
