@@ -1,0 +1,19 @@
+{
+    "dev": {
+        "port": "4443",
+        "application_protocol": "https:",
+        "redirect_port": [],
+        "tsdb_host": "https://data.yamas.ops.yahoo.com:4443",
+        "statusdb": "http://statusdb-2.yms.gq1.yahoo.com:4080/status/v1/",
+        "sherpa_url": "http://gamma-bcp1792.dht.yahoo.com:4080/",
+        "storageType": "sherpa"
+    },
+    "prod": {
+        "port": "4443",
+        "application_protocol": "https:",
+        "tsdb_host": "https://data.yamas.ops.yahoo.com:4443",
+        "statusdb": "http://statusapi.yamas.ops.yahoo.com:4080/status/v1/",
+        "sherpa_url": "http://sherpa-bcp1280.dht.yahoo.com:4080/",
+        "storageType": "sherpa"
+    }
+}

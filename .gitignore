@@ -23,7 +23,6 @@ frontend/src/**/*.js
 /frontend/e2e/*.js
 /frontend/e2e/*.map
 
-config
 *.log.*
 
 .DS_Store
