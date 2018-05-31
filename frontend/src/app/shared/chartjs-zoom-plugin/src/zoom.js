@@ -16,7 +16,7 @@ module.exports = function(Chart) {
      */
 	function initialize(chart) {
 
-		zoomOptions = chartHelpers.configMerge(Chart.Zoom.defaults,chart.options.zoom);
+	    zoomOptions = chartHelpers.configMerge(Chart.Zoom.defaults,chart.options.zoom);
 
 		if ( zoomOptions.enabled ) {
 			chart.zoom = {};
@@ -26,7 +26,8 @@ module.exports = function(Chart) {
 			chart.zoom.newLayer.style.position = "absolute";
 			chart.zoom.newLayer.style.left =   '0px';
 			chart.zoom.newLayer.style.top =  '0px';
-			chart.zoom.newLayer.style.zIndex = -1;
+            chart.zoom.newLayer.style.zIndex = 1;
+            chart.zoom.newLayer.style.visibility = 'hidden';
 			parentDiv.appendChild(chart.zoom.newLayer);
 			chart.zoom.newLayer.style.cursor = "crosshair";
 			targetCanvas.style.cursor = "crosshair";
@@ -58,8 +59,8 @@ module.exports = function(Chart) {
 	function zoomTimeScale(scale, start, end) {
 		var min = scale.getValueForPixel(start);
 		var max= scale.getValueForPixel(end);
-		scale.options.time.min = min;
-		scale.options.time.max = max;
+		scale.options.time.min = max.valueOf();
+		scale.options.time.max = min.valueOf();
 	}
 
 	/**
@@ -204,29 +205,24 @@ module.exports = function(Chart) {
 				};
 
 				chart.zoom._mouseDownHandler = function(e) {
-					if ( e.button == 0 ) {
-						//delay required to trigger doubleclick
-						clearTimeout(timeout);
-
+					if ( e.type == 'mousedown' ) {
 						if ( inRange(e.offsetX,e.offsetY, chart) ) {
-							timeout = setTimeout(function() {
-								chart.zoom.newLayer.style.zIndex = 1;
-							},300);
 						    dragStartX = e.offsetX;
 						    dragStartY = e.offsetY;
-						    dragging = true;							
+                            dragging = true;
+                            chartHelpers.addEvent(document,'mousemove', chart.zoom._mouseMoveHandler);
+				            chartHelpers.addEvent(document,'mouseup', chart.zoom._mouseUpHandler);							
 						}
 					}
 				};
 
 				chart.zoom._doubleClickHandler = function(e) {
-					clearTimeout(timeout);
 					dragging = false;
-					chart.zoom.newLayer.style.zIndex = -1;
-					chart.resetZoom();
+                    chart.zoom.newLayer.style.visibility = 'hidden';
+                    chart.resetZoom();
 				};
 
-				chart.zoom._layerMouseUpHandler = function(e) {
+				chart.zoom._mouseUpHandler = function(e) {
 					dragEndX = e.offsetX-chart.ctx.canvas.offsetLeft;
 					dragEndY = e.offsetY-chart.ctx.canvas.offsetTop;
 					var distance = Math.abs(dragEndX-dragStartX);
@@ -234,14 +230,14 @@ module.exports = function(Chart) {
 						doZoom(chart);
 					}
 					dragging = false;
-					chart.zoom.newLayer.style.zIndex = -1;
+                    chart.zoom.newLayer.style.visibility = 'hidden';
+                    
+                    chartHelpers.removeEvent(document,'mousemove', chart.zoom._mouseMoveHandler);
+				    chartHelpers.removeEvent(document,'mouseup', chart.zoom._mouseUpHandler);
 				};
 
-				chart.zoom._mouseUpHandler = function(e) {
-					dragging = false;
-				};
-
-				chart.zoom._layerMouseMoveHandler = function(e) {
+				chart.zoom._mouseMoveHandler = function(e) {
+                    chart.zoom.newLayer.style.visibility = 'visible';
 					if (dragging){
 						var offsetX = e.offsetX - chart.ctx.canvas.offsetLeft;
 						var offsetY = e.offsetY - chart.ctx.canvas.offsetTop;
@@ -274,10 +270,8 @@ module.exports = function(Chart) {
 				};
 
 				chartHelpers.addEvent(chart.ctx.canvas, 'mousedown', chart.zoom._mouseDownHandler);
-				chartHelpers.addEvent(chart.ctx.canvas,'mouseup', chart.zoom._mouseUpHandler);
+                chart.ctx.canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return false; }, false);
 				chartHelpers.addEvent(chart.ctx.canvas, 'dblclick', chart.zoom._doubleClickHandler);
-				chartHelpers.addEvent(chart.zoom.newLayer,'mousemove', chart.zoom._layerMouseMoveHandler);
-				chartHelpers.addEvent(chart.zoom.newLayer,'mouseup', chart.zoom._layerMouseUpHandler);
 			}
 		},
 		resize: function(chart) {
@@ -288,10 +282,8 @@ module.exports = function(Chart) {
 		destroy: function(chart) {
 			if ( zoomOptions.enabled ) {
 				chartHelpers.removeEvent(chart.ctx.canvas, 'mousedown', chart.zoom._mouseDownHandler);
-				chartHelpers.removeEvent(chart.ctx.canvas,'mouseup', chart.zoom._mouseUpHandler);
-				chartHelpers.removeEvent(chart.ctx.canvas, 'dblclick', chart.zoom._doubleClickHandler);
-				chartHelpers.removeEvent(chart.zoom.newLayer,'mousemove', chart.zoom._layerMouseMoveHandler);
-				chartHelpers.removeEvent(chart.zoom.newLayer,'mouseup', chart.zoom._layerMouseUpHandler);
+                chartHelpers.removeEvent(chart.ctx.canvas, 'dblclick', chart.zoom._doubleClickHandler);
+                chart.ctx.canvas.removeEventListener('selectstart', chart.zoom._selectStartHandler);
 				delete chart.zoom;
 			}
 		}

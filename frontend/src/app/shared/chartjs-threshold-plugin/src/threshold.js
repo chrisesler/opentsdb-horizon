@@ -5,15 +5,9 @@ var ThresholdLine = require('./element.thresholdline.js');
 module.exports = function(Chart) {
 
 	var chartHelpers = Chart.helpers;
-	var ctx;
-	var selection;
 	var dragging = false;
-	var editMode = false;
-	var scaleId = "y-axis-0";
 	var selectionBorder = 2;
-	var maxLines;
 	var lineConfig;
-	var newCanvas;
 
 	/**
      *
@@ -23,7 +17,7 @@ module.exports = function(Chart) {
 	function initialize(chart) {
 		var targetCanvas = chart.ctx.canvas;
 
-		newCanvas = document.createElement('canvas');
+		var newCanvas = document.createElement('canvas');
 		var parentDiv = targetCanvas.parentNode;
 		parentDiv.appendChild(newCanvas);
 		newCanvas.style.position = "absolute";
@@ -31,15 +25,16 @@ module.exports = function(Chart) {
 		newCanvas.style.top =  '0px';
 		newCanvas.style.zIndex = 1;
 		setCursor(newCanvas, "pointer");
-		setSize(chart);
-
+        chart.options.threshold = chartHelpers.configMerge(Chart.Threshold.defaults, chart.options.threshold || {} );
+        console.log(chart.options.threshold, "instance options..")
 		chart.threshold={
 				elements:{},
-				overlayCanvas:newCanvas,
-				options: chartHelpers.configMerge(chart.options.threshold || {}),
-				firstRun:false
-			};
-	}
+                overlayCanvas:newCanvas,
+                firstRun:false,
+                selection: null
+		};
+		setSize(chart);
+    }
 
 	/**
      *
@@ -48,11 +43,11 @@ module.exports = function(Chart) {
      */
 	function setSize(chart) {
 		var pixelRatio = chart.currentDevicePixelRatio || 1;
-		newCanvas.width  = chart.width * pixelRatio;     
-		newCanvas.height = chart.height * pixelRatio;
-		newCanvas.getContext('2d').scale(pixelRatio, pixelRatio);
-		newCanvas.style.height = chart.height + 'px';
-		newCanvas.style.width = chart.width + 'px';
+		chart.threshold.overlayCanvas.width  = chart.width * pixelRatio;     
+		chart.threshold.overlayCanvas.height = chart.height * pixelRatio;
+		chart.threshold.overlayCanvas.getContext('2d').scale(pixelRatio, pixelRatio);
+		chart.threshold.overlayCanvas.style.height = chart.height + 'px';
+		chart.threshold.overlayCanvas.style.width = chart.width + 'px';
 	}
 
 	/**
@@ -61,23 +56,23 @@ module.exports = function(Chart) {
      * @param {Object} chart - chart instance
      */
 	function updateConfig(chart) {
-		maxLines = chart.options.threshold && chart.options.threshold.maxLines || Number.MAX_VALUE;
-		editMode = chart.options.threshold && chart.options.threshold.draw || false;
-		scaleId = chart.options.threshold && chart.options.threshold.scaleId || "y-axis-0";
+        chart.options.threshold = chartHelpers.configMerge(Chart.Threshold.defaults, chart.options.threshold || {} );
 		lineConfig = chart.options.threshold && chart.options.threshold.line ? chartHelpers.configMerge(Chart.Threshold.lineDefaults,chart.options.threshold.line) : Chart.Threshold.lineDefaults;
-		ctx = editMode ? chart.threshold.overlayCanvas.getContext('2d') : chart.ctx;
-		chart.threshold.overlayCanvas.style.display = editMode ? "block" : "none";
-		selection = null;
+		//ctx = chart.options.threshold.draw ? chart.threshold.overlayCanvas.getContext('2d') : chart.ctx;
+		chart.threshold.overlayCanvas.style.display = chart.options.threshold.draw ? "block" : "none";
+        chart.threshold.selection = null;
+        chart.threshold.firstRun = false;
 	}
 
 	/**
      *
      * Draws the threshold lines on the canvas 
-     * @param {Object} ctx - canvas context. It can be either main/new canvas
-     * @param {Array} elements - Array of threshold line elements
+     * @param {Object} chart - chart object
      */
-	function draw(ctx, elements) {
-		if ( editMode ) {
+	function draw(chart) {
+        var ctx = chart.options.threshold.draw ? chart.threshold.overlayCanvas.getContext('2d') : chart.ctx;
+        var elements = chart.threshold.elements;
+		if ( chart.options.threshold.draw ) {
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		}
 		for ( var i in elements ) {
@@ -100,30 +95,31 @@ module.exports = function(Chart) {
      * Sets the border on the selected threshold line
      * @param {Object} el - threshold element
      */
-	function select(el) {
-		clearSelection();
-	    selection = el;
-	    selection.setBorder(1);
-	    dragging = true;
+	function select(chart, el) {
+		clearSelection(chart);
+	    chart.threshold.selection = el;
+	    chart.threshold.selection.setBorder(1);
+        dragging = true;
+        chartHelpers.addEvent(document, 'keydown', chart.threshold._winKeyDownEventHandler);
 	}
 
 	/**
      *
      * Unselects any previously selected threshold line 
-     * @param {Object} el - threshold element
      */
-	function clearSelection() {
+	function clearSelection(chart) {
 		
-		if (selection) {
-			selection.setBorder(0);
+		if (chart.threshold.selection) {
+			chart.threshold.selection.setBorder(0);
 		}
 		
-		selection = null;
-		dragging = false;
-
+		chart.threshold.selection = null;
+        dragging = false;
+        chartHelpers.removeEvent(document, 'keydown', chart.threshold._winKeyDownEventHandler);
 	}
 
 	function fireEvent(chart) {
+        console.log("send events..", chart.threshold.elements);
 		var evt = new CustomEvent("onThresholdSet", {"detail":chart.threshold.elements});
 		chart.ctx.canvas.dispatchEvent(evt);	
 	}
@@ -137,56 +133,62 @@ module.exports = function(Chart) {
 			initialize(chart);
 
 			/* handler to delete the selected threshold line */
-			chart.threshold._winKeyDownEventHandler = function(e) {
-				if (selection && e.keyCode == 8 ) {
-					delete chart.threshold.elements[selection.id];
-					clearSelection();
-					draw(ctx,chart.threshold.elements);
+            chart.threshold._winKeyDownEventHandler = function(e) {
+				if (chart.threshold.selection && e.keyCode == 8 ) {
+                    console.log(chart, "coimes ......", chart.threshold.selection, chart.threshold.elements);
+					delete chart.threshold.elements[chart.threshold.selection.id];
+                    clearSelection(chart);
+                    console.log(chart.threshold.elements)
+					draw(chart);
 				}				
 			};
 
 			/* 	handler to draw threshold line or 
 				selects/unselects the line if the line is there in the area */
-			chart.threshold._mouseDownEventHandler = function(e) {
+              chart.threshold._mouseDownEventHandler = function(e) {
+                console.log("mouse down..")
 			    var mx = e.offsetX;
 			    var my = e.offsetY;
 			    for (var i in chart.threshold.elements ) {
 			      if (chart.threshold.elements[i].inRange(mx, my, selectionBorder)) {
-				    select(chart.threshold.elements[i]);
-			        draw(ctx,chart.threshold.elements);
+				    select(chart,chart.threshold.elements[i]);
+			        draw(chart);
 			        return;
 			      }
 			    }
 
-			    if (  editMode ) {
-			    	if (selection) {
+			    if (  chart.options.threshold.draw ) {
+			    	if (chart.threshold.selection) {
 			    		// prevents drawing a new line if the selection is made already i.e unselects the line
-			    		clearSelection();
-			    	} else if ( Object.keys(chart.threshold.elements).length<maxLines ) {
+			    		clearSelection(chart);
+			    	} else if ( Object.keys(chart.threshold.elements).length<chart.options.threshold.maxLines ) {
 			    		var id = 'line-'+ new Date().getTime();
 				    	var options =	{ 
 				    						id : id,
-				    						scaleId : scaleId,
-				    						value:chart.scales[scaleId].getValueForPixel(e.offsetY)
+				    						scaleId : chart.options.threshold.scaleId,
+				    						value:chart.scales[chart.options.threshold.scaleId].getValueForPixel(e.offsetY)
 				    					};
 						chart.threshold.elements[id] = new ThresholdLine(chart, chartHelpers.configMerge(Chart.Threshold.lineDefaults,options));
-						fireEvent(chart);
-					}
-					draw(ctx,chart.threshold.elements);
+                        fireEvent(chart);
+                        
+                    }
+                    console.log(chart.threshold.elements, "added..");
+					draw(chart);
 			    }
   			};
+              
 
 			/* 	
 				handler for dragging the selected line  or 
 				sets the move cursor if the line is already there or 
 				set the pointer if no line is drawn in that area
 			*/
-  			chart.threshold._mouseMoveEventHandler = function(e) {
+            chart.threshold._mouseMoveEventHandler = function(e) {
 				if (dragging){
 					if (e.offsetY <= chart.chartArea.bottom && e.offsetY >= chart.chartArea.top) {
- 						selection.value = chart.scales[selection.scaleId].getValueForPixel(e.offsetY) ; 
- 						selection.update();
-						draw(ctx,chart.threshold.elements);
+ 						chart.threshold.selection.value = chart.scales[chart.threshold.selection.scaleId].getValueForPixel(e.offsetY) ; 
+ 						chart.threshold.selection.update();
+						draw(chart);
 					}
 				} else {
 			    	var mx = e.offsetX;
@@ -209,7 +211,7 @@ module.exports = function(Chart) {
         		}
 			};
 
-			chartHelpers.addEvent(document, 'keydown', chart.threshold._winKeyDownEventHandler);
+			
 			chartHelpers.addEvent(chart.threshold.overlayCanvas, 'mousedown', chart.threshold._mouseDownEventHandler);
 			chartHelpers.addEvent(chart.threshold.overlayCanvas,'mousemove', chart.threshold._mouseMoveEventHandler);
 			chartHelpers.addEvent(chart.threshold.overlayCanvas,'mouseup', chart.threshold._mouseUpEventHandler);
@@ -222,8 +224,8 @@ module.exports = function(Chart) {
 		},		
 
 		afterUpdate: function(chart) {
-			//unselects any previousely selected lines. this is required when we switch from edit mode
-			clearSelection(); 
+            //unselects any previousely selected lines. this is required when we switch from edit mode
+			clearSelection(chart); 
 			updateConfig(chart);
 			if ( chart.options.threshold && chart.options.threshold.thresholds && !chart.threshold.firstRun ) {
 				var thresholds = chart.options.threshold.thresholds;
@@ -233,15 +235,17 @@ module.exports = function(Chart) {
 					if ( !chart.threshold.elements[id] ) {
 						thresholds[i].id = id;
 						chart.threshold.elements[id] = new ThresholdLine(chart,chartHelpers.configMerge(lineConfig,thresholds[i]));
-					}
+					} else {
+                        chart.threshold.elements[id] = new ThresholdLine(chart,chartHelpers.configMerge(lineConfig,thresholds[i]));
+                    }
 				}
 				chart.threshold.firstRun = true;
-			}
+            }
 		},
 
 		afterDraw: function(chart) {
 			/* draws the threshold lines */
-			draw(ctx,chart.threshold.elements);
+			draw(chart);
 		},
 
 		resize: function(chart) {

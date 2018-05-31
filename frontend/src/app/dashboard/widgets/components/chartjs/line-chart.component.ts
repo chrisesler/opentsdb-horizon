@@ -9,7 +9,8 @@ import {
     Output,
     HostBinding,
     EventEmitter,
-    SimpleChanges
+    SimpleChanges,
+    HostListener
 } from '@angular/core';
 
 import { ChartBase } from './chartbase';
@@ -51,8 +52,9 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
             enabled: true
         },
         threshold: {
-            draw: this.editMode,
-            maxLines: 2
+            draw: false,
+            maxLines: 2,
+            thresholds: []
         },
         scales: {
             xAxes: [{
@@ -66,6 +68,7 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
         },
 
     };
+    thresholds: Array<any> = [];
 
     constructor(element: ElementRef, differs: KeyValueDiffers, private interCom: IntercomService) {
         super(element, differs);
@@ -73,8 +76,20 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
         this.defaultOptions = Object.assign(this.defaultOptions, this.lineDefaultOptions);
     }
 
+    onThresholdSet( e ) {
+        const res = e.detail;
+        this.thresholds = [];
+        for ( let k in res ) {
+            this.thresholds.push( {id: res[k].id, scaleId: res[k].scaleId, value: res[k].value});
+        }
+        console.log('got thresholds=', this.thresholds);
+    }
+
     ngOnInit() {
         super.ngOnInit();
+        if ( this.editMode && this.options.threshold ) {
+            this.setThresholdEditMode();
+        }
         // subscribe to stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             // console.log('message', message, this.widget);
@@ -90,8 +105,7 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
                             if(message.payload.config.rawdata[0].dps) {
                                 // first let set the label
                                 //console.log('rawdata', Object.keys(message.payload.config.rawdata[0].dps));
-                                
-                                
+                                                                
                                 this.labels = Object.keys(message.payload.config.rawdata[0].dps);
                                 for (let i = 0; i < message.payload.config.rawdata.length; i++) {
                                     let d = { data: Object.values(message.payload.config.rawdata[i].dps)};
@@ -141,6 +155,15 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
             this.chart.update(0);
             
         }
+    }
+
+    setThresholdEditMode() {
+        this.options.threshold.draw = true;
+    }
+
+    setThresholds() {
+        console.log("thresholds...",  this.thresholds);
+        this.options.threshold.thresholds = JSON.parse(JSON.stringify(this.thresholds));
     }
 
     ngOnChanges(changes: SimpleChanges) {

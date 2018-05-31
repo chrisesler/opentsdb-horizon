@@ -1,5 +1,11 @@
 #container {
-	display:inline-block;
+    display:inline-block;
+    /* 
+        this is parent containter(#container) of chartjs canvas.
+        position:relative is required on parent container as 
+        chartjs-zoom and threshold plugins inserts a canvas on top of chart canvas.
+    */ 
+    position: relative;
 }
 
 canvas {
