@@ -5,8 +5,9 @@ Chart = typeof(Chart) === 'function' ? Chart : window.Chart;
 Chart.Threshold = Chart.Threshold || {};
 
 Chart.Threshold.defaults = {
-	editMode: false,
-	maxLines: Number.MAX_VALUE,
+	draw: false,
+    maxLines: Number.MAX_VALUE,
+    scaleId : 'y-axis-0',
 	thresholds : []
 };
 
