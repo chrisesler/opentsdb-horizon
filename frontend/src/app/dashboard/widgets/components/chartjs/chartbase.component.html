@@ -5,7 +5,7 @@
 	<div class="widget-output">
 		<!-- Where the graph, or whatever lives -->
 		<div id="container" [style.width]="width" [style.height]="height">
-			<canvas id="canvas"></canvas>
+			<canvas id="canvas" (onThresholdSet)="onThresholdSet($event)"></canvas>
 		</div>
 	</div>
 </div>
@@ -30,7 +30,11 @@
 			<p>Legend tab</p>
 		</mat-tab>
 		<mat-tab label="Alerts">
-			<p>Alerts tab</p>
+            <p>Alerts tab</p>
+            <div *ngFor="let threshold of thresholds; let idx = index; ">
+                Threshold-{{ idx + 1}}:  <input type=text  [(ngModel)]="threshold.value" (blur)="setThresholds()">
+            </div>
+            
 		</mat-tab>
 	</mat-tab-group>
 	<div class="widget-actions">

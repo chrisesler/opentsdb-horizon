@@ -140,9 +140,9 @@ export class ChartBase implements OnInit,  DoCheck {
 
 	ngOnInit() {
 
-		this._differ.options = this.differs.find({}).create();
+		this._differ.threshold = this.differs.find({}).create();
 		this._differ.data = this.differs.find({}).create();
-		this._differ.options.diff(this.options);
+		this._differ.threshold.diff(this.options.threshold);
 		this._differ.data.diff(this.dataset);
 
 		this.render();
@@ -150,10 +150,10 @@ export class ChartBase implements OnInit,  DoCheck {
 
 	ngDoCheck() {
 
-		let changes = this._differ.options.diff(this.options) ;
+		let changes = this._differ.threshold.diff(this.options.threshold) ;
 		if ( changes )  {
 	    	this.chart.options = Object.assign(this.chart.options, this.options);
-	    	this.chart.data.labels = this.options.categories || [];
+	    	//this.chart.data.labels = this.options.categories || [];
 	    	this.chart.update(0);
 	    	console.log("options having new value...")
 		}
@@ -178,7 +178,7 @@ export class ChartBase implements OnInit,  DoCheck {
 
 	
 	private render() {
-		let options = Object.assign(this.defaultOptions, this.options);
+		this.options = Object.assign(this.defaultOptions, this.options);
 		this.updateDatasets(this.dataset);
 		let ctx = this.element.nativeElement.querySelector('canvas').getContext('2d');
 		if (this.chart) {
@@ -186,9 +186,9 @@ export class ChartBase implements OnInit,  DoCheck {
 		}
 		this.chart = new Chart(ctx, {
 			type: this.type,
-			options: options,
+			options: this.options,
 			data: {
-				labels: options.categories,
+				labels: this.options.categories,
 				datasets: this.dataset
 			}
 		});
