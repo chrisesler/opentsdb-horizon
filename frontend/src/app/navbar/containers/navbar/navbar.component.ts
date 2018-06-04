@@ -1,6 +1,10 @@
-import { Component, OnInit, Input, Output, EventEmitter, HostBinding } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, HostBinding, ViewChild } from '@angular/core';
 
 import { Router } from '@angular/router';
+
+import { OverlayContainer } from '@angular/cdk/overlay';
+
+import { MatMenu, MatMenuTrigger } from '@angular/material';
 
 import { CdkService } from '../../../core/services/cdk.service';
 
@@ -12,6 +16,8 @@ import { CdkService } from '../../../core/services/cdk.service';
 export class NavbarComponent implements OnInit {
 
   @HostBinding('class.app-navbar') private _hostClass = true;
+
+  // @ViewChild( MatMenuTrigger ) trigger: MatMenuTrigger;
 
   @Input() theme: string;
   @Output() themeChange = new EventEmitter<string>();

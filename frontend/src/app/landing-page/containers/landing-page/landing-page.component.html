@@ -1,0 +1,16 @@
+<div fxLayout="row" fxFlex="1 1 100%" fxFlexFill>
+    <div fxFlex="1 1 100%" fxLayout="column" class="main-content">
+        left column
+    </div>
+    <div fxFlex="1 1 400px" class="sidebar">
+        <button mat-raised-button color="primary">Create Dashboard</button>
+    </div>
+</div>
+
+<ng-template #landingpageNavbarTmpl>
+    <div class="navbar-item">
+        <span class="dashboard-name">Horizon Landing Page</span>
+    </div>
+    <span class="flex-spacer"></span>
+    <theme-picker mat-button></theme-picker>
+</ng-template>

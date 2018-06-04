@@ -6,10 +6,10 @@ import { ThemePickerModule } from '../shared/modules/theme-picker/theme-picker.m
 import { LandingPageRoutingModule } from './landing-page-routing.module';
 
 // containers
-import { LandingPageMainComponent } from './containers/main/main.component';
+import { LandingPageComponent } from './containers/landing-page/landing-page.component';
 
 // components
-import { LandingPageHomeComponent } from './components/home/home.component';
+
 
 @NgModule({
   imports: [
@@ -19,8 +19,7 @@ import { LandingPageHomeComponent } from './components/home/home.component';
     LandingPageRoutingModule
   ],
   declarations: [
-    LandingPageMainComponent,
-    LandingPageHomeComponent
+    LandingPageComponent
   ]
 })
 export class LandingPageModule { }

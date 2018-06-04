@@ -9,7 +9,7 @@ import { KSHomeComponent } from './containers/home/home.component';
 
 
 const routes: Routes = [{
-  path: '',
+  path: 'ks',
   component: KSMainComponent,
   children: [{
       path: '',

@@ -2,25 +2,13 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 // containers
-import { LandingPageMainComponent } from './containers/main/main.component';
+import { LandingPageComponent } from './containers/landing-page/landing-page.component';
 
 // components
-import { LandingPageHomeComponent } from './components/home/home.component';
-
 
 const routes: Routes = [{
   path: '',
-  component: LandingPageMainComponent,
-  children: [{
-      path: '',
-      redirectTo: 'home',
-      pathMatch: 'full'
-    },
-    {
-      path: 'home',
-      component: LandingPageHomeComponent
-    }
-  ]
+  component: LandingPageComponent
 }];
 
 @NgModule({
