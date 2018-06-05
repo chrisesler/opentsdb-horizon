@@ -43,7 +43,9 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     resizeHandles: {
       s: true,
       e: true,
-      se: true
+      w: true,
+      se: true,
+      sw: true
     },
     widthHeightRatio: 2, // proportion between item width and height
     lines: {
