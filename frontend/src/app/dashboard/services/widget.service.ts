@@ -7,16 +7,16 @@ import { LineChartComponent } from '../widgets/components/chartjs/line-chart.com
 @Injectable()
 export class WidgetService {
 
-  constructor() { }
+    constructor() { }
 
-  getComponentToLoad (name: string) {
-    switch (name) {
-      case 'WsampleComponent':
-        return WsampleComponent;
-      case 'LineChartComponent':
-      	return LineChartComponent;
-      default:
-        return WidgetbaseComponent;
+    getComponentToLoad(name: string) {
+        switch (name) {
+            case 'WsampleComponent':
+                return WsampleComponent;
+            case 'LineChartComponent':
+                return LineChartComponent;
+            default:
+                return WidgetbaseComponent;
+        }
     }
-  }
 }

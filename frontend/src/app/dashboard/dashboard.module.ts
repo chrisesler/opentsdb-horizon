@@ -23,6 +23,10 @@ import { DashboardComponent } from './containers/dashboard/dashboard.component';
 import { DboardContentComponent } from './components/dboard-content/dboard-content.component';
 import { DboardHeaderComponent } from './components/dboard-header/dboard-header.component';
 import { WidgetLoaderComponent } from './components/widget-loader/widget-loader.component';
+import { ConfigTagsListComponent } from './components/config-tags-list/config-tags-list.component';
+import { SearchMetricsDialogComponent } from './components/search-metrics-dialog/search-metrics-dialog.component';
+
+// directives
 import { WidgetDirective } from './directives/widget.directive';
 import { WidgetViewDirective } from './directives/widgetview.directive';
 
@@ -30,8 +34,7 @@ import { WidgetViewDirective } from './directives/widgetview.directive';
 import { WidgetbaseComponent } from './widgets/components/widgetbase/widgetbase.component';
 import { WsampleComponent } from './widgets/components/wsample/wsample.component';
 import { LineChartComponent } from './widgets/components/chartjs/line-chart.component';
-import { ConfigTagsListComponent } from './components/config-tags-list/config-tags-list.component';
-import { SearchMetricsDialogComponent } from './components/search-metrics-dialog/search-metrics-dialog.component';
+
 
 @NgModule({
     imports: [
