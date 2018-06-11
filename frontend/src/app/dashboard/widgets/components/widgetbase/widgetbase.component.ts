@@ -30,6 +30,37 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
     @Input() editMode: boolean;
     @Input() widget: any;
 
+    // Available Widget Types
+    availableWidgetTypes: Array<object> = [
+        {
+            label: 'Bar Graph',
+            type: 'WidgetBarGraphComponent',
+            iconClass: 'widget-icon-bar-graph'
+        },
+        {
+            label: 'Area Graph',
+            type: 'WidgetAreaGraphComponent',
+            iconClass: 'widget-icon-area-graph'
+        },
+        {
+            label: 'Line Chart',
+            type: 'LineChartComponent',
+            // TODO: need to eventually switch to WidgetLineChartComponent
+            // type: 'WidgetLineChartComponent',
+            iconClass: 'widget-icon-line-chart'
+        },
+        {
+            label: 'Big Number',
+            type: 'WidgetBigNumberComponent',
+            iconClass: 'widget-icon-big-number'
+        },
+        {
+            label: 'Donut Chart',
+            type: 'WidgetDonutChartComponent',
+            iconClass: 'widget-icon-donut-chart'
+        }
+    ];
+
     // search metrics dialog
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     searchDialogSub: any;
@@ -191,6 +222,10 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
 
     addTimeSeriesExpression() {
         // do something
+    }
+
+    selectWidgetType(wtype: any, event: any) {
+        console.log('SELECT WIDGET TYPE', wtype, event);
     }
 
 
