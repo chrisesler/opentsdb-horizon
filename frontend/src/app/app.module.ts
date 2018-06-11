@@ -11,6 +11,7 @@ import { AppComponent } from './app.component';
 // custom modules
 import { CoreModule } from './core/core.module';
 import { MaterialModule } from './shared/modules/material/material.module';
+import { DygraphsModule } from './shared/modules/dygraphs/dygraphs.module';
 import { AppRoutingModule } from './app-routing.module';
 
 // store
@@ -42,6 +43,7 @@ import { CredentialsInterceptor } from './core/http/credentials.interceptor';
     BrowserAnimationsModule,
     CoreModule,
     MaterialModule,
+    DygraphsModule,
     // ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     AppRoutingModule,
     NgxsModule.forRoot([AuthState]),
