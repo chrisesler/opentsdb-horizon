@@ -32,7 +32,7 @@ export class ChartBase implements OnInit,  DoCheck {
 	 * }
 	 * </code></pre>
 	 */
-	options:any={width:"100%",height:"100%"};
+	options: any = { width: "100%", height: "100%" };
 	
 	/**
 	 *
@@ -122,7 +122,11 @@ export class ChartBase implements OnInit,  DoCheck {
     /**
      * @ignore
      */
-    colors:any = ["#0080FF","#FFFF00","#9999FF","#FFFF99"];
+    colors:any = [
+		'#808080','#708090','#800000','#f1443c','#e62364','#ff00ff','#9a2ead',
+		'#4b0082','#000080','#0000ff','#1ebbd1','#00ffff','#008080','#808000',
+		'#008000','#32cd32','#00ff00','#fde84d','#fdbf2e','#ffa500','#ff4500'
+	];
 
     /**
      * @ignore
@@ -220,11 +224,11 @@ export class ChartBase implements OnInit,  DoCheck {
 	setColor(dataset) {
 		let metric = dataset.metric || dataset.label;
 		let color;
-		if ( this.type == 'line' || this.type == 'bar' ) {
+		if ( this.type === 'line' || this.type === 'bar' ) {
 			color = dataset.color || this._meta.metricColors[metric]? this.getRandomColor(this._meta.metricColors[metric]) : this.getColor();
 			dataset.backgroundColor = color;
 			dataset.borderColor = color;
-		} else if ( this.type == 'pie' || this.type == 'doughnut') {
+		} else if ( this.type === 'pie' || this.type === 'doughnut') {
 			let colors = dataset.color || this.getColors(dataset.data.length);
 			dataset.backgroundColor = colors;
 			dataset.boderColor = colors;
