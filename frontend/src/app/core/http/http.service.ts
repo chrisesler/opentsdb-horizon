@@ -39,7 +39,7 @@ export class HttpService {
                   resetValue: 1
                 },
                 explicitTags: false,
-                downsample: '15m-avg-nan',
+                downsample: '60m-avg-nan',
                 filters:[
                   {
                     type: 'wildcard',
@@ -66,7 +66,7 @@ export class HttpService {
         },
         config: {
           title: 'Two',
-          component_type: 'WsampleComponent',
+          component_type: 'PlaceholderWidgetComponent',
           data_source: ''
         }
       },
@@ -77,7 +77,7 @@ export class HttpService {
         },
         config: {
           title: 'Three',
-          component_type: 'LineChartComponent',
+          component_type: 'LinebarWidgetComponent',
           data_source: 'opentsdb',
           query: {
             start: '1526250610000',
@@ -92,19 +92,13 @@ export class HttpService {
                   resetValue: 1
                 },
                 explicitTags: false,
-                downsample: '1m-avg-nan',
+                downsample: '60m-avg-nan',
                 filters:[
                   {
                     type: 'wildcard',
                     tagk: 'host',
                     filter: '*.bf1.*',
                     groupBy: false
-                  },
-                  {
-                    type: 'wildcard',
-                    tagk: 'colo',
-                    filter: '*',
-                    groupBy: true
                   }
                 ]
               }
