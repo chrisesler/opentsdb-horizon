@@ -8,6 +8,7 @@ import { GridsterModule } from 'angular2gridster';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { ThemePickerModule } from '../shared/modules/theme-picker/theme-picker.module';
 import { SimpleTimePickerModule } from '../shared/modules/simple-time-picker/simple-time-picker.module';
+import { DynamicWidgetsModule } from '../shared/modules/dynamic-widgets/dynamic-widgets.module';
 
 // services
 import { DashboardService } from './services/dashboard.service';
@@ -46,7 +47,8 @@ import { LineChartComponent } from './widgets/components/chartjs/line-chart.comp
         ThemePickerModule,
         SimpleTimePickerModule,
         DashboardRoutingModule,
-        NgxsModule.forFeature([DashboardState])
+        NgxsModule.forFeature([DashboardState]),
+        DynamicWidgetsModule
     ],
     declarations: [
         DashboardComponent,

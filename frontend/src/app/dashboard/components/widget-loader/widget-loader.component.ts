@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 import { WidgetService } from '../../services/widget.service';
 import { WidgetDirective } from '../../directives/widget.directive';
-import { WidgetComponent } from '../../widgets/widgetcomponent';
+import { WidgetComponentModel } from '../../widgets/models/widgetcomponent';
 import { IntercomService, IMessage } from '../../services/intercom.service';
 import { MatMenu, MatMenuTrigger } from '@angular/material';
 
@@ -70,8 +70,8 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     // const componentRef = viewContainerRef.createComponent(componentFactory);
     // (<WidgetComponent>componentRef.instance).config = this.widgetconf;
     this._component = this.viewContainerRef.createComponent(this.componentFactory);
-    (<WidgetComponent>this._component.instance).widget = this.widget;
-    (<WidgetComponent>this._component.instance).editMode = false;
+    (<WidgetComponentModel>this._component.instance).widget = this.widget;
+    (<WidgetComponentModel>this._component.instance).editMode = false;
   }
 
   // TODO: FOR DEV ONLY, NEED TO REMOVE

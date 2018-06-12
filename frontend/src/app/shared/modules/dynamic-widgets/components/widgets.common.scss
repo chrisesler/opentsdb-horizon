@@ -1,0 +1,331 @@
+/* WIDGET COMPONENTS */
+
+// NOTE: These styles cover ALL of the widget panels generic classes.
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+@mixin widgets-common-base() {
+    // class that goes on the widget components
+    $default-padding: 12px;
+    $edit-view-padding: 30px;
+    $tab-width: initial;
+    $action-bar-height: 30px;
+
+    .widget-panel-content {
+        @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
+        
+        .widget-config {
+            padding: $default-padding;
+        }
+
+        .widget-title,
+        .widget-output {
+            padding: 0 $default-padding;
+        }
+        
+        .widget-actions {
+            padding: $default-padding $edit-view-padding;
+        }
+        
+        .widget-panel-content,
+        .widget-controls-container {
+            flex: 1 1 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+        }
+        
+        .widget-output-container {
+            flex: 1 1 800px;
+            display: flex;
+            flex-direction: column;
+        
+            .widget-title {
+                @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), title);
+                flex: 1 1 $action-bar-height;
+            }
+        
+            .widget-output {
+                flex: 1 1 100%;
+            }
+        }
+        
+        // selector icons for the base
+        .widget-types {
+            margin-top: 20px;
+            
+            .widget-type-selector {
+                padding: 8px 16px 0 16px;
+                width: 110px;
+
+                &:not(:last-child) {
+                    margin-right: 12px;
+                    margin-bottom: 12px;
+                }
+
+                .mat-button-wrapper {
+                    display: inline-flex;
+                    flex-direction: column;
+                }
+        
+                .widget-type-label,
+                .widget-type-icon {
+                    width: 100%;
+                }
+        
+                .widget-type-label {}
+        
+                .widget-type-icon {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+        
+                    &::after {
+                        content: '';
+                        display: block;
+                        width: 60px;
+                        height: 60px;
+                        background-repeat: no-repeat;
+                        background-position: 50% 50%;
+                    }
+        
+                    &.widget-icon-bar-graph::after {
+                        background-image: url(/assets/widget-icon-bar-graph.png);
+                    }
+        
+                    &.widget-icon-area-graph::after {
+                        background-image: url(/assets/widget-icon-area-graph.png);
+                    }
+
+                    &.widget-icon-line-chart::after {
+                        background-image: url(/assets/widget-icon-line-chart.png);
+                    }
+
+                    &.widget-icon-big-number::after {
+                        background-image: url(/assets/widget-icon-big-number.png);
+                    }
+
+                    &.widget-icon-donut-chart::after {
+                        background-image: url(/assets/widget-icon-donut-chart.png);
+                    }
+                }
+            }
+        }
+        
+        .widget-controls-container {
+            .widget-actions {
+                flex: 1 1 $action-bar-height;
+            }
+        } 
+        
+        // mat-tab-group
+        .widget-configs {
+            flex: 1 1 100%;
+        
+            .mat-tab-body-wrapper {
+                flex: 1 1 100%;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden auto;
+            }
+        
+            .mat-tab-header {
+                padding: 0 $edit-view-padding;
+                .mat-tab-label {
+                    min-width: initial;
+                }
+            }
+        
+            .mat-tab-body-content {
+                padding: $default-padding $edit-view-padding;
+            }
+        } 
+        
+        // save/cancel buttons
+        .widget-actions {
+            .mat-raised-button:not(:last-child) {
+                margin-right: 6px;
+            }
+        }
+        
+        .widget-config-tab {
+            // possibly re-usable within a widget-config-tab
+            .config-toolbar {
+                height: auto;
+                padding: 0;
+        
+                .mat-stroked-button,
+                .mat-raised-button,
+                .mat-button {
+                    font-size: 12px;
+                    line-height: 24px;
+        
+                    .mat-icon {
+                        width: 18px;
+                        height: 18px;
+                        line-height: 18px;
+                        font-size: 16px;
+                    }
+        
+                    &.has-icon {
+                        padding-left: 8px;
+                    }
+                }
+            }
+        
+            .query-item-list .query-item:first-child {
+                margin-top: $default-padding;
+            }
+        
+            /*.query-item-list:not(:first-child) {
+                //margin-top: 8px
+            }*/
+        
+            .query-item {
+                .mat-expansion-panel-header {
+                    flex-direction: row-reverse;
+                    padding: 0;
+        
+                    .mat-expansion-indicator {
+                        margin-left: -20px;
+                        opacity: 0;
+                        transition-property: opacity;
+                        transition-duration: 200ms;
+                        transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+                    }
+        
+                    .mat-content {
+                        margin-left: 12px;
+                    }
+                }
+                
+                &:hover {
+                    .mat-expansion-panel-header {
+                        .mat-expansion-indicator {
+                            opacity: 1;
+                        }
+                    }
+                }
+        
+                .mat-expansion-panel-body {
+                    padding-left: 32px;
+                }
+        
+                .query-item-toolbar {
+                    @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
+                    height: auto;
+                    padding: 0;
+        
+                    .toolbar-action-icon {
+                        .mat-icon-button {
+                            width: 30px;
+                            height: 30px;
+                            line-height: 30px;
+                        }
+        
+                        .mat-icon {
+                            font-size: 16px;
+                        }
+                    }
+        
+                    .query-item-collapse {
+                        margin-left: -$edit-view-padding;
+                    }
+        
+                    .query-item-alias {
+                        width: 25px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        line-height: 14px;
+                        margin-right: 8px;
+        
+                        [class^="graph-bgcolor-"] {
+                            @include mat-typography-level-to-styles(map-get($app-fontface-config, mono), caption);
+                            padding: 3px;
+                            border-radius: 2px;
+                            flex: 1;
+                            text-align: center;
+                            line-height: 14px;
+                        }
+                    }
+                }
+        
+                .query-item-meta {
+                    height: auto;
+                    transition-property: height;
+                    transition-duration: 200ms;
+                    transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+                } 
+        
+                // if collapsed
+                &.is-collapsed {
+                    .query-item-meta {
+                        overflow: hidden;
+                        height: 0;
+                    }
+                }
+            } 
+        
+            // specific tab overrides
+            /*&.time-series-config {}*/
+        }
+    }
+    .edit-view-container.is-active {
+        .widget-output-container {
+            padding: $default-padding $edit-view-padding 0;
+    
+            .widget-output {
+                padding: $default-padding;
+            }
+        }
+    }
+}
+
+@mixin widgets-common-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+    
+    .edit-view-container.is-active {
+        .widget-output-container {
+            background-color: map-get($background, card);
+        }
+    }
+    
+    .widget-panel-content {
+        .widget-configs {
+            background-color: map-get($background, card);
+        }
+    
+        .widget-configs {
+            .mat-tab-label:not(.mat-tab-disabled):focus {
+                background-color: transparent;
+            }
+        }
+    
+        // .widget-tab-configs,
+        .widget-actions {
+            border-top: 1px solid map-get($foreground, dividers);
+        }
+    
+        // specific tab overrides
+        .widget-config-tab {
+            /*&.time-series-config {}*/
+
+            // possibly re-usable within a widget-config-tab
+            .config-toolbar,
+            .query-item-toolbar {
+                background: transparent;
+            }
+
+            .query-item:not(:last-child) {
+                border-bottom: 1px solid map-get($foreground, dividers);
+            }
+        }
+    }
+}

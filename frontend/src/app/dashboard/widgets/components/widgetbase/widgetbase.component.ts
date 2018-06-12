@@ -12,9 +12,10 @@ import {
 
 import { MatMenu, MatMenuTrigger } from '@angular/material';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
-import { Event } from '@angular/router';
 
 import { SearchMetricsDialogComponent } from '../../../components/search-metrics-dialog/search-metrics-dialog.component';
+
+import Dygraph from 'dygraphs';
 
 @Component({
     selector: 'app-widget-base',
@@ -63,6 +64,10 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
     // search metrics dialog
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     searchDialogSub: any;
+
+    g: any;
+    labels: any;
+
 
     // TODO: REMOVE FAKE METRICS
     fakeMetrics: Array<object> = [
@@ -141,6 +146,17 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
 
     ngOnInit() {
         console.log('WBASE :: onInit', this.widget);
+        
+
+     
+    this.g = new Dygraph(document.getElementById("graphdiv"),
+    `Date,A,B
+    2016/01/01,10,20
+    2016/07/01,20,10
+    2016/12/31,40,30
+    `, {
+      fillGraph: true
+    });
     }
 
     ngOnChanges(changes: SimpleChanges) {
