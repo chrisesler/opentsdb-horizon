@@ -18,166 +18,225 @@
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">
     <!-- tabs with config content -->
-    <mat-tab-group class="widget-configs" [@.disabled]="'true'" [selectedIndex]="0">
-        <mat-tab label="Time Series" class="time-series-config">
-            <div class="widget-config-tab time-series-config">
-                <mat-toolbar class="config-toolbar time-series-toolbar">
-                    <a mat-stroked-button color="primary" class="has-icon" style="margin-right: 5px;" (click)="openTimeSeriesMetricDialog()">
-                        <mat-icon>add</mat-icon>
-                        <span>Add Time Series</span>
-                    </a>
-                    <a mat-stroked-button color="primary" class="has-icon" (click)="addTimeSeriesExpression()">
-                        <mat-icon>add</mat-icon>
-                        <span>Add Expression</span>
-                    </a>
-                    <!--<mat-menu #addQueryItemMenu="matMenu">
-                        <button mat-menu-item (click)="openTimeSeriesMetricDialog()">Time Series Metric</button>
-                        <button mat-menu-item (click)="addTimeSeriesExpression()">Time Series Expression</button>
-                    </mat-menu>-->
-                    <span class="flex-spacer"></span>
-                    <a mat-button color="primary">Query Editor</a>
-                </mat-toolbar>
-                <!-- list of metric-items -->
-                <mat-accordion class="query-item-list" displayMode="flat" [multi]="true" [hideToggle]="false">
-                    <mat-expansion-panel class="query-item mat-elevation-z0" [hideToggle]="false" [expanded]="true" *ngFor="let queryItem of fakeMetrics">
-                        <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
-                            <mat-toolbar class="query-item-toolbar">
-                                <span class="toolbar-item query-item-alias">
-                                        <i class="graph-bgcolor-{{ queryItem.color }}">{{ queryItem.alias }}</i>
-                                    </span>
-                                    <span class="toolbar-item query-item-name">
-                                        <strong>{{ queryItem.label }}</strong>
-                                    </span>
-                                    <span class="flex-spacer"></span>
-                                    <span class="toolbar-action-icon">
-                                        <button mat-icon-button color="primary" (click)="toggleQueryItemVisibility(queryItem, $event)">
-                                            <mat-icon *ngIf="queryItem.visible">visibility</mat-icon>
-                                            <mat-icon *ngIf="!queryItem.visible">visibility_off</mat-icon>
-                                        </button>
-                                    </span>
-                                    <span class="toolbar-action-icon">
-                                        <button mat-icon-button color="primary" (click)="duplicateQueryItem(queryItem, $event)">
-                                            <mat-icon class="mat-icon-rtl-mirror">filter_none</mat-icon>
-                                        </button>
-                                    </span>
-                                    <span class="toolbar-action-icon">
-                                        <button mat-icon-button color="primary" (click)="deleteQueryItem(queryItem, $event)">
-                                            <mat-icon>delete</mat-icon>
-                                        </button>
-                                    </span>
-                            </mat-toolbar>
-                        </mat-expansion-panel-header>
-                        <!-- panel body start -->
-                        <div class="attributes-expression-value" fxLayout="row" *ngIf="queryItem.type === 'expression'">
-                            <div fxFlex="1 1 70px" class="label-container">
-                                Expression
+    <mat-tab-group class="widget-configs" [@.disabled]="'true'" [selectedIndex]="2">
+        <mat-tab label="Queries">
+            <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
+            <ng-template matTabContent>
+                <div class="widget-config-tab time-series-configuration">
+                    <mat-toolbar class="config-toolbar time-series-toolbar">
+                        <a mat-stroked-button color="primary" class="has-icon" style="margin-right: 5px;" (click)="openTimeSeriesMetricDialog()">
+                            <mat-icon>add</mat-icon>
+                            <span>Add Time Series</span>
+                        </a>
+                        <a mat-stroked-button color="primary" class="has-icon" (click)="addTimeSeriesExpression()">
+                            <mat-icon>add</mat-icon>
+                            <span>Add Expression</span>
+                        </a>
+                        <!--<mat-menu #addQueryItemMenu="matMenu">
+                            <button mat-menu-item (click)="openTimeSeriesMetricDialog()">Time Series Metric</button>
+                            <button mat-menu-item (click)="addTimeSeriesExpression()">Time Series Expression</button>
+                        </mat-menu>-->
+                        <span class="flex-spacer"></span>
+                        <a mat-button color="primary">View Query Inspector</a>
+                    </mat-toolbar>
+                    <!-- list of metric-items -->
+                    <mat-accordion class="query-item-list" displayMode="flat" [multi]="true" [hideToggle]="false">
+                        <mat-expansion-panel class="query-item mat-elevation-z0" [hideToggle]="false" [expanded]="true" *ngFor="let queryItem of fakeMetrics">
+                            <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
+                                <mat-toolbar class="query-item-toolbar">
+                                    <span class="toolbar-item query-item-alias">
+                                            <i class="graph-bgcolor-{{ queryItem.color }}">{{ queryItem.alias }}</i>
+                                        </span>
+                                        <span class="toolbar-item query-item-name">
+                                            <strong>{{ queryItem.label }}</strong>
+                                        </span>
+                                        <span class="flex-spacer"></span>
+                                        <span class="toolbar-action-icon">
+                                            <button mat-icon-button color="primary" (click)="toggleQueryItemVisibility(queryItem, $event)">
+                                                <mat-icon *ngIf="queryItem.visible">visibility</mat-icon>
+                                                <mat-icon *ngIf="!queryItem.visible">visibility_off</mat-icon>
+                                            </button>
+                                        </span>
+                                        <span class="toolbar-action-icon">
+                                            <button mat-icon-button color="primary" (click)="duplicateQueryItem(queryItem, $event)">
+                                                <mat-icon class="mat-icon-rtl-mirror">filter_none</mat-icon>
+                                            </button>
+                                        </span>
+                                        <span class="toolbar-action-icon">
+                                            <button mat-icon-button color="primary" (click)="deleteQueryItem(queryItem, $event)">
+                                                <mat-icon>delete</mat-icon>
+                                            </button>
+                                        </span>
+                                </mat-toolbar>
+                            </mat-expansion-panel-header>
+                            <!-- panel body start -->
+                            <div class="attributes-expression-value" fxLayout="row" *ngIf="queryItem.type === 'expression'">
+                                <div fxFlex="1 1 70px" class="label-container">
+                                    Expression
+                                </div>
+                                <div fxFlex="1 1 100%" class="attributes-container">
+                                    <mat-form-field style="width: 100%">
+                                        <textarea matInput placeholder="Enter an expression using metric aliases">{{ queryItem.expression }}</textarea>
+                                    </mat-form-field>
+                                </div>
                             </div>
-                            <div fxFlex="1 1 100%" class="attributes-container">
-                                <mat-form-field style="width: 100%">
-                                    <textarea matInput placeholder="Enter an expression using metric aliases">{{ queryItem.expression }}</textarea>
-                                </mat-form-field>
-                            </div>
-                        </div>
-                        <div class="attributes-tags" fxLayout="row" >
-                            <div fxFlex="1 1 70px" class="label-container">
-                                tags
-                            </div>
-                            <div fxFlex="1 1 100%" class="attributes-container">
-                                <!-- DUE TO THIS USING REF VARIABLES, PROBABLY NEED TO MAKE THIS A COMPONENT -->
-                                <app-config-tags-list [tags]="queryItem.tags"></app-config-tags-list>
-                                
-                            </div>
-                        </div>
-                        <!-- hide for now 
-                        <div class="attributes-functions" fxLayout="row">
-                            <div fxFlex="1 1 70px" class="label-container">
-                                functions
-                            </div>
-                            <div fxFlex="1 1 100%" class="attributes-container">
-                                values
-                            </div>
-                        </div>
-                        -->
-                        <!-- panel body end -->
-                    </mat-expansion-panel>
-                </mat-accordion>
-                <!--<div class="query-item-list">
-                    
-                    
-                    <div class="query-item" *ngFor="let queryItem of fakeMetrics" [ngClass]="{ 'is-collapsed': queryItem.collapsed }">
-                        <mat-toolbar class="query-item-toolbar">
-                            <span class="toolbar-action-icon query-item-collapse">
-                                <button mat-icon-button color="primary" (click)="queryItem.collapsed = !queryItem.collapsed;">
-                                    <mat-icon *ngIf="queryItem.collapsed">keyboard_arrow_right</mat-icon>
-                                    <mat-icon *ngIf="!queryItem.collapsed">keyboard_arrow_down</mat-icon>
-                                </button>
-                            </span>
-                            <span class="toolbar-item query-item-alias">
-                                <i class="graph-bgcolor-{{ queryItem.color }}">{{ queryItem.alias }}</i>
-                            </span>
-                            <span class="toolbar-item query-item-name">
-                                <strong>{{ queryItem.metric || queryItem.expression }}</strong>
-                            </span>
-                            <span class="flex-spacer"></span>
-                            <span class="toolbar-action-icon">
-                                <button mat-icon-button color="primary" (click)="queryItem.visible = !queryItem.visible;">
-                                    <mat-icon *ngIf="queryItem.visible">visibility</mat-icon>
-                                    <mat-icon *ngIf="!queryItem.visible">visibility_off</mat-icon>
-                                </button>
-                            </span>
-                            <span class="toolbar-action-icon">
-                                <button mat-icon-button color="primary">
-                                    <mat-icon class="mat-icon-rtl-mirror">filter_none</mat-icon>
-                                </button>
-                            </span>
-                            <span class="toolbar-action-icon">
-                                <button mat-icon-button color="primary">
-                                    <mat-icon>delete</mat-icon>
-                                </button>
-                            </span>
-                        </mat-toolbar>
-                        <div class="query-item-meta" fxLayout="row">
-                            <div class="flex-spacer"fxFlex="1 1 38px"></div>
-                            <div class="attributes" fxflex="1 1 100%" fxLayout="column">
-                                <div class="attributes-tags">
+                            <div class="attributes-tags" fxLayout="row" >
+                                <div fxFlex="1 1 70px" class="label-container">
                                     tags
                                 </div>
-                                <div class="attributes-functions">
-                                    functions
+                                <div fxFlex="1 1 100%" class="attributes-container">
+                                    <!-- DUE TO THIS USING REF VARIABLES, PROBABLY NEED TO MAKE THIS A COMPONENT -->
+                                    <app-config-tags-list [tags]="queryItem.tags"></app-config-tags-list>
+                                    
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>-->
-                <!-- Quick loop of items to test that the tab config overflow works 
-                <p *ngFor="let dummy of ' '.repeat(100).split(''), let ttt = index">{{ ttt }}</p>-->
-            </div>
+                            <!-- hide for now 
+                            <div class="attributes-functions" fxLayout="row">
+                                <div fxFlex="1 1 70px" class="label-container">
+                                    functions
+                                </div>
+                                <div fxFlex="1 1 100%" class="attributes-container">
+                                    values
+                                </div>
+                            </div>
+                            -->
+                            <!-- panel body end -->
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </div>
+            </ng-template>
+        </mat-tab>
+        <mat-tab label="General">
+            <ng-template matTabContent>
+                <div class="widget-config-tab general-configuration">
+                    <p class="config-control config-widget-title">
+                        <mat-form-field appearance="fill">
+                            <mat-label>Widget Title</mat-label>
+                            <input matInput placeholder="Please enter a title for this widget" maxlength="100" value="{{ widget.config.title }}" [(ngModel)]="widget.config.title" required>
+                            <mat-hint>Max 100 characters</mat-hint>
+                            <mat-hint align="end">{{widget.config.title?.length || 0}}/10</mat-hint>
+                        </mat-form-field>
+                    </p>
+                    <p class="config-control config-widget-description">
+                        <mat-form-field appearance="fill">
+                            <mat-label>Description</mat-label>
+                            <textarea matInput placeholder="Please enter a description for this widget"></textarea>
+                            <mat-hint>Add an optional description of your widget</mat-hint>
+                        </mat-form-field>
+                    </p>
+                </div>
+            </ng-template>
         </mat-tab>
         <mat-tab label="Time Configuration">
-            <div class="widget-config-tab">
-                <p>Time Configuration tab</p>
-            </div>
+            <ng-template matTabContent>
+                <div class="widget-config-tab time-configuration has-columns">
+                    <div class="column">
+                        <p class="config-control">
+                            <label class="label">Preset Range</label>
+                        </p>
+                        <p class="config-control">
+                            <label class="label">Custom Range</label>
+                        </p>
+                        <p class="config-control">
+                            <label class="label">Time Over Time</label>
+                        </p>
+                    </div>
+                    <div class="column">
+                        <p class="config-control">
+                            <label class="label">Downsample</label>
+                        </p>
+                        <p class="config-control">
+                                <label class="label">Aggregator</label>
+                            </p>
+                    </div>
+                    <div class="column">
+                        <p class="config-control">
+                            <label class="label">Overide Relative Time</label>
+                        </p>
+                        <p class="config-control">
+                            <label class="label">Add time Shift</label>
+                        </p>
+                    </div>
+                </div>
+            </ng-template>
+        </mat-tab>
+        <mat-tab label="Axes">
+            <ng-template matTabContent>
+                <div class="widget-config-tab axes-configuration has-columns">
+                    <div class="column">
+                        <p class="config-control">
+                            <label class="label">Y Axis</label>
+                        </p>
+                    </div>
+                    <div class="column">
+                        <p class="config-control">
+                            <label class="label">X-Axis</label>
+                        </p>
+                    </div>
+                </div>
+            </ng-template>
         </mat-tab>
         <mat-tab label="Visual Appearance">
-            <div class="widget-config-tab">
-                <p>Visual Appearance tab</p>
-            </div>
+            <ng-template matTabContent>
+                <div class="widget-config-tab visual-appearance-configuration">
+                    <mat-table [dataSource]="fakeMetrics">
+                        <ng-container cdkColumnDef="label">
+                            <mat-header-cell *cdkHeaderCellDef> Time Series </mat-header-cell>
+                            <mat-cell *cdkCellDef="let row"> {{row.label}} ({{row.configuration.visualAppearance.color}}) </mat-cell>
+                        </ng-container>
+                        <ng-container cdkColumnDef="configuration.visualAppearance.visualization">
+                            <mat-header-cell *cdkHeaderCellDef> Visualization </mat-header-cell>
+                            <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.visualization}} </mat-cell>
+                        </ng-container>
+                        <ng-container cdkColumnDef="configuration.visualAppearance.color">
+                            <mat-header-cell *cdkHeaderCellDef> Color </mat-header-cell>
+                            <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.color}} </mat-cell>
+                        </ng-container>
+                        <ng-container cdkColumnDef="configuration.visualAppearance.lineWeight">
+                            <mat-header-cell *cdkHeaderCellDef> Line Weight </mat-header-cell>
+                            <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.lineWeight}} </mat-cell>
+                        </ng-container>
+                        <ng-container cdkColumnDef="configuration.visualAppearance.lineType">
+                            <mat-header-cell *cdkHeaderCellDef> Line Type </mat-header-cell>
+                            <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.lineType}} </mat-cell>
+                        </ng-container>
+                        <ng-container cdkColumnDef="configuration.visualAppearance.logScale">
+                            <mat-header-cell *cdkHeaderCellDef> Log 10 Scale </mat-header-cell>
+                            <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.logScale}} </mat-cell>
+                        </ng-container>
+                        <!-- Header and Row Declarations -->
+                        <mat-header-row *cdkHeaderRowDef="['label', 'configuration.visualAppearance.visualization', 'configuration.visualAppearance.color', 'configuration.visualAppearance.lineWeight', 'configuration.visualAppearance.lineType', 'configuration.visualAppearance.logScale']"></mat-header-row>
+                        <mat-row *cdkRowDef="let row; columns: ['label', 'configuration.visualAppearance.visualization', 'configuration.visualAppearance.color', 'configuration.visualAppearance.lineWeight', 'configuration.visualAppearance.lineType', 'configuration.visualAppearance.logScale']"></mat-row>
+                    </mat-table>
+                </div>
+            </ng-template>
         </mat-tab>
         <mat-tab label="Legend">
-            <div class="widget-config-tab">
-                <p>Legend tab</p>
-            </div>
+            <ng-template matTabContent>
+                <div class="widget-config-tab legend-configuration">
+                    <p>Legend tab</p>
+                </div>
+            </ng-template>
         </mat-tab>
         <mat-tab label="Alerts">
-            <div class="widget-config-tab">
-                <p>Alerts tab</p>
-            </div>
-        </mat-tab>
-        <mat-tab label="Settings">
-                <div class="widget-config-tab">
-                    <p>settings tab</p>
+            <ng-template matTabContent>
+                <div class="widget-config-tab alerts-configuration">
+                    <p>Alerts tab</p>
                 </div>
-            </mat-tab>
+            </ng-template>
+        </mat-tab>
+
+        <mat-tab>
+            <!-- custom tab label. (see: https://material.angular.io/components/tabs/overview#labels) -->
+            <ng-template mat-tab-label>
+                &lt;/&gt; Query Editor
+            </ng-template>
+            <ng-template matTabContent>
+                <div class="widget-config-tab">
+                    <p>Query inspector tab</p>
+                </div>
+            </ng-template>
+        </mat-tab>
     </mat-tab-group>
     <div class="widget-actions">
         <!-- controls to save/cancel -->

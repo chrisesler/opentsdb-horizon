@@ -20,7 +20,7 @@ import Dygraph from 'dygraphs';
 @Component({
     selector: 'app-widget-base',
     templateUrl: './widgetbase.component.html',
-    styleUrls: ['./widgetbase.component.scss']
+    styleUrls: []
 })
 export class WidgetbaseComponent implements OnInit, OnChanges {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
@@ -61,6 +61,8 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
         }
     ];
 
+
+
     // search metrics dialog
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     searchDialogSub: any;
@@ -94,7 +96,16 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
                     value: 'SUM'
                 }
             ],
-            functions: []
+            functions: [],
+            configuration: {
+                visualAppearance: {
+                    visualization: 'line',
+                    color: 'green',
+                    lineWeight: '2px',
+                    lineType: 'solid',
+                    logScale: false
+                }
+            }
         },
         {
             id: 1,
@@ -115,7 +126,16 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
                     value: 'hg-01'
                 }
             ],
-            functions: []
+            functions: [],
+            configuration: {
+                visualAppearance: {
+                    visualization: 'line',
+                    color: 'amber',
+                    lineWeight: '2px',
+                    lineType: 'solid',
+                    logScale: false
+                }
+            }
         },
         {
             id: 1,
@@ -136,7 +156,16 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
                     value: '*'
                 }
             ],
-            functions: []
+            functions: [],
+            configuration: {
+                visualAppearance: {
+                    visualization: 'line',
+                    color: 'fuschia',
+                    lineWeight: '2px',
+                    lineType: 'solid',
+                    logScale: false
+                }
+            }
         }
     ];
 
