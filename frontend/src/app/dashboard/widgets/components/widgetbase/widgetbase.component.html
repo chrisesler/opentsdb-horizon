@@ -4,6 +4,8 @@
     </div>
     <div class="widget-output">
         <!-- Where the graph, or whatever lives -->
+        placeholder to put widget content types to select (line, bar, big numbers ....)
+        <div id="graphdiv"></div>
         <strong>Select a data visualization type</strong>
         <div class="widget-types">
             <button mat-raised-button class="widget-type-selector"  *ngFor="let wtype of availableWidgetTypes" (click)="selectWidgetType(wtype, $event)">
@@ -33,7 +35,7 @@
                         <button mat-menu-item (click)="addTimeSeriesExpression()">Time Series Expression</button>
                     </mat-menu>-->
                     <span class="flex-spacer"></span>
-                    <a mat-button color="primary">View Query Inspector</a>
+                    <a mat-button color="primary">Query Editor</a>
                 </mat-toolbar>
                 <!-- list of metric-items -->
                 <mat-accordion class="query-item-list" displayMode="flat" [multi]="true" [hideToggle]="false">

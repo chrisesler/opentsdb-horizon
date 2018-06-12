@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDraggableOptions } from 'angular2gridster';
 import { WidgetViewDirective } from '../../directives/widgetview.directive';
-import { WidgetComponent } from '../../widgets/widgetcomponent';
+import { WidgetComponentModel } from '../../widgets/models/widgetcomponent';
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../services/intercom.service';
 
@@ -43,7 +43,9 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     resizeHandles: {
       s: true,
       e: true,
-      se: true
+      w: true,
+      se: true,
+      sw: true
     },
     widthHeightRatio: 2, // proportion between item width and height
     lines: {
@@ -115,8 +117,8 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     // create component using existing widget factory
     const component = viewContainerRef.createComponent(comp.compFactory);
     // assign @input widget
-    (<WidgetComponent>component.instance).widget = comp.widget;
-    (<WidgetComponent>component.instance).editMode =  true; // let it know it is in edit mode so it shows the config controls
+    (<WidgetComponentModel>component.instance).widget = comp.widget;
+    (<WidgetComponentModel>component.instance).editMode =  true; // let it know it is in edit mode so it shows the config controls
   }
 
   // change ratio when breakpoint hits
@@ -139,7 +141,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   // then update the this.widgets reference
   gridsterFlow(event: any) {
     if (this.viewEditMode) { return; }
-    // console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
+    console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
     this.cellHeight = event.gridsterComponent.gridster.cellHeight;
     this.cellWidth = event.gridsterComponent.gridster.cellWidth;
     this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);

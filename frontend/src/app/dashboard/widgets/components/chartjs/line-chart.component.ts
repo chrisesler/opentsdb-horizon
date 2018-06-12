@@ -3,6 +3,8 @@ import {
     OnInit,
     OnChanges,
     OnDestroy,
+    AfterViewInit,
+    ViewChild,
     KeyValueDiffers,
     ElementRef,
     Input,
@@ -15,7 +17,9 @@ import {
 
 import { ChartBase } from './chartbase';
 import { IntercomService, IMessage } from '../../../services/intercom.service';
+import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs/Subscription';
+import { throttleTime } from 'rxjs/operators';
 
 // refactor the model location later
 import { WidgetModel } from '../../../state/dashboard.state';
@@ -27,11 +31,20 @@ import { WidgetModel } from '../../../state/dashboard.state';
     templateUrl: './chartbase.component.html',
     styleUrls: ['./chartbase.component.scss']
 })
-export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, OnChanges {
+export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
+    
+    /* @HostListener('window:resize', ['$event'])
+    onResize(event) {
+        console.log('new size', window);
+        this.updateWidgetOutputSize();
+    }
+    */
 
     @Input() editMode: boolean;
     @Input() widget: WidgetModel;
+
+    @ViewChild('widgetOutput') private widgetOutputElement: ElementRef;
 
     listenSub: Subscription;
     lineDefaultOptions: object = {
@@ -40,7 +53,7 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
                 tension: 0,
                 borderWidth: 1,
                 bezierCurve: false,
-                fill: true
+                fill: false
             },
             point: {
                 radius: 0,
@@ -96,7 +109,8 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'resizeWidget':
-                        this.setSize(message.payload.width - 30 + 'px', message.payload.height - 60 + 'px');
+                        console.log('resize is calling ...', message);                       
+                        this.setSize(message.payload.width + 'px', message.payload.height  + 'px');
                         break;
                     case 'updatedWidget': 
                         if(this.widget.id === message.id) {                    
@@ -108,7 +122,11 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
                                                                 
                                 this.labels = Object.keys(message.payload.config.rawdata[0].dps);
                                 for (let i = 0; i < message.payload.config.rawdata.length; i++) {
-                                    let d = { data: Object.values(message.payload.config.rawdata[i].dps)};
+                                    let d: any = { data: Object.values(message.payload.config.rawdata[i].dps)};
+                                    d.lable = 'label' + i;
+                                    if( i === 1) {
+                                        d.type = 'line';
+                                    }
                                     this.dataset.push(d);
                                 }  
                                 
@@ -120,7 +138,7 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
 
                                 this.updateDatasets(this.chart.data.datasets);
                                 console.log('this chart', this.chart);
-                                this.chart.update();
+                                this.chart.update(0);
                             }
                         }
                         break;
@@ -133,6 +151,24 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
             action: 'getQueryData',
             payload: this.widget.config,
         });
+    }
+
+    ngAfterViewInit(): void {
+        this.updateWidgetOutputSize();
+                // the window resize
+                Observable.fromEvent(window, 'resize')
+                    .debounceTime(500)
+                    .subscribe(event => {
+                        console.log('after resize',this.widgetOutputElement.nativeElement.offsetWidth, this.widgetOutputElement.nativeElement.offsetHeight);
+                        this.updateWidgetOutputSize();
+                    
+                });
+    }
+
+    private updateWidgetOutputSize(): void {
+        let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
+        let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
+        this.setSize(nWidth + 'px', (nHeight - 15) + 'px');
     }
 
     // transform data for chartjs

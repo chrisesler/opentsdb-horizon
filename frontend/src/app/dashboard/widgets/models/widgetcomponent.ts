@@ -1,4 +1,4 @@
-export interface WidgetComponent {
+export interface WidgetComponentModel {
     widget: any;
     editMode: boolean;
 }

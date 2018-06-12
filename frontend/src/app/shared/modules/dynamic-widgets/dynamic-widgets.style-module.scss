@@ -1,0 +1,9 @@
+@import 'components/widgets.common';
+
+@mixin dynamic-widgets-module-core() {
+    @include widgets-common-base();
+}
+
+@mixin dynamic-widgets-module-theme($theme-config) {
+    @include widgets-common-theme($theme-config);
+}

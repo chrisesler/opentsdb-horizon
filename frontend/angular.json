@@ -67,7 +67,8 @@
             ],
             "styles": [
               "src/debug.scss",
-              "src/styles.scss"
+              "src/styles.scss",
+              "./node_modules/dygraphs/dist/dygraph.css"
             ],
             "scripts": [
               "src/app/shared/chartjs/dist/Chart.bundle.min.js",
