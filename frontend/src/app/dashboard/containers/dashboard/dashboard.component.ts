@@ -4,7 +4,7 @@ import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import { CdkService } from '../../../core/services/cdk.service';
 
 import { DashboardService } from '../../services/dashboard.service';
-import { IntercomService, IMessage } from '../../services/intercom.service';
+import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Store, Select } from '@ngxs/store';
 import { DashboardState } from '../../state/dashboard.state';
@@ -67,7 +67,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
             }
         });
+        // passing dashboard to load
         this.store.dispatch(new dashboardActions.LoadDashboard('xyz'));
+        // after success loaded dashboard, assigned widgets
         this.widgets$.subscribe(widgets => {
             this.widgets = widgets;
         });

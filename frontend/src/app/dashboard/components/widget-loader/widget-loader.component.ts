@@ -6,7 +6,7 @@ import {
 import { WidgetService } from '../../services/widget.service';
 import { WidgetDirective } from '../../directives/widget.directive';
 import { WidgetComponentModel } from '../../widgets/models/widgetcomponent';
-import { IntercomService, IMessage } from '../../services/intercom.service';
+import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { MatMenu, MatMenuTrigger } from '@angular/material';
 
 @Component({
