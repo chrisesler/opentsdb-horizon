@@ -1,8 +1,14 @@
-<div class="widget-output-container">
+<div class="widget-output-container" #testing>
   <div class="widget-title" *ngIf="editMode">
       {{ widget.config.title }}
   </div>
-  <div class="widget-output"></div>
+  <div class="widget-output">
+    <div [style.height]="300"  dygraphsChart 
+        [chartType]="chartType" 
+        [data]="data" 
+        [options]="options">
+    </div>
+  </div>
 </div>
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">

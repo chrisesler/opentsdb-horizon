@@ -12,8 +12,6 @@ import { DynamicWidgetsModule } from '../shared/modules/dynamic-widgets/dynamic-
 
 // services
 import { DashboardService } from './services/dashboard.service';
-import { IntercomService } from './services/intercom.service';
-import { WidgetService } from './services/widget.service';
 
 // store
 import { NgxsModule } from '@ngxs/store';
@@ -64,9 +62,7 @@ import { LineChartComponent } from './widgets/components/chartjs/line-chart.comp
         SearchMetricsDialogComponent
     ],
     providers: [
-        DashboardService,
-        IntercomService,
-        WidgetService
+        DashboardService
     ],
     entryComponents: [
         WidgetbaseComponent,

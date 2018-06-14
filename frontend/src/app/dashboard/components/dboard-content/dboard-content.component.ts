@@ -7,7 +7,7 @@ import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDr
 import { WidgetViewDirective } from '../../directives/widgetview.directive';
 import { WidgetComponentModel } from '../../widgets/models/widgetcomponent';
 import { DashboardService } from '../../services/dashboard.service';
-import { IntercomService, IMessage } from '../../services/intercom.service';
+import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 
 // TODO: TEMP ITEMS ONLY FOR DEV. WILL REMOVE
 import { WidgetLoaderComponent } from '../widget-loader/widget-loader.component';

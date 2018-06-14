@@ -9,7 +9,9 @@ export interface IMessage {
   payload: any;
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class IntercomService {
 
   private requestStream: Subject<IMessage>;
