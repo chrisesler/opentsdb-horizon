@@ -2,7 +2,7 @@
 	<div class="widget-title" *ngIf="editMode">
 		{{ widget.config.title }}
 	</div>
-	<div class="widget-output">
+	<div class="widget-output" #widgetOutput>
 		<!-- Where the graph, or whatever lives -->
 		<div id="container" [style.width]="width" [style.height]="height">
 			<canvas id="canvas" (onThresholdSet)="onThresholdSet($event)"></canvas>
