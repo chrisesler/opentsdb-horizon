@@ -1,6 +1,6 @@
 import { OnInit, OnChanges, OnDestroy, AfterViewInit, Directive,
          Input, Output, EventEmitter, ElementRef, SimpleChanges } from '@angular/core';
-import Dygraphs from 'dygraphs';
+import Dygraph from 'dygraphs';
 
 @Directive({
   selector: '[dygraphsChart]'
@@ -13,34 +13,49 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
 
 
   private _g: any;
-  private element: ElementRef;
   private gDimension: any;
   public dataLoading: boolean;
 
-  constructor() { }
+  constructor(private element: ElementRef) { }
 
   ngOnInit() {
-
+    console.log('this chart type', this.chartType, this.element);   
   }
 
   ngAfterViewInit() {
-    this.gDimension = this.element.nativeElement.getBoudingClientRect();
+    console.log('wewewewew', this.element, this.element.nativeElement.clientHeight);
+    
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log('onChanges dygraphs directive', changes);
+    this.gDimension = this.element.nativeElement.getBoundingClientRect();
+    
     if (!changes) {
       return;
     }
+  
     if (!this.data || !this.data.length) {
       this.dataLoading = false;
       return;
     }
+ 
+   if (!this.options) {
+     this.options =   {
+      labels: ['x', 'A', 'B' ],
+      connectSeparatedPoints: true,
+      drawPoints: true
+    };
+   }
+
     this.dataLoading = true;
-    const options = Object.assign({}, this.options);
+    let options = Object.assign({}, this.options);
+    
+    options.width = this.gDimension.width;
+    options.height = this.gDimension.height;
 
-    this.options.width = this.gDimension.width;
-    this.options.height = this.gDimension.height;
-
+    
+    console.log('options', this.gDimension, options);
     setTimeout(() => {
       this._g = new Dygraph(this.element.nativeElement, this.data, options);
       this.dataLoading = false;

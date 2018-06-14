@@ -1,24 +1,43 @@
-import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy } from '@angular/core';
+import { IntercomService, IMessage } from '.././../../../../core/services/intercom.service';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 import { SearchMetricsDialogComponent } from '../../../sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { Observable } from 'rxjs';
+import { Subscription } from 'rxjs/Subscription';
+import { WidgetModel } from '../../../../../dashboard/state/dashboard.state';
 
 @Component({
   selector: 'app-linebar-widget',
   templateUrl: './linebar-widget.component.html',
   styleUrls: ['./linebar-widget.component.scss']
 })
-export class LinebarWidgetComponent implements OnInit, OnChanges {
+export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
   @HostBinding('class.widget-panel-content') private _hostClass = true;
   @Input() editMode: boolean;
-  @Input() widget: any;
+  @Input() widget: WidgetModel;
 
   private searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
   private searchDialogSub: Observable<any>;
+  private listenSub: Subscription;
+  private isDataLoaded: boolean = false;
 
-      // TODO: REMOVE FAKE METRICS
-      fakeMetrics: Array<object> = [
+chartType = 'line';
+options: any;
+data: any = [
+        [1, null, 3],
+        [2, 2, null],
+        [3, null, 7],
+        [4, 6, null],
+        [5, null, 5],
+        [6, 4, null]
+    ];
+
+
+
+
+    // TODO: REMOVE FAKE METRICS
+    fakeMetrics: Array<object> = [
         {
             id: 0,
             type: 'metric',
@@ -88,78 +107,115 @@ export class LinebarWidgetComponent implements OnInit, OnChanges {
         }
     ];
 
-  constructor(private dialog: MatDialog) { }
+    constructor(
+        private dialog: MatDialog,
+        private interCom: IntercomService
+    ) { }
 
-  ngOnInit() {
-  }
+    ngOnInit() {
+        // subscribe to event stream
+        this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+            if (message && (message.id === this.widget.id)) {
+                switch (message.action) {
+                    case 'resizeWidget':
+                        break;
+                    case 'updatedWidget':
+                        if (this.widget.id === message.id) {
+                            this.isDataLoaded = true;
+                            console.log('adatatata', message.payload.config);                    
+                        }
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log('***** CHANGES *******', changes);
-}
+                        break;
+                }
+            }
+        });
+        // initial request data
+        this.requestData();
+    }
 
-toggleQueryItemVisibility(item: any, event: MouseEvent) {
-    console.log('TOGGLE QUERY ITEM VISIBILITY', item);
-    event.stopPropagation();
-    item.visible = !item.visible;
-}
+    requestData() {
+        if(!this.isDataLoaded) {
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'getQueryData',
+                payload: this.widget.config
+            });
+        }
+    }
 
-duplicateQueryItem(item: any, event: MouseEvent) {
-    console.log('DUPLICATE QUERY ITEM ', item);
-    event.stopPropagation();
-    // do something
-}
+    ngOnChanges(changes: SimpleChanges) {
+        console.log('***** CHANGES *******', changes);
+    }
 
-deleteQueryItem(item: any, event: MouseEvent) {
-    console.log('DELETE QUERY ITEM ', item);
-    event.stopPropagation();
-    // do something
-}
+    toggleQueryItemVisibility(item: any, event: MouseEvent) {
+        console.log('TOGGLE QUERY ITEM VISIBILITY', item);
+        event.stopPropagation();
+        item.visible = !item.visible;
+    }
 
-openTimeSeriesMetricDialog() {
+    duplicateQueryItem(item: any, event: MouseEvent) {
+        console.log('DUPLICATE QUERY ITEM ', item);
+        event.stopPropagation();
+        // do something
+    }
 
-    // do something
-    const dialogConf: MatDialogConfig = new MatDialogConfig();
-    dialogConf.width = '100%';
-    dialogConf.maxWidth = '100%';
-    dialogConf.height = 'calc(100% - 48px)';
-    dialogConf.backdropClass = 'search-metrics-dialog-backdrop';
-    dialogConf.panelClass = 'search-metrics-dialog-panel';
-    dialogConf.position = <DialogPosition>{
-        top: '48px',
-        bottom: '0px',
-        left: '0px',
-        right: '0px'
-    };
-    dialogConf.data = {
-        lala: true,
-        wtf: 'isthat',
-        iCanCount: 2,
-        basket: [1, 2, 3, 4, 5]
-    };
+    deleteQueryItem(item: any, event: MouseEvent) {
+        console.log('DELETE QUERY ITEM ', item);
+        event.stopPropagation();
+        // do something
+    }
 
-    this.searchMetricsDialog = this.dialog.open(SearchMetricsDialogComponent, dialogConf);
-    this.searchMetricsDialog.updatePosition({top: '48px'});
-    this.searchDialogSub = this.searchMetricsDialog.componentInstance.onDialogApply.subscribe((data: any) => {
-        console.log('SUBSCRIPTION DATA', data);
-    });
+    openTimeSeriesMetricDialog() {
 
-    this.searchMetricsDialog.beforeClose().subscribe((result: any) => {
-        console.log('DIALOG BEFORE CLOSE', result);
-    });
+        // do something
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        dialogConf.width = '100%';
+        dialogConf.maxWidth = '100%';
+        dialogConf.height = 'calc(100% - 48px)';
+        dialogConf.backdropClass = 'search-metrics-dialog-backdrop';
+        dialogConf.panelClass = 'search-metrics-dialog-panel';
+        dialogConf.position = <DialogPosition>{
+            top: '48px',
+            bottom: '0px',
+            left: '0px',
+            right: '0px'
+        };
+        dialogConf.data = {
+            lala: true,
+            wtf: 'isthat',
+            iCanCount: 2,
+            basket: [1, 2, 3, 4, 5]
+        };
 
-    this.searchMetricsDialog.afterClosed().subscribe((result: any) => {
-        console.log('DIALOG AFTER CLOSED', result);
-        this.searchMetricsDialog.componentInstance.onDialogApply.unsubscribe();
-        this.searchMetricsDialog = null;
-    });
-}
+        this.searchMetricsDialog = this.dialog.open(SearchMetricsDialogComponent, dialogConf);
+        this.searchMetricsDialog.updatePosition({ top: '48px' });
+        this.searchDialogSub = this.searchMetricsDialog.componentInstance.onDialogApply.subscribe((data: any) => {
+            console.log('SUBSCRIPTION DATA', data);
+        });
 
-addTimeSeriesExpression() {
-    // do something
-}
+        this.searchMetricsDialog.beforeClose().subscribe((result: any) => {
+            console.log('DIALOG BEFORE CLOSE', result);
+        });
 
-selectWidgetType(wtype: any, event: any) {
-    console.log('SELECT WIDGET TYPE', wtype, event);
-}
+        this.searchMetricsDialog.afterClosed().subscribe((result: any) => {
+            console.log('DIALOG AFTER CLOSED', result);
+            this.searchMetricsDialog.componentInstance.onDialogApply.unsubscribe();
+            this.searchMetricsDialog = null;
+        });
+    }
+
+    addTimeSeriesExpression() {
+        // do something
+    }
+
+    selectWidgetType(wtype: any, event: any) {
+        console.log('SELECT WIDGET TYPE', wtype, event);
+    }
+
+    ngOnDestroy() {
+        if (this.listenSub) {
+            this.listenSub.unsubscribe();
+        }
+    }
 
 }
