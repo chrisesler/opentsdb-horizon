@@ -16,7 +16,7 @@ import {
 } from '@angular/core';
 
 import { ChartBase } from './chartbase';
-import { IntercomService, IMessage } from '../../../services/intercom.service';
+import { IntercomService, IMessage } from '../../../../core/services/intercom.service';
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs/Subscription';
 import { throttleTime } from 'rxjs/operators';
