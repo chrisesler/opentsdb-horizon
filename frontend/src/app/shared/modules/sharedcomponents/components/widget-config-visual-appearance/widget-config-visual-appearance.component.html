@@ -1,0 +1,30 @@
+<!-- hrm.... material table or use natural table with classes ... think about this -->
+<mat-table [dataSource]="fakeMetrics">
+    <ng-container cdkColumnDef="label">
+        <mat-header-cell *cdkHeaderCellDef> Time Series </mat-header-cell>
+        <mat-cell *cdkCellDef="let row"> {{row.label}} ({{row.configuration.visualAppearance.color}}) </mat-cell>
+    </ng-container>
+    <ng-container cdkColumnDef="configuration.visualAppearance.visualization">
+        <mat-header-cell *cdkHeaderCellDef> Visualization </mat-header-cell>
+        <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.visualization}} </mat-cell>
+    </ng-container>
+    <ng-container cdkColumnDef="configuration.visualAppearance.color">
+        <mat-header-cell *cdkHeaderCellDef> Color </mat-header-cell>
+        <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.color}} </mat-cell>
+    </ng-container>
+    <ng-container cdkColumnDef="configuration.visualAppearance.lineWeight">
+        <mat-header-cell *cdkHeaderCellDef> Line Weight </mat-header-cell>
+        <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.lineWeight}} </mat-cell>
+    </ng-container>
+    <ng-container cdkColumnDef="configuration.visualAppearance.lineType">
+        <mat-header-cell *cdkHeaderCellDef> Line Type </mat-header-cell>
+        <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.lineType}} </mat-cell>
+    </ng-container>
+    <ng-container cdkColumnDef="configuration.visualAppearance.logScale">
+        <mat-header-cell *cdkHeaderCellDef> Log 10 Scale </mat-header-cell>
+        <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.logScale}} </mat-cell>
+    </ng-container>
+    <!-- Header and Row Declarations -->
+    <mat-header-row *cdkHeaderRowDef="['label', 'configuration.visualAppearance.visualization', 'configuration.visualAppearance.color', 'configuration.visualAppearance.lineWeight', 'configuration.visualAppearance.lineType', 'configuration.visualAppearance.logScale']"></mat-header-row>
+    <mat-row *cdkRowDef="let row; columns: ['label', 'configuration.visualAppearance.visualization', 'configuration.visualAppearance.color', 'configuration.visualAppearance.lineWeight', 'configuration.visualAppearance.lineType', 'configuration.visualAppearance.logScale']"></mat-row>
+</mat-table>

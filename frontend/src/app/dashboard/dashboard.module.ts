@@ -6,8 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../shared/modules/material/material.module';
 import { GridsterModule } from 'angular2gridster';
 import { DashboardRoutingModule } from './dashboard-routing.module';
-import { ThemePickerModule } from '../shared/modules/theme-picker/theme-picker.module';
-import { SimpleTimePickerModule } from '../shared/modules/simple-time-picker/simple-time-picker.module';
+import { SharedcomponentsModule } from '../shared/modules/sharedcomponents/sharedcomponents.module';
 import { DynamicWidgetsModule } from '../shared/modules/dynamic-widgets/dynamic-widgets.module';
 
 // services
@@ -34,7 +33,6 @@ import { WidgetbaseComponent } from './widgets/components/widgetbase/widgetbase.
 import { WsampleComponent } from './widgets/components/wsample/wsample.component';
 import { LineChartComponent } from './widgets/components/chartjs/line-chart.component';
 
-
 @NgModule({
     imports: [
         CommonModule,
@@ -42,8 +40,7 @@ import { LineChartComponent } from './widgets/components/chartjs/line-chart.comp
         ReactiveFormsModule,
         MaterialModule,
         GridsterModule,
-        ThemePickerModule,
-        SimpleTimePickerModule,
+        SharedcomponentsModule,
         DashboardRoutingModule,
         NgxsModule.forFeature([DashboardState]),
         DynamicWidgetsModule

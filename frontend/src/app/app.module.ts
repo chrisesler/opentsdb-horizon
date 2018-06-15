@@ -23,7 +23,7 @@ import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 import { AdminModule } from './admin/admin.module';
 import { AdhocModule } from './adhoc/adhoc.module';
 import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
-import { NavbarModule } from './navbar/navbar.module';
+import { NavbarModule } from './shared/modules/navbar/navbar.module';
 import { HomeModule } from './home/home.module';
 
 import { AuthInterceptor } from './core/http/auth.interceptor';

@@ -1,77 +1,39 @@
 import {
-    Component,
-    OnInit,
-    OnChanges,
-    Input,
-    Output,
-    ViewChild,
-    HostBinding,
-    EventEmitter,
-    SimpleChanges
+    Component, OnInit, HostBinding, Input, Output, EventEmitter
 } from '@angular/core';
 
-import { MatMenu, MatMenuTrigger } from '@angular/material';
-import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
+import {
+    MatMenu, MatMenuTrigger,
+    MatDialog, MatDialogConfig, MatDialogRef, DialogPosition
+} from '@angular/material';
 
-import { IntercomService, IMessage } from '../../../../core/services/intercom.service';
+import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 
-import { SearchMetricsDialogComponent } from '../../../components/search-metrics-dialog/search-metrics-dialog.component';
-
-import Dygraph from 'dygraphs';
+import {
+    SearchMetricsDialogComponent
+} from '../search-metrics-dialog/search-metrics-dialog.component';
 
 @Component({
-    selector: 'app-widget-base',
-    templateUrl: './widgetbase.component.html',
+    // tslint:disable-next-line:component-selector
+    selector: 'widget-config-metric-queries',
+    templateUrl: './widget-config-metric-queries.component.html',
     styleUrls: []
 })
-export class WidgetbaseComponent implements OnInit, OnChanges {
-    @HostBinding('class.widget-panel-content') private _hostClass = true;
+export class WidgetConfigMetricQueriesComponent implements OnInit {
+    @HostBinding('class.widget-config-tab.metric-queries-configuration') private _hostClass = true;
 
-    @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
-
-    @Input() editMode: boolean;
+    /** Inputs */
     @Input() widget: any;
 
-    // Available Widget Types
-    availableWidgetTypes: Array<object> = [
-        {
-            label: 'Bar Graph',
-            type: 'WidgetBarGraphComponent',
-            iconClass: 'widget-icon-bar-graph'
-        },
-        {
-            label: 'Area Graph',
-            type: 'WidgetAreaGraphComponent',
-            iconClass: 'widget-icon-area-graph'
-        },
-        {
-            label: 'Line Chart',
-            type: 'LineChartComponent',
-            // TODO: need to eventually switch to WidgetLineChartComponent
-            // type: 'WidgetLineChartComponent',
-            iconClass: 'widget-icon-line-chart'
-        },
-        {
-            label: 'Big Number',
-            type: 'WidgetBigNumberComponent',
-            iconClass: 'widget-icon-big-number'
-        },
-        {
-            label: 'Donut Chart',
-            type: 'WidgetDonutChartComponent',
-            iconClass: 'widget-icon-donut-chart'
-        }
-    ];
+    /** Outputs */
+    @Output() widgetChange = new EventEmitter;
 
-
-
+    /** Dialogs */
     // search metrics dialog
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     searchDialogSub: any;
 
-    g: any;
-    labels: any;
-
+    /** Local variables */
 
     // TODO: REMOVE FAKE METRICS
     fakeMetrics: Array<object> = [
@@ -177,20 +139,17 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
     ) { }
 
     ngOnInit() {
-        console.log('WBASE :: onInit', this.widget);
-        this.g = new Dygraph(document.getElementById('graphdiv'),
-            `Date,A,B
-            2016/01/01,10,20
-            2016/07/01,20,10
-            2016/12/31,40,30
-        `, {
-        fillGraph: true
-        });
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        console.log('***** CHANGES *******', changes);
-    }
+    /**
+     * Services
+     */
+
+    // none yet
+
+    /**
+     * Behaviors
+     */
 
     toggleQueryItemVisibility(item: any, event: MouseEvent) {
         console.log('TOGGLE QUERY ITEM VISIBILITY', item);
@@ -250,19 +209,8 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
     }
 
     addTimeSeriesExpression() {
+        console.log('ADD TIME SERIES EXPRESSION');
         // do something
     }
-
-    selectWidgetType(wtype: any, event: any) {
-        console.log('SELECT WIDGET TYPE', wtype, event);
-    }
-
-    closeViewEditMode() {
-        this.interCom.requestSend(<IMessage>{
-            action: 'closeViewEditMode',
-            payload: true
-          });
-    }
-
 
 }

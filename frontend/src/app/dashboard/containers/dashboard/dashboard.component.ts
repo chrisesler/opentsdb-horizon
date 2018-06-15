@@ -59,9 +59,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'addNewWidget':
                     this.addNewWidget();
                     break;
+                case 'closeViewEditMode':
+                    this.closeViewEditMode();
+                    break;
                 case 'getQueryData':
                     console.log('message', message);
-                    this.store.dispatch(new dashboardActions.GetQueryData(message.id, message.payload));  
+                    this.store.dispatch(new dashboardActions.GetQueryData(message.id, message.payload));
                     break;
                 default:
                     break;

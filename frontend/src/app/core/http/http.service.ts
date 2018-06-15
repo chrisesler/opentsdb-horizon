@@ -93,7 +93,7 @@ export class HttpService {
                 },
                 explicitTags: false,
                 downsample: '60m-avg-nan',
-                filters:[
+                filters: [
                   {
                     type: 'wildcard',
                     tagk: 'host',
@@ -113,7 +113,43 @@ export class HttpService {
         },
         config: {
           title: 'Four',
-          component_type: 'StaticImageComponent'
+          component_type: 'WidgetbaseComponent'
+        }
+      },
+      {
+        gridPos: {
+          x: 0, y: 10,
+          w: 6, h: 5
+        },
+        config: {
+          title: 'DEVELOPER WIDGET TAB',
+          component_type: 'DeveloperWidgetComponent',
+          data_source: 'opentsdb',
+          query: {
+            start: '1526250610000',
+            end: '1526337010000',
+            queries: [
+              {
+                aggregator: 'zimsum',
+                metric: 'Flickr.yapache.requests',
+                rate: false,
+                rateOptions: {
+                  counter: false,
+                  resetValue: 1
+                },
+                explicitTags: false,
+                downsample: '60m-avg-nan',
+                filters: [
+                  {
+                    type: 'wildcard',
+                    tagk: 'host',
+                    filter: '*.bf1.*',
+                    groupBy: false
+                  }
+                ]
+              }
+            ]
+          }
         }
       }
     ]
@@ -125,9 +161,9 @@ export class HttpService {
 
   /* to handle error  with more info */
   handleError(error: HttpErrorResponse) {
-    if(error.error instanceof ErrorEvent) {
+    if (error.error instanceof ErrorEvent) {
       // a client-side or network error occured
-      console.log('An error occured:', error.error.message); 
+      console.log('An error occured:', error.error.message);
     } else {
       // the backend returned unsuccessful response code
       // the response body may contain clues of what went wrong
@@ -145,7 +181,7 @@ export class HttpService {
   getDataByPost(wconfig: any): Observable<any> {
     const headers = new HttpHeaders(
       { 'Content-Type': 'application/json' });
-    //let apiUrl = environment.tsdb_host + '/api/query';
+    // let apiUrl = environment.tsdb_host + '/api/query';
     return this.http.post('/tsdb/queryData', wconfig.query, { headers, withCredentials: true })
       .pipe(
         catchError(this.handleError)

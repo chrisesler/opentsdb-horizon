@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { MaterialModule } from '../shared/modules/material/material.module';
 import { KitchenSinkRoutingModule } from './kitchen-sink-routing.module';
-import { ThemePickerModule } from '../shared/modules/theme-picker/theme-picker.module';
+import { SharedcomponentsModule } from '../shared/modules/sharedcomponents/sharedcomponents.module';
 
 // Containers
 import { KSMainComponent } from './containers/main/main.component';
@@ -19,7 +19,7 @@ import { KSPageHeaderComponent } from './components/page-header/page-header.comp
     imports: [
         CommonModule,
         MaterialModule,
-        ThemePickerModule,
+        SharedcomponentsModule,
         KitchenSinkRoutingModule
     ],
     declarations: [
