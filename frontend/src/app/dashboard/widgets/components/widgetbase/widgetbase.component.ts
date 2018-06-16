@@ -13,6 +13,8 @@ import {
 import { MatMenu, MatMenuTrigger } from '@angular/material';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 
+import { IntercomService, IMessage } from '../../../../core/services/intercom.service';
+
 import { SearchMetricsDialogComponent } from '../../../components/search-metrics-dialog/search-metrics-dialog.component';
 
 import Dygraph from 'dygraphs';
@@ -20,7 +22,7 @@ import Dygraph from 'dygraphs';
 @Component({
     selector: 'app-widget-base',
     templateUrl: './widgetbase.component.html',
-    styleUrls: ['./widgetbase.component.scss']
+    styleUrls: []
 })
 export class WidgetbaseComponent implements OnInit, OnChanges {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
@@ -61,6 +63,8 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
         }
     ];
 
+
+
     // search metrics dialog
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     searchDialogSub: any;
@@ -94,7 +98,16 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
                     value: 'SUM'
                 }
             ],
-            functions: []
+            functions: [],
+            configuration: {
+                visualAppearance: {
+                    visualization: 'line',
+                    color: 'green',
+                    lineWeight: '2px',
+                    lineType: 'solid',
+                    logScale: false
+                }
+            }
         },
         {
             id: 1,
@@ -115,7 +128,16 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
                     value: 'hg-01'
                 }
             ],
-            functions: []
+            functions: [],
+            configuration: {
+                visualAppearance: {
+                    visualization: 'line',
+                    color: 'amber',
+                    lineWeight: '2px',
+                    lineType: 'solid',
+                    logScale: false
+                }
+            }
         },
         {
             id: 1,
@@ -136,27 +158,34 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
                     value: '*'
                 }
             ],
-            functions: []
+            functions: [],
+            configuration: {
+                visualAppearance: {
+                    visualization: 'line',
+                    color: 'fuschia',
+                    lineWeight: '2px',
+                    lineType: 'solid',
+                    logScale: false
+                }
+            }
         }
     ];
 
     constructor(
-        public dialog: MatDialog
+        public dialog: MatDialog,
+        private interCom: IntercomService
     ) { }
 
     ngOnInit() {
         console.log('WBASE :: onInit', this.widget);
-        
-
-     
-    this.g = new Dygraph(document.getElementById("graphdiv"),
-    `Date,A,B
-    2016/01/01,10,20
-    2016/07/01,20,10
-    2016/12/31,40,30
-    `, {
-      fillGraph: true
-    });
+        this.g = new Dygraph(document.getElementById('graphdiv'),
+            `Date,A,B
+            2016/01/01,10,20
+            2016/07/01,20,10
+            2016/12/31,40,30
+        `, {
+        fillGraph: true
+        });
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -226,6 +255,13 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
 
     selectWidgetType(wtype: any, event: any) {
         console.log('SELECT WIDGET TYPE', wtype, event);
+    }
+
+    closeViewEditMode() {
+        this.interCom.requestSend(<IMessage>{
+            action: 'closeViewEditMode',
+            payload: true
+          });
     }
 
 

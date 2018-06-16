@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy } from '@angular/core';
-import { IntercomService, IMessage } from '.././../../../../core/services/intercom.service';
+import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 import { SearchMetricsDialogComponent } from '../../../sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { Observable } from 'rxjs';
@@ -7,9 +7,10 @@ import { Subscription } from 'rxjs/Subscription';
 import { WidgetModel } from '../../../../../dashboard/state/dashboard.state';
 
 @Component({
-  selector: 'app-linebar-widget',
-  templateUrl: './linebar-widget.component.html',
-  styleUrls: ['./linebar-widget.component.scss']
+    // tslint:disable-next-line:component-selector
+    selector: 'linebar-widget',
+    templateUrl: './linebar-widget.component.html',
+    styleUrls: []
 })
 export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
@@ -20,6 +21,7 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
   private searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
   private searchDialogSub: Observable<any>;
   private listenSub: Subscription;
+  // tslint:disable-next-line:no-inferrable-types
   private isDataLoaded: boolean = false;
 
 chartType = 'line';
@@ -122,7 +124,7 @@ data: any = [
                     case 'updatedWidget':
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            console.log('adatatata', message.payload.config);                    
+                            console.log('adatatata', message.payload.config);
                         }
 
                         break;
@@ -134,7 +136,7 @@ data: any = [
     }
 
     requestData() {
-        if(!this.isDataLoaded) {
+        if (!this.isDataLoaded) {
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',

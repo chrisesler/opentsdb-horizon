@@ -1,0 +1,389 @@
+/** 
+COMMON STYLES FOR WIDGETS
+**/
+
+// NOTE: These styles cover ALL of the widget panels generic classes.
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+@mixin widget-common-base() {
+    // class that goes on the widget components
+    $default-padding: 12px;
+    $edit-view-padding: 30px;
+    $tab-width: initial;
+    $action-bar-height: 30px;
+    $flex-gap: 10px;
+
+    .widget-panel-content {
+        @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
+        
+        .widget-config {
+            padding: $default-padding;
+        }
+
+        .widget-title,
+        .widget-output {
+            padding: 0 $default-padding;
+        }
+        
+        .widget-actions {
+            padding: $default-padding $edit-view-padding;
+        }
+        
+        .widget-panel-content,
+        .widget-controls-container {
+            flex: 1 1 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+        }
+        
+        .widget-output-container {
+            flex: 1 1 800px;
+            display: flex;
+            flex-direction: column;
+        
+            .widget-title {
+                @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), title);
+                flex: 1 1 $action-bar-height;
+            }
+        
+            .widget-output {
+                flex: 1 1 100%;
+            }
+        }
+        
+        // mat-tab-group
+        .widget-configs {
+            flex: 1 1 100%;
+        
+            .mat-tab-body-wrapper {
+                flex: 1 1 100%;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden auto;
+            }
+
+            // kind of like a navbar for tabs
+            .mat-tab-header {
+                padding: 0 $edit-view-padding;
+
+                // acutal tabs
+                .mat-tab-label {
+                    min-width: initial;
+
+                    // NOTE: assuming the "query editor" is last child
+                    // NOTE: can't really add a class to the tab label without a complete rewrite of the tab structure using mat-tab-nav-bar
+                    &:last-child {
+                        margin-left: auto;
+                    }
+                }
+            }
+        
+            // configration tab content
+            .mat-tab-body-content {
+                padding: $default-padding $edit-view-padding;
+            }
+        } 
+        
+        // save/cancel buttons
+        .widget-actions {
+            flex: 1 1 $action-bar-height;
+
+            .mat-raised-button:not(:last-child) {
+                margin-right: 6px;
+            }
+        }
+
+        // Square buttons on a new dashboard widget that allow you to select a widget type
+        .widget-types {
+            margin-top: 20px;
+
+            .widget-type-selector {
+                padding: 8px 16px 0 16px;
+                width: 110px;
+
+                &:not(:last-child) {
+                    margin-right: 12px;
+                    margin-bottom: 12px;
+                }
+
+                .mat-button-wrapper {
+                    display: inline-flex;
+                    flex-direction: column;
+                }
+        
+                .widget-type-label,
+                .widget-type-icon {
+                    width: 100%;
+                }
+        
+                .widget-type-icon {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+        
+                    &::after {
+                        content: '';
+                        display: block;
+                        width: 60px;
+                        height: 60px;
+                        background-repeat: no-repeat;
+                        background-position: 50% 50%;
+                    }
+        
+                    // icon url for the different types
+                    &.widget-icon-bar-graph::after {
+                        background-image: url(/assets/widget-icon-bar-graph.png);
+                    }
+        
+                    &.widget-icon-area-graph::after {
+                        background-image: url(/assets/widget-icon-area-graph.png);
+                    }
+
+                    &.widget-icon-line-chart::after {
+                        background-image: url(/assets/widget-icon-line-chart.png);
+                    }
+
+                    &.widget-icon-big-number::after {
+                        background-image: url(/assets/widget-icon-big-number.png);
+                    }
+
+                    &.widget-icon-donut-chart::after {
+                        background-image: url(/assets/widget-icon-donut-chart.png);
+                    }
+                }
+            }
+        }
+        
+        // ** Config tab CONTENT ** //
+        .widget-config-tab {
+            // possibly re-usable within a widget-config-tab
+            .config-toolbar {
+                height: auto;
+                padding: 0;
+        
+                .mat-stroked-button,
+                .mat-raised-button,
+                .mat-button {
+                    font-size: 12px;
+                    line-height: 24px;
+        
+                    .mat-icon {
+                        width: 18px;
+                        height: 18px;
+                        line-height: 18px;
+                        font-size: 16px;
+                    }
+        
+                    &.has-icon {
+                        padding-left: 8px;
+                    }
+                }
+            }
+
+            // should be on an element that wraps a form element, like a <p> tag
+            .config-control {
+
+
+                &:not(:last-child) {
+                    margin-bottom: 30px;
+                }
+            }
+
+            // columns
+            &.has-columns {
+                display: flex;
+                padding: $flex-gap/2;
+
+                .column {
+                    margin: $flex-gap/2;
+                    //flex: 1 1 100%;
+                    flex: 1 1 calc(100% - #{$flex-gap});
+                    background-color: rgba(255,255,255,.15);
+                }
+
+                .column:not(:last-child) {
+                    //margin-right: 20px;
+                }
+
+            }
+
+
+        
+            // specific tab overrides
+            &.time-series-configuration {
+                .query-item-list .query-item:first-child {
+                    margin-top: $default-padding;
+                }
+
+                .query-item {
+                    .mat-expansion-panel-header {
+                        flex-direction: row-reverse;
+                        padding: 0;
+            
+                        .mat-expansion-indicator {
+                            margin-left: -20px;
+                            opacity: 0;
+                            transition-property: opacity;
+                            transition-duration: 200ms;
+                            transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+                        }
+            
+                        .mat-content {
+                            margin-left: 12px;
+                        }
+                    }
+                    
+                    &:hover {
+                        .mat-expansion-panel-header {
+                            .mat-expansion-indicator {
+                                opacity: 1;
+                            }
+                        }
+                    }
+            
+                    .mat-expansion-panel-body {
+                        padding-left: 32px;
+                    }
+            
+                    .query-item-toolbar {
+                        @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
+                        height: auto;
+                        padding: 0;
+            
+                        .toolbar-action-icon {
+                            .mat-icon-button {
+                                width: 30px;
+                                height: 30px;
+                                line-height: 30px;
+                            }
+            
+                            .mat-icon {
+                                font-size: 16px;
+                            }
+                        }
+            
+                        .query-item-collapse {
+                            margin-left: -$edit-view-padding;
+                        }
+            
+                        .query-item-alias {
+                            width: 25px;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            line-height: 14px;
+                            margin-right: 8px;
+            
+                            [class^="graph-bgcolor-"] {
+                                @include mat-typography-level-to-styles(map-get($app-fontface-config, mono), caption);
+                                padding: 3px;
+                                border-radius: 2px;
+                                flex: 1;
+                                text-align: center;
+                                line-height: 14px;
+                            }
+                        }
+                    }
+            
+                    .query-item-meta {
+                        height: auto;
+                        transition-property: height;
+                        transition-duration: 200ms;
+                        transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+                    } 
+            
+                    // if collapsed
+                    &.is-collapsed {
+                        .query-item-meta {
+                            overflow: hidden;
+                            height: 0;
+                        }
+                    }
+                }
+            }
+
+            &.general-configuration {
+                // title input
+                .config-widget-title {
+                    .mat-form-field {
+                        min-width: 400px;
+                    }
+                }
+                // description textarea
+                .config-widget-description {
+                    .mat-form-field{
+                        min-width: 600px;
+                    }
+                }
+            }
+
+            &.time-configuration{
+                
+            }
+        }
+    }
+
+    // When the dashboard is in edit view
+    .edit-view-container.is-active {
+        .widget-output-container {
+            padding: $default-padding $edit-view-padding 0;
+    
+            .widget-output {
+                padding: $default-padding;
+            }
+        }
+    }
+}
+
+@mixin widget-common-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+    
+    .edit-view-container.is-active {
+        .widget-output-container {
+            background-color: map-get($background, card);
+        }
+    }
+    
+    .widget-panel-content {
+        .widget-configs {
+            background-color: map-get($background, card);
+        }
+    
+        .widget-configs {
+            // Tabs
+            .mat-tab-label:not(.mat-tab-disabled):focus {
+                background-color: transparent;
+            }
+        }
+    
+        // save/cancel buttons
+        .widget-actions {
+            border-top: 1px solid map-get($foreground, dividers);
+        }
+    
+        // ** Config tab CONTENT ** //
+        .widget-config-tab {
+        
+            // possibly re-usable within a widget-config-tab
+            .config-toolbar,
+            .query-item-toolbar {
+                background: transparent;
+            }
+
+            .query-item:not(:last-child) {
+                border-bottom: 1px solid map-get($foreground, dividers);
+            }
+
+            // specific tab overrides
+            /*&.time-series-config {}*/
+        }
+    }
+}

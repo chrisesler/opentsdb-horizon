@@ -1,0 +1,207 @@
+/** 
+COMMON STYLES FOR WIDGETS
+**/
+
+// NOTE: These styles cover ALL of the widget panels generic classes.
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+@mixin widget-config-common-base() {
+    // class that goes on the widget components
+    $default-padding: 12px;
+    $edit-view-padding: 30px;
+    $tab-width: initial;
+    $action-bar-height: 30px;
+    $flex-gap: 10px;
+  
+    // ** Config tab CONTENT ** //
+    .widget-config-tab {
+        // possibly re-usable within a widget-config-tab
+        .config-toolbar {
+            height: auto;
+            padding: 0;
+    
+            .mat-stroked-button,
+            .mat-raised-button,
+            .mat-button {
+                font-size: 12px;
+                line-height: 24px;
+    
+                .mat-icon {
+                    width: 18px;
+                    height: 18px;
+                    line-height: 18px;
+                    font-size: 16px;
+                }
+    
+                &.has-icon {
+                    padding-left: 8px;
+                }
+            }
+        }
+
+        // should be on an element that wraps a form element, like a <p> tag
+        .config-control {
+            &:not(:last-child) {
+                margin-bottom: 30px;
+            }
+        }
+
+        // columns
+        &.has-columns {
+            display: flex;
+            padding: $flex-gap/2;
+
+            .column {
+                margin: $flex-gap/2;
+                //flex: 1 1 100%;
+                flex: 1 1 calc(100% - #{$flex-gap});
+                background-color: rgba(255,255,255,.15);
+            }
+
+            .column:not(:last-child) {
+                //margin-right: 20px;
+            }
+
+        }
+
+        // specific tab overrides
+        &.metric-queries-configuration {
+            .query-item-list .query-item:first-child {
+                margin-top: $default-padding;
+            }
+
+            .query-item {
+                .mat-expansion-panel-header {
+                    flex-direction: row-reverse;
+                    padding: 0;
+        
+                    .mat-expansion-indicator {
+                        margin-left: -20px;
+                        opacity: 0;
+                        transition-property: opacity;
+                        transition-duration: 200ms;
+                        transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+                    }
+        
+                    .mat-content {
+                        margin-left: 12px;
+                    }
+                }
+                
+                &:hover {
+                    .mat-expansion-panel-header {
+                        .mat-expansion-indicator {
+                            opacity: 1;
+                        }
+                    }
+                }
+        
+                .mat-expansion-panel-body {
+                    padding-left: 32px;
+                }
+        
+                .query-item-toolbar {
+                    @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
+                    height: auto;
+                    padding: 0;
+        
+                    .toolbar-action-icon {
+                        .mat-icon-button {
+                            width: 30px;
+                            height: 30px;
+                            line-height: 30px;
+                        }
+        
+                        .mat-icon {
+                            font-size: 16px;
+                        }
+                    }
+        
+                    .query-item-collapse {
+                        margin-left: -$edit-view-padding;
+                    }
+        
+                    .query-item-alias {
+                        width: 25px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        line-height: 14px;
+                        margin-right: 8px;
+        
+                        [class^="graph-bgcolor-"] {
+                            @include mat-typography-level-to-styles(map-get($app-fontface-config, mono), caption);
+                            padding: 3px;
+                            border-radius: 2px;
+                            flex: 1;
+                            text-align: center;
+                            line-height: 14px;
+                        }
+                    }
+                }
+        
+                .query-item-meta {
+                    height: auto;
+                    transition-property: height;
+                    transition-duration: 200ms;
+                    transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+                } 
+        
+                // if collapsed
+                &.is-collapsed {
+                    .query-item-meta {
+                        overflow: hidden;
+                        height: 0;
+                    }
+                }
+            }
+        }
+
+        &.general-configuration {
+            // title input
+            .config-widget-title {
+                .mat-form-field {
+                    min-width: 400px;
+                }
+            }
+            // description textarea
+            .config-widget-description {
+                .mat-form-field{
+                    min-width: 600px;
+                }
+            }
+        }
+
+        &.time-configuration{
+            
+        }
+    }
+    
+
+}
+
+@mixin widget-config-common-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+    // ** Config tab CONTENT ** //
+    .widget-config-tab {
+    
+        // possibly re-usable within a widget-config-tab
+        .config-toolbar,
+        .query-item-toolbar {
+            background: transparent;
+        }
+
+        .query-item:not(:last-child) {
+            border-bottom: 1px solid map-get($foreground, dividers);
+        }
+
+        // specific tab overrides
+        /*&.metric-queries-configuration {}*/
+    }
+}
