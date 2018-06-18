@@ -2,20 +2,20 @@
     <div class="widget-title" *ngIf="editMode" fxLayout="row">
         <span fxFlex="1 1 100%">{{ widget.config.title }}</span>
         <span>
-            <button mat-button color="primary" (click)="closeViewEditMode()">
+            <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
                 <mat-icon>close</mat-icon>
             </button>
         </span>
     </div>
     <div class="widget-output">
         <!-- Where the graph, or whatever lives -->
-        <strong>Select a data visualization type</strong>
-        <div class="widget-types">
+        <strong>THIS IS A DEVELOPER WIDGET TO TEST THINGS. MOVE ALONG. NOTHING TO SEE HERE.</strong>
+        <!--<div class="widget-types">
             <button mat-raised-button class="widget-type-selector"  *ngFor="let wtype of availableWidgetTypes" (click)="selectWidgetType(wtype, $event)">
                 <span class="widget-type-icon {{ wtype.iconClass }}"></span>
                 <span class="widget-type-label">{{ wtype.label }}</span>
             </button>
-        </div>
+        </div>-->
     </div>
 </div>
 <!-- NOTE: This needs to move to other component -->

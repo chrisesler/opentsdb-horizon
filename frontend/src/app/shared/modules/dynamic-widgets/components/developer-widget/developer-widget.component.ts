@@ -15,7 +15,7 @@ import {
     WidgetConfigQueryInspectorComponent,
     WidgetConfigTimeComponent,
     WidgetConfigVisualAppearanceComponent
-} from '../../../sharedcomponents';
+} from '../../../sharedcomponents/components';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -63,6 +63,11 @@ export class DeveloperWidgetComponent implements OnInit {
             label: 'Donut Chart',
             type: 'WidgetDonutChartComponent',
             iconClass: 'widget-icon-donut-chart'
+        },
+        {
+            label: 'Statuses',
+            type: 'WidgetStatusComponent',
+            iconClass: 'widget-icon-statuses'
         }
     ];
 
@@ -81,13 +86,11 @@ export class DeveloperWidgetComponent implements OnInit {
      * Behaviors
      */
 
-     // none yet
-
      closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
             action: 'closeViewEditMode',
             payload: true
-          });
+        });
     }
 
 

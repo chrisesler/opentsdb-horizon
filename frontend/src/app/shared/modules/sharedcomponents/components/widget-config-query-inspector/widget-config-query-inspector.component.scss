@@ -2,7 +2,9 @@
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
 @mixin widget-config-query-inspector-component-base() {
-    
+    .widget-config-tab.query-inspector-configuration {
+        // style rules here
+    }
 }
 
 @mixin widget-config-query-inspector-component-theme($theme-config) {
@@ -14,5 +16,8 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
 
+    .widget-config-tab.query-inspector-configuration {
+        // style rules here
+    }
 
 }

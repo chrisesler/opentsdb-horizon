@@ -4,7 +4,7 @@
         <mat-label>Widget Title</mat-label>
         <input matInput placeholder="Please enter a title for this widget" maxlength="100" value="{{ widget.config.title }}" [(ngModel)]="widget.config.title" required>
         <mat-hint>Max 100 characters</mat-hint>
-        <mat-hint align="end">{{widget.config.title?.length || 0}}/10</mat-hint>
+        <mat-hint align="end">{{widget.config.title?.length || 0}}/100</mat-hint>
     </mat-form-field>
 </p>
 <p class="config-control config-widget-description">

@@ -40,6 +40,11 @@ export class PlaceholderWidgetComponent implements OnInit {
             label: 'Donut Chart',
             type: 'WidgetDonutChartComponent',
             iconClass: 'widget-icon-donut-chart'
+        },
+        {
+            label: 'Statuses',
+            type: 'WidgetStatusComponent',
+            iconClass: 'widget-icon-statuses'
         }
     ];
 
