@@ -27,7 +27,7 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
     // properties to pass to dygraph chart directive
     chartType = 'line';
     options: IDygraphOptions = {
-        labels: ['X'],
+        labels: ['x'],
         connectSeparatedPoints: true, 
         drawPoints: true,
         labelsDivWidth: 0
@@ -122,7 +122,8 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
                     case 'updatedWidget':
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            console.log('widget data', this.widget.id, message.payload.config);                    
+                            console.log('widget data', this.widget.id, message.payload.config);
+                            this.transformToDygraph(message.payload.config.rawdata);
                         }
 
                         break;
@@ -131,6 +132,19 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
         });
         // initial request data
         this.requestData();
+    }
+
+    // for now here, we need to make a global services to tranform data
+    // convert data to dygraph format
+    transformToDygraph(result: any) {
+        let normalizedData = [];
+        let dpsHash = {};
+        for (let k in result) {
+            let g = result[k];
+            console.log('kkk', g);
+            
+        }
+       
     }
 
     requestData() {
