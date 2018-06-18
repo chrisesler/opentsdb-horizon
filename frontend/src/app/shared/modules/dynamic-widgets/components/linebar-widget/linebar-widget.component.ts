@@ -26,16 +26,14 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     // properties to pass to dygraph chart directive
     chartType = 'line';
-    options: IDygraphOptions = {};
-    data: any = [
-        [1, null, 3],
-        [2, 2, null],
-        [3, null, 7],
-        [4, 6, null],
-        [5, null, 5],
-        [6, 4, null]
-    ];
-
+    options: IDygraphOptions = {
+        labels: ['X'],
+        connectSeparatedPoints: true, 
+        drawPoints: true,
+        labelsDivWidth: 0
+    };
+    data: any = [[0]];
+    size: any;
     // TODO: REMOVE FAKE METRICS
     fakeMetrics: Array<object> = [
         {
@@ -118,12 +116,8 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'resizeWidget':
-                        // we   get the size to update the graph size
-                        console.log('widget size', this.widget.id, message.payload); 
-                        //this.widget_height = message.payload.clientSize.height + 'px';
-                        //this.widget_width = message.payload.clientSize.width + 'px';  
-                        this.options = {...this.options, width: message.payload.width, height: message.payload.height}; 
-                        //this.options = {...this.options, width: 700, height: 300 };                 
+                        // we   get the size to update the graph size 
+                        this.size = { width: message.payload.width, height: message.payload.height };             
                         break;
                     case 'updatedWidget':
                         if (this.widget.id === message.id) {

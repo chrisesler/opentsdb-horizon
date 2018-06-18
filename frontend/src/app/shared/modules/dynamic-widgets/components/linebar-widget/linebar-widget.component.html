@@ -3,9 +3,10 @@
       {{ widget.config.title }}
   </div>
   <div class="widget-output">
-    <div id="dygraph_div" dygraphsChart 
+    <div id="dygraph_div" dygraphsChart
         [chartType]="chartType" 
-        [data]="data" 
+        [data]="data"
+        [size]="size"
         [options]="options">
     </div>
   </div>
