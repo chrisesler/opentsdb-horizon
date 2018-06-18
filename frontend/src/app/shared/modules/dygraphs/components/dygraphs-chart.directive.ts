@@ -1,5 +1,6 @@
 import { OnInit, OnChanges, OnDestroy, AfterViewInit, Directive,
          Input, Output, EventEmitter, ElementRef, SimpleChanges } from '@angular/core';
+import { IDygraphOptions } from '../IDygraphOptions';
 import Dygraph from 'dygraphs';
 
 @Directive({
@@ -8,7 +9,7 @@ import Dygraph from 'dygraphs';
 export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, AfterViewInit {
 
   @Input() data: any[];
-  @Input() options: any;
+  @Input() options: IDygraphOptions;
   @Input() chartType: string;
 
 
@@ -16,20 +17,25 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
   private gDimension: any;
   public dataLoading: boolean;
 
-  constructor(private element: ElementRef) { }
+  constructor(private element: ElementRef) {
+    // just set it up
+    //this._g = new Dygraph(this.element.nativeElement, "X\n", {connectSeparatedPoints: true, drawPoints: true});
+    //console.log('new created _g', this._g);
+    
+   }
 
   ngOnInit() {
-    console.log('this chart type', this.chartType, this.element);   
+    // console.log('this chart type', this.options, this.chartType, this.element);   
   }
 
   ngAfterViewInit() {
-    console.log('wewewewew', this.element, this.element.nativeElement.clientHeight);
+    console.log('wewewewew', this.options);
     
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('onChanges dygraphs directive', changes);
-    this.gDimension = this.element.nativeElement.getBoundingClientRect();
+    //console.log('onChanges dygraphs directive', changes);
+    //this.gDimension = this.element.nativeElement.getBoundingClientRect();
     
     if (!changes) {
       return;
@@ -39,28 +45,35 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
       this.dataLoading = false;
       return;
     }
- 
-   if (!this.options) {
+    
      this.options =   {
+      ...this.options,
       labels: ['x', 'A', 'B' ],
-      connectSeparatedPoints: true,
+      connectSeparatedPoints: true, 
       drawPoints: true
     };
-   }
 
-    this.dataLoading = true;
-    let options = Object.assign({}, this.options);
-    
-    options.width = this.gDimension.width;
-    options.height = this.gDimension.height;
+    if (changes.options && changes.options.firstChange) {
+      
+    }
+    //this._g.width_ = 700;
+    //this._g.height_ = 300;
+    //console.log('this._g changes calling...', this._g, this.options);
+    //this._g.updateOptions({
+    //  ...this.options, 'file': this.data
+    //});
+   
 
     
-    console.log('options', this.gDimension, options);
-    setTimeout(() => {
-      this._g = new Dygraph(this.element.nativeElement, this.data, options);
+    //setTimeout(() => {
+    //  console.log('passing options', this.options);
+      this._g = new Dygraph(this.element.nativeElement, this.data, this.options);
       this.dataLoading = false;
-    });
-
+    //});
+    if(changes.options) {
+      console.log('call updateOptions');  
+      this._g.updateOptions({...this.options});
+    }
   }
 
   ngOnDestroy() {

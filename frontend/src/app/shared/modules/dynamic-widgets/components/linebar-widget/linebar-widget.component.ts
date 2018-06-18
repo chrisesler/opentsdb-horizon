@@ -5,6 +5,7 @@ import { SearchMetricsDialogComponent } from '../../../sharedcomponents/componen
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs/Subscription';
 import { WidgetModel } from '../../../../../dashboard/state/dashboard.state';
+import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 
 @Component({
   selector: 'app-linebar-widget',
@@ -13,18 +14,19 @@ import { WidgetModel } from '../../../../../dashboard/state/dashboard.state';
 })
 export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
-  @HostBinding('class.widget-panel-content') private _hostClass = true;
-  @Input() editMode: boolean;
-  @Input() widget: WidgetModel;
+    @HostBinding('class.widget-panel-content') private _hostClass = true;
+    @Input() editMode: boolean;
+    @Input() widget: WidgetModel;
 
-  private searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
-  private searchDialogSub: Observable<any>;
-  private listenSub: Subscription;
-  private isDataLoaded: boolean = false;
+    private searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
+    private searchDialogSub: Observable<any>;
+    private listenSub: Subscription;
+    private isDataLoaded: boolean = false;
 
-chartType = 'line';
-options: any;
-data: any = [
+    // properties to pass to dygraph chart directive
+    chartType = 'line';
+    options: IDygraphOptions = {};
+    data: any = [
         [1, null, 3],
         [2, 2, null],
         [3, null, 7],
@@ -32,9 +34,6 @@ data: any = [
         [5, null, 5],
         [6, 4, null]
     ];
-
-
-
 
     // TODO: REMOVE FAKE METRICS
     fakeMetrics: Array<object> = [
@@ -118,11 +117,17 @@ data: any = [
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'resizeWidget':
+                        // we   get the size to update the graph size
+                        console.log('widget size', this.widget.id, message.payload); 
+                        //this.widget_height = message.payload.clientSize.height + 'px';
+                        //this.widget_width = message.payload.clientSize.width + 'px';  
+                        this.options = {...this.options, width: message.payload.width, height: message.payload.height}; 
+                        //this.options = {...this.options, width: 700, height: 300 };                 
                         break;
                     case 'updatedWidget':
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            console.log('adatatata', message.payload.config);                    
+                            console.log('widget data', this.widget.id, message.payload.config);                    
                         }
 
                         break;
