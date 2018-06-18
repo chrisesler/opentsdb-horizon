@@ -1,15 +1,17 @@
-import { OnInit, OnChanges, OnDestroy, AfterViewInit, Directive,
+import { OnInit, OnChanges, OnDestroy, Directive,
          Input, Output, EventEmitter, ElementRef, SimpleChanges } from '@angular/core';
+import { IDygraphOptions } from '../IDygraphOptions';
 import Dygraph from 'dygraphs';
 
 @Directive({
   selector: '[dygraphsChart]'
 })
-export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
   @Input() data: any[];
-  @Input() options: any;
+  @Input() options: IDygraphOptions;
   @Input() chartType: string;
+  @Input() size: any;
 
 
   private _g: any;
@@ -19,48 +21,36 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
   constructor(private element: ElementRef) { }
 
   ngOnInit() {
-    console.log('this chart type', this.chartType, this.element);   
-  }
-
-  ngAfterViewInit() {
-    console.log('wewewewew', this.element, this.element.nativeElement.clientHeight);
-    
+    // console.log('this chart type', this.options, this.chartType, this.element);   
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('onChanges dygraphs directive', changes);
-    this.gDimension = this.element.nativeElement.getBoundingClientRect();
-    
-    if (!changes) {
+
+    if(!changes) {
+      console.log('no changes');
       return;
+    } else {
+      console.log('changes', new Date().getMilliseconds(), changes);
+      // if not then create it
+      if(!this._g && this.data) {
+        console.log('create dygraph object');
+        this._g = new Dygraph(this.element.nativeElement, this.data, this.options);
+      }
+      // resize when size be changed
+      if(this._g && changes.size.currentValue) {
+        console.log('call resize'); 
+        let nsize = changes.size.currentValue;    
+        this._g.resize(nsize.width - 24, nsize.height - 50);
+      }
+
+      // if new data
+      if (this._g && changes.data && changes.data.currentValue) {
+        console.log(' call new data', changes.data.currentValue);
+        let ndata = changes.data.currentValue;
+        this.options = {...this.options, file: ndata}
+        this._g.updateOptions(this.options);
+      }
     }
-  
-    if (!this.data || !this.data.length) {
-      this.dataLoading = false;
-      return;
-    }
- 
-   if (!this.options) {
-     this.options =   {
-      labels: ['x', 'A', 'B' ],
-      connectSeparatedPoints: true,
-      drawPoints: true
-    };
-   }
-
-    this.dataLoading = true;
-    let options = Object.assign({}, this.options);
-    
-    options.width = this.gDimension.width;
-    options.height = this.gDimension.height;
-
-    
-    console.log('options', this.gDimension, options);
-    setTimeout(() => {
-      this._g = new Dygraph(this.element.nativeElement, this.data, options);
-      this.dataLoading = false;
-    });
-
   }
 
   ngOnDestroy() {

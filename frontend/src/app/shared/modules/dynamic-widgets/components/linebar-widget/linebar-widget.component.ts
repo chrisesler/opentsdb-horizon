@@ -5,6 +5,7 @@ import { SearchMetricsDialogComponent } from '../../../sharedcomponents/componen
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs/Subscription';
 import { WidgetModel } from '../../../../../dashboard/state/dashboard.state';
+import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -15,28 +16,24 @@ import { WidgetModel } from '../../../../../dashboard/state/dashboard.state';
 export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     @HostBinding('class.widget-panel-content') private _hostClass = true;
-
     @Input() editMode: boolean;
     @Input() widget: WidgetModel;
 
     private searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     private searchDialogSub: Observable<any>;
     private listenSub: Subscription;
-    // tslint:disable-next-line:no-inferrable-types
     private isDataLoaded: boolean = false;
 
+    // properties to pass to dygraph chart directive
     chartType = 'line';
-    options: any;
-    data: any = [
-        [1, null, 3],
-        [2, 2, null],
-        [3, null, 7],
-        [4, 6, null],
-        [5, null, 5],
-        [6, 4, null]
-    ];
-
-
+    options: IDygraphOptions = {
+        labels: ['x'],
+        connectSeparatedPoints: true, 
+        drawPoints: true,
+        labelsDivWidth: 0
+    };
+    data: any = [[0]];
+    size: any;
     // TODO: REMOVE FAKE METRICS
     fakeMetrics: Array<object> = [
         {
@@ -119,11 +116,14 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'resizeWidget':
+                        // we   get the size to update the graph size 
+                        this.size = { width: message.payload.width, height: message.payload.height };             
                         break;
                     case 'updatedWidget':
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            console.log('adatatata', message.payload.config);
+                            console.log('widget data', this.widget.id, message.payload.config);
+                            this.transformToDygraph(message.payload.config.rawdata);
                         }
 
                         break;
@@ -132,6 +132,19 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
         });
         // initial request data
         this.requestData();
+    }
+
+    // for now here, we need to make a global services to tranform data
+    // convert data to dygraph format
+    transformToDygraph(result: any) {
+        let normalizedData = [];
+        let dpsHash = {};
+        for (let k in result) {
+            let g = result[k];
+            console.log('kkk', g);
+            
+        }
+       
     }
 
     requestData() {

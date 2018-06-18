@@ -3,6 +3,7 @@ import { WidgetbaseComponent } from '../../dashboard/widgets/components/widgetba
 import { WsampleComponent } from '../../dashboard/widgets/components/wsample/wsample.component';
 import { LineChartComponent } from '../../dashboard/widgets/components/chartjs/line-chart.component';
 
+
 import {
     PlaceholderWidgetComponent,
     LinebarWidgetComponent,

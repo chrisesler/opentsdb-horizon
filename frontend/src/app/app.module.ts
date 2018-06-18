@@ -24,7 +24,6 @@ import { AdminModule } from './admin/admin.module';
 import { AdhocModule } from './adhoc/adhoc.module';
 import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
 import { NavbarModule } from './shared/modules/navbar/navbar.module';
-import { HomeModule } from './home/home.module';
 
 import { AuthInterceptor } from './core/http/auth.interceptor';
 import { AuthService } from './core/services/auth.service';
@@ -51,8 +50,7 @@ import { CredentialsInterceptor } from './core/http/credentials.interceptor';
     AdminModule,
     AdhocModule,
     KitchenSinkModule,
-    NavbarModule,
-    HomeModule
+    NavbarModule
   ],
   providers: [
     AuthService,
