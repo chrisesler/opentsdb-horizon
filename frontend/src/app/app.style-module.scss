@@ -9,9 +9,7 @@
 
 // [ STEP 1 ] - IMPORT APPLICATION STYLE MODULE SCSS
 @import 'app.component';
-@import 'navbar/navbar.style-module';
-@import 'shared/modules/theme-picker/theme-picker.style-module';
-@import 'shared/modules/simple-time-picker/simple-time-picker.style-module';
+@import 'shared/modules/navbar/navbar.style-module';
 @import 'kitchen-sink/kitchen-sink.style-module';
 @import 'landing-page/landing-page.style-module';
 @import 'dashboard/dashboard.style-module';
@@ -21,8 +19,6 @@
 @mixin app-core() {
     @include app-root-base();
     @include navbar-module-core();
-    @include theme-picker-module-core();
-    @include simple-time-picker-module-core();
     @include kitchen-sink-module-core();
     @include landing-page-module-core();
     @include dashboard-module-core();
@@ -33,8 +29,6 @@
 @mixin generate-app-theme ($theme-config) {
     @include app-root-theme($theme-config);
     @include navbar-module-theme($theme-config);
-    @include theme-picker-module-theme($theme-config);
-    @include simple-time-picker-module-theme($theme-config);
     @include kitchen-sink-module-theme($theme-config);
     @include landing-page-module-theme($theme-config);
     @include dashboard-module-theme($theme-config);

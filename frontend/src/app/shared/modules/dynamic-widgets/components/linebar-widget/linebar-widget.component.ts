@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy } from '@angular/core';
-import { IntercomService, IMessage } from '.././../../../../core/services/intercom.service';
+import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 import { SearchMetricsDialogComponent } from '../../../sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { Observable } from 'rxjs';
@@ -8,9 +8,10 @@ import { WidgetModel } from '../../../../../dashboard/state/dashboard.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 
 @Component({
-  selector: 'app-linebar-widget',
-  templateUrl: './linebar-widget.component.html',
-  styleUrls: ['./linebar-widget.component.scss']
+    // tslint:disable-next-line:component-selector
+    selector: 'linebar-widget',
+    templateUrl: './linebar-widget.component.html',
+    styleUrls: []
 })
 export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
@@ -139,7 +140,7 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     requestData() {
-        if(!this.isDataLoaded) {
+        if (!this.isDataLoaded) {
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',

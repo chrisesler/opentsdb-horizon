@@ -1,0 +1,81 @@
+
+<mat-toolbar class="config-toolbar time-series-toolbar">
+    <a mat-stroked-button color="primary" class="has-icon" style="margin-right: 5px;" (click)="openTimeSeriesMetricDialog()">
+        <mat-icon>add</mat-icon>
+        <span>Add Time Series</span>
+    </a>
+    <a mat-stroked-button color="primary" class="has-icon" (click)="addTimeSeriesExpression()">
+        <mat-icon>add</mat-icon>
+        <span>Add Expression</span>
+    </a>
+    <!--<mat-menu #addQueryItemMenu="matMenu">
+        <button mat-menu-item (click)="openTimeSeriesMetricDialog()">Time Series Metric</button>
+        <button mat-menu-item (click)="addTimeSeriesExpression()">Time Series Expression</button>
+    </mat-menu>-->
+    <span class="flex-spacer"></span>
+    <a mat-button color="primary">View Query Inspector</a>
+</mat-toolbar>
+<!-- list of metric-items -->
+<mat-accordion class="query-item-list" displayMode="flat" [multi]="true" [hideToggle]="false">
+    <mat-expansion-panel class="query-item mat-elevation-z0" [hideToggle]="false" [expanded]="true" *ngFor="let queryItem of fakeMetrics">
+        <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
+            <mat-toolbar class="query-item-toolbar">
+                <span class="toolbar-item query-item-alias">
+                        <i class="graph-bgcolor-{{ queryItem.color }}">{{ queryItem.alias }}</i>
+                    </span>
+                    <span class="toolbar-item query-item-name">
+                        <strong>{{ queryItem.label }}</strong>
+                    </span>
+                    <span class="flex-spacer"></span>
+                    <span class="toolbar-action-icon">
+                        <button mat-icon-button color="primary" (click)="toggleQueryItemVisibility(queryItem, $event)">
+                            <mat-icon *ngIf="queryItem.visible">visibility</mat-icon>
+                            <mat-icon *ngIf="!queryItem.visible">visibility_off</mat-icon>
+                        </button>
+                    </span>
+                    <span class="toolbar-action-icon">
+                        <button mat-icon-button color="primary" (click)="duplicateQueryItem(queryItem, $event)">
+                            <mat-icon class="mat-icon-rtl-mirror">filter_none</mat-icon>
+                        </button>
+                    </span>
+                    <span class="toolbar-action-icon">
+                        <button mat-icon-button color="primary" (click)="deleteQueryItem(queryItem, $event)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </span>
+            </mat-toolbar>
+        </mat-expansion-panel-header>
+        <!-- panel body start -->
+        <div class="attributes-expression-value" fxLayout="row" *ngIf="queryItem.type === 'expression'">
+            <div fxFlex="1 1 70px" class="label-container">
+                Expression
+            </div>
+            <div fxFlex="1 1 100%" class="attributes-container">
+                <mat-form-field style="width: 100%">
+                    <textarea matInput placeholder="Enter an expression using metric aliases">{{ queryItem.expression }}</textarea>
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="attributes-tags" fxLayout="row" >
+            <div fxFlex="1 1 70px" class="label-container">
+                tags
+            </div>
+            <div fxFlex="1 1 100%" class="attributes-container">
+                <!-- DUE TO THIS USING REF VARIABLES, PROBABLY NEED TO MAKE THIS A COMPONENT
+                <app-config-tags-list [tags]="queryItem.tags"></app-config-tags-list>-->
+                
+            </div>
+        </div>
+        <!-- hide for now 
+        <div class="attributes-functions" fxLayout="row">
+            <div fxFlex="1 1 70px" class="label-container">
+                functions
+            </div>
+            <div fxFlex="1 1 100%" class="attributes-container">
+                values
+            </div>
+        </div>
+        -->
+        <!-- panel body end -->
+    </mat-expansion-panel>
+</mat-accordion>

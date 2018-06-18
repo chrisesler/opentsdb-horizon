@@ -28,7 +28,7 @@ export class DashboardService {
     }
   }
 
-  addNewWidget(widgets: any[]) { 
+  addNewWidget(widgets: any[]) {
     const widget: any = Object.assign({}, this.widgetPrototype);
     widget.id = this.utils.generateId();
     // before adding, we more the first one down
@@ -43,7 +43,7 @@ export class DashboardService {
     return widgets;
   }
 
-  updateWidgetsDimension(width, height, pWidgets) { 
+  updateWidgetsDimension(width, height, pWidgets) {
     for (let i = 0; i < pWidgets.length; i++) {
       const clientSize = {
         'width': width * pWidgets[i].gridPos.w,
@@ -54,6 +54,6 @@ export class DashboardService {
       // since x,y not updated when resize, grad
       pWidgets[i].gridPos.x = pWidgets[i].gridPos.xMd;
       pWidgets[i].gridPos.y = pWidgets[i].gridPos.yMd;
-    }   
+    }
   }
 }

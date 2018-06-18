@@ -6,7 +6,8 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
 @Component({
-    selector: 'app-search-metrics-dialog',
+    // tslint:disable-next-line:component-selector
+    selector: 'search-metrics-dialog',
     templateUrl: './search-metrics-dialog.component.html',
     styleUrls: []
 })
