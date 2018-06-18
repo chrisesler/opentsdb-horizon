@@ -109,16 +109,6 @@ export class HttpService {
       {
         gridPos: {
           x: 6, y: 5,
-          w: 6, h: 5,
-        },
-        config: {
-          title: 'WidgetbaseComponent',
-          component_type: 'WidgetbaseComponent'
-        }
-      },
-      {
-        gridPos: {
-          x: 0, y: 10,
           w: 6, h: 5
         },
         config: {
