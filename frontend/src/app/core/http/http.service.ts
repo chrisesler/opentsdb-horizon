@@ -23,7 +23,7 @@ export class HttpService {
           w: 6, h: 5
         },
         config: {
-          title: 'One',
+          title: 'LineChartComponent',
           component_type: 'LineChartComponent',
           data_source: 'opentsdb',
           query: {
@@ -65,7 +65,7 @@ export class HttpService {
           w: 6, h: 5,
         },
         config: {
-          title: 'Two',
+          title: 'PlaceholderWidgetComponent',
           component_type: 'PlaceholderWidgetComponent',
           data_source: ''
         }
@@ -76,7 +76,7 @@ export class HttpService {
           w: 6, h: 5
         },
         config: {
-          title: 'Three',
+          title: 'LinebarWidgetComponent',
           component_type: 'LinebarWidgetComponent',
           data_source: 'opentsdb',
           query: {
@@ -112,7 +112,7 @@ export class HttpService {
           w: 6, h: 5,
         },
         config: {
-          title: 'Four',
+          title: 'WidgetbaseComponent',
           component_type: 'WidgetbaseComponent'
         }
       },
@@ -122,7 +122,7 @@ export class HttpService {
           w: 6, h: 5
         },
         config: {
-          title: 'DEVELOPER WIDGET TAB',
+          title: 'DeveloperWidgetComponent',
           component_type: 'DeveloperWidgetComponent',
           data_source: 'opentsdb',
           query: {

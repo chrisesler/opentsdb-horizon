@@ -178,7 +178,7 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
 
     ngOnInit() {
         console.log('WBASE :: onInit', this.widget);
-        this.g = new Dygraph(document.getElementById('graphdiv'),
+        /* this.g = new Dygraph(document.getElementById('graphdiv'),
             `Date,A,B
             2016/01/01,10,20
             2016/07/01,20,10
@@ -186,6 +186,7 @@ export class WidgetbaseComponent implements OnInit, OnChanges {
         `, {
         fillGraph: true
         });
+        */
     }
 
     ngOnChanges(changes: SimpleChanges) {
