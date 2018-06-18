@@ -1,6 +1,11 @@
 <div class="widget-output-container" #testing>
-  <div class="widget-title" *ngIf="editMode">
-      {{ widget.config.title }}
+  <div class="widget-title" *ngIf="editMode" fxLayout="row">
+        <span fxFlex="1 1 100%">{{ widget.config.title }}</span>
+        <span>
+            <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </span>
   </div>
   <div class="widget-output">
     <div [style.height]="300"  dygraphsChart 

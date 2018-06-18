@@ -14,19 +14,20 @@ import { WidgetModel } from '../../../../../dashboard/state/dashboard.state';
 })
 export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
-  @HostBinding('class.widget-panel-content') private _hostClass = true;
-  @Input() editMode: boolean;
-  @Input() widget: WidgetModel;
+    @HostBinding('class.widget-panel-content') private _hostClass = true;
 
-  private searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
-  private searchDialogSub: Observable<any>;
-  private listenSub: Subscription;
-  // tslint:disable-next-line:no-inferrable-types
-  private isDataLoaded: boolean = false;
+    @Input() editMode: boolean;
+    @Input() widget: WidgetModel;
 
-chartType = 'line';
-options: any;
-data: any = [
+    private searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
+    private searchDialogSub: Observable<any>;
+    private listenSub: Subscription;
+    // tslint:disable-next-line:no-inferrable-types
+    private isDataLoaded: boolean = false;
+
+    chartType = 'line';
+    options: any;
+    data: any = [
         [1, null, 3],
         [2, 2, null],
         [3, null, 7],
@@ -34,8 +35,6 @@ data: any = [
         [5, null, 5],
         [6, 4, null]
     ];
-
-
 
 
     // TODO: REMOVE FAKE METRICS
@@ -218,6 +217,17 @@ data: any = [
         if (this.listenSub) {
             this.listenSub.unsubscribe();
         }
+    }
+
+    /**
+     * Behaviors
+     */
+
+    closeViewEditMode() {
+        this.interCom.requestSend(<IMessage>{
+            action: 'closeViewEditMode',
+            payload: true
+        });
     }
 
 }

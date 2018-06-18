@@ -20,7 +20,8 @@ import {
     styleUrls: []
 })
 export class WidgetConfigMetricQueriesComponent implements OnInit {
-    @HostBinding('class.widget-config-tab.metric-queries-configuration') private _hostClass = true;
+    @HostBinding('class.widget-config-tab') private _hostClass = true;
+    @HostBinding('class.metric-queries-configuration') private _tabClass = true;
 
     /** Inputs */
     @Input() widget: any;

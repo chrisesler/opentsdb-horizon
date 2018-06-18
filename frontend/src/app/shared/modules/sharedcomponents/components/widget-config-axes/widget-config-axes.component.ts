@@ -7,7 +7,9 @@ import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@an
     styleUrls: []
 })
 export class WidgetConfigAxesComponent implements OnInit {
-    @HostBinding('class.widget-config-tab.axes-configuration.has-columns') private _hostClass = true;
+    @HostBinding('class.widget-config-tab') private _hostClass = true;
+    @HostBinding('class.axes-configuration') private _tabClass = true;
+    @HostBinding('class.has-columns') private _modifierClass = true;
 
     /** Inputs */
     @Input() widget: any;

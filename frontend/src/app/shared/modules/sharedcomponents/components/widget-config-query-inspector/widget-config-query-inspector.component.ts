@@ -7,7 +7,8 @@ import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@an
     styleUrls: []
 })
 export class WidgetConfigQueryInspectorComponent implements OnInit {
-    @HostBinding('class.widget-config-tab.query-inspector-configuration') private _hostClass = true;
+    @HostBinding('class.widget-config-tab') private _hostClass = true;
+    @HostBinding('class.query-inspector-configuration') private _tabClass = true;
 
     /** Inputs */
     @Input() widget: any;

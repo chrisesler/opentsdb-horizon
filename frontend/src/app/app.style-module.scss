@@ -13,7 +13,9 @@
 @import 'kitchen-sink/kitchen-sink.style-module';
 @import 'landing-page/landing-page.style-module';
 @import 'dashboard/dashboard.style-module';
+
 @import 'shared/modules/dynamic-widgets/dynamic-widgets.style-module';
+@import  'shared/modules/sharedcomponents/sharedcomponents.style-module';
 
 // [ STEP 2 ] - ADD MODULE'S BASE MIXINS (aka structure)
 @mixin app-core() {
@@ -23,6 +25,7 @@
     @include landing-page-module-core();
     @include dashboard-module-core();
     @include dynamic-widgets-module-core();
+    @include sharedcomponents-module-core()
 }
 
 // [ STEP 3 ] - ADD MODULES'S THEME MIXINS (aka look-n-feel)
@@ -33,4 +36,5 @@
     @include landing-page-module-theme($theme-config);
     @include dashboard-module-theme($theme-config);
     @include dynamic-widgets-module-theme($theme-config);
+    @include sharedcomponents-module-theme($theme-config);
 }

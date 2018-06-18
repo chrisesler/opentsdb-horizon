@@ -7,7 +7,7 @@ import {
     PlaceholderWidgetComponent,
     LinebarWidgetComponent,
     DeveloperWidgetComponent
-} from '../../shared/modules/dynamic-widgets';
+} from '../../shared/modules/dynamic-widgets/components';
 
 @Injectable({
     providedIn: 'root'
