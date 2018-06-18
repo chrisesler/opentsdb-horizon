@@ -16,23 +16,25 @@
                   <mat-icon>more_horiz</mat-icon>
                 </button>
                 <mat-menu #widgetMenu="matMenu" xPosition="before" class="widget-menu">
-                    <button mat-menu-item (click)="widgetView()">
-                        <mat-icon>fullscreen</mat-icon>
-                        <span>Full screen</span>
-                    </button>
-                    <button mat-menu-item>
-                        <mat-icon>settings</mat-icon>
-                        <span>Edit View</span>
-                    </button>
-                    <button mat-menu-item>
-                        <mat-icon>share</mat-icon>
-                        <span>Share</span>
-                    </button>
-                    <button mat-menu-item [matMenuTriggerFor]="subMenu">
-                        <mat-icon></mat-icon>
-                        <span>More options</span>
-                    </button>
-                    <span class="menu-seperator"></span>
+                    <ng-container *ngIf="widget.config.component_type !== 'PlaceholderWidgetComponent'">
+                        <button mat-menu-item (click)="widgetView()">
+                            <mat-icon>fullscreen</mat-icon>
+                            <span>Full screen</span>
+                        </button>
+                        <button mat-menu-item>
+                            <mat-icon>settings</mat-icon>
+                            <span>Edit View</span>
+                        </button>
+                        <button mat-menu-item>
+                            <mat-icon>share</mat-icon>
+                            <span>Share</span>
+                        </button>
+                        <button mat-menu-item [matMenuTriggerFor]="subMenu">
+                            <mat-icon></mat-icon>
+                            <span>More options</span>
+                        </button>
+                        <span class="menu-seperator"></span>
+                    </ng-container>
                     <button mat-menu-item>
                         <mat-icon>delete</mat-icon>
                         <span>Remove</span>

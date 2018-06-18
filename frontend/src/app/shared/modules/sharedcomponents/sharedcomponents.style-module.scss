@@ -25,6 +25,14 @@
 @import 'components/widget-config.common';
 
 // if individual widget-configs have custom style, include them
+@import 'components/widget-config-alerts/widget-config-alerts.component';
+@import 'components/widget-config-axes/widget-config-axes.component';
+@import 'components/widget-config-general/widget-config-general.component';
+@import 'components/widget-config-legend/widget-config-legend.component';
+@import 'components/widget-config-metric-queries/widget-config-metric-queries.component';
+@import 'components/widget-config-query-inspector/widget-config-query-inspector.component';
+@import 'components/widget-config-time/widget-config-time.component';
+@import 'components/widget-config-visual-appearance/widget-config-visual-appearance.component';
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin sharedcomponents-module-core() {
@@ -36,6 +44,14 @@
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-base();
+    @include widget-config-alerts-component-base();
+    @include widget-config-axes-component-base();
+    @include widget-config-general-component-base();
+    @include widget-config-legend-component-base();
+    @include widget-config-metric-queries-component-base();
+    @include widget-config-query-inspector-component-base();
+    @include widget-config-time-component-base();
+    @include widget-config-visual-appearance-component-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
@@ -48,4 +64,12 @@
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);
+    @include widget-config-alerts-component-theme($theme-config);
+    @include widget-config-axes-component-theme($theme-config);
+    @include widget-config-general-component-theme($theme-config);
+    @include widget-config-legend-component-theme($theme-config);
+    @include widget-config-metric-queries-component-theme($theme-config);
+    @include widget-config-query-inspector-component-theme($theme-config);
+    @include widget-config-time-component-theme($theme-config);
+    @include widget-config-visual-appearance-component-theme($theme-config);
 }

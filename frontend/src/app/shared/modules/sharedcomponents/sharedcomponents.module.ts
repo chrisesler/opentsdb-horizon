@@ -7,19 +7,22 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../material/material.module';
 
 /** public items from Sharedcomponents */
-import {
-    SearchMetricsDialogComponent,
-    SimpleTimePickerComponent,
-    ThemePickerComponent,
-    WidgetConfigAlertsComponent,
-    WidgetConfigAxesComponent,
-    WidgetConfigGeneralComponent,
-    WidgetConfigLegendComponent,
-    WidgetConfigMetricQueriesComponent,
-    WidgetConfigQueryInspectorComponent,
-    WidgetConfigTimeComponent,
-    WidgetConfigVisualAppearanceComponent
-} from './public-api';
+
+ // other components
+import { SearchMetricsDialogComponent } from './components/search-metrics-dialog/search-metrics-dialog.component';
+import { SimpleTimePickerComponent } from './components/simple-time-picker/simple-time-picker.component';
+import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
+
+ // widget config components
+import { WidgetConfigAlertsComponent } from './components/widget-config-alerts/widget-config-alerts.component';
+import { WidgetConfigAxesComponent } from './components/widget-config-axes/widget-config-axes.component';
+import { WidgetConfigGeneralComponent } from './components/widget-config-general/widget-config-general.component';
+import { WidgetConfigMetricQueriesComponent } from './components/widget-config-metric-queries/widget-config-metric-queries.component';
+import { WidgetConfigTimeComponent } from './components/widget-config-time/widget-config-time.component';
+// tslint:disable-next-line:max-line-length
+import { WidgetConfigVisualAppearanceComponent } from './components/widget-config-visual-appearance/widget-config-visual-appearance.component';
+import { WidgetConfigQueryInspectorComponent } from './components/widget-config-query-inspector/widget-config-query-inspector.component';
+import { WidgetConfigLegendComponent } from './components/widget-config-legend/widget-config-legend.component';
 
 @NgModule({
     imports: [

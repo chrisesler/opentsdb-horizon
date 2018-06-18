@@ -7,7 +7,8 @@ import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@an
     styleUrls: []
 })
 export class WidgetConfigVisualAppearanceComponent implements OnInit {
-    @HostBinding('class.widget-config-tab.visual-appearance-configuration') private _hostClass = true;
+    @HostBinding('class.widget-config-tab') private _hostClass = true;
+    @HostBinding('class.visual-appearance-configuration') private _tabClass = true;
 
     /** Inputs */
     @Input() widget: any;

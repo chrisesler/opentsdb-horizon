@@ -232,4 +232,15 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    /**
+     * Behaviors
+     */
+
+    closeViewEditMode() {
+        this.interCom.requestSend(<IMessage>{
+            action: 'closeViewEditMode',
+            payload: true
+        });
+    }
+
 }
