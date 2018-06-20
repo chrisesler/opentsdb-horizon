@@ -12,7 +12,8 @@ export class DashboardService {
       resizable: true
     },
     config: {
-      title: 'untitle'
+      title: 'untitled',
+      component_type: 'PlaceholderWidgetComponent'
     }
   };
 

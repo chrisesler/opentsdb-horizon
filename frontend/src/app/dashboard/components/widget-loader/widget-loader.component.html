@@ -16,34 +16,43 @@
                   <mat-icon>more_horiz</mat-icon>
                 </button>
                 <mat-menu #widgetMenu="matMenu" xPosition="before" class="widget-menu">
-                    <ng-container *ngIf="widget.config.component_type !== 'PlaceholderWidgetComponent'">
-                        <button mat-menu-item (click)="widgetView()">
+                    <ng-container *ngIf="!widget.config.component_type || widget.config.component_type !== 'PlaceholderWidgetComponent'">
+                        <!--<button mat-menu-item (click)="widgetView()">
                             <mat-icon>fullscreen</mat-icon>
                             <span>Full screen</span>
-                        </button>
-                        <button mat-menu-item>
-                            <mat-icon>settings</mat-icon>
+                        </button>-->
+                        <button mat-menu-item (click)="widgetView()">
+                            <mat-icon>create</mat-icon>
                             <span>Edit View</span>
                         </button>
-                        <button mat-menu-item>
+                        <button mat-menu-item (click)="widgetClone()">
+                            <mat-icon>filter_none</mat-icon>
+                            <span>Clone</span>
+                        </button>
+                        <button mat-menu-item (click)="widgetShare()">
                             <mat-icon>share</mat-icon>
                             <span>Share</span>
                         </button>
                         <button mat-menu-item [matMenuTriggerFor]="subMenu">
                             <mat-icon></mat-icon>
-                            <span>More options</span>
+                            <span>Export</span>
                         </button>
                         <span class="menu-seperator"></span>
                     </ng-container>
-                    <button mat-menu-item>
+                    <button mat-menu-item (click)="widgetRemove()">
                         <mat-icon>delete</mat-icon>
                         <span>Remove</span>
                     </button>
                 </mat-menu>
                 <mat-menu #subMenu="matMenu" class="widget-submenu">
-                    <button mat-menu-item>What</button>
-                    <button mat-menu-item>The</button>
-                    <button mat-menu-item>Hell</button>
+                    <button mat-menu-item (click)="widgetExportJSON()">
+                        <mat-icon>save_alt</mat-icon>
+                        <span>Export JSON</span>
+                    </button>
+                    <button mat-menu-item (click)="widgetExportImage()">
+                        <mat-icon>image</mat-icon>
+                        <span>Download Image</span>
+                    </button>
                 </mat-menu>
             </mat-toolbar-row>
         </mat-toolbar>

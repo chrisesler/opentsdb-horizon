@@ -9,8 +9,8 @@ export interface WidgetModel {
     clientSize?: {
         width: number;
         height: number;
-    }
-    settings: {}
+    };
+    settings: {};
     gridPos: {
         x: number;
         y: number;
@@ -18,13 +18,13 @@ export interface WidgetModel {
         h: number;
         xMd?: number;
         yMd?: number;
-    }
+    };
     config: {
         title: string;
         component_type: string;
         data_source?: string;
         rawdata?: any;
-    }
+    };
 }
 
 export interface DashboardStateModel {
@@ -63,7 +63,7 @@ export class DashboardState {
     @Selector()
     static getDashboard(state: DashboardStateModel) {
         return JSON.parse(JSON.stringify(state));
-    }    
+    }
 
     @Selector()
     static setViewEditMode(state: DashboardStateModel) {
@@ -80,7 +80,7 @@ export class DashboardState {
         ctx.patchState({loading: true});
         return this.httpService.getDashoard('1').pipe(
             map((dashboard: DashboardStateModel) => {
-                ctx.dispatch(new dashboardAction.LoadDashboardSuccess(dashboard))
+                ctx.dispatch(new dashboardAction.LoadDashboardSuccess(dashboard));
             }),
             catchError(error => ctx.dispatch(new dashboardAction.LoadDashboardFail(error)))
         );
@@ -91,18 +91,18 @@ export class DashboardState {
         const state = ctx.getState();
         // tranform dashboard information by adding some other properties
         // to enable rezise, drag and drop and responsive size
-        this.dashboardService.modifyWidgets(payload); 
+        this.dashboardService.modifyWidgets(payload);
        ctx.setState({...state, ...payload, loading: false, loaded: true});
     }
 
     @Action(dashboardAction.LoadDashboardFail)
     loadDashboardFail(ctx: StateContext<DashboardStateModel>, { error }: dashboardAction.LoadDashboardFail) {
-        
+
     }
 
     @Action(dashboardAction.UpdateWidgetsLayout)
-    updateWidgetsLayout(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.UpdateWidgetsLayout){
-        const state = ctx.getState();        
+    updateWidgetsLayout(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.UpdateWidgetsLayout) {
+        const state = ctx.getState();
         ctx.setState({...state, ...payload});
     }
 
@@ -118,8 +118,9 @@ export class DashboardState {
    @Action(dashboardAction.GetQueryData)
    GetQueryData(ctx: StateContext<DashboardStateModel>, action: dashboardAction.GetQueryData) {
         this.httpService.getDataByPost(action.query).subscribe(
-            data => { 
+            data => {
                 const state = ctx.getState();
+                // tslint:disable-next-line:prefer-const
                 for (let w of state.widgets) {
                     if (w.id === action.widgetid) {
                         // or transformation for data needed to be done here.
@@ -129,7 +130,7 @@ export class DashboardState {
                     }
                 }
                 ctx.setState(state);
-            }           
+            }
         );
    }
  }

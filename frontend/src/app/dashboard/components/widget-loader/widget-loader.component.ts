@@ -48,20 +48,6 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         }
     }
 
-    // emit component factory and config for edit/view full mode
-    widgetView() {
-        this.viewComponent.emit({
-            'compFactory': this.componentFactory,
-            '_viewContainerRef': this.viewContainerRef,
-            'widget': this.widget
-        });
-        // make dashboard header disappear
-        this.interCom.requestSend(<IMessage>{
-            action: 'viewEditMode',
-            payload: true
-        });
-    }
-
     loadComponent() {
         console.log('component creating', this.widget.id);
         let componentName = '__notfound__';
@@ -77,6 +63,44 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         this._component = this.viewContainerRef.createComponent(this.componentFactory);
         (<WidgetComponentModel>this._component.instance).widget = this.widget;
         (<WidgetComponentModel>this._component.instance).editMode = false;
+    }
+
+    /**
+     * BEHAVIORS
+     */
+
+    // emit component factory and config for edit/view full mode
+    widgetView() {
+        this.viewComponent.emit({
+            'compFactory': this.componentFactory,
+            '_viewContainerRef': this.viewContainerRef,
+            'widget': this.widget
+        });
+        // let dashboard know we are entering edit mode
+        this.interCom.requestSend(<IMessage>{
+            action: 'viewEditMode',
+            payload: true
+        });
+    }
+
+    widgetClone() {
+        console.log('CLONE WIDGET CLICKED');
+    }
+
+    widgetShare() {
+        console.log('SHARE WIDGET CLICKED');
+    }
+
+    widgetExportJSON() {
+        console.log('EXPORT JSON CLICKED');
+    }
+
+    widgetExportImage() {
+        console.log('EXPORT IMAGE CLICKED');
+    }
+
+    widgetRemove() {
+        console.log('REMOVE WIDGET CLICKED')
     }
 
     // TODO: FOR DEV ONLY, NEED TO REMOVE

@@ -1,6 +1,6 @@
 import { Component, OnInit, HostBinding, Input } from '@angular/core';
 
-import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
+// import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 
@@ -25,6 +25,7 @@ import {
 })
 export class DeveloperWidgetComponent implements OnInit {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
+    @HostBinding('class.developer-widget') private _componentClass = true;
 
     /** Inputs */
     @Input() editMode: boolean;
