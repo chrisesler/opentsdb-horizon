@@ -32,6 +32,7 @@ export interface DashboardStateModel {
     loading: boolean;
     loaded: boolean;
     viewEditMode: boolean;
+    editWidgetId: string;
     updatedWidgetId: string;
     settings: any;
     widgets: WidgetModel[];
@@ -44,6 +45,7 @@ export interface DashboardStateModel {
       loading: false,
       loaded: false,
       viewEditMode: false,
+      editWidgetId: '',
       updatedWidgetId: '',
       settings: {},
       widgets: []
@@ -67,7 +69,7 @@ export class DashboardState {
 
     @Selector()
     static setViewEditMode(state: DashboardStateModel) {
-        return state.viewEditMode;
+        return { editMode: state.viewEditMode, widgetId: state.editWidgetId };
     }
 
     @Selector()
@@ -109,7 +111,7 @@ export class DashboardState {
     @Action(dashboardAction.SetViewEditMode)
     setViewEditMode(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.SetViewEditMode) {
         const state = ctx.getState();
-        ctx.setState({...state, viewEditMode: payload});
+        ctx.setState({...state, viewEditMode: payload.editMode, editWidgetId: payload.widgetId});
     }
 
     /* GetQueryData will make the call to API to get data.

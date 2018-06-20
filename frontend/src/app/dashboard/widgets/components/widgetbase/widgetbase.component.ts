@@ -15,7 +15,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angul
 
 import { IntercomService, IMessage } from '../../../../core/services/intercom.service';
 
-import { SearchMetricsDialogComponent } from '../../../components/search-metrics-dialog/search-metrics-dialog.component';
+import { SearchMetricsDialogComponent } from '../../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 
 import Dygraph from 'dygraphs';
 

@@ -1,6 +1,6 @@
 <div fxFlexLayout="column" fxFlexFill>
   <!--<app-dboard-header *ngIf="!viewEditMode" fxFlex="1 1 50px" (addWidget)="addNewWidget()"></app-dboard-header>-->
-  <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" [rerender]="rerender" [widgets]="widgets$ | async" [viewEditMode]="viewEditMode$ | async"></app-dboard-content>
+  <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" [rerender]="rerender" [widgets]="widgets$ | async" [viewEditMode]="viewEditMode"></app-dboard-content>
 </div>
 <ng-template #dashboardNavbarTmpl>
     <a mat-button class="navbar-item" routerLink="dashboard">
@@ -8,7 +8,7 @@
     </a>
     <span class="flex-spacer"></span>
     <simple-time-picker mat-button xPosition="before"></simple-time-picker>
-    <span class="navbar-item" *ngIf="!(viewEditMode$ | async)">
+    <span class="navbar-item" *ngIf="!(viewEditMode)">
         <button mat-icon-button color="accent" (click)="addNewWidget()">
           <mat-icon>insert_chart</mat-icon>
         </button>
