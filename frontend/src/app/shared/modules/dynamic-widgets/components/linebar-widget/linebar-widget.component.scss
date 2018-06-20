@@ -12,10 +12,14 @@
         }
     }
 
-    // when we are in edit view
-    // .edit-view-container.is-active { 
-    //    .widget-panel-content.linebar-widget { }
-    // }
+     // when we are in edit view
+     .edit-view-container.is-active { 
+        .widget-panel-content.linebar-widget {
+            .widget-output {
+                padding-bottom: 0;
+            }
+        }
+    }
 }
 
 @mixin linebar-widget-component-theme($theme-config) {

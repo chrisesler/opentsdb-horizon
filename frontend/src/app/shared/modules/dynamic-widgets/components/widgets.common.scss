@@ -12,7 +12,8 @@ $widgets-common-config: (
     default-padding: 14px,
     edit-padding: 20px,
     tab-width: initial,
-    action-bar-height: 30px
+    action-bar-height: 30px,
+    output-radius: 4px
 );
 
 @mixin widgets-common-base() {
@@ -21,12 +22,13 @@ $widgets-common-config: (
     $edit-view-padding: map-get($widgets-common-config, edit-padding);
     $tab-width: map-get($widgets-common-config, tab-width);
     $action-bar-height: map-get($widgets-common-config, action-bar-height);
+    $output-radius: map-get($widgets-common-config, output-radius);
 
     .widget-panel-content {
         @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
         
         .widget-config {
-            padding: $default-padding;
+            padding: 0 $default-padding;
         }
 
         .widget-title,
@@ -53,13 +55,14 @@ $widgets-common-config: (
             flex-direction: column;
         
             .widget-title {
-                @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), title);
+                @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), subheading-2);
                 flex: 1 1 $action-bar-height;
 
                 .close-edit-view-btn {
                     min-width: auto;
-                    padding: 8px;
-                    line-height: 16px;
+                    padding: 4px;
+                    line-height: 12px;
+                    font-size: 12px;
                 }
             }
         
@@ -69,7 +72,7 @@ $widgets-common-config: (
         }
         
         .widget-controls-container {
-            margin-top: $default-padding;
+            padding-top: $edit-view-padding;
 
             .widget-actions {
                 flex: 1 1 $action-bar-height;
@@ -122,13 +125,20 @@ $widgets-common-config: (
         }
     }
 
-    // when we are in edit view
+    // few items need overrides when we are in edit view
     .edit-view-container.is-active {
         .widget-output-container {
-            padding: $default-padding $edit-view-padding 0;
+            padding: 0 $edit-view-padding;
     
+            .widget-title {
+                margin-top: $default-padding / 2;
+                margin-bottom: $default-padding / 2;
+            }
+
             .widget-output {
+                min-height: 438px;
                 padding: $default-padding;
+                border-radius: $output-radius;
             }
         }
     }
@@ -146,8 +156,6 @@ $widgets-common-config: (
     .edit-view-container.is-active {
         .widget-output-container {
             
-
-            .widget-title,
             .widget-output {
                 background-color: map-get($background, card);
             }

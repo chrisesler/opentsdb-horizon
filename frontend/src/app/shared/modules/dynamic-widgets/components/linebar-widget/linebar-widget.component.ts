@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnChanges, AfterViewInit, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 
 import { Observable } from 'rxjs';
@@ -12,7 +12,7 @@ import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
     templateUrl: './linebar-widget.component.html',
     styleUrls: []
 })
-export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
+export class LinebarWidgetComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.linebar-widget') private _componentClass = true;
@@ -81,7 +81,9 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
                             // resize
                             let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
                             let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
-                            this.size = { width: nWidth, height: 460 };
+                            this.size = { width: nWidth, height: nHeight };
+
+                            console.log('%c SIZE OUTPUT ', 'background: red; color: white', this.size);
                         }
                         break;
                 }
@@ -101,6 +103,10 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, OnDestroy {
         if (this.listenSub) {
             this.listenSub.unsubscribe();
         }
+    }
+
+    ngAfterViewInit() {
+        console.log('TEST', this.widgetOutputElement.nativeElement.getBoundingClientRect());
     }
 
     /**
