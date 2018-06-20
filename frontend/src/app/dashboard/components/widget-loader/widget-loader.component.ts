@@ -52,13 +52,12 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     widgetView() {
         this.viewComponent.emit({
             'compFactory': this.componentFactory,
-            '_viewContainerRef': this.viewContainerRef,
             'widget': this.widget
         });
-        // make dashboard header disappear
+        // request to send in to indicate which widget in editmode
         this.interCom.requestSend(<IMessage>{
             action: 'viewEditMode',
-            payload: true
+            payload: {editMode: true, widgetId: this.widget.id }
         });
     }
 
