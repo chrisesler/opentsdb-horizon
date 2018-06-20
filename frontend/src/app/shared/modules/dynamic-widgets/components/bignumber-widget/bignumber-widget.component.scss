@@ -1,7 +1,15 @@
 @mixin bignumber-widget-component-base() {
-    .widget-panel-content.bignumber-widget {
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-view-padding: map-get($widgets-common-config, edit-padding);
+    $tab-width: map-get($widgets-common-config, tab-width);
+    $action-bar-height: map-get($widgets-common-config, action-bar-height);
 
-    }
+    // .widget-panel-content.bignumber-widget { }
+
+    // when we are in edit view
+    // .edit-view-container.is-active { 
+    //    .widget-panel-content.bignumber-widget { }
+    // }
 }
 
 @mixin bignumber-widget-component-theme($theme-config) {
@@ -13,8 +21,6 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
 
-    .widget-panel-content.bignumber-widget {
-        
-    }
+    // .widget-panel-content.bignumber-widget { }
 
 }

@@ -8,12 +8,19 @@
 // ? for the common and individual styles of the config tabs
 // **
 
+$widgets-common-config: (
+    default-padding: 14px,
+    edit-padding: 20px,
+    tab-width: initial,
+    action-bar-height: 30px
+);
+
 @mixin widgets-common-base() {
     // class that goes on the widget components
-    $default-padding: 14px;
-    $edit-view-padding: 20px;
-    $tab-width: initial;
-    $action-bar-height: 30px;
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-view-padding: map-get($widgets-common-config, edit-padding);
+    $tab-width: map-get($widgets-common-config, tab-width);
+    $action-bar-height: map-get($widgets-common-config, action-bar-height);
 
     .widget-panel-content {
         @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);

@@ -22,7 +22,7 @@ export class UpdateWidgetsLayout {
 
 export class SetViewEditMode {
     static readonly type = '[Dashboard] Set ViewEdit Mode';
-    constructor(public readonly payload: boolean) {}
+    constructor(public readonly payload: any) {}
 }
 
 export class GetQueryData {

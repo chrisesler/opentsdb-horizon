@@ -7,4 +7,10 @@ export interface IDygraphOptions {
     connectSeparatedPoints?: boolean;
     drawPoints?: boolean;
     file?: any;
+    legend?: "follow" | "always" | "never" | "onmouseover";
+    stackedGraph: boolean;
+    hightlightCircleSize?: number;
+    strokeWidth?: number;
+    strokeBorderWidth: number;
+    highlightSeriesOpts?: any;
 }

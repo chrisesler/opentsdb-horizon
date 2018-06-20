@@ -73,13 +73,12 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     widgetView() {
         this.viewComponent.emit({
             'compFactory': this.componentFactory,
-            '_viewContainerRef': this.viewContainerRef,
             'widget': this.widget
         });
-        // let dashboard know we are entering edit mode
+        // request to send in to indicate which widget in editmode
         this.interCom.requestSend(<IMessage>{
             action: 'viewEditMode',
-            payload: true
+            payload: {editMode: true, widgetId: this.widget.id }
         });
     }
 
@@ -100,7 +99,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     }
 
     widgetRemove() {
-        console.log('REMOVE WIDGET CLICKED')
+        console.log('REMOVE WIDGET CLICKED');
     }
 
     // TODO: FOR DEV ONLY, NEED TO REMOVE

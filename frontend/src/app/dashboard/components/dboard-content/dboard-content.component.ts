@@ -74,23 +74,22 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     handlerClass: 'panel-heading'
   };
 
-  // TEMPORARY ITEMS
+  // TEMPORARY ITEMS to remove start here
   @ViewChildren(WidgetLoaderComponent) widgetItems: QueryList<WidgetLoaderComponent>;
+  // end temporary items to remove
 
   constructor(
     private dbService: DashboardService,
     private interCom: IntercomService
   ) { }
 
-  ngOnInit() {
-
-  }
+  ngOnInit() { }
 
   ngAfterViewInit() {
       // TODO: FOR DEV ONLY
       // Need to remove once developing done
       // console.log('AVI ::', this.widgetItems);
-      //this.widgetItems.last.openWidgetView();
+      // this.widgetItems.last.openWidgetView();
   }
 
   trackByWidget(index: number, widget: any) {
@@ -98,7 +97,6 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('dboard-content-changes', changes);
     // need to reload grister view to update the UI
     if (changes.rerender && changes.rerender.currentValue.reload) {
       this.gridster.reload();
@@ -124,7 +122,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   // change ratio when breakpoint hits
   breakpointChange(event: IGridsterOptions) {
     if (this.viewEditMode) { return; }
-    console.log('hit the break!!!');
+    // console.log('hit the break!!!');
 
     let ratio = 2;
     if (event.lanes === 1) {

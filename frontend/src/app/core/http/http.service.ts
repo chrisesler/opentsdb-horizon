@@ -23,8 +23,8 @@ export class HttpService {
           w: 6, h: 5
         },
         config: {
-          title: 'LineChartComponent',
-          component_type: 'LineChartComponent',
+          title: 'LinebarWidgetComponent',
+          component_type: 'LinebarWidgetComponent',
           data_source: 'opentsdb',
           query: {
             start: '1526250610000',
@@ -45,7 +45,7 @@ export class HttpService {
                     type: 'wildcard',
                     tagk: 'host',
                     filter: '*.bf1.*',
-                    groupBy: true
+                    groupBy: false
                   },
                   {
                     type: 'wildcard',
@@ -97,8 +97,8 @@ export class HttpService {
                   {
                     type: 'wildcard',
                     tagk: 'host',
-                    filter: '*.bf1.*',
-                    groupBy: false
+                    filter: 'www29*.bf1.*',
+                    groupBy: true
                   }
                 ]
               }
