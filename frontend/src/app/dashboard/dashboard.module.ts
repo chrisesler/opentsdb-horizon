@@ -22,7 +22,6 @@ import { DboardContentComponent } from './components/dboard-content/dboard-conte
 import { DboardHeaderComponent } from './components/dboard-header/dboard-header.component';
 import { WidgetLoaderComponent } from './components/widget-loader/widget-loader.component';
 import { ConfigTagsListComponent } from './components/config-tags-list/config-tags-list.component';
-import { SearchMetricsDialogComponent } from './components/search-metrics-dialog/search-metrics-dialog.component';
 
 // directives
 import { WidgetDirective } from './directives/widget.directive';
@@ -55,8 +54,7 @@ import { LineChartComponent } from './widgets/components/chartjs/line-chart.comp
         WidgetbaseComponent,
         WsampleComponent,
         LineChartComponent,
-        ConfigTagsListComponent,
-        SearchMetricsDialogComponent
+        ConfigTagsListComponent
     ],
     providers: [
         DashboardService
@@ -64,8 +62,7 @@ import { LineChartComponent } from './widgets/components/chartjs/line-chart.comp
     entryComponents: [
         WidgetbaseComponent,
         WsampleComponent,
-        LineChartComponent,
-        SearchMetricsDialogComponent
+        LineChartComponent
     ]
 })
 export class DashboardModule { }
