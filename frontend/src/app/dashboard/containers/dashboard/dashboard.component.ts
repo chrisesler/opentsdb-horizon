@@ -22,7 +22,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @HostBinding('class.app-dashboard') private hostClass = true;
     // @Select(state => state.dashboardState.widgets) widgets$: Observable<any>;
     @Select(DashboardState.getWidgets) widgets$: Observable<any>;
-    @Select(DashboardState.setViewEditMode) viewEditMode$: Observable<boolean>;
+    @Select(DashboardState.setViewEditMode) viewEditMode$: Observable<any>;
     @Select(AuthState.getAuth) auth$: Observable<string>;
     @Select(DashboardState.getUpdatedWidgetId) updatedWidgetId$: Observable<string>;
 
@@ -36,6 +36,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     listenSub: Subscription;
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
     widgets: any[] = [];
+    viewEditMode: boolean = false;
 
     constructor(
         private store: Store,
@@ -60,7 +61,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.addNewWidget();
                     break;
                 case 'closeViewEditMode':
-                    this.closeViewEditMode();
+                    this.closeViewEditMode(message.payload);
                     break;
                 case 'getQueryData':
                     console.log('message', message);
@@ -92,6 +93,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
             }
         });
+        // sending down view edit mode to handle size
+        this.viewEditMode$.subscribe(payload => {            
+            this.viewEditMode = payload.editMode;
+                this.interCom.responsePut({
+                id: payload.widgetId,
+                action: 'viewEditWidgetMode',
+                payload: payload
+                
+            });
+        });
+
         this.auth$.subscribe(auth => {
             console.log('auth=', auth);
             if (auth === 'invalid') {
@@ -119,8 +131,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.rerender = { 'reload': true };
     }
 
-    closeViewEditMode() {
-        this.store.dispatch(new dashboardActions.SetViewEditMode(false));
+    closeViewEditMode(payload) {
+        this.store.dispatch(new dashboardActions.SetViewEditMode(payload));
         this.rerender = { 'reload': true };
     }
 
