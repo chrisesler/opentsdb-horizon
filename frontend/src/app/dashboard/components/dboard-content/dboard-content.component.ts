@@ -89,7 +89,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
       // TODO: FOR DEV ONLY
       // Need to remove once developing done
       // console.log('AVI ::', this.widgetItems);
-      // this.widgetItems.last.openWidgetView();      
+      // this.widgetItems.last.openWidgetView();
   }
 
   trackByWidget(index: number, widget: any) {
@@ -122,7 +122,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   // change ratio when breakpoint hits
   breakpointChange(event: IGridsterOptions) {
     if (this.viewEditMode) { return; }
-    //console.log('hit the break!!!');
+    // console.log('hit the break!!!');
 
     let ratio = 2;
     if (event.lanes === 1) {

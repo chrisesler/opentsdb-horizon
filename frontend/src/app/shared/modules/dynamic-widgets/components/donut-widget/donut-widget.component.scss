@@ -1,28 +1,18 @@
-@mixin linebar-widget-component-base() {
-
+@mixin donut-widget-component-base() {
     $default-padding: map-get($widgets-common-config, default-padding);
     $edit-view-padding: map-get($widgets-common-config, edit-padding);
     $tab-width: map-get($widgets-common-config, tab-width);
     $action-bar-height: map-get($widgets-common-config, action-bar-height);
 
-    .widget-panel-content.linebar-widget {
-        // Don't have padding for line-charts
-        .widget-output {
-            padding: 0;
-        }
-    }
+    // .widget-panel-content.donut-widget { }
 
-     // when we are in edit view
-     .edit-view-container.is-active { 
-        .widget-panel-content.linebar-widget {
-            .widget-output {
-                padding-bottom: 0;
-            }
-        }
-    }
+    // when we are in edit view
+    // .edit-view-container.is-active { 
+    //    .widget-panel-content.donut-widget { }
+    // }
 }
 
-@mixin linebar-widget-component-theme($theme-config) {
+@mixin donut-widget-component-theme($theme-config) {
 
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
@@ -31,6 +21,6 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
 
-    // .widget-panel-content.linebar-widget { }
+    // .widget-panel-content.donut-widget { }
 
 }

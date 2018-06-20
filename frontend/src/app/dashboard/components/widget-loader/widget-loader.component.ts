@@ -48,19 +48,6 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         }
     }
 
-    // emit component factory and config for edit/view full mode
-    widgetView() {
-        this.viewComponent.emit({
-            'compFactory': this.componentFactory,
-            'widget': this.widget
-        });
-        // request to send in to indicate which widget in editmode
-        this.interCom.requestSend(<IMessage>{
-            action: 'viewEditMode',
-            payload: {editMode: true, widgetId: this.widget.id }
-        });
-    }
-
     loadComponent() {
         console.log('component creating', this.widget.id);
         let componentName = '__notfound__';
@@ -76,6 +63,43 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         this._component = this.viewContainerRef.createComponent(this.componentFactory);
         (<WidgetComponentModel>this._component.instance).widget = this.widget;
         (<WidgetComponentModel>this._component.instance).editMode = false;
+    }
+
+    /**
+     * BEHAVIORS
+     */
+
+    // emit component factory and config for edit/view full mode
+    widgetView() {
+        this.viewComponent.emit({
+            'compFactory': this.componentFactory,
+            'widget': this.widget
+        });
+        // request to send in to indicate which widget in editmode
+        this.interCom.requestSend(<IMessage>{
+            action: 'viewEditMode',
+            payload: {editMode: true, widgetId: this.widget.id }
+        });
+    }
+
+    widgetClone() {
+        console.log('CLONE WIDGET CLICKED');
+    }
+
+    widgetShare() {
+        console.log('SHARE WIDGET CLICKED');
+    }
+
+    widgetExportJSON() {
+        console.log('EXPORT JSON CLICKED');
+    }
+
+    widgetExportImage() {
+        console.log('EXPORT IMAGE CLICKED');
+    }
+
+    widgetRemove() {
+        console.log('REMOVE WIDGET CLICKED');
     }
 
     // TODO: FOR DEV ONLY, NEED TO REMOVE

@@ -49,6 +49,10 @@ $light-theme: (
       menu:                     map_get($mat-blue, 50),
       gridster-highlight:       map_get($mat-blue-grey, 50)
     ),
+    widgets: (
+        widget-icons-background: #F5F8FE,
+        widget-icons-background-hover: rgba(#3697F2, .26)
+    ),
     ks: (
       sidenav-background: map_get($mat-blue-grey, 800),
       sidenav-panel: map_get($mat-blue-grey, 50),

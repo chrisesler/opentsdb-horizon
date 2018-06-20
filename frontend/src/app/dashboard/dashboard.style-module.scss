@@ -26,7 +26,7 @@
 @import './components/widget-loader/widget-loader.component';
 
 // widgets
-@import './widgets/widget.common'; // Common classes for widget components
+//@import './widgets/widget.common'; // Common classes for widget components
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin dashboard-module-core() {
@@ -44,7 +44,7 @@
   @include widget-loader-component-base();
 
   // widgets
-  @include widget-common-base();
+  //@include widget-common-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
@@ -63,5 +63,5 @@
   @include widget-loader-component-theme($theme-config);
 
   // widgets
-  @include widget-common-theme($theme-config);
+  //@include widget-common-theme($theme-config);
 }
