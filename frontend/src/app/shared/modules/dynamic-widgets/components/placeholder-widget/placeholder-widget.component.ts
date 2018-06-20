@@ -9,6 +9,8 @@ import { Component, OnInit, HostBinding, Input } from '@angular/core';
 export class PlaceholderWidgetComponent implements OnInit {
 
     @HostBinding('class.widget-panel-content') private _hostClass = true;
+    @HostBinding('class.placeholder-widget') private _componentClass = true;
+
     @Input() editMode: boolean;
     @Input() widget: any;
 

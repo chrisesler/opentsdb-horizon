@@ -33,7 +33,7 @@ $developing-theme: (
     ink-bar:                  map_get($mat-pink, A400),
     app-bar:                  map_get($mat-grey, 100),
     navbar:                   #172F33,
-    background:               map_get($mat-grey, 100),
+    background:               lighten(map_get($denali-cool-grey, 50), 5%),
     header:                   rgba(map_get($mat-blue, 900), 0.08),
     hover:                    rgba(black, 0.04), // TODO(kara): check style with Material Design UX
     card:                     white,
@@ -49,6 +49,10 @@ $developing-theme: (
     disabled-list-option:     map_get($mat-grey, 200),
     menu:                     map_get($mat-grey, 50),
     gridster-highlight:       rgba(map_get($mat-blue, 900), .15)
+  ),
+  widgets: (
+    widget-icons-background: #F5F8FE,
+    widget-icons-background-hover: rgba(#3697F2, .26)
   ),
   ks: (
     sidenav-background: map_get($mat-blue-grey, 800),

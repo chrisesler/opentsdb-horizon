@@ -54,6 +54,10 @@ $dark-theme: (
       menu:                     map_get($denali-mid-grey, A400),
       gridster-highlight:       rgba(#8ACFED, .2)
     ),
+    widgets: (
+        widget-icons-background: $light-dividers,
+        widget-icons-background-hover: rgba(#3697F2, .26)
+    ),
     ks: (
       sidenav-background: rgba(map-get($mat-light-blue, 900), 0.25),
       sidenav-panel: map_get($mat-light-blue, 100),

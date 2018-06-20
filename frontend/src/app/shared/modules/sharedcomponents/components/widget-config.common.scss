@@ -5,7 +5,7 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
 // NOTE: These styles cover ALL of the widget config panels generic classes.
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 @mixin widget-config-common-base() {
-    // class that goes on the widget components
+
     $action-bar-height: 30px;
     $flex-gap: 10px;
   
