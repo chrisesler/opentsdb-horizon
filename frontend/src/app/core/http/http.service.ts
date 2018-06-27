@@ -177,4 +177,16 @@ export class HttpService {
         catchError(this.handleError)
       );
   }
+
+  /* post to search for metric */
+  searchMetrics(queryObj: any): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    return this.http.post('/search/msearch', queryObj, { headers, withCredentials: true })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
 }

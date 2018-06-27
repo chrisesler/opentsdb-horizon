@@ -4,6 +4,8 @@ import { MAT_DIALOG_DATA, MatDialogRef, DialogPosition } from '@angular/material
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { HttpService } from '../../../../../core/http/http.service';
+import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -30,24 +32,51 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         'UDS',
         'YAMAS',
     ];
-
     filteredNamespaceOptions: Observable<string[]>;
-
-
     onDialogApply = new EventEmitter();
+    queryObj: any;
+    searchFlag: string = '0';
+    results: any[];
+    selectedResultSet: any;
+    selectedMetrics: any[];
+    // properties for dygraph chart preview
+    chartType: string = 'line';
+    options: IDygraphOptions = {
+        labels: ['x'],
+        connectSeparatedPoints: true,
+        drawPoints: false,
+        labelsDivWidth: 0,
+        legend: 'never',
+        stackedGraph: false,
+        hightlightCircleSize: 1,
+        strokeWidth: 1,
+        strokeBorderWidth: 1,
+        highlightSeriesOpts: {
+            strokeWidth: 3,
+            strockeBorderWidth: 1,
+            hightlightCircleSize: 5
+        }
+    };
+    data: any = [[0]];
+    size: any;
+    data: any;
+    size: any;
 
     constructor(
         public dialogRef: MatDialogRef<SearchMetricsDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: any
+        @Inject(MAT_DIALOG_DATA) public dialog_data: any,
+        private httpService: HttpService
     ) { }
 
     ngOnInit() {
-        console.log('DIALOG DATA', this.data);
-        console.log('DIALOG REF', this.dialogRef);
+        this.queryObj = {
+            flag: this.searchFlag,
+            term: this.searchQueryControl.value
+        };
+        //console.log('DIALOG DATA', this.data);
+        //console.log('DIALOG REF', this.dialogRef);
 
-        // parse the incoming data FIRST
-
-        // setup filter options based on input changes
+        // setup filter options observable based on input changes
         this.filteredNamespaceOptions = this.namespaceControl.valueChanges
             .pipe(
                 startWith(''),
@@ -57,51 +86,51 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() { }
 
-    /**
-     * * Namespace options filter
-     * * Fills the options of the autocomplete
-     *
-     * TODO: wire this up to a service to fetch options
-     *
-     */
     filterNamespace(val: string): string[] {
-        // check if the input is greater than 3 characters before returning options to autocomplete
-        // NOTE: Doing this so autocomplete doesn't pop open immediately on input focus
-
-        console.log(' **** ', this.namespaceControl);
-        if (!this.namespaceControl.value || this.namespaceControl.value && this.namespaceControl.value.length < 2) {
-            return;
-        }
         return this.fakeNamespaceOptions.filter(option => {
             return option.toLowerCase().includes(val.toLowerCase());
         });
     }
 
     /**
-     * * Remove the selected selected namespace
-     */
-    removeNamespace() {
-        this.selectedNamespace = null;
-    }
-
-    /**
-     * * If user hits enter, and input is valid and not empty,
-     * * then set the selected namespace
+     * * If user hits enter, the input is valid and that option must exist in the list
      */
     namespaceKeydown(event: any) {
-        console.log('NAMESPACE KEYDOWN', event, this.namespaceControl);
-        if (this.namespaceControl.valid && this.namespaceControl.value.length > 0) {
-            // TODO: check if it is really valid
+        if (this.namespaceControl.valid && this.fakeNamespaceOptions.includes(this.namespaceControl.value)) {
             this.selectedNamespace = this.namespaceControl.value;
         }
     }
-
     /**
      * * Event fired when an autocomplete option is selected
      */
     namespaceOptionSelected(event: any) {
-        console.log('NAMESPACE OPTION SELECTED', event);
         this.selectedNamespace = event.option.value;
+    }
+
+    // when user hit enter to search
+    submitSearch(event: any) {
+        this.queryObj.term = this.searchQueryControl.value;
+        if (this.queryObj.term !== '') {
+            this.httpService.searchMetrics(this.queryObj).subscribe(
+                resp => {
+                    console.log('resp', resp);
+                    this.results = resp.results;                    
+                },
+                err => {
+                    console.log('error', err);
+
+                }
+            );
+        }
+    }
+
+    listSelectedTag(selectedTag: any) {
+        this.selectedResultSet = selectedTag;
+    }
+
+    selectMetric(metric: any) {
+        console.log('select metric', metric);
+        
     }
 
     /**
@@ -122,9 +151,9 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         // NOTE: Not sure emit is needed. Might be ok to just pass data from the close action.
         this.onDialogApply.emit({
             action: 'applyDialog',
-            data: this.data
+            data: this.dialog_data
         });
-        this.dialogRef.close({ result: this.data });
+        this.dialogRef.close({ result: this.dialog_data });
     }
 
 }

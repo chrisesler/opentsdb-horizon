@@ -8,6 +8,7 @@ var authUtil = require('./middlewares/auth-utils');
 var yby = require('yby');
 var expressOkta = require('express-okta-oath');
 
+var search = require('./routes/search');
 var tsdb = require('./routes/tsdb');
 var index = require('./routes/index');
 
@@ -58,6 +59,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // routing
 app.use('/', index);
 app.use('/tsdb', tsdb);
+app.use('/search', search);
 
 
 module.exports = app;
