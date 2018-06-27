@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 /** Other modules */
 import { MaterialModule } from '../material/material.module';
+import { DygraphsModule } from '../dygraphs/dygraphs.module';
 
 /** public items from Sharedcomponents */
 
@@ -29,7 +30,8 @@ import { WidgetConfigLegendComponent } from './components/widget-config-legend/w
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        MaterialModule
+        MaterialModule,
+        DygraphsModule
     ],
     declarations: [
         SearchMetricsDialogComponent,

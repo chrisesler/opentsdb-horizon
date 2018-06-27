@@ -23,6 +23,7 @@
             flex: 1 1 100%;
             padding: 0;
             margin: 0;
+            display: flex;
         }
 
         .mat-dialog-actions {
@@ -33,6 +34,7 @@
 
         .content-container {
             display: flex;
+            flex: 1;
             flex-direction: column;
             align-items: stretch;
             justify-content: stretch;

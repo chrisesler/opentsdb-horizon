@@ -136,7 +136,7 @@ $widgets-common-config: (
             }
 
             .widget-output {
-                height: 438px;
+                min-height: 375px;
                 padding: $default-padding;
                 border-radius: $output-radius;
             }
