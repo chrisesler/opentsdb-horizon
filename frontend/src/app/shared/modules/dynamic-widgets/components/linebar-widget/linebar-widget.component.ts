@@ -1,7 +1,7 @@
 import { Component, OnInit, OnChanges, AfterViewInit, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
+import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 
-import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs/Subscription';
 import { WidgetModel } from '../../../../../dashboard/state/dashboard.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
@@ -50,7 +50,8 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, AfterViewInit,
     size: any;
 
     constructor(
-        private interCom: IntercomService
+        private interCom: IntercomService,
+        private dataTransformer: DatatranformerService
     ) { }
 
 // TODO: should we save normalizedData or rawdata in widget config
@@ -69,7 +70,8 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, AfterViewInit,
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
                             console.log('widget data', this.widget.id, message.payload.config);
-                            this.data = this.transformToDygraph(this.widget.config.rawdata);
+                            //this.data = this.transformToDygraph(this.widget.config.rawdata);
+                            this.data = this.dataTransformer.yamasToDygraph(this.options, this.widget.config.rawdata);
                         }
                         break;
                     case 'viewEditWidgetMode':
@@ -104,51 +106,6 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, AfterViewInit,
 
     ngAfterViewInit() {
         console.log('TEST', this.widgetOutputElement.nativeElement.getBoundingClientRect());
-    }
-
-    /**
-     * Utils
-     */
-
-    // for now here, we need to make a global services to tranform data
-    // convert data to dygraph format
-    transformToDygraph(result: any): any {
-        let normalizedData = [];
-        let dpsHash = {};
-
-        // generate a hash for all the keys, might have missing time
-        // from multiple metric
-        for (let k in result) {
-            let g = result[k];
-            // build lable
-            let label = Object.values(g.tags).join('-');
-            // only pushing in if not exits, since we use same reference for view/edit
-            if(!this.options.labels.includes(label)) {
-                this.options.labels.push(label);
-            }
-            for (let date in g.dps) {
-                dpsHash[date] = true
-            }       
-        }
-        // console.log('dpsHash', dpsHash);
-        let dpsHashKey = Object.keys(dpsHash);
-        dpsHash = undefined;
-        // sort time in case  new insert somewhere
-        dpsHashKey.sort((a: any, b: any) => {
-            return a - b;
-        });
-
-        for (let idx = 0, len = dpsHashKey.length; idx < len; idx++) {
-            let dpsMs: any = dpsHashKey[idx];
-            normalizedData[idx] = [new Date(dpsMs * 1000)];
-            for (let k in result) {
-                let g = result[k];
-                (g.dps[dpsMs] !== undefined) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);                
-            }
-        }
-        console.log('normalizedData', this.options.labels, normalizedData);
-        // return normalizedData;
-        return Object.assign(normalizedData);
     }
 
     /**
