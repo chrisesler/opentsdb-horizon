@@ -3,6 +3,7 @@
 //**************************************/
 
 $dark-theme: (
+    theme-name: 'dark',
     primary:  mat-palette($denali-brand-5, 800, 700, 900),
     accent:   mat-palette($denali-lime),
     warn:     mat-palette($denali-status-warning, 600),
@@ -20,6 +21,7 @@ $dark-theme: (
       secondary-text:    $light-secondary-text,
       icon:              white,
       icons:             white,
+      link:              #8ACFED,
       navbar-icons:      #8ACFED,
       navbar-text:       white,
       text:              white,
@@ -39,7 +41,7 @@ $dark-theme: (
       //background:               map_get($mat-blue-grey, 900),
       background:               map_get($denali-mid-grey, 800),
       header:                   lighten(map-get($denali-mid-grey, 900), 2%),
-      hover:                    rgba(white, 0.04), // TODO(kara): check style with Material Design UX
+      hover:                    rgba(white, 0.04),
       card:                     lighten(map-get($denali-mid-grey, 900), 3%),
       card-header-hover:        rgba(#8ACFED, .1),
       dialog:                   map_get($denali-mid-grey, 800),

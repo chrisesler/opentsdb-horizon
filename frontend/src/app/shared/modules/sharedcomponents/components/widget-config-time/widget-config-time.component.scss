@@ -3,21 +3,73 @@
 
 @mixin widget-config-time-component-base() {
     .widget-config-tab.time-configuration {
-        // style rules here
+
+        .form-field-group {
+            .mat-form-field:not(:last-child) {
+                margin-right: 8px;
+            }
+        }
+
+        .config-control > .label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        // .time-preset-options {}
+        
+        .time-over-time-controls {
+            .mat-form-field:not(:last-child) {
+                margin-right: 8px;
+            }
+        }
+
+        .downsample-controls,
+        .aggregator-controls {
+            .mat-radio-button:not(:last-child) {
+                margin-right: 20px;
+            }
+
+            .mat-radio-group {
+                .mat-radio-label {
+                    flex-direction: column;
+                    justify-content: center;
+
+                    .mat-radio-label-content {
+                        padding-left: 0;
+                    }
+                }
+            }
+        }
+
+        .downsample-controls .custom-downsample {
+            margin-top: 10px;
+        }
+
+        .override-relative-time-controls,
+        .time-shift-controls,
+        .downsample-controls .custom-downsample {
+            .mat-form-field-infix {
+                border-top: 0;
+            }
+        }
     }
 }
 
 @mixin widget-config-time-component-theme($theme-config) {
 
-    /* Theme config parts */
+    /* Theme config parts */    
     $primary: map-get($theme-config, primary);
     $accent: map-get($theme-config, accent);
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark-theme);
 
-    .widget-config-tab.time-configuration {
+    $fill-background: mat-color($foreground, base, if($is-dark-theme, 0.1, 0.04));
+
+
+    /*.widget-config-tab.time-configuration {
         // style rules here
-    }
+    }*/
 
 }

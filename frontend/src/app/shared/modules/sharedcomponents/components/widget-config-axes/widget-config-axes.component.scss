@@ -4,6 +4,32 @@
 @mixin widget-config-axes-component-base() {
     .widget-config-tab.axes-configuration {
         // style rules here
+
+        .form-field-group {
+            .mat-form-field:not(:last-child) {
+                margin-right: 8px;
+            }
+        }
+
+        .config-control:not(.with-enable-label) > .label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .config-control.with-enable-label {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+
+            .label:first-child {
+                margin-right: 10px;
+            }
+
+            
+        }
+
+
     }
 }
 

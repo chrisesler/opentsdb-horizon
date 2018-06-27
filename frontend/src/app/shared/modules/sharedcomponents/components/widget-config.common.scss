@@ -11,6 +11,12 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
   
     // ** Config tab CONTENT ** //
     .widget-config-tab {
+
+        > form {
+            flex: 1 1 100%;
+            display: flex;
+        }
+
         // possibly re-usable within a widget-config-tab
         .config-toolbar {
             height: auto;
@@ -61,6 +67,44 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
         // specific tab overrides are in their own component style sheet
        
     }
+
+    // CUSTOM ELEMENT STYLES
+
+    // this hacks the material tab-nav-bar so it behaves somewhat like a button-group
+    // but the ink-bar is now full height and slides underneath to the selected item
+    // kind of a cooler button-group
+    .sliding-button-group.mat-tab-nav-bar {
+        border-bottom: 0 !important;
+        padding: 0 2px;
+        display: inline-block;
+
+        .mat-tab-link {
+            height: 32px;
+            padding: 0 4px;
+            min-width: 50px;
+            opacity: 1;
+            z-index: 1;
+            background-color: transparent;
+
+            &.mat-tab-label-active,
+            &:not(.mat-tab-disabled):not(.mat-tab-label-active) {
+                &,
+                &:focus {
+                    background-color: transparent !important;
+                }
+            }
+
+            &:not(.mat-tab-disabled):focus {
+                background-color: transparent !important;
+            }
+        }
+
+        .mat-ink-bar {
+            height: 28px;
+            bottom: 2px;
+            border-radius: 4px;
+        }
+    }
 }
 
 @mixin widget-config-common-theme($theme-config) {
@@ -71,6 +115,7 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
+    
 
     // ** Config tab CONTENT ** //
     .widget-config-tab {
@@ -86,5 +131,24 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
         }
 
         // specific tab overrides are in their own component style sheet
+    }
+
+    // CUSTOM ELEMENT STYLES
+    $fill-background: mat-color($foreground, base, if($is-dark-theme, 0.1, 0.04));
+
+    .sliding-button-group.mat-tab-nav-bar {
+        background-color: $fill-background;
+
+        .mat-tab-link {
+            color: map-get($primary, default);
+
+            &.mat-tab-label-active {
+                color: map-get($foreground, base);
+            }
+        }
+
+        .mat-ink-bar {
+            background-color: map-get($background, card);
+        }
     }
 }

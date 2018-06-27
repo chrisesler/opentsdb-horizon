@@ -27,11 +27,29 @@
             }
         }
     }
+
+    .nav-add-new-widget {
+        .mat-raised-button {
+            line-height: 24px;
+            font-size: 12px;
+            padding-left: 6px;
+
+            .mat-icon {
+                font-size: 1.2em;
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+                margin-right: 5px;
+            }
+        }
+    }
 }
 
 @mixin dashboard-component-theme($theme-config) {
 
     /* Theme config parts */
+    $tname: map-get($theme-config, theme-name);
+
     $primary: map-get($theme-config, primary);
     $accent: map-get($theme-config, accent);
     $warn: map-get($theme-config, warn);
@@ -46,8 +64,8 @@
         $close-button-background: map-get($foreground, navbar-icons);
         $close-button-text: map-get($background, navbar);
     }*/
-    
-    .app-dashboard { }
+
+    //.app-dashboard { }
 
     // 
     .nav-close-edit-view {
@@ -60,6 +78,17 @@
 
             &:hover {
                 background-color: lighten($close-button-background, 15%);
+            }
+        }
+    }
+
+    .nav-add-new-widget {
+        .mat-raised-button {
+            background-color: lighten(map-get($background, navbar), 4%);
+            color: map-get($foreground, navbar-text);
+
+            &:hover {
+                background-color: lighten(map-get($background, navbar), 8%);
             }
         }
     }

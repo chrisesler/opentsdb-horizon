@@ -2,9 +2,10 @@
 //* DEVELOPING THEME CONFIGURATION
 //**************************************/
 
-$developing-theme: (  
-  primary:  mat-palette($mat-blue, 800, 300, 900),
-  accent:   mat-palette($mat-pink),
+$developing-theme: (
+  theme-name: 'developing',
+  primary:  mat-palette($denali-brand-6, 800, 300, 900),
+  accent:   mat-palette($denali-pink),
   warn:     mat-palette($mat-amber, 600),
   success:  mat-palette($mat-light-green, A400, A200, A700),
   danger:   mat-palette($mat-deep-orange, A400, A100, A700),
@@ -33,9 +34,9 @@ $developing-theme: (
     ink-bar:                  map_get($mat-pink, A400),
     app-bar:                  map_get($mat-grey, 100),
     navbar:                   #172F33,
-    background:               lighten(map_get($denali-cool-grey, 50), 5%),
+    background:               lighten(map_get($denali-cool-grey, 50), 4%),
     header:                   rgba(map_get($mat-blue, 900), 0.08),
-    hover:                    rgba(black, 0.04), // TODO(kara): check style with Material Design UX
+    hover:                    rgba(black, 0.04), 
     card:                     white,
     card-header-hover:        rgba(map-get($mat-blue, 900), 0.08),
     dialog:                   white,

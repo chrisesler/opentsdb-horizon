@@ -136,7 +136,7 @@ $widgets-common-config: (
             }
 
             .widget-output {
-                min-height: 438px;
+                height: 438px;
                 padding: $default-padding;
                 border-radius: $output-radius;
             }
@@ -175,7 +175,7 @@ $widgets-common-config: (
             }
 
             .mat-tab-label:not(.mat-tab-label-active) {
-                color: map-get($primary, default);
+                color: map-get($foreground, link);
             }
 
             .mat-tab-label-active,
