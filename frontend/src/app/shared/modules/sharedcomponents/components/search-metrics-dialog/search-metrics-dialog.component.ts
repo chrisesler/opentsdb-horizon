@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef, DialogPosition } from '@angular/material
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { HttpService } from '../../../../../core/http/http.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -30,24 +31,29 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         'UDS',
         'YAMAS',
     ];
-
     filteredNamespaceOptions: Observable<string[]>;
-
-
     onDialogApply = new EventEmitter();
+    queryObj: any;
+    searchFlag: string = '0';
+    results: any[];
+    selectedResultSet: any;
+    selectedMetrics: any[];
 
     constructor(
         public dialogRef: MatDialogRef<SearchMetricsDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: any
+        @Inject(MAT_DIALOG_DATA) public data: any,
+        private httpService: HttpService
     ) { }
 
     ngOnInit() {
-        console.log('DIALOG DATA', this.data);
-        console.log('DIALOG REF', this.dialogRef);
+        this.queryObj = {
+            flag: this.searchFlag,
+            term: this.searchQueryControl.value
+        };
+        //console.log('DIALOG DATA', this.data);
+        //console.log('DIALOG REF', this.dialogRef);
 
-        // parse the incoming data FIRST
-
-        // setup filter options based on input changes
+        // setup filter options observable based on input changes
         this.filteredNamespaceOptions = this.namespaceControl.valueChanges
             .pipe(
                 startWith(''),
@@ -57,51 +63,51 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() { }
 
-    /**
-     * * Namespace options filter
-     * * Fills the options of the autocomplete
-     *
-     * TODO: wire this up to a service to fetch options
-     *
-     */
     filterNamespace(val: string): string[] {
-        // check if the input is greater than 3 characters before returning options to autocomplete
-        // NOTE: Doing this so autocomplete doesn't pop open immediately on input focus
-
-        console.log(' **** ', this.namespaceControl);
-        if (!this.namespaceControl.value || this.namespaceControl.value && this.namespaceControl.value.length < 2) {
-            return;
-        }
         return this.fakeNamespaceOptions.filter(option => {
             return option.toLowerCase().includes(val.toLowerCase());
         });
     }
 
     /**
-     * * Remove the selected selected namespace
-     */
-    removeNamespace() {
-        this.selectedNamespace = null;
-    }
-
-    /**
-     * * If user hits enter, and input is valid and not empty,
-     * * then set the selected namespace
+     * * If user hits enter, the input is valid and that option must exist in the list
      */
     namespaceKeydown(event: any) {
-        console.log('NAMESPACE KEYDOWN', event, this.namespaceControl);
-        if (this.namespaceControl.valid && this.namespaceControl.value.length > 0) {
-            // TODO: check if it is really valid
+        if (this.namespaceControl.valid && this.fakeNamespaceOptions.includes(this.namespaceControl.value)) {
             this.selectedNamespace = this.namespaceControl.value;
         }
     }
-
     /**
      * * Event fired when an autocomplete option is selected
      */
     namespaceOptionSelected(event: any) {
-        console.log('NAMESPACE OPTION SELECTED', event);
         this.selectedNamespace = event.option.value;
+    }
+
+    // when user hit enter to search
+    submitSearch(event: any) {
+        this.queryObj.term = this.searchQueryControl.value;
+        if (this.queryObj.term !== '') {
+            this.httpService.searchMetrics(this.queryObj).subscribe(
+                resp => {
+                    console.log('resp', resp);
+                    this.results = resp.results;                    
+                },
+                err => {
+                    console.log('error', err);
+
+                }
+            );
+        }
+    }
+
+    listSelectedTag(selectedTag: any) {
+        this.selectedResultSet = selectedTag;
+    }
+
+    selectMetric(metric: any) {
+        console.log('select metric', metric);
+        
     }
 
     /**
