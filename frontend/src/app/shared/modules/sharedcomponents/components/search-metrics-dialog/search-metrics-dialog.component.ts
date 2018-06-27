@@ -38,10 +38,15 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     results: any[];
     selectedResultSet: any;
     selectedMetrics: any[];
+    // properties for dygraph chart preview
+    chartType: string = 'line';
+    options: any;
+    data: any;
+    size: any;
 
     constructor(
         public dialogRef: MatDialogRef<SearchMetricsDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: any,
+        @Inject(MAT_DIALOG_DATA) public dialog_data: any,
         private httpService: HttpService
     ) { }
 
@@ -128,9 +133,9 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         // NOTE: Not sure emit is needed. Might be ok to just pass data from the close action.
         this.onDialogApply.emit({
             action: 'applyDialog',
-            data: this.data
+            data: this.dialog_data
         });
-        this.dialogRef.close({ result: this.data });
+        this.dialogRef.close({ result: this.dialog_data });
     }
 
 }
