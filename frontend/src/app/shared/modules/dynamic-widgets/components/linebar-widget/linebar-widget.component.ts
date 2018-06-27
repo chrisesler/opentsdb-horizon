@@ -70,7 +70,6 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, AfterViewInit,
                             this.isDataLoaded = true;
                             console.log('widget data', this.widget.id, message.payload.config);
                             this.data = this.transformToDygraph(this.widget.config.rawdata);
-                            // this.data = this.transformToDygraph(message.payload.config.rawdata);
                         }
                         break;
                     case 'viewEditWidgetMode':
@@ -82,8 +81,6 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, AfterViewInit,
                             let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
                             let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
                             this.size = { width: nWidth, height: nHeight };
-
-                            console.log('%c SIZE OUTPUT ', 'background: red; color: white', this.size);
                         }
                         break;
                 }
