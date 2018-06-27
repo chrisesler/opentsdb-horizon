@@ -70,7 +70,6 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, AfterViewInit,
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
                             console.log('widget data', this.widget.id, message.payload.config);
-                            //this.data = this.transformToDygraph(this.widget.config.rawdata);
                             this.data = this.dataTransformer.yamasToDygraph(this.options, this.widget.config.rawdata);
                         }
                         break;
@@ -78,7 +77,7 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, AfterViewInit,
                         console.log('vieweditwidgetmode', message, this.widget);
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            this.data = this.transformToDygraph(this.widget.config.rawdata);
+                            this.data = this.dataTransformer.yamasToDygraph(this.options, this.widget.config.rawdata);
                             // resize
                             let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
                             let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
