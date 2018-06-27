@@ -1,11 +1,11 @@
 
 <mat-toolbar class="config-toolbar time-series-toolbar">
     <a mat-stroked-button color="primary" class="has-icon" style="margin-right: 5px;" (click)="openTimeSeriesMetricDialog()">
-        <mat-icon>add</mat-icon>
+        <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
         <span>Add Time Series</span>
     </a>
     <a mat-stroked-button color="primary" class="has-icon" (click)="addTimeSeriesExpression()">
-        <mat-icon>add</mat-icon>
+        <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
         <span>Add Expression</span>
     </a>
     <!--<mat-menu #addQueryItemMenu="matMenu">
@@ -29,18 +29,18 @@
                     <span class="flex-spacer"></span>
                     <span class="toolbar-action-icon">
                         <button mat-icon-button color="primary" (click)="toggleQueryItemVisibility(queryItem, $event)">
-                            <mat-icon *ngIf="queryItem.visible">visibility</mat-icon>
-                            <mat-icon *ngIf="!queryItem.visible">visibility_off</mat-icon>
+                            <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="queryItem.visible"></mat-icon>
+                            <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!queryItem.visible"></mat-icon>
                         </button>
                     </span>
                     <span class="toolbar-action-icon">
                         <button mat-icon-button color="primary" (click)="duplicateQueryItem(queryItem, $event)">
-                            <mat-icon class="mat-icon-rtl-mirror">filter_none</mat-icon>
+                            <mat-icon fontSet="denali" fontIcon="d-duplicate" class="mat-icon-rtl-mirror"></mat-icon>
                         </button>
                     </span>
                     <span class="toolbar-action-icon">
                         <button mat-icon-button color="primary" (click)="deleteQueryItem(queryItem, $event)">
-                            <mat-icon>delete</mat-icon>
+                            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                         </button>
                     </span>
             </mat-toolbar>

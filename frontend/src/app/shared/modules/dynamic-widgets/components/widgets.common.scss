@@ -175,7 +175,7 @@ $widgets-common-config: (
             }
 
             .mat-tab-label:not(.mat-tab-label-active) {
-                color: map-get($primary, default);
+                color: map-get($foreground, link);
             }
 
             .mat-tab-label-active,

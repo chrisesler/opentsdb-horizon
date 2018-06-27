@@ -7,12 +7,14 @@
         <span class="dashboard-name">[[ Dashboard name ]]</span>
     </a>
     <span class="flex-spacer"></span>
-    <simple-time-picker mat-button xPosition="before"></simple-time-picker>
-    <span class="navbar-item" *ngIf="!(viewEditMode)">
-        <button mat-icon-button color="accent" (click)="addNewWidget()">
-          <mat-icon>insert_chart</mat-icon>
+    <span class="navbar-item nav-add-new-widget" *ngIf="!(viewEditMode)">
+        <button mat-raised-button class="mat-elevation-z0" (click)="addNewWidget()">
+            <mat-icon fontSet="denali" fontIcon="d-add" color="primary"></mat-icon>
+            <span>Add Tile</span>
         </button>
     </span>
+    <simple-time-picker mat-button xPosition="before"></simple-time-picker>
+    
     <theme-picker mat-button></theme-picker>
     <!--<span class="navbar-item nav-close-edit-view" *ngIf="viewEditMode$ | async">
         <button mat-raised-button (click)="closeViewEditMode()">

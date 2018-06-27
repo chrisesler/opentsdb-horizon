@@ -3,6 +3,7 @@
 //**************************************/
 
 $light-theme: (
+    theme-name: 'light',
     primary:  mat-palette($mat-indigo, 800, 300, 900),
     accent:   mat-palette($mat-light-blue),
     warn:     mat-palette($mat-pink, 600),
@@ -20,6 +21,7 @@ $light-theme: (
       secondary-text:     $dark-secondary-text,
       icon:               rgba(black, 0.54),
       icons:              rgba(black, 0.54),
+      link:               map-get($mat-blue, A200),
       navbar-icons:       white,      
       navbar-text:        white,
       text:               rgba(black, 0.87),
@@ -31,10 +33,10 @@ $light-theme: (
       status-bar:               map_get($mat-grey, 300),
       ink-bar:                  #8ACFED,
       app-bar:                  map_get($mat-grey, 100),
-      navbar:                   map_get($mat-indigo, A500),
+      navbar:                   #172F33,
       background:               map_get($mat-grey, 50),
       header:                   rgba(black, 0.08),
-      hover:                    rgba(black, 0.04), // TODO(kara): check style with Material Design UX
+      hover:                    rgba(black, 0.04),
       card:                     white,
       card-header-hover:        rgba(map_get($mat-blue, 900), 0.08),
       dialog:                   white,

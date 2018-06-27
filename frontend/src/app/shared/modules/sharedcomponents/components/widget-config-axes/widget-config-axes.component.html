@@ -1,10 +1,29 @@
-<div class="column">
-    <p class="config-control">
-        <label class="label">Y Axis</label>
-    </p>
-</div>
-<div class="column">
-    <p class="config-control">
-        <label class="label">X-Axis</label>
-    </p>
-</div>
+<form [formGroup]="widgetConfigAxes">
+    <div class="column">
+        <div class="config-control with-enable-label">
+            <label class="label">Y1 Axis</label>
+            <div class="form-field-group">
+                <mat-slide-toggle formControlName="y1AxisEnabled"><span class="mat-caption">{{y1AxisEnabled_label}}</span></mat-slide-toggle>
+            </div>
+        </div>
+        <div class="config-control">
+            <label class="fixed-label">Unit</label>
+        </div>
+    </div>
+    <div class="column">
+        <div class="config-control">
+            <label class="label">Y2 Axis</label>
+            <div class="form-field-group">
+                <mat-slide-toggle formControlName="y2AxisEnabled">Enable Y2 Axis</mat-slide-toggle>
+            </div>
+        </div>
+    </div>
+    <div class="column">
+        <div class="config-control">
+            <label class="label">X-Axis</label>
+            <div class="form-field-group">
+                <mat-slide-toggle formControlName="xAxisEnabled">Hide X Axis</mat-slide-toggle>
+            </div>
+        </div>
+    </div>
+</form>

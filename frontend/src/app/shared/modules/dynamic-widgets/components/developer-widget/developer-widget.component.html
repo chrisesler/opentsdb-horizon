@@ -3,13 +3,16 @@
         <span fxFlex="1 1 100%">{{ widget.config.title }}</span>
         <span>
             <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
-                <mat-icon>close</mat-icon>
+                <mat-icon font-set="denali" font-icon="d-close"></mat-icon>
             </button>
         </span>
     </div>
     <div class="widget-output">
         <!-- Where the graph, or whatever lives -->
         <strong>THIS IS A DEVELOPER WIDGET TO TEST THINGS. MOVE ALONG. NOTHING TO SEE HERE.</strong>
+        <button mat-fab>
+            <mat-icon fontSet="denali" fontIcon="d-branch"></mat-icon>
+        </button>
         <!--<div class="widget-types">
             <button mat-raised-button class="widget-type-selector"  *ngFor="let wtype of availableWidgetTypes" (click)="selectWidgetType(wtype, $event)">
                 <span class="widget-type-icon {{ wtype.iconClass }}"></span>

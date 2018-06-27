@@ -57,8 +57,6 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             hightlightCircleSize: 5
         }
     };
-    data: any = [[0]];
-    size: any;
     data: any;
     size: any;
 

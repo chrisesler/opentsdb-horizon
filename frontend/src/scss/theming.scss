@@ -30,6 +30,9 @@ $app-available-typefaces: (
     @include generate-typeface-imports($font-config);
 }
 
+// import denali icons
+@import 'denali-icons';
+
 // right now 
 $app-fontface-config: (
     mono: generate-material-compatible-typography-config(map-get($app-available-typefaces, ubuntu-mono)),
