@@ -6,9 +6,10 @@ var utils = require('../lib/utils');
 var data = require('../data/udb-10k');
 
 router.post('/mSearch', function(req, res, next){
-    var query = req.body.queryObj;
+    //rsconsole.log('dssd', req.body, req.body.queryObj);
+    var query = req.body;
     var result = utils.mSearch(data, query);
-    json.res(result);
+    res.json(result);
 });
 
 module.exports = router;

@@ -115,9 +115,12 @@ self.parseSearchTerms = function(terms) {
     });
     return t;       
 };
-
+/* 
+* | or comma is OR
+* space is AND
+*/
 self.mSearch = function(list, query) {
-    //console.log('query', query);
+    console.log('query', query);
     var str = query.term;
     if (str === '') {
         return;
