@@ -5,6 +5,7 @@ import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { HttpService } from '../../../../../core/http/http.service';
+import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -40,7 +41,24 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     selectedMetrics: any[];
     // properties for dygraph chart preview
     chartType: string = 'line';
-    options: any;
+    options: IDygraphOptions = {
+        labels: ['x'],
+        connectSeparatedPoints: true,
+        drawPoints: false,
+        labelsDivWidth: 0,
+        legend: 'never',
+        stackedGraph: false,
+        hightlightCircleSize: 1,
+        strokeWidth: 1,
+        strokeBorderWidth: 1,
+        highlightSeriesOpts: {
+            strokeWidth: 3,
+            strockeBorderWidth: 1,
+            hightlightCircleSize: 5
+        }
+    };
+    data: any = [[0]];
+    size: any;
     data: any;
     size: any;
 

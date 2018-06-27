@@ -7,6 +7,16 @@
 </mat-toolbar>
 <mat-dialog-content>
     <div class="content-container">
+        <!-- graph preview -->
+            <div style="height: 350px;">
+                    <div id="dygraph_div"
+                    dygraphsChart
+                    [chartType]="chartType"
+                    [data]="data"
+                    [size]="size"
+                    [options]="options">
+                </div>
+            </div>
         <mat-toolbar class="">
             <mat-toolbar-row>
                 <div class="navbar-item" fxLayout="column">
@@ -60,9 +70,6 @@
                     </mat-list-item>
               </mat-list>
           </div>
-        </div>
-        <div style="height: 350px;">
-          <!-- graphs review-->
         </div>
     </div>
 </mat-dialog-content>
