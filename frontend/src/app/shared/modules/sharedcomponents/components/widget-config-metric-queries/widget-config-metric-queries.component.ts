@@ -1,5 +1,5 @@
 import {
-    Component, OnInit, HostBinding, Input, Output, EventEmitter
+    Component, OnInit, HostBinding, Input, Output, EventEmitter, OnDestroy
 } from '@angular/core';
 
 import {
@@ -13,13 +13,15 @@ import {
     SearchMetricsDialogComponent
 } from '../search-metrics-dialog/search-metrics-dialog.component';
 
+import { Subscription } from 'rxjs';
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'widget-config-metric-queries',
     templateUrl: './widget-config-metric-queries.component.html',
     styleUrls: []
 })
-export class WidgetConfigMetricQueriesComponent implements OnInit {
+export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.metric-queries-configuration') private _tabClass = true;
 
@@ -32,9 +34,12 @@ export class WidgetConfigMetricQueriesComponent implements OnInit {
     /** Dialogs */
     // search metrics dialog
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
-    searchDialogSub: any;
+    searchDialogSub: Subscription;
 
     /** Local variables */
+
+    modGroup: any; // current group that is adding metric
+    mgroupId = undefined;
 
     // TODO: REMOVE FAKE METRICS
     fakeMetrics: Array<object> = [
@@ -142,15 +147,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit {
     ngOnInit() {
     }
 
-    /**
-     * Services
-     */
-
-    // none yet
-
-    /**
-     * Behaviors
-     */
 
     toggleQueryItemVisibility(item: any, event: MouseEvent) {
         console.log('TOGGLE QUERY ITEM VISIBILITY', item);
@@ -170,8 +166,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit {
         // do something
     }
 
-    openTimeSeriesMetricDialog() {
-
+    openTimeSeriesMetricDialog(mgroupId: string) {
         // do something
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.width = '100%';
@@ -185,33 +180,35 @@ export class WidgetConfigMetricQueriesComponent implements OnInit {
             left: '0px',
             right: '0px'
         };
-        dialogConf.data = {
-            lala: true,
-            wtf: 'isthat',
-            iCanCount: 2,
-            basket: [1, 2, 3, 4, 5]
-        };
+        dialogConf.data = { mgroupId };
 
         this.searchMetricsDialog = this.dialog.open(SearchMetricsDialogComponent, dialogConf);
         this.searchMetricsDialog.updatePosition({top: '48px'});
-        this.searchDialogSub = this.searchMetricsDialog.componentInstance.onDialogApply.subscribe((data: any) => {
-            console.log('SUBSCRIPTION DATA', data);
-        });
-
-        this.searchMetricsDialog.beforeClose().subscribe((result: any) => {
-            console.log('DIALOG BEFORE CLOSE', result);
-        });
-
-        this.searchMetricsDialog.afterClosed().subscribe((result: any) => {
-            console.log('DIALOG AFTER CLOSED', result);
-            this.searchMetricsDialog.componentInstance.onDialogApply.unsubscribe();
-            this.searchMetricsDialog = null;
+        // custom emit event on the dialog, comment out but dont delete
+        //this.searchDialogSub = this.searchMetricsDialog.componentInstance.onDialogApply.subscribe((data: any) => {
+        //    console.log('SUBSCRIPTION DATA', data);
+        //});
+        // getting data passing out from dialog
+        this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
+            this.modGroup = dialog_out.mgroup;
+            console.log('return', this.modGroup);
+            
         });
     }
+
+    //handle selectedMetrics from selection
+
 
     addTimeSeriesExpression() {
         console.log('ADD TIME SERIES EXPRESSION');
         // do something
+    }
+
+    ngOnDestroy() {
+        if (this.searchDialogSub) {
+            this.searchDialogSub.unsubscribe();
+        }
+        this.searchMetricsDialog = undefined;
     }
 
 }
