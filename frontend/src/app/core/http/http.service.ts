@@ -177,7 +177,16 @@ export class HttpService {
         catchError(this.handleError)
       );
   }
-
+  /* will refactor later */
+  getYamasData(query: any): Observable<any> {
+    const headers = new HttpHeaders(
+      { 'Content-Type': 'application/json' });
+    // let apiUrl = environment.tsdb_host + '/api/query';
+    return this.http.post('/tsdb/queryData', query, { headers, withCredentials: true })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
   /* post to search for metric */
   searchMetrics(queryObj: any): Observable<any> {
     const headers = new HttpHeaders({

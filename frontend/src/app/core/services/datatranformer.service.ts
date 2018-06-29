@@ -16,8 +16,8 @@ export class DatatranformerService {
     // from multiple metric
     for (let k in result) {
       let g = result[k];
-      // build lable
-      let label = Object.values(g.tags).join('-');
+      // build lable, it's to send exactly duplicate metric
+      let label = g.metric + ':' + Object.values(g.tags).join('-');
       // only pushing in if not exits, since we use same reference for view/edit
       if (!options.labels.includes(label)) {
         options.labels.push(label);     
@@ -45,5 +45,44 @@ export class DatatranformerService {
     console.log('normalizedData', options.labels, normalizedData);
     // return normalizedData;
     return Object.assign(normalizedData);
+  }
+
+  // build opentsdb query base on this of full quanlify metrics for exploer | adhoc
+  // defaulf time will be one hour from now
+  buildAdhocYamasQuery(metrics: any[]) {
+    let query = {
+      start: '1h-ago',
+      queries: []
+    };
+    for (let i = 0; i < metrics.length; i++) {
+      let m = metrics[i];
+      let q = {
+        aggregator: 'zimsum',
+        explicitTags: false,
+        downsample: '1m-avg-nan',
+        metric: m.metric,
+        rate: false,
+        rateOptions: {
+          counter: false,
+          resetValue: 1
+        },
+        filters: []
+      };
+      
+      for (let k in m) {
+        if (k !== 'metric') {
+          let filter = {
+            type: 'literal_or',
+            tagk: k,
+            filter: m[k],
+            groupBy: true
+          };
+          q.filters.push(filter);
+        }
+      }
+      query.queries.push(q);
+    }
+
+    return query;
   }
 }

@@ -5,6 +5,7 @@ import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { HttpService } from '../../../../../core/http/http.service';
+import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 
 @Component({
@@ -38,7 +39,11 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     searchFlag: string = '0';
     results: any[];
     selectedResultSet: any;
-    selectedMetrics: any[];
+    selectedMetrics: any[] = [];
+    group: any = {
+        id: '',
+        metrics: []
+    }
     // properties for dygraph chart preview
     chartType: string = 'line';
     options: IDygraphOptions = {
@@ -47,7 +52,7 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         drawPoints: false,
         labelsDivWidth: 0,
         legend: 'never',
-        stackedGraph: false,
+        stackedGraph: true,
         hightlightCircleSize: 1,
         strokeWidth: 1,
         strokeBorderWidth: 1,
@@ -60,11 +65,22 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     data: any;
     size: any;
 
+    // passing data to dialog using @Inject
     constructor(
         public dialogRef: MatDialogRef<SearchMetricsDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public dialog_data: any,
-        private httpService: HttpService
-    ) { }
+        private httpService: HttpService,
+        private dataTransformerService: DatatranformerService
+    ) { 
+        console.log('passing data', this.dialog_data);
+        if (this.dialog_data.mgroupId === undefined) {
+            // we will create new groups based on number of metrics
+            this.group.id = 'new'; // need to generate them later
+        } else {
+            // adding metric to selected group
+            this.group.id = this.dialog_data.mgroupId;
+        }
+    }
 
     ngOnInit() {
         this.queryObj = {
@@ -116,42 +132,64 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
                 },
                 err => {
                     console.log('error', err);
-
                 }
             );
         }
     }
-
+    // handle when clicked on tags (left)
     listSelectedTag(selectedTag: any) {
         this.selectedResultSet = selectedTag;
     }
-
-    selectMetric(metric: any) {
-        console.log('select metric', metric);
-        
+    // handle when clicked to select a metric
+    // should we check duplicate or same set of tags?
+    selectMetric(m: any) {
+        if(!this.isMetricExit(m)) {
+            this.selectedMetrics.push(m);
+            let mf = {...m, metric: this.selectedNamespace +'.' + m.metric };
+            this.group.metrics.push(mf);       
+            this.getYamasData(this.group.metrics);
+        }
     }
 
-    /**
-     * * Click behaviors
-     */
+    // to get query for selected metrics, my rebuild to keep time sync 1h-ago
+    getYamasData(metrics: any[]) {
+        // 
+        let query = this.dataTransformerService.buildAdhocYamasQuery(metrics);  
+        this.httpService.getYamasData(query).subscribe(
+            result => {
+                console.log('result', result);
+                this.data = this.dataTransformerService.yamasToDygraph(this.options, result);   
+                console.log('this options', this.options);                                     
+            },
+            err => {
+                console.log('error', err);    
+            }
+        );   
+    }
 
+    // check if the metric is already added
+    isMetricExit(metric: any): boolean {
+        for (let i = 0; i < this.selectedMetrics.length; i++) {
+            if(JSON.stringify(metric) === JSON.stringify(this.selectedMetrics[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // handle when clicked on cancel
     onClick_Cancel(): void {
-        console.log('****** CANCEL ********');
         this.dialogRef.close();
     }
 
-    /**
-     * ? Not sure the emit is needed, as the dialog close can return data
-     */
+    // handle when clicked on apply
     onClick_Apply(): any {
-        console.log('****** APPLY ********');
-
         // NOTE: Not sure emit is needed. Might be ok to just pass data from the close action.
-        this.onDialogApply.emit({
-            action: 'applyDialog',
-            data: this.dialog_data
-        });
-        this.dialogRef.close({ result: this.dialog_data });
+        //this.onDialogApply.emit({
+        //    action: 'applyDialog',
+        //    data: this.dialog_data
+        //});
+        this.dialogRef.close({ mgroup: this.group });
     }
 
 }
