@@ -1,28 +1,52 @@
 <mat-toolbar mat-dialog-title>
-    <span>Add Time Series</span>
+    <!--<span>Add Time Series</span>
     <span class="flex-spacer"></span>
     <button mat-icon-button [mat-dialog-close]="true">
         <mat-icon>close</mat-icon>
-    </button>
+    </button>-->
+    <span class="dialog-title">Add Query</span>
+    <span class="flex-spacer"></span>
+    <span>
+        <button mat-button color="primary" class="close-dialog-btn" [mat-dialog-close]="true">
+            <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
+        </button>
+    </span>
+
 </mat-toolbar>
 <mat-dialog-content>
-    <div class="content-container">
-        <!-- graph preview -->
-            <div style="height: 350px;">
-                    <div id="dygraph_div"
-                    dygraphsChart
-                    [chartType]="chartType"
-                    [data]="data"
-                    [size]="size"
-                    [options]="options">
+    <!-- graph preview -->
+    <div style="height: 350px;" class="graph-preview-pane">
+        <div class="graph-preview" fxLayout="row">
+            <div class="graph-output" fxFlex="1 1 100%">
+                <div id="dygraph_div" dygraphsChart [chartType]="chartType" [data]="data" [size]="size" [options]="options">
                 </div>
             </div>
-        <mat-toolbar class="">
+            <div class="graph-metrics" fxFlex="1 1 100%" fxLayout="column">
+                <!-- list of metrics in graph goes here -->
+                <div class="graph-metric-list-title" fxFlex="1 1 30px">
+                    <strong>Graph metrics</strong>
+                </div>
+                <div class="graph-metric-list has-scroller" fxFlex="1 1 100%">
+                    <div class="is-scroller">
+                        <mat-list>
+                            <mat-list-item *ngFor="let metric of selectedMetrics">
+                                {{ metric | json}}
+                            </mat-list-item>
+                        </mat-list>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- search controls and output-->
+    <div class="content-container">
+        <mat-toolbar class="metric-search-input-controls">
             <mat-toolbar-row>
-                <div class="navbar-item" fxLayout="column">
-                    <mat-form-field>
+                <div class="navbar-item namespace-search-control" fxFlex="1 1 288px" fxLayout="column">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Namespace</mat-label>
                         <input type="text" matInput [formControl]="namespaceControl" [matAutocomplete]="namespaceAuto" (keydown.enter)="namespaceKeydown($event)"
-                            placeholder="Namespace" />
+                        />
                     </mat-form-field>
                     <mat-autocomplete #namespaceAuto="matAutocomplete" (optionSelected)="namespaceOptionSelected($event)">
                         <mat-option *ngFor="let option of filteredNamespaceOptions | async" [value]="option">
@@ -30,50 +54,63 @@
                         </mat-option>
                     </mat-autocomplete>
                 </div>
-                <div class="navbar-item" fxFlex="1 1 100%" *ngIf="selectedNamespace">
-                    <mat-form-field appearance="fill" class="input-form-field">
-                        <input matInput [formControl]="searchQueryControl" (keydown.enter)="submitSearch($event)" placeholder="enter your term to search">
+                <div class="navbar-item metric-search-control" fxFlex="1 1 100%" *ngIf="selectedNamespace">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Metric Search</mat-label>
+                        <input matInput [formControl]="searchQueryControl" (keydown.enter)="submitSearch($event)">
                         <mat-icon matSuffix>search</mat-icon>
                         <!--<mat-hint>Displaying 2,000,000,000 results that include "blah blah" in tag keys and values. Grouping results
                             by tags and other amazing stuffz</mat-hint>-->
                     </mat-form-field>
                 </div>
-              </mat-toolbar-row>            
+            </mat-toolbar-row>
         </mat-toolbar>
         <!-- DUMP RESULTS STUFF HERE -->
         <div fxLayout="row" fxFlex="1 1 100%" style="height: 100%;">
-          <div fxFlex="1 1 300px" style="border-right: 1px solid #ccc; overflow-y: auto;">
-              <!-- left-->
-              <mat-accordion multi="false">
-                  <mat-expansion-panel *ngFor="let k of results;">
-                  <mat-expansion-panel-header>
-                    {{ k.key }} ({{k.values.length}})
-                  </mat-expansion-panel-header>
-                  <div class="has-scroller" style="height: 250px;">
-                      <div class="is-scroller">
-                    <ul>
-                        <li *ngFor="let tv of k.values" (click)="listSelectedTag(tv)">
-                            {{ tv.key}} ({{tv.values.length}})
-                        </li>
-                    </ul>
+            <div fxFlex="1 1 300px" class="available-tags" fxLayout="column" >
+                <!-- left-->
+                <div class="column-title" fxFlex="1 1 30px" *ngIf="results && results.length > 0">
+                    <strong>Matching tag keys</strong>
+                </div>
+                <div class="column-content has-scroller" fxFlex="1 1 100%">
+                    <div class="is-scroller">
+                        <mat-accordion multi="false">
+                            <mat-expansion-panel *ngFor="let k of results;">
+                                <mat-expansion-panel-header [expandedHeight]="'48px'" [collapsedHeight]="'48px'">
+                                    {{ k.key }} ({{k.values.length}})
+                                </mat-expansion-panel-header>
+                                <!-- for lazy rendering (see: https://material.angular.io/components/expansion/overview#lazy-rendering) -->
+                                <ng-template matExpansionPanelContent>
+                                    <div class="has-scroller" style="height: 250px;">
+                                        <div class="is-scroller">
+                                            <mat-nav-list>
+                                                <mat-list-item *ngFor="let tv of k.values" (click)="listSelectedTag(tv)">
+                                                    {{ tv.key}} ({{tv.values.length}})
+                                                </mat-list-item>
+                                            </mat-nav-list>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </mat-expansion-panel>
+                        </mat-accordion>
                     </div>
-                  </div>
-                  </mat-expansion-panel>
-              </mat-accordion>
-          </div>
-          <div fxFlex="1 1 100%">
-              <!-- content -->
-              <mat-list>
-                  <mat-list-item *ngFor="let item of selectedResultSet?.values">
-                      <button mat-icon-button (click)="selectMetric(item)"><mat-icon>add_circle_outline</mat-icon></button>
-                      {{ item | json }}
+                </div>
+            </div>
+            <div fxFlex="1 1 100%" class="search-results">
+                <!-- content -->
+                <mat-list>
+                    <mat-list-item *ngFor="let item of selectedResultSet?.values">
+                        <button mat-icon-button (click)="selectMetric(item)">
+                            <mat-icon>add_circle_outline</mat-icon>
+                        </button>
+                        {{ item | json }}
                     </mat-list-item>
-              </mat-list>
-          </div>
+                </mat-list>
+            </div>
         </div>
     </div>
 </mat-dialog-content>
 <mat-dialog-actions>
-    <a mat-button color="primary" (click)="onClick_Apply()">APPLY</a>
-    <a mat-button color="accent" (click)="onClick_Cancel()">CANCEL</a>
+    <button mat-raised-button color="primary" class="mat-elevation-z0" (click)="onClick_Apply()">APPLY</button>
+    <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="onClick_Cancel()">CANCEL</button>
 </mat-dialog-actions>

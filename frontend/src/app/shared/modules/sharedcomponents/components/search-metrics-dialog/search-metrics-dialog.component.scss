@@ -3,17 +3,26 @@
 
 @mixin search-metrics-dialog-component-base() {
     .search-metrics-dialog {
+        @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
         display: flex;
         flex-direction: column;
         flex: 1 1 100%;
 
         .mat-dialog-title {
+            @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), subheading-2);
             flex: 1 1 48px;
             margin: 0;
 
             &.mat-toolbar {
                 display: flex;
-                padding: 0 24px;
+                padding: 0 20px;
+            }
+
+            .close-dialog-btn {
+                min-width: auto;
+                padding: 4px;
+                line-height: 12px;
+                font-size: 12px;
             }
         }
 
@@ -24,12 +33,69 @@
             padding: 0;
             margin: 0;
             display: flex;
+            flex-direction: column;
+        }
+
+        .graph-preview-pane {
+            height: 350px;
+            padding: 0 20px 20px;
+
+            .graph-preview {
+                width: 100%;
+                height: 100%;
+                border-radius: 4px;
+            }
+
+            // the actual graph
+            .graph-output {
+                width: 100%;
+                height: 100%;
+            } 
+
+            // metrics list in graph
+            .graph-metrics {
+                border-left: 1px solid 
+            }
+        }
+
+        .metric-search-input-controls {
+            font-size: 14px;
+
+            .mat-toolbar-row {
+                padding: 0;
+            }
+
+            .navbar-item {
+                margin: 0 6px;
+            }
+
+            .mat-form-field {
+                width: 100%;
+            }
+
+            .mat-form-field-wrapper {
+                padding-bottom: 0;
+            }
+
+            .mat-form-field-underline {
+                bottom: 0;
+            }
+
+            .namespace-search-control {
+                width: 288px;
+            } 
         }
 
         .mat-dialog-actions {
             flex: 1 1 65px;
             padding: 12px 24px;
             margin-bottom: initial;
+
+            // apply/cancel buttons
+            .mat-raised-button:not(:last-child) {
+                margin-right: 6px;
+            }
+            
         }
 
         .content-container {
@@ -38,7 +104,63 @@
             flex-direction: column;
             align-items: stretch;
             justify-content: stretch;
-            padding: 12px 24px;
+        }
+
+        .available-tags {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+
+            .column-title {
+                @include mat-elevation(1);
+                padding: 0 16px;
+                display: flex;
+                align-items: center;
+                z-index: 1;
+            }
+
+            .column-content {
+                position: relative;
+                direction: rtl; // move scrollbar to left
+
+                .mat-accordion {
+                    direction: ltr; // reverse all the children back to normal
+                }
+            }
+
+            
+        }
+
+        .search-results {
+            .mat-list-item {
+                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+            }
+        }
+
+        .mat-expansion-panel {
+            .mat-expansion-panel-header {
+                padding: 0 12px;
+            }
+
+            .mat-expansion-panel-body {
+                padding: 0;
+            }
+
+            .mat-nav-list {
+                padding-top: 0;
+
+                .mat-list-item {
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                }
+
+                .mat-list-item-content {
+                    padding-left: 20px;
+                }
+            }
+
+            &.mat-expanded {
+                //background: pink;
+            }
         }
 
         .input-form-field {
@@ -46,6 +168,7 @@
         }
     }
 
+    // CDK ITEMS
     .search-metrics-dialog-panel {
         .mat-dialog-container {
             transform: none;
@@ -72,10 +195,70 @@
     $background: map-get($theme-config, background);
     $is-dark: map-get($theme-config, is-dark);
 
+    $divider: map-get($foreground, divider);
+    $card-backround: map-get($background, card);
+
+    $expanded-header-bg: map-get($primary, default);
+    $expanded-header-text: map-get($primary, default-contrast);
+
+    $expanded-body-bg: map-get($primary, 50);
+
+
     .search-metrics-dialog {
+        //background-color: map-get($background, background);
+
         .mat-toolbar {
             background: transparent;
-            border-bottom: 1px solid map-get($foreground, dividers);
+            //border-bottom: 1px solid map-get($foreground, dividers);
+
+            &.metric-search-input-controls {
+                border-bottom: 1px solid $divider;
+            }
+        }
+
+        .graph-preview-pane {
+            .graph-preview {
+                background: $card-backround;
+            }
+
+            // metrics list in graph
+            .graph-metrics {
+                background-color: $expanded-body-bg;
+                border-left: 1px $divider; 
+            }
+        }
+
+        .content-container {
+            background: $card-backround;
+        }
+
+        .available-tags {
+            border-right: 1px solid $divider;
+        }
+
+        .mat-expansion-panel {
+            &.mat-expanded {
+                .mat-expansion-panel-header {
+                    background-color: $expanded-header-bg;
+                    color: $expanded-header-text;
+                }
+
+                .mat-expansion-indicator {
+                    color: $expanded-header-text;
+                }
+
+                .mat-expansion-panel-body {
+                    background-color: rgba($expanded-header-bg, 0.05);
+                }
+            }
+        }
+
+    }
+
+    // CDK items
+    .cdk-overlay-pane.search-metrics-dialog-panel {
+        .mat-dialog-container {
+            background: map-get($background, background);
         }
     }
 
