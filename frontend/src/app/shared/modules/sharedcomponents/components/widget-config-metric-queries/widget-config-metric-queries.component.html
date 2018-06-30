@@ -14,15 +14,15 @@
         </div>
         <div class="toolbar-item">
             <div class="button-group">
-                <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_groupMetrics()">
+                <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_groupMetrics($event)">
                     <mat-icon fontSet="denali" fontIcon="d-merge"></mat-icon>
                     <span>Group</span>
                 </button>
-                <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_splitMetrics()">
+                <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_splitMetrics($event)">
                     <mat-icon fontSet="denali" fontIcon="d-split"></mat-icon>
                     <span>Split</span>
                 </button>
-                <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_deleteMetrics()">
+                <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_deleteMetrics($event)">
                     <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                     <span>Delete</span>
                 </button>

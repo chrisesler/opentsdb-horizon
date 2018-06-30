@@ -45,7 +45,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
     fakeGroups: Array<object> = [
         {
             id: 'group-0',
-            label: 'Untiltled Group',
+            label: 'Untitled Group',
             collapsed: false,
             visible: true,
             colorFamily: 'green',
@@ -148,7 +148,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
         },
         {
             id: 'group-1',
-            label: 'Untiltled Group 2',
+            label: 'Untitled Group 2',
             collapsed: false,
             visible: true,
             colorFamily: 'green',
@@ -346,20 +346,21 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
      * Behaviors
      */
 
-    toggle_displayGroupsIndividually(event: MouseEvent) {
-        console.log('TOGGLE::DisplayGroupsIndividually');
-        event.stopPropagation();
+    toggle_displayGroupsIndividually(event: any) {
+        console.log('TOGGLE::DisplayGroupsIndividually', event);
     }
+
+    
+
+    /**
+     * Individual Events
+     */
 
     toggle_groupCollapsed(group: any, event: MouseEvent) {
         console.log('TOGGLE::GroupCollapsed', group, event);
         event.stopPropagation();
         group.collapsed = !group.collapsed;
     }
-
-    /**
-     * Individual Events
-     */
 
     toggle_queryGroupVisibility(group: any, event: MouseEvent) {
         console.log('TOGGLE::QueryGroupVisibility', group, event);
@@ -422,6 +423,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
     /**
      * Other
      */
+
     addTimeSeriesExpression() {
         console.log('ADD TIME SERIES EXPRESSION');
         // do something
