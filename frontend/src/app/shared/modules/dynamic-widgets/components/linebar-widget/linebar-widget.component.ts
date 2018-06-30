@@ -81,7 +81,7 @@ export class LinebarWidgetComponent implements OnInit, OnChanges, AfterViewInit,
                             // resize
                             let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
                             let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
-                            this.size = { width: nWidth, height: nHeight };
+                            this.size = { width: nWidth + 20, height: nHeight - 40 };
                         }
                         break;
                 }
