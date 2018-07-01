@@ -13,7 +13,8 @@ $widgets-common-config: (
     edit-padding: 20px,
     tab-width: initial,
     action-bar-height: 30px,
-    output-radius: 4px
+    output-radius: 4px,
+    widget-output-height: 300px
 );
 
 @mixin widgets-common-base() {
@@ -23,6 +24,7 @@ $widgets-common-config: (
     $tab-width: map-get($widgets-common-config, tab-width);
     $action-bar-height: map-get($widgets-common-config, action-bar-height);
     $output-radius: map-get($widgets-common-config, output-radius);
+    $widget-output-height: map-get($widgets-common-config, widget-output-height);
 
     .widget-panel-content {
         @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
@@ -50,9 +52,10 @@ $widgets-common-config: (
         }
         
         .widget-output-container {
-            flex: 1 1 800px;
+            flex: 1 1 100%;
             display: flex;
             flex-direction: column;
+            max-height: $widget-output-height;
         
             .widget-title {
                 @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), subheading-2);
@@ -111,7 +114,9 @@ $widgets-common-config: (
             }
         
             .mat-tab-body-content {
-                padding: $default-padding $edit-view-padding;
+                //padding: $default-padding $edit-view-padding;
+                //padding-top: $default-padding;
+                display: flex;
             }
 
             // NOTE: The actual config tab content styles are located under sharedcomponents module
@@ -136,9 +141,13 @@ $widgets-common-config: (
             }
 
             .widget-output {
-                min-height: 375px;
-                padding: $default-padding;
+                height: 350px;
+                //padding: $default-padding 0;
                 border-radius: $output-radius;
+                display: flex;
+                justify-content: stretch;
+                align-items: center;
+
             }
         }
     }
