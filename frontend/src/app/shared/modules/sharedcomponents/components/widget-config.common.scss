@@ -11,6 +11,8 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
   
     // ** Config tab CONTENT ** //
     .widget-config-tab {
+        margin: 0 20px;
+        flex: 1 1 100%;
 
         > form {
             flex: 1 1 100%;
@@ -21,7 +23,22 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
         .config-toolbar {
             height: auto;
             padding: 0;
+
+            &.mat-toolbar-multiple-rows {
+                min-height: auto;
+            }
+
+            .mat-toolbar-row {
+                height: auto;
+                padding: 0;
+            }
     
+            .toolbar-item {
+                &:not(:last-child) {
+                    margin-right: 10px;
+                }
+            }
+
             .mat-stroked-button,
             .mat-raised-button,
             .mat-button {
@@ -34,11 +51,23 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
                     line-height: 18px;
                     font-size: 16px;
                 }
-    
+
+                .mat-icon:first-child {
+                    margin-left: -5px;
+                    margin-right: 5px;
+                }
+
+                .mat-icon:last-child {
+                    margin-left: 5px;
+                    margin-right: -5px;
+                }
+
                 &.has-icon {
                     padding-left: 8px;
                 }
             }
+
+           
         }
 
         // should be on an element that wraps a form element, like a <p> tag
@@ -69,6 +98,28 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
     }
 
     // CUSTOM ELEMENT STYLES
+
+    .button-group {
+        .mat-button,
+        .mat-raised-button,
+        .mat-stroked-button {
+            border-radius: 0;
+
+            &:first-child {
+                border-top-left-radius: 2px;
+                border-bottom-left-radius: 2px;
+            }
+
+            &:last-child {
+                border-top-right-radius: 2px;
+                border-bottom-right-radius: 2px;
+            }
+
+            &:not(:first-child) {
+                margin-left: -1px;
+            }
+        }
+    }
 
     // this hacks the material tab-nav-bar so it behaves somewhat like a button-group
     // but the ink-bar is now full height and slides underneath to the selected item
@@ -135,6 +186,24 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
 
     // CUSTOM ELEMENT STYLES
     $fill-background: mat-color($foreground, base, if($is-dark-theme, 0.1, 0.04));
+
+    .button-group {
+        .mat-raised-button {
+            &.mat-primary:not(:last-child) {
+                border-right: 1px solid lighten(map-get($primary,default), 3%);
+            }
+
+            &.mat-accent:not(:last-child) {
+                border-right: 1px solid lighten(map-get($accent,default), 3%);
+            }
+
+            &.mat-warn:not(:last-child) {
+                border-right: 1px solid lighten(map-get($warn,default), 3%);
+            }
+        }
+
+    }
+
 
     .sliding-button-group.mat-tab-nav-bar {
         background-color: $fill-background;

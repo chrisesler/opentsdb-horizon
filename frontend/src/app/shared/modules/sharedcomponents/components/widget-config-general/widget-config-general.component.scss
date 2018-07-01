@@ -3,6 +3,8 @@
 
 @mixin widget-config-general-component-base() {
     .widget-config-tab.general-configuration {
+
+        margin-top: map-get($widgets-common-config, default-padding);
         
         // title input
         .config-widget-title {

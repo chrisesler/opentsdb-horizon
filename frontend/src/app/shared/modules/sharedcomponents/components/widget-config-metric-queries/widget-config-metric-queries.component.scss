@@ -2,12 +2,199 @@
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
 @mixin widget-config-metric-queries-component-base() {
-    $default-padding: 12px;
-    $edit-view-padding: 30px;
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-padding: map-get($widgets-common-config, edit-padding);
 
     .widget-config-tab.metric-queries-configuration {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+
+        .config-toolbar.time-series-toolbar {
+            padding: 0 $edit-padding;
+            flex: 1 1 55px;
+            align-items: stretch;
+            justify-content: stretch;
+
+            .mat-toolbar-row {
+                height: 100%;
+            }
+
+            .toolbar-item.master-checkbox {
+                margin-right: 20px;
+            }
+        }
+
+        .metric-results {
+            @include has-scroller();
+            flex: 1 1 100%;
+            width: 100%;
+            height: 100%;
+
+            .result-pane {
+                @include is-scroller();
+            }
+        }
+
+        .result-pane {
+            padding: 0 $edit-padding;
+
+            &,
+            .mat-expansion-panel-header,
+            .mat-toolbar {
+                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+            }
+
+            .mat-expansion-panel-header {
+                flex-direction: row-reverse;
+                padding: 0;
+
+                .mat-icon.arrow-down {
+                    display: none;
+                }
+                .mat-icon.arrow-right {
+                    display: block;
+                }
+
+                .group-selector {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    opacity: 0;
+                }
+            }
+    
+            .mat-accordion.query-group-list {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .mat-expansion-panel-header,
+            .mat-expansion-panel-body {
+                padding: 0;
+            }
+
+            .mat-expansion-panel-body {
+                padding-left: 95px;
+            }
+
+            .query-group-item {
+                &:hover {
+                    .group-selector {
+                        opacity: 1;
+                    }
+                }
+            }
+
+            // group-level toolbar
+            .group-item-toolbar {
+                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                height: auto;
+                padding: 0;
+                margin-left: 20px;
+                padding: 0 $default-padding 0 6px;
+
+                .group-label {
+                    .mat-icon {
+                        font-size: 16px;
+                        margin-right: 4px;
+                    }
+                }
+
+                .add-query-actions {
+                    margin-right: 20px;
+
+                    .mat-icon {
+                        font-size: 16px; 
+                        margin-right: 2px;
+                    }
+
+                    .mat-button {
+                        font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                        padding: 0 6px;
+                        line-height: 24px;
+                        min-width: initial;
+                    }
+                }
+
+                
+            }
+
+            .toolbar-item {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                .mat-icon {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+
+            .toolbar-action-icons,
+            .action-icons {
+                .mat-icon-button {
+                    width: 30px;
+                    height: 30px;
+                    line-height: 30px;
+                }
+
+                .mat-icon {
+                    font-size: 16px;
+                }
+            }
+
+            .query-metric-item {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: stretch;
+                margin-bottom: 10px;
+
+                .metric-detail {
+                    display: flex;
+                    align-items: center;
+                    justify-content: stretch;
+                    padding-right: 14px;
+                }
+
+                .metric-tags {
+                    display: flex;
+                    align-items: center;
+
+                    .mat-chip-list {
+                        margin-left: 10px;
+                    }
+
+                    .mat-chip {
+                        padding: 3px 6px;
+
+                        :first-child {
+                            margin-right: 4px;
+                        }
+                    }
+                }
+            }
+
+            // EXPANDED MODE
+            .mat-expansion-panel-header.mat-expanded {
+                .mat-icon.arrow-down {
+                    display: block;
+                }
+                .mat-icon.arrow-right {
+                    display: none;
+                }
+            }
+
+            // NOT EXPANDED
+            // getting some wierd background on hover when it was not expaded
+            .mat-expansion-panel:not(.mat-expanded) .mat-expansion-panel-header:not([aria-disabled='true']):hover {
+                background: transparent;
+            }
+        }
         
-        .query-item-list .query-item:first-child {
+        /*.query-item-list .query-item:first-child {
             margin-top: $default-padding;
         }
 
@@ -95,7 +282,7 @@
                     height: 0;
                 }
             }
-        }
+        }*/
     }
 }
 
@@ -110,5 +297,6 @@
 
     .widget-config-tab.metric-queries-configuration {
         // style rules here
+        
     }
 }
