@@ -24,6 +24,7 @@ import { WidgetConfigTimeComponent } from './components/widget-config-time/widge
 import { WidgetConfigVisualAppearanceComponent } from './components/widget-config-visual-appearance/widget-config-visual-appearance.component';
 import { WidgetConfigQueryInspectorComponent } from './components/widget-config-query-inspector/widget-config-query-inspector.component';
 import { WidgetConfigLegendComponent } from './components/widget-config-legend/widget-config-legend.component';
+import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
 
 @NgModule({
     imports: [
@@ -44,7 +45,8 @@ import { WidgetConfigLegendComponent } from './components/widget-config-legend/w
         WidgetConfigMetricQueriesComponent,
         WidgetConfigQueryInspectorComponent,
         WidgetConfigTimeComponent,
-        WidgetConfigVisualAppearanceComponent
+        WidgetConfigVisualAppearanceComponent,
+        InlineEditableComponent
     ],
     exports: [
         SearchMetricsDialogComponent,
@@ -57,7 +59,8 @@ import { WidgetConfigLegendComponent } from './components/widget-config-legend/w
         WidgetConfigMetricQueriesComponent,
         WidgetConfigQueryInspectorComponent,
         WidgetConfigTimeComponent,
-        WidgetConfigVisualAppearanceComponent
+        WidgetConfigVisualAppearanceComponent,
+        InlineEditableComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponent

@@ -1,0 +1,10 @@
+<span class="editable-click">
+  <div #container>
+    <div [hidden]="isEditView" (click)="showEditable()">{{fieldValue}}</div>
+    <div *ngIf="isEditView">
+      <input type="text" [required]="isRquired" minlength="{{minLength}}" maxlength="{{maxLength}}"
+      [(ngModel)]="value" (keyup.enter)="save()"/>
+      <!-- any errors for validation -->
+    </div>
+  </div>
+</span>
