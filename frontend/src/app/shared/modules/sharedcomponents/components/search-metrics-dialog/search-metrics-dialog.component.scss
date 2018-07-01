@@ -54,7 +54,11 @@
 
             // metrics list in graph
             .graph-metrics {
-                border-left: 1px solid 
+                border-left: 1px solid;
+
+                .mat-list-item {
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                }
             }
         }
 

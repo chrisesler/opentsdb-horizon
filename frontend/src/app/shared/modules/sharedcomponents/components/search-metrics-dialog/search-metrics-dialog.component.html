@@ -29,7 +29,10 @@
                 <div class="graph-metric-list has-scroller" fxFlex="1 1 100%">
                     <div class="is-scroller">
                         <mat-list>
-                            <mat-list-item *ngFor="let metric of selectedMetrics">
+                            <mat-list-item *ngFor="let metric of group.metrics; let idx = index;">
+                                <button mat-icon-button (click)="removeMetric(idx)">
+                                    <mat-icon>remove_circle_outline</mat-icon>
+                                </button>
                                 {{ metric | json}}
                             </mat-list-item>
                         </mat-list>

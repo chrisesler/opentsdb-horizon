@@ -136,6 +136,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.rerender = { 'reload': true };
     }
 
+    // save dashboard name
+    saveDashboardName(event: any) {
+        console.log('dashboard name save', event);
+        
+    }
+
     ngOnDestroy() {
         this.listenSub.unsubscribe();
     }
