@@ -2,6 +2,7 @@ import { State, Selector, Action, StateContext } from '@ngxs/store';
 import * as dashboardAction from './dashboard.actions';
 import { HttpService } from '../../core/http/http.service';
 import { DashboardService } from '../services/dashboard.service';
+import { UtilsService } from '../../core/services/utils.service';
 import { tap, map, catchError } from 'rxjs/operators';
 
 export interface WidgetModel {
@@ -54,7 +55,9 @@ export interface DashboardStateModel {
 
 export class DashboardState {
 
-    constructor(private httpService: HttpService, private dashboardService: DashboardService) {}
+    constructor(private httpService: HttpService, 
+                private dashboardService: DashboardService,
+                private utilsService: UtilsService) {}
 
     // return a clone copy of state, keet global state immutable
     @Selector()
@@ -124,7 +127,16 @@ export class DashboardState {
             }
         }
         ctx.setState(state);
-    }    
+    }  
+    
+    @Action(dashboardAction.AddWidget)
+    addWidget(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.AddWidget) {
+        const state = ctx.getState();
+        // some reposition need to apply
+        state.widgets = this.dashboardService.positionWidget(state.widgets);
+        state.widgets.unshift(payload.widget);
+        ctx.setState(state);
+    }
     /* GetQueryData will make the call to API to get data.
         More on settings up data source and other later
     */
