@@ -30,9 +30,15 @@ export class GetQueryData {
     constructor(public readonly widgetid: string, public readonly query: any) {}
 }
 
+export class RemoveWidget {
+    static readonly type = '[Dashboard] Remove Widger';
+    constructor(public readonly payload: any) {}
+}
+
 export type DashboardActions = LoadDashboard 
                                 | LoadDashboardSuccess 
                                 | LoadDashboardFail
                                 | UpdateWidgetsLayout
                                 | SetViewEditMode
-                                | GetQueryData;
+                                | GetQueryData
+                                | RemoveWidget;
