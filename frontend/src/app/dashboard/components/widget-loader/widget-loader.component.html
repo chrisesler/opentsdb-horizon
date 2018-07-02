@@ -17,10 +17,6 @@
                 </button>
                 <mat-menu #widgetMenu="matMenu" xPosition="before" class="widget-menu">
                     <ng-container *ngIf="!widget.config.component_type || widget.config.component_type !== 'PlaceholderWidgetComponent'">
-                        <!--<button mat-menu-item (click)="widgetView()">
-                            <mat-icon>fullscreen</mat-icon>
-                            <span>Full screen</span>
-                        </button>-->
                         <button mat-menu-item (click)="widgetView()">
                             <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
                             <span>Edit View</span>
