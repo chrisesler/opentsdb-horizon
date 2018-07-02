@@ -114,6 +114,17 @@ export class DashboardState {
         ctx.setState({...state, viewEditMode: payload.editMode, editWidgetId: payload.widgetId});
     }
 
+    @Action(dashboardAction.RemoveWidget)
+    removeWidget(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.RemoveWidget) {
+        const state = ctx.getState();
+        for (let i = 0; i < state.widgets.length; i++) {
+            if (state.widgets[i].id === payload.widgetId) {
+                state.widgets.splice(i, 1);
+                break;
+            }
+        }
+        ctx.setState(state);
+    }    
     /* GetQueryData will make the call to API to get data.
         More on settings up data source and other later
     */
