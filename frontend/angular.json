@@ -25,44 +25,44 @@
               "src/assets",
               "src/favicon.ico",
               {
-                "glob": "**/*", 
-                "input": "./node_modules/@ibm/plex/IBM-Plex-Mono/fonts/complete/woff", 
-                "output": "./assets/fonts/IBM-Plex/mono" 
+                "glob": "**/*",
+                "input": "./node_modules/@ibm/plex/IBM-Plex-Mono/fonts/complete/woff",
+                "output": "./assets/fonts/IBM-Plex/mono"
               },
               {
-                "glob": "**/*", 
-                "input": "./node_modules/@ibm/plex/IBM-Plex-Mono/fonts/complete/woff2", 
-                "output": "./assets/fonts/IBM-Plex/mono" 
+                "glob": "**/*",
+                "input": "./node_modules/@ibm/plex/IBM-Plex-Mono/fonts/complete/woff2",
+                "output": "./assets/fonts/IBM-Plex/mono"
               },
               {
-                "glob": "**/*", 
-                "input": "./node_modules/@ibm/plex/IBM-Plex-Sans/fonts/complete/woff", 
-                "output": "./assets/fonts/IBM-Plex/sans" 
+                "glob": "**/*",
+                "input": "./node_modules/@ibm/plex/IBM-Plex-Sans/fonts/complete/woff",
+                "output": "./assets/fonts/IBM-Plex/sans"
               },
               {
-                "glob": "**/*", 
-                "input": "./node_modules/@ibm/plex/IBM-Plex-Sans/fonts/complete/woff2", 
-                "output": "./assets/fonts/IBM-Plex/sans" 
+                "glob": "**/*",
+                "input": "./node_modules/@ibm/plex/IBM-Plex-Sans/fonts/complete/woff2",
+                "output": "./assets/fonts/IBM-Plex/sans"
               },
               {
-                "glob": "**/*", 
-                "input": "./node_modules/typeface-ubuntu-mono/files", 
-                "output": "./assets/fonts/Ubuntu/mono" 
+                "glob": "**/*",
+                "input": "./node_modules/typeface-ubuntu-mono/files",
+                "output": "./assets/fonts/Ubuntu/mono"
               },
               {
-                "glob": "**/*", 
-                "input": "./node_modules/typeface-ubuntu/files", 
-                "output": "./assets/fonts/Ubuntu/sans" 
+                "glob": "**/*",
+                "input": "./node_modules/typeface-ubuntu/files",
+                "output": "./assets/fonts/Ubuntu/sans"
               },
               {
-                "glob": "**/*", 
-                "input": "./node_modules/typeface-roboto-mono/files", 
-                "output": "./assets/fonts/Roboto/mono" 
+                "glob": "**/*",
+                "input": "./node_modules/typeface-roboto-mono/files",
+                "output": "./assets/fonts/Roboto/mono"
               },
               {
-                "glob": "**/*", 
-                "input": "./node_modules/typeface-roboto/files", 
-                "output": "./assets/fonts/Roboto/sans" 
+                "glob": "**/*",
+                "input": "./node_modules/typeface-roboto/files",
+                "output": "./assets/fonts/Roboto/sans"
               }
             ],
             "styles": [
@@ -71,7 +71,6 @@
               "./node_modules/dygraphs/dist/dygraph.css"
             ],
             "scripts": [
-              "src/app/shared/chartjs/dist/Chart.bundle.min.js",
               "src/app/shared/chartjs-threshold-plugin/dist/chartjs-plugin-threshold.min.js",
               "src/app/shared/chartjs-zoom-plugin/dist/chartjs-plugin-zoom.min.js"
             ]
