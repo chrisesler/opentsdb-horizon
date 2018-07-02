@@ -9,7 +9,8 @@ export class UtilsService {
 
   // random generate 6 random chars
   generateId(len: number = 6) {
-    return Math.random().toString(36).substring(3, len);
+    let start = 3;
+    return Math.random().toString(36).substring(start, len + start);
   }
 
 }
