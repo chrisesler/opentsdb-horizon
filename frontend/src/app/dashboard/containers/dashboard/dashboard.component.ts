@@ -57,9 +57,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'viewEditMode':
                     this.store.dispatch(new dashboardActions.SetViewEditMode(message.payload));
                     break;
-                case 'addNewWidget':
-                    this.addNewWidget();
-                    break;
                 case 'removeWidget':
                     this.store.dispatch(new dashboardActions.RemoveWidget(message.payload));
                     this.rerender = { 'reload': true };
@@ -132,7 +129,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // event emit to add new widget from dashboard header
     addNewWidget() {
-        this.widgets = this.dbService.addNewWidget(this.widgets);
+        let payload = { widget: this.dbService.getWidgetPrototype() };
+        this.store.dispatch(new dashboardActions.AddWidget(payload));
+        // trigger Update Widget layout event
         this.rerender = { 'reload': true };
     }
 
