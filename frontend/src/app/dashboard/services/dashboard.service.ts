@@ -19,6 +19,25 @@ export class DashboardService {
 
   constructor(private utils: UtilsService) { }
 
+  getWidgetPrototype() {
+    const widget: any = Object.assign({}, this.widgetPrototype);
+    widget.id = this.utils.generateId();
+    return widget;
+  }
+
+  // help to put new widget on top.
+  // set new position of first position down
+  positionWidget(widgets: any) {
+    for (let i = 0; i < widgets.length; i++) {
+      const wd: any = widgets[i];
+      if (wd.gridPos.x === 0 && wd.gridPos.y === 0) {
+        wd.gridPos.y = wd.gridPos.yMd = 5;
+        break;
+      }
+    }
+    return widgets;
+  }
+
   modifyWidgets(dashboard: any) {
     // add extra info item behaviors
     for (let i = 0; i < dashboard.widgets.length; i++) {
@@ -28,7 +47,7 @@ export class DashboardService {
       wd.gridPos = { ...wd.gridPos, ...mod };
     }
   }
-
+/*
   addNewWidget(widgets: any[]) {
     const widget: any = Object.assign({}, this.widgetPrototype);
     widget.id = this.utils.generateId();
@@ -43,7 +62,7 @@ export class DashboardService {
     widgets.unshift(widget);
     return widgets;
   }
-
+*/
   updateWidgetsDimension(width, height, pWidgets) {
     for (let i = 0; i < pWidgets.length; i++) {
       const clientSize = {
