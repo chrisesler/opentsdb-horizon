@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
@@ -34,18 +35,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // other variables
     listenSub: Subscription;
+    private routeSub: Subscription;
+    dbid: string; //passing dashboard id
+    wid: string; // passing widget id
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
     widgets: any[] = [];
     viewEditMode: boolean = false;
 
     constructor(
         private store: Store,
+        private route: ActivatedRoute,
         private interCom: IntercomService,
         private dbService: DashboardService,
         private cdkService: CdkService
     ) { }
 
     ngOnInit() {
+        // handle route
+        this.routeSub = this.route.params.subscribe(params => {
+            console.log('route', params);      
+        });
         // setup navbar portal
         this.dashboardNavbarPortal = new TemplatePortal(this.dashboardNavbarTmpl, undefined, {});
         this.cdkService.setNavbarPortal(this.dashboardNavbarPortal);
@@ -143,5 +152,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.listenSub.unsubscribe();
+        this.routeSub.unsubscribe();
     }
 }
