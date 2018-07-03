@@ -1,0 +1,37 @@
+dp-day-calendar {
+  .dp-day-calendar-container{
+    margin-top: 4px;
+  }
+
+  .dp-month-calendar-container{
+    margin-top: 4px;
+  }
+
+  .dp-calendar-weekday {
+    display: inline-block;
+    width:  14px;
+    margin: 10px;
+  }
+
+  .card-content {
+    padding: 2px;
+  }
+
+  .dp-selected {
+    background: #106CC8;
+    color: #FFFFFF;
+  }
+  .dp-hide-near-month {
+    .dp-prev-month, .dp-next-month {
+      visibility: hidden;
+    }
+  }
+
+  // Nav bar navigation items will oscillate w/o
+  .columns .is-mobile{
+    .column {
+      width: 134px;
+    }
+  }
+}
+  

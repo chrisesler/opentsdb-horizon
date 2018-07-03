@@ -11,7 +11,6 @@ import { DygraphsModule } from '../dygraphs/dygraphs.module';
 
  // other components
 import { SearchMetricsDialogComponent } from './components/search-metrics-dialog/search-metrics-dialog.component';
-import { SimpleTimePickerComponent } from './components/simple-time-picker/simple-time-picker.component';
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 
  // widget config components
@@ -26,6 +25,23 @@ import { WidgetConfigQueryInspectorComponent } from './components/widget-config-
 import { WidgetConfigLegendComponent } from './components/widget-config-legend/widget-config-legend.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
 
+//Time picker
+import { TimePickerComponent } from './components/time-picker/time-picker/time-picker.component'
+import { TimeRangePickerComponent } from './components/time-picker/time-range-picker/time-range-picker.component';
+import { DayTimeCalendarComponent } from './components/time-picker/day-time-calendar/day-time-calendar.component';
+import { DayCalendarComponent } from './components/time-picker/day-calendar/day-calendar.component';
+import { MonthCalendarComponent } from './components/time-picker/month-calendar/month-calendar.component';
+import { CalendarNavComponent } from './components/time-picker/calendar-nav/calendar-nav.component';
+
+import { DayTimeCalendarService } from './components/time-picker/day-time-calendar/day-time-calendar.service';
+import { DayCalendarService } from './components/time-picker/day-calendar/day-calendar.service';
+import { MonthCalendarService } from './components/time-picker/month-calendar/month-calendar.service';
+import { TimeSelectService } from './components/time-picker/time-select/time-select.service';
+import { UtilsService } from './components/time-picker/common/services/utils.service';
+import { DatePickerComponent } from './components/time-picker/date-picker/date-picker.component';
+import { DatePickerService } from './components/time-picker/date-picker/date-picker.service';
+import { KeypadComponent } from './components/time-picker/keypad/keypad.component';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -36,7 +52,6 @@ import { InlineEditableComponent } from './components/inline-editable/inline-edi
     ],
     declarations: [
         SearchMetricsDialogComponent,
-        SimpleTimePickerComponent,
         ThemePickerComponent,
         WidgetConfigAlertsComponent,
         WidgetConfigAxesComponent,
@@ -50,7 +65,7 @@ import { InlineEditableComponent } from './components/inline-editable/inline-edi
     ],
     exports: [
         SearchMetricsDialogComponent,
-        SimpleTimePickerComponent,
+        TimePickerComponent,
         ThemePickerComponent,
         WidgetConfigAlertsComponent,
         WidgetConfigAxesComponent,
@@ -64,6 +79,14 @@ import { InlineEditableComponent } from './components/inline-editable/inline-edi
     ],
     entryComponents: [
         SearchMetricsDialogComponent
+    ],
+    providers: [
+        DayTimeCalendarService, 
+        DayCalendarService, 
+        MonthCalendarService, 
+        TimeSelectService, 
+        UtilsService, 
+        DatePickerService
     ]
 })
 export class SharedcomponentsModule { }

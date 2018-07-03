@@ -1,0 +1,48 @@
+// @import '../../../styles/styles-component';
+
+.wrapper {
+    font-family: 'Lucida Console';
+    // padding-right: 0px;
+    // padding-left: 4px;
+}
+
+.presets {
+    margin-bottom: 12px;
+}
+
+.button {
+    font-family: 'Lucida Console';
+}
+.dp-time-header {
+    font-size: 20px
+}
+  
+.dtpicker-start {
+    margin-bottom: 15px;
+    width: 256px;
+}
+
+.dtpicker-end {
+    width: 256px;
+}
+
+#button-apply {
+    background-color: #00FF00;
+    color: #ffffff;
+    margin-top: 10px;
+}
+
+.box {
+    position: absolute;
+    z-index: 1;
+}
+
+.column {
+    margin-top: 12px;
+    padding: 0px;
+}
+
+.columns {
+    margin-left: 0px;
+    margin-bottom: 0px;
+}

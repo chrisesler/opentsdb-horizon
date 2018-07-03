@@ -1,0 +1,27 @@
+<div class="columns">
+  <div class="column">
+    <div class="columns is-mobile">
+
+      <div class="column">
+        <a class="button is-white" (click)="labelClicked()">
+          <span [innerText]="label"></span>
+        </a>
+      </div> 
+
+      <div class="column">
+        <div class="field is-grouped">
+          <a class="button is-white" (click)="leftNavClicked()">
+            <i class="icon is-small"> <span class="dfi dfi-arrow-left"></span> </i>
+          </a>
+          <a class="button is-white" (click)="onGoToCurrent.emit()">
+            <i class="icon is-small"> <span class="dfi dfi-time-clock"></span> </i>
+          </a>
+          <a class= "button is-white" (click)="rightNavClicked()">
+            <i class="icon is-small"> <span class="dfi dfi-arrow-right"></span> </i>
+          </a>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

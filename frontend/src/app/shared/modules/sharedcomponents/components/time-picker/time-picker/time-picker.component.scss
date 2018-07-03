@@ -1,0 +1,29 @@
+.button {
+    font-family: 'Lucida Console';
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 150px;
+    padding-left: 2px;
+    background-color: lightgray;
+    text-align: left;
+    border-radius: 6px;
+    font-size: 12px;
+    position: absolute;
+    top: 80px;
+    left: 0px;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+.invisible {
+    display:none;
+}
+
+.box {
+    max-width: 290px;
+    padding-top: 10px;
+}
