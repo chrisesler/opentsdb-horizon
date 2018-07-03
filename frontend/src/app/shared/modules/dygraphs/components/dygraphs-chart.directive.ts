@@ -38,7 +38,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
       }
       // resize when size be changed
       if(this._g && changes.size && changes.size.currentValue) {
-        console.log('call resize', changes.size.currentValue); 
+        //console.log('call resize', changes.size.currentValue); 
         let nsize = changes.size.currentValue;    
         this._g.resize(nsize.width - 24, nsize.height - 50);
       }
