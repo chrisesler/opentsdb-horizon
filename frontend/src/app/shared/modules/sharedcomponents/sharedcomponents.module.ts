@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 /** Other modules */
 import { MaterialModule } from '../material/material.module';
 import { DygraphsModule } from '../dygraphs/dygraphs.module';
+import { DateTimePickerModule } from '../date-time-picker/date-time-picker.module'
 
 /** public items from Sharedcomponents */
 
@@ -25,30 +26,14 @@ import { WidgetConfigQueryInspectorComponent } from './components/widget-config-
 import { WidgetConfigLegendComponent } from './components/widget-config-legend/widget-config-legend.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
 
-//Time picker
-import { TimePickerComponent } from './components/time-picker/time-picker/time-picker.component'
-import { TimeRangePickerComponent } from './components/time-picker/time-range-picker/time-range-picker.component';
-import { DayTimeCalendarComponent } from './components/time-picker/day-time-calendar/day-time-calendar.component';
-import { DayCalendarComponent } from './components/time-picker/day-calendar/day-calendar.component';
-import { MonthCalendarComponent } from './components/time-picker/month-calendar/month-calendar.component';
-import { CalendarNavComponent } from './components/time-picker/calendar-nav/calendar-nav.component';
-
-import { DayTimeCalendarService } from './components/time-picker/day-time-calendar/day-time-calendar.service';
-import { DayCalendarService } from './components/time-picker/day-calendar/day-calendar.service';
-import { MonthCalendarService } from './components/time-picker/month-calendar/month-calendar.service';
-import { TimeSelectService } from './components/time-picker/time-select/time-select.service';
-import { UtilsService } from './components/time-picker/common/services/utils.service';
-import { DatePickerComponent } from './components/time-picker/date-picker/date-picker.component';
-import { DatePickerService } from './components/time-picker/date-picker/date-picker.service';
-import { KeypadComponent } from './components/time-picker/keypad/keypad.component';
-
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         MaterialModule,
-        DygraphsModule
+        DygraphsModule,
+        DateTimePickerModule
     ],
     declarations: [
         SearchMetricsDialogComponent,
@@ -65,7 +50,6 @@ import { KeypadComponent } from './components/time-picker/keypad/keypad.componen
     ],
     exports: [
         SearchMetricsDialogComponent,
-        TimePickerComponent,
         ThemePickerComponent,
         WidgetConfigAlertsComponent,
         WidgetConfigAxesComponent,
@@ -75,18 +59,10 @@ import { KeypadComponent } from './components/time-picker/keypad/keypad.componen
         WidgetConfigQueryInspectorComponent,
         WidgetConfigTimeComponent,
         WidgetConfigVisualAppearanceComponent,
-        InlineEditableComponent
+        DateTimePickerModule
     ],
     entryComponents: [
         SearchMetricsDialogComponent
-    ],
-    providers: [
-        DayTimeCalendarService, 
-        DayCalendarService, 
-        MonthCalendarService, 
-        TimeSelectService, 
-        UtilsService, 
-        DatePickerService
     ]
 })
 export class SharedcomponentsModule { }

@@ -1,4 +1,9 @@
 dp-day-calendar {
+  .mat-card{
+    padding: 4px;
+    width: 175px;
+  }
+
   .dp-day-calendar-container{
     margin-top: 4px;
   }
@@ -9,13 +14,9 @@ dp-day-calendar {
 
   .dp-calendar-weekday {
     display: inline-block;
-    width:  14px;
-    margin: 10px;
-  }
-
-  .card-content {
     padding: 2px;
   }
+
 
   .dp-selected {
     background: #106CC8;
@@ -32,6 +33,11 @@ dp-day-calendar {
     .column {
       width: 134px;
     }
+  }
+
+  .mat-button{
+    min-width: 0px;
+    padding: 2px;
   }
 }
   

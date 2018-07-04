@@ -1,24 +1,25 @@
-<span class="wrapper">
+<mat-card class="wrapper">
   <div class="presets" #presetsDiv>
     <h2>Presets</h2>
-    <div class="columns">
-      <div class="column" *ngFor="let preset of presets">
-          <button class="button is-small is-fullwidth" (click)="togglePreset(preset)" [class.is-info]="this.presetSelected == preset"> {{preset.buttonName}} </button>
-      </div>
-    </div>
-    <div class="columns" *ngIf="this.presetSelected">
-      <div class="column" 
-        [ngClass]="{'is-offset-1':this.presetSelected.name == 'day',
-                    'is-offset-3':this.presetSelected.name == 'week',
-                    'is-offset-5':this.presetSelected.name == 'month',
-                    'is-offset-6':this.presetSelected.name == 'quarter',
-                    'is-offset-7':this.presetSelected.name == 'year'}">
+    <mat-grid-list cols="6" rowHeight="2:1">
+      <span *ngFor="let preset of presets">
+          <button mat-mini-fab (click)="togglePreset(preset)" [class.is-info]="this.presetSelected == preset"> {{preset.buttonName}} </button>
+      </span>
+    </mat-grid-list>
+    <mat-grid-list cols="6" rowHeight="2:1" class="columns" *ngIf="this.presetSelected">
+      <div>
         <keypad (amountSelected)="presetAmountReceived($event)"
                 [disableHighKeys]="this.presetSelected.name == 'year' ? true : false">
         </keypad>
       </div>
-    </div>
+    </mat-grid-list>
   </div>
+
+  <!-- [ngClass]="{'is-offset-1':this.presetSelected.name == 'day',
+                    'is-offset-3':this.presetSelected.name == 'week',
+                    'is-offset-5':this.presetSelected.name == 'month',
+                    'is-offset-6':this.presetSelected.name == 'quarter',
+                    'is-offset-7':this.presetSelected.name == 'year'}" -->
 
   <div class="dtpicker-start">
     <h2>Start Time</h2>
@@ -70,4 +71,4 @@
 
   <!-- <div class="time-range"><b>Time range:</b> {{startTimeSelected}} <b>to</b> {{endTimeSelected}}</div> -->
 
-</span>
+</mat-card>

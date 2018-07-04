@@ -1,20 +1,20 @@
-<div class="card has-text-centered">
-  <div class="row">
+<mat-card>
+  <mat-grid-list cols="1" rowHeight="2:1">
       <button class="button is-small" (click)="clicked('this')" >this</button>
-  </div>     
-  <div class="row">
+  </mat-grid-list>     
+  <mat-grid-list cols="3" rowHeight="2:1">
       <button class="button is-small" (click)="clicked('1')">1</button>
       <button class="button is-small" (click)="clicked('2')">2</button>
       <button class="button is-small" (click)="clicked('3')" [disabled]="disableHighKeys">3</button>
-  </div>
-  <div class="row">
+  </mat-grid-list>
+  <mat-grid-list cols="3" rowHeight="2:1">
       <button class="button is-small" (click)="clicked('4')" [disabled]="disableHighKeys">4</button>
       <button class="button is-small" (click)="clicked('5')" [disabled]="disableHighKeys">5</button>
       <button class="button is-small" (click)="clicked('6')" [disabled]="disableHighKeys">6</button>
-  </div>
-  <div class="row">
+  </mat-grid-list>
+  <mat-grid-list cols="3" rowHeight="2:1">
       <button class="button is-small" (click)="clicked('7')" [disabled]="disableHighKeys">7</button>
       <button class="button is-small" (click)="clicked('8')" [disabled]="disableHighKeys">8</button>
       <button class="button is-small" (click)="clicked('9')" [disabled]="disableHighKeys">9</button>
-  </div>
-</div>
+  </mat-grid-list>
+</mat-card>

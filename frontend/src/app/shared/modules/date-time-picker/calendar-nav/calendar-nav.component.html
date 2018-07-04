@@ -1,0 +1,27 @@
+<div class="columns">
+  <div class="column">
+    <div class="columns is-mobile">
+
+      <div class="column">
+        <a class="button is-white" (click)="labelClicked()">
+          <span [innerText]="label"></span>
+        </a>
+      </div> 
+
+      <div class="column">
+        <div class="field is-grouped">
+          <button mat-button (click)="leftNavClicked()">
+            <span>←</span>
+          </button>
+          <button mat-button (click)="onGoToCurrent.emit()">
+              <span>clock-icon</span>
+          </button>
+          <button mat-button (click)="rightNavClicked()">
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

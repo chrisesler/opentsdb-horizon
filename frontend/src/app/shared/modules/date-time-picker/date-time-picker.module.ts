@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DtprotoRoutingModule2 } from './dtproto-routing.module';
+import { MaterialModule } from '../material/material.module';
 import { FormsModule } from '@angular/forms';
 
 import { TimeRangePickerComponent } from './time-range-picker/time-range-picker.component';
@@ -22,10 +22,13 @@ import { KeypadComponent } from './keypad/keypad.component';
 @NgModule({
   imports: [
     CommonModule,
-    DtprotoRoutingModule2,
-    FormsModule
+    FormsModule,
+    MaterialModule
   ],
   declarations: [TimePickerComponent, TimeRangePickerComponent, DayTimeCalendarComponent, DayCalendarComponent, MonthCalendarComponent, CalendarNavComponent, DatePickerComponent, KeypadComponent],
-  providers: [DayTimeCalendarService, DayCalendarService, MonthCalendarService, TimeSelectService, UtilsService, DatePickerService]
+  providers: [DayTimeCalendarService, DayCalendarService, MonthCalendarService, TimeSelectService, UtilsService, DatePickerService],
+  exports: [
+    TimePickerComponent
+  ]
 })
-export class DtprotoModule2 { }
+export class DateTimePickerModule { }
