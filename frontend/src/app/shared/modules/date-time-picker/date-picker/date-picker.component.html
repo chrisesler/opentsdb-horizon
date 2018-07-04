@@ -15,7 +15,9 @@
           />
 
   <!-- TODO: add denali calendar button -->
-  <button id="calendar-icon" class="button" (click)="toggleCalendars()"> <i class="button icon is-white"> <span class="dfi dfi-calendar"></span></i></button>
+  <!-- <button id="calendar-icon" class="button" (click)="toggleCalendars()"> <i class="button icon is-white"> <span class="dfi dfi-calendar"></span></i></button> -->
+  <button mat-button id="calendar-icon" (click)="toggleCalendars()"> <mat-icon fontSet="denali" fontIcon="d-calendar"></mat-icon></button>
+
   <mat-error id="formatValidation"  *ngIf="errors?.format"><div [innerHTML]="formatError"> </div></mat-error>
   <mat-error id="minDateValidation" *ngIf="errors?.minDate"><div>{{minDateError}} </div></mat-error>  
   <mat-error id="maxDateValidation" *ngIf="errors?.maxDate"><div>{{maxDateError}}</div></mat-error>    

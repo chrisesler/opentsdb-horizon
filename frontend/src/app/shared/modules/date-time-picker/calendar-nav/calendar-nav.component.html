@@ -5,13 +5,7 @@
 </div> 
 
 <div>
-    <button mat-button (click)="leftNavClicked()">
-      <span>←</span>
-    </button>
-    <button mat-button (click)="onGoToCurrent.emit()">
-        <span>clock-icon</span>
-    </button>
-    <button mat-button (click)="rightNavClicked()">
-      <span>→</span>
-    </button>
+    <button mat-button (click)="leftNavClicked()"> <mat-icon fontSet="denali" fontIcon="d-arrow-left"></mat-icon></button>
+    <button mat-button (click)="onGoToCurrent.emit()"> <mat-icon fontSet="denali" fontIcon="d-home"></mat-icon></button>
+    <button mat-button (click)="rightNavClicked()"> <mat-icon fontSet="denali" fontIcon="d-arrow-right"></mat-icon></button>
 </div>

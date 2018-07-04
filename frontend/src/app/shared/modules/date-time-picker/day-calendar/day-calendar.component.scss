@@ -5,6 +5,15 @@ dp-day-calendar {
     font-family: 'Lucida Console';
   }
 
+  .mat-card-title{
+    margin-bottom: 0px;
+  }
+
+  .mat-card-content{
+    margin-left: 8px;
+    margin-bottom: 8px;
+  }
+
   .mat-button{
     min-width: 0px;
     padding: 2px;
@@ -22,6 +31,14 @@ dp-day-calendar {
   .dp-calendar-weekday {
     display: inline-block;
     padding: 2px;
+  }
+
+  .dp-calendar-week{
+    height: 20px;
+  }
+
+  .dp-weekdays{
+    height: 30px;
   }
 
 
