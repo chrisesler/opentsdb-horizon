@@ -102,7 +102,13 @@ export class DashboardState {
 
     @Action(dashboardAction.LoadDashboardFail)
     loadDashboardFail(ctx: StateContext<DashboardStateModel>, { error }: dashboardAction.LoadDashboardFail) {
+        // passing state for dashboard loading error here
+    }
 
+    @Action(dashboardAction.CreateNewDashboard)
+    createNewDashboard(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.CreateNewDashboard) {
+        // set state to new empty dashboard
+        ctx.setState(payload);
     }
 
     @Action(dashboardAction.UpdateWidgetsLayout)

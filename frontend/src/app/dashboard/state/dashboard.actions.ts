@@ -15,6 +15,11 @@ export class LoadDashboardFail {
     constructor(public readonly error: any) { }
 }
 
+export class CreateNewDashboard {
+    static readonly type = '[Dashboard] Create New Dashboard';
+    constructor(public readonly payload: any) {}
+}
+
 export class UpdateWidgetsLayout {
     static readonly type = '[Dashboard] Update Wiget Layout';
     constructor(public readonly payload: any) {}
@@ -43,6 +48,7 @@ export class AddWidget {
 export type DashboardActions = LoadDashboard 
                                 | LoadDashboardSuccess 
                                 | LoadDashboardFail
+                                | CreateNewDashboard
                                 | UpdateWidgetsLayout
                                 | SetViewEditMode
                                 | GetQueryData
