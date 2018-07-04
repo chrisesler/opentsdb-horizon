@@ -40,10 +40,16 @@ export class DashboardService {
 
   constructor(private utils: UtilsService) { }
 
-  getWidgetPrototype() {
+  getWidgetPrototype(): any {
     const widget: any = Object.assign({}, this.widgetPrototype);
     widget.id = this.utils.generateId();
     return widget;
+  }
+
+  getDashboardPrototype(): any {
+    const dashboard: any = Object.assign({}, this.dashboardProto);
+    dashboard.id = this.utils.generateId(8);
+    return dashboard;
   }
 
   // help to put new widget on top.

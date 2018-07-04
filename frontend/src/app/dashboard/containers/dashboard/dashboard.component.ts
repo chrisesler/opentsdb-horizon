@@ -53,11 +53,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // handle route
         this.routeSub = this.route.params.subscribe(params => {
-            console.log('route', params);  
             // route to indicate create a new dashboard    
-            if (params['dbid'] && params['dbid'] === '_new_') {
-                console.log('creating a new dashboard...');
-                
+            if (params['dbid']) {
+                this.dbid = params['dbid'];
+                if (this.dbid === '_new_') {
+                    console.log('creating a new dashboard...');
+                    let newdboard = this.dbService.getDashboardPrototype();
+                    this.store.dispatch(new dashboardActions.CreateNewDashboard(newdboard));
+                } else {
+                    // load provided dashboard id, and need to handdle not found too
+                    this.store.dispatch(new dashboardActions.LoadDashboard(this.dbid));
+                }
             }
         });
         // setup navbar portal
@@ -86,8 +92,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
             }
         });
-        // passing dashboard to load
-        this.store.dispatch(new dashboardActions.LoadDashboard('xyz'));
+
         // after success loaded dashboard, assigned widgets
         this.widgets$.subscribe(widgets => {
             this.widgets = widgets;
