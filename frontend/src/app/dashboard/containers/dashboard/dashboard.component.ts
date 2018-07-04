@@ -53,7 +53,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // handle route
         this.routeSub = this.route.params.subscribe(params => {
-            console.log('route', params);      
+            console.log('route', params);  
+            // route to indicate create a new dashboard    
+            if (params['dbid'] && params['dbid'] === '_new_') {
+                console.log('creating a new dashboard...');
+                
+            }
         });
         // setup navbar portal
         this.dashboardNavbarPortal = new TemplatePortal(this.dashboardNavbarTmpl, undefined, {});
