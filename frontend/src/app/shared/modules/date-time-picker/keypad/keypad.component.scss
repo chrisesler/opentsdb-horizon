@@ -1,4 +1,4 @@
-.card {
+.mat-card {
     position: absolute;
     z-index: 1;
     padding: 4px;
@@ -9,6 +9,7 @@
     padding-top: 3px;
 }
 
-.button {
+.mat-button {
     font-family: 'Lucida Console';
+    min-width: 0px;
 }

@@ -33,10 +33,11 @@
           </span>
           <button mat-button
                 *ngFor="let day of week"
-                [attr.disabled] = "day.disabled ? '' : null"
+                [disabled] = "day.disabled ? '' : null"
                 (click)= "day.disabled ? null : dayClicked(day)"
                 [ngClass]="getDayBtnCssClass(day)"
-                [innerText]="getDayBtnText(day)" >
+                >
+                <span>{{getDayBtnText(day)}}</span>
           </button>
         </div>
       </div>

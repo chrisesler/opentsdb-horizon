@@ -13,10 +13,12 @@
           [disabled]="disabled"
           (keyup.enter)="enterKeyed()"
           />
+
+  <!-- TODO: add denali calendar button -->
   <button id="calendar-icon" class="button" (click)="toggleCalendars()"> <i class="button icon is-white"> <span class="dfi dfi-calendar"></span></i></button>
-  <div id="formatValidation" class="help is-danger" *ngIf="errors?.format"><div [innerHTML]="formatError"></div></div>
-  <div id="minDateValidation" class="help is-danger" *ngIf="errors?.minDate">{{minDateError}}</div>  
-  <div id="maxDateValidation" class="help is-danger" *ngIf="errors?.maxDate">{{maxDateError}}</div>    
+  <mat-error id="formatValidation"  *ngIf="errors?.format"><div [innerHTML]="formatError"> </div></mat-error>
+  <mat-error id="minDateValidation" *ngIf="errors?.minDate"><div>{{minDateError}} </div></mat-error>  
+  <mat-error id="maxDateValidation" *ngIf="errors?.maxDate"><div>{{maxDateError}}</div></mat-error>    
 </div>
 
 <div #container>

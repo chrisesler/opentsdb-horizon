@@ -2,6 +2,13 @@ dp-day-calendar {
   .mat-card{
     padding: 4px;
     width: 175px;
+    font-family: 'Lucida Console';
+  }
+
+  .mat-button{
+    min-width: 0px;
+    padding: 2px;
+    font-family: 'Lucida Console';
   }
 
   .dp-day-calendar-container{
@@ -33,11 +40,6 @@ dp-day-calendar {
     .column {
       width: 134px;
     }
-  }
-
-  .mat-button{
-    min-width: 0px;
-    padding: 2px;
   }
 }
   

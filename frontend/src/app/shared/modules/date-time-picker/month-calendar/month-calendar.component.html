@@ -1,33 +1,36 @@
 <div class="dp-month-calendar-container">
-  <header class="card-header">
-    <dp-calendar-nav
-        [label]="navLabel"
-        [showLeftNav]="showLeftNav"
-        [showLeftSecondaryNav]="showSecondaryLeftNav"
-        [showRightNav]="showRightNav"
-        [showRightSecondaryNav]="showSecondaryRightNav"
-        [isLabelClickable]="componentConfig.isNavHeaderBtnClickable"
-        [showGoToCurrent]="shouldShowCurrent()"
-        [theme]="theme"
-        (onLeftNav)="onLeftNavClick()"
-        (onLeftSecondaryNav)="onLeftSecondaryNavClick()"
-        (onRightNav)="onRightNavClick()"
-        (onRightSecondaryNav)="onRightSecondaryNavClick()"
-        (onLabelClick)="toggleCalendarMode()"
-        (onGoToCurrent)="goToCurrent()">
-    </dp-calendar-nav>
-  </header>
+  <mat-card-header> 
+    <mat-card-title>
+      <dp-calendar-nav
+          [label]="navLabel"
+          [showLeftNav]="showLeftNav"
+          [showLeftSecondaryNav]="showSecondaryLeftNav"
+          [showRightNav]="showRightNav"
+          [showRightSecondaryNav]="showSecondaryRightNav"
+          [isLabelClickable]="componentConfig.isNavHeaderBtnClickable"
+          [showGoToCurrent]="shouldShowCurrent()"
+          [theme]="theme"
+          (onLeftNav)="onLeftNavClick()"
+          (onLeftSecondaryNav)="onLeftSecondaryNavClick()"
+          (onRightNav)="onRightNavClick()"
+          (onRightSecondaryNav)="onRightSecondaryNavClick()"
+          (onLabelClick)="toggleCalendarMode()"
+          (onGoToCurrent)="goToCurrent()">
+      </dp-calendar-nav>
+    </mat-card-title>
+  </mat-card-header>
 
-  <div class="card-content">
-    <div class="content">
-      <div class="dp-months-row has-text-centered" *ngFor="let monthRow of yearMonths">
-        <span class="button"
-          *ngFor="let month of monthRow"
-          [ngClass]="getMonthBtnCssClass(month)"
-          (click)="monthClicked(month)"
-          [innerText]="month.text">
+
+  <mat-card-content>
+    <div class="dp-months-row has-text-centered" *ngFor="let monthRow of yearMonths">
+      <button mat-button
+        *ngFor="let month of monthRow"
+        [ngClass]="getMonthBtnCssClass(month)"
+        (click)="monthClicked(month)">
+        <span>
+          {{month.text}}
         </span>
-      </div>
+      </button>
     </div>
-  </div>
+  </mat-card-content>
 </div>

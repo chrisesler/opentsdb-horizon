@@ -1,20 +1,20 @@
 <mat-card>
-  <mat-grid-list cols="1" rowHeight="2:1">
-      <button class="button is-small" (click)="clicked('this')" >this</button>
+  <mat-grid-list cols="1">
+      <button mat-button (click)="clicked('this')" ><span>this</span></button>
   </mat-grid-list>     
-  <mat-grid-list cols="3" rowHeight="2:1">
-      <button class="button is-small" (click)="clicked('1')">1</button>
-      <button class="button is-small" (click)="clicked('2')">2</button>
-      <button class="button is-small" (click)="clicked('3')" [disabled]="disableHighKeys">3</button>
+  <mat-grid-list cols="3">
+      <button mat-button (click)="clicked('1')"><span>1</span></button>
+      <button mat-button (click)="clicked('2')"><span>2</span></button>
+      <button mat-button (click)="clicked('3')" [disabled]="disableHighKeys"><span>3</span></button>
   </mat-grid-list>
-  <mat-grid-list cols="3" rowHeight="2:1">
-      <button class="button is-small" (click)="clicked('4')" [disabled]="disableHighKeys">4</button>
-      <button class="button is-small" (click)="clicked('5')" [disabled]="disableHighKeys">5</button>
-      <button class="button is-small" (click)="clicked('6')" [disabled]="disableHighKeys">6</button>
+  <mat-grid-list cols="3">
+      <button mat-button (click)="clicked('4')" [disabled]="disableHighKeys"><span>4</span></button>
+      <button mat-button (click)="clicked('5')" [disabled]="disableHighKeys"><span>5</span></button>
+      <button mat-button (click)="clicked('6')" [disabled]="disableHighKeys"><span>6</span></button>
   </mat-grid-list>
-  <mat-grid-list cols="3" rowHeight="2:1">
-      <button class="button is-small" (click)="clicked('7')" [disabled]="disableHighKeys">7</button>
-      <button class="button is-small" (click)="clicked('8')" [disabled]="disableHighKeys">8</button>
-      <button class="button is-small" (click)="clicked('9')" [disabled]="disableHighKeys">9</button>
+  <mat-grid-list cols="3">
+      <button mat-button (click)="clicked('7')" [disabled]="disableHighKeys"><span>7</span></button>
+      <button mat-button (click)="clicked('8')" [disabled]="disableHighKeys"><span>8</span></button>
+      <button mat-button (click)="clicked('9')" [disabled]="disableHighKeys"><span>9</span></button>
   </mat-grid-list>
 </mat-card>
