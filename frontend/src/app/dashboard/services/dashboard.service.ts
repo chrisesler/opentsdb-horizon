@@ -3,6 +3,27 @@ import { UtilsService } from '../../core/services/utils.service';
 
 @Injectable()
 export class DashboardService {
+
+  private dashboardProto: any = {
+    id: '',
+    settings: {
+      title: 'untitle dashboard'
+    },
+    widgets:[
+      {
+        gridPos: {
+        x: 0, y: 0,
+        w: 6, h: 5
+        },
+        config: {
+          title: 'PlaceholderWidgetComponent',
+          component_type: 'PlaceholderWidgetComponent',
+          data_source: ''          
+        }
+      }
+    ]
+  };
+   
   private widgetPrototype = {
     gridPos: {
       x: 0, y: 0,
