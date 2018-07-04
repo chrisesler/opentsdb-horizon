@@ -6,7 +6,7 @@ import { LineChartComponent } from '../../dashboard/widgets/components/chartjs/l
 
 import {
     PlaceholderWidgetComponent,
-    LinebarWidgetComponent,
+    LinechartWidgetComponent,
     DeveloperWidgetComponent
 } from '../../shared/modules/dynamic-widgets/components';
 
@@ -22,8 +22,8 @@ export class WidgetService {
                 return WidgetbaseComponent;
             case 'LineChartComponent':
                 return LineChartComponent;
-            case 'LinebarWidgetComponent':
-                return LinebarWidgetComponent;
+            case 'LinechartWidgetComponent':
+                return LinechartWidgetComponent;
             case 'DeveloperWidgetComponent':
                 return DeveloperWidgetComponent;
             default:

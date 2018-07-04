@@ -6,7 +6,7 @@
 @import 'components/bignumber-widget/bignumber-widget.component';
 @import 'components/developer-widget/developer-widget.component';
 @import 'components/donut-widget/donut-widget.component';
-@import 'components/linebar-widget/linebar-widget.component';
+@import 'components/linechart-widget/linechart-widget.component';
 @import 'components/placeholder-widget/placeholder-widget.component';
 @import 'components/status-widget/status-widget.component';
 
@@ -17,7 +17,7 @@
     @include developer-widget-component-base();
     @include bignumber-widget-component-base();
     @include donut-widget-component-base();
-    @include linebar-widget-component-base();
+    @include linechart-widget-component-base();
     @include status-widget-component-base();
     @include placeholder-widget-component-base(); // place holder last please
 
@@ -30,7 +30,7 @@
     @include developer-widget-component-theme($theme-config);
     @include bignumber-widget-component-theme($theme-config);
     @include donut-widget-component-theme($theme-config);
-    @include linebar-widget-component-theme($theme-config);
+    @include linechart-widget-component-theme($theme-config);
     @include status-widget-component-theme($theme-config);
     @include placeholder-widget-component-theme($theme-config); // place holder last please
 }
