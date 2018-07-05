@@ -90,7 +90,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
       // Need to remove once developing done
       // console.log('AVI ::', this.widgetItems);
       // this.widgetItems.last.openWidgetView();
-      this.widgetItems.first.openWidgetView();
+      // this.widgetItems.first.openWidgetView();
   }
 
   trackByWidget(index: number, widget: any) {

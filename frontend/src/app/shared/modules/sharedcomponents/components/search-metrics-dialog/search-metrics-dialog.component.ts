@@ -190,44 +190,14 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
      * utilities
      */
 
-    findCommonProps(obj1: any, obj2: any) {
-        const map1 = {}, map2 = {};
-        const commonProps = [];
-
-        function isArray(item) {
-            return Object.prototype.toString.call(item) === '[object Array]';
+    extractMetricTagKeys(metric: any, withoutMetric?: boolean) {
+        const objKeys = Object.keys(metric);
+        // remove "metric"?
+        if (withoutMetric) {
+            const idx = objKeys.indexOf(metric);
+            objKeys.splice(idx, 1);
         }
-
-        // tslint:disable-next-line:no-shadowed-variable
-        function getProps(item, map) {
-            if (typeof item === 'object') {
-                if (isArray(item)) {
-                    // iterate through all array elements
-                    for (let i = 0; i < item.length; i++) {
-                        getProps(item[i], map);
-                    }
-                } else {
-                    for (const prop in item) {
-                        if (prop in item) {
-                            map[prop] = true;
-                            // recursively get any nested props
-                            // if this turns out to be an object or array
-                            getProps(item[prop], map);
-                        }
-                    }
-                }
-            }
-        }
-
-        // get all properties in obj1 into a map
-        getProps(obj1, map1);
-        getProps(obj2, map2);
-        for (const prop in map1) {
-            if (prop in map2) {
-                commonProps.push(prop);
-            }
-        }
-        return commonProps;
+        return objKeys;
     }
 
     extractUniqueKeys(data: any) {

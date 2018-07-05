@@ -54,7 +54,56 @@
 
             // metrics list in graph
             .graph-metrics {
-                border-left: 1px solid 
+                //border-left: 1px solid  
+                padding: 4px; 
+            }
+
+            .graph-metric-list-item {
+                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                margin-bottom: 5px; 
+                height: auto;
+
+                .mat-list-item-content {
+                    align-items: flex-start;
+                    justify-content: flex-start;
+                }
+
+                .mat-icon-button {
+                    width: 16px;
+                    height: 16px;
+                    line-height: 1;
+                    border: 1px solid currentColor;
+                    margin-top: 4px;
+                }
+
+                .mat-icon.denali {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-left: -1px;
+                    font-size: 12px;
+                    width: 16px;
+                    height: 16px;
+                }
+
+                .metric-details {
+                    margin-left: 12px;
+                }
+                .metric-name {
+                    font-size: 14px;
+                }
+
+                .metric-tags {
+                    .mat-chip {
+                        padding: 3px 6px;
+                        font-size: 10px;
+                        margin: 2px 4px;
+                        
+                        strong {
+                            margin-left: 4px;
+                        }
+                    }
+                }
             }
         }
 
@@ -129,22 +178,6 @@
                 }
             }
 
-            
-        }
-
-        .search-results {
-
-            .mat-list-item {
-                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-            }
-
-            .result-content {
-                overflow-x: hidden;
-                overflow-y: auto;
-            }
-        }
-
-        .mat-expansion-panel {
             .mat-expansion-panel-header {
                 padding: 0 12px;
             }
@@ -165,8 +198,76 @@
                 }
             }
 
-            /*&.mat-expanded { }*/
+            
         }
+
+        .search-results {
+
+            .mat-list-item {
+                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+            }
+
+            .result-content {
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+
+            .mat-table {
+                td.mat-cell,
+                th.mat-header-cell {
+                    padding: 0 8px;
+                }
+
+                td.mat-cell:first-child,
+                td.mat-footer-cell:first-child,
+                th.mat-header-cell:first-child {
+                    padding-left: 16px;
+                }
+
+                td.mat-cell:last-child,
+                td.mat-footer-cell:last-child,
+                th.mat-header-cell:last-child {
+                    padding-right: 16px;
+                }
+
+                td.mat-column-selectMetric,
+                th.mat-column-selectMetric {
+                    width: 60px;
+                }
+
+                td.mat-column-other,
+                th.mat-column-other {
+                    width: 100%;
+                }
+
+
+            }
+        }
+
+
+
+        /*.mat-expansion-panel {
+            .mat-expansion-panel-header {
+                padding: 0 12px;
+            }
+
+            .mat-expansion-panel-body {
+                padding: 0;
+            }
+
+            .mat-nav-list {
+                padding-top: 0;
+
+                .mat-list-item {
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                }
+
+                .mat-list-item-content {
+                    padding-left: 20px;
+                }
+            }
+
+        }*/
 
         .input-form-field {
             width: 100%;
@@ -204,7 +305,7 @@
     $expanded-header-bg: map-get($primary, default);
     $expanded-header-text: map-get($primary, default-contrast);
 
-    $expanded-body-bg: map-get($primary, 50);
+    $expanded-body-bg: rgba(map-get($primary, default), 0.05);
 
 
     .search-metrics-dialog {
