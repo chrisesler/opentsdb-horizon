@@ -30,7 +30,7 @@
                     <div class="is-scroller">
                         <mat-list>
                             <mat-list-item class="graph-metric-list-item" *ngFor="let metric of selectedMetrics">
-                                <button mat-icon-button color="primary">
+                                <button mat-icon-button color="primary" (click)="removeSelectedMetric(metric)">
                                     <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
                                 </button>
                                 <div class="metric-details">

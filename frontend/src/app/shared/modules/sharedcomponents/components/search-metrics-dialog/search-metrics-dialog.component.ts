@@ -271,6 +271,11 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         return { common: commonProps, uncommon: uncommonProps };
     }
 
+
+    removeSelectedMetric(metric: any) {
+        this.selectedMetrics.splice(this.selectedMetrics.indexOf(metric), 1);
+    }
+
     /**
      * Behaviors
      */
@@ -279,6 +284,8 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     onClick_Cancel(): void {
         this.dialogRef.close();
     }
+
+
 
     // handle when clicked on apply
     onClick_Apply(): any {
