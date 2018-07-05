@@ -8,7 +8,7 @@ import { DygraphsModule } from '../dygraphs/dygraphs.module';
 import { SharedcomponentsModule } from '../sharedcomponents/sharedcomponents.module';
 
 import { PlaceholderWidgetComponent } from './components/placeholder-widget/placeholder-widget.component';
-import { LinebarWidgetComponent } from './components/linebar-widget/linebar-widget.component';
+import { LinechartWidgetComponent } from './components/linechart-widget/linechart-widget.component';
 import { DeveloperWidgetComponent } from './components/developer-widget/developer-widget.component';
 import { BignumberWidgetComponent } from './components/bignumber-widget/bignumber-widget.component';
 import { DonutWidgetComponent } from './components/donut-widget/donut-widget.component';
@@ -23,7 +23,7 @@ import { StatusWidgetComponent } from './components/status-widget/status-widget.
     ],
     exports: [
         PlaceholderWidgetComponent,
-        LinebarWidgetComponent,
+        LinechartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         DonutWidgetComponent,
@@ -31,7 +31,7 @@ import { StatusWidgetComponent } from './components/status-widget/status-widget.
     ],
     declarations: [
         PlaceholderWidgetComponent,
-        LinebarWidgetComponent,
+        LinechartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         DonutWidgetComponent,
@@ -39,7 +39,7 @@ import { StatusWidgetComponent } from './components/status-widget/status-widget.
     ],
     entryComponents: [
         PlaceholderWidgetComponent,
-        LinebarWidgetComponent,
+        LinechartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         DonutWidgetComponent,

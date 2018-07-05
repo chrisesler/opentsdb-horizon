@@ -76,7 +76,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
             'widget': this.widget
         });
         // request to send in to indicate which widget in editmode
-        this.interCom.requestSend(<IMessage>{
+        this.interCom.requestSend(<IMessage> {
             action: 'viewEditMode',
             payload: {editMode: true, widgetId: this.widget.id }
         });
@@ -99,7 +99,11 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     }
 
     widgetRemove() {
-        console.log('REMOVE WIDGET CLICKED');
+        // we need to implement confirmation later
+        this.interCom.requestSend(<IMessage> {
+            action: 'removeWidget',
+            payload: { widgetId: this.widget.id }
+        });
     }
 
     // TODO: FOR DEV ONLY, NEED TO REMOVE

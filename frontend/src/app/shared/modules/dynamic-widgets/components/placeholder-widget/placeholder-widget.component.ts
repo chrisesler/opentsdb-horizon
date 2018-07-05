@@ -29,8 +29,6 @@ export class PlaceholderWidgetComponent implements OnInit {
         {
             label: 'Line Chart',
             type: 'LineChartComponent',
-            // TODO: need to eventually switch to WidgetLineChartComponent
-            // type: 'WidgetLineChartComponent',
             iconClass: 'widget-icon-line-chart'
         },
         {
@@ -55,7 +53,7 @@ export class PlaceholderWidgetComponent implements OnInit {
         console.log('WBASE :: onInit', this.widget);
     }
 
-    selectWidgetType(wtype: any, event: any) {
+    selectWidgetType(wtype: any) {
         console.log('SELECT WIDGET TYPE', wtype, event);
     }
 

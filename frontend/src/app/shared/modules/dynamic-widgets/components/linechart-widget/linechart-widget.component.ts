@@ -8,14 +8,14 @@ import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 
 @Component({
     // tslint:disable-next-line:component-selector
-    selector: 'linebar-widget',
-    templateUrl: './linebar-widget.component.html',
+    selector: 'linechart-widget',
+    templateUrl: './linechart-widget.component.html',
     styleUrls: []
 })
-export class LinebarWidgetComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
+export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
     @HostBinding('class.widget-panel-content') private _hostClass = true;
-    @HostBinding('class.linebar-widget') private _componentClass = true;
+    @HostBinding('class.linechart-widget') private _componentClass = true;
 
     @Input() editMode: boolean;
     @Input() widget: WidgetModel;

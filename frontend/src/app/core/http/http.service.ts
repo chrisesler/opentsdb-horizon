@@ -23,8 +23,8 @@ export class HttpService {
           w: 6, h: 5
         },
         config: {
-          title: 'LinebarWidgetComponent',
-          component_type: 'LinebarWidgetComponent',
+          title: 'LinechartWidgetComponent',
+          component_type: 'LinechartWidgetComponent',
           data_source: 'opentsdb',
           query: {
             start: '1526250610000',
@@ -76,8 +76,8 @@ export class HttpService {
           w: 6, h: 5
         },
         config: {
-          title: 'LinebarWidgetComponent',
-          component_type: 'LinebarWidgetComponent',
+          title: 'LinechartWidgetComponent',
+          component_type: 'LinechartWidgetComponent',
           data_source: 'opentsdb',
           query: {
             start: '1526250610000',
