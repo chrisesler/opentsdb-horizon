@@ -60,6 +60,7 @@
 
         .metric-search-input-controls {
             font-size: 14px;
+            min-height: 64px;
 
             .mat-toolbar-row {
                 padding: 0;
@@ -132,8 +133,14 @@
         }
 
         .search-results {
+
             .mat-list-item {
                 font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+            }
+
+            .result-content {
+                overflow-x: hidden;
+                overflow-y: auto;
             }
         }
 
@@ -158,9 +165,7 @@
                 }
             }
 
-            &.mat-expanded {
-                //background: pink;
-            }
+            /*&.mat-expanded { }*/
         }
 
         .input-form-field {
@@ -180,9 +185,7 @@
         }
     }
 
-    .search-metrics-dialog-backdrop {
-
-    }
+    /*.search-metrics-dialog-backdrop {} */
 }
 
 @mixin search-metrics-dialog-component-theme($theme-config) {
@@ -209,11 +212,10 @@
 
         .mat-toolbar {
             background: transparent;
-            //border-bottom: 1px solid map-get($foreground, dividers);
+        }
 
-            &.metric-search-input-controls {
-                border-bottom: 1px solid $divider;
-            }
+        .metric-search-input-controls {
+            border-bottom: 1px solid $divider;
         }
 
         .graph-preview-pane {

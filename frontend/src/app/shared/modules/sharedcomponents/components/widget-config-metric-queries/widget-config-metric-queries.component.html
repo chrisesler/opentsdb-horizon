@@ -10,7 +10,10 @@
     </mat-toolbar-row>
     <mat-toolbar-row *ngIf="fakeMetrics && fakeMetrics.length > 0">
         <div class="toolbar-item master-checkbox">
-            <mat-checkbox class=" master-checkbox"></mat-checkbox>
+            <!--<mat-checkbox class=" master-checkbox"></mat-checkbox>-->
+            <button mat-icon-button color="primary" (click)="batch_selectAllToggle($event)">
+                <mat-icon>{{ selectedToggleIcon[selectAllToggle] }}</mat-icon>
+            </button>
         </div>
         <div class="toolbar-item">
             <div class="button-group">
@@ -41,19 +44,18 @@
     </mat-toolbar-row>
 </mat-toolbar>
 <!-- list of metric-items -->
-<div class="metric-results">
-    <div class="result-pane">
-        <!--<div class="metric-group" *ngFor="let group of fakeGroups">
-            <div class="group-selector">
-                <mat-checkbox class="group-checkbox"></mat-checkbox>
-            </div>
-            <mat
-        </div>-->
-        <mat-accordion class="query-group-list mat-elevation-z0" displayMode="flat" [multi]="true" [hideToggle]="false">
+<div class="query-metrics-section">
+    <div class="query-metrics-wrap">
+        <mat-accordion class="query-group-list mat-elevation-z0" [ngClass]="{'items-selected': selectAllToggle !== 'none'}" displayMode="flat" [multi]="true" [hideToggle]="false">
             <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [expanded]="!group.collapsed" *ngFor="let group of fakeGroups">
                 <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
                     <div class="group-selector">
-                        <mat-checkbox class="group-checkbox"></mat-checkbox>
+                        <!--<mat-checkbox class="group-checkbox"></mat-checkbox>-->
+                        <button mat-icon-button class="group-checkbox" color="primary" (click)="toggle_groupSelected(group, $event)">
+                            <mat-icon>{{ selectedToggleIcon[group.selectedState] }}</mat-icon>
+                            <!--<mat-icon *ngIf="selectedGroups.includes(group.id)">check_box</mat-icon>
+                            <mat-icon *ngIf="!selectedGroups.includes(group.id)">check_box_outline_blank</mat-icon>-->
+                        </button>
                     </div>
                     <mat-toolbar class="group-item-toolbar">
                         <span class="toolbar-item">
@@ -87,8 +89,13 @@
                         </span>
                     </mat-toolbar>
                 </mat-expansion-panel-header>
-                <div class="group-metrics">
-                    <div class="query-metric-item" *ngFor="let metric of group.metrics">
+                <div class="query-metric-row" *ngFor="let metric of group.metrics">
+                    <div class="metric-selector">
+                        <button mat-icon-button class="group-checkbox" color="primary" (click)="toggle_metricSelected(metric, group, $event)">
+                            <mat-icon>{{ (metric.selectedState) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                        </button>
+                    </div>
+                    <div class="query-metric-item">
                         <div class="metric-detail">
                             <span class="detail-item">{{ metric.label }}</span>
                             <span class="flex-spacer"></span>

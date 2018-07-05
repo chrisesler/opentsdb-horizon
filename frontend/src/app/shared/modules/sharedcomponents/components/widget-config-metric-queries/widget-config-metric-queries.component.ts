@@ -41,14 +41,28 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
     modGroup: any; // current group that is adding metric
     mgroupId = undefined;
 
+    // lookup table for selected icons
+    // primarily for checkboxes that have intermediate states
+    selectedToggleIcon: any = {
+        'none': 'check_box_outline_blank',
+        'all': 'check_box',
+        'some': 'indeterminate_check_box'
+    };
+
+    selectAllToggle: String = 'none'; // none/all/some
+
+    selectedGroups: string[] = []; // ids
+    selectedMetrics: any = {};
+
     // TODO: REMOVE FAKE GROUPS
-    fakeGroups: Array<object> = [
+    fakeGroups: Array<any> = [
         {
             id: 'group-0',
             label: 'Untitled Group',
             collapsed: false,
             visible: true,
             colorFamily: 'green',
+            selectedState: 'none', // none,all,some
             metrics: [
                 {
                     id: 0,
@@ -59,6 +73,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
                     color: 'green',
                     collapsed: false,
                     visible: true,
+                    selectedState: false,
                     tags: [
                         {
                             key: 'colo',
@@ -93,6 +108,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
                     color: 'amber',
                     collapsed: false,
                     visible: true,
+                    selectedState: false,
                     tags: [
                         {
                             key: 'colo',
@@ -123,6 +139,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
                     color: 'fuchsia',
                     collapsed: false,
                     visible: true,
+                    selectedState: false,
                     tags: [
                         {
                             key: 'colo',
@@ -152,6 +169,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
             collapsed: false,
             visible: true,
             colorFamily: 'green',
+            selectedState: 'none', // none/all/some
             metrics: [
                 {
                     id: 3,
@@ -162,6 +180,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
                     color: 'green',
                     collapsed: false,
                     visible: true,
+                    selectedState: false,
                     tags: [
                         {
                             key: 'colo',
@@ -350,11 +369,87 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
         console.log('TOGGLE::DisplayGroupsIndividually', event);
     }
 
-    
-
     /**
      * Individual Events
      */
+
+    toggle_groupSelected(group: any, event: MouseEvent) {
+        console.log('TOGGLE::GroupSelected', group, event);
+        event.stopPropagation();
+
+        // some or none are selected, then we select them all
+        if (group.selectedState === 'some' || group.selectedState === 'none') {
+            group.selectedState = 'all';
+            group.metrics.forEach(function(metric) {
+                metric.selectedState = true;
+            });
+        } else {
+            group.selectedState = 'none';
+            group.metrics.forEach(function(metric) {
+                metric.selectedState = false;
+            });
+        }
+
+        // update master checkbox
+        const groupStates = {
+            all: 0,
+            none: 0,
+            some: 0
+        };
+
+        let g;
+        // tslint:disable-next-line:forin
+        for (g in this.fakeGroups) {
+            if (this.fakeGroups[g].selectedState === 'all') {
+                groupStates.all++;
+            } else if (this.fakeGroups[g].selectedState === 'some') {
+                groupStates.some++;
+            } else {
+                groupStates.none++;
+            }
+        }
+
+        // tslint:disable-next-line:max-line-length
+        this.selectAllToggle = (groupStates.some > 0 || groupStates.all < this.fakeGroups.length) ? 'some' : (groupStates.none === this.fakeGroups.length) ? 'none' : 'all';
+
+    }
+
+    toggle_metricSelected(metric: any, group: any, event: MouseEvent) {
+        console.log('TOGGLE::MetricSelected', group, event);
+        event.stopPropagation();
+
+        metric.selectedState = !metric.selectedState;
+
+        const selectedGroupMetrics = group.metrics.filter(function(m) {
+            return m.selectedState;
+        });
+
+        // the 'some' case
+        if (selectedGroupMetrics.length > 0 && selectedGroupMetrics.length < group.metrics.length) {
+            group.selectedState = 'some';
+            // if this is some, then the master level is some as well
+            this.selectAllToggle = 'some';
+        // the 'all'case
+        } else if (selectedGroupMetrics.length === group.metrics.length) {
+            group.selectedState = 'all';
+
+            const selectedGroups = this.fakeGroups.filter(function(g) {
+                return g.selectedState === 'all';
+            });
+
+            this.selectAllToggle = (selectedGroups.length === this.fakeGroups.length) ? 'all' : 'some';
+
+        // the 'none' case
+        } else {
+            group.selectedState = 'none';
+
+            const selectedGroups = this.fakeGroups.filter(function(g) {
+                return g.selectedState !== 'none';
+            });
+
+            this.selectAllToggle = (selectedGroups.length > 0) ? 'some' : 'none';
+        }
+    }
 
     toggle_groupCollapsed(group: any, event: MouseEvent) {
         console.log('TOGGLE::GroupCollapsed', group, event);
@@ -401,6 +496,35 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
     /**
      * Batch Events
      */
+
+    batch_selectAllToggle(event: MouseEvent) {
+        console.log('BATCH::SelectAllToggle', this.selectAllToggle);
+        event.stopPropagation();
+        let group, metric;
+        if (this.selectAllToggle === 'none' || this.selectAllToggle === 'some') {
+            this.selectAllToggle = 'all';
+            // mark all groups as selected
+            for (group of this.fakeGroups) {
+                console.log('fake groups', group);
+                group.selectedState = 'all';
+                for (metric of group.metrics) {
+                    metric.selectedState = true;
+                }
+            }
+        } else {
+            this.selectAllToggle = 'none';
+            // mark all groups as un-selected
+            // this.selectedGroupMetrics = {};
+            for (group of this.fakeGroups) {
+                console.log('fake groups', group);
+                group.selectedState = 'none';
+                for (metric of group.metrics) {
+                    metric.selectedState = false;
+                }
+            }
+        }
+        console.log('%cSELECTED', 'background: purple; color: white;', this.selectedGroups);
+    }
 
     batch_groupMetrics(event: MouseEvent) {
         console.log('BATCH::GroupMetrics');
