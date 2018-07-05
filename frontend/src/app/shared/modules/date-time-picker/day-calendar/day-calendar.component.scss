@@ -1,50 +1,67 @@
-dp-day-calendar {
-  .mat-card {
-    padding: 4px;
-    width: 175px;
-    font-family: 'Lucida Console';
-  }
+/* WIDGET CONFIG COMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
-  .mat-card-title {
-    margin-bottom: 0px;
-  }
-
-  .mat-card-content {
-    margin-left: 8px;
-    margin-bottom: 8px;
-  }
-
-  .mat-button {
-    min-width: 0px;
-    padding-left: 2px;
-    padding-right: 2px;
-    font-family: 'Lucida Console';
-    line-height: 18px;
-   
-    /*TODO: overwrite mat-button background: transparent */ 
-    .dp-selected {
-      background: #106CC8;
+@mixin day-calendar-component-base() {
+  dp-day-calendar {
+    .mat-card {
+      padding: 4px;
+      width: 175px;
+      font-family: 'Lucida Console';
     }
-  }
-
-  .dp-calendar-weekday {
-    display: inline-block;
-    padding-left: 2px;
-    padding-right: 2px;
-  }
-
-  .dp-calendar-week {
-    height: 20px;
-  }
-
-  .dp-weekdays {
-    height: 25px;
-  }
-
-  .dp-hide-near-month {
-    .dp-prev-month, .dp-next-month {
-      visibility: hidden;
-    }
-  }
-}
   
+    .mat-card-title {
+      margin-bottom: 0px;
+    }
+  
+    .mat-card-content {
+      margin-left: 8px;
+      margin-bottom: 8px;
+    }
+  
+    .mat-button {
+      min-width: 0px;
+      padding-left: 2px;
+      padding-right: 2px;
+      font-family: 'Lucida Console';
+      line-height: 18px;
+     
+      /*TODO: overwrite mat-button background: transparent */ 
+      .dp-selected {
+        background: #106CC8;
+      }
+    }
+  
+    .dp-calendar-weekday {
+      display: inline-block;
+      padding-left: 2px;
+      padding-right: 2px;
+    }
+  
+    .dp-calendar-week {
+      height: 20px;
+    }
+  
+    .dp-weekdays {
+      height: 25px;
+    }
+  
+    .dp-hide-near-month {
+      .dp-prev-month, .dp-next-month {
+        visibility: hidden;
+      }
+    }
+  }
+
+}
+
+@mixin day-calendar-component-theme($theme-config) {
+
+  /* Theme config parts */
+  $primary: map-get($theme-config, primary);
+  $accent: map-get($theme-config, accent);
+  $warn: map-get($theme-config, warn);
+  $foreground: map-get($theme-config, foreground);
+  $background: map-get($theme-config, background);
+
+ 
+}
