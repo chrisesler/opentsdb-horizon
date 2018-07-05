@@ -188,7 +188,7 @@
                             <ng-container matColumnDef="other">
                                 <th mat-header-cell *matHeaderCellDef> Other</th>
                                 <td mat-cell *matCellDef="let element">
-                                    <ng-container *ngFor="let tag of selectedResultSetTagKeys">
+                                    <ng-container *ngFor="let tag of selectedResultSetTagKeys.uncommon">
                                         <mat-chip *ngIf="element[tag]">
                                             {{tag}}: <strong>{{element[tag]}}</strong>
                                         </mat-chip>
