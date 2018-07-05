@@ -184,7 +184,7 @@ export class DatePickerComponent implements OnChanges,
 
   initValidators() {
     if(this.disableFutureDates){
-      this.maxDate = moment();
+      this.maxDate = moment().add(5, "seconds");
     }
     this.validateFn = this.utilsService.createValidator(
       {
