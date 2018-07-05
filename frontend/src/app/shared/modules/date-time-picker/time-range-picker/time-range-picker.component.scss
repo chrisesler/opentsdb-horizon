@@ -1,8 +1,7 @@
-// @import '../../../styles/styles-component';
-
-.mat-card{
+.mat-card {
     font-family: 'Lucida Console';
 }
+
 .wrapper {
     font-family: 'Lucida Console';
     background-color: lightgray;
@@ -40,17 +39,6 @@
     font-family: 'Lucida Console';
 }
 
-.box {
-    position: absolute;
-    z-index: 1;
-}
-
-.column {
-    margin-top: 12px;
-    padding: 0px;
-}
-
-.columns {
-    margin-left: 0px;
-    margin-bottom: 0px;
+.is-selected {
+    background: #ffffff
 }

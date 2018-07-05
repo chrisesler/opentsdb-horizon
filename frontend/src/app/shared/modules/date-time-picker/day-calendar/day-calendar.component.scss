@@ -1,61 +1,49 @@
 dp-day-calendar {
-  .mat-card{
+  .mat-card {
     padding: 4px;
     width: 175px;
     font-family: 'Lucida Console';
   }
 
-  .mat-card-title{
+  .mat-card-title {
     margin-bottom: 0px;
   }
 
-  .mat-card-content{
+  .mat-card-content {
     margin-left: 8px;
     margin-bottom: 8px;
   }
 
-  .mat-button{
+  .mat-button {
     min-width: 0px;
-    padding: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
     font-family: 'Lucida Console';
-  }
-
-  .dp-day-calendar-container{
-    margin-top: 4px;
-  }
-
-  .dp-month-calendar-container{
-    margin-top: 4px;
+    line-height: 18px;
+   
+    /*TODO: overwrite mat-button background: transparent */ 
+    .dp-selected {
+      background: #106CC8;
+    }
   }
 
   .dp-calendar-weekday {
     display: inline-block;
-    padding: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
   }
 
-  .dp-calendar-week{
+  .dp-calendar-week {
     height: 20px;
   }
 
-  .dp-weekdays{
-    height: 30px;
+  .dp-weekdays {
+    height: 25px;
   }
 
-
-  .dp-selected {
-    background: #106CC8;
-    color: #FFFFFF;
-  }
   .dp-hide-near-month {
     .dp-prev-month, .dp-next-month {
       visibility: hidden;
-    }
-  }
-
-  // Nav bar navigation items will oscillate w/o
-  .columns .is-mobile{
-    .column {
-      width: 134px;
     }
   }
 }
