@@ -2,6 +2,7 @@ import { State, Selector, Action, StateContext } from '@ngxs/store';
 import * as dashboardAction from './dashboard.actions';
 import { HttpService } from '../../core/http/http.service';
 import { DashboardService } from '../services/dashboard.service';
+import { UtilsService } from '../../core/services/utils.service';
 import { tap, map, catchError } from 'rxjs/operators';
 
 export interface WidgetModel {
@@ -54,7 +55,9 @@ export interface DashboardStateModel {
 
 export class DashboardState {
 
-    constructor(private httpService: HttpService, private dashboardService: DashboardService) {}
+    constructor(private httpService: HttpService, 
+                private dashboardService: DashboardService,
+                private utilsService: UtilsService) {}
 
     // return a clone copy of state, keet global state immutable
     @Selector()
@@ -99,7 +102,13 @@ export class DashboardState {
 
     @Action(dashboardAction.LoadDashboardFail)
     loadDashboardFail(ctx: StateContext<DashboardStateModel>, { error }: dashboardAction.LoadDashboardFail) {
+        // passing state for dashboard loading error here
+    }
 
+    @Action(dashboardAction.CreateNewDashboard)
+    createNewDashboard(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.CreateNewDashboard) {
+        // set state to new empty dashboard
+        ctx.setState(payload);
     }
 
     @Action(dashboardAction.UpdateWidgetsLayout)
@@ -114,6 +123,26 @@ export class DashboardState {
         ctx.setState({...state, viewEditMode: payload.editMode, editWidgetId: payload.widgetId});
     }
 
+    @Action(dashboardAction.RemoveWidget)
+    removeWidget(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.RemoveWidget) {
+        const state = ctx.getState();
+        for (let i = 0; i < state.widgets.length; i++) {
+            if (state.widgets[i].id === payload.widgetId) {
+                state.widgets.splice(i, 1);
+                break;
+            }
+        }
+        ctx.setState(state);
+    }  
+    
+    @Action(dashboardAction.AddWidget)
+    addWidget(ctx: StateContext<DashboardStateModel>, { payload }: dashboardAction.AddWidget) {
+        const state = ctx.getState();
+        // some reposition need to apply
+        state.widgets = this.dashboardService.positionWidget(state.widgets);
+        state.widgets.unshift(payload.widget);
+        ctx.setState(state);
+    }
     /* GetQueryData will make the call to API to get data.
         More on settings up data source and other later
     */

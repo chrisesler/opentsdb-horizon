@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
@@ -34,18 +35,37 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // other variables
     listenSub: Subscription;
+    private routeSub: Subscription;
+    dbid: string; //passing dashboard id
+    wid: string; // passing widget id
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
     widgets: any[] = [];
     viewEditMode: boolean = false;
 
     constructor(
         private store: Store,
+        private route: ActivatedRoute,
         private interCom: IntercomService,
         private dbService: DashboardService,
         private cdkService: CdkService
     ) { }
 
     ngOnInit() {
+        // handle route
+        this.routeSub = this.route.params.subscribe(params => {
+            // route to indicate create a new dashboard    
+            if (params['dbid']) {
+                this.dbid = params['dbid'];
+                if (this.dbid === '_new_') {
+                    console.log('creating a new dashboard...');
+                    let newdboard = this.dbService.getDashboardPrototype();
+                    this.store.dispatch(new dashboardActions.CreateNewDashboard(newdboard));
+                } else {
+                    // load provided dashboard id, and need to handdle not found too
+                    this.store.dispatch(new dashboardActions.LoadDashboard(this.dbid));
+                }
+            }
+        });
         // setup navbar portal
         this.dashboardNavbarPortal = new TemplatePortal(this.dashboardNavbarTmpl, undefined, {});
         this.cdkService.setNavbarPortal(this.dashboardNavbarPortal);
@@ -57,22 +77,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'viewEditMode':
                     this.store.dispatch(new dashboardActions.SetViewEditMode(message.payload));
                     break;
-                case 'addNewWidget':
-                    this.addNewWidget();
+                case 'removeWidget':
+                    this.store.dispatch(new dashboardActions.RemoveWidget(message.payload));
+                    this.rerender = { 'reload': true };
                     break;
                 case 'closeViewEditMode':
-                    this.closeViewEditMode(message.payload);
+                    this.store.dispatch(new dashboardActions.SetViewEditMode(message.payload));
+                    this.rerender = { 'reload': true };
                     break;
                 case 'getQueryData':
-                    console.log('message', message);
                     this.store.dispatch(new dashboardActions.GetQueryData(message.id, message.payload));
                     break;
                 default:
                     break;
             }
         });
-        // passing dashboard to load
-        this.store.dispatch(new dashboardActions.LoadDashboard('xyz'));
+
         // after success loaded dashboard, assigned widgets
         this.widgets$.subscribe(widgets => {
             this.widgets = widgets;
@@ -126,17 +146,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
 
+    // event emit to add new widget from dashboard header
     addNewWidget() {
-        this.widgets = this.dbService.addNewWidget(this.widgets);
+        let payload = { widget: this.dbService.getWidgetPrototype() };
+        this.store.dispatch(new dashboardActions.AddWidget(payload));
+        // trigger Update Widget layout event
         this.rerender = { 'reload': true };
     }
 
-    closeViewEditMode(payload) {
-        this.store.dispatch(new dashboardActions.SetViewEditMode(payload));
-        this.rerender = { 'reload': true };
+    // save dashboard name
+    saveDashboardName(event: any) {
+        console.log('dashboard name save', event);
+        
     }
 
     ngOnDestroy() {
         this.listenSub.unsubscribe();
+        this.routeSub.unsubscribe();
     }
 }

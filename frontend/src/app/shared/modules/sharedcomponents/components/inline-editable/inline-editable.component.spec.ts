@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LinebarWidgetComponent } from './linebar-widget.component';
+import { InlineEditableComponent } from './inline-editable.component';
 
-describe('LinebarWidgetComponent', () => {
-  let component: LinebarWidgetComponent;
-  let fixture: ComponentFixture<LinebarWidgetComponent>;
+describe('InlineEditableComponent', () => {
+  let component: InlineEditableComponent;
+  let fixture: ComponentFixture<InlineEditableComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LinebarWidgetComponent ]
+      declarations: [ InlineEditableComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LinebarWidgetComponent);
+    fixture = TestBed.createComponent(InlineEditableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

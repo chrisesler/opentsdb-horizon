@@ -1,4 +1,5 @@
 import { Component, OnInit, HostBinding, ViewChild, TemplateRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import { CdkService } from '../../../core/services/cdk.service';
 
@@ -17,12 +18,16 @@ export class LandingPageComponent implements OnInit {
     // portal placeholders
     landingpageNavbarPortal: TemplatePortal;
 
-    constructor(private cdkService: CdkService) {}
+    constructor(private cdkService: CdkService, private router: Router ) {}
 
     ngOnInit() {
       // setup navbar portal
       this.landingpageNavbarPortal = new TemplatePortal(this.landingpageNavbarTmpl, undefined, {});
       this.cdkService.setNavbarPortal(this.landingpageNavbarPortal);
+    }
+
+    createDashboard() {
+      this.router.navigate(['dashboard', '_new_']);
     }
 
 }
