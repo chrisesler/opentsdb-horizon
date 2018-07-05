@@ -49,6 +49,7 @@ export class DashboardService {
   getDashboardPrototype(): any {
     const dashboard: any = Object.assign({}, this.dashboardProto);
     dashboard.id = this.utils.generateId(8);
+    this.modifyWidgets(dashboard);
     return dashboard;
   }
 
