@@ -34,6 +34,7 @@ export class TimeRangePickerComponent implements OnInit {
   @Input() set endTime(time: string){ this.endTimeReference.setTime(String(time)); }
   @Input() options: TimeRangePickerOptions;
   @Output() timeSelected = new EventEmitter<SelectedTime>();
+  @Output() cancelSelected = new EventEmitter();
 
   @ViewChild('daytimePickerStart') startTimeReference: DatePickerComponent;
   @ViewChild('daytimePickerEnd') endTimeReference: DatePickerComponent;
@@ -88,17 +89,26 @@ export class TimeRangePickerComponent implements OnInit {
     return time;
   }
 
+  closeCalendarsAndHideButtons(){
+    this.endTimeReference.api.close();
+    this.startTimeReference.api.close();
+    this.showApply = false;
+  }
+
   applyClicked() {
     if(!this.startTimeReference.errors && !this.endTimeReference.errors){
-      this.endTimeReference.api.close();
-      this.startTimeReference.api.close();
-      this.showApply = false;
-
+      this.closeCalendarsAndHideButtons();
+      
       //sets the relative times to latest values
       this.startTimeReference.setTime(this.startTimeReference.inputElementValue);
       this.endTimeReference.setTime(this.endTimeReference.inputElementValue);
       this.timeSelected.emit(this.getTimeSelected());
     }
+  }
+
+  cancelClicked(){
+    this.closeCalendarsAndHideButtons();
+    this.cancelSelected.emit();
   }
 
   presetAmountReceived(amount: string){

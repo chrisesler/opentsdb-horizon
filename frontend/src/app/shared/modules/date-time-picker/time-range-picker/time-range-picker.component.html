@@ -65,6 +65,7 @@
 
   <div>
     <button mat-button id="button-apply" (click)="applyClicked()" *ngIf="showApply" [disabled] = "daytimePickerStart.errors || daytimePickerEnd.errors">Apply</button>
+    <button mat-button id="button-cancel" (click)="cancelClicked()" *ngIf="showApply">Cancel</button>
   </div>
 
   <!-- <div class="time-range"><b>Time range:</b> {{startTimeSelected}} <b>to</b> {{endTimeSelected}}</div> -->

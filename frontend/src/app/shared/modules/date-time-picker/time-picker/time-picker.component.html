@@ -9,6 +9,7 @@
 <div class="box" [ngClass]= "{invisible: !isOpen}">
   <time-range-picker
     (timeSelected)="timeReceived($event)"
+    (cancelSelected)="closeTimeRangePicker()"
     [startTime]="startTime"
     [endTime]="endTime"
     [options]="options"

@@ -109,13 +109,17 @@ const moment = momentNs;
         this.isOpen = false;
     }
 
+    closeTimeRangePicker(){
+        this.timeRangePicker.startTimeReference.setTime(this.startTime);
+        this.timeRangePicker.endTimeReference.setTime(this.endTime);
+        this.close();
+    }
+
     @HostListener('document:keydown', ['$event'])
     closeIfEscapePressed(event: KeyboardEvent) {
       let x = event.keyCode;
       if (x === 27) {        
-        this.timeRangePicker.startTimeReference.setTime(this.startTime);
-        this.timeRangePicker.endTimeReference.setTime(this.endTime);
-        this.close();
+        this.closeTimeRangePicker();
       }
     }
   }
