@@ -1,7 +1,7 @@
 'use strict';
 var utils = require('../lib/utils');
 var cookie = require('cookie');
-// var yby = require('yby');
+var yby = require('yby');
 
 var authUtil = {
     validateOktaCredentials:function(okta) {

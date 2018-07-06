@@ -13,12 +13,14 @@
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "express": "~4.16.0",
+    "express-okta-oath": "^0.13.8",
     "http-errors": "~1.6.2",
     "morgan": "~1.9.0",
     "nodemon": "^1.17.3",
     "properties-reader": "0.0.16",
     "request": "^2.86.0",
     "request-promise": "^4.2.2",
-    "rxjs": "^6.1.0"
+    "rxjs": "^6.1.0",
+    "yby": "^1.0.11"
   }
 }

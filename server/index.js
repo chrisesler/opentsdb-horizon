@@ -5,12 +5,12 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var utils = require('./lib/utils');
 var authUtil = require('./middlewares/auth-utils');
-// var yby = require('yby');
-// var expressOkta = require('express-okta-oath');
+var yby = require('yby');
+var expressOkta = require('express-okta-oath');
 
 var search = require('./routes/search');
 var tsdb = require('./routes/tsdb');
-// var index = require('./routes/index');
+var index = require('./routes/index');
 
 var app = express();
 
@@ -57,7 +57,7 @@ app.use(function(err, req, res, next) {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // routing
-// app.use('/', index);
+app.use('/', index);
 app.use('/tsdb', tsdb);
 app.use('/search', search);
 
