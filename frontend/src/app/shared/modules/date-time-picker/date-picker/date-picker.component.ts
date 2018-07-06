@@ -77,7 +77,7 @@ export class DatePickerComponent implements OnChanges,
                                             OnInit,
                                             ControlValueAccessor,
                                             Validator,
-                                            OnDestroy {
+                                            OnDestroy {                         
 
   @Input() disableFutureDates: boolean; //OVERRIDES maxDate
   @Input() config: IDatePickerConfig;

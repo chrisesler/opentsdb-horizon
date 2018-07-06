@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, AfterContentInit, HostListener , ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, AfterContentInit, HostListener , ElementRef, HostBinding } from '@angular/core';
 import { IDatePickerConfig } from '../date-picker/date-picker-config.model';
 import { ECalendarValue} from '../common/types/calendar-value-enum';
 import { Moment } from 'moment';
@@ -24,10 +24,11 @@ Time-range-picker      - has start and end picker with presets and apply
 @Component({
   selector: 'time-range-picker',
   templateUrl: './time-range-picker.component.html',
-  styleUrls: ['./time-range-picker.component.scss']
+  styleUrls: []
 })
 
 export class TimeRangePickerComponent implements OnInit {
+  @HostBinding('class.dtp-time-range-picker') private _hostClass = true;
 
   @Input() set startTime(time: string){ this.startTimeReference.setTime(String(time)); }
   @Input() set endTime(time: string){ this.endTimeReference.setTime(String(time)); }

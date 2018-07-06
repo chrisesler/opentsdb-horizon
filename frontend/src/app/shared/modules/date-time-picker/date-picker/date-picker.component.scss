@@ -1,18 +1,32 @@
-#input-box {
-    height: 28px;
-    width: 210px;
-    font-family: 'Lucida Console';
+@mixin date-picker-component-base() {
+
+    #input-box {
+        height: 28px;
+        width: 210px;
+        font-family: 'Lucida Console';
+    }
+    
+    #calendar-icon {
+        min-width: 0px;
+        padding: 1px;
+        margin-left: 4px;
+    }
+    
+    .code {
+        font-weight: bold;
+    }
+    
+    .mat-error {
+      font-size: 9px;
+    }
 }
 
-#calendar-icon {
-    min-width: 0px;
-    padding: 0px;
+@mixin date-picker-component-theme($theme-config) {
+  /* Theme config parts */
+  $primary: map-get($theme-config, primary);
+  $accent: map-get($theme-config, accent);
+  $warn: map-get($theme-config, warn);
+  $foreground: map-get($theme-config, foreground);
+  $background: map-get($theme-config, background);
 }
 
-.code {
-    font-weight: bold;
-}
-
-.mat-error {
-  font-size: 9px;
-}

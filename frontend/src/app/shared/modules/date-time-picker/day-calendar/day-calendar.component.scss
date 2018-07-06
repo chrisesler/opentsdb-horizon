@@ -1,6 +1,8 @@
 /* WIDGET CONFIG COMPONENT */
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
+// $dtip-day-cal-btn-padding
+
 @mixin day-calendar-component-base() {
   dp-day-calendar {
     .mat-card {
@@ -10,7 +12,7 @@
     }
   
     .mat-card-title {
-      margin-bottom: 0px;
+      margin-bottom: 5px;
     }
   
     .mat-card-content {
@@ -24,13 +26,8 @@
       padding-right: 2px;
       font-family: 'Lucida Console';
       line-height: 18px;
-     
-      /*TODO: overwrite mat-button background: transparent */ 
-      .dp-selected {
-        background: #106CC8;
-      }
     }
-  
+
     .dp-calendar-weekday {
       display: inline-block;
       padding-left: 2px;
@@ -62,6 +59,12 @@
   $warn: map-get($theme-config, warn);
   $foreground: map-get($theme-config, foreground);
   $background: map-get($theme-config, background);
+  $is-dark: map-get($theme-config, is-dark);
 
- 
+  /*TODO: overwrite mat-button background: transparent */ 
+  .dp-selected {
+    // background: if($is-dark, true-value, false-value);
+    background: map-get($primary, default);
+  }
+
 }

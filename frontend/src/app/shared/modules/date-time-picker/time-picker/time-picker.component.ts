@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ElementRef, AfterViewChecked, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ElementRef, AfterViewChecked, ChangeDetectorRef, HostListener, HostBinding } from '@angular/core';
 import { TimeRangePickerComponent } from '../time-range-picker/time-range-picker.component';
 import * as momentNs from 'moment';
 import { Moment, unitOfTime, duration } from 'moment';
@@ -10,10 +10,11 @@ const moment = momentNs;
 @Component({
     selector: 'time-picker',
     templateUrl: './time-picker.component.html',
-    styleUrls: ['./time-picker.component.scss']
+    styleUrls: []
   })
 
   export class TimePickerComponent {
+    @HostBinding('class.dtp-time-picker') private _hostClass = true;
 
     @Input() set startTime(value: string){ this._startTime = value; }
     @Input() set endTime(value: string){ this._endTime = value; }

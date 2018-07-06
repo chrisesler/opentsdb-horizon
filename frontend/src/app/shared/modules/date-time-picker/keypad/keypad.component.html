@@ -3,7 +3,7 @@
       <button mat-button (click)="clicked('this')" ><span>this</span></button>
   </mat-grid-list>     
   <mat-grid-list cols="3">
-      <button mat-button flex-offset="15" (click)="clicked('1')"><span>1</span></button>
+      <button mat-button (click)="clicked('1')"><span>1</span></button>
       <button mat-button (click)="clicked('2')"><span>2</span></button>
       <button mat-button (click)="clicked('3')" [disabled]="disableHighKeys"><span>3</span></button>
   </mat-grid-list>

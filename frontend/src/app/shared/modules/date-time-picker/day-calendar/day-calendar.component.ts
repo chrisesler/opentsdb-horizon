@@ -40,7 +40,7 @@ const moment = momentNs;
 @Component({
   selector: 'dp-day-calendar',
   templateUrl: 'day-calendar.component.html',
-  styleUrls: ['day-calendar.component.scss'],
+  styleUrls: [],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -59,11 +59,14 @@ const moment = momentNs;
 })
 export class DayCalendarComponent implements OnInit, OnChanges, ControlValueAccessor, Validator {
 
+  @HostBinding('class.dtp-day-calendar') private _hostClass = true;
+  @HostBinding('class') @Input() theme: string;
+
   @Input() config: IDayCalendarConfig;
   @Input() displayDate: SingleCalendarValue;
   @Input() minDate: Moment;
   @Input() maxDate: Moment;
-  @HostBinding('class') @Input() theme: string;
+
 
   @Output() onSelect: EventEmitter<IDay> = new EventEmitter();
   @Output() onMonthSelect: EventEmitter<IMonth> = new EventEmitter();

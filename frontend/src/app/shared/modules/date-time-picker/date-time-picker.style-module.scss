@@ -17,17 +17,25 @@
 // example: @import './components/componentName/componentName.component.scss';
 
 @import './day-calendar/day-calendar.component';
+@import './date-picker/date-picker.component';
+@import './keypad/keypad.component';
+@import './time-picker/time-picker.component';
+@import './time-range-picker/time-range-picker.component';
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin date-time-picker-module-core() {
-    // include your core mixins
-    // example: @include componentName-component-core();
     @include day-calendar-component-base();
+    @include date-picker-component-base();
+    @include keypad-component-base();
+    @include time-picker-component-base();
+    @include time-range-picker-component-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
 @mixin date-time-picker-module-theme($theme-config) {
-    // include your theme mixins, passing along the $theme-config
-    // example: @include componentName-component-theme($theme-config);
-    @include widget-config-legend-component-theme($theme-config)
+    @include day-calendar-component-theme($theme-config);
+    @include date-picker-component-theme($theme-config);
+    @include keypad-component-theme($theme-config);
+    @include time-picker-component-theme($theme-config);
+    @include time-range-picker-component-theme($theme-config);
 }

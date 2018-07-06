@@ -1,20 +1,48 @@
-.mat-card {
-    position: relative;
-    z-index: 1;
-    padding: 4px;
-    border-radius: 5px;
+@mixin keypad-component-base() {
+
+    .dtp-keypad {
+
+        .mat-card {
+            position: relative;
+            z-index: 1;
+            padding: 0px;
+            padding-top: 3px;
+            padding-bottom: 3px;
+            width: 100px;
+            // border-radius: 0px;
+            // background: blue;
+        }
+        
+        .mat-button {
+            font-family: 'Lucida Console';
+            min-width: 0px;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+
+        mat-grid-list {
+            display:flex;
+            justify-content:center;
+        }
+    }
+    // CDK ITEMS HERE
 }
 
-.row {
-    padding-top: 3px;
-}
+@mixin keypad-component-theme($theme-config) {
 
-.mat-button {
-    font-family: 'Lucida Console';
-    min-width: 0px;
-}
+  /* Theme config parts */
+  $primary: map-get($theme-config, primary);
+  $accent: map-get($theme-config, accent);
+  $warn: map-get($theme-config, warn);
+  $foreground: map-get($theme-config, foreground);
+  $background: map-get($theme-config, background);
 
-#this-row{
-    display:flex;
-    justify-content:center;
+  .dtp-keypad {
+      .mat-button {
+        background-color: map-get($background, default);
+        //   color: map-get($primary, default-invert);
+      }
+  }
 }
