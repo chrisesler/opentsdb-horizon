@@ -24,7 +24,7 @@ export interface IDate {
   selected: boolean;
 }
 
-export class SelectedTime {
+export class ISelectedTime {
   startTimeUnix: string;
   endTimeUnix: string;
   startTimeDisplay: string;

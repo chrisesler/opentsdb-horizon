@@ -3,7 +3,7 @@ import { TimeRangePickerComponent } from '../time-range-picker/time-range-picker
 import * as momentNs from 'moment';
 import { Moment, unitOfTime, duration } from 'moment';
 import { CalendarMode } from '../common/types/calendar-mode' 
-import { TimeRangePickerOptions, SelectedTime } from '../common/models/models'
+import { TimeRangePickerOptions, ISelectedTime } from '../common/models/models'
 
 const moment = momentNs;
 
@@ -18,7 +18,7 @@ const moment = momentNs;
 
     @Input() set startTime(value: string){ this._startTime = value; }
     @Input() set endTime(value: string){ this._endTime = value; }
-    @Output() timeSelected = new EventEmitter<SelectedTime>();
+    @Output() timeSelected = new EventEmitter<ISelectedTime>();
 
     @ViewChild(TimeRangePickerComponent) timeRangePicker: TimeRangePickerComponent; 
 
@@ -76,7 +76,7 @@ const moment = momentNs;
         this.cdRef.detectChanges();
     }
 
-    timeReceived(selectedTime: SelectedTime){
+    timeReceived(selectedTime: ISelectedTime){
         this.isOpen = false;
         this.startTime = selectedTime.startTimeDisplay;
         this.endTime = selectedTime.endTimeDisplay;

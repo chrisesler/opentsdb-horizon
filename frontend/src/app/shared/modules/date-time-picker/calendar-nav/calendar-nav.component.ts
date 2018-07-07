@@ -11,8 +11,7 @@ import {
 @Component({
   selector: 'dp-calendar-nav',
   templateUrl: './calendar-nav.component.html',
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  encapsulation: ViewEncapsulation.None
 })
 export class CalendarNavComponent {
   @Input() label: string;

@@ -55,7 +55,6 @@ const moment = momentNs;
   styleUrls: ['date-picker.component.scss'],
   templateUrl: 'date-picker.component.html',
   encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     DatePickerService,
     DayTimeCalendarService,

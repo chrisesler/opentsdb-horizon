@@ -6,8 +6,7 @@ import { Moment } from 'moment';
 import * as momentNs from 'moment';
 const moment = momentNs;
 
-import { SelectedTime } from '../common/models/models';
-import { DtprotoModule2 } from '../dtproto.module';
+import { ISelectedTime } from '../common/models/models';
 import { TimeRangePickerComponent } from './time-range-picker.component';
 import { DatePickerComponent } from '../date-picker/date-picker.component';
 import { DayTimeCalendarComponent } from '.././day-time-calendar/day-time-calendar.component';
@@ -203,8 +202,8 @@ describe('TimeRangePickerComponent', () => {
       let btn = fixture.debugElement.query(By.css("#button-" + preset));
       expect(btn).toBeTruthy();
 
-      let _selectedTime: SelectedTime;
-      component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+      let _selectedTime: ISelectedTime;
+      component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
     
       let expectedEnd = moment().unix().toString();
       let expectedStart = moment().subtract(1, "year").unix().toString();
@@ -229,8 +228,8 @@ describe('TimeRangePickerComponent', () => {
     tick();
     fixture.detectChanges();
 
-    let _selectedTime: SelectedTime;
-    component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+    let _selectedTime: ISelectedTime;
+    component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
     let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
     applyBtn.triggerEventHandler('click', null);
     tick();
@@ -249,8 +248,8 @@ it('should emit the time for week', fakeAsync(() => {
   tick();
   fixture.detectChanges();
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   applyBtn.triggerEventHandler('click', null);
   tick();
@@ -269,8 +268,8 @@ it('should emit the time for day', fakeAsync(() => {
   tick();
   fixture.detectChanges();
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   applyBtn.triggerEventHandler('click', null);
   tick();
@@ -289,8 +288,8 @@ it('should emit the time for hour', fakeAsync(() => {
   tick();
   fixture.detectChanges();
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   applyBtn.triggerEventHandler('click', null);
   tick();
@@ -309,8 +308,8 @@ it('should emit the time for minute', fakeAsync(() => {
   tick();
   fixture.detectChanges();
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   applyBtn.triggerEventHandler('click', null);
   tick();
@@ -329,8 +328,8 @@ it('should emit the time for this year', fakeAsync(() => {
   tick();
   fixture.detectChanges();
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   applyBtn.triggerEventHandler('click', null);
   tick();
@@ -348,8 +347,8 @@ it('should emit the time for this quarter', fakeAsync(() => {
   tick();
   fixture.detectChanges();
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   applyBtn.triggerEventHandler('click', null);
   tick();
@@ -367,8 +366,8 @@ it('should emit the time for this month', fakeAsync(() => {
   tick();
   fixture.detectChanges();
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   applyBtn.triggerEventHandler('click', null);
   tick();
@@ -386,8 +385,8 @@ it('should emit the time for this week', fakeAsync(() => {
   tick();
   fixture.detectChanges();
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   applyBtn.triggerEventHandler('click', null);
   tick();
@@ -405,8 +404,8 @@ it('should emit the time for this day', fakeAsync(() => {
   tick();
   fixture.detectChanges();
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   applyBtn.triggerEventHandler('click', null);
   tick();
@@ -427,8 +426,8 @@ it('should emit the time when using relative and unix timestamp', fakeAsync(() =
   tick();
   fixture.detectChanges();
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   applyBtn.triggerEventHandler('click', null);
   tick();
@@ -452,8 +451,8 @@ it('should emit the time when using relative and unix timestamp', fakeAsync(() =
   tick();
   fixture.detectChanges();
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   applyBtn.triggerEventHandler('click', null);
   tick();
@@ -472,8 +471,8 @@ it('should emit -1hr if no start time', fakeAsync(() => {
   fixture.detectChanges();
 
   component.setStartTime("");
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   let expectedStart = moment().subtract(1,'hour').unix().toString();
   applyBtn.triggerEventHandler('click', null);
@@ -491,8 +490,8 @@ it('should emit now if no end time', fakeAsync(() => {
   fixture.detectChanges();
 
   component.setEndTime("");
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   let expectedEnd = moment().unix().toString();
   applyBtn.triggerEventHandler('click', null);
@@ -510,8 +509,8 @@ it('should emit -1hr if invalid start time', fakeAsync(() => {
   fixture.detectChanges();
 
   component.setStartTime("blah");
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   let expectedStart = moment().subtract(1,'hour').unix().toString();
   applyBtn.triggerEventHandler('click', null);
@@ -529,8 +528,8 @@ it('should emit now if invalid end time', fakeAsync(() => {
   fixture.detectChanges();
 
   component.setEndTime("blah");
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
   let expectedEnd = moment().unix().toString();
   applyBtn.triggerEventHandler('click', null);
@@ -550,8 +549,8 @@ it('should emit opposite unix times if end before start', fakeAsync(() => {
   component.setStartTime("-1d");
   component.setEndTime("-2d");
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
 
   let expectedStart = moment().subtract(2,"day").unix().toString();
@@ -577,8 +576,8 @@ it('should add 2 minutes if duration is 1 minute or less', fakeAsync(() => {
   component.setStartTime("-1m");
   component.setEndTime("-2m");
 
-  let _selectedTime: SelectedTime;
-  component.timeSelected.subscribe((time: SelectedTime) => _selectedTime = time);
+  let _selectedTime: ISelectedTime;
+  component.timeSelected.subscribe((time: ISelectedTime) => _selectedTime = time);
   let applyBtn = fixture.debugElement.query(By.css("#button-apply"));
 
   let expectedStart = moment().subtract(4,"minute").unix().toString(); 

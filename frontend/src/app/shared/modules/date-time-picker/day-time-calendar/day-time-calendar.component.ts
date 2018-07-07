@@ -37,7 +37,6 @@ import {DayCalendarComponent} from '../day-calendar/day-calendar.component';
 @Component({
   selector: 'dp-day-time-calendar',
   templateUrl: 'day-time-calendar.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   providers: [
     DayTimeCalendarService,

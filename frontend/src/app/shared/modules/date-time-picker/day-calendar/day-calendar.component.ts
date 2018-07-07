@@ -42,7 +42,6 @@ const moment = momentNs;
   templateUrl: 'day-calendar.component.html',
   styleUrls: [],
   encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     DayCalendarService,
     {

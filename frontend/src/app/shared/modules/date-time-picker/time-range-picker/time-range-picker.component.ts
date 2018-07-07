@@ -5,7 +5,7 @@ import { Moment } from 'moment';
 import * as momentNs from 'moment';
 import { DatePickerComponent } from '../date-picker/date-picker.component';
 import { timeAbbr, abbrToTime } from '../common/services/utils.service'
-import { TimeRangePickerOptions, SelectedTime } from '../common/models/models'
+import { TimeRangePickerOptions, ISelectedTime } from '../common/models/models'
 import { CalendarMode } from '../common/types/calendar-mode' 
 import {  } from '../time-picker/time-picker.component'
 
@@ -32,8 +32,8 @@ export class TimeRangePickerComponent implements OnInit {
 
   @Input() set startTime(time: string){ this.startTimeReference.setTime(String(time)); }
   @Input() set endTime(time: string){ this.endTimeReference.setTime(String(time)); }
-  @Input() options: TimeRangePickerOptions;
-  @Output() timeSelected = new EventEmitter<SelectedTime>();
+  @Input() options: TimeRangePickerOptions;ISelectedTime
+  @Output() timeSelected = new EventEmitter<ISelectedTime>();
   @Output() cancelSelected = new EventEmitter();
 
   @ViewChild('daytimePickerStart') startTimeReference: DatePickerComponent;
@@ -57,8 +57,8 @@ export class TimeRangePickerComponent implements OnInit {
     this.showApply = false;
   }
 
-  getTimeSelected(): SelectedTime {
-    let time = new SelectedTime();
+  getTimeSelected(): ISelectedTime {
+    let time = new ISelectedTime();
 
     //default value for invalid time
     if(!this.startTimeSelected){

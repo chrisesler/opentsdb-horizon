@@ -38,7 +38,6 @@ const moment = momentNs;
   selector: 'dp-month-calendar',
   templateUrl: 'month-calendar.component.html',
   encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     MonthCalendarService,
     {

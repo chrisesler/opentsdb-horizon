@@ -11,7 +11,7 @@ import { Store, Select } from '@ngxs/store';
 import { DashboardState } from '../../state/dashboard.state';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
-import { SelectedTime } from '../../../shared/modules/date-time-picker/common/models/models';
+import { ISelectedTime } from '../../../shared/modules/date-time-picker/common/models/models';
 import * as dashboardActions from '../../state/dashboard.actions';
 
 @Component({
@@ -160,13 +160,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.log('dashboard name save', event);
     }
         
-    timeUpdated(selectedTime: SelectedTime){
+    timeUpdated(selectedTime: ISelectedTime){
         console.log(selectedTime);
-    }
-
-    closeViewEditMode(payload) {
-        this.store.dispatch(new dashboardActions.SetViewEditMode(payload));
-        this.rerender = { 'reload': true };
     }
 
     ngOnDestroy() {
