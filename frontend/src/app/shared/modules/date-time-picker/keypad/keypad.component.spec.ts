@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SimpleTimePickerComponent } from './simple-time-picker.component';
+import { KeypadComponent } from './keypad.component';
 
-describe('SimpleTimePickerComponent', () => {
-  let component: SimpleTimePickerComponent;
-  let fixture: ComponentFixture<SimpleTimePickerComponent>;
+describe('KeypadComponent', () => {
+  let component: KeypadComponent;
+  let fixture: ComponentFixture<KeypadComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SimpleTimePickerComponent ]
+      declarations: [ KeypadComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SimpleTimePickerComponent);
+    fixture = TestBed.createComponent(KeypadComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

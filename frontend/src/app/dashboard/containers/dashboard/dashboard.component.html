@@ -13,9 +13,12 @@
             <span>Add Widget</span>
         </button>
     </span>
-    <simple-time-picker mat-button xPosition="before"></simple-time-picker>
+
+    <span class="navbar-item nav-add-new-widget">
+        <time-picker (timeSelected)="timeUpdated($event)" xPosition="before"></time-picker>
+        <theme-picker mat-button></theme-picker>
+    </span>
     
-    <theme-picker mat-button></theme-picker>
     <!--<span class="navbar-item nav-close-edit-view" *ngIf="viewEditMode$ | async">
         <button mat-raised-button (click)="closeViewEditMode()">
           <mat-icon>reply</mat-icon>
