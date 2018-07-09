@@ -38,12 +38,12 @@
 
         .graph-preview-pane {
             height: 350px;
-            padding: 0 20px 20px;
+            //padding: 0 20px 20px;
 
             .graph-preview {
                 width: 100%;
                 height: 100%;
-                border-radius: 4px;
+                //border-radius: 4px;
             }
 
             // the actual graph
@@ -55,7 +55,12 @@
             // metrics list in graph
             .graph-metrics {
                 //border-left: 1px solid  
-                padding: 4px; 
+                //padding: 4px; 
+            }
+
+            .graph-output,
+            .graph-metrics {
+                padding: 10px;
             }
 
             .graph-metric-list-item {
@@ -69,14 +74,19 @@
                 }
 
                 .mat-icon-button {
-                    width: 16px;
+                    /*width: 16px;
                     height: 16px;
                     line-height: 1;
                     border: 1px solid currentColor;
-                    margin-top: 4px;
+                    margin-top: 4px;*/
+                    transform: rotate(45deg);
+
+                    .mat-icon {
+                        font-size: 18px;
+                    }
                 }
 
-                .mat-icon.denali {
+                /*.mat-icon.denali {
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
@@ -84,7 +94,7 @@
                     font-size: 12px;
                     width: 16px;
                     height: 16px;
-                }
+                }*/
 
                 .metric-details {
                     margin-left: 12px;
@@ -94,7 +104,20 @@
                 }
 
                 .metric-tags {
-                    .mat-chip {
+
+                    .metric-tag {
+                        margin-bottom: 5px;
+
+                        &:not(:last-child) {
+                            margin-right: 5px;
+                        }
+
+                        strong {
+                            margin-left: 4px;
+                        }
+                    }
+
+                    /*.mat-chip {
                         padding: 3px 6px;
                         font-size: 10px;
                         margin: 2px 4px;
@@ -102,7 +125,7 @@
                         strong {
                             margin-left: 4px;
                         }
-                    }
+                    }*/
                 }
             }
         }
@@ -133,7 +156,27 @@
 
             .namespace-search-control {
                 width: 288px;
-            } 
+            }
+
+            .metric-pivot-control {
+                .mat-tab-links {
+                    align-items: stretch;
+                    justify-content: stretch;
+                }
+
+                .mat-tab-link {
+                    flex: 1;
+                    
+                }
+            }
+        }
+
+        .metric-result-count {
+            padding: 2px 6px;
+            
+            .mat-hint {
+                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+            }
         }
 
         .mat-dialog-actions {
@@ -178,6 +221,15 @@
                 }
             }
 
+            .key {
+                margin-right: 5px;
+                word-break: break-all;
+            }
+
+            .mat-expansion-panel {
+                margin: 0 5px;
+            }
+
             .mat-expansion-panel-header {
                 padding: 0 12px;
             }
@@ -191,6 +243,10 @@
 
                 .mat-list-item {
                     font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+
+                    &.is-selected {
+                        font-weight: 500;
+                    }
                 }
 
                 .mat-list-item-content {
@@ -238,6 +294,38 @@
                 td.mat-column-other,
                 th.mat-column-other {
                     width: 100%;
+                }
+
+                td.mat-cell:not(.mat-column-selectMetric):not(.mat-column-other) {
+                    word-break: unset;
+                    hyphens: unset;
+                    white-space: nowrap;
+                }
+
+                tr.mat-header-row {
+                    height: 30px;
+                }
+
+                th.mat-header-cell {
+                    text-transform: uppercase;
+                }
+
+                .select-metric-btn {
+                    .mat-icon {
+                        font-size: 18px;
+                    }
+                }
+
+                .metric-tags {
+                    .mat-chip {
+                        padding: 3px 6px;
+                        font-size: 10px;
+                        margin: 2px 4px;
+                        
+                        strong {
+                            margin-left: 4px;
+                        }
+                    }
                 }
 
 
@@ -297,10 +385,13 @@
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $success: map-get($theme-config, success);
     $is-dark: map-get($theme-config, is-dark);
 
-    $divider: map-get($foreground, divider);
-    $card-backround: map-get($background, card);
+    $divider: map-get($background, background);
+    $card-background: map-get($background, card);
+
+    $light-gray-background: map-get($background, menu);
 
     $expanded-header-bg: map-get($primary, default);
     $expanded-header-text: map-get($primary, default-contrast);
@@ -310,51 +401,145 @@
 
     .search-metrics-dialog {
         //background-color: map-get($background, background);
+        background-color: $card-background;
 
         .mat-toolbar {
             background: transparent;
+            border-bottom: 2px solid $divider;
         }
 
         .metric-search-input-controls {
-            border-bottom: 1px solid $divider;
+            // border-bottom: 1px solid $divider;
+
+            .mat-form-field-type-mat-input {
+                .mat-form-field-flex {
+                    background-color: lighten(map-get($primary, 50), 2%);
+                }
+
+                &.mat-focused {
+                    .mat-form-field-flex {
+                        background-color: map-get($primary, 50);
+                    }
+                }
+            }
+        }
+
+        .metric-results-output {
+            border-top: 2px solid $light-gray-background;
+        }
+
+        .mat-dialog-actions { 
+            border-top: 2px solid $divider;
         }
 
         .graph-preview-pane {
+            border-bottom: 2px solid $divider;
+
             .graph-preview {
-                background: $card-backround;
+                background: $card-background;
             }
 
             // metrics list in graph
             .graph-metrics {
-                background-color: $expanded-body-bg;
-                border-left: 1px $divider; 
+                //background-color: $expanded-body-bg;
+                border-left: 2px solid $divider; 
+            }
+
+            .graph-metric-list-item {
+                .mat-icon-button {
+                    color: map-get($foreground, link);
+                }
+            }
+
+            .metric-tags {
+                .metric-tag {
+                    color: map-get($foreground, hint-text);
+                }
             }
         }
 
         .content-container {
-            background: $card-backround;
+            background: $card-background;
         }
 
         .available-tags {
-            border-right: 1px solid $divider;
-        }
+            //border-right: 1px solid $divider;
+            background-color: $light-gray-background;
 
-        .mat-expansion-panel {
-            &.mat-expanded {
-                .mat-expansion-panel-header {
-                    background-color: $expanded-header-bg;
-                    color: $expanded-header-text;
+            .mat-expansion-panel {
+                background: transparent;
+                
+                &:not(:last-child) {
+                    border-bottom: 1px solid $divider;
                 }
 
-                .mat-expansion-indicator {
-                    color: $expanded-header-text;
+                .key {
+                    color: map-get($foreground, link);
                 }
 
-                .mat-expansion-panel-body {
-                    background-color: rgba($expanded-header-bg, 0.05);
+                .count {
+                    color: map-get($foreground, secondary-text);
+                }
+
+
+                &.mat-expanded {
+                    position: relative;
+
+                    // bottom shadow so it gives some indication that there might be more items
+                    &:after {
+                        content: '';
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        height: 12px;
+                        width: 100%;
+                        display: block;
+                        background: linear-gradient(0deg, rgba(map-get($foreground, base), 0.05), transparent);
+                    }
+
+                    .mat-expansion-panel-header {
+                        // background-color: $expanded-header-bg;
+                        // color: $expanded-header-text;
+
+                        .key {
+                            color: map-get($foreground, text);
+                        }
+                    }
+    
+                    .mat-expansion-indicator {
+                        // color: $expanded-header-text;
+                    }
+    
+                    .mat-expansion-panel-body {
+                        // background-color: rgba($expanded-header-bg, 0.05);
+
+                        .available-tag-values-container.has-scroller {
+                            height: 250px;
+                        }
+                    }
+
+                    .mat-nav-list {
+   
+                        .mat-list-item.is-selected {
+                            .key {
+                                color: map-get($foreground, text);
+                            }
+                        }
+                    }
                 }
             }
         }
+
+        .search-results {
+            .select-metric-btn {
+                color: map-get($foreground, link);
+            }
+
+            .selected-metric-bg {
+                background: map-get($success, 100);
+            }
+        }
+        
 
     }
 

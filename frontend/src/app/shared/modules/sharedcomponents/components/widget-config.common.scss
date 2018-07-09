@@ -136,6 +136,7 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
             opacity: 1;
             z-index: 1;
             background-color: transparent;
+            user-select: none;
 
             &.mat-tab-label-active,
             &:not(.mat-tab-disabled):not(.mat-tab-label-active) {
@@ -206,7 +207,7 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
 
 
     .sliding-button-group.mat-tab-nav-bar {
-        background-color: $fill-background;
+        background-color: lighten(map-get($primary, 50), 2%);
 
         .mat-tab-link {
             color: map-get($primary, default);
