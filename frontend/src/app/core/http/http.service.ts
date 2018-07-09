@@ -37,11 +37,36 @@ export class HttpService {
               queries: [
                 {
                   metric: 'Flickr.yapache.requests',
-                  filter: [
+                  filters: [
                     {
                       type: 'wildcard',
-                      key: 'host',
-                      value: '*.bf1.*',
+                      tagk: 'colo',
+                      filter: '*',
+                      groupBy: true
+                    }
+                  ],
+                  aggregator: 'zimsum',
+                  explicitTags: false,
+                  rate: false,
+                  rateOptions: {
+                    counter: false,
+                    resetValue: 1
+                  }
+                }
+              ]
+            },
+            {
+              id: '2344',
+              title: 'group 2',
+              visual: {},
+              queries: [
+                {
+                  metric: 'Flickr.yapache.response_time',
+                  filters: [
+                    {
+                      type: 'wildcard',
+                      tagk: 'host',
+                      filter: '*',
                       groupBy: true
                     }
                   ],
