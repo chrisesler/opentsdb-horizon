@@ -33,7 +33,7 @@ export interface WidgetModel {
     data?: {
         rawdata?: any;
     },
-    rawdata?: any[];
+    rawdata?: any;
 }
 
 export interface DashboardStateModel {
@@ -43,6 +43,7 @@ export interface DashboardStateModel {
     viewEditMode: boolean;
     editWidgetId: string;
     updatedWidgetId: string;
+    updatedGroupId: string;
     settings: any;
     widgets: WidgetModel[];
 }
@@ -56,6 +57,7 @@ export interface DashboardStateModel {
       viewEditMode: false,
       editWidgetId: '',
       updatedWidgetId: '',
+      updatedGroupId: '',
       settings: {},
       widgets: []
     }
@@ -87,6 +89,14 @@ export class DashboardState {
     static getUpdatedWidgetId(state: DashboardStateModel) {
         return state.updatedWidgetId;
     }
+
+   @Selector() 
+   static getWidgetGroupUpdate(state: DashboardStateModel) {
+       return {
+            widgetId: state.updatedWidgetId,
+            groupId: state.updatedGroupId
+       }
+   }
 
     @Action(dashboardAction.LoadDashboard)
     loadDashboard(ctx: StateContext<DashboardStateModel>, { id }: dashboardAction.LoadDashboard) {
@@ -186,20 +196,23 @@ export class DashboardState {
                 const state = ctx.getState();
                 for (let w of state.widgets) {
                     if (w.id === action.widgetid) {
-                        if(!w.rawdata) w.rawdata = [];
-                        w.rawdata.push({
-                            id: action.groupid,
-                            data: data
-                        });
+                        //if(!w.rawdata) w.rawdata = [];
+                        //w.rawdata.push({
+                        //    id: action.groupid,
+                        //    data: data
+                        //});
+                        if (!w.rawdata) w.rawdata = {};
+                        w.rawdata[action.groupid] = data;
+                        state.updatedWidgetId = w.id;
+                        state.updatedGroupId = action.groupid;
                         break;
                     }
                 }
-                ctx.setState(state);
-                console.log('data', data);        
+                ctx.setState(state);       
             },
             err => {
-                console.log('error', err);
-                
+                // todo: handle error case
+                console.log('error', err);     
             }
         );
    }
