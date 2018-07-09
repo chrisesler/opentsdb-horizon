@@ -11,6 +11,56 @@ export class HttpService {
 
   constructor(private http: HttpClient) { }
 
+  private testDashboard: any = {
+    id: 'abcdfg',
+    settings: {
+      title: 'my test dashboard'
+    },
+    widgets: [
+      {
+        id: 'abcd',
+        gridPos: { x: 0, y: 0, w: 6, h: 5},
+        settings: {
+          title: 'my widget title',
+          component_type: 'LinechartWidgetComponent',
+          data_source: 'yamas'
+        },
+        query: {
+          start: '1h-ago',
+          end: '',
+          downsample: '60m-avg-nan',
+          groups: [
+            {
+              id: '1234',
+              title: 'group 1',
+              visual: {},
+              queries: [
+                {
+                  metric: 'Flickr.yapache.requests',
+                  filter: [
+                    {
+                      type: 'wildcard',
+                      key: 'host',
+                      value: '*.bf1.*',
+                      groupBy: true
+                    }
+                  ],
+                  aggregator: 'zimsum',
+                  explicitTags: false,
+                  rate: false,
+                  rateOptions: {
+                    counter: false,
+                    resetValue: 1
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  };
+
   private dashboard: any  = {
     id: '123456',
     settings: {
@@ -146,7 +196,8 @@ export class HttpService {
   };
 
   getDashoard(id: string): Observable<any> {
-    return Observable.of(this.dashboard);
+    //return Observable.of(this.dashboard);
+    return Observable.of(this.testDashboard);
   }
 
   /* to handle error  with more info */
@@ -166,19 +217,9 @@ export class HttpService {
       'Something bad happened; please try again later.'
     );
   }
-
-  /* post the openTsdb query api */
-  getDataByPost(wconfig: any): Observable<any> {
-    const headers = new HttpHeaders(
-      { 'Content-Type': 'application/json' });
-    // let apiUrl = environment.tsdb_host + '/api/query';
-    return this.http.post('/tsdb/queryData', wconfig.query, { headers, withCredentials: true })
-      .pipe(
-        catchError(this.handleError)
-      );
-  }
   /* will refactor later */
   getYamasData(query: any): Observable<any> {
+    console.log('getYamasData', query); 
     const headers = new HttpHeaders(
       { 'Content-Type': 'application/json' });
     // let apiUrl = environment.tsdb_host + '/api/query';
