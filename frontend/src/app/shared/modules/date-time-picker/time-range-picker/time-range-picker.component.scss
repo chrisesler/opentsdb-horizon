@@ -1,0 +1,63 @@
+@mixin time-range-picker-component-base() {
+
+    .dtp-time-range-picker {
+        .mat-card {
+            font-family: 'Lucida Console';
+            justify-content: center;
+        }
+        
+        .presets {
+            margin-bottom: 12px;
+        }
+        
+        .mat-stroked-button {
+            font-family: 'Lucida Console';
+            width: 15px;
+            border: transparent;
+        }
+        
+        .dp-time-header {
+            font-size: 20px
+        }
+          
+        .dtpicker-start {
+            margin-bottom: 15px;
+            width: 256px;
+        }
+        
+        .dtpicker-end {
+            width: 256px;
+        }
+        
+        #button-apply {
+            margin-top: 10px;
+            font-family: 'Lucida Console';
+        }
+    }
+}
+
+@mixin time-range-picker-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark: map-get($theme-config, is-dark);
+
+    .dtp-time-range-picker {
+
+        .wrapper {
+            background: map-get($background, background);
+        }
+    
+        #button-apply {
+            background-color: if($is-dark, map-get($accent, default), #00FF00);
+        }
+
+        .is-selected {
+            background-color: map-get($accent, default);
+        }
+    }
+}

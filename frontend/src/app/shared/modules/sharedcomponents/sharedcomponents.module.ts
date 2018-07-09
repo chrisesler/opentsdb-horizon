@@ -6,12 +6,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 /** Other modules */
 import { MaterialModule } from '../material/material.module';
 import { DygraphsModule } from '../dygraphs/dygraphs.module';
+import { DateTimePickerModule } from '../date-time-picker/date-time-picker.module'
 
 /** public items from Sharedcomponents */
 
  // other components
 import { SearchMetricsDialogComponent } from './components/search-metrics-dialog/search-metrics-dialog.component';
-import { SimpleTimePickerComponent } from './components/simple-time-picker/simple-time-picker.component';
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 
  // widget config components
@@ -32,11 +32,11 @@ import { InlineEditableComponent } from './components/inline-editable/inline-edi
         FormsModule,
         ReactiveFormsModule,
         MaterialModule,
-        DygraphsModule
+        DygraphsModule,
+        DateTimePickerModule
     ],
     declarations: [
         SearchMetricsDialogComponent,
-        SimpleTimePickerComponent,
         ThemePickerComponent,
         WidgetConfigAlertsComponent,
         WidgetConfigAxesComponent,
@@ -50,7 +50,6 @@ import { InlineEditableComponent } from './components/inline-editable/inline-edi
     ],
     exports: [
         SearchMetricsDialogComponent,
-        SimpleTimePickerComponent,
         ThemePickerComponent,
         WidgetConfigAlertsComponent,
         WidgetConfigAxesComponent,
@@ -60,7 +59,7 @@ import { InlineEditableComponent } from './components/inline-editable/inline-edi
         WidgetConfigQueryInspectorComponent,
         WidgetConfigTimeComponent,
         WidgetConfigVisualAppearanceComponent,
-        InlineEditableComponent
+        DateTimePickerModule
     ],
     entryComponents: [
         SearchMetricsDialogComponent

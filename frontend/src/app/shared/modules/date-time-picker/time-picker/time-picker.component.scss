@@ -1,0 +1,52 @@
+@mixin time-picker-component-base() {
+
+    .dtp-time-picker {
+        .mat-button {
+            font-family: 'Lucida Console';
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 265px;
+            padding-left: 2px;
+            text-align: left;
+            border-radius: 6px;
+            font-size: 12px;
+            position: absolute;
+            top: 48px;
+            right: 58px;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+        }
+        
+        .invisible {
+            display:none;
+        }
+        
+        .box {
+            max-width: 290px;
+            padding-top: 10px;
+            position: absolute;
+            right: 50px;
+        }
+    }
+}
+
+@mixin time-picker-component-theme($theme-config) {
+
+  /* Theme config parts */
+  $primary: map-get($theme-config, primary);
+  $accent: map-get($theme-config, accent);
+  $warn: map-get($theme-config, warn);
+  $foreground: map-get($theme-config, foreground);
+  $background: map-get($theme-config, background);
+
+  .dtp-time-picker {
+    .tooltip .tooltiptext {
+        background-color:map-get($accent, default);
+    }
+ }
+
+}

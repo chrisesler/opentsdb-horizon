@@ -398,6 +398,9 @@
 
     $expanded-body-bg: rgba(map-get($primary, default), 0.05);
 
+    $input-bg: if($is-dark, rgba(map-get($foreground, base), .1), lighten(map-get($primary, 50), 2%));
+    $input-bg-focus: if($is-dark, rgba(map-get($foreground, base), .12), map-get($primary, 50));
+
 
     .search-metrics-dialog {
         //background-color: map-get($background, background);
@@ -413,12 +416,12 @@
 
             .mat-form-field-type-mat-input {
                 .mat-form-field-flex {
-                    background-color: lighten(map-get($primary, 50), 2%);
+                    background-color: $input-bg;
                 }
 
                 &.mat-focused {
                     .mat-form-field-flex {
-                        background-color: map-get($primary, 50);
+                        background-color: $input-bg-focus;
                     }
                 }
             }
@@ -484,6 +487,7 @@
 
                 &.mat-expanded {
                     position: relative;
+                    border-bottom: 1px solid $divider;
 
                     // bottom shadow so it gives some indication that there might be more items
                     &:after {
@@ -494,7 +498,7 @@
                         height: 12px;
                         width: 100%;
                         display: block;
-                        background: linear-gradient(0deg, rgba(map-get($foreground, base), 0.05), transparent);
+                        background: linear-gradient(0deg, if($is-dark, rgba(map-get($background, background), .2), rgba(map-get($foreground, base), 0.05)), transparent);
                     }
 
                     .mat-expansion-panel-header {

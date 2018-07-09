@@ -103,7 +103,7 @@
     * {
         // background of the bar itself
         &::-webkit-scrollbar {
-            background-color: transparent;
+            background-color: transparent; 
             &:vertical {
                 width: $scrollbar-size;
             }
