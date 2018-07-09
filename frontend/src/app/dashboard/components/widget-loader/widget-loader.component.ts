@@ -51,8 +51,8 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     loadComponent() {
         console.log('component creating', this.widget.id);
         let componentName = '__notfound__';
-        if (this.widget.config.component_type) {
-            componentName = this.widget.config.component_type;
+        if (this.widget.settings.component_type) {
+            componentName = this.widget.settings.component_type;
         }
         const componentToLoad: Type<any> = this.widgetService.getComponentToLoad(componentName);
         this.componentFactory = this.componentFactoryResolver.resolveComponentFactory(componentToLoad);
