@@ -36,10 +36,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // other variables
     listenSub: Subscription;
     private routeSub: Subscription;
-    dbid: string; //passing dashboard id
+    dbid: string; // passing dashboard id
     wid: string; // passing widget id
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
     widgets: any[] = [];
+    // tslint:disable-next-line:no-inferrable-types
     viewEditMode: boolean = false;
 
     constructor(
@@ -53,12 +54,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // handle route
         this.routeSub = this.route.params.subscribe(params => {
-            // route to indicate create a new dashboard    
+            // route to indicate create a new dashboard
             if (params['dbid']) {
                 this.dbid = params['dbid'];
                 if (this.dbid === '_new_') {
                     console.log('creating a new dashboard...');
-                    let newdboard = this.dbService.getDashboardPrototype();
+                    const newdboard = this.dbService.getDashboardPrototype();
                     this.store.dispatch(new dashboardActions.CreateNewDashboard(newdboard));
                 } else {
                     // load provided dashboard id, and need to handdle not found too
@@ -114,13 +115,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
         // sending down view edit mode to handle size
-        this.viewEditMode$.subscribe(payload => {            
+        this.viewEditMode$.subscribe(payload => {
             this.viewEditMode = payload.editMode;
                 this.interCom.responsePut({
                 id: payload.widgetId,
                 action: 'viewEditWidgetMode',
                 payload: payload
-                
             });
         });
 
@@ -148,7 +148,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // event emit to add new widget from dashboard header
     addNewWidget() {
-        let payload = { widget: this.dbService.getWidgetPrototype() };
+        const payload = { widget: this.dbService.getWidgetPrototype() };
         this.store.dispatch(new dashboardActions.AddWidget(payload));
         // trigger Update Widget layout event
         this.rerender = { 'reload': true };
@@ -157,7 +157,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // save dashboard name
     saveDashboardName(event: any) {
         console.log('dashboard name save', event);
-        
     }
 
     ngOnDestroy() {
