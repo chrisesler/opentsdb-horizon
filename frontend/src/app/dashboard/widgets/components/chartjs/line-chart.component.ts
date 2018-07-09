@@ -149,7 +149,7 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
         this.interCom.requestSend({
             id: this.widget.id,
             action: 'getQueryData',
-            payload: this.widget.config,
+            payload: this.widget.query,
         });
     }
 
@@ -173,14 +173,14 @@ export class LineChartComponent extends ChartBase implements OnInit, OnDestroy, 
 
     // transform data for chartjs
     transformData() {
-        if(this.widget.config.rawdata[0].dps) {
+        if(this.widget.data.rawdata[0].dps) {
             // first let set the label
             //console.log('rawdata', Object.keys(this.widget.config.rawdata[0].dps));
             
             
-            this.labels = Object.keys(this.widget.config.rawdata[0].dps);
+            this.labels = Object.keys(this.widget.data.rawdata[0].dps);
             for (let i = 0; i < 10; i++) {
-                let d = { data: Object.values(this.widget.config.rawdata[i].dps)};
+                let d = { data: Object.values(this.widget.data.rawdata[i].dps)};
                 this.dataset.push(d);
             }  
             // update data:
