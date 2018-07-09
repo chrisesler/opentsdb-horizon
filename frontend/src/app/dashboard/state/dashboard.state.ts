@@ -11,7 +11,11 @@ export interface WidgetModel {
         width: number;
         height: number;
     };
-    settings: {};
+    settings: {
+        title: string;
+        component_type: string;
+        data_source?: string;
+    };
     gridPos: {
         x: number;
         y: number;
@@ -20,12 +24,16 @@ export interface WidgetModel {
         xMd?: number;
         yMd?: number;
     };
-    config: {
-        title: string;
-        component_type: string;
-        data_source?: string;
+    query: {
+        start: string;
+        end?: string;
+        downsample: string;
+        groups: any[];
+    },
+    data?: {
         rawdata?: any;
-    };
+    },
+    rawdata?: any[];
 }
 
 export interface DashboardStateModel {
@@ -148,15 +156,40 @@ export class DashboardState {
     */
    @Action(dashboardAction.GetQueryData)
    GetQueryData(ctx: StateContext<DashboardStateModel>, action: dashboardAction.GetQueryData) {
-        this.httpService.getDataByPost(action.query).subscribe(
+        this.httpService.getYamasData(action.query).subscribe(
             data => {
                 const state = ctx.getState();
                 // tslint:disable-next-line:prefer-const
                 for (let w of state.widgets) {
                     if (w.id === action.widgetid) {
                         // or transformation for data needed to be done here.
-                        w.config.rawdata = data;
+                        if (!w.data) {
+                            // first time may not have this properties data yet
+                            // then create it.
+                            w.data = {};
+                        }
+                        w.data.rawdata = data;
                         state.updatedWidgetId = w.id;
+                        break;
+                    }
+                }
+                ctx.setState(state);
+            }
+        );
+   }
+
+   // with multiple groups support in a widget, passing groupid along to break query into groups
+   @Action(dashboardAction.GetQueryDataByGroup)
+   getQueryDataByGroup(ctx: StateContext<DashboardStateModel>, action: dashboardAction.GetQueryDataByGroup) {
+        this.httpService.getYamasData(action.query).subscribe(
+            data => {
+                const state = ctx.getState();
+                for (let w of state.widgets) {
+                    if (w.id === action.widgetid) {
+                        w.rawdata.push({
+                            id: action.groupid,
+                            data: data
+                        });
                         break;
                     }
                 }
