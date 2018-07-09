@@ -35,6 +35,12 @@ export class GetQueryData {
     constructor(public readonly widgetid: string, public readonly query: any) {}
 }
 
+export class GetQueryDataByGroup {
+    static readonly type = '[Dashboard] Get Query Data By Group';
+    constructor(public readonly widgetid: string, 
+                public readonly groupid: string, public readonly query: any) {}
+}
+
 export class RemoveWidget {
     static readonly type = '[Dashboard] Remove Widget';
     constructor(public readonly payload: any) {}
@@ -52,5 +58,6 @@ export type DashboardActions = LoadDashboard
                                 | UpdateWidgetsLayout
                                 | SetViewEditMode
                                 | GetQueryData
+                                | GetQueryDataByGroup
                                 | RemoveWidget
                                 | AddWidget;
