@@ -186,6 +186,7 @@ export class DashboardState {
                 const state = ctx.getState();
                 for (let w of state.widgets) {
                     if (w.id === action.widgetid) {
+                        if(!w.rawdata) w.rawdata = [];
                         w.rawdata.push({
                             id: action.groupid,
                             data: data
@@ -194,6 +195,11 @@ export class DashboardState {
                     }
                 }
                 ctx.setState(state);
+                console.log('data', data);        
+            },
+            err => {
+                console.log('error', err);
+                
             }
         );
    }
