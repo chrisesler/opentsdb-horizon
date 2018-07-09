@@ -19,7 +19,7 @@ export class HttpService {
     widgets: [
       {
         id: 'abcd',
-        gridPos: { x: 0, y: 0, w: 6, h: 5},
+        gridPos: { x: 0, y: 0, w: 6, h: 5 },
         settings: {
           title: 'my widget title',
           component_type: 'LinechartWidgetComponent',
@@ -30,31 +30,6 @@ export class HttpService {
           end: '',
           downsample: '60m-avg-nan',
           groups: [
-            {
-              id: '1234',
-              title: 'group 1',
-              visual: {},
-              queries: [
-                {
-                  metric: 'Flickr.yapache.requests',
-                  filters: [
-                    {
-                      type: 'wildcard',
-                      tagk: 'colo',
-                      filter: '*',
-                      groupBy: true
-                    }
-                  ],
-                  aggregator: 'zimsum',
-                  explicitTags: false,
-                  rate: false,
-                  rateOptions: {
-                    counter: false,
-                    resetValue: 1
-                  }
-                }
-              ]
-            },
             {
               id: '2344',
               title: 'group 2',
@@ -82,8 +57,115 @@ export class HttpService {
             }
           ]
         }
-      }
-    ]
+      },
+      {
+        id: 'cdft',
+        gridPos: { x: 6, y: 0, w: 6, h: 5 },
+        settings: {
+          title: 'my widget second title',
+          component_type: 'LinechartWidgetComponent',
+          data_source: 'yamas'
+        },
+        query: {
+          start: '1h-ago',
+          end: '',
+          downsample: '60m-avg-nan',
+          groups: [
+            {
+              id: 'werd',
+              title: 'group 2',
+              visual: {},
+              queries: [
+                {
+                  metric: 'Flickr.yapache.requests',
+                  filters: [
+                    {
+                      type: 'wildcard',
+                      tagk: 'colo',
+                      filter: '*',
+                      groupBy: true
+                    }
+                  ],
+                  aggregator: 'zimsum',
+                  explicitTags: false,
+                  rate: false,
+                  rateOptions: {
+                    counter: false,
+                    resetValue: 1
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+        {
+          id: 'sasasa',
+          gridPos: { x: 0, y: 6, w: 12, h: 5 },
+          settings: {
+            title: 'my widget third title',
+            component_type: 'LinechartWidgetComponent',
+            data_source: 'yamas'
+          },
+          query: {
+            start: '1h-ago',
+            end: '',
+            downsample: '60m-avg-nan',
+            groups: [
+              {
+                id: 'werd',
+                title: 'group 1',
+                visual: {},
+                queries: [
+                  {
+                    metric: 'Flickr.yapache.requests',
+                    filters: [
+                      {
+                        type: 'wildcard',
+                        tagk: 'colo',
+                        filter: '*',
+                        groupBy: true
+                      }
+                    ],
+                    aggregator: 'zimsum',
+                    explicitTags: false,
+                    rate: false,
+                    rateOptions: {
+                      counter: false,
+                      resetValue: 1
+                    }
+                  }
+                  ]
+              },      
+              {
+                id: 'gffg',
+                title: 'group 2',
+                visual: {},
+                queries: [
+                  {
+                    metric: 'Flickr.yapache.response_time',
+                    filters: [
+                      {
+                        type: 'wildcard',
+                        tagk: 'colo',
+                        filter: '*',
+                        groupBy: true
+                      }
+                    ],
+                    aggregator: 'zimsum',
+                    explicitTags: false,
+                    rate: false,
+                    rateOptions: {
+                      counter: false,
+                      resetValue: 1
+                    }
+                  }
+                ]
+              }
+            ]  
+          }
+        }
+      ]
   };
 
   private dashboard: any  = {
