@@ -86,7 +86,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.rerender = { 'reload': true };
                     break;
                 case 'getQueryData':
-                    this.store.dispatch(new dashboardActions.GetQueryData(message.id, message.payload));
+                    console.log('the query: ', message.payload);
+                    // payload needs to break into group to send in
+                    this.handleQueryPayload(message);
+                    // comment below line for now
+                    // this.store.dispatch(new dashboardActions.GetQueryData(message.id, message.payload));                
                     break;
                 default:
                     break;
@@ -130,6 +134,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 console.log('open auth dialog');
             }
         });
+    }
+
+    // dispatch payload query by group
+    handleQueryPayload(message: any) {
+        let widgetid = message.id;
+        let groupid = '';
+        let payload = message.payload;
+        console.log('payload query', payload);
+        
+        for (let i = 0; i < payload.groups.length; i++) {
+            let group: any = payload.groups[i];
+            console.log('group query', group);
+            
+            groupid = group.id;
+            let query: any = {
+                start: payload.start,
+                end: payload.end,
+                downsample: payload.downsample,
+                queries: group.queries
+            };
+            console.log('the group query', query);          
+            // now dispatch request
+            this.store.dispatch(new dashboardActions.GetQueryDataByGroup(widgetid, groupid, query));
+        }
     }
 
     // this will call based on gridster reflow and size changes event
