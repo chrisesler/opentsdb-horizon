@@ -99,209 +99,160 @@ export class HttpService {
           ]
         }
       },
-        {
-          id: 'sasasa',
-          gridPos: { x: 0, y: 6, w: 12, h: 5 },
-          settings: {
-            title: 'my widget third title',
-            component_type: 'LinechartWidgetComponent',
-            data_source: 'yamas'
-          },
-          query: {
-            start: '1h-ago',
-            end: '',
-            downsample: '60m-avg-nan',
-            groups: [
-              {
-                id: 'werd',
-                title: 'group 1',
-                visual: {},
-                queries: [
-                  {
-                    metric: 'Flickr.yapache.requests',
-                    filters: [
-                      {
-                        type: 'wildcard',
-                        tagk: 'colo',
-                        filter: '*',
-                        groupBy: true
-                      }
-                    ],
-                    aggregator: 'zimsum',
-                    explicitTags: false,
-                    rate: false,
-                    rateOptions: {
-                      counter: false,
-                      resetValue: 1
-                    }
-                  }
-                  ]
-              },      
-              {
-                id: 'gffg',
-                title: 'group 2',
-                visual: {},
-                queries: [
-                  {
-                    metric: 'Flickr.yapache.response_time',
-                    filters: [
-                      {
-                        type: 'wildcard',
-                        tagk: 'colo',
-                        filter: '*',
-                        groupBy: true
-                      }
-                    ],
-                    aggregator: 'zimsum',
-                    explicitTags: false,
-                    rate: false,
-                    rateOptions: {
-                      counter: false,
-                      resetValue: 1
-                    }
-                  }
-                ]
-              }
-            ]  
-          }
-        }
-      ]
-  };
-
-  private dashboard: any  = {
-    id: '123456',
-    settings: {
-      title: 'my dashboard'
-    },
-    widgets: [
       {
-        gridPos: {
-          x: 0, y: 0,
-          w: 6, h: 5
-        },
-        config: {
-          title: 'LinechartWidgetComponent',
+        id: 'multigroup',
+        gridPos: { x: 0, y: 6, w: 12, h: 5 },
+        settings: {
+          title: 'my widget third title',
           component_type: 'LinechartWidgetComponent',
-          data_source: 'opentsdb',
-          query: {
-            start: '1526250610000',
-            end: '1526337010000',
-            queries: [
-              {
-                aggregator: 'zimsum',
-                metric: 'Flickr.yapache.requests',
-                rate: false,
-                rateOptions: {
-                  counter: false,
-                  resetValue: 1
-                },
-                explicitTags: false,
-                downsample: '60m-avg-nan',
-                filters:[
-                  {
-                    type: 'wildcard',
-                    tagk: 'host',
-                    filter: '*.bf1.*',
-                    groupBy: false
-                  },
-                  {
-                    type: 'wildcard',
-                    tagk: 'colo',
-                    filter: '*',
-                    groupBy: true
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      },
-      {
-        gridPos: {
-          x: 0, y: 5,
-          w: 6, h: 5,
+          data_source: 'yamas'
         },
-        config: {
-          title: 'PlaceholderWidgetComponent',
-          component_type: 'PlaceholderWidgetComponent',
-          data_source: ''
-        }
-      },
-      {
-        gridPos: {
-          x: 6, y: 0,
-          w: 6, h: 5
-        },
-        config: {
-          title: 'LinechartWidgetComponent',
-          component_type: 'LinechartWidgetComponent',
-          data_source: 'opentsdb',
-          query: {
-            start: '1526250610000',
-            end: '1526337010000',
-            queries: [
-              {
-                aggregator: 'zimsum',
-                metric: 'Flickr.yapache.requests',
-                rate: false,
-                rateOptions: {
-                  counter: false,
-                  resetValue: 1
-                },
-                explicitTags: false,
-                downsample: '60m-avg-nan',
-                filters: [
-                  {
-                    type: 'wildcard',
-                    tagk: 'host',
-                    filter: 'www29*.bf1.*',
-                    groupBy: true
+        query: {
+          start: '1h-ago',
+          end: '',
+          downsample: '60m-avg-nan',
+          groups: [
+            {
+              id: 'werd',
+              title: 'group 1',
+              visual: {},
+              queries: [
+                {
+                  metric: 'Flickr.yapache.requests',
+                  filters: [
+                    {
+                      type: 'wildcard',
+                      tagk: 'host',
+                      filter: '*',
+                      groupBy: true
+                    }
+                  ],
+                  aggregator: 'zimsum',
+                  explicitTags: false,
+                  rate: false,
+                  rateOptions: {
+                    counter: false,
+                    resetValue: 1
                   }
-                ]
-              }
-            ]
-          }
-        }
-      },
-      {
-        gridPos: {
-          x: 6, y: 5,
-          w: 6, h: 5
-        },
-        config: {
-          title: 'DeveloperWidgetComponent',
-          component_type: 'DeveloperWidgetComponent',
-          data_source: 'opentsdb',
-          query: {
-            start: '1526250610000',
-            end: '1526337010000',
-            queries: [
-              {
-                aggregator: 'zimsum',
-                metric: 'Flickr.yapache.requests',
-                rate: false,
-                rateOptions: {
-                  counter: false,
-                  resetValue: 1
-                },
-                explicitTags: false,
-                downsample: '60m-avg-nan',
-                filters: [
-                  {
-                    type: 'wildcard',
-                    tagk: 'host',
-                    filter: '*.bf1.*',
-                    groupBy: false
+                }
+              ]
+            },
+            {
+              id: 'gffg',
+              title: 'group 2',
+              visual: {},
+              queries: [
+                {
+                  metric: 'Flickr.yapache.response_time',
+                  filters: [
+                    {
+                      type: 'wildcard',
+                      tagk: 'colo',
+                      filter: '*',
+                      groupBy: true
+                    }
+                  ],
+                  aggregator: 'zimsum',
+                  explicitTags: false,
+                  rate: false,
+                  rateOptions: {
+                    counter: false,
+                    resetValue: 1
                   }
-                ]
-              }
-            ]
-          }
+                }
+              ]
+            }
+          ]
         }
       }
     ]
   };
+/*
 
+      {
+        id: 'abcd',
+        gridPos: { x: 0, y: 0, w: 6, h: 5 },
+        settings: {
+          title: 'my widget title',
+          component_type: 'LinechartWidgetComponent',
+          data_source: 'yamas'
+        },
+        query: {
+          start: '1h-ago',
+          end: '',
+          downsample: '60m-avg-nan',
+          groups: [
+            {
+              id: '2344',
+              title: 'group 2',
+              visual: {},
+              queries: [
+                {
+                  metric: 'Flickr.yapache.response_time',
+                  filters: [
+                    {
+                      type: 'wildcard',
+                      tagk: 'host',
+                      filter: '*',
+                      groupBy: true
+                    }
+                  ],
+                  aggregator: 'zimsum',
+                  explicitTags: false,
+                  rate: false,
+                  rateOptions: {
+                    counter: false,
+                    resetValue: 1
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        id: 'cdft',
+        gridPos: { x: 6, y: 0, w: 6, h: 5 },
+        settings: {
+          title: 'my widget second title',
+          component_type: 'LinechartWidgetComponent',
+          data_source: 'yamas'
+        },
+        query: {
+          start: '1h-ago',
+          end: '',
+          downsample: '60m-avg-nan',
+          groups: [
+            {
+              id: 'werd',
+              title: 'group 2',
+              visual: {},
+              queries: [
+                {
+                  metric: 'Flickr.yapache.requests',
+                  filters: [
+                    {
+                      type: 'wildcard',
+                      tagk: 'colo',
+                      filter: '*',
+                      groupBy: true
+                    }
+                  ],
+                  aggregator: 'zimsum',
+                  explicitTags: false,
+                  rate: false,
+                  rateOptions: {
+                    counter: false,
+                    resetValue: 1
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+
+*/
   getDashoard(id: string): Observable<any> {
     //return Observable.of(this.dashboard);
     return Observable.of(this.testDashboard);
