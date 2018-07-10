@@ -66,11 +66,14 @@ export class DashboardService {
     return widgets;
   }
 
+  // we might not need to generate id for widget or group
+  // it should be done at the time of adding into dashboard
+  // this function only here for testing stuff
   modifyWidgets(dashboard: any) {
     // add extra info item behaviors
     for (let i = 0; i < dashboard.widgets.length; i++) {
       const wd: any = dashboard.widgets[i];
-      wd.id = this.utils.generateId();
+      //wd.id = this.utils.generateId(); // we set it manually to test
       const mod = { 'xMd': wd.gridPos.x, 'yMd': wd.gridPos.y, 'dragAndDrop': true, 'resizable': true };
       wd.gridPos = { ...wd.gridPos, ...mod };
     }
