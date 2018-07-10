@@ -136,6 +136,7 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
             opacity: 1;
             z-index: 1;
             background-color: transparent;
+            user-select: none;
 
             &.mat-tab-label-active,
             &:not(.mat-tab-disabled):not(.mat-tab-label-active) {
@@ -165,7 +166,7 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
-    $is-dark-theme: map-get($theme-config, is-dark);
+    $is-dark: map-get($theme-config, is-dark);
     
 
     // ** Config tab CONTENT ** //
@@ -185,7 +186,7 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
     }
 
     // CUSTOM ELEMENT STYLES
-    $fill-background: mat-color($foreground, base, if($is-dark-theme, 0.1, 0.04));
+    $fill-background: mat-color($foreground, base, if($is-dark, 0.1, 0.04));
 
     .button-group {
         .mat-raised-button {
@@ -206,7 +207,7 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
 
 
     .sliding-button-group.mat-tab-nav-bar {
-        background-color: $fill-background;
+        background-color: if($is-dark, rgba(map-get($foreground, base), .1), lighten(map-get($primary, 50), 2%));
 
         .mat-tab-link {
             color: map-get($primary, default);
