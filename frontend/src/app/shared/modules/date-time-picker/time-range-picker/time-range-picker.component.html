@@ -25,7 +25,7 @@
         id="daytimePickerStart"
         #daytimePickerStart="ngModel"
         #daytimePickerStart
-        [(ngModel)]="startTime"
+        [(ngModel)]="startTimeDisplay"
         [mode]="this.options.formatMode"
         [disableFutureDates]="options.startFutureTimesDisabled"
         [placeholder]="options.startTimePlaceholder"
@@ -47,7 +47,7 @@
         id="daytimePickerEnd"
         #daytimePickerEnd="ngModel"
         #daytimePickerEnd
-        [(ngModel)]="endTime"
+        [(ngModel)]="endTimeDisplay"
         [mode]="this.options.formatMode"
         [disableFutureDates]="options.endFutureTimesDisabled"
         [placeholder]="options.endTimePlaceholder"
