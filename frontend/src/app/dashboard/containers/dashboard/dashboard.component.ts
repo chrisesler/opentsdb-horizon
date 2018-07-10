@@ -26,6 +26,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DashboardState.setViewEditMode) viewEditMode$: Observable<any>;
     @Select(AuthState.getAuth) auth$: Observable<string>;
     @Select(DashboardState.getUpdatedWidgetId) updatedWidgetId$: Observable<string>;
+    @Select(DashboardState.getWidgetGroupUpdate) updatedWidgetGroup$: Observable<any>;
 
     // portal templates
     @ViewChild('dashboardNavbarTmpl') dashboardNavbarTmpl: TemplateRef<any>;
@@ -105,6 +106,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // we need to transform data to its data format to required format of wdget visualization to render
         // transormation can be done here in dashboad service and passing back to data.
         // or should it be done when setting state?
+        /*
         this.updatedWidgetId$.subscribe(wid => {
             for (let i = 0; i < this.widgets.length; i++) {
                 if (this.widgets[i].id === wid) {
@@ -117,6 +119,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
             }
         });
+        */
+       // when the data is updated, store will update, we use this selector to listen to
+       // update from store after getting data for each group, at this point return rawdata
+       // is already added to state
+       this.updatedWidgetGroup$.subscribe(wg => {
+           for (let i = 0; i < this.widgets.length; i++) {
+               if (this.widgets[i].id === wg.widgetId) {
+                   this.interCom.responsePut({
+                    id: wg.widgetId,
+                    action: 'updatedWidgetGroup',
+                    payload: wg.groupId
+                   });
+                   break;
+               }
+           }
+       });
+
         // sending down view edit mode to handle size
         this.viewEditMode$.subscribe(payload => {            
             this.viewEditMode = payload.editMode;
