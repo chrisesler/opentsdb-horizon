@@ -26,7 +26,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     // tslint:disable-next-line:no-inferrable-types
     private isDataLoaded: boolean = false;
     // tslint:disable-next-line:no-inferrable-types
-    private isStackedGraph: boolean = true;
+    private isStackedGraph: boolean = false;
     // properties to pass to dygraph chart directive
     chartType = 'line';
 
@@ -35,7 +35,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         connectSeparatedPoints: true,
         drawPoints: false,
         labelsDivWidth: 0,
-        legend: 'never',
+        legend: 'follow',
         stackedGraph: this.isStackedGraph,
         hightlightCircleSize: 1,
         strokeWidth: 1,
@@ -65,19 +65,33 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         // we get the size to update the graph size
                         this.size = { width: message.payload.width, height: message.payload.height };
                         break;
+                    case 'updatedWidgetGroup':
+                        console.log('update widget group', message, this.widget);
+                        if (this.widget.id === message.id) {
+                            this.isDataLoaded = true; // need to handle the case that it's partial of groups
+                            let grawdata = this.widget.rawdata[message.payload];
+                            //this.data = this.dataTransformer.yamasToDygraph(this.options, grawdata);
+                            // this.options and this.data will be updated accordingly
+                            this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, grawdata); 
+                            console.log('datata-' + this.widget.id, this.options, this.data);
+                                                     
+                        }
+                        break;
+                    // this case might be removed since we now get data by group
+                    // even in case that it has only one group.
                     case 'updatedWidget':
                         console.log('updateWidget', message);
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
                             console.log('widget data', this.widget.id, message.payload.config);
-                            this.data = this.dataTransformer.yamasToDygraph(this.options, this.widget.config.rawdata);
+                            //this.data = this.dataTransformer.yamasToDygraph(this.options, this.widget.data.rawdata);
                         }
                         break;
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            this.data = this.dataTransformer.yamasToDygraph(this.options, this.widget.config.rawdata);
+                            //this.data = this.dataTransformer.yamasToDygraph(this.options, this.widget.data.rawdata);
                             // resize
                             let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
                             let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
@@ -88,6 +102,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             }
         });
         // initial request data
+        // todo: need to implement cache to not query if the same data
         if (!this.editMode) {
             this.requestData();
         }
@@ -116,7 +131,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
-                payload: this.widget.config
+                payload: this.widget.query
             });
         }
     }
