@@ -130,6 +130,39 @@ $widgets-common-config: (
         }
     }
 
+    .multi-graph-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: stretch;
+        align-items: stretch;
+
+        .graph-row {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            justify-content: stretch;
+            align-items: stretch;
+
+            &:not(:last-child){
+                border-bottom: 1px solid #ccc;
+            }
+        }
+
+        .graph-cell {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            min-width: 200px;
+            min-height: 200px;
+
+            &:not(:last-child){
+                border-right: 1px solid #ccc;
+            }
+        }
+    }
+
     // few items need overrides when we are in edit view
     .edit-view-container.is-active {
         .widget-output-container {

@@ -9,16 +9,19 @@
     </div>
     <div class="widget-output">
         <!-- Where the graph, or whatever lives -->
-        <strong>THIS IS A DEVELOPER WIDGET TO TEST THINGS. MOVE ALONG. NOTHING TO SEE HERE.</strong>
+        <!--<strong>THIS IS A DEVELOPER WIDGET TO TEST THINGS. MOVE ALONG. NOTHING TO SEE HERE.</strong>
         <button mat-fab>
             <mat-icon fontSet="denali" fontIcon="d-branch"></mat-icon>
-        </button>
-        <!--<div class="widget-types">
-            <button mat-raised-button class="widget-type-selector"  *ngFor="let wtype of availableWidgetTypes" (click)="selectWidgetType(wtype, $event)">
-                <span class="widget-type-icon {{ wtype.iconClass }}"></span>
-                <span class="widget-type-label">{{ wtype.label }}</span>
-            </button>
-        </div>-->
+        </button>-->
+        <!-- if multi graph -->
+        <div class="multi-graph-container">
+            <div class="graph-row" *ngFor="let row of fakeData">
+                <div class="graph-cell" *ngFor="let cell of row">
+                    {{cell}}
+                </div>
+            </div>
+        </div>
+        <!-- else regular graph -->
     </div>
 </div>
 <!-- NOTE: This needs to move to other component -->

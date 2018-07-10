@@ -96,7 +96,7 @@
     $is-dark: map-get($theme-config, is-dark);
 
     /* Scrollbar config parts */
-    $scrollbar-size: 5px;
+    $scrollbar-size: 12px;
     $scrollbar-radius: 0;
 
     // STYLE ALL THE SCROLLBARS
@@ -136,8 +136,8 @@
         }
         // draggable scrolling element resizes depending on the size of the scrollable element
         &::-webkit-scrollbar-thumb {
-            background-color: map-get($background, ink-bar);
-            border-radius: $scrollbar-radius;
+            background-color: if($is-dark, map-get($primary, default), map-get($background, navbar));
+            //border-radius: $scrollbar-radius;
         }
         // bottom corner of the scrollable element, where two scrollbar meet
         &::-webkit-scrollbar-corner {

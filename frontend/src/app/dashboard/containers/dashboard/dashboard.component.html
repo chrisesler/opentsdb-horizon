@@ -9,19 +9,39 @@
     <span class="flex-spacer"></span>
     <span class="navbar-item nav-add-new-widget" *ngIf="!(viewEditMode)">
         <button mat-raised-button class="mat-elevation-z0" (click)="addNewWidget()">
-            <mat-icon fontSet="denali" fontIcon="d-add" color="primary"></mat-icon>
+            <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
             <span>Add Widget</span>
         </button>
     </span>
 
-    <span class="navbar-item nav-add-new-widget">
-        <time-picker (timeSelected)="timeUpdated($event)" xPosition="before"></time-picker>
+    <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="timeUpdated($event)" xPosition="before"></time-picker>
+
+    <!--<simple-time-picker xPosition="before"></simple-time-picker>-->
+    <span class="navbar-item nav-dashboard-actions">
+        <button mat-raised-button class="mat-elevation-z0" [matMenuTriggerFor]="dashboardActionMenu">
+            <span>Dashboard Actions</span>
+            <mat-icon fontSet="denali" fontIcon="d-arrow-down"></mat-icon>
+        </button>
+        <mat-menu #dashboardActionMenu="matMenu" [overlapTrigger]="false" class="nav-bar-dropmenu dashboard-actions-menu" xPosition="before">
+            <ng-template matMenuContent>
+                <button mat-menu-item (click)="click_cloneDashboard($event)">
+                    <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
+                    <span>Clone</span>
+                </button>
+                <button mat-menu-item (click)="click_shareDashboard($event)">
+                    <mat-icon fontSet="denali" fontIcon="d-share"></mat-icon>
+                    <span>Share</span>
+                </button>
+                <button mat-menu-item (click)="click_deleteDashboard($event)">
+                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                    <span>Delete</span>
+                </button>
+            </ng-template>
+        </mat-menu>
+    </span>
+
+    <span class="navbar-item nav-theme-picker">
         <theme-picker mat-button></theme-picker>
     </span>
     
-    <!--<span class="navbar-item nav-close-edit-view" *ngIf="viewEditMode$ | async">
-        <button mat-raised-button (click)="closeViewEditMode()">
-          <mat-icon>reply</mat-icon>
-        </button>
-      </span>-->
 </ng-template>
