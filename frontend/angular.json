@@ -71,6 +71,7 @@
               "./node_modules/dygraphs/dist/dygraph.css"
             ],
             "scripts": [
+              "src/app/shared/chartjs/dist/Chart.bundle.min.js",
               "src/app/shared/chartjs-threshold-plugin/dist/chartjs-plugin-threshold.min.js",
               "src/app/shared/chartjs-zoom-plugin/dist/chartjs-plugin-zoom.min.js"
             ]
