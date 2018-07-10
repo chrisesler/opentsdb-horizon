@@ -20,7 +20,7 @@
     "properties-reader": "0.0.16",
     "request": "^2.86.0",
     "request-promise": "^4.2.2",
-    "rxjs": "^6.1.0"
-
+    "rxjs": "^6.1.0",
+    "yby": "^1.0.11"
   }
 }

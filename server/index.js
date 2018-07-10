@@ -5,8 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var utils = require('./lib/utils');
 var authUtil = require('./middlewares/auth-utils');
-// var yby = require('yby');
-// var expressOkta = require('express-okta-oath');
+var yby = require('yby');
+var expressOkta = require('express-okta-oath');
 
 var search = require('./routes/search');
 var tsdb = require('./routes/tsdb');
