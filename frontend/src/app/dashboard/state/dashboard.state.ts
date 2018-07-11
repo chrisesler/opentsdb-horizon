@@ -115,7 +115,9 @@ export class DashboardState {
         // tranform dashboard information by adding some other properties
         // to enable rezise, drag and drop and responsive size
         this.dashboardService.modifyWidgets(payload);
-       ctx.setState({...state, ...payload, loading: false, loaded: true});
+        console.log('dashboard state loading ....');
+        
+        ctx.setState({...state, ...payload, loading: false, loaded: true, updatedGroupId: '', updatedWidgetId: '', viewEditMode: false});
     }
 
     @Action(dashboardAction.LoadDashboardFail)
