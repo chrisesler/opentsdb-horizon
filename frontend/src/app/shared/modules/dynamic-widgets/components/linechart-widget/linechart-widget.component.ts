@@ -70,11 +70,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true; // need to handle the case that it's partial of groups
                             let grawdata = this.widget.rawdata[message.payload];
-                            //this.data = this.dataTransformer.yamasToDygraph(this.options, grawdata);
-                            // this.options and this.data will be updated accordingly
                             this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, grawdata); 
-                            console.log('datata-' + this.widget.id, this.options, this.data);
-                                                     
+                            // console.log('datata-' + this.widget.id, new Date().getMilliseconds(), this.options, this.data);                                                    
                         }
                         break;
                     // this case might be removed since we now get data by group
@@ -83,7 +80,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         console.log('updateWidget', message);
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            console.log('widget data', this.widget.id, message.payload.config);
+                            // console.log('widget data', this.widget.id, message.payload.config);
                             //this.data = this.dataTransformer.yamasToDygraph(this.options, this.widget.data.rawdata);
                         }
                         break;
@@ -91,7 +88,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         console.log('vieweditwidgetmode', message, this.widget);
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            //this.data = this.dataTransformer.yamasToDygraph(this.options, this.widget.data.rawdata);
+                            this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, this.widget.data.rawdata);
                             // resize
                             let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
                             let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
