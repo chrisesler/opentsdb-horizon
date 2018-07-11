@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 /** Other modules */
-import { MaterialModule } from '../../../shared/modules/material/material.module';
+import { MaterialModule } from '../material/material.module';
 import { DygraphsModule } from '../dygraphs/dygraphs.module';
 import { SharedcomponentsModule } from '../sharedcomponents/sharedcomponents.module';
 

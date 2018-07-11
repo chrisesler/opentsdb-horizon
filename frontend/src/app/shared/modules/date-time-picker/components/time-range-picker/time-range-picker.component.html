@@ -1,0 +1,78 @@
+
+<div class="presets" #presetsDiv>
+    <h2>Presets</h2>
+    <div class="preset-buttons" fxLayout="row" style="width: 100%;">
+        <div class="preset-button" fxFlex="1 1 50px" *ngFor="let preset of presets">
+            <button mat-raised-button color="primary"
+                class="mat-elevation-z0"
+                [ngClass]="{'is-selected': presetSelected == preset}"
+                (click)="togglePreset(preset)">{{preset.buttonName}}</button>
+        </div>
+    </div>
+    <!--<mat-grid-list cols="6">
+        <mat-grid-tile *ngFor="let preset of presets">
+            <button mat-stroked-button color="primary" (click)="togglePreset(preset)" [class.is-selected]="this.presetSelected == preset">{{preset.buttonName}}</button>
+        </mat-grid-tile>
+    </mat-grid-list>-->
+
+    <mat-grid-list cols="1" rowHeight="160px" *ngIf="this.presetSelected">
+        <mat-grid-tile>
+            <span>
+                <keypad (amountSelected)="presetAmountReceived($event)" [disableHighKeys]="this.presetSelected.name == 'year' ? true : false">
+                </keypad>
+            </span>
+        </mat-grid-tile>
+    </mat-grid-list>
+</div>
+
+<div class="dtpicker-start">
+    <h2>Start Time</h2>
+    <dp-date-picker 
+        id="daytimePickerStart"
+        #daytimePickerStart="ngModel"
+        #daytimePickerStart
+        [(ngModel)]="startTimeDisplay"
+        [mode]="this.options.formatMode"
+        [disableFutureDates]="options.startFutureTimesDisabled"
+        [placeholder]="options.startTimePlaceholder"
+        [maxDateError]="options.startMaxDateError"
+        [formatError]="options.startDateFormatError"
+        (onChange)="startTimeChanged($event)" 
+        (open)="startCalendarOpened()"
+        (close)="startCalendarClosed()"
+        (onGoToCurrent)="startClockSelected()"
+        (onFocus)="startInputFocused()"
+        (onEnter)="enterKeyedOnInputBox()"
+        >
+    </dp-date-picker>
+</div>
+
+<div class="dtpicker-end">
+    <h2>End Time</h2>
+    <dp-date-picker 
+        id="daytimePickerEnd"
+        #daytimePickerEnd="ngModel"
+        #daytimePickerEnd
+        [(ngModel)]="endTimeDisplay"
+        [mode]="this.options.formatMode"
+        [disableFutureDates]="options.endFutureTimesDisabled"
+        [placeholder]="options.endTimePlaceholder"
+        [maxDateError]="options.endMaxDateError"
+        [formatError]="options.endDateFormatError"
+        (onChange)="endTimeChanged($event)"
+        (open)="endCalendarOpened()"
+        (close)="endCalendarClosed()"
+        (onGoToCurrent)="endClockSelected()"
+        (onFocus)="endInputFocused()"
+        (onEnter)="enterKeyedOnInputBox()"
+        >
+    </dp-date-picker>
+</div>
+
+<div class="dtp-action-controls" *ngIf="showApply">
+    <button mat-raised-button class="mat-elevation-z0" color="primary" id="button-apply" (click)="applyClicked()" [disabled]="daytimePickerStart.errors || daytimePickerEnd.errors">Apply</button>
+    <button mat-stroked-button color="primary" id="button-cancel" (click)="cancelClicked()" >Cancel</button>
+</div>
+
+  <!-- <div class="time-range"><b>Time range:</b> {{startTimeSelected}} <b>to</b> {{endTimeSelected}}</div> -->
+

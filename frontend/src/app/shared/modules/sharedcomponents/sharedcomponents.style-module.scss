@@ -18,6 +18,7 @@
 
 // components
 @import 'components/search-metrics-dialog/search-metrics-dialog.component';
+@import 'components/simple-time-picker/simple-time-picker.component';
 @import 'components/theme-picker/theme-picker.component';
 
 // widget common FIRST
@@ -38,6 +39,7 @@
     // include your core mixins
     // example: @include componentName-component-core();
     @include search-metrics-dialog-component-base();
+    @include simple-time-picker-component-base();
     @include theme-picker-component-base();
 
     // WIDGET CONFIG ITEMS
@@ -57,6 +59,7 @@
     // include your theme mixins, passing along the $theme-config
     // example: @include componentName-component-theme($theme-config);
     @include search-metrics-dialog-component-theme($theme-config);
+    @include simple-time-picker-component-theme($theme-config);
     @include theme-picker-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS

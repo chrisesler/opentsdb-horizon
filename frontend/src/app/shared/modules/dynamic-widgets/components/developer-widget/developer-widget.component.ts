@@ -34,6 +34,10 @@ export class DeveloperWidgetComponent implements OnInit {
     /** Outputs */
 
     /** Local variables */
+    fakeData: any = [
+        ['data-row-0-1', 'data-row-0-2', 'data-row-0-3', 'data-row-0-4', 'data-row-0-5', 'data-row-0-6', 'data-row-0-7', 'data-row-0-8'],
+        ['data-row-1-1', 'data-row-1-2', 'data-row-1-3', 'data-row-1-4', 'data-row-1-5', 'data-row-1-6', 'data-row-1-7', 'data-row-1-8']
+    ];
 
     // NOTE: widget types should only be temporary here, as they should be added to some starting point widget
     // Available Widget Types
