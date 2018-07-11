@@ -7,9 +7,9 @@ export class DashboardService {
   private dashboardProto: any = {
     id: '',
     settings: {
-      title: 'untitle dashboard'
+      title: 'untitled dashboard'
     },
-    widgets:[
+    widgets: [
       {
         gridPos: {
         x: 0, y: 0,
@@ -18,12 +18,12 @@ export class DashboardService {
         config: {
           title: 'PlaceholderWidgetComponent',
           component_type: 'PlaceholderWidgetComponent',
-          data_source: ''          
+          data_source: ''
         }
       }
     ]
   };
-   
+
   private widgetPrototype = {
     gridPos: {
       x: 0, y: 0,

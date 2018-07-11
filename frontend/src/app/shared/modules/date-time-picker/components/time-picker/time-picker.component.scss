@@ -1,0 +1,68 @@
+@mixin time-picker-component-base() {
+
+    // dropdown menu container
+    .timerange-picker-menu.mat-menu-panel {
+        position: relative;
+        overflow: initial;
+        max-width: initial;
+
+        // arrow
+        &::after {
+            bottom: 100%;
+            left: calc(100% - 20px);
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+            border-width: 6px;
+            margin-left: -6px;
+        }
+
+        .timerange-picker-container {
+            padding: 0 12px;
+        }
+    }
+
+
+    // actual picker
+    .dtp-time-picker {
+
+    }
+}
+
+@mixin time-picker-component-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark: map-get($theme-config, is-dark);
+
+    
+    // tooltip color
+    .dtp-tooltip-text {
+        background-color: map-get($accent, default);
+    }
+
+    // dropdown menu container
+    .timerange-picker-menu.mat-menu-panel {
+        &::after {
+            border-color: rgba(255, 255, 255, 0);
+            border-bottom-color: map-get($background, menu); // actual color of arrow
+        }
+
+        
+    }
+
+    // actual picker
+    .dtp-time-picker {
+
+    }
+
+    // cdk stuff
+
+    
+}

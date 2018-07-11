@@ -15,7 +15,8 @@
 @import 'dashboard/dashboard.style-module';
 
 @import 'shared/modules/dynamic-widgets/dynamic-widgets.style-module';
-@import  'shared/modules/sharedcomponents/sharedcomponents.style-module';
+@import 'shared/modules/sharedcomponents/sharedcomponents.style-module';
+@import 'shared/modules/date-time-picker/date-time-picker.style-module';
 
 // [ STEP 2 ] - ADD MODULE'S BASE MIXINS (aka structure)
 @mixin app-core() {
@@ -25,7 +26,8 @@
     @include landing-page-module-core();
     @include dashboard-module-core();
     @include dynamic-widgets-module-core();
-    @include sharedcomponents-module-core()
+    @include sharedcomponents-module-core();
+    @include date-time-picker-module-core();
 }
 
 // [ STEP 3 ] - ADD MODULES'S THEME MIXINS (aka look-n-feel)
@@ -37,4 +39,5 @@
     @include dashboard-module-theme($theme-config);
     @include dynamic-widgets-module-theme($theme-config);
     @include sharedcomponents-module-theme($theme-config);
+    @include date-time-picker-module-theme($theme-config);
 }

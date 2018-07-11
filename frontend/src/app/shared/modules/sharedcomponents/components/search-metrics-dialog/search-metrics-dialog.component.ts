@@ -1,5 +1,5 @@
-import { Component, Inject, OnInit, OnDestroy, HostBinding, EventEmitter } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, DialogPosition } from '@angular/material';
+import { Component, Inject, OnInit, OnDestroy, HostBinding, EventEmitter, ViewChild } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef, DialogPosition, MatSort, MatTableDataSource } from '@angular/material';
 
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -16,6 +16,17 @@ import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 })
 export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     @HostBinding('class.search-metrics-dialog') private _hostClass = true;
+
+    // TODO: Add sort functionality to table
+    /*_sort: MatSort;
+    @ViewChild(MatSort)
+    set sort(item: MatSort) {
+        console.log(item);
+        this._sort = item;
+    }
+    get sort(): MatSort {
+        return this._sort;
+    }*/
 
     selectedNamespace: String | null;
 
@@ -37,12 +48,31 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     onDialogApply = new EventEmitter();
     queryObj: any;
     // tslint:disable-next-line:no-inferrable-types
-    searchFlag: string = '0';
-    results: any[];
-    selectedResultSet: any;
-    selectedResultSetTagKeys: any;
+    searchFlag: string = '0'; // ? what are possible values ? is this the 'display results by' values?
 
-    resultTableColumns: any[] = ['selectMetric', 'metric', 'host', 'colo', 'hostgroup', 'other'];
+    // all results?
+    results: any[];
+    resultCount: any = 0;
+
+    // the result set selected based on the tag key from left column
+    selectedResultSet: any;
+
+    // TODO: add sort functionality to table
+    // sortableResultSet: any;
+
+    // once a result set is selected, then parse the common/uncommon tags into this variable
+    // common meaning ALL results have that tag, uncommon is the rest
+    selectedResultSetTagKeys: any; // {common: [], uncommon: []}
+
+    // table columns for result table
+    // selectMetric: placeholder for the 'add metric (plus)' button
+    // metric, host, color, hostgroup: whitelist of tags we display by default
+    // ... at least until I can dynamically feed the columns from the extracted common keys
+    // other: column to list the remaining uncommon tags
+    // TODO: remove this since we have a dynamic table working
+    // resultTableColumns: any[] = ['selectMetric', 'metric', 'host', 'colo', 'hostgroup', 'other'];
+
+    // the actual metrics you have selected for the temp graph
     selectedMetrics: any[] = [];
     group: any = {
         id: '',
@@ -133,6 +163,7 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             this.httpService.searchMetrics(this.queryObj).subscribe(
                 resp => {
                     console.log('resp', resp);
+                    this.resultCount = resp.raw.length;
                     this.results = resp.results;
                 },
                 err => {
@@ -145,8 +176,13 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     listSelectedTag(selectedTag: any) {
         // extract unique keys
         this.selectedResultSetTagKeys = this.extractUniqueKeys(selectedTag.values);
+        // change selectedResultSet
         this.selectedResultSet = selectedTag;
-        console.log('RESULT SET TAG KEYS', this.selectedResultSetTagKeys);
+
+        // TODO: add sort functionality to table
+        // console.log('SORT', this.sort);
+        // this.selectedResultSet.values = new MatTableDataSource(this.selectedResultSet.values.splice(0));
+        // this.selectedResultSet.values.sort = this.sort;
     }
     // handle when clicked to select a metric
     // should we check duplicate or same set of tags?
@@ -190,6 +226,12 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
      * utilities
      */
 
+    // TODO: Eventually add sorting to table
+    sortResultTable(event: any) {
+        console.log('SORT EVENT', event);
+    }
+
+    // extract just the keys
     extractMetricTagKeys(metric: any, withoutMetric?: boolean) {
         const objKeys = Object.keys(metric);
         // remove "metric"?
@@ -200,13 +242,16 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         return objKeys;
     }
 
+    // this function extracts unique keys, and sorts them based on commonality
+    // returns a object {common: [], uncommon: []}
     extractUniqueKeys(data: any) {
-        let commonProps = []; // array of tag keys that are common in ALL the data items
+        let commonProps = [];   // array of tag keys that are common in ALL the data items
         let uncommonProps = []; // array of the remainder of possible tag keys (but NOT common to all metrics)
 
-        const values = {}; // list of tag keys
-        const weights = {}; // list of the number of occurences of tag keys
-        // console.log('%cDATA', 'font-weight: bold; color: lime', data);
+        const ignoredProps = ['_aggregate', '_threshold_name'];
+
+        const values = {};      // list of tag keys
+        const weights = {};     // list of the number of occurences of tag keys
 
         function isArray(item) {
             return Object.prototype.toString.call(item) === '[object Array]';
@@ -224,12 +269,16 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
                     for (const prop in item) {
                         if (prop in item) {
                             // ignore 'metric', since it will always be first
-                            if (prop === 'metric') { continue; }
+                            if (prop === 'metric' || ignoredProps.includes(prop)) { continue; }
 
+                            // add property to map
+                            // TODO: check this against whitelist before adding?
                             map[prop] = true;
+                            // check if it exists in the weights map
                             if (!counts[prop]) {
                                 counts[prop] = 0;
                             }
+                            // increment weight
                             counts[prop]++;
                             // recursively get any nested props
                             // if this turns out to be an object or array
@@ -240,12 +289,13 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             }
         }
 
+        // parse the properties
         getProps(data, values, weights);
 
         // NOW to get commonality
         const ukeys = Object.keys(weights);
 
-        // sort so highest weights are first so we can filter out common props
+        // sort so highest weights are first so we can filter out common/uncommon props
         ukeys.sort(function(a, b) {
             const x = weights[a];
             const y = weights[b];
@@ -262,18 +312,34 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         // make sure 'metric' is pushed onto front
         commonProps.unshift('metric');
 
-        // commonProps = getProps(data, map1);
-
         // console.log('%cDATA', 'font-weight: bold; color: lime', data, values, weights, ukeys);
-        console.log('commonProps', commonProps, uncommonProps, ukeys);
+        // console.log('commonProps', commonProps, uncommonProps, ukeys);
 
+        // displayed columns for the table
+        const displayedColumns = commonProps.slice(0);
+        // selectMetric column is first so we can add the buttons to select the metric
+        displayedColumns.unshift('selectMetric');
+        // if there are uncommon tags, then lets push on 'other'
+        if (uncommonProps.length > 0) {
+            displayedColumns.push('other');
+        }
 
-        return { common: commonProps, uncommon: uncommonProps };
+        return { common: commonProps, uncommon: uncommonProps, displayed: displayedColumns };
+    }
+
+    removeSelectedMetric(metric: any) {
+        // remove item from selected metrics
+        this.selectedMetrics.splice(this.selectedMetrics.indexOf(metric), 1);
+        // NOTE: Need to also remove it from the group?
     }
 
     /**
      * Behaviors
      */
+
+    click_changeSearchFlag(val: string) {
+        this.searchFlag = val;
+    }
 
     // handle when clicked on cancel
     onClick_Cancel(): void {

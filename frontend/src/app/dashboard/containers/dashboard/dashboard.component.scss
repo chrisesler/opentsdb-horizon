@@ -28,20 +28,45 @@
         }
     }
 
-    .nav-add-new-widget {
+    .nav-add-new-widget,
+    .nav-dashboard-actions {
         .mat-raised-button {
             line-height: 24px;
             font-size: 12px;
-            padding-left: 6px;
+            
 
             .mat-icon {
                 font-size: 1.2em;
                 display: inline-flex;
                 justify-content: center;
                 align-items: center;
-                margin-right: 5px;
+                
+                &:first-child {
+                    margin-right: 6px;
+                }
+
+                &:last-child {
+                    margin-left: 6px;
+                }
             }
         }
+    }
+
+    .nav-add-new-widget {
+        .mat-raised-button {
+            padding-left: 6px;
+        }
+    }
+
+    .nav-dashboard-actions {
+        .mat-raised-button {
+            padding-right: 0;
+        }
+    }
+
+    // cdk items
+    .dashboard-actions-menu {
+        width: 150px;
     }
 }
 
@@ -82,13 +107,23 @@
         }
     }
 
-    .nav-add-new-widget {
+    .nav-add-new-widget,
+    .nav-dashboard-actions {
         .mat-raised-button {
             background-color: lighten(map-get($background, navbar), 4%);
             color: map-get($foreground, navbar-text);
 
             &:hover {
                 background-color: lighten(map-get($background, navbar), 8%);
+            }
+        }
+    }
+
+    // cdk items
+    .dashboard-actions-menu {
+        .mat-menu-item {
+            .mat-icon {
+                color: map-get($foreground, link);
             }
         }
     }
