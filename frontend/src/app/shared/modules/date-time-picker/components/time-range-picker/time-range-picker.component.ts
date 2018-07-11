@@ -36,13 +36,9 @@ Time-range-picker      - has start and end picker with presets and apply
 export class TimeRangePickerComponent implements OnInit {
     @HostBinding('class.dtp-time-range-picker') private _hostClass = true;
 
-    @Input() set startTime(time: string) {
-        this.startTimeReference.setTime(String(time));
-    }
-    @Input() set endTime(time: string) {
-        this.endTimeReference.setTime(String(time));
-    }
-    @Input() options: TimeRangePickerOptions; ISelectedTime;
+    @Input() set startTime(time: string) { this.startTimeReference.setTime(String(time)); }
+    @Input() set endTime(time: string) { this.endTimeReference.setTime(String(time)); }
+    @Input() options: TimeRangePickerOptions;
     @Output() timeSelected = new EventEmitter<ISelectedTime>();
     @Output() cancelSelected = new EventEmitter();
 
@@ -53,24 +49,23 @@ export class TimeRangePickerComponent implements OnInit {
     startTimeSelected: Moment;
     endTimeSelected: Moment;
 
-    startTimeDisplay: string;
-    endTimeDisplay: string;
+    startTimeDisplay: string; // for ngmodel
+    endTimeDisplay: string;   // for ngmodel
 
     showApply: boolean;
     presetSelected: Preset;
-    presets: Preset[] = [
-        { name: abbrToTime(timeAbbr.hour), buttonName: 'h', abbr: timeAbbr.hour },
-        { name: abbrToTime(timeAbbr.day), buttonName: 'd', abbr: timeAbbr.day },
-        { name: abbrToTime(timeAbbr.week), buttonName: 'wk', abbr: 'wk' },
-        { name: abbrToTime(timeAbbr.month), buttonName: 'mo', abbr: timeAbbr.month },
-        { name: abbrToTime(timeAbbr.quarter), buttonName: 'qtr', abbr: 'qtr' },
-        { name: abbrToTime(timeAbbr.year), buttonName: 'y', abbr: timeAbbr.year }
-    ];
+    presets: Preset[] = [ {name: abbrToTime(timeAbbr.hour),    buttonName: 'h',   abbr: timeAbbr.hour},
+                          {name: abbrToTime(timeAbbr.day),     buttonName: 'd',   abbr: timeAbbr.day},
+                          {name: abbrToTime(timeAbbr.week),    buttonName: 'wk',  abbr: 'wk'},
+                          {name: abbrToTime(timeAbbr.month),   buttonName: 'mo',  abbr: timeAbbr.month},
+                          {name: abbrToTime(timeAbbr.quarter), buttonName: 'qtr', abbr: 'qtr'},
+                          {name: abbrToTime(timeAbbr.year),    buttonName: 'y',   abbr: timeAbbr.year}
+                        ];
 
-    constructor() { }
+    constructor() {}
 
     ngOnInit() {
-        this.showApply = false;
+      this.showApply = false;
     }
 
     getTimeSelected(): ISelectedTime {
@@ -112,95 +107,95 @@ export class TimeRangePickerComponent implements OnInit {
     }
 
     applyClicked() {
-        if (!this.startTimeReference.errors && !this.endTimeReference.errors) {
-            this.closeCalendarsAndHideButtons();
+      if (!this.startTimeReference.errors && !this.endTimeReference.errors) {
+        this.closeCalendarsAndHideButtons();
 
-            // sets the relative times to latest values
-            this.startTimeReference.setTime(this.startTimeReference.inputElementValue);
-            this.endTimeReference.setTime(this.endTimeReference.inputElementValue);
-            this.timeSelected.emit(this.getTimeSelected());
-        }
+        // sets the relative times to latest values
+        this.startTimeReference.setTime(this.startTimeReference.inputElementValue);
+        this.endTimeReference.setTime(this.endTimeReference.inputElementValue);
+        this.timeSelected.emit(this.getTimeSelected());
+      }
     }
 
     cancelClicked() {
-        this.closeCalendarsAndHideButtons();
-        this.cancelSelected.emit();
+      this.closeCalendarsAndHideButtons();
+      this.cancelSelected.emit();
     }
 
     presetAmountReceived(amount: string) {
-        if (amount === 'this') {
-            this.startTime = this.presetSelected.name;
-        } else {
-            this.startTime = amount + this.presetSelected.abbr;
-        }
-        this.endTime = this.options.defaultEndText;
-        this.togglePreset(this.presetSelected);
-        this.applyClicked();
+      if (amount === 'this') {
+        this.startTime = this.presetSelected.name;
+      } else {
+        this.startTime = amount + this.presetSelected.abbr;
+      }
+      this.endTime = this.options.defaultEndText;
+      this.togglePreset(this.presetSelected);
+      this.applyClicked();
     }
 
     togglePreset(_preset: Preset) {
-        if (_preset === this.presetSelected) {
-            this.presetSelected = null;
-        } else {
-            this.presetSelected = _preset;
-        }
+      if (_preset === this.presetSelected) {
+        this.presetSelected = null;
+      } else {
+        this.presetSelected = _preset;
+      }
     }
 
     removeSelectedPreset() {
-        this.presetSelected = null;
+      this.presetSelected = null;
     }
 
     startTimeChanged(item: Moment) {
-        this.startTimeSelected = item;
+      this.startTimeSelected = item;
     }
 
     endTimeChanged(item: Moment) {
-        this.endTimeSelected = item;
+      this.endTimeSelected = item;
     }
 
-    log(item) { }
+    log(item) {}
 
     // User Interactions
     startCalendarOpened() {
-        this.showApply = true;
+      this.showApply = true;
     }
 
     endCalendarOpened() {
-        this.showApply = true;
+      this.showApply = true;
     }
 
     startClockSelected() {
-        this.startTime = this.options.defaultStartText;
+      this.startTime = this.options.defaultStartText;
     }
 
     endClockSelected() {
-        this.endTime = this.options.defaultEndText;
+      this.endTime = this.options.defaultEndText;
     }
 
     startInputFocused() {
-        this.showApply = true;
-        this.removeSelectedPreset();
+      this.showApply = true;
+      this.removeSelectedPreset();
     }
 
     endInputFocused() {
-        this.showApply = true;
-        this.removeSelectedPreset();
+      this.showApply = true;
+      this.removeSelectedPreset();
     }
 
     enterKeyedOnInputBox() {
-        this.applyClicked();
+      this.applyClicked();
     }
 
     @HostListener('document:click', ['$event'])
     hidePresetsIfClickOutside(event) {
-        if (!this.presetsDiv.nativeElement.contains(event.target)) {
-            this.presetSelected = null;
-        }
+      if (!this.presetsDiv.nativeElement.contains(event.target)) {
+        this.presetSelected = null;
+      }
     }
 
-    startCalendarClosed() { }
+    startCalendarClosed() {}
 
-    endCalendarClosed() { }
+    endCalendarClosed() {}
 }
 
 interface Preset {
