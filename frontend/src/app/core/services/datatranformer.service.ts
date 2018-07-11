@@ -31,7 +31,7 @@ yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): an
     }
     // extract date of all series to fill it up, 
     for (let date in g.dps) {
-      dpsHash[date] = true
+      dpsHash[date] = true;
     }
   }
   let dpsHashKey = Object.keys(dpsHash);
@@ -53,8 +53,6 @@ yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): an
       (g.dps[dpsMs] !== undefined) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
     }
   }
-
-  //return Object.assign(normalizedData);
   return JSON.parse(JSON.stringify(normalizedData));
 }  
   // build opentsdb query base on this of full quanlify metrics for exploer | adhoc
