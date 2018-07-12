@@ -69,10 +69,10 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     {text: "24", value: "#FC5AA8"},
     {text: "25", value: "#FFFFFF"} ];
 
-    @ViewChild("colorPicker") colorPicker: any;
+    // @ViewChild("colorPicker") colorPicker: any;
     // @ViewChild("buttonToggle") buttonToggle: any;
     // @ViewChild("buttonFooter") buttonFooter: any;
-    @ViewChild("customColorPicker") customColorPicker: MccColorPickerSelectorComponent;
+    // @ViewChild("customColorPicker") customColorPicker: MccColorPickerSelectorComponent;
 
   /**
    * Get all collections
@@ -425,28 +425,7 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     this.toggle();
   }
 
-  // @HostListener('document:click', ['$event'])
-  // hidePresetsIfClickOutside(event){
-  //   // if(this.selectingCustomColor && this.customColorPicker && !this.customColorPicker.nativeElement.contains(event.target)) {
-
-
-  //   // if(this.buttonToggle.nativeElement.contains(event.target)){
-  //   //   console.log("clicked buttonToggle");
-  //   // } 
-    
-  //   // if (this.buttonFooter.nativeElement.contains(event.target)){
-  //   //   console.log("clicked buttonFooter");
-  //   // }
-
-  //   if( this.isOpen && !this.colorPicker.nativeElement.contains(event.target)) {
-
-  //     this.togg
-  //     // this.selectedColor = 
-  //     console.log("clicked outside");
-  //     // console.log(this.customColorPicker);
-  //     // console.log(event.target);
-  //   }
-  }
+}
 
 
 

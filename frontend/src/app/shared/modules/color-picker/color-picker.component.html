@@ -1,14 +1,33 @@
-<div #buttonToggle>
-    <button class="btn-picker" mat-button (click)="toggle()" > 
-         <div class="color-sample" [style.background]="selectedColor"></div>
-         <span>{{colorToName(selectedColor)}}</span>
+<!-- color picker overlay -->
+<ng-container *ngIf="overlay">
+    <button mat-button class="btn-picker" cdkOverlayOrigin #trigger="cdkOverlayOrigin" (click)="toggle()">
+        <div class="color-sample" [style.background]="selectedColor"></div>
+        <span>{{colorToName(selectedColor)}}</span>
     </button>
-</div>
 
-<span [ngClass]= "{invisible: !isOpen}" class="box" #colorPicker>
-    <mat-card>
-        <mat-card-content>
-            <div [ngClass]= "{invisible: selectingCustomColor}" >
+    <ng-template cdkConnectedOverlay 
+        cdkConnectedOverlayHasBackdrop 
+        cdkConnectedOverlayBackdropClass="mcc-color-picker-backdrop"
+        [cdkConnectedOverlayOrigin]="trigger"
+        [cdkConnectedOverlayOpen]="isOpen" 
+        (backdropClick)="backdropClick()">
+    
+        <ng-template [cdkPortalOutlet]="overlayPanel"></ng-template>
+
+    </ng-template>
+
+</ng-container>
+    
+    <!-- color picker flat -->
+    <ng-template *ngIf="!overlay" [cdkPortalOutlet]="overlayPanel"></ng-template>
+    
+    <!-- color picker component content -->
+    <ng-template cdkPortal #overlayPanel="cdkPortal">
+
+        <mat-card>
+
+            <!-- Default Color Selector -->
+            <div *ngIf="!selectingCustomColor" >
                 <mat-grid-list cols="5" rowHeight="34px">
                     <mat-grid-tile *ngFor="let color of DefaultColors">
                         <button  
@@ -21,19 +40,19 @@
                     </mat-grid-tile>
                 </mat-grid-list>
             </div>
-    
-            <div [ngClass]="{invisible: !selectingCustomColor}" class="mcc-color-picker-overlay" role="dialog" aria-label="Color picker" >
-                    <mcc-color-picker-selector #customColorPicker [selectedColor]="selectedColor" [hideHexForms]="hideHexForms"
-                        [height]="colorPickerSelectorHeight" (changeSelectedColor)="colorSelected($event)">
-                    </mcc-color-picker-selector>
-                    <ng-content></ng-content>
-            </div>
-        </mat-card-content>
-    
-        <div #buttonFooter>
-            <button [ngClass]= "{invisible: !selectingCustomColor}" mat-button (click)="toggleSelector()"> Custom Color </button>
-            <button [ngClass]= "{invisible: selectingCustomColor}"  mat-button (click)="toggleSelector()"> Default Color </button>
-        </div>  
-    </mat-card>
-</span>
+
+                     <!-- Custom Color Selector -->
+                     <div *ngIf="selectingCustomColor">
+                            <mcc-color-picker-selector  [selectedColor]="selectedColor"
+                                (changeSelectedColor)="colorSelected($event)">
+                            </mcc-color-picker-selector>
+                     </div>
+             
+
+            <button mat-button *ngIf="selectingCustomColor" (click)="toggleSelector()"> Default Colors </button>
+            <button mat-button *ngIf="!selectingCustomColor" (click)="toggleSelector()"> Custom Colors </button>
+
+            <ng-content></ng-content>
+        </mat-card>
+    </ng-template>
 
