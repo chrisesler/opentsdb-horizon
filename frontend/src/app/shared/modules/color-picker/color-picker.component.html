@@ -1,6 +1,7 @@
 <div #buttonToggle>
     <button class="btn-picker" mat-button (click)="toggle()" > 
-         <span [style.background]="selectedColor"> blah</span>
+         <div class="color-sample" [style.background]="selectedColor"></div>
+         <span>{{colorToName(selectedColor)}}</span>
     </button>
 </div>
 
@@ -14,7 +15,7 @@
                             mat-button
                             [ngClass]="{'isSelected' : color.value==selectedColor}"
                             [style.background-color]="color.value"
-                            (click)="clickedColor(color.value)">
+                            (click)="colorSelected(color.value)">
                             {{color.text}}
                         </button>
                     </mat-grid-tile>
@@ -22,8 +23,8 @@
             </div>
     
             <div [ngClass]="{invisible: !selectingCustomColor}" class="mcc-color-picker-overlay" role="dialog" aria-label="Color picker" >
-                    <mcc-color-picker-selector  *ngIf="!hideColorPickerSelector" [selectedColor]="selectedColor" [hideHexForms]="hideHexForms"
-                        [height]="colorPickerSelectorHeight" (changeSelectedColor)="updateTmpSelectedColor($event)">
+                    <mcc-color-picker-selector #customColorPicker [selectedColor]="selectedColor" [hideHexForms]="hideHexForms"
+                        [height]="colorPickerSelectorHeight" (changeSelectedColor)="colorSelected($event)">
                     </mcc-color-picker-selector>
                     <ng-content></ng-content>
             </div>

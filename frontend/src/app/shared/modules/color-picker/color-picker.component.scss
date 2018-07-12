@@ -1,15 +1,16 @@
 // @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
 
 .btn-picker {
-  width: 25px;
+  width: 50px;
   height: 25px;
-  // cursor: pointer;
-  // background: none;
-  // border: 2px solid #dddddd;
+}
 
-  // &.empty {
-  //   background: #ffffff !important;
-  // }
+.color-sample {
+  height: 18px;
+  width: 18px;
+  margin-right: 4px;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .mcc-color-picker-overlay {

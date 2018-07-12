@@ -24,6 +24,7 @@ import { HostListener } from '@angular/core';
 import { ViewChild } from '@angular/core';
 import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 import { MatCard } from '@angular/material';
+import { MccColorPickerSelectorComponent } from './color-picker-selector.component';
 // import {OverlayModule} from '@angular/cdk/overlay';
 
 interface IColor {
@@ -68,9 +69,10 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     {text: "24", value: "#FC5AA8"},
     {text: "25", value: "#FFFFFF"} ];
 
-    @ViewChild("colorPicker") customColorPicker: any;
-    @ViewChild("buttonToggle") buttonToggle: any;
-    @ViewChild("buttonFooter") buttonFooter: any;
+    @ViewChild("colorPicker") colorPicker: any;
+    // @ViewChild("buttonToggle") buttonToggle: any;
+    // @ViewChild("buttonFooter") buttonFooter: any;
+    @ViewChild("customColorPicker") customColorPicker: MccColorPickerSelectorComponent;
 
   /**
    * Get all collections
@@ -86,8 +88,19 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     this.selectingCustomColor = !this.selectingCustomColor;
   }
 
-  clickedColor(hexColor: string): void{
+  colorSelected(hexColor: string): void {
     this.selectedColor = hexColor;
+  }
+
+  colorToName(hexColor: string): string {
+    let colorName = hexColor;
+    for(let color of this.DefaultColors ) {
+      if(color.value == hexColor ){
+        colorName = color.text;
+        break;
+      }
+    }
+    return colorName;
   }
 
   /**
@@ -183,7 +196,6 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
       this.changeDetectorRef.markForCheck();
     }
     this._selectedColor = coerceHexaColor(value) || this.emptyColor;
-    console.log(this.selectedColor);
   }
 
   private _selectedColor: string;
@@ -373,6 +385,7 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
    * Update selected color, close the panel and notify the user
    */
   backdropClick(): void {
+    console.log("backdrop click");
     if (this._hideButtons) {
       this.confirmSelectedColor();
     } else {
@@ -412,38 +425,29 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     this.toggle();
   }
 
-  @HostListener('document:click', ['$event'])
-  hidePresetsIfClickOutside(event){
-    // if(this.selectingCustomColor && this.customColorPicker && !this.customColorPicker.nativeElement.contains(event.target)) {
+  // @HostListener('document:click', ['$event'])
+  // hidePresetsIfClickOutside(event){
+  //   // if(this.selectingCustomColor && this.customColorPicker && !this.customColorPicker.nativeElement.contains(event.target)) {
 
 
-    // if(this.buttonToggle.nativeElement.contains(event.target)){
-    //   console.log("clicked buttonToggle");
-    // } 
+  //   // if(this.buttonToggle.nativeElement.contains(event.target)){
+  //   //   console.log("clicked buttonToggle");
+  //   // } 
     
-    // if (this.buttonFooter.nativeElement.contains(event.target)){
-    //   console.log("clicked buttonFooter");
-    // }
+  //   // if (this.buttonFooter.nativeElement.contains(event.target)){
+  //   //   console.log("clicked buttonFooter");
+  //   // }
 
-    if( this.isOpen && !this.customColorPicker.nativeElement.contains(event.target)) {
-      // this.selectedColor = 
-      console.log("clicked outside");
-      // console.log(this.customColorPicker);
-      // console.log(event.target);
-    }
+  //   if( this.isOpen && !this.colorPicker.nativeElement.contains(event.target)) {
+
+  //     this.togg
+  //     // this.selectedColor = 
+  //     console.log("clicked outside");
+  //     // console.log(this.customColorPicker);
+  //     // console.log(event.target);
+  //   }
   }
 
-  // ngOnChanges () { 
-  //   console.log("inside on changes");
-  //   // ngOnChanges is a component LifeCycle Hook that should run the following code when there is a change to the components view (like when the child elements appear in the DOM for example)
-  //   if(this.selectingCustomColor) // this if statement checks to see if the component has appeared becuase ngOnChanges may fire for other reasons
-  //     this.customColorPicker.changes.subscribe( // subscribe to any changes to the ref which should change from undefined to an actual value once showMe is switched to true (which triggers *ngIf to show the component)
-  //       (result) => {
-  //         // console.log(result.first['_results'][0].nativeElement);                                         
-  //         console.log(result.first.nativeElement);                                          
 
-  //         // Do Stuff with referenced element here...   
-  //       } 
-  //     ); // end subscribe
-  //   } // end if
-}
+
+
