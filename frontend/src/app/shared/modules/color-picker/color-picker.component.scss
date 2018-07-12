@@ -54,18 +54,20 @@
 }
 
 .isSelected {
-  background-color: orange;
-  // border: black;
+  border-color: orange;
 }
 
-.invisible {
-  display:none;
-}
-
-mat-card{
+mat-card {
   padding: 0px;
   top: 25px;
   right: 50px;
   width: 270px;
   height: 225px;
+}
+
+.default-button {
+  padding: 0px;
+  width: 50px;
+  height: 36px;
+  display: inline-block;
 }
