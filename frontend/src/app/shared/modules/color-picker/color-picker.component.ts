@@ -19,6 +19,17 @@ import { map } from 'rxjs/operators';
 import { EMPTY_COLOR, coerceHexaColor } from './color-picker';
 // import { MccColorPickerCollectionComponent } from './color-picker-collection.component';
 import { MccColorPickerService } from './color-picker.service';
+// import { ViewChild } from '@angular/core';
+import { HostListener } from '@angular/core';
+import { ViewChild } from '@angular/core';
+import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
+import { MatCard } from '@angular/material';
+// import {OverlayModule} from '@angular/cdk/overlay';
+
+interface IColor {
+  text: string;
+  value: string;
+}
 
 @Component({
   selector: 'mcc-color-picker',
@@ -27,12 +38,57 @@ import { MccColorPickerService } from './color-picker.service';
   preserveWhitespaces: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDestroy {
+
+  DefaultColors: IColor[] = [
+    {text: "1", value: "#B00013"}, 
+    {text: "2", value: "#FECF2B"}, 
+    {text: "3", value: "#0B5ED2"},
+    {text: "4", value: "#9971E0"},
+    {text: "5", value: "#242424"}, 
+    {text: "6", value: "#DA001B"}, 
+    {text: "7", value: "#AAEC61"}, 
+    {text: "8", value: "#B0D9F9"},
+    {text: "9", value: "#300075"},
+    {text: "10", value: "#4D4D4D"}, 
+    {text: "11", value: "#ED5A1C"}, 
+    {text: "12", value: "#75D42A"}, 
+    {text: "13", value: "#18BDED"},
+    {text: "14", value: "#B10060"},
+    {text: "15", value: "#888888"}, 
+    {text: "16", value: "#ECA024"}, 
+    {text: "17", value: "#1CB84F"}, 
+    {text: "18", value: "#18BDED"},
+    {text: "19", value: "#FB007D"},
+    {text: "20", value: "#888888"}, 
+    {text: "21", value: "#FECF2B"}, 
+    {text: "22", value: "#446E17"}, 
+    {text: "23", value: "#87119A"},
+    {text: "24", value: "#FC5AA8"},
+    {text: "25", value: "#FFFFFF"} ];
+
+    @ViewChild("colorPicker") customColorPicker: any;
+    @ViewChild("buttonToggle") buttonToggle: any;
+    @ViewChild("buttonFooter") buttonFooter: any;
+
   /**
    * Get all collections
    */
 //   @ContentChildren(MccColorPickerCollectionComponent)
 //   _collections: QueryList<MccColorPickerCollectionComponent>;
+
+  /*
+  */
+  selectingCustomColor: boolean = false;
+
+  toggleSelector(){
+    this.selectingCustomColor = !this.selectingCustomColor;
+  }
+
+  clickedColor(hexColor: string): void{
+    this.selectedColor = hexColor;
+  }
 
   /**
    * Change label of the collection UsedColors
@@ -126,9 +182,10 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     if (this._selectedColor !== value) {
       this.changeDetectorRef.markForCheck();
     }
-
     this._selectedColor = coerceHexaColor(value) || this.emptyColor;
+    console.log(this.selectedColor);
   }
+
   private _selectedColor: string;
 
   /**
@@ -252,7 +309,8 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
 
   ngOnInit() {
     if (!this._selectedColor) {
-      this._selectedColor = this.emptyColor;
+      // this._selectedColor = this.emptyColor;
+      this._selectedColor = "#FFFFFF";
     }
 
     this._tmpSelectedColor = new BehaviorSubject<string>(this._selectedColor);
@@ -353,4 +411,39 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     this._updateSelectedColor();
     this.toggle();
   }
+
+  @HostListener('document:click', ['$event'])
+  hidePresetsIfClickOutside(event){
+    // if(this.selectingCustomColor && this.customColorPicker && !this.customColorPicker.nativeElement.contains(event.target)) {
+
+
+    // if(this.buttonToggle.nativeElement.contains(event.target)){
+    //   console.log("clicked buttonToggle");
+    // } 
+    
+    // if (this.buttonFooter.nativeElement.contains(event.target)){
+    //   console.log("clicked buttonFooter");
+    // }
+
+    if( this.isOpen && !this.customColorPicker.nativeElement.contains(event.target)) {
+      // this.selectedColor = 
+      console.log("clicked outside");
+      // console.log(this.customColorPicker);
+      // console.log(event.target);
+    }
+  }
+
+  // ngOnChanges () { 
+  //   console.log("inside on changes");
+  //   // ngOnChanges is a component LifeCycle Hook that should run the following code when there is a change to the components view (like when the child elements appear in the DOM for example)
+  //   if(this.selectingCustomColor) // this if statement checks to see if the component has appeared becuase ngOnChanges may fire for other reasons
+  //     this.customColorPicker.changes.subscribe( // subscribe to any changes to the ref which should change from undefined to an actual value once showMe is switched to true (which triggers *ngIf to show the component)
+  //       (result) => {
+  //         // console.log(result.first['_results'][0].nativeElement);                                         
+  //         console.log(result.first.nativeElement);                                          
+
+  //         // Do Stuff with referenced element here...   
+  //       } 
+  //     ); // end subscribe
+  //   } // end if
 }

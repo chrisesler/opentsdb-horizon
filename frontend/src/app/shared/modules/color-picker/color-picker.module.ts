@@ -3,14 +3,15 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
-import { MatButtonModule, MatFormFieldModule, MatInputModule } from '@angular/material';
+import { MatFormFieldModule, MatInputModule, MatTabsModule, MatCardModule, MatGridListModule, MatButtonModule } from '@angular/material';
+import { MatSortModule} from '@angular/material/sort';
 
 import { EMPTY_COLOR, ColorPickerConfig } from './color-picker';
 
 import { MccColorPickerService } from './color-picker.service';
 
 import { MccColorPickerComponent } from './color-picker.component';
-// import { MccColorPickerSelectorComponent } from './color-picker-selector.component';
+import { MccColorPickerSelectorComponent } from './color-picker-selector.component';
 // import { MccColorPickerCollectionComponent } from './color-picker-collection.component';
 // import {
 //   MccConnectedColorPickerDirective,
@@ -24,14 +25,17 @@ import { MccColorPickerComponent } from './color-picker.component';
     PortalModule,
     OverlayModule,
     ReactiveFormsModule,
-    MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatTabsModule,
+    MatCardModule,
+    MatGridListModule,
+    MatButtonModule
   ],
   declarations: [
     MccColorPickerComponent,
     // MccConnectedColorPickerDirective,
-    // MccColorPickerSelectorComponent,
+    MccColorPickerSelectorComponent,
     // MccColorPickerOriginDirective,
     // MccColorPickerOptionDirective,
     // MccColorPickerCollectionComponent,

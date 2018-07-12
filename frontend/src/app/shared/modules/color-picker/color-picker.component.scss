@@ -3,17 +3,17 @@
 .btn-picker {
   width: 25px;
   height: 25px;
-  cursor: pointer;
-  background: none;
-  border: 2px solid #dddddd;
+  // cursor: pointer;
+  // background: none;
+  // border: 2px solid #dddddd;
 
-  &.empty {
-    background: #ffffff !important;
-  }
+  // &.empty {
+  //   background: #ffffff !important;
+  // }
 }
 
 .mcc-color-picker-overlay {
-  display: flex;
+  // display: flex;
   width: 260px;
   min-height: 80px;
   position: relative;
@@ -50,4 +50,26 @@
     font-weight: 400;
     flex-grow: 1;
   }
+}
+
+.box {
+  max-width: 400px;
+  padding-top: 10px;
+  position: absolute;
+}
+
+.isSelected {
+  background-color: orange;
+  // border: black;
+}
+
+.invisible {
+  display:none;
+}
+
+mat-card{
+  top: 50px;
+  right: 50px;
+  width: 300px;
+  height: 300px;
 }

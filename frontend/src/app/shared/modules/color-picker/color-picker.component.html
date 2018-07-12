@@ -1,48 +1,38 @@
-<!-- color picker overlay -->
-<ng-container *ngIf="overlay">
-    <button type="button" class="btn-picker" cdkOverlayOrigin #trigger="cdkOverlayOrigin" [ngClass]="{ 'empty': selectedColor === emptyColor }"
-        [style.background]="selectedColor" (click)="toggle()">
-        <div class="transparent" *ngIf="selectedColor === emptyColor"></div>
+<div #buttonToggle>
+    <button class="btn-picker" mat-button (click)="toggle()" > 
+         <span [style.background]="selectedColor"> blah</span>
     </button>
+</div>
 
-    <ng-template cdkConnectedOverlay cdkConnectedOverlayHasBackdrop cdkConnectedOverlayBackdropClass="mcc-color-picker-backdrop"
-        [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen" (backdropClick)="backdropClick()">
+<span [ngClass]= "{invisible: !isOpen}" class="box" #colorPicker>
+    <mat-card>
+        <mat-card-content>
+            <div [ngClass]= "{invisible: selectingCustomColor}" >
+                <mat-grid-list cols="5" rowHeight="34px">
+                    <mat-grid-tile *ngFor="let color of DefaultColors">
+                        <button  
+                            mat-button
+                            [ngClass]="{'isSelected' : color.value==selectedColor}"
+                            [style.background-color]="color.value"
+                            (click)="clickedColor(color.value)">
+                            {{color.text}}
+                        </button>
+                    </mat-grid-tile>
+                </mat-grid-list>
+            </div>
+    
+            <div [ngClass]="{invisible: !selectingCustomColor}" class="mcc-color-picker-overlay" role="dialog" aria-label="Color picker" >
+                    <mcc-color-picker-selector  *ngIf="!hideColorPickerSelector" [selectedColor]="selectedColor" [hideHexForms]="hideHexForms"
+                        [height]="colorPickerSelectorHeight" (changeSelectedColor)="updateTmpSelectedColor($event)">
+                    </mcc-color-picker-selector>
+                    <ng-content></ng-content>
+            </div>
+        </mat-card-content>
+    
+        <div #buttonFooter>
+            <button [ngClass]= "{invisible: !selectingCustomColor}" mat-button (click)="toggleSelector()"> Custom Color </button>
+            <button [ngClass]= "{invisible: selectingCustomColor}"  mat-button (click)="toggleSelector()"> Default Color </button>
+        </div>  
+    </mat-card>
+</span>
 
-        <ng-template [cdkPortalOutlet]="overlayPanel"></ng-template>
-
-    </ng-template>
-</ng-container>
-
-<!-- color picker flat -->
-<ng-template *ngIf="!overlay" [cdkPortalOutlet]="overlayPanel"></ng-template>
-
-<!-- color picker component content -->
-<!-- <ng-template cdkPortal #overlayPanel="cdkPortal">
-
-    <div class="mcc-color-picker-overlay mat-elevation-z6" role="dialog" aria-label="Color picker">
-
-        <mcc-color-picker-selector *ngIf="!hideColorPickerSelector" [selectedColor]="tmpSelectedColor$ | async" [hideHexForms]="hideHexForms"
-            [height]="colorPickerSelectorHeight" (changeSelectedColor)="updateTmpSelectedColor($event)">
-        </mcc-color-picker-selector>
-
-        <mcc-color-picker-collection *ngIf="!hideUsedColors" [label]="usedColorLabel" [size]="usedSizeColors" [transparent]="!hideTransparent"
-            [hideEmpty]="hideEmpty" [colors]="usedColors$ | async" (changeColor)="updateTmpSelectedColor($event)">
-        </mcc-color-picker-collection>
-
-        <ng-content></ng-content>
-
-        <div *ngIf="!hideButtons" class="mcc-color-picker-actions">
-
-            <button mat-button role="button" aria-label="Cancel" (click)="cancelSelection()">
-                {{ btnCancel }}
-            </button>
-
-            <button mat-button role="button" aria-label="Confirm" (click)="confirmSelectedColor()">
-                {{ btnConfirm }}
-            </button>
-
-        </div>
-
-    </div>
-
-</ng-template> -->
