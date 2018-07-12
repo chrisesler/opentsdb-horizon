@@ -28,11 +28,11 @@
 
             <!-- Default Color Selector -->
             <div *ngIf="!selectingCustomColor" >
-                <mat-grid-list cols="5" rowHeight="34px">
+                <mat-grid-list cols="5" rowHeight="45px">
                     <mat-grid-tile *ngFor="let color of DefaultColors">
                         <button  
                             mat-button
-                            class="default-button"
+                            class="default-color-button"
                             [ngClass]="{'isSelected' : color.value==selectedColor}"
                             [style.background-color]="color.value"
                             (click)="colorSelected(color.value)">
@@ -47,11 +47,12 @@
                     (changeSelectedColor)="colorSelected($event)">
                 </mcc-color-picker-selector>
             </div>
-             
-            <button mat-button *ngIf="selectingCustomColor" (click)="toggleSelector()"> Default Colors </button>
-            <button mat-button *ngIf="!selectingCustomColor" (click)="toggleSelector()"> Custom Colors </button>
 
-            <ng-content></ng-content>
+            <div class="toggle">
+                <button mat-button *ngIf="selectingCustomColor"  (click)="toggleSelector()"> Default Colors </button>
+                <button mat-button *ngIf="!selectingCustomColor" (click)="toggleSelector()"> Custom Colors </button>
+            </div>
+
         </mat-card>
     </ng-template>
 

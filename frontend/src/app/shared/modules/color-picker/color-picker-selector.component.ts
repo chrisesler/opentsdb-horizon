@@ -179,7 +179,7 @@ import { HostListener } from '@angular/core';
   
       // hex form
       this.hexForm = this.formBuilder.group({
-        hexCode: [this.selectedColor, [Validators.minLength(7), Validators.maxLength(7)]],
+        hexCode: [this.selectedColor, [Validators.minLength(7), Validators.maxLength(7), Validators.pattern(/^#[0-9A-F]{6}$/i) ]],
       });
   
       // rgb dynamic form
@@ -365,7 +365,7 @@ import { HostListener } from '@angular/core';
           hex[key] = '0' + hex[key];
         }
       });
-  
+
       return coerceHexaColor(`${hex[0]}${hex[1]}${hex[2]}`) || this.emptyColor;
     }
   

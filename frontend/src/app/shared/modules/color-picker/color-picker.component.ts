@@ -69,11 +69,6 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     {text: "24", value: "#FC5AA8"},
     {text: "25", value: "#FFFFFF"} ];
 
-    // @ViewChild("colorPicker") colorPicker: any;
-    // @ViewChild("buttonToggle") buttonToggle: any;
-    // @ViewChild("buttonFooter") buttonFooter: any;
-    // @ViewChild("customColorPicker") customColorPicker: MccColorPickerSelectorComponent;
-
   /**
    * Get all collections
    */
@@ -426,7 +421,3 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
   }
 
 }
-
-
-
-

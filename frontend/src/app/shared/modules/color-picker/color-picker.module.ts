@@ -12,6 +12,8 @@ import { MccColorPickerService } from './color-picker.service';
 
 import { MccColorPickerComponent } from './color-picker.component';
 import { MccColorPickerSelectorComponent } from './color-picker-selector.component';
+import { FormsModule } from '@angular/forms';
+
 // import { MccColorPickerCollectionComponent } from './color-picker-collection.component';
 // import {
 //   MccConnectedColorPickerDirective,
@@ -30,7 +32,8 @@ import { MccColorPickerSelectorComponent } from './color-picker-selector.compone
     MatTabsModule,
     MatCardModule,
     MatGridListModule,
-    MatButtonModule
+    MatButtonModule,
+    FormsModule
   ],
   declarations: [
     MccColorPickerComponent,
