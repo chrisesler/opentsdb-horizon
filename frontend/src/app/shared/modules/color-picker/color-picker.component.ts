@@ -27,9 +27,14 @@ import { MatCard } from '@angular/material';
 import { MccColorPickerSelectorComponent } from './color-picker-selector.component';
 // import {OverlayModule} from '@angular/cdk/overlay';
 
-interface IColor {
+interface IDefaultColor {
   text: string;
   value: string;
+}
+
+interface IColor {
+  hex: string;
+  rgb: string;
 }
 
 @Component({
@@ -42,7 +47,7 @@ interface IColor {
 
 export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDestroy {
 
-  DefaultColors: IColor[] = [
+  DefaultColors: IDefaultColor[] = [
     {text: "1", value: "#B00013"}, 
     {text: "2", value: "#FECF2B"}, 
     {text: "3", value: "#0B5ED2"},
@@ -361,7 +366,7 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
         this._selectedColor = tmpSelectedColor;
         this.selected.next(this._selectedColor);
       } else {
-        this.selected.emit(this._selectedColor);
+        this.selected.emit(this.hexToColor(this._selectedColor));
       }
     }
   }
@@ -380,7 +385,6 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
    * Update selected color, close the panel and notify the user
    */
   backdropClick(): void {
-    console.log("backdrop click");
     if (this._hideButtons) {
       this.confirmSelectedColor();
     } else {
@@ -407,8 +411,8 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
    * Cancel the selection and close the panel
    */
   cancelSelection() {
-    this.selected.emit(this._selectedColor);
-    this.change.next(this._selectedColor);
+    this.selected.emit(this.hexToColor(this._selectedColor));
+    this.change.next(this.hexToColor(this._selectedColor));
     this.toggle();
   }
 
@@ -418,6 +422,23 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
   confirmSelectedColor() {
     this._updateSelectedColor();
     this.toggle();
+  }
+
+  hexToRgb(hex: string) {
+    var bigint = parseInt(hex.substring(1), 16);
+    var r = (bigint >> 16) & 255;
+    var g = (bigint >> 8) & 255;
+    var b = bigint & 255;
+
+    return r + "," + g + "," + b;
+  }
+
+  hexToColor(_hex): IColor {
+    let color = {
+      hex: _hex,
+      rgb: this.hexToRgb(_hex)
+    }
+    return color;
   }
 
 }

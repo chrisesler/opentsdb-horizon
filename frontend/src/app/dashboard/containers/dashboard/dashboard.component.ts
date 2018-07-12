@@ -189,8 +189,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
      * On Destroy
      */
 
-    clickedOut() {
-        console.log('clicked out of color picker');
+    clickedOut(event) {
+        console.log(event);
     }
 
     ngOnDestroy() {
