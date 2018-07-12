@@ -42,8 +42,10 @@ export interface DashboardStateModel {
     loaded: boolean;
     viewEditMode: boolean;
     editWidgetId: string;
-    updatedWidgetId: string;
-    updatedGroupId: string;
+    updatedWigetGroup: {
+        widgetId: string;
+        groupId: string;
+    };
     settings: any;
     widgets: WidgetModel[];
 }
@@ -56,8 +58,10 @@ export interface DashboardStateModel {
       loaded: false,
       viewEditMode: false,
       editWidgetId: '',
-      updatedWidgetId: '',
-      updatedGroupId: '',
+      updatedWigetGroup: {
+          groupId: '',
+          widgetId: ''
+      },
       settings: {},
       widgets: []
     }
@@ -85,17 +89,15 @@ export class DashboardState {
         return { editMode: state.viewEditMode, widgetId: state.editWidgetId };
     }
 
-    @Selector()
-    static getUpdatedWidgetId(state: DashboardStateModel) {
-        return state.updatedWidgetId;
-    }
+    //@Selector()
+    //static getUpdatedWidgetId(state: DashboardStateModel) {
+    //    return state.updatedWidgetId;
+    //}
 
    @Selector() 
    static getWidgetGroupUpdate(state: DashboardStateModel) {
-       return {
-            widgetId: state.updatedWidgetId,
-            groupId: state.updatedGroupId
-       }
+       console.log('.... this is return ... from selectoer');
+       return { groupId: state.updatedWigetGroup.groupId, widgetId: state.updatedWigetGroup.widgetId}
    }
 
     @Action(dashboardAction.LoadDashboard)
@@ -115,9 +117,8 @@ export class DashboardState {
         // tranform dashboard information by adding some other properties
         // to enable rezise, drag and drop and responsive size
         this.dashboardService.modifyWidgets(payload);
-        console.log('dashboard state loading ....');
-        
-        ctx.setState({...state, ...payload, loading: false, loaded: true, updatedGroupId: '', updatedWidgetId: '', viewEditMode: false});
+        console.log('dashboard state loading ....');   
+        ctx.setState({...state, ...payload, loading: false, loaded: true, viewEditMode: false});
     }
 
     @Action(dashboardAction.LoadDashboardFail)
@@ -181,7 +182,7 @@ export class DashboardState {
                             w.data = {};
                         }
                         w.data.rawdata = data;
-                        state.updatedWidgetId = w.id;
+                        //state.updatedWidgetId = w.id;
                         break;
                     }
                 }
@@ -195,22 +196,21 @@ export class DashboardState {
    getQueryDataByGroup(ctx: StateContext<DashboardStateModel>, action: dashboardAction.GetQueryDataByGroup) {
         this.httpService.getYamasData(action.query).subscribe(
             data => {
+                
+                
                 const state = ctx.getState();
                 for (let w of state.widgets) {
                     if (w.id === action.widgetid) {
-                        //if(!w.rawdata) w.rawdata = [];
-                        //w.rawdata.push({
-                        //    id: action.groupid,
-                        //    data: data
-                        //});
                         if (!w.rawdata) w.rawdata = {};
                         w.rawdata[action.groupid] = data;
-                        state.updatedWidgetId = w.id;
-                        state.updatedGroupId = action.groupid;
+                        //state.updatedWidgetId = w.id;
+                        //state.updatedGroupId = action.groupid;
                         break;
                     }
                 }
-                ctx.setState(state);       
+                
+                ctx.setState({...state, updatedWigetGroup: {groupId: action.groupid, widgetId: action.widgetid}});  
+                console.log('getYamasData call ....', state);     
             },
             err => {
                 // todo: handle error case
@@ -218,4 +218,6 @@ export class DashboardState {
             }
         );
    }
+
+   
  }

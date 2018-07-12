@@ -35,7 +35,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         connectSeparatedPoints: true,
         drawPoints: false,
         labelsDivWidth: 0,
-        legend: 'follow',
+        legend: 'never',
         stackedGraph: this.isStackedGraph,
         hightlightCircleSize: 1,
         strokeWidth: 1,
@@ -69,9 +69,13 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         console.log('update widget group', message, this.widget);
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true; // need to handle the case that it's partial of groups
-                            let grawdata = this.widget.rawdata[message.payload];
-                            this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, grawdata); 
-                            // console.log('datata-' + this.widget.id, new Date().getMilliseconds(), this.options, this.data);                                                    
+                            // handle case that nav out of dashboard, and state is kinda reset.
+                            if (this.widget.rawdata[message.payload]) {
+                                let grawdata = this.widget.rawdata[message.payload];
+                                this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, grawdata); 
+                                //console.log('datata-' + this.widget.id, new Date().getMilliseconds(), this.options, this.data); 
+                            }
+                                                                               
                         }
                         break;
                     // this case might be removed since we now get data by group

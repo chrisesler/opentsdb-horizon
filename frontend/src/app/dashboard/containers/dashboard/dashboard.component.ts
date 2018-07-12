@@ -28,7 +28,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DashboardState.getWidgets) widgets$: Observable<any>;
     @Select(DashboardState.setViewEditMode) viewEditMode$: Observable<any>;
     @Select(AuthState.getAuth) auth$: Observable<string>;
-    @Select(DashboardState.getUpdatedWidgetId) updatedWidgetId$: Observable<string>;
+    // @Select(DashboardState.getUpdatedWidgetId) updatedWidgetId$: Observable<string>;
     @Select(DashboardState.getWidgetGroupUpdate) updatedWidgetGroup$: Observable<any>;
 
     // dashboard action menu trigger
@@ -131,6 +131,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
        // update from store after getting data for each group, at this point return rawdata
        // is already added to state
        this.updatedWidgetGroup$.subscribe(wg => {
+           console.log('this is calling updateWidgetGroups', wg);
+           
            for (let i = 0; i < this.widgets.length; i++) {
                if (this.widgets[i].id === wg.widgetId) {
                    this.interCom.responsePut({
