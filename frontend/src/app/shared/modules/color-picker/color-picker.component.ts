@@ -192,10 +192,17 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     return this._selectedColor;
   }
   set selectedColor(value: string) {
+ 
     if (this._selectedColor !== value) {
       this.changeDetectorRef.markForCheck();
     }
-    this._selectedColor = coerceHexaColor(value) || this.emptyColor;
+
+    if(this.isRgbValid(value)){
+      this._selectedColor = this.rgbToHex(value);
+    } else {
+      this._selectedColor = coerceHexaColor(value) || this.emptyColor;
+    }
+    
   }
 
   private _selectedColor: string;
@@ -321,7 +328,6 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
 
   ngOnInit() {
     if (!this._selectedColor) {
-      // this._selectedColor = this.emptyColor;
       this._selectedColor = "#FFFFFF";
     }
 
@@ -424,6 +430,11 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     this.toggle();
   }
 
+
+  /**
+   * Hex and RGB conversions
+   */
+  
   hexToRgb(hex: string) {
     var bigint = parseInt(hex.substring(1), 16);
     var r = (bigint >> 16) & 255;
@@ -441,4 +452,39 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     return color;
   }
 
+  componentToHex(c): string {
+    var hex = c.toString(16);
+    var hexx = hex.length == 1 ? "0" + hex : hex; 
+    return hexx;
+  }
+
+   rgbToHexHelper(r: string, g: string, b: string): string {
+     return "#" + this.componentToHex(parseInt(r)) + this.componentToHex(parseInt(g)) + this.componentToHex(parseInt(b));
+   }
+
+   //ex: "20,50,70"
+   rgbToHex(rgb: string){
+     let values: string[] = rgb.split(",");
+     if(this.isRgbValid(rgb)){
+      return this.rgbToHexHelper(values[0].trim(), values[1].trim(), values[2].trim());
+     }
+    }
+     
+  //ex: "20,50,70"
+  isRgbValid(rgb: string): boolean{
+    let values: string[] = rgb.split(",");
+    let isValid: boolean = true;
+    
+    if(values.length != 3){
+      isValid = false;
+    } else {
+      for(let value of values){
+        if(parseInt(value, 10) < 0 || parseInt(value, 10) > 255){
+          isValid = false;
+          break;
+        }
+      }
+    }
+    return isValid;
+    }
 }

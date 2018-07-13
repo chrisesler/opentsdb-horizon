@@ -42,8 +42,8 @@
 
     <span class="navbar-item nav-theme-picker">
     <span class="navbar-item nav-add-new-widget">
-        <mcc-color-picker (selected)="clickedOut($event)"> </mcc-color-picker>
-        <time-picker (timeSelected)="timeUpdated($event)" xPosition="before"></time-picker>
+        <mcc-color-picker (selected)="clickedOut($event)" [selectedColor]="hexColor"> </mcc-color-picker>
+        <time-picker (timeSelected)="timeUpdated($event)" xPosition="before" ></time-picker>
         <theme-picker mat-button></theme-picker>
     </span>
     

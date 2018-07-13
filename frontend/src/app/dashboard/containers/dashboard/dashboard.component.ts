@@ -48,6 +48,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     widgets: any[] = [];
     // tslint:disable-next-line:no-inferrable-types
     viewEditMode: boolean = false;
+    hexColor: string = "#000000" //"20,50,70";
 
     constructor(
         private store: Store,
