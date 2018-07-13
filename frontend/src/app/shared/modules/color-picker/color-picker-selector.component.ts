@@ -113,6 +113,11 @@ import { HostListener } from '@angular/core';
      * Emit update when a color is selected
      */
     @Output() changeSelectedColor = new EventEmitter();
+
+    /**
+     * Emit when user entered a color
+     */
+    @Output() enteredColor = new EventEmitter();
   
     /**
      * RGBA current color
@@ -435,6 +440,10 @@ import { HostListener } from '@angular/core';
         this._updateRGB(data);
         this._tmpSelectedColor.next(this._getHex(data));
       }
+    }
+
+    enterKeyedOnInputBox(){
+      this.enteredColor.emit();
     }
   }
   

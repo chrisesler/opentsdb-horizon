@@ -103,6 +103,10 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     return colorName;
   }
 
+  enteredColor(event){
+    this.backdropClick();
+  }
+
   /**
    * Change label of the collection UsedColors
    */
@@ -434,7 +438,7 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
   /**
    * Hex and RGB conversions
    */
-  
+
   hexToRgb(hex: string) {
     var bigint = parseInt(hex.substring(1), 16);
     var r = (bigint >> 16) & 255;

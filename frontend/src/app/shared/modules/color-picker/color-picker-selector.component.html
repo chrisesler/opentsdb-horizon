@@ -12,7 +12,7 @@
 
 <form [formGroup]="hexForm">
     <mat-form-field class="hex-input">
-        <input matInput maxlength="7" formControlName="hexCode" [value]="selectedColor" />
+        <input matInput maxlength="7" formControlName="hexCode" [value]="selectedColor" (keyup.enter)="enterKeyedOnInputBox()"/>
     </mat-form-field>
 </form>
 
