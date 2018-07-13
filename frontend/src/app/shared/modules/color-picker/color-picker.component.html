@@ -24,21 +24,20 @@
     <!-- color picker component content -->
     <ng-template cdkPortal #overlayPanel="cdkPortal">
 
-        <mat-card>
+        <div class="card">
 
             <!-- Default Color Selector -->
             <div *ngIf="!selectingCustomColor" >
-                <mat-grid-list cols="5" rowHeight="45px">
-                    <mat-grid-tile *ngFor="let color of DefaultColors">
-                        <button  
-                            mat-button
-                            class="default-color-button"
-                            [ngClass]="{'isSelected' : color.value==selectedColor}"
+                <div class="grid-container">
+                    <div class="grid-item" *ngFor="let color of DefaultColors" [ngClass]="{'isSelected' : color.value==selectedColor}">
+                        <button
+                            [ngClass]="{'grey-outline' : color.text=='White'}"
+                            class="default-color-button"    
                             [style.background-color]="color.value"
                             (click)="colorSelected(color.value)">
                         </button>
-                    </mat-grid-tile>
-                </mat-grid-list>
+                    </div>
+                </div>
             </div>
 
             <!-- Custom Color Selector -->
@@ -50,10 +49,10 @@
             </div>
 
             <div class="toggle">
-                <button mat-button *ngIf="selectingCustomColor"  (click)="toggleSelector()"> Default Colors </button>
-                <button mat-button *ngIf="!selectingCustomColor" (click)="toggleSelector()"> Custom Colors </button>
+                <button mat-button *ngIf="!selectingCustomColor" (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Custom Color </button>
+                <button mat-button *ngIf="selectingCustomColor"  (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Default Color </button>
             </div>
 
-        </mat-card>
+        </div>
     </ng-template>
 

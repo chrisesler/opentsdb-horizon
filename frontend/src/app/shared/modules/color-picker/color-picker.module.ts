@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 import { MatFormFieldModule, MatInputModule, MatTabsModule, MatCardModule, MatGridListModule, MatButtonModule } from '@angular/material';
+import { MaterialModule } from '../material/material.module';
 import { MatSortModule} from '@angular/material/sort';
 
 import { EMPTY_COLOR, ColorPickerConfig } from './color-picker';
@@ -33,7 +34,8 @@ import { FormsModule } from '@angular/forms';
     MatCardModule,
     MatGridListModule,
     MatButtonModule,
-    FormsModule
+    FormsModule,
+    MaterialModule
   ],
   declarations: [
     MccColorPickerComponent,

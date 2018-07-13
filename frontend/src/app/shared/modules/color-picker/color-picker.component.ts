@@ -48,31 +48,31 @@ interface IColor {
 export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDestroy {
 
   DefaultColors: IDefaultColor[] = [
-    {text: "1", value: "#B00013"}, 
-    {text: "2", value: "#FECF2B"}, 
-    {text: "3", value: "#0B5ED2"},
-    {text: "4", value: "#9971E0"},
-    {text: "5", value: "#242424"}, 
-    {text: "6", value: "#DA001B"}, 
-    {text: "7", value: "#AAEC61"}, 
-    {text: "8", value: "#B0D9F9"},
-    {text: "9", value: "#300075"},
-    {text: "10", value: "#4D4D4D"}, 
-    {text: "11", value: "#ED5A1C"}, 
-    {text: "12", value: "#75D42A"}, 
-    {text: "13", value: "#18BDED"},
-    {text: "14", value: "#B10060"},
-    {text: "15", value: "#888888"}, 
-    {text: "16", value: "#ECA024"}, 
-    {text: "17", value: "#1CB84F"}, 
-    {text: "18", value: "#18BDED"},
-    {text: "19", value: "#FB007D"},
-    {text: "20", value: "#888888"}, 
-    {text: "21", value: "#FECF2B"}, 
-    {text: "22", value: "#446E17"}, 
-    {text: "23", value: "#87119A"},
-    {text: "24", value: "#FC5AA8"},
-    {text: "25", value: "#FFFFFF"} ];
+    {text: "Maroon", value: "#B00013"}, 
+    {text: "Yellow", value: "#FED800"}, 
+    {text: "Blue", value: "#0B5ED2"},
+    {text: "Lavendar", value: "#9971E0"},
+    {text: "Black", value: "#242424"}, 
+    {text: "Red", value: "#DA001B"}, 
+    {text: "Lime", value: "#AAEC61"}, 
+    {text: "Periwinkle", value: "#B0D9F9"},
+    {text: "Indigo", value: "#300075"},
+    {text: "Slate Gray", value: "#4D4D4D"}, 
+    {text: "Orange", value: "#ED5A1C"}, 
+    {text: "Lime Green", value: "#75D42A"}, 
+    {text: "Cyan", value: "#18BDED"},
+    {text: "Magenta", value: "#B10060"},
+    {text: "Gray", value: "#888888"}, 
+    {text: "Brown", value: "#E28B00"}, 
+    {text: "Green", value: "#1CB84F"}, 
+    {text: "Aqua", value: "#6DDDFA"},
+    {text: "Fuchsia", value: "#FB007D"},
+    {text: "Silver", value: "#CBCBCB"}, 
+    {text: "Amber", value: "#F0B200"}, 
+    {text: "Olive", value: "#446E17"}, 
+    {text: "Purple", value: "#87119A"},
+    {text: "Pink", value: "#FC5AA8"},
+    {text: "White", value: "#FFFFFF"} ];
 
   /**
    * Get all collections
@@ -332,7 +332,7 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
 
   ngOnInit() {
     if (!this._selectedColor) {
-      this._selectedColor = "#FFFFFF";
+      this._selectedColor = "#242424";
     }
 
     this._tmpSelectedColor = new BehaviorSubject<string>(this._selectedColor);
