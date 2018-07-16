@@ -42,9 +42,12 @@
 
             <!-- Custom Color Selector -->
             <div *ngIf="selectingCustomColor">
-                <mcc-color-picker-selector  [selectedColor]="selectedColor"
+                <mcc-color-picker-selector
+                    [selectedColor]="selectedColor"
                     (changeSelectedColor)="colorSelected($event)"
-                    (enteredColor)="enteredColor($event)">
+                    (enteredColor)="enteredColor($event)"
+                    [height]="colorPickerSelectorHeight"
+                >
                 </mcc-color-picker-selector>
             </div>
 

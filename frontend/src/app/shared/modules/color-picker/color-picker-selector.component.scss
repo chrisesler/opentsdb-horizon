@@ -1,40 +1,26 @@
 @mixin color-picker-selector-component-base() {
-  .mcc-color-picker-selector {
-    height: 115px;
-    padding: 3px;
-  }
-  
-  #picker{
-    width: 140px;
-    height: 83px;
-    border-radius: 3px;
-  }
-  
+
   canvas {
     &#colors {
       margin: 5px;
-      margin-top: 5px;
-      height: 135px;
       border-radius: 3px;
     }
     &:hover {
       cursor: crosshair;
     }
   }
-    
+  
   .mcc-picker-selector {
     position: absolute;
-    width: 146px;
-    height: 83px;
-    top: 5px;
+    width: 100%;
+    height: 146px;
+    top: 0;
     left: 0;
     z-index: 10;
     cursor: crosshair;
   }
   
   .mcc-picker-position {
-    top: 0px;
-    right: 0px;
     position: absolute;
     width: 10px;
     height: 10px;
@@ -42,18 +28,24 @@
     border: 1px #ddd solid;
     border-radius: 50%;
     background: rgba(0, 0, 0, 0.3);
+    top: 0px;
+    right: 0px;
   }
   
-  .slider-container {
-    margin-top: -117px;
-    margin-left: 5px;
+  .mcc-colors-position {
+    margin-top: -115px; 
+    top: 0px;
+    right: 0px;
     z-index: 1;
     background: url('data:image/gif;base64,R0lGODdhHgAIALMAAAAAADU1NTk5OUJCQkpKSlZWVltbW2pqaoCAgP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAkAAAoALAAAAAAeAAgAAAQw0BhFq734yjJm/p8xFEVAeGCqGERACmahgkUrvPH81cFdnjoQy8VBBTOiguSokkQAADs=')
-    no-repeat;
+      no-repeat;
     transform: rotate(270deg);
-    background-position-y: 2px;
   }
   
+  #picker {
+    border-radius: 3px;
+  }
+
   .color-sample {
     margin-left: 2px;
     margin-top: 5px;
@@ -63,7 +55,6 @@
     vertical-align: middle;
     border-radius: 3px;
     margin-right: 3px;
-    // border: 1px solid black;
   }  
 
   .color-form {

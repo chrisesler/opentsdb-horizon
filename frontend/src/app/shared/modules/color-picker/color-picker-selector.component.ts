@@ -19,12 +19,12 @@ import {
   import { EMPTY_COLOR, coerceHexaColor, isValidColor } from './color-picker';
 import { HostListener } from '@angular/core';
 
-  
+
   interface ColorOption {
     type: string;
     value: number;
   }
-  
+
   @Component({
     selector: 'mcc-color-picker-selector',
     templateUrl: './color-picker-selector.component.html',
@@ -38,12 +38,12 @@ import { HostListener } from '@angular/core';
      * ElemenRef of the main color
      */
     @ViewChild('block') _block: ElementRef;
-  
+
     /**
      * ElemenRef of the pointer main color
      */
     @ViewChild('blockPointer') _bp: ElementRef;
-  
+
     /**
      * Canvas of the block
      */
@@ -53,14 +53,14 @@ import { HostListener } from '@angular/core';
     }
     private _bc: ElementRef;
     private _blockContext: any;
-  
+
     /**
      * ElementRef of the color base
      */
     @ViewChild('strip') _strip: ElementRef;
     // hold _strip context
     private _stripContext: any;
-  
+
     /**
      * Container of the strip
      */
@@ -69,7 +69,7 @@ import { HostListener } from '@angular/core';
       this._sc = el;
     }
     private _sc: ElementRef;
-  
+
     /**
      * Change height base of the selector
      */
@@ -84,7 +84,7 @@ import { HostListener } from '@angular/core';
       return this._height - 10;
     }
     private _height: number = 170;
-  
+
     /**
      * Receive selected color from the component
      */
@@ -96,7 +96,7 @@ import { HostListener } from '@angular/core';
       this._selectedColor = value || this.emptyColor;
     }
     private _selectedColor: string = '';
-  
+
     /**
      * Hide the hexadecimal color forms.
      */
@@ -108,7 +108,7 @@ import { HostListener } from '@angular/core';
       this._hideHexForms = value;
     }
     private _hideHexForms: boolean = false;
-  
+
     /**
      * Emit update when a color is selected
      */
@@ -118,59 +118,59 @@ import { HostListener } from '@angular/core';
      * Emit when user entered a color
      */
     @Output() enteredColor = new EventEmitter();
-  
+
     /**
      * RGBA current color
      */
     private _rgbaColor: string = 'rgba(255,0,0,1)';
-  
+
     /**
      * Subject of the current selected color by the user
      */
     private _tmpSelectedColor: BehaviorSubject<string>;
-  
+
     /**
      * Subscription of the tmpSelectedColor Observable
      */
     private _tmpSelectedColorSub: Subscription;
-  
+
     /**
      * Subscription of the hexForm values change
      */
     private _hexValuesSub: Subscription;
-  
+
     /**
      * Subscription of the rbgForm values change
      */
     private _rgbValuesSub: Subscription;
-  
+
     /**
      * Handle color of the text
      */
     textClass: string = 'black';
-  
+
     /**
      * Validate if the mouse button is pressed
      */
     _isPressed: boolean = false;
-  
+
     /**
      * Form of the color in hexa
      */
     hexForm: FormGroup;
-  
+
     /**
      * Form and keys of the fields in RGB
      */
     rgbKeys = ['R', 'G', 'B'];
     rgbForm: FormGroup;
-  
+
     constructor(
       private formBuilder: FormBuilder,
       private render: Renderer2,
       @Inject(EMPTY_COLOR) private emptyColor: string
     ) {}
-  
+
     ngOnInit() {
       this._tmpSelectedColor = new BehaviorSubject<string>(this._selectedColor);
       this._tmpSelectedColorSub = this._tmpSelectedColor.subscribe(color => {
@@ -181,12 +181,12 @@ import { HostListener } from '@angular/core';
           this.changeSelectedColor.emit(coerceHexaColor(color) || this.emptyColor);
         }
       });
-  
+
       // hex form
       this.hexForm = this.formBuilder.group({
         hexCode: [this.selectedColor, [Validators.minLength(7), Validators.maxLength(7), Validators.pattern(/^#[0-9A-F]{6}$/i) ]],
       });
-  
+
       // rgb dynamic form
       const rgbGroup: any = {};
       const rgbValue: number[] = this._getRGB();
@@ -203,11 +203,11 @@ import { HostListener } from '@angular/core';
           }))
       );
       this.rgbForm = this.formBuilder.group(rgbGroup);
-  
+
       // watch changes on forms
       this._onChanges();
     }
-  
+
     /**
      * Update RGB, RGBA and Gradient when selectedColor change and
      * the mouse button is pressed
@@ -222,13 +222,13 @@ import { HostListener } from '@angular/core';
             this._fillGradient();
           }
         }
-  
+
         const rgb = this._getRGB();
         const o = Math.round((rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000);
         this.textClass = o > 125 ? 'black' : 'white';
       }
     }
-  
+
     /**
      * Destroy all subscriptions
      */
@@ -243,7 +243,7 @@ import { HostListener } from '@angular/core';
         this._rgbValuesSub.unsubscribe();
       }
     }
-  
+
     ngAfterViewInit() {
       this.render.listen(this._block.nativeElement, 'mousedown', e => {
         this._isPressed = true;
@@ -254,7 +254,7 @@ import { HostListener } from '@angular/core';
       this.render.listen(this._block.nativeElement, 'mousemove', e => this.changeColor(e));
       this._blockContext = this._bc.nativeElement.getContext('2d');
       this._blockContext.rect(0, 0, this._bc.nativeElement.width, this._bc.nativeElement.height);
-  
+
       this.render.listen(this._strip.nativeElement, 'mousedown', e => {
         this._isPressed = true;
         this.changeBaseColor(e);
@@ -279,23 +279,23 @@ import { HostListener } from '@angular/core';
       grd1.addColorStop(1, 'rgba(255, 0, 0, 1)');
       this._stripContext.fillStyle = grd1;
       this._stripContext.fill();
-  
+
       this._fillGradient();
     }
-  
+
     /**
      * Generate colors based on the RGBA color
      */
     private _fillGradient(): void {
       this._blockContext.fillStyle = this._rgbaColor;
       this._blockContext.fillRect(0, 0, this._bc.nativeElement.width, this._bc.nativeElement.height);
-  
+
       const grdWhite = this._stripContext.createLinearGradient(0, 0, this._bc.nativeElement.width, 0);
       grdWhite.addColorStop(0, 'rgba(255,255,255,1)');
       grdWhite.addColorStop(1, 'rgba(255,255,255,0)');
       this._blockContext.fillStyle = grdWhite;
       this._blockContext.fillRect(0, 0, this._bc.nativeElement.width, this._bc.nativeElement.height);
-  
+
       const grdBlack = this._stripContext.createLinearGradient(
         0,
         0,
@@ -307,7 +307,7 @@ import { HostListener } from '@angular/core';
       this._blockContext.fillStyle = grdBlack;
       this._blockContext.fillRect(0, 0, this._bc.nativeElement.width, this._bc.nativeElement.height);
     }
-  
+
     /**
      * Watch change on forms
      */
@@ -318,7 +318,7 @@ import { HostListener } from '@angular/core';
           this._tmpSelectedColor.next(coerceHexaColor(value) || this.emptyColor);
         }
       });
-  
+
       this._rgbValuesSub = this.rgbForm.valueChanges.subscribe(controls => {
         const data: string[] = [];
         for (const key in controls) {
@@ -326,17 +326,17 @@ import { HostListener } from '@angular/core';
             data.push('');
             continue;
           }
-  
+
           data.push(controls[key]);
         }
-  
+
         const hex = this._getHex(data);
         if (hex !== this._selectedColor && hex.length === 7) {
           this._tmpSelectedColor.next(hex);
         }
       });
     }
-  
+
     /**
      * Convert HEX/canvas value to rgb
      * @param data any
@@ -350,10 +350,10 @@ import { HostListener } from '@angular/core';
       const r = parseInt(hex.slice(0, 2), 16);
       const g = parseInt(hex.slice(2, 4), 16);
       const b = parseInt(hex.slice(4, 6), 16);
-  
+
       return [r, g, b];
     }
-  
+
     /**
      * Convert RGB value to HEX
      * @param data any
@@ -364,7 +364,7 @@ import { HostListener } from '@angular/core';
       hex[0] = data[0].toString(16);
       hex[1] = data[1].toString(16);
       hex[2] = data[2].toString(16);
-  
+
       hex.forEach((val, key) => {
         if (val.length === 1) {
           hex[key] = '0' + hex[key];
@@ -373,7 +373,7 @@ import { HostListener } from '@angular/core';
 
       return coerceHexaColor(`${hex[0]}${hex[1]}${hex[2]}`) || this.emptyColor;
     }
-  
+
     /**
      * Update RGBA color
      * @param data any
@@ -382,11 +382,11 @@ import { HostListener } from '@angular/core';
       if (!this._selectedColor && !data) {
         this._rgbaColor = 'rgba(255,0,0,1)';
       }
-  
+
       const rgb = this._getRGB(data);
       this._rgbaColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 1)`;
     }
-  
+
     /**
      * Update RGB form
      * @param data any
@@ -395,14 +395,14 @@ import { HostListener } from '@angular/core';
       if (!this.rgbForm) {
         return;
       }
-  
+
       if (!data) {
         data = this._getRGB();
       }
-  
+
       this.rgbForm.setValue({ R: data[0], G: data[1], B: data[2] });
     }
-  
+
     /**
      * Get selected base color from the canvas
      * @param e MouseEvent
@@ -416,7 +416,7 @@ import { HostListener } from '@angular/core';
         this.updateValues(data);
       }
     }
-  
+
     /**
      * Get selected color from the canvas
      * @param e MouseEvent
@@ -425,12 +425,12 @@ import { HostListener } from '@angular/core';
       if (this._isPressed) {
         this.render.setStyle(this._bp.nativeElement, 'top', `${e.offsetY - 5}px`);
         this.render.setStyle(this._bp.nativeElement, 'left', `${e.offsetX - 5}px`);
-  
+
         const data = this._blockContext.getImageData(e.offsetX, e.offsetY, 1, 1).data;
         this.updateValues(data);
       }
     }
-  
+
     /**
      * Emit update from the selected color
      * @param data any
@@ -442,8 +442,7 @@ import { HostListener } from '@angular/core';
       }
     }
 
-    enterKeyedOnInputBox(){
+    enterKeyedOnInputBox() {
       this.enteredColor.emit();
     }
   }
-  

@@ -1,18 +1,19 @@
-<div class="mcc-color-picker-selector">
+<div class="mcc-color-picker-selector" [ngStyle]="{ 'height.px': selectorHeight }">
     <div #block class="mcc-picker-selector"></div>
-    <canvas #blockCanvas id="picker"></canvas>
+    <canvas #blockCanvas [height]="selectorHeight" width="146px" id="picker"></canvas>
     <div #blockPointer class="mcc-picker-position"></div>
-    
-    <div #stripContainer class="slider-container" >
-        <canvas #strip width="20" id="colors"></canvas>
-    </div>
 </div>
 
+<!-- Slider -->
+<div #stripContainer class="mcc-colors-position" style="background-position-y: 0px;">
+    <canvas #strip [height]="stripHeight" width="20" id="colors"></canvas>
+</div>
+
+<!-- Input Color -->
 <div class="color-sample" [style.background]="selectedColor"></div>
 
 <form [formGroup]="hexForm" class="color-form">
     <mat-form-field class="hex-input">
         <input matInput maxlength="7" formControlName="hexCode" [value]="selectedColor" (keyup.enter)="enterKeyedOnInputBox()"/>
     </mat-form-field>
-</form>          
-
+</form>   
