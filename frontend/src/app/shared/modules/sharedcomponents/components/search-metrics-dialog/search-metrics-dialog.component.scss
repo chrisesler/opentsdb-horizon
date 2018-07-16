@@ -71,6 +71,7 @@
                 .mat-list-item-content {
                     align-items: flex-start;
                     justify-content: flex-start;
+                    padding-left: 0;
                 }
 
                 .mat-icon-button {
@@ -79,6 +80,8 @@
                     line-height: 1;
                     border: 1px solid currentColor;
                     margin-top: 4px;*/
+                    width: 34px;
+                    height: 34px;
                     transform: rotate(45deg);
 
                     .mat-icon {
@@ -97,7 +100,7 @@
                 }*/
 
                 .metric-details {
-                    margin-left: 12px;
+                    margin-left: 0;
                 }
                 .metric-name {
                     font-size: 14px;

@@ -11,18 +11,18 @@
         </div>
     </div>
     <div class="column">
-        <div class="config-control">
+        <div class="config-control with-enable-label">
             <label class="label">Y2 Axis</label>
             <div class="form-field-group">
-                <mat-slide-toggle formControlName="y2AxisEnabled">Enable Y2 Axis</mat-slide-toggle>
+                <mat-slide-toggle formControlName="y2AxisEnabled"><span class="mat-caption">{{y2AxisEnabled_label}}</span></mat-slide-toggle>
             </div>
         </div>
     </div>
     <div class="column">
-        <div class="config-control">
+        <div class="config-control with-enable-label">
             <label class="label">X-Axis</label>
             <div class="form-field-group">
-                <mat-slide-toggle formControlName="xAxisEnabled">Hide X Axis</mat-slide-toggle>
+                <mat-slide-toggle formControlName="xAxisEnabled"><span class="mat-caption">{{xAxisEnabled_label}}</span></mat-slide-toggle>
             </div>
         </div>
     </div>
