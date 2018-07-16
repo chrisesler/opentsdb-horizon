@@ -53,7 +53,7 @@ export interface DashboardStateModel {
 @State<DashboardStateModel>({
     name: 'dashboardState',
     defaults: {
-      id: 'abc',
+      id: 'undefined',
       loading: false,
       loaded: false,
       viewEditMode: false,
@@ -65,6 +65,7 @@ export interface DashboardStateModel {
       settings: {},
       widgets: []
     }
+
 })
 
 export class DashboardState {
@@ -96,8 +97,7 @@ export class DashboardState {
 
    @Selector() 
    static getWidgetGroupUpdate(state: DashboardStateModel) {
-       console.log('.... this is return ... from selectoer');
-       return { groupId: state.updatedWigetGroup.groupId, widgetId: state.updatedWigetGroup.widgetId}
+    return JSON.parse(JSON.stringify(state.updatedWigetGroup));
    }
 
     @Action(dashboardAction.LoadDashboard)
@@ -117,7 +117,6 @@ export class DashboardState {
         // tranform dashboard information by adding some other properties
         // to enable rezise, drag and drop and responsive size
         this.dashboardService.modifyWidgets(payload);
-        console.log('dashboard state loading ....');   
         ctx.setState({...state, ...payload, loading: false, loaded: true, viewEditMode: false});
     }
 
@@ -195,29 +194,41 @@ export class DashboardState {
    @Action(dashboardAction.GetQueryDataByGroup)
    getQueryDataByGroup(ctx: StateContext<DashboardStateModel>, action: dashboardAction.GetQueryDataByGroup) {
         this.httpService.getYamasData(action.query).subscribe(
-            data => {
-                
-                
+            data => {    
                 const state = ctx.getState();
                 for (let w of state.widgets) {
                     if (w.id === action.widgetid) {
                         if (!w.rawdata) w.rawdata = {};
                         w.rawdata[action.groupid] = data;
-                        //state.updatedWidgetId = w.id;
-                        //state.updatedGroupId = action.groupid;
                         break;
                     }
-                }
-                
-                ctx.setState({...state, updatedWigetGroup: {groupId: action.groupid, widgetId: action.widgetid}});  
-                console.log('getYamasData call ....', state);     
+                }               
+                ctx.setState({...state, widgets: state.widgets, updatedWigetGroup: {groupId: action.groupid, widgetId: action.widgetid}});     
             },
             err => {
                 // todo: handle error case
                 console.log('error', err);     
+            },
+            () => {
+                // after the data has been sent and we need to reset these flag
+                // this is simple solution for now, need to clean up.
+                //const state = ctx.getState();
+                //ctx.setState({...state, updatedWigetGroup: {groupId: '', widgetId: ''}});                          
             }
         );
    }
-
    
+   // reset dashboard state to empty
+   @Action (dashboardAction.ResetDashboardState)
+   resetDashboardState(ctx: StateContext<DashboardStateModel>) {
+       const state = ctx.getState();
+       ctx.setState({...state,
+                        id: 'undefined',
+                        loading: false,
+                        loaded: false,
+                        viewEditMode: false,
+                        settings: {},
+                        widgets: []
+                    })
+   }
  }

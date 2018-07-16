@@ -51,6 +51,10 @@ export class AddWidget {
     constructor(public readonly payload: any) {}
 }
 
+export class ResetDashboardState {
+    static readonly type = '[Dashboard] Reset Dashboard State';
+}
+
 export type DashboardActions = LoadDashboard 
                                 | LoadDashboardSuccess 
                                 | LoadDashboardFail
@@ -60,4 +64,5 @@ export type DashboardActions = LoadDashboard
                                 | GetQueryData
                                 | GetQueryDataByGroup
                                 | RemoveWidget
-                                | AddWidget;
+                                | AddWidget
+                                | ResetDashboardState;
