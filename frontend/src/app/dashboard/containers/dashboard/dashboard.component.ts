@@ -131,17 +131,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
        // update from store after getting data for each group, at this point return rawdata
        // is already added to state
        this.updatedWidgetGroup$.subscribe(wg => {
-           console.log('this is calling updateWidgetGroups', wg);
-           
-           for (let i = 0; i < this.widgets.length; i++) {
-               if (this.widgets[i].id === wg.widgetId) {
-                   this.interCom.responsePut({
-                    id: wg.widgetId,
-                    action: 'updatedWidgetGroup',
-                    payload: wg.groupId
-                   });
-                   break;
-               }
+           // only ask widget to tranform data if they not did it yes
+           if (wg.widgetId && wg.widgetId !== '' && wg.groupId && wg.groupId !== '') {
+            console.log('this is calling updateWidgetGroups', wg);
+            for (let i = 0; i < this.widgets.length; i++) {
+                if (this.widgets[i].id === wg.widgetId) {
+                    this.interCom.responsePut({
+                     id: wg.widgetId,
+                     action: 'updatedWidgetGroup',
+                     payload: wg.groupId
+                    });
+                    break;
+                }
+            }
            }
        });
 
@@ -168,12 +170,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let widgetid = message.id;
         let groupid = '';
         let payload = message.payload;
-        console.log('payload query', payload);
         
         for (let i = 0; i < payload.groups.length; i++) {
-            let group: any = payload.groups[i];
-            console.log('group query', group);
-            
+            let group: any = payload.groups[i];            
             groupid = group.id;
             let query: any = {
                 start: payload.start,
@@ -241,5 +240,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.listenSub.unsubscribe();
         this.routeSub.unsubscribe();
+        // we need to clear dashboard state
+        this.store.dispatch(new dashboardActions.ResetDashboardState);    
     }
 }
