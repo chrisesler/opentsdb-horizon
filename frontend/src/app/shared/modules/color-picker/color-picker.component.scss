@@ -73,14 +73,13 @@
   $is-dark: map-get($theme-config, is-dark);
 
   .card {
-    background: map-get($background, background);
-    border-top: 2px solid #275AEB;
-    box-shadow: 0 6px 4px -4px if($is-dark, darkgray, lightgray);
+    background: map-get($background, menu);
+    border-top: 2px solid map-get($primary, default);
   }
 
   .toggle {
-    border-top: 1px solid if($is-dark, darkgray, lightgray);
-    color: #2A86E9;
+    border-top: 1px solid map-get($foreground, divider);
+    color: map-get($primary, default);
   }
 
   .grey-outline { //for white color on palette

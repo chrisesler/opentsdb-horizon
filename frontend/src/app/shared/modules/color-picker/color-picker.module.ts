@@ -8,19 +8,10 @@ import { MaterialModule } from '../material/material.module';
 import { MatSortModule} from '@angular/material/sort';
 
 import { EMPTY_COLOR, ColorPickerConfig } from './color-picker';
-
 import { MccColorPickerService } from './color-picker.service';
-
 import { MccColorPickerComponent } from './color-picker.component';
 import { MccColorPickerSelectorComponent } from './color-picker-selector.component';
 import { FormsModule } from '@angular/forms';
-
-// import { MccColorPickerCollectionComponent } from './color-picker-collection.component';
-// import {
-//   MccConnectedColorPickerDirective,
-//   MccColorPickerOriginDirective,
-//   MccColorPickerOptionDirective,
-// } from './color-picker.directives';
 
 @NgModule({
   imports: [
@@ -39,28 +30,13 @@ import { FormsModule } from '@angular/forms';
   ],
   declarations: [
     MccColorPickerComponent,
-    // MccConnectedColorPickerDirective,
-    MccColorPickerSelectorComponent,
-    // MccColorPickerOriginDirective,
-    // MccColorPickerOptionDirective,
-    // MccColorPickerCollectionComponent,
+    MccColorPickerSelectorComponent
   ],
   exports: [
-    MccColorPickerComponent,
-    // MccConnectedColorPickerDirective,
-    // MccColorPickerOriginDirective,
-    // MccColorPickerCollectionComponent,
+    MccColorPickerComponent
   ],
   providers: [MccColorPickerService, { provide: EMPTY_COLOR, useValue: 'none' }],
 })
 export class MccColorPickerModule {
-  /**
-   *
-   */
-//   static forRoot(config: ColorPickerConfig): ModuleWithProviders {
-//     return {
-//       ngModule: MccColorPickerModule,
-//       providers: [{ provide: EMPTY_COLOR, useValue: config.empty_color }],
-//     };
-//   }
+
 }
