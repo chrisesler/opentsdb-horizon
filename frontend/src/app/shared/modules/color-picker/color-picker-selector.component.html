@@ -10,11 +10,9 @@
 
 <div class="color-sample" [style.background]="selectedColor"></div>
 
-<!-- <div class="input-field"> -->
-    <form [formGroup]="hexForm" class="color-form">
-            <mat-form-field class="hex-input">
-                <input matInput maxlength="7" formControlName="hexCode" [value]="selectedColor" (keyup.enter)="enterKeyedOnInputBox()"/>
-            </mat-form-field>
-     </form>          
-<!-- </div> -->
+<form [formGroup]="hexForm" class="color-form">
+    <mat-form-field class="hex-input">
+        <input matInput maxlength="7" formControlName="hexCode" [value]="selectedColor" (keyup.enter)="enterKeyedOnInputBox()"/>
+    </mat-form-field>
+</form>          
 
