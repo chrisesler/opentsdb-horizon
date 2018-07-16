@@ -1,8 +1,10 @@
 <!-- color picker overlay -->
 <ng-container *ngIf="overlay">
-    <button mat-button class="btn-picker" cdkOverlayOrigin #trigger="cdkOverlayOrigin" (click)="toggle()">
-        <div class="color-sample" [style.background]="selectedColor"></div>
-        <span>{{colorToName(selectedColor)}}</span>
+    <button mat-button  cdkOverlayOrigin #trigger="cdkOverlayOrigin" (click)="toggle()">
+        <span class="btn-picker">
+            <div class="color-sample" [style.background]="selectedColor"></div>
+            <span class="color-hex">{{colorToName(selectedColor)}}</span>
+        </span>
     </button>
 
     <ng-template cdkConnectedOverlay 

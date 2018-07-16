@@ -50,6 +50,16 @@
     padding: 0px;
     width: 146px;
   }
+
+  .btn-picker {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .color-hex {
+    flex: 1;
+    text-align: left;
+   }
 }
 
 @mixin color-picker-component-theme($theme-config) {
