@@ -3,31 +3,23 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
-import { MatFormFieldModule, MatInputModule, MatTabsModule, MatCardModule, MatGridListModule, MatButtonModule } from '@angular/material';
-import { MaterialModule } from '../material/material.module';
-import { MatSortModule} from '@angular/material/sort';
+import { MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule } from '@angular/material';
 
-import { EMPTY_COLOR, ColorPickerConfig } from './color-picker';
+import { EMPTY_COLOR } from './color-picker';
 import { ColorPickerService } from './color-picker.service';
 import { ColorPickerComponent } from './color-picker.component';
 import { ColorPickerSelectorComponent } from './color-picker-selector.component';
-import { FormsModule } from '@angular/forms';
-
 
 @NgModule({
   imports: [
     CommonModule,
-    PortalModule,
-    OverlayModule,
     ReactiveFormsModule,
+    OverlayModule,
+    PortalModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTabsModule,
-    MatCardModule,
-    MatGridListModule,
     MatButtonModule,
-    FormsModule,
-    MaterialModule
+    MatIconModule
   ],
   declarations: [
     ColorPickerComponent,
@@ -38,6 +30,5 @@ import { FormsModule } from '@angular/forms';
   ],
   providers: [ColorPickerService, { provide: EMPTY_COLOR, useValue: 'none' }],
 })
-export class ColorPickerModule {
 
-}
+export class ColorPickerModule { }
