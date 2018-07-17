@@ -17,8 +17,7 @@ import {
   import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
   import { BehaviorSubject, Subscription } from 'rxjs';
   import { EMPTY_COLOR, coerceHexaColor, isValidColor } from './color-picker';
-import { HostListener } from '@angular/core';
-
+  import { HostListener, HostBinding } from '@angular/core';
 
   interface ColorOption {
     type: string;
@@ -34,6 +33,9 @@ import { HostListener } from '@angular/core';
   })
   export class ColorPickerSelectorComponent
     implements AfterViewInit, OnInit, OnChanges, OnDestroy {
+
+    @HostBinding('class.cp-selector') private _hostClass = true;
+
     /**
      * ElemenRef of the main color
      */

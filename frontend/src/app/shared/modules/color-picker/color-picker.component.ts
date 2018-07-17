@@ -53,7 +53,7 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     {text: 'Yellow', value: '#FED800'},
     {text: 'Blue', value: '#0B5ED2'},
     {text: 'Lavendar', value: '#9971E0'},
-    {text: 'Black', value: '#242424'},
+    {text: 'Black', value: '#000000'},
     {text: 'Red', value: '#DA001B'},
     {text: 'Lime', value: '#AAEC61'},
     {text: 'Periwinkle', value: '#B0D9F9'},
