@@ -20,7 +20,7 @@ import { EMPTY_COLOR, coerceHexaColor } from './color-picker';
 
 import { ColorPickerService } from './color-picker.service';
 
-import { HostListener } from '@angular/core';
+import { HostListener, HostBinding } from '@angular/core';
 import { ViewChild } from '@angular/core';
 import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 import { MatCard } from '@angular/material';
@@ -39,43 +39,45 @@ interface IColor {
 @Component({
   selector: 'color-picker',
   templateUrl: './color-picker.component.html',
-  styleUrls: ['./color-picker.component.scss'],
+  styleUrls: [],
   preserveWhitespaces: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
 export class ColorPickerComponent implements OnInit, OnDestroy {
 
+  @HostBinding('class.cp') private _hostClass = true;
+
   DefaultColors: IDefaultColor[] = [
-    {text: "Maroon", value: "#B00013"}, 
-    {text: "Yellow", value: "#FED800"}, 
-    {text: "Blue", value: "#0B5ED2"},
-    {text: "Lavendar", value: "#9971E0"},
-    {text: "Black", value: "#242424"}, 
-    {text: "Red", value: "#DA001B"}, 
-    {text: "Lime", value: "#AAEC61"}, 
-    {text: "Periwinkle", value: "#B0D9F9"},
-    {text: "Indigo", value: "#300075"},
-    {text: "Slate Gray", value: "#4D4D4D"}, 
-    {text: "Orange", value: "#ED5A1C"}, 
-    {text: "Lime Green", value: "#75D42A"}, 
-    {text: "Cyan", value: "#18BDED"},
-    {text: "Magenta", value: "#B10060"},
-    {text: "Gray", value: "#888888"}, 
-    {text: "Brown", value: "#E28B00"}, 
-    {text: "Green", value: "#1CB84F"}, 
-    {text: "Aqua", value: "#6DDDFA"},
-    {text: "Fuchsia", value: "#FB007D"},
-    {text: "Silver", value: "#CBCBCB"}, 
-    {text: "Amber", value: "#F0B200"}, 
-    {text: "Olive", value: "#446E17"}, 
-    {text: "Purple", value: "#87119A"},
-    {text: "Pink", value: "#FC5AA8"},
-    {text: "White", value: "#FFFFFF"} ];
+    {text: 'Maroon', value: '#B00013'},
+    {text: 'Yellow', value: '#FED800'},
+    {text: 'Blue', value: '#0B5ED2'},
+    {text: 'Lavendar', value: '#9971E0'},
+    {text: 'Black', value: '#242424'},
+    {text: 'Red', value: '#DA001B'},
+    {text: 'Lime', value: '#AAEC61'},
+    {text: 'Periwinkle', value: '#B0D9F9'},
+    {text: 'Indigo', value: '#300075'},
+    {text: 'Slate Gray', value: '#4D4D4D'},
+    {text: 'Orange', value: '#ED5A1C'},
+    {text: 'Lime Green', value: '#75D42A'},
+    {text: 'Cyan', value: '#18BDED'},
+    {text: 'Magenta', value: '#B10060'},
+    {text: 'Gray', value: '#888888'},
+    {text: 'Brown', value: '#E28B00'},
+    {text: 'Green', value: '#1CB84F'},
+    {text: 'Aqua', value: '#6DDDFA'},
+    {text: 'Fuchsia', value: '#FB007D'},
+    {text: 'Silver', value: '#CBCBCB'},
+    {text: 'Amber', value: '#F0B200'},
+    {text: 'Olive', value: '#446E17'},
+    {text: 'Purple', value: '#87119A'},
+    {text: 'Pink', value: '#FC5AA8'},
+    {text: 'White', value: '#FFFFFF'} ];
 
   selectingCustomColor: boolean = false;
 
-  toggleSelector(){
+  toggleSelector() {
     this.selectingCustomColor = !this.selectingCustomColor;
   }
 
@@ -421,7 +423,7 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     var g = (bigint >> 8) & 255;
     var b = bigint & 255;
 
-    return r + "," + g + "," + b;
+    return r + ',' + g + ',' + b;
   }
 
   hexToColor(_hex): IColor {
@@ -434,17 +436,17 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
 
   componentToHex(c): string {
     var hex = c.toString(16);
-    var hexx = hex.length == 1 ? "0" + hex : hex; 
+    var hexx = hex.length == 1 ? '0' + hex : hex; 
     return hexx;
   }
 
    rgbToHexHelper(r: string, g: string, b: string): string {
-     return "#" + this.componentToHex(parseInt(r)) + this.componentToHex(parseInt(g)) + this.componentToHex(parseInt(b));
+     return '#' + this.componentToHex(parseInt(r)) + this.componentToHex(parseInt(g)) + this.componentToHex(parseInt(b));
    }
 
    //ex: "20,50,70"
    rgbToHex(rgb: string){
-     let values: string[] = rgb.split(",");
+     let values: string[] = rgb.split(',');
      if(this.isRgbValid(rgb)){
       return this.rgbToHexHelper(values[0].trim(), values[1].trim(), values[2].trim());
      }
@@ -452,7 +454,7 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
      
   //ex: "20,50,70"
   isRgbValid(rgb: string): boolean{
-    let values: string[] = rgb.split(",");
+    let values: string[] = rgb.split(',');
     let isValid: boolean = true;
     
     if(values.length != 3){

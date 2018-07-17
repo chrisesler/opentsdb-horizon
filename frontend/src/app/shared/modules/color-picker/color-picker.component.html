@@ -1,11 +1,18 @@
 <!-- color picker overlay -->
 <ng-container *ngIf="overlay">
-    <button mat-button  cdkOverlayOrigin #trigger="cdkOverlayOrigin" (click)="toggle()">
+    <button mat-raised-button  cdkOverlayOrigin #trigger="cdkOverlayOrigin" (click)="toggle()">
         <span class="btn-picker">
             <div class="color-sample" [style.background]="selectedColor"></div>
             <span class="color-hex">{{colorToName(selectedColor)}}</span>
+            <mat-icon fontSet="denali" fontIcon="d-arrow-down"></mat-icon>
         </span>
     </button>
+
+    <!-- <button mat-raised-button>
+        <mat-icon fontSet="denali" fontIcon="d-time"></mat-icon>
+        <span> startTime to endTime</span>
+        <mat-icon fontSet="denali" fontIcon="d-arrow-down"></mat-icon>
+    </button> -->
 
     <ng-template cdkConnectedOverlay 
         cdkConnectedOverlayHasBackdrop 
@@ -20,44 +27,43 @@
 
 </ng-container>
     
-    <!-- color picker flat -->
-    <ng-template *ngIf="!overlay" [cdkPortalOutlet]="overlayPanel"></ng-template>
-    
-    <!-- color picker component content -->
-    <ng-template cdkPortal #overlayPanel="cdkPortal">
+<!-- color picker flat -->
+<ng-template *ngIf="!overlay" [cdkPortalOutlet]="overlayPanel"></ng-template>
 
-        <div class="card">
+<!-- color picker component content -->
+<ng-template cdkPortal #overlayPanel="cdkPortal">
 
-            <!-- Default Color Selector -->
-            <div *ngIf="!selectingCustomColor" >
-                <div class="grid-container">
-                    <div class="grid-item" *ngFor="let color of DefaultColors" [ngClass]="{'isSelected' : color.value==selectedColor}">
-                        <button
-                            [ngClass]="{'grey-outline' : color.text=='White'}"
-                            class="default-color-button"    
-                            [style.background-color]="color.value"
-                            (click)="colorSelected(color.value)">
-                        </button>
-                    </div>
+    <div class="card cp">
+
+        <!-- Default Color Selector -->
+        <div *ngIf="!selectingCustomColor" >
+            <div class="grid-container">
+                <div class="grid-item" *ngFor="let color of DefaultColors" [ngClass]="{'isSelected' : color.value==selectedColor}">
+                    <button
+                        [ngClass]="{'grey-outline' : color.text=='White'}"
+                        class="default-color-button"    
+                        [style.background-color]="color.value"
+                        (click)="colorSelected(color.value)">
+                    </button>
                 </div>
             </div>
-
-            <!-- Custom Color Selector -->
-            <div *ngIf="selectingCustomColor">
-                <color-picker-selector
-                    [selectedColor]="selectedColor"
-                    (changeSelectedColor)="colorSelected($event)"
-                    (enteredColor)="enteredColor($event)"
-                    [height]="colorPickerSelectorHeight"
-                >
-                </color-picker-selector>
-            </div>
-
-            <div class="toggle">
-                <button mat-button *ngIf="!selectingCustomColor" (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Custom Color </button>
-                <button mat-button *ngIf="selectingCustomColor"  (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Default Color </button>
-            </div>
-
         </div>
-    </ng-template>
 
+        <!-- Custom Color Selector -->
+        <div *ngIf="selectingCustomColor">
+            <color-picker-selector
+                [selectedColor]="selectedColor"
+                (changeSelectedColor)="colorSelected($event)"
+                (enteredColor)="enteredColor($event)"
+                [height]="colorPickerSelectorHeight"
+            >
+            </color-picker-selector>
+        </div>
+
+        <div class="toggle">
+            <button mat-button *ngIf="!selectingCustomColor" (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Custom Color </button>
+            <button mat-button *ngIf="selectingCustomColor"  (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Default Color </button>
+        </div>
+
+    </div>
+</ng-template>

@@ -1,65 +1,75 @@
 @mixin color-picker-component-base() {
 
-  .color-sample {
-    height: 18px;
-    width: 18px;
-    margin-right: 4px;
-    display: inline-block;
-    vertical-align: middle;
-    border-radius: 5px;
-  }
+  .cp {
+    .color-sample {
+      height: 18px;
+      width: 18px;
+      margin: 0px;
+      margin-right: 5px;
+      margin-left: 5px;
+      margin-top: 10px;
+      display: inline-block;
+      // vertical-align: middle;
+      border-radius: 5px;
+    }
+    
+    .card {
+      width: 146px;
+    }
+    
+    .grid-container {
+      display: grid;
+      grid-template-columns: 22px 22px 22px 22px 22px;
+      grid-column-gap: 6px;
+      grid-row-gap: 0px;
+      padding-left: 2px;
+      padding-top: 2px;
+    }
   
-  .card {
-    width: 146px;
-  }
-  
-  .grid-container {
-    display: grid;
-    grid-template-columns: 22px 22px 22px 22px 22px;
-    grid-column-gap: 6px;
-    grid-row-gap: 0px;
-    padding-left: 2px;
-    padding-top: 2px;
-  }
-  .grid-item {
-    width: 28px;
-    border: 2px solid transparent;
-  }
-  
-  .default-color-button {
-    border-radius: 5px;
-    width: 22px;
-    height: 22px;
-    outline: none;
-    border: 2px solid transparent;
-    margin: 1px;
-  }
-  
-  .isSelected {
-    border-radius: 5px;
-  }
-  
-  .toggle {
-    text-align: center;
-    margin-top: 5px;
-    width: 146px;
-    font-family: Helvetica;
-  }
-  
-  .mat-button {
-    padding: 0px;
-    width: 146px;
-  }
+    .grid-item {
+      width: 28px;
+      border: 2px solid transparent;
+    }
+    
+    .default-color-button {
+      border-radius: 5px;
+      width: 22px;
+      height: 22px;
+      outline: none;
+      border: 2px solid transparent;
+      margin: 1px;
+    }
+    
+    .isSelected {
+      border-radius: 5px;
+    }
+    
+    .toggle {
+      text-align: center;
+      margin-top: 5px;
+      width: 146px;
+      font-family: Helvetica;
+    }
+    
+    .mat-raised-button {
+      padding: 0px;
+      width: 146px;
+    }
 
-  .btn-picker {
-    display: flex;
-    justify-content: flex-start;
+    mat-icon{
+      margin-top: 7px;
+    }
+  
+    .btn-picker {
+      display: flex;
+      justify-content: flex-start;
+    }
+  
+    .color-hex {
+      flex: 1;
+      text-align: left;
+    }
   }
-
-  .color-hex {
-    flex: 1;
-    text-align: left;
-   }
 }
 
 @mixin color-picker-component-theme($theme-config) {
@@ -72,23 +82,24 @@
   $background: map-get($theme-config, background);
   $is-dark: map-get($theme-config, is-dark);
 
-  .card {
-    background: map-get($background, menu);
-    border-top: 2px solid map-get($primary, default);
+  .cp {
+    &.card {
+      background: map-get($background, menu);
+      border-top: 2px solid map-get($primary, default);
+    }
+  
+    .toggle {
+      border-top: 1px solid map-get($foreground, divider);
+      color: map-get($primary, default);
+    }
+  
+    .grey-outline { //for white color on palette
+      border: 2px solid if($is-dark, transparent, lightgray);
+    }
+  
+    .isSelected {
+      border: 2px solid #2885E9;
+    }  
   }
-
-  .toggle {
-    border-top: 1px solid map-get($foreground, divider);
-    color: map-get($primary, default);
-  }
-
-  .grey-outline { //for white color on palette
-    border: 2px solid if($is-dark, transparent, lightgray);
-  }
-
-  .isSelected {
-    border: 2px solid #2885E9;
-  }
-
 }
 

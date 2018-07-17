@@ -28,7 +28,7 @@ import { HostListener } from '@angular/core';
   @Component({
     selector: 'color-picker-selector',
     templateUrl: './color-picker-selector.component.html',
-    styleUrls: ['./color-picker-selector.component.scss'],
+    styleUrls: [],
     preserveWhitespaces: false,
     changeDetection: ChangeDetectionStrategy.OnPush,
   })
