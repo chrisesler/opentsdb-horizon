@@ -10,17 +10,28 @@
         cursor: crosshair;
       }
     }
+
+    .color-picker-selector{
+      position: relative;
+      top: 5px;
+      left: 5px;
+    }
     
     .picker-selector { //overlay
       position: absolute;
-      width: 100%;
-      height: 146px;
+      width: 136px;
+      height: 136px;
       top: 0;
       left: 0;
       z-index: 10;
       cursor: crosshair;
+      margin-left: 5px;
     }
     
+    #picker {
+      border-radius: 3px;
+    }
+
     .picker-position { // selector on canvas
       position: absolute;
       width: 10px;
@@ -29,12 +40,12 @@
       border: 1px #ddd solid;
       border-radius: 50%;
       background: rgba(0, 0, 0, 0.3);
-      top: 0px;
-      right: 0px;
+      top: -5px;
+      right: 5px;
     }
     
     .colors-position { //color slider
-      margin-top: -115px;
+      margin-top: -110px;
       margin-right: -5px; 
       z-index: 1;
       background: url('data:image/gif;base64,R0lGODdhHgAIALMAAAAAADU1NTk5OUJCQkpKSlZWVltbW2pqaoCAgP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAkAAAoALAAAAAAeAAgAAAQw0BhFq734yjJm/p8xFEVAeGCqGERACmahgkUrvPH81cFdnjoQy8VBBTOiguSokkQAADs=')
@@ -42,10 +53,6 @@
       transform: rotate(270deg);
     }
     
-    #picker {
-      border-radius: 3px;
-    }
-  
     .color-sample {
       margin-left: 5px;
       margin-top: 0px;
@@ -67,8 +74,6 @@
     }
   
     mat-form-field { //for typing in hex
-      // margin-top: 0px;
-      // padding: 0px;
       width: 70px;
       height: 12px;
     }

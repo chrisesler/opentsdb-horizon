@@ -83,7 +83,7 @@ import {
       return this._height;
     }
     get stripHeight(): number {
-      return this._height - 10;
+      return this._height - 2;
     }
     private _height: number = 170;
 
