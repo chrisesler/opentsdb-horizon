@@ -3,7 +3,7 @@ import { coerceHexaColor, isValidColor, EMPTY_COLOR } from './color-picker';
 import { Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable()
-export class MccColorPickerService {
+export class ColorPickerService {
   /**
    * Array of all used colors
    */

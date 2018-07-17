@@ -26,13 +26,13 @@ import { HostListener } from '@angular/core';
   }
 
   @Component({
-    selector: 'mcc-color-picker-selector',
+    selector: 'color-picker-selector',
     templateUrl: './color-picker-selector.component.html',
     styleUrls: ['./color-picker-selector.component.scss'],
     preserveWhitespaces: false,
     changeDetection: ChangeDetectionStrategy.OnPush,
   })
-  export class MccColorPickerSelectorComponent
+  export class ColorPickerSelectorComponent
     implements AfterViewInit, OnInit, OnChanges, OnDestroy {
     /**
      * ElemenRef of the main color

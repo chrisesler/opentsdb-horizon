@@ -17,15 +17,14 @@ import {
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { EMPTY_COLOR, coerceHexaColor } from './color-picker';
-// import { MccColorPickerCollectionComponent } from './color-picker-collection.component';
-import { MccColorPickerService } from './color-picker.service';
-// import { ViewChild } from '@angular/core';
+
+import { ColorPickerService } from './color-picker.service';
+
 import { HostListener } from '@angular/core';
 import { ViewChild } from '@angular/core';
 import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 import { MatCard } from '@angular/material';
-import { MccColorPickerSelectorComponent } from './color-picker-selector.component';
-// import {OverlayModule} from '@angular/cdk/overlay';
+import { ColorPickerSelectorComponent } from './color-picker-selector.component';
 
 interface IDefaultColor {
   text: string;
@@ -38,14 +37,14 @@ interface IColor {
 }
 
 @Component({
-  selector: 'mcc-color-picker',
+  selector: 'color-picker',
   templateUrl: './color-picker.component.html',
   styleUrls: ['./color-picker.component.scss'],
   preserveWhitespaces: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
-export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDestroy {
+export class ColorPickerComponent implements OnInit, OnDestroy {
 
   DefaultColors: IDefaultColor[] = [
     {text: "Maroon", value: "#B00013"}, 
@@ -74,14 +73,6 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
     {text: "Pink", value: "#FC5AA8"},
     {text: "White", value: "#FFFFFF"} ];
 
-  /**
-   * Get all collections
-   */
-//   @ContentChildren(MccColorPickerCollectionComponent)
-//   _collections: QueryList<MccColorPickerCollectionComponent>;
-
-  /*
-  */
   selectingCustomColor: boolean = false;
 
   toggleSelector(){
@@ -326,31 +317,16 @@ export class MccColorPickerComponent implements AfterContentInit, OnInit, OnDest
   constructor(
     private elementRef: ElementRef,
     private changeDetectorRef: ChangeDetectorRef,
-    private colorPickerService: MccColorPickerService,
+    private colorPickerService: ColorPickerService,
     @Inject(EMPTY_COLOR) public emptyColor: string
   ) {}
 
   ngOnInit() {
     if (!this._selectedColor) {
-      this._selectedColor = "#242424";
+      this._selectedColor = '#242424';
     }
 
     this._tmpSelectedColor = new BehaviorSubject<string>(this._selectedColor);
-  }
-
-  /**
-   * Walk throw all collections and subcribe to changes
-   */
-  ngAfterContentInit() {
-    // if (this._collections) {
-    //   this._collections.forEach((collection: MccColorPickerCollectionComponent) => {
-    //     const subscription = collection.changeColor.subscribe(color => {
-    //       this.updateTmpSelectedColor(color);
-    //     });
-
-    //     this._collectionSubs.push(subscription);
-    //   });
-    // }
   }
 
   /**

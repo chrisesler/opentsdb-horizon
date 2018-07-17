@@ -9,7 +9,7 @@
 
     <ng-template cdkConnectedOverlay 
         cdkConnectedOverlayHasBackdrop 
-        cdkConnectedOverlayBackdropClass="mcc-color-picker-backdrop"
+        cdkConnectedOverlayBackdropClass="color-picker-backdrop"
         [cdkConnectedOverlayOrigin]="trigger"
         [cdkConnectedOverlayOpen]="isOpen" 
         (backdropClick)="backdropClick()">
@@ -44,13 +44,13 @@
 
             <!-- Custom Color Selector -->
             <div *ngIf="selectingCustomColor">
-                <mcc-color-picker-selector
+                <color-picker-selector
                     [selectedColor]="selectedColor"
                     (changeSelectedColor)="colorSelected($event)"
                     (enteredColor)="enteredColor($event)"
                     [height]="colorPickerSelectorHeight"
                 >
-                </mcc-color-picker-selector>
+                </color-picker-selector>
             </div>
 
             <div class="toggle">

@@ -1,11 +1,11 @@
-<div class="mcc-color-picker-selector" [ngStyle]="{ 'height.px': selectorHeight }">
-    <div #block class="mcc-picker-selector"></div>
+<div class="color-picker-selector" [ngStyle]="{ 'height.px': selectorHeight }">
+    <div #block class="picker-selector"></div>
     <canvas #blockCanvas [height]="selectorHeight" width="146px" id="picker"></canvas>
-    <div #blockPointer class="mcc-picker-position"></div>
+    <div #blockPointer class="picker-position"></div>
 </div>
 
 <!-- Slider -->
-<div #stripContainer class="mcc-colors-position" style="background-position-y: 0px;">
+<div #stripContainer class="colors-position" style="background-position-y: 0px;">
     <canvas #strip [height]="stripHeight" width="20" id="colors"></canvas>
 </div>
 

@@ -8,10 +8,11 @@ import { MaterialModule } from '../material/material.module';
 import { MatSortModule} from '@angular/material/sort';
 
 import { EMPTY_COLOR, ColorPickerConfig } from './color-picker';
-import { MccColorPickerService } from './color-picker.service';
-import { MccColorPickerComponent } from './color-picker.component';
-import { MccColorPickerSelectorComponent } from './color-picker-selector.component';
+import { ColorPickerService } from './color-picker.service';
+import { ColorPickerComponent } from './color-picker.component';
+import { ColorPickerSelectorComponent } from './color-picker-selector.component';
 import { FormsModule } from '@angular/forms';
+
 
 @NgModule({
   imports: [
@@ -29,14 +30,14 @@ import { FormsModule } from '@angular/forms';
     MaterialModule
   ],
   declarations: [
-    MccColorPickerComponent,
-    MccColorPickerSelectorComponent
+    ColorPickerComponent,
+    ColorPickerSelectorComponent
   ],
   exports: [
-    MccColorPickerComponent
+    ColorPickerComponent
   ],
-  providers: [MccColorPickerService, { provide: EMPTY_COLOR, useValue: 'none' }],
+  providers: [ColorPickerService, { provide: EMPTY_COLOR, useValue: 'none' }],
 })
-export class MccColorPickerModule {
+export class ColorPickerModule {
 
 }

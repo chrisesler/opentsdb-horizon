@@ -15,12 +15,12 @@ export interface ColorPickerConfig {
  * will help screen readers, because the text attribute ir set to the aria-label of
  * the option
  */
-export interface MccColorPickerItem {
+export interface ColorPickerItem {
   text: string;
   value: string;
 }
 
-export type MccColorPickerOption = string | MccColorPickerItem;
+export type ColorPickerOption = string | ColorPickerItem;
 
 /**
  * Verify if color has # as a first char. If not, add this char
