@@ -113,9 +113,9 @@
                             </span>
                         </div>
                         <div class="metric-tags">
-                            <strong>Tags</strong>
+                            <strong>Tags:</strong>
                             <mat-chip-list>
-                                <mat-chip *ngFor="let tag of metric.tags"><span>{{ tag.key }}:</span> <strong>{{ tag.value }}</strong></mat-chip>
+                                <mat-basic-chip *ngFor="let tag of metric.tags"><span>{{ tag.key }}:</span> <strong>{{ tag.value }}</strong></mat-basic-chip>
                             </mat-chip-list>
                         </div>
                     </div>
