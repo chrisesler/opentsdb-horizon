@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../material/material.module';
 import { DygraphsModule } from '../dygraphs/dygraphs.module';
 import { DateTimePickerModule } from '../date-time-picker/date-time-picker.module'
+import { ColorPickerModule } from '../color-picker/color-picker.module'
 
 /** public items from Sharedcomponents */
 
@@ -34,7 +35,8 @@ import { SimpleTimePickerComponent } from './components/simple-time-picker/simpl
         ReactiveFormsModule,
         MaterialModule,
         DygraphsModule,
-        DateTimePickerModule
+        DateTimePickerModule,
+        ColorPickerModule
     ],
     declarations: [
         SearchMetricsDialogComponent,
@@ -62,7 +64,8 @@ import { SimpleTimePickerComponent } from './components/simple-time-picker/simpl
         WidgetConfigTimeComponent,
         WidgetConfigVisualAppearanceComponent,
         DateTimePickerModule,
-        SimpleTimePickerComponent
+        SimpleTimePickerComponent,
+        ColorPickerModule
     ],
     entryComponents: [
         SearchMetricsDialogComponent

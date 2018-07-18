@@ -189,6 +189,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
      * On Destroy
      */
 
+    clickedOut(event) {
+        console.log(event);
+    }
+
     ngOnDestroy() {
         this.listenSub.unsubscribe();
         this.routeSub.unsubscribe();
