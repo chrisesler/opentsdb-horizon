@@ -1,0 +1,19 @@
+<div class="color-picker-selector" [ngStyle]="{ 'height.px': selectorHeight }">
+    <div #block class="picker-selector"></div>
+    <canvas #blockCanvas [height]="selectorHeight" width="136px" id="picker"></canvas>
+    <div #blockPointer class="picker-position"></div>
+</div>
+
+<!-- Slider -->
+<div #stripContainer class="colors-position" style="background-position-y: 0px;">
+    <canvas #strip [height]="stripHeight" width="20" id="colors"></canvas>
+</div>
+
+<!-- Input Color -->
+<div class="color-sample" [style.background]="selectedColor"></div>
+
+<form [formGroup]="hexForm" class="color-form">
+    <mat-form-field class="hex-input">
+        <input matInput maxlength="7" formControlName="hexCode" [value]="selectedColor" (keyup.enter)="enterKeyedOnInputBox()"/>
+    </mat-form-field>
+</form>   
