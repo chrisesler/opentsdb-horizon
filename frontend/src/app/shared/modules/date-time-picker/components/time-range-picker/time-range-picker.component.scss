@@ -1,5 +1,11 @@
 @mixin time-range-picker-component-base() {
 
+    .preset-picker-menu {
+        .mat-menu-content { 
+            padding: 0px;
+        }
+    }
+
     .dtp-time-range-picker {
         .mat-card {
             justify-content: center;
@@ -80,5 +86,9 @@
         .dtp-action-controls {
             border-top: 1px solid map-get($foreground, divider);
         }
+    }
+
+    .preset-picker-menu {
+        border: 1px solid map-get($accent, default);
     }
 }
