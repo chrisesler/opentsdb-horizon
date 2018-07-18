@@ -20,7 +20,7 @@
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">
     <!-- tabs with config content -->
-    <mat-tab-group class="widget-configs" [@.disabled]="'true'">
+    <mat-tab-group class="widget-configs" color="primary" [@.disabled]="'true'">
         <mat-tab label="Queries" class="test">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent>

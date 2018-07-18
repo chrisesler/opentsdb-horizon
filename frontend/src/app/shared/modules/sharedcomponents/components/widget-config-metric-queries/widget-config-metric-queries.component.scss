@@ -161,17 +161,26 @@
                     display: flex;
                     align-items: center;
 
+                    // probably the 'tabs:' label
+                    :first-child {
+                        font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                    }
+
                     .mat-chip-list {
                         margin-left: 10px;
                     }
 
-                    .mat-chip {
+                    .mat-basic-chip {
                         padding: 3px 6px;
+                        border-radius: 3px;
+                        margin-right: 4px;
 
+                        // first-child should be the tag key
                         :first-child {
                             margin-right: 4px;
                         }
                     }
+                    
                 }
             }
 
@@ -231,8 +240,23 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
 
+    $chip-bg: rgba(map-get($primary, default), .1);
+
     .widget-config-tab.metric-queries-configuration {
         // style rules here
+
+        .query-metric-row {
+            .metric-tags {
+                .mat-basic-chip {
+                    background-color: $chip-bg;
+
+                    // first-child should be the tag-key
+                    :first-child {
+                        color: rgba(map-get($foreground, text), .65);
+                    }
+                }
+            }
+        }
         
     }
 }

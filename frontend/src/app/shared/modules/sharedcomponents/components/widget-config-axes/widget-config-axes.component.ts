@@ -28,7 +28,7 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
     // tslint:disable-next-line:no-inferrable-types
     y2AxisEnabled_label: string = 'disabled';
     // tslint:disable-next-line:no-inferrable-types
-    xAxisEnabled_label:  string = 'disabled';
+    xAxisEnabled_label:  string = 'enabled';
 
     /** Form Group */
     widgetConfigAxes: FormGroup;
