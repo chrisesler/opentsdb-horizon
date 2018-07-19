@@ -107,6 +107,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         // after success loaded dashboard, assigned widgets
         this.widgets$.subscribe(widgets => {
+            console.log('widgets$ is calling');   
             this.widgets = widgets;
         });
         // when an widget is updated by getting raw data, based on its component type
@@ -131,9 +132,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
        // update from store after getting data for each group, at this point return rawdata
        // is already added to state
        this.updatedWidgetGroup$.subscribe(wg => {
+            console.log('updateWidgetGroup$ calling', wg);
            // only ask widget to tranform data if they not did it yes
            if (wg.widgetId && wg.widgetId !== '' && wg.groupId && wg.groupId !== '') {
-            console.log('this is calling updateWidgetGroups', wg);
             for (let i = 0; i < this.widgets.length; i++) {
                 if (this.widgets[i].id === wg.widgetId) {
                     this.interCom.responsePut({
@@ -149,6 +150,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         // sending down view edit mode to handle size
         this.viewEditMode$.subscribe(payload => {
+            console.log('viewEditMode$ calling', payload);
             this.viewEditMode = payload.editMode;
                 this.interCom.responsePut({
                 id: payload.widgetId,
@@ -158,7 +160,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.auth$.subscribe(auth => {
-            console.log('auth=', auth);
+            console.log('auth$ calling', auth);
             if (auth === 'invalid') {
                 console.log('open auth dialog');
             }
@@ -188,6 +190,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // this will call based on gridster reflow and size changes event
     widgetsLayoutUpdate(widgets: any[]) {
+        console.log('WidgetsLayoutUpdate is calling');       
         this.store.dispatch(new dashboardActions.UpdateWidgetsLayout({ widgets }));
         // we the broadcast new dimention down to them for resizing
         for (let i = 0; i < widgets.length; i++) {

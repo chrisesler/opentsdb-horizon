@@ -53,7 +53,7 @@ yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): an
       (g.dps[dpsMs] !== undefined) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
     }
   }
-  return JSON.parse(JSON.stringify(normalizedData));
+  return [...normalizedData];
 }  
   // build opentsdb query base on this of full quanlify metrics for exploer | adhoc
   // defaulf time will be one hour from now

@@ -139,6 +139,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   // this event will start first and set values of cellWidth and cellHeight
   // then update the this.widgets reference
   gridsterFlow(event: any) {
+    console.log('gridsterFlow is calling and viewEditMode', this.viewEditMode);  
     if (this.viewEditMode) { return; }
     console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
     this.cellHeight = event.gridsterComponent.gridster.cellHeight;
@@ -152,6 +153,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   // we call the function update all since we don't know which one for now.
   // the width and height unit might change but not the cell width and height.
   gridEventEnd(event: any) {
+    console.log('gridEventEnd is calling and viewEditMode', this.viewEditMode);  
     if (this.viewEditMode) { return; }
     // console.log(event, event.item.$element.getBoundingClientRect());
     if (event.action === 'resize' || event.action === 'drag') {

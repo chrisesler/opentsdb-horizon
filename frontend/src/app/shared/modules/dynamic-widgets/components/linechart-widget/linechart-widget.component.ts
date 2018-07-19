@@ -67,13 +67,18 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         break;
                     case 'updatedWidgetGroup':
                         console.log('update widget group', message, this.widget);
+                        //console.log('this options label', this.options);
+                        
                         if (this.widget.id === message.id) {
-                            this.isDataLoaded = true; // need to handle the case that it's partial of groups
+                            //this.isDataLoaded = true; // need to handle the case that it's partial of groups
                             // handle case that nav out of dashboard, and state is kinda reset.
                             if (this.widget.rawdata[message.payload]) {
                                 let grawdata = this.widget.rawdata[message.payload];
                                 this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, grawdata); 
-                                //console.log('datata-' + this.widget.id, new Date().getMilliseconds(), this.options, this.data); 
+                            console.log('datata-' + this.widget.id, this.data.legend); 
+                            } else {
+                                console.log('no data for ', message.payload);
+                                
                             }
                                                                                
                         }

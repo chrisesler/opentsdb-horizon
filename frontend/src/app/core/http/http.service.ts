@@ -31,7 +31,7 @@ export class HttpService {
           downsample: '60m-avg-nan',
           groups: [
             {
-              id: '2344',
+              id: 'gaga',
               title: 'group 2',
               visual: {},
               queries: [
@@ -40,7 +40,7 @@ export class HttpService {
                   filters: [
                     {
                       type: 'wildcard',
-                      tagk: 'host',
+                      tagk: 'colo',
                       filter: '*',
                       groupBy: true
                     }
@@ -81,7 +81,7 @@ export class HttpService {
                   filters: [
                     {
                       type: 'wildcard',
-                      tagk: 'colo',
+                      tagk: 'host',
                       filter: '*',
                       groupBy: true
                     }
@@ -164,9 +164,80 @@ export class HttpService {
             }
           ]
         }
-      }
+      }      
     ]
   };
+/*
+
+,
+      {
+        id: 'multigroup',
+        gridPos: { x: 0, y: 6, w: 12, h: 5 },
+        settings: {
+          title: 'my widget third title',
+          component_type: 'LinechartWidgetComponent',
+          data_source: 'yamas'
+        },
+        query: {
+          start: '1h-ago',
+          end: '',
+          downsample: '60m-avg-nan',
+          groups: [
+            {
+              id: 'werd',
+              title: 'group 1',
+              visual: {},
+              queries: [
+                {
+                  metric: 'Flickr.yapache.requests',
+                  filters: [
+                    {
+                      type: 'wildcard',
+                      tagk: 'host',
+                      filter: '*',
+                      groupBy: true
+                    }
+                  ],
+                  aggregator: 'zimsum',
+                  explicitTags: false,
+                  rate: false,
+                  rateOptions: {
+                    counter: false,
+                    resetValue: 1
+                  }
+                }
+              ]
+            },
+            {
+              id: 'gffg',
+              title: 'group 2',
+              visual: {},
+              queries: [
+                {
+                  metric: 'Flickr.yapache.response_time',
+                  filters: [
+                    {
+                      type: 'wildcard',
+                      tagk: 'colo',
+                      filter: '*',
+                      groupBy: true
+                    }
+                  ],
+                  aggregator: 'zimsum',
+                  explicitTags: false,
+                  rate: false,
+                  rateOptions: {
+                    counter: false,
+                    resetValue: 1
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+*/
+
 /*
 
       {
@@ -277,7 +348,6 @@ export class HttpService {
   }
   /* will refactor later */
   getYamasData(query: any): Observable<any> {
-    console.log('getYamasData', query); 
     const headers = new HttpHeaders(
       { 'Content-Type': 'application/json' });
     // let apiUrl = environment.tsdb_host + '/api/query';

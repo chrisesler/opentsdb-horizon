@@ -77,12 +77,13 @@ export class DashboardState {
     // return a clone copy of state, keet global state immutable
     @Selector()
     static getWidgets(state: DashboardStateModel) {
-        return JSON.parse(JSON.stringify(state.widgets));
+        return [...state.widgets];
     }
 
     @Selector()
     static getDashboard(state: DashboardStateModel) {
-        return JSON.parse(JSON.stringify(state));
+        //return JSON.parse(JSON.stringify(state));
+        return {...state};
     }
 
     @Selector()
@@ -97,7 +98,8 @@ export class DashboardState {
 
    @Selector() 
    static getWidgetGroupUpdate(state: DashboardStateModel) {
-    return JSON.parse(JSON.stringify(state.updatedWigetGroup));
+    //return JSON.parse(JSON.stringify(state.updatedWigetGroup));
+    return {...state.updatedWigetGroup};
    }
 
     @Action(dashboardAction.LoadDashboard)
