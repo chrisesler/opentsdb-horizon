@@ -24,10 +24,15 @@ export class InlineEditableComponent implements OnInit {
   constructor(private renderer: Renderer2) { }
 
   ngOnInit() {
+
+    if (!this.fieldValue || this.fieldValue.trim().length === 0) {
+      this.fieldValue = 'placeholder';
+    }
+
     this.fieldFormControl = new FormControl('', []);
     this.fieldFormControl.setValue(this.fieldValue);
     let validators: any[] = new Array;
-    validators.push(Validators.required);
+    validators.push(Validators.required, this.noWhitespaceValidator);
 
     if (this.minLength) {
       validators.push(Validators.minLength(this.minLength));
@@ -36,6 +41,12 @@ export class InlineEditableComponent implements OnInit {
       validators.push(Validators.maxLength(this.maxLength));
     }
     this.fieldFormControl.setValidators(validators);
+  }
+
+  noWhitespaceValidator(control: FormControl) {
+    const isWhitespace = (control.value || '').trim().length === 0;
+    const isValid = !isWhitespace;
+    return isValid ? null : { 'whitespace': true };
   }
 
   showEditable() {

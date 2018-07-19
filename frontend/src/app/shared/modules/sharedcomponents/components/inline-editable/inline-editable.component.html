@@ -11,12 +11,16 @@
             Field is <strong>required</strong>.
           </mat-error>
 
-          <mat-error *ngIf="fieldFormControl.hasError('maxlength')">
+          <mat-error *ngIf="fieldFormControl.hasError('maxlength') && !fieldFormControl.hasError('whitespace')">
             Max length is {{maxLength}}.
           </mat-error>
 
-          <mat-error *ngIf="fieldFormControl.hasError('minlength')">
+          <mat-error *ngIf="fieldFormControl.hasError('minlength') && !fieldFormControl.hasError('whitespace')">
             Min length is {{minLength}}.
+          </mat-error>
+
+          <mat-error *ngIf="fieldFormControl.hasError('whitespace') && !fieldFormControl.hasError('required')">
+            Please enter valid data.
           </mat-error>
 
         </mat-form-field>

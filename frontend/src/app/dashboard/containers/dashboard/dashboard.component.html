@@ -7,7 +7,7 @@
         <span class="dashboard-name">[[ Dashboard name ]]</span>
     </a> -->
 
-    <inline-editable [fieldValue]="'Dashboard Name'" [minLength]="3" [maxLength]="25">
+    <inline-editable [fieldValue]="'Dashboard Name'" [minLength]="3" [maxLength]="25" (updateValue)="eventTriggered($event)">
     </inline-editable>
 
     <span class="flex-spacer"></span>
@@ -18,9 +18,9 @@
         </button>
     </span>
 
-    <color-picker (selected)="clickedOut($event)" [selectedColor]="'#000000'" [colorPickerSelectorHeight]="136"> </color-picker>
+    <color-picker (selected)="eventTriggered($event)" [selectedColor]="'#000000'" [colorPickerSelectorHeight]="136"> </color-picker>
 
-    <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="timeUpdated($event)" xPosition="before"></time-picker>
+    <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="eventTriggered($event)" xPosition="before"></time-picker>
 
     <!--<simple-time-picker xPosition="before"></simple-time-picker>-->
     <span class="navbar-item nav-dashboard-actions">
