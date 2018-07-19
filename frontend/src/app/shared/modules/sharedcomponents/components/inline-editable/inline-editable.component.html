@@ -1,10 +1,25 @@
 <span class="editable-click">
   <div #container>
     <div [hidden]="isEditView" (click)="showEditable()">{{fieldValue}}</div>
-    <div *ngIf="isEditView">
-      <input type="text" [required]="isRequired" minlength="{{minLength}}" maxlength="{{maxLength}}"
-      [(ngModel)]="value" (keyup.enter)="save()"/>
-      <!-- any errors for validation -->
-    </div>
+
+    <form class="example-form" *ngIf="isEditView">
+        <mat-form-field class="example-full-width">
+          <input matInput [formControl]="fieldFormControl" (keyup.enter)="save()">
+      
+          <!-- Errors -->
+          <mat-error *ngIf="fieldFormControl.hasError('required')">
+            Field is <strong>required</strong>
+          </mat-error>
+
+          <mat-error *ngIf="fieldFormControl.hasError('maxlength')">
+            Max length is {{maxLength}}.
+          </mat-error>
+
+          <mat-error *ngIf="fieldFormControl.hasError('minlength')">
+            Min length is {{minLength}}.
+          </mat-error>
+
+        </mat-form-field>
+      </form>
   </div>
 </span>
