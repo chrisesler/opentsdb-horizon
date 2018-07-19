@@ -1,14 +1,15 @@
-import { Component, Input, EventEmitter, Output, ViewChild, Renderer2, ElementRef, HostListener } from '@angular/core';
+import { Component, Input, EventEmitter, Output, ViewChild, Renderer2, ElementRef, HostListener, HostBinding } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'inline-editable',
   templateUrl: './inline-editable.component.html',
-  styleUrls: ['./inline-editable.component.scss']
+  styleUrls: []
 })
 
 export class InlineEditableComponent implements OnInit {
+  @HostBinding('class.inline-editable') private _hostClass = true;
 
   @Input() fieldValue: string;
   @Input() minLength: number;

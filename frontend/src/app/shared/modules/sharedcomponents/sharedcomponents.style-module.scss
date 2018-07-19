@@ -20,6 +20,7 @@
 @import 'components/search-metrics-dialog/search-metrics-dialog.component';
 @import 'components/simple-time-picker/simple-time-picker.component';
 @import 'components/theme-picker/theme-picker.component';
+@import 'components/inline-editable/inline-editable.component';
 
 // widget common FIRST
 @import 'components/widget-config.common';
@@ -41,6 +42,7 @@
     @include search-metrics-dialog-component-base();
     @include simple-time-picker-component-base();
     @include theme-picker-component-base();
+    @include inline-editable-component-base();
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-base();
@@ -61,6 +63,7 @@
     @include search-metrics-dialog-component-theme($theme-config);
     @include simple-time-picker-component-theme($theme-config);
     @include theme-picker-component-theme($theme-config);
+    @include inline-editable-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);
