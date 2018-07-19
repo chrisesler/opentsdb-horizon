@@ -1,8 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, MatGridListModule, MatCardModule, MatFormFieldModule } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule, MatIconModule, MatMenuModule,
+  MatTooltipModule, MatGridListModule, MatCardModule,
+  MatFormFieldModule } from '@angular/material';
 
 import { TimeRangePickerComponent } from './components/time-range-picker/time-range-picker.component';
 import { DayTimeCalendarComponent } from './components/day-time-calendar/day-time-calendar.component';
