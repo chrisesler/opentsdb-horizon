@@ -2,7 +2,7 @@
   <div #container>
     <div [hidden]="isEditView" (click)="showEditable()">{{fieldValue}}</div>
     <div *ngIf="isEditView">
-      <input type="text" [required]="isRquired" minlength="{{minLength}}" maxlength="{{maxLength}}"
+      <input type="text" [required]="isRequired" minlength="{{minLength}}" maxlength="{{maxLength}}"
       [(ngModel)]="value" (keyup.enter)="save()"/>
       <!-- any errors for validation -->
     </div>

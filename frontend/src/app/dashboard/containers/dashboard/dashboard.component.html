@@ -3,9 +3,13 @@
   <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" [rerender]="rerender" [widgets]="widgets$ | async" [viewEditMode]="viewEditMode"></app-dboard-content>
 </div>
 <ng-template #dashboardNavbarTmpl>
-    <a mat-button class="navbar-item" routerLink="dashboard">
+    <!-- <a mat-button class="navbar-item" routerLink="dashboard">     
         <span class="dashboard-name">[[ Dashboard name ]]</span>
-    </a>
+    </a> -->
+
+    <inline-editable [fieldValue]="'Dashboard Name'" [minLength]="'7'">
+    </inline-editable>
+
     <span class="flex-spacer"></span>
     <span class="navbar-item nav-add-new-widget" *ngIf="!(viewEditMode)">
         <button mat-raised-button class="mat-elevation-z0" (click)="addNewWidget()">

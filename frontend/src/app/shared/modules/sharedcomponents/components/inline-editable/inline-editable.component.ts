@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, Output, ViewChild, Renderer2, ElementRef } from '@angular/core';
+import { Component, Input, EventEmitter, Output, ViewChild, Renderer2, ElementRef, HostListener } from '@angular/core';
 
 @Component({
   selector: 'inline-editable',
@@ -34,5 +34,16 @@ export class InlineEditableComponent {
 
   save() {
     this.updateValue.emit(this.value);
+    this.fieldValue = this.value;
+    this.isEditView = false;
   }
+
+  @HostListener('document:keydown', ['$event'])
+  closeEditIfEscapePressed(event: KeyboardEvent) {
+      const x = event.keyCode;
+      if (x === 27) {
+        this.isEditView = false;
+      }
+  }
+
 }
