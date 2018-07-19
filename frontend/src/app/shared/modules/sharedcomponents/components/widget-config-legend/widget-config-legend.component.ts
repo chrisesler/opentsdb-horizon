@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, HostBinding, Input, Output, EventEmitter } from '@angular/core';
 
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 
 import { Subscription } from 'rxjs/Subscription';
 
@@ -120,4 +120,14 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy, AfterView
       * Events
       */
 
+     onLegendValuesCheckboxChange(val: string, isChecked: boolean) {
+        const legendValueFormArray = <FormArray>this.widgetConfigLegend.controls.legendValues;
+
+        if (isChecked) {
+            legendValueFormArray.push(new FormControl(val));
+        } else {
+          const index = legendValueFormArray.controls.findIndex(x => x.value === val);
+          legendValueFormArray.removeAt(index);
+        }
+      }
 }
