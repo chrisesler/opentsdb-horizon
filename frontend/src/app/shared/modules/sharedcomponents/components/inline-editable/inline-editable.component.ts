@@ -11,14 +11,14 @@ import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 export class InlineEditableComponent implements OnInit {
 
   @Input() fieldValue: string;
-  @Input() isRequired: boolean;
   @Input() minLength: number;
   @Input() maxLength: number;
   @Output() updateValue: EventEmitter<any> = new EventEmitter();
   @ViewChild('container') container: ElementRef;
-  
-  fieldFormControl: FormControl;
+
+  isRequired: boolean = true;
   isEditView: boolean = false;
+  fieldFormControl: FormControl;
 
   constructor(private renderer: Renderer2) { }
 
@@ -26,10 +26,8 @@ export class InlineEditableComponent implements OnInit {
     this.fieldFormControl = new FormControl('', []);
     this.fieldFormControl.setValue(this.fieldValue);
     let validators: any[] = new Array;
-  
-    if (this.isRequired) {
-      validators.push(Validators.required);
-    }
+    validators.push(Validators.required);
+
     if (this.minLength) {
       validators.push(Validators.minLength(this.minLength));
     }
