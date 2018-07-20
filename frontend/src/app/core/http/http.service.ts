@@ -108,7 +108,102 @@ export class HttpService {
       },
       {
         gridPos: {
-          x: 6, y: 5,
+            x: 6, y: 5,
+            w: 6, h: 5
+        },
+        config: {
+          title: 'BarchartWidgetComponent',
+          component_type: 'BarchartWidgetComponent',
+          data_source: 'opentsdb',
+          query: {
+            start: '1526250610000',
+            end: '1526337010000',
+            queries: [
+              {
+                aggregator: 'zimsum',
+                downsample: '60m-avg-nan',
+                explicitTags:false,
+                metric:'Flickr.search.com.yahoo.titan.vespa.DefaultVespaRepository.vespa.findBy.requests.Count',
+                rate: false,
+                rateOptions : {
+                    counter: false,
+                    resetValue: 1
+                },
+                counter: false,
+                resetValue: 1,
+              },
+              {
+                aggregator: 'zimsum',
+                downsample: '60m-avg-nan',
+                explicitTags:false,
+                metric:'Flickr.search.com.flickr.search.domain.vespa.repository.VespaMediaResponseDeserializer.vespa.totalNumberOfResults.requests.Count',
+                rate: false,
+                rateOptions : {
+                    counter: false,
+                    resetValue: 1
+                },
+                counter: false,
+                resetValue: 1,
+              },
+              {
+                aggregator: 'zimsum',
+                downsample: '60m-avg-nan',
+                explicitTags:false,
+                metric:'Flickr.search.com.flickr.search.domain.vespa.repository.VespaMediaResponseDeserializer.vespa.deserializeCollection.requests.Count',
+                rate: false,
+                rateOptions : {
+                    counter: false,
+                    resetValue: 1
+                },
+                counter: false,
+                resetValue: 1,
+              },
+              {
+                aggregator: 'zimsum',
+                downsample: '60m-avg-nan',
+                explicitTags:false,
+                metric:'Flickr.search.com.flickr.search.adapters.rest.SearchRestAdapter./search.requests.Count',
+                rate: false,
+                rateOptions : {
+                    counter: false,
+                    resetValue: 1
+                },
+                counter: false,
+                resetValue: 1,
+              },
+              {
+                aggregator: 'zimsum',
+                downsample: '60m-avg-nan',
+                explicitTags:false,
+                metric:'Flickr.search.com.flickr.catalog.domain.legacy.media.MediaRepositoryV1.findAll.requests.Count',
+                rate: false,
+                rateOptions : {
+                    counter: false,
+                    resetValue: 1
+                },
+                counter: false,
+                resetValue: 1,
+              },
+              {
+                aggregator: 'zimsum',
+                downsample: '60m-avg-nan',
+                explicitTags:false,
+                metric:'Flickr.search.com.flickr.aggregation.adapters.rest.AggregationFrameworkTagsRestAdapter./tags/toptrending/year.requests.Count',
+                rate: false,
+                rateOptions : {
+                    counter: false,
+                    resetValue: 1
+                },
+                counter: false,
+                resetValue: 1,
+              },
+            ]
+          }
+        }
+      },
+      {
+        gridPos: {
+          x: 0, y: 10,
           w: 6, h: 5
         },
         config: {

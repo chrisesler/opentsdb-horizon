@@ -47,6 +47,37 @@ export class DatatranformerService {
     return Object.assign(normalizedData);
   }
 
+    yamasToChartJS( options, result ) {
+        options.scales.xAxes[0].labels = [];
+        // generate labels
+        for ( let k in result ) {
+            let g = result[k];
+            let label = 'Stack-' + (+k + 1) ; // Object.values(g.tags).join('-');
+            if (!options.scales.xAxes[0].labels.includes(label)) {
+                options.scales.xAxes[0].labels.push(label);     
+            }
+        }
+
+        let datasets:any = [
+                                {
+                                    data: []
+                                }
+                            ];
+
+        if ( result ) {
+            for ( let i = 0; i < result.length; i++ ) {
+                let mData: any = result[i].dps;
+                let sum = 0; 
+                const n = Object.keys(mData).length;
+                for ( let k in mData ) {
+                    sum += mData[k];
+                }
+                datasets[0].data.push ( sum / n  );
+            }
+        }
+        return Object.assign(datasets);
+    }
+
   // build opentsdb query base on this of full quanlify metrics for exploer | adhoc
   // defaulf time will be one hour from now
   buildAdhocYamasQuery(metrics: any[]) {
