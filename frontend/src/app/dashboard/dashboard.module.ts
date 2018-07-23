@@ -15,6 +15,8 @@ import { DashboardService } from './services/dashboard.service';
 // store
 import { NgxsModule } from '@ngxs/store';
 import { DashboardState } from './state/dashboard.state';
+import { DBState, DBSettingsState, WidgetsState, ClientSizeState,
+         WidgetsConfigState, WidgetsRawdataState } from './store';
 
 // components
 import { DashboardComponent } from './containers/dashboard/dashboard.component';
@@ -41,7 +43,8 @@ import { LineChartComponent } from './widgets/components/chartjs/line-chart.comp
         GridsterModule,
         SharedcomponentsModule,
         DashboardRoutingModule,
-        NgxsModule.forFeature([DashboardState]),
+        NgxsModule.forFeature([DashboardState, DBState, DBSettingsState, WidgetsState, 
+            ClientSizeState, WidgetsConfigState, WidgetsRawdataState]),
         DynamicWidgetsModule
     ],
     declarations: [
