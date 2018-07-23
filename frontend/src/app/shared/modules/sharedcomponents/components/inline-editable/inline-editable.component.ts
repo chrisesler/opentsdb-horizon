@@ -14,7 +14,7 @@ export class InlineEditableComponent implements OnInit {
   @Input() fieldValue: string;
   @Input() minLength: number;
   @Input() maxLength: number;
-  @Output() updateValue: EventEmitter<any> = new EventEmitter();
+  @Output() updatedValue: EventEmitter<any> = new EventEmitter();
   @ViewChild('container') container: ElementRef;
 
   isRequired: boolean = true;
@@ -62,7 +62,7 @@ export class InlineEditableComponent implements OnInit {
 
   save() {
     if (!this.fieldFormControl.errors) {
-      this.updateValue.emit(this.fieldFormControl.value);
+      this.updatedValue.emit(this.fieldFormControl.value);
       this.fieldValue = this.fieldFormControl.value;
       this.isEditView = false;
     }
