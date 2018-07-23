@@ -7,7 +7,7 @@
         <span class="dashboard-name">[[ Dashboard name ]]</span>
     </a> -->
 
-    <inline-editable [fieldValue]="'Dashboard Name'" [minLength]="3" [maxLength]="25" (updateValue)="eventTriggered($event)">
+    <inline-editable class="navbar-item" [fieldValue]="'Dashboard Name'" [minLength]="3" [maxLength]="25" (updateValue)="eventTriggered($event)">
     </inline-editable>
 
     <span class="flex-spacer"></span>
