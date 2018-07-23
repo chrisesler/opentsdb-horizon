@@ -1,5 +1,7 @@
 import { State } from '@ngxs/store';
 import { DBSettingsState } from './settings.state';
+import { WidgetsState } from './widgets.state';
+import { ClientSizeState } from './clientsize.state';
 
 export interface DBStateModel {
     id: string;
@@ -10,7 +12,7 @@ export interface DBStateModel {
     defaults: {
         id: 'abcdef'
     },
-    children: [DBSettingsState]
+    children: [DBSettingsState, WidgetsState, ClientSizeState]
 })
 
 export class DBState {
