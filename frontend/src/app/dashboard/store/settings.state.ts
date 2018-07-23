@@ -5,7 +5,7 @@ export interface DBSettingsModel {
 }
 
 @State<DBSettingsModel>({
-    name: 'settings',
+    name: 'Settings',
     defaults: {
         title: 'untitle dashboard'
     }
