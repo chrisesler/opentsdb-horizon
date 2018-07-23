@@ -1,5 +1,9 @@
-<div class="widget-output-container">
-    <div class="widget-title" *ngIf="editMode" fxLayout="row">
+<div class="widget-output-container" [style.background]="backgroundColor" fxFlex="1 1 100%">
+
+   
+
+
+    <!-- <div class="widget-title" *ngIf="editMode" fxLayout="row">
         <span fxFlex="1 1 100%">{{ widget.config.title }}</span>
         <span>
             <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
@@ -7,66 +11,16 @@
             </button>
         </span>
     </div>
+     -->
     <div class="widget-output">
-        <!-- Where the graph, or whatever lives -->
-        <strong>THIS IS A BIG NUNBER WIDGET PLACEHOLDER.</strong>
-    </div>
-</div>
-<!-- NOTE: This needs to move to other component -->
-<div class="widget-controls-container" *ngIf="editMode">
-    <!-- tabs with config content -->
-    <mat-tab-group class="widget-configs" [@.disabled]="'true'">
-        <mat-tab label="Queries">
-            <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
-            <ng-template matTabContent>
-                <widget-config-metric-queries [widget]="widget"></widget-config-metric-queries>
-            </ng-template>
-        </mat-tab>
-        <mat-tab label="General">
-            <ng-template matTabContent>
-                <widget-config-general [widget]="widget"></widget-config-general>
-            </ng-template>
-        </mat-tab>
-        <mat-tab label="Time Configuration">
-            <ng-template matTabContent>
-                <widget-config-time [widget]="widget"></widget-config-time>
-            </ng-template>
-        </mat-tab>
-        <mat-tab label="Axes">
-            <ng-template matTabContent>
-                <widget-config-axes [widget]="widget"></widget-config-axes>
-            </ng-template>
-        </mat-tab>
-        <mat-tab label="Visual Appearance">
-            <ng-template matTabContent>
-                <widget-config-visual-appearance [widget]="widget"></widget-config-visual-appearance>
-            </ng-template>
-        </mat-tab>
-        <mat-tab label="Legend">
-            <ng-template matTabContent>
-                <widget-config-legend [widget]="widget"></widget-config-legend>
-            </ng-template>
-        </mat-tab>
-        <mat-tab label="Alerts">
-            <ng-template matTabContent>
-                <widget-config-alerts [widget]="widget"></widget-config-alerts>
-            </ng-template>
-        </mat-tab>
 
-        <mat-tab>
-            <!-- custom tab label. (see: https://material.angular.io/components/tabs/overview#labels) -->
-            <ng-template mat-tab-label>
-                <mat-icon font-set="denali" font-icon="d-code"></mat-icon> <span>Query Editor</span>
-            </ng-template>
-            <ng-template matTabContent>
-                <widget-config-query-inspector [widget]="widget"></widget-config-query-inspector>
-            </ng-template>
-        </mat-tab>
-    </mat-tab-group>
-    <div class="widget-actions">
-        <!-- controls to save/cancel -->
-        <button mat-raised-button color="primary" class="mat-elevation-z0">Save</button>
-        <button mat-stroked-button color="primary" class="mat-elevation-z0">Cancel</button>
+        <div class="number-container">
+            <span [ngClass]="{'xlarge-size': prefixSize=='xl', 'large-size': prefixSize=='l', 'medium-size': prefixSize=='m', 'small-size': prefixSize=='s'}">{{prefix}}</span>
+            <span class="big-number">{{bigNumber}}</span>
+            <span [ngClass]="{'xlarge-size': postfixSize=='xl', 'large-size': postfixSize=='l', 'medium-size': postfixSize=='m', 'small-size': postfixSize=='s'}">{{postfix}}</span>
+            <div [ngClass]="{'xlarge-size': captionSize=='xl', 'large-size': captionSize=='l', 'medium-size': captionSize=='m', 'small-size': captionSize=='s'}">{{caption}}</div>
+        </div>
+    
+        <div class="metric-name"> {{metricName}}</div>
     </div>
 </div>
-    

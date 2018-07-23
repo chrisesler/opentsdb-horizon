@@ -800,6 +800,57 @@ export class HttpService {
             }
         ]
         }
+      },
+      {
+        gridPos: {
+          x: 15, y: 5,
+          w: 6, h: 5
+        },
+        config: {
+          title: 'Big Number',
+          component_type: 'BignumberWidgetComponent',
+          visualization: {
+            prefix: {
+              value: '$',
+              size: 'xl',
+            },
+            postfix: {
+              value: 'Per hour',
+              size: 'm',
+            },
+            caption: {
+              value: 'gross',
+              size: 'l',
+            },
+            aggregator: 'average',
+          },
+          data_source: 'opentsdb',
+          query: {
+            start: '1526250610000',
+            end: '1526337010000',
+            queries: [
+              {
+                aggregator: 'zimsum',
+                metric: 'Flickr.yapache.requests',
+                rate: false,
+                rateOptions: {
+                  counter: false,
+                  resetValue: 1
+                },
+                explicitTags: false,
+                downsample: '60m-avg-nan',
+                filters: [
+                  {
+                    type: 'wildcard',
+                    tagk: 'host',
+                    filter: '*.bf1.*',
+                    groupBy: false
+                  }
+                ]
+              }
+            ]
+          }
+        }
       }
     ]
   };

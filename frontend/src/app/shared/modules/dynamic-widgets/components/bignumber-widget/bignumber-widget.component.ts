@@ -34,6 +34,19 @@ export class BignumberWidgetComponent implements OnInit {
     /** Outputs */
 
     /** Local variables */
+    bigNumber: string = '3567';
+    prefix: string = '$'; //this.widget.config.visualization.prefix.value;
+    postfix: string = 'per hour';
+    caption: string = 'gross';
+
+    prefixSize: string = 'l';
+    postfixSize: string = 'm';
+    captionSize: string = 's';
+
+    textColor: string = '#000000';
+    backgroundColor: string = '#40008B';
+
+    metricName: string = 'UDB_REST_API.OpenRemote';
 
     constructor(private interCom: IntercomService) { }
 
