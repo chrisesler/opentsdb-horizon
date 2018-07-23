@@ -65,7 +65,8 @@ import { SimpleTimePickerComponent } from './components/simple-time-picker/simpl
         WidgetConfigVisualAppearanceComponent,
         DateTimePickerModule,
         SimpleTimePickerComponent,
-        ColorPickerModule
+        ColorPickerModule,
+        InlineEditableComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponent

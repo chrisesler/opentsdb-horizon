@@ -169,8 +169,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.log('dashboard name save', event);
     }
 
-    timeUpdated(selectedTime: ISelectedTime) {
-        console.log(selectedTime);
+    eventTriggered(event: any) {
+        console.log(event);
     }
 
     click_cloneDashboard(event: any) {
@@ -188,10 +188,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     /**
      * On Destroy
      */
-
-    clickedOut(event) {
-        console.log(event);
-    }
 
     ngOnDestroy() {
         this.listenSub.unsubscribe();
