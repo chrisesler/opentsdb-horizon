@@ -16,6 +16,7 @@
 
         .big-number {
             font-size: 96px;
+            // padding-top: 10px;
         }
 
         .number-container {
@@ -24,6 +25,7 @@
         }
 
         .metric-name {
+            background: rgba(255, 255, 255, 0.5);
             // position: absolute;
             // bottom: 10px;
             // right: 0px;
@@ -50,6 +52,9 @@
             font-size: 96px;
         }
 
+        .white-text {
+            color: white;
+        }
     }
 
     // when we are in edit view

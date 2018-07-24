@@ -47,10 +47,14 @@ export class BignumberWidgetComponent implements OnInit {
     backgroundColor: string = '#40008B';
 
     metricName: string = 'UDB_REST_API.OpenRemote';
+    backgroundLuma: number = this.getLuma(this.backgroundColor);
 
     constructor(private interCom: IntercomService) { }
 
     ngOnInit() {
+
+        console.log('**' + this.backgroundLuma);
+
     }
 
     /**
@@ -68,6 +72,14 @@ export class BignumberWidgetComponent implements OnInit {
             action: 'closeViewEditMode',
             payload: true
         });
+    }
+
+    getLuma(hex: string) {
+        const bigint = parseInt(hex.substring(1), 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
     }
 
 }
