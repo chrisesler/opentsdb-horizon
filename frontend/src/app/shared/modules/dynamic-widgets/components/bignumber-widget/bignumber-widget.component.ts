@@ -34,10 +34,12 @@ export class BignumberWidgetComponent implements OnInit {
     /** Outputs */
 
     /** Local variables */
+    // tslint:disable:no-inferrable-types
     bigNumber: string = '3567';
-    prefix: string = '$'; //this.widget.config.visualization.prefix.value;
+
+    prefix: string = '$'; // this.widget.config.visualization.prefix.value;
     postfix: string = 'per hour';
-    caption: string = 'gross';
+    caption: string = 'Monitoring Revenue';
 
     prefixSize: string = 'l';
     postfixSize: string = 'm';
@@ -47,14 +49,18 @@ export class BignumberWidgetComponent implements OnInit {
     backgroundColor: string = '#40008B';
 
     metricName: string = 'UDB_REST_API.OpenRemote';
-    backgroundLuma: number = this.getLuma(this.backgroundColor);
+
+    clientHeight: string = 226 + 'px'; // this.widget.clientSize.height;
+
+    backgroundColorTransparent: string = this.hexToTransparentHex(this.backgroundColor);
+    backgroundLuma: number = this.hexToLuma(this.backgroundColor);
 
     constructor(private interCom: IntercomService) { }
 
     ngOnInit() {
-
-        console.log('**' + this.backgroundLuma);
-
+        console.log('**');
+        console.log(this.widget);
+        // console.log(this.widget.clientSize);
     }
 
     /**
@@ -67,19 +73,24 @@ export class BignumberWidgetComponent implements OnInit {
      * Behaviors
      */
 
-     closeViewEditMode() {
+    closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
             action: 'closeViewEditMode',
             payload: true
         });
     }
 
-    getLuma(hex: string) {
+    hexToLuma(hex: string): number {
         const bigint = parseInt(hex.substring(1), 16);
+        // tslint:disable:no-bitwise
         const r = (bigint >> 16) & 255;
         const g = (bigint >> 8) & 255;
         const b = bigint & 255;
         return 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
+    }
+
+    hexToTransparentHex(hex: string): string {
+        return hex + '80'; // 80 is 50% in hex
     }
 
 }

@@ -4,36 +4,26 @@
     $tab-width: map-get($widgets-common-config, tab-width);
     $action-bar-height: map-get($widgets-common-config, action-bar-height);
 
-    
-    // .mat-card {
-    //     background-color: blue;
-    // }
-    
     .widget-panel-content.bignumber-widget { 
-
        
         text-align: center;
 
+        .widget-output-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
         .big-number {
             font-size: 96px;
-            // padding-top: 10px;
         }
 
         .number-container {
-            padding-top: 25px;
-            padding-bottom: 25px; 
+
         }
 
         .metric-name {
-            background: rgba(255, 255, 255, 0.5);
-            // position: absolute;
-            // bottom: 10px;
-            // right: 0px;
-            // left: 0px;
-        }
 
-        .prefix {
-            // position: absolute;
         }
 
         .small-size {

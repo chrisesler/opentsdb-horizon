@@ -1,6 +1,9 @@
-<div class="widget-output-container"  fxFlex="1 1 100%" [style.background]="backgroundColor">
-
-    <!--  -->
+<div [style.background]="backgroundColor" 
+     [style.height]="clientHeight"
+     class="widget-output-container"
+     >
+    
+    <!-- fxFlex="1 1 100%"   -->
     <!-- <div class="widget-title" *ngIf="editMode" fxLayout="row">
         <span fxFlex="1 1 100%">{{ widget.config.title }}</span>
         <span>
@@ -9,15 +12,13 @@
             </button>
         </span>
     </div>
-     -->
-    <!-- <div class="widget-output"> -->
-
-        <div class="number-container" [ngClass]="{'white-text': backgroundLuma < 128}">
-            <span [ngClass]="{'xlarge-size': prefixSize=='xl', 'large-size': prefixSize=='l', 'medium-size': prefixSize=='m', 'small-size': prefixSize=='s'}">{{prefix}}</span>
-            <span class="big-number">{{bigNumber}}</span>
-            <span [ngClass]="{'xlarge-size': postfixSize=='xl', 'large-size': postfixSize=='l', 'medium-size': postfixSize=='m', 'small-size': postfixSize=='s'}">{{postfix}}</span>
-            <div [ngClass]="{'xlarge-size': captionSize=='xl', 'large-size': captionSize=='l', 'medium-size': captionSize=='m', 'small-size': captionSize=='s'}">{{caption}}</div>
-        </div>
-    <!-- </div> -->
-    <div class="metric-name"> {{metricName}}</div>
+        -->
+    <div class="number-container" [ngClass]="{'white-text': backgroundLuma < 128}">
+        <span [ngClass]="{'xlarge-size': prefixSize=='xl', 'large-size': prefixSize=='l', 'medium-size': prefixSize=='m', 'small-size': prefixSize=='s'}">{{prefix}}</span>
+        <span class="big-number">{{bigNumber}}</span>
+        <span [ngClass]="{'xlarge-size': postfixSize=='xl', 'large-size': postfixSize=='l', 'medium-size': postfixSize=='m', 'small-size': postfixSize=='s'}">{{postfix}}</span>
+        <div  [ngClass]="{'xlarge-size': captionSize=='xl', 'large-size': captionSize=='l', 'medium-size': captionSize=='m', 'small-size': captionSize=='s'}">{{caption}}</div>
+    </div>
 </div>
+
+<div class="metric-name" [style.background]="backgroundColorTransparent" > {{metricName}}</div>
