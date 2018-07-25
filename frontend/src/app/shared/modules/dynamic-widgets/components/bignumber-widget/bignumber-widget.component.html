@@ -1,24 +1,23 @@
-<div [style.background]="backgroundColor" 
-     [style.height]="clientHeight"
-     class="widget-output-container"
-     >
-    
-    <!-- fxFlex="1 1 100%"   -->
-    <!-- <div class="widget-title" *ngIf="editMode" fxLayout="row">
-        <span fxFlex="1 1 100%">{{ widget.config.title }}</span>
-        <span>
-            <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
-                <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
-            </button>
-        </span>
-    </div>
-        -->
-    <div class="number-container" [ngClass]="{'white-text': backgroundLuma < 128}">
-        <span [ngClass]="{'xlarge-size': prefixSize=='xl', 'large-size': prefixSize=='l', 'medium-size': prefixSize=='m', 'small-size': prefixSize=='s'}">{{prefix}}</span>
-        <span class="big-number">{{bigNumber}}</span>
-        <span [ngClass]="{'xlarge-size': postfixSize=='xl', 'large-size': postfixSize=='l', 'medium-size': postfixSize=='m', 'small-size': postfixSize=='s'}">{{postfix}}</span>
-        <div  [ngClass]="{'xlarge-size': captionSize=='xl', 'large-size': captionSize=='l', 'medium-size': captionSize=='m', 'small-size': captionSize=='s'}">{{caption}}</div>
+<div [style.height]="bigNumberConfig.clientHeight" class="widget-output-container">
+    <div *ngFor="let metric of bigNumberConfig.bigNumberMetrics" class="big-number-container">
+        <div [style.background]="metric.backgroundColor">
+            <!-- fxFlex="1 1 100%"   -->
+            <!-- <div class="widget-title" *ngIf="editMode" fxLayout="row">
+                <span fxFlex="1 1 100%">{{ widget.config.title }}</span>
+                <span>
+                    <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
+                        <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
+                    </button>
+                </span>
+            </div>
+                -->
+            <div class="number-container" [ngClass]="{'white-text': metric.backgroundLuma < 128}">
+                <span [ngClass]="{'xlarge-size': metric.prefixSize=='xl', 'large-size': metric.prefixSize=='l', 'medium-size': metric.prefixSize=='m', 'small-size': metric.prefixSize=='s'}">{{metric.prefix}}</span>
+                <span class="big-number">{{metric.bigNumber}}</span>
+                <span [ngClass]="{'xlarge-size': metric.postfixSize=='xl', 'large-size': metric.postfixSize=='l', 'medium-size': metric.postfixSize=='m', 'small-size': metric.postfixSize=='s'}">{{metric.postfix}}</span>
+                <div  [ngClass]="{'xlarge-size': metric.captionSize=='xl', 'large-size': metric.captionSize=='l', 'medium-size': metric.captionSize=='m', 'small-size': metric.captionSize=='s'}">{{metric.caption}}</div>
+            </div>
+        </div>
+        <div class="metric-name" [style.background]="metric.backgroundColorTransparent" > {{metric.metricName}}</div>
     </div>
 </div>
-
-<div class="metric-name" [style.background]="backgroundColorTransparent" > {{metricName}}</div>

@@ -12,6 +12,11 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .big-number-container {
+            min-width: 400px;
         }
 
         .big-number {
@@ -19,7 +24,7 @@
         }
 
         .number-container {
-
+            padding-top: 40px;
         }
 
         .metric-name {
