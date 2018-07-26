@@ -31,7 +31,8 @@ export class BignumberWidgetComponent implements OnInit {
     /** Local variables */
     // tslint:disable:no-inferrable-types
     bigNumberConfig: IBigNumberConfig = new IBigNumberConfig();
-    numberOfMetrics: number = 4;
+    numberOfMetrics: number = 3;
+    _clientHeight: number = 300;
 
     constructor(private interCom: IntercomService) { }
 
@@ -61,7 +62,7 @@ export class BignumberWidgetComponent implements OnInit {
         }
 
         this.bigNumberConfig = {
-            clientHeight: 300 + 'px',
+            clientHeight: this._clientHeight + 'px',
             bigNumberMetrics: _bigNumberMetrics
         };
 
