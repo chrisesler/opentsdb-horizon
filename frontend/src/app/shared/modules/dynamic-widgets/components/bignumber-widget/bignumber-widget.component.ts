@@ -84,7 +84,7 @@ export class BignumberWidgetComponent implements OnInit {
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
             action: 'closeViewEditMode',
-            payload: true
+            payload: { editMode: false, widgetId: ''}
         });
     }
 
@@ -100,6 +100,7 @@ export class BignumberWidgetComponent implements OnInit {
     hexToTransparentHex(hex: string): string {
         return hex + '80'; // 80 is 50% in hex
     }
+
 }
 
 class IBigNumberConfig {

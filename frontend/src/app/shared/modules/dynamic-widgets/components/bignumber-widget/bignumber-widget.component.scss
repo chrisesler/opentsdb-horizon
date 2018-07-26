@@ -5,10 +5,9 @@
     $action-bar-height: map-get($widgets-common-config, action-bar-height);
 
     .widget-panel-content.bignumber-widget { 
-       
-        text-align: center;
 
-        .widget-output-container {
+        .widget-container {
+            text-align: center;
             display: grid;
             grid-gap: 0px;
         }
