@@ -5,3 +5,20 @@
         <button mat-button [ngClass]="{'is-selected': metric == selectedMetric}" (click)="setSelectedMetric(metric)"> {{metric.metric}} </button>
     </div>
 </div>
+
+<div *ngIf="selectedMetric">
+    Prefix
+    <form class="example-form">
+        <mat-form-field >
+            <input matInput #prefixBox value="{{selectedMetric.configuration.bigNum.prefix}}" (keyup)="KeyedOnPrefixInputBox(prefixBox.value)">
+        </mat-form-field>
+    </form>
+    <mat-button-toggle-group #group="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixSize" (change)="selectedPrefixSize(group.value)">
+        <mat-button-toggle value="s">sm</mat-button-toggle>
+        <mat-button-toggle value="m">md</mat-button-toggle>
+        <mat-button-toggle value="l">lg</mat-button-toggle>
+        <mat-button-toggle value="xl">xl</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <div class="example-selected-value">Selected value: {{group.value}}</div>
+</div>
