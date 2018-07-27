@@ -13,7 +13,7 @@
     
         <div *ngFor="let metric of fakeMetrics" class="big-number-container">
             <div [style.background]="metric.configuration.bigNum.backgroundColor">
-                <div class="number-container" [ngClass]="{'white-text': metric.configuration.bigNum.backgroundLuma < 128}">
+                <div class="number-container" [style.color]="metric.configuration.bigNum.textColor">
                     <span [ngClass]="{'xlarge-size': metric.configuration.bigNum.prefixSize=='xl', 'large-size': metric.configuration.bigNum.prefixSize=='l', 'medium-size': metric.configuration.bigNum.prefixSize=='m', 'small-size': metric.configuration.bigNum.prefixSize=='s'}">{{metric.configuration.bigNum.prefix}}</span>
                     <span class="big-number">{{metric.configuration.bigNum.bigNumber}}</span>
                     <span [ngClass]="{'xlarge-size': metric.configuration.bigNum.postfixSize=='xl', 'large-size': metric.configuration.bigNum.postfixSize=='l', 'medium-size': metric.configuration.bigNum.postfixSize=='m', 'small-size': metric.configuration.bigNum.postfixSize=='s'}">{{metric.configuration.bigNum.postfix}}</span>
