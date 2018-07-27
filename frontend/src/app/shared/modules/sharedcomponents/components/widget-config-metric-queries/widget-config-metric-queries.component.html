@@ -119,6 +119,17 @@
                                 <mat-basic-chip *ngFor="let tag of query.filters"><span>{{ tag.tagk }}:</span> <strong>{{ tag.filter }}</strong></mat-basic-chip>
                             </mat-chip-list>
                         </div>
+                        <span *ngIf="valueIterationOptions.length > 0"> <strong>Value:</strong>
+                            <div class="form-field-group">
+                                <mat-form-field appearance="fill">
+                                    <mat-select>
+                                        <mat-option *ngFor="let val of valueIterationOptions" [value]="val.value">
+                                        {{ val.label }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </span>
                     </div>
                 </div>
             </mat-expansion-panel>

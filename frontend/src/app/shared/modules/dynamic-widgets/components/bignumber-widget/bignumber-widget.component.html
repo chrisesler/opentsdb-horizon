@@ -9,18 +9,18 @@
     </div>
 
     <div class="widget-container" 
-        [ngClass]="{'one-row': bigNumberConfig.bigNumberMetrics.length < 4, 'two-row': bigNumberConfig.bigNumberMetrics.length == 4}">
+        [ngClass]="{'one-row': fakeMetrics.length < 4, 'two-row': fakeMetrics.length == 4}">
     
-        <div *ngFor="let metric of bigNumberConfig.bigNumberMetrics" class="big-number-container">
-            <div [style.background]="metric.backgroundColor">
-                <div class="number-container" [ngClass]="{'white-text': metric.backgroundLuma < 128}">
-                    <span [ngClass]="{'xlarge-size': metric.prefixSize=='xl', 'large-size': metric.prefixSize=='l', 'medium-size': metric.prefixSize=='m', 'small-size': metric.prefixSize=='s'}">{{metric.prefix}}</span>
-                    <span class="big-number">{{metric.bigNumber}}</span>
-                    <span [ngClass]="{'xlarge-size': metric.postfixSize=='xl', 'large-size': metric.postfixSize=='l', 'medium-size': metric.postfixSize=='m', 'small-size': metric.postfixSize=='s'}">{{metric.postfix}}</span>
-                    <div  [ngClass]="{'xlarge-size': metric.captionSize=='xl', 'large-size': metric.captionSize=='l', 'medium-size': metric.captionSize=='m', 'small-size': metric.captionSize=='s'}">{{metric.caption}}</div>
+        <div *ngFor="let metric of fakeMetrics" class="big-number-container">
+            <div [style.background]="metric.configuration.bigNum.backgroundColor">
+                <div class="number-container" [ngClass]="{'white-text': metric.configuration.bigNum.backgroundLuma < 128}">
+                    <span [ngClass]="{'xlarge-size': metric.configuration.bigNum.prefixSize=='xl', 'large-size': metric.configuration.bigNum.prefixSize=='l', 'medium-size': metric.configuration.bigNum.prefixSize=='m', 'small-size': metric.configuration.bigNum.prefixSize=='s'}">{{metric.configuration.bigNum.prefix}}</span>
+                    <span class="big-number">{{metric.configuration.bigNum.bigNumber}}</span>
+                    <span [ngClass]="{'xlarge-size': metric.configuration.bigNum.postfixSize=='xl', 'large-size': metric.configuration.bigNum.postfixSize=='l', 'medium-size': metric.configuration.bigNum.postfixSize=='m', 'small-size': metric.configuration.bigNum.postfixSize=='s'}">{{metric.configuration.bigNum.postfix}}</span>
+                    <div  [ngClass]="{'xlarge-size': metric.configuration.bigNum.captionSize=='xl', 'large-size': metric.configuration.bigNum.captionSize=='l', 'medium-size': metric.configuration.bigNum.captionSize=='m', 'small-size': metric.configuration.bigNum.captionSize=='s'}">{{metric.configuration.bigNum.caption}}</div>
                 </div>
             </div>
-            <div class="metric-name" [style.background]="metric.backgroundColorTransparent" > {{metric.metricName}}</div>
+            <div class="metric-name" [style.background]="metric.configuration.bigNum.backgroundColorTransparent" > {{metric.metric}}</div>
         </div>
     </div>
 </div>
@@ -32,29 +32,27 @@
             <mat-tab label="Queries" class="test">
                 <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
                 <ng-template matTabContent>
-                    <widget-config-metric-queries [widget]="widget"></widget-config-metric-queries>
+                    <widget-config-metric-queries [widget]="widget" [fakeMetrics]="fakeMetrics" [fakeGroups]="fakeGroups" [valueIterationOptions]="valueIterationOptions"></widget-config-metric-queries>
                 </ng-template>
             </mat-tab>
-            <!-- <mat-tab label="General">
+            <mat-tab label="General">
                 <ng-template matTabContent>
                     <widget-config-general [widget]="widget"></widget-config-general>
                 </ng-template>
             </mat-tab>
-            <mat-tab label="Time Configuration">
+            <!-- <mat-tab label="Time Configuration">
                 <ng-template matTabContent>
                     <widget-config-time [widget]="widget"></widget-config-time>
                 </ng-template>
             </mat-tab>
-            <mat-tab label="Axes">
-                <ng-template matTabContent>
-                    <widget-config-axes [widget]="widget"></widget-config-axes>
-                </ng-template>
-            </mat-tab>
+            -->
+
             <mat-tab label="Visual Appearance">
                 <ng-template matTabContent>
                     <widget-config-visual-appearance [widget]="widget"></widget-config-visual-appearance>
                 </ng-template>
             </mat-tab>
+            <!--
             <mat-tab label="Legend">
                 <ng-template matTabContent>
                     <widget-config-legend [widget]="widget"></widget-config-legend>
@@ -64,8 +62,8 @@
                 <ng-template matTabContent>
                     <widget-config-alerts [widget]="widget"></widget-config-alerts>
                 </ng-template>
-            </mat-tab>
-     -->
+            </mat-tab> -->
+     
             <mat-tab>
                 <!-- custom tab label. (see: https://material.angular.io/components/tabs/overview#labels) -->
                 <ng-template mat-tab-label>

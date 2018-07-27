@@ -30,23 +30,18 @@ export class BignumberWidgetComponent implements OnInit {
 
     /** Local variables */
     // tslint:disable:no-inferrable-types
-    bigNumberConfig: IBigNumberConfig = new IBigNumberConfig();
+    fakeMetrics: Array<any> = new Array<any>();
     numberOfMetrics: number = 3;
     _clientHeight: number = 300;
 
     constructor(private interCom: IntercomService) { }
 
     ngOnInit() {
-
-        // tslint:disable-next-line:prefer-const
-        let _bigNumberMetrics: IBigNumberMetric[] = new Array<IBigNumberMetric>();
-
-        for (let i = 0; i < this.numberOfMetrics; i++) {
+        for (let i = 0; i < this.numberOfMetrics; i ++) {
 
             // tslint:disable-next-line:prefer-const
             let bigNumberMetric: IBigNumberMetric = {
                 bigNumber: 1234 + i * 10000,
-                metricName: 'UDB_REST_API.OpenRemote',
                 prefix: '$',
                 postfix: 'per hour',
                 caption: 'Monitoring Revenue',
@@ -58,13 +53,46 @@ export class BignumberWidgetComponent implements OnInit {
             };
             bigNumberMetric.backgroundColorTransparent = this.hexToTransparentHex(bigNumberMetric.backgroundColor);
             bigNumberMetric.backgroundLuma = this.hexToLuma(bigNumberMetric.backgroundColor);
-            _bigNumberMetrics[i] = bigNumberMetric;
+
+            this.fakeMetrics.push(
+                {
+                    id: i,
+                    type: 'metric',
+                    alias: 'M1',
+                    label: 'Metric_namespace.app-name.whatever.some_metric',
+                    metric: 'Metric_namespace.app-name.whatever.some_metric',
+                    color: 'green',
+                    collapsed: false,
+                    visible: true,
+                    tags: [
+                        {
+                            key: 'colo',
+                            value: 'bf1'
+                        },
+                        {
+                            key: 'hostgroup',
+                            value: 'lala-01'
+                        },
+                        {
+                            key: '_aggregate',
+                            value: 'SUM'
+                        }
+                    ],
+                    functions: [],
+                    configuration: {
+                        visualAppearance: {
+                            visualization: 'line',
+                            color: 'green',
+                            lineWeight: '2px',
+                            lineType: 'solid',
+                            logScale: false
+                        },
+                        bigNum: bigNumberMetric
+                    }
+                }
+            );
         }
 
-        this.bigNumberConfig = {
-            clientHeight: this._clientHeight + 'px',
-            bigNumberMetrics: _bigNumberMetrics
-        };
 
         console.log('**');
         console.log(this.widget);
@@ -101,16 +129,46 @@ export class BignumberWidgetComponent implements OnInit {
         return hex + '80'; // 80 is 50% in hex
     }
 
-}
+    // tslint:disable-next-line:member-ordering
+    valueIterationOptions: Array<any> = [
+        {
+            label: 'max',
+            value: 'max'
+        },
+        {
+            label: 'min',
+            value: 'min'
+        },
+        {
+            label: 'average',
+            value: 'average'
+        },
+        {
+            label: 'latest',
+            value: 'latest'
+        }
+    ];
 
-class IBigNumberConfig {
-    clientHeight: string;
-    bigNumberMetrics: IBigNumberMetric[];
+        // tslint:disable-next-line:member-ordering
+        fakeGroups: Array<any> = [
+            {
+                id: 'group-0',
+                label: 'Untitled Group',
+                collapsed: false,
+                visible: true,
+                colorFamily: 'green',
+                selectedState: 'none', // none,all,some
+                metrics: this.fakeMetrics,
+            }
+        ];
+
 }
 
 class IBigNumberMetric {
     bigNumber: number;
-    metricName?: string;
+
+    value?: string; //max, min, average, latest
+    comparedTo?: number;
 
     prefix?: string;
     postfix?: string;
