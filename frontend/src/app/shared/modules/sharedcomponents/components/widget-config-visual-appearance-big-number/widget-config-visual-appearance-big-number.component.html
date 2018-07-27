@@ -7,7 +7,7 @@
         </div>
     </div>
 
-    <div class="selector-container" *ngIf="selectedMetric">
+    <div class="text-container" *ngIf="selectedMetric">
         <div class="prefix-container"> 
             <div> Prefix </div>
             <form>
@@ -51,6 +51,16 @@
                 <mat-button-toggle value="l">lg</mat-button-toggle>
                 <mat-button-toggle value="xl">xl</mat-button-toggle>
             </mat-button-toggle-group>
+        </div>
+    </div>
+
+    <div class="color-container" *ngIf="selectedMetric">
+        <mat-button-toggle-group #colorGroup="matButtonToggleGroup" [value]="colorType" (change)="selectedColorType(colorGroup.value)">
+            <mat-button-toggle value="text">Text</mat-button-toggle>
+            <mat-button-toggle value="background">Background</mat-button-toggle>
+        </mat-button-toggle-group>
+        <div>
+            <color-picker (selected)="colorSelected($event)" [selectedColor]="colorType == 'text' ? selectedMetric.configuration.bigNum.textColor : selectedMetric.configuration.bigNum.backgroundColor"></color-picker>
         </div>
     </div>
 </div>

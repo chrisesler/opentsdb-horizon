@@ -19,6 +19,7 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     /** Local variables */
 
     selectedMetric: object;
+    colorType: string;
 
     setSelectedMetric(metric) {
         this.selectedMetric = metric;
@@ -28,6 +29,7 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
 
     ngOnInit() {
         this.selectedMetric = this.widget[0];
+        this.colorType = 'text';
     }
 
     KeyedOnPrefixInputBox(value: string) {
@@ -52,6 +54,19 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
 
     selectedCaptionSize(value: string) {
         this.selectedMetric['configuration']['bigNum']['captionSize'] = value;
+    }
+
+    selectedColorType(value: string) {
+        this.colorType = value;
+    }
+
+    colorSelected(color: string) {
+        console.log(color);
+        if (this.colorType === 'text') {
+            this.selectedMetric['configuration']['bigNum']['textColor'] = color['hex'];
+        } else { // background
+            this.selectedMetric['configuration']['bigNum']['backgroundColor'] = color['hex'];
+        }
     }
 
 }
