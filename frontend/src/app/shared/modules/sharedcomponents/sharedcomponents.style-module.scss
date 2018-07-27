@@ -35,6 +35,7 @@
 @import 'components/widget-config-query-inspector/widget-config-query-inspector.component';
 @import 'components/widget-config-time/widget-config-time.component';
 @import 'components/widget-config-visual-appearance/widget-config-visual-appearance.component';
+@import 'components/widget-config-visual-appearance-big-number/widget-config-visual-appearance-big-number.component';
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin sharedcomponents-module-core() {
@@ -56,6 +57,7 @@
     @include widget-config-query-inspector-component-base();
     @include widget-config-time-component-base();
     @include widget-config-visual-appearance-component-base();
+    @include widget-config-visual-appearance-big-number-component-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
@@ -78,4 +80,5 @@
     @include widget-config-query-inspector-component-theme($theme-config);
     @include widget-config-time-component-theme($theme-config);
     @include widget-config-visual-appearance-component-theme($theme-config);
+    @include widget-config-visual-appearance-big-number-component-theme($theme-config);
 }
