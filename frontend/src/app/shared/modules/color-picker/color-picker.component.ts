@@ -37,6 +37,7 @@ interface IColor {
 }
 
 @Component({
+  // tslint:disable-next-line:component-selector
   selector: 'color-picker',
   templateUrl: './color-picker.component.html',
   styleUrls: [],
@@ -75,6 +76,7 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     {text: 'Pink', value: '#FC5AA8'},
     {text: 'White', value: '#FFFFFF'} ];
 
+  // tslint:disable-next-line:no-inferrable-types
   selectingCustomColor: boolean = false;
 
   toggleSelector() {
@@ -83,12 +85,13 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
 
   colorSelected(hexColor: string): void {
     this.selectedColor = hexColor;
+    this.change.emit(this.hexToColor(hexColor));
   }
 
   colorToName(hexColor: string): string {
     let colorName = hexColor;
-    for(let color of this.DefaultColors ) {
-      if(color.value == hexColor ){
+    for (let color of this.DefaultColors) {
+      if (color.value === hexColor) {
         colorName = color.text;
         break;
       }
@@ -96,7 +99,7 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     return colorName;
   }
 
-  enteredColor(event){
+  enteredColor(event) {
     this.backdropClick();
   }
 
@@ -325,7 +328,7 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (!this._selectedColor) {
-      this._selectedColor = '#242424';
+      this._selectedColor = '#000000';
     }
 
     this._tmpSelectedColor = new BehaviorSubject<string>(this._selectedColor);

@@ -60,8 +60,7 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
         this.colorType = value;
     }
 
-    colorSelected(color: string) {
-        console.log(color);
+    colorChanged(color: string) {
         if (this.colorType === 'text') {
             this.selectedMetric['configuration']['bigNum']['textColor'] = color['hex'];
         } else { // background
