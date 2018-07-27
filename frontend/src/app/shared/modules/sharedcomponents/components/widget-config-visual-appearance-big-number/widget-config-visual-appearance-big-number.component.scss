@@ -2,6 +2,17 @@
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
 @mixin widget-config-visual-appearance-big-number-component-base() {
+
+    .container {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .selector-container {
+        display: flex;
+        flex-direction: column;
+    }
+
     .widget-config-tab.visual-appearance-configuration {
         // style rules here
     }    

@@ -38,4 +38,20 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
         this.selectedMetric['configuration']['bigNum']['prefixSize'] = value;
     }
 
+    KeyedOnPostfixInputBox(value: string) {
+        this.selectedMetric['configuration']['bigNum']['postfix'] = value;
+    }
+
+    selectedPostfixSize(value: string) {
+        this.selectedMetric['configuration']['bigNum']['postfixSize'] = value;
+    }
+
+    KeyedOnCaptionInputBox(value: string) {
+        this.selectedMetric['configuration']['bigNum']['caption'] = value;
+    }
+
+    selectedCaptionSize(value: string) {
+        this.selectedMetric['configuration']['bigNum']['captionSize'] = value;
+    }
+
 }
