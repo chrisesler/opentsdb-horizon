@@ -28,10 +28,9 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   @Output() widgetsLayoutUpdate = new EventEmitter();
   @Input() widgets: any[];
   @Input() rerender: any;
-  @Input() viewEditMode: boolean;
+  @Input() dashboardMode: string;
 
-  //cellHeight = 0;
-  //cellWidth = 0;
+  viewEditMode: boolean = false;
 
   gridsterOptions: IGridsterOptions = {
     // core configuration is default one - for smallest view. It has hidden minWidth: 0.
@@ -83,7 +82,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     private interCom: IntercomService
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   getWidgetConfig(id) {
     return this.dbService.getWidgetConfigById(id);
@@ -106,8 +105,12 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     if (changes.rerender && changes.rerender.currentValue.reload) {
       this.gridster.reload();
     }
-    if (changes.viewEditMode && !changes.viewEditMode.currentValue) {
-        this.widgetViewContainer.viewContainerRef.clear();
+
+    if (changes.dashboardMode && changes.dashboardMode.currentValue === 'edit') {
+      this.viewEditMode = true; 
+    } else {
+      this.viewEditMode = false;
+      this.widgetViewContainer.viewContainerRef.clear();
     }
   }
 
