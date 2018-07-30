@@ -9,10 +9,10 @@
 
     <div class="text-container" *ngIf="selectedMetric">
         <div class="prefix-container"> 
-            <div> Prefix </div>
+            <div class="text-title"> Prefix </div>
             <form>
-                <mat-form-field >
-                    <input matInput #prefixBox value="{{selectedMetric.configuration.bigNum.prefix}}" (keyup)="KeyedOnPrefixInputBox(prefixBox.value)">
+                <mat-form-field floatLabel="never">
+                    <input matInput #prefixBox placeholder="Enter Prefix" value="{{selectedMetric.configuration.bigNum.prefix}}" (keyup)="KeyedOnPrefixInputBox(prefixBox.value)">
                 </mat-form-field>
             </form>
             <mat-button-toggle-group #prefixGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixSize" (change)="selectedPrefixSize(prefixGroup.value)">
@@ -24,10 +24,10 @@
         </div>
     
         <div class="postfix-container"> 
-            <div> Postfix </div>
+            <div class="text-title"> Postfix </div>
             <form>
-                <mat-form-field >
-                    <input matInput #postfixBox value="{{selectedMetric.configuration.bigNum.postfix}}" (keyup)="KeyedOnPostfixInputBox(postfixBox.value)">
+                <mat-form-field floatLabel="never">
+                    <input matInput #postfixBox placeholder="Enter Postfix" value="{{selectedMetric.configuration.bigNum.postfix}}" (keyup)="KeyedOnPostfixInputBox(postfixBox.value)">
                 </mat-form-field>
             </form>
             <mat-button-toggle-group #postfixGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.postfixSize" (change)="selectedPostfixSize(postfixGroup.value)">
@@ -39,10 +39,10 @@
         </div>
     
         <div class="caption-container">
-            <div> Caption </div> 
+            <div class="text-title"> Caption </div> 
             <form>
-                <mat-form-field >
-                    <input matInput #captionBox value="{{selectedMetric.configuration.bigNum.caption}}" (keyup)="KeyedOnCaptionInputBox(captionBox.value)">
+                <mat-form-field floatLabel="never">
+                    <input matInput #captionBox placeholder="Enter Caption" value="{{selectedMetric.configuration.bigNum.caption}}" (keyup)="KeyedOnCaptionInputBox(captionBox.value)">
                 </mat-form-field>
             </form>
             <mat-button-toggle-group #captionGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.captionSize" (change)="selectedCaptionSize(captionGroup.value)">

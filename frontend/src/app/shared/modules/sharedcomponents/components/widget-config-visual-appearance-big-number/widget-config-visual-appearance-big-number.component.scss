@@ -28,7 +28,42 @@
             padding: 20px;
             // padding-left: 5px;
         }
+
+        .text-container {
+            .text-title {
+                font-weight: bold;
+            }
     
+            .mat-form-field {
+                width: 200px;
+            }
+            
+            form {
+                display: inline-block;
+            }
+    
+            .mat-input-element {
+                padding: 5px;
+            }
+
+            label {
+                &.mat-form-field-label {
+                    padding-top: 5px;
+                    padding-left: 5px;
+                }
+            }
+
+            //Disable Placeholder
+            .mat-form-field-infix {
+                border-top: 0 solid transparent !important;
+            }
+            .mat-form-field-wrapper {
+                padding-bottom: 0 !important;
+            }
+            .mat-form-field-underline {
+                bottom: 0 !important;
+            }
+        }    
         // .selector-container {
         //     display: flex;
         //     flex-direction: column;
@@ -73,5 +108,14 @@
                 border-left: 3px solid #18BDED;
             }
         // } 
+
+        .text-container {
+            .mat-form-field-underline {
+                background-color: transparent;
+            }
+            .mat-input-element {
+                background-color: $chip-bg;
+            }
+        }
     }
 }
