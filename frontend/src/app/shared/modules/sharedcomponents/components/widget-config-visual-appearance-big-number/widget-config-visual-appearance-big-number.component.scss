@@ -3,31 +3,53 @@
 
 @mixin widget-config-visual-appearance-big-number-component-base() {
 
-    .container {
-        display: flex;
-        flex-direction: row;
+    .visual-appearance-configuration-big-number {
+        margin-left: 0px;
+
+        .container {
+            display: flex;
+            flex-direction: row;
+        }
+    
+        .query-side-panel {
+            width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            .mat-button {
+                border-left: 3px solid transparent;
+            }
+            
+        }
+
+        .query-side-panel-title {
+            font-weight: bold;
+            padding: 20px;
+            // padding-left: 5px;
+        }
+    
+        // .selector-container {
+        //     display: flex;
+        //     flex-direction: column;
+        // }
+    
+        .text-container {
+            display: flex;
+            flex-direction: column;   
+        }
+    
+        .text-container > div
+            {
+            margin-bottom:10px;
+            margin-left:10px;
+            margin-right:10px;    
+        }
+    
+        .widget-config-tab.visual-appearance-configuration {
+            // style rules here
+        }
     }
-
-    // .selector-container {
-    //     display: flex;
-    //     flex-direction: column;
-    // }
-
-    .text-container {
-        display: flex;
-        flex-direction: column;   
-    }
-
-    .text-container > div
-        {
-        margin-bottom:10px;
-        margin-left:10px;
-        margin-right:10px;    
-    }
-
-    .widget-config-tab.visual-appearance-configuration {
-        // style rules here
-    }    
 }
 
 @mixin widget-config-visual-appearance-big-number-component-theme($theme-config) {
@@ -38,10 +60,18 @@
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $chip-bg: rgba(map-get($primary, default), .1);
 
-    // .widget-config-tab.visual-appearance-configuration {
-        .is-selected {
-            background-color: map-get($accent, default);
+    .visual-appearance-configuration-big-number {
+        .query-side-panel {
+            background-color: $chip-bg;
         }
-    // } 
+    
+        // .widget-config-tab.visual-appearance-configuration {
+            .is-selected {
+                background-color: map-get($background, background);
+                border-left: 3px solid #18BDED;
+            }
+        // } 
+    }
 }
