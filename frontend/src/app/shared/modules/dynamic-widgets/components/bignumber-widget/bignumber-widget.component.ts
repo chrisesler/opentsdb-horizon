@@ -52,7 +52,6 @@ export class BignumberWidgetComponent implements OnInit {
                 backgroundColor: '#' + String(4 + i) + '0' + String(i) + '0' + String(8 - i) + '0'
             };
             bigNumberMetric.backgroundColorTransparent = this.hexToTransparentHex(bigNumberMetric.backgroundColor);
-            bigNumberMetric.backgroundLuma = this.hexToLuma(bigNumberMetric.backgroundColor);
 
             this.fakeMetrics.push(
                 {
@@ -116,15 +115,6 @@ export class BignumberWidgetComponent implements OnInit {
         });
     }
 
-    hexToLuma(hex: string): number {
-        const bigint = parseInt(hex.substring(1), 16);
-        // tslint:disable:no-bitwise
-        const r = (bigint >> 16) & 255;
-        const g = (bigint >> 8) & 255;
-        const b = bigint & 255;
-        return 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
-    }
-
     hexToTransparentHex(hex: string): string {
         return hex + '80'; // 80 is 50% in hex
     }
@@ -164,7 +154,7 @@ export class BignumberWidgetComponent implements OnInit {
 
 }
 
-class IBigNumberMetric {
+interface IBigNumberMetric {
     bigNumber: number;
 
     value?: string; //max, min, average, latest
@@ -180,8 +170,5 @@ class IBigNumberMetric {
 
     textColor: string;
     backgroundColor: string;
-
-    // calculate from background color
     backgroundColorTransparent?: string;
-    backgroundLuma?: number;
 }
