@@ -87,17 +87,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         // ready to handle request from children of DashboardModule
         this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
-            //  console.log('listen to: ', JSON.stringify(message));
             switch (message.action) {
-                case 'viewEditMode':
-                    //this.store.dispatch(new dashboardActions.SetViewEditMode(message.payload));
+                case 'updateDashboardMode':
+                    // when click on view/edit mode, update db setting state of the mode
+                    this.store.dispatch(new UpdateMode(message.payload));
                     break;
                 case 'removeWidget':
                     //this.store.dispatch(new dashboardActions.RemoveWidget(message.payload));
                     this.rerender = { 'reload': true };
                     break;
                 case 'closeViewEditMode':
-                    //this.store.dispatch(new dashboardActions.SetViewEditMode(message.payload));
+                    this.store.dispatch(new UpdateMode(message.payload));
                     this.rerender = { 'reload': true };
                     break;
                 case 'getQueryData':
