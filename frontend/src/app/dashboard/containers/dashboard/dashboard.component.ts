@@ -140,64 +140,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
         });
 
-        // after success loaded dashboard, assigned widgets
-        /*
-        this.widgets$.subscribe(widgets => {
-            console.log('widgets$ is calling');   
-            this.widgets = widgets;
-        });
-        */
-        // when an widget is updated by getting raw data, based on its component type
-        // we need to transform data to its data format to required format of wdget visualization to render
-        // transormation can be done here in dashboad service and passing back to data.
-        // or should it be done when setting state?
-        /*
-        this.updatedWidgetId$.subscribe(wid => {
-            for (let i = 0; i < this.widgets.length; i++) {
-                if (this.widgets[i].id === wid) {
-                    this.interCom.responsePut({
-                        id: wid,
-                        action: 'updatedWidget',
-                        payload: this.widgets[i]
-                    });
-                    break;
-                }
-            }
-        });
-        */
-       // when the data is updated, store will update, we use this selector to listen to
-       // update from store after getting data for each group, at this point return rawdata
-       // is already added to state
-       /*
-       this.updatedWidgetGroup$.subscribe(wg => {
-            console.log('updateWidgetGroup$ calling', wg);
-           // only ask widget to tranform data if they not did it yes
-           if (wg.widgetId && wg.widgetId !== '' && wg.groupId && wg.groupId !== '') {
-            for (let i = 0; i < this.widgets.length; i++) {
-                if (this.widgets[i].id === wg.widgetId) {
-                    this.interCom.responsePut({
-                     id: wg.widgetId,
-                     action: 'updatedWidgetGroup',
-                     payload: wg.groupId
-                    });
-                    break;
-                }
-            }
-           }
-       });
-       */
-        // sending down view edit mode to handle size
-        /*
-        this.viewEditMode$.subscribe(payload => {
-            console.log('viewEditMode$ calling', payload);
-            this.viewEditMode = payload.editMode;
-                this.interCom.responsePut({
-                id: payload.widgetId,
-                action: 'viewEditWidgetMode',
-                payload: payload
-            });
-        });
-        */
         this.auth$.subscribe(auth => {
             console.log('auth$ calling', auth);
             if (auth === 'invalid') {
@@ -270,10 +212,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     click_deleteDashboard(event: any) {
         console.log('EVT: DELETE DASHBOARD', event);
     }
-
-    /**
-     * On Destroy
-     */
 
     ngOnDestroy() {
         this.listenSub.unsubscribe();
