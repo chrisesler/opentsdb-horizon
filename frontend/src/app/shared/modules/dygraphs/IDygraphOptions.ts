@@ -8,6 +8,7 @@ export interface IDygraphOptions {
     drawPoints?: boolean;
     file?: any;
     legend?: "follow" | "always" | "never" | "onmouseover";
+    logscale?: boolean;
     stackedGraph: boolean;
     hightlightCircleSize?: number;
     strokeWidth?: number;
