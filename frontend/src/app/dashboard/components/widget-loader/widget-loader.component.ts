@@ -65,21 +65,24 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         (<WidgetComponentModel>this._component.instance).editMode = false;
     }
 
-    /**
-     * BEHAVIORS
-     */
-
+    // when user clicks on view-edit
     // emit component factory and config for edit/view full mode
     widgetView() {
         this.viewComponent.emit({
             'compFactory': this.componentFactory,
             'widget': this.widget
         });
-        // request to send in to indicate which widget in editmode
+        // intercom to container to update state
         this.interCom.requestSend(<IMessage> {
+            action: 'updateDashboardMode',
+            payload: 'edit'
+        });
+        // request to send in to indicate which widget in editmode
+        /*this.interCom.requestSend(<IMessage> {
             action: 'viewEditMode',
             payload: {editMode: true, widgetId: this.widget.id }
         });
+        */
     }
 
     widgetClone() {
