@@ -77,12 +77,6 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
             action: 'updateDashboardMode',
             payload: 'edit'
         });
-        // request to send in to indicate which widget in editmode
-        /*this.interCom.requestSend(<IMessage> {
-            action: 'viewEditMode',
-            payload: {editMode: true, widgetId: this.widget.id }
-        });
-        */
     }
 
     widgetClone() {
