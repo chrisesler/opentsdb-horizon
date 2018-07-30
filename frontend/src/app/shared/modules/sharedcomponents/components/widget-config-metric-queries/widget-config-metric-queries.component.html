@@ -39,7 +39,7 @@
         </div>
         <span class="flex-spacer"></span>
         <div class="toolbar-item">
-            <mat-slide-toggle (change)="toggle_displayGroupsIndividually($event)">Display groups individually</mat-slide-toggle>    
+            <mat-slide-toggle (change)="toggle_displayGroupsIndividually($event)"><span class="mat-caption">Display groups individually</span></mat-slide-toggle>    
         </div>
     </mat-toolbar-row>
 </mat-toolbar>
@@ -113,9 +113,9 @@
                             </span>
                         </div>
                         <div class="metric-tags">
-                            <strong>Tags</strong>
+                            <strong>Tags:</strong>
                             <mat-chip-list>
-                                <mat-chip *ngFor="let tag of metric.tags"><strong>{{ tag.key }}:</strong> <span>{{ tag.value }}</span></mat-chip>
+                                <mat-basic-chip *ngFor="let tag of metric.tags"><span>{{ tag.key }}:</span> <strong>{{ tag.value }}</strong></mat-basic-chip>
                             </mat-chip-list>
                         </div>
                     </div>

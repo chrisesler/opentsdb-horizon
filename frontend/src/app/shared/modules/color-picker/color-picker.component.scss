@@ -1,0 +1,112 @@
+@mixin color-picker-component-base() {
+
+  .cp {
+
+    .mat-raised-button { //main button
+      padding: 0px;
+      width: 146px;
+    }
+
+    .btn-picker { //wrapper for button content
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .color-sample {
+      height: 18px;
+      width: 18px;
+      margin: 0px;
+      margin-right: 5px;
+      margin-left: 5px;
+      margin-top: 10px;
+      display: inline-block;
+      border-radius: 5px;
+    }
+
+    .color-hex { //text
+      flex: 1;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    mat-icon { //down arow
+      margin-top: 10px;
+      font-size: 16px;
+    }
+      
+    .card {
+      width: 146px;
+    }
+    
+    .grid-container {
+      display: grid;
+      grid-template-columns: 22px 22px 22px 22px 22px;
+      grid-column-gap: 6px;
+      grid-row-gap: 0px;
+      padding-left: 2px;
+      padding-top: 2px;
+    }
+  
+    .grid-item { 
+      width: 28px;
+      border: 2px solid transparent;
+    }
+    
+    .default-color-button { //the default color buttons
+      border-radius: 5px;
+      width: 22px;
+      height: 22px;
+      outline: none;
+      border: 2px solid transparent;
+      margin: 1px;
+    }
+    
+    .isSelected {
+      border-radius: 5px;
+    }
+    
+    .toggle { //between default and custom
+      text-align: center;
+      margin-top: 5px;
+      width: 146px;
+      font-family: Helvetica;
+    }
+  }
+}
+
+@mixin color-picker-component-theme($theme-config) {
+
+  /* Theme config parts */
+  $primary: map-get($theme-config, primary);
+  $accent: map-get($theme-config, accent);
+  $warn: map-get($theme-config, warn);
+  $foreground: map-get($theme-config, foreground);
+  $background: map-get($theme-config, background);
+  $is-dark: map-get($theme-config, is-dark);
+
+  .cp {
+
+    .mat-raised-button{
+      background: #F3F6FE;
+    }
+
+    &.card {
+      background: map-get($background, menu);
+      border-top: 2px solid map-get($primary, default);
+    }
+  
+    .grey-outline { //for white color on palette
+      border: 2px solid if($is-dark, transparent, lightgray);
+    }
+  
+    .isSelected {
+      border: 2px solid map-get($primary, default);
+    }  
+
+    .toggle {
+      border-top: 1px solid map-get($foreground, divider);
+      color: map-get($primary, default);
+    }
+  }
+}
+

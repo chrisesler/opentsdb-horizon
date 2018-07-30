@@ -3,26 +3,24 @@
     <h2>Presets</h2>
     <div class="preset-buttons" fxLayout="row" style="width: 100%;">
         <div class="preset-button" fxFlex="1 1 50px" *ngFor="let preset of presets">
-            <button mat-raised-button color="primary"
-                class="mat-elevation-z0"
-                [ngClass]="{'is-selected': presetSelected == preset}"
-                (click)="togglePreset(preset)">{{preset.buttonName}}</button>
+            <!-- preset buttons  -->
+            <button mat-raised-button color="primary" 
+                [matMenuTriggerFor]="presetKeypad" 
+                (click)="togglePreset(preset)" class="nav-bar-dropmenu time-picker-menu"
+                [ngClass]="{'is-selected': presetSelected == preset}">
+                {{preset.buttonName}}
+            </button>
+            <!-- keypad -->
+            <mat-menu [overlapTrigger]="false" #presetKeypad="matMenu" class="preset-picker-menu" [xPosition]="preset.name == 'year' ? 'before' : 'after'">
+                <div class="preset-picker-container">
+                    <keypad (amountSelected)="presetAmountReceived($event)" 
+                            [disableKeysAt9]="preset.name == 'quarter' ? true : false"
+                            [disableKeysAt3]="preset.name == 'year' ? true : false"> 
+                    </keypad>
+                </div>
+            </mat-menu>
         </div>
     </div>
-    <!--<mat-grid-list cols="6">
-        <mat-grid-tile *ngFor="let preset of presets">
-            <button mat-stroked-button color="primary" (click)="togglePreset(preset)" [class.is-selected]="this.presetSelected == preset">{{preset.buttonName}}</button>
-        </mat-grid-tile>
-    </mat-grid-list>-->
-
-    <mat-grid-list cols="1" rowHeight="160px" *ngIf="this.presetSelected">
-        <mat-grid-tile>
-            <span>
-                <keypad (amountSelected)="presetAmountReceived($event)" [disableHighKeys]="this.presetSelected.name == 'year' ? true : false">
-                </keypad>
-            </span>
-        </mat-grid-tile>
-    </mat-grid-list>
 </div>
 
 <div class="dtpicker-start">
@@ -75,4 +73,3 @@
 </div>
 
   <!-- <div class="time-range"><b>Time range:</b> {{startTimeSelected}} <b>to</b> {{endTimeSelected}}</div> -->
-

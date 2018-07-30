@@ -1,7 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '../material/material.module';
 import { FormsModule } from '@angular/forms';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule, MatIconModule, MatMenuModule,
+  MatTooltipModule, MatGridListModule, MatCardModule,
+  MatFormFieldModule } from '@angular/material';
 
 import { TimeRangePickerComponent } from './components/time-range-picker/time-range-picker.component';
 import { DayTimeCalendarComponent } from './components/day-time-calendar/day-time-calendar.component';
@@ -23,7 +26,14 @@ import { KeypadComponent } from './components/keypad/keypad.component';
   imports: [
     CommonModule,
     FormsModule,
-    MaterialModule
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatTooltipModule,
+    MatGridListModule,
+    MatCardModule,
+    MatFormFieldModule,
+    FlexLayoutModule
   ],
   declarations: [
       TimePickerComponent,

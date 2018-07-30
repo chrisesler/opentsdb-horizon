@@ -17,6 +17,7 @@
 @import 'shared/modules/dynamic-widgets/dynamic-widgets.style-module';
 @import 'shared/modules/sharedcomponents/sharedcomponents.style-module';
 @import 'shared/modules/date-time-picker/date-time-picker.style-module';
+@import 'shared/modules/color-picker/color-picker.style-module';
 
 // [ STEP 2 ] - ADD MODULE'S BASE MIXINS (aka structure)
 @mixin app-core() {
@@ -28,6 +29,7 @@
     @include dynamic-widgets-module-core();
     @include sharedcomponents-module-core();
     @include date-time-picker-module-core();
+    @include color-picker-module-core();
 }
 
 // [ STEP 3 ] - ADD MODULES'S THEME MIXINS (aka look-n-feel)
@@ -40,4 +42,5 @@
     @include dynamic-widgets-module-theme($theme-config);
     @include sharedcomponents-module-theme($theme-config);
     @include date-time-picker-module-theme($theme-config);
+    @include color-picker-module-theme($theme-config);
 }

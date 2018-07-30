@@ -10,8 +10,8 @@ export class KeypadComponent implements OnInit {
     @HostBinding('class.dtp-keypad') private _hostClass = true;
 
     @Output() amountSelected = new EventEmitter<String>();
-    // tslint:disable-next-line:no-inferrable-types
-    @Input() disableHighKeys: boolean = true;
+    @Input() disableKeysAt3: boolean = false;
+    @Input() disableKeysAt9: boolean = false;
 
     constructor() { }
 
@@ -19,7 +19,6 @@ export class KeypadComponent implements OnInit {
     }
 
     clicked(amount: string) {
-        // if(this.disableHighKeys )
         this.amountSelected.emit(amount);
     }
 }
