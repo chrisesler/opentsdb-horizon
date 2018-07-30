@@ -48,9 +48,28 @@
 
             label {
                 &.mat-form-field-label {
-                    padding-top: 5px;
-                    padding-left: 5px;
+                    padding-top: 10px;
+                    padding-left: 10px;
                 }
+            }
+
+            mat-button-toggle-group {
+                top: -5px;
+                box-shadow: none;
+            }
+
+            mat-button-toggle {
+                width: 30px;
+            }
+
+            .mat-button-toggle-button {
+                width: 30px;
+            }
+
+            .mat-button-toggle-label-content {
+                line-height: 25px;
+                padding-left: 5px;
+                padding-right: 5px;
             }
 
             //Disable Placeholder
@@ -80,10 +99,6 @@
             margin-left:10px;
             margin-right:10px;    
         }
-    
-        .widget-config-tab.visual-appearance-configuration {
-            // style rules here
-        }
     }
 }
 
@@ -102,12 +117,11 @@
             background-color: $chip-bg;
         }
     
-        // .widget-config-tab.visual-appearance-configuration {
-            .is-selected {
-                background-color: map-get($background, background);
-                border-left: 3px solid #18BDED;
-            }
-        // } 
+        .is-selected {
+            // background-color: map-get($background, background);
+            background-color: white;
+            border-left: 3px solid #18BDED;
+        }
 
         .text-container {
             .mat-form-field-underline {
@@ -115,6 +129,10 @@
             }
             .mat-input-element {
                 background-color: $chip-bg;
+            }
+            mat-button-toggle-group {
+                background-color: $chip-bg;
+                border-left: 1px solid lightgrey;
             }
         }
     }
