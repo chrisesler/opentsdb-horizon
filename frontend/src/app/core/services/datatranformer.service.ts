@@ -8,16 +8,25 @@ import { isArray } from 'util';
 export class DatatranformerService {
 
   constructor() { }
+
+  dataTranform(rawdata: any, source: string, dest: string) {
+    if (source === 'opentsdb' && dest === 'dygraphs-lines') {
+      this.opentsbdToDygraph();
+    }
+  }
+
+  opentsbdToDygraph() {
+
+  }
+
 // options will also be update of its labels array
 yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): any {  
+  
   if (normalizedData[0].length === 1) {
     // there is no data in here but default, reset it
     normalizedData = [];
-  } else {
-    // it has data, we need to append new data to exisiting one
-    // it only happens in case of multiple groups on same graph
-
   }
+
   let dpsHash = {};
   // generate a hash for all the keys, might have missing time
   // from multiple metric
@@ -46,7 +55,7 @@ yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): an
     // since they have same time range and downsample
     if (!isArray(normalizedData[idx])) {
       // convert to milisecond
-      normalizedData[idx] = [dpsMs * 1000];
+      normalizedData[idx] = [new Date(dpsMs * 1000)];
     }
     for (let k in result) {
       let g = result[k];
