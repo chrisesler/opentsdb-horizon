@@ -137,16 +137,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             });
         }
     }
-
-    /**
-     * Behaviors
-     */
-
     // request send to update state to close edit mode
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
             action: 'closeViewEditMode',
-            payload: { editMode: false, widgetId: ''}
+            payload: 'dashboard'
         });
     }
 
