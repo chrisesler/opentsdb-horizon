@@ -27,4 +27,14 @@ export class UtilsService {
     //return dashboard;
   }
 
+  // searches an array of objects for a specify key value and
+  // returns the matched object
+  getObjectByKey(objs, key, value ) {
+    for (let i = 0; i < objs.length; i++ ) {
+        if ( objs[i][key] === value ) {
+            return objs[i];
+        }
+    }
+  }
+
 }

@@ -102,7 +102,7 @@ export class HttpService {
       },
       {
         id: 'multigroup',
-        gridPos: { x: 0, y: 6, w: 12, h: 5 },
+        gridPos: { x: 0, y: 6, w: 6, h: 5 },
         settings: {
           title: 'my widget third title',
           component_type: 'LinechartWidgetComponent',
@@ -165,7 +165,122 @@ export class HttpService {
             }
           ]
         }
-      }      
+      },
+      {
+        id: 'bar',
+        gridPos: { x: 6, y: 6, w: 6, h: 5 },
+        settings: {
+          title: 'Bar Chart',
+          component_type: 'BarchartWidgetComponent',
+          data_source: 'yamas'
+        },
+        query: {
+          start: '1h-ago',
+          end: '',
+          downsample: '60m-avg-nan',
+          groups: [
+            {
+              id: 'werd',
+              title: 'group 1',
+              visual:  [
+                      {
+                          color: "red",
+                          aggregator: "Avg",
+                          stackLabel: "S1"
+                      },
+                      {
+                          color: "orange",
+                          aggregator: "Avg",
+                          stackLabel: "S2"
+                      },
+                      {
+                          color: "yellow",
+                          aggregator: "Avg",
+                          stackLabel: "S3"
+                      },
+                      {
+                          color: "green",
+                          aggregator: "Avg",
+                          stackLabel: "S4"
+                      },
+                      {
+                          color: "blue",
+                          aggregator: "Avg",
+                          stackLabel: "S5"
+                      }
+                ],
+              queries: [
+                {
+                    aggregator: 'zimsum',
+                    explicitTags:false,
+                    downsample: '1m-avg-nan',
+                    metric:'Flickr.WWW.apache_latency',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.WWW-BOTS.apache_latency',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.UPLOAD.apache_latency',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.UPLOAD-Pool.apache_latency',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.UPLOAD-Video.apache_latency',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1
+                }
+              ]
+            }
+
+          ]
+        }
+      }
     ]
   };
 

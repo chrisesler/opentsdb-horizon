@@ -1,5 +1,5 @@
-<div class="widget-output-container">
-    <div class="widget-title" *ngIf="editMode" fxLayout="row">
+<div class="widget-output-container" fxLayout="column" #testing style="max-height: 100%">
+    <div class="widget-title" *ngIf="editMode" fxLayout="row" fxFlex="1 1 30px">
         <span fxFlex="1 1 100%">{{ widget.config.title }}</span>
         <span>
             <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
@@ -7,11 +7,11 @@
             </button>
         </span>
     </div>
-    <div class="widget-output">
+    <div class="widget-output" #widgetoutput>
         <div id="container" [style.width]="width" [style.height]="height">
             <canvas id="canvas" 
                 chartjs
-                [chartType]="'doughnut'"
+                [chartType]="'bar'"
                 [data]="data"
                 [options]="options"
                 ></canvas>
@@ -22,7 +22,7 @@
 <div class="widget-controls-container" *ngIf="editMode">
     <!-- tabs with config content -->
     <mat-tab-group class="widget-configs" [@.disabled]="'true'">
-        <mat-tab label="Queries">
+        <mat-tab label="Queries" class="test">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent>
                 <widget-config-metric-queries [widget]="widget"></widget-config-metric-queries>
@@ -71,8 +71,7 @@
     </mat-tab-group>
     <div class="widget-actions">
         <!-- controls to save/cancel -->
-        <button mat-raised-button color="primary" class="mat-elevation-z0">Save</button>
+        <button mat-raised-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Apply</button>
         <button mat-stroked-button color="primary" class="mat-elevation-z0">Cancel</button>
     </div>
 </div>
-    
