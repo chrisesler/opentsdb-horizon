@@ -3,6 +3,11 @@
 
 @mixin widget-config-visual-appearance-big-number-component-base() {
 
+    // #colors {
+    //     height: 136px;
+    // }
+
+
     .visual-appearance-configuration-big-number {
         margin-left: 0px;
 
@@ -109,12 +114,13 @@
 
         .color-container {
 
+            
             mat-button-toggle-group {
                 box-shadow: none;
             }
             .card {
                 &.cp{
-                    padding-left: 12px;
+                    margin-left: 12px;
                     background: transparent;
                 }
             }
