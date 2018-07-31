@@ -3,7 +3,13 @@
     <div class="query-side-panel">
         <div class="query-side-panel-title">Select a query </div>
         <div *ngFor="let metric of widget">
-            <button mat-button [ngClass]="{'is-selected': metric == selectedMetric}" (click)="setSelectedMetric(metric)"> {{metric.metric}} </button>
+            <button mat-button [ngClass]="{'is-selected': metric == selectedMetric}" (click)="setSelectedMetric(metric)"> 
+                <div class="grid-item"  [style.background-color]="metric.configuration.bigNum.backgroundColor"
+                                        [style.color]="metric.configuration.bigNum.textColor">
+                    {{metric.configuration.bigNum.shorthand}}
+            </div>
+                {{metric.metric}} 
+            </button>
         </div>
     </div>
 

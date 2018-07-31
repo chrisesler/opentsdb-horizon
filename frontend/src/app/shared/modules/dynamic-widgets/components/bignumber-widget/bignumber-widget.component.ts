@@ -49,7 +49,8 @@ export class BignumberWidgetComponent implements OnInit {
                 postfixSize: 'm',
                 captionSize: 's',
                 textColor: '#ffffff',
-                backgroundColor: '#' + String(4 + i) + '0' + String(i) + '0' + String(8 - i) + '0'
+                backgroundColor: '#' + String(4 + i) + '0' + String(i) + '0' + String(8 - i) + '0',
+                shorthand: 'm' + String(i + 1)
             };
             bigNumberMetric.backgroundColorTransparent = this.hexToTransparentHex(bigNumberMetric.backgroundColor);
 
@@ -171,4 +172,5 @@ interface IBigNumberMetric {
     textColor: string;
     backgroundColor: string;
     backgroundColorTransparent?: string;
+    shorthand?: string;
 }
