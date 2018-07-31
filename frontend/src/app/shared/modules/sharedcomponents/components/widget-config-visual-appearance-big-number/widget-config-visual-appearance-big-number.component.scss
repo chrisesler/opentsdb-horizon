@@ -45,7 +45,7 @@
             }
     
             .mat-input-element {
-                padding: 5px;
+                padding: 7px;
             }
 
             label {
@@ -56,8 +56,9 @@
             }
 
             mat-button-toggle-group {
-                top: -5px;
+                top: -7px;
                 box-shadow: none;
+                padding: 2px;
             }
 
             mat-button-toggle {
@@ -144,6 +145,19 @@
             mat-button-toggle-group {
                 background-color: $chip-bg;
                 border-left: 1px solid lightgrey;
+            }
+
+            .mat-button-toggle {
+                // border-bottom: 2px solid  transparent;
+                background-color: transparent;
+                color: #18BDED;
+                // box-shadow: none;
+            }
+
+            .mat-button-toggle-checked {
+                // border-bottom: 2px solid  #18BDED;
+                color: darkgray;
+                background: white;
             }
         }
 
