@@ -3,7 +3,7 @@ import { IntercomService, IMessage } from '../../../../../core/services/intercom
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 
 import { Subscription } from 'rxjs/Subscription';
-import { WidgetModel } from '../../../../../dashboard/state/dashboard.state';
+import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 
 @Component({
   selector: 'app-barchart-widget',
@@ -55,26 +55,26 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     ngOnInit() {
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+            if ( message.action === 'resizeWidget' ) {
+                // we get the size to update the graph size
+                this.width = message.payload.width * this.widget.gridPos.w - 20 + 'px';
+                this.height = message.payload.height * this.widget.gridPos.h - 60 + 'px';
+            }
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
-                    case 'resizeWidget':
-                        // we get the size to update the graph size
-                        this.width = message.payload.width - 20 + 'px';
-                        this.height = message.payload.height - 60 + 'px';
-                        break;
-                    case 'updatedWidget':
+                    case 'updatedWidgetGroup':
                         console.log('updateWidget', message);
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
                             console.log('widget data', this.widget, message.payload.config);
-                            this.data = this.dataTransformer.yamasToChartJS(this.options, this.widget.config.rawdata);
+                            this.data = this.dataTransformer.yamasToChartJS(this.options, message.payload.rawdata);
                         }
                         break;
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            this.data = this.dataTransformer.yamasToChartJS(this.options, this.widget.config.rawdata);
+                            this.data = this.dataTransformer.yamasToChartJS(this.options, message.payload.rawdata);
                             // resize
                             let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
                             let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
@@ -105,7 +105,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
-                payload: this.widget.config
+                payload: this.widget.query
             });
         }
     }

@@ -38,7 +38,18 @@ export class DashboardService {
     }
   };
 
+  private widgetsConfig = {};
+
   constructor(private utils: UtilsService) { }
+
+
+  setWigetsConfig(conf) {
+    this.widgetsConfig = {...conf};
+  }
+
+  getWidgetConfigById(id) {
+    return this.updateWidgetsDimension[id];
+  }
 
   getWidgetPrototype(): any {
     const widget: any = Object.assign({}, this.widgetPrototype);
@@ -49,7 +60,7 @@ export class DashboardService {
   getDashboardPrototype(): any {
     const dashboard: any = Object.assign({}, this.dashboardProto);
     dashboard.id = this.utils.generateId(8);
-    this.modifyWidgets(dashboard);
+    //this.modifyWidgets(dashboard);
     return dashboard;
   }
 
@@ -66,15 +77,10 @@ export class DashboardService {
     return widgets;
   }
 
-  modifyWidgets(dashboard: any) {
-    // add extra info item behaviors
-    for (let i = 0; i < dashboard.widgets.length; i++) {
-      const wd: any = dashboard.widgets[i];
-      wd.id = this.utils.generateId();
-      const mod = { 'xMd': wd.gridPos.x, 'yMd': wd.gridPos.y, 'dragAndDrop': true, 'resizable': true };
-      wd.gridPos = { ...wd.gridPos, ...mod };
-    }
-  }
+  // we might not need to generate id for widget or group
+  // it should be done at the time of adding into dashboard
+  // this function only here for testing stuff
+ 
 /*
   addNewWidget(widgets: any[]) {
     const widget: any = Object.assign({}, this.widgetPrototype);
@@ -92,6 +98,7 @@ export class DashboardService {
   }
 */
   updateWidgetsDimension(width, height, pWidgets) {
+    /*
     for (let i = 0; i < pWidgets.length; i++) {
       const clientSize = {
         'width': width * pWidgets[i].gridPos.w,
@@ -103,5 +110,6 @@ export class DashboardService {
       pWidgets[i].gridPos.x = pWidgets[i].gridPos.xMd;
       pWidgets[i].gridPos.y = pWidgets[i].gridPos.yMd;
     }
+    */
   }
 }

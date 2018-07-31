@@ -1,0 +1,59 @@
+import { State, Action, StateContext, Selector } from '@ngxs/store';
+import { HttpService } from '../../core/http/http.service';
+
+export interface RawDataModel {
+    lastModifiedWidget: {
+        wid: string,
+        gid: string
+    };
+    data: any;
+}
+
+// action
+// payload includes widgetid, groupid and query obj
+export class GetQueryDataByGroup {
+    public static type = '[Rawdata] Get Query Data By Group';
+    constructor(public readonly payload: any) {}
+}
+
+@State<RawDataModel>({
+    name: 'Rawdata',
+    defaults: {
+        lastModifiedWidget: {
+            wid: '',
+            gid: ''
+        },
+        data: {}
+    }
+})
+
+export class WidgetsRawdataState {
+
+    constructor(private httpService: HttpService) {}
+
+    @Selector() static getRawData(state: RawDataModel) {
+        return {...state};
+    } 
+
+    @Selector() static getLastModifiedWidgetRawdata(state: RawDataModel) {
+        return {...state.data[state.lastModifiedWidget.wid], ...state.lastModifiedWidget};
+    }
+
+    @Selector() static getLastModifiedWidgetRawdataByGroup (state: RawDataModel) {
+        return {rawdata: state.data[state.lastModifiedWidget.wid][state.lastModifiedWidget.gid], ...state.lastModifiedWidget};
+    }
+
+    @Action(GetQueryDataByGroup)
+    getQueryDataByGroup(ctx: StateContext<RawDataModel>, { payload }: GetQueryDataByGroup) {
+        this.httpService.getYamasData(payload.query).subscribe(
+            data => {    
+                console.log('query ==> ',payload.wid, payload.gid, data);                
+                const state = ctx.getState();
+                if (!state.data[payload.wid]) state.data[payload.wid] = {}
+                state.data[payload.wid][payload.gid] = data;
+                state.lastModifiedWidget = { wid: payload.wid, gid: payload.gid};
+                ctx.setState({...state});            
+            }
+        );
+    }
+}
