@@ -16,9 +16,9 @@ import { WidgetLoaderComponent } from '../widget-loader/widget-loader.component'
   selector: 'app-dboard-content',
   templateUrl: './dboard-content.component.html',
   styleUrls: ['./dboard-content.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  encapsulation: ViewEncapsulation.None
 })
+//changeDetection: ChangeDetectionStrategy.OnPush
 export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges {
   @HostBinding('class.app-dboard-content') private _hostClass = true;
 
@@ -28,10 +28,9 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   @Output() widgetsLayoutUpdate = new EventEmitter();
   @Input() widgets: any[];
   @Input() rerender: any;
-  @Input() viewEditMode: boolean;
+  @Input() dashboardMode: string;
 
-  cellHeight = 0;
-  cellWidth = 0;
+  viewEditMode: boolean = false;
 
   gridsterOptions: IGridsterOptions = {
     // core configuration is default one - for smallest view. It has hidden minWidth: 0.
@@ -83,7 +82,11 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     private interCom: IntercomService
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {}
+
+  getWidgetConfig(id) {
+    return this.dbService.getWidgetConfigById(id);
+  }
 
   ngAfterViewInit() {
       // TODO: FOR DEV ONLY
@@ -102,8 +105,12 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     if (changes.rerender && changes.rerender.currentValue.reload) {
       this.gridster.reload();
     }
-    if (changes.viewEditMode && !changes.viewEditMode.currentValue) {
-        this.widgetViewContainer.viewContainerRef.clear();
+
+    if (changes.dashboardMode && changes.dashboardMode.currentValue === 'edit') {
+      this.viewEditMode = true; 
+    } else {
+      this.viewEditMode = false;
+      this.widgetViewContainer.viewContainerRef.clear();
     }
   }
 
@@ -139,26 +146,50 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   // this event will start first and set values of cellWidth and cellHeight
   // then update the this.widgets reference
   gridsterFlow(event: any) {
+    console.log('gridsterFlow is calling and viewEditMode', this.viewEditMode);  
     if (this.viewEditMode) { return; }
     console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
-    this.cellHeight = event.gridsterComponent.gridster.cellHeight;
-    this.cellWidth = event.gridsterComponent.gridster.cellWidth;
-    this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);
-    // console.log('current widget', this.widgets);
-    this.widgetsLayoutUpdate.emit(this.widgets);
+
+    let width = event.gridsterComponent.gridster.cellWidth;
+    let height = event.gridsterComponent.gridster.cellHeight;
+    this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height));
   }
 
   // this event happened when item is dragged or resize
   // we call the function update all since we don't know which one for now.
   // the width and height unit might change but not the cell width and height.
   gridEventEnd(event: any) {
+    console.log('drag-resize event', event);
+    //console.log('gridEventEnd is calling and viewEditMode', this.viewEditMode);  
     if (this.viewEditMode) { return; }
     // console.log(event, event.item.$element.getBoundingClientRect());
     if (event.action === 'resize' || event.action === 'drag') {
-      this.dbService.updateWidgetsDimension(this.cellWidth, this.cellHeight, this.widgets);
-      this.widgetsLayoutUpdate.emit(this.widgets);
-      // console.log('item resize', this.widgets);
+      let width = event.item.itemComponent.gridster.cellWidth;
+      let height = event.item.itemComponent.gridster.cellHeight;
+      this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height));
     }
+  }
+
+  // helper
+  getWigetPosition(width: number, height: number): any {
+    let gridLayout = {
+      clientSize: {
+        width: width,
+        height: height
+      },
+      wgridPos: {}
+    };
+    // position
+    for (let i = 0; i < this.widgets.length; i++) {
+      let w = this.widgets[i];
+      gridLayout.wgridPos[w.id] = {
+        x: w.gridPos.xMd,
+        y: w.gridPos.yMd,
+        w: w.gridPos.w,
+        h: w.gridPos.h
+      }
+    }
+    return gridLayout;
   }
 
 }

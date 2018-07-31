@@ -14,7 +14,8 @@ import { DashboardService } from './services/dashboard.service';
 
 // store
 import { NgxsModule } from '@ngxs/store';
-import { DashboardState } from './state/dashboard.state';
+import { DBState, DBSettingsState, WidgetsState, ClientSizeState,
+         WidgetsConfigState, WidgetsRawdataState } from './state';
 
 // components
 import { DashboardComponent } from './containers/dashboard/dashboard.component';
@@ -28,9 +29,9 @@ import { WidgetDirective } from './directives/widget.directive';
 import { WidgetViewDirective } from './directives/widgetview.directive';
 
 // widget-type component for dynamic load
-import { WidgetbaseComponent } from './widgets/components/widgetbase/widgetbase.component';
-import { WsampleComponent } from './widgets/components/wsample/wsample.component';
-import { LineChartComponent } from './widgets/components/chartjs/line-chart.component';
+//import { WidgetbaseComponent } from './widgets/components/widgetbase/widgetbase.component';
+//import { WsampleComponent } from './widgets/components/wsample/wsample.component';
+//import { LineChartComponent } from './widgets/components/chartjs/line-chart.component';
 
 @NgModule({
     imports: [
@@ -41,7 +42,8 @@ import { LineChartComponent } from './widgets/components/chartjs/line-chart.comp
         GridsterModule,
         SharedcomponentsModule,
         DashboardRoutingModule,
-        NgxsModule.forFeature([DashboardState]),
+        NgxsModule.forFeature([DBState, DBSettingsState, WidgetsState, 
+            ClientSizeState, WidgetsRawdataState]),
         DynamicWidgetsModule
     ],
     declarations: [
@@ -51,18 +53,18 @@ import { LineChartComponent } from './widgets/components/chartjs/line-chart.comp
         WidgetLoaderComponent,
         WidgetDirective,
         WidgetViewDirective,
-        WidgetbaseComponent,
-        WsampleComponent,
-        LineChartComponent,
+        //WidgetbaseComponent,
+        //WsampleComponent,
+        //LineChartComponent,
         ConfigTagsListComponent
     ],
     providers: [
         DashboardService
     ],
     entryComponents: [
-        WidgetbaseComponent,
-        WsampleComponent,
-        LineChartComponent
+        //WidgetbaseComponent,
+        //WsampleComponent,
+        //LineChartComponent
     ]
 })
 export class DashboardModule { }
