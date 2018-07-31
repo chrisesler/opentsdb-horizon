@@ -38,6 +38,8 @@
             text-align: center;
             display: grid;
             grid-gap: 0px;
+            flex-basis: 0;
+            flex-grow: 1;
         }
 
         .one-row {
@@ -54,10 +56,15 @@
 
         .big-number {
             font-size: 96px;
+            padding-left: 5px;
+            padding-right: 5px;
         }
 
         .number-container {
             padding-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .metric-name {
@@ -78,6 +85,10 @@
 
         .xlarge-size {
             font-size: 96px;
+        }
+
+        .caption {
+            padding-top: 20px;
         }
     }
 
