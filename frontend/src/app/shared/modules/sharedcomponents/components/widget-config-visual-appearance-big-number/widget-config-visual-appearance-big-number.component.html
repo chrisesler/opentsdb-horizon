@@ -55,12 +55,15 @@
     </div>
 
     <div class="color-container" *ngIf="selectedMetric">
-        <mat-button-toggle-group #colorGroup="matButtonToggleGroup" [value]="colorType" (change)="selectedColorType(colorGroup.value)">
-            <mat-button-toggle value="background">Background</mat-button-toggle>
-            <mat-button-toggle value="text">Text</mat-button-toggle>
-        </mat-button-toggle-group>
-        <div>
-            <color-picker [overlay]="'false'" (change)="colorChanged($event)" [selectedColor]="colorType == 'text' ? selectedMetric.configuration.bigNum.textColor : selectedMetric.configuration.bigNum.backgroundColor"></color-picker>
+        <div class="text-title"> Color Family </div>
+        <div class="color-picker-container">
+            <mat-button-toggle-group #colorGroup="matButtonToggleGroup" [value]="colorType" (change)="selectedColorType(colorGroup.value)">
+                    <mat-button-toggle value="background">Background</mat-button-toggle>
+                    <mat-button-toggle value="text">Text</mat-button-toggle>
+            </mat-button-toggle-group>
+            <div>
+                <color-picker [overlay]="'false'" (change)="colorChanged($event)" [selectedColor]="colorType == 'text' ? selectedMetric.configuration.bigNum.textColor : selectedMetric.configuration.bigNum.backgroundColor"></color-picker>
+            </div>
         </div>
     </div>
 </div>
