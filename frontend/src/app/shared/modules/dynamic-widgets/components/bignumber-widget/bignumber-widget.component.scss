@@ -4,6 +4,34 @@
     $tab-width: map-get($widgets-common-config, tab-width);
     $action-bar-height: map-get($widgets-common-config, action-bar-height);
 
+    #main-container {
+        max-height: none;
+    }
+
+    bignumber-widget {
+        height: 100%;
+
+        .widget-output-container {
+            height: 100%;
+
+            .widget-container {
+                height: 100%;
+
+                .big-number-container {
+                    height: 100%;
+
+                    .metric-container {
+                        height:  -webkit-calc(100% - 20px);
+
+                        .number-container {
+                            height: 100%;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     .widget-panel-content.bignumber-widget { 
 
         .widget-container {
@@ -33,7 +61,7 @@
         }
 
         .metric-name {
-
+            height: 20px;
         }
 
         .small-size {

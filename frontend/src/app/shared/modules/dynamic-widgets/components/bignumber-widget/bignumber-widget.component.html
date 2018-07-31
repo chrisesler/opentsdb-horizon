@@ -1,4 +1,4 @@
-<div class="widget-output-container" fxLayout="column" #testing>
+<div class="widget-output-container" fxLayout="column" #testing id="main-container">
     <div class="widget-title" *ngIf="editMode" fxLayout="row" fxFlex="1 1 30px">
         <span fxFlex="1 1 100%">{{ widget.config.title }}</span>
         <span>
@@ -12,7 +12,7 @@
         [ngClass]="{'one-row': fakeMetrics.length < 4, 'two-row': fakeMetrics.length == 4}">
     
         <div *ngFor="let metric of fakeMetrics" class="big-number-container">
-            <div [style.background]="metric.configuration.bigNum.backgroundColor">
+            <div class="metric-container" [style.background]="metric.configuration.bigNum.backgroundColor">
                 <div class="number-container" [style.color]="metric.configuration.bigNum.textColor">
                     <span [ngClass]="{'xlarge-size': metric.configuration.bigNum.prefixSize=='xl', 'large-size': metric.configuration.bigNum.prefixSize=='l', 'medium-size': metric.configuration.bigNum.prefixSize=='m', 'small-size': metric.configuration.bigNum.prefixSize=='s'}">{{metric.configuration.bigNum.prefix}}</span>
                     <span class="big-number">{{metric.configuration.bigNum.bigNumber}}</span>
