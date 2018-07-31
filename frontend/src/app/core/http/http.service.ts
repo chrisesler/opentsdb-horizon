@@ -182,12 +182,39 @@ export class HttpService {
             {
               id: 'werd',
               title: 'group 1',
-              visual: {},
+              visual:  [
+                      {
+                          color: "red",
+                          aggregator: "Avg",
+                          stackLabel: "S1"
+                      },
+                      {
+                          color: "orange",
+                          aggregator: "Avg",
+                          stackLabel: "S2"
+                      },
+                      {
+                          color: "yellow",
+                          aggregator: "Avg",
+                          stackLabel: "S3"
+                      },
+                      {
+                          color: "green",
+                          aggregator: "Avg",
+                          stackLabel: "S4"
+                      },
+                      {
+                          color: "blue",
+                          aggregator: "Avg",
+                          stackLabel: "S5"
+                      }
+                ],
               queries: [
                 {
                     aggregator: 'zimsum',
                     explicitTags:false,
-                    metric:'Flickr.search.com.yahoo.titan.vespa.DefaultVespaRepository.vespa.findBy.requests.Count',
+                    downsample: '1m-avg-nan',
+                    metric:'Flickr.WWW.apache_latency',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -198,9 +225,9 @@ export class HttpService {
                 },
                 {
                     aggregator: 'zimsum',
-                    downsample: '60m-avg-nan',
+                    downsample: '1m-avg-nan',
                     explicitTags:false,
-                    metric:'Flickr.search.com.flickr.search.domain.vespa.repository.VespaMediaResponseDeserializer.vespa.totalNumberOfResults.requests.Count',
+                    metric:'Flickr.WWW-BOTS.apache_latency',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -211,9 +238,9 @@ export class HttpService {
                 },
                 {
                     aggregator: 'zimsum',
-                    downsample: '60m-avg-nan',
+                    downsample: '1m-avg-nan',
                     explicitTags:false,
-                    metric:'Flickr.search.com.flickr.search.domain.vespa.repository.VespaMediaResponseDeserializer.vespa.deserializeCollection.requests.Count',
+                    metric:'Flickr.UPLOAD.apache_latency',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -224,9 +251,9 @@ export class HttpService {
                 },
                 {
                     aggregator: 'zimsum',
-                    downsample: '60m-avg-nan',
+                    downsample: '1m-avg-nan',
                     explicitTags:false,
-                    metric:'Flickr.search.com.flickr.search.adapters.rest.SearchRestAdapter./search.requests.Count',
+                    metric:'Flickr.UPLOAD-Pool.apache_latency',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -237,22 +264,9 @@ export class HttpService {
                 },
                 {
                     aggregator: 'zimsum',
-                    downsample: '60m-avg-nan',
+                    downsample: '1m-avg-nan',
                     explicitTags:false,
-                    metric:'Flickr.search.com.flickr.catalog.domain.legacy.media.MediaRepositoryV1.findAll.requests.Count',
-                    rate: false,
-                    rateOptions : {
-                        counter: false,
-                        resetValue: 1
-                    },
-                    counter: false,
-                    resetValue: 1
-                },
-                {
-                    aggregator: 'zimsum',
-                    downsample: '60m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.search.com.flickr.aggregation.adapters.rest.AggregationFrameworkTagsRestAdapter./tags/toptrending/year.requests.Count',
+                    metric:'Flickr.UPLOAD-Video.apache_latency',
                     rate: false,
                     rateOptions : {
                         counter: false,

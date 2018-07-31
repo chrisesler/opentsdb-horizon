@@ -63,37 +63,108 @@ yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): an
     }
   }
   return [...normalizedData];
-} 
+}
 
-    yamasToChartJS( options, result ) {
-        options.scales.xAxes[0].labels = [];
+    yamasToChartJS( chartType, options, vConfig, data, groupData, stacked ) {
+        switch ( chartType ) {
+            case 'bar':
+                return this.getChartJSFormattedDataBar(options, vConfig, data, groupData, stacked);
+            case 'donut':
+                return this.getChartJSFormattedDataDonut(options, vConfig, data, groupData, stacked);
+        }
+    }
+
+    /**
+     * converts data to chartjs bar or stacked bar chart format
+     *
+     * Stacked bar chart - datasets format
+     *   [ dataset-1, dataset-2, .. ] where
+     *   dataset-x format is:
+     *       {
+     *           data: [ {x:"x1", y: 20} , {x:"x2", y: 30}, .. ],
+     *           backgroundColor: '#ccc'
+     *       }
+     *   We wanted to stack based on stack labels.
+     *   So, we are going to generate series for each stack labels.
+     */
+
+    getChartJSFormattedDataBar( options, vConfig, datasets, groupData, stacked ) {
+        const gid = groupData.gid;
+        const rawdata = groupData.rawdata;
+        // stack colors
+        const colors = [];
+
+        options.scales.xAxes[0].stacked = stacked;
+        options.scales.yAxes[0].stacked = stacked;
+
         // generate labels
-        for ( let k in result ) {
-            let g = result[k];
-            let label = 'Stack-' + (+k + 1) ; // Object.values(g.tags).join('-');
-            if (!options.scales.xAxes[0].labels.includes(label)) {
-                options.scales.xAxes[0].labels.push(label);     
+        for ( let i = 0; i < vConfig.length; i++ ) {
+            const label = vConfig[i].stackLabel;
+            const color = vConfig[i].color;
+            if ( (stacked && !options.stackSeries[label]) ) {
+                options.stackSeries[label] =  { label: label, color: color, datasetIndex: Object.keys(options.stackSeries).length };
+                datasets.push( { data: [], backgroundColor: color, label: 'group' } );
+            } else if ( !stacked && !options.labels.includes(label) ) {
+                options.labels.push( label );
+                colors.push(color);
             }
         }
 
-        let datasets:any = [
-                                {
-                                    data: []
-                                }
-                            ];
+        // we want to display bar chart if there is only one group
+        if ( !stacked && !datasets.length ) {
+            datasets.push ( { data: [], backgroundColor: colors } );
+        } else if ( stacked ) {
+            options.labels.push(gid);
+        }
 
-        if ( result ) {
-            for ( let i = 0; i < result.length; i++ ) {
-                let mData: any = result[i].dps;
-                let sum = 0; 
-                const n = Object.keys(mData).length;
-                for ( let k in mData ) {
+        // set dataset values
+        for ( let i = 0; i < rawdata.length; i++ ) {
+            const mData: any = rawdata[i].dps;
+            let sum = 0;
+            const n = Object.keys(mData).length;
+            for ( let k in mData ) {
+                if (!isNaN(mData[k])) {
                     sum += mData[k];
                 }
-                datasets[0].data.push ( sum / n  );
+            }
+            const label = stacked ? gid : vConfig[i].stackLabel;
+            const dsIndex = stacked ? options.stackSeries[vConfig[i].stackLabel].datasetIndex : 0;
+            console.log()
+            datasets[dsIndex].data.push( { x: label, y: sum }  );
+        }
+        return [...datasets];
+    }
+
+    getChartJSFormattedDataDonut(options, vConfig, datasets, groupData, stacked) {
+        const gid = groupData.gid;
+        const rawdata = groupData.rawdata;
+        // stack colors
+        const colors = [];
+        options.labels = [];
+
+        // generate labels
+        for ( let i = 0; i < vConfig.length; i++ ) {
+            const label = vConfig[i].stackLabel;
+            if (!options.labels.includes(label)) {
+                options.labels.push(label);
             }
         }
-        return Object.assign(datasets);
+
+        datasets = [ {data: [], backgroundColor: []} ];
+        // set dataset values
+        for ( let i = 0; i < rawdata.length; i++ ) {
+            const mData: any = rawdata[i].dps;
+            let sum = 0;
+            const n = Object.keys(mData).length;
+            for ( let k in mData ) {
+                if (!isNaN(mData[k])) {
+                    sum += mData[k];
+                }
+            }
+            datasets[0].data.push( sum );
+            datasets[0].backgroundColor.push(vConfig[i].color);
+        }
+        return [...datasets];
     }
 
   // build opentsdb query base on this of full quanlify metrics for exploer | adhoc

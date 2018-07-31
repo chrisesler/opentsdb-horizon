@@ -8,8 +8,14 @@
         </span>
     </div>
     <div class="widget-output">
-        <!-- Where the graph, or whatever lives -->
-        <strong>THIS IS A DONUT CHART WIDGET PLACEHOLDER.</strong>
+        <div id="container" [style.width]="width" [style.height]="height">
+            <canvas id="canvas" 
+                chartjs
+                [chartType]="'doughnut'"
+                [data]="data"
+                [options]="options"
+                ></canvas>
+        </div>
     </div>
 </div>
 <!-- NOTE: This needs to move to other component -->

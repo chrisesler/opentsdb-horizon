@@ -1,6 +1,7 @@
 import { Component, OnInit, OnChanges, AfterViewInit, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
+import { UtilsService } from '../../../../../core/services/utils.service';
 
 import { Subscription } from 'rxjs/Subscription';
 import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
@@ -37,19 +38,23 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             ],
             xAxes : [
                 {
-                    type: 'category',
-                    labels: []
+                    type: 'category'
                 }
             ]
-        }
+        },
+        // not part of chartjs config. this config will be used for bar, doughnut and pie charts
+        labels : [ ],
+        // contains stack series details like label, color, datasetIndex
+        stackSeries : []
     };
-    data: any = [ { data: [] } ];
+    data: any = [ ];
     width = '100%';
     height = '100%';
 
     constructor(
         private interCom: IntercomService,
-        private dataTransformer: DatatranformerService
+        private dataTransformer: DatatranformerService,
+        private util: UtilsService
     ) { }
 
     ngOnInit() {
@@ -64,23 +69,22 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                         console.log('updateWidget', message);
-                        if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            console.log('widget data', this.widget, message.payload.config);
-                            this.data = this.dataTransformer.yamasToChartJS(this.options, message.payload.rawdata);
-                        }
+                            const gid = message.payload.gid;
+                            const stacked = this.widget.query.groups.length > 1 ? true : false;
+                            const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+                            console.log('bar widget==>', this.widget, message);
+                            this.data = this.dataTransformer.yamasToChartJS('bar', this.options, config.visual, this.data, { gid: gid, rawdata: message.payload.rawdata } , stacked);
                         break;
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);
-                        if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            this.data = this.dataTransformer.yamasToChartJS(this.options, message.payload.rawdata);
+                            //this.data = this.dataTransformer.yamasToChartJS('bar', this.options, message.payload.rawdata);
                             // resize
                             let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
                             let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
                             this.width = nWidth - 20 + 'px';
                             this.height = nHeight - 60 + 'px';
-                        }
                         break;
                 }
             }
@@ -110,4 +114,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    closeViewEditMode() {
+        this.interCom.requestSend(<IMessage>{
+            action: 'closeViewEditMode',
+            payload: true
+        });
+    }
 }

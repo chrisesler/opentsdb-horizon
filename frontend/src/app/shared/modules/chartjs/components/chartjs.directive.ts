@@ -57,6 +57,7 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
         if ( changes ) {
             if ( !this.chart && this.data ) {
                 let ctx = this.element.nativeElement.getContext('2d');
+                this.updateDatasets(this.data);
                 this.chart = new Chart(ctx, {
                     type: this.chartType,
                     options: Object.assign(this.defaultOptions, this.options),
@@ -66,36 +67,42 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                 });
             } else if ( this.chart && changes.data && changes.data.currentValue ) {
                 const data = changes.data.currentValue;
-                this.chart.data.datasets.forEach((dataset) => {
-                    dataset.data.pop();
-                });
-                // sets the background color, border color, width, etc..
-                this.updateDatasets(this.data);
+                this.chart.data.datasets = [];
+                this.updateDatasets(data);
                 data.forEach((dataset, i) => {
-                    this.chart.data.datasets[i] = dataset;
+                    this.chart.data.datasets.push(dataset);
                 });
-                this.chart.options.scales.xAxes[0].labels = this.options.scales.xAxes[0].labels;
+                this.chart.data.labels = this.options.labels;
+                this.chart.options = Object.assign(this.defaultOptions, this.options);
+                console.log("comes here....");
                 this.chart.update(0);
             }
         }
     }
 
+    /**
+     * sets the background color, border color, border width, etc..
+     * @param Array datasets - chartjs datasets
+     */
     updateDatasets(datasets) {
+
         this._meta = {
             colors: this.colors.concat()
         };
+
+        const multiColor = (this.chartType === 'bar' || this.chartType === 'doughnut') && datasets.length === 1 ? true : false;
+
         datasets.forEach((dataset, i) => {
-            this.setColor(dataset);
+            this.setColor(dataset, multiColor ? dataset.data.length : 1 );
         });
+
     }
 
-    setColor(dataset) {
-        if ( this.chartType === 'bar' || this.chartType === 'doughnut') {
-            const colors = dataset.color || this.getColors(dataset.data.length);
+    setColor( dataset, n ) {
+            const colors = dataset.backgroundColor || this.getColors(n);
             dataset.backgroundColor = this.getAlpha(colors.concat([]), 0.5);
             dataset.borderWidth = 1;
             dataset.borderColor = colors;
-        }
     }
 
 

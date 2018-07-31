@@ -4,6 +4,7 @@ import {
     PlaceholderWidgetComponent,
     LinechartWidgetComponent,
     BarchartWidgetComponent,
+    DonutWidgetComponent,
     DeveloperWidgetComponent
 } from '../../shared/modules/dynamic-widgets/components';
 
@@ -19,6 +20,8 @@ export class WidgetService {
                 return LinechartWidgetComponent;
             case 'BarchartWidgetComponent':
                 return BarchartWidgetComponent;
+            case 'DonutWidgetComponent':
+                return DonutWidgetComponent;
             case 'DeveloperWidgetComponent':
                 return DeveloperWidgetComponent;
             default:
