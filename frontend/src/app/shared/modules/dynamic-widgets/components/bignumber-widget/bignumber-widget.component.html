@@ -22,7 +22,7 @@
                     </div>
                 </div>
             </div>
-            <div class="metric-name" [style.background]="metric.configuration.bigNum.backgroundColorTransparent" > {{metric.metric}}</div>
+            <div class="metric-name" [style.background]="metric.configuration.bigNum.backgroundColorTransparent" > {{metric.configuration.bigNum.alias}}</div>
         </div>
     </div>
 </div>
@@ -52,12 +52,13 @@
                     <widget-config-visual-appearance-big-number [widget]="fakeMetrics"></widget-config-visual-appearance-big-number>
                 </ng-template>
             </mat-tab>
-            <!--
+           
             <mat-tab label="Legend">
                 <ng-template matTabContent>
-                    <widget-config-legend [widget]="widget"></widget-config-legend>
+                    <widget-config-legend-big-number [widget]="widget"></widget-config-legend-big-number>
                 </ng-template>
             </mat-tab>
+             <!--
             <mat-tab label="Alerts">
                 <ng-template matTabContent>
                     <widget-config-alerts [widget]="widget"></widget-config-alerts>

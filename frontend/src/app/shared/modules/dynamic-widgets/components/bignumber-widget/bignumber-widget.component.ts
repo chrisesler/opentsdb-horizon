@@ -50,7 +50,9 @@ export class BignumberWidgetComponent implements OnInit {
                 captionSize: 's',
                 textColor: '#ffffff',
                 backgroundColor: '#' + String(4 + i) + '0' + String(i) + '0' + String(8 - i) + '0',
-                shorthand: 'm' + String(i + 1)
+                shorthand: 'm' + String(i + 1),
+                alias: 'app-name.whatever.some_metric_' + String(i + 1),
+                showAlias: true
             };
             bigNumberMetric.backgroundColorTransparent = this.hexToTransparentHex(bigNumberMetric.backgroundColor);
 
@@ -59,8 +61,8 @@ export class BignumberWidgetComponent implements OnInit {
                     id: i,
                     type: 'metric',
                     alias: 'M1',
-                    label: 'Metric_namespace.app-name.whatever.some_metric_' + i,
-                    metric: 'Metric_namespace.app-name.whatever.some_metric_' + i,
+                    label: 'Metric_namespace.app-name.whatever.some_metric_' + String(i + 1),
+                    metric: 'Metric_namespace.app-name.whatever.some_metric_' + String(i + 1),
                     color: 'green',
                     collapsed: false,
                     visible: true,
@@ -173,4 +175,6 @@ interface IBigNumberMetric {
     backgroundColor: string;
     backgroundColorTransparent?: string;
     shorthand?: string;
+    alias?: string;
+    showAlias?: boolean;
 }
