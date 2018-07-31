@@ -76,8 +76,9 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     {text: 'Pink', value: '#FC5AA8'},
     {text: 'White', value: '#FFFFFF'} ];
 
-  // tslint:disable-next-line:no-inferrable-types
+  // tslint:disable:no-inferrable-types
   selectingCustomColor: boolean = false;
+  _colorPickerSelectorHeight: number = 136;
 
   toggleSelector() {
     this.selectingCustomColor = !this.selectingCustomColor;
@@ -243,17 +244,6 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
   }
   private _hideButtons: boolean = false;
 
-  /**
-   * Define new height for the selector
-   */
-  @Input()
-  get colorPickerSelectorHeight(): number {
-    return this._colorPickerSelectorHeight;
-  }
-  set colorPickerSelectorHeight(height: number) {
-    this._colorPickerSelectorHeight = height;
-  }
-  private _colorPickerSelectorHeight: number = 170;
 
   /**
    * Hide the color picker selector
@@ -305,14 +295,15 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
   }
   private _tmpSelectedColor: BehaviorSubject<string>;
 
-  /**
-   * Observable with all the colors used by the user
+   /**
+   * Define new height for the selector
    */
-//   get usedColors$(): Observable<string[]> {
-//     return this.colorPickerService
-//       .getColors()
-//       .pipe(map(colors => (!this._reverseUsedColor ? colors : [...colors].reverse())));
-//   }
+  get colorPickerSelectorHeight(): number {
+    return this._colorPickerSelectorHeight;
+  }
+  set colorPickerSelectorHeight(height: number) {
+    this._colorPickerSelectorHeight = height;
+  }
 
   /**
    * Array of subscriptions from the collections

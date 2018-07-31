@@ -3,27 +3,29 @@
 
 @mixin widget-config-visual-appearance-big-number-component-base() {
 
-    // #colors {
-    //     height: 136px;
-    // }
-
-
     .visual-appearance-configuration-big-number {
         margin-left: 0px;
 
         .container {
             display: flex;
             flex-direction: row;
+            height: 100%;
         }
     
         .query-side-panel {
             width: 250px;
+            height: 100%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-weight: normal;
+            // margin-top: 10px;
 
             .mat-button {
                 border-left: 3px solid transparent;
+                font-weight: normal;
+                display: inline-block;
+                width: 100%;
             }
 
             .grid-item { 
@@ -33,13 +35,14 @@
                 line-height: 24px;
                 text-align: center;
                 border-radius: 2px;
+                font-weight: bold;
               }
         }
 
         .query-side-panel-title {
-            font-weight: bold;
-            padding: 20px;
-            // padding-left: 5px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding-left: 20px;
         }
 
         .text-title {
@@ -47,6 +50,7 @@
         }
 
         .text-container {
+            margin: 10px;
             
     
             .mat-form-field {
@@ -113,7 +117,11 @@
         }
 
         .color-container {
+            margin-top: 10px;
 
+            .color-picker-container {
+                margin-top: 5px;
+            }
             
             mat-button-toggle-group {
                 box-shadow: none;

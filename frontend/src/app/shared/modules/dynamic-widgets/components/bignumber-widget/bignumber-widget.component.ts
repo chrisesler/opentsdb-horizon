@@ -1,6 +1,6 @@
 import { Component, OnInit, HostBinding, Input } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
-import { WidgetModel } from '../../../../../dashboard/state/dashboard.state';
+import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 import {
     WidgetConfigAlertsComponent,
     WidgetConfigAxesComponent,
