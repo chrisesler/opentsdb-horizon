@@ -31,7 +31,7 @@ export class BignumberWidgetComponent implements OnInit {
     /** Local variables */
     // tslint:disable:no-inferrable-types
     fakeMetrics: Array<any> = new Array<any>();
-    numberOfMetrics: number = 3;
+    numberOfMetrics: number = 4;
     _clientHeight: number = 300;
 
     constructor(private interCom: IntercomService) { }
@@ -98,7 +98,7 @@ export class BignumberWidgetComponent implements OnInit {
 
         console.log('**');
         console.log(this.widget);
-        console.log(this.widget.clientSize);
+        console.log(this.widget['clientSize']);
     }
 
     /**

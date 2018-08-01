@@ -9,7 +9,7 @@
     </div>
 
     <div class="widget-container" 
-        [ngClass]="{'one-row': fakeMetrics.length < 4, 'two-row': fakeMetrics.length == 4}">
+        [ngClass]="{'one-item': fakeMetrics.length == 1, 'two-items': fakeMetrics.length == 2, 'three-items': fakeMetrics.length == 3 , 'four-items': fakeMetrics.length == 4}">
     
         <div *ngFor="let metric of fakeMetrics" class="big-number-container">
             <div class="metric-container" [style.background]="metric.configuration.bigNum.backgroundColor">
