@@ -38,13 +38,13 @@ export class BignumberWidgetComponent implements OnInit {
     constructor(private interCom: IntercomService) { }
 
     ngOnInit() {
-        for (let i = 0; i < this.numberOfMetrics; i ++) {
+        for (let i = 0; i < this.numberOfMetrics; i++) {
 
             // tslint:disable-next-line:prefer-const
             let bigNumberMetric: IBigNumberMetric = {
-                bigNumber: '1,234',
+                bigNumber: 1234 * Math.pow(10, i),
                 prefix: '$',
-                postfix: 'M per hour',
+                postfix: 'per hour',
                 caption: 'Monitoring Revenue',
                 prefixSize: 'l',
                 postfixSize: 'm',
@@ -99,6 +99,7 @@ export class BignumberWidgetComponent implements OnInit {
         console.log('**');
         console.log(this.widget);
         console.log(this.widget['clientSize']);
+        console.log(this.numberToKMB(123456));
     }
 
     /**
@@ -128,6 +129,22 @@ export class BignumberWidgetComponent implements OnInit {
        const numOfCols: number = numOfBigNumbers < 4 ? numOfBigNumbers : 2;
        const fontScale: number = (fontScaleMultiple * widgetWidth) / (numOfCols * defaultWidth);
        return fontScale + '%';
+    }
+
+    numberToKMB(num: number): string {
+        const precision: number = 3;
+        let mathSign: string = '';
+
+        if (num < 0) {
+            mathSign = '-';
+            num = Math.abs(num);
+        }
+
+        const postfixAbbrs = ['', 'K', 'M', 'B', 'T', 'Q'];
+        const postfixNum = Math.floor((num.toString().length - 1) / 3); // determine abr index
+        const shortValue = parseFloat((postfixNum !== 0 ? (num / Math.pow(1000, postfixNum)) : num).toPrecision(precision));
+
+        return mathSign + shortValue + postfixAbbrs[postfixNum];
     }
 
     // tslint:disable-next-line:member-ordering
@@ -166,9 +183,9 @@ export class BignumberWidgetComponent implements OnInit {
 }
 
 interface IBigNumberMetric {
-    bigNumber: string;
+    bigNumber: number;
 
-    value?: string; //max, min, average, latest
+    value?: string; // max, min, average, latest
     comparedTo?: number;
 
     prefix?: string;

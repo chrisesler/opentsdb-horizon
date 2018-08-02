@@ -26,7 +26,7 @@
                             'medium-size': metric.configuration.bigNum.prefixSize=='m', 
                             'small-size': metric.configuration.bigNum.prefixSize=='s'
                         }">{{metric.configuration.bigNum.prefix}}</span>
-                        <span class="big-number">{{metric.configuration.bigNum.bigNumber}}</span>
+                        <span class="big-number">{{numberToKMB(metric.configuration.bigNum.bigNumber)}}</span>
                         <span [ngClass]="{
                             'xlarge-size': metric.configuration.bigNum.postfixSize=='xl', 
                             'large-size': metric.configuration.bigNum.postfixSize=='l', 
