@@ -1,4 +1,4 @@
-import { State, Action, StateContext, Selector } from '@ngxs/store';
+import { State, Action, StateContext, Selector, createSelector } from '@ngxs/store';
 import { HttpService } from '../../core/http/http.service';
 
 export interface RawDataModel {
@@ -16,6 +16,8 @@ export class GetQueryDataByGroup {
     constructor(public readonly payload: any) {}
 }
 
+
+
 @State<RawDataModel>({
     name: 'Rawdata',
     defaults: {
@@ -31,9 +33,11 @@ export class WidgetsRawdataState {
 
     constructor(private httpService: HttpService) {}
 
-    @Selector() static getRawData(state: RawDataModel) {
-        return {...state};
-    } 
+    static getWidgetRawdataByID(id: string) {
+        return createSelector([WidgetsRawdataState], (state: RawDataModel) => {
+            return state.data[id];
+        });
+      }
 
     @Selector() static getLastModifiedWidgetRawdata(state: RawDataModel) {
         return {...state.data[state.lastModifiedWidget.wid], ...state.lastModifiedWidget};
@@ -47,7 +51,7 @@ export class WidgetsRawdataState {
     getQueryDataByGroup(ctx: StateContext<RawDataModel>, { payload }: GetQueryDataByGroup) {
         this.httpService.getYamasData(payload.query).subscribe(
             data => {    
-                console.log('query ==> ',payload.wid, payload.gid, data);                
+                //console.log('query ==> ',payload.wid, payload.gid, data);                
                 const state = ctx.getState();
                 if (!state.data[payload.wid]) state.data[payload.wid] = {}
                 state.data[payload.wid][payload.gid] = data;
