@@ -17,7 +17,7 @@ import { MatMenu, MatMenuTrigger } from '@angular/material';
 export class WidgetLoaderComponent implements OnInit, OnChanges {
     @HostBinding('class.widget-loader') private hostClass = true;
     @Input() widget: any;
-    @Output() viewComponent = new EventEmitter<any>();
+    @Output() editComponent = new EventEmitter<any>();
 
     @ViewChild(WidgetDirective) widgetContainer: WidgetDirective;
     @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
@@ -67,8 +67,8 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
 
     // when user clicks on view-edit
     // emit component factory and config for edit/view full mode
-    widgetView() {
-        this.viewComponent.emit({
+    editWidget() {
+        this.editComponent.emit({
             'compFactory': this.componentFactory,
             'widget': this.widget
         });
@@ -101,11 +101,5 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
             action: 'removeWidget',
             payload: { widgetId: this.widget.id }
         });
-    }
-
-    // TODO: FOR DEV ONLY, NEED TO REMOVE
-    // NOTE: TEMPORARY
-    public openWidgetView() {
-        this.widgetView();
     }
 }

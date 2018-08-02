@@ -17,7 +17,7 @@
                 </button>
                 <mat-menu #widgetMenu="matMenu" xPosition="before" class="widget-menu">
                     <ng-container *ngIf="widget.settings.component_type !== 'PlaceholderWidgetComponent'">
-                        <button mat-menu-item (click)="widgetView()">
+                        <button mat-menu-item (click)="editWidget()">
                             <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
                             <span>Edit View</span>
                         </button>
