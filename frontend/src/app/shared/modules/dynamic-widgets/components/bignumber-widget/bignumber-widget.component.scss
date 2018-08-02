@@ -78,6 +78,9 @@
 
         .metric-name {
             height: 20px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
         .small-size {
