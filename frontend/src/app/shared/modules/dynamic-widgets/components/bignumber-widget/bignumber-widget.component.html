@@ -1,6 +1,6 @@
 <div class="widget-output-container" fxLayout="column" #testing id="main-container">
     <div class="widget-title" *ngIf="editMode" fxLayout="row" fxFlex="1 1 30px">
-        <span fxFlex="1 1 100%">{{ widget.config.title }}</span>
+        <span fxFlex="1 1 100%">{{widget.config.title}}</span>
         <span>
             <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
                 <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
@@ -9,20 +9,40 @@
     </div>
 
     <div class="widget-container" 
-        [ngClass]="{'one-item': fakeMetrics.length == 1, 'two-items': fakeMetrics.length == 2, 'three-items': fakeMetrics.length == 3 , 'four-items': fakeMetrics.length == 4}">
-    
+        [ngClass]="{
+            'one-item': fakeMetrics.length == 1, 
+            'two-items': fakeMetrics.length == 2, 
+            'three-items': fakeMetrics.length == 3, 
+            'four-items': fakeMetrics.length == 4
+           }">
         <div *ngFor="let metric of fakeMetrics" class="big-number-container">
             <div class="metric-container" [style.background]="metric.configuration.bigNum.backgroundColor">
                 <div class="number-container" [style.color]="metric.configuration.bigNum.textColor">
-                    <div class="number-wrapper">
-                        <span [ngClass]="{'xlarge-size': metric.configuration.bigNum.prefixSize=='xl', 'large-size': metric.configuration.bigNum.prefixSize=='l', 'medium-size': metric.configuration.bigNum.prefixSize=='m', 'small-size': metric.configuration.bigNum.prefixSize=='s'}">{{metric.configuration.bigNum.prefix}}</span>
+                    <div class="number-wrapper normal-font-scale-col-1"
+                        [style.font-size]="fontSizePercent">
+                        <span [ngClass]="{
+                            'xlarge-size': metric.configuration.bigNum.prefixSize=='xl', 
+                            'large-size': metric.configuration.bigNum.prefixSize=='l', 
+                            'medium-size': metric.configuration.bigNum.prefixSize=='m', 
+                            'small-size': metric.configuration.bigNum.prefixSize=='s'
+                        }">{{metric.configuration.bigNum.prefix}}</span>
                         <span class="big-number">{{metric.configuration.bigNum.bigNumber}}</span>
-                        <span [ngClass]="{'xlarge-size': metric.configuration.bigNum.postfixSize=='xl', 'large-size': metric.configuration.bigNum.postfixSize=='l', 'medium-size': metric.configuration.bigNum.postfixSize=='m', 'small-size': metric.configuration.bigNum.postfixSize=='s'}">{{metric.configuration.bigNum.postfix}}</span>
-                        <div class="caption" [ngClass]="{'xlarge-size': metric.configuration.bigNum.captionSize=='xl', 'large-size': metric.configuration.bigNum.captionSize=='l', 'medium-size': metric.configuration.bigNum.captionSize=='m', 'small-size': metric.configuration.bigNum.captionSize=='s'}">{{metric.configuration.bigNum.caption}}</div>
+                        <span [ngClass]="{
+                            'xlarge-size': metric.configuration.bigNum.postfixSize=='xl', 
+                            'large-size': metric.configuration.bigNum.postfixSize=='l', 
+                            'medium-size': metric.configuration.bigNum.postfixSize=='m', 
+                            'small-size': metric.configuration.bigNum.postfixSize=='s'
+                        }">{{metric.configuration.bigNum.postfix}}</span>
+                        <div class="caption" [ngClass]="{
+                            'xlarge-size': metric.configuration.bigNum.captionSize=='xl', 
+                            'large-size': metric.configuration.bigNum.captionSize=='l', 
+                            'medium-size': metric.configuration.bigNum.captionSize=='m', 
+                            'small-size': metric.configuration.bigNum.captionSize=='s'
+                        }">{{metric.configuration.bigNum.caption}}</div>
                     </div>
                 </div>
             </div>
-            <div class="metric-name" [style.background]="metric.configuration.bigNum.backgroundColorTransparent" > {{metric.configuration.bigNum.alias}}</div>
+            <div class="metric-name" [style.background]="metric.configuration.bigNum.backgroundColorTransparent">{{metric.configuration.bigNum.alias}}</div>
         </div>
     </div>
 </div>

@@ -33,6 +33,7 @@ export class BignumberWidgetComponent implements OnInit {
     fakeMetrics: Array<any> = new Array<any>();
     numberOfMetrics: number = 4;
     _clientHeight: number = 300;
+    fontSizePercent: string = '75%';
 
     constructor(private interCom: IntercomService) { }
 
@@ -41,9 +42,9 @@ export class BignumberWidgetComponent implements OnInit {
 
             // tslint:disable-next-line:prefer-const
             let bigNumberMetric: IBigNumberMetric = {
-                bigNumber: 1234 + i * 10000,
+                bigNumber: '1,234',
                 prefix: '$',
-                postfix: 'per hour',
+                postfix: 'M per hour',
                 caption: 'Monitoring Revenue',
                 prefixSize: 'l',
                 postfixSize: 'm',
@@ -95,7 +96,6 @@ export class BignumberWidgetComponent implements OnInit {
             );
         }
 
-
         console.log('**');
         console.log(this.widget);
         console.log(this.widget['clientSize']);
@@ -120,6 +120,14 @@ export class BignumberWidgetComponent implements OnInit {
 
     hexToTransparentHex(hex: string): string {
         return hex + '80'; // 80 is 50% in hex
+    }
+
+    calcFontSizePercent(widgetWidth: number, numOfBigNumbers: number): string {
+       const defaultWidth: number = 690;
+       const fontScaleMultiple: number = 1.5;
+       const numOfCols: number = numOfBigNumbers < 4 ? numOfBigNumbers : 2;
+       const fontScale: number = (fontScaleMultiple * widgetWidth) / (numOfCols * defaultWidth);
+       return fontScale + '%';
     }
 
     // tslint:disable-next-line:member-ordering
@@ -158,7 +166,7 @@ export class BignumberWidgetComponent implements OnInit {
 }
 
 interface IBigNumberMetric {
-    bigNumber: number;
+    bigNumber: string;
 
     value?: string; //max, min, average, latest
     comparedTo?: number;
