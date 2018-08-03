@@ -123,7 +123,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     // create component using existing widget factory
     const component = viewContainerRef.createComponent(comp.compFactory);
     // we posfix __EDIT__ to original widget id
-    let editWidget = {...comp.widget, id: comp.widget.id + '__EDIT__'};
+    let editWidget = {...comp.widget, id: '__EDIT__' + comp.widget.id};
     console.log('component to edit:', editWidget);
     // assign @input widget
     (<WidgetComponentModel>component.instance).widget = editWidget;
