@@ -35,7 +35,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         connectSeparatedPoints: true,
         drawPoints: false,
         labelsDivWidth: 0,
-        legend: 'never',
+        legend: 'follow',
         logscale: true,
         stackedGraph: this.isStackedGraph,
         hightlightCircleSize: 1,
@@ -55,8 +55,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         private dataTransformer: DatatranformerService
     ) { }
 
-// TODO: should we save normalizedData or rawdata in widget config
-
     ngOnInit() {
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
@@ -73,7 +71,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                     case 'updatedWidgetGroup':                        
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            let rawdata = message.payload.rawdata;                            
+                            let rawdata = message.payload;                                                 
                             this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, rawdata);                                                                                                   
                         }
                         break;
@@ -103,10 +101,15 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 }
             }
         });
-        // initial request data
-        // todo: need to implement cache to not query if the same data
+        // when the widget first loaded in dashboard, we request to get data
+        // when in edit mode first time, we request to get cached raw data.
         if (!this.editMode) {
             this.requestData();
+        } else {
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'getWidgetCachedData'
+            });
         }
     }
 
