@@ -11,6 +11,7 @@ import {
     WidgetConfigTimeComponent,
     WidgetConfigVisualAppearanceComponent
 } from '../../../sharedcomponents/components';
+import kbn from './kbn';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -30,8 +31,8 @@ export class BignumberWidgetComponent implements OnInit {
 
     /** Local variables */
     // tslint:disable:no-inferrable-types
+    numberOfMetrics: number = 4; // 1:150%   2:75%   3:50%   4:75%
     fakeMetrics: Array<any> = new Array<any>();
-    numberOfMetrics: number = 4;
     _clientHeight: number = 300;
     fontSizePercent: string = '75%';
 
@@ -43,7 +44,9 @@ export class BignumberWidgetComponent implements OnInit {
             // tslint:disable-next-line:prefer-const
             let bigNumberMetric: IBigNumberMetric = {
                 bigNumber: 1234 * Math.pow(10, i),
-                prefix: '$',
+                precision: 3,
+                unit: 'currencyUSD', // short
+                prefix: '',
                 postfix: 'per hour',
                 caption: 'Monitoring Revenue',
                 prefixSize: 'l',
@@ -95,11 +98,6 @@ export class BignumberWidgetComponent implements OnInit {
                 }
             );
         }
-
-        console.log('**');
-        console.log(this.widget);
-        console.log(this.widget['clientSize']);
-        console.log(this.numberToKMB(123456));
     }
 
     /**
@@ -131,20 +129,9 @@ export class BignumberWidgetComponent implements OnInit {
        return fontScale + '%';
     }
 
-    numberToKMB(num: number): string {
-        const precision: number = 3;
-        let mathSign: string = '';
-
-        if (num < 0) {
-            mathSign = '-';
-            num = Math.abs(num);
-        }
-
-        const postfixAbbrs = ['', 'K', 'M', 'B', 'T', 'Q'];
-        const postfixNum = Math.floor((num.toString().length - 1) / 3); // determine abr index
-        const shortValue = parseFloat((postfixNum !== 0 ? (num / Math.pow(1000, postfixNum)) : num).toPrecision(precision));
-
-        return mathSign + shortValue + postfixAbbrs[postfixNum];
+    preciseNumber(desc: string, value: number, precision: number) {
+        const numDigitsBeforeDecimal = Math.abs(value).toFixed().toString() === '0' ? 0 : Math.abs(value).toFixed().toString().length;
+        return kbn.valueFormats[desc](value, precision - numDigitsBeforeDecimal, precision - numDigitsBeforeDecimal);
     }
 
     // tslint:disable-next-line:member-ordering
@@ -167,23 +154,24 @@ export class BignumberWidgetComponent implements OnInit {
         }
     ];
 
-        // tslint:disable-next-line:member-ordering
-        fakeGroups: Array<any> = [
-            {
-                id: 'group-0',
-                label: 'Untitled Group',
-                collapsed: false,
-                visible: true,
-                colorFamily: 'green',
-                selectedState: 'none', // none,all,some
-                metrics: this.fakeMetrics,
-            }
-        ];
-
+    // tslint:disable-next-line:member-ordering
+    fakeGroups: Array<any> = [
+        {
+            id: 'group-0',
+            label: 'Untitled Group',
+            collapsed: false,
+            visible: true,
+            colorFamily: 'green',
+            selectedState: 'none', // none,all,some
+            metrics: this.fakeMetrics,
+        }
+    ];
 }
 
 interface IBigNumberMetric {
     bigNumber: number;
+    precision: number;
+    unit: string;
 
     value?: string; // max, min, average, latest
     comparedTo?: number;
