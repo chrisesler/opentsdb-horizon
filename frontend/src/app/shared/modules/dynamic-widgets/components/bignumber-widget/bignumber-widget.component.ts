@@ -98,6 +98,9 @@ export class BignumberWidgetComponent implements OnInit {
                 }
             );
         }
+
+        console.log('**');
+        console.log(this.parseKeywords(this.fakeMetrics[0], '{{tag.colo}} hi {{tag.hostgroup}} (1) (2)'));
     }
 
     /**
@@ -132,6 +135,36 @@ export class BignumberWidgetComponent implements OnInit {
     preciseNumber(desc: string, value: number, precision: number) {
         const numDigitsBeforeDecimal = Math.abs(value).toFixed().toString() === '0' ? 0 : Math.abs(value).toFixed().toString().length;
         return kbn.valueFormats[desc](value, precision - numDigitsBeforeDecimal, precision - numDigitsBeforeDecimal);
+    }
+
+    parseKeywords(metric: any, value: string): string {
+        const regExp = /{{([^}}]+)}}/g; // get chars between {{}}
+        const matches = value.match(regExp);
+        if (matches) {
+            let tagValues = new Array<string>();
+            for (let i = 0; i < matches.length; i++) {
+                const str = matches[i];
+                const tagKey = str.substring(2, str.length - 2).split('.')[1].toLowerCase();
+
+                // get tag values
+                if (tagKey) {
+                    for (let keyValueCombo of metric['tags']) {
+                        if (keyValueCombo['key'] === tagKey) {
+                            tagValues.push(keyValueCombo['value']);
+                        }
+                    }
+                }
+
+                // replace keywords with tag values
+                if (tagValues.length === matches.length) {
+                    for (const tagValue of tagValues) {
+                        value = value.replace(/ *\{\{[^}}]*\}\} */, ' ' + tagValue + ' ');
+                    }
+                }
+            }
+        }
+
+        return value;
     }
 
     // tslint:disable-next-line:member-ordering
