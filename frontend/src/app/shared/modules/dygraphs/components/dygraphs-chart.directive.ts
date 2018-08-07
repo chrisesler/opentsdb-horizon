@@ -27,9 +27,10 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges) {
 
     if(!changes) {
-      console.log('no changes');
+      //console.log('no changes');
       return;
     } else {
+     
       // console.log('changes', new Date().getMilliseconds(), changes);
       // if not then create it
       if(!this._g && this.data) {
@@ -45,7 +46,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
       // if new data
       if (this._g && changes.data && changes.data.currentValue) {
-        // console.log(' call new data', changes.data.currentValue);
+        console.log(' call new data', changes.data.currentValue);
         let ndata = changes.data.currentValue;
         this.options = {...this.options, file: ndata}
         this._g.updateOptions(this.options);

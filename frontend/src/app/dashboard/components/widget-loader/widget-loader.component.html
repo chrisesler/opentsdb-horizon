@@ -10,13 +10,13 @@
     <mat-card-header fxFlex="1 1 28px" fxLayout="row" fxLayoutAlign="stretch stretch" class="panel-heading">
         <mat-toolbar >
             <mat-toolbar-row>
-                <span class="panel-title" *ngIf="widget.config.component_type !== 'PlaceholderWidgetComponent'">{{widget.config.title}}</span>
+                <span class="panel-title" *ngIf="widget.settings.component_type !== 'PlaceholderWidgetComponent'">{{widget.settings.title}}</span>
                 <span class="flex-spacer"></span>
                 <button mat-icon-button [matMenuTriggerFor]="widgetMenu">
                   <mat-icon fontSet="denali" fontIcon="d-more-horizontal"></mat-icon>
                 </button>
                 <mat-menu #widgetMenu="matMenu" xPosition="before" class="widget-menu">
-                    <ng-container *ngIf="widget.config.component_type !== 'PlaceholderWidgetComponent'">
+                    <ng-container *ngIf="widget.settings.component_type !== 'PlaceholderWidgetComponent'">
                         <button mat-menu-item (click)="widgetView()">
                             <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
                             <span>Edit View</span>

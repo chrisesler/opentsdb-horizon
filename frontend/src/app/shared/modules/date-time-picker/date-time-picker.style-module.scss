@@ -26,10 +26,7 @@
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin date-time-picker-module-core() {
-
-    // common first
     @include date-time-picker-common-base();
-
     @include day-calendar-component-base();
     @include date-picker-component-base();
     @include keypad-component-base();
@@ -39,10 +36,7 @@
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
 @mixin date-time-picker-module-theme($theme-config) {
-
-    // common first
     @include date-time-picker-common-theme($theme-config);
-
     @include day-calendar-component-theme($theme-config);
     @include date-picker-component-theme($theme-config);
     @include keypad-component-theme($theme-config);

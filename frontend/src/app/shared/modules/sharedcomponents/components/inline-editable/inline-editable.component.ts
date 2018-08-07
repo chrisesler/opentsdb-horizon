@@ -1,38 +1,83 @@
-import { Component, Input, EventEmitter, Output, ViewChild, Renderer2, ElementRef } from '@angular/core';
+import { Component, Input, EventEmitter, Output, ViewChild, Renderer2, ElementRef, HostListener, HostBinding } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
+import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'inline-editable',
   templateUrl: './inline-editable.component.html',
-  styleUrls: ['./inline-editable.component.scss']
+  styleUrls: []
 })
-export class InlineEditableComponent {
 
-  @Input() name: string;
+export class InlineEditableComponent implements OnInit {
+  @HostBinding('class.inline-editable') private _hostClass = true;
+
   @Input() fieldValue: string;
-  @Input() isRequired: boolean;
   @Input() minLength: number;
   @Input() maxLength: number;
-  @Output() updateValue: EventEmitter<any> = new EventEmitter();
+  @Output() updatedValue: EventEmitter<any> = new EventEmitter();
   @ViewChild('container') container: ElementRef;
 
-  value: any;
+  isRequired: boolean = true;
   isEditView: boolean = false;
+  fieldFormControl: FormControl;
 
   constructor(private renderer: Renderer2) { }
 
-  showEditable() {
-     this.value = this.fieldValue;
-     this.isEditView = true;
+  ngOnInit() {
 
-    // click outside the edit zone
+    if (!this.fieldValue || this.fieldValue.trim().length === 0) {
+      this.fieldValue = 'placeholder';
+    }
+
+    this.fieldFormControl = new FormControl('', []);
+    this.fieldFormControl.setValue(this.fieldValue);
+    let validators: any[] = new Array;
+    validators.push(Validators.required, this.noWhitespaceValidator);
+
+    if (this.minLength) {
+      validators.push(Validators.minLength(this.minLength));
+    }
+    if (this.maxLength) {
+      validators.push(Validators.maxLength(this.maxLength));
+    }
+    this.fieldFormControl.setValidators(validators);
+  }
+
+  noWhitespaceValidator(control: FormControl) {
+    const isWhitespace = (control.value || '').trim().length === 0;
+    const isValid = !isWhitespace;
+    return isValid ? null : { 'whitespace': true };
+  }
+
+  showEditable() {
+    this.isEditView = true;
+
+     // click outside the edit zone
     this.renderer.listen('document', 'click', (event) => {
       if (!this.container.nativeElement.contains(event.target)) {
-        this.isEditView = false;
+        this.resetFormField();
       }
     });
   }
 
   save() {
-    this.updateValue.emit(this.value);
+    if (!this.fieldFormControl.errors) {
+      this.updatedValue.emit(this.fieldFormControl.value);
+      this.fieldValue = this.fieldFormControl.value;
+      this.isEditView = false;
+    }
+  }
+
+  resetFormField() {
+    this.isEditView = false;
+    this.fieldFormControl.setValue(this.fieldValue);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  closeEditIfEscapePressed(event: KeyboardEvent) {
+    const x = event.keyCode;
+    if (x === 27) {
+      this.resetFormField();
+    }
   }
 }

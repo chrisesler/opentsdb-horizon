@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IDygraphOptions } from '../../shared/modules/dygraphs/IDygraphOptions';
+import { isArray } from 'util';
 
 @Injectable({
   providedIn: 'root'
@@ -8,44 +9,163 @@ export class DatatranformerService {
 
   constructor() { }
 
-  // options will also be update of its labels array
-  yamasToDygraph(options: IDygraphOptions, result: any): any {
-    let normalizedData = [];
-    let dpsHash = {};
-    // generate a hash for all the keys, might have missing time
-    // from multiple metric
+  dataTranform(rawdata: any, source: string, dest: string) {
+    if (source === 'opentsdb' && dest === 'dygraphs-lines') {
+      this.opentsbdToDygraph();
+    }
+  }
+
+  opentsbdToDygraph() {
+
+  }
+
+// options will also be update of its labels array
+yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): any {  
+  
+  if (normalizedData[0].length === 1) {
+    // there is no data in here but default, reset it
+    normalizedData = [];
+  }
+
+  let dpsHash = {};
+  // generate a hash for all the keys, might have missing time
+  // from multiple metric
+  for (let k in result) {
+    let g = result[k];
+    // build lable, it's to send exactly duplicate metric
+    let label = g.metric + ':' + Object.values(g.tags).join('-');
+    // only pushing in if not exits, since we use same reference for view/edit
+    if (!options.labels.includes(label)) {
+      options.labels.push(label);     
+    }
+    // extract date of all series to fill it up, 
+    for (let date in g.dps) {
+      dpsHash[date] = true;
+    }
+  }
+  let dpsHashKey = Object.keys(dpsHash);
+  dpsHash = undefined;
+  // sort time in case  new insert somewhere
+  dpsHashKey.sort((a: any, b: any) => {
+    return a - b;
+  });  
+  for (let idx = 0, len = dpsHashKey.length; idx < len; idx++) {
+    let dpsMs: any = dpsHashKey[idx];
+    // if there is more than 1 group of query in widget, we append data from second group.
+    // since they have same time range and downsample
+    if (!isArray(normalizedData[idx])) {
+      // convert to milisecond
+      normalizedData[idx] = [new Date(dpsMs * 1000)];
+    }
     for (let k in result) {
       let g = result[k];
-      // build lable, it's to send exactly duplicate metric
-      let label = g.metric + ':' + Object.values(g.tags).join('-');
-      // only pushing in if not exits, since we use same reference for view/edit
-      if (!options.labels.includes(label)) {
-        options.labels.push(label);     
-      }
-      for (let date in g.dps) {
-        dpsHash[date] = true
-      }
+      (g.dps[dpsMs] !== undefined) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
     }
-    // console.log('dpsHash', dpsHash);
-    let dpsHashKey = Object.keys(dpsHash);
-    dpsHash = undefined;
-    // sort time in case  new insert somewhere
-    dpsHashKey.sort((a: any, b: any) => {
-      return a - b;
-    });
-
-    for (let idx = 0, len = dpsHashKey.length; idx < len; idx++) {
-      let dpsMs: any = dpsHashKey[idx];
-      normalizedData[idx] = [new Date(dpsMs * 1000)];
-      for (let k in result) {
-        let g = result[k];
-        (g.dps[dpsMs] !== undefined) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
-      }
-    }
-    console.log('normalizedData', options.labels, normalizedData);
-    // return normalizedData;
-    return Object.assign(normalizedData);
   }
+  return [...normalizedData];
+}
+
+    yamasToChartJS( chartType, options, vConfig, data, groupData, stacked ) {
+        switch ( chartType ) {
+            case 'bar':
+                return this.getChartJSFormattedDataBar(options, vConfig, data, groupData, stacked);
+            case 'donut':
+                return this.getChartJSFormattedDataDonut(options, vConfig, data, groupData, stacked);
+        }
+    }
+
+    /**
+     * converts data to chartjs bar or stacked bar chart format
+     *
+     * Stacked bar chart - datasets format
+     *   [ dataset-1, dataset-2, .. ] where
+     *   dataset-x format is:
+     *       {
+     *           data: [ {x:"x1", y: 20} , {x:"x2", y: 30}, .. ],
+     *           backgroundColor: '#ccc'
+     *       }
+     *   We wanted to stack based on stack labels.
+     *   So, we are going to generate series for each stack labels.
+     */
+
+    getChartJSFormattedDataBar( options, vConfig, datasets, groupData, stacked ) {
+        const gid = groupData.gid;
+        const rawdata = groupData.rawdata;
+        // stack colors
+        const colors = [];
+
+        options.scales.xAxes[0].stacked = stacked;
+        options.scales.yAxes[0].stacked = stacked;
+
+        // generate labels
+        for ( let i = 0; i < vConfig.length; i++ ) {
+            const label = vConfig[i].stackLabel;
+            const color = vConfig[i].color;
+            if ( (stacked && !options.stackSeries[label]) ) {
+                options.stackSeries[label] =  { label: label, color: color, datasetIndex: Object.keys(options.stackSeries).length };
+                datasets.push( { data: [], backgroundColor: color, label: 'group' } );
+            } else if ( !stacked && !options.labels.includes(label) ) {
+                options.labels.push( label );
+                colors.push(color);
+            }
+        }
+
+        // we want to display bar chart if there is only one group
+        if ( !stacked && !datasets.length ) {
+            datasets.push ( { data: [], backgroundColor: colors } );
+        } else if ( stacked ) {
+            options.labels.push(gid);
+        }
+
+        // set dataset values
+        for ( let i = 0; i < rawdata.length; i++ ) {
+            const mData: any = rawdata[i].dps;
+            let sum = 0;
+            const n = Object.keys(mData).length;
+            for ( let k in mData ) {
+                if (!isNaN(mData[k])) {
+                    sum += mData[k];
+                }
+            }
+            const label = stacked ? gid : vConfig[i].stackLabel;
+            const dsIndex = stacked ? options.stackSeries[vConfig[i].stackLabel].datasetIndex : 0;
+            console.log()
+            datasets[dsIndex].data.push( { x: label, y: sum }  );
+        }
+        return [...datasets];
+    }
+
+    getChartJSFormattedDataDonut(options, vConfig, datasets, groupData, stacked) {
+        const gid = groupData.gid;
+        const rawdata = groupData.rawdata;
+        // stack colors
+        const colors = [];
+        options.labels = [];
+
+        // generate labels
+        for ( let i = 0; i < vConfig.length; i++ ) {
+            const label = vConfig[i].stackLabel;
+            if (!options.labels.includes(label)) {
+                options.labels.push(label);
+            }
+        }
+
+        datasets = [ {data: [], backgroundColor: []} ];
+        // set dataset values
+        for ( let i = 0; i < rawdata.length; i++ ) {
+            const mData: any = rawdata[i].dps;
+            let sum = 0;
+            const n = Object.keys(mData).length;
+            for ( let k in mData ) {
+                if (!isNaN(mData[k])) {
+                    sum += mData[k];
+                }
+            }
+            datasets[0].data.push( sum );
+            datasets[0].backgroundColor.push(vConfig[i].color);
+        }
+        return [...datasets];
+    }
 
   // build opentsdb query base on this of full quanlify metrics for exploer | adhoc
   // defaulf time will be one hour from now

@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 /** Other modules */
 import { MaterialModule } from '../material/material.module';
 import { DygraphsModule } from '../dygraphs/dygraphs.module';
+import { ChartjsModule } from '../chartjs/chartjs.module';
 import { SharedcomponentsModule } from '../sharedcomponents/sharedcomponents.module';
 
 import { PlaceholderWidgetComponent } from './components/placeholder-widget/placeholder-widget.component';
@@ -13,17 +14,20 @@ import { DeveloperWidgetComponent } from './components/developer-widget/develope
 import { BignumberWidgetComponent } from './components/bignumber-widget/bignumber-widget.component';
 import { DonutWidgetComponent } from './components/donut-widget/donut-widget.component';
 import { StatusWidgetComponent } from './components/status-widget/status-widget.component';
+import { BarchartWidgetComponent } from './components/barchart-widget/barchart-widget.component';
 
 @NgModule({
     imports: [
         CommonModule,
         MaterialModule,
         DygraphsModule,
+        ChartjsModule,
         SharedcomponentsModule
     ],
     exports: [
         PlaceholderWidgetComponent,
         LinechartWidgetComponent,
+        BarchartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         DonutWidgetComponent,
@@ -35,11 +39,13 @@ import { StatusWidgetComponent } from './components/status-widget/status-widget.
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         DonutWidgetComponent,
-        StatusWidgetComponent
+        StatusWidgetComponent,
+        BarchartWidgetComponent
     ],
     entryComponents: [
         PlaceholderWidgetComponent,
         LinechartWidgetComponent,
+        BarchartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         DonutWidgetComponent,

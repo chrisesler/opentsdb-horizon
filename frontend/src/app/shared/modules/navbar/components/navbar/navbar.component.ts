@@ -22,24 +22,10 @@ export class NavbarComponent implements OnInit {
   @Input() theme: string;
   @Output() themeChange = new EventEmitter<string>();
 
-  routeLinks: any[];
-  activeLinkIndex = -1;
-
   constructor(
     private router: Router,
     public cdkService: CdkService
-  ) {
-    this.routeLinks = [
-      /*{
-        label: 'Kitchen Sink',
-        link: 'ks'
-      }, */
-      {
-        label: 'Dashboard',
-        link: 'dashboard'
-      }
-    ];
-  }
+  ) {}
 
   ngOnInit() { }
 }

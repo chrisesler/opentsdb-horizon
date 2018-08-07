@@ -1,23 +1,17 @@
-import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-
-// import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
-
+import { Component, OnInit, OnChanges, AfterViewInit, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
-
-import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 import { Subscription } from 'rxjs/Subscription';
+import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 
 @Component({
-    // tslint:disable-next-line:component-selector
-    selector: 'donut-widget',
-    templateUrl: './donut-widget.component.html',
-    styleUrls: ['./donut-widget.component.scss']
+  selector: 'app-barchart-widget',
+  templateUrl: './barchart-widget.component.html',
+  styleUrls: ['./barchart-widget.component.scss']
 })
-
-export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
+export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.linechart-widget') private _componentClass = true;
 
@@ -34,8 +28,26 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     // properties to pass to  chartjs chart directive
 
     options: any  = {
+        scales: {
+            yAxes : [
+                {
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }
+            ],
+            xAxes : [
+                {
+                    type: 'category'
+                }
+            ]
+        },
+        // not part of chartjs config. this config will be used for bar, doughnut and pie charts
+        labels : [ ],
+        // contains stack series details like label, color, datasetIndex
+        stackSeries : []
     };
-    data: any = [ { data: [] } ];
+    data: any = [ ];
     width = '100%';
     height = '100%';
 
@@ -59,15 +71,15 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                         console.log('updateWidget', message);
                             this.isDataLoaded = true;
                             const gid = message.payload.gid;
-                            const stacked = false;
+                            const stacked = this.widget.query.groups.length > 1 ? true : false;
                             const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
                             console.log('bar widget==>', this.widget, message);
-                            this.data = this.dataTransformer.yamasToChartJS('donut', this.options, config.visual, this.data, { gid: gid, rawdata: message.payload.rawdata } , stacked);
+                            this.data = this.dataTransformer.yamasToChartJS('bar', this.options, config.visual, this.data, { gid: gid, rawdata: message.payload.rawdata } , stacked);
                         break;
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);
                             this.isDataLoaded = true;
-                            //this.data = this.dataTransformer.yamasToChartJS('donut', this.options, message.payload.rawdata);
+                            //this.data = this.dataTransformer.yamasToChartJS('bar', this.options, message.payload.rawdata);
                             // resize
                             let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
                             let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
