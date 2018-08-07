@@ -65,7 +65,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                                 height: message.payload.height * this.widget.gridPos.h
                             };
             }
-
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':                        
@@ -74,29 +73,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                             let rawdata = message.payload;                                                 
                             this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, rawdata);                                                                                                   
                         }
-                        break;
-                    // this case might be removed since we now get data by group
-                    // even in case that it has only one group.
-                    case 'updatedWidget':
-                        console.log('updateWidget', message);
-                        if (this.widget.id === message.id) {
-                            this.isDataLoaded = true;
-                            // console.log('widget data', this.widget.id, message.payload.config);
-                            //this.data = this.dataTransformer.yamasToDygraph(this.options, this.widget.data.rawdata);
-                        }
-                        break;
-                    case 'viewEditWidgetMode':
-                        console.log('vieweditwidgetmode', message, this.widget);
-                        /*
-                        if (this.widget.id === message.id) {
-                            this.isDataLoaded = true;
-                            this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, this.widget.data.rawdata);
-                            // resize
-                            let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
-                            let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
-                            this.size = { width: nWidth + 20, height: nHeight - 60 };
-                        }
-                        */
                         break;
                 }
             }
@@ -125,6 +101,14 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     ngAfterViewInit() {
         //console.log('TEST', this.widgetOutputElement.nativeElement.getBoundingClientRect());
+        if(this.editMode) {
+            //update graph content size
+            let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
+            //let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
+            let nHeight = 280;
+            this.size = { width: nWidth, height: nHeight };
+        }
+
     }
 
     /**
