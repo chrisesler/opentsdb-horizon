@@ -98,9 +98,6 @@ export class BignumberWidgetComponent implements OnInit {
                 }
             );
         }
-
-        console.log('**');
-        console.log(this.parseKeywords(this.fakeMetrics[0], '{{tag.colo}} hi {{tag.hostgroup}} (1) (2)'));
     }
 
     /**
@@ -144,10 +141,12 @@ export class BignumberWidgetComponent implements OnInit {
             let tagValues = new Array<string>();
             for (let i = 0; i < matches.length; i++) {
                 const str = matches[i];
-                const tagKey = str.substring(2, str.length - 2).split('.')[1].toLowerCase();
+                const keywordAndKey = str.substring(2, str.length - 2).split('.');
+                const keyword = keywordAndKey[0].toLowerCase().trim();
+                const tagKey = keywordAndKey[1].toLowerCase().trim();
 
                 // get tag values
-                if (tagKey) {
+                if (keyword === 'tag' && tagKey) {
                     for (let keyValueCombo of metric['tags']) {
                         if (keyValueCombo['key'] === tagKey) {
                             tagValues.push(keyValueCombo['value']);
