@@ -134,36 +134,35 @@ export class BignumberWidgetComponent implements OnInit {
         return kbn.valueFormats[desc](value, precision - numDigitsBeforeDecimal, precision - numDigitsBeforeDecimal);
     }
 
-    parseKeywords(metric: any, value: string): string {
+    parseKeywords(metric: any, inputString: string): string {
         const regExp = /{{([^}}]+)}}/g; // get chars between {{}}
-        const matches = value.match(regExp);
+        const matches = inputString.match(regExp);
         if (matches) {
             let tagValues = new Array<string>();
+            let captureGroupToValueMap = {};
             for (let i = 0; i < matches.length; i++) {
-                const str = matches[i];
-                const keywordAndKey = str.substring(2, str.length - 2).split('.');
-                const keyword = keywordAndKey[0].toLowerCase().trim();
-                const tagKey = keywordAndKey[1].toLowerCase().trim();
+                const captureGroup = matches[i];
+                const captureGroupSplit = captureGroup.split('.');
+                const keyword = captureGroupSplit[0].substring(2).toLowerCase().trim();
+                const tagKey = captureGroupSplit[1].substring(0, captureGroupSplit[1].length - 2).toLowerCase().trim();
+                captureGroupToValueMap[captureGroup] = captureGroup;
 
                 // get tag values
                 if (keyword === 'tag' && tagKey) {
                     for (let keyValueCombo of metric['tags']) {
-                        if (keyValueCombo['key'] === tagKey) {
-                            tagValues.push(keyValueCombo['value']);
+                        if (keyValueCombo['key'].toLowerCase() === tagKey) {
+                            captureGroupToValueMap[captureGroup] = keyValueCombo['value'];
                         }
                     }
                 }
 
-                // replace keywords with tag values
-                if (tagValues.length === matches.length) {
-                    for (const tagValue of tagValues) {
-                        value = value.replace(/ *\{\{[^}}]*\}\} */, ' ' + tagValue + ' ');
-                    }
+                // set tag values in string
+                for (const [_captureGroup, tagValue] of Object.entries(captureGroupToValueMap)) {
+                    inputString = inputString.replace(_captureGroup, tagValue.toString());
                 }
             }
         }
-
-        return value;
+        return inputString;
     }
 
     // tslint:disable-next-line:member-ordering
