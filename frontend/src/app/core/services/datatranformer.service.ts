@@ -9,61 +9,55 @@ export class DatatranformerService {
 
   constructor() { }
 
-  dataTranform(rawdata: any, source: string, dest: string) {
-    if (source === 'opentsdb' && dest === 'dygraphs-lines') {
-      this.opentsbdToDygraph();
-    }
-  }
+  // options will also be update of its labels array
+  yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): any {  
 
-  opentsbdToDygraph() {
+    if (normalizedData[0].length === 1) {
+      // there is no data in here but default, reset it
+      normalizedData = [];
+    }
 
-  }
-
-// options will also be update of its labels array
-yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): any {  
-  
-  if (normalizedData[0].length === 1) {
-    // there is no data in here but default, reset it
-    normalizedData = [];
-  }
-
-  let dpsHash = {};
-  // generate a hash for all the keys, might have missing time
-  // from multiple metric
-  for (let k in result) {
-    let g = result[k];
-    // build lable, it's to send exactly duplicate metric
-    let label = g.metric + ':' + Object.values(g.tags).join('-');
-    // only pushing in if not exits, since we use same reference for view/edit
-    if (!options.labels.includes(label)) {
-      options.labels.push(label);     
+    let dpsHash = {};
+    // generate a hash for all the keys, might have missing time
+    // from multiple metric
+    for (let gid in result) {
+      for (let k in result[gid]) {
+        let g = result[gid][k];
+        // build lable, it's to send exactly duplicate metric
+        let label = g.metric + ':' + Object.values(g.tags).join('-');
+        // only pushing in if not exits, since we use same reference for view/edit
+        if (!options.labels.includes(label)) {
+          options.labels.push(label);     
+        }
+        // extract date of all series to fill it up, 
+        for (let date in g.dps) {
+          dpsHash[date] = true;
+        }
+      }
     }
-    // extract date of all series to fill it up, 
-    for (let date in g.dps) {
-      dpsHash[date] = true;
+    let dpsHashKey = Object.keys(dpsHash);
+    dpsHash = undefined;
+    // sort time in case  new insert somewhere
+    dpsHashKey.sort((a: any, b: any) => {
+      return a - b;
+    });  
+    for (let idx = 0, len = dpsHashKey.length; idx < len; idx++) {
+      let dpsMs: any = dpsHashKey[idx];
+      // if there is more than 1 group of query in widget, we append data from second group.
+      // since they have same time range and downsample
+      if (!isArray(normalizedData[idx])) {
+        // convert to milisecond
+        normalizedData[idx] = [new Date(dpsMs * 1000)];
+      }
+      for (let gid in result) {
+        for (let k in result[gid]) {
+          let g = result[gid][k];
+          (g.dps[dpsMs] !== undefined) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
+        }
+      }
     }
+    return [...normalizedData];
   }
-  let dpsHashKey = Object.keys(dpsHash);
-  dpsHash = undefined;
-  // sort time in case  new insert somewhere
-  dpsHashKey.sort((a: any, b: any) => {
-    return a - b;
-  });  
-  for (let idx = 0, len = dpsHashKey.length; idx < len; idx++) {
-    let dpsMs: any = dpsHashKey[idx];
-    // if there is more than 1 group of query in widget, we append data from second group.
-    // since they have same time range and downsample
-    if (!isArray(normalizedData[idx])) {
-      // convert to milisecond
-      normalizedData[idx] = [new Date(dpsMs * 1000)];
-    }
-    for (let k in result) {
-      let g = result[k];
-      (g.dps[dpsMs] !== undefined) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
-    }
-  }
-  return [...normalizedData];
-}
 
     yamasToChartJS( chartType, options, vConfig, data, groupData, stacked ) {
         switch ( chartType ) {
@@ -89,9 +83,7 @@ yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): an
      */
 
     getChartJSFormattedDataBar( options, vConfig, datasets, groupData, stacked ) {
-        const gid = groupData.gid;
-        const rawdata = groupData.rawdata;
-        // stack colors
+      // stack colors
         const colors = [];
 
         options.scales.xAxes[0].stacked = stacked;
@@ -114,30 +106,32 @@ yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): an
         if ( !stacked && !datasets.length ) {
             datasets.push ( { data: [], backgroundColor: colors } );
         } else if ( stacked ) {
-            options.labels.push(gid);
+            options.labels.concat(Object.keys(groupData));
         }
 
         // set dataset values
-        for ( let i = 0; i < rawdata.length; i++ ) {
-            const mData: any = rawdata[i].dps;
-            let sum = 0;
-            const n = Object.keys(mData).length;
-            for ( let k in mData ) {
-                if (!isNaN(mData[k])) {
-                    sum += mData[k];
-                }
-            }
-            const label = stacked ? gid : vConfig[i].stackLabel;
-            const dsIndex = stacked ? options.stackSeries[vConfig[i].stackLabel].datasetIndex : 0;
-            console.log()
-            datasets[dsIndex].data.push( { x: label, y: sum }  );
+        for (let gid in groupData ) {
+          for ( let i = 0; i < groupData[gid].length; i++ ) {
+              const mData: any = groupData[gid][i].dps;
+              let sum = 0;
+              const n = Object.keys(mData).length;
+              for ( let k in mData ) {
+                  if (!isNaN(mData[k])) {
+                      sum += mData[k];
+                  }
+              }
+              const label = stacked ? gid : vConfig[i].stackLabel;
+              const dsIndex = stacked ? options.stackSeries[vConfig[i].stackLabel].datasetIndex : 0;
+              console.log()
+              datasets[dsIndex].data.push( { x: label, y: sum }  );
+          }
         }
         return [...datasets];
     }
 
     getChartJSFormattedDataDonut(options, vConfig, datasets, groupData, stacked) {
-        const gid = groupData.gid;
-        const rawdata = groupData.rawdata;
+        const gid = Object.keys(groupData)[0];
+        const rawdata = groupData[gid];
         // stack colors
         const colors = [];
         options.labels = [];

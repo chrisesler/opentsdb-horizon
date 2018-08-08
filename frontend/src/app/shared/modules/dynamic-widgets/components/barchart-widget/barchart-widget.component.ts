@@ -74,7 +74,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                             const stacked = this.widget.query.groups.length > 1 ? true : false;
                             const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
                             console.log('bar widget==>', this.widget, message);
-                            this.data = this.dataTransformer.yamasToChartJS('bar', this.options, config.visual, this.data, { gid: gid, rawdata: message.payload.rawdata } , stacked);
+                            this.data = this.dataTransformer.yamasToChartJS('bar', this.options, config.visual, this.data, message.payload.rawdata , stacked);
                         break;
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);

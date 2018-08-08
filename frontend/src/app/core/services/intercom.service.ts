@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 export interface IMessage {
   id?: string;
   action: string;
-  payload: any;
+  payload?: any;
 }
 
 @Injectable({

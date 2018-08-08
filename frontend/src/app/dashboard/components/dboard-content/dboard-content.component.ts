@@ -114,16 +114,18 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     }
   }
 
-  // to load selected component factory
-  viewComponent(comp: any) {
-    console.log('view component', comp);
+  // to load selected component factory to edit
+  editComponent(comp: any) {
+    // console.log('component to edit:', comp);
     // get the view container
     const viewContainerRef = this.widgetViewContainer.viewContainerRef;
     viewContainerRef.clear();
     // create component using existing widget factory
     const component = viewContainerRef.createComponent(comp.compFactory);
+    // we posfix __EDIT__ to original widget id
+    let editWidget = {...comp.widget, id: '__EDIT__' + comp.widget.id};
     // assign @input widget
-    (<WidgetComponentModel>component.instance).widget = comp.widget;
+    (<WidgetComponentModel>component.instance).widget = editWidget;
     (<WidgetComponentModel>component.instance).editMode =  true; // let it know it is in edit mode so it shows the config controls
   }
 
@@ -146,9 +148,9 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   // this event will start first and set values of cellWidth and cellHeight
   // then update the this.widgets reference
   gridsterFlow(event: any) {
-    console.log('gridsterFlow is calling and viewEditMode', this.viewEditMode);  
+    //console.log('gridsterFlow is calling and viewEditMode', this.viewEditMode);  
     if (this.viewEditMode) { return; }
-    console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
+    //console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
 
     let width = event.gridsterComponent.gridster.cellWidth;
     let height = event.gridsterComponent.gridster.cellHeight;
@@ -159,7 +161,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   // we call the function update all since we don't know which one for now.
   // the width and height unit might change but not the cell width and height.
   gridEventEnd(event: any) {
-    console.log('drag-resize event', event);
+    //console.log('drag-resize event', event);
     //console.log('gridEventEnd is calling and viewEditMode', this.viewEditMode);  
     if (this.viewEditMode) { return; }
     // console.log(event, event.item.$element.getBoundingClientRect());

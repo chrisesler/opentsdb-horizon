@@ -88,6 +88,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // ready to handle request from children of DashboardModule
         this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
             switch (message.action) {
+                case 'getWidgetCachedData':
+                    // taking the cached raw data
+                    // we suffix original widget id with __EDIT__ (8 chars)
+                    let wid = message.id.substring(8, message.id.length);
+                    let widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(wid));
+                    this.updateWidgetGroup(message.id, widgetCachedData);              
+                    break;
                 case 'updateDashboardMode':
                     // when click on view/edit mode, update db setting state of the mode
                     this.store.dispatch(new UpdateMode(message.payload));
@@ -116,19 +123,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.widgetRawData$.subscribe(result => {
+    
                    
         });
 
         this.widgetGroupRawData$.subscribe(result => {
             if (result !== undefined) {
-                this.interCom.responsePut({
-                    id: result.wid,
-                    action: 'updatedWidgetGroup',
-                    payload: { 
-                        gid: result.gid, 
-                        rawdata: result.rawdata
-                    }
-                }); 
+                let grawdata = {};
+                grawdata[result.gid] = result.rawdata;
+                this.updateWidgetGroup(result.wid, grawdata);
             }           
         });
 
@@ -145,6 +148,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (auth === 'invalid') {
                 console.log('open auth dialog');
             }
+        });
+    }
+
+    // to passing raw data to widget
+    updateWidgetGroup(wid, rawdata) {
+        this.interCom.responsePut({
+            id: wid,
+            action: 'updatedWidgetGroup',
+            payload: rawdata
         });
     }
 
@@ -172,7 +184,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // now dispatch request
             this.store.dispatch(new GetQueryDataByGroup(gquery));
         }
-    }
+    } 
 
     // this will call based on gridster reflow and size changes event
     widgetsLayoutUpdate(gridLayout: any) {
