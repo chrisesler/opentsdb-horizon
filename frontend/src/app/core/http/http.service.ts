@@ -29,7 +29,7 @@ export class HttpService {
         query: {
           start: '1h-ago',
           end: '',
-          downsample: '60m-avg-nan',
+          downsample: '1m-avg-nan',
           groups: [
             {
               id: 'gaga',
@@ -37,11 +37,11 @@ export class HttpService {
               visual: {},
               queries: [
                 {
-                  metric: 'Flickr.yapache.response_time',
+                  metric: 'SNMP-Net.intercolo.avg_latency',
                   filters: [
                     {
                       type: 'wildcard',
-                      tagk: 'colo',
+                      tagk: 'host',
                       filter: '*',
                       groupBy: true
                     }
@@ -70,7 +70,7 @@ export class HttpService {
         query: {
           start: '1h-ago',
           end: '',
-          downsample: '60m-avg-nan',
+          downsample: '1m-avg-nan',
           groups: [
             {
               id: 'werd',
@@ -78,7 +78,7 @@ export class HttpService {
               visual: {},
               queries: [
                 {
-                  metric: 'Flickr.yapache.requests',
+                  metric: 'SNMP-Net.intercolo.avg_latency',
                   filters: [
                     {
                       type: 'wildcard',
@@ -111,15 +111,15 @@ export class HttpService {
         query: {
           start: '1h-ago',
           end: '',
-          downsample: '60m-avg-nan',
+          downsample: '1m-avg-nan',
           groups: [
             {
-              id: 'werd',
+              id: 'multi1',
               title: 'group 1',
               visual: {},
               queries: [
                 {
-                  metric: 'Flickr.yapache.requests',
+                  metric: 'SNMP-Net.intercolo.max_latency',
                   filters: [
                     {
                       type: 'wildcard',
@@ -139,16 +139,16 @@ export class HttpService {
               ]
             },
             {
-              id: 'gffg',
+              id: 'multi2',
               title: 'group 2',
               visual: {},
               queries: [
                 {
-                  metric: 'Flickr.yapache.response_time',
+                  metric: 'SNMP-Net.intercolo.ploss',
                   filters: [
                     {
                       type: 'wildcard',
-                      tagk: 'colo',
+                      tagk: 'host',
                       filter: '*',
                       groupBy: true
                     }
@@ -177,7 +177,7 @@ export class HttpService {
         query: {
           start: '1h-ago',
           end: '',
-          downsample: '60m-avg-nan',
+          downsample: '1m-avg-nan',
           groups: [
             {
               id: 'werd',
