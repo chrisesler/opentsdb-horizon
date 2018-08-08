@@ -8,41 +8,34 @@
         </span>
     </div>
 
-    <div class="widget-container" 
-        [ngClass]="{
-            'one-item': fakeMetrics.length == 1, 
-            'two-items': fakeMetrics.length == 2, 
-            'three-items': fakeMetrics.length == 3, 
-            'four-items': fakeMetrics.length == 4
-           }">
-        <div *ngFor="let metric of fakeMetrics" class="big-number-container">
-            <div class="metric-container" [style.background]="metric.configuration.bigNum.backgroundColor">
-                <div class="number-container" [style.color]="metric.configuration.bigNum.textColor">
+    <div class="widget-container">
+        <div class="big-number-container">
+            <div class="metric-container" [style.background]="selectedMetric.configuration.bigNum.backgroundColor">
+                <div class="number-container" [style.color]="selectedMetric.configuration.bigNum.textColor">
                     <div class="number-wrapper normal-font-scale-col-1"
                         [style.font-size]="fontSizePercent">
                         <span [ngClass]="{
-                            'xlarge-size': metric.configuration.bigNum.prefixSize=='xl', 
-                            'large-size': metric.configuration.bigNum.prefixSize=='l', 
-                            'medium-size': metric.configuration.bigNum.prefixSize=='m', 
-                            'small-size': metric.configuration.bigNum.prefixSize=='s'
-                        }">{{metric.configuration.bigNum.prefix}}</span>
-                        <span class="big-number">{{kbn.preciseNumber(metric.configuration.bigNum.unit, metric.configuration.bigNum.bigNumber, metric.configuration.bigNum.precision)}}</span>
+                            'xlarge-size': selectedMetric.configuration.bigNum.prefixSize=='xl', 
+                            'large-size': selectedMetric.configuration.bigNum.prefixSize=='l', 
+                            'medium-size': selectedMetric.configuration.bigNum.prefixSize=='m', 
+                            'small-size': selectedMetric.configuration.bigNum.prefixSize=='s'
+                        }">{{selectedMetric.configuration.bigNum.prefix}}</span>
+                        <span class="big-number">{{kbn.preciseNumber(selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.precision)}}</span>
                         <span [ngClass]="{
-                            'xlarge-size': metric.configuration.bigNum.postfixSize=='xl', 
-                            'large-size': metric.configuration.bigNum.postfixSize=='l', 
-                            'medium-size': metric.configuration.bigNum.postfixSize=='m', 
-                            'small-size': metric.configuration.bigNum.postfixSize=='s'
-                        }">{{metric.configuration.bigNum.postfix}}</span>
+                            'xlarge-size': selectedMetric.configuration.bigNum.postfixSize=='xl', 
+                            'large-size': selectedMetric.configuration.bigNum.postfixSize=='l', 
+                            'medium-size': selectedMetric.configuration.bigNum.postfixSize=='m', 
+                            'small-size': selectedMetric.configuration.bigNum.postfixSize=='s'
+                        }">{{selectedMetric.configuration.bigNum.postfix}}</span>
                         <div class="caption" [ngClass]="{
-                            'xlarge-size': metric.configuration.bigNum.captionSize=='xl', 
-                            'large-size': metric.configuration.bigNum.captionSize=='l', 
-                            'medium-size': metric.configuration.bigNum.captionSize=='m', 
-                            'small-size': metric.configuration.bigNum.captionSize=='s'
-                        }">{{utils.tagMacro(metric,metric.configuration.bigNum.caption)}}</div>
+                            'xlarge-size': selectedMetric.configuration.bigNum.captionSize=='xl', 
+                            'large-size': selectedMetric.configuration.bigNum.captionSize=='l', 
+                            'medium-size': selectedMetric.configuration.bigNum.captionSize=='m', 
+                            'small-size': selectedMetric.configuration.bigNum.captionSize=='s'
+                        }">{{utils.tagMacro(selectedMetric, selectedMetric.configuration.bigNum.caption)}}</div>
                     </div>
                 </div>
             </div>
-            <div class="metric-name" [style.background]="metric.configuration.bigNum.backgroundColorTransparent">{{metric.configuration.bigNum.alias}}</div>
         </div>
     </div>
 </div>
@@ -69,7 +62,7 @@
             </mat-tab>
             <mat-tab label="Visual Appearance">
                 <ng-template matTabContent>
-                    <widget-config-visual-appearance-big-number [widget]="fakeMetrics"></widget-config-visual-appearance-big-number>
+                    <widget-config-visual-appearance-big-number [widget]="fakeMetrics" (selectionChanged)="setMetricToSelected($event)"></widget-config-visual-appearance-big-number>
                 </ng-template>
             </mat-tab>
            

@@ -15,20 +15,17 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
 
     /** Outputs */
     @Output() widgetChange = new EventEmitter;
+    @Output() selectionChanged = new EventEmitter;
 
     /** Local variables */
 
     selectedMetric: object;
     colorType: string;
 
-    setSelectedMetric(metric) {
-        this.selectedMetric = metric;
-    }
-
     constructor() { }
 
     ngOnInit() {
-        this.selectedMetric = this.widget[0];
+        this.selectedMetric = this.getSelectedMetric();
         this.colorType = 'background';
     }
 
@@ -65,12 +62,20 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
             this.selectedMetric['configuration']['bigNum']['textColor'] = color['hex'];
         } else { // background
             this.selectedMetric['configuration']['bigNum']['backgroundColor'] = color['hex'];
-            this.selectedMetric['configuration']['bigNum']['backgroundColorTransparent'] = this.hexToTransparentHex(color['hex']);
         }
     }
 
-    // TODO: remove duplicate from BigNumber.ts
-    hexToTransparentHex(hex: string): string {
-        return hex + '80'; // 80 is 50% in hex
+    getSelectedMetric(): any {
+        // tslint:disable-next-line:prefer-const
+        for (let _metric of this.widget) {
+            if (_metric['configuration']['bigNum']['selected']) {
+                return _metric;
+            }
+        }
+    }
+
+    setMetricToSelected(metric: any) {
+        this.selectedMetric = metric;
+        this.selectionChanged.emit(metric);
     }
 }

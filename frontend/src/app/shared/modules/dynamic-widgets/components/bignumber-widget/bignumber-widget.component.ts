@@ -32,12 +32,13 @@ export class BignumberWidgetComponent implements OnInit {
 
     /** Local variables */
     // tslint:disable:no-inferrable-types
-    numberOfMetrics: number = 4; // 1:150%   2:75%   3:50%   4:75%
+    selectedMetric: any;
+    numberOfMetrics: number = 4;
     fakeMetrics: Array<any> = new Array<any>();
     _clientHeight: number = 300;
-    fontSizePercent: string = '75%';
+    fontSizePercent: string = '150%';
 
-    constructor(private interCom: IntercomService, private utils: UtilsService, private kbn: KBNService) { }
+    constructor(private interCom: IntercomService, public utils: UtilsService, public kbn: KBNService) { }
 
     ngOnInit() {
         for (let i = 0; i < this.numberOfMetrics; i++) {
@@ -47,7 +48,7 @@ export class BignumberWidgetComponent implements OnInit {
                 bigNumber: 1234 * Math.pow(10, i),
                 precision: 3,
                 unit: 'short', // short
-                prefix: '',
+                prefix: '-',
                 postfix: 'per hour',
                 caption: 'Monitoring Revenue',
                 prefixSize: 'l',
@@ -55,11 +56,13 @@ export class BignumberWidgetComponent implements OnInit {
                 captionSize: 's',
                 textColor: '#ffffff',
                 backgroundColor: '#' + String(4 + i) + '0' + String(i) + '0' + String(8 - i) + '0',
-                shorthand: 'm' + String(i + 1),
-                alias: 'app-name.whatever.some_metric_' + String(i + 1),
-                showAlias: true
+                selected: false,
+                shorthand: 'm' + String(i)
             };
-            bigNumberMetric.backgroundColorTransparent = this.hexToTransparentHex(bigNumberMetric.backgroundColor);
+
+            if (i === 1) {
+                bigNumberMetric.selected = true;
+            }
 
             this.fakeMetrics.push(
                 {
@@ -99,6 +102,37 @@ export class BignumberWidgetComponent implements OnInit {
                 }
             );
         }
+
+        this.setMetricToSelected(this.fakeMetrics[1]);
+    }
+
+    setAllMetricsToUnSelected() {
+        // tslint:disable-next-line:prefer-const
+        for (let metric of this.fakeMetrics) {
+            metric['configuration']['bigNum']['selected'] = false;
+            this.selectedMetric = null;
+        }
+    }
+
+    setMetricToSelected(metric: any) {
+        console.log('inside setMetricToSelected');
+        this.setAllMetricsToUnSelected();
+        // tslint:disable-next-line:prefer-const
+        for (let _metric of this.fakeMetrics) {
+            if (_metric === metric) {
+                _metric['configuration']['bigNum']['selected'] = true;
+                this.selectedMetric = metric;
+            }
+        }
+    }
+
+    setSelectedMetric() {
+        // tslint:disable-next-line:prefer-const
+        for (let _metric of this.fakeMetrics) {
+            if (_metric['configuration']['bigNum']['selected']) {
+                this.selectedMetric = _metric;
+            }
+        }
     }
 
     /**
@@ -116,10 +150,6 @@ export class BignumberWidgetComponent implements OnInit {
             action: 'closeViewEditMode',
             payload: { editMode: false, widgetId: ''}
         });
-    }
-
-    hexToTransparentHex(hex: string): string {
-        return hex + '80'; // 80 is 50% in hex
     }
 
     calcFontSizePercent(widgetWidth: number, numOfBigNumbers: number): string {
@@ -168,6 +198,8 @@ interface IBigNumberMetric {
     bigNumber: number;
     precision: number;
     unit: string;
+    selected: boolean;
+    shorthand: string;
 
     value?: string; // max, min, average, latest
     comparedTo?: number;
@@ -180,10 +212,10 @@ interface IBigNumberMetric {
     postfixSize?: string;
     captionSize?: string;
 
+    prefixAlignment?: string;
+    postfixAlignment?: string;
+    captionAlignment?: string;
+
     textColor: string;
     backgroundColor: string;
-    backgroundColorTransparent?: string;
-    shorthand?: string;
-    alias?: string;
-    showAlias?: boolean;
 }

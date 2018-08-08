@@ -23,7 +23,7 @@
                     min-width: 0px;
 
                     .metric-container {
-                        height:  -webkit-calc(100% - 20px);
+                        height: 100%;
 
                         .number-container {
                             height: 100%;
@@ -42,22 +42,6 @@
             grid-gap: 0px;
             flex-basis: 0;
             flex-grow: 1;
-        }
-
-        .one-item {
-            grid-template-columns: auto;
-        }
-
-        .two-items {
-            grid-template-columns: auto auto;
-        }
-
-        .three-items {
-            grid-template-columns: auto auto auto;
-        }
-
-        .four-items {
-            grid-template-columns: auto auto;
         }
 
         .big-number-container {
