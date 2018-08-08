@@ -37,4 +37,39 @@ export class UtilsService {
     }
   }
 
+  // ex: Revenue for {{tag.colo}} and {{tag.hostgroup}} -> Revenue for BF1 and WestCoastCluster
+  tagMacro(metric: any, inputString: string): string {
+    const regExp = /{{([^}}]+)}}/g; // get chars between {{}}
+    const matches = inputString.match(regExp);
+    if (matches) {
+      let tagValues = new Array<string>();
+      let captureGroupToValueMap = {};
+      for (let i = 0; i < matches.length; i++) {
+        const captureGroup = matches[i];
+        const captureGroupSplit = captureGroup.split('.');
+        if (captureGroupSplit.length === 1) {
+          return inputString;
+        }
+        const keyword = captureGroupSplit[0].substring(2).toLowerCase().trim();
+        const tagKey = captureGroupSplit[1].substring(0, captureGroupSplit[1].length - 2).toLowerCase().trim();
+        captureGroupToValueMap[captureGroup] = captureGroup;
+
+        // get tag values
+        if (keyword === 'tag' && tagKey) {
+          for (let keyValueCombo of metric['tags']) {
+            if (keyValueCombo['key'].toLowerCase() === tagKey) {
+              captureGroupToValueMap[captureGroup] = keyValueCombo['value'];
+            }
+          }
+        }
+
+        // set tag values in string
+        for (const [_captureGroup, tagValue] of Object.entries(captureGroupToValueMap)) {
+          inputString = inputString.replace(_captureGroup, tagValue.toString());
+        }
+      }
+    }
+    return inputString;
+  }
+
 }

@@ -12,6 +12,7 @@ import {
     WidgetConfigVisualAppearanceComponent
 } from '../../../sharedcomponents/components';
 import kbn from './kbn';
+import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -36,7 +37,7 @@ export class BignumberWidgetComponent implements OnInit {
     _clientHeight: number = 300;
     fontSizePercent: string = '75%';
 
-    constructor(private interCom: IntercomService) { }
+    constructor(private interCom: IntercomService, private utils: UtilsService) { }
 
     ngOnInit() {
         for (let i = 0; i < this.numberOfMetrics; i++) {
@@ -45,7 +46,7 @@ export class BignumberWidgetComponent implements OnInit {
             let bigNumberMetric: IBigNumberMetric = {
                 bigNumber: 1234 * Math.pow(10, i),
                 precision: 3,
-                unit: 'currencyUSD', // short
+                unit: 'ms', // short
                 prefix: '',
                 postfix: 'per hour',
                 caption: 'Monitoring Revenue',
@@ -134,36 +135,7 @@ export class BignumberWidgetComponent implements OnInit {
         return kbn.valueFormats[desc](value, precision - numDigitsBeforeDecimal, precision - numDigitsBeforeDecimal);
     }
 
-    parseKeywords(metric: any, inputString: string): string {
-        const regExp = /{{([^}}]+)}}/g; // get chars between {{}}
-        const matches = inputString.match(regExp);
-        if (matches) {
-            let tagValues = new Array<string>();
-            let captureGroupToValueMap = {};
-            for (let i = 0; i < matches.length; i++) {
-                const captureGroup = matches[i];
-                const captureGroupSplit = captureGroup.split('.');
-                const keyword = captureGroupSplit[0].substring(2).toLowerCase().trim();
-                const tagKey = captureGroupSplit[1].substring(0, captureGroupSplit[1].length - 2).toLowerCase().trim();
-                captureGroupToValueMap[captureGroup] = captureGroup;
 
-                // get tag values
-                if (keyword === 'tag' && tagKey) {
-                    for (let keyValueCombo of metric['tags']) {
-                        if (keyValueCombo['key'].toLowerCase() === tagKey) {
-                            captureGroupToValueMap[captureGroup] = keyValueCombo['value'];
-                        }
-                    }
-                }
-
-                // set tag values in string
-                for (const [_captureGroup, tagValue] of Object.entries(captureGroupToValueMap)) {
-                    inputString = inputString.replace(_captureGroup, tagValue.toString());
-                }
-            }
-        }
-        return inputString;
-    }
 
     // tslint:disable-next-line:member-ordering
     valueIterationOptions: Array<any> = [
