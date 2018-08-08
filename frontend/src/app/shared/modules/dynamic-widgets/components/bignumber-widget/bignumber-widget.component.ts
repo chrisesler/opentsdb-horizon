@@ -11,7 +11,7 @@ import {
     WidgetConfigTimeComponent,
     WidgetConfigVisualAppearanceComponent
 } from '../../../sharedcomponents/components';
-import { KBNService  } from '../../services/kbn';
+import { KBNService } from '../../services/kbn.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
@@ -129,11 +129,6 @@ export class BignumberWidgetComponent implements OnInit {
        const fontScale: number = (fontScaleMultiple * widgetWidth) / (numOfCols * defaultWidth);
        return fontScale + '%';
     }
-
-    // preciseNumber(desc: string, value: number, precision: number) {
-    //     const numDigitsBeforeDecimal = Math.abs(value).toFixed().toString() === '0' ? 0 : Math.abs(value).toFixed().toString().length;
-    //     return kbn.valueFormats[desc](value, precision - numDigitsBeforeDecimal, precision - numDigitsBeforeDecimal);
-    // }
 
     // tslint:disable-next-line:member-ordering
     valueIterationOptions: Array<any> = [
