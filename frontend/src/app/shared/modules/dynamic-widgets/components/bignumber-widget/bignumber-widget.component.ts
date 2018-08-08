@@ -11,7 +11,7 @@ import {
     WidgetConfigTimeComponent,
     WidgetConfigVisualAppearanceComponent
 } from '../../../sharedcomponents/components';
-import kbn from './kbn';
+import { KBNService  } from '../../services/kbn';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
@@ -37,7 +37,7 @@ export class BignumberWidgetComponent implements OnInit {
     _clientHeight: number = 300;
     fontSizePercent: string = '75%';
 
-    constructor(private interCom: IntercomService, private utils: UtilsService) { }
+    constructor(private interCom: IntercomService, private utils: UtilsService, private kbn: KBNService) { }
 
     ngOnInit() {
         for (let i = 0; i < this.numberOfMetrics; i++) {
@@ -46,7 +46,7 @@ export class BignumberWidgetComponent implements OnInit {
             let bigNumberMetric: IBigNumberMetric = {
                 bigNumber: 1234 * Math.pow(10, i),
                 precision: 3,
-                unit: 'ms', // short
+                unit: 'short', // short
                 prefix: '',
                 postfix: 'per hour',
                 caption: 'Monitoring Revenue',
@@ -130,12 +130,10 @@ export class BignumberWidgetComponent implements OnInit {
        return fontScale + '%';
     }
 
-    preciseNumber(desc: string, value: number, precision: number) {
-        const numDigitsBeforeDecimal = Math.abs(value).toFixed().toString() === '0' ? 0 : Math.abs(value).toFixed().toString().length;
-        return kbn.valueFormats[desc](value, precision - numDigitsBeforeDecimal, precision - numDigitsBeforeDecimal);
-    }
-
-
+    // preciseNumber(desc: string, value: number, precision: number) {
+    //     const numDigitsBeforeDecimal = Math.abs(value).toFixed().toString() === '0' ? 0 : Math.abs(value).toFixed().toString().length;
+    //     return kbn.valueFormats[desc](value, precision - numDigitsBeforeDecimal, precision - numDigitsBeforeDecimal);
+    // }
 
     // tslint:disable-next-line:member-ordering
     valueIterationOptions: Array<any> = [
