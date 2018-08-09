@@ -59,12 +59,12 @@ export class DatatranformerService {
     return [...normalizedData];
   }
 
-    yamasToChartJS( chartType, options, vConfig, data, groupData, stacked ) {
+    yamasToChartJS( chartType, options, mConfigs, data, groupData, stacked ) {
         switch ( chartType ) {
             case 'bar':
-                return this.getChartJSFormattedDataBar(options, vConfig, data, groupData, stacked);
+                return this.getChartJSFormattedDataBar(options, mConfigs, data, groupData, stacked);
             case 'donut':
-                return this.getChartJSFormattedDataDonut(options, vConfig, data, groupData, stacked);
+                return this.getChartJSFormattedDataDonut(options, mConfigs, data, groupData, stacked);
         }
     }
 
@@ -82,7 +82,7 @@ export class DatatranformerService {
      *   So, we are going to generate series for each stack labels.
      */
 
-    getChartJSFormattedDataBar( options, vConfig, datasets, groupData, stacked ) {
+    getChartJSFormattedDataBar( options, mConfigs, datasets, groupData, stacked ) {
       // stack colors
         const colors = [];
 
@@ -90,9 +90,10 @@ export class DatatranformerService {
         options.scales.yAxes[0].stacked = stacked;
 
         // generate labels
-        for ( let i = 0; i < vConfig.length; i++ ) {
-            const label = vConfig[i].stackLabel;
-            const color = vConfig[i].color;
+        for ( let i = 0; i < mConfigs.length; i++ ) {
+            const vConfig = mConfigs[i].settings.visual;
+            const label = vConfig.stackLabel;
+            const color = vConfig.color;
             if ( (stacked && !options.stackSeries[label]) ) {
                 options.stackSeries[label] =  { label: label, color: color, datasetIndex: Object.keys(options.stackSeries).length };
                 datasets.push( { data: [], backgroundColor: color, label: 'group' } );
@@ -106,8 +107,9 @@ export class DatatranformerService {
         if ( !stacked && !datasets.length ) {
             datasets.push ( { data: [], backgroundColor: colors } );
         } else if ( stacked ) {
-            options.labels.concat(Object.keys(groupData));
+            options.labels = options.labels.concat(Object.keys(groupData));
         }
+
 
         // set dataset values
         for (let gid in groupData ) {
@@ -120,9 +122,8 @@ export class DatatranformerService {
                       sum += mData[k];
                   }
               }
-              const label = stacked ? gid : vConfig[i].stackLabel;
-              const dsIndex = stacked ? options.stackSeries[vConfig[i].stackLabel].datasetIndex : 0;
-              console.log()
+              const label = stacked ? gid : mConfigs[i].settings.visual.stackLabel;
+              const dsIndex = stacked ? options.stackSeries[mConfigs[i].settings.visual.stackLabel].datasetIndex : 0;
               datasets[dsIndex].data.push( { x: label, y: sum }  );
           }
         }

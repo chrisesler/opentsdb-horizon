@@ -70,11 +70,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                     case 'updatedWidgetGroup':
                         console.log('updateWidget', message);
                             this.isDataLoaded = true;
-                            const gid = message.payload.gid;
+                            const gid = Object.keys(message.payload)[0];
                             const stacked = this.widget.query.groups.length > 1 ? true : false;
                             const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-                            console.log('bar widget==>', this.widget, message);
-                            this.data = this.dataTransformer.yamasToChartJS('bar', this.options, config.visual, this.data, message.payload.rawdata , stacked);
+                            console.log('bar widget==>', config.queries, gid , message);
+                            this.data = this.dataTransformer.yamasToChartJS('bar', this.options, config.queries, this.data, message.payload, stacked);
                         break;
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);
@@ -89,9 +89,15 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 }
             }
         });
-        // initial request data
+        // when the widget first loaded in dashboard, we request to get data
+        // when in edit mode first time, we request to get cached raw data.
         if (!this.editMode) {
             this.requestData();
+        } else {
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'getWidgetCachedData'
+            });
         }
     }
 
