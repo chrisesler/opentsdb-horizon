@@ -34,6 +34,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     // properties to pass to  chartjs chart directive
 
     options: any  = {
+
     };
     data: any = [ { data: [] } ];
     width = '100%';
@@ -56,14 +57,13 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
-                        console.log('updateWidget', message);
-                            this.isDataLoaded = true;
-                            const gid = message.payload.gid;
-                            const stacked = false;
-                            const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-                            console.log('bar widget==>', this.widget, message);
-                            this.data = this.dataTransformer.yamasToChartJS('donut', this.options, config.visual, this.data, message.payload.rawdata , stacked);
-                        break;
+                    console.log('updateWidget', message);
+                    this.isDataLoaded = true;
+                    const gid = Object.keys(message.payload)[0];
+                    const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+                    console.log('donut widget==>', config.queries, gid , message);
+                    this.data = this.dataTransformer.yamasToChartJS('donut', this.options, config.queries, this.data, message.payload, false);
+                break;
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);
                             this.isDataLoaded = true;
@@ -77,9 +77,15 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 }
             }
         });
-        // initial request data
+        // when the widget first loaded in dashboard, we request to get data
+        // when in edit mode first time, we request to get cached raw data.
         if (!this.editMode) {
             this.requestData();
+        } else {
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'getWidgetCachedData'
+            });
         }
     }
 
