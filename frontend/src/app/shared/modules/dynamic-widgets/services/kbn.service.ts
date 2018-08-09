@@ -123,7 +123,7 @@ export class KBNService {
     if (precision < 1 || precision > 15 || !precision) {
       precision = 3;
     }
-    const fractionLength = precision - this.intLength(numUnit.num);
+    const fractionLength = (precision - this.intLength(numUnit.num) < 0) ? 0 : precision - this.intLength(numUnit.num);
 
     return numUnit.num.toFixed(fractionLength) + numUnit.unit;
   }
@@ -164,7 +164,6 @@ export class KBNService {
   }
 
   // TIME Scales
-
   milliSeconds(val: number): INumberUnit {
     return (this.intLength(val) > 3) ? this.seconds(val / 1000) : { num: val, unit: 'ms'};
   }
