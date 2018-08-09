@@ -5,7 +5,7 @@ import kbn from './kbn';
   providedIn: 'root',
 })
 
-export class KBNService {
+export class UnitNormalizerService {
 
   constructor() { }
 
@@ -20,107 +20,107 @@ export class KBNService {
     switch (unit) {
       // Data (Binary)
       case 'bits':
-        bigNum = this.preciseNumber(this.binarySI(val, 0), precision) + 'b';
+        bigNum = this.formatNumber(this.binarySI(val, 0), precision) + 'b';
         break;
       case 'bytes':
-        bigNum = this.preciseNumber(this.binarySI(val, 0), precision) + 'B';
+        bigNum = this.formatNumber(this.binarySI(val, 0), precision) + 'B';
         break;
       case 'kbytes':
-        bigNum = this.preciseNumber(this.binarySI(val, 1), precision) + 'B';
+        bigNum = this.formatNumber(this.binarySI(val, 1), precision) + 'B';
         break;
       case 'mbytes':
-        bigNum = this.preciseNumber(this.binarySI(val, 2), precision) + 'B';
+        bigNum = this.formatNumber(this.binarySI(val, 2), precision) + 'B';
         break;
       case 'gbytes':
-        bigNum = this.preciseNumber(this.binarySI(val, 3), precision) + 'B';
+        bigNum = this.formatNumber(this.binarySI(val, 3), precision) + 'B';
         break;
 
       // Data (Decimal)
       case 'decbits':
-        bigNum = this.preciseNumber(this.decimalSI(val, 0), precision) + 'b';
+        bigNum = this.formatNumber(this.decimalSI(val, 0), precision) + 'b';
         break;
       case 'decbytes':
-        bigNum = this.preciseNumber(this.decimalSI(val, 0), precision) + 'B';
+        bigNum = this.formatNumber(this.decimalSI(val, 0), precision) + 'B';
         break;
       case 'deckbytes':
-        bigNum = this.preciseNumber(this.decimalSI(val, 1), precision) + 'B';
+        bigNum = this.formatNumber(this.decimalSI(val, 1), precision) + 'B';
         break;
       case 'decmbytes':
-        bigNum = this.preciseNumber(this.decimalSI(val, 2), precision) + 'B';
+        bigNum = this.formatNumber(this.decimalSI(val, 2), precision) + 'B';
         break;
       case 'decgbytes':
-        bigNum = this.preciseNumber(this.decimalSI(val, 3), precision) + 'B';
+        bigNum = this.formatNumber(this.decimalSI(val, 3), precision) + 'B';
         break;
 
       // Data Rate
       case 'pps':
-        bigNum = this.preciseNumber(this.decimalSI(val, 0), precision) + 'pps';
+        bigNum = this.formatNumber(this.decimalSI(val, 0), precision) + 'pps';
         break;
       case 'bps':
-        bigNum = this.preciseNumber(this.decimalSI(val, 0), precision) + 'bps';
+        bigNum = this.formatNumber(this.decimalSI(val, 0), precision) + 'bps';
         break;
       case 'Bps':
-        bigNum = this.preciseNumber(this.decimalSI(val, 0), precision) + 'B/s';
+        bigNum = this.formatNumber(this.decimalSI(val, 0), precision) + 'B/s';
         break;
       case 'KBs':
-        bigNum = this.preciseNumber(this.decimalSI(val, 1), precision) + 'Bs';
+        bigNum = this.formatNumber(this.decimalSI(val, 1), precision) + 'Bs';
         break;
       case 'Kbits':
-        bigNum = this.preciseNumber(this.decimalSI(val, 1), precision) + 'bps';
+        bigNum = this.formatNumber(this.decimalSI(val, 1), precision) + 'bps';
         break;
       case 'MBs':
-        bigNum = this.preciseNumber(this.decimalSI(val, 2), precision) + 'Bs';
+        bigNum = this.formatNumber(this.decimalSI(val, 2), precision) + 'Bs';
         break;
       case 'Mbits':
-        bigNum = this.preciseNumber(this.decimalSI(val, 2), precision) + 'bps';
+        bigNum = this.formatNumber(this.decimalSI(val, 2), precision) + 'bps';
         break;
       case 'GBs':
-        bigNum = this.preciseNumber(this.decimalSI(val, 3), precision) + 'Bs';
+        bigNum = this.formatNumber(this.decimalSI(val, 3), precision) + 'Bs';
         break;
       case 'Gbits':
-        bigNum = this.preciseNumber(this.decimalSI(val, 3), precision) + 'bps';
+        bigNum = this.formatNumber(this.decimalSI(val, 3), precision) + 'bps';
         break;
 
       // Throughput
       case 'ops' || 'reqps' || 'rps' || 'wps' || 'iops' || 'opm' || 'rpm' || 'wpm':
-        bigNum = this.preciseNumber(this.short(val), precision, false) + unit;
+        bigNum = this.formatNumber(this.short(val), precision, false) + unit;
         break;
 
       // Time
       case 'ms':
-        bigNum = this.preciseNumber(this.milliSeconds(val), precision);
+        bigNum = this.formatNumber(this.milliSeconds(val), precision);
         break;
       case 'second':
-        bigNum = this.preciseNumber(this.seconds(val), precision);
+        bigNum = this.formatNumber(this.seconds(val), precision);
         break;
       case 'minute':
-        bigNum = this.preciseNumber(this.minutes(val), precision);
+        bigNum = this.formatNumber(this.minutes(val), precision);
         break;
       case 'hour':
-        bigNum = this.preciseNumber(this.hours(val), precision);
+        bigNum = this.formatNumber(this.hours(val), precision);
         break;
       case 'day':
-        bigNum = this.preciseNumber(this.days(val), precision);
+        bigNum = this.formatNumber(this.days(val), precision);
         break;
       case 'year':
-        bigNum = this.preciseNumber(this.years(val), precision);
+        bigNum = this.formatNumber(this.years(val), precision);
         break;
 
       // Simple Counts
       case 'short':
-        bigNum = this.preciseNumber(this.short(val), precision);
+        bigNum = this.formatNumber(this.short(val), precision);
         break;
 
       // Unrecognized unit defaults to 'short' + unit
       default:
-        bigNum = this.preciseNumber(this.short(val), precision, false) + ' ' + unit;
+        bigNum = this.formatNumber(this.short(val), precision, false) + ' ' + unit;
         break;
     }
     return bigNum;
   }
 
   // HELPER Methods
-  preciseNumber(numUnit: INumberUnit, precision?: number, spaceAfterNumber?: boolean): string {
+  formatNumber(numUnit: INumberUnit, precision?: number, spaceAfterNumber?: boolean): string {
     if (spaceAfterNumber == null) {
       spaceAfterNumber = true;
     }
