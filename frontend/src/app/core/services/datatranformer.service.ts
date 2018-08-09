@@ -96,7 +96,7 @@ export class DatatranformerService {
             const color = vConfig.color;
             if ( (stacked && !options.stackSeries[label]) ) {
                 options.stackSeries[label] =  { label: label, color: color, datasetIndex: Object.keys(options.stackSeries).length };
-                datasets.push( { data: [], backgroundColor: color, label: 'group' } );
+                datasets.push( { data: [], backgroundColor: color, label: label } );
             } else if ( !stacked && !options.labels.includes(label) ) {
                 options.labels.push( label );
                 colors.push(color);
@@ -130,16 +130,16 @@ export class DatatranformerService {
         return [...datasets];
     }
 
-    getChartJSFormattedDataDonut(options, vConfig, datasets, groupData, stacked) {
+    getChartJSFormattedDataDonut(options, mConfigs, datasets, groupData, stacked) {
         const gid = Object.keys(groupData)[0];
         const rawdata = groupData[gid];
-        // stack colors
-        const colors = [];
+
         options.labels = [];
 
         // generate labels
-        for ( let i = 0; i < vConfig.length; i++ ) {
-            const label = vConfig[i].stackLabel;
+        for ( let i = 0; i < mConfigs.length; i++ ) {
+            const vConfig = mConfigs[i].settings.visual;
+            const label = vConfig.stackLabel;
             if (!options.labels.includes(label)) {
                 options.labels.push(label);
             }
@@ -157,7 +157,7 @@ export class DatatranformerService {
                 }
             }
             datasets[0].data.push( sum );
-            datasets[0].backgroundColor.push(vConfig[i].color);
+            datasets[0].backgroundColor.push(mConfigs[i].settings.visual.color);
         }
         return [...datasets];
     }
