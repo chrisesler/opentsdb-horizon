@@ -314,6 +314,8 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
+        console.log('editting widget', this.widget);
+        
     }
 
     ngOnDestroy() {

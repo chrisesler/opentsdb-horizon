@@ -47,7 +47,7 @@
 <div class="query-metrics-section">
     <div class="query-metrics-wrap">
         <mat-accordion class="query-group-list mat-elevation-z0" [ngClass]="{'items-selected': selectAllToggle !== 'none'}" displayMode="flat" [multi]="true" [hideToggle]="false">
-            <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [expanded]="!group.collapsed" *ngFor="let group of fakeGroups">
+            <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [expanded]="true" *ngFor="let group of widget.query.groups ">
                 <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
                     <div class="group-selector">
                         <!--<mat-checkbox class="group-checkbox"></mat-checkbox>-->
@@ -66,7 +66,7 @@
                         </span>
                         <span class="toolbar-item group-label">
                             <mat-icon fontSet="denali" fontIcon="d-folder-open"></mat-icon>
-                            <strong>{{ group.label }}</strong>
+                            <strong>{{ group.title }}</strong>
                         </span>
                         <span class="flex-spacer"></span>
                         <span class="toolbar-item add-query-actions">
@@ -89,25 +89,25 @@
                         </span>
                     </mat-toolbar>
                 </mat-expansion-panel-header>
-                <div class="query-metric-row" *ngFor="let metric of group.metrics">
+                <div class="query-metric-row" *ngFor="let query of group.queries">
                     <div class="metric-selector">
-                        <button mat-icon-button class="group-checkbox" color="primary" (click)="toggle_metricSelected(metric, group, $event)">
-                            <mat-icon>{{ (metric.selectedState) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                        <button mat-icon-button class="group-checkbox" color="primary" (click)="toggle_metricSelected(query, group, $event)">
+                            <mat-icon>{{ (query.selectedState) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
                         </button>
                     </div>
                     <div class="query-metric-item">
                         <div class="metric-detail">
-                            <span class="detail-item">{{ metric.label }}</span>
+                            <span class="detail-item">{{ query.metric }}</span>
                             <span class="flex-spacer"></span>
                             <span class="action-icons">
-                                <button mat-icon-button color="primary" (click)="toggle_queryItemVisibility(metric, $event)">
-                                    <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="metric.visible"></mat-icon>
-                                    <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!metric.visible"></mat-icon>
+                                <button mat-icon-button color="primary" (click)="toggle_queryItemVisibility(query, $event)">
+                                    <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
+                                    <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
                                 </button>
-                                <button mat-icon-button color="primary" (click)="clone_queryItem(metric, $event)">
+                                <button mat-icon-button color="primary" (click)="clone_queryItem(query, $event)">
                                     <mat-icon fontSet="denali" fontIcon="d-duplicate" class="mat-icon-rtl-mirror"></mat-icon>
                                 </button>
-                                <button mat-icon-button color="primary" (click)="delete_queryItem(metric, $event)">
+                                <button mat-icon-button color="primary" (click)="delete_queryItem(query, $event)">
                                     <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                                 </button>
                             </span>
@@ -115,7 +115,7 @@
                         <div class="metric-tags">
                             <strong>Tags:</strong>
                             <mat-chip-list>
-                                <mat-basic-chip *ngFor="let tag of metric.tags"><span>{{ tag.key }}:</span> <strong>{{ tag.value }}</strong></mat-basic-chip>
+                                <mat-basic-chip *ngFor="let tag of query.filters"><span>{{ tag.tagk }}:</span> <strong>{{ tag.filter }}</strong></mat-basic-chip>
                             </mat-chip-list>
                         </div>
                     </div>
