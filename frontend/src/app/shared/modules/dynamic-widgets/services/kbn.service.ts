@@ -14,11 +14,6 @@ export class KBNService {
   binarySIUnits = ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi']; // base 1024
   decimalSIUnits = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']; // base 1000
 
-  kbnPreciseNumber(value: number, desc: string, precision: number): number {
-    const numDigitsBeforeDecimal = Math.abs(value).toFixed().toString() === '0' ? 0 : Math.abs(value).toFixed().toString().length;
-    return kbn.valueFormats[desc](value, precision - numDigitsBeforeDecimal, precision - numDigitsBeforeDecimal);
-  }
-
   // Main Method
   public getBigNumber(val: number, unit: string, precision?: number): string {
     let bigNum: string;
@@ -199,6 +194,12 @@ export class KBNService {
     let numUnit = this.normalizer(1000, 0, this.simpleUnits, val);
     numUnit.unit = numUnit.unit + ' ' + 'yr';
     return numUnit;
+  }
+
+  // OLD Grafana method - only for testing
+  kbnPreciseNumber(value: number, desc: string, precision: number): number {
+    const numDigitsBeforeDecimal = Math.abs(value).toFixed().toString() === '0' ? 0 : Math.abs(value).toFixed().toString().length;
+    return kbn.valueFormats[desc](value, precision - numDigitsBeforeDecimal, precision - numDigitsBeforeDecimal);
   }
 }
 
