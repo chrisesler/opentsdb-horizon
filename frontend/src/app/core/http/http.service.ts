@@ -24,7 +24,13 @@ export class HttpService {
         settings: {
           title: 'my widget title',
           component_type: 'LinechartWidgetComponent',
-          data_source: 'yamas'
+          data_source: 'yamas',
+          description: 'test desc',
+          time: {
+              preset : '6h',
+              customStartTime: '7/1/2018',
+              customEndTime: '7/2/2018'
+          }
         },
         query: {
           start: '1h-ago',
@@ -170,7 +176,7 @@ export class HttpService {
         id: 'bar',
         gridPos: { x: 6, y: 6, w: 6, h: 5 },
         settings: {
-          title: 'Bar Chart',
+          title: 'Flickr CPU Speed',
           component_type: 'BarchartWidgetComponent',
           data_source: 'yamas'
         },
@@ -180,14 +186,14 @@ export class HttpService {
           downsample: '1m-avg-nan',
           groups: [
             {
-              id: 'werd',
+              id: 'ALL-COLO',
               title: 'group 1',
               queries: [
                 {
                     aggregator: 'zimsum',
                     explicitTags:false,
                     downsample: '1m-avg-nan',
-                    metric:'Flickr.WWW.apache_latency',
+                    metric:'Flickr.WWW-BOTS.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -199,7 +205,7 @@ export class HttpService {
                         visual: {
                             color: "red",
                             aggregator: "SUM",
-                            stackLabel: "S1"
+                            stackLabel: "WWW-BOTS"
                         }
                     }
                 },
@@ -207,7 +213,7 @@ export class HttpService {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
                     explicitTags:false,
-                    metric:'Flickr.WWW-BOTS.apache_latency',
+                    metric:'Flickr.UPLOAD.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -219,7 +225,7 @@ export class HttpService {
                         visual: {
                             color: "orange",
                             aggregator: "SUM",
-                            stackLabel: "S2"
+                            stackLabel: "UPLOAD"
                         }
                     }
                 },
@@ -227,7 +233,7 @@ export class HttpService {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
                     explicitTags:false,
-                    metric:'Flickr.UPLOAD.apache_latency',
+                    metric:'Flickr.ZOOKEEPER.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -239,7 +245,7 @@ export class HttpService {
                         visual: {
                             color: "yellow",
                             aggregator: "SUM",
-                            stackLabel: "S3"
+                            stackLabel: "ZOOKEEPER"
                         }
                     }
                 },
@@ -247,7 +253,7 @@ export class HttpService {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
                     explicitTags:false,
-                    metric:'Flickr.UPLOAD-Pool.apache_latency',
+                    metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -259,7 +265,7 @@ export class HttpService {
                         visual: {
                             color: "green",
                             aggregator: "SUM",
-                            stackLabel: "S4"
+                            stackLabel: "TWEM"
                         }
                     }
                 },
@@ -267,7 +273,7 @@ export class HttpService {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
                     explicitTags:false,
-                    metric:'Flickr.UPLOAD-Video.apache_latency',
+                    metric:'Flickr.STORM-General.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -279,13 +285,479 @@ export class HttpService {
                         visual: {
                             color: "blue",
                             aggregator: "SUM",
-                            stackLabel: "S5"
+                            stackLabel: "STORM"
                         }
                     }
                 }
               ]
             }
+        ]
+        }
+      },
+      {
+        id: 'sbar',
+        gridPos: { x: 0, y: 11, w: 6, h: 5 },
+        settings: {
+          title: 'Flickr Application - CPU Speed by colo',
+          component_type: 'BarchartWidgetComponent',
+          data_source: 'yamas'
+        },
+        query: {
+          start: '1h-ago',
+          end: '',
+          downsample: '1m-avg-nan',
+          groups: [
+            {
+              id: 'ALL-COLO',
+              title: 'group 1',
+              queries: [
+                {
+                    aggregator: 'zimsum',
+                    explicitTags:false,
+                    downsample: '1m-avg-nan',
+                    metric:'Flickr.WWW-BOTS.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "red",
+                            aggregator: "SUM",
+                            stackLabel: "WWW-BOTS"
+                        }
+                    }
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.UPLOAD.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "orange",
+                            aggregator: "SUM",
+                            stackLabel: "UPLOAD"
+                        }
+                    }
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.ZOOKEEPER.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "yellow",
+                            aggregator: "SUM",
+                            stackLabel: "ZOOKEEPER"
+                        }
+                    }
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "green",
+                            aggregator: "SUM",
+                            stackLabel: "TWEM"
+                        }
+                    }
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.STORM-General.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "blue",
+                            aggregator: "SUM",
+                            stackLabel: "STORM"
+                        }
+                    }
+                }
+              ]
+            },
+            {
+                id: 'BF1',
+                title: 'group 2',
+                queries: [
+                  {
+                      aggregator: 'zimsum',
+                      explicitTags:false,
+                      downsample: '1m-avg-nan',
+                      metric:'Flickr.WWW-BOTS.cpu_speed',
+                      rate: false,
+                      rateOptions : {
+                          counter: false,
+                          resetValue: 1
+                      },
+                      counter: false,
+                      resetValue: 1,
+                      tags: { colo: "bf1"},
+                      settings: {
+                          visual: {
+                              color: "red",
+                              aggregator: "SUM",
+                              stackLabel: "WWW-BOTS"
+                          }
+                      }
+                  },
+                  {
+                      aggregator: 'zimsum',
+                      downsample: '1m-avg-nan',
+                      explicitTags:false,
+                      metric:'Flickr.UPLOAD.cpu_speed',
+                      rate: false,
+                      rateOptions : {
+                          counter: false,
+                          resetValue: 1
+                      },
+                      counter: false,
+                      resetValue: 1,
+                      tags: { colo: "bf1"},
+                      settings: {
+                          visual: {
+                              color: "orange",
+                              aggregator: "SUM",
+                              stackLabel: "UPLOAD"
+                          }
+                      }
+                  },
+                  {
+                      aggregator: 'zimsum',
+                      downsample: '1m-avg-nan',
+                      explicitTags:false,
+                      metric:'Flickr.ZOOKEEPER.cpu_speed',
+                      rate: false,
+                      rateOptions : {
+                          counter: false,
+                          resetValue: 1
+                      },
+                      counter: false,
+                      resetValue: 1,
+                      tags: { colo: "bf1"},
+                      settings: {
+                          visual: {
+                              color: "yellow",
+                              aggregator: "SUM",
+                              stackLabel: "ZOOKEEPER"
+                          }
+                      }
+                  },
+                  {
+                      aggregator: 'zimsum',
+                      downsample: '1m-avg-nan',
+                      explicitTags:false,
+                      metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
+                      rate: false,
+                      rateOptions : {
+                          counter: false,
+                          resetValue: 1
+                      },
+                      counter: false,
+                      resetValue: 1,
+                      tags: { colo: "bf1"},
+                      settings: {
+                          visual: {
+                              color: "green",
+                              aggregator: "SUM",
+                              stackLabel: "TWEM"
+                          }
+                      }
+                  },
+                  {
+                      aggregator: 'zimsum',
+                      downsample: '1m-avg-nan',
+                      explicitTags:false,
+                      metric:'Flickr.STORM-General.cpu_speed',
+                      rate: false,
+                      rateOptions : {
+                          counter: false,
+                          resetValue: 1
+                      },
+                      counter: false,
+                      resetValue: 1,
+                      tags: { colo: "bf1"},
+                      settings: {
+                          visual: {
+                              color: "blue",
+                              aggregator: "SUM",
+                              stackLabel: "STORM"
+                          }
+                      }
+                  }
+                ]
+            },
+            {
+                id: 'GQ1',
+                title: 'group 2',
+                queries: [
+                  {
+                      aggregator: 'zimsum',
+                      explicitTags:false,
+                      downsample: '1m-avg-nan',
+                      metric:'Flickr.WWW-BOTS.cpu_speed',
+                      rate: false,
+                      rateOptions : {
+                          counter: false,
+                          resetValue: 1
+                      },
+                      counter: false,
+                      resetValue: 1,
+                      tags: { colo: "gq1"},
+                      settings: {
+                          visual: {
+                              color: "red",
+                              aggregator: "SUM",
+                              stackLabel: "WWW-BOTS"
+                          }
+                      }
+                  },
+                  {
+                      aggregator: 'zimsum',
+                      downsample: '1m-avg-nan',
+                      explicitTags:false,
+                      metric:'Flickr.UPLOAD.cpu_speed',
+                      rate: false,
+                      rateOptions : {
+                          counter: false,
+                          resetValue: 1
+                      },
+                      counter: false,
+                      resetValue: 1,
+                      tags: { colo: "gq1"},
+                      settings: {
+                          visual: {
+                              color: "orange",
+                              aggregator: "SUM",
+                              stackLabel: "UPLOAD"
+                          }
+                      }
+                  },
+                  {
+                      aggregator: 'zimsum',
+                      downsample: '1m-avg-nan',
+                      explicitTags:false,
+                      metric:'Flickr.ZOOKEEPER.cpu_speed',
+                      rate: false,
+                      rateOptions : {
+                          counter: false,
+                          resetValue: 1
+                      },
+                      counter: false,
+                      resetValue: 1,
+                      tags: { colo: "gq1"},
+                      settings: {
+                          visual: {
+                              color: "yellow",
+                              aggregator: "SUM",
+                              stackLabel: "ZOOKEEPER"
+                          }
+                      }
+                  },
+                  {
+                      aggregator: 'zimsum',
+                      downsample: '1m-avg-nan',
+                      explicitTags:false,
+                      metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
+                      rate: false,
+                      rateOptions : {
+                          counter: false,
+                          resetValue: 1
+                      },
+                      counter: false,
+                      resetValue: 1,
+                      tags: { colo: "gq1"},
+                      settings: {
+                          visual: {
+                              color: "green",
+                              aggregator: "SUM",
+                              stackLabel: "TWEM"
+                          }
+                      }
+                  },
+                  {
+                      aggregator: 'zimsum',
+                      downsample: '1m-avg-nan',
+                      explicitTags:false,
+                      metric:'Flickr.STORM-General.cpu_speed',
+                      rate: false,
+                      rateOptions : {
+                          counter: false,
+                          resetValue: 1
+                      },
+                      counter: false,
+                      resetValue: 1,
+                      tags: { colo: "gq1"},
+                      settings: {
+                          visual: {
+                              color: "blue",
+                              aggregator: "SUM",
+                              stackLabel: "STORM"
+                          }
+                      }
+                  }
+                ]
+              }
           ]
+        }
+      },
+      {
+        id: 'donut',
+        gridPos: { x: 6, y: 11, w: 6, h: 5 },
+        settings: {
+          title: 'Flickr CPU Speed',
+          component_type: 'DonutWidgetComponent',
+          data_source: 'yamas'
+        },
+        query: {
+          start: '1h-ago',
+          end: '',
+          downsample: '1m-avg-nan',
+          groups: [
+            {
+              id: 'ALL-COLO',
+              title: 'group 1',
+              queries: [
+                {
+                    aggregator: 'zimsum',
+                    explicitTags:false,
+                    downsample: '1m-avg-nan',
+                    metric:'Flickr.WWW-BOTS.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "red",
+                            aggregator: "SUM",
+                            stackLabel: "WWW-BOTS"
+                        }
+                    }
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.UPLOAD.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "orange",
+                            aggregator: "SUM",
+                            stackLabel: "UPLOAD"
+                        }
+                    }
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.ZOOKEEPER.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "yellow",
+                            aggregator: "SUM",
+                            stackLabel: "ZOOKEEPER"
+                        }
+                    }
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "green",
+                            aggregator: "SUM",
+                            stackLabel: "TWEM"
+                        }
+                    }
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.STORM-General.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "blue",
+                            aggregator: "SUM",
+                            stackLabel: "STORM"
+                        }
+                    }
+                }
+              ]
+            }
+        ]
         }
       }
     ]
@@ -335,4 +807,23 @@ export class HttpService {
       );
   }
 
+    getNamespaces(queryObj: any): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json'
+        });
+        return this.http.post('/search/namespaces', queryObj, { headers, withCredentials: true })
+          .pipe(
+            catchError(this.handleError)
+          );
+    }
+
+    getMetrics(queryObj: any): Observable<any> {
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+        return this.http.post('/search/metrics', queryObj, { headers, withCredentials: true })
+            .pipe(
+            catchError(this.handleError)
+            );
+    }
 }
