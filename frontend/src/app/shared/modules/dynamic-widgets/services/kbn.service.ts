@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import kbn from './kbn';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +14,13 @@ export class KBNService {
   binarySIUnits = ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi']; // base 1024
   decimalSIUnits = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']; // base 1000
 
+  kbnPreciseNumber(value: number, desc: string, precision: number): number {
+    const numDigitsBeforeDecimal = Math.abs(value).toFixed().toString() === '0' ? 0 : Math.abs(value).toFixed().toString().length;
+    return kbn.valueFormats[desc](value, precision - numDigitsBeforeDecimal, precision - numDigitsBeforeDecimal);
+  }
+
   // Main Method
-  public getBigNumber(val: number, unit: string, precision: number): string {
+  public getBigNumber(val: number, unit: string, precision?: number): string {
     let bigNum: string;
     switch (unit) {
       // Data (Binary)
@@ -82,7 +88,7 @@ export class KBNService {
 
       // Throughput
       case 'ops' || 'reqps' || 'rps' || 'wps' || 'iops' || 'opm' || 'rpm' || 'wpm':
-        bigNum = this.preciseNumber(this.short(val), precision) + unit;
+        bigNum = this.preciseNumber(this.short(val), precision, false) + unit;
         break;
 
       // Time
@@ -112,20 +118,29 @@ export class KBNService {
 
       // Unrecognized unit defaults to 'short' + unit
       default:
-        bigNum = this.preciseNumber(this.short(val), precision) + ' ' + unit;
+        bigNum = this.preciseNumber(this.short(val), precision, false) + ' ' + unit;
         break;
     }
     return bigNum;
   }
 
   // HELPER Methods
-  preciseNumber(numUnit: INumberUnit, precision?: number): string {
+  preciseNumber(numUnit: INumberUnit, precision?: number, spaceAfterNumber?: boolean): string {
+    if (spaceAfterNumber == null) {
+      spaceAfterNumber = true;
+    }
+
+    if (!numUnit.num) {
+      return numUnit.unit || 'NA';
+    }
+
     if (precision < 1 || precision > 15 || !precision) {
       precision = 3;
     }
     const fractionLength = (precision - this.intLength(numUnit.num) < 0) ? 0 : precision - this.intLength(numUnit.num);
 
-    return numUnit.num.toFixed(fractionLength) + numUnit.unit;
+    return (spaceAfterNumber) ? numUnit.num.toFixed(fractionLength) + ' ' + numUnit.unit
+                              : numUnit.num.toFixed(fractionLength) + numUnit.unit;
   }
 
   intLength(num: number): number {
@@ -133,7 +148,7 @@ export class KBNService {
   }
 
   normalizer(base: number, magnitude: number, units: string[], val: number ): INumberUnit {
-    if (base <= 1 || !units.length) {
+    if (base <= 1 || !units.length || magnitude < 0) {
       return {num: val, unit: 'NA'};
     }
 
@@ -142,12 +157,7 @@ export class KBNService {
       magnitude++;
     }
 
-    while (this.intLength(val) === 0 ) {
-      val = val * base;
-      magnitude--;
-    }
-
-    return (magnitude >= units.length || magnitude < 0) ? {num: val, unit: 'NA'} : {num: val, unit: units[magnitude]};
+    return (magnitude >= units.length) ? {num: null, unit: 'NA'} : {num: val, unit: units[magnitude]};
   }
 
   // NON-TIME Scales
@@ -169,19 +179,19 @@ export class KBNService {
   }
 
   seconds(val: number): INumberUnit {
-    return (this.intLength(val) > 3) ? this.minutes(val / 60) : { num: val, unit: 's'};
+    return (Math.abs(val) > 60) ? this.minutes(val / 60) : { num: val, unit: 's'};
   }
 
   minutes(val: number): INumberUnit {
-    return (this.intLength(val) > 3) ? this.hours(val / 60) : { num: val, unit: 'min'};
+    return (Math.abs(val) > 60) ? this.hours(val / 60) : { num: val, unit: 'min'};
   }
 
   hours(val: number): INumberUnit {
-    return (this.intLength(val) > 3) ? this.days(val / 24) : { num: val, unit: 'hr'};
+    return (Math.abs(val) > 24) ? this.days(val / 24) : { num: val, unit: 'hour'};
   }
 
   days(val: number): INumberUnit {
-    return (this.intLength(val) > 3) ? this.years(val / 365.25) : { num: val, unit: 'd'};
+    return (Math.abs(val) > 365) ? this.years(val / 365) : { num: val, unit: 'day'};
   }
 
   years(val: number): INumberUnit {
