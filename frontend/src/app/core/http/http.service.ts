@@ -182,33 +182,6 @@ export class HttpService {
             {
               id: 'werd',
               title: 'group 1',
-              visual:  [
-                      {
-                          color: "red",
-                          aggregator: "Avg",
-                          stackLabel: "S1"
-                      },
-                      {
-                          color: "orange",
-                          aggregator: "Avg",
-                          stackLabel: "S2"
-                      },
-                      {
-                          color: "yellow",
-                          aggregator: "Avg",
-                          stackLabel: "S3"
-                      },
-                      {
-                          color: "green",
-                          aggregator: "Avg",
-                          stackLabel: "S4"
-                      },
-                      {
-                          color: "blue",
-                          aggregator: "Avg",
-                          stackLabel: "S5"
-                      }
-                ],
               queries: [
                 {
                     aggregator: 'zimsum',
@@ -222,6 +195,13 @@ export class HttpService {
                     },
                     counter: false,
                     resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "red",
+                            aggregator: "SUM",
+                            stackLabel: "S1"
+                        }
+                    }
                 },
                 {
                     aggregator: 'zimsum',
@@ -235,6 +215,13 @@ export class HttpService {
                     },
                     counter: false,
                     resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "orange",
+                            aggregator: "SUM",
+                            stackLabel: "S2"
+                        }
+                    }
                 },
                 {
                     aggregator: 'zimsum',
@@ -247,7 +234,14 @@ export class HttpService {
                         resetValue: 1
                     },
                     counter: false,
-                    resetValue: 1
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "yellow",
+                            aggregator: "SUM",
+                            stackLabel: "S3"
+                        }
+                    }
                 },
                 {
                     aggregator: 'zimsum',
@@ -260,7 +254,14 @@ export class HttpService {
                         resetValue: 1
                     },
                     counter: false,
-                    resetValue: 1
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "green",
+                            aggregator: "SUM",
+                            stackLabel: "S4"
+                        }
+                    }
                 },
                 {
                     aggregator: 'zimsum',
@@ -273,11 +274,17 @@ export class HttpService {
                         resetValue: 1
                     },
                     counter: false,
-                    resetValue: 1
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "blue",
+                            aggregator: "SUM",
+                            stackLabel: "S5"
+                        }
+                    }
                 }
               ]
             }
-
           ]
         }
       }

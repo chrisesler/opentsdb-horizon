@@ -56,12 +56,13 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
         console.log("chartjs", changes);
         if ( changes ) {
             if ( !this.chart && this.data ) {
-                let ctx = this.element.nativeElement.getContext('2d');
+                const ctx = this.element.nativeElement.getContext('2d');
                 this.updateDatasets(this.data);
                 this.chart = new Chart(ctx, {
                     type: this.chartType,
                     options: Object.assign(this.defaultOptions, this.options),
                     data: {
+                        labels: this.options.labels,
                         datasets: this.data
                     }
                 });
@@ -74,7 +75,6 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                 });
                 this.chart.data.labels = this.options.labels;
                 this.chart.options = Object.assign(this.defaultOptions, this.options);
-                console.log("comes here....");
                 this.chart.update(0);
             }
         }
