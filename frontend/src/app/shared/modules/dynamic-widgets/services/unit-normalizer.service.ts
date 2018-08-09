@@ -13,6 +13,7 @@ export class UnitNormalizerService {
   simpleUnits = ['', 'K', 'M', 'B', 'T', 'Q']; // base 1000
   binarySIUnits = ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi']; // base 1024
   decimalSIUnits = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']; // base 1000
+  errorUnit = 'NA';
 
   // Main Method
   public getBigNumber(val: number, unit: string, precision?: number): string {
@@ -121,12 +122,17 @@ export class UnitNormalizerService {
 
   // HELPER Methods
   formatNumber(numUnit: INumberUnit, precision?: number, spaceAfterNumber?: boolean): string {
-    if (spaceAfterNumber == null) {
-      spaceAfterNumber = true;
+
+    if (!numUnit) {
+      return this.errorUnit;
     }
 
     if (!numUnit.num) {
-      return numUnit.unit || 'NA';
+      return numUnit.unit;
+    }
+
+    if (spaceAfterNumber == null) {
+      spaceAfterNumber = true;
     }
 
     if (precision < 1 || precision > 15 || !precision) {
@@ -144,7 +150,7 @@ export class UnitNormalizerService {
 
   normalizer(base: number, magnitude: number, units: string[], val: number ): INumberUnit {
     if (base <= 1 || !units.length || magnitude < 0) {
-      return {num: val, unit: 'NA'};
+      return {num: val, unit: this.errorUnit};
     }
 
     while (this.intLength(val) > 3) {
@@ -152,7 +158,7 @@ export class UnitNormalizerService {
       magnitude++;
     }
 
-    return (magnitude >= units.length) ? {num: null, unit: 'NA'} : {num: val, unit: units[magnitude]};
+    return (magnitude >= units.length) ? {num: null, unit: this.errorUnit} : {num: val, unit: units[magnitude]};
   }
 
   // NON-TIME Scales
