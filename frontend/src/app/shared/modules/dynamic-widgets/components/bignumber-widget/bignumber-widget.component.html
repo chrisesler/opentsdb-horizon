@@ -20,7 +20,7 @@
                             'medium-size': selectedMetric.configuration.bigNum.prefixSize=='m', 
                             'small-size': selectedMetric.configuration.bigNum.prefixSize=='s'
                         }">{{selectedMetric.configuration.bigNum.prefix}}</span>
-                        <span class="big-number">{{kbn.preciseNumber(selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.precision)}}</span>
+                        <!-- <span class="big-number">{{kbn.preciseNumber(selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.precision)}}</span> -->
                         <span [ngClass]="{
                             'xlarge-size': selectedMetric.configuration.bigNum.postfixSize=='xl', 
                             'large-size': selectedMetric.configuration.bigNum.postfixSize=='l', 

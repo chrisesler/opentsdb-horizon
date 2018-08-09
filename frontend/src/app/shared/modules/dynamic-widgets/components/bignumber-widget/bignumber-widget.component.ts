@@ -13,6 +13,7 @@ import {
 } from '../../../sharedcomponents/components';
 import { KBNService } from '../../services/kbn.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
+// import kbn from '../../services/kbn';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -41,6 +42,8 @@ export class BignumberWidgetComponent implements OnInit {
     constructor(private interCom: IntercomService, public utils: UtilsService, public kbn: KBNService) { }
 
     ngOnInit() {
+
+        console.log(this.kbn.getBigNumber(1234, 'short', 3));
         for (let i = 0; i < this.numberOfMetrics; i++) {
 
             // tslint:disable-next-line:prefer-const
@@ -115,7 +118,6 @@ export class BignumberWidgetComponent implements OnInit {
     }
 
     setMetricToSelected(metric: any) {
-        console.log('inside setMetricToSelected');
         this.setAllMetricsToUnSelected();
         // tslint:disable-next-line:prefer-const
         for (let _metric of this.fakeMetrics) {
