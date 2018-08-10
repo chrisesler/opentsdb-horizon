@@ -15,6 +15,11 @@
         .text-title {
             font-weight: bold;
         }
+        
+        .label-label {
+            width: 70px;
+            display: inline-block;
+        }
 
         .labels-container {
             margin: 10px;
@@ -99,6 +104,11 @@
                     background: transparent;
                 }
             }
+        }
+
+        .options-container{
+            margin: 10px;
+
         }
     }
 }

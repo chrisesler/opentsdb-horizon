@@ -3,8 +3,9 @@
 
     <div class="labels-container" *ngIf="selectedMetric">
         <div class="text-title"> Labels </div>
+
         <div class="prefix-container"> 
-            <span>Prefix</span>
+            <span class="label-label">Prefix</span>
             <form>
                 <mat-form-field floatLabel="never">
                     <input matInput #prefixBox placeholder="Enter Prefix" value="{{selectedMetric.configuration.bigNum.prefix}}" (keyup)="KeyedOnPrefixInputBox(prefixBox.value)">
@@ -16,30 +17,52 @@
                 <mat-button-toggle value="l">lg</mat-button-toggle>
             </mat-button-toggle-group>
             <mat-button-toggle-group #prefixAlignmentGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixAlignment" (change)="selectedPrefixAlignment(prefixAlignmentGroup.value)">
-            <!-- <mat-button-toggle-group #prefixGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixSize" (change)="selectedPrefixSize(prefixGroup.value)"> -->
                 <mat-button-toggle value="bottom">b</mat-button-toggle>
                 <mat-button-toggle value="middle">m</mat-button-toggle>
                 <mat-button-toggle value="top">t</mat-button-toggle>
             </mat-button-toggle-group>
         </div>
     
-        <!-- <div class="postfix-container"> 
-            <div class="text-title"> Postfix </div>
+        <div class="postfix-container"> 
+            <span class="label-label">Postfix</span>
             <form>
                 <mat-form-field floatLabel="never">
                     <input matInput #postfixBox placeholder="Enter Postfix" value="{{selectedMetric.configuration.bigNum.postfix}}" (keyup)="KeyedOnPostfixInputBox(postfixBox.value)">
                 </mat-form-field>
             </form>
-            <mat-button-toggle-group #postfixGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.postfixSize" (change)="selectedPostfixSize(postfixGroup.value)">
+            <mat-button-toggle-group #postfixSizeGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.postfixSize" (change)="selectedPostfixSize(postfixSizeGroup.value)">
                 <mat-button-toggle value="s">sm</mat-button-toggle>
                 <mat-button-toggle value="m">md</mat-button-toggle>
                 <mat-button-toggle value="l">lg</mat-button-toggle>
-                <mat-button-toggle value="xl">xl</mat-button-toggle>
+            </mat-button-toggle-group>
+            <mat-button-toggle-group #postfixAlignmentGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.postfixAlignment" (change)="selectedPostfixAlignment(postfixAlignmentGroup.value)">
+                <mat-button-toggle value="bottom">b</mat-button-toggle>
+                <mat-button-toggle value="middle">m</mat-button-toggle>
+                <mat-button-toggle value="top">t</mat-button-toggle>
             </mat-button-toggle-group>
         </div>
     
+        <div class="unit-container"> 
+            <span class="label-label">Unit</span>
+            <form>
+                <mat-form-field floatLabel="never">
+                    <input matInput #unitBox placeholder="Enter Unit" value="{{selectedMetric.configuration.bigNum.unit}}" (keyup)="KeyedOnUnitInputBox(unitBox.value)">
+                </mat-form-field>
+            </form>
+            <mat-button-toggle-group #unitSizeGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.unitSize" (change)="selectedUnitSize(unitSizeGroup.value)">
+                <mat-button-toggle value="s">sm</mat-button-toggle>
+                <mat-button-toggle value="m">md</mat-button-toggle>
+                <mat-button-toggle value="l">lg</mat-button-toggle>
+            </mat-button-toggle-group>
+            <mat-button-toggle-group #unitAlignmentGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.unitAlignment" (change)="selectedUnitAlignment(unitAlignmentGroup.value)">
+                <mat-button-toggle value="bottom">b</mat-button-toggle>
+                <mat-button-toggle value="middle">m</mat-button-toggle>
+                <mat-button-toggle value="top">t</mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+        
         <div class="caption-container">
-            <div class="text-title"> Caption </div> 
+            <span class="label-label">Caption</span> 
             <form>
                 <mat-form-field floatLabel="never">
                     <input matInput #captionBox placeholder="Enter Caption" value="{{selectedMetric.configuration.bigNum.caption}}" (keyup)="KeyedOnCaptionInputBox(captionBox.value)">
@@ -49,12 +72,21 @@
                 <mat-button-toggle value="s">sm</mat-button-toggle>
                 <mat-button-toggle value="m">md</mat-button-toggle>
                 <mat-button-toggle value="l">lg</mat-button-toggle>
-                <mat-button-toggle value="xl">xl</mat-button-toggle>
             </mat-button-toggle-group>
-        </div> -->
+        </div>
+
+        <div class="precision-container">
+            <span class="label-label">Precision</span> 
+            <form>
+                <mat-form-field floatLabel="never">
+                    <input matInput #precisionBox placeholder="Enter Precision" value="{{selectedMetric.configuration.bigNum.precision}}" (keyup)="KeyedOnPrecisionInputBox(captionBox.value)">
+                </mat-form-field>
+            </form>
+        </div>
+
     </div>
 
-    <!-- <div class="color-container" *ngIf="selectedMetric">
+    <div class="color-container" *ngIf="selectedMetric">
         <div class="text-title"> Color Family </div>
         <div class="color-picker-container">
             <mat-button-toggle-group #colorGroup="matButtonToggleGroup" [value]="colorType" (change)="selectedColorType(colorGroup.value)">
@@ -65,7 +97,19 @@
                 <color-picker [overlay]="'false'" (change)="colorChanged($event)" [selectedColor]="colorType == 'text' ? selectedMetric.configuration.bigNum.textColor : selectedMetric.configuration.bigNum.backgroundColor"></color-picker>
             </div>
         </div>
-    </div> -->
+    </div>
+
+    <div class="options-container" *ngIf="selectedMetric">
+        <div class="text-title"> Options </div>
+        <div>
+                <!-- formControlName="sparkline" -->
+            <mat-slide-toggle><span class="mat-caption">Sparkline</span></mat-slide-toggle>
+        </div>
+        <div>
+                <!-- formControlName="changeIndicator" -->
+            <mat-slide-toggle><span class="mat-caption">Change Indicator</span></mat-slide-toggle>
+        </div>
+    </div>
 </div>
 
 
