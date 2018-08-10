@@ -25,10 +25,11 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     constructor() { }
 
     ngOnInit() {
-        this.selectedMetric = this.getSelectedMetric();
-        this.colorType = 'background';
+        this.selectedMetric = this.widget;
+        this.colorType = 'text'; // default color tab
     }
 
+    // Prefix
     KeyedOnPrefixInputBox(value: string) {
         this.selectedMetric['configuration']['bigNum']['prefix'] = value;
     }
@@ -37,6 +38,11 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
         this.selectedMetric['configuration']['bigNum']['prefixSize'] = value;
     }
 
+    selectedPrefixAlignment(value: string) {
+        this.selectedMetric['configuration']['bigNum']['prefixAlignment'] = value;
+    }
+
+    // Postfix
     KeyedOnPostfixInputBox(value: string) {
         this.selectedMetric['configuration']['bigNum']['postfix'] = value;
     }
@@ -45,6 +51,24 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
         this.selectedMetric['configuration']['bigNum']['postfixSize'] = value;
     }
 
+    selectedPostfixAlignment(value: string) {
+        this.selectedMetric['configuration']['bigNum']['postfixAlignment'] = value;
+    }
+
+    // Unit
+    KeyedOnUnitInputBox(value: string) {
+        this.selectedMetric['configuration']['bigNum']['unit'] = value;
+    }
+
+    selectedUnitSize(value: string) {
+        this.selectedMetric['configuration']['bigNum']['unitSize'] = value;
+    }
+
+    selectedUnitAlignment(value: string) {
+        this.selectedMetric['configuration']['bigNum']['unitAlignment'] = value;
+    }
+
+    // Caption
     KeyedOnCaptionInputBox(value: string) {
         this.selectedMetric['configuration']['bigNum']['caption'] = value;
     }
@@ -53,6 +77,12 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
         this.selectedMetric['configuration']['bigNum']['captionSize'] = value;
     }
 
+    // Precision
+    KeyedOnPrecisionInputBox(value: string) {
+        this.selectedMetric['configuration']['bigNum']['precision'] = value;
+    }
+
+    // Color Picker
     selectedColorType(value: string) {
         this.colorType = value;
     }
@@ -65,17 +95,5 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
         }
     }
 
-    getSelectedMetric(): any {
-        // tslint:disable-next-line:prefer-const
-        for (let _metric of this.widget) {
-            if (_metric['configuration']['bigNum']['selected']) {
-                return _metric;
-            }
-        }
-    }
-
-    setMetricToSelected(metric: any) {
-        this.selectedMetric = metric;
-        this.selectionChanged.emit(metric);
-    }
+    // Options
 }

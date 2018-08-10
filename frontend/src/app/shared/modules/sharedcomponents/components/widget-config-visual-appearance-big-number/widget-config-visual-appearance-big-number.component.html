@@ -1,35 +1,29 @@
 
 <div class="container">
-    <div class="query-side-panel">
-        <div class="query-side-panel-title">Selected query </div>
-        <div *ngFor="let metric of widget">
-            <button mat-button [ngClass]="{'is-selected': metric == selectedMetric}" (click)="setMetricToSelected(metric)"> 
-                <div class="grid-item"  [style.background-color]="metric.configuration.bigNum.backgroundColor"
-                                        [style.color]="metric.configuration.bigNum.textColor">
-                    {{metric.configuration.bigNum.shorthand}}
-            </div>
-                {{metric.metric}} 
-            </button>
-        </div>
-    </div>
 
-    <div class="text-container" *ngIf="selectedMetric">
+    <div class="labels-container" *ngIf="selectedMetric">
+        <div class="text-title"> Labels </div>
         <div class="prefix-container"> 
-            <div class="text-title"> Prefix </div>
+            <span>Prefix</span>
             <form>
                 <mat-form-field floatLabel="never">
                     <input matInput #prefixBox placeholder="Enter Prefix" value="{{selectedMetric.configuration.bigNum.prefix}}" (keyup)="KeyedOnPrefixInputBox(prefixBox.value)">
                 </mat-form-field>
             </form>
-            <mat-button-toggle-group #prefixGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixSize" (change)="selectedPrefixSize(prefixGroup.value)">
+            <mat-button-toggle-group #prefixSizeGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixSize" (change)="selectedPrefixSize(prefixGroup.value)">
                 <mat-button-toggle value="s">sm</mat-button-toggle>
                 <mat-button-toggle value="m">md</mat-button-toggle>
                 <mat-button-toggle value="l">lg</mat-button-toggle>
-                <mat-button-toggle value="xl">xl</mat-button-toggle>
+            </mat-button-toggle-group>
+            <mat-button-toggle-group #prefixAlignmentGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixAlignment" (change)="selectedPrefixAlignment(prefixAlignmentGroup.value)">
+            <!-- <mat-button-toggle-group #prefixGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixSize" (change)="selectedPrefixSize(prefixGroup.value)"> -->
+                <mat-button-toggle value="bottom">b</mat-button-toggle>
+                <mat-button-toggle value="middle">m</mat-button-toggle>
+                <mat-button-toggle value="top">t</mat-button-toggle>
             </mat-button-toggle-group>
         </div>
     
-        <div class="postfix-container"> 
+        <!-- <div class="postfix-container"> 
             <div class="text-title"> Postfix </div>
             <form>
                 <mat-form-field floatLabel="never">
@@ -57,21 +51,21 @@
                 <mat-button-toggle value="l">lg</mat-button-toggle>
                 <mat-button-toggle value="xl">xl</mat-button-toggle>
             </mat-button-toggle-group>
-        </div>
+        </div> -->
     </div>
 
-    <div class="color-container" *ngIf="selectedMetric">
+    <!-- <div class="color-container" *ngIf="selectedMetric">
         <div class="text-title"> Color Family </div>
         <div class="color-picker-container">
             <mat-button-toggle-group #colorGroup="matButtonToggleGroup" [value]="colorType" (change)="selectedColorType(colorGroup.value)">
-                    <mat-button-toggle value="background">Background</mat-button-toggle>
-                    <mat-button-toggle value="text">Text</mat-button-toggle>
+                <mat-button-toggle value="text">Text</mat-button-toggle>    
+                <mat-button-toggle value="background">Background</mat-button-toggle>
             </mat-button-toggle-group>
             <div>
                 <color-picker [overlay]="'false'" (change)="colorChanged($event)" [selectedColor]="colorType == 'text' ? selectedMetric.configuration.bigNum.textColor : selectedMetric.configuration.bigNum.backgroundColor"></color-picker>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 
 

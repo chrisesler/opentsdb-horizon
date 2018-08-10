@@ -33,7 +33,7 @@ export class BignumberWidgetComponent implements OnInit {
     /** Local variables */
     // tslint:disable:no-inferrable-types
     selectedMetric: any;
-    numberOfMetrics: number = 4;
+    numberOfMetrics: number = 1;
     fakeMetrics: Array<any> = new Array<any>();
     _clientHeight: number = 300;
     fontSizePercent: string = '150%';
@@ -136,23 +136,30 @@ export class BignumberWidgetComponent implements OnInit {
             // tslint:disable-next-line:prefer-const
             let bigNumberMetric: IBigNumberMetric = {
                 bigNumber: 1234 * Math.pow(10, i),
-                precision: 3,
-                unit: 'short', // short
+
                 prefix: '-',
-                postfix: 'per hour',
-                caption: 'Monitoring Revenue',
                 prefixSize: 'l',
+                prefixAlignment: 'top',
+                postfix: 'per hour',
                 postfixSize: 'm',
+                postfixAlignment: 'bottom',
+
+                unit: 'short', // short
+                unitSize: 'm',
+                unitAlignment: 'bottom',
+
+                caption: 'Monitoring Revenue',
                 captionSize: 's',
+
+                precision: 3,
+
                 textColor: '#ffffff',
                 backgroundColor: '#' + String(4 + i) + '0' + String(i) + '0' + String(8 - i) + '0',
-                selected: false,
-                shorthand: 'm' + String(i)
+
+                sparkLineEnabled: false,
+                changedIndicatorEnabled: false
             };
 
-            if (i === 1) {
-                bigNumberMetric.selected = true;
-            }
 
             this.fakeMetrics.push(
                 {
@@ -193,36 +200,36 @@ export class BignumberWidgetComponent implements OnInit {
             );
         }
 
-        this.setMetricToSelected(this.fakeMetrics[1]);
+        this.selectedMetric = this.fakeMetrics[0];
     }
 
-    setAllMetricsToUnSelected() {
-        // tslint:disable-next-line:prefer-const
-        for (let metric of this.fakeMetrics) {
-            metric['configuration']['bigNum']['selected'] = false;
-            this.selectedMetric = null;
-        }
-    }
+    // setAllMetricsToUnSelected() {
+    //     // tslint:disable-next-line:prefer-const
+    //     for (let metric of this.fakeMetrics) {
+    //         metric['configuration']['bigNum']['selected'] = false;
+    //         this.selectedMetric = null;
+    //     }
+    // }
 
-    setMetricToSelected(metric: any) {
-        this.setAllMetricsToUnSelected();
-        // tslint:disable-next-line:prefer-const
-        for (let _metric of this.fakeMetrics) {
-            if (_metric === metric) {
-                _metric['configuration']['bigNum']['selected'] = true;
-                this.selectedMetric = metric;
-            }
-        }
-    }
+    // setMetricToSelected(metric: any) {
+    //     this.setAllMetricsToUnSelected();
+    //     // tslint:disable-next-line:prefer-const
+    //     for (let _metric of this.fakeMetrics) {
+    //         if (_metric === metric) {
+    //             _metric['configuration']['bigNum']['selected'] = true;
+    //             this.selectedMetric = metric;
+    //         }
+    //     }
+    // }
 
-    setSelectedMetric() {
-        // tslint:disable-next-line:prefer-const
-        for (let _metric of this.fakeMetrics) {
-            if (_metric['configuration']['bigNum']['selected']) {
-                this.selectedMetric = _metric;
-            }
-        }
-    }
+    // setSelectedMetric() {
+    //     // tslint:disable-next-line:prefer-const
+    //     for (let _metric of this.fakeMetrics) {
+    //         if (_metric['configuration']['bigNum']['selected']) {
+    //             this.selectedMetric = _metric;
+    //         }
+    //     }
+    // }
 
     /**
      * Services
@@ -285,26 +292,31 @@ export class BignumberWidgetComponent implements OnInit {
 
 interface IBigNumberMetric {
     bigNumber: number;
-    precision: number;
-    unit: string;
-    selected: boolean;
-    shorthand: string;
-
     value?: string; // max, min, average, latest
     comparedTo?: number;
 
     prefix?: string;
-    postfix?: string;
-    caption?: string;
-
     prefixSize?: string;
+    prefixAlignment?: string;
+
+    postfix?: string;
     postfixSize?: string;
+    postfixAlignment?: string;
+
+    unit: string;
+    unitSize: string;
+    unitAlignment: string;
+
+    caption?: string;
     captionSize?: string;
 
-    prefixAlignment?: string;
-    postfixAlignment?: string;
-    captionAlignment?: string;
+    precision: number;
 
     textColor: string;
     backgroundColor: string;
+
+    sparkLineEnabled: boolean;
+    changedIndicatorEnabled?: boolean;
+    // changeIndicatorCompareValue: number;
+    // changeIndicatorCompareValue: string;
 }
