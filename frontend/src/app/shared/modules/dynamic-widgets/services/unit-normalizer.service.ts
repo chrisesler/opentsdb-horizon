@@ -117,10 +117,9 @@ export class UnitNormalizerService {
 
       // Currency
       case 'usd':
-        bigNum = this.formatNumber(this.short(val), precision);
-        bigNum.num = bigNum.num + bigNum.unit;
-        bigNum.unitPos = 'left';
-        bigNum.unit = '$';
+        bigNum = this.formatNumberWithDim(this.short(val), precision, '$');
+        bigNum.unitPos = Position.left;
+        bigNum.changeIndicatorHasUnit = false;
         break;
 
       // Simple Counts
@@ -128,7 +127,7 @@ export class UnitNormalizerService {
         bigNum = this.formatNumber(this.short(val), precision);
         break;
 
-      // Unrecognized unit defaults to 'short' + unit
+      // Unrecognized unit defaults to 'short' + dim
       default:
         bigNum = bigNum = this.formatNumberWithDim(this.short(val), precision, unit);
         break;
@@ -138,41 +137,44 @@ export class UnitNormalizerService {
 
   // HELPER Methods
 
+  // Used for 'short' (auto) and time
+  formatNumber(numUnit: INumberUnit, precision: number): IBigNum {
+    if (numUnit.num) {
+      const fractionLength = this.getFractionLength(precision, numUnit.num);
+      const _bigNum: string = numUnit.num.toFixed(fractionLength);
+      return {num: _bigNum, unit: numUnit.unit, unitPos: Position.right, changeIndicatorHasUnit: true};
+    } else {
+      return {num: '', unit: this.errorUnit, unitPos: Position.right, changeIndicatorHasUnit: true};
+    }
+  }
+
+  // Used for throughput, currency, custom units
+  formatNumberWithDim(numUnit: INumberUnit, precision: number, dim: string): IBigNum {
+    if (numUnit.num) {
+      const fractionLength = this.getFractionLength(precision, numUnit.num);
+      const _bigNum: string = numUnit.num.toFixed(fractionLength);
+      return {num: _bigNum + numUnit.unit, unit: dim, unitPos: Position.right, changeIndicatorHasUnit: false};
+    } else {
+      return {num: '', unit: this.errorUnit + ' ' + dim, unitPos: Position.right, changeIndicatorHasUnit: false};
+    }
+  }
+
+  // Used for data, data rate
+  formatNumberWithSuffixToAppend(numUnit: INumberUnit, precision: number, suffix: string): IBigNum {
+    if (numUnit.num) {
+      const fractionLength = this.getFractionLength(precision, numUnit.num);
+      const _bigNum: string = numUnit.num.toFixed(fractionLength);
+      return {num: _bigNum, unit: numUnit.unit + suffix, unitPos: Position.right, changeIndicatorHasUnit: true};
+    } else {
+      return {num: '', unit: this.errorUnit, unitPos: Position.right, changeIndicatorHasUnit: true};
+    }
+  }
+
   getFractionLength(precision: number, num: number) {
     if (precision < 1 || precision > 15 || !precision) {
       precision = 3;
     }
     return (precision - this.intLength(num) < 0) ? 0 : precision - this.intLength(num);
-  }
-
-  formatNumber(numUnit: INumberUnit, precision: number): IBigNum {
-    if (numUnit.num) {
-      const fractionLength = this.getFractionLength(precision, numUnit.num);
-      const _bigNum: string = numUnit.num.toFixed(fractionLength);
-      return {num: _bigNum, unit: numUnit.unit, unitPos: 'right'};
-    } else {
-      return {num: '', unit: this.errorUnit, unitPos: 'right'};
-    }
-  }
-
-  formatNumberWithDim(numUnit: INumberUnit, precision: number, dim: string): IBigNum {
-    if (numUnit.num) {
-      const fractionLength = this.getFractionLength(precision, numUnit.num);
-      const _bigNum: string = numUnit.num.toFixed(fractionLength);
-      return {num: _bigNum + numUnit.unit, unit: dim, unitPos: 'right'};
-    } else {
-      return {num: '', unit: this.errorUnit + ' ' + dim, unitPos: 'right'};
-    }
-  }
-
-  formatNumberWithSuffixToAppend(numUnit: INumberUnit, precision: number, suffix: string): IBigNum {
-    if (numUnit.num) {
-      const fractionLength = this.getFractionLength(precision, numUnit.num);
-      const _bigNum: string = numUnit.num.toFixed(fractionLength);
-      return {num: _bigNum, unit: numUnit.unit + suffix, unitPos: 'right'};
-    } else {
-      return {num: '', unit: this.errorUnit, unitPos: 'right'};
-    }
   }
 
   intLength(num: number): number {
@@ -252,5 +254,11 @@ interface INumberUnit {
 interface IBigNum {
   num: string;
   unit: string;
-  unitPos: string;
+  unitPos: Position;
+  changeIndicatorHasUnit: boolean;
+}
+
+enum Position {
+  left,
+  right
 }
