@@ -11,7 +11,7 @@
                     <input matInput #prefixBox placeholder="Enter Prefix" value="{{selectedMetric.configuration.bigNum.prefix}}" (keyup)="KeyedOnPrefixInputBox(prefixBox.value)">
                 </mat-form-field>
             </form>
-            <mat-button-toggle-group #prefixSizeGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixSize" (change)="selectedPrefixSize(prefixGroup.value)">
+            <mat-button-toggle-group #prefixSizeGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixSize" (change)="selectedPrefixSize(prefixSizeGroup.value)">
                 <mat-button-toggle value="s">sm</mat-button-toggle>
                 <mat-button-toggle value="m">md</mat-button-toggle>
                 <mat-button-toggle value="l">lg</mat-button-toggle>
@@ -79,7 +79,7 @@
             <span class="label-label">Precision</span> 
             <form>
                 <mat-form-field floatLabel="never">
-                    <input matInput #precisionBox placeholder="Enter Precision" value="{{selectedMetric.configuration.bigNum.precision}}" (keyup)="KeyedOnPrecisionInputBox(captionBox.value)">
+                    <input matInput #precisionBox placeholder="Enter Precision" [value]="selectedMetric.configuration.bigNum.precision" (keyup)="KeyedOnPrecisionInputBox(precisionBox.value)">
                 </mat-form-field>
             </form>
         </div>

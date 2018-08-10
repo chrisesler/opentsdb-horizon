@@ -79,6 +79,7 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
 
     // Precision
     KeyedOnPrecisionInputBox(value: string) {
+        console.log('keyed on input box');
         this.selectedMetric['configuration']['bigNum']['precision'] = value;
     }
 

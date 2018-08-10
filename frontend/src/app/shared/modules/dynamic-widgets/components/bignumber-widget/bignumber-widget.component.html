@@ -12,26 +12,33 @@
         <div class="big-number-container">
             <div class="metric-container" [style.background]="selectedMetric.configuration.bigNum.backgroundColor">
                 <div class="number-container" [style.color]="selectedMetric.configuration.bigNum.textColor">
-                    <div class="number-wrapper normal-font-scale-col-1"
+                    <div class="number-wrapper"
                         [style.font-size]="fontSizePercent">
                         <span [ngClass]="{
-                            'xlarge-size': selectedMetric.configuration.bigNum.prefixSize=='xl', 
                             'large-size': selectedMetric.configuration.bigNum.prefixSize=='l', 
                             'medium-size': selectedMetric.configuration.bigNum.prefixSize=='m', 
                             'small-size': selectedMetric.configuration.bigNum.prefixSize=='s'
                         }">{{selectedMetric.configuration.bigNum.prefix}}</span>
+                        <span *ngIf="UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unitPos === 0" [ngClass]="{
+                            'large-size': selectedMetric.configuration.bigNum.unitSize=='l', 
+                            'medium-size': selectedMetric.configuration.bigNum.unitSize=='m', 
+                            'small-size': selectedMetric.configuration.bigNum.unitSize=='s'
+                        }">{{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit}}</span>
                         <span class="big-number">
                             {{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).num}}
-                            {{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit}}
                         </span>
+                        <span *ngIf="UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unitPos === 1" [ngClass]="{
+                            'large-size': selectedMetric.configuration.bigNum.unitSize=='l', 
+                            'medium-size': selectedMetric.configuration.bigNum.unitSize=='m', 
+                            'small-size': selectedMetric.configuration.bigNum.unitSize=='s'
+                        }">{{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit}}</span>
+
                         <span [ngClass]="{
-                            'xlarge-size': selectedMetric.configuration.bigNum.postfixSize=='xl', 
                             'large-size': selectedMetric.configuration.bigNum.postfixSize=='l', 
                             'medium-size': selectedMetric.configuration.bigNum.postfixSize=='m', 
                             'small-size': selectedMetric.configuration.bigNum.postfixSize=='s'
                         }">{{selectedMetric.configuration.bigNum.postfix}}</span>
                         <div class="caption" [ngClass]="{
-                            'xlarge-size': selectedMetric.configuration.bigNum.captionSize=='xl', 
                             'large-size': selectedMetric.configuration.bigNum.captionSize=='l', 
                             'medium-size': selectedMetric.configuration.bigNum.captionSize=='m', 
                             'small-size': selectedMetric.configuration.bigNum.captionSize=='s'
