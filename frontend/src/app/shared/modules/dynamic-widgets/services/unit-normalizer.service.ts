@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import kbn from './kbn';
+import { Stringifiable } from 'd3';
 
 @Injectable({
   providedIn: 'root',
@@ -16,75 +17,82 @@ export class UnitNormalizerService {
   errorUnit = 'NA';
 
   // Main Method
-  public getBigNumber(val: number, unit: string, precision?: number): string {
-    let bigNum: string;
+  public getBigNumber(val: number, unit: string, precision?: number): IBigNum {
+    let bigNum: IBigNum;
     switch (unit) {
       // Data (Binary)
       case 'bits':
-        bigNum = this.formatNumber(this.binarySI(val, 0), precision) + 'b';
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 0), precision, 'b');
         break;
       case 'bytes':
-        bigNum = this.formatNumber(this.binarySI(val, 0), precision) + 'B';
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 0), precision, 'B');
         break;
       case 'kbytes':
-        bigNum = this.formatNumber(this.binarySI(val, 1), precision) + 'B';
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 1), precision, 'B');
         break;
       case 'mbytes':
-        bigNum = this.formatNumber(this.binarySI(val, 2), precision) + 'B';
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 2), precision, 'B');
         break;
       case 'gbytes':
-        bigNum = this.formatNumber(this.binarySI(val, 3), precision) + 'B';
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 3), precision, 'B');
         break;
 
       // Data (Decimal)
       case 'decbits':
-        bigNum = this.formatNumber(this.decimalSI(val, 0), precision) + 'b';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'b');
         break;
       case 'decbytes':
-        bigNum = this.formatNumber(this.decimalSI(val, 0), precision) + 'B';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'B');
         break;
       case 'deckbytes':
-        bigNum = this.formatNumber(this.decimalSI(val, 1), precision) + 'B';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 1), precision, 'B');
         break;
       case 'decmbytes':
-        bigNum = this.formatNumber(this.decimalSI(val, 2), precision) + 'B';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 2), precision, 'B');
         break;
       case 'decgbytes':
-        bigNum = this.formatNumber(this.decimalSI(val, 3), precision) + 'B';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 3), precision, 'B');
         break;
 
       // Data Rate
       case 'pps':
-        bigNum = this.formatNumber(this.decimalSI(val, 0), precision) + 'pps';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'pps');
         break;
       case 'bps':
-        bigNum = this.formatNumber(this.decimalSI(val, 0), precision) + 'bps';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'bps');
         break;
       case 'Bps':
-        bigNum = this.formatNumber(this.decimalSI(val, 0), precision) + 'B/s';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'B/s');
         break;
       case 'KBs':
-        bigNum = this.formatNumber(this.decimalSI(val, 1), precision) + 'Bs';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 1), precision, 'Bs');
         break;
       case 'Kbits':
-        bigNum = this.formatNumber(this.decimalSI(val, 1), precision) + 'bps';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 1), precision, 'bps');
         break;
       case 'MBs':
-        bigNum = this.formatNumber(this.decimalSI(val, 2), precision) + 'Bs';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 2), precision, 'Bs');
         break;
       case 'Mbits':
-        bigNum = this.formatNumber(this.decimalSI(val, 2), precision) + 'bps';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 2), precision, 'bps');
         break;
       case 'GBs':
-        bigNum = this.formatNumber(this.decimalSI(val, 3), precision) + 'Bs';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 3), precision, 'Bs');
         break;
       case 'Gbits':
-        bigNum = this.formatNumber(this.decimalSI(val, 3), precision) + 'bps';
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 3), precision, 'bps');
         break;
 
       // Throughput
-      case 'ops' || 'reqps' || 'rps' || 'wps' || 'iops' || 'opm' || 'rpm' || 'wpm':
-        bigNum = this.formatNumber(this.short(val), precision, false) + unit;
+      case 'ops':
+      case 'reqps':
+      case 'rps':
+      case 'wps':
+      case 'iops':
+      case 'opm':
+      case 'rpm':
+      case 'wpm':
+        bigNum = this.formatNumberWithDim(this.short(val), precision, unit);
         break;
 
       // Time
@@ -107,6 +115,14 @@ export class UnitNormalizerService {
         bigNum = this.formatNumber(this.years(val), precision);
         break;
 
+      // Currency
+      case 'usd':
+        bigNum = this.formatNumber(this.short(val), precision);
+        bigNum.num = bigNum.num + bigNum.unit;
+        bigNum.unitPos = 'left';
+        bigNum.unit = '$';
+        break;
+
       // Simple Counts
       case 'short':
         bigNum = this.formatNumber(this.short(val), precision);
@@ -114,34 +130,49 @@ export class UnitNormalizerService {
 
       // Unrecognized unit defaults to 'short' + unit
       default:
-        bigNum = this.formatNumber(this.short(val), precision, false) + ' ' + unit;
+        bigNum = bigNum = this.formatNumberWithDim(this.short(val), precision, unit);
         break;
     }
     return bigNum;
   }
 
   // HELPER Methods
-  formatNumber(numUnit: INumberUnit, precision?: number, spaceAfterNumber?: boolean): string {
 
-    if (!numUnit) {
-      return this.errorUnit;
-    }
-
-    if (!numUnit.num) {
-      return numUnit.unit;
-    }
-
-    if (spaceAfterNumber == null) {
-      spaceAfterNumber = true;
-    }
-
+  getFractionLength(precision: number, num: number) {
     if (precision < 1 || precision > 15 || !precision) {
       precision = 3;
     }
-    const fractionLength = (precision - this.intLength(numUnit.num) < 0) ? 0 : precision - this.intLength(numUnit.num);
+    return (precision - this.intLength(num) < 0) ? 0 : precision - this.intLength(num);
+  }
 
-    return (spaceAfterNumber) ? numUnit.num.toFixed(fractionLength) + ' ' + numUnit.unit
-                              : numUnit.num.toFixed(fractionLength) + numUnit.unit;
+  formatNumber(numUnit: INumberUnit, precision: number): IBigNum {
+    if (numUnit.num) {
+      const fractionLength = this.getFractionLength(precision, numUnit.num);
+      const _bigNum: string = numUnit.num.toFixed(fractionLength);
+      return {num: _bigNum, unit: numUnit.unit, unitPos: 'right'};
+    } else {
+      return {num: '', unit: this.errorUnit, unitPos: 'right'};
+    }
+  }
+
+  formatNumberWithDim(numUnit: INumberUnit, precision: number, dim: string): IBigNum {
+    if (numUnit.num) {
+      const fractionLength = this.getFractionLength(precision, numUnit.num);
+      const _bigNum: string = numUnit.num.toFixed(fractionLength);
+      return {num: _bigNum + numUnit.unit, unit: dim, unitPos: 'right'};
+    } else {
+      return {num: '', unit: this.errorUnit + ' ' + dim, unitPos: 'right'};
+    }
+  }
+
+  formatNumberWithSuffixToAppend(numUnit: INumberUnit, precision: number, suffix: string): IBigNum {
+    if (numUnit.num) {
+      const fractionLength = this.getFractionLength(precision, numUnit.num);
+      const _bigNum: string = numUnit.num.toFixed(fractionLength);
+      return {num: _bigNum, unit: numUnit.unit + suffix, unitPos: 'right'};
+    } else {
+      return {num: '', unit: this.errorUnit, unitPos: 'right'};
+    }
   }
 
   intLength(num: number): number {
@@ -198,7 +229,11 @@ export class UnitNormalizerService {
   years(val: number): INumberUnit {
     // tslint:disable-next-line:prefer-const
     let numUnit = this.normalizer(1000, 0, this.simpleUnits, val);
-    numUnit.unit = numUnit.unit + ' ' + 'yr';
+    if (numUnit.unit) {
+      numUnit.unit = numUnit.unit + ' ' + 'yr';
+    } else {
+      numUnit.unit = 'yr';
+    }
     return numUnit;
   }
 
@@ -212,4 +247,10 @@ export class UnitNormalizerService {
 interface INumberUnit {
   num: number;
   unit: string;
+}
+
+interface IBigNum {
+  num: string;
+  unit: string;
+  unitPos: string;
 }
