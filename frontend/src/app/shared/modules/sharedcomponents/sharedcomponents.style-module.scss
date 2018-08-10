@@ -18,6 +18,7 @@
 
 // components
 @import 'components/search-metrics-dialog/search-metrics-dialog.component';
+@import 'components/expression-dialog/expression-dialog.component';
 @import 'components/simple-time-picker/simple-time-picker.component';
 @import 'components/theme-picker/theme-picker.component';
 @import 'components/inline-editable/inline-editable.component';
@@ -40,6 +41,7 @@
     // include your core mixins
     // example: @include componentName-component-core();
     @include search-metrics-dialog-component-base();
+    @include expression-dialog-component-base();
     @include simple-time-picker-component-base();
     @include theme-picker-component-base();
     @include inline-editable-component-base();
@@ -61,6 +63,7 @@
     // include your theme mixins, passing along the $theme-config
     // example: @include componentName-component-theme($theme-config);
     @include search-metrics-dialog-component-theme($theme-config);
+    @include expression-dialog-component-theme($theme-config);
     @include simple-time-picker-component-theme($theme-config);
     @include theme-picker-component-theme($theme-config);
     @include inline-editable-component-theme($theme-config);

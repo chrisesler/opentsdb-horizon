@@ -203,7 +203,7 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         this.httpService.getYamasData(query).subscribe(
             result => {
                 console.log('result', result);
-                //this.data = this.dataTransformerService.yamasToDygraph(this.options, result);
+                // this.data = this.dataTransformerService.yamasToDygraph(this.options, result);
                 console.log('this options', this.options);
             },
             err => {
