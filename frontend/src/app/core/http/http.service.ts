@@ -42,7 +42,6 @@ export class HttpService {
               title: 'group 2',
               settings: {
                 visual: {
-                  collapsed: false,
                   visible: true
                 }
               },
@@ -93,7 +92,6 @@ export class HttpService {
               title: 'group 2',
               settings: {
                 visual: {
-                  collapsed: false,
                   visible: true
                 }
               },
@@ -144,7 +142,6 @@ export class HttpService {
               title: 'group 1',
               settings: {
                 visual: {
-                  collapsed: false,
                   visible: true
                 }
               },
@@ -178,8 +175,9 @@ export class HttpService {
               id: 'multi2',
               title: 'group 2',
               settings: {
-                collapsed: false,
-                visible: true
+                visual: {
+                  visible: true
+                }
               },
               queries: [
                 {
@@ -228,7 +226,6 @@ export class HttpService {
               title: 'group 1',
               settings: {
                 visual: {
-                  collapsed: false,
                   visible: true
                 }
               },              
