@@ -137,16 +137,17 @@ export class BignumberWidgetComponent implements OnInit {
             let bigNumberMetric: IBigNumberMetric = {
                 bigNumber: 1234 * Math.pow(10, i),
 
-                prefix: '-',
+                prefix: '',
                 prefixSize: 'l',
                 prefixAlignment: 'top',
-                postfix: 'per hour',
+
+                postfix: '',
                 postfixSize: 'm',
                 postfixAlignment: 'bottom',
 
                 unit: 'short', // short
                 unitSize: 'm',
-                unitAlignment: 'bottom',
+                unitAlignment: 'middle',
 
                 caption: 'Monitoring Revenue',
                 captionSize: 's',

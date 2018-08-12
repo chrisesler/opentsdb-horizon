@@ -12,76 +12,81 @@
     bignumber-widget {
         height: 100%;
 
-        .widget-output-container {
+        .widget-container {
             height: 100%;
-
-            .widget-container {
-                height: 100%;
-
-                .big-number-container {
-                    height: 100%;
-                    min-width: 0px;
-
-                    .metric-container {
-                        height: 100%;
-
-                        .number-container {
-                            height: 100%;
-                        }
-                    }
-                }
-            }
         }
+    }
+
+    #num {
+        display: inline-block;
+    }
+
+    #let {
+        display: inline-block;
+        // line-height: 2em;
+        // vertical-align: top;
+        // flex-direction: column;
+        // align-self: flex-end;
     }
 
     .widget-panel-content.bignumber-widget { 
 
         .widget-container {
-            text-align: center;
-            display: grid;
-            grid-gap: 0px;
-            flex-basis: 0;
-            flex-grow: 1;
-        }
-
-        .big-number-container {
-            min-width: 400px;
-        }
-
-        .big-number {
-            font-size: 3em;
-            // padding-left: 5px;
-            // padding-right: 5px;
-        }
-
-        .number-container {
-            padding-top: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .metric-name {
-            height: 20px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
+        .metric-container {
+            // display: flex;
+            // flex-direction: column;
+            height: 3em;
+            line-height: 3em;
+            // vertical-align: bottom;
+            // display: flex;
+            // align-items: center;
+            // justify-content: center;
+
+            span {
+                // height: 3em;
+                // line-height: 3em;
+                // margin-left: 5px;
+                // margin-right: 5px;
+            }
+        }
+
+        .caption {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .big-number {
+            font-size: 3em;
+            // vertical-align: bottom;
+        }
+
+        .top-align {
+            vertical-align: top;
+        }
+
+        .middle-align {
+            vertical-align: super;
         }
 
         .small-size {
             font-size: 1em;
+            line-height: 1.8em;
         }
 
         .medium-size {
             font-size: 2em;
+            line-height: 1.3em;
         }
 
         .large-size {
             font-size: 3em;
-        }
-
-        .caption {
-            padding-top: 20px;
+            // line-height: 3em;
         }
     }
 
