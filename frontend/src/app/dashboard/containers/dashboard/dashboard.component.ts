@@ -46,6 +46,43 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // portal placeholders
     dashboardNavbarPortal: TemplatePortal;
 
+    // Available Widget Types
+    /**
+     *  NOTE: at some point we might want to think about adding this to some config setup
+     * */
+    availableWidgetTypes: Array<object> = [
+        {
+            label: 'Bar Graph',
+            type: 'WidgetBarGraphComponent',
+            iconClass: 'widget-icon-bar-graph'
+        },
+        {
+            label: 'Area Graph',
+            type: 'WidgetAreaGraphComponent',
+            iconClass: 'widget-icon-area-graph'
+        },
+        {
+            label: 'Line Chart',
+            type: 'LineChartComponent',
+            iconClass: 'widget-icon-line-chart'
+        },
+        {
+            label: 'Big Number',
+            type: 'WidgetBigNumberComponent',
+            iconClass: 'widget-icon-big-number'
+        },
+        {
+            label: 'Donut Chart',
+            type: 'WidgetDonutChartComponent',
+            iconClass: 'widget-icon-donut-chart'
+        },
+        {
+            label: 'Statuses',
+            type: 'WidgetStatusComponent',
+            iconClass: 'widget-icon-statuses'
+        }
+    ];
+
     // other variables
     listenSub: Subscription;
     private routeSub: Subscription;
@@ -73,10 +110,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 if (this.dbid === '_new_') {
                     console.log('creating a new dashboard...');
                     const newdboard = this.dbService.getDashboardPrototype();
-                    //this.store.dispatch(new dashboardActions.CreateNewDashboard(newdboard));
+                    // this.store.dispatch(new dashboardActions.CreateNewDashboard(newdboard));
                 } else {
                     // load provided dashboard id, and need to handdle not found too
-                    //this.store.dispatch(new dashboardActions.LoadDashboard(this.dbid));
+                    // this.store.dispatch(new dashboardActions.LoadDashboard(this.dbid));
                     this.store.dispatch(new LoadDashboard(this.dbid));
                 }
             }
@@ -91,16 +128,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'getWidgetCachedData':
                     // taking the cached raw data
                     // we suffix original widget id with __EDIT__ (8 chars)
-                    let wid = message.id.substring(8, message.id.length);
-                    let widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(wid));
-                    this.updateWidgetGroup(message.id, widgetCachedData);              
+                    const wid = message.id.substring(8, message.id.length);
+                    const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(wid));
+                    this.updateWidgetGroup(message.id, widgetCachedData);
                     break;
                 case 'updateDashboardMode':
                     // when click on view/edit mode, update db setting state of the mode
                     this.store.dispatch(new UpdateMode(message.payload));
                     break;
                 case 'removeWidget':
-                    //this.store.dispatch(new dashboardActions.RemoveWidget(message.payload));
+                    // this.store.dispatch(new dashboardActions.RemoveWidget(message.payload));
                     this.rerender = { 'reload': true };
                     break;
                 case 'closeViewEditMode':
@@ -110,29 +147,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'getQueryData':
                     console.log('the query: ', message.payload);
                     // payload needs to break into group to send in
-                    this.handleQueryPayload(message);              
+                    this.handleQueryPayload(message);
                     break;
                 default:
                     break;
             }
         });
-        
+
         this.loadedRawDB$.subscribe( db => {
             // update WidgetsState
             this.store.dispatch(new LoadWidgets(db.widgets));
         });
 
         this.widgetRawData$.subscribe(result => {
-    
-                   
+
         });
 
         this.widgetGroupRawData$.subscribe(result => {
             if (result !== undefined) {
-                let grawdata = {};
+                const grawdata = {};
                 grawdata[result.gid] = result.rawdata;
                 this.updateWidgetGroup(result.wid, grawdata);
-            }           
+            }
         });
 
         // all widgets should update their own size
@@ -163,28 +199,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // dispatch payload query by group
     handleQueryPayload(message: any) {
         let groupid = '';
-        let payload = message.payload;
-        
+        const payload = message.payload;
+
         for (let i = 0; i < payload.groups.length; i++) {
-            let group: any = payload.groups[i];            
+            const group: any = payload.groups[i];
             groupid = group.id;
             // format for opentsdb query
-            let query: any = {
+            const query: any = {
                 start: payload.start,
                 end: payload.end,
                 downsample: payload.downsample,
                 queries: group.queries
             };
-            console.log('the group query', query);   
-            let gquery = {
+            console.log('the group query', query);
+            const gquery = {
                 wid: message.id,
                 gid: groupid,
                 query: query
-            };       
+            };
             // now dispatch request
             this.store.dispatch(new GetQueryDataByGroup(gquery));
         }
-    } 
+    }
 
     // this will call based on gridster reflow and size changes event
     widgetsLayoutUpdate(gridLayout: any) {
@@ -197,9 +233,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     // event emit to add new widget from dashboard header
-    addNewWidget() {
+    addNewWidget(selectedWidget: any) {
+        console.log('%cADD NEW WIDGET', 'color: white; background-color: blue; font-weight: bold;', selectedWidget);
         const payload = { widget: this.dbService.getWidgetPrototype() };
-        //this.store.dispatch(new dashboardActions.AddWidget(payload));
+        // this.store.dispatch(new dashboardActions.AddWidget(payload));
         // trigger Update Widget layout event
         this.rerender = { 'reload': true };
     }
@@ -229,6 +266,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.listenSub.unsubscribe();
         this.routeSub.unsubscribe();
         // we need to clear dashboard state
-        //this.store.dispatch(new dashboardActions.ResetDashboardState);    
+        // this.store.dispatch(new dashboardActions.ResetDashboardState);
     }
 }

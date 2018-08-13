@@ -68,6 +68,104 @@
     .dashboard-actions-menu {
         width: 150px;
     }
+
+
+    .dashboard-available-widgets-menu.mat-menu-panel {
+        max-width: 390px;
+        position: relative;
+        overflow: initial;
+        //max-width: initial;
+
+        // arrow
+        &::after {
+            bottom: 100%;
+            left: calc(100% - 20px);
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+            border-width: 6px;
+            margin-left: -6px;
+        }
+
+        .timerange-picker-container {
+            padding: 0 12px;
+        }
+
+        .available-widget-output {
+            margin: auto 10px;
+        }
+
+        .widget-types {
+            
+            .widget-type-selector {
+                padding: 8px 16px 0 16px;
+                width: 110px;
+
+                &:not(:last-child) {
+                    margin-right: 12px;
+                    margin-bottom: 12px;
+                }
+
+                .mat-button-wrapper {
+                    display: inline-flex;
+                    flex-direction: column;
+                }
+        
+                .widget-type-label,
+                .widget-type-icon {
+                    width: 100%;
+                    line-height: 32px;
+                }
+        
+                //.widget-type-label {}
+        
+                .widget-type-icon {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+        
+                    &::after {
+                        content: '';
+                        display: block;
+                        width: 50px;
+                        height: 50px;
+                        background-repeat: no-repeat;
+                        background-position: 50% 50%;
+                        background-size: 100%;
+                    }
+        
+                    &.widget-icon-bar-graph::after {
+                        background-image: url(/assets/widget-icon-bar-graph.png);
+                    }
+        
+                    &.widget-icon-area-graph::after {
+                        background-image: url(/assets/widget-icon-area-graph.png);
+                    }
+
+                    &.widget-icon-line-chart::after {
+                        background-image: url(/assets/widget-icon-line-chart.png);
+                    }
+
+                    &.widget-icon-big-number::after {
+                        background-image: url(/assets/widget-icon-big-number.png);
+                    }
+
+                    &.widget-icon-donut-chart::after {
+                        background-image: url(/assets/widget-icon-donut-chart.png);
+                    }
+
+                    &.widget-icon-statuses::after {
+                        background-image: url(/assets/widget-icon-statuses.png);
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 @mixin dashboard-component-theme($theme-config) {
@@ -80,6 +178,7 @@
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $widget: map-get($theme-config, widgets);
     $is-dark: map-get($theme-config, is-dark);
 
     $close-button-background: map-get($accent, A400);
@@ -124,6 +223,24 @@
         .mat-menu-item {
             .mat-icon {
                 color: map-get($foreground, link);
+            }
+        }
+    }
+
+    .dashboard-available-widgets-menu {
+        &::after {
+            border-color: rgba(255, 255, 255, 0);
+            border-bottom-color: map-get($background, menu); // actual color of arrow
+        }
+
+        .widget-types {
+            .widget-type-selector {
+                // need a background color here
+                background-color: map-get($widget, widget-icons-background);
+
+                &:hover {
+                    background-color: map-get($widget, widget-icons-background-hover);
+                }
             }
         }
     }

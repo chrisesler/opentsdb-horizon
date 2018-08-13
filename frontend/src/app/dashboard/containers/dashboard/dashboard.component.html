@@ -12,10 +12,24 @@
 
     <span class="flex-spacer"></span>
     <span class="navbar-item nav-add-new-widget" *ngIf="!(viewEditMode)">
-        <button mat-raised-button class="mat-elevation-z0" (click)="addNewWidget()">
+        <button mat-raised-button class="mat-elevation-z0" [matMenuTriggerFor]="dashboardAvailableWidgetsMenu">
             <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
             <span>Add Widget</span>
         </button>
+        <mat-menu #dashboardAvailableWidgetsMenu="matMenu" [overlapTrigger]="false" class="nav-bar-dropmenu dashboard-available-widgets-menu" xPosition="before">
+            <ng-template matMenuContent>
+                <div class="available-widget-output">
+                    <div class="widget-types">
+                        <button mat-raised-button class="widget-type-selector mat-elevation-z0"  
+                        *ngFor="let wtype of availableWidgetTypes"
+                        (click)="addNewWidget(wtype)">
+                            <span class="widget-type-icon {{ wtype.iconClass }}"></span>
+                            <span class="widget-type-label">{{ wtype.label }}</span>
+                        </button>
+                    </div>
+                </div>
+            </ng-template>
+        </mat-menu>
     </span>
 
     <!-- <color-picker (selected)="eventTriggered($event)" [selectedColor]="'#000000'" [colorPickerSelectorHeight]="136"> </color-picker>-->
