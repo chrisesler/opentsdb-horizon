@@ -1,4 +1,5 @@
-import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import {MatMenuTrigger} from '@angular/material';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -21,6 +22,41 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
 
     selectedMetric: object;
     colorType: string;
+
+    @ViewChild(MatMenuTrigger) private menuTrigger: MatMenuTrigger;
+
+    addTextToOpns: Array<String> = ['option 1', 'option 2', 'option 3'];
+    selectedOption: string = 'no Option selected';
+
+    stopPropagation(event){
+        event.stopPropagation();
+        // console.log("Clicked!");
+      }
+      
+    onTextSelection(event: any): void {
+        console.log(event);
+        // if (window.getSelection && window.getSelection().toString()) {
+            var menu = document.getElementById('menuBtn');
+            menu.style.display = '';
+            menu.style.position = 'absolute';
+            // menu.style.left = event.pageX + 5 + 'px';
+            // menu.style.top =  parseInt(menu.style.top, 10) - 10 + 'px'; // event.pageY + 5 + 'px';
+            menu.style.left = 90 + 'px';
+            menu.style.top = 165 + 'px';
+            this.menuTrigger.openMenu();
+        // }
+    }
+
+  onMenuClosed(): void {
+    var menu = document.getElementById('menuBtn');
+        if (menu) {
+            menu.style.display = 'none';
+        }
+  }
+
+  addTextTo(selectedOpn): void {
+    this.selectedOption = selectedOpn + ' selected';
+  }
 
     constructor() { }
 
