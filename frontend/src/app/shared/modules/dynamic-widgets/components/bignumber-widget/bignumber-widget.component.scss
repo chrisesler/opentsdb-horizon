@@ -17,18 +17,6 @@
         }
     }
 
-    #num {
-        display: inline-block;
-    }
-
-    #let {
-        display: inline-block;
-        // line-height: 2em;
-        // vertical-align: top;
-        // flex-direction: column;
-        // align-self: flex-end;
-    }
-
     .widget-panel-content.bignumber-widget { 
 
         .widget-container {
@@ -38,27 +26,16 @@
         }
 
         .metric-container {
-            // display: flex;
-            // flex-direction: column;
+            text-align: center;
             height: 3em;
             line-height: 3em;
-            // vertical-align: bottom;
-            // display: flex;
-            // align-items: center;
-            // justify-content: center;
-
-            span {
-                // height: 3em;
-                // line-height: 3em;
-                // margin-left: 5px;
-                // margin-right: 5px;
-            }
         }
 
         .caption {
             display: flex;
             align-items: center;
             justify-content: center;
+            text-align: center;
         }
 
         .big-number {
@@ -76,7 +53,7 @@
 
         .small-size {
             font-size: 1em;
-            line-height: 1.8em;
+            line-height: 1.9em;
         }
 
         .medium-size {
@@ -87,6 +64,10 @@
         .large-size {
             font-size: 3em;
             // line-height: 3em;
+        }
+
+        .top-margin {
+            margin-top: 0.5em;
         }
     }
 

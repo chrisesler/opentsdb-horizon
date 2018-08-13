@@ -23,7 +23,11 @@
 
         .labels-container {
             margin: 10px;
-            
+
+            > div {
+                display: flex;
+                align-items: center;
+            }
     
             .mat-form-field {
                 width: 200px;
@@ -44,8 +48,9 @@
                 }
             }
 
+            //custom look for buttons
             mat-button-toggle-group {
-                top: -7px;
+                top: -1px;
                 box-shadow: none;
                 padding: 2px;
             }
@@ -67,6 +72,7 @@
             //Disable Placeholder
             .mat-form-field-infix {
                 border-top: 0 solid transparent !important;
+                padding: 0.7em 0;
             }
             .mat-form-field-wrapper {
                 padding-bottom: 0 !important;
@@ -83,7 +89,6 @@
     
         .labels-container > div
             {
-            margin-bottom:10px;
             margin-left:10px;
             margin-right:10px;    
         }

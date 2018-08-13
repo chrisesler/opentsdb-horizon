@@ -16,13 +16,6 @@
         <div class="content-container">
             <div class="metric-container">
 
-                <!-- <div class="large-size" id="num">
-                        1.2
-                </div>
-                <div class="medium-size middle-align" id="let">
-                        K
-                </div> -->
-
                 <span [ngClass]="{
                     'large-size': selectedMetric.configuration.bigNum.prefixSize=='l', 
                     'medium-size': selectedMetric.configuration.bigNum.prefixSize=='m', 
@@ -72,7 +65,8 @@
                 [ngClass]="{
                     'large-size': selectedMetric.configuration.bigNum.captionSize=='l', 
                     'medium-size': selectedMetric.configuration.bigNum.captionSize=='m', 
-                    'small-size': selectedMetric.configuration.bigNum.captionSize=='s'
+                    'small-size': selectedMetric.configuration.bigNum.captionSize=='s',
+                    'top-margin': selectedMetric.configuration.bigNum.captionSize=='l'
                     }">
                 {{utils.tagMacro(selectedMetric, selectedMetric.configuration.bigNum.caption)}}
             </div>
