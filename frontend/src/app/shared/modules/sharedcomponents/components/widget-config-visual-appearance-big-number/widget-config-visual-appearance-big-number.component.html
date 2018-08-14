@@ -1,52 +1,3 @@
-<!-- <div>
-        <mat-menu #unitMenu="matMenu">
-                <button mat-menu-item [matMenuTriggerFor]="vertebrates">Vertebrates</button>
-                <button mat-menu-item [matMenuTriggerFor]="invertebrates">Invertebrates</button>
-              </mat-menu>
-              
-              <mat-menu #vertebrates="matMenu">
-                <button mat-menu-item [matMenuTriggerFor]="fish">Fishes</button>
-                <button mat-menu-item [matMenuTriggerFor]="amphibians">Amphibians</button>
-                <button mat-menu-item [matMenuTriggerFor]="reptiles">Reptiles</button>
-                <button mat-menu-item>Birds</button>
-                <button mat-menu-item>Mammals</button>
-              </mat-menu>
-              
-              <mat-menu #invertebrates="matMenu">
-                <button mat-menu-item>Insects</button>
-                <button mat-menu-item>Molluscs</button>
-                <button mat-menu-item>Crustaceans</button>
-                <button mat-menu-item>Corals</button>
-                <button mat-menu-item>Arachnids</button>
-                <button mat-menu-item>Velvet worms</button>
-                <button mat-menu-item>Horseshoe crabs</button>
-              </mat-menu>
-              
-              <mat-menu #fish="matMenu">
-                <button mat-menu-item>Baikal oilfish</button>
-                <button mat-menu-item>Bala shark</button>
-                <button mat-menu-item>Ballan wrasse</button>
-                <button mat-menu-item>Bamboo shark</button>
-                <button mat-menu-item>Banded killifish</button>
-              </mat-menu>
-              
-              <mat-menu #amphibians="matMenu">
-                <button mat-menu-item>Sonoran desert toad</button>
-                <button mat-menu-item>Western toad</button>
-                <button mat-menu-item>Arroyo toad</button>
-                <button mat-menu-item>Yosemite toad</button>
-              </mat-menu>
-              
-              <mat-menu #reptiles="matMenu">
-                <button mat-menu-item>Banded Day Gecko</button>
-                <button mat-menu-item>Banded Gila Monster</button>
-                <button mat-menu-item>Black Tree Monitor</button>
-                <button mat-menu-item>Blue Spiny Lizard</button>
-                <button mat-menu-item disabled>Velociraptor</button>
-              </mat-menu>
-</div> -->
-
-
 <div class="container">
 
     <div class="labels-container" *ngIf="selectedMetric">
@@ -92,26 +43,57 @@
     
         <div class="unit-container"> 
             <span class="label-label">Unit</span>
-
-
             <form>
                 <mat-form-field floatLabel="never">
-                    <input matInput #unitBox placeholder="Enter Unit" on-focus="onTextSelection($event)" value="{{selectedMetric.configuration.bigNum.unit}}" >
+                    <input matInput #unitBox placeholder="Enter Unit" [matMenuTriggerFor]="menu" value="{{selectedMetric.configuration.bigNum.unit}}" >
                 </mat-form-field>
             </form>
 
-            <!-- (keyup)="KeyedOnUnitInputBox(unitBox.value)" -->
-            <!-- [matMenuTriggerFor]="unitMenu" -->
-
-                <button mat-button [matMenuTriggerFor]="menu" id="menuBtn" style="display:none;"></button>
-                <mat-menu #menu="matMenu" (close)="onMenuClosed()">
-                    <button class="menuOpnBtn" mat-menu-item *ngFor="let opn of addTextToOpns" (click)="KeyedOnUnitInputBox(opn)">
-                        {{ opn }}
-                    </button>
-                    <div (click)="stopPropagation($event)" class="menuOpnBtn" mat-menu-item>
-                        <input #customUnit matInput placeholder="Custom Unit" (keyup)="KeyedOnUnitInputBox(customUnit.value)">
-                    </div>
+            <mat-menu #menu="matMenu" (close)="onMenuClosed()">
+                <button mat-menu-item [matMenuTriggerFor]="time">Time</button>
+                <button mat-menu-item [matMenuTriggerFor]="binaryData">Data (Binary)</button>
+                <button mat-menu-item [matMenuTriggerFor]="decimalData">Data (Decimal)</button>
+                <button mat-menu-item [matMenuTriggerFor]="dataRate">Data Rate</button>
+                <button mat-menu-item [matMenuTriggerFor]="throughput">Throughput</button>
+                <button mat-menu-item [matMenuTriggerFor]="currency">Currency</button>
+                <button mat-menu-item (click)="KeyedOnUnitInputBox('auto')">
+                    Auto
+                </button>
+                <mat-menu #time="matMenu">
+                        <button mat-menu-item *ngFor="let unit of timeUnits" (click)="KeyedOnUnitInputBox(unit)">
+                            {{unit}}
+                        </button>
                 </mat-menu>
+                <mat-menu #binaryData="matMenu">
+                        <button mat-menu-item *ngFor="let unit of binaryDataUnits" (click)="KeyedOnUnitInputBox(unit)">
+                            {{unit}}
+                        </button>
+                </mat-menu>
+                <mat-menu #decimalData="matMenu">
+                        <button mat-menu-item *ngFor="let unit of decimalDataUnits" (click)="KeyedOnUnitInputBox(unit)">
+                            {{unit}}
+                        </button>
+                </mat-menu>
+                <mat-menu #dataRate="matMenu">
+                        <button mat-menu-item *ngFor="let unit of dataRateUnits" (click)="KeyedOnUnitInputBox(unit)">
+                            {{unit}}
+                        </button>
+                </mat-menu>
+                <mat-menu #throughput="matMenu">
+                        <button mat-menu-item *ngFor="let unit of throughputUnits" (click)="KeyedOnUnitInputBox(unit)">
+                            {{unit}}
+                        </button>
+                </mat-menu>
+                <mat-menu #currency="matMenu">
+                        <button mat-menu-item *ngFor="let unit of currencyUnits" (click)="KeyedOnUnitInputBox(unit)">
+                            {{unit}}
+                        </button>
+                </mat-menu>
+
+                <div (click)="stopPropagation($event)" mat-menu-item>
+                    <input matInput #customUnit id="custom-unit" placeholder="Custom Unit" (keyup)="KeyedOnUnitInputBox(customUnit.value)">
+                </div>
+            </mat-menu>
 
             <mat-button-toggle-group #unitSizeGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.unitSize" (change)="selectedUnitSize(unitSizeGroup.value)">
                 <mat-button-toggle value="s">sm</mat-button-toggle>
@@ -175,7 +157,4 @@
         </div>
     </div>
 </div>
-
-
-
 

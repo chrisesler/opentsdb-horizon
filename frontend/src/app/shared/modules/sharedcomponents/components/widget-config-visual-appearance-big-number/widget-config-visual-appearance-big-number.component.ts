@@ -25,38 +25,14 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
 
     @ViewChild(MatMenuTrigger) private menuTrigger: MatMenuTrigger;
 
-    addTextToOpns: Array<String> = ['option 1', 'option 2', 'option 3'];
-    selectedOption: string = 'no Option selected';
+    timeUnits: Array<string> = ['ms', 'second', 'minute', 'hour', 'day', 'year'];
+    binaryDataUnits: Array<string> = ['bits', 'bytes', 'kbytes', 'mbytes', 'gbytes'];
+    decimalDataUnits: Array<string> = ['decbits', 'decbytes', 'deckbytes', 'decmybytes', 'decgbytes'];
+    dataRateUnits: Array<string> = ['pps', 'bps', 'Bps', 'KBs', 'Kbits', 'MBs', 'Mbits', 'GBs', 'Gbits'];
+    throughputUnits: Array<string> = ['ops', 'reqps', 'rps', 'wps', 'iops', 'opm', 'rpm', 'wpm'];
+    currencyUnits: Array<string> = ['usd'];
+    otherUnits: Array<string> = ['auto'];
 
-    stopPropagation(event){
-        event.stopPropagation();
-        // console.log("Clicked!");
-      }
-      
-    onTextSelection(event: any): void {
-        console.log(event);
-        // if (window.getSelection && window.getSelection().toString()) {
-            var menu = document.getElementById('menuBtn');
-            menu.style.display = '';
-            menu.style.position = 'absolute';
-            // menu.style.left = event.pageX + 5 + 'px';
-            // menu.style.top =  parseInt(menu.style.top, 10) - 10 + 'px'; // event.pageY + 5 + 'px';
-            menu.style.left = 90 + 'px';
-            menu.style.top = 165 + 'px';
-            this.menuTrigger.openMenu();
-        // }
-    }
-
-  onMenuClosed(): void {
-    var menu = document.getElementById('menuBtn');
-        if (menu) {
-            menu.style.display = 'none';
-        }
-  }
-
-  addTextTo(selectedOpn): void {
-    this.selectedOption = selectedOpn + ' selected';
-  }
 
     constructor() { }
 
@@ -103,6 +79,15 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     selectedUnitAlignment(value: string) {
         this.selectedMetric['configuration']['bigNum']['unitAlignment'] = value;
     }
+
+    stopPropagation(event) {
+        event.stopPropagation();
+    }
+
+    onMenuClosed(): void {
+        (<HTMLInputElement>document.getElementById('custom-unit')).value = '';
+    }
+
 
     // Caption
     KeyedOnCaptionInputBox(value: string) {

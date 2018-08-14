@@ -124,6 +124,7 @@ export class UnitNormalizerService {
 
       // Simple Counts
       case 'short':
+      case 'auto':
         bigNum = this.formatNumber(this.short(val), precision);
         break;
 
