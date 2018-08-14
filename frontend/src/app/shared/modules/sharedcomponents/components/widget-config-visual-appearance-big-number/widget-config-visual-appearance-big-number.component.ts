@@ -1,5 +1,6 @@
 import { Component, OnInit, HostBinding, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import {MatMenuTrigger} from '@angular/material';
+import { MatMenuTrigger } from '@angular/material';
+import { UnitNormalizerService, IBigNum } from '../../../../modules/dynamic-widgets/services/unit-normalizer.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -33,7 +34,7 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     currencyUnits: Array<string> = ['usd'];
     otherUnits: Array<string> = ['auto'];
 
-    constructor() { }
+    constructor(public UN: UnitNormalizerService) { }
 
     ngOnInit() {
         this.selectedMetric = this.widget;
@@ -71,7 +72,13 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     // Unit
     KeyedOnUnitInputBox(value: string) {
         this.selectedMetric['configuration']['bigNum']['unit'] = value;
-        this.selectedMetric['configuration']['bigNum']['unitUndercased'] = this.isStringOnlyLowercasedLetters(value);
+        this.selectedMetric['configuration']['bigNum']['unitUndercased'] =
+            this.isStringOnlyLowercasedLetters(this.UN.getBigNumber(this.selectedMetric['configuration']['bigNum']['bigNumber'],
+            this.selectedMetric['configuration']['bigNum']['unit']).unit);
+
+        console.log(this.isStringOnlyLowercasedLetters(
+            this.UN.getBigNumber(this.selectedMetric['configuration']['bigNum']['bigNumber'],
+            this.selectedMetric['configuration']['bigNum']['unit']).unit));
     }
 
     selectedUnitSize(value: string) {
@@ -131,7 +138,7 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     }
 
     isStringOnlyLowercasedLetters(str: string): boolean {
-        return /^[a-z]+$/.test(str);
+        return /^[a-z\s]*$/.test(str);
     }
 
     indicatorToggleChange() {
