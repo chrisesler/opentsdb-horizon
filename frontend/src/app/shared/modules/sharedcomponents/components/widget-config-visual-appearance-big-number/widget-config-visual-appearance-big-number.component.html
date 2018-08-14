@@ -147,12 +147,10 @@
 
     <div class="options-container" *ngIf="selectedMetric">
         <div class="text-title"> Options </div>
-        <div>
-                <!-- formControlName="sparkline" -->
+        <!-- <div>
             <mat-slide-toggle><span class="mat-caption">Sparkline</span></mat-slide-toggle>
-        </div>
+        </div> -->
         <div>
-                <!-- formControlName="changeIndicator" -->
             <mat-slide-toggle (change)="indicatorToggleChange()" [checked]="selectedMetric.configuration.bigNum.changedIndicatorEnabled"><span class="mat-caption">Change Indicator</span></mat-slide-toggle>
         </div>
     </div>

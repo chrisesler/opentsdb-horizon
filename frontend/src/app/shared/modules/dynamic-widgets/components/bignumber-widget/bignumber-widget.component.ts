@@ -136,7 +136,7 @@ export class BignumberWidgetComponent implements OnInit {
 
             // tslint:disable-next-line:prefer-const
             let bigNumberMetric: IBigNumberMetric = {
-                bigNumber: 12345 * Math.pow(10, i),
+                bigNumber: 1234567 * Math.pow(10, i),
 
                 prefix: '',
                 prefixSize: 'l',
@@ -146,7 +146,7 @@ export class BignumberWidgetComponent implements OnInit {
                 postfixSize: 'm',
                 postfixAlignment: 'bottom',
 
-                unit: 'zack', // short
+                unit: 'auto', // short
                 unitSize: 'm',
                 unitAlignment: 'middle',
 
@@ -160,7 +160,7 @@ export class BignumberWidgetComponent implements OnInit {
 
                 sparkLineEnabled: false,
                 changedIndicatorEnabled: false,
-                changeIndicatorCompareValue: 123 * Math.pow(10, i)
+                changeIndicatorCompareValue: 1234 * Math.pow(10, i)
             };
 
 
