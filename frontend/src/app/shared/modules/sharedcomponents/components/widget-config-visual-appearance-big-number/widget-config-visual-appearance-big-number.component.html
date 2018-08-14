@@ -45,7 +45,7 @@
             <span class="label-label">Unit</span>
             <form>
                 <mat-form-field floatLabel="never">
-                    <input matInput #unitBox placeholder="Enter Unit" [matMenuTriggerFor]="menu" value="{{selectedMetric.configuration.bigNum.unit}}" >
+                    <input matInput #unitBox placeholder="Enter Unit" [matMenuTriggerFor]="menu" value="{{selectedMetric.configuration.bigNum.unit}}" (keyup)="KeyedOnUnitInputBox(unitBox.value)" >
                 </mat-form-field>
             </form>
 

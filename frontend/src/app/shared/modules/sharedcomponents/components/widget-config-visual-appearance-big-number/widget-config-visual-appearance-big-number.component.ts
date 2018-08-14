@@ -33,7 +33,6 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     currencyUnits: Array<string> = ['usd'];
     otherUnits: Array<string> = ['auto'];
 
-
     constructor() { }
 
     ngOnInit() {
@@ -44,6 +43,7 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     // Prefix
     KeyedOnPrefixInputBox(value: string) {
         this.selectedMetric['configuration']['bigNum']['prefix'] = value;
+        this.selectedMetric['configuration']['bigNum']['prefixUndercased'] = this.isStringOnlyLowercasedLetters(value);
     }
 
     selectedPrefixSize(value: string) {
@@ -57,6 +57,7 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     // Postfix
     KeyedOnPostfixInputBox(value: string) {
         this.selectedMetric['configuration']['bigNum']['postfix'] = value;
+        this.selectedMetric['configuration']['bigNum']['postfixUndercased'] = this.isStringOnlyLowercasedLetters(value);
     }
 
     selectedPostfixSize(value: string) {
@@ -70,6 +71,7 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     // Unit
     KeyedOnUnitInputBox(value: string) {
         this.selectedMetric['configuration']['bigNum']['unit'] = value;
+        this.selectedMetric['configuration']['bigNum']['unitUndercased'] = this.isStringOnlyLowercasedLetters(value);
     }
 
     selectedUnitSize(value: string) {
@@ -115,6 +117,10 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
         } else { // background
             this.selectedMetric['configuration']['bigNum']['backgroundColor'] = color['hex'];
         }
+    }
+
+    isStringOnlyLowercasedLetters(str: string): boolean {
+        return /^[a-z]+$/.test(str);
     }
 
     // Options

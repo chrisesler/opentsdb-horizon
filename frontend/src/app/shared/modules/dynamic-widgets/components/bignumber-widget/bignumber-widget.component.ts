@@ -299,14 +299,17 @@ interface IBigNumberMetric {
     prefix?: string;
     prefixSize?: string;
     prefixAlignment?: string;
+    prefixUndercased?: boolean;
 
     postfix?: string;
     postfixSize?: string;
     postfixAlignment?: string;
+    postfixUndercased?: boolean;
 
     unit: string;
     unitSize: string;
     unitAlignment: string;
+    unitUndercased?: boolean;
 
     caption?: string;
     captionSize?: string;
