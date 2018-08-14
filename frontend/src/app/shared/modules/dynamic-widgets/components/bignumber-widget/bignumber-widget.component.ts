@@ -146,7 +146,7 @@ export class BignumberWidgetComponent implements OnInit {
                 postfixSize: 'm',
                 postfixAlignment: 'bottom',
 
-                unit: 'short', // short
+                unit: 'zack', // short
                 unitSize: 'm',
                 unitAlignment: 'middle',
 
@@ -160,7 +160,7 @@ export class BignumberWidgetComponent implements OnInit {
 
                 sparkLineEnabled: false,
                 changedIndicatorEnabled: false,
-                changeIndicatorCompareValue: 1234 * Math.pow(10, i)
+                changeIndicatorCompareValue: 123 * Math.pow(10, i)
             };
 
 
@@ -205,8 +205,6 @@ export class BignumberWidgetComponent implements OnInit {
 
         this.selectedMetric = this.fakeMetrics[0];
     }
-
-
 
     /**
      * Services

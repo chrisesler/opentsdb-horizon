@@ -86,10 +86,21 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
         event.stopPropagation();
     }
 
-    onMenuClosed(): void {
-        (<HTMLInputElement>document.getElementById('custom-unit')).value = '';
+    onMenuOpen(): void {
+        const unit: string = this.selectedMetric['configuration']['bigNum']['unit'];
+
+        if (this.isUnitCustom(unit)) {
+            (<HTMLInputElement>document.getElementById('custom-unit')).value = unit;
+        } else {
+            (<HTMLInputElement>document.getElementById('custom-unit')).value = '';
+        }
     }
 
+    isUnitCustom(str: string): boolean {
+        const allUnits: Array<string> =  this.timeUnits.concat(this.binaryDataUnits).concat(this.decimalDataUnits).
+            concat(this.dataRateUnits).concat(this.throughputUnits).concat(this.currencyUnits).concat(this.otherUnits);
+        return !allUnits.includes(str);
+    }
 
     // Caption
     KeyedOnCaptionInputBox(value: string) {
