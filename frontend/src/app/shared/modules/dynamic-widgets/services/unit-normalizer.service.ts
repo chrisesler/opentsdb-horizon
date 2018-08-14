@@ -252,7 +252,7 @@ interface INumberUnit {
   unit: string;
 }
 
-interface IBigNum {
+export interface IBigNum {
   num: string;
   unit: string;
   unitPos: Position;

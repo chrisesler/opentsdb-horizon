@@ -123,5 +123,10 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
         return /^[a-z]+$/.test(str);
     }
 
+    indicatorToggleChange() {
+        this.selectedMetric['configuration']['bigNum']['changedIndicatorEnabled'] =!
+        this.selectedMetric['configuration']['bigNum']['changedIndicatorEnabled'];
+    }
+
     // Options
 }

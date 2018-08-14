@@ -42,6 +42,7 @@
                     'middle-align': (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitUndercased) || (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitSize!='l'),
                     'top-align': selectedMetric.configuration.bigNum.unitAlignment=='top'
                     }">
+                    {{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit}}
                 </span>
                 
                 <span class="big-number">
@@ -77,7 +78,15 @@
                     }">
                     {{selectedMetric.configuration.bigNum.postfix}}
                 </span>
+
+                <span *ngIf="selectedMetric.configuration.bigNum.changedIndicatorEnabled" class="change-indicator">
+                        <span *ngIf="selectedMetric.configuration.bigNum.changeIndicatorCompareValue > 0">↑</span>
+                        <span *ngIf="selectedMetric.configuration.bigNum.changeIndicatorCompareValue < 0">↓</span>     
+                        <!-- {{selectedMetric.configuration.bigNum.changeIndicatorCompareValue}} -->
+                        {{bigNumToChangeIndicatorValue(UN.getBigNumber(selectedMetric.configuration.bigNum.changeIndicatorCompareValue, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision))}}
+                </span>
             </div>
+
 
             <div class="caption"
                 [ngClass]="{

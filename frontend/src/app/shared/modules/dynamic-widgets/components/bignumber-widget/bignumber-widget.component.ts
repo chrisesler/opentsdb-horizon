@@ -11,8 +11,9 @@ import {
     WidgetConfigTimeComponent,
     WidgetConfigVisualAppearanceComponent
 } from '../../../sharedcomponents/components';
-import { UnitNormalizerService } from '../../services/unit-normalizer.service';
+import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
+
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -135,7 +136,7 @@ export class BignumberWidgetComponent implements OnInit {
 
             // tslint:disable-next-line:prefer-const
             let bigNumberMetric: IBigNumberMetric = {
-                bigNumber: 1234 * Math.pow(10, i),
+                bigNumber: 12345 * Math.pow(10, i),
 
                 prefix: '',
                 prefixSize: 'l',
@@ -158,7 +159,8 @@ export class BignumberWidgetComponent implements OnInit {
                 backgroundColor: '#' + String(4 + i) + '0' + String(i) + '0' + String(8 - i) + '0',
 
                 sparkLineEnabled: false,
-                changedIndicatorEnabled: false
+                changedIndicatorEnabled: false,
+                changeIndicatorCompareValue: 1234 * Math.pow(10, i)
             };
 
 
@@ -204,33 +206,7 @@ export class BignumberWidgetComponent implements OnInit {
         this.selectedMetric = this.fakeMetrics[0];
     }
 
-    // setAllMetricsToUnSelected() {
-    //     // tslint:disable-next-line:prefer-const
-    //     for (let metric of this.fakeMetrics) {
-    //         metric['configuration']['bigNum']['selected'] = false;
-    //         this.selectedMetric = null;
-    //     }
-    // }
 
-    // setMetricToSelected(metric: any) {
-    //     this.setAllMetricsToUnSelected();
-    //     // tslint:disable-next-line:prefer-const
-    //     for (let _metric of this.fakeMetrics) {
-    //         if (_metric === metric) {
-    //             _metric['configuration']['bigNum']['selected'] = true;
-    //             this.selectedMetric = metric;
-    //         }
-    //     }
-    // }
-
-    // setSelectedMetric() {
-    //     // tslint:disable-next-line:prefer-const
-    //     for (let _metric of this.fakeMetrics) {
-    //         if (_metric['configuration']['bigNum']['selected']) {
-    //             this.selectedMetric = _metric;
-    //         }
-    //     }
-    // }
 
     /**
      * Services
@@ -241,6 +217,14 @@ export class BignumberWidgetComponent implements OnInit {
     /**
      * Behaviors
      */
+
+     bigNumToChangeIndicatorValue(bigNum: IBigNum): string {
+        if (bigNum.changeIndicatorHasUnit) {
+            return bigNum.num + bigNum.unit;
+        } else {
+            return bigNum.num;
+        }
+     }
 
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
@@ -321,6 +305,6 @@ interface IBigNumberMetric {
 
     sparkLineEnabled: boolean;
     changedIndicatorEnabled?: boolean;
-    // changeIndicatorCompareValue: number;
-    // changeIndicatorCompareValue: string;
+    changeIndicatorCompareValue?: number;
+    // changeIndicatorCompareOperator: string;
 }
