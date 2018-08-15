@@ -9,7 +9,8 @@
     </div>
 
     <div class="widget-container" [ngClass]= "{'fixed-height' : editMode}">
-        <div class="big-num-container"
+        <div *ngIf="selectedMetric" 
+            class="big-num-container"
             [style.background]="selectedMetric.configuration.bigNum.backgroundColor"
             [style.color]="selectedMetric.configuration.bigNum.textColor"
             [style.font-size]="fontSizePercent">
@@ -81,10 +82,9 @@
                     </span>
 
                     <span *ngIf="selectedMetric.configuration.bigNum.changedIndicatorEnabled" class="change-indicator">
-                            <span *ngIf="selectedMetric.configuration.bigNum.changeIndicatorCompareValue > 0">↑</span>
-                            <span *ngIf="selectedMetric.configuration.bigNum.changeIndicatorCompareValue < 0">↓</span>     
-                            <!-- {{selectedMetric.configuration.bigNum.changeIndicatorCompareValue}} -->
-                            {{bigNumToChangeIndicatorValue(UN.getBigNumber(selectedMetric.configuration.bigNum.changeIndicatorCompareValue, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision))}}
+                            <span *ngIf="selectedMetric.configuration.bigNum.changeIndicatorCompareValue >= 1">↑ {{bigNumToChangeIndicatorValue(UN.getBigNumber(selectedMetric.configuration.bigNum.changeIndicatorCompareValue, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision))}}</span>
+                            <span *ngIf="selectedMetric.configuration.bigNum.changeIndicatorCompareValue <= -1">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(selectedMetric.configuration.bigNum.changeIndicatorCompareValue, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision))}}</span>
+                            <span *ngIf="selectedMetric.configuration.bigNum.changeIndicatorCompareValue > -1 && selectedMetric.configuration.bigNum.changeIndicatorCompareValue < 1">≈ No Change</span>        
                     </span>
                 </div>
 
@@ -96,16 +96,16 @@
                         'small-size': selectedMetric.configuration.bigNum.captionSize=='s',
                         'top-margin': selectedMetric.configuration.bigNum.captionSize=='l'
                         }">
-                    {{utils.tagMacro(selectedMetric, selectedMetric.configuration.bigNum.caption) | uppercase }}
+                    {{util.tagMacro(selectedMetric, selectedMetric.configuration.bigNum.caption) | uppercase }}
                 </div>
             </div>
         </div>
 
         <div *ngIf="editMode" class="fully-qualified-metric">
             <div class="metric-detail">
-                <div class="metric-label">{{ selectedMetric.label }}</div>
+                <div class="metric-label">{{ selectedMetric.metric }}</div>
                 <div class="metric-tags">
-                    <div class="metric-tag" *ngFor="let tag of selectedMetric.tags">
+                    <div class="metric-tag" *ngFor="let tag of selectedMetric.tagss">
                         <span class="tag-key">{{ tag.key }}:</span>
                         <strong class="tag-value">{{ tag.value }}</strong>
                     </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, Pipe, PipeTransform } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 import {
@@ -13,6 +13,7 @@ import {
 } from '../../../sharedcomponents/components';
 import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
+import { Subscription } from 'rxjs/Subscription';
 
 
 @Component({
@@ -21,7 +22,9 @@ import { UtilsService } from '../../../../../core/services/utils.service';
     templateUrl: './bignumber-widget.component.html',
     styleUrls: []
 })
-export class BignumberWidgetComponent implements OnInit {
+
+@Pipe({name: 'getValues'})
+export class BignumberWidgetComponent implements OnInit, PipeTransform {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.bignumber-widget') private _componentClass = true;
 
@@ -29,8 +32,9 @@ export class BignumberWidgetComponent implements OnInit {
     @Input() editMode: boolean;
     @Input() widget: WidgetModel;
 
-    /** Outputs */
-
+    private listenSub: Subscription;
+    // tslint:disable-next-line:no-inferrable-types
+    private isDataLoaded: boolean = false;
     /** Local variables */
     // tslint:disable:no-inferrable-types
     selectedMetric: any;
@@ -39,95 +43,148 @@ export class BignumberWidgetComponent implements OnInit {
     _clientHeight: number = 300;
     fontSizePercent: string = '150%';
 
-    constructor(private interCom: IntercomService, public utils: UtilsService, public UN: UnitNormalizerService) { }
+    constructor(private interCom: IntercomService, public util: UtilsService, public UN: UnitNormalizerService) { }
 
     ngOnInit() {
 
-        // console.log(this.widget);
+        this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+            if ( message.action === 'resizeWidget' ) {
+                // we get the size to update the graph size
+                console.log('resizing bigNum');
+                console.log(message.payload);
+                console.log(this.calcFontSizePercent(message.payload.width , 0));
 
-        for (let i = 0; i < this.numberOfMetrics; i++) {
+                // this.fontSizePercent = '200%'; //this.calcFontSizePercent(message.payload.width , 0);
+                // this.width = message.payload.width * this.widget.gridPos.w - 20 + 'px';
+                // this.height = message.payload.height * this.widget.gridPos.h - 60 + 'px';
+            }
+            if (message && (message.id === this.widget.id)) {
+                switch (message.action) {
+                    case 'updatedWidgetGroup':
+                    // console.log('updateWidget', message);
+                    this.isDataLoaded = true;
+                    // const gid = Object.keys(message.payload)[0];
 
-            // tslint:disable-next-line:prefer-const
-            let bigNumberMetric: IBigNumberMetric = {
-                bigNumber: 1234567 * Math.pow(10, i),
+                    let metric = message.payload['gaga'][0];
+                    console.log('**');
+                    console.log(metric);
+                    const dps = metric['dps'];
 
-                prefix: '',
-                prefixSize: 'l',
-                prefixAlignment: 'top',
+                    let currentValueTS: number = 0;
+                    let lastValueTS: number = 0;
+                    let currentValue: number = 0;
+                    let lastValue: number = 0;
 
-                postfix: '',
-                postfixSize: 'm',
-                postfixAlignment: 'bottom',
-
-                unit: 'auto', // short
-                unitSize: 'm',
-                unitAlignment: 'middle',
-
-                caption: 'Monitoring Revenue',
-                captionSize: 's',
-
-                precision: 3,
-
-                textColor: '#ffffff',
-                backgroundColor: '#' + String(4 + i) + '0' + String(i) + '0' + String(8 - i) + '0',
-
-                sparkLineEnabled: false,
-                changedIndicatorEnabled: false,
-                changeIndicatorCompareValue: 1234 * Math.pow(10, i)
-            };
-
-
-            this.fakeMetrics.push(
-                {
-                    id: i,
-                    type: 'metric',
-                    alias: 'M1',
-                    label: 'Metric_namespace.app-name.whatever.some_metric_' + String(i + 1),
-                    metric: 'Metric_namespace.app-name.whatever.some_metric_' + String(i + 1),
-                    color: 'green',
-                    collapsed: false,
-                    visible: true,
-                    tags: [
-                        {
-                            key: 'colo',
-                            value: 'bf1'
-                        },
-                        {
-                            key: 'hostgroup',
-                            value: 'lala-01'
-                        },
-                        {
-                            key: '_aggregate',
-                            value: 'SUM'
+                    // get current value
+                    for (var key in dps) {
+                        if (dps.hasOwnProperty(key)) {
+                            if (parseInt(key, 10) > currentValueTS) {
+                                currentValueTS = parseInt(key, 10);
+                            }
                         }
-                    ],
-                    functions: [],
-                    configuration: {
-                        visualAppearance: {
-                            visualization: 'line',
-                            color: 'green',
-                            lineWeight: '2px',
-                            lineType: 'solid',
-                            logScale: false
-                        },
-                        bigNum: bigNumberMetric
                     }
+
+                    // get last value
+                    for (var key in dps) {
+                        if (dps.hasOwnProperty(key)) {
+                            if (parseInt(key, 10) > lastValueTS && parseInt(key, 10) < currentValueTS) {
+                                lastValueTS = parseInt(key, 10);
+                            }
+                        }
+                    }
+
+                    currentValue = dps[currentValueTS];
+                    lastValue = dps[lastValueTS];
+
+                    let bigNumberMetric: IBigNumberMetric = {
+                        bigNumber: currentValue,
+
+                        prefix: '',
+                        prefixSize: 's', // s m l
+                        prefixAlignment: 'top', // top middle bottom
+
+                        postfix: '',
+                        postfixSize: 's',
+                        postfixAlignment: 'top',
+
+                        unit: 'ms', // auto
+                        unitSize: 'm',
+                        unitAlignment: 'top',
+                        unitUndercased: true,
+
+                        caption: '{{tag.host}} Avg Latency',
+                        captionSize: 's',
+
+                        precision: 3,
+
+                        textColor: '#ffffff',
+                        backgroundColor: '#' + String(4 + 0) + '0' + String(0) + '0' + String(8 - 0) + '0', // yahoo-ish color
+
+                        sparkLineEnabled: false,
+                        changedIndicatorEnabled: false,
+                        changeIndicatorCompareValue: currentValue - lastValue
+                    };
+
+                    metric['configuration'] = {
+                        bigNum: bigNumberMetric
+                    };
+
+                    if (metric['tags']) {
+                        const tags: string[] = this.transform(metric['tags']);
+                        metric['tagss'] = tags;
+                    }
+
+                    this.selectedMetric = metric;
+
+                break;
+                    case 'viewEditWidgetMode':
+                        console.log('vieweditwidgetmode', message, this.widget);
+                            // this.isDataLoaded = true;
+                            // //this.data = this.dataTransformer.yamasToChartJS('donut', this.options, message.payload.rawdata);
+                            // // resize
+                            // let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
+                            // let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
+                            // this.width = nWidth - 20 + 'px';
+                            // this.height = nHeight - 60 + 'px';
+                        break;
                 }
-            );
+            }
+        });
+
+        // when the widget first loaded in dashboard, we request to get data
+        // when in edit mode first time, we request to get cached raw data.
+        if (!this.editMode) {
+            this.requestData();
+        } else {
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'getWidgetCachedData'
+            });
         }
 
-        this.selectedMetric = this.fakeMetrics[0];
     }
 
-    /**
-     * Services
-     */
+   requestData() {
+        if (!this.isDataLoaded) {
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'getQueryData',
+                payload: this.widget.query
+            });
+        }
+    }
 
-    // None yet
+    transform(map: Map<any, any>): any[] {
+        let ret = [];
 
-    /**
-     * Behaviors
-     */
+        Object.keys(map).forEach(function (key) {
+            ret.push({
+                key: key.toString(),
+                value: map[key].toString()});
+
+        });
+        return ret;
+    }
 
      bigNumToChangeIndicatorValue(bigNum: IBigNum): string {
         if (bigNum.changeIndicatorHasUnit) {
@@ -145,10 +202,11 @@ export class BignumberWidgetComponent implements OnInit {
     }
 
     calcFontSizePercent(widgetWidth: number, numOfBigNumbers: number): string {
-       const defaultWidth: number = 690;
+    //    const defaultWidth: number = 690;
+       const defaultWidth: number = 150;
        const fontScaleMultiple: number = 1.5;
-       const numOfCols: number = numOfBigNumbers < 4 ? numOfBigNumbers : 2;
-       const fontScale: number = (fontScaleMultiple * widgetWidth) / (numOfCols * defaultWidth);
+    //    const numOfCols: number = numOfBigNumbers < 4 ? numOfBigNumbers : 2;
+       const fontScale: number = (fontScaleMultiple * widgetWidth) / defaultWidth;
        return fontScale + '%';
     }
 

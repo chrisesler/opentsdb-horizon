@@ -805,176 +805,43 @@ export class HttpService {
         id: 'bigNum',
         gridPos: { x: 12, y: 12, w: 6, h: 5 },
         settings: {
-          title: 'Flickr CPU Speed',
+          title: 'SNMP Latency',
           component_type: 'BignumberWidgetComponent',
           data_source: 'yamas'
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
-          groups: [
-            {
-              id: 'ALL-COLO',
-              title: 'group 1',
-              queries: [
-                {
+            start: '1h-ago',
+            end: '',
+            downsample: '1m-avg-nan',
+            groups: [
+              {
+                id: 'gaga',
+                title: 'group 2',
+                visual: {},
+                queries: [
+                  {
+                    metric: 'SNMP-Net.intercolo.avg_latency',
+                    filters: [
+                      {
+                        type: 'wildcard',
+                        tagk: 'host',
+                        filter: '*',
+                        groupBy: true
+                      }
+                    ],
                     aggregator: 'zimsum',
-                    explicitTags:false,
-                    downsample: '1m-avg-nan',
-                    metric:'Flickr.WWW-BOTS.cpu_speed',
+                    explicitTags: false,
                     rate: false,
-                    rateOptions : {
-                        counter: false,
-                        resetValue: 1
-                    },
-                    counter: false,
-                    resetValue: 1,
-                    settings: {
-                        visual: {
-                            color: "red",
-                            aggregator: "SUM",
-                            stackLabel: "WWW-BOTS"
-                        }
+                    rateOptions: {
+                      counter: false,
+                      resetValue: 1
                     }
-                },
-                {
-                    aggregator: 'zimsum',
-                    downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.UPLOAD.cpu_speed',
-                    rate: false,
-                    rateOptions : {
-                        counter: false,
-                        resetValue: 1
-                    },
-                    counter: false,
-                    resetValue: 1,
-                    settings: {
-                        visual: {
-                            color: "orange",
-                            aggregator: "SUM",
-                            stackLabel: "UPLOAD"
-                        }
-                    }
-                },
-                {
-                    aggregator: 'zimsum',
-                    downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.ZOOKEEPER.cpu_speed',
-                    rate: false,
-                    rateOptions : {
-                        counter: false,
-                        resetValue: 1
-                    },
-                    counter: false,
-                    resetValue: 1,
-                    settings: {
-                        visual: {
-                            color: "yellow",
-                            aggregator: "SUM",
-                            stackLabel: "ZOOKEEPER"
-                        }
-                    }
-                },
-                {
-                    aggregator: 'zimsum',
-                    downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
-                    rate: false,
-                    rateOptions : {
-                        counter: false,
-                        resetValue: 1
-                    },
-                    counter: false,
-                    resetValue: 1,
-                    settings: {
-                        visual: {
-                            color: "green",
-                            aggregator: "SUM",
-                            stackLabel: "TWEM"
-                        }
-                    }
-                },
-                {
-                    aggregator: 'zimsum',
-                    downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.STORM-General.cpu_speed',
-                    rate: false,
-                    rateOptions : {
-                        counter: false,
-                        resetValue: 1
-                    },
-                    counter: false,
-                    resetValue: 1,
-                    settings: {
-                        visual: {
-                            color: "blue",
-                            aggregator: "SUM",
-                            stackLabel: "STORM"
-                        }
-                    }
-                }
-              ]
-            }
-        ]
+                  }
+                ]
+              }
+            ]
         }
       }
-    //   ,
-    //   {
-    //     gridPos: {
-    //       x: 15, y: 5,
-    //       w: 6, h: 5
-    //     },
-    //     config: {
-    //       title: 'Big Number',
-    //       component_type: 'BignumberWidgetComponent',
-    //       visualization: {
-    //         prefix: {
-    //           value: '$',
-    //           size: 'xl',
-    //         },
-    //         postfix: {
-    //           value: 'Per hour',
-    //           size: 'm',
-    //         },
-    //         caption: {
-    //           value: 'gross',
-    //           size: 'l',
-    //         },
-    //         aggregator: 'average',
-    //       },
-    //       data_source: 'opentsdb',
-    //       query: {
-    //         start: '1526250610000',
-    //         end: '1526337010000',
-    //         queries: [
-    //           {
-    //             aggregator: 'zimsum',
-    //             metric: 'Flickr.yapache.requests',
-    //             rate: false,
-    //             rateOptions: {
-    //               counter: false,
-    //               resetValue: 1
-    //             },
-    //             explicitTags: false,
-    //             downsample: '60m-avg-nan',
-    //             filters: [
-    //               {
-    //                 type: 'wildcard',
-    //                 tagk: 'host',
-    //                 filter: '*.bf1.*',
-    //                 groupBy: false
-    //               }
-    //             ]
-    //           }
-    //         ]
-    //       }
-    //     }
-    //   }
     ]
   };
 

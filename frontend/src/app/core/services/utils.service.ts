@@ -56,7 +56,8 @@ export class UtilsService {
 
         // get tag values
         if (keyword === 'tag' && tagKey) {
-          for (let keyValueCombo of metric['tags']) {
+          // TODO: set to 'tags'
+          for (let keyValueCombo of metric['tagss']) {
             if (keyValueCombo['key'].toLowerCase() === tagKey) {
               captureGroupToValueMap[captureGroup] = keyValueCombo['value'];
             }
