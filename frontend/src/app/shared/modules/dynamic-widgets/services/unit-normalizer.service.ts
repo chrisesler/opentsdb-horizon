@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import kbn from './kbn';
 import { Stringifiable } from 'd3';
 
 @Injectable({
@@ -238,12 +237,6 @@ export class UnitNormalizerService {
       numUnit.unit = 'yr';
     }
     return numUnit;
-  }
-
-  // OLD Grafana method - only for testing
-  kbnPreciseNumber(value: number, desc: string, precision: number): number {
-    const numDigitsBeforeDecimal = Math.abs(value).toFixed().toString() === '0' ? 0 : Math.abs(value).toFixed().toString().length;
-    return kbn.valueFormats[desc](value, precision - numDigitsBeforeDecimal, precision - numDigitsBeforeDecimal);
   }
 }
 

@@ -29,18 +29,13 @@ export class BignumberWidgetComponent implements OnInit, PipeTransform {
     @HostBinding('class.bignumber-widget') private _componentClass = true;
 
     /** Inputs */
+    // tslint:disable:no-inferrable-types
     @Input() editMode: boolean;
     @Input() widget: WidgetModel;
 
     private listenSub: Subscription;
-    // tslint:disable-next-line:no-inferrable-types
     private isDataLoaded: boolean = false;
-    /** Local variables */
-    // tslint:disable:no-inferrable-types
     selectedMetric: any;
-    numberOfMetrics: number = 1;
-    fakeMetrics: Array<any> = new Array<any>();
-    _clientHeight: number = 300;
     fontSizePercent: string = '100%';
 
     constructor(private interCom: IntercomService, public util: UtilsService, public UN: UnitNormalizerService) { }
@@ -50,13 +45,8 @@ export class BignumberWidgetComponent implements OnInit, PipeTransform {
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             if ( message.action === 'resizeWidget' ) {
                 // we get the size to update the graph size
-                console.log('resizing bigNum');
-                console.log(message.payload);
-                console.log(this.calcFontSizePercent(message.payload.width , 0));
-
-                // this.fontSizePercent = '200%'; //this.calcFontSizePercent(message.payload.width , 0);
-                // this.width = message.payload.width * this.widget.gridPos.w - 20 + 'px';
-                // this.height = message.payload.height * this.widget.gridPos.h - 60 + 'px';
+                this.fontSizePercent = this.calcFontSizePercent(message.payload.width * this.widget.gridPos.w);
+                // console.log(message.payload.height * this.widget.gridPos.h + 'px');
             }
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
@@ -201,13 +191,10 @@ export class BignumberWidgetComponent implements OnInit, PipeTransform {
         });
     }
 
-    calcFontSizePercent(widgetWidth: number, numOfBigNumbers: number): string {
-    //    const defaultWidth: number = 690;
-       const defaultWidth: number = 150;
-       const fontScaleMultiple: number = 1.5;
-    //    const numOfCols: number = numOfBigNumbers < 4 ? numOfBigNumbers : 2;
-       const fontScale: number = (fontScaleMultiple * widgetWidth) / defaultWidth;
-       return fontScale + '%';
+    calcFontSizePercent(widgetWidth: number): string {
+       const defaultWidth: number = 340;
+       const fontScale: number = widgetWidth / defaultWidth;
+       return fontScale * 100 + '%';
     }
 
     // tslint:disable-next-line:member-ordering
