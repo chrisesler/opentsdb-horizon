@@ -43,14 +43,14 @@
 
                         'middle-align': (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitUndercased) || (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitSize!='l'),
                         'top-align': selectedMetric.configuration.bigNum.unitAlignment=='top'
-                        }">
-                        {{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit}}
-                    </span>
+                        }">{{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit}}</span>
+
+                    <span class="big-number">{{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).num}}</span>
                     
-                    <span class="big-number">
-                        {{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).num}}
-                    </span>
-            
+                    <!-- Add space for units that have multiple units -->
+                    <span class="big-number" *ngIf="UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unitPos === 1 && 
+                                 !UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).changeIndicatorHasUnit">&nbsp;</span>
+
                     <span *ngIf="UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unitPos === 1" [ngClass]="{
                         'large-size': selectedMetric.configuration.bigNum.unitSize=='l' && !selectedMetric.configuration.bigNum.unitUndercased, 
                         'medium-size': selectedMetric.configuration.bigNum.unitSize=='m' && !selectedMetric.configuration.bigNum.unitUndercased, 
@@ -62,10 +62,8 @@
 
                         'middle-align': (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitUndercased) || (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitSize!='l'),
                         'top-align': selectedMetric.configuration.bigNum.unitAlignment=='top'
-                        }">
-                        {{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit}}
-                    </span>
-            
+                        }">{{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit}}</span>
+                    
                     <span [ngClass]="{
                         'large-size': selectedMetric.configuration.bigNum.postfixSize=='l' && !selectedMetric.configuration.bigNum.postfixUndercased, 
                         'medium-size': selectedMetric.configuration.bigNum.postfixSize=='m' && !selectedMetric.configuration.bigNum.postfixUndercased, 

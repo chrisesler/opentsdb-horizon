@@ -216,19 +216,6 @@ export class BignumberWidgetComponent implements OnInit, PipeTransform {
             value: 'latest'
         }
     ];
-
-    // tslint:disable-next-line:member-ordering
-    fakeGroups: Array<any> = [
-        {
-            id: 'group-0',
-            label: 'Untitled Group',
-            collapsed: false,
-            visible: true,
-            colorFamily: 'green',
-            selectedState: 'none', // none,all,some
-            metrics: this.fakeMetrics,
-        }
-    ];
 }
 
 interface IBigNumberMetric {
