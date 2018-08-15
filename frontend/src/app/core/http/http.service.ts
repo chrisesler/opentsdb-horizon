@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { Observable, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { catchError, tap } from 'rxjs/operators';
-import { UtilsService } from  '../services/utils.service';
+import { UtilsService } from '../services/utils.service';
 
 @Injectable({
   providedIn: 'root'
@@ -802,56 +802,179 @@ export class HttpService {
         }
       },
       {
-        gridPos: {
-          x: 15, y: 5,
-          w: 6, h: 5
-        },
-        config: {
-          title: 'Big Number',
+        id: 'bigNum',
+        gridPos: { x: 12, y: 12, w: 6, h: 5 },
+        settings: {
+          title: 'Flickr CPU Speed',
           component_type: 'BignumberWidgetComponent',
-          visualization: {
-            prefix: {
-              value: '$',
-              size: 'xl',
-            },
-            postfix: {
-              value: 'Per hour',
-              size: 'm',
-            },
-            caption: {
-              value: 'gross',
-              size: 'l',
-            },
-            aggregator: 'average',
-          },
-          data_source: 'opentsdb',
-          query: {
-            start: '1526250610000',
-            end: '1526337010000',
-            queries: [
-              {
-                aggregator: 'zimsum',
-                metric: 'Flickr.yapache.requests',
-                rate: false,
-                rateOptions: {
-                  counter: false,
-                  resetValue: 1
+          data_source: 'yamas'
+        },
+        query: {
+          start: '1h-ago',
+          end: '',
+          downsample: '1m-avg-nan',
+          groups: [
+            {
+              id: 'ALL-COLO',
+              title: 'group 1',
+              queries: [
+                {
+                    aggregator: 'zimsum',
+                    explicitTags:false,
+                    downsample: '1m-avg-nan',
+                    metric:'Flickr.WWW-BOTS.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "red",
+                            aggregator: "SUM",
+                            stackLabel: "WWW-BOTS"
+                        }
+                    }
                 },
-                explicitTags: false,
-                downsample: '60m-avg-nan',
-                filters: [
-                  {
-                    type: 'wildcard',
-                    tagk: 'host',
-                    filter: '*.bf1.*',
-                    groupBy: false
-                  }
-                ]
-              }
-            ]
-          }
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.UPLOAD.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "orange",
+                            aggregator: "SUM",
+                            stackLabel: "UPLOAD"
+                        }
+                    }
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.ZOOKEEPER.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "yellow",
+                            aggregator: "SUM",
+                            stackLabel: "ZOOKEEPER"
+                        }
+                    }
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "green",
+                            aggregator: "SUM",
+                            stackLabel: "TWEM"
+                        }
+                    }
+                },
+                {
+                    aggregator: 'zimsum',
+                    downsample: '1m-avg-nan',
+                    explicitTags:false,
+                    metric:'Flickr.STORM-General.cpu_speed',
+                    rate: false,
+                    rateOptions : {
+                        counter: false,
+                        resetValue: 1
+                    },
+                    counter: false,
+                    resetValue: 1,
+                    settings: {
+                        visual: {
+                            color: "blue",
+                            aggregator: "SUM",
+                            stackLabel: "STORM"
+                        }
+                    }
+                }
+              ]
+            }
+        ]
         }
       }
+    //   ,
+    //   {
+    //     gridPos: {
+    //       x: 15, y: 5,
+    //       w: 6, h: 5
+    //     },
+    //     config: {
+    //       title: 'Big Number',
+    //       component_type: 'BignumberWidgetComponent',
+    //       visualization: {
+    //         prefix: {
+    //           value: '$',
+    //           size: 'xl',
+    //         },
+    //         postfix: {
+    //           value: 'Per hour',
+    //           size: 'm',
+    //         },
+    //         caption: {
+    //           value: 'gross',
+    //           size: 'l',
+    //         },
+    //         aggregator: 'average',
+    //       },
+    //       data_source: 'opentsdb',
+    //       query: {
+    //         start: '1526250610000',
+    //         end: '1526337010000',
+    //         queries: [
+    //           {
+    //             aggregator: 'zimsum',
+    //             metric: 'Flickr.yapache.requests',
+    //             rate: false,
+    //             rateOptions: {
+    //               counter: false,
+    //               resetValue: 1
+    //             },
+    //             explicitTags: false,
+    //             downsample: '60m-avg-nan',
+    //             filters: [
+    //               {
+    //                 type: 'wildcard',
+    //                 tagk: 'host',
+    //                 filter: '*.bf1.*',
+    //                 groupBy: false
+    //               }
+    //             ]
+    //           }
+    //         ]
+    //       }
+    //     }
+    //   }
     ]
   };
 
