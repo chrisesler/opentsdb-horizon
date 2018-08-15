@@ -1,5 +1,5 @@
 import {
-    Component, OnInit, HostBinding, Input, Output, EventEmitter, OnDestroy
+    Component, OnInit, HostBinding, Input, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges
 } from '@angular/core';
 
 import {
@@ -24,7 +24,7 @@ import { Subscription } from 'rxjs';
     templateUrl: './widget-config-metric-queries.component.html',
     styleUrls: []
 })
-export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
+export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, OnChanges {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.metric-queries-configuration') private _tabClass = true;
 
@@ -57,10 +57,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
     };
 
     selectAllToggle: String = 'none'; // none/all/some
-
-    selectedGroups: string[] = []; // ids
-    selectedMetrics: any = {};
-
     // TODO: REMOVE FAKE GROUPS
     fakeGroups: Array<any> = [
         {
@@ -217,110 +213,18 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
         }
     ];
 
-    // TODO: REMOVE FAKE METRICS
-    fakeMetrics: Array<object> = [
-        {
-            id: 0,
-            type: 'metric',
-            alias: 'M1',
-            label: 'Metric_namespace.app-name.whatever.some_metric',
-            metric: 'Metric_namespace.app-name.whatever.some_metric',
-            color: 'green',
-            collapsed: false,
-            visible: true,
-            tags: [
-                {
-                    key: 'colo',
-                    value: 'bf1'
-                },
-                {
-                    key: 'hostgroup',
-                    value: 'lala-01'
-                },
-                {
-                    key: '_aggregate',
-                    value: 'SUM'
-                }
-            ],
-            functions: [],
-            configuration: {
-                visualAppearance: {
-                    visualization: 'line',
-                    color: 'green',
-                    lineWeight: '2px',
-                    lineType: 'solid',
-                    logScale: false
-                }
-            }
-        },
-        {
-            id: 1,
-            type: 'metric',
-            alias: 'M2',
-            label: 'Metric_namespace.app-name.something.some_metric',
-            metric: 'Metric_namespace.app-name.something.some_metric',
-            color: 'amber',
-            collapsed: false,
-            visible: true,
-            tags: [
-                {
-                    key: 'colo',
-                    value: 'bf1'
-                },
-                {
-                    key: 'hostgroup',
-                    value: 'hg-01'
-                }
-            ],
-            functions: [],
-            configuration: {
-                visualAppearance: {
-                    visualization: 'line',
-                    color: 'amber',
-                    lineWeight: '2px',
-                    lineType: 'solid',
-                    logScale: false
-                }
-            }
-        },
-        {
-            id: 1,
-            type: 'expression',
-            alias: 'E1',
-            label: 'expression-name',
-            expression: 'm1 + m2 / m2',
-            color: 'fuchsia',
-            collapsed: false,
-            visible: true,
-            tags: [
-                {
-                    key: 'colo',
-                    value: '*'
-                },
-                {
-                    key: 'hostgroup',
-                    value: '*'
-                }
-            ],
-            functions: [],
-            configuration: {
-                visualAppearance: {
-                    visualization: 'line',
-                    color: 'fuschia',
-                    lineWeight: '2px',
-                    lineType: 'solid',
-                    logScale: false
-                }
-            }
-        }
-    ];
-
     constructor(
         public dialog: MatDialog,
         private interCom: IntercomService
     ) { }
 
     ngOnInit() {
+        console.log('editting widget', this.widget);    
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        console.log('changes', changes);
+        
     }
 
     ngOnDestroy() {
@@ -334,14 +238,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
         }
         this.metricExpressionDialog = undefined;
     }
-
-    /**
-     * Services
-     */
-
-    /**
-     * Dialogs
-     */
 
     // opens the dialog window to search and add metrics
     openTimeSeriesMetricDialog(mgroupId: string) {
@@ -551,7 +447,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
         } else {
             this.selectAllToggle = 'none';
             // mark all groups as un-selected
-            // this.selectedGroupMetrics = {};
             for (group of this.fakeGroups) {
                 console.log('fake groups', group);
                 group.selectedState = 'none';
@@ -560,7 +455,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy {
                 }
             }
         }
-        console.log('%cSELECTED', 'background: purple; color: white;', this.selectedGroups);
     }
 
     batch_groupMetrics(event: MouseEvent) {

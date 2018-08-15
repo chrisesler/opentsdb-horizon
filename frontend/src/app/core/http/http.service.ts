@@ -40,7 +40,11 @@ export class HttpService {
             {
               id: 'gaga',
               title: 'group 2',
-              visual: {},
+              settings: {
+                visual: {
+                  visible: true
+                }
+              },
               queries: [
                 {
                   metric: 'SNMP-Net.intercolo.avg_latency',
@@ -58,6 +62,11 @@ export class HttpService {
                   rateOptions: {
                     counter: false,
                     resetValue: 1
+                  },
+                  settings: {
+                    visual: {
+                      visible: true
+                    }
                   }
                 }
               ]
@@ -81,7 +90,11 @@ export class HttpService {
             {
               id: 'werd',
               title: 'group 2',
-              visual: {},
+              settings: {
+                visual: {
+                  visible: true
+                }
+              },
               queries: [
                 {
                   metric: 'SNMP-Net.intercolo.avg_latency',
@@ -99,6 +112,11 @@ export class HttpService {
                   rateOptions: {
                     counter: false,
                     resetValue: 1
+                  },
+                  settings: {
+                    visual: {
+                     visible: true
+                    }
                   }
                 }
               ]
@@ -122,7 +140,11 @@ export class HttpService {
             {
               id: 'multi1',
               title: 'group 1',
-              visual: {},
+              settings: {
+                visual: {
+                  visible: true
+                }
+              },
               queries: [
                 {
                   metric: 'SNMP-Net.intercolo.max_latency',
@@ -140,6 +162,11 @@ export class HttpService {
                   rateOptions: {
                     counter: false,
                     resetValue: 1
+                  },
+                  settings: {
+                    visual: {
+                      visual: true
+                    }
                   }
                 }
               ]
@@ -147,7 +174,11 @@ export class HttpService {
             {
               id: 'multi2',
               title: 'group 2',
-              visual: {},
+              settings: {
+                visual: {
+                  visible: true
+                }
+              },
               queries: [
                 {
                   metric: 'SNMP-Net.intercolo.ploss',
@@ -165,6 +196,11 @@ export class HttpService {
                   rateOptions: {
                     counter: false,
                     resetValue: 1
+                  },
+                  settings: {
+                    visual: {
+                      visible: true
+                    }
                   }
                 }
               ]
@@ -188,6 +224,11 @@ export class HttpService {
             {
               id: 'ALL-COLO',
               title: 'group 1',
+              settings: {
+                visual: {
+                  visible: true
+                }
+              },              
               queries: [
                 {
                     aggregator: 'zimsum',
