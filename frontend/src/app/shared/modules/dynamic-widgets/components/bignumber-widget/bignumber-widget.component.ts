@@ -41,7 +41,7 @@ export class BignumberWidgetComponent implements OnInit, PipeTransform {
     numberOfMetrics: number = 1;
     fakeMetrics: Array<any> = new Array<any>();
     _clientHeight: number = 300;
-    fontSizePercent: string = '150%';
+    fontSizePercent: string = '100%';
 
     constructor(private interCom: IntercomService, public util: UtilsService, public UN: UnitNormalizerService) { }
 
@@ -112,7 +112,7 @@ export class BignumberWidgetComponent implements OnInit, PipeTransform {
                         unitAlignment: 'top',
                         unitUndercased: true,
 
-                        caption: '{{tag.host}} Avg Latency',
+                        caption: '{{tag.host}} Latency',
                         captionSize: 's',
 
                         precision: 3,
