@@ -7,8 +7,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../material/material.module';
 import { DygraphsModule } from '../dygraphs/dygraphs.module';
 import { ChartjsModule } from '../chartjs/chartjs.module';
-import { DateTimePickerModule } from '../date-time-picker/date-time-picker.module'
-import { ColorPickerModule } from '../color-picker/color-picker.module'
+import { DateTimePickerModule } from '../date-time-picker/date-time-picker.module';
+import { ColorPickerModule } from '../color-picker/color-picker.module';
 
 /** public items from Sharedcomponents */
 
@@ -28,6 +28,7 @@ import { WidgetConfigQueryInspectorComponent } from './components/widget-config-
 import { WidgetConfigLegendComponent } from './components/widget-config-legend/widget-config-legend.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
 import { SimpleTimePickerComponent } from './components/simple-time-picker/simple-time-picker.component';
+import { ExpressionDialogComponent } from './components/expression-dialog/expression-dialog.component';
 
 @NgModule({
     imports: [
@@ -52,7 +53,8 @@ import { SimpleTimePickerComponent } from './components/simple-time-picker/simpl
         WidgetConfigTimeComponent,
         WidgetConfigVisualAppearanceComponent,
         InlineEditableComponent,
-        SimpleTimePickerComponent
+        SimpleTimePickerComponent,
+        ExpressionDialogComponent
     ],
     exports: [
         SearchMetricsDialogComponent,
@@ -71,7 +73,8 @@ import { SimpleTimePickerComponent } from './components/simple-time-picker/simpl
         InlineEditableComponent
     ],
     entryComponents: [
-        SearchMetricsDialogComponent
+        SearchMetricsDialogComponent,
+        ExpressionDialogComponent
     ]
 })
 export class SharedcomponentsModule { }

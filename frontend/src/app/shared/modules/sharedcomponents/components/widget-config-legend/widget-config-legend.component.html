@@ -1,26 +1,24 @@
 <form [formGroup]="widgetConfigLegend">
-    <div class="column">
-        <div class="config-control with-enable-label">
-            <label class="fixed-label">Visibility</label>
-            <div class="form-field-group">
-                <mat-slide-toggle formControlName="legendHidden"><span class="mat-caption" [ngClass]="{'is-enabled': legendHidden }">Hide legend</span></mat-slide-toggle>
-            </div>
+    <div class="config-control with-enable-label">
+        <label class="fixed-label">Visibility</label>
+        <div class="form-field-group">
+            <mat-slide-toggle formControlName="legendHidden"><span class="mat-caption" [ngClass]="{'is-enabled': legendHidden }">Hide legend</span></mat-slide-toggle>
         </div>
     </div>
     <div class="config-control inline-controls">
         <label class="fixed-label">Format</label>
         <div class="form-field-group">
             <mat-radio-group formControlName="legendFormat">  
-                <mat-radio-button *ngFor="let options of formatOptions" [value]="option.value">{{option.label}}</mat-radio-button>  
+                <mat-radio-button *ngFor="let option of formatOptions" [value]="option.value">{{option.label}}</mat-radio-button>  
             </mat-radio-group>
         </div>
     </div>
     <div class="config-control inline-controls">
-            <label class="fixed-label">Position</label>
-            <div class="form-field-group">
-                <mat-radio-group formControlName="legendPosition">  
-                    <mat-radio-button *ngFor="let options of positionOptions" [value]="option.value">{{option.label}}</mat-radio-button>  
-                </mat-radio-group>
-            </div>
+        <label class="fixed-label">Position</label>
+        <div class="form-field-group">
+            <mat-radio-group formControlName="legendPosition">  
+                <mat-radio-button *ngFor="let option of positionOptions" [value]="option.value">{{option.label}}</mat-radio-button>  
+            </mat-radio-group>
         </div>
+    </div>
 </form>

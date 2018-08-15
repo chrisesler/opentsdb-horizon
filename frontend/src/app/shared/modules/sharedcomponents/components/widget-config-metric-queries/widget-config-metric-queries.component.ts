@@ -3,7 +3,6 @@ import {
 } from '@angular/core';
 
 import {
-    MatMenu, MatMenuTrigger,
     MatDialog, MatDialogConfig, MatDialogRef, DialogPosition
 } from '@angular/material';
 
@@ -12,6 +11,10 @@ import { IntercomService, IMessage } from '../../../../../core/services/intercom
 import {
     SearchMetricsDialogComponent
 } from '../search-metrics-dialog/search-metrics-dialog.component';
+
+import {
+    ExpressionDialogComponent
+} from '../expression-dialog/expression-dialog.component';
 
 import { Subscription } from 'rxjs';
 
@@ -35,6 +38,12 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     // search metrics dialog
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     searchDialogSub: Subscription;
+
+    // expression
+    metricExpressionDialog: MatDialogRef<ExpressionDialogComponent> | null;
+    metricExpressionDialogSub: Subscription;
+
+    /** Local variables */
 
     modGroup: any; // current group that is adding metric
     mgroupId = undefined;
@@ -223,10 +232,16 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             this.searchDialogSub.unsubscribe();
         }
         this.searchMetricsDialog = undefined;
+
+        if (this.metricExpressionDialogSub) {
+            this.metricExpressionDialogSub.unsubscribe();
+        }
+        this.metricExpressionDialog = undefined;
     }
 
     // opens the dialog window to search and add metrics
     openTimeSeriesMetricDialog(mgroupId: string) {
+        console.log('%cMGROUP', 'background: purple; color: white;', mgroupId);
         // do something
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.width = '100%';
@@ -252,6 +267,30 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
             this.modGroup = dialog_out.mgroup;
             console.log('return', this.modGroup);
+        });
+    }
+
+    openMetricExpressionDialog(mgroupId: string, groupData: any) {
+        console.log('%cMGROUP', 'background: purple; color: white;', mgroupId, groupData);
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        dialogConf.width = '100%';
+        dialogConf.maxWidth = '100%';
+        dialogConf.height = 'calc(100% - 48px)';
+        dialogConf.backdropClass = 'metric-expression-dialog-backdrop';
+        dialogConf.panelClass = 'metric-expression-dialog-panel';
+        dialogConf.position = <DialogPosition>{
+            top: '48px',
+            bottom: '0px',
+            left: '0px',
+            right: '0px'
+        };
+        dialogConf.data = { mgroupId: mgroupId, groupQueries: groupData};
+
+        this.metricExpressionDialog = this.dialog.open(ExpressionDialogComponent, dialogConf);
+        this.metricExpressionDialog.updatePosition({top: '48px'});
+
+        this.metricExpressionDialog.afterClosed().subscribe((dialog_out: any) => {
+            console.log('openMetricExpressionDialog::afterClosed', dialog_out);
         });
     }
 
