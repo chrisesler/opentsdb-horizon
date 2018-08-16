@@ -51,10 +51,15 @@ export class BignumberWidgetComponent implements OnInit {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                     this.isDataLoaded = true;
+                    let metric;
 
-                    let metric = message.payload['gaga'][0];
+                    // get the 'first' metric
+                    for (const [id, _metrics] of Object.entries(message.payload)) {
+                        metric = _metrics[0];
+                        break;
+                    }
+
                     const dps = metric['dps'];
-
                     let currentValueTS: number = 0;
                     let lastValueTS: number = 0;
                     let currentValue: number = 0;

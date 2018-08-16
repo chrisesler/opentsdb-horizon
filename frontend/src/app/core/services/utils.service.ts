@@ -16,7 +16,7 @@ export class UtilsService {
   modifyWidgets(dashboard: any) {
     // add extra info item behaviors
     console.log('passing dashbaord', dashboard);
-    
+
     for (let i = 0; i < dashboard.widgets.length; i++) {
       const wd: any = dashboard.widgets[i];
       //wd.id = this.utils.generateId(); // we set it manually to test
@@ -56,10 +56,9 @@ export class UtilsService {
 
         // get tag values
         if (keyword === 'tag' && tagKey) {
-          // TODO: set to 'tags'
-          for (let keyValueCombo of metric['tagss']) {
-            if (keyValueCombo['key'].toLowerCase() === tagKey) {
-              captureGroupToValueMap[captureGroup] = keyValueCombo['value'];
+          for (const [key, value] of Object.entries(metric['tags'])) {
+            if (key.toLowerCase() === tagKey) {
+              captureGroupToValueMap[captureGroup] = value;
             }
           }
         }

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Stringifiable } from 'd3';
+import { DynamicWidgetsModule } from '../../../modules/dynamic-widgets/dynamic-widgets.module';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: DynamicWidgetsModule,
 })
 
 export class UnitNormalizerService {
