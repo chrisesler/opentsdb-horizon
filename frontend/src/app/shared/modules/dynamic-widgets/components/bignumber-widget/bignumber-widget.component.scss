@@ -4,7 +4,127 @@
     $tab-width: map-get($widgets-common-config, tab-width);
     $action-bar-height: map-get($widgets-common-config, action-bar-height);
 
-    // .widget-panel-content.bignumber-widget { }
+    #main-container {
+        max-height: none;
+        font-family: Helvetica;
+    }
+
+    bignumber-widget {
+        height: 100%;
+
+        .widget-output-container {
+            height: 100%;
+
+            .widget-container {
+                height: 100%;
+
+                .big-num-container {
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+    .widget-panel-content.bignumber-widget { 
+
+        .widget-container {
+            display: flex;
+        }
+
+        .big-num-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .fully-qualified-metric {
+            flex: 1;
+            padding-left: 5px; 
+        }
+
+        .metric-container {
+            text-align: center;
+            height: 3em;
+            line-height: 3em;
+        }
+
+        .caption {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .big-number {
+            font-size: 3em;
+            // vertical-align: bottom;
+        }
+
+        .top-align {
+            vertical-align: top;
+        }
+
+        .middle-align {
+            vertical-align: super;
+        }
+
+        .small-size {
+            font-size: 1em;
+            line-height: 1.9em;
+        }
+
+        .medium-size {
+            font-size: 2em;
+            line-height: 1.3em;
+        }
+
+        .large-size {
+            font-size: 3em;
+            // line-height: 3em;
+        }
+
+        .small-size-undercase {
+            font-size: 1em;
+            line-height: 1.5em;
+        }
+
+        .medium-size-undercase {
+            font-size: 2em;
+            line-height: 0.9em;
+        }
+
+        .large-size-undercase {
+            font-size: 3em;
+            line-height: 0.7em;
+        }
+
+        .top-margin {
+            margin-top: 0.5em;
+        }
+
+        .metric-details {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .metric-tag {
+            font-size: 10px;
+            display: inline-flex;
+            margin-right: 10px;
+            margin-bottom: 8px;
+
+            .tag-key {
+                margin-right: 2px;
+            }
+        }
+
+        .fixed-height {
+            height: 300px;
+        }
+    }
 
     // when we are in edit view
     // .edit-view-container.is-active { 

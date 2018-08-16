@@ -98,7 +98,19 @@
                     </div>
                     <div class="query-metric-item">
                         <div class="metric-detail">
-                            <span class="detail-item">{{ query.metric }}</span>
+                            <span class="detail-item">{{ metric.label }}</span>
+                            <span *ngIf="valueIterationOptions.length > 0" class="value-options"> 
+                                <strong>Value: </strong>
+                                <!-- <div class="form-field-group"> -->
+                                    <mat-form-field class="values-form-field">
+                                        <mat-select>
+                                            <mat-option *ngFor="let val of valueIterationOptions" [value]="val.value">
+                                            {{ val.label }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                <!-- </div> -->
+                            </span>
                             <span class="flex-spacer"></span>
                             <span class="action-icons">
                                 <button mat-icon-button color="primary" (click)="toggle_queryItemVisibility(query, $event)">

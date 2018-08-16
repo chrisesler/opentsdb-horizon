@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-
 import {
     PlaceholderWidgetComponent,
     LinechartWidgetComponent,
     BarchartWidgetComponent,
     DonutWidgetComponent,
-    DeveloperWidgetComponent
+    DeveloperWidgetComponent,
+    BignumberWidgetComponent
 } from '../../shared/modules/dynamic-widgets/components';
 
 @Injectable({
@@ -24,6 +24,8 @@ export class WidgetService {
                 return DonutWidgetComponent;
             case 'DeveloperWidgetComponent':
                 return DeveloperWidgetComponent;
+            case 'BignumberWidgetComponent':
+                return BignumberWidgetComponent;
             default:
                 return PlaceholderWidgetComponent;
         }

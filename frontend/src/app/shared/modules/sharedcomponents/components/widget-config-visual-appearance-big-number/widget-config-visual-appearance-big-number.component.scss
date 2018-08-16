@@ -1,0 +1,199 @@
+/* WIDGET CONFIG COMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+
+@mixin widget-config-visual-appearance-big-number-component-base() {
+
+    .visual-appearance-configuration-big-number {
+        margin-left: 0px;
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+
+            > div {
+                margin: 10px;
+                margin-right: 50px;
+            }
+        }
+
+        .text-title {
+            font-weight: bold;
+        }
+        
+        .label-label {
+            width: 70px;
+            display: inline-block;
+        }
+
+        #menuBtn {
+            top: -20px;
+        }
+
+
+        .labels-container {
+            > div {
+                display: flex;
+                align-items: center;
+            }
+    
+            .mat-form-field {
+                width: 200px;
+            }
+            
+            form {
+                display: inline-block;
+            }
+    
+            .mat-input-element {
+                padding: 7px;
+            }
+
+            label {
+                &.mat-form-field-label {
+                    padding-top: 10px;
+                    padding-left: 10px;
+                }
+            }
+
+            //custom look for buttons
+
+           .mat-form-field-flex {
+               height: 41px;
+           }
+
+            mat-button-toggle-group {
+                top: 1px;
+                box-shadow: none;
+                padding: 2px;
+                height: 29px;
+            }
+
+            mat-button-toggle {
+                width: 30px;
+            }
+
+            .mat-button-toggle-button {
+                width: 30px;
+            }
+
+            .mat-button-toggle-label-content {
+                line-height: 25px;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+
+            //Disable Placeholder
+            .mat-form-field-infix {
+                border-top: 0 solid transparent !important;
+                padding: 0.7em 0;
+            }
+            .mat-form-field-wrapper {
+                padding-bottom: 0 !important;
+            }
+            .mat-form-field-underline {
+                bottom: 0 !important;
+            }
+        }    
+    
+        .labels-container {
+            display: flex;
+            flex-direction: column;   
+        }
+    
+        .labels-container > div
+            {
+            margin-left:10px;
+            margin-right:10px;   
+            line-height: 30px; 
+        }
+
+        .color-container {
+
+            .color-picker-container {
+                margin-top: 5px;
+            }
+            
+            mat-button-toggle-group {
+                box-shadow: none;
+            }
+            .card {
+                &.cp{
+                    margin-left: 12px;
+                    background: transparent;
+                }
+            }
+        }
+    }
+}
+
+@mixin widget-config-visual-appearance-big-number-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $chip-bg: rgba(map-get($primary, default), .1);
+
+    .visual-appearance-configuration-big-number {
+        .query-side-panel {
+            background-color: $chip-bg;
+        }
+    
+        .is-selected {
+            // background-color: map-get($background, background);
+            background-color: white;
+            border-left: 3px solid #18BDED;
+        }
+
+        .labels-container {
+            .mat-form-field-underline {
+                background-color: transparent;
+            }
+            .mat-input-element {
+                background-color: $chip-bg;
+            }
+            mat-button-toggle-group {
+                background-color: $chip-bg;
+                border-left: 1px solid lightgrey;
+            }
+
+            .mat-button-toggle {
+                // border-bottom: 2px solid  transparent;
+                background-color: transparent;
+                color: #18BDED;
+                // box-shadow: none;
+            }
+
+            .mat-button-toggle-checked {
+                // border-bottom: 2px solid  #18BDED;
+                color: darkgray;
+                background: white;
+            }
+        }
+
+        .color-container {
+            .mat-button-toggle {
+                border-bottom: 2px solid  transparent;
+                background-color: transparent;
+                color: #18BDED;
+                box-shadow: none;
+            }
+
+            .mat-button-toggle-checked {
+                border-bottom: 2px solid  #18BDED;
+                color: darkgray;
+            }
+
+            .color-picker-container {
+                border: 1px solid lightgrey;
+            }
+
+            .card {
+                border-top: none;
+            }
+        }
+    }
+}
