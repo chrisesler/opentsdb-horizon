@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input, Pipe, PipeTransform } from '@angular/core';
+import { Component, OnInit, HostBinding, Input } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 import {
@@ -15,7 +15,6 @@ import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.s
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
 
-
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'bignumber-widget',
@@ -23,16 +22,16 @@ import { Subscription } from 'rxjs/Subscription';
     styleUrls: []
 })
 
-@Pipe({name: 'getValues'})
-export class BignumberWidgetComponent implements OnInit, PipeTransform {
+export class BignumberWidgetComponent implements OnInit {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.bignumber-widget') private _componentClass = true;
 
     /** Inputs */
-    // tslint:disable:no-inferrable-types
     @Input() editMode: boolean;
     @Input() widget: WidgetModel;
 
+    // tslint:disable:no-inferrable-types
+    // tslint:disable:prefer-const
     private listenSub: Subscription;
     private isDataLoaded: boolean = false;
     selectedMetric: any;
@@ -44,20 +43,16 @@ export class BignumberWidgetComponent implements OnInit, PipeTransform {
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             if ( message.action === 'resizeWidget' ) {
-                // we get the size to update the graph size
+                // we get the size to update the big number
                 this.fontSizePercent = this.calcFontSizePercent(message.payload.width * this.widget.gridPos.w);
                 // console.log(message.payload.height * this.widget.gridPos.h + 'px');
             }
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
-                    // console.log('updateWidget', message);
                     this.isDataLoaded = true;
-                    // const gid = Object.keys(message.payload)[0];
 
                     let metric = message.payload['gaga'][0];
-                    console.log('**');
-                    console.log(metric);
                     const dps = metric['dps'];
 
                     let currentValueTS: number = 0;
@@ -66,24 +61,23 @@ export class BignumberWidgetComponent implements OnInit, PipeTransform {
                     let lastValue: number = 0;
 
                     // get current value
-                    for (var key in dps) {
+                    for (let key in dps) {
                         if (dps.hasOwnProperty(key)) {
                             if (parseInt(key, 10) > currentValueTS) {
                                 currentValueTS = parseInt(key, 10);
                             }
                         }
                     }
+                    currentValue = dps[currentValueTS];
 
                     // get last value
-                    for (var key in dps) {
+                    for (let key in dps) {
                         if (dps.hasOwnProperty(key)) {
                             if (parseInt(key, 10) > lastValueTS && parseInt(key, 10) < currentValueTS) {
                                 lastValueTS = parseInt(key, 10);
                             }
                         }
                     }
-
-                    currentValue = dps[currentValueTS];
                     lastValue = dps[lastValueTS];
 
                     let bigNumberMetric: IBigNumberMetric = {
@@ -108,7 +102,7 @@ export class BignumberWidgetComponent implements OnInit, PipeTransform {
                         precision: 3,
 
                         textColor: '#ffffff',
-                        backgroundColor: '#' + String(4 + 0) + '0' + String(0) + '0' + String(8 - 0) + '0', // yahoo-ish color
+                        backgroundColor: '#400080',
 
                         sparkLineEnabled: false,
                         changedIndicatorEnabled: false,
@@ -119,11 +113,13 @@ export class BignumberWidgetComponent implements OnInit, PipeTransform {
                         bigNum: bigNumberMetric
                     };
 
+                    // change 'tags' from map to an array
                     if (metric['tags']) {
                         const tags: string[] = this.transform(metric['tags']);
                         metric['tagss'] = tags;
                     }
 
+                    // set the metric
                     this.selectedMetric = metric;
 
                 break;
@@ -151,7 +147,6 @@ export class BignumberWidgetComponent implements OnInit, PipeTransform {
                 action: 'getWidgetCachedData'
             });
         }
-
     }
 
    requestData() {

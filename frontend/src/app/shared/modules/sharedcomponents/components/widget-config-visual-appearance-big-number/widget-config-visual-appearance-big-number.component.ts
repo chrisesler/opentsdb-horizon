@@ -142,9 +142,8 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     }
 
     indicatorToggleChange() {
+        // tslint:disable-next-line:whitespace
         this.selectedMetric['configuration']['bigNum']['changedIndicatorEnabled'] =!
         this.selectedMetric['configuration']['bigNum']['changedIndicatorEnabled'];
     }
-
-    // Options
 }
