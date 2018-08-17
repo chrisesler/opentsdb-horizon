@@ -37,6 +37,7 @@ interface IColor {
 }
 
 @Component({
+  // tslint:disable-next-line:component-selector
   selector: 'color-picker',
   templateUrl: './color-picker.component.html',
   styleUrls: [],
@@ -75,7 +76,9 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     {text: 'Pink', value: '#FC5AA8'},
     {text: 'White', value: '#FFFFFF'} ];
 
+  // tslint:disable:no-inferrable-types
   selectingCustomColor: boolean = false;
+  _colorPickerSelectorHeight: number = 136;
 
   toggleSelector() {
     this.selectingCustomColor = !this.selectingCustomColor;
@@ -83,12 +86,13 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
 
   colorSelected(hexColor: string): void {
     this.selectedColor = hexColor;
+    this.change.emit(this.hexToColor(hexColor));
   }
 
   colorToName(hexColor: string): string {
     let colorName = hexColor;
-    for(let color of this.DefaultColors ) {
-      if(color.value == hexColor ){
+    for (let color of this.DefaultColors) {
+      if (color.value === hexColor) {
         colorName = color.text;
         break;
       }
@@ -96,7 +100,7 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     return colorName;
   }
 
-  enteredColor(event){
+  enteredColor(event) {
     this.backdropClick();
   }
 
@@ -240,17 +244,6 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
   }
   private _hideButtons: boolean = false;
 
-  /**
-   * Define new height for the selector
-   */
-  @Input()
-  get colorPickerSelectorHeight(): number {
-    return this._colorPickerSelectorHeight;
-  }
-  set colorPickerSelectorHeight(height: number) {
-    this._colorPickerSelectorHeight = height;
-  }
-  private _colorPickerSelectorHeight: number = 170;
 
   /**
    * Hide the color picker selector
@@ -302,14 +295,15 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
   }
   private _tmpSelectedColor: BehaviorSubject<string>;
 
-  /**
-   * Observable with all the colors used by the user
+   /**
+   * Define new height for the selector
    */
-//   get usedColors$(): Observable<string[]> {
-//     return this.colorPickerService
-//       .getColors()
-//       .pipe(map(colors => (!this._reverseUsedColor ? colors : [...colors].reverse())));
-//   }
+  get colorPickerSelectorHeight(): number {
+    return this._colorPickerSelectorHeight;
+  }
+  set colorPickerSelectorHeight(height: number) {
+    this._colorPickerSelectorHeight = height;
+  }
 
   /**
    * Array of subscriptions from the collections
@@ -325,7 +319,7 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (!this._selectedColor) {
-      this._selectedColor = '#242424';
+      this._selectedColor = '#000000';
     }
 
     this._tmpSelectedColor = new BehaviorSubject<string>(this._selectedColor);

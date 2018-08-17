@@ -30,6 +30,9 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
     /** Inputs */
     @Input() widget: any;
+    @Input() fakeGroups: Array<any>;
+    @Input() fakeMetrics: Array<object>;
+    @Input() valueIterationOptions: Array<any>;
 
     /** Outputs */
     @Output() widgetChange = new EventEmitter;
@@ -58,160 +61,258 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
     selectAllToggle: String = 'none'; // none/all/some
     // TODO: REMOVE FAKE GROUPS
-    fakeGroups: Array<any> = [
-        {
-            id: 'group-0',
-            label: 'Untitled Group',
-            collapsed: false,
-            visible: true,
-            colorFamily: 'green',
-            selectedState: 'none', // none,all,some
-            metrics: [
-                {
-                    id: 0,
-                    type: 'metric',
-                    alias: 'M1',
-                    label: 'Metric_namespace.app-name.whatever.some_metric',
-                    metric: 'Metric_namespace.app-name.whatever.some_metric',
-                    color: 'green',
-                    collapsed: false,
-                    visible: true,
-                    selectedState: false,
-                    tags: [
-                        {
-                            key: 'colo',
-                            value: 'bf1'
-                        },
-                        {
-                            key: 'hostgroup',
-                            value: 'lala-01'
-                        },
-                        {
-                            key: '_aggregate',
-                            value: 'SUM'
-                        }
-                    ],
-                    functions: [],
-                    configuration: {
-                        visualAppearance: {
-                            visualization: 'line',
-                            color: 'green',
-                            lineWeight: '2px',
-                            lineType: 'solid',
-                            logScale: false
-                        }
-                    }
-                },
-                {
-                    id: 1,
-                    type: 'metric',
-                    alias: 'M2',
-                    label: 'Metric_namespace.app-name.something.some_metric',
-                    metric: 'Metric_namespace.app-name.something.some_metric',
-                    color: 'amber',
-                    collapsed: false,
-                    visible: true,
-                    selectedState: false,
-                    tags: [
-                        {
-                            key: 'colo',
-                            value: 'bf1'
-                        },
-                        {
-                            key: 'hostgroup',
-                            value: 'hg-01'
-                        }
-                    ],
-                    functions: [],
-                    configuration: {
-                        visualAppearance: {
-                            visualization: 'line',
-                            color: 'amber',
-                            lineWeight: '2px',
-                            lineType: 'solid',
-                            logScale: false
-                        }
-                    }
-                },
-                {
-                    id: 2,
-                    type: 'expression',
-                    alias: 'E1',
-                    label: 'expression-name',
-                    expression: '( m1 / m2 ) * 12',
-                    color: 'fuchsia',
-                    collapsed: false,
-                    visible: true,
-                    selectedState: false,
-                    tags: [
-                        {
-                            key: 'colo',
-                            value: '*'
-                        },
-                        {
-                            key: 'hostgroup',
-                            value: '*'
-                        }
-                    ],
-                    functions: [],
-                    configuration: {
-                        visualAppearance: {
-                            visualization: 'line',
-                            color: 'fuschia',
-                            lineWeight: '2px',
-                            lineType: 'solid',
-                            logScale: false
-                        }
-                    }
-                }
-            ]
-        },
-        {
-            id: 'group-1',
-            label: 'Untitled Group 2',
-            collapsed: false,
-            visible: true,
-            colorFamily: 'green',
-            selectedState: 'none', // none/all/some
-            metrics: [
-                {
-                    id: 3,
-                    type: 'metric',
-                    alias: 'M1',
-                    label: 'Metric_namespace.app-name.whatever.some_metric',
-                    metric: 'Metric_namespace.app-name.whatever.some_metric',
-                    color: 'green',
-                    collapsed: false,
-                    visible: true,
-                    selectedState: false,
-                    tags: [
-                        {
-                            key: 'colo',
-                            value: 'bf1'
-                        },
-                        {
-                            key: 'hostgroup',
-                            value: 'lala-01'
-                        },
-                        {
-                            key: '_aggregate',
-                            value: 'SUM'
-                        }
-                    ],
-                    functions: [],
-                    configuration: {
-                        visualAppearance: {
-                            visualization: 'line',
-                            color: 'green',
-                            lineWeight: '2px',
-                            lineType: 'solid',
-                            logScale: false
-                        }
-                    }
-                }
-            ]
-        }
-    ];
+    // fakeGroups: Array<any> = [
+    //     {
+    //         id: 'group-0',
+    //         label: 'Untitled Group',
+    //         collapsed: false,
+    //         visible: true,
+    //         colorFamily: 'green',
+    //         selectedState: 'none', // none,all,some
+    //         metrics: [
+    //             {
+    //                 id: 0,
+    //                 type: 'metric',
+    //                 alias: 'M1',
+    //                 label: 'Metric_namespace.app-name.whatever.some_metric',
+    //                 metric: 'Metric_namespace.app-name.whatever.some_metric',
+    //                 color: 'green',
+    //                 collapsed: false,
+    //                 visible: true,
+    //                 selectedState: false,
+    //                 tags: [
+    //                     {
+    //                         key: 'colo',
+    //                         value: 'bf1'
+    //                     },
+    //                     {
+    //                         key: 'hostgroup',
+    //                         value: 'lala-01'
+    //                     },
+    //                     {
+    //                         key: '_aggregate',
+    //                         value: 'SUM'
+    //                     }
+    //                 ],
+    //                 functions: [],
+    //                 configuration: {
+    //                     visualAppearance: {
+    //                         visualization: 'line',
+    //                         color: 'green',
+    //                         lineWeight: '2px',
+    //                         lineType: 'solid',
+    //                         logScale: false
+    //                     }
+    //                 }
+    //             },
+    //             {
+    //                 id: 1,
+    //                 type: 'metric',
+    //                 alias: 'M2',
+    //                 label: 'Metric_namespace.app-name.something.some_metric',
+    //                 metric: 'Metric_namespace.app-name.something.some_metric',
+    //                 color: 'amber',
+    //                 collapsed: false,
+    //                 visible: true,
+    //                 selectedState: false,
+    //                 tags: [
+    //                     {
+    //                         key: 'colo',
+    //                         value: 'bf1'
+    //                     },
+    //                     {
+    //                         key: 'hostgroup',
+    //                         value: 'hg-01'
+    //                     }
+    //                 ],
+    //                 functions: [],
+    //                 configuration: {
+    //                     visualAppearance: {
+    //                         visualization: 'line',
+    //                         color: 'amber',
+    //                         lineWeight: '2px',
+    //                         lineType: 'solid',
+    //                         logScale: false
+    //                     }
+    //                 }
+    //             },
+    //             {
+    //                 id: 2,
+    //                 type: 'expression',
+    //                 alias: 'E1',
+    //                 label: 'expression-name',
+    //                 expression: '( m1 / m2 ) * 12',
+    //                 color: 'fuchsia',
+    //                 collapsed: false,
+    //                 visible: true,
+    //                 selectedState: false,
+    //                 tags: [
+    //                     {
+    //                         key: 'colo',
+    //                         value: '*'
+    //                     },
+    //                     {
+    //                         key: 'hostgroup',
+    //                         value: '*'
+    //                     }
+    //                 ],
+    //                 functions: [],
+    //                 configuration: {
+    //                     visualAppearance: {
+    //                         visualization: 'line',
+    //                         color: 'fuschia',
+    //                         lineWeight: '2px',
+    //                         lineType: 'solid',
+    //                         logScale: false
+    //                     }
+    //                 }
+    //             }
+    //         ]
+    //     },
+    //     {
+    //         id: 'group-1',
+    //         label: 'Untitled Group 2',
+    //         collapsed: false,
+    //         visible: true,
+    //         colorFamily: 'green',
+    //         selectedState: 'none', // none/all/some
+    //         metrics: [
+    //             {
+    //                 id: 3,
+    //                 type: 'metric',
+    //                 alias: 'M1',
+    //                 label: 'Metric_namespace.app-name.whatever.some_metric',
+    //                 metric: 'Metric_namespace.app-name.whatever.some_metric',
+    //                 color: 'green',
+    //                 collapsed: false,
+    //                 visible: true,
+    //                 selectedState: false,
+    //                 tags: [
+    //                     {
+    //                         key: 'colo',
+    //                         value: 'bf1'
+    //                     },
+    //                     {
+    //                         key: 'hostgroup',
+    //                         value: 'lala-01'
+    //                     },
+    //                     {
+    //                         key: '_aggregate',
+    //                         value: 'SUM'
+    //                     }
+    //                 ],
+    //                 functions: [],
+    //                 configuration: {
+    //                     visualAppearance: {
+    //                         visualization: 'line',
+    //                         color: 'green',
+    //                         lineWeight: '2px',
+    //                         lineType: 'solid',
+    //                         logScale: false
+    //                     }
+    //                 }
+    //             }
+    //         ]
+    //     }
+    // ];
+
+    // TODO: REMOVE FAKE METRICS
+    // fakeMetrics: Array<object> = [
+    //     {
+    //         id: 0,
+    //         type: 'metric',
+    //         alias: 'M1',
+    //         label: 'Metric_namespace.app-name.whatever.some_metric',
+    //         metric: 'Metric_namespace.app-name.whatever.some_metric',
+    //         color: 'green',
+    //         collapsed: false,
+    //         visible: true,
+    //         tags: [
+    //             {
+    //                 key: 'colo',
+    //                 value: 'bf1'
+    //             },
+    //             {
+    //                 key: 'hostgroup',
+    //                 value: 'lala-01'
+    //             },
+    //             {
+    //                 key: '_aggregate',
+    //                 value: 'SUM'
+    //             }
+    //         ],
+    //         functions: [],
+    //         configuration: {
+    //             visualAppearance: {
+    //                 visualization: 'line',
+    //                 color: 'green',
+    //                 lineWeight: '2px',
+    //                 lineType: 'solid',
+    //                 logScale: false
+    //             }
+    //         }
+    //     },
+    //     {
+    //         id: 1,
+    //         type: 'metric',
+    //         alias: 'M2',
+    //         label: 'Metric_namespace.app-name.something.some_metric',
+    //         metric: 'Metric_namespace.app-name.something.some_metric',
+    //         color: 'amber',
+    //         collapsed: false,
+    //         visible: true,
+    //         tags: [
+    //             {
+    //                 key: 'colo',
+    //                 value: 'bf1'
+    //             },
+    //             {
+    //                 key: 'hostgroup',
+    //                 value: 'hg-01'
+    //             }
+    //         ],
+    //         functions: [],
+    //         configuration: {
+    //             visualAppearance: {
+    //                 visualization: 'line',
+    //                 color: 'amber',
+    //                 lineWeight: '2px',
+    //                 lineType: 'solid',
+    //                 logScale: false
+    //             }
+    //         }
+    //     },
+    //     {
+    //         id: 1,
+    //         type: 'expression',
+    //         alias: 'E1',
+    //         label: 'expression-name',
+    //         expression: 'm1 + m2 / m2',
+    //         color: 'fuchsia',
+    //         collapsed: false,
+    //         visible: true,
+    //         tags: [
+    //             {
+    //                 key: 'colo',
+    //                 value: '*'
+    //             },
+    //             {
+    //                 key: 'hostgroup',
+    //                 value: '*'
+    //             }
+    //         ],
+    //         functions: [],
+    //         configuration: {
+    //             visualAppearance: {
+    //                 visualization: 'line',
+    //                 color: 'fuschia',
+    //                 lineWeight: '2px',
+    //                 lineType: 'solid',
+    //                 logScale: false
+    //             }
+    //         }
+    //     }
+    // ];
 
     constructor(
         public dialog: MatDialog,

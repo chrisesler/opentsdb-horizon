@@ -13,6 +13,7 @@ import { ColorPickerModule } from '../color-picker/color-picker.module';
 /** public items from Sharedcomponents */
 
  // other components
+ // tslint:disable:max-line-length
 import { SearchMetricsDialogComponent } from './components/search-metrics-dialog/search-metrics-dialog.component';
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 
@@ -22,10 +23,11 @@ import { WidgetConfigAxesComponent } from './components/widget-config-axes/widge
 import { WidgetConfigGeneralComponent } from './components/widget-config-general/widget-config-general.component';
 import { WidgetConfigMetricQueriesComponent } from './components/widget-config-metric-queries/widget-config-metric-queries.component';
 import { WidgetConfigTimeComponent } from './components/widget-config-time/widget-config-time.component';
-// tslint:disable-next-line:max-line-length
 import { WidgetConfigVisualAppearanceComponent } from './components/widget-config-visual-appearance/widget-config-visual-appearance.component';
 import { WidgetConfigQueryInspectorComponent } from './components/widget-config-query-inspector/widget-config-query-inspector.component';
 import { WidgetConfigLegendComponent } from './components/widget-config-legend/widget-config-legend.component';
+import { WidgetConfigVisualAppearanceBigNumberComponent } from './components/widget-config-visual-appearance-big-number/widget-config-visual-appearance-big-number.component';
+import { WidgetConfigLegendBigNumberComponent } from './components/widget-config-legend-big-number/widget-config-legend-big-number.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
 import { SimpleTimePickerComponent } from './components/simple-time-picker/simple-time-picker.component';
 import { ExpressionDialogComponent } from './components/expression-dialog/expression-dialog.component';
@@ -52,6 +54,8 @@ import { ExpressionDialogComponent } from './components/expression-dialog/expres
         WidgetConfigQueryInspectorComponent,
         WidgetConfigTimeComponent,
         WidgetConfigVisualAppearanceComponent,
+        WidgetConfigVisualAppearanceBigNumberComponent,
+        WidgetConfigLegendBigNumberComponent,
         InlineEditableComponent,
         SimpleTimePickerComponent,
         ExpressionDialogComponent
@@ -67,6 +71,8 @@ import { ExpressionDialogComponent } from './components/expression-dialog/expres
         WidgetConfigQueryInspectorComponent,
         WidgetConfigTimeComponent,
         WidgetConfigVisualAppearanceComponent,
+        WidgetConfigVisualAppearanceBigNumberComponent,
+        WidgetConfigLegendBigNumberComponent,
         DateTimePickerModule,
         SimpleTimePickerComponent,
         ColorPickerModule,
