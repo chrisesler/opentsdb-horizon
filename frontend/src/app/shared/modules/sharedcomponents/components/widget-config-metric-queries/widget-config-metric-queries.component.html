@@ -74,7 +74,7 @@
                             <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
                             <span>Add:</span>
                             <button mat-button color="primary" (click)="openTimeSeriesMetricDialog(mgroupId); $event.stopPropagation()" >Query</button>
-                            <button mat-button color="primary">Expression</button>
+                            <button mat-button color="primary" (click)="openMetricExpressionDialog(mgroupId, group); $event.stopPropagation()">Expression</button>
                         </span>
                         <span class="toolbar-action-icons">
                             <button mat-icon-button color="primary" (click)="toggle_queryGroupVisibility(group, $event); $event.stopPropagation()">
