@@ -35,17 +35,36 @@ export class BignumberWidgetComponent implements OnInit {
     private listenSub: Subscription;
     private isDataLoaded: boolean = false;
     selectedMetric: any;
-    fontSizePercent: string = '100%';
+
+    initialHeight: number;
+    initialWidth: number;
+    fontSizePercent: number;
 
     constructor(private interCom: IntercomService, public util: UtilsService, public UN: UnitNormalizerService) { }
 
     ngOnInit() {
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            if ( message.action === 'resizeWidget' ) {
-                // we get the size to update the big number
-                this.fontSizePercent = this.calcFontSizePercent(message.payload.width * this.widget.gridPos.w);
-                // console.log(message.payload.height * this.widget.gridPos.h + 'px');
+            if (message.action === 'resizeWidget') {
+                if (this.selectedMetric) {
+
+                    const oldFontSizePercent: number = this.selectedMetric['configuration']['bigNum']['fontSizePercent'];
+                    const oldWidth: number = this.selectedMetric['configuration']['bigNum']['pxWidth'];
+                    const oldHeight: number = this.selectedMetric['configuration']['bigNum']['pxHeight'];
+                    const newWidth: number = message.payload.width * this.widget.gridPos.w;
+                    const newHeight: number = message.payload.height * this.widget.gridPos.h;
+
+                    // tslint:disable-next-line:max-line-length
+                    const newFontSizePercent: number = this.calcFontSizePercent(oldFontSizePercent, oldWidth, oldHeight, newWidth, newHeight);
+                    this.selectedMetric['configuration']['bigNum']['fontSizePercent'] = newFontSizePercent;
+                    this.selectedMetric['configuration']['bigNum']['pxWidth'] = newWidth;
+                    this.selectedMetric['configuration']['bigNum']['pxHeight'] = newHeight;
+                    this.fontSizePercent = newFontSizePercent;
+
+                } else { // if no metric, set the initial Width and Height
+                    this.initialWidth = message.payload.width * this.widget.gridPos.w;
+                    this.initialHeight = message.payload.height * this.widget.gridPos.h;
+                }
             }
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
@@ -92,6 +111,10 @@ export class BignumberWidgetComponent implements OnInit {
                         prefixSize: 's', // s m l
                         prefixAlignment: 'top', // top middle bottom
 
+                        pxWidth: 340,
+                        pxHeight: 170,
+                        fontSizePercent: 100,
+
                         postfix: '',
                         postfixSize: 's',
                         postfixAlignment: 'top',
@@ -113,6 +136,12 @@ export class BignumberWidgetComponent implements OnInit {
                         changedIndicatorEnabled: false,
                         changeIndicatorCompareValue: currentValue - lastValue
                     };
+
+                    // set the fontSizePercent if not set
+                    if (!this.fontSizePercent && this.initialWidth && this.initialHeight) {
+                        this.fontSizePercent = this.calcFontSizePercent(bigNumberMetric.fontSizePercent,
+                            bigNumberMetric.pxWidth, bigNumberMetric.pxHeight, this.initialWidth, this.initialHeight);
+                    }
 
                     metric['configuration'] = {
                         bigNum: bigNumberMetric
@@ -191,10 +220,18 @@ export class BignumberWidgetComponent implements OnInit {
         });
     }
 
-    calcFontSizePercent(widgetWidth: number): string {
-       const defaultWidth: number = 340;
-       const fontScale: number = widgetWidth / defaultWidth;
-       return fontScale * 100 + '%';
+    calcFontSizePercent(oldPercent: number, oldWidth: number, oldHeight: number, newWidth: number, newHeight: number): number {
+        const widthDiff: number = newWidth - oldWidth;
+        const heightDiff: number = newHeight - oldHeight;
+
+        // only change size if both height and width have changed
+        if (Math.abs(widthDiff) && Math.abs(heightDiff)) {
+            const percentWidthDiff = newWidth / oldWidth;
+            const percentHeightDiff = newHeight / oldHeight;
+            return oldPercent * Math.min(percentWidthDiff, percentHeightDiff);
+        } else {
+            return oldPercent;
+        }
     }
 
     // tslint:disable-next-line:member-ordering
@@ -222,6 +259,10 @@ interface IBigNumberMetric {
     bigNumber: number;
     value?: string; // max, min, average, latest
     comparedTo?: number;
+
+    pxWidth: number; // initially 340
+    pxHeight: number; // initially 170
+    fontSizePercent: number; // initially 100
 
     prefix?: string;
     prefixSize?: string;
