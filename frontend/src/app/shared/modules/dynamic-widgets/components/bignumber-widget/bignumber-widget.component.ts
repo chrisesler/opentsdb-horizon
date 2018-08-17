@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 import {
@@ -40,6 +40,8 @@ export class BignumberWidgetComponent implements OnInit {
     initialWidth: number;
     fontSizePercent: number;
 
+    @ViewChild('widgetContainer') widgetContainer: ElementRef;
+
     constructor(private interCom: IntercomService, public util: UtilsService, public UN: UnitNormalizerService) { }
 
     ngOnInit() {
@@ -55,11 +57,28 @@ export class BignumberWidgetComponent implements OnInit {
                     const newHeight: number = message.payload.height * this.widget.gridPos.h;
 
                     // tslint:disable-next-line:max-line-length
-                    const newFontSizePercent: number = this.calcFontSizePercent(oldFontSizePercent, oldWidth, oldHeight, newWidth, newHeight);
-                    this.selectedMetric['configuration']['bigNum']['fontSizePercent'] = newFontSizePercent;
-                    this.selectedMetric['configuration']['bigNum']['pxWidth'] = newWidth;
-                    this.selectedMetric['configuration']['bigNum']['pxHeight'] = newHeight;
-                    this.fontSizePercent = newFontSizePercent;
+                    console.log('**');
+                    // console.log(this.widgetContainer);
+                    // console.log(this.widgetContainer.nativeElement.clientWidth);
+                    // const newFontSizePercent: number = 50;
+                    const newFontSizePercent = this.calcFontSizePercent(oldFontSizePercent, oldWidth, oldHeight, newWidth, newHeight);
+                    if (newFontSizePercent !== this.fontSizePercent) {
+                        const percentDiff: number = newFontSizePercent / this.fontSizePercent;
+                        this.selectedMetric['configuration']['bigNum']['fontSizePercent'] = newFontSizePercent;
+                        this.selectedMetric['configuration']['bigNum']['pxWidth'] =
+                            this.selectedMetric['configuration']['bigNum']['pxWidth'] * percentDiff;
+                        this.selectedMetric['configuration']['bigNum']['pxHeight'] =
+                            this.selectedMetric['configuration']['bigNum']['pxHeight'] * percentDiff;
+                        this.fontSizePercent = newFontSizePercent;
+
+                        // console.log('initial width: ' + oldWidth);
+                        // console.log('initial height: ' + oldHeight);
+                        // console.log('widget height: ' + newWidth);
+                        // console.log('widget width: ' + newHeight);
+                        // console.log('new font: ' + newFontSizePercent);
+
+                        // console.log()
+                    }
 
                 } else { // if no metric, set the initial Width and Height
                     this.initialWidth = message.payload.width * this.widget.gridPos.w;
@@ -139,8 +158,20 @@ export class BignumberWidgetComponent implements OnInit {
 
                     // set the fontSizePercent if not set
                     if (!this.fontSizePercent && this.initialWidth && this.initialHeight) {
+
+                        // console.log('***');
+                        // console.log('initial width: ' + this.initialWidth);
+                        // console.log('initial height: ' + this.initialHeight);
+                        // console.log('widget height: ' + bigNumberMetric.pxWidth);
+                        // console.log('widget width: ' + bigNumberMetric.pxHeight);
+
                         this.fontSizePercent = this.calcFontSizePercent(bigNumberMetric.fontSizePercent,
                             bigNumberMetric.pxWidth, bigNumberMetric.pxHeight, this.initialWidth, this.initialHeight);
+
+                        // console.log('new font: ' + this.fontSizePercent);
+                        bigNumberMetric.pxWidth = bigNumberMetric.pxWidth * (this.fontSizePercent / bigNumberMetric.fontSizePercent);
+                        bigNumberMetric.pxHeight = bigNumberMetric.pxHeight * (this.fontSizePercent / bigNumberMetric.fontSizePercent);
+                        bigNumberMetric.fontSizePercent = this.fontSizePercent;
                     }
 
                     metric['configuration'] = {

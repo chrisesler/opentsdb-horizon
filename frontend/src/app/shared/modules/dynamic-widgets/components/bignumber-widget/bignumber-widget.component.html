@@ -8,7 +8,7 @@
         </span>
     </div>
 
-    <div class="widget-container" [ngClass]= "{'fixed-height' : editMode}">
+    <div class="widget-container" [ngClass]= "{'fixed-height' : editMode}" #widgetContainer>
         <div *ngIf="selectedMetric" 
             class="big-num-container"
             [style.background]="selectedMetric.configuration.bigNum.backgroundColor"
