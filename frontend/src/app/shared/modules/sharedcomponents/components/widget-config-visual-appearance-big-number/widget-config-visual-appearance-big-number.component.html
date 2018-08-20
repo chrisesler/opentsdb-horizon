@@ -114,11 +114,11 @@
                     <input matInput #captionBox placeholder="Enter Caption" value="{{selectedMetric.configuration.bigNum.caption}}" (keyup)="KeyedOnCaptionInputBox(captionBox.value)">
                 </mat-form-field>
             </form>
-            <mat-button-toggle-group #captionGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.captionSize" (change)="selectedCaptionSize(captionGroup.value)">
+            <!-- <mat-button-toggle-group #captionGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.captionSize" (change)="selectedCaptionSize(captionGroup.value)">
                 <mat-button-toggle value="s">sm</mat-button-toggle>
                 <mat-button-toggle value="m">md</mat-button-toggle>
                 <mat-button-toggle value="l">lg</mat-button-toggle>
-            </mat-button-toggle-group>
+            </mat-button-toggle-group> -->
         </div>
 
         <div class="precision-container">

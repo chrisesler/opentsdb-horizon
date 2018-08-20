@@ -59,7 +59,7 @@
 
         .big-number {
             font-size: 3em;
-            // vertical-align: bottom;
+            font-weight: 600;
         }
 
         .top-align {
@@ -123,6 +123,13 @@
 
         .fixed-height {
             height: 300px;
+        }
+
+        .no-flex {
+            flex: none;
+            padding-left: 10px;
+            padding-right: 10px;
+            flex-grow: 0;
         }
     }
 

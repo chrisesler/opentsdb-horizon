@@ -8,14 +8,15 @@
         </span>
     </div>
 
-    <div class="widget-container" [ngClass]= "{'fixed-height' : editMode}" #widgetContainer>
+    <div class="widget-container" [ngClass]= "{'fixed-height' : editMode}">
         <div *ngIf="selectedMetric" 
             class="big-num-container"
             [style.background]="selectedMetric.configuration.bigNum.backgroundColor"
             [style.color]="selectedMetric.configuration.bigNum.textColor"
-            [style.font-size]="fontSizePercent + '%'">
+            [style.font-size]="fontSizePercent + '%'"
+            [ngClass]= "{'no-flex' : editMode}">
 
-            <div class="content-container">
+            <div class="content-container" #contentContainer>
                 <div class="metric-container">
                     <span [ngClass]="{
                         'large-size': selectedMetric.configuration.bigNum.prefixSize=='l' && !selectedMetric.configuration.bigNum.prefixUndercased, 
@@ -29,7 +30,7 @@
                         'middle-align': (selectedMetric.configuration.bigNum.prefixAlignment=='middle' && selectedMetric.configuration.bigNum.prefixUndercased) || (selectedMetric.configuration.bigNum.prefixAlignment=='middle' && selectedMetric.configuration.bigNum.prefixSize!='l'),
                         'top-align': selectedMetric.configuration.bigNum.prefixAlignment=='top'
                         }">
-                        {{selectedMetric.configuration.bigNum.prefix}}
+                        {{shortenString(selectedMetric.configuration.bigNum.prefix, maxLabelLength)}}
                     </span>
                     
                     <span *ngIf="UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unitPos === 0" [ngClass]="{
@@ -43,7 +44,7 @@
 
                         'middle-align': (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitUndercased) || (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitSize!='l'),
                         'top-align': selectedMetric.configuration.bigNum.unitAlignment=='top'
-                        }">{{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit}}</span>
+                        }">{{shortenString(UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit, maxLabelLength)}}</span>
 
                     <span class="big-number">{{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).num}}</span>
                     
@@ -62,7 +63,7 @@
 
                         'middle-align': (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitUndercased) || (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitSize!='l'),
                         'top-align': selectedMetric.configuration.bigNum.unitAlignment=='top'
-                        }">{{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit}}</span>
+                        }">{{shortenString(UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit, maxLabelLength)}}</span>
                     
                     <span [ngClass]="{
                         'large-size': selectedMetric.configuration.bigNum.postfixSize=='l' && !selectedMetric.configuration.bigNum.postfixUndercased, 
@@ -76,7 +77,7 @@
                         'middle-align': (selectedMetric.configuration.bigNum.postfixAlignment=='middle' && selectedMetric.configuration.bigNum.postfixUndercased) || (selectedMetric.configuration.bigNum.postfixAlignment=='middle' && selectedMetric.configuration.bigNum.postfixSize!='l'),
                         'top-align': selectedMetric.configuration.bigNum.postfixAlignment=='top'
                         }">
-                        {{selectedMetric.configuration.bigNum.postfix}}
+                        {{shortenString(selectedMetric.configuration.bigNum.postfix, maxLabelLength)}}
                     </span>
 
                     <span *ngIf="selectedMetric.configuration.bigNum.changedIndicatorEnabled" class="change-indicator">
@@ -87,14 +88,14 @@
                 </div>
 
 
-                <div class="caption"
-                    [ngClass]="{
-                        'large-size': selectedMetric.configuration.bigNum.captionSize=='l', 
-                        'medium-size': selectedMetric.configuration.bigNum.captionSize=='m', 
-                        'small-size': selectedMetric.configuration.bigNum.captionSize=='s',
-                        'top-margin': selectedMetric.configuration.bigNum.captionSize=='l'
-                        }">
-                    {{util.tagMacro(selectedMetric, selectedMetric.configuration.bigNum.caption) | uppercase }}
+                <!-- [ngClass]="{
+                    'large-size': selectedMetric.configuration.bigNum.captionSize=='l', 
+                    'medium-size': selectedMetric.configuration.bigNum.captionSize=='m', 
+                    'small-size': selectedMetric.configuration.bigNum.captionSize=='s',
+                    'top-margin': selectedMetric.configuration.bigNum.captionSize=='l'
+                    }"> -->
+                <div class="caption small-size">
+                    {{shortenString(util.tagMacro(selectedMetric, selectedMetric.configuration.bigNum.caption), maxCaptionLength) | uppercase }}
                 </div>
             </div>
         </div>

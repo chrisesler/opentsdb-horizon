@@ -36,11 +36,15 @@ export class BignumberWidgetComponent implements OnInit {
     private isDataLoaded: boolean = false;
     selectedMetric: any;
 
-    initialHeight: number;
-    initialWidth: number;
     fontSizePercent: number;
+    contentFillPercent: number = 0.90; // how much % content should take up widget
+    maxCaptionLength: number = 36;
+    maxLabelLength: number = 8; // postfix, prefix, unit
 
-    @ViewChild('widgetContainer') widgetContainer: ElementRef;
+    widgetWidth: number;
+    widgetHeight: number;
+
+    @ViewChild('contentContainer') contentContainer: ElementRef;
 
     constructor(private interCom: IntercomService, public util: UtilsService, public UN: UnitNormalizerService) { }
 
@@ -48,44 +52,32 @@ export class BignumberWidgetComponent implements OnInit {
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             if (message.action === 'resizeWidget') {
-                if (this.selectedMetric) {
+                if (!this.selectedMetric) { // 1. If no metric, only set the widget width and height.
+                    this.widgetWidth = message.payload.width * this.widget.gridPos.w - 20;
+                    this.widgetHeight = message.payload.height * this.widget.gridPos.h - 60;
 
-                    const oldFontSizePercent: number = this.selectedMetric['configuration']['bigNum']['fontSizePercent'];
-                    const oldWidth: number = this.selectedMetric['configuration']['bigNum']['pxWidth'];
-                    const oldHeight: number = this.selectedMetric['configuration']['bigNum']['pxHeight'];
-                    const newWidth: number = message.payload.width * this.widget.gridPos.w;
-                    const newHeight: number = message.payload.height * this.widget.gridPos.h;
+                } else { // 3. Given the metric, set all the new widths and heights.
 
-                    // tslint:disable-next-line:max-line-length
-                    console.log('**');
-                    // console.log(this.widgetContainer);
-                    // console.log(this.widgetContainer.nativeElement.clientWidth);
-                    // const newFontSizePercent: number = 50;
-                    const newFontSizePercent = this.calcFontSizePercent(oldFontSizePercent, oldWidth, oldHeight, newWidth, newHeight);
-                    if (newFontSizePercent !== this.fontSizePercent) {
-                        const percentDiff: number = newFontSizePercent / this.fontSizePercent;
-                        this.selectedMetric['configuration']['bigNum']['fontSizePercent'] = newFontSizePercent;
-                        this.selectedMetric['configuration']['bigNum']['pxWidth'] =
-                            this.selectedMetric['configuration']['bigNum']['pxWidth'] * percentDiff;
-                        this.selectedMetric['configuration']['bigNum']['pxHeight'] =
-                            this.selectedMetric['configuration']['bigNum']['pxHeight'] * percentDiff;
-                        this.fontSizePercent = newFontSizePercent;
+                    const newWidgetWidth: number = message.payload.width * this.widget.gridPos.w - 20;
+                    const newWidgetHeight: number = message.payload.height * this.widget.gridPos.h - 60;
 
-                        // console.log('initial width: ' + oldWidth);
-                        // console.log('initial height: ' + oldHeight);
-                        // console.log('widget height: ' + newWidth);
-                        // console.log('widget width: ' + newHeight);
-                        // console.log('new font: ' + newFontSizePercent);
+                    const contentWidth: number = this.contentContainer.nativeElement.clientWidth;
+                    const contentHeight: number = this.contentContainer.nativeElement.clientHeight;
 
-                        // console.log()
+                    const percentWidthChange: number = (newWidgetWidth * this.contentFillPercent) / contentWidth;
+                    const percentHeightChange: number = (newWidgetHeight * this.contentFillPercent) / contentHeight;
+                    const percentChange: number =  Math.min(percentHeightChange, percentWidthChange);
+
+                    if (percentChange > 1.01 || percentChange < 0.99) {
+                        this.fontSizePercent = percentChange * this.fontSizePercent;
+                        this.selectedMetric['configuration']['bigNum']['fontSizePercent'] = this.fontSizePercent;
+                        this.selectedMetric['configuration']['bigNum']['widgetWidth'] = newWidgetWidth;
+                        this.selectedMetric['configuration']['bigNum']['widgetHeight'] = newWidgetHeight;
+                        // console.log('font size percent: ' + this.fontSizePercent);
                     }
-
-                } else { // if no metric, set the initial Width and Height
-                    this.initialWidth = message.payload.width * this.widget.gridPos.w;
-                    this.initialHeight = message.payload.height * this.widget.gridPos.h;
                 }
             }
-            if (message && (message.id === this.widget.id)) {
+            if (message && (message.id === this.widget.id)) { // 2. Get and set the metric
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                     this.isDataLoaded = true;
@@ -130,9 +122,9 @@ export class BignumberWidgetComponent implements OnInit {
                         prefixSize: 's', // s m l
                         prefixAlignment: 'top', // top middle bottom
 
-                        pxWidth: 340,
-                        pxHeight: 170,
-                        fontSizePercent: 100,
+                        widgetWidth: 384,
+                        widgetHeight: 142,
+                        fontSizePercent: 127,
 
                         postfix: '',
                         postfixSize: 's',
@@ -144,7 +136,7 @@ export class BignumberWidgetComponent implements OnInit {
                         unitUndercased: true,
 
                         caption: '{{tag.host}} Latency',
-                        captionSize: 's',
+                        // captionSize: 's',
 
                         precision: 3,
 
@@ -156,23 +148,8 @@ export class BignumberWidgetComponent implements OnInit {
                         changeIndicatorCompareValue: currentValue - lastValue
                     };
 
-                    // set the fontSizePercent if not set
-                    if (!this.fontSizePercent && this.initialWidth && this.initialHeight) {
-
-                        // console.log('***');
-                        // console.log('initial width: ' + this.initialWidth);
-                        // console.log('initial height: ' + this.initialHeight);
-                        // console.log('widget height: ' + bigNumberMetric.pxWidth);
-                        // console.log('widget width: ' + bigNumberMetric.pxHeight);
-
-                        this.fontSizePercent = this.calcFontSizePercent(bigNumberMetric.fontSizePercent,
-                            bigNumberMetric.pxWidth, bigNumberMetric.pxHeight, this.initialWidth, this.initialHeight);
-
-                        // console.log('new font: ' + this.fontSizePercent);
-                        bigNumberMetric.pxWidth = bigNumberMetric.pxWidth * (this.fontSizePercent / bigNumberMetric.fontSizePercent);
-                        bigNumberMetric.pxHeight = bigNumberMetric.pxHeight * (this.fontSizePercent / bigNumberMetric.fontSizePercent);
-                        bigNumberMetric.fontSizePercent = this.fontSizePercent;
-                    }
+                    this.fontSizePercent = this.calcFontSizePercent(bigNumberMetric.fontSizePercent,
+                            bigNumberMetric.widgetWidth, bigNumberMetric.widgetHeight, this.widgetWidth, this.widgetHeight);
 
                     metric['configuration'] = {
                         bigNum: bigNumberMetric
@@ -251,18 +228,19 @@ export class BignumberWidgetComponent implements OnInit {
         });
     }
 
-    calcFontSizePercent(oldPercent: number, oldWidth: number, oldHeight: number, newWidth: number, newHeight: number): number {
-        const widthDiff: number = newWidth - oldWidth;
-        const heightDiff: number = newHeight - oldHeight;
+    calcFontSizePercent(percent: number, originalWidth: number, originalHeight: number, newWidth: number, newHeight: number): number {
+        const percentChangeWidth: number = newWidth / originalWidth;
+        const percentChangeHeight: number = newHeight / originalHeight;
+        const percentChange: number = Math.min(percentChangeWidth, percentChangeHeight);
+        return percent * percentChange;
+    }
 
-        // only change size if both height and width have changed
-        if (Math.abs(widthDiff) && Math.abs(heightDiff)) {
-            const percentWidthDiff = newWidth / oldWidth;
-            const percentHeightDiff = newHeight / oldHeight;
-            return oldPercent * Math.min(percentWidthDiff, percentHeightDiff);
-        } else {
-            return oldPercent;
+    // we have this method so that a caption or other labels will not make the big number really small
+    shortenString(str: string, maxChars: number): string {
+        if (str.length > maxChars) {
+            return str.substr(0, maxChars - 3) + '...';
         }
+        return str;
     }
 
     // tslint:disable-next-line:member-ordering
@@ -291,9 +269,9 @@ interface IBigNumberMetric {
     value?: string; // max, min, average, latest
     comparedTo?: number;
 
-    pxWidth: number; // initially 340
-    pxHeight: number; // initially 170
-    fontSizePercent: number; // initially 100
+    fontSizePercent: number;
+    widgetWidth: number;
+    widgetHeight: number;
 
     prefix?: string;
     prefixSize?: string;
@@ -311,7 +289,7 @@ interface IBigNumberMetric {
     unitUndercased?: boolean;
 
     caption?: string;
-    captionSize?: string;
+    // captionSize?: string;
 
     precision: number;
 
