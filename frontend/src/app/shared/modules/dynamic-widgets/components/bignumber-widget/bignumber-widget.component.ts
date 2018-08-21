@@ -14,6 +14,7 @@ import {
 import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
+import { LEFT_ARROW } from '@angular/cdk/keycodes';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -37,7 +38,8 @@ export class BignumberWidgetComponent implements OnInit {
     selectedMetric: any;
 
     fontSizePercent: number;
-    contentFillPercent: number = 0.90; // how much % content should take up widget
+    contentFillPercent: number = 0.75; // how much % content should take up widget
+    contentFillPercentWithNoCaption: number = 0.60; // how much % content should take up widget
     maxCaptionLength: number = 36;
     maxLabelLength: number = 8; // postfix, prefix, unit
 
@@ -64,8 +66,17 @@ export class BignumberWidgetComponent implements OnInit {
                     const contentWidth: number = this.contentContainer.nativeElement.clientWidth;
                     const contentHeight: number = this.contentContainer.nativeElement.clientHeight;
 
-                    const percentWidthChange: number = (newWidgetWidth * this.contentFillPercent) / contentWidth;
-                    const percentHeightChange: number = (newWidgetHeight * this.contentFillPercent) / contentHeight;
+                    let percentWidthChange: number;
+                    let percentHeightChange: number;
+
+                    if (this.selectedMetric['configuration']['bigNum']['caption']) {
+                        percentWidthChange = (newWidgetWidth * this.contentFillPercent) / contentWidth;
+                        percentHeightChange = (newWidgetHeight * this.contentFillPercent) / contentHeight;
+                    } else {
+                        percentWidthChange = (newWidgetWidth * this.contentFillPercentWithNoCaption) / contentWidth;
+                        percentHeightChange = (newWidgetHeight * this.contentFillPercentWithNoCaption) / contentHeight;
+                    }
+
                     const percentChange: number =  Math.min(percentHeightChange, percentWidthChange);
 
                     if (percentChange > 1.01 || percentChange < 0.99) {
@@ -73,7 +84,10 @@ export class BignumberWidgetComponent implements OnInit {
                         this.selectedMetric['configuration']['bigNum']['fontSizePercent'] = this.fontSizePercent;
                         this.selectedMetric['configuration']['bigNum']['widgetWidth'] = newWidgetWidth;
                         this.selectedMetric['configuration']['bigNum']['widgetHeight'] = newWidgetHeight;
-                        // console.log('font size percent: ' + this.fontSizePercent);
+                        console.log('**');
+                        console.log('font size percent: ' + this.fontSizePercent);
+                        console.log('width: ' + newWidgetWidth);
+                        console.log('height : ' + newWidgetHeight);
                     }
                 }
             }
@@ -122,9 +136,9 @@ export class BignumberWidgetComponent implements OnInit {
                         prefixSize: 's', // s m l
                         prefixAlignment: 'top', // top middle bottom
 
-                        widgetWidth: 384,
-                        widgetHeight: 142,
-                        fontSizePercent: 127,
+                        widgetWidth: 420, // only needed when first loading widget
+                        widgetHeight: 160, // only needed when first loading widget
+                        fontSizePercent: 200, // only needed when first loading widget
 
                         postfix: '',
                         postfixSize: 's',

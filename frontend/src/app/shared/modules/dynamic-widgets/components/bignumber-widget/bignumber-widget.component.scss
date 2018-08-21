@@ -55,6 +55,10 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+
+            font-size: 0.6em;
+            font-weight: 300;
+            padding-top: 5px;
         }
 
         .big-number {
@@ -69,6 +73,14 @@
         .middle-align {
             vertical-align: super;
         }
+
+        // .small-size-caption {
+        //     font-size: 0.5em;
+        //     font-weight: 300;
+        //     padding-top: 5px;
+
+        //     // line-height: 1.9em;
+        // }
 
         .small-size {
             font-size: 1em;
