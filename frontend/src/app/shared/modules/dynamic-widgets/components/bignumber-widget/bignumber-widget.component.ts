@@ -8,8 +8,7 @@ import {
     WidgetConfigLegendComponent,
     WidgetConfigMetricQueriesComponent,
     WidgetConfigQueryInspectorComponent,
-    WidgetConfigTimeComponent,
-    WidgetConfigVisualAppearanceComponent
+    WidgetConfigTimeComponent
 } from '../../../sharedcomponents/components';
 import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';

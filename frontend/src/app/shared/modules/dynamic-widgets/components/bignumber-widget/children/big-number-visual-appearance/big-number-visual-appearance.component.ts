@@ -1,16 +1,17 @@
 import { Component, OnInit, HostBinding, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material';
-import { UnitNormalizerService, IBigNum } from '../../../../modules/dynamic-widgets/services/unit-normalizer.service';
+import { UnitNormalizerService, IBigNum } from '../../../../services/unit-normalizer.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
-    selector: 'widget-config-visual-appearance-big-number',
-    templateUrl: './widget-config-visual-appearance-big-number.component.html',
+    selector: 'big-number-visual-appearance',
+    templateUrl: './big-number-visual-appearance.component.html',
     styleUrls: []
 })
-export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
+
+export class BignumberVisualAppearanceComponent implements OnInit {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
-    @HostBinding('class.visual-appearance-configuration-big-number') private _tabClass = true;
+    @HostBinding('class.big-number-visual-appearance') private _tabClass = true;
 
     /** Inputs */
     @Input() widget: any;
