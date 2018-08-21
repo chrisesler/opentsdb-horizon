@@ -35,6 +35,8 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     currencyUnits: Array<string> = ['usd'];
     otherUnits: Array<string> = ['auto'];
 
+    prefixDisabled: boolean = true;
+
     constructor(public UN: UnitNormalizerService) { }
 
     ngOnInit() {
@@ -44,6 +46,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
 
     // Prefix
     KeyedOnPrefixInputBox(value: string) {
+        this.prefixDisabled = false;
         this.selectedMetric['configuration']['bigNum']['prefix'] = value;
         this.selectedMetric['configuration']['bigNum']['prefixUndercased'] = this.isStringOnlyLowercasedLetters(value);
     }
@@ -53,6 +56,8 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     }
 
     selectedPrefixAlignment(value: string) {
+        console.log('changed to: ' + value);
+
         this.selectedMetric['configuration']['bigNum']['prefixAlignment'] = value;
     }
 
@@ -76,10 +81,6 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         this.selectedMetric['configuration']['bigNum']['unitUndercased'] =
             this.isStringOnlyLowercasedLetters(this.UN.getBigNumber(this.selectedMetric['configuration']['bigNum']['bigNumber'],
             this.selectedMetric['configuration']['bigNum']['unit']).unit);
-
-        console.log(this.isStringOnlyLowercasedLetters(
-            this.UN.getBigNumber(this.selectedMetric['configuration']['bigNum']['bigNumber'],
-            this.selectedMetric['configuration']['bigNum']['unit']).unit));
     }
 
     selectedUnitSize(value: string) {
