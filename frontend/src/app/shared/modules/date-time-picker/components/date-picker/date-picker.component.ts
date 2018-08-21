@@ -53,7 +53,7 @@ const moment = momentNs;
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'dp-date-picker',
-    styleUrls: ['date-picker.component.scss'],
+    styleUrls: [],
     templateUrl: 'date-picker.component.html',
     encapsulation: ViewEncapsulation.None,
     providers: [
@@ -84,7 +84,8 @@ export class DatePickerComponent implements OnChanges,
     @Input() mode: CalendarMode;
     @Input() placeholder: string;
     @Input() displayDate: SingleCalendarValue;
-    @HostBinding('class') @Input() theme: string;
+    // @HostBinding('class') @Input() theme: string;
+    @HostBinding('class.date-picker-component') private _hostClass = true;
     @Input() minDate: Moment;
     @Input() maxDate: Moment;
     @Input() minTime: SingleCalendarValue;
@@ -94,13 +95,21 @@ export class DatePickerComponent implements OnChanges,
     @Input() maxDateError: String;
     @Input() formatError: String;
 
+    @Input() inputLabel: String = 'Select Date';
+
     @Output() open = new EventEmitter<void>();
     @Output() close = new EventEmitter<void>();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onChange = new EventEmitter<CalendarValue>();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onGoToCurrent: EventEmitter<void> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onLeftNav: EventEmitter<INavEvent> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onRightNav: EventEmitter<INavEvent> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onFocus = new EventEmitter<void>();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onEnter = new EventEmitter<void>();
 
     @ViewChild('container') calendarContainer: ElementRef;
@@ -366,7 +375,7 @@ export class DatePickerComponent implements OnChanges,
     }
 
     onChangeCallback(_: any, changedByInput: boolean) {
-    };
+    }
 
     registerOnTouched(fn: any): void {
     }

@@ -16,7 +16,7 @@
             <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
             <span>Add Widget</span>
         </button>
-        <mat-menu #dashboardAvailableWidgetsMenu="matMenu" [overlapTrigger]="false" class="nav-bar-dropmenu dashboard-available-widgets-menu" xPosition="before">
+        <mat-menu #dashboardAvailableWidgetsMenu="matMenu" [xPosition]="menuXAlignValue" [overlapTrigger]="false" class="nav-bar-dropmenu dashboard-available-widgets-menu" xPosition="before">
             <ng-template matMenuContent>
                 <div class="available-widget-output">
                     <div class="widget-types">
@@ -34,7 +34,7 @@
 
     <!-- <color-picker (selected)="eventTriggered($event)" [selectedColor]="'#000000'" [colorPickerSelectorHeight]="136"> </color-picker>-->
 
-    <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="eventTriggered($event)" xPosition="before"></time-picker>
+    <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="eventTriggered($event)" [xPosition]="menuXAlignValue"></time-picker>
 
     <!--<simple-time-picker xPosition="before"></simple-time-picker>-->
     <span class="navbar-item nav-dashboard-actions">

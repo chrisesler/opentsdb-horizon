@@ -60,22 +60,28 @@ const moment = momentNs;
 export class DayCalendarComponent implements OnInit, OnChanges, ControlValueAccessor, Validator {
 
     @HostBinding('class.dtp-day-calendar') private _hostClass = true;
-    @HostBinding('class') @Input() theme: string;
+    // @HostBinding('class') @Input() theme: string;
 
     @Input() config: IDayCalendarConfig;
     @Input() displayDate: SingleCalendarValue;
     @Input() minDate: Moment;
     @Input() maxDate: Moment;
 
-
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onSelect: EventEmitter<IDay> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onMonthSelect: EventEmitter<IMonth> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onNavHeaderBtnClick: EventEmitter<ECalendarMode> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onGoToCurrent: EventEmitter<void> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onLeftNav: EventEmitter<INavEvent> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onRightNav: EventEmitter<INavEvent> = new EventEmitter();
 
     CalendarMode = ECalendarMode;
+    // tslint:disable-next-line:no-inferrable-types
     isInited: boolean = false;
     componentConfig: IDayCalendarConfigInternal;
     _selected: Moment[];
@@ -87,6 +93,7 @@ export class DayCalendarComponent implements OnInit, OnChanges, ControlValueAcce
     validateFn: DateValidator;
     currentCalendarMode: ECalendarMode = ECalendarMode.Day;
     monthCalendarConfig: IMonthCalendarConfig;
+    // tslint:disable-next-line:no-inferrable-types
     _shouldShowCurrent: boolean = true;
     navLabel: string;
     showLeftNav: boolean;
@@ -186,7 +193,7 @@ export class DayCalendarComponent implements OnInit, OnChanges, ControlValueAcce
     }
 
     onChangeCallback(_: any) {
-    };
+    }
 
     registerOnTouched(fn: any): void {
     }
@@ -247,6 +254,14 @@ export class DayCalendarComponent implements OnInit, OnChanges, ControlValueAcce
         }
 
         return cssClasses;
+    }
+
+    isDayToday(day: IDay): boolean {
+        return moment().isSame(day.date, 'day');
+    }
+
+    isDayInCurrentMonth(day: IDay): boolean {
+        return this.currentDateView.isSame(day.date, 'month');
     }
 
     onLeftNavClick() {

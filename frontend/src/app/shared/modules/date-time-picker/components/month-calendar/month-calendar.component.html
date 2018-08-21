@@ -1,27 +1,50 @@
 <div class="dp-month-calendar-container">
-  <mat-card-header> 
-    <mat-card-title>
-      <dp-calendar-nav
-          [label]="navLabel"
-          [showLeftNav]="showLeftNav"
-          [showLeftSecondaryNav]="showSecondaryLeftNav"
-          [showRightNav]="showRightNav"
-          [showRightSecondaryNav]="showSecondaryRightNav"
-          [isLabelClickable]="componentConfig.isNavHeaderBtnClickable"
-          [showGoToCurrent]="shouldShowCurrent()"
-          [theme]="theme"
-          (onLeftNav)="onLeftNavClick()"
-          (onLeftSecondaryNav)="onLeftSecondaryNavClick()"
-          (onRightNav)="onRightNavClick()"
-          (onRightSecondaryNav)="onRightSecondaryNavClick()"
-          (onLabelClick)="toggleCalendarMode()"
-          (onGoToCurrent)="goToCurrent()">
-      </dp-calendar-nav>
-    </mat-card-title>
-  </mat-card-header>
+    <dp-calendar-nav
+        [label]="navLabel"
+        [showLeftNav]="showLeftNav"
+        [showLeftSecondaryNav]="showSecondaryLeftNav"
+        [showRightNav]="showRightNav"
+        [showRightSecondaryNav]="showSecondaryRightNav"
+        [isLabelClickable]="componentConfig.isNavHeaderBtnClickable"
+        [showGoToCurrent]="shouldShowCurrent()"
+        (onLeftNav)="onLeftNavClick()"
+        (onLeftSecondaryNav)="onLeftSecondaryNavClick()"
+        (onRightNav)="onRightNavClick()"
+        (onRightSecondaryNav)="onRightSecondaryNavClick()"
+        (onLabelClick)="toggleCalendarMode()"
+        (onGoToCurrent)="goToCurrent()">
+    </dp-calendar-nav>
 
+    <div class="mat-calendar-content">
+        <table class="mat-calendar-table">
+            <thead class="mat-calendar-table-header">
+                <tr>
+                    <th class="mat-calendar-table-header-divider" colspan="7"></th>
+                </tr>
+            </thead>
+            <tbody class="mat-calendar-body">
+                <tr>
+                    <td class="mat-calendar-body-label" colspan="4">
+                        {{currentDateView.format('YYYY')}}
+                    </td>
+                </tr>
+                <tr *ngFor="let monthRow of yearMonths">
+                    <td class="mat-calendar-body-cell" 
+                        *ngFor="let month of monthRow" 
+                        [ngClass]="{'mat-calendar-body-disabled': month.disabled, 'mat-calendar-body-active': isCurrentMonth(month)}"
+                        style="width: 25%;">
+                        <div class="mat-calendar-body-cell-content"
+                            [ngClass]="{'mat-calendar-body-today': isCurrentMonth(month), 'mat-calendar-body-selected': month.selected}"
+                            (click)="monthClicked(month); monthData(month);">
+                            {{month.text}}
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-  <mat-card-content>
+  <!--<mat-card-content>
     <div class="dp-months-row has-text-centered" *ngFor="let monthRow of yearMonths">
       <button mat-button
         *ngFor="let month of monthRow"
@@ -32,5 +55,5 @@
         </span>
       </button>
     </div>
-  </mat-card-content>
+  </mat-card-content>-->
 </div>

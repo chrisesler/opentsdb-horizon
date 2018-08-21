@@ -1,4 +1,22 @@
-<div class="dp-input-container"
+<mat-form-field appearance="fill" style="min-width: 296px;">
+    <mat-label>{{inputLabel}}</mat-label>
+    <input matInput 
+        id="input-box"
+        [placeholder]="placeholder"
+        [(ngModel)]="inputElementValue"
+        (ngModelChange)="onViewDateChange($event)"
+        (focus)="inputFocused()"
+        [readonly]="componentConfig.disableKeypress"
+        [disabled]="disabled"
+        (keyup.enter)="enterKeyed()">
+    <button matSuffix mat-icon-button (click)="toggleCalendars()">
+        <mat-icon fontSet="denali" fontIcon="d-calendar" color="primary"></mat-icon>
+    </button>
+    <mat-error id="formatValidation"  *ngIf="errors?.format"><div [innerHTML]="formatError"> </div></mat-error>
+    <mat-error id="minDateValidation" *ngIf="errors?.minDate"><div>{{minDateError}} </div></mat-error>  
+    <mat-error id="maxDateValidation" *ngIf="errors?.maxDate"><div>{{maxDateError}}</div></mat-error> 
+</mat-form-field>
+<!--<div class="dp-input-container"
       [hidden]="componentConfig.hideInputContainer"
       [attr.data-hidden]="componentConfig.hideInputContainer">
   <input  id="input-box"
@@ -19,23 +37,21 @@
   <mat-error id="minDateValidation" *ngIf="errors?.minDate"><div>{{minDateError}} </div></mat-error>  
   <mat-error id="maxDateValidation" *ngIf="errors?.maxDate"><div>{{maxDateError}}</div></mat-error>    
 </div>
-
-<div #container>
-  <div class="dp-popup {{theme}}"
+-->
+<div #container class="calendar-container">
+    <div class="dp-popup"
         [ngSwitch]="mode"
         [hidden]="!_areCalendarsShown"
         [attr.data-hidden]="!_areCalendarsShown">
-
-    <dp-day-time-calendar #daytimeCalendar
+        <dp-day-time-calendar #daytimeCalendar
                           *ngSwitchCase="'daytime'"
                           [config]="dayTimeCalendarConfig"
                           [displayDate]="displayDate"
                           [ngModel]="_selected && _selected[0]"
-                          [theme]="theme"
                           (onChange)="dateSelected($event, 'second', true)"
                           (onGoToCurrent)="onGoToCurrent.emit()"
                           (onLeftNav)="onLeftNavClick($event)"
                           (onRightNav)="onRightNavClick($event)">
-    </dp-day-time-calendar>      
-  </div>
+        </dp-day-time-calendar>      
+    </div>
 </div>
