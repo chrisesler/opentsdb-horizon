@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>chart-x-axis</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M39.17,36l-4.58-4.6a2,2,0,0,1,.25-3,2.07,2.07,0,0,1,2.65.3l5.92,5.94a2,2,0,0,1,0,2.83l-5.92,5.93a2.07,2.07,0,0,1-2.65.3,2,2,0,0,1-.25-3Z"/><rect x="4" y="34" width="38" height="4" rx="2" ry="2"/><rect x="3" y="25" width="6" height="4" rx="2" ry="2" transform="translate(-21 33) rotate(-90)"/><rect x="3" y="15" width="6" height="4" rx="2" ry="2" transform="translate(-11 23) rotate(-90)"/><rect x="3" y="5" width="6" height="4" rx="2" ry="2" transform="translate(-1 13) rotate(-90)"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>chart-x-axis</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <g>
+        <path d="M43.4,34.6l-5.9-6a2.1,2.1,0,0,0-2.7-.2,1.9,1.9,0,0,0-.2,3L37.2,34H6a2,2,0,0,0,0,4H37.2l-2.6,2.6a1.9,1.9,0,0,0,.2,3,2.1,2.1,0,0,0,2.7-.2l5.9-6A1.9,1.9,0,0,0,43.4,34.6Z"/>
+        <path d="M6,30a2,2,0,0,0,2-2V26a2,2,0,0,0-4,0v2A2,2,0,0,0,6,30Z"/>
+        <path d="M6,20a2,2,0,0,0,2-2V16a2,2,0,0,0-4,0v2A2,2,0,0,0,6,20Z"/>
+        <path d="M6,10A2,2,0,0,0,8,8V6A2,2,0,0,0,4,6V8A2,2,0,0,0,6,10Z"/>
+      </g>
+    </g>
+  </g>
+</svg>

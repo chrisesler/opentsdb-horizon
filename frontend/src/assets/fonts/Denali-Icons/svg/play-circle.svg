@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>play-circle</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M34.56,23.34,18.06,13.16c-.58-.36-1.06-.08-1.06.62V34.22c0,.7.48,1,1.06.62l16.5-10.18A.71.71,0,0,0,34.56,23.34Z"/><path d="M24,2A22,22,0,1,0,46,24,22,22,0,0,0,24,2Zm0,40A18,18,0,1,1,42,24,18,18,0,0,1,24,42Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>play-circle</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <g>
+        <path d="M34.6,23.3,18.1,13.2c-.6-.4-1.1-.1-1.1.6V34.2c0,.7.5,1,1.1.6L34.6,24.7A.8.8,0,0,0,34.6,23.3Z"/>
+        <path d="M24,2A22,22,0,1,0,46,24,21.9,21.9,0,0,0,24,2Zm0,40A18,18,0,1,1,42,24,18.1,18.1,0,0,1,24,42Z"/>
+      </g>
+    </g>
+  </g>
+</svg>

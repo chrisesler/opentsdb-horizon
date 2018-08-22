@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>node-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/><rect class="cls-1" width="48" height="48"/><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M38,29a8.12,8.12,0,0,0-1.21.1l-7.9-11.78a8,8,0,1,0-9.78,0L11.21,29.1A8.12,8.12,0,0,0,10,29a8,8,0,1,0,8,8c0-.22,0-.43,0-.65H30c0,.22,0,.43,0,.65a8,8,0,1,0,8-8Zm-6.49,3.35h-15a7.92,7.92,0,0,0-1.6-1.67l7.9-11.78a7.37,7.37,0,0,0,2.42,0l7.9,11.78A7.92,7.92,0,0,0,31.51,32.35Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>node-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M38,29H36.8L28.9,17.3A7.8,7.8,0,0,0,32,11a8,8,0,0,0-16,0,7.8,7.8,0,0,0,3.1,6.3L11.2,29.1H10a8,8,0,1,0,8,8v-.6H30V37a8,8,0,1,0,8-8Zm-6.5,3.4h-15a8.7,8.7,0,0,0-1.6-1.7l7.9-11.8h2.4l7.9,11.8A8.7,8.7,0,0,0,31.5,32.4Z"/>
+    </g>
+  </g>
+</svg>

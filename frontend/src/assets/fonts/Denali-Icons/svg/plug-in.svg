@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>plug-in</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M18,8v5H12V8h6m2-4H10A2,2,0,0,0,8,6v9a2,2,0,0,0,2,2H20a2,2,0,0,0,2-2V6a2,2,0,0,0-2-2Z"/><path d="M36,8v5H30V8h6m2-4H28a2,2,0,0,0-2,2v9a2,2,0,0,0,2,2H38a2,2,0,0,0,2-2V6a2,2,0,0,0-2-2Z"/><path d="M44,13H4a2,2,0,0,0-2,2V42a2,2,0,0,0,2,2H9a2,2,0,0,0,2-2.34A2.07,2.07,0,0,0,8.89,40H6V17H42V40H21a2,2,0,0,0-2,2.34A2.07,2.07,0,0,0,21.11,44H44a2,2,0,0,0,2-2V15A2,2,0,0,0,44,13Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>plug-in</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M44,13H40V6a2,2,0,0,0-2-2H28a2,2,0,0,0-2,2v7H22V6a2,2,0,0,0-2-2H10A2,2,0,0,0,8,6v7H4a2,2,0,0,0-2,2V42a2,2,0,0,0,2,2H9a2,2,0,0,0,2-2.3A2.1,2.1,0,0,0,8.9,40H6V17H42V40H21a2,2,0,0,0-2,2.3A2.1,2.1,0,0,0,21.1,44H44a2,2,0,0,0,2-2V15A2,2,0,0,0,44,13ZM12,13V8h6v5Zm18,0V8h6v5Z"/>
+    </g>
+  </g>
+</svg>

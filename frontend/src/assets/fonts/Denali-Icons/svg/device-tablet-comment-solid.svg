@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>device-tablet-comment-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M24,36a2,2,0,0,0-2,2h0a2,2,0,0,0,4,0h0a2,2,0,0,0-2-2Z"/><path d="M42,4h0a2,2,0,0,0-2-2H8A2,2,0,0,0,6,4V44a2,2,0,0,0,2,2H40a2,2,0,0,0,2-2V32a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2V42H10V6H40A2,2,0,0,0,42,4Z"/><path d="M39.94,10H18.06A2,2,0,0,0,16,12V31a1,1,0,0,0,1,1,1.07,1.07,0,0,0,.72-.28L24,26H39.94A2.05,2.05,0,0,0,42,24V12a2,2,0,0,0-2.06-2Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>device-tablet-comment-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M40,2H8A2,2,0,0,0,6,4V44a2,2,0,0,0,2,2H40a2,2,0,0,0,2-2V4A2,2,0,0,0,40,2ZM24,40a2.1,2.1,0,0,1-2-2,2,2,0,0,1,2-2,2.1,2.1,0,0,1,2,2A2,2,0,0,1,24,40ZM35,25a2,2,0,0,1-2.1,2H21l-6.2,5.7a1.3,1.3,0,0,1-.8.3,1,1,0,0,1-1-1V13a2,2,0,0,1,2.1-2H32.9A2,2,0,0,1,35,13Z"/>
+    </g>
+  </g>
+</svg>

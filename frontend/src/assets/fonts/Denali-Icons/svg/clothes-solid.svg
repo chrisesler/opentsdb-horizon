@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>clothes-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M40,19.63,36.1,16V43H11.9V16L8.05,19.63,2,13.67,9.85,5h9.33a5,5,0,0,0,9.64,0h9.33L46,13.67Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>clothes-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M40.7,20.4l-4-3.9V43H11.3V16.5l-4,3.9L1,14.1,9.2,5H19A5.2,5.2,0,0,0,29,5h9.8L47,14.1Z"/>
+    </g>
+  </g>
+</svg>
