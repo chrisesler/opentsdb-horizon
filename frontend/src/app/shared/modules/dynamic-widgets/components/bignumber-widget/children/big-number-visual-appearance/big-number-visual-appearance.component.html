@@ -10,15 +10,19 @@
                     <input matInput #prefixBox placeholder="Enter Prefix" value="{{selectedMetric.configuration.bigNum.prefix}}" (keyup)="KeyedOnPrefixInputBox(prefixBox.value)">
                 </mat-form-field>
             </form>
-            <mat-button-toggle-group #prefixSizeGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixSize" (change)="selectedPrefixSize(prefixSizeGroup.value)">
-                <mat-button-toggle value="s">sm</mat-button-toggle>
-                <mat-button-toggle value="m">md</mat-button-toggle>
-                <mat-button-toggle value="l">lg</mat-button-toggle>
+            <mat-button-toggle-group #prefixSizeGroup="matButtonToggleGroup" 
+                [value]="selectedMetric.configuration.bigNum.prefixSize" 
+                (change)="selectedPrefixSize(prefixSizeGroup.value)">
+                <mat-button-toggle value="s" [disabled]="!selectedMetric.configuration.bigNum.prefix">sm</mat-button-toggle>
+                <mat-button-toggle value="m" [disabled]="!selectedMetric.configuration.bigNum.prefix">md</mat-button-toggle>
+                <mat-button-toggle value="l" [disabled]="!selectedMetric.configuration.bigNum.prefix">lg</mat-button-toggle>
             </mat-button-toggle-group>
-            <mat-button-toggle-group #prefixAlignmentGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.prefixAlignment" (change)="selectedPrefixAlignment(prefixAlignmentGroup.value)">
-                <mat-button-toggle value="bottom">b</mat-button-toggle>
-                <mat-button-toggle value="middle">m</mat-button-toggle>
-                <mat-button-toggle value="top">t</mat-button-toggle>
+            <mat-button-toggle-group #prefixAlignmentGroup="matButtonToggleGroup" 
+                [value]="selectedMetric.configuration.bigNum.prefixAlignment" 
+                (change)="selectedPrefixAlignment(prefixAlignmentGroup.value)">
+                <mat-button-toggle value="bottom" [disabled]="!selectedMetric.configuration.bigNum.prefix">b</mat-button-toggle>
+                <mat-button-toggle value="middle" [disabled]="!selectedMetric.configuration.bigNum.prefix">m</mat-button-toggle>
+                <mat-button-toggle value="top"    [disabled]="!selectedMetric.configuration.bigNum.prefix">t</mat-button-toggle>
             </mat-button-toggle-group>
         </div>
     
@@ -30,14 +34,14 @@
                 </mat-form-field>
             </form>
             <mat-button-toggle-group #postfixSizeGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.postfixSize" (change)="selectedPostfixSize(postfixSizeGroup.value)">
-                <mat-button-toggle value="s">sm</mat-button-toggle>
-                <mat-button-toggle value="m">md</mat-button-toggle>
-                <mat-button-toggle value="l">lg</mat-button-toggle>
+                <mat-button-toggle value="s" [disabled]="!selectedMetric.configuration.bigNum.postfix">sm</mat-button-toggle>
+                <mat-button-toggle value="m" [disabled]="!selectedMetric.configuration.bigNum.postfix">md</mat-button-toggle>
+                <mat-button-toggle value="l" [disabled]="!selectedMetric.configuration.bigNum.postfix">lg</mat-button-toggle>
             </mat-button-toggle-group>
             <mat-button-toggle-group #postfixAlignmentGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.postfixAlignment" (change)="selectedPostfixAlignment(postfixAlignmentGroup.value)">
-                <mat-button-toggle value="bottom">b</mat-button-toggle>
-                <mat-button-toggle value="middle">m</mat-button-toggle>
-                <mat-button-toggle value="top">t</mat-button-toggle>
+                <mat-button-toggle value="bottom" [disabled]="!selectedMetric.configuration.bigNum.postfix">b</mat-button-toggle>
+                <mat-button-toggle value="middle" [disabled]="!selectedMetric.configuration.bigNum.postfix">m</mat-button-toggle>
+                <mat-button-toggle value="top"    [disabled]="!selectedMetric.configuration.bigNum.postfix">t</mat-button-toggle>
             </mat-button-toggle-group>
         </div>
     
@@ -56,9 +60,11 @@
                 <button mat-menu-item [matMenuTriggerFor]="dataRate">Data Rate</button>
                 <button mat-menu-item [matMenuTriggerFor]="throughput">Throughput</button>
                 <button mat-menu-item [matMenuTriggerFor]="currency">Currency</button>
-                <button mat-menu-item (click)="KeyedOnUnitInputBox('auto')">
-                    Auto
+                <button mat-menu-item (click)="KeyedOnUnitInputBox('auto')">Auto</button>
+                <button mat-menu-item class="custom-unit-menu-item" (click)="stopPropagation($event)" >
+                    <input matInput #customUnit class="custom-unit-input" id="custom-unit" placeholder="Custom Unit" (keyup)="KeyedOnUnitInputBox(customUnit.value)">
                 </button>
+
                 <mat-menu #time="matMenu">
                         <button mat-menu-item *ngFor="let unit of timeUnits" (click)="KeyedOnUnitInputBox(unit)">
                             {{unit}}
@@ -89,21 +95,17 @@
                             {{unit}}
                         </button>
                 </mat-menu>
-
-                <div (click)="stopPropagation($event)" mat-menu-item>
-                    <input matInput #customUnit id="custom-unit" placeholder="Custom Unit" (keyup)="KeyedOnUnitInputBox(customUnit.value)">
-                </div>
             </mat-menu>
 
             <mat-button-toggle-group #unitSizeGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.unitSize" (change)="selectedUnitSize(unitSizeGroup.value)">
-                <mat-button-toggle value="s">sm</mat-button-toggle>
-                <mat-button-toggle value="m">md</mat-button-toggle>
-                <mat-button-toggle value="l">lg</mat-button-toggle>
+                <mat-button-toggle value="s" [disabled]="!selectedMetric.configuration.bigNum.unit">sm</mat-button-toggle>
+                <mat-button-toggle value="m" [disabled]="!selectedMetric.configuration.bigNum.unit">md</mat-button-toggle>
+                <mat-button-toggle value="l" [disabled]="!selectedMetric.configuration.bigNum.unit">lg</mat-button-toggle>
             </mat-button-toggle-group>
             <mat-button-toggle-group #unitAlignmentGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.unitAlignment" (change)="selectedUnitAlignment(unitAlignmentGroup.value)">
-                <mat-button-toggle value="bottom">b</mat-button-toggle>
-                <mat-button-toggle value="middle">m</mat-button-toggle>
-                <mat-button-toggle value="top">t</mat-button-toggle>
+                <mat-button-toggle value="bottom" [disabled]="!selectedMetric.configuration.bigNum.unit">b</mat-button-toggle>
+                <mat-button-toggle value="middle" [disabled]="!selectedMetric.configuration.bigNum.unit">m</mat-button-toggle>
+                <mat-button-toggle value="top"    [disabled]="!selectedMetric.configuration.bigNum.unit">t</mat-button-toggle>
             </mat-button-toggle-group>
         </div>
         
@@ -114,11 +116,11 @@
                     <input matInput #captionBox placeholder="Enter Caption" value="{{selectedMetric.configuration.bigNum.caption}}" (keyup)="KeyedOnCaptionInputBox(captionBox.value)">
                 </mat-form-field>
             </form>
-            <mat-button-toggle-group #captionGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.captionSize" (change)="selectedCaptionSize(captionGroup.value)">
+            <!-- <mat-button-toggle-group #captionGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.captionSize" (change)="selectedCaptionSize(captionGroup.value)">
                 <mat-button-toggle value="s">sm</mat-button-toggle>
                 <mat-button-toggle value="m">md</mat-button-toggle>
                 <mat-button-toggle value="l">lg</mat-button-toggle>
-            </mat-button-toggle-group>
+            </mat-button-toggle-group> -->
         </div>
 
         <div class="precision-container">

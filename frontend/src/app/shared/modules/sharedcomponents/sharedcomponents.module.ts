@@ -26,7 +26,6 @@ import { WidgetConfigTimeComponent } from './components/widget-config-time/widge
 import { WidgetConfigVisualAppearanceComponent } from './components/widget-config-visual-appearance/widget-config-visual-appearance.component';
 import { WidgetConfigQueryInspectorComponent } from './components/widget-config-query-inspector/widget-config-query-inspector.component';
 import { WidgetConfigLegendComponent } from './components/widget-config-legend/widget-config-legend.component';
-import { WidgetConfigVisualAppearanceBigNumberComponent } from './components/widget-config-visual-appearance-big-number/widget-config-visual-appearance-big-number.component';
 import { WidgetConfigLegendBigNumberComponent } from './components/widget-config-legend-big-number/widget-config-legend-big-number.component';
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
 import { SimpleTimePickerComponent } from './components/simple-time-picker/simple-time-picker.component';
@@ -54,7 +53,6 @@ import { ExpressionDialogComponent } from './components/expression-dialog/expres
         WidgetConfigQueryInspectorComponent,
         WidgetConfigTimeComponent,
         WidgetConfigVisualAppearanceComponent,
-        WidgetConfigVisualAppearanceBigNumberComponent,
         WidgetConfigLegendBigNumberComponent,
         InlineEditableComponent,
         SimpleTimePickerComponent,
@@ -71,7 +69,6 @@ import { ExpressionDialogComponent } from './components/expression-dialog/expres
         WidgetConfigQueryInspectorComponent,
         WidgetConfigTimeComponent,
         WidgetConfigVisualAppearanceComponent,
-        WidgetConfigVisualAppearanceBigNumberComponent,
         WidgetConfigLegendBigNumberComponent,
         DateTimePickerModule,
         SimpleTimePickerComponent,

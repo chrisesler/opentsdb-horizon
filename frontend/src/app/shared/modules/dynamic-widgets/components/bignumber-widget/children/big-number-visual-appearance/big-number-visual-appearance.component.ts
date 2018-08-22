@@ -1,16 +1,17 @@
 import { Component, OnInit, HostBinding, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material';
-import { UnitNormalizerService, IBigNum } from '../../../../modules/dynamic-widgets/services/unit-normalizer.service';
+import { UnitNormalizerService, IBigNum } from '../../../../services/unit-normalizer.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
-    selector: 'widget-config-visual-appearance-big-number',
-    templateUrl: './widget-config-visual-appearance-big-number.component.html',
+    selector: 'big-number-visual-appearance',
+    templateUrl: './big-number-visual-appearance.component.html',
     styleUrls: []
 })
-export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
+
+export class BignumberVisualAppearanceComponent implements OnInit {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
-    @HostBinding('class.visual-appearance-configuration-big-number') private _tabClass = true;
+    @HostBinding('class.big-number-visual-appearance') private _tabClass = true;
 
     /** Inputs */
     @Input() widget: any;
@@ -34,6 +35,8 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     currencyUnits: Array<string> = ['usd'];
     otherUnits: Array<string> = ['auto'];
 
+    prefixDisabled: boolean = true;
+
     constructor(public UN: UnitNormalizerService) { }
 
     ngOnInit() {
@@ -43,6 +46,7 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
 
     // Prefix
     KeyedOnPrefixInputBox(value: string) {
+        this.prefixDisabled = false;
         this.selectedMetric['configuration']['bigNum']['prefix'] = value;
         this.selectedMetric['configuration']['bigNum']['prefixUndercased'] = this.isStringOnlyLowercasedLetters(value);
     }
@@ -52,6 +56,8 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
     }
 
     selectedPrefixAlignment(value: string) {
+        console.log('changed to: ' + value);
+
         this.selectedMetric['configuration']['bigNum']['prefixAlignment'] = value;
     }
 
@@ -75,10 +81,6 @@ export class WidgetConfigVisualAppearanceBigNumberComponent implements OnInit {
         this.selectedMetric['configuration']['bigNum']['unitUndercased'] =
             this.isStringOnlyLowercasedLetters(this.UN.getBigNumber(this.selectedMetric['configuration']['bigNum']['bigNumber'],
             this.selectedMetric['configuration']['bigNum']['unit']).unit);
-
-        console.log(this.isStringOnlyLowercasedLetters(
-            this.UN.getBigNumber(this.selectedMetric['configuration']['bigNum']['bigNumber'],
-            this.selectedMetric['configuration']['bigNum']['unit']).unit));
     }
 
     selectedUnitSize(value: string) {
