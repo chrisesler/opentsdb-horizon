@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 import {
@@ -8,12 +8,12 @@ import {
     WidgetConfigLegendComponent,
     WidgetConfigMetricQueriesComponent,
     WidgetConfigQueryInspectorComponent,
-    WidgetConfigTimeComponent,
-    WidgetConfigVisualAppearanceComponent
+    WidgetConfigTimeComponent
 } from '../../../sharedcomponents/components';
 import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
+import { LEFT_ARROW } from '@angular/cdk/keycodes';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -35,19 +35,62 @@ export class BignumberWidgetComponent implements OnInit {
     private listenSub: Subscription;
     private isDataLoaded: boolean = false;
     selectedMetric: any;
-    fontSizePercent: string = '100%';
+
+    fontSizePercent: number;
+    contentFillPercent: number = 0.75; // how much % content should take up widget
+    contentFillPercentWithNoCaption: number = 0.60; // how much % content should take up widget
+    maxCaptionLength: number = 36;
+    maxLabelLength: number = 8; // postfix, prefix, unit
+
+    widgetWidth: number;
+    widgetHeight: number;
+
+    @ViewChild('contentContainer') contentContainer: ElementRef;
 
     constructor(private interCom: IntercomService, public util: UtilsService, public UN: UnitNormalizerService) { }
 
     ngOnInit() {
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            if ( message.action === 'resizeWidget' ) {
-                // we get the size to update the big number
-                this.fontSizePercent = this.calcFontSizePercent(message.payload.width * this.widget.gridPos.w);
-                // console.log(message.payload.height * this.widget.gridPos.h + 'px');
+            if (message.action === 'resizeWidget') {
+                if (!this.selectedMetric) { // 1. If no metric, only set the widget width and height.
+                    this.widgetWidth = message.payload.width * this.widget.gridPos.w - 20;
+                    this.widgetHeight = message.payload.height * this.widget.gridPos.h - 60;
+
+                } else { // 3. Given the metric, set all the new widths and heights.
+
+                    const newWidgetWidth: number = message.payload.width * this.widget.gridPos.w - 20;
+                    const newWidgetHeight: number = message.payload.height * this.widget.gridPos.h - 60;
+
+                    const contentWidth: number = this.contentContainer.nativeElement.clientWidth;
+                    const contentHeight: number = this.contentContainer.nativeElement.clientHeight;
+
+                    let percentWidthChange: number;
+                    let percentHeightChange: number;
+
+                    if (this.selectedMetric['configuration']['bigNum']['caption']) {
+                        percentWidthChange = (newWidgetWidth * this.contentFillPercent) / contentWidth;
+                        percentHeightChange = (newWidgetHeight * this.contentFillPercent) / contentHeight;
+                    } else {
+                        percentWidthChange = (newWidgetWidth * this.contentFillPercentWithNoCaption) / contentWidth;
+                        percentHeightChange = (newWidgetHeight * this.contentFillPercentWithNoCaption) / contentHeight;
+                    }
+
+                    const percentChange: number =  Math.min(percentHeightChange, percentWidthChange);
+
+                    if (percentChange > 1.01 || percentChange < 0.99) {
+                        this.fontSizePercent = percentChange * this.fontSizePercent;
+                        this.selectedMetric['configuration']['bigNum']['fontSizePercent'] = this.fontSizePercent;
+                        this.selectedMetric['configuration']['bigNum']['widgetWidth'] = newWidgetWidth;
+                        this.selectedMetric['configuration']['bigNum']['widgetHeight'] = newWidgetHeight;
+                        console.log('**');
+                        console.log('font size percent: ' + this.fontSizePercent);
+                        console.log('width: ' + newWidgetWidth);
+                        console.log('height : ' + newWidgetHeight);
+                    }
+                }
             }
-            if (message && (message.id === this.widget.id)) {
+            if (message && (message.id === this.widget.id)) { // 2. Get and set the metric
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                     this.isDataLoaded = true;
@@ -92,6 +135,10 @@ export class BignumberWidgetComponent implements OnInit {
                         prefixSize: 's', // s m l
                         prefixAlignment: 'top', // top middle bottom
 
+                        widgetWidth: 420, // only needed when first loading widget
+                        widgetHeight: 160, // only needed when first loading widget
+                        fontSizePercent: 200, // only needed when first loading widget
+
                         postfix: '',
                         postfixSize: 's',
                         postfixAlignment: 'top',
@@ -102,7 +149,7 @@ export class BignumberWidgetComponent implements OnInit {
                         unitUndercased: true,
 
                         caption: '{{tag.host}} Latency',
-                        captionSize: 's',
+                        // captionSize: 's',
 
                         precision: 3,
 
@@ -113,6 +160,9 @@ export class BignumberWidgetComponent implements OnInit {
                         changedIndicatorEnabled: false,
                         changeIndicatorCompareValue: currentValue - lastValue
                     };
+
+                    this.fontSizePercent = this.calcFontSizePercent(bigNumberMetric.fontSizePercent,
+                            bigNumberMetric.widgetWidth, bigNumberMetric.widgetHeight, this.widgetWidth, this.widgetHeight);
 
                     metric['configuration'] = {
                         bigNum: bigNumberMetric
@@ -191,10 +241,19 @@ export class BignumberWidgetComponent implements OnInit {
         });
     }
 
-    calcFontSizePercent(widgetWidth: number): string {
-       const defaultWidth: number = 340;
-       const fontScale: number = widgetWidth / defaultWidth;
-       return fontScale * 100 + '%';
+    calcFontSizePercent(percent: number, originalWidth: number, originalHeight: number, newWidth: number, newHeight: number): number {
+        const percentChangeWidth: number = newWidth / originalWidth;
+        const percentChangeHeight: number = newHeight / originalHeight;
+        const percentChange: number = Math.min(percentChangeWidth, percentChangeHeight);
+        return percent * percentChange;
+    }
+
+    // we have this method so that a caption or other labels will not make the big number really small
+    shortenString(str: string, maxChars: number): string {
+        if (str.length > maxChars) {
+            return str.substr(0, maxChars - 3) + '...';
+        }
+        return str;
     }
 
     // tslint:disable-next-line:member-ordering
@@ -223,6 +282,10 @@ interface IBigNumberMetric {
     value?: string; // max, min, average, latest
     comparedTo?: number;
 
+    fontSizePercent: number;
+    widgetWidth: number;
+    widgetHeight: number;
+
     prefix?: string;
     prefixSize?: string;
     prefixAlignment?: string;
@@ -239,7 +302,7 @@ interface IBigNumberMetric {
     unitUndercased?: boolean;
 
     caption?: string;
-    captionSize?: string;
+    // captionSize?: string;
 
     precision: number;
 

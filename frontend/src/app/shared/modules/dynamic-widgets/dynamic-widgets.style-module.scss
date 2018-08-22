@@ -9,6 +9,7 @@
 @import 'components/linechart-widget/linechart-widget.component';
 @import 'components/placeholder-widget/placeholder-widget.component';
 @import 'components/status-widget/status-widget.component';
+@import 'components/bignumber-widget/children/big-number-visual-appearance/big-number-visual-appearance.component';
 
 @mixin dynamic-widgets-module-core() {
     // common
@@ -16,6 +17,7 @@
     // widgets
     @include developer-widget-component-base();
     @include bignumber-widget-component-base();
+    @include big-number-visual-appearance-component-base();
     @include donut-widget-component-base();
     @include linechart-widget-component-base();
     @include status-widget-component-base();
@@ -29,6 +31,7 @@
     // widgets
     @include developer-widget-component-theme($theme-config);
     @include bignumber-widget-component-theme($theme-config);
+    @include big-number-visual-appearance-component-theme($theme-config);
     @include donut-widget-component-theme($theme-config);
     @include linechart-widget-component-theme($theme-config);
     @include status-widget-component-theme($theme-config);

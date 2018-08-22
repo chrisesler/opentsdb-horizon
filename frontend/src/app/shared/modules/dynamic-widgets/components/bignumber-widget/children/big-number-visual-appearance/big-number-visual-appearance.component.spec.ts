@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { WidgetConfigVisualAppearanceComponent } from './widget-config-visual-appearance.component';
+import { BignumberVisualAppearanceComponent } from './big-number-visual-appearance.component';
 
 describe('BigNumberVisualAppearanceComponent', () => {
-  let component: WidgetConfigVisualAppearanceComponent;
-  let fixture: ComponentFixture<WidgetConfigVisualAppearanceComponent>;
+  let component: BignumberVisualAppearanceComponent;
+  let fixture: ComponentFixture<BignumberVisualAppearanceComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ WidgetConfigVisualAppearanceComponent ]
+      declarations: [ BignumberVisualAppearanceComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(WidgetConfigVisualAppearanceComponent);
+    fixture = TestBed.createComponent(BignumberVisualAppearanceComponent );
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -41,7 +41,7 @@
 
         .fully-qualified-metric {
             flex: 1;
-            padding-left: 5px; 
+            padding-left: 30px; 
         }
 
         .metric-container {
@@ -55,11 +55,15 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+
+            font-size: 0.6em;
+            font-weight: 300;
+            padding-top: 5px;
         }
 
         .big-number {
             font-size: 3em;
-            // vertical-align: bottom;
+            font-weight: 600;
         }
 
         .top-align {
@@ -82,22 +86,21 @@
 
         .large-size {
             font-size: 3em;
-            // line-height: 3em;
         }
 
         .small-size-undercase {
             font-size: 1em;
-            line-height: 1.5em;
+            line-height: 1.4em;
         }
 
         .medium-size-undercase {
             font-size: 2em;
-            line-height: 0.9em;
+            line-height: 0.85em;
         }
 
         .large-size-undercase {
             font-size: 3em;
-            line-height: 0.7em;
+            line-height: 0.65em;
         }
 
         .top-margin {
@@ -123,6 +126,13 @@
 
         .fixed-height {
             height: 300px;
+        }
+
+        .no-flex {
+            flex: none;
+            padding-left: 25px;
+            padding-right: 25px;
+            flex-grow: 0;
         }
     }
 
