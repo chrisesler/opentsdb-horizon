@@ -1,9 +1,32 @@
 @mixin time-range-picker-component-base() {
 
     .preset-picker-menu {
+        position: relative;
+        margin-left: -25%;
+
+        &.mat-menu-panel {
+            overflow: initial;
+        }
+
         .mat-menu-content { 
             padding: 0px;
         }
+
+        // arrow
+        &::after {
+            bottom: 100%;
+            left: calc(50% - 3px);
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+            border-width: 6px;
+            margin-left: -6px;
+            z-index: 2;
+        }
+
     }
 
     .dtp-time-range-picker {
@@ -23,7 +46,8 @@
                 //border: transparent;
             }
             
-            .mat-raised-button {
+            .mat-raised-button,
+            .mat-flat-button {
                 border-radius: 0;
                 
                 min-width: initial; 
@@ -59,6 +83,14 @@
                 margin-right: 10px;
             }
         }
+
+        .start-input {
+            margin-right: 5px;
+        }
+
+        .end-input {
+            margin-left: 5px;
+        }
     }
 }
 
@@ -86,9 +118,24 @@
         .dtp-action-controls {
             border-top: 1px solid map-get($foreground, divider);
         }
+
+        .time-preset-button {
+            background-color: map-get($primary, 100);
+            color: map-get($primary, '100-contrast');
+
+            &.is-selected {
+                background-color: map-get($primary, default);
+                color: map-get($primary, 'default-contrast')
+            }
+        }
     }
 
     .preset-picker-menu {
-        border: 1px solid map-get($accent, default);
+        border: 1px solid map-get($primary, default);
+
+        &::after {
+            border-color: rgba(255, 255, 255, 0);
+            border-bottom-color: map-get($background, menu); // actual color of arrow
+        }
     }
 }

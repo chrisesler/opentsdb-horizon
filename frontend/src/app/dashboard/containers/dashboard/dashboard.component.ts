@@ -18,7 +18,7 @@ import { WidgetsRawdataState, GetQueryDataByGroup } from '../../state/widgets-da
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import { DBSettingsState, UpdateMode} from '../../state/settings.state';
 
-import { MatMenu, MatMenuTrigger } from '@angular/material';
+import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
 
 @Component({
     selector: 'app-dashboard',
@@ -45,6 +45,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // portal placeholders
     dashboardNavbarPortal: TemplatePortal;
+
+    menuXAlignValue: MenuPositionX = 'before';
 
     // Available Widget Types
     /**

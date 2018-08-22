@@ -10,8 +10,12 @@ export class KeypadComponent implements OnInit {
     @HostBinding('class.dtp-keypad') private _hostClass = true;
 
     @Output() amountSelected = new EventEmitter<String>();
+    // tslint:disable-next-line:no-inferrable-types
     @Input() disableKeysAt3: boolean = false;
+    // tslint:disable-next-line:no-inferrable-types
     @Input() disableKeysAt9: boolean = false;
+
+    @Input() preset: any;
 
     constructor() { }
 
