@@ -2,6 +2,9 @@ import { State, StateContext, Action, Selector } from '@ngxs/store';
 import { WidgetsConfigState } from './widgets-config.state';
 import { WidgetsRawdataState } from './widgets-data.state';
 
+// we might need to define data model for each group and inner metric obj
+// to put strict on object
+
 export interface WidgetModel {
     id: string;
     settings: {

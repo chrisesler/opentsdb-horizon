@@ -228,6 +228,19 @@
                 background: transparent;
             }
         }
+
+        .value-options {
+            padding-left: 5px;
+
+            font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+
+            mat-select {
+                padding: 5px;
+            }
+            .values-form-field {
+                width: 100px;
+            }
+        }
     }
 }
 
@@ -257,6 +270,14 @@
                 }
             }
         }
-        
+
+        .value-options {
+            mat-select {
+                background-color: $chip-bg;
+            }
+            .mat-form-field-underline {
+                background-color: transparent;
+            }
+        }
     }
 }

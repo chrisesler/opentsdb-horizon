@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { Observable, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { catchError, tap } from 'rxjs/operators';
-import { UtilsService } from  '../services/utils.service';
+import { UtilsService } from '../services/utils.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,9 +18,134 @@ export class HttpService {
       title: 'my test dashboard'
     },
     widgets: [
+        {
+            id: 'bigNum1',
+            gridPos: { x: 0, y: 0, w: 4, h: 4 },
+            settings: {
+              title: 'SNMP Max Latency',
+              component_type: 'BignumberWidgetComponent',
+              data_source: 'yamas'
+            },
+            query: {
+                start: '1h-ago',
+                end: '',
+                downsample: '1m-avg-nan',
+                groups: [
+                  {
+                    id: 'gaga',
+                    title: 'group 2',
+                    visual: {},
+                    queries: [
+                      {
+                        metric: 'SNMP-Net.intercolo.max_latency',
+                        filters: [
+                          {
+                            type: 'wildcard',
+                            tagk: 'host',
+                            filter: '*',
+                            groupBy: true
+                          }
+                        ],
+                        aggregator: 'zimsum',
+                        explicitTags: false,
+                        rate: false,
+                        rateOptions: {
+                          counter: false,
+                          resetValue: 1
+                        }
+                      }
+                    ]
+                  }
+                ]
+            }
+          },
+
+          {
+            id: 'bigNum2',
+            gridPos: { x: 4, y: 0, w: 4, h: 4 },
+            settings: {
+              title: 'SNMP Min Latency',
+              component_type: 'BignumberWidgetComponent',
+              data_source: 'yamas'
+            },
+            query: {
+                start: '1h-ago',
+                end: '',
+                downsample: '1m-avg-nan',
+                groups: [
+                  {
+                    id: 'gaga',
+                    title: 'group 2',
+                    visual: {},
+                    queries: [
+                      {
+                        metric: 'SNMP-Net.intercolo.min_latency',
+                        filters: [
+                          {
+                            type: 'wildcard',
+                            tagk: 'host',
+                            filter: '*',
+                            groupBy: true
+                          }
+                        ],
+                        aggregator: 'zimsum',
+                        explicitTags: false,
+                        rate: false,
+                        rateOptions: {
+                          counter: false,
+                          resetValue: 1
+                        }
+                      }
+                    ]
+                  }
+                ]
+            }
+          },
+
+          {
+            id: 'bigNum3',
+            gridPos: { x: 8, y: 0, w: 4, h: 4 },
+            settings: {
+              title: 'SNMP Avg Latency',
+              component_type: 'BignumberWidgetComponent',
+              data_source: 'yamas'
+            },
+            query: {
+                start: '1h-ago',
+                end: '',
+                downsample: '1m-avg-nan',
+                groups: [
+                  {
+                    id: 'gaga',
+                    title: 'group 2',
+                    visual: {},
+                    queries: [
+                      {
+                        metric: 'SNMP-Net.intercolo.avg_latency',
+                        filters: [
+                          {
+                            type: 'wildcard',
+                            tagk: 'host',
+                            filter: '*',
+                            groupBy: true
+                          }
+                        ],
+                        aggregator: 'zimsum',
+                        explicitTags: false,
+                        rate: false,
+                        rateOptions: {
+                          counter: false,
+                          resetValue: 1
+                        }
+                      }
+                    ]
+                  }
+                ]
+            }
+          },
       {
         id: 'abcd',
-        gridPos: { x: 0, y: 0, w: 6, h: 5 },
+        gridPos: { x: 0, y: 4, w: 6, h: 5 },
         settings: {
           title: 'my widget title',
           component_type: 'LinechartWidgetComponent',
@@ -40,7 +165,11 @@ export class HttpService {
             {
               id: 'gaga',
               title: 'group 2',
-              visual: {},
+              settings: {
+                visual: {
+                  visible: true
+                }
+              },
               queries: [
                 {
                   metric: 'SNMP-Net.intercolo.avg_latency',
@@ -58,6 +187,11 @@ export class HttpService {
                   rateOptions: {
                     counter: false,
                     resetValue: 1
+                  },
+                  settings: {
+                    visual: {
+                      visible: true
+                    }
                   }
                 }
               ]
@@ -67,7 +201,7 @@ export class HttpService {
       },
       {
         id: 'cdft',
-        gridPos: { x: 6, y: 0, w: 6, h: 5 },
+        gridPos: { x: 6, y: 5, w: 6, h: 5 },
         settings: {
           title: 'my widget second title',
           component_type: 'LinechartWidgetComponent',
@@ -81,7 +215,11 @@ export class HttpService {
             {
               id: 'werd',
               title: 'group 2',
-              visual: {},
+              settings: {
+                visual: {
+                  visible: true
+                }
+              },
               queries: [
                 {
                   metric: 'SNMP-Net.intercolo.avg_latency',
@@ -99,6 +237,11 @@ export class HttpService {
                   rateOptions: {
                     counter: false,
                     resetValue: 1
+                  },
+                  settings: {
+                    visual: {
+                     visible: true
+                    }
                   }
                 }
               ]
@@ -108,7 +251,7 @@ export class HttpService {
       },
       {
         id: 'multigroup',
-        gridPos: { x: 0, y: 6, w: 6, h: 5 },
+        gridPos: { x: 0, y: 11, w: 6, h: 5 },
         settings: {
           title: 'my widget third title',
           component_type: 'LinechartWidgetComponent',
@@ -122,7 +265,11 @@ export class HttpService {
             {
               id: 'multi1',
               title: 'group 1',
-              visual: {},
+              settings: {
+                visual: {
+                  visible: true
+                }
+              },
               queries: [
                 {
                   metric: 'SNMP-Net.intercolo.max_latency',
@@ -140,6 +287,11 @@ export class HttpService {
                   rateOptions: {
                     counter: false,
                     resetValue: 1
+                  },
+                  settings: {
+                    visual: {
+                      visual: true
+                    }
                   }
                 }
               ]
@@ -147,7 +299,11 @@ export class HttpService {
             {
               id: 'multi2',
               title: 'group 2',
-              visual: {},
+              settings: {
+                visual: {
+                  visible: true
+                }
+              },
               queries: [
                 {
                   metric: 'SNMP-Net.intercolo.ploss',
@@ -165,6 +321,11 @@ export class HttpService {
                   rateOptions: {
                     counter: false,
                     resetValue: 1
+                  },
+                  settings: {
+                    visual: {
+                      visible: true
+                    }
                   }
                 }
               ]
@@ -174,7 +335,7 @@ export class HttpService {
       },
       {
         id: 'bar',
-        gridPos: { x: 6, y: 6, w: 6, h: 5 },
+        gridPos: { x: 6, y: 11, w: 6, h: 5 },
         settings: {
           title: 'Flickr CPU Speed',
           component_type: 'BarchartWidgetComponent',
@@ -188,6 +349,11 @@ export class HttpService {
             {
               id: 'ALL-COLO',
               title: 'group 1',
+              settings: {
+                visual: {
+                  visible: true
+                }
+              },              
               queries: [
                 {
                     aggregator: 'zimsum',
@@ -296,7 +462,7 @@ export class HttpService {
       },
       {
         id: 'sbar',
-        gridPos: { x: 0, y: 11, w: 6, h: 5 },
+        gridPos: { x: 0, y: 16, w: 6, h: 5 },
         settings: {
           title: 'Flickr Application - CPU Speed by colo',
           component_type: 'BarchartWidgetComponent',
@@ -640,7 +806,7 @@ export class HttpService {
       },
       {
         id: 'donut',
-        gridPos: { x: 6, y: 11, w: 6, h: 5 },
+        gridPos: { x: 6, y: 16, w: 6, h: 5 },
         settings: {
           title: 'Flickr CPU Speed',
           component_type: 'DonutWidgetComponent',
