@@ -10,10 +10,14 @@
 </div>
 
 <!-- Input Color -->
-<div class="color-sample" [style.background]="selectedColor"></div>
-
-<form [formGroup]="hexForm" class="color-form">
-    <mat-form-field class="hex-input">
-        <input matInput maxlength="7" formControlName="hexCode" [value]="selectedColor" (keyup.enter)="enterKeyedOnInputBox()"/>
-    </mat-form-field>
-</form>   
+<div class="selected-color">
+    <div class="color-sample" [style.background]="selectedColor"></div>
+    <form [formGroup]="hexForm" class="color-form">
+        <mat-form-field class="hex-input">
+            <input matInput maxlength="7" formControlName="hexCode" [value]="selectedColor" (keyup.enter)="enterKeyedOnInputBox()"/>
+        </mat-form-field>
+    </form>   
+    <span *ngIf="selectedColor != originalColor" (click)="enterKeyedOnInputBox()">
+        <mat-icon fontSet="denali" fontIcon="d-check-circle"></mat-icon>
+    </span>
+</div>

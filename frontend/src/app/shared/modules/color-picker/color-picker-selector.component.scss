@@ -65,12 +65,16 @@
     }  
   
     .color-form {
-      width: 100px;
+      width: 85px;
     }
   
     form {
       display: inline-block;
       margin-left: 2px;
+    }
+
+    .selected-color {
+      width: 146px;
     }
   
     mat-form-field { //for typing in hex

@@ -80,6 +80,10 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
   selectingCustomColor: boolean = false;
   _colorPickerSelectorHeight: number = 136;
 
+  determineIfCustomColor() {
+    this.selectingCustomColor = (this.colorToName(this.selectedColor) === this.selectedColor);
+  }
+
   toggleSelector() {
     this.selectingCustomColor = !this.selectingCustomColor;
   }
@@ -87,6 +91,7 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
   colorSelected(hexColor: string): void {
     this.selectedColor = hexColor;
     this.change.emit(this.hexToColor(hexColor));
+    this.toggle();
   }
 
   colorToName(hexColor: string): string {
@@ -98,10 +103,6 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
       }
     }
     return colorName;
-  }
-
-  enteredColor(event) {
-    this.backdropClick();
   }
 
   /**
@@ -203,7 +204,8 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     } else {
       this._selectedColor = coerceHexaColor(value) || this.emptyColor;
     }
-    
+
+    this.determineIfCustomColor();
   }
 
   private _selectedColor: string;
@@ -393,8 +395,6 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
    * Cancel the selection and close the panel
    */
   cancelSelection() {
-    this.selected.emit(this.hexToColor(this._selectedColor));
-    this.change.next(this.hexToColor(this._selectedColor));
     this.toggle();
   }
 

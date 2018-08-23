@@ -167,6 +167,11 @@ import {
     rgbKeys = ['R', 'G', 'B'];
     rgbForm: FormGroup;
 
+    /**
+     * Original Color Selcted
+     */
+     originalColor: string;
+
     constructor(
       private formBuilder: FormBuilder,
       private render: Renderer2,
@@ -180,7 +185,7 @@ import {
           if (this.hexForm.get('hexCode').value !== color) {
             this.hexForm.setValue({ hexCode: color });
           }
-          this.changeSelectedColor.emit(coerceHexaColor(color) || this.emptyColor);
+          this.selectedColor = color;
         }
       });
 
@@ -208,6 +213,9 @@ import {
 
       // watch changes on forms
       this._onChanges();
+
+      // used to determine if apply button should appear
+      this.originalColor = this.selectedColor;
     }
 
     /**
@@ -445,6 +453,7 @@ import {
     }
 
     enterKeyedOnInputBox() {
-      this.enteredColor.emit();
+      this.originalColor = this.selectedColor;
+      this.changeSelectedColor.emit(coerceHexaColor(this.selectedColor));
     }
   }
