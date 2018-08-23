@@ -35,6 +35,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     currencyUnits: Array<string> = ['usd'];
     otherUnits: Array<string> = ['auto'];
 
+    captionPlaceholder: string = 'Enter Caption {{tag.key}}';
     prefixDisabled: boolean = true;
 
     constructor(public UN: UnitNormalizerService) { }
@@ -122,7 +123,6 @@ export class BignumberVisualAppearanceComponent implements OnInit {
 
     // Precision
     KeyedOnPrecisionInputBox(value: string) {
-        console.log('keyed on input box');
         this.selectedMetric['configuration']['bigNum']['precision'] = value;
     }
 

@@ -113,7 +113,7 @@
             <span class="label-label">Caption</span> 
             <form>
                 <mat-form-field floatLabel="never">
-                    <input matInput #captionBox placeholder="Enter Caption" value="{{selectedMetric.configuration.bigNum.caption}}" (keyup)="KeyedOnCaptionInputBox(captionBox.value)">
+                    <input matInput #captionBox placeholder="{{captionPlaceholder}}" value="{{selectedMetric.configuration.bigNum.caption}}" (keyup)="KeyedOnCaptionInputBox(captionBox.value)">
                 </mat-form-field>
             </form>
             <!-- <mat-button-toggle-group #captionGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.captionSize" (change)="selectedCaptionSize(captionGroup.value)">
@@ -127,7 +127,7 @@
             <span class="label-label">Precision</span> 
             <form>
                 <mat-form-field floatLabel="never">
-                    <input matInput #precisionBox placeholder="Enter Precision" [value]="selectedMetric.configuration.bigNum.precision" (keyup)="KeyedOnPrecisionInputBox(precisionBox.value)">
+                    <input matInput #precisionBox placeholder="Enter Precision [1-9]" [value]="selectedMetric.configuration.bigNum.precision" (keyup)="KeyedOnPrecisionInputBox(precisionBox.value)">
                 </mat-form-field>
             </form>
         </div>
