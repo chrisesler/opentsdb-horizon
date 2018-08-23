@@ -40,6 +40,7 @@
             <div class="grid-container">
                 <div class="grid-item" *ngFor="let color of DefaultColors" [ngClass]="{'isSelected' : color.value==selectedColor}">
                     <button
+                        mat-button
                         [ngClass]="{'grey-outline' : color.text=='White'}"
                         class="default-color-button"    
                         [style.background-color]="color.value"
@@ -54,6 +55,7 @@
             <color-picker-selector
                 [selectedColor]="selectedColor"
                 (changeSelectedColor)="colorSelected($event)"
+                (clickedCancel)="backdropClick()"
                 [height]="colorPickerSelectorHeight"
             >
             </color-picker-selector>
@@ -61,7 +63,7 @@
 
         <div class="toggle">
             <button mat-button *ngIf="!selectingCustomColor" (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Custom Color </button>
-            <button mat-button *ngIf="selectingCustomColor"  (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Default Color </button>
+            <button mat-button *ngIf="selectingCustomColor" id="default-color" (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Default Color </button>
         </div>
 
     </div>

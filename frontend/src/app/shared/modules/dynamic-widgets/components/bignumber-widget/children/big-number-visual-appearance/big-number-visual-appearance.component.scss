@@ -105,8 +105,8 @@
     
         .labels-container > div
             {
-            margin-left:10px;
-            margin-right:10px;   
+            margin-left: 10px;
+            margin-right: 10px;   
             line-height: 30px; 
         }
 
@@ -118,10 +118,36 @@
             
             mat-button-toggle-group {
                 box-shadow: none;
+
+                mat-button-toggle {
+                    height: 32px;
+                    // width: 94px;
+
+                    // .mat-button-toggle-button {
+                    //     width: 94px;
+                    // }
+                }
+                
+                #background {
+                    width: 110px;
+                }
+
+                #background-button {
+                    width: 110px;
+                }
+
+                #text {
+                    width: 78px;
+                }
+
+                #text-button {
+                    width: 78px;
+                }
             }
+
             .card {
                 &.cp{
-                    margin-left: 12px;
+                    // margin-left: 12px;
                     background: transparent;
                 }
             }

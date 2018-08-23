@@ -359,6 +359,11 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
    * Open/close color picker panel
    */
   toggle() {
+
+    // if closed, determine if custom color
+    if (!this._isOpen) {
+      this.determineIfCustomColor();
+    }
     this._isOpen = !this._isOpen;
     if (!this._isOpen && this._selectedColor !== this.emptyColor) {
       this.colorPickerService.addColor(this._selectedColor);

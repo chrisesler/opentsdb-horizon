@@ -1,23 +1,32 @@
-<div class="color-picker-selector" [ngStyle]="{ 'height.px': selectorHeight }">
-    <div #block class="picker-selector"></div>
-    <canvas #blockCanvas [height]="selectorHeight" width="136px" id="picker"></canvas>
-    <div #blockPointer class="picker-position"></div>
-</div>
+<div class="cps">
+    <div class="color-picker-selector" height="87px">
+        <div #block class="picker-selector"></div>
+        <canvas #blockCanvas height="87px" width="156px" id="picker"></canvas>
+        <div #blockPointer class="picker-position"></div>
+    </div>
 
-<!-- Slider -->
-<div #stripContainer class="colors-position" style="background-position-y: 0px;">
-    <canvas #strip [height]="stripHeight" width="20" id="colors"></canvas>
-</div>
+    <!-- Slider -->
+    <div #stripContainer class="colors-position" style="background-position-y: 0px;">
+        <canvas #strip height="156px" width="20" id="colors"></canvas>
+    </div>
 
-<!-- Input Color -->
-<div class="selected-color">
-    <div class="color-sample" [style.background]="selectedColor"></div>
-    <form [formGroup]="hexForm" class="color-form">
-        <mat-form-field class="hex-input">
-            <input matInput maxlength="7" formControlName="hexCode" [value]="selectedColor" (keyup.enter)="enterKeyedOnInputBox()"/>
-        </mat-form-field>
-    </form>   
-    <span *ngIf="selectedColor != originalColor" (click)="enterKeyedOnInputBox()">
+    <!-- Input Color -->
+    <div class="selected-color">
+        <div class="color-sample" [style.background]="selectedColor"></div>
+        <form [formGroup]="hexForm" class="color-form">
+            <mat-form-field class="hex-input">
+                <input matInput maxlength="7" formControlName="hexCode" [value]="selectedColor" (keyup.enter)="enterKeyedOnInputBox()"/>
+            </mat-form-field>
+        </form>   
+    </div>
+
+    <!-- Apply and Cancel -->
+    <div class="button-options">
+        <button mat-button id="cancel" (click)="userClickedCancel()"> Cancel </button>
+        <button mat-button id="apply" (click)="enterKeyedOnInputBox()"> Apply </button>
+    </div>
+
+    <!-- <span *ngIf="selectedColor != originalColor" (click)="enterKeyedOnInputBox()">
         <mat-icon fontSet="denali" fontIcon="d-check-circle"></mat-icon>
-    </span>
+    </span> -->
 </div>

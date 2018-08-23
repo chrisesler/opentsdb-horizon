@@ -85,7 +85,7 @@ import {
     get stripHeight(): number {
       return this._height - 2;
     }
-    private _height: number = 170;
+    private _height: number;
 
     /**
      * Receive selected color from the component
@@ -120,6 +120,11 @@ import {
      * Emit when user entered a color
      */
     @Output() enteredColor = new EventEmitter();
+
+    /**
+     * Emit when user clicked cancel
+     */
+    @Output() clickedCancel = new EventEmitter();
 
     /**
      * RGBA current color
@@ -279,7 +284,8 @@ import {
         this._strip.nativeElement.width,
         this._strip.nativeElement.height
       );
-      const grd1 = this._stripContext.createLinearGradient(0, 0, 0, this._bc.nativeElement.height);
+      // set to width because slider is positioned horizontally
+      const grd1 = this._stripContext.createLinearGradient(0, 0, 0, this._bc.nativeElement.width);
       grd1.addColorStop(0, 'rgba(255, 0, 0, 1)');
       grd1.addColorStop(0.17, 'rgba(255, 255, 0, 1)');
       grd1.addColorStop(0.34, 'rgba(0, 255, 0, 1)');
@@ -455,5 +461,9 @@ import {
     enterKeyedOnInputBox() {
       this.originalColor = this.selectedColor;
       this.changeSelectedColor.emit(coerceHexaColor(this.selectedColor));
+    }
+
+    userClickedCancel() {
+      this.clickedCancel.emit();
     }
   }

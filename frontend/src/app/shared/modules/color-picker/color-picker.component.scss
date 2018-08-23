@@ -2,9 +2,26 @@
 
   .cp {
 
+      // arrow
+    //   &::after {
+    //     bottom: 100%;
+    //     left: calc(100% - 20px);
+    //     border: solid transparent;
+    //     content: " ";
+    //     height: 0;
+    //     width: 0;
+    //     position: absolute;
+    //     pointer-events: none;
+    //     border-width: 6px;
+    //     margin-left: -6px;
+    //     background-color: red;
+    // }
+
+    // font-family: Helvetica;
+
     .mat-raised-button { //main button
       padding: 0px;
-      width: 146px;
+      width: 186px;
     }
 
     .btn-picker { //wrapper for button content
@@ -35,30 +52,33 @@
     }
       
     .card {
-      width: 146px;
+      width: 186px;
     }
     
     .grid-container {
       display: grid;
-      grid-template-columns: 22px 22px 22px 22px 22px;
-      grid-column-gap: 6px;
-      grid-row-gap: 0px;
-      padding-left: 2px;
-      padding-top: 2px;
+      grid-template-columns: 18px 18px 18px 18px 18px;
+      grid-column-gap: 12px;
+      grid-row-gap: 4px;
+      padding-left: 20px;
+      padding-top: 17px;
     }
   
     .grid-item { 
-      width: 28px;
+      width: 24px;
+      height: 24px;
       border: 2px solid transparent;
     }
     
     .default-color-button { //the default color buttons
       border-radius: 5px;
-      width: 22px;
-      height: 22px;
+      width: 18px;
+      height: 18px;
       outline: none;
-      border: 2px solid transparent;
+      // border: 2px solid transparent;
       margin: 1px;
+      min-width: 18px;
+      padding: 0px;
     }
     
     .isSelected {
@@ -66,10 +86,21 @@
     }
     
     .toggle { //between default and custom
-      text-align: center;
+      text-align: right;
       margin-top: 5px;
-      width: 146px;
+      width: 186px;
       font-family: Helvetica;
+
+      // custom color button
+      button {
+        padding-right: 25px;
+        padding-left: 48px;
+      }
+
+      #default-color {
+        padding-right: 15px;
+        padding-left: 61px;
+      }
     }
   }
 }
