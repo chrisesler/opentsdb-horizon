@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>decline-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M32.39,12.73,12.77,32.44A14,14,0,0,1,32.39,12.73Z"/><path d="M38.05,24A14.05,14.05,0,0,1,15.61,35.27L35.23,15.56A14,14,0,0,1,38.05,24Z"/><path d="M24,2A22,22,0,1,0,46,24,22,22,0,0,0,24,2Zm0,40.05a18,18,0,1,1,18-18A18.06,18.06,0,0,1,24,42.05Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>decline-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M24,2A22,22,0,0,0,7.1,38.1l31-31A21.7,21.7,0,0,0,24,2ZM40.9,9.9l-31,31A21.7,21.7,0,0,0,24,46,22,22,0,0,0,46,24,21.7,21.7,0,0,0,40.9,9.9Z"/>
+    </g>
+  </g>
+</svg>

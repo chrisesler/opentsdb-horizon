@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>layout-two-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M4,6H44a2,2,0,0,1,2,2v8a0,0,0,0,1,0,0H2a0,0,0,0,1,0,0V8A2,2,0,0,1,4,6Z"/><path d="M2,20H20a2,2,0,0,1,2,2V42a0,0,0,0,1,0,0H2a0,0,0,0,1,0,0V20A0,0,0,0,1,2,20Z" transform="translate(24 62) rotate(180)"/><path d="M26,20H46a0,0,0,0,1,0,0V40a2,2,0,0,1-2,2H26a0,0,0,0,1,0,0V20A0,0,0,0,1,26,20Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>layout-two-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M46,16H2V8A2,2,0,0,1,4,6H44a2,2,0,0,1,2,2ZM2,40a2,2,0,0,0,2,2H22V20H2ZM46,20H26V42H44a2,2,0,0,0,2-2Z"/>
+    </g>
+  </g>
+</svg>

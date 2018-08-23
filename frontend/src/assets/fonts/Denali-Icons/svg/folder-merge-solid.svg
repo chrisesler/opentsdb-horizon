@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>folder-merge-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M44.06,12H27L21,6H3.94A1.94,1.94,0,0,0,2,7.94V40.06A1.94,1.94,0,0,0,3.94,42H44.06A1.94,1.94,0,0,0,46,40.06V13.94A1.94,1.94,0,0,0,44.06,12ZM36.53,28.57l-5.92,5.94a2.09,2.09,0,0,1-2.65.3,2,2,0,0,1-.26-3.06l2.58-2.59H23.67l-9.18,9.19a2.07,2.07,0,0,1-2.65.3,2,2,0,0,1-.25-3L20.17,27l-8.58-8.6a2,2,0,0,1,.25-3,2.07,2.07,0,0,1,2.65.3L24,25.16h6.29l-2.59-2.6a2,2,0,0,1,.26-3,2.07,2.07,0,0,1,2.65.29l5.92,5.93A2,2,0,0,1,36.53,28.57Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>folder-merge-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M44,12H27L21,6H4A2,2,0,0,0,2,8V40a2,2,0,0,0,2,2H44a2,2,0,0,0,2-2V14A2,2,0,0,0,44,12ZM36.5,28.6l-4.9,4.9a2,2,0,0,1-2.6.3,1.9,1.9,0,0,1-.3-3l1.6-1.6H23.7l-8.2,8.1a2,2,0,0,1-2.7.3,1.9,1.9,0,0,1-.2-3L20.2,27l-7.6-7.6a2,2,0,0,1,.2-3.1,2.3,2.3,0,0,1,2.7.3L24,25.2h6.3l-1.6-1.6a2,2,0,1,1,2.9-2.8l4.9,4.9A2.1,2.1,0,0,1,36.5,28.6Z"/>
+    </g>
+  </g>
+</svg>
