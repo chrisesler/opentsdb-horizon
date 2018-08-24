@@ -82,7 +82,14 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     private interCom: IntercomService
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    // setting view/edit mode based on dashboard mode
+    if (this.dashboardMode === 'edit') {
+      this.viewEditMode = true;
+    } else {
+      this.viewEditMode = false;
+    }
+  }
 
   getWidgetConfig(id) {
     return this.dbService.getWidgetConfigById(id);
