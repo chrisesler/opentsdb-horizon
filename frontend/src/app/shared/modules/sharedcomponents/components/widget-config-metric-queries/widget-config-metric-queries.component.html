@@ -47,12 +47,12 @@
 <div class="query-metrics-section">
     <div class="query-metrics-wrap">
         <mat-accordion class="query-group-list mat-elevation-z0" [ngClass]="{'items-selected': selectAllToggle !== 'none'}" displayMode="flat" [multi]="true" [hideToggle]="false">
-            <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [expanded]="!group.settings.visual.collapsed" *ngFor="let group of widget.query.groups ">
+            <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [expanded]="true" *ngFor="let group of widget.query.groups ">
                 <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
                     <div class="group-selector">
                         <!--<mat-checkbox class="group-checkbox"></mat-checkbox>-->
                         <button mat-icon-button class="group-checkbox" color="primary" (click)="toggle_groupSelected(group, $event)">
-                            <mat-icon>{{ selectedToggleIcon[group.selectedState] }}</mat-icon>
+                            <mat-icon>{{ selectedToggleIcon[group.settings.tempUI.selected] }}</mat-icon>
                             <!--<mat-icon *ngIf="selectedGroups.includes(group.id)">check_box</mat-icon>
                             <mat-icon *ngIf="!selectedGroups.includes(group.id)">check_box_outline_blank</mat-icon>-->
                         </button>
@@ -67,7 +67,6 @@
                         <span class="toolbar-item group-label">
                             <mat-icon fontSet="denali" fontIcon="d-folder-open"></mat-icon>
                             <strong>{{ group.title }}</strong>
-                            {{group.settings.visual.collapsed}}
                         </span>
                         <span class="flex-spacer"></span>
                         <span class="toolbar-item add-query-actions">
@@ -93,15 +92,14 @@
                 <div class="query-metric-row" *ngFor="let query of group.queries">
                     <div class="metric-selector">
                         <button mat-icon-button class="group-checkbox" color="primary" (click)="toggle_metricSelected(query, group, $event)">
-                            <mat-icon>{{ (query.selectedState) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                            <mat-icon>{{ (query.settings.selected) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
                         </button>
                     </div>
                     <div class="query-metric-item">
                         <div class="metric-detail">
-                            <span class="detail-item">{{ metric.label }}</span>
-                            <span *ngIf="valueIterationOptions.length > 0" class="value-options"> 
+                            <span class="detail-item">{{ query.metric }}</span>
+                            <!-- <span *ngIf="valueIterationOptions.length > 0" class="value-options"> 
                                 <strong>Value: </strong>
-                                <!-- <div class="form-field-group"> -->
                                     <mat-form-field class="values-form-field">
                                         <mat-select>
                                             <mat-option *ngFor="let val of valueIterationOptions" [value]="val.value">
@@ -109,8 +107,8 @@
                                             </mat-option>
                                         </mat-select>
                                     </mat-form-field>
-                                <!-- </div> -->
                             </span>
+                        -->
                             <span class="flex-spacer"></span>
                             <span class="action-icons">
                                 <button mat-icon-button color="primary" (click)="toggle_queryItemVisibility(query, $event)">
@@ -137,55 +135,3 @@
         </mat-accordion>
     </div>
 </div>
-<!--
-<mat-accordion class="query-item-list" displayMode="flat" [multi]="true" [hideToggle]="false">
-    <mat-expansion-panel class="query-item mat-elevation-z0" [hideToggle]="false" [expanded]="true" *ngFor="let queryItem of fakeMetrics">
-        <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
-            <mat-toolbar class="query-item-toolbar">
-                <span class="toolbar-item query-item-alias">
-                        <i class="graph-bgcolor-{{ queryItem.color }}">{{ queryItem.alias }}</i>
-                    </span>
-                    <span class="toolbar-item query-item-name">
-                        <strong>{{ queryItem.label }}</strong>
-                    </span>
-                    <span class="flex-spacer"></span>
-                    <span class="toolbar-action-icon">
-                        <button mat-icon-button color="primary" (click)="toggle_queryItemVisibility(queryItem, $event)">
-                            <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="queryItem.visible"></mat-icon>
-                            <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!queryItem.visible"></mat-icon>
-                        </button>
-                    </span>
-                    <span class="toolbar-action-icon">
-                        <button mat-icon-button color="primary" (click)="clone_queryItem(queryItem, $event)">
-                            <mat-icon fontSet="denali" fontIcon="d-duplicate" class="mat-icon-rtl-mirror"></mat-icon>
-                        </button>
-                    </span>
-                    <span class="toolbar-action-icon">
-                        <button mat-icon-button color="primary" (click)="delete_queryItem(queryItem, $event)">
-                            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                        </button>
-                    </span>
-            </mat-toolbar>
-        </mat-expansion-panel-header>
-        <div class="attributes-expression-value" fxLayout="row" *ngIf="queryItem.type === 'expression'">
-            <div fxFlex="1 1 70px" class="label-container">
-                Expression
-            </div>
-            <div fxFlex="1 1 100%" class="attributes-container">
-                <mat-form-field style="width: 100%">
-                    <textarea matInput placeholder="Enter an expression using metric aliases">{{ queryItem.expression }}</textarea>
-                </mat-form-field>
-            </div>
-        </div>
-        <div class="attributes-tags" fxLayout="row" >
-            <div fxFlex="1 1 70px" class="label-container">
-                tags
-            </div>
-            <div fxFlex="1 1 100%" class="attributes-container">
-
-                
-            </div>
-        </div>
-        
-    </mat-expansion-panel>
-</mat-accordion>-->
