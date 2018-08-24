@@ -1,4 +1,8 @@
-import { Component, OnInit, OnChanges, AfterViewInit, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import {
+    Component, OnInit, OnChanges, AfterViewInit, SimpleChanges, HostBinding, Input,
+    OnDestroy, ViewChild, ElementRef
+} from '@angular/core';
+
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 
@@ -61,17 +65,17 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
             if (message.action === 'resizeWidget') {
                 // we get the size to update the graph size
-                this.size = { width: message.payload.width * this.widget.gridPos.w, 
+                this.size = { width: message.payload.width * this.widget.gridPos.w,
                                 height: message.payload.height * this.widget.gridPos.h
                             };
             }
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
-                    case 'updatedWidgetGroup':                        
+                    case 'updatedWidgetGroup':
                         if (this.widget.id === message.id) {
                             this.isDataLoaded = true;
-                            let rawdata = message.payload;                                                 
-                            this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, rawdata);                                                                                                   
+                            const rawdata = message.payload;
+                            this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, rawdata);
                         }
                         break;
                 }
@@ -100,12 +104,12 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     ngAfterViewInit() {
-        //console.log('TEST', this.widgetOutputElement.nativeElement.getBoundingClientRect());
-        if(this.editMode) {
-            //update graph content size
-            let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
-            //let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
-            let nHeight = 280;
+        // console.log('TEST', this.widgetOutputElement.nativeElement.getBoundingClientRect());
+        if (this.editMode) {
+            // update graph content size
+            const nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
+            // let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
+            const nHeight = 280;
             this.size = { width: nWidth, height: nHeight };
         }
 
