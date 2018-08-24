@@ -2,9 +2,13 @@
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 // core (aka structure)
 @mixin navbar-component-base() {
+    $navbar-height: map-get($navbar-config, 'navbar-height');
+    $logo-height: map-get($navbar-config, 'logo-height');
+
     .app-navbar {
         @include mat-elevation(2);
         z-index: 2;
+        position: relative;
 
         .app-home-link {
             min-width: auto;
@@ -14,7 +18,7 @@
         }
 
         .app-yamas-logo {
-            height: 32px;
+            height: $logo-height;
             //margin: 0 4px 3px 0;
             vertical-align: middle;
         }
@@ -37,8 +41,8 @@
 
         .mat-toolbar-multiple-rows,
         .mat-toolbar-single-row {
-            min-height: 48px !important;
-            height: 48px;
+            min-height: $navbar-height !important;
+            height: $navbar-height;
         }
 
         .navbar-item {
