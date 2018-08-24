@@ -30,10 +30,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
     /** Inputs */
     @Input() widget: any;
-    @Input() fakeGroups: Array<any>;
-    @Input() fakeMetrics: Array<object>;
-    @Input() valueIterationOptions: Array<any>;
-
+ 
     /** Outputs */
     @Output() widgetChange = new EventEmitter;
 
@@ -60,260 +57,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     };
 
     selectAllToggle: String = 'none'; // none/all/some
-    // TODO: REMOVE FAKE GROUPS
-    // fakeGroups: Array<any> = [
-    //     {
-    //         id: 'group-0',
-    //         label: 'Untitled Group',
-    //         collapsed: false,
-    //         visible: true,
-    //         colorFamily: 'green',
-    //         selectedState: 'none', // none,all,some
-    //         metrics: [
-    //             {
-    //                 id: 0,
-    //                 type: 'metric',
-    //                 alias: 'M1',
-    //                 label: 'Metric_namespace.app-name.whatever.some_metric',
-    //                 metric: 'Metric_namespace.app-name.whatever.some_metric',
-    //                 color: 'green',
-    //                 collapsed: false,
-    //                 visible: true,
-    //                 selectedState: false,
-    //                 tags: [
-    //                     {
-    //                         key: 'colo',
-    //                         value: 'bf1'
-    //                     },
-    //                     {
-    //                         key: 'hostgroup',
-    //                         value: 'lala-01'
-    //                     },
-    //                     {
-    //                         key: '_aggregate',
-    //                         value: 'SUM'
-    //                     }
-    //                 ],
-    //                 functions: [],
-    //                 configuration: {
-    //                     visualAppearance: {
-    //                         visualization: 'line',
-    //                         color: 'green',
-    //                         lineWeight: '2px',
-    //                         lineType: 'solid',
-    //                         logScale: false
-    //                     }
-    //                 }
-    //             },
-    //             {
-    //                 id: 1,
-    //                 type: 'metric',
-    //                 alias: 'M2',
-    //                 label: 'Metric_namespace.app-name.something.some_metric',
-    //                 metric: 'Metric_namespace.app-name.something.some_metric',
-    //                 color: 'amber',
-    //                 collapsed: false,
-    //                 visible: true,
-    //                 selectedState: false,
-    //                 tags: [
-    //                     {
-    //                         key: 'colo',
-    //                         value: 'bf1'
-    //                     },
-    //                     {
-    //                         key: 'hostgroup',
-    //                         value: 'hg-01'
-    //                     }
-    //                 ],
-    //                 functions: [],
-    //                 configuration: {
-    //                     visualAppearance: {
-    //                         visualization: 'line',
-    //                         color: 'amber',
-    //                         lineWeight: '2px',
-    //                         lineType: 'solid',
-    //                         logScale: false
-    //                     }
-    //                 }
-    //             },
-    //             {
-    //                 id: 2,
-    //                 type: 'expression',
-    //                 alias: 'E1',
-    //                 label: 'expression-name',
-    //                 expression: '( m1 / m2 ) * 12',
-    //                 color: 'fuchsia',
-    //                 collapsed: false,
-    //                 visible: true,
-    //                 selectedState: false,
-    //                 tags: [
-    //                     {
-    //                         key: 'colo',
-    //                         value: '*'
-    //                     },
-    //                     {
-    //                         key: 'hostgroup',
-    //                         value: '*'
-    //                     }
-    //                 ],
-    //                 functions: [],
-    //                 configuration: {
-    //                     visualAppearance: {
-    //                         visualization: 'line',
-    //                         color: 'fuschia',
-    //                         lineWeight: '2px',
-    //                         lineType: 'solid',
-    //                         logScale: false
-    //                     }
-    //                 }
-    //             }
-    //         ]
-    //     },
-    //     {
-    //         id: 'group-1',
-    //         label: 'Untitled Group 2',
-    //         collapsed: false,
-    //         visible: true,
-    //         colorFamily: 'green',
-    //         selectedState: 'none', // none/all/some
-    //         metrics: [
-    //             {
-    //                 id: 3,
-    //                 type: 'metric',
-    //                 alias: 'M1',
-    //                 label: 'Metric_namespace.app-name.whatever.some_metric',
-    //                 metric: 'Metric_namespace.app-name.whatever.some_metric',
-    //                 color: 'green',
-    //                 collapsed: false,
-    //                 visible: true,
-    //                 selectedState: false,
-    //                 tags: [
-    //                     {
-    //                         key: 'colo',
-    //                         value: 'bf1'
-    //                     },
-    //                     {
-    //                         key: 'hostgroup',
-    //                         value: 'lala-01'
-    //                     },
-    //                     {
-    //                         key: '_aggregate',
-    //                         value: 'SUM'
-    //                     }
-    //                 ],
-    //                 functions: [],
-    //                 configuration: {
-    //                     visualAppearance: {
-    //                         visualization: 'line',
-    //                         color: 'green',
-    //                         lineWeight: '2px',
-    //                         lineType: 'solid',
-    //                         logScale: false
-    //                     }
-    //                 }
-    //             }
-    //         ]
-    //     }
-    // ];
-
-    // TODO: REMOVE FAKE METRICS
-    // fakeMetrics: Array<object> = [
-    //     {
-    //         id: 0,
-    //         type: 'metric',
-    //         alias: 'M1',
-    //         label: 'Metric_namespace.app-name.whatever.some_metric',
-    //         metric: 'Metric_namespace.app-name.whatever.some_metric',
-    //         color: 'green',
-    //         collapsed: false,
-    //         visible: true,
-    //         tags: [
-    //             {
-    //                 key: 'colo',
-    //                 value: 'bf1'
-    //             },
-    //             {
-    //                 key: 'hostgroup',
-    //                 value: 'lala-01'
-    //             },
-    //             {
-    //                 key: '_aggregate',
-    //                 value: 'SUM'
-    //             }
-    //         ],
-    //         functions: [],
-    //         configuration: {
-    //             visualAppearance: {
-    //                 visualization: 'line',
-    //                 color: 'green',
-    //                 lineWeight: '2px',
-    //                 lineType: 'solid',
-    //                 logScale: false
-    //             }
-    //         }
-    //     },
-    //     {
-    //         id: 1,
-    //         type: 'metric',
-    //         alias: 'M2',
-    //         label: 'Metric_namespace.app-name.something.some_metric',
-    //         metric: 'Metric_namespace.app-name.something.some_metric',
-    //         color: 'amber',
-    //         collapsed: false,
-    //         visible: true,
-    //         tags: [
-    //             {
-    //                 key: 'colo',
-    //                 value: 'bf1'
-    //             },
-    //             {
-    //                 key: 'hostgroup',
-    //                 value: 'hg-01'
-    //             }
-    //         ],
-    //         functions: [],
-    //         configuration: {
-    //             visualAppearance: {
-    //                 visualization: 'line',
-    //                 color: 'amber',
-    //                 lineWeight: '2px',
-    //                 lineType: 'solid',
-    //                 logScale: false
-    //             }
-    //         }
-    //     },
-    //     {
-    //         id: 1,
-    //         type: 'expression',
-    //         alias: 'E1',
-    //         label: 'expression-name',
-    //         expression: 'm1 + m2 / m2',
-    //         color: 'fuchsia',
-    //         collapsed: false,
-    //         visible: true,
-    //         tags: [
-    //             {
-    //                 key: 'colo',
-    //                 value: '*'
-    //             },
-    //             {
-    //                 key: 'hostgroup',
-    //                 value: '*'
-    //             }
-    //         ],
-    //         functions: [],
-    //         configuration: {
-    //             visualAppearance: {
-    //                 visualization: 'line',
-    //                 color: 'fuschia',
-    //                 lineWeight: '2px',
-    //                 lineType: 'solid',
-    //                 logScale: false
-    //             }
-    //         }
-    //     }
-    // ];
-
+ 
     constructor(
         public dialog: MatDialog,
         private interCom: IntercomService
@@ -324,8 +68,34 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        console.log('changes', changes);
-        
+        // when editing mode is loaded, we need to temporary adding default UI state
+        // to editing widget
+        if (changes.widget.currentValue && changes.widget.firstChange) {
+            this.addRemoveTempUIState(true, changes.widget.currentValue);
+        }          
+    }
+
+    // to add or remove the local tempUI state
+    addRemoveTempUIState(add: boolean, widget: any) {
+        for (let i = 0; i < widget.query.groups.length; i++) {
+            let group = widget.query.groups[i];
+            if (add) {
+                group.settings.tempUI = {
+                    selected: 'none',
+                    collapsed: false
+                }
+            } else {
+                delete group.settings.tempUI;
+            }
+            for (let j = 0; j < group.queries.length; j++) {
+                let metric = group.queries[j];
+                if(add) {
+                    metric.settings.selected = false;
+                } else {
+                    delete metric.settings.selected;
+                }
+            }
+        }
     }
 
     ngOnDestroy() {
@@ -395,32 +165,25 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         });
     }
 
-    /**
-     * Behaviors
-     */
 
     toggle_displayGroupsIndividually(event: any) {
         console.log('TOGGLE::DisplayGroupsIndividually', event);
     }
-
-    /**
-     * Individual Events
-     */
 
     toggle_groupSelected(group: any, event: MouseEvent) {
         console.log('TOGGLE::GroupSelected', group, event);
         event.stopPropagation();
 
         // some or none are selected, then we select them all
-        if (group.selectedState === 'some' || group.selectedState === 'none') {
-            group.selectedState = 'all';
-            group.metrics.forEach(function(metric) {
-                metric.selectedState = true;
+        if (group.settings.tempUI.selected === 'some' || group.settings.tempUI.selected === 'none') {
+            group.settings.tempUI.selected = 'all';
+            group.queries.forEach(function(metric) {
+                metric.settings.selected = true;
             });
         } else {
-            group.selectedState = 'none';
-            group.metrics.forEach(function(metric) {
-                metric.selectedState = false;
+            group.settings.tempUI.selected = 'none';
+            group.queries.forEach(function(metric) {
+                metric.settings.selected = false;
             });
         }
 
@@ -431,54 +194,52 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             some: 0
         };
 
-        let g;
-        // tslint:disable-next-line:forin
-        for (g in this.fakeGroups) {
-            if (this.fakeGroups[g].selectedState === 'all') {
+        for (let i = 0; i < this.widget.query.groups; i++) {
+            let g = this.widget.query.groups[i];
+            if (g.settings.tempUI.selected === 'all') {
                 groupStates.all++;
-            } else if (this.fakeGroups[g].selectedState === 'some') {
+            } else if (g.settings.tempUI.selected === 'some') {
                 groupStates.some++;
             } else {
                 groupStates.none++;
             }
         }
 
-        // tslint:disable-next-line:max-line-length
-        this.selectAllToggle = (groupStates.some > 0 || groupStates.all < this.fakeGroups.length) ? 'some' : (groupStates.none === this.fakeGroups.length) ? 'none' : 'all';
-
+        this.selectAllToggle = (groupStates.some > 0 || groupStates.all < this.widget.query.groups.length) ?
+            'some' : (groupStates.none === this.widget.query.groups.length) ? 'none' : 'all';
     }
 
     toggle_metricSelected(metric: any, group: any, event: MouseEvent) {
         console.log('TOGGLE::MetricSelected', group, event);
         event.stopPropagation();
 
-        metric.selectedState = !metric.selectedState;
+        metric.settings.selected = !metric.settings.selected;
 
-        const selectedGroupMetrics = group.metrics.filter(function(m) {
-            return m.selectedState;
+        const selectedGroupMetrics = group.queries.filter(function(m) {
+            return m.settings.selected;
         });
 
         // the 'some' case
-        if (selectedGroupMetrics.length > 0 && selectedGroupMetrics.length < group.metrics.length) {
-            group.selectedState = 'some';
+        if (selectedGroupMetrics.length > 0 && selectedGroupMetrics.length < group.queries.length) {
+            group.settings.tempUI.selected = 'some';
             // if this is some, then the master level is some as well
             this.selectAllToggle = 'some';
         // the 'all'case
-        } else if (selectedGroupMetrics.length === group.metrics.length) {
-            group.selectedState = 'all';
+        } else if (selectedGroupMetrics.length === group.queries.length) {
+            group.settings.tempUI.selected = 'all';
 
-            const selectedGroups = this.fakeGroups.filter(function(g) {
-                return g.selectedState === 'all';
+            const selectedGroups = this.widget.query.groups.filter(function(g) {
+                return g.settings.tempUI.selected === 'all';
             });
 
-            this.selectAllToggle = (selectedGroups.length === this.fakeGroups.length) ? 'all' : 'some';
+            this.selectAllToggle = (selectedGroups.length === this.widget.query.groups.length) ? 'all' : 'some';
 
         // the 'none' case
         } else {
-            group.selectedState = 'none';
+            group.settings.tempUI.selected = 'none';
 
-            const selectedGroups = this.fakeGroups.filter(function(g) {
-                return g.selectedState !== 'none';
+            const selectedGroups = this.widget.query.groups.filter(function(g) {
+                return g.settings.tempUI.selected !== 'none';
             });
 
             this.selectAllToggle = (selectedGroups.length > 0) ? 'some' : 'none';
@@ -538,21 +299,19 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         if (this.selectAllToggle === 'none' || this.selectAllToggle === 'some') {
             this.selectAllToggle = 'all';
             // mark all groups as selected
-            for (group of this.fakeGroups) {
-                console.log('fake groups', group);
-                group.selectedState = 'all';
-                for (metric of group.metrics) {
-                    metric.selectedState = true;
+            for (group of this.widget.query.groups) {
+                group.settings.tempUI.selected = 'all';
+                for (metric of group.queries) {
+                    metric.settings.selected = true;
                 }
             }
         } else {
             this.selectAllToggle = 'none';
             // mark all groups as un-selected
-            for (group of this.fakeGroups) {
-                console.log('fake groups', group);
-                group.selectedState = 'none';
-                for (metric of group.metrics) {
-                    metric.selectedState = false;
+            for (group of this.widget.query.groups) {
+                group.settings.tempUI.selected = 'none';
+                for (metric of group.queries) {
+                    metric.settings.selected = false;
                 }
             }
         }
