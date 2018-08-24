@@ -57,8 +57,6 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     }
 
     selectedPrefixAlignment(value: string) {
-        console.log('changed to: ' + value);
-
         this.selectedMetric['configuration']['bigNum']['prefixAlignment'] = value;
     }
 
@@ -104,6 +102,10 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         } else {
             (<HTMLInputElement>document.getElementById('custom-unit')).value = '';
         }
+    }
+
+    customUnitEntered() {
+      this.menuTrigger.closeMenu();
     }
 
     isUnitCustom(str: string): boolean {

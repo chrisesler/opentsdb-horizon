@@ -5,11 +5,9 @@
 
         <div class="prefix-container"> 
             <span class="label-label">Prefix</span>
-            <form>
-                <mat-form-field floatLabel="never">
-                    <input matInput #prefixBox placeholder="Enter Prefix" value="{{selectedMetric.configuration.bigNum.prefix}}" (keyup)="KeyedOnPrefixInputBox(prefixBox.value)">
-                </mat-form-field>
-            </form>
+            <mat-form-field floatLabel="never">
+                <input matInput #prefixBox placeholder="Enter Prefix" value="{{selectedMetric.configuration.bigNum.prefix}}" (keyup)="KeyedOnPrefixInputBox(prefixBox.value)">
+            </mat-form-field>
             <mat-button-toggle-group #prefixSizeGroup="matButtonToggleGroup" 
                 [value]="selectedMetric.configuration.bigNum.prefixSize" 
                 (change)="selectedPrefixSize(prefixSizeGroup.value)">
@@ -28,11 +26,9 @@
     
         <div class="postfix-container"> 
             <span class="label-label">Postfix</span>
-            <form>
-                <mat-form-field floatLabel="never">
-                    <input matInput #postfixBox placeholder="Enter Postfix" value="{{selectedMetric.configuration.bigNum.postfix}}" (keyup)="KeyedOnPostfixInputBox(postfixBox.value)">
-                </mat-form-field>
-            </form>
+            <mat-form-field floatLabel="never">
+                <input matInput #postfixBox placeholder="Enter Postfix" value="{{selectedMetric.configuration.bigNum.postfix}}" (keyup)="KeyedOnPostfixInputBox(postfixBox.value)">
+            </mat-form-field>
             <mat-button-toggle-group #postfixSizeGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.postfixSize" (change)="selectedPostfixSize(postfixSizeGroup.value)">
                 <mat-button-toggle value="s" [disabled]="!selectedMetric.configuration.bigNum.postfix">sm</mat-button-toggle>
                 <mat-button-toggle value="m" [disabled]="!selectedMetric.configuration.bigNum.postfix">md</mat-button-toggle>
@@ -47,11 +43,9 @@
     
         <div class="unit-container"> 
             <span class="label-label">Unit</span>
-            <form>
-                <mat-form-field floatLabel="never">
-                    <input matInput #unitBox placeholder="Enter Unit" [matMenuTriggerFor]="menu" value="{{selectedMetric.configuration.bigNum.unit}}" (keyup)="KeyedOnUnitInputBox(unitBox.value)" (click)="onMenuOpen()">
-                </mat-form-field>
-            </form>
+            <mat-form-field floatLabel="never">
+                <input matInput #unitBox placeholder="Enter Unit" [matMenuTriggerFor]="menu" value="{{selectedMetric.configuration.bigNum.unit}}" (keyup)="KeyedOnUnitInputBox(unitBox.value)" (click)="onMenuOpen()">
+            </mat-form-field>
 
             <mat-menu #menu="matMenu">
                 <button mat-menu-item [matMenuTriggerFor]="time">Time</button>
@@ -62,38 +56,38 @@
                 <button mat-menu-item [matMenuTriggerFor]="currency">Currency</button>
                 <button mat-menu-item (click)="KeyedOnUnitInputBox('auto')">Auto</button>
                 <button mat-menu-item class="custom-unit-menu-item" (click)="stopPropagation($event)" >
-                    <input matInput #customUnit class="custom-unit-input" id="custom-unit" placeholder="Custom Unit" (keyup)="KeyedOnUnitInputBox(customUnit.value)">
+                    <input matInput #customUnit class="custom-unit-input" id="custom-unit" placeholder="Custom Unit" (keyup)="KeyedOnUnitInputBox(customUnit.value)" (keyup.enter)="customUnitEntered()">
                 </button>
 
                 <mat-menu #time="matMenu">
-                        <button mat-menu-item *ngFor="let unit of timeUnits" (click)="KeyedOnUnitInputBox(unit)">
-                            {{unit}}
-                        </button>
+                    <button mat-menu-item *ngFor="let unit of timeUnits" (click)="KeyedOnUnitInputBox(unit)">
+                        {{unit}}
+                    </button>
                 </mat-menu>
                 <mat-menu #binaryData="matMenu">
-                        <button mat-menu-item *ngFor="let unit of binaryDataUnits" (click)="KeyedOnUnitInputBox(unit)">
-                            {{unit}}
-                        </button>
+                    <button mat-menu-item *ngFor="let unit of binaryDataUnits" (click)="KeyedOnUnitInputBox(unit)">
+                        {{unit}}
+                    </button>
                 </mat-menu>
                 <mat-menu #decimalData="matMenu">
-                        <button mat-menu-item *ngFor="let unit of decimalDataUnits" (click)="KeyedOnUnitInputBox(unit)">
-                            {{unit}}
-                        </button>
+                    <button mat-menu-item *ngFor="let unit of decimalDataUnits" (click)="KeyedOnUnitInputBox(unit)">
+                        {{unit}}
+                    </button>
                 </mat-menu>
                 <mat-menu #dataRate="matMenu">
-                        <button mat-menu-item *ngFor="let unit of dataRateUnits" (click)="KeyedOnUnitInputBox(unit)">
-                            {{unit}}
-                        </button>
+                    <button mat-menu-item *ngFor="let unit of dataRateUnits" (click)="KeyedOnUnitInputBox(unit)">
+                        {{unit}}
+                    </button>
                 </mat-menu>
                 <mat-menu #throughput="matMenu">
-                        <button mat-menu-item *ngFor="let unit of throughputUnits" (click)="KeyedOnUnitInputBox(unit)">
-                            {{unit}}
-                        </button>
+                    <button mat-menu-item *ngFor="let unit of throughputUnits" (click)="KeyedOnUnitInputBox(unit)">
+                        {{unit}}
+                    </button>
                 </mat-menu>
                 <mat-menu #currency="matMenu">
-                        <button mat-menu-item *ngFor="let unit of currencyUnits" (click)="KeyedOnUnitInputBox(unit)">
-                            {{unit}}
-                        </button>
+                    <button mat-menu-item *ngFor="let unit of currencyUnits" (click)="KeyedOnUnitInputBox(unit)">
+                        {{unit}}
+                    </button>
                 </mat-menu>
             </mat-menu>
 
@@ -111,11 +105,9 @@
         
         <div class="caption-container">
             <span class="label-label">Caption</span> 
-            <form>
-                <mat-form-field floatLabel="never">
-                    <input matInput #captionBox placeholder="{{captionPlaceholder}}" value="{{selectedMetric.configuration.bigNum.caption}}" (keyup)="KeyedOnCaptionInputBox(captionBox.value)">
-                </mat-form-field>
-            </form>
+            <mat-form-field floatLabel="never">
+                <input matInput #captionBox placeholder="{{captionPlaceholder}}" value="{{selectedMetric.configuration.bigNum.caption}}" (keyup)="KeyedOnCaptionInputBox(captionBox.value)">
+            </mat-form-field>
             <!-- <mat-button-toggle-group #captionGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.captionSize" (change)="selectedCaptionSize(captionGroup.value)">
                 <mat-button-toggle value="s">sm</mat-button-toggle>
                 <mat-button-toggle value="m">md</mat-button-toggle>
@@ -125,11 +117,9 @@
 
         <div class="precision-container">
             <span class="label-label">Precision</span> 
-            <form>
-                <mat-form-field floatLabel="never">
-                    <input matInput #precisionBox placeholder="Enter Precision [1-9]" [value]="selectedMetric.configuration.bigNum.precision" (keyup)="KeyedOnPrecisionInputBox(precisionBox.value)">
-                </mat-form-field>
-            </form>
+            <mat-form-field floatLabel="never">
+                <input matInput #precisionBox placeholder="Enter Precision [1-9]" [value]="selectedMetric.configuration.bigNum.precision" (keyup)="KeyedOnPrecisionInputBox(precisionBox.value)">
+            </mat-form-field>
         </div>
 
     </div>

@@ -171,7 +171,6 @@ export class UnitNormalizerService {
   }
 
   getFractionLength(precision: number, num: number) {
-    precision = parseInt(precision.toString(), 10);
     if (!(precision > 0 && precision < 10)) {
       precision = 3;
     }

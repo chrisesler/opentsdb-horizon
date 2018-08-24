@@ -40,7 +40,7 @@ export class BignumberWidgetComponent implements OnInit {
     contentFillPercent: number = 0.75; // how much % content should take up widget
     contentFillPercentWithNoCaption: number = 0.60; // how much % content should take up widget
     maxCaptionLength: number = 36;
-    maxLabelLength: number = 8; // postfix, prefix, unit
+    maxLabelLength: number = 10; // postfix, prefix, unit
 
     widgetWidth: number;
     widgetHeight: number;
@@ -83,10 +83,6 @@ export class BignumberWidgetComponent implements OnInit {
                         this.selectedMetric['configuration']['bigNum']['fontSizePercent'] = this.fontSizePercent;
                         this.selectedMetric['configuration']['bigNum']['widgetWidth'] = newWidgetWidth;
                         this.selectedMetric['configuration']['bigNum']['widgetHeight'] = newWidgetHeight;
-                        console.log('**');
-                        console.log('font size percent: ' + this.fontSizePercent);
-                        console.log('width: ' + newWidgetWidth);
-                        console.log('height : ' + newWidgetHeight);
                     }
                 }
             }
@@ -251,7 +247,7 @@ export class BignumberWidgetComponent implements OnInit {
     // we have this method so that a caption or other labels will not make the big number really small
     shortenString(str: string, maxChars: number): string {
         if (str.length > maxChars) {
-            return str.substr(0, maxChars - 3) + '...';
+            return str.substr(0, maxChars) + '...';
         }
         return str;
     }

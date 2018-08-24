@@ -2,23 +2,6 @@
 
   .cp {
 
-      // arrow
-    //   &::after {
-    //     bottom: 100%;
-    //     left: calc(100% - 20px);
-    //     border: solid transparent;
-    //     content: " ";
-    //     height: 0;
-    //     width: 0;
-    //     position: absolute;
-    //     pointer-events: none;
-    //     border-width: 6px;
-    //     margin-left: -6px;
-    //     background-color: red;
-    // }
-
-    // font-family: Helvetica;
-
     .mat-raised-button { //main button
       padding: 0px;
       width: 186px;
@@ -30,12 +13,12 @@
     }
 
     .color-sample {
-      height: 18px;
-      width: 18px;
+      height: 14px;
+      width: 14px;
       margin: 0px;
-      margin-right: 5px;
-      margin-left: 5px;
-      margin-top: 10px;
+      margin-right: 11px;
+      margin-left: 12px;
+      margin-top: 12px;
       display: inline-block;
       border-radius: 5px;
     }
@@ -75,7 +58,6 @@
       width: 18px;
       height: 18px;
       outline: none;
-      // border: 2px solid transparent;
       margin: 1px;
       min-width: 18px;
       padding: 0px;
@@ -93,12 +75,12 @@
 
       // custom color button
       button {
-        padding-right: 25px;
+        padding-right: 22px;
         padding-left: 48px;
       }
 
       #default-color {
-        padding-right: 15px;
+        padding-right: 12px;
         padding-left: 61px;
       }
     }
