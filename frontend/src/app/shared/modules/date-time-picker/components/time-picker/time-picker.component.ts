@@ -9,7 +9,7 @@ import { Moment, unitOfTime, duration } from 'moment';
 import { CalendarMode } from '../../types/calendar-mode';
 import { TimeRangePickerOptions, ISelectedTime } from '../../models/models';
 
-import { MatMenu, MatMenuTrigger } from '@angular/material';
+import { MatMenu, MatMenuTrigger, MenuPositionX } from '@angular/material';
 
 const moment = momentNs;
 
@@ -34,10 +34,12 @@ export class TimePickerComponent implements AfterViewChecked {
     private _endTime: string;
 
     // tslint:disable-next-line:no-inferrable-types
-    //@Input() startTime: string;
+    // @Input() startTime: string;
     // tslint:disable-next-line:no-inferrable-types
-    //@Input() endTime: string;
-    
+    // @Input() endTime: string;
+
+    @Input() xPosition: MenuPositionX = 'before';
+
     @Input()
     set startTime(value: string) {
         this._startTime = value;

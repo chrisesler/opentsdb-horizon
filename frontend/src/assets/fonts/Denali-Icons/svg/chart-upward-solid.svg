@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>chart-upward-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M42,40H8V6A2,2,0,0,0,4,6V44H42a2,2,0,0,0,0-4Z"/><path d="M40,9H30a2,2,0,0,0-2,2.34A2.07,2.07,0,0,0,30.11,13h5.06l.11.1-11.34,11L18,18.17,5.65,30.51a2.07,2.07,0,0,0-.3,2.65,2,2,0,0,0,3.05.25L18,23.83l6.06,6.06L38,16.05v4.84A2.07,2.07,0,0,0,39.66,23,2,2,0,0,0,42,21V11A2,2,0,0,0,40,9Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>chart-upward-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M42,40H8V33.7l.4-.3L18,23.8l6.1,6.1L38,16.1v4.8A2.1,2.1,0,0,0,39.7,23,2,2,0,0,0,42,21V11a2,2,0,0,0-2-2H30a2,2,0,0,0-2,2.3A2.1,2.1,0,0,0,30.1,13h5.2l-11.4,11L18,18.2,8,28.2V6A2,2,0,0,0,4,6V44H42a2,2,0,0,0,0-4Z"/>
+    </g>
+  </g>
+</svg>

@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>device-tablet-graph</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M30,10H20a2,2,0,0,0-2,2.34A2.07,2.07,0,0,0,20.11,14h5.06l.11.1-6.34,7L15,17.17,6.65,25.51a2.07,2.07,0,0,0-.3,2.65,2,2,0,0,0,3.05.25L15,22.83l4.06,4.06L28,17.05v4.84A2.07,2.07,0,0,0,29.66,24,2,2,0,0,0,32,22V12A2,2,0,0,0,30,10Z"/><path d="M24,36a2,2,0,0,0-2,2h0a2,2,0,0,0,4,0h0a2,2,0,0,0-2-2Z"/><path d="M38,6V42H10V6H38m2-4H8A2,2,0,0,0,6,4V44a2,2,0,0,0,2,2H40a2,2,0,0,0,2-2V4a2,2,0,0,0-2-2Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>device-tablet-graph</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <g>
+        <path d="M24,36a2,2,0,0,0-2,2h0a2,2,0,0,0,4,0h0A2,2,0,0,0,24,36Z"/>
+        <path d="M40,2H8A2,2,0,0,0,6,4V44a2,2,0,0,0,2,2H40a2,2,0,0,0,2-2V4A2,2,0,0,0,40,2ZM38,42H10V27.8l5-5,4.1,4.1L28,17.1v4.8A2.1,2.1,0,0,0,29.7,24,2,2,0,0,0,32,22V12a2,2,0,0,0-2-2H20a2,2,0,0,0-2,2.3A2.1,2.1,0,0,0,20.1,14h5.2l-6.4,7L15,17.2l-5,5V6H38Z"/>
+      </g>
+    </g>
+  </g>
+</svg>

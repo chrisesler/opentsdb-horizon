@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>zoom-out-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M43.41,40.57,30.91,28.11A15.07,15.07,0,1,0,28.06,31L40.59,43.42a2,2,0,0,0,2.83,0A2,2,0,0,0,44,42,2.06,2.06,0,0,0,43.41,40.57Zm-18-20.16A2,2,0,0,1,24,21H14a2,2,0,0,1-2-2,2,2,0,0,1,2-2H24a2,2,0,0,1,2,2A2,2,0,0,1,25.41,20.41Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>zoom-out-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M43.4,40.6,30.9,28.1A15,15,0,0,0,20.1,4a15,15,0,0,0-3,29.9,15.5,15.5,0,0,0,11-2.9L40.6,43.4a1.9,1.9,0,0,0,2.8,0,1.9,1.9,0,0,0,0-2.8Zm-18-20.2A2,2,0,0,1,24,21H14a2,2,0,0,1-2-2,2.1,2.1,0,0,1,2-2H24a2,2,0,0,1,2,2A2,2,0,0,1,25.4,20.4Z"/>
+    </g>
+  </g>
+</svg>

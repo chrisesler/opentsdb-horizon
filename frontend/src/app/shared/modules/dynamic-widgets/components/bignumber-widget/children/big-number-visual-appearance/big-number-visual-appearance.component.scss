@@ -1,9 +1,9 @@
 /* WIDGET CONFIG COMPONENT */
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
-@mixin widget-config-visual-appearance-big-number-component-base() {
+@mixin big-number-visual-appearance-component-base() {
 
-    .visual-appearance-configuration-big-number {
+    .big-number-visual-appearance {
         margin-left: 0px;
 
         .container {
@@ -47,6 +47,8 @@
     
             .mat-input-element {
                 padding: 7px;
+                margin-top: 0px;
+                height: 29px;
             }
 
             label {
@@ -57,20 +59,19 @@
             }
 
             //custom look for buttons
-
            .mat-form-field-flex {
                height: 41px;
-           }
+            }
 
             mat-button-toggle-group {
                 top: 1px;
-                box-shadow: none;
-                padding: 2px;
-                height: 29px;
+                padding: 4px;
+                border-radius: 0px;
             }
 
             mat-button-toggle {
                 width: 30px;
+                line-height: 20px;
             }
 
             .mat-button-toggle-button {
@@ -81,6 +82,7 @@
                 line-height: 25px;
                 padding-left: 5px;
                 padding-right: 5px;
+                line-height: 0px;
             }
 
             //Disable Placeholder
@@ -127,7 +129,7 @@
     }
 }
 
-@mixin widget-config-visual-appearance-big-number-component-theme($theme-config) {
+@mixin big-number-visual-appearance-component-theme($theme-config) {
 
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
@@ -137,7 +139,7 @@
     $background: map-get($theme-config, background);
     $chip-bg: rgba(map-get($primary, default), .1);
 
-    .visual-appearance-configuration-big-number {
+    .big-number-visual-appearance {
         .query-side-panel {
             background-color: $chip-bg;
         }
@@ -157,7 +159,8 @@
             }
             mat-button-toggle-group {
                 background-color: $chip-bg;
-                border-left: 1px solid lightgrey;
+                // border-left: 1px solid lightgrey;
+                box-shadow: none;
             }
 
             .mat-button-toggle {
@@ -169,8 +172,14 @@
 
             .mat-button-toggle-checked {
                 // border-bottom: 2px solid  #18BDED;
-                color: darkgray;
+                // color: darkgray;
+                color: black;
                 background: white;
+            }
+
+            .mat-button-toggle-disabled {
+                color: darkgray;
+                background: transparent;
             }
         }
 
@@ -194,6 +203,15 @@
             .card {
                 border-top: none;
             }
+        }
+    }
+
+    // CDK menu for custom unit
+    .custom-unit-menu-item {
+        background-color: $chip-bg;
+
+        .mat-menu-ripple {
+            background-color: $chip-bg;
         }
     }
 }

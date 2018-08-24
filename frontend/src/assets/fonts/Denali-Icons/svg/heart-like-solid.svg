@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>heart-like-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M34,4c-3.9,0-8,3.07-10,6.47C22,7.07,17.94,4,14,4A11.78,11.78,0,0,0,5.53,7.64,11.89,11.89,0,0,0,2,16.14c0,4,2.65,7.57,5,10.11,2,2.2,13.29,14.24,16.27,17.43a1,1,0,0,0,1.46,0C27.71,40.49,39,28.45,41,26.25c2.35-2.54,5-6.08,5-10.11a11.89,11.89,0,0,0-3.53-8.5A11.78,11.78,0,0,0,34,4Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>heart-like-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M34,4c-3.9,0-8,3.1-10,6.5C22,7.1,17.9,4,14,4A12,12,0,0,0,5.5,7.6,11.9,11.9,0,0,0,2,16.1c0,4.1,2.7,7.6,5,10.2L23.3,43.7a1,1,0,0,0,1.4,0L41,26.3c2.3-2.6,5-6.1,5-10.2A12.1,12.1,0,0,0,34,4Z"/>
+    </g>
+  </g>
+</svg>

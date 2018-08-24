@@ -15,7 +15,7 @@ import {
     encapsulation: ViewEncapsulation.None
 })
 export class CalendarNavComponent {
-    @HostBinding('class') @Input() theme: string;
+    // @HostBinding('class') @Input() theme: string;
 
     @Input() label: string;
     @Input() isLabelClickable: boolean = false;
@@ -30,11 +30,17 @@ export class CalendarNavComponent {
     @Input() showGoToCurrent: boolean = true;
 
 
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onLeftNav: EventEmitter<null> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onLeftSecondaryNav: EventEmitter<null> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onRightNav: EventEmitter<null> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onRightSecondaryNav: EventEmitter<null> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onLabelClick: EventEmitter<null> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onGoToCurrent: EventEmitter<null> = new EventEmitter();
 
     leftNavClicked() {

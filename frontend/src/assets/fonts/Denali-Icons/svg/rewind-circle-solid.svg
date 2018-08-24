@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>rewind-circle-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M24.14,2.16A22,22,0,1,0,46,24.3,22,22,0,0,0,24.14,2.16ZM22,29a1.11,1.11,0,0,1-1.68,1l-7.76-4.91a1.16,1.16,0,0,1,0-2l7.83-4.8a1.1,1.1,0,0,1,1.66,1Zm12,.07a1.11,1.11,0,0,1-1.68,1l-7.76-4.91a1.16,1.16,0,0,1,0-2l7.83-4.8a1.1,1.1,0,0,1,1.66,1Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>rewind-circle-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M24,2A22,22,0,1,0,46,24,21.9,21.9,0,0,0,24,2ZM22,28.8a1.1,1.1,0,0,1-1.7,1L12.5,25a1.2,1.2,0,0,1,0-2l7.8-4.8a1.1,1.1,0,0,1,1.7.9Zm12,0a1.1,1.1,0,0,1-1.7,1L24.5,25a1.2,1.2,0,0,1,0-2l7.8-4.8a1.1,1.1,0,0,1,1.7.9Z"/>
+    </g>
+  </g>
+</svg>

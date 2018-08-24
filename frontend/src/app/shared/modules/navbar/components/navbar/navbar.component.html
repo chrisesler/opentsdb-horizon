@@ -1,14 +1,9 @@
 <!-- Navbar Theme -->
 <mat-toolbar fxFlex="1 1 100%">
     <mat-toolbar-row fxLayout fxLayoutAlign="start stretch">
-        <button mat-button class="app-home-link" [matMenuTriggerFor]="topLevelNavigation">
+        <button mat-button class="app-home-link" (click)="toggleSidenav()">
             <img src="/assets/yamas-logo-icon-only.png"  class="app-yamas-logo"/>
         </button>
-        <mat-menu [overlapTrigger]="false" #topLevelNavigation="matMenu">
-            <button mat-menu-item routerLink="main">Landing Page</button>
-            <button mat-menu-item routerLink="dashboard" >Dashboard</button>
-            <button mat-menu-item routerLink="ks/home">Kitchen Sink (dev)</button>
-        </mat-menu>
         <ng-container [cdkPortalOutlet]="cdkService.navbarPortal$ | async"></ng-container>
     </mat-toolbar-row>
 </mat-toolbar>

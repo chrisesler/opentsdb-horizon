@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>chart-bar-vertical-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><rect x="22" y="22" width="4" height="40" rx="2" ry="2" transform="translate(66 18) rotate(90)"/><path d="M14,36H10V20a2,2,0,0,1,2-2h0a2,2,0,0,1,2,2Z"/><path d="M38,36H34V6a2,2,0,0,1,2-2h0a2,2,0,0,1,2,2Z"/><path d="M22,36H18V14a2,2,0,0,1,2-2h0a2,2,0,0,1,2,2Z"/><path d="M30,36H26V23a2,2,0,0,1,2-2h0a2,2,0,0,1,2,2Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>chart-bar-vertical-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M4,42H4a2,2,0,0,1,2-2H42a2,2,0,0,1,2,2h0a2,2,0,0,1-2,2H6A2,2,0,0,1,4,42ZM14,20a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2V36h4ZM38,6a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2V36h4ZM22,14a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2V36h4Zm8,9a2,2,0,0,0-2-2h0a2,2,0,0,0-2,2V36h4Z"/>
+    </g>
+  </g>
+</svg>

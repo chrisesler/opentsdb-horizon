@@ -1,17 +1,37 @@
-
 <div class="presets" #presetsDiv>
-    <h2>Presets</h2>
+    <h2>Presets time range</h2>
     <div class="preset-buttons" fxLayout="row" style="width: 100%;">
         <div class="preset-button" fxFlex="1 1 50px" *ngFor="let preset of presets">
             <!-- preset buttons  -->
-            <button mat-raised-button color="primary" 
+            <button mat-flat-button class="nav-bar-dropmenu time-picker-menu time-preset-button"
                 [matMenuTriggerFor]="presetKeypad" 
-                (click)="togglePreset(preset)" class="nav-bar-dropmenu time-picker-menu"
+                (click)="togglePreset(preset)"
                 [ngClass]="{'is-selected': presetSelected == preset}">
                 {{preset.buttonName}}
             </button>
             <!-- keypad -->
-            <mat-menu [overlapTrigger]="false" #presetKeypad="matMenu" class="preset-picker-menu" [xPosition]="preset.name == 'year' ? 'before' : 'after'">
+            <mat-menu #presetKeypad [overlapTrigger]="false" class="preset-picker-menu">
+                <div class="preset-picker-container">
+                    <keypad (amountSelected)="presetAmountReceived($event)" 
+                            [disableKeysAt9]="preset.name == 'quarter' ? true : false"
+                            [disableKeysAt3]="preset.name == 'year' ? true : false"
+                            [preset]="preset"> 
+                    </keypad>
+                </div>
+            </mat-menu>
+        </div>
+    </div>
+</div>
+<!--<div class="presets-sliding-button">
+    <nav mat-tab-nav-bar class="sliding-button-group">
+        <a mat-tab-link
+            *ngFor="let preset of presets"
+            [active]="presetSelected === preset"
+            (click)="togglePreset(preset)">
+            <button mat-button [matMenuTriggerFor]="presetKeypad">
+                {{preset.buttonName}}
+            </button>
+            <mat-menu #presetKeypad [overlapTrigger]="false" class="preset-picker-menu" [xPosition]="preset.name == 'year' ? 'before' : 'after'">
                 <div class="preset-picker-container">
                     <keypad (amountSelected)="presetAmountReceived($event)" 
                             [disableKeysAt9]="preset.name == 'quarter' ? true : false"
@@ -19,10 +39,60 @@
                     </keypad>
                 </div>
             </mat-menu>
-        </div>
+        </a>
+    </nav>
+</div>-->
+<div class="custom-time-range" fxLayout="column">
+    <h2>Custom Range</h2>
+    <div class="time-ranges" fxLayout="row">
+        <!-- start time -->
+        <dp-date-picker 
+            id="daytimePickerStart"
+            class="start-input"
+            inputLabel="Start Date"
+            #daytimePickerStart="ngModel"
+            #daytimePickerStart
+            [(ngModel)]="startTimeDisplay"
+            [mode]="this.options.formatMode"
+            [disableFutureDates]="options.startFutureTimesDisabled"
+            [placeholder]="options.startTimePlaceholder"
+            [maxDateError]="options.startMaxDateError"
+            [formatError]="options.startDateFormatError"
+            (onChange)="startTimeChanged($event)" 
+            (open)="startCalendarOpened()"
+            (close)="startCalendarClosed()"
+            (onGoToCurrent)="startClockSelected()"
+            (onFocus)="startInputFocused()"
+            (onEnter)="enterKeyedOnInputBox()"
+            style="margin-right: 5px;"
+            >
+        </dp-date-picker>
+        <!-- end time -->
+        <dp-date-picker 
+            id="daytimePickerEnd"
+            class="end-input"
+            inputLabel="End Date"
+            #daytimePickerEnd="ngModel"
+            #daytimePickerEnd
+            [(ngModel)]="endTimeDisplay"
+            [mode]="this.options.formatMode"
+            [disableFutureDates]="options.endFutureTimesDisabled"
+            [placeholder]="options.endTimePlaceholder"
+            [maxDateError]="options.endMaxDateError"
+            [formatError]="options.endDateFormatError"
+            (onChange)="endTimeChanged($event)"
+            (open)="endCalendarOpened()"
+            (close)="endCalendarClosed()"
+            (onGoToCurrent)="endClockSelected()"
+            (onFocus)="endInputFocused()"
+            (onEnter)="enterKeyedOnInputBox()"
+            style="margin-left: 5px;"
+            >
+        </dp-date-picker>
     </div>
 </div>
 
+<!--
 <div class="dtpicker-start">
     <h2>Start Time</h2>
     <dp-date-picker 
@@ -65,7 +135,7 @@
         (onEnter)="enterKeyedOnInputBox()"
         >
     </dp-date-picker>
-</div>
+</div>-->
 
 <div class="dtp-action-controls" *ngIf="showApply">
     <button mat-raised-button class="mat-elevation-z0" color="primary" id="button-apply" (click)="applyClicked()" [disabled]="daytimePickerStart.errors || daytimePickerEnd.errors">Apply</button>

@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WidgetConfigVisualAppearanceComponent } from './widget-config-visual-appearance.component';
 
-describe('WidgetConfigVisualAppearanceComponent', () => {
+describe('BigNumberVisualAppearanceComponent', () => {
   let component: WidgetConfigVisualAppearanceComponent;
   let fixture: ComponentFixture<WidgetConfigVisualAppearanceComponent>;
 

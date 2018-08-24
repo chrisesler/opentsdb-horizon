@@ -35,6 +35,7 @@ import { DateValidator } from '../../types/validator.type';
 import { DayCalendarComponent } from '../day-calendar/day-calendar.component';
 
 @Component({
+    // tslint:disable-next-line:component-selector
     selector: 'dp-day-time-calendar',
     templateUrl: 'day-time-calendar.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -60,15 +61,20 @@ export class DayTimeCalendarComponent implements OnInit, OnChanges, ControlValue
     @Input() displayDate: SingleCalendarValue;
     @Input() minDate: SingleCalendarValue;
     @Input() maxDate: SingleCalendarValue;
-    @HostBinding('class') @Input() theme: string;
+    // @HostBinding('class') @Input() theme: string;
 
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onChange: EventEmitter<IDate> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onGoToCurrent: EventEmitter<void> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onLeftNav: EventEmitter<INavEvent> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onRightNav: EventEmitter<INavEvent> = new EventEmitter();
 
     @ViewChild('dayCalendar') dayCalendarRef: DayCalendarComponent;
 
+    // tslint:disable-next-line:no-inferrable-types
     isInited: boolean = false;
     componentConfig: IDayTimeCalendarConfig;
     _selected: Moment;
@@ -136,7 +142,7 @@ export class DayTimeCalendarComponent implements OnInit, OnChanges, ControlValue
     }
 
     onChangeCallback(_: any) {
-    };
+    }
 
     registerOnTouched(fn: any): void {
     }

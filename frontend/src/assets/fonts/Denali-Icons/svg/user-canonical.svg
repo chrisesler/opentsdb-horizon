@@ -1,1 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>user-canonical</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M44,40H30.08A2.07,2.07,0,0,1,28,38.34,2,2,0,0,1,30,36H42V12H6v2.89A2.07,2.07,0,0,1,4.34,17,2,2,0,0,1,2,15V10A2,2,0,0,1,4,8H44a2,2,0,0,1,2,2V38A2,2,0,0,1,44,40Z"/><path d="M13,34a13.72,13.72,0,0,1,6.9,2H6.1A13.72,13.72,0,0,1,13,34m0-4A17.9,17.9,0,0,0,2,34v4a2,2,0,0,0,2,2H22a2,2,0,0,0,2-2V34a17.9,17.9,0,0,0-11-4Z"/><rect x="24" y="18" width="14" height="4" rx="2" ry="2"/><rect x="24" y="26" width="14" height="4" rx="2" ry="2"/><path d="M13,20a2,2,0,1,1-2,2,2,2,0,0,1,2-2m0-4a6,6,0,1,0,6,6,6,6,0,0,0-6-6Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>user-canonical</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M44,40H32.1A2.1,2.1,0,0,1,30,38.3,2,2,0,0,1,32,36H42V12H6V23.9A2.1,2.1,0,0,1,4.3,26,2,2,0,0,1,2,24V10A2,2,0,0,1,4,8H44a2,2,0,0,1,2,2V38A2,2,0,0,1,44,40Z"/>
+      <path d="M14,32a15.6,15.6,0,0,1,8,2.2V36H6V34.2A15.6,15.6,0,0,1,14,32m0-4A20.5,20.5,0,0,0,2,32v6a2.1,2.1,0,0,0,2.2,2H23.8A2.1,2.1,0,0,0,26,38V32a20.5,20.5,0,0,0-12-4Z"/>
+      <rect x="26" y="16" width="14" height="4" rx="2" ry="2"/>
+      <rect x="26" y="24" width="14" height="4" rx="2" ry="2"/>
+      <path d="M14,18a2,2,0,1,1-2,2,2,2,0,0,1,2-2m0-4a6,6,0,1,0,6,6,6,6,0,0,0-6-6Z"/>
+    </g>
+  </g>
+</svg>

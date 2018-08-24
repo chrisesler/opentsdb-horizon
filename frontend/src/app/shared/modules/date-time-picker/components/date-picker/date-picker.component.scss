@@ -1,22 +1,32 @@
 @mixin date-picker-component-base() {
+    .date-picker-component {
+        position: relative;
 
-    #input-box {
-        height: 28px;
-        width: 210px;
-    }
-    
-    #calendar-icon {
-        min-width: 0px;
-        padding: 1px;
-        margin-left: 4px;
-    }
-    
-    .code {
-        font-weight: bold;
-    }
-    
-    .mat-error {
-      font-size: 9px;
+        #input-box {
+            height: 28px;
+            width: 210px;
+        }
+        
+        #calendar-icon {
+            min-width: 0px;
+            padding: 1px;
+            margin-left: 4px;
+        }
+        
+        .code {
+            font-weight: bold;
+        }
+        
+        .mat-error {
+            font-size: 9px;
+        }
+
+        .calendar-container  {
+            // width: 100%;
+            position: absolute;
+            top: calc(100% - 19px);
+            z-index: 1;
+        }
     }
 }
 

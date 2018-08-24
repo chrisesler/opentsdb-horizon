@@ -60,14 +60,22 @@ export class MonthCalendarComponent implements OnInit, OnChanges, ControlValueAc
     @Input() maxDate: Moment;
     @HostBinding('class') @Input() theme: string;
 
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onSelect: EventEmitter<IMonth> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onNavHeaderBtnClick: EventEmitter<null> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onGoToCurrent: EventEmitter<void> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onLeftNav: EventEmitter<INavEvent> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onRightNav: EventEmitter<INavEvent> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onLeftSecondaryNav: EventEmitter<INavEvent> = new EventEmitter();
+    // tslint:disable-next-line:no-output-on-prefix
     @Output() onRightSecondaryNav: EventEmitter<INavEvent> = new EventEmitter();
 
+    // tslint:disable-next-line:no-inferrable-types
     isInited: boolean = false;
     componentConfig: IMonthCalendarConfigInternal;
     _selected: Moment[];
@@ -76,6 +84,7 @@ export class MonthCalendarComponent implements OnInit, OnChanges, ControlValueAc
     inputValue: CalendarValue;
     inputValueType: ECalendarValue;
     validateFn: DateValidator;
+    // tslint:disable-next-line:no-inferrable-types
     _shouldShowCurrent: boolean = true;
     navLabel: string;
     showLeftNav: boolean;
@@ -307,5 +316,14 @@ export class MonthCalendarComponent implements OnInit, OnChanges, ControlValueAc
                 this._currentDateView = null;
             }
         }
+    }
+
+    monthData(month: IMonth) {
+        console.log('%cMONTH', 'background: lime; color: black; font-weight: bold;', month);
+    }
+
+    isCurrentMonth(month: IMonth): boolean {
+        const check = moment();
+        return check.isSame(month.date, 'month') && check.isSame(month.date, 'year');
     }
 }

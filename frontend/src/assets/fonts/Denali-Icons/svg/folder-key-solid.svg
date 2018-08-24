@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>folder-key-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M44.06,12H27L21,6H3.94A1.94,1.94,0,0,0,2,7.94V40.06A1.94,1.94,0,0,0,3.94,42H44.06A1.94,1.94,0,0,0,46,40.06V13.94A1.94,1.94,0,0,0,44.06,12ZM33.41,34.41l-4,4a2,2,0,0,1-2.82-2.82L29.17,33,28,31.83l-2.59,2.58a2,2,0,1,1-2.82-2.82L25.17,29l-2.84-2.84a7,7,0,1,1,2.83-2.83l8.25,8.26A2,2,0,0,1,33.41,34.41ZM19,17a3,3,0,1,0,3,3A3,3,0,0,0,19,17Z"/><path d="M19,17a3,3,0,1,0,3,3A3,3,0,0,0,19,17Zm0,0a3,3,0,1,0,3,3A3,3,0,0,0,19,17Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>folder-key-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M44,12H27L21,6H4A2,2,0,0,0,2,8V40a2,2,0,0,0,2,2H44a2,2,0,0,0,2-2V14A2,2,0,0,0,44,12ZM37.4,30.7a2,2,0,0,1-.6,1.4,2.5,2.5,0,0,1-1.4.6,2,2,0,0,1-2-2V27H31.7v3.7a2,2,0,0,1-.6,1.4,2,2,0,0,1-1.4.6,2,2,0,0,1-2-2V27h-4A7.5,7.5,0,0,1,22,30,7.1,7.1,0,0,1,12,20a7.2,7.2,0,0,1,10,0,7.5,7.5,0,0,1,1.7,3H35.4a2,2,0,0,1,2,2ZM14.9,22.9a3,3,0,1,0,4.2,4.2,3,3,0,0,0-4.2-4.2Z"/>
+    </g>
+  </g>
+</svg>

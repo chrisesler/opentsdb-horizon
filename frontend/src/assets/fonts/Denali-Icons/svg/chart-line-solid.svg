@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>chart-line-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M42,40H8V6A2,2,0,0,0,4,6V44H42a2,2,0,0,0,0-4Z"/><path d="M44.36,9.53a2,2,0,0,0-2.83.11L28.82,23.24l-7.94-7.95L4.65,31.51a2.07,2.07,0,0,0-.3,2.65,2,2,0,0,0,3.05.25L21.12,20.7l8.06,8.05L44.47,12.36A2,2,0,0,0,44.36,9.53Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>chart-line-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M21.1,20.7l8.1,8L44.5,12.4a2.1,2.1,0,0,0-.1-2.9,2.1,2.1,0,0,0-2.9.1L28.8,23.2l-7.9-7.9L8,28.2V6A2,2,0,0,0,4,6V44H42a2,2,0,0,0,0-4H8V33.8Z"/>
+    </g>
+  </g>
+</svg>

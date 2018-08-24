@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><style>.cls-1{fill:none;}</style></defs><title>swap-horizontal-circle-solid</title><g id="Layer_2" data-name="Layer 2"><g id="invisible_box" data-name="invisible box"><rect class="cls-1" width="48" height="48"/></g><g id="Layer_3" data-name="Layer 3"><path d="M24,2A22,22,0,1,0,46,24,22,22,0,0,0,24,2ZM11.59,16.58l4.92-4.93a2.07,2.07,0,0,1,2.65-.3,2,2,0,0,1,.25,3.05L17.82,16H33a2,2,0,0,1,0,4H17.82l1.59,1.6a2,2,0,0,1-.25,3,2.07,2.07,0,0,1-2.65-.3l-4.92-4.94A2,2,0,0,1,11.59,16.58ZM36.41,31.42l-4.92,4.93a2.07,2.07,0,0,1-2.65.3,2,2,0,0,1-.25-3L30.18,32H15a2,2,0,0,1,0-4H30.18l-1.59-1.6a2,2,0,0,1,.25-3,2.07,2.07,0,0,1,2.65.3l4.92,4.94A2,2,0,0,1,36.41,31.42Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <title>swap-horizontal-circle-solid</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="invisible_box" data-name="invisible box">
+      <rect width="48" height="48" fill="none"/>
+    </g>
+    <g id="icons_Q2" data-name="icons Q2">
+      <path d="M24,2A22,22,0,1,0,46,24,21.9,21.9,0,0,0,24,2ZM11.6,16.6l4.9-5a2.3,2.3,0,0,1,2.7-.3,2,2,0,0,1,.2,3.1L17.8,16H33a2,2,0,0,1,0,4H17.8l1.6,1.6a1.9,1.9,0,0,1-.2,3,2,2,0,0,1-2.7-.3l-4.9-4.9A1.9,1.9,0,0,1,11.6,16.6ZM36.4,31.4l-4.9,4.9a2,2,0,0,1-2.7.3,1.9,1.9,0,0,1-.2-3L30.2,32H15a2,2,0,0,1,0-4H30.2l-1.6-1.6a2,2,0,0,1,.2-3.1,2.3,2.3,0,0,1,2.7.3l4.9,5A1.9,1.9,0,0,1,36.4,31.4Z"/>
+    </g>
+  </g>
+</svg>
