@@ -65,14 +65,14 @@ export class AppComponent implements OnInit {
     }
 
     sidenavMouseover(e: any) {
-        console.log('%cEVENT: Mouse Over', 'color: #fff, background: red; font-weight: bold;', e);
+        console.log('%cEVENT: Mouse Over', 'color: #ffffff, background-color: #ea0000; font-weight: bold;', e);
     }
 
     sidenavMouseout(e: any) {
-        console.log('%cEVENT: Mouse Out', 'color: #fff, background: red; font-weight: bold;', e);
+        console.log('%cEVENT: Mouse Out', 'color: #ffffff, background-color: #ea0000; font-weight: bold;', e);
     }
 
     sidenavMousemove(e: any) {
-        console.log('%cEVENT: Mouse Over', 'color: #fff, background: red; font-weight: bold;', e);
+        console.log('%cEVENT: Mouse Over', 'color: #ffffff, background-color: #ea0000; font-weight: bold;', e);
     }
 }
