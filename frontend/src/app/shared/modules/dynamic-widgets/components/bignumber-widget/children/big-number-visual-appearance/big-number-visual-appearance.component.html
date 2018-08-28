@@ -108,11 +108,6 @@
             <mat-form-field floatLabel="never">
                 <input matInput #captionBox placeholder="{{captionPlaceholder}}" value="{{selectedMetric.configuration.bigNum.caption}}" (keyup)="KeyedOnCaptionInputBox(captionBox.value)">
             </mat-form-field>
-            <!-- <mat-button-toggle-group #captionGroup="matButtonToggleGroup" [value]="selectedMetric.configuration.bigNum.captionSize" (change)="selectedCaptionSize(captionGroup.value)">
-                <mat-button-toggle value="s">sm</mat-button-toggle>
-                <mat-button-toggle value="m">md</mat-button-toggle>
-                <mat-button-toggle value="l">lg</mat-button-toggle>
-            </mat-button-toggle-group> -->
         </div>
 
         <div class="precision-container">
@@ -132,7 +127,8 @@
                 <mat-button-toggle id="backgroud" mat-button value="background">Background</mat-button-toggle>
             </mat-button-toggle-group>
             <div>
-                <color-picker [overlay]="'false'" (change)="colorChanged($event)" [selectedColor]="colorType == 'text' ? selectedMetric.configuration.bigNum.textColor : selectedMetric.configuration.bigNum.backgroundColor"></color-picker>
+                <color-picker *ngIf="colorType === 'text'"       [pickerMode]="'embedded'" (change)="colorChanged($event)" [selectedColor]="selectedMetric.configuration.bigNum.textColor"></color-picker>
+                <color-picker *ngIf="colorType === 'background'" [pickerMode]="'embedded'" (change)="colorChanged($event)" [selectedColor]="selectedMetric.configuration.bigNum.backgroundColor"></color-picker>
             </div>
         </div>
     </div>

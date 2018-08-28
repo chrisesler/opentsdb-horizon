@@ -133,11 +133,13 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         this.colorType = value;
     }
 
-    colorChanged(color: string) {
-        if (this.colorType === 'text') {
-            this.selectedMetric['configuration']['bigNum']['textColor'] = color['hex'];
-        } else { // background
-            this.selectedMetric['configuration']['bigNum']['backgroundColor'] = color['hex'];
+    colorChanged(color: any) {
+        if (color['hex']) { // make sure there is a hex
+            if (this.colorType === 'text') {
+                this.selectedMetric['configuration']['bigNum']['textColor'] = color['hex'];
+            } else { // background
+                this.selectedMetric['configuration']['bigNum']['backgroundColor'] = color['hex'];
+            }
         }
     }
 

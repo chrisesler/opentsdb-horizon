@@ -76,6 +76,11 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     {text: 'Pink', value: '#FC5AA8'},
     {text: 'White', value: '#FFFFFF'} ];
 
+  // Valid Picker Modes
+  embedded = 'embedded';
+  dropDownNoButton = 'dropDownNoButton';
+  dropDown = 'dropDown';
+
   // tslint:disable:no-inferrable-types
   selectingCustomColor: boolean = false;
   _colorPickerSelectorHeight: number = 136;
@@ -91,7 +96,10 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
   colorSelected(hexColor: string): void {
     this.selectedColor = hexColor;
     this.change.emit(this.hexToColor(hexColor));
-    this.toggle();
+    // if on custom color and we hit a default color, do not switch to default view
+    if (this.pickerMode !== 'embedded') {
+      this.toggle();
+    }
   }
 
   colorToName(hexColor: string): string {
@@ -104,6 +112,16 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     }
     return colorName;
   }
+
+  @Input()
+  // Valid values: dropDown, dropDownNoButton, embedded
+  get pickerMode(): string {
+    return this._pickerMode;
+  }
+  set pickerMode(value: string) {
+    this._pickerMode = value;
+  }
+   _pickerMode: string;
 
   /**
    * Change label of the collection UsedColors
@@ -194,18 +212,21 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     return this._selectedColor;
   }
   set selectedColor(value: string) {
- 
+
     if (this._selectedColor !== value) {
       this.changeDetectorRef.markForCheck();
     }
 
-    if(this.isRgbValid(value)){
+    if (this.isRgbValid(value)) {
       this._selectedColor = this.rgbToHex(value);
     } else {
       this._selectedColor = coerceHexaColor(value) || this.emptyColor;
     }
 
-    this.determineIfCustomColor();
+     // if on embedded view, do not attempt to switch between default and custom
+    if (this.pickerMode !== 'embedded') {
+      this.determineIfCustomColor();
+    }
   }
 
   private _selectedColor: string;
@@ -220,19 +241,8 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
   set isOpen(value: boolean) {
     this._isOpen = coerceBooleanProperty(value);
   }
-  private _isOpen: boolean = false;
+  private _isOpen: boolean;
 
-  /**
-   * Define if the panel will show in overlay or not
-   */
-  @Input()
-  get overlay(): boolean {
-    return this._overlay;
-  }
-  set overlay(value: boolean) {
-    this._overlay = coerceBooleanProperty(value);
-  }
-  private _overlay: boolean = true;
 
   /**
    * Hide the action buttons (cancel/confirm)
@@ -324,6 +334,21 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
       this._selectedColor = '#000000';
     }
 
+    if (!this.pickerMode) {
+      this.pickerMode = this.dropDown;
+    }
+
+    if (this.pickerMode.toLowerCase().trim() === this.embedded.toLowerCase()) {
+      this.pickerMode = this.embedded;
+      this.isOpen = true;
+    } else if (this.pickerMode.toLowerCase().trim() === this.dropDownNoButton.toLowerCase()) {
+      this.pickerMode = this.dropDownNoButton;
+    } else {
+      this.pickerMode = this.dropDown;
+      this.isOpen = false;
+    }
+
+    this.determineIfCustomColor();
     this._tmpSelectedColor = new BehaviorSubject<string>(this._selectedColor);
   }
 
@@ -344,7 +369,7 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
    * Update selected color and emit the change
    */
   private _updateSelectedColor() {
-    if (this._isOpen || !this.overlay) {
+    if (this._isOpen) {
       const tmpSelectedColor = this._tmpSelectedColor.getValue();
       if (this._selectedColor !== tmpSelectedColor) {
         this._selectedColor = tmpSelectedColor;
@@ -379,7 +404,6 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     } else {
       this.cancelSelection();
     }
-    this.clickOut.emit(null);
   }
 
   /**

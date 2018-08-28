@@ -1,4 +1,4 @@
-<div class="cps">
+<div class="cps" [style.height]="heightOfComponent + 'px'">
     <div class="color-picker-selector" height="87px">
         <div #block class="picker-selector"></div>
         <canvas #blockCanvas height="87px" width="156px" id="picker"></canvas>
@@ -21,12 +21,9 @@
     </div>
 
     <!-- Apply and Cancel -->
-    <div class="button-options">
+    <div class="button-options" *ngIf="pickerMode != embedded">
         <button mat-button id="cancel" (click)="userClickedCancel()"> Cancel </button>
         <button mat-button id="apply" (click)="enterKeyedOnInputBox()"> Apply </button>
     </div>
 
-    <!-- <span *ngIf="selectedColor != originalColor" (click)="enterKeyedOnInputBox()">
-        <mat-icon fontSet="denali" fontIcon="d-check-circle"></mat-icon>
-    </span> -->
 </div>

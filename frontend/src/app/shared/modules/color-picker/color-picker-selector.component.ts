@@ -34,6 +34,10 @@ import {
   export class ColorPickerSelectorComponent
     implements AfterViewInit, OnInit, OnChanges, OnDestroy {
 
+    embedded = 'embedded';
+    dropDownNoButton = 'dropDownNoButton';
+    dropDown = 'dropDown';
+
     @HostBinding('class.cp-selector') private _hostClass = true;
 
     /**
@@ -71,6 +75,17 @@ import {
       this._sc = el;
     }
     private _sc: ElementRef;
+
+    // 3 Supported Modes: dropDown, dropDownNoButton, embedded
+    // If using dropDownNoButton, programatically change [isOpen]
+    @Input()
+    get pickerMode(): string {
+      return this._pickerMode;
+    }
+    set pickerMode(value: string) {
+      this._pickerMode = value;
+    }
+     _pickerMode: string;
 
     /**
      * Change height base of the selector
@@ -177,6 +192,11 @@ import {
      */
      originalColor: string;
 
+    /**
+     * Height of component (if embedded or not)
+     */
+    heightOfComponent: number;
+
     constructor(
       private formBuilder: FormBuilder,
       private render: Renderer2,
@@ -185,12 +205,23 @@ import {
 
     ngOnInit() {
       this._tmpSelectedColor = new BehaviorSubject<string>(this._selectedColor);
+      if (this.pickerMode === this.embedded) {
+        this.heightOfComponent = 190;
+      } else {
+        this.heightOfComponent = 212; // has cancel and apply buttons
+      }
+
       this._tmpSelectedColorSub = this._tmpSelectedColor.subscribe(color => {
         if (color !== this._selectedColor && isValidColor(color)) {
           if (this.hexForm.get('hexCode').value !== color) {
             this.hexForm.setValue({ hexCode: color });
           }
-          this.selectedColor = color;
+          // if embedded, immedietly emit new color
+          if (this.pickerMode === this.embedded) {
+            this.changeSelectedColor.emit(coerceHexaColor(color));
+          } else {
+            this.selectedColor = color;
+          }
         }
       });
 
