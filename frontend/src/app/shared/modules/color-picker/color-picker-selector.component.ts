@@ -34,6 +34,10 @@ import {
   export class ColorPickerSelectorComponent
     implements AfterViewInit, OnInit, OnChanges, OnDestroy {
 
+    embedded = 'embedded';
+    dropDownNoButton = 'dropDownNoButton';
+    dropDown = 'dropDown';
+
     @HostBinding('class.cp-selector') private _hostClass = true;
 
     /**
@@ -72,6 +76,17 @@ import {
     }
     private _sc: ElementRef;
 
+    // 3 Supported Modes: dropDown, dropDownNoButton, embedded
+    // If using dropDownNoButton, programatically change [isOpen]
+    @Input()
+    get pickerMode(): string {
+      return this._pickerMode;
+    }
+    set pickerMode(value: string) {
+      this._pickerMode = value;
+    }
+     _pickerMode: string;
+
     /**
      * Change height base of the selector
      */
@@ -85,7 +100,7 @@ import {
     get stripHeight(): number {
       return this._height - 2;
     }
-    private _height: number = 170;
+    private _height: number;
 
     /**
      * Receive selected color from the component
@@ -120,6 +135,11 @@ import {
      * Emit when user entered a color
      */
     @Output() enteredColor = new EventEmitter();
+
+    /**
+     * Emit when user clicked cancel
+     */
+    @Output() clickedCancel = new EventEmitter();
 
     /**
      * RGBA current color
@@ -167,6 +187,16 @@ import {
     rgbKeys = ['R', 'G', 'B'];
     rgbForm: FormGroup;
 
+    /**
+     * Original Color Selcted
+     */
+     originalColor: string;
+
+    /**
+     * Height of component (if embedded or not)
+     */
+    heightOfComponent: number;
+
     constructor(
       private formBuilder: FormBuilder,
       private render: Renderer2,
@@ -175,12 +205,23 @@ import {
 
     ngOnInit() {
       this._tmpSelectedColor = new BehaviorSubject<string>(this._selectedColor);
+      if (this.pickerMode === this.embedded) {
+        this.heightOfComponent = 190;
+      } else {
+        this.heightOfComponent = 212; // has cancel and apply buttons
+      }
+
       this._tmpSelectedColorSub = this._tmpSelectedColor.subscribe(color => {
         if (color !== this._selectedColor && isValidColor(color)) {
           if (this.hexForm.get('hexCode').value !== color) {
             this.hexForm.setValue({ hexCode: color });
           }
-          this.changeSelectedColor.emit(coerceHexaColor(color) || this.emptyColor);
+          // if embedded, immedietly emit new color
+          if (this.pickerMode === this.embedded) {
+            this.changeSelectedColor.emit(coerceHexaColor(color));
+          } else {
+            this.selectedColor = color;
+          }
         }
       });
 
@@ -208,6 +249,9 @@ import {
 
       // watch changes on forms
       this._onChanges();
+
+      // used to determine if apply button should appear
+      this.originalColor = this.selectedColor;
     }
 
     /**
@@ -271,7 +315,8 @@ import {
         this._strip.nativeElement.width,
         this._strip.nativeElement.height
       );
-      const grd1 = this._stripContext.createLinearGradient(0, 0, 0, this._bc.nativeElement.height);
+      // set to width because slider is positioned horizontally
+      const grd1 = this._stripContext.createLinearGradient(0, 0, 0, this._bc.nativeElement.width);
       grd1.addColorStop(0, 'rgba(255, 0, 0, 1)');
       grd1.addColorStop(0.17, 'rgba(255, 255, 0, 1)');
       grd1.addColorStop(0.34, 'rgba(0, 255, 0, 1)');
@@ -445,6 +490,11 @@ import {
     }
 
     enterKeyedOnInputBox() {
-      this.enteredColor.emit();
+      this.originalColor = this.selectedColor;
+      this.changeSelectedColor.emit(coerceHexaColor(this.selectedColor));
+    }
+
+    userClickedCancel() {
+      this.clickedCancel.emit();
     }
   }
