@@ -48,7 +48,7 @@ export class ColorPickerComponent implements OnInit {
 
   /* Inputs */
 
-  // Behavior of the picker. Valid Values: dropDown, dropDownNoButton, embedded
+  // Behavior of when to output newColor. Valid Values: dropDown, dropDownNoButton, embedded.
   @Input() get pickerMode(): string {
     return this._pickerMode;
   }
@@ -58,18 +58,18 @@ export class ColorPickerComponent implements OnInit {
    _pickerMode: string;
 
   // Color to display
-  @Input() get selectedColor(): string {
-    return this._selectedColor;
+  @Input() get color(): string {
+    return this._color;
   }
-  set selectedColor(value: string) {
-    if (this._selectedColor !== value) {
+  set color(value: string) {
+    if (this._color !== value) {
       this.changeDetectorRef.markForCheck();
     }
 
     if (this.isRgbValid(value)) {
-      this._selectedColor = this.rgbToHex(value);
+      this._color = this.rgbToHex(value);
     } else {
-      this._selectedColor = coerceHexaColor(value) || this.emptyColor;
+      this._color = coerceHexaColor(value) || this.emptyColor;
     }
 
     // if on embedded view, do not attempt to switch between default and custom
@@ -77,7 +77,7 @@ export class ColorPickerComponent implements OnInit {
       this.determineIfCustomColor();
     }
   }
-  private _selectedColor: string;
+  private _color: string;
 
   // Should panel be open - use with dropDownNoButton mode
   @Input() get isOpen(): boolean {
@@ -90,11 +90,9 @@ export class ColorPickerComponent implements OnInit {
 
   /* Outputs */
 
-  // Emitted when user changes the selected color (without apply)
-  @Output() change = new EventEmitter();
-
-  // Emitted when selected color is applied
-  @Output() selected = new EventEmitter();
+  // Emits new color. 'Embedded' mode outputs every custom color.
+  // DropDown and DropDownNoButton outputs custom color when apply is clicked.
+  @Output() newColor = new EventEmitter();
 
   DefaultColors: IDefaultColor[] = [
     {text: 'Maroon', value: '#B00013'},
@@ -140,8 +138,8 @@ export class ColorPickerComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (!this._selectedColor) {
-      this._selectedColor = '#000000';
+    if (!this._color) {
+      this._color = '#000000';
     }
 
     if (!this.pickerMode) {
@@ -163,7 +161,7 @@ export class ColorPickerComponent implements OnInit {
 
   /* Picker Behaviors */
   determineIfCustomColor() {
-    this.selectingCustomColor = (this.colorToName(this.selectedColor) === this.selectedColor);
+    this.selectingCustomColor = (this.colorToName(this.color) === this.color);
   }
 
   toggleSelector() {
@@ -171,8 +169,8 @@ export class ColorPickerComponent implements OnInit {
   }
 
   colorSelected(hexColor: string): void {
-    this.selectedColor = hexColor;
-    this.change.emit(this.hexToColor(hexColor));
+    this.color = hexColor;
+    this.newColor.emit(this.hexToColor(hexColor));
     // if on custom color and we hit a default color, do not switch to default view
     if (this.pickerMode !== 'embedded') {
       this.toggle();
@@ -199,13 +197,6 @@ export class ColorPickerComponent implements OnInit {
     this._colorPickerSelectorHeight = height;
   }
 
-  // Update selected color and emit the change
-  private _updateSelectedColor() {
-    if (this._isOpen) {
-        this.selected.emit(this.hexToColor(this._selectedColor));
-    }
-  }
-
   // Open/close color picker panel
   toggle() {
     // if closed, determine if custom color
@@ -213,8 +204,8 @@ export class ColorPickerComponent implements OnInit {
       this.determineIfCustomColor();
     }
     this._isOpen = !this._isOpen;
-    if (!this._isOpen && this._selectedColor !== this.emptyColor) {
-      this.colorPickerService.addColor(this._selectedColor);
+    if (!this._isOpen && this._color !== this.emptyColor) {
+      this.colorPickerService.addColor(this._color);
     }
   }
 
@@ -230,7 +221,7 @@ export class ColorPickerComponent implements OnInit {
 
   // Update selectedColor and close the panel
   confirmSelectedColor() {
-    this._updateSelectedColor();
+    this.newColor.emit(this.hexToColor(this._color));
     this.toggle();
   }
 
