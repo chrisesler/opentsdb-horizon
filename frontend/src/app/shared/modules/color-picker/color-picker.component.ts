@@ -17,9 +17,7 @@ import {
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { EMPTY_COLOR, coerceHexaColor } from './color-picker';
-
 import { ColorPickerService } from './color-picker.service';
-
 import { HostListener, HostBinding } from '@angular/core';
 import { ViewChild } from '@angular/core';
 import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
@@ -45,9 +43,58 @@ interface IColor {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
-export class ColorPickerComponent implements OnInit, OnDestroy {
-
+export class ColorPickerComponent implements OnInit {
   @HostBinding('class.cp') private _hostClass = true;
+
+  /* Inputs */
+
+  // Behavior of the picker. Valid Values: dropDown, dropDownNoButton, embedded
+  @Input() get pickerMode(): string {
+    return this._pickerMode;
+  }
+  set pickerMode(value: string) {
+    this._pickerMode = value;
+  }
+   _pickerMode: string;
+
+  // Color to display
+  @Input() get selectedColor(): string {
+    return this._selectedColor;
+  }
+  set selectedColor(value: string) {
+    if (this._selectedColor !== value) {
+      this.changeDetectorRef.markForCheck();
+    }
+
+    if (this.isRgbValid(value)) {
+      this._selectedColor = this.rgbToHex(value);
+    } else {
+      this._selectedColor = coerceHexaColor(value) || this.emptyColor;
+    }
+
+    // if on embedded view, do not attempt to switch between default and custom
+    if (this.pickerMode !== 'embedded') {
+      this.determineIfCustomColor();
+    }
+  }
+  private _selectedColor: string;
+
+  // Should panel be open - use with dropDownNoButton mode
+  @Input() get isOpen(): boolean {
+    return this._isOpen;
+  }
+  set isOpen(value: boolean) {
+    this._isOpen = coerceBooleanProperty(value);
+  }
+  private _isOpen: boolean;
+
+  /* Outputs */
+
+  // Emitted when user changes the selected color (without apply)
+  @Output() change = new EventEmitter();
+
+  // Emitted when selected color is applied
+  @Output() selected = new EventEmitter();
 
   DefaultColors: IDefaultColor[] = [
     {text: 'Maroon', value: '#B00013'},
@@ -76,7 +123,7 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     {text: 'Pink', value: '#FC5AA8'},
     {text: 'White', value: '#FFFFFF'} ];
 
-  // Valid Picker Modes
+  // Valid picker modes:
   embedded = 'embedded';
   dropDownNoButton = 'dropDownNoButton';
   dropDown = 'dropDown';
@@ -84,243 +131,6 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
   // tslint:disable:no-inferrable-types
   selectingCustomColor: boolean = false;
   _colorPickerSelectorHeight: number = 136;
-
-  determineIfCustomColor() {
-    this.selectingCustomColor = (this.colorToName(this.selectedColor) === this.selectedColor);
-  }
-
-  toggleSelector() {
-    this.selectingCustomColor = !this.selectingCustomColor;
-  }
-
-  colorSelected(hexColor: string): void {
-    this.selectedColor = hexColor;
-    this.change.emit(this.hexToColor(hexColor));
-    // if on custom color and we hit a default color, do not switch to default view
-    if (this.pickerMode !== 'embedded') {
-      this.toggle();
-    }
-  }
-
-  colorToName(hexColor: string): string {
-    let colorName = hexColor;
-    for (let color of this.DefaultColors) {
-      if (color.value === hexColor) {
-        colorName = color.text;
-        break;
-      }
-    }
-    return colorName;
-  }
-
-  @Input()
-  // Valid values: dropDown, dropDownNoButton, embedded
-  get pickerMode(): string {
-    return this._pickerMode;
-  }
-  set pickerMode(value: string) {
-    this._pickerMode = value;
-  }
-   _pickerMode: string;
-
-  /**
-   * Change label of the collection UsedColors
-   */
-  @Input()
-  get usedColorLabel(): string {
-    return this._usedColorLabel;
-  }
-  set usedColorLabel(value: string) {
-    this._usedColorLabel = value;
-  }
-  private _usedColorLabel: string = 'Used Colors';
-
-  /**
-   * Set initial value for used color
-   */
-  @Input()
-  set usedColorStart(colors: string[]) {
-    if (colors && colors.length > 0) {
-      for (const color of colors) {
-        this.colorPickerService.addColor(color);
-      }
-    }
-  }
-
-  /**
-   * Set usedColor to be used in reverse
-   */
-  @Input()
-  set reverseUsedColors(reverse: boolean) {
-    this._reverseUsedColor = coerceBooleanProperty(reverse);
-  }
-  private _reverseUsedColor: boolean = false;
-
-  /**
-   * Hide the hexadecimal color forms.
-   */
-  @Input('hideHexForms')
-  get hideHexForms(): boolean {
-    return this._hideHexForms;
-  }
-  set hideHexForms(value: boolean) {
-    this._hideHexForms = value;
-  }
-  private _hideHexForms: boolean = false;
-
-  /**
-   * Hide empty slots from the collection UsedColors
-   */
-  @Input('hideEmptyUsedColors')
-  get hideEmpty(): boolean {
-    return this._hideEmpty;
-  }
-  set hideEmpty(value: boolean) {
-    this._hideEmpty = coerceBooleanProperty(value);
-  }
-  private _hideEmpty: boolean = false;
-
-  /**
-   * Hide transparent option of UsedColors
-   */
-  @Input('hideTransparentUsedColors')
-  get hideTransparent(): boolean {
-    return this._hideTransparent;
-  }
-  set hideTransparent(value: boolean) {
-    this._hideTransparent = coerceBooleanProperty(value);
-  }
-  private _hideTransparent: boolean = false;
-
-  /**
-   * Hide UsedColors collection
-   */
-  @Input('hideUsedColors')
-  get hideUsedColors(): boolean {
-    return this._hideUsedColors;
-  }
-  set hideUsedColors(value: boolean) {
-    this._hideUsedColors = coerceBooleanProperty(value);
-  }
-  private _hideUsedColors: boolean = false;
-
-  /**
-   * Start with a color selected
-   */
-  @Input()
-  get selectedColor(): string {
-    return this._selectedColor;
-  }
-  set selectedColor(value: string) {
-
-    if (this._selectedColor !== value) {
-      this.changeDetectorRef.markForCheck();
-    }
-
-    if (this.isRgbValid(value)) {
-      this._selectedColor = this.rgbToHex(value);
-    } else {
-      this._selectedColor = coerceHexaColor(value) || this.emptyColor;
-    }
-
-     // if on embedded view, do not attempt to switch between default and custom
-    if (this.pickerMode !== 'embedded') {
-      this.determineIfCustomColor();
-    }
-  }
-
-  private _selectedColor: string;
-
-  /**
-   * Define if the panel will be initiated open
-   */
-  @Input()
-  get isOpen(): boolean {
-    return this._isOpen;
-  }
-  set isOpen(value: boolean) {
-    this._isOpen = coerceBooleanProperty(value);
-  }
-  private _isOpen: boolean;
-
-
-  /**
-   * Hide the action buttons (cancel/confirm)
-   */
-  @Input()
-  get hideButtons(): boolean {
-    return this._hideButtons;
-  }
-  set hideButtons(value: boolean) {
-    this._hideButtons = coerceBooleanProperty(value);
-  }
-  private _hideButtons: boolean = false;
-
-
-  /**
-   * Hide the color picker selector
-   */
-  @Input()
-  get hideColorPickerSelector(): boolean {
-    return this._hideColorPickerSelector;
-  }
-  set hideColorPickerSelector(value: boolean) {
-    this._hideColorPickerSelector = coerceBooleanProperty(value);
-  }
-  private _hideColorPickerSelector: boolean = false;
-
-  /**
-   * Set the size of the used colors
-   */
-  @Input() usedSizeColors: number = 30;
-
-  /**
-   * Change btnCancel label
-   */
-  @Input() btnCancel: string = 'Cancel';
-
-  /**
-   * Change btnConfirm label
-   */
-  @Input() btnConfirm: string = 'Confirm';
-
-  /**
-   * Event emitted when user change the selected color (without confirm)
-   */
-  @Output() change = new EventEmitter();
-
-  /**
-   * Event emitted when selected color is confirm
-   */
-  @Output() selected = new EventEmitter();
-
-  /**
-   * Event emitted when is clicked outside of the component
-   */
-  @Output() clickOut = new EventEmitter();
-
-  /**
-   * Return a Observable with the color the user is picking
-   */
-  get tmpSelectedColor$(): Observable<string> {
-    return this._tmpSelectedColor.asObservable();
-  }
-  private _tmpSelectedColor: BehaviorSubject<string>;
-
-   /**
-   * Define new height for the selector
-   */
-  get colorPickerSelectorHeight(): number {
-    return this._colorPickerSelectorHeight;
-  }
-  set colorPickerSelectorHeight(height: number) {
-    this._colorPickerSelectorHeight = height;
-  }
-
-  /**
-   * Array of subscriptions from the collections
-   */
-  private _collectionSubs: Subscription[] = [];
 
   constructor(
     private elementRef: ElementRef,
@@ -349,42 +159,55 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     }
 
     this.determineIfCustomColor();
-    this._tmpSelectedColor = new BehaviorSubject<string>(this._selectedColor);
   }
 
-  /**
-   * Destroy all subscriptions
-   */
-  ngOnDestroy() {
-    if (this._collectionSubs) {
-      this._collectionSubs.forEach((subscription: Subscription) => {
-        if (subscription && !subscription.closed) {
-          subscription.unsubscribe();
-        }
-      });
+  /* Picker Behaviors */
+  determineIfCustomColor() {
+    this.selectingCustomColor = (this.colorToName(this.selectedColor) === this.selectedColor);
+  }
+
+  toggleSelector() {
+    this.selectingCustomColor = !this.selectingCustomColor;
+  }
+
+  colorSelected(hexColor: string): void {
+    this.selectedColor = hexColor;
+    this.change.emit(this.hexToColor(hexColor));
+    // if on custom color and we hit a default color, do not switch to default view
+    if (this.pickerMode !== 'embedded') {
+      this.toggle();
     }
   }
 
-  /**
-   * Update selected color and emit the change
-   */
-  private _updateSelectedColor() {
-    if (this._isOpen) {
-      const tmpSelectedColor = this._tmpSelectedColor.getValue();
-      if (this._selectedColor !== tmpSelectedColor) {
-        this._selectedColor = tmpSelectedColor;
-        this.selected.next(this._selectedColor);
-      } else {
-        this.selected.emit(this.hexToColor(this._selectedColor));
+  colorToName(hexColor: string): string {
+    let colorName = hexColor;
+    // tslint:disable-next-line:prefer-const
+    for (let color of this.DefaultColors) {
+      if (color.value === hexColor) {
+        colorName = color.text;
+        break;
       }
     }
+    return colorName;
   }
 
-  /**
-   * Open/close color picker panel
-   */
-  toggle() {
+  // Define selector (slider) height
+  get colorPickerSelectorHeight(): number {
+    return this._colorPickerSelectorHeight;
+  }
+  set colorPickerSelectorHeight(height: number) {
+    this._colorPickerSelectorHeight = height;
+  }
 
+  // Update selected color and emit the change
+  private _updateSelectedColor() {
+    if (this._isOpen) {
+        this.selected.emit(this.hexToColor(this._selectedColor));
+    }
+  }
+
+  // Open/close color picker panel
+  toggle() {
     // if closed, determine if custom color
     if (!this._isOpen) {
       this.determineIfCustomColor();
@@ -395,51 +218,28 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Update selected color, close the panel and notify the user
-   */
+  // Update selected color, close the panel and notify the user
   backdropClick(): void {
-    if (this._hideButtons) {
-      this.confirmSelectedColor();
-    } else {
-      this.cancelSelection();
-    }
+    this.cancelSelection();
   }
 
-  /**
-   * Update tmpSelectedColor
-   * @param color string
-   */
-  updateTmpSelectedColor(color: string) {
-    if (color) {
-      this._tmpSelectedColor.next(color);
-      this.change.next(color);
-      if (this._hideButtons) {
-        this._updateSelectedColor();
-      }
-    }
-  }
-
-  /**
-   * Cancel the selection and close the panel
-   */
+  // Cancel the selection and close the panel
   cancelSelection() {
     this.toggle();
   }
 
-  /**
-   * Update selectedColor and close the panel
-   */
+  // Update selectedColor and close the panel
   confirmSelectedColor() {
     this._updateSelectedColor();
     this.toggle();
   }
 
-
   /**
    * Hex and RGB conversions
    */
-
+  // tslint:disable:no-var-keyword
+  // tslint:disable:prefer-const
+  // tslint:disable:no-bitwise
   hexToRgb(hex: string) {
     var bigint = parseInt(hex.substring(1), 16);
     var r = (bigint >> 16) & 255;
@@ -453,43 +253,44 @@ export class ColorPickerComponent implements OnInit, OnDestroy {
     let color = {
       hex: _hex,
       rgb: this.hexToRgb(_hex)
-    }
+    };
     return color;
   }
 
   componentToHex(c): string {
     var hex = c.toString(16);
-    var hexx = hex.length == 1 ? '0' + hex : hex; 
+    var hexx = hex.length === 1 ? '0' + hex : hex;
     return hexx;
   }
 
-   rgbToHexHelper(r: string, g: string, b: string): string {
-     return '#' + this.componentToHex(parseInt(r)) + this.componentToHex(parseInt(g)) + this.componentToHex(parseInt(b));
-   }
+  rgbToHexHelper(r: string, g: string, b: string): string {
+    // tslint:disable-next-line:radix
+    return '#' + this.componentToHex(parseInt(r)) + this.componentToHex(parseInt(g)) + this.componentToHex(parseInt(b));
+  }
 
-   //ex: "20,50,70"
-   rgbToHex(rgb: string){
-     let values: string[] = rgb.split(',');
-     if(this.isRgbValid(rgb)){
+   // ex: "20,50,70"
+  rgbToHex(rgb: string) {
+    let values: string[] = rgb.split(',');
+    if (this.isRgbValid(rgb)) {
       return this.rgbToHexHelper(values[0].trim(), values[1].trim(), values[2].trim());
-     }
     }
-     
-  //ex: "20,50,70"
-  isRgbValid(rgb: string): boolean{
+  }
+
+  // ex: "20,50,70"
+  isRgbValid(rgb: string): boolean {
     let values: string[] = rgb.split(',');
     let isValid: boolean = true;
-    
-    if(values.length != 3){
+
+    if (values.length !== 3) {
       isValid = false;
     } else {
-      for(let value of values){
-        if(parseInt(value, 10) < 0 || parseInt(value, 10) > 255){
+      for (let value of values) {
+        if (parseInt(value, 10) < 0 || parseInt(value, 10) > 255) {
           isValid = false;
           break;
         }
       }
     }
     return isValid;
-    }
+  }
 }
