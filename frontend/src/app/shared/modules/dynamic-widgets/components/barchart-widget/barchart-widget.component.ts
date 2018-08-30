@@ -17,7 +17,7 @@ import { CompilerConfig } from '../../../../../../../node_modules/@angular/compi
 })
 export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
-    @HostBinding('class.linechart-widget') private _componentClass = true;
+    @HostBinding('class.barchart-widget') private _componentClass = true;
 
     @Input() editMode: boolean;
     @Input() widget: WidgetModel;
@@ -81,8 +81,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             if ( message.action === 'resizeWidget' && !this.editMode ) {
                 // we get the size to update the graph size
-                this.width = message.payload.width * this.widget.gridPos.w - 20 + 'px';
-                this.height = message.payload.height * this.widget.gridPos.h - 60 + 'px';
+                this.width = message.payload.width * this.widget.gridPos.w - 30 + 'px';
+                this.height = message.payload.height * this.widget.gridPos.h - 70 + 'px';
             }
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
@@ -124,8 +124,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     updateConfig(message) {
-        console.log("config updated....", message );
         switch ( message.action ) {
+            case 'SetMetaData':
+                this.setMetaData(message.payload.data);
+            case 'SetTimeConfiguration':
+                this.setTimeConfiguration(message.payload.data);
+                break;
             case 'SetVisualization':
                 this.setVisualization( message.payload.gIndex, message.payload.data );
                 break;
@@ -147,6 +151,22 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    setMetaData(config) {
+        this.widget.settings = {...this.widget.settings, ...config};
+    }
+
+    setTimeConfiguration(config) {
+       this.widget.query.settings.time = {
+                                            shiftTime: config.shiftTime,
+                                            overrideRelativeTime: config.overrideRelativeTime,
+                                            downsample: {
+                                                value: config.downsample,
+                                                aggregator: config.aggregator,
+                                                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
+                                                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+                                            }
+                                        };
+    }
 
 
     setAxis( axes ) {

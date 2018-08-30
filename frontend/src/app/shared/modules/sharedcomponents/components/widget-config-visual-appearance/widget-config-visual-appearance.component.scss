@@ -21,6 +21,7 @@
 
         .column:last-child {
             padding-left: 30px;
+            width: calc(100% - 250px);
         }
 
         .display-label {
@@ -45,13 +46,29 @@
             display: block;
             padding: 3px 3px;
         }
+        mat-row, mat-header-row, mat-footer-row {
+            border-bottom-width: 1px;
+        }
         .mat-button-toggle-checked {
             background: #ffffff;
             color: #000000;
         }
+        mat-cell {
+            padding-top: 5px;
+            width:300px;
+        }
 
-        table {
+        mat-row mat-cell:first-child {
+            width:100px;
+            flex: initial;
+        }
+
+        mat-table {
             width: 100%;
+        }
+
+        form {
+            display: block;
         }
     }    
 }

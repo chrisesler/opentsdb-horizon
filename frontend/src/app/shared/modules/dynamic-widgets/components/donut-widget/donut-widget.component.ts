@@ -19,7 +19,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
-    @HostBinding('class.linechart-widget') private _componentClass = true;
+    @HostBinding('class.donutchart-widget') private _componentClass = true;
 
     @Input() editMode: boolean;
     @Input() widget: WidgetModel;

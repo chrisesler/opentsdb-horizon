@@ -17,10 +17,10 @@
 
         <label class="display-label">Bars</label>
         <div *ngFor="let group of widget.query.groups; let index=index " formArrayName="bars">
-                <span>Bar {{ index + 1 }} </span>
+                <span class="cell">Bar {{ index + 1 }} </span>
         
-                <span [formGroupName]="index">
-                    <mat-form-field>
+                <span [formGroupName]="index" class="cell">
+                    <mat-form-field appearance="fill">
                         <input matInput formControlName="label">
                     </mat-form-field>
                 </span>
@@ -35,15 +35,15 @@
         <form [formGroup]="gForms">
             <label class="display-label">Stacks</label>
             <div *ngFor="let stack of widget.query.settings.visual.stacks; let index=index " formArrayName="stacks">
-                    <span>Stack {{ index + 1 }} </span>
+                    <span class="cell">Stack {{ index + 1 }} </span>
             
-                    <span [formGroupName]="index">
-                        <mat-form-field>
+                    <span [formGroupName]="index" class="cell">
+                        <mat-form-field appearance="fill">
                             <input matInput formControlName="label">
                         </mat-form-field>
                     </span>
-                    <span>
-                        <color-picker (newColor)="selectColor($event,index)" [color]="stack.color"></color-picker>
+                    <span class="cell">
+                            <color-picker (newColor)="selectColor($event,index)" [color]="stack.color"></color-picker>
                     </span>
             </div>
         </form>

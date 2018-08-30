@@ -30,7 +30,7 @@
         </mat-tab>
         <mat-tab label="Time Configuration">
             <ng-template matTabContent>
-                <widget-config-time [widget]="widget"></widget-config-time>
+                <widget-config-time [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-time>
             </ng-template>
         </mat-tab>
         <mat-tab label="Axes">
@@ -51,7 +51,7 @@
         </mat-tab>
         <mat-tab label="Meta Data">
                 <ng-template matTabContent>
-                    <widget-config-general [widget]="widget"></widget-config-general>
+                    <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
                 </ng-template>
             </mat-tab>
         <mat-tab>

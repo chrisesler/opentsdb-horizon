@@ -15,24 +15,24 @@
     </mat-button-toggle-group>
 </div>
 <div class="column">
+    <div>
+        <label class="display-label">Bars</label>
+    </div>
     <form [formGroup]="gForms">
     <mat-table *ngFor="let ds of dataSources; let gIndex=index" [dataSource]="ds" [formArrayName]="gIndex">
         <ng-container cdkColumnDef="metric">
-            <mat-header-cell *cdkHeaderCellDef> Time Series </mat-header-cell>
-            <mat-cell *cdkCellDef="let row"> {{ row.metric }} </mat-cell>
+            <mat-cell *cdkCellDef="let row; let index=index">   Bar {{ index+1 }} </mat-cell>
         </ng-container>
 
         <ng-container cdkColumnDef="settings.visual.stackLabel">
-                <mat-header-cell *cdkHeaderCellDef> Alias </mat-header-cell>
                 <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                    <mat-form-field>
+                    <mat-form-field appearance="fill">
                         <input matInput placeholder="Alias" formControlName="stackLabel">
                     </mat-form-field>
                 </mat-cell>
         </ng-container>
 
         <ng-container cdkColumnDef="settings.visual.color">
-            <mat-header-cell *cdkHeaderCellDef> Color </mat-header-cell>
             <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
                 <color-picker  (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
             </mat-cell>
@@ -60,7 +60,6 @@
         </ng-container>
         -->
             <!-- Header and Row Declarations -->
-            <mat-header-row *cdkHeaderRowDef="['metric','settings.visual.stackLabel', 'settings.visual.color' ]"></mat-header-row>
             <mat-row *cdkRowDef="let row;  columns: ['metric','settings.visual.stackLabel','settings.visual.color']"></mat-row>
 
     </mat-table>
