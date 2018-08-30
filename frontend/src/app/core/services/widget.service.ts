@@ -3,6 +3,7 @@ import {
     PlaceholderWidgetComponent,
     LinechartWidgetComponent,
     BarchartWidgetComponent,
+    StackedBarchartWidgetComponent,
     DonutWidgetComponent,
     DeveloperWidgetComponent,
     BignumberWidgetComponent
@@ -20,6 +21,8 @@ export class WidgetService {
                 return LinechartWidgetComponent;
             case 'BarchartWidgetComponent':
                 return BarchartWidgetComponent;
+            case 'StackedBarchartWidgetComponent':
+                return StackedBarchartWidgetComponent;
             case 'DonutWidgetComponent':
                 return DonutWidgetComponent;
             case 'DeveloperWidgetComponent':

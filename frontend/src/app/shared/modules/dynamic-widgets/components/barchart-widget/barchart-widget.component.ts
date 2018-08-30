@@ -28,7 +28,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     // tslint:disable-next-line:no-inferrable-types
     private isDataLoaded: boolean = false;
     // tslint:disable-next-line:no-inferrable-types
-    isStackedGraph: boolean = true;
+    isStackedGraph: boolean = false;
     // properties to pass to  chartjs chart directive
 
     type = 'bar';
@@ -68,10 +68,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     ) { }
 
     ngOnInit() {
-        this.direction$ = new BehaviorSubject(this.widget.query.settings.visualization.direction || 'vertical');
+        this.direction$ = new BehaviorSubject(this.widget.query.settings.visual.direction || 'vertical');
 
         this.directionSub = this.direction$.subscribe( direction => {
-            this.widget.query.settings.visualization.direction = direction;
+            this.widget.query.settings.visual.direction = direction;
             this.options.scales.yAxes[0] = direction === 'vertical' ? this. valueAxis : this.categoryAxis;
             this.options.scales.xAxes[0] = direction === 'vertical' ? this.categoryAxis : this.valueAxis;
             this.type = direction === 'vertical' ? 'bar' : 'horizontalBar';
@@ -234,7 +234,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     setStackedBarLabels(gConfigs) {
         let labels = [];
         gConfigs.forEach( (config, i ) => {
-            this.widget.query.groups[i].settings.visualization.label = config.label;
+            this.widget.query.groups[i].settings.visual.label = config.label;
             labels.push( config.label);
         });
         this.options.labels = labels;
@@ -243,8 +243,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     setStackedStackVisuals(configs) {
-        this.widget.query.settings.visualization.stacks = configs;
-        this.widget.query.settings.visualization.stacks.forEach((config, i) => {
+        this.widget.query.settings.visual.stacks = configs;
+        this.widget.query.settings.visual.stacks.forEach((config, i) => {
             this.data[i].label = config.label;
             this.data[i].backgroundColor = config.color;
         });
@@ -265,4 +265,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.directionSub.unsubscribe();
     }
+}
+
+export class StackedBarchartWidgetComponent extends BarchartWidgetComponent  {
+    @Input() editMode: boolean;
+    @Input() widget: WidgetModel;
+    isStackedGraph = true;
 }

@@ -34,7 +34,7 @@
         <ng-container cdkColumnDef="settings.visual.color">
             <mat-header-cell *cdkHeaderCellDef> Color </mat-header-cell>
             <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                <color-picker [overlay]="'true'" (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
+                <color-picker  (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
             </mat-cell>
         </ng-container>
         <!--

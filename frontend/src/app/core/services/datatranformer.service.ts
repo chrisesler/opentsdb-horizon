@@ -96,8 +96,8 @@ export class DatatranformerService {
         options.scales.xAxes[0].stacked = stacked;
         options.scales.yAxes[0].stacked = stacked;
 
-        if ( stacked && wSettings.visualization ) {
-            const stacks = wSettings.visualization.stacks;
+        if ( stacked && wSettings.visual ) {
+            const stacks = wSettings.visual.stacks;
             for ( let i = 0; i < stacks.length; i++ ) {
                 /*
                 options.stackSeries[stacks[i].label] =  {
@@ -109,7 +109,7 @@ export class DatatranformerService {
                 datasets.push( { data: Array(nGroups).fill(null), backgroundColor: stacks[i].color, label: stacks[i].label } );
             }
             for ( let i = 0; i < nGroups; i++ ) {
-                const label = config.groups[i].settings.visualization.label;
+                const label = config.groups[i].settings.visual.label;
                 if ( !options.labels.includes(label) ) {
                     options.labels.push(label);
                 }
@@ -150,7 +150,7 @@ export class DatatranformerService {
                   }
               }
               //const label = stacked ? gSettings.visualization.label : mConfigs[i].settings.visual.stackLabel;
-              const index = stacked ? options.labels.indexOf(gConfig.settings.visualization.label) : metrics.indexOf(metric);
+              const index = stacked ? options.labels.indexOf(gConfig.settings.visual.label) : metrics.indexOf(metric);
               //console.log(JSON.stringify(metrics), metric, index);
               //console.log("mconfig", metric, mConfig)
               const dsIndex = stacked ? mConfig.settings.visual.stack : 0;

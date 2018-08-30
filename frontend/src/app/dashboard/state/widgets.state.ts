@@ -50,7 +50,7 @@ export interface WidgetModel {
         groups: any[];
         settings?: {
             time?: {};
-            visualization?: {
+            visual?: {
                 direction?: string;
                 stacks?: StackConfig[];
             };

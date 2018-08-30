@@ -48,7 +48,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
         });
 
         // handles horizontal or vertical switch
-        this.displayControl = new FormControl(this.widget.query.settings.visualization.direction || 'vertical');
+        this.displayControl = new FormControl(this.widget.query.settings.visual.direction || 'vertical');
 
         this.displayControl.valueChanges.subscribe( d => {
             console.log("display changed", d );
