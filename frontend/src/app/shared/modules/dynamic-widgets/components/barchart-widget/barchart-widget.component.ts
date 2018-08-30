@@ -4,12 +4,16 @@ import { DatatranformerService } from '../../../../../core/services/datatranform
 import { UtilsService } from '../../../../../core/services/utils.service';
 
 import { Subscription } from 'rxjs/Subscription';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
+import { isNumber } from 'util';
+import { CompilerConfig } from '../../../../../../../node_modules/@angular/compiler';
+
 
 @Component({
   selector: 'app-barchart-widget',
   templateUrl: './barchart-widget.component.html',
-  styleUrls: ['./barchart-widget.component.scss']
+  styleUrls: ['./barchart-widget.component.scss'],
 })
 export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
@@ -24,28 +28,34 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     // tslint:disable-next-line:no-inferrable-types
     private isDataLoaded: boolean = false;
     // tslint:disable-next-line:no-inferrable-types
-    private isStackedGraph: boolean = true;
+    isStackedGraph: boolean = true;
     // properties to pass to  chartjs chart directive
+
+    type = 'bar';
+    direction$: BehaviorSubject<string>;
+    directionSub: Subscription;
+
+    categoryAxis: any = {
+        type: 'category'
+    };
+
+    valueAxis: any = {
+        ticks: {
+            beginAtZero: true
+        },
+        type: 'linear'
+    };
 
     options: any  = {
         scales: {
-            yAxes : [
-                {
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }
-            ],
-            xAxes : [
-                {
-                    type: 'category'
-                }
-            ]
+            yAxes : [],
+            xAxes : []
         },
         // not part of chartjs config. this config will be used for bar, doughnut and pie charts
         labels : [ ],
         // contains stack series details like label, color, datasetIndex
-        stackSeries : []
+        stackSeries : {},
+
     };
     data: any = [ ];
     width = '100%';
@@ -58,9 +68,18 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     ) { }
 
     ngOnInit() {
+        this.direction$ = new BehaviorSubject(this.widget.query.settings.visualization.direction || 'vertical');
+
+        this.directionSub = this.direction$.subscribe( direction => {
+            this.widget.query.settings.visualization.direction = direction;
+            this.options.scales.yAxes[0] = direction === 'vertical' ? this. valueAxis : this.categoryAxis;
+            this.options.scales.xAxes[0] = direction === 'vertical' ? this.categoryAxis : this.valueAxis;
+            this.type = direction === 'vertical' ? 'bar' : 'horizontalBar';
+        });
+
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            if ( message.action === 'resizeWidget' ) {
+            if ( message.action === 'resizeWidget' && !this.editMode ) {
                 // we get the size to update the graph size
                 this.width = message.payload.width * this.widget.gridPos.w - 20 + 'px';
                 this.height = message.payload.height * this.widget.gridPos.h - 60 + 'px';
@@ -70,21 +89,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                     case 'updatedWidgetGroup':
                         console.log('updateWidget', message);
                             this.isDataLoaded = true;
-                            const gid = Object.keys(message.payload)[0];
-                            const stacked = this.widget.query.groups.length > 1 ? true : false;
-                            const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-                            console.log('bar widget==>', config.queries, gid , message);
-                            this.data = this.dataTransformer.yamasToChartJS('bar', this.options, config.queries, this.data, message.payload, stacked);
-                        break;
-                    case 'viewEditWidgetMode':
-                        console.log('vieweditwidgetmode', message, this.widget);
-                            this.isDataLoaded = true;
-                            //this.data = this.dataTransformer.yamasToChartJS('bar', this.options, message.payload.rawdata);
-                            // resize
-                            let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
-                            let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
-                            this.width = nWidth - 20 + 'px';
-                            this.height = nHeight - 60 + 'px';
+                            //const gid = Object.keys(message.payload)[0];
+                            //const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+                            //config.wSettings = this.widget.query.settings;
+                            //console.log('bar widget==>', config.queries, gid , message);
+                            this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget.query, this.data, message.payload, this.isStackedGraph);
                         break;
                 }
             }
@@ -104,12 +113,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     ngOnChanges(changes: SimpleChanges) {
     }
 
-    ngOnDestroy() {
-        if (this.listenSub) {
-            this.listenSub.unsubscribe();
-        }
-    }
-
     requestData() {
         if (!this.isDataLoaded) {
             this.interCom.requestSend({
@@ -120,10 +123,146 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    updateConfig(message) {
+        console.log("config updated....", message );
+        switch ( message.action ) {
+            case 'SetVisualization':
+                this.setVisualization( message.payload.gIndex, message.payload.data );
+                break;
+            case 'SetAlerts':
+                this.setAlerts(message.payload.data);
+                break;
+            case 'SetAxes' :
+                this.setAxis(message.payload.data);
+                break;
+            case 'ChangeVisualization':
+                this.direction$.next(message.payload.type);
+                break;
+            case 'SetStackedBarBarVisuals':
+                this.setStackedBarLabels(message.payload.data);
+                break;
+            case 'SetStackedBarStackVisuals':
+                this.setStackedStackVisuals(message.payload.data);
+                break;
+        }
+    }
+
+
+
+    setAxis( axes ) {
+
+        this.widget.query.settings.axes = { ...this.widget.query.settings.axes, ...axes };
+        const axis = this.valueAxis;
+        const config = this.widget.query.settings.axes.y1;
+        axis.type = config.scale === 'linear' ? 'linear' : 'logarithmic';
+
+        axis.ticks = {};
+
+        if ( !isNaN( config.min ) ) {
+            axis.ticks.min = config.min;
+        }
+        if ( !isNaN( config.max ) ) {
+            axis.ticks.max = config.max;
+        }
+        const label = config.label.trim();
+        axis.scaleLabel = label ? { labelString: label, display: true } : {};
+
+        if ( config.decimals || config.unit  ) {
+            axis.ticks.format = { unit: config.unit, precision: config.decimals, unitDisplay: true };
+        }
+
+        this.options = {...this.options};
+    }
+
+    setVisualization( gIndex, configs ) {
+
+        configs.forEach( (config, i) => {
+            this.widget.query.groups[gIndex].queries[i].settings.visual = { ...this.widget.query.groups[gIndex].queries[i].settings.visual, ...config };
+        });
+
+        const labels = [];
+        const colors = [];
+        const mConfigs = this.widget.query.groups[0].queries;
+        for ( let i = 0; i < mConfigs.length; i++ ) {
+            const vConfig = mConfigs[i].settings.visual;
+            let label = vConfig.stackLabel.length ? vConfig.stackLabel : mConfigs[i].metric;
+            label = label.length <= 20 ? label : label.substr(0, 17) + '..';
+            const color = vConfig.color;
+            labels.push( label );
+            colors.push(color);
+        }
+        this.options.labels = labels;
+        this.options = {...this.options};
+        this.data[0] = { ...this.data[0], ...{'backgroundColor': colors } };
+    }
+
+    setAlerts(thresholds) {
+        console.log('thresholds', thresholds);
+        this.widget.query.settings.thresholds = thresholds;
+        this.options.threshold = { thresholds: [] };
+        Object.keys(thresholds).forEach( k => {
+            const threshold = thresholds[k];
+            if ( threshold.value !== '' ) {
+                let lineType;
+                switch ( threshold.lineType ) {
+                    case 'solid':
+                        lineType = [];
+                        break;
+                    case 'dashed':
+                        lineType = [4, 4];
+                        break;
+                    case 'dotted':
+                        lineType = [2, 3];
+                        break;
+                    case 'dot-dashed':
+                        lineType = [4, 4, 2];
+                        break;
+                }
+                const o = {
+                    value: threshold.value,
+                    scaleId: 'y-axis-0',
+                    borderColor: threshold.lineColor,
+                    borderWidth: parseInt(threshold.lineWeight, 10),
+                    borderDash: lineType
+                };
+                this.options.threshold.thresholds.push(o);
+            }
+        });
+        this.options = { ...this.options };
+    }
+
+    setStackedBarLabels(gConfigs) {
+        let labels = [];
+        gConfigs.forEach( (config, i ) => {
+            this.widget.query.groups[i].settings.visualization.label = config.label;
+            labels.push( config.label);
+        });
+        this.options.labels = labels;
+        this.options = {...this.options};
+        console.log(this.widget.query.groups);
+    }
+
+    setStackedStackVisuals(configs) {
+        this.widget.query.settings.visualization.stacks = configs;
+        this.widget.query.settings.visualization.stacks.forEach((config, i) => {
+            this.data[i].label = config.label;
+            this.data[i].backgroundColor = config.color;
+        });
+        this.data = [...this.data];
+        console.log("stacks..", this.data);
+    }
+
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
             action: 'closeViewEditMode',
             payload: true
         });
+    }
+
+    ngOnDestroy() {
+        if (this.listenSub) {
+            this.listenSub.unsubscribe();
+        }
+        this.directionSub.unsubscribe();
     }
 }

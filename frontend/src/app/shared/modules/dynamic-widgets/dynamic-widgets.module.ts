@@ -1,6 +1,7 @@
 /** Angular items */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 /** Other modules */
 import { MaterialModule } from '../material/material.module';
@@ -17,10 +18,14 @@ import { BignumberVisualAppearanceComponent } from './components/bignumber-widge
 import { DonutWidgetComponent } from './components/donut-widget/donut-widget.component';
 import { StatusWidgetComponent } from './components/status-widget/status-widget.component';
 import { BarchartWidgetComponent } from './components/barchart-widget/barchart-widget.component';
+import { StackedBarchartVisualAppearanceComponent } from './components/barchart-widget/children/stacked-barchart-visual-appearance/stacked-barchart-visual-appearance.component';
+
 
 @NgModule({
     imports: [
         CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
         MaterialModule,
         DygraphsModule,
         ChartjsModule,
@@ -34,7 +39,8 @@ import { BarchartWidgetComponent } from './components/barchart-widget/barchart-w
         BignumberWidgetComponent,
         BignumberVisualAppearanceComponent,
         DonutWidgetComponent,
-        StatusWidgetComponent
+        StatusWidgetComponent,
+        StackedBarchartVisualAppearanceComponent 
     ],
     declarations: [
         PlaceholderWidgetComponent,
@@ -44,7 +50,8 @@ import { BarchartWidgetComponent } from './components/barchart-widget/barchart-w
         BignumberVisualAppearanceComponent,
         DonutWidgetComponent,
         StatusWidgetComponent,
-        BarchartWidgetComponent
+        BarchartWidgetComponent,
+        StackedBarchartVisualAppearanceComponent
     ],
     entryComponents: [
         PlaceholderWidgetComponent,

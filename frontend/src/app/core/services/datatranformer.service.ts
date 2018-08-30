@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { IDygraphOptions } from '../../shared/modules/dygraphs/IDygraphOptions';
 import { isArray } from 'util';
+import { UtilsService } from './utils.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DatatranformerService {
 
-  constructor() { }
+  constructor(private util: UtilsService ) {  }
 
   // options will also be update of its labels array
   yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): any {  
@@ -59,12 +60,14 @@ export class DatatranformerService {
     return [...normalizedData];
   }
 
-    yamasToChartJS( chartType, options, mConfigs, data, groupData, stacked ) {
+    yamasToChartJS( chartType, options, config, data, groupData, stacked ) {
         switch ( chartType ) {
             case 'bar':
-                return this.getChartJSFormattedDataBar(options, mConfigs, data, groupData, stacked);
+                return this.getChartJSFormattedDataBar(options, config, data, groupData, stacked);
+            case 'horizontalBar':
+                return this.getChartJSFormattedDataBar(options, config, data, groupData, stacked);
             case 'donut':
-                return this.getChartJSFormattedDataDonut(options, mConfigs, data, groupData, stacked);
+                return this.getChartJSFormattedDataDonut(options, config, data, groupData, stacked);
         }
     }
 
@@ -82,38 +85,62 @@ export class DatatranformerService {
      *   So, we are going to generate series for each stack labels.
      */
 
-    getChartJSFormattedDataBar( options, mConfigs, datasets, groupData, stacked ) {
+    getChartJSFormattedDataBar( options, config, datasets, groupData, stacked ) {
       // stack colors
         const colors = [];
+        const metrics = [];
+
+        const nGroups = config.groups.length;
+        const wSettings = config.settings;
 
         options.scales.xAxes[0].stacked = stacked;
         options.scales.yAxes[0].stacked = stacked;
 
-        // generate labels
-        for ( let i = 0; i < mConfigs.length; i++ ) {
-            const vConfig = mConfigs[i].settings.visual;
-            const label = vConfig.stackLabel;
-            const color = vConfig.color;
-            if ( (stacked && !options.stackSeries[label]) ) {
-                options.stackSeries[label] =  { label: label, color: color, datasetIndex: Object.keys(options.stackSeries).length };
-                datasets.push( { data: [], backgroundColor: color, label: label } );
-            } else if ( !stacked && !options.labels.includes(label) ) {
+        if ( stacked && wSettings.visualization ) {
+            const stacks = wSettings.visualization.stacks;
+            for ( let i = 0; i < stacks.length; i++ ) {
+                /*
+                options.stackSeries[stacks[i].label] =  {
+                                                            label: stacks[i].label,
+                                                            color: stacks[i].color,
+                                                            datasetIndex: Object.keys(options.stackSeries).length
+                                                        };
+                */
+                datasets.push( { data: Array(nGroups).fill(null), backgroundColor: stacks[i].color, label: stacks[i].label } );
+            }
+            for ( let i = 0; i < nGroups; i++ ) {
+                const label = config.groups[i].settings.visualization.label;
+                if ( !options.labels.includes(label) ) {
+                    options.labels.push(label);
+                }
+            }
+        } else {
+            const gid = Object.keys(groupData)[0];
+            const gConfig = this.util.getObjectByKey(config.groups, 'id', gid);
+            const mConfigs = gConfig.queries;
+            datasets[0] = {data: [], backgroundColor: []};
+            for ( let i = 0; i < mConfigs.length; i++ ) {
+                const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
+                metrics.push(metric);
+                const vConfig = mConfigs[i].settings.visual;
+                let label = vConfig.stackLabel ? vConfig.stackLabel : metric;
+                const color = vConfig.color;
+                label = label.length <= 20 ? label : label.substr(0, 17) + '..';
                 options.labels.push( label );
+                datasets[0].data.push(null);
+                datasets[0].backgroundColor.push(color);
                 colors.push(color);
             }
         }
 
-        // we want to display bar chart if there is only one group
-        if ( !stacked && !datasets.length ) {
-            datasets.push ( { data: [], backgroundColor: colors } );
-        } else if ( stacked ) {
-            options.labels = options.labels.concat(Object.keys(groupData));
-        }
-
-
+        ///*
         // set dataset values
         for (let gid in groupData ) {
+          const gConfig = this.util.getObjectByKey(config.groups, 'id', gid);
+          const mConfigs = gConfig.queries;
           for ( let i = 0; i < groupData[gid].length; i++ ) {
+              const metric = this.util.getUniqueNameFromMetricConfig(groupData[gid][i]);
+              const mConfig = this.getMetricConfigurationByName(metric, mConfigs);
               const mData: any = groupData[gid][i].dps;
               let sum = 0;
               const n = Object.keys(mData).length;
@@ -122,12 +149,27 @@ export class DatatranformerService {
                       sum += mData[k];
                   }
               }
-              const label = stacked ? gid : mConfigs[i].settings.visual.stackLabel;
-              const dsIndex = stacked ? options.stackSeries[mConfigs[i].settings.visual.stackLabel].datasetIndex : 0;
-              datasets[dsIndex].data.push( { x: label, y: sum }  );
+              //const label = stacked ? gSettings.visualization.label : mConfigs[i].settings.visual.stackLabel;
+              const index = stacked ? options.labels.indexOf(gConfig.settings.visualization.label) : metrics.indexOf(metric);
+              //console.log(JSON.stringify(metrics), metric, index);
+              //console.log("mconfig", metric, mConfig)
+              const dsIndex = stacked ? mConfig.settings.visual.stack : 0;
+              datasets[dsIndex].data[index] = sum;
           }
         }
+        //*/
         return [...datasets];
+    }
+
+    getMetricConfigurationByName( name, configs ) {
+        const config = {};
+        for (let i = 0; i < configs.length; i++ ) {
+            const metric = this.util.getUniqueNameFromMetricConfig(configs[i]);
+            if ( name === metric ) {
+                return configs[i];
+            }
+        }
+        return config;
     }
 
     getChartJSFormattedDataDonut(options, mConfigs, datasets, groupData, stacked) {

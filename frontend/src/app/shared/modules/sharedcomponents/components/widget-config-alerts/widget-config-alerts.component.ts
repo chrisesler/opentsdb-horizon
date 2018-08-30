@@ -1,4 +1,6 @@
-import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, Input, Output, EventEmitter } from '@angular/core';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -6,7 +8,7 @@ import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@an
     templateUrl: './widget-config-alerts.component.html',
     styleUrls: []
 })
-export class WidgetConfigAlertsComponent implements OnInit {
+export class WidgetConfigAlertsComponent implements OnInit, OnDestroy {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.alerts-configuration') private _tabClass = true;
 
@@ -17,10 +19,75 @@ export class WidgetConfigAlertsComponent implements OnInit {
     @Output() widgetChange = new EventEmitter;
 
     /** Local variables */
+    formGroups: any;
+    fgsSubscription: Subscription;
 
-    constructor() { }
+    thresholds: any = [
+        {
+            value: '',
+            lineWeight: '1px',
+            lineType: 'solid',
+            lineColor: '#000000'
+        },
+        {
+            value: '',
+            lineWeight: '1px',
+            lineType: 'solid',
+            lineColor: '#000000'
+        }
+    ];
+
+    constructor(private fb: FormBuilder) { }
 
     ngOnInit() {
+        // populate form controls
+        this.setThresholds(0);
+        this.setThresholds(1);
+        this.createForm();
+    }
+
+
+    createForm() {
+        this.formGroups = this.fb.group({});
+        switch ( this.widget.settings.component_type ) {
+            case 'BarchartWidgetComponent':
+            case 'LinechartWidgetComponent':
+                this.formGroups.addControl(0, this.getThresholdFormGroup(this.thresholds[0]));
+                this.formGroups.addControl(1, this.getThresholdFormGroup(this.thresholds[0]));
+            break;
+        }
+
+        this.fgsSubscription = this.formGroups.valueChanges.subscribe(function(data) {
+            const thresholds = {};
+            Object.keys(data).forEach( k => {
+                thresholds[k] = data[k];
+                thresholds[k].value = this.formGroups.controls[k].controls['value'].valid ? thresholds[k].value : '';
+            });
+            this.widgetChange.emit( { action: 'SetAlerts', payload: { data: thresholds }} );
+        }.bind(this));
+    }
+
+    setThresholds(k) {
+        const wThresholdConfig = this.widget.query.settings.thresholds && this.widget.query.settings.thresholds[k] ? this.widget.query.settings.thresholds[k] : {};
+        this.thresholds[k] = Object.assign(this.thresholds[k], wThresholdConfig);
+    }
+
+    getThresholdFormGroup(threshold) {
+        return this.fb.group({
+            value: new FormControl(threshold.value, [Validators.pattern('^[0-9]*$')]),
+            lineWeight: new FormControl(threshold.lineWeight),
+            lineType: new FormControl(threshold.lineType),
+            lineColor: new FormControl(threshold.lineColor)
+        });
+    }
+
+    selectColor(color, group) {
+        this.formGroups.controls[group].controls['lineColor'].setValue(color.hex);
+    }
+
+    ngOnDestroy() {
+        // destroy any subscriptions
+        this.fgsSubscription.unsubscribe();
     }
 
 }

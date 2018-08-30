@@ -72,4 +72,8 @@ export class UtilsService {
     return inputString;
   }
 
+  getUniqueNameFromMetricConfig(config) {
+    return config.metric;
+  }
+
 }

@@ -103,19 +103,19 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     timeAggregatorOptions: Array<any> = [
         {
             label: 'Sum',
-            value: 'SUM'
+            value: 'sum'
         },
         {
             label: 'Min',
-            value: 'MIN'
+            value: 'min'
         },
         {
             label: 'Max',
-            value: 'MAX'
+            value: 'max'
         },
         {
             label: 'Avg',
-            value: 'AVG'
+            value: 'avg'
         }
     ];
 
@@ -195,6 +195,10 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     constructor(private fb: FormBuilder) { }
 
     ngOnInit() {
+        this.widget.query.settings.time.downsample.aggregator = this.widget.query.settings.time.downsample.aggregator || this.selectedAggregator;
+        this.widget.query.settings.time.downsample.value = this.widget.query.settings.time.downsample.value || this.selectedDownsample;
+        this.widget.query.settings.time.downsample.customNumber = this.widget.query.settings.time.downsample.customValue || 0;
+        this.widget.query.settings.time.downsample.customUnit = this.widget.query.settings.time.downsample.customUnit || this.customDownsampleUnit;
         // populate form controls
         this.createForm();
     }
@@ -224,19 +228,46 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
         // NOTE: exception is 'time preset range', which is not a form control, and sets value on click
 
         // ?INFO: these are mapped to the form variables set at top
+        const isCustomDownsample = this.widget.query.settings.time.downsample.value === 'custom' ? true : false;
         this.widgetConfigTime = this.fb.group({
-            customTimeRangeStart:   new FormControl(),
-            customTimeRangeEnd:     new FormControl(),
-            selectedAggregator:     new FormControl(this.selectedAggregator),
-            selectedDownsample:     new FormControl(this.selectedDownsample),
-            customDownsampleValue:  new FormControl({value: 0, disabled: true}),
-            customDownsampleUnit:   new FormControl({value: 'min', disabled: true}),
-            timeOverTimeNumber:     new FormControl(),
-            timeOverTimePeriod:     new FormControl(),
+            selectedAggregator:     new FormControl(this.widget.query.settings.time.downsample.aggregator),
+            selectedDownsample:     new FormControl(this.widget.query.settings.time.downsample.value),
+            customDownsampleValue:  new FormControl(
+                                                        {
+                                                            value: this.widget.query.settings.time.downsample.customValue,
+                                                            disabled: !isCustomDownsample ? true : false
+                                                        },
+                                                        [ Validators.pattern('^[0-9]*$') ]
+                                                    ),
+            customDownsampleUnit:   new FormControl(
+                                                        {
+                                                            value: this.widget.query.settings.time.downsample.customUnit,
+                                                            disabled: isCustomDownsample ? false : true
+                                                        }),
             overrideRelativeTime:   new FormControl(),
             timeShift:              new FormControl()
         });
+
+        console.log(this.widgetConfigTime,"widgetCpofnigtime..")
+
+        this.widgetConfigTime.valueChanges.subscribe( function(value) {
+            console.log("form value changes", value);
+            if ( this.widgetConfigTime.valid ) {
+                this.widget.query.settings.time.downsample.aggregator = this.widgetConfigTime.selectedAggregator;
+                this.widget.query.settings.time.downsample.value = this.widgetConfigTime.selectedDownsample;
+                this.widget.query.settings.time.downsample.customValue = this.widgetConfigTime.customDownsampleValue;
+                this.widget.query.settings.time.downsample.customUnit = this.widgetConfigTime.customDownsampleUnit;
+
+
+                console.log("passing widget config", this.widget);
+                this.widgetChange.emit(this.widget);
+            }
+        }.bind(this));
     }
+
+
+
+
 
     /**
      * Services

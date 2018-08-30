@@ -30,6 +30,8 @@ import { WidgetConfigVisualAppearanceComponent } from './components/widget-confi
 import { WidgetConfigQueryInspectorComponent } from './components/widget-config-query-inspector/widget-config-query-inspector.component';
 import { WidgetConfigLegendComponent } from './components/widget-config-legend/widget-config-legend.component';
 import { WidgetConfigLegendBigNumberComponent } from './components/widget-config-legend-big-number/widget-config-legend-big-number.component';
+import { DropdownLineWeightComponent } from './components/dropdown-line-weight/dropdown-line-weight.component';
+import { DropdownLineTypeComponent } from './components/dropdown-line-type/dropdown-line-type.component';
 
 
 @NgModule({
@@ -57,7 +59,9 @@ import { WidgetConfigLegendBigNumberComponent } from './components/widget-config
         WidgetConfigLegendBigNumberComponent,
         InlineEditableComponent,
         SimpleTimePickerComponent,
-        ExpressionDialogComponent
+        ExpressionDialogComponent,
+        DropdownLineWeightComponent,
+        DropdownLineTypeComponent
     ],
     exports: [
         SearchMetricsDialogComponent,
@@ -74,7 +78,8 @@ import { WidgetConfigLegendBigNumberComponent } from './components/widget-config
         DateTimePickerModule,
         SimpleTimePickerComponent,
         ColorPickerModule,
-        InlineEditableComponent
+        InlineEditableComponent,
+        DropdownLineWeightComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponent,

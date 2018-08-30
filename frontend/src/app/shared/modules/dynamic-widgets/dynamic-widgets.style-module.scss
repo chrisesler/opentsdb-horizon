@@ -10,6 +10,8 @@
 @import 'components/placeholder-widget/placeholder-widget.component';
 @import 'components/status-widget/status-widget.component';
 @import 'components/bignumber-widget/children/big-number-visual-appearance/big-number-visual-appearance.component';
+@import 'components/barchart-widget/children/stacked-barchart-visual-appearance/stacked-barchart-visual-appearance.component';
+
 
 @mixin dynamic-widgets-module-core() {
     // common
@@ -22,6 +24,7 @@
     @include linechart-widget-component-base();
     @include status-widget-component-base();
     @include placeholder-widget-component-base(); // place holder last please
+    @include stacked-barchart-visual-appearance-component-base();
 
 }
 
@@ -36,4 +39,5 @@
     @include linechart-widget-component-theme($theme-config);
     @include status-widget-component-theme($theme-config);
     @include placeholder-widget-component-theme($theme-config); // place holder last please
+    @include stacked-barchart-visual-appearance-component-theme($theme-config);
 }

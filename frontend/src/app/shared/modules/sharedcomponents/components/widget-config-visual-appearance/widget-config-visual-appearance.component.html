@@ -1,30 +1,68 @@
 <!-- hrm.... material table or use natural table with classes ... think about this -->
-<mat-table [dataSource]="fakeMetrics">
-    <ng-container cdkColumnDef="label">
-        <mat-header-cell *cdkHeaderCellDef> Time Series </mat-header-cell>
-        <mat-cell *cdkCellDef="let row"> {{row.label}} ({{row.configuration.visualAppearance.color}}) </mat-cell>
-    </ng-container>
-    <ng-container cdkColumnDef="configuration.visualAppearance.visualization">
-        <mat-header-cell *cdkHeaderCellDef> Visualization </mat-header-cell>
-        <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.visualization}} </mat-cell>
-    </ng-container>
-    <ng-container cdkColumnDef="configuration.visualAppearance.color">
-        <mat-header-cell *cdkHeaderCellDef> Color </mat-header-cell>
-        <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.color}} </mat-cell>
-    </ng-container>
-    <ng-container cdkColumnDef="configuration.visualAppearance.lineWeight">
-        <mat-header-cell *cdkHeaderCellDef> Line Weight </mat-header-cell>
-        <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.lineWeight}} </mat-cell>
-    </ng-container>
-    <ng-container cdkColumnDef="configuration.visualAppearance.lineType">
-        <mat-header-cell *cdkHeaderCellDef> Line Type </mat-header-cell>
-        <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.lineType}} </mat-cell>
-    </ng-container>
-    <ng-container cdkColumnDef="configuration.visualAppearance.logScale">
-        <mat-header-cell *cdkHeaderCellDef> Log 10 Scale </mat-header-cell>
-        <mat-cell *cdkCellDef="let row"> {{row.configuration.visualAppearance.logScale}} </mat-cell>
-    </ng-container>
-    <!-- Header and Row Declarations -->
-    <mat-header-row *cdkHeaderRowDef="['label', 'configuration.visualAppearance.visualization', 'configuration.visualAppearance.color', 'configuration.visualAppearance.lineWeight', 'configuration.visualAppearance.lineType', 'configuration.visualAppearance.logScale']"></mat-header-row>
-    <mat-row *cdkRowDef="let row; columns: ['label', 'configuration.visualAppearance.visualization', 'configuration.visualAppearance.color', 'configuration.visualAppearance.lineWeight', 'configuration.visualAppearance.lineType', 'configuration.visualAppearance.logScale']"></mat-row>
-</mat-table>
+<div class="column">
+    <div>
+    <label class="display-label">Display</label>
+    </div>
+    <mat-button-toggle-group [formControl]="displayControl" class="display-toggle-group">
+            <mat-button-toggle value="vertical">
+            <mat-icon fontSet="denali" fontIcon="d-chart-bar-vertical"></mat-icon>
+            Vertical
+            </mat-button-toggle>
+            <mat-button-toggle value="horizontal">
+            <mat-icon fontSet="denali" fontIcon="d-chart-bar-horizontal"></mat-icon>
+            Horizontal
+            </mat-button-toggle>
+    </mat-button-toggle-group>
+</div>
+<div class="column">
+    <form [formGroup]="gForms">
+    <mat-table *ngFor="let ds of dataSources; let gIndex=index" [dataSource]="ds" [formArrayName]="gIndex">
+        <ng-container cdkColumnDef="metric">
+            <mat-header-cell *cdkHeaderCellDef> Time Series </mat-header-cell>
+            <mat-cell *cdkCellDef="let row"> {{ row.metric }} </mat-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="settings.visual.stackLabel">
+                <mat-header-cell *cdkHeaderCellDef> Alias </mat-header-cell>
+                <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                    <mat-form-field>
+                        <input matInput placeholder="Alias" formControlName="stackLabel">
+                    </mat-form-field>
+                </mat-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="settings.visual.color">
+            <mat-header-cell *cdkHeaderCellDef> Color </mat-header-cell>
+            <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                <color-picker [overlay]="'true'" (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
+            </mat-cell>
+        </ng-container>
+        <!--
+        <ng-container cdkColumnDef="settings.visual.type">
+                <mat-header-cell *cdkHeaderCellDef> Visualization </mat-header-cell>
+                <mat-cell *cdkCellDef="let row"> {{row.settings.visual.type}} </mat-cell>
+        </ng-container>
+        -->
+        <!--
+        <ng-container cdkColumnDef="settings.visual.lineWeight">
+            <mat-header-cell *cdkHeaderCellDef> Line Weight </mat-header-cell>
+            <mat-cell *cdkCellDef="let row;let i = index"  [formGroupName]="i"> <dropdown-line-weight  formControlName="lineWeight"></dropdown-line-weight></mat-cell>
+        </ng-container>
+        <ng-container cdkColumnDef="settings.visual.lineType">
+            <mat-header-cell *cdkHeaderCellDef> Line Type </mat-header-cell>
+            <mat-cell *cdkCellDef="let row;let i = index"  [formGroupName]="i"> <dropdown-line-type formControlName="lineType"></dropdown-line-type> </mat-cell>
+        </ng-container>
+    -->
+        <!--
+        <ng-container cdkColumnDef="settings.visual.logScale">
+            <mat-header-cell *cdkHeaderCellDef> Log 10 Scale </mat-header-cell>
+            <mat-cell *cdkCellDef="let row"> {{row.settings.visual.logScale}} </mat-cell>
+        </ng-container>
+        -->
+            <!-- Header and Row Declarations -->
+            <mat-header-row *cdkHeaderRowDef="['metric','settings.visual.stackLabel', 'settings.visual.color' ]"></mat-header-row>
+            <mat-row *cdkRowDef="let row;  columns: ['metric','settings.visual.stackLabel','settings.visual.color']"></mat-row>
+
+    </mat-table>
+    </form>
+</div>

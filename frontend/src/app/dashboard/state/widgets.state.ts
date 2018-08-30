@@ -5,12 +5,35 @@ import { WidgetsRawdataState } from './widgets-data.state';
 // we might need to define data model for each group and inner metric obj
 // to put strict on object
 
+export interface Axis {
+    type: string;
+    min: number;
+    max: number;
+    label: string;
+    unit: string;
+    scale: string;
+    decimals: number;
+}
+
+export interface ThresholdConfig {
+    value: number;
+    lineColor: string;
+    lineWeight: string;
+    linePattern: string;
+}
+
+export interface StackConfig {
+    label: string;
+    color: string;
+}
+
 export interface WidgetModel {
     id: string;
     settings: {
         title: string;
         component_type: string;
         data_source?: string;
+        description?: string;
     };
     gridPos: {
         x: number;
@@ -25,7 +48,20 @@ export interface WidgetModel {
         end?: string;
         downsample: string;
         groups: any[];
-    }
+        settings?: {
+            time?: {};
+            visualization?: {
+                direction?: string;
+                stacks?: StackConfig[];
+            };
+            axes?: {
+                x?: Axis;
+                y1?: Axis;
+                y2?: Axis;
+            };
+            thresholds?: ThresholdConfig[];
+        };
+    };
 }
 
 // actions

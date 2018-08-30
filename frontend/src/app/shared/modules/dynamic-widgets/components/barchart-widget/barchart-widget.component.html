@@ -11,7 +11,7 @@
         <div id="container" [style.width]="width" [style.height]="height">
             <canvas id="canvas" 
                 chartjs
-                [chartType]="'bar'"
+                [chartType]="type"
                 [data]="data"
                 [options]="options"
                 ></canvas>
@@ -40,22 +40,18 @@
         </mat-tab>
         <mat-tab label="Axes">
             <ng-template matTabContent>
-                <widget-config-axes [widget]="widget"></widget-config-axes>
+                <widget-config-axes [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-axes>
             </ng-template>
         </mat-tab>
         <mat-tab label="Visual Appearance">
             <ng-template matTabContent>
-                <widget-config-visual-appearance [widget]="widget"></widget-config-visual-appearance>
-            </ng-template>
-        </mat-tab>
-        <mat-tab label="Legend">
-            <ng-template matTabContent>
-                <widget-config-legend [widget]="widget"></widget-config-legend>
+                <widget-config-visual-appearance *ngIf="!isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-visual-appearance>
+                <stacked-barchart-visual-appearance *ngIf="isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></stacked-barchart-visual-appearance>
             </ng-template>
         </mat-tab>
         <mat-tab label="Alerts">
             <ng-template matTabContent>
-                <widget-config-alerts [widget]="widget"></widget-config-alerts>
+                <widget-config-alerts [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-alerts>
             </ng-template>
         </mat-tab>
 

@@ -1,11 +1,13 @@
 <form [formGroup]="widgetConfigTime">
+    <!--
     <div class="column">
         <div class="config-control preset-range-controls">
-            <label class="label">Preset Range</label>
+            <label class="label">Preset Range</label>-->
             <!--<mat-button-toggle-group name="presetRange" [(ngModel)]="selectedTimePreset">
                 <mat-button-toggle *ngFor="let timePreset of timePresetOptions" value="timePreset.value">{{ timePreset.label }}</mat-button-toggle>
             </mat-button-toggle-group>-->
 
+   <!--
             <nav mat-tab-nav-bar class="time-preset-options sliding-button-group">
                 <a mat-tab-link
                     *ngFor="let timePreset of timePresetOptions"
@@ -54,6 +56,7 @@
             </div>
         </div>
     </div>
+    -->
     <div class="column">
         <div class="config-control downsample-controls">
             <label class="label">Downsample</label>
@@ -63,12 +66,15 @@
                     <div class="custom-downsample">
                         <mat-radio-button [value]="'custom'" name="selectedDownsample">Custom</mat-radio-button>
                         <mat-form-field appearance="fill">
-                            <input matInput value="0" formControlName="customDownsampleValue" name="customDownsampleValue">
+                            <input matInput value="0" formControlName="customDownsampleValue">
                         </mat-form-field>
                         <mat-button-toggle-group formControlName="customDownsampleUnit">
                             <mat-button-toggle value="min" name="customDownsampleUnit">Min</mat-button-toggle>
                             <mat-button-toggle value="hrs" name="customDownsampleUnit">Hrs</mat-button-toggle>
                         </mat-button-toggle-group>
+                        <div *ngIf="widgetConfigTime.controls.customDownsampleValue.errors">
+                                <div *ngIf="widgetConfigTime.controls.customDownsampleValue.errors.pattern">Must be an integer.</div>
+                        </div>
                     </div>
                 </mat-radio-group>
                 <!-- just to see if it changed ok
