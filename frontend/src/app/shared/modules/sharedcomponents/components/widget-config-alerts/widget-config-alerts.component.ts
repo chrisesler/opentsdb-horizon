@@ -51,9 +51,10 @@ export class WidgetConfigAlertsComponent implements OnInit, OnDestroy {
         this.formGroups = this.fb.group({});
         switch ( this.widget.settings.component_type ) {
             case 'BarchartWidgetComponent':
+            case 'StackedBarchartWidgetComponent':
             case 'LinechartWidgetComponent':
                 this.formGroups.addControl(0, this.getThresholdFormGroup(this.thresholds[0]));
-                this.formGroups.addControl(1, this.getThresholdFormGroup(this.thresholds[0]));
+                this.formGroups.addControl(1, this.getThresholdFormGroup(this.thresholds[1]));
             break;
         }
 

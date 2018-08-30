@@ -17,7 +17,7 @@ import { BignumberWidgetComponent } from './components/bignumber-widget/bignumbe
 import { BignumberVisualAppearanceComponent } from './components/bignumber-widget/children/big-number-visual-appearance/big-number-visual-appearance.component';
 import { DonutWidgetComponent } from './components/donut-widget/donut-widget.component';
 import { StatusWidgetComponent } from './components/status-widget/status-widget.component';
-import { BarchartWidgetComponent } from './components/barchart-widget/barchart-widget.component';
+import { BarchartWidgetComponent, StackedBarchartWidgetComponent } from './components/barchart-widget/barchart-widget.component';
 import { StackedBarchartVisualAppearanceComponent } from './components/barchart-widget/children/stacked-barchart-visual-appearance/stacked-barchart-visual-appearance.component';
 
 
@@ -35,6 +35,7 @@ import { StackedBarchartVisualAppearanceComponent } from './components/barchart-
         PlaceholderWidgetComponent,
         LinechartWidgetComponent,
         BarchartWidgetComponent,
+        StackedBarchartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         BignumberVisualAppearanceComponent,
@@ -51,12 +52,14 @@ import { StackedBarchartVisualAppearanceComponent } from './components/barchart-
         DonutWidgetComponent,
         StatusWidgetComponent,
         BarchartWidgetComponent,
+        StackedBarchartWidgetComponent,
         StackedBarchartVisualAppearanceComponent
     ],
     entryComponents: [
         PlaceholderWidgetComponent,
         LinechartWidgetComponent,
         BarchartWidgetComponent,
+        StackedBarchartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         BignumberVisualAppearanceComponent,

@@ -25,12 +25,7 @@
         <mat-tab label="Queries" class="test">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent>
-                <widget-config-metric-queries [widget]="widget"></widget-config-metric-queries>
-            </ng-template>
-        </mat-tab>
-        <mat-tab label="General">
-            <ng-template matTabContent>
-                <widget-config-general [widget]="widget"></widget-config-general>
+                <!--<widget-config-metric-queries [widget]="widget"></widget-config-metric-queries>-->
             </ng-template>
         </mat-tab>
         <mat-tab label="Time Configuration">
@@ -54,7 +49,11 @@
                 <widget-config-alerts [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-alerts>
             </ng-template>
         </mat-tab>
-
+        <mat-tab label="Meta Data">
+                <ng-template matTabContent>
+                    <widget-config-general [widget]="widget"></widget-config-general>
+                </ng-template>
+            </mat-tab>
         <mat-tab>
             <!-- custom tab label. (see: https://material.angular.io/components/tabs/overview#labels) -->
             <ng-template mat-tab-label>
