@@ -12,7 +12,11 @@
 
     <span class="flex-spacer"></span>
     <span class="navbar-item nav-add-new-widget" *ngIf="!(viewEditMode)">
-        <button mat-raised-button class="mat-elevation-z0" [matMenuTriggerFor]="dashboardAvailableWidgetsMenu">
+        <button mat-raised-button class="mat-elevation-z0" 
+            [ngClass]="{'menu-trigger-underline': availableWidgetsMenuIsOpen}"
+            [matMenuTriggerFor]="dashboardAvailableWidgetsMenu"
+            (click)="click_availableWidgetsTrigger()"
+            #availableWidgetsMenuTrigger>
             <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
             <span>Add Widget</span>
         </button>
@@ -34,13 +38,26 @@
 
     <!-- <color-picker (selected)="eventTriggered($event)" [selectedColor]="'#000000'" [colorPickerSelectorHeight]="136"> </color-picker>-->
 
+    <span class="navbar-item nav-refresh-icon">
+        <button mat-raised-button (click)="click_refreshDashboard()">
+            <mat-icon fontSet="denali" fontIcon="d-refresh"></mat-icon>
+        </button>
+    </span>
+
     <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="eventTriggered($event)" [xPosition]="menuXAlignValue"></time-picker>
+
+    <span class="navbar-item nav-timezone-toggle">
+        <navbar-timezone-toggle [timezone]="'UTC'"></navbar-timezone-toggle>
+    </span>
 
     <!--<simple-time-picker xPosition="before"></simple-time-picker>-->
     <span class="navbar-item nav-dashboard-actions">
-        <button mat-raised-button class="mat-elevation-z0" [matMenuTriggerFor]="dashboardActionMenu">
+        <button mat-raised-button class="mat-elevation-z0"
+            [ngClass]="{'menu-trigger-underline': actionMenuIsOpen}"
+            [matMenuTriggerFor]="dashboardActionMenu"
+            #actionMenuTrigger>
             <span>Dashboard Actions</span>
-            <mat-icon fontSet="denali" fontIcon="d-arrow-down"></mat-icon>
+            <mat-icon fontSet="denali" fontIcon="d-arrowhead-down"></mat-icon>
         </button>
         <mat-menu #dashboardActionMenu="matMenu" [overlapTrigger]="false" class="nav-bar-dropmenu dashboard-actions-menu" xPosition="before">
             <ng-template matMenuContent>
@@ -60,8 +77,19 @@
         </mat-menu>
     </span>
 
-    <span class="navbar-item nav-theme-picker">
+    <span class="navbar-item navbar-icon-item nav-search-toggle">
+        <navbar-search-toggle mat-button></navbar-search-toggle>
+    </span>
+
+    <span class="navbar-item navbar-icon-item nav-info-menu">
+        <navbar-info-menu mat-button></navbar-info-menu>
+    </span>
+
+    <span class="navbar-item navbar-icon-item nav-theme-picker">
         <theme-picker mat-button></theme-picker>
     </span>
-    
+
+    <span class="navbar-item navbar-icon-item nav-user-menu">
+        <navbar-user-menu mat-button></navbar-user-menu>
+    </span>
 </ng-template>

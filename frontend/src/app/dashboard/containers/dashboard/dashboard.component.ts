@@ -37,8 +37,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
     @Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
+
+    // available widgets menu trigger
+    @ViewChild('availableWidgetsMenuTrigger', {read: MatMenuTrigger}) availableWidgetsMenuTrigger: MatMenuTrigger;
+
+    get availableWidgetsMenuIsOpen(): boolean {
+        if (this.availableWidgetsMenuTrigger) {
+            return this.availableWidgetsMenuTrigger.menuOpen;
+        }
+        return false;
+    }
+
     // dashboard action menu trigger
-    @ViewChild(MatMenuTrigger) actionMenuTrigger: MatMenuTrigger;
+    @ViewChild('actionMenuTrigger', {read: MatMenuTrigger}) actionMenuTrigger: MatMenuTrigger;
+
+    get actionMenuIsOpen(): boolean {
+        if (this.actionMenuTrigger) {
+            return this.actionMenuTrigger.menuOpen;
+        }
+        return false;
+    }
 
     // portal templates
     @ViewChild('dashboardNavbarTmpl') dashboardNavbarTmpl: TemplateRef<any>;
@@ -262,6 +280,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     click_deleteDashboard(event: any) {
         console.log('EVT: DELETE DASHBOARD', event);
+    }
+
+    click_availableWidgetsTrigger() {
+        console.log('EVT: AVAILABLE WIDGETS TRIGGER', this.availableWidgetsMenuTrigger);
+    }
+
+    click_refreshDashboard() {
+        console.log('EVT: REFRESH DASHBOARD');
     }
 
     ngOnDestroy() {
