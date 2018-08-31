@@ -18,10 +18,15 @@
 
 // components
 @import 'components/search-metrics-dialog/search-metrics-dialog.component';
+@import 'components/search-all-dialog/search-all-dialog.component';
 @import 'components/expression-dialog/expression-dialog.component';
 @import 'components/simple-time-picker/simple-time-picker.component';
 @import 'components/theme-picker/theme-picker.component';
 @import 'components/inline-editable/inline-editable.component';
+@import 'components/navbar-user-menu/navbar-user-menu.component';
+@import 'components/navbar-info-menu/navbar-info-menu.component';
+@import 'components/navbar-timezone-toggle/navbar-timezone-toggle.component';
+@import 'components/navbar-search-toggle/navbar-search-toggle.component';
 
 // widget common FIRST
 @import 'components/widget-config.common';
@@ -42,10 +47,15 @@
     // include your core mixins
     // example: @include componentName-component-core();
     @include search-metrics-dialog-component-base();
+    @include search-all-dialog-component-base();
     @include expression-dialog-component-base();
     @include simple-time-picker-component-base();
     @include theme-picker-component-base();
     @include inline-editable-component-base();
+    @include navbar-user-menu-component-base();
+    @include navbar-info-menu-component-base();
+    @include navbar-timezone-toggle-component-base();
+    @include navbar-search-toggle-component-base();
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-base();
@@ -65,10 +75,15 @@
     // include your theme mixins, passing along the $theme-config
     // example: @include componentName-component-theme($theme-config);
     @include search-metrics-dialog-component-theme($theme-config);
+    @include search-all-dialog-component-theme($theme-config);
     @include expression-dialog-component-theme($theme-config);
     @include simple-time-picker-component-theme($theme-config);
     @include theme-picker-component-theme($theme-config);
     @include inline-editable-component-theme($theme-config);
+    @include navbar-user-menu-component-theme($theme-config);
+    @include navbar-user-menu-component-theme($theme-config);
+    @include navbar-timezone-toggle-component-theme($theme-config);
+    @include navbar-search-toggle-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);
