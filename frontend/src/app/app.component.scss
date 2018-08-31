@@ -75,6 +75,7 @@
                 color: map-get($accent, default);
             }
         }
+
     }
 
     .mat-tab-group.mat-primary .mat-ink-bar,
@@ -86,6 +87,7 @@
         border: 1px solid map-get($accent, default);
         background-color: map-get($background, menu); 
     }
+    
 
 
 }
