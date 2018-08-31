@@ -2,15 +2,11 @@
     <div class="mat-calendar-controls">
         <button mat-button class="mat-calendar-period-button" (click)="labelClicked()">
             {{label}}
-            <mat-icon fontSet="denali" fontIcon="d-arrow-down"></mat-icon>
+            <mat-icon fontSet="denali" fontIcon="d-arrowhead-down"></mat-icon>
         </button>
         <div class="mat-calendar-spacer"></div>
-        <button mat-icon-button class="mat-calendar-previous-button" (click)="leftNavClicked()">
-            <mat-icon fontSet="denali" fontIcon="d-arrow-left"></mat-icon>
-        </button>
-        <button mat-icon-button class="mat-calendar-next-button" (click)="rightNavClicked()">
-            <mat-icon fontSet="denali" fontIcon="d-arrow-right"></mat-icon>
-        </button>
+        <button mat-icon-button class="mat-calendar-previous-button" (click)="leftNavClicked()"></button>
+        <button mat-icon-button class="mat-calendar-next-button" (click)="rightNavClicked()"></button>
     </div>
 </div>
 <!--
