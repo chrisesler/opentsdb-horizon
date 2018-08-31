@@ -1,18 +1,12 @@
 <!-- color picker overlay -->
-<ng-container *ngIf="overlay">
+<ng-container *ngIf="pickerMode === dropDown">
     <button mat-raised-button  cdkOverlayOrigin #trigger="cdkOverlayOrigin" (click)="toggle()">
         <span class="btn-picker">
-            <div class="color-sample" [style.background]="selectedColor"></div>
-            <span class="color-hex">{{colorToName(selectedColor)}}</span>
+            <div class="color-sample" [style.background]="color"></div>
+            <span class="color-hex">{{colorToName(color)}}</span>
             <mat-icon fontSet="denali" fontIcon="d-arrow-down"></mat-icon>
         </span>
     </button>
-
-    <!-- <button mat-raised-button>
-        <mat-icon fontSet="denali" fontIcon="d-time"></mat-icon>
-        <span> startTime to endTime</span>
-        <mat-icon fontSet="denali" fontIcon="d-arrow-down"></mat-icon>
-    </button> -->
 
     <ng-template cdkConnectedOverlay 
         cdkConnectedOverlayHasBackdrop 
@@ -28,22 +22,23 @@
 </ng-container>
     
 <!-- color picker flat -->
-<ng-template *ngIf="!overlay" [cdkPortalOutlet]="overlayPanel"></ng-template>
+<ng-template *ngIf="isOpen" [cdkPortalOutlet]="overlayPanel"></ng-template>
 
 <!-- color picker component content -->
 <ng-template cdkPortal #overlayPanel="cdkPortal">
 
-    <div class="card cp">
+    <div class="card cp" [ngClass]="{'mat-elevation-z4' : pickerMode != embedded}" >
 
         <!-- Default Color Selector -->
         <div *ngIf="!selectingCustomColor" >
             <div class="grid-container">
-                <div class="grid-item" *ngFor="let color of DefaultColors" [ngClass]="{'isSelected' : color.value==selectedColor}">
+                <div class="grid-item" *ngFor="let _color of DefaultColors" [ngClass]="{'isSelected' : _color.value==color}">
                     <button
-                        [ngClass]="{'grey-outline' : color.text=='White'}"
+                        mat-button
+                        [ngClass]="{'grey-outline' : _color.text=='White'}"
                         class="default-color-button"    
-                        [style.background-color]="color.value"
-                        (click)="colorSelected(color.value)">
+                        [style.background-color]="_color.value"
+                        (click)="colorSelected(_color.value)">
                     </button>
                 </div>
             </div>
@@ -52,9 +47,10 @@
         <!-- Custom Color Selector -->
         <div *ngIf="selectingCustomColor">
             <color-picker-selector
-                [selectedColor]="selectedColor"
+                [selectedColor]="color"
+                [pickerMode]="pickerMode"
                 (changeSelectedColor)="colorSelected($event)"
-                (enteredColor)="enteredColor($event)"
+                (clickedCancel)="backdropClick()"
                 [height]="colorPickerSelectorHeight"
             >
             </color-picker-selector>
@@ -62,7 +58,7 @@
 
         <div class="toggle">
             <button mat-button *ngIf="!selectingCustomColor" (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Custom Color </button>
-            <button mat-button *ngIf="selectingCustomColor"  (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Default Color </button>
+            <button mat-button *ngIf="selectingCustomColor" id="default-color" (click)="toggleSelector()"> <mat-icon fontSet="denali" fontIcon="d-palette"></mat-icon> Default Color </button>
         </div>
 
     </div>

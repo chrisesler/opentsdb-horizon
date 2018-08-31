@@ -1,82 +1,123 @@
 @mixin color-picker-selector-component-base() {
 
   .cp-selector { 
-    canvas {
-      &#colors {
-        margin: 5px;
+    .cps {
+      canvas {
+        &#colors {
+          margin: 5px;
+          border-radius: 3px;
+        }
+        &:hover {
+          cursor: crosshair;
+        }
+      }
+  
+      .color-picker-selector {
+        position: relative;
+        top: 17px;
+        left: 15px;
+      }
+      
+      .picker-selector { //overlay
+        position: absolute;
+        width: 156px;
+        height: 87px;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        cursor: crosshair;
+        margin-left: 5px;
+      }
+      
+      #picker {
         border-radius: 3px;
       }
-      &:hover {
-        cursor: crosshair;
+  
+      .picker-position { // selector on canvas
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        z-index: 1;
+        border: 1px #ddd solid;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.3);
+        top: -5px;
+        right: 25px;
       }
-    }
+      
+      .colors-position { //color slider
+        width: 110px;
+        margin-top: -88px;
+        // margin-right: -5px; 
+        margin-left: 40px;
+        z-index: 1;
+        background: url('data:image/gif;base64,R0lGODdhHgAIALMAAAAAADU1NTk5OUJCQkpKSlZWVltbW2pqaoCAgP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAkAAAoALAAAAAAeAAgAAAQw0BhFq734yjJm/p8xFEVAeGCqGERACmahgkUrvPH81cFdnjoQy8VBBTOiguSokkQAADs=')
+          no-repeat;
+        transform: rotate(270deg);
+      }
 
-    .color-picker-selector {
-      position: relative;
-      top: 5px;
-      left: 5px;
-    }
-    
-    .picker-selector { //overlay
-      position: absolute;
-      width: 136px;
-      height: 136px;
-      top: 0;
-      left: 0;
-      z-index: 10;
-      cursor: crosshair;
-      margin-left: 5px;
-    }
-    
-    #picker {
-      border-radius: 3px;
-    }
+      .selected-color {
+        width: 146px;
+        position: relative;
+        top: -38px;
 
-    .picker-position { // selector on canvas
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      z-index: 1;
-      border: 1px #ddd solid;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.3);
-      top: -5px;
-      right: 5px;
-    }
+        .color-sample {
+          margin-left: 15px;
+          margin-top: 5px;
+          height: 28px;
+          width: 28px;
+          display: inline-block;
+          vertical-align: middle;
+          border-radius: 3px;
+          margin-right: 3px;
+
+          margin-top: 0px;
+          position: relative;
+          top: -7px;
+        } 
+
+        form {
+          width: 85px;
+          display: inline-block;
+          margin-left: 10px;
+
+          mat-form-field { //for typing in hex
+            width: 115px;
+            height: 12px;
     
-    .colors-position { //color slider
-      margin-top: -110px;
-      margin-right: -5px; 
-      z-index: 1;
-      background: url('data:image/gif;base64,R0lGODdhHgAIALMAAAAAADU1NTk5OUJCQkpKSlZWVltbW2pqaoCAgP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAkAAAoALAAAAAAeAAgAAAQw0BhFq734yjJm/p8xFEVAeGCqGERACmahgkUrvPH81cFdnjoQy8VBBTOiguSokkQAADs=')
-        no-repeat;
-      transform: rotate(270deg);
-    }
+            .mat-input-element {
+              height: 28px;
+              border-radius: 3px;
+              padding-left: 11px;
+            }
     
-    .color-sample {
-      margin-left: 5px;
-      margin-top: 0px;
-      height: 25px;
-      width: 25px;
-      display: inline-block;
-      vertical-align: middle;
-      border-radius: 3px;
-      margin-right: 3px;
+            .mat-form-field-underline {
+              display: none;
+            }
+          }
+        }
+      }
+      
+      .button-options {
+        text-align: right;
+        height: 32px;
+        position: relative;
+        top: -43px;
+  
+        button {
+          padding: 0px;
+          padding-left: 4px;
+          padding-right: 4px;
+          min-width: 16px;
+          line-height: 30px;
+        }
+  
+        #apply {
+          margin-right: 11px;
+          margin-left: 8px;
+        }
+      }
     }  
-  
-    .color-form {
-      width: 100px;
-    }
-  
-    form {
-      display: inline-block;
-      margin-left: 2px;
-    }
-  
-    mat-form-field { //for typing in hex
-      width: 70px;
-      height: 12px;
-    }
   }
 }
 
@@ -91,8 +132,15 @@
   $is-dark: map-get($theme-config, is-dark);
 
   .cp-selector { 
-    input {
-      background: if($is-dark, transparent, #F3F6FE); 
+    .cps {   
+
+      input {
+        background: if($is-dark, transparent, #F3F6FE); 
+      }
+  
+      button {
+        color: map-get($primary, default);
+      }
     }
   }
 }
