@@ -4,8 +4,8 @@ var Promise = require('bluebird');
 var rp = require('request-promise');
 var utils = require('../lib/utils');
 var data = require('../data/udb-10k');
-var es =require('../lib/elasticclient');
-var esclient = new es();
+//var es =require('../lib/elasticclient');
+//var esclient = new es();
 
 router.post('/mSearch', function(req, res, next){
     //rsconsole.log('dssd', req.body, req.body.queryObj);
@@ -20,7 +20,7 @@ router.post('/ns', function(req, res, next){
     //var result = utils.mSearch(data, query);
     res.json(result);
 });
-
+/*
 router.post('/namespaces', function(req, res) {
     //validate mandatatory fields
     if ( undefined === req.body.searchPattern || '' === req.body.searchPattern ) {
@@ -66,5 +66,6 @@ router.post('/metrics', function(req, res) {
     });
 
 });
+*/
 
 module.exports = router;
