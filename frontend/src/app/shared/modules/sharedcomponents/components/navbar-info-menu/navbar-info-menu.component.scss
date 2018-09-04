@@ -1,8 +1,9 @@
-/* THEME-PICKER COMPONENT */
+/* INFO MENU COMPONENT */
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
-@mixin theme-picker-component-base() {
-    .nav-theme-picker {
+@mixin navbar-info-menu-component-base() {
+    
+    .navbar-info-menu {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -14,8 +15,10 @@
         }
     }
 
-    //cdk items
-    .nav-bar-dropmenu.nav-bar-themepicker-menu {
+
+    // cdk items
+    .nav-bar-info-menu.nav-bar-dropmenu {
+
         // arrow
         &::after {
             bottom: calc(100% - 3px);
@@ -32,7 +35,7 @@
     }
 }
 
-@mixin theme-picker-component-theme($theme-config) {
+@mixin navbar-info-menu-component-theme($theme-config) {
 
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
@@ -46,18 +49,12 @@
     //.nav-theme-picker { }
 
     // CDK items are outside of component namespace class - be sure to give them very unique names
-    .nav-bar-dropmenu.nav-bar-themepicker-menu {
+    .nav-bar-info-menu.nav-bar-dropmenu {
 
         // arrow
         &::after {
             border-color: rgba(255, 255, 255, 0);
             border-bottom-color: map-get($background, menu); // actual color of arrow
-        }
-
-        .mat-menu-item.is-active {
-            .mat-icon {
-                color: map-get($accent, A200);
-            }
         }
     }
 

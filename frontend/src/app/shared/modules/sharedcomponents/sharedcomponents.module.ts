@@ -19,6 +19,8 @@ import { ThemePickerComponent } from './components/theme-picker/theme-picker.com
 import { InlineEditableComponent } from './components/inline-editable/inline-editable.component';
 import { SimpleTimePickerComponent } from './components/simple-time-picker/simple-time-picker.component';
 import { ExpressionDialogComponent } from './components/expression-dialog/expression-dialog.component';
+import { NavbarUserMenuComponent } from './components/navbar-user-menu/navbar-user-menu.component';
+import { NavbarInfoMenuComponent } from './components/navbar-info-menu/navbar-info-menu.component';
 
  // widget config components
 import { WidgetConfigAlertsComponent } from './components/widget-config-alerts/widget-config-alerts.component';
@@ -32,6 +34,10 @@ import { WidgetConfigLegendComponent } from './components/widget-config-legend/w
 import { WidgetConfigLegendBigNumberComponent } from './components/widget-config-legend-big-number/widget-config-legend-big-number.component';
 import { DropdownLineWeightComponent } from './components/dropdown-line-weight/dropdown-line-weight.component';
 import { DropdownLineTypeComponent } from './components/dropdown-line-type/dropdown-line-type.component';
+import { NavbarTimezoneToggleComponent } from './components/navbar-timezone-toggle/navbar-timezone-toggle.component';
+import { NavbarSearchToggleComponent } from './components/navbar-search-toggle/navbar-search-toggle.component';
+import { SearchAllDialogComponent } from './components/search-all-dialog/search-all-dialog.component';
+
 
 
 @NgModule({
@@ -61,10 +67,16 @@ import { DropdownLineTypeComponent } from './components/dropdown-line-type/dropd
         SimpleTimePickerComponent,
         ExpressionDialogComponent,
         DropdownLineWeightComponent,
-        DropdownLineTypeComponent
+        DropdownLineTypeComponent,
+        NavbarUserMenuComponent,
+        NavbarInfoMenuComponent,
+        NavbarTimezoneToggleComponent,
+        NavbarSearchToggleComponent,
+        SearchAllDialogComponent
     ],
     exports: [
         SearchMetricsDialogComponent,
+        SearchAllDialogComponent,
         ThemePickerComponent,
         WidgetConfigAlertsComponent,
         WidgetConfigAxesComponent,
@@ -79,10 +91,15 @@ import { DropdownLineTypeComponent } from './components/dropdown-line-type/dropd
         SimpleTimePickerComponent,
         ColorPickerModule,
         InlineEditableComponent,
-        DropdownLineWeightComponent
+        DropdownLineWeightComponent,
+        NavbarUserMenuComponent,
+        NavbarInfoMenuComponent,
+        NavbarTimezoneToggleComponent,
+        NavbarSearchToggleComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponent,
+        SearchAllDialogComponent,
         ExpressionDialogComponent
     ]
 })

@@ -1,21 +1,27 @@
-/* THEME-PICKER COMPONENT */
+/* USER MENU COMPONENT */
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
-@mixin theme-picker-component-base() {
-    .nav-theme-picker {
+@mixin navbar-user-menu-component-base() {
+    
+    .navbar-user-menu {
         display: inline-flex;
-        align-items: center;
-        justify-content: center;
 
-        .mat-icon-button {
+        .mat-mini-fab {
             width: 24px;
             height: 24px;
             line-height: 1;
+
+            .mat-button-wrapper {
+                padding: 0;
+                line-height: 1;
+            }
         }
     }
 
-    //cdk items
-    .nav-bar-dropmenu.nav-bar-themepicker-menu {
+
+    // cdk items
+    .nav-bar-user-menu.nav-bar-dropmenu {
+
         // arrow
         &::after {
             bottom: calc(100% - 3px);
@@ -29,10 +35,23 @@
             border-width: 6px;
             margin-left: -6px;
         }
+
+        .mat-menu-content {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .mat-card {
+            padding: 12px 24px 0;
+        }
+
+        .mat-menu-item.logout-button {
+            text-align: center;
+        }
     }
 }
 
-@mixin theme-picker-component-theme($theme-config) {
+@mixin navbar-user-menu-component-theme($theme-config) {
 
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
@@ -46,7 +65,7 @@
     //.nav-theme-picker { }
 
     // CDK items are outside of component namespace class - be sure to give them very unique names
-    .nav-bar-dropmenu.nav-bar-themepicker-menu {
+    .nav-bar-user-menu.nav-bar-dropmenu {
 
         // arrow
         &::after {
@@ -54,10 +73,9 @@
             border-bottom-color: map-get($background, menu); // actual color of arrow
         }
 
-        .mat-menu-item.is-active {
-            .mat-icon {
-                color: map-get($accent, A200);
-            }
+        .mat-menu-item.logout-button {
+            border-top: 1px solid map-get($foreground, divider);
+            color: map-get($foreground, link);
         }
     }
 

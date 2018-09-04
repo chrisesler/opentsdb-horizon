@@ -1,0 +1,13 @@
+<button mat-icon-button [matMenuTriggerFor]="infoMenu" class="menu-trigger">
+    <!--<mat-icon aria-label="Select Theme">format_color_fill</mat-icon>-->
+    <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+</button>
+<mat-menu #infoMenu="matMenu" [overlapTrigger]="false" [xPosition]="xPosition" class="nav-bar-dropmenu nav-bar-themepicker-menu">
+    <a mat-menu-item>
+        <span>Slack Channel</span>
+    </a>
+    <a mat-menu-item>
+        <span>Jira</span>
+    </a>
+</mat-menu>
+    
