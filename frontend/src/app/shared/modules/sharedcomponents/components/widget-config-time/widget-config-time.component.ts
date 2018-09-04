@@ -38,6 +38,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
 
     // subscriptions
     selectedDownsample_Sub: Subscription; // check formcontrol value change to see if it is 'custom'
+    widgetConfigTimeSub: Subscription;
 
     // form values
     selectedTimePreset: any = '1h';
@@ -103,19 +104,19 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     timeAggregatorOptions: Array<any> = [
         {
             label: 'Sum',
-            value: 'SUM'
+            value: 'sum'
         },
         {
             label: 'Min',
-            value: 'MIN'
+            value: 'min'
         },
         {
             label: 'Max',
-            value: 'MAX'
+            value: 'max'
         },
         {
             label: 'Avg',
-            value: 'AVG'
+            value: 'avg'
         }
     ];
 
@@ -195,14 +196,13 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     constructor(private fb: FormBuilder) { }
 
     ngOnInit() {
-        // populate form controls
         this.createForm();
     }
 
     ngAfterViewInit() {
         // subscribe to value changes to check if 'custom' is checked
         // so we can enable/disable the other custom fields
-        this.selectedDownsample_Sub = this.widgetConfigTime.get('selectedDownsample').valueChanges.subscribe(function(data) {
+        this.selectedDownsample_Sub = this.widgetConfigTime.get('downsample').valueChanges.subscribe(function(data) {
             console.log('SELECTED DOWNSAMPLE CHANGED', data, this);
             if (data === 'custom') {
                 this.widgetConfigTime.controls.customDownsampleValue.enable();
@@ -217,6 +217,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     ngOnDestroy() {
         // destroy our form control subscription
         this.selectedDownsample_Sub.unsubscribe();
+        this.widgetConfigTimeSub.unsubscribe();
     }
 
     createForm() {
@@ -224,19 +225,37 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
         // NOTE: exception is 'time preset range', which is not a form control, and sets value on click
 
         // ?INFO: these are mapped to the form variables set at top
+        const isCustomDownsample = this.widget.query.settings.time.downsample.value === 'custom' ? true : false;
         this.widgetConfigTime = this.fb.group({
-            customTimeRangeStart:   new FormControl(),
-            customTimeRangeEnd:     new FormControl(),
-            selectedAggregator:     new FormControl(this.selectedAggregator),
-            selectedDownsample:     new FormControl(this.selectedDownsample),
-            customDownsampleValue:  new FormControl({value: 0, disabled: true}),
-            customDownsampleUnit:   new FormControl({value: 'min', disabled: true}),
-            timeOverTimeNumber:     new FormControl(),
-            timeOverTimePeriod:     new FormControl(),
-            overrideRelativeTime:   new FormControl(),
-            timeShift:              new FormControl()
+            aggregator:     new FormControl(this.widget.query.settings.time.downsample.aggregator || this.selectedAggregator),
+            downsample:     new FormControl(this.widget.query.settings.time.downsample.value || this.selectedDownsample),
+            customDownsampleValue:  new FormControl(
+                                                        {
+                                                            value: this.widget.query.settings.time.downsample.customValue || 0,
+                                                            disabled: !isCustomDownsample ? true : false
+                                                        },
+                                                        [Validators.min(1), Validators.pattern('^[0-9]+$') ]
+                                                    ),
+            customDownsampleUnit:   new FormControl(
+                                                        {
+                                                            value: this.widget.query.settings.time.downsample.customUnit || this.customDownsampleUnit,
+                                                            disabled: isCustomDownsample ? false : true
+                                                        }),
+            overrideRelativeTime:   new FormControl(this.widget.query.settings.time.overrideRelativeTime),
+            shiftTime:              new FormControl(this.widget.query.settings.time.shiftTime)
         });
+
+
+        this.widgetConfigTimeSub = this.widgetConfigTime.valueChanges.subscribe( function(data) {
+            if ( this.widgetConfigTime.valid ) {
+                this.widgetChange.emit({'action': 'SetTimeConfiguration', payload: { data: data } });
+            }
+        }.bind(this));
     }
+
+
+
+
 
     /**
      * Services

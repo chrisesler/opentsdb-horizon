@@ -1,6 +1,10 @@
 import { OnInit, OnChanges, OnDestroy, Directive,
     Input, Output, EventEmitter, ElementRef, SimpleChanges } from '@angular/core';
 import { Chart } from 'chart.js';
+import * as thresholdPlugin from '../../../chartjs-threshold-plugin';
+import { UnitConverterService } from '../../../../core/services/unit-converter.service';
+
+
 
 @Directive({
   selector: '[chartjs]'
@@ -46,36 +50,77 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
      */
     _meta: any = {};
 
-    constructor(private element: ElementRef) { }
+    constructor( private element: ElementRef, private uConverter: UnitConverterService ) { }
 
     ngOnInit() {
-
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        console.log("chartjs", changes);
         if ( changes ) {
+            console.log("chartjs", changes);
+
             if ( !this.chart && this.data ) {
                 const ctx = this.element.nativeElement.getContext('2d');
                 this.updateDatasets(this.data);
                 this.chart = new Chart(ctx, {
                     type: this.chartType,
+                    plugins:[thresholdPlugin],
                     options: Object.assign(this.defaultOptions, this.options),
                     data: {
                         labels: this.options.labels,
                         datasets: this.data
                     }
                 });
-            } else if ( this.chart && changes.data && changes.data.currentValue ) {
-                const data = changes.data.currentValue;
+                console.log(this.data, this.options, "this.options-1")
+            } else if ( this.chart && ( changes.data  || changes.options ) ) {
                 this.chart.data.datasets = [];
-                this.updateDatasets(data);
-                data.forEach((dataset, i) => {
+                this.updateDatasets(this.data);
+                this.data.forEach((dataset) => {
                     this.chart.data.datasets.push(dataset);
                 });
                 this.chart.data.labels = this.options.labels;
+
+                const self = this;
+                const tickFormatter = function(value) {
+                    if ( this.options.ticks.format ) {
+                        const unit = this.options.ticks.format.unit;
+                        const precision = this.options.ticks.format.precision ? this.options.ticks.format.precision : 0;
+                        return self.uConverter.format(value, { unit: unit, precision: precision } );
+                    } else {
+                        return value;
+                    }
+                };
+
+                if ( this.options.scales ) {
+                    Object.keys(this.options.scales).forEach( k => {
+                        this.options.scales[k].forEach( axis => {
+                            if ( axis.ticks ) {
+                                if ( axis.ticks.format ) {
+                                    axis.ticks.callback = tickFormatter;
+                                } else {
+                                    delete axis.ticks.callback;
+                                }
+                            }
+                        });
+                    });
+                }
                 this.chart.options = Object.assign(this.defaultOptions, this.options);
                 this.chart.update(0);
+                console.log(this.data, this.options, "this.options-2")
+            }  else if ( this.chart && changes.chartType ) {
+                this.chart.destroy();
+                const ctx = this.element.nativeElement.getContext('2d');
+                this.updateDatasets(this.data);
+                this.chart = new Chart(ctx, {
+                    type: this.chartType,
+                    plugins: [thresholdPlugin],
+                    options: Object.assign(this.defaultOptions, this.options),
+                    data: {
+                        labels: this.options.labels,
+                        datasets: this.data
+                    }
+                });
+                console.log("this.options", this.chartType, (this.options), (this.data));
             }
         }
     }
@@ -91,7 +136,6 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
         };
 
         const multiColor = (this.chartType === 'bar' || this.chartType === 'doughnut') && datasets.length === 1 ? true : false;
-
         datasets.forEach((dataset, i) => {
             this.setColor(dataset, multiColor ? dataset.data.length : 1 );
         });

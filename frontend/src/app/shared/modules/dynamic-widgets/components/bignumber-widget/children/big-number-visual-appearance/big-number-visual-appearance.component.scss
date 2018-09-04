@@ -39,23 +39,12 @@
     
             .mat-form-field {
                 width: 200px;
-            }
-            
-            form {
-                display: inline-block;
+                line-height: 16px;
             }
     
             .mat-input-element {
                 padding: 7px;
-                margin-top: 0px;
                 height: 29px;
-            }
-
-            label {
-                &.mat-form-field-label {
-                    padding-top: 10px;
-                    padding-left: 10px;
-                }
             }
 
             //custom look for buttons
@@ -64,14 +53,14 @@
             }
 
             mat-button-toggle-group {
-                top: 1px;
+                top: -1px;
                 padding: 4px;
                 border-radius: 0px;
             }
 
             mat-button-toggle {
                 width: 30px;
-                line-height: 20px;
+                line-height: 21px;
             }
 
             .mat-button-toggle-button {
@@ -85,16 +74,30 @@
                 line-height: 0px;
             }
 
-            //Disable Placeholder
+            mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+            }
+
+            //Placeholder
+            label {
+                &.mat-form-field-label {
+                    padding-top: 6px;
+                    padding-left: 10px;
+                }
+            }
+
             .mat-form-field-infix {
                 border-top: 0 solid transparent !important;
-                padding: 0.7em 0;
             }
+
             .mat-form-field-wrapper {
                 padding-bottom: 0 !important;
             }
+
             .mat-form-field-underline {
-                bottom: 0 !important;
+                bottom: 4px;
             }
         }    
     
@@ -105,8 +108,8 @@
     
         .labels-container > div
             {
-            margin-left:10px;
-            margin-right:10px;   
+            margin-left: 10px;
+            margin-right: 10px;   
             line-height: 30px; 
         }
 
@@ -118,10 +121,31 @@
             
             mat-button-toggle-group {
                 box-shadow: none;
+
+                mat-button-toggle {
+                    height: 32px;
+                }
+                
+                #background {
+                    width: 110px;
+                }
+
+                #background-button {
+                    width: 110px;
+                }
+
+                #text {
+                    width: 78px;
+                }
+
+                #text-button {
+                    width: 78px;
+                }
             }
+
             .card {
                 &.cp{
-                    margin-left: 12px;
+                    // margin-left: 12px;
                     background: transparent;
                 }
             }
@@ -185,7 +209,7 @@
 
         .color-container {
             .mat-button-toggle {
-                border-bottom: 2px solid  transparent;
+                border-bottom: 2px solid transparent;
                 background-color: transparent;
                 color: #18BDED;
                 box-shadow: none;
@@ -193,7 +217,7 @@
 
             .mat-button-toggle-checked {
                 border-bottom: 2px solid  #18BDED;
-                color: darkgray;
+                color: black;
             }
 
             .color-picker-container {

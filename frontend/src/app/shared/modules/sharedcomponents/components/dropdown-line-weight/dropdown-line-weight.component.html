@@ -1,0 +1,10 @@
+<span>
+    <mat-form-field appearance="fill">
+        <mat-select placeholder="Line weight" [formControl]="lineWeightControl">
+            <mat-option *ngFor="let option of lineWeightOptions" [value]="option.value">
+            <span></span>
+            <span>{{ option.label }}</span>
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</span>

@@ -131,6 +131,9 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
                 startWith(''),
                 map(val => this.filterNamespace(val))
             );
+        this.httpService.getMetrics({namespace: 'mail-jedi', searchPattern: 'sys'}).subscribe(res => {
+            console.log('metric results=', res);
+        });
     }
 
     ngOnDestroy() { }

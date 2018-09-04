@@ -27,7 +27,14 @@ export class TimePickerComponent implements AfterViewChecked {
     @ViewChild(TimeRangePickerComponent) timeRangePicker: TimeRangePickerComponent;
 
     // trigger for opening the menu
-    @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
+    @ViewChild('timerangePickerMenuTrigger', {read: MatMenuTrigger}) trigger: MatMenuTrigger;
+
+    get timerangePickerMenuIsOpen(): boolean {
+        if (this.trigger) {
+            return this.trigger.menuOpen;
+        }
+        return false;
+    }
 
     /** Inputs */
     private _startTime: string;

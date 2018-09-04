@@ -72,4 +72,23 @@ export class UtilsService {
     return inputString;
   }
 
+  getUniqueNameFromMetricConfig(config) {
+    return config.metric;
+  }
+
+  getArrayAggregate( aggregate, arr ) {
+    switch ( aggregate.toLowerCase() ) {
+        case 'sum':
+            return arr.reduce((a, b) => !isNaN(b) ? a + b : a, 0);
+        case 'avg':
+            return arr.reduce((a, b) => !isNaN(b) ? a + b : a, 0) / arr.length;
+        case 'min':
+            return Math.min(...arr);
+        case 'max':
+            return Math.max(...arr);
+        default:
+            return null;
+    }
+  }
+
 }

@@ -70,9 +70,9 @@ module.exports = function(Chart) {
      * @param {Object} chart - chart object
      */
 	function draw(chart) {
-        var ctx = chart.options.threshold.draw ? chart.threshold.overlayCanvas.getContext('2d') : chart.ctx;
+        var ctx = chart.options.threshold && chart.options.threshold.draw ? chart.threshold.overlayCanvas.getContext('2d') : chart.ctx;
         var elements = chart.threshold.elements;
-		if ( chart.options.threshold.draw ) {
+		if ( chart.options.threshold.draw && chart.options.threshold.draw ) {
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		}
 		for ( var i in elements ) {
@@ -226,12 +226,13 @@ module.exports = function(Chart) {
 		afterUpdate: function(chart) {
             //unselects any previousely selected lines. this is required when we switch from edit mode
 			clearSelection(chart); 
-			updateConfig(chart);
+            updateConfig(chart);
 			if ( chart.options.threshold && chart.options.threshold.thresholds && !chart.threshold.firstRun ) {
+                chart.threshold.elements = {};
 				var thresholds = chart.options.threshold.thresholds;
 				var width = chart.chartArea.right - chart.chartArea.left;
 				for (var i=0, len=thresholds.length; i<len; i++ ) {
-					var id =  thresholds[i].id || 'line-'+ new Date().getTime();
+					var id =  thresholds[i].id || 'line-'+ i;
 					if ( !chart.threshold.elements[id] ) {
 						thresholds[i].id = id;
 						chart.threshold.elements[id] = new ThresholdLine(chart,chartHelpers.configMerge(lineConfig,thresholds[i]));

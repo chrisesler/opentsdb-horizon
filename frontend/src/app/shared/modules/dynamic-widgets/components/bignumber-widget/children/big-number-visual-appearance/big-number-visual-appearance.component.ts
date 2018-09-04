@@ -35,6 +35,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     currencyUnits: Array<string> = ['usd'];
     otherUnits: Array<string> = ['auto'];
 
+    captionPlaceholder: string = 'Enter Caption {{tag.key}}';
     prefixDisabled: boolean = true;
 
     constructor(public UN: UnitNormalizerService) { }
@@ -56,8 +57,6 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     }
 
     selectedPrefixAlignment(value: string) {
-        console.log('changed to: ' + value);
-
         this.selectedMetric['configuration']['bigNum']['prefixAlignment'] = value;
     }
 
@@ -105,6 +104,10 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         }
     }
 
+    customUnitEntered() {
+      this.menuTrigger.closeMenu();
+    }
+
     isUnitCustom(str: string): boolean {
         const allUnits: Array<string> =  this.timeUnits.concat(this.binaryDataUnits).concat(this.decimalDataUnits).
             concat(this.dataRateUnits).concat(this.throughputUnits).concat(this.currencyUnits).concat(this.otherUnits);
@@ -122,7 +125,6 @@ export class BignumberVisualAppearanceComponent implements OnInit {
 
     // Precision
     KeyedOnPrecisionInputBox(value: string) {
-        console.log('keyed on input box');
         this.selectedMetric['configuration']['bigNum']['precision'] = value;
     }
 
@@ -131,11 +133,13 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         this.colorType = value;
     }
 
-    colorChanged(color: string) {
-        if (this.colorType === 'text') {
-            this.selectedMetric['configuration']['bigNum']['textColor'] = color['hex'];
-        } else { // background
-            this.selectedMetric['configuration']['bigNum']['backgroundColor'] = color['hex'];
+    colorChanged(color: any) {
+        if (color['hex']) { // make sure there is a hex
+            if (this.colorType === 'text') {
+                this.selectedMetric['configuration']['bigNum']['textColor'] = color['hex'];
+            } else { // background
+                this.selectedMetric['configuration']['bigNum']['backgroundColor'] = color['hex'];
+            }
         }
     }
 
