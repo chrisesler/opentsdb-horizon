@@ -30,6 +30,18 @@ export class HttpService {
                 start: '1h-ago',
                 end: '',
                 downsample: '1m-avg-nan',
+                settings: {
+                    time: {
+                        overrideRelativeTime: '',
+                        shiftTime: '',
+                        downsample: {
+                            value: '1h',
+                            aggregator: 'sum',
+                            customValue: '',
+                            customUnit: ''
+                        }
+                    }
+                },
                 groups: [
                   {
                     id: 'gaga',
@@ -72,6 +84,18 @@ export class HttpService {
                 start: '1h-ago',
                 end: '',
                 downsample: '1m-avg-nan',
+                settings: {
+                    time: {
+                        overrideRelativeTime: '',
+                        shiftTime: '',
+                        downsample: {
+                            value: '1h',
+                            aggregator: 'sum',
+                            customValue: '',
+                            customUnit: ''
+                        }
+                    }
+                },
                 groups: [
                   {
                     id: 'gaga',
@@ -114,6 +138,18 @@ export class HttpService {
                 start: '1h-ago',
                 end: '',
                 downsample: '1m-avg-nan',
+                settings: {
+                    time: {
+                        overrideRelativeTime: '',
+                        shiftTime: '',
+                        downsample: {
+                            value: '1h',
+                            aggregator: 'sum',
+                            customValue: '',
+                            customUnit: ''
+                        }
+                    }
+                },
                 groups: [
                   {
                     id: 'gaga',
@@ -151,16 +187,25 @@ export class HttpService {
           component_type: 'LinechartWidgetComponent',
           data_source: 'yamas',
           description: 'test desc',
-          time: {
-              preset : '6h',
-              customStartTime: '7/1/2018',
-              customEndTime: '7/2/2018'
-          }
         },
         query: {
           start: '1h-ago',
           end: '',
           downsample: '1m-avg-nan',
+          settings: {
+            time: {
+                overrideRelativeTime: '',
+                shiftTime: '',
+                downsample: {
+                    value: '1h',
+                    aggregator: 'sum',
+                    customValue: '',
+                    customUnit: ''
+                }
+            },
+            visual: {},
+            legend: {}
+          },
           groups: [
             {
               id: 'gaga',
@@ -211,6 +256,20 @@ export class HttpService {
           start: '1h-ago',
           end: '',
           downsample: '1m-avg-nan',
+          settings: {
+            time: {
+                overrideRelativeTime: '',
+                shiftTime: '',
+                downsample: {
+                    value: '1h',
+                    aggregator: 'sum',
+                    customValue: '',
+                    customUnit: ''
+                }
+            },
+            visual: {},
+            legend: {}
+          },
           groups: [
             {
               id: 'werd',
@@ -261,6 +320,20 @@ export class HttpService {
           start: '1h-ago',
           end: '',
           downsample: '1m-avg-nan',
+          settings: {
+            time: {
+                overrideRelativeTime: '',
+                shiftTime: '',
+                downsample: {
+                    value: '1h',
+                    aggregator: 'sum',
+                    customValue: '',
+                    customUnit: ''
+                }
+            },
+            visual: {},
+            legend: {}
+          },
           groups: [
             {
               id: 'multi1',
@@ -771,9 +844,7 @@ export class HttpService {
                     customUnit: ''
                 }
             },
-            visual: {
-
-            },
+            visual: {},
             legend: {
                 display: false,
                 position: 'left',
