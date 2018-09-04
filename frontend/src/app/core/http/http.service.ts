@@ -30,6 +30,18 @@ export class HttpService {
                 start: '1h-ago',
                 end: '',
                 downsample: '1m-avg-nan',
+                settings: {
+                    time: {
+                        overrideRelativeTime: '',
+                        shiftTime: '',
+                        downsample: {
+                            value: '1h',
+                            aggregator: 'sum',
+                            customValue: '',
+                            customUnit: ''
+                        }
+                    }
+                },
                 groups: [
                   {
                     id: 'gaga',
@@ -72,6 +84,18 @@ export class HttpService {
                 start: '1h-ago',
                 end: '',
                 downsample: '1m-avg-nan',
+                settings: {
+                    time: {
+                        overrideRelativeTime: '',
+                        shiftTime: '',
+                        downsample: {
+                            value: '1h',
+                            aggregator: 'sum',
+                            customValue: '',
+                            customUnit: ''
+                        }
+                    }
+                },
                 groups: [
                   {
                     id: 'gaga',
@@ -114,6 +138,18 @@ export class HttpService {
                 start: '1h-ago',
                 end: '',
                 downsample: '1m-avg-nan',
+                settings: {
+                    time: {
+                        overrideRelativeTime: '',
+                        shiftTime: '',
+                        downsample: {
+                            value: '1h',
+                            aggregator: 'sum',
+                            customValue: '',
+                            customUnit: ''
+                        }
+                    }
+                },
                 groups: [
                   {
                     id: 'gaga',
@@ -151,16 +187,25 @@ export class HttpService {
           component_type: 'LinechartWidgetComponent',
           data_source: 'yamas',
           description: 'test desc',
-          time: {
-              preset : '6h',
-              customStartTime: '7/1/2018',
-              customEndTime: '7/2/2018'
-          }
         },
         query: {
           start: '1h-ago',
           end: '',
           downsample: '1m-avg-nan',
+          settings: {
+            time: {
+                overrideRelativeTime: '',
+                shiftTime: '',
+                downsample: {
+                    value: '1h',
+                    aggregator: 'sum',
+                    customValue: '',
+                    customUnit: ''
+                }
+            },
+            visual: {},
+            legend: {}
+          },
           groups: [
             {
               id: 'gaga',
@@ -211,6 +256,20 @@ export class HttpService {
           start: '1h-ago',
           end: '',
           downsample: '1m-avg-nan',
+          settings: {
+            time: {
+                overrideRelativeTime: '',
+                shiftTime: '',
+                downsample: {
+                    value: '1h',
+                    aggregator: 'sum',
+                    customValue: '',
+                    customUnit: ''
+                }
+            },
+            visual: {},
+            legend: {}
+          },
           groups: [
             {
               id: 'werd',
@@ -261,6 +320,20 @@ export class HttpService {
           start: '1h-ago',
           end: '',
           downsample: '1m-avg-nan',
+          settings: {
+            time: {
+                overrideRelativeTime: '',
+                shiftTime: '',
+                downsample: {
+                    value: '1h',
+                    aggregator: 'sum',
+                    customValue: '',
+                    customUnit: ''
+                }
+            },
+            visual: {},
+            legend: {}
+          },
           groups: [
             {
               id: 'multi1',
@@ -339,21 +412,198 @@ export class HttpService {
         settings: {
           title: 'Flickr CPU Speed',
           component_type: 'BarchartWidgetComponent',
+          data_source: 'yamas',
+        },
+        query: {
+          start: '1h-ago',
+          end: '',
+          downsample: '1m-avg-nan',
+          settings: {
+            time: {
+                overrideRelativeTime: '',
+                shiftTime: '',
+                downsample: {
+                    value: '1h',
+                    aggregator: 'sum',
+                    customValue: '',
+                    customUnit: ''
+                }
+            },
+            visual: {}
+          },
+          groups: [
+            {
+                id: 'abc',
+                title: 'group 1',
+                settings: {
+                visual: {},
+                },
+                queries: [
+                    {
+                        aggregator: 'zimsum',
+                        explicitTags:false,
+                        downsample: '1m-avg-nan',
+                        metric:'Flickr.WWW-BOTS.cpu_speed',
+                        rate: false,
+                        rateOptions : {
+                            counter: false,
+                            resetValue: 1
+                        },
+                        counter: false,
+                        resetValue: 1,
+                        settings: {
+                            visual: {
+                                color: "#FF0000",
+                                aggregator: "SUM",
+                                stackLabel: "WWW-BOTS"
+                            }
+                        }
+                    },
+                    {
+                        aggregator: 'zimsum',
+                        downsample: '1m-avg-nan',
+                        explicitTags:false,
+                        metric:'Flickr.UPLOAD.cpu_speed',
+                        rate: false,
+                        rateOptions : {
+                            counter: false,
+                            resetValue: 1
+                        },
+                        counter: false,
+                        resetValue: 1,
+                        settings: {
+                            visual: {
+                                color: "#FFA500",
+                                aggregator: "SUM",
+                                stackLabel: "UPLOAD"
+                            }
+                        }
+                    },
+                    {
+                        aggregator: 'zimsum',
+                        downsample: '1m-avg-nan',
+                        explicitTags:false,
+                        metric:'Flickr.ZOOKEEPER.cpu_speed',
+                        rate: false,
+                        rateOptions : {
+                            counter: false,
+                            resetValue: 1
+                        },
+                        counter: false,
+                        resetValue: 1,
+                        settings: {
+                            visual: {
+                                color: "#FFFF00",
+                                aggregator: "SUM",
+                                stackLabel: "ZOOKEEPER"
+                            }
+                        }
+                    },
+                    {
+                        aggregator: 'zimsum',
+                        downsample: '1m-avg-nan',
+                        explicitTags:false,
+                        metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
+                        rate: false,
+                        rateOptions : {
+                            counter: false,
+                            resetValue: 1
+                        },
+                        counter: false,
+                        resetValue: 1,
+                        settings: {
+                            visual: {
+                                color: "#008000",
+                                aggregator: "SUM",
+                                stackLabel: "TWEM"
+                            }
+                        }
+                    },
+                    {
+                        aggregator: 'zimsum',
+                        downsample: '1m-avg-nan',
+                        explicitTags:false,
+                        metric:'Flickr.STORM-General.cpu_speed',
+                        rate: false,
+                        rateOptions : {
+                            counter: false,
+                            resetValue: 1
+                        },
+                        counter: false,
+                        resetValue: 1,
+                        settings: {
+                            visual: {
+                                color: "#0000FF",
+                                aggregator: "SUM",
+                                stackLabel: "STORM"
+                            }
+                        }
+                    }
+                ]
+            }
+          ]
+        }
+      },
+      {
+        id: 'sbar',
+        gridPos: { x: 0, y: 11, w: 6, h: 5 },
+        settings: {
+          title: 'Flickr Application - CPU Speed by colo',
+          component_type: 'StackedBarchartWidgetComponent',
           data_source: 'yamas'
         },
         query: {
           start: '1h-ago',
           end: '',
           downsample: '1m-avg-nan',
+          settings: {
+            time: {
+                overrideRelativeTime: '',
+                shiftTime: '',
+                downsample: {
+                    value: '1h',
+                    aggregator: 'sum',
+                    customValue: '',
+                    customUnit: ''
+                }
+              },
+              axes : {
+              },
+              visual: {
+                  type: 'vertical',
+                  stacks: [
+                      {
+                        label: 'Stack-1',
+                        color: '#FF0000'
+                      },
+                      {
+                        label: 'Stack-2',
+                        color: '#FFA500'
+                      },
+                      {
+                        label: 'Stack-3',
+                        color: '#FFFF00'
+                      },
+                      {
+                        label: 'Stack-4',
+                        color: '#008000'
+                      },
+                      {
+                        label: 'Stack-5',
+                        color: '#0000FF'
+                      }
+                  ]
+              }
+          },
           groups: [
             {
               id: 'ALL-COLO',
               title: 'group 1',
               settings: {
                 visual: {
-                  visible: true
+                    label : 'All Colo'
                 }
-              },              
+              },
               queries: [
                 {
                     aggregator: 'zimsum',
@@ -371,7 +621,7 @@ export class HttpService {
                         visual: {
                             color: "red",
                             aggregator: "SUM",
-                            stackLabel: "WWW-BOTS"
+                            stack: 0
                         }
                     }
                 },
@@ -391,7 +641,7 @@ export class HttpService {
                         visual: {
                             color: "orange",
                             aggregator: "SUM",
-                            stackLabel: "UPLOAD"
+                            stack: 1
                         }
                     }
                 },
@@ -411,7 +661,7 @@ export class HttpService {
                         visual: {
                             color: "yellow",
                             aggregator: "SUM",
-                            stackLabel: "ZOOKEEPER"
+                            stack: 2
                         }
                     }
                 },
@@ -431,15 +681,15 @@ export class HttpService {
                         visual: {
                             color: "green",
                             aggregator: "SUM",
-                            stackLabel: "TWEM"
+                            stack: 3
                         }
                     }
                 },
                 {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.STORM-General.cpu_speed',
+                    explicitTags: false,
+                    metric: 'Flickr.STORM-General.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -451,129 +701,7 @@ export class HttpService {
                         visual: {
                             color: "blue",
                             aggregator: "SUM",
-                            stackLabel: "STORM"
-                        }
-                    }
-                }
-              ]
-            }
-        ]
-        }
-      },
-      {
-        id: 'sbar',
-        gridPos: { x: 0, y: 16, w: 6, h: 5 },
-        settings: {
-          title: 'Flickr Application - CPU Speed by colo',
-          component_type: 'BarchartWidgetComponent',
-          data_source: 'yamas'
-        },
-        query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
-          groups: [
-            {
-              id: 'ALL-COLO',
-              title: 'group 1',
-              queries: [
-                {
-                    aggregator: 'zimsum',
-                    explicitTags:false,
-                    downsample: '1m-avg-nan',
-                    metric:'Flickr.WWW-BOTS.cpu_speed',
-                    rate: false,
-                    rateOptions : {
-                        counter: false,
-                        resetValue: 1
-                    },
-                    counter: false,
-                    resetValue: 1,
-                    settings: {
-                        visual: {
-                            color: "red",
-                            aggregator: "SUM",
-                            stackLabel: "WWW-BOTS"
-                        }
-                    }
-                },
-                {
-                    aggregator: 'zimsum',
-                    downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.UPLOAD.cpu_speed',
-                    rate: false,
-                    rateOptions : {
-                        counter: false,
-                        resetValue: 1
-                    },
-                    counter: false,
-                    resetValue: 1,
-                    settings: {
-                        visual: {
-                            color: "orange",
-                            aggregator: "SUM",
-                            stackLabel: "UPLOAD"
-                        }
-                    }
-                },
-                {
-                    aggregator: 'zimsum',
-                    downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.ZOOKEEPER.cpu_speed',
-                    rate: false,
-                    rateOptions : {
-                        counter: false,
-                        resetValue: 1
-                    },
-                    counter: false,
-                    resetValue: 1,
-                    settings: {
-                        visual: {
-                            color: "yellow",
-                            aggregator: "SUM",
-                            stackLabel: "ZOOKEEPER"
-                        }
-                    }
-                },
-                {
-                    aggregator: 'zimsum',
-                    downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
-                    rate: false,
-                    rateOptions : {
-                        counter: false,
-                        resetValue: 1
-                    },
-                    counter: false,
-                    resetValue: 1,
-                    settings: {
-                        visual: {
-                            color: "green",
-                            aggregator: "SUM",
-                            stackLabel: "TWEM"
-                        }
-                    }
-                },
-                {
-                    aggregator: 'zimsum',
-                    downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.STORM-General.cpu_speed',
-                    rate: false,
-                    rateOptions : {
-                        counter: false,
-                        resetValue: 1
-                    },
-                    counter: false,
-                    resetValue: 1,
-                    settings: {
-                        visual: {
-                            color: "blue",
-                            aggregator: "SUM",
-                            stackLabel: "STORM"
+                            stack: 4
                         }
                     }
                 }
@@ -582,6 +710,11 @@ export class HttpService {
             {
                 id: 'BF1',
                 title: 'group 2',
+                settings: {
+                    visual: {
+                        label : 'BF1'
+                    }
+                },
                 queries: [
                   {
                       aggregator: 'zimsum',
@@ -597,11 +730,10 @@ export class HttpService {
                       resetValue: 1,
                       tags: { colo: "bf1"},
                       settings: {
-                          visual: {
-                              color: "red",
-                              aggregator: "SUM",
-                              stackLabel: "WWW-BOTS"
-                          }
+                        visual: {
+                            aggregator: "SUM",
+                            stack: 0
+                        }
                       }
                   },
                   {
@@ -618,11 +750,10 @@ export class HttpService {
                       resetValue: 1,
                       tags: { colo: "bf1"},
                       settings: {
-                          visual: {
-                              color: "orange",
-                              aggregator: "SUM",
-                              stackLabel: "UPLOAD"
-                          }
+                        visual: {
+                            aggregator: "SUM",
+                            stack: 1
+                        }
                       }
                   },
                   {
@@ -639,11 +770,10 @@ export class HttpService {
                       resetValue: 1,
                       tags: { colo: "bf1"},
                       settings: {
-                          visual: {
-                              color: "yellow",
-                              aggregator: "SUM",
-                              stackLabel: "ZOOKEEPER"
-                          }
+                        visual: {
+                            aggregator: "SUM",
+                            stack: 2
+                        }
                       }
                   },
                   {
@@ -660,11 +790,10 @@ export class HttpService {
                       resetValue: 1,
                       tags: { colo: "bf1"},
                       settings: {
-                          visual: {
-                              color: "green",
-                              aggregator: "SUM",
-                              stackLabel: "TWEM"
-                          }
+                        visual: {
+                            aggregator: "SUM",
+                            stack: 3
+                        }
                       }
                   },
                   {
@@ -681,126 +810,14 @@ export class HttpService {
                       resetValue: 1,
                       tags: { colo: "bf1"},
                       settings: {
-                          visual: {
-                              color: "blue",
-                              aggregator: "SUM",
-                              stackLabel: "STORM"
-                          }
+                        visual: {
+                            aggregator: "SUM",
+                            stack: 4
+                        }
                       }
                   }
                 ]
-            },
-            {
-                id: 'GQ1',
-                title: 'group 2',
-                queries: [
-                  {
-                      aggregator: 'zimsum',
-                      explicitTags:false,
-                      downsample: '1m-avg-nan',
-                      metric:'Flickr.WWW-BOTS.cpu_speed',
-                      rate: false,
-                      rateOptions : {
-                          counter: false,
-                          resetValue: 1
-                      },
-                      counter: false,
-                      resetValue: 1,
-                      tags: { colo: "gq1"},
-                      settings: {
-                          visual: {
-                              color: "red",
-                              aggregator: "SUM",
-                              stackLabel: "WWW-BOTS"
-                          }
-                      }
-                  },
-                  {
-                      aggregator: 'zimsum',
-                      downsample: '1m-avg-nan',
-                      explicitTags:false,
-                      metric:'Flickr.UPLOAD.cpu_speed',
-                      rate: false,
-                      rateOptions : {
-                          counter: false,
-                          resetValue: 1
-                      },
-                      counter: false,
-                      resetValue: 1,
-                      tags: { colo: "gq1"},
-                      settings: {
-                          visual: {
-                              color: "orange",
-                              aggregator: "SUM",
-                              stackLabel: "UPLOAD"
-                          }
-                      }
-                  },
-                  {
-                      aggregator: 'zimsum',
-                      downsample: '1m-avg-nan',
-                      explicitTags:false,
-                      metric:'Flickr.ZOOKEEPER.cpu_speed',
-                      rate: false,
-                      rateOptions : {
-                          counter: false,
-                          resetValue: 1
-                      },
-                      counter: false,
-                      resetValue: 1,
-                      tags: { colo: "gq1"},
-                      settings: {
-                          visual: {
-                              color: "yellow",
-                              aggregator: "SUM",
-                              stackLabel: "ZOOKEEPER"
-                          }
-                      }
-                  },
-                  {
-                      aggregator: 'zimsum',
-                      downsample: '1m-avg-nan',
-                      explicitTags:false,
-                      metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
-                      rate: false,
-                      rateOptions : {
-                          counter: false,
-                          resetValue: 1
-                      },
-                      counter: false,
-                      resetValue: 1,
-                      tags: { colo: "gq1"},
-                      settings: {
-                          visual: {
-                              color: "green",
-                              aggregator: "SUM",
-                              stackLabel: "TWEM"
-                          }
-                      }
-                  },
-                  {
-                      aggregator: 'zimsum',
-                      downsample: '1m-avg-nan',
-                      explicitTags:false,
-                      metric:'Flickr.STORM-General.cpu_speed',
-                      rate: false,
-                      rateOptions : {
-                          counter: false,
-                          resetValue: 1
-                      },
-                      counter: false,
-                      resetValue: 1,
-                      tags: { colo: "gq1"},
-                      settings: {
-                          visual: {
-                              color: "blue",
-                              aggregator: "SUM",
-                              stackLabel: "STORM"
-                          }
-                      }
-                  }
-                ]
-              }
+            }
           ]
         }
       },
@@ -816,10 +833,31 @@ export class HttpService {
           start: '1h-ago',
           end: '',
           downsample: '1m-avg-nan',
+          settings: {
+            time: {
+                overrideRelativeTime: '',
+                shiftTime: '',
+                downsample: {
+                    value: '1h',
+                    aggregator: 'sum',
+                    customValue: '',
+                    customUnit: ''
+                }
+            },
+            visual: {},
+            legend: {
+                display: false,
+                position: 'left',
+                showPercentages: true
+            }
+          },
           groups: [
             {
               id: 'ALL-COLO',
               title: 'group 1',
+              settings: {
+                visual: {},
+              },
               queries: [
                 {
                     aggregator: 'zimsum',

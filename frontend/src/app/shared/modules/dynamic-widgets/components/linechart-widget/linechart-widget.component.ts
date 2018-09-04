@@ -52,7 +52,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         }
     };
     data: any = [[0]];
-    size: any;
+    size: any = {};
 
     constructor(
         private interCom: IntercomService,

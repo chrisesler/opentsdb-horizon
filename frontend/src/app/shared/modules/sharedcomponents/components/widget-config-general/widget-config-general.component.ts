@@ -1,4 +1,6 @@
-import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, Input, Output, EventEmitter } from '@angular/core';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -6,7 +8,7 @@ import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@an
     templateUrl: './widget-config-general.component.html',
     styleUrls: []
 })
-export class WidgetConfigGeneralComponent implements OnInit {
+export class WidgetConfigGeneralComponent implements OnInit, OnDestroy {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.general-configuration') private _tabClass = true;
 
@@ -17,10 +19,24 @@ export class WidgetConfigGeneralComponent implements OnInit {
     @Output() widgetChange = new EventEmitter;
 
     /** Local variables */
+    formGroups: FormGroup;
+    formGroupSub: Subscription;
 
-    constructor() { }
+    constructor(private fb: FormBuilder ) { }
 
     ngOnInit() {
+        this.formGroups = this.fb.group({
+            title: new FormControl(this.widget.settings.title, [Validators.required]),
+            description: new FormControl(this.widget.settings.description)
+        });
+
+        this.formGroupSub = this.formGroups.valueChanges.subscribe( data => {
+            this.widgetChange.emit( {action: 'SetMetaData', payload: {data: data} } );
+        });
+    }
+
+    ngOnDestroy() {
+        this.formGroupSub.unsubscribe();
     }
 
 }

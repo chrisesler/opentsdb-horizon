@@ -97,8 +97,8 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             hightlightCircleSize: 5
         }
     };
-    data: any;
-    size: any;
+    data: any = [[0]];
+    size: any = {};
 
     // passing data to dialog using @Inject
     constructor(
@@ -131,6 +131,9 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
                 startWith(''),
                 map(val => this.filterNamespace(val))
             );
+        this.httpService.getMetrics({namespace: 'mail-jedi', searchPattern: 'sys'}).subscribe(res => {
+            console.log('metric results=', res);
+        });
     }
 
     ngOnDestroy() { }

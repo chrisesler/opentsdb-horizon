@@ -105,6 +105,7 @@ Chart.Threshold.lineDefaults = {
 
 var thresholdPlugin = require('./threshold.js')(Chart);
 
+
 module.exports = thresholdPlugin;
 
 Chart.pluginService.register(thresholdPlugin);
@@ -112,6 +113,7 @@ Chart.pluginService.register(thresholdPlugin);
 'use strict';
 
 var ThresholdLine = require('./element.thresholdline.js');
+
 
 module.exports = function(Chart) {
 
@@ -126,6 +128,7 @@ module.exports = function(Chart) {
      * @param {Object} chart - chart instance
      */
 	function initialize(chart) {
+        alert("coems here..");
 		var targetCanvas = chart.ctx.canvas;
 
 		var newCanvas = document.createElement('canvas');
@@ -186,6 +189,7 @@ module.exports = function(Chart) {
 	function draw(chart) {
         var ctx = chart.options.threshold.draw ? chart.threshold.overlayCanvas.getContext('2d') : chart.ctx;
         var elements = chart.threshold.elements;
+        console.log("elements", elements);
 		if ( chart.options.threshold.draw ) {
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		}

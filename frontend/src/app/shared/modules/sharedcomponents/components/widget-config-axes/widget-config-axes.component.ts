@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, HostBinding, Input, Output, EventEmitter } from '@angular/core';
 
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 
 import { Subscription } from 'rxjs/Subscription';
 import { isDefaultChangeDetectionStrategy } from '@angular/core/src/change_detection/constants';
@@ -29,6 +29,7 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
     y2AxisEnabled_label: string = 'disabled';
     // tslint:disable-next-line:no-inferrable-types
     xAxisEnabled_label:  string = 'enabled';
+    y1AxisEnabledToggleDisplay = true;
 
     /** Form Group */
     widgetConfigAxes: FormGroup;
@@ -36,26 +37,6 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
     // subscriptions
     widgetConfigAxes_Sub: Subscription;
 
-    // form values
-
-    y1AxisEnabled: any = true;
-    y1AxisUnit: any;
-    y1AxisScale: any;
-    y1AxisMin: any;
-    y1AxisMax: any;
-    y1AxisDecimals: any;
-    y1AxisLabel: any;
-
-    y2AxisEnabled: any = false;
-    y2AxisUnit: any;
-    y2AxisScale: any;
-    y2AxisMin: any;
-    y2AxisMax: any;
-    y2AxisDecimals: any;
-    y2AxisLabel: any;
-
-    xAxisEnabled: any = true;
-    xAxisMode: any;
 
     /** Form Control Options */
 
@@ -72,16 +53,20 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
 
     yAxisUnitOptions: Array<object> = [
         {
-            label: 'Kilobyte (Kb)',
-            value: 'Kb'
+            label: 'auto',
+            value: ''
         },
         {
-            label: 'Megabyte (Mb)',
-            value: 'Mb'
+            label: 'Kilobyte (KB)',
+            value: 'KB'
         },
         {
-            label: 'Gigabyte (Gb)',
-            value: 'Gb'
+            label: 'Megabyte (MB)',
+            value: 'MB'
+        },
+        {
+            label: 'Gigabyte (GB)',
+            value: 'GB'
         }
     ];
 
@@ -115,72 +100,69 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
         // initiate any subscriptions
     }
 
-    ngOnDestroy() {
-        // destroy any subscriptions
-        this.widgetConfigAxes_Sub.unsubscribe();
-    }
-
     createForm() {
         // need to actually add widget config values to form controls
         // NOTE: exception is 'yAxisWhich' (y1 or y2), which is not a form control, and sets value on click
 
         // ?INFO: these are mapped to the form variables set at top
-        this.widgetConfigAxes = this.fb.group({
-            y1AxisEnabled:   new FormControl(true),
-            y1AxisUnit:      new FormControl('Kb'),
-            y1AxisScale:     new FormControl('linear'),
-            y1AxisMin:       new FormControl('auto'),
-            y1AxisMax:       new FormControl('auto'),
-            y1AxisDecimals:  new FormControl('auto'),
-            y1AxisLabel:     new FormControl(),
-            y2AxisEnabled:   new FormControl(false),
-            y2AxisUnit:      new FormControl('Kb'),
-            y2AxisScale:     new FormControl('linear'),
-            y2AxisMin:       new FormControl('auto'),
-            y2AxisMax:       new FormControl('auto'),
-            y2AxisDecimals:  new FormControl('auto'),
-            y2AxisLabel:     new FormControl(),
-            xAxisEnabled:    new FormControl(true),
-            xAxisMode:       new FormControl('time')
-        });
+        this.widgetConfigAxes = this.fb.group({});
+
+        switch ( this.widget.settings.component_type ) {
+            case 'BarchartWidgetComponent':
+            case 'StackedBarchartWidgetComponent':
+                this.y1AxisEnabledToggleDisplay = false;
+                this.widgetConfigAxes.addControl('y1', this.getAxisFormGroup(this.getAxisConfiguration('y1')));
+            break;
+            case 'LinechartWidgetComponent':
+                this.widgetConfigAxes.addControl('y1', this.getAxisFormGroup(this.getAxisConfiguration('y1')));
+                this.widgetConfigAxes.addControl('y2', this.getAxisFormGroup(this.getAxisConfiguration('y2')));
+                this.widgetConfigAxes.addControl('x', this.getAxisFormGroup(this.getAxisConfiguration('x')));
+            break;
+
+        }
 
         this.widgetConfigAxes.valueChanges.distinctUntilChanged( (prev, curr) => {
             console.log('PREVIOUS/CURRENT', prev, curr);
             return prev === curr;
         });
 
-        this.widgetConfigAxes.controls.y1AxisEnabled.valueChanges.subscribe(data => {
-            console.log('data', data);
-        });
-
-        // JUST CHECKING VALUES
         this.widgetConfigAxes_Sub = this.widgetConfigAxes.valueChanges.subscribe(function(data) {
-            console.log('AXES CONFIG CHANGES', data, this.widgetConfigAxes);
-            // if (this.xAxisEnabled !== data.xAxisEnabled) {
-                this.xAxisEnabled_label = (data.xAxisEnabled) ? 'enabled' : 'disabled';
-                console.log('xAxisLabel', this.xAxisEnabled_label);
-            // }
-            // if (this.y1AxisEnabled !== data.y1AxisEnabled) {
-                this.y1AxisEnabled_label = (data.y1AxisEnabled) ? 'enabled' : 'disabled';
-                console.log('y1AxisLabel', this.y1AxisEnabled_label);
-            // }
-            // if (this.y2AxisEnabled !== data.y2AxisEnabled) {
-                this.y2AxisEnabled_label = (data.y2AxisEnabled) ? 'enabled' : 'disabled';
-                console.log('y2AxisLabel', this.y2AxisEnabled_label);
-            // }
+            this.xAxisEnabled_label = (data.xAxisEnabled) ? 'enabled' : 'disabled';
+            this.y1AxisEnabled_label = (data.y1AxisEnabled) ? 'enabled' : 'disabled';
+            this.y2AxisEnabled_label = (data.y2AxisEnabled) ? 'enabled' : 'disabled';
+            this.widgetChange.emit( {action: 'SetAxes', payload: { data: data }} );
         }.bind(this));
     }
 
-    /**
-     * Services
-     */
+    getAxisConfiguration(axis) {
+        const defaultConfig = {
+            enabled: 'true',
+            unit: '',
+            scale: 'linear',
+            min: 'auto',
+            max: 'auto',
+            decimals: 'auto',
+            label: ''
+        };
+        const wAxisConfig = this.widget.query.settings.axes && this.widget.query.settings.axes[axis] ? this.widget.query.settings.axes[axis] : {};
+        return { ...defaultConfig, ...wAxisConfig };
 
-     /**
-      * Events
-      */
+    }
 
-    /*click_YAxisWhichChange(val: any) {
-        this.yAxisWhich = val;
-    }*/
+    getAxisFormGroup(axis) {
+        return this.fb.group({
+            enabled : new FormControl( axis.enabled ),
+            unit: new FormControl(axis.unit),
+            scale: new FormControl(axis.scale),
+            min: new FormControl(axis.min),
+            max: new FormControl(axis.max),
+            decimals: new FormControl(axis.decimals),
+            label: new FormControl(axis.label)
+        });
+    }
 
+    ngOnDestroy() {
+        // destroy any subscriptions
+        this.widgetConfigAxes_Sub.unsubscribe();
+    }
 }

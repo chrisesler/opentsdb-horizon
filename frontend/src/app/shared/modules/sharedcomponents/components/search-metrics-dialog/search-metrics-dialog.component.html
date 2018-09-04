@@ -15,7 +15,7 @@
 </mat-toolbar>
 <mat-dialog-content>
     <!-- graph preview -->
-    <div style="height: 350px;" class="graph-preview-pane">
+    <div style="height: 350px;" class="graph-preview-pane" *ngIf="selectedMetrics.length > 0">
         <div class="graph-preview" fxLayout="row">
             <div class="graph-output" fxFlex="1 1 100%" fxLayout="column">
                 <div class="graph-metric-list-title" fxFlex="1 1 30px">
