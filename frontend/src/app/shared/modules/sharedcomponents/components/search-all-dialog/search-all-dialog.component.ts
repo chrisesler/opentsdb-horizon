@@ -57,6 +57,80 @@ export class SearchAllDialogComponent implements OnInit, OnDestroy {
     ];
 
     // TODO: replace with real result array
+    fakeResultColumns: String[] = [
+        'dashboardName',
+        'owner',
+        'lastViewed'
+    ];
+    fakeSearchResults: Array<any> = [
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Hill Nguyen',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Hill Nguyen',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Arun Gupta',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Zack Burgess',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Zack Burgess',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Chris Esler',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Jazmin Orozco',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Jay Torres',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Chris Esler',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Hill Nguyen',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Arun Gupta',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        }
+    ];
+    /* OLD RESULTS
     fakeSearchResults: Array<any> = [
         {
             groupLabel: 'jorozco',
@@ -133,7 +207,7 @@ export class SearchAllDialogComponent implements OnInit, OnDestroy {
                 }
             ]
         }
-    ];
+    ];*/
 
     // AutoSuggest
     // TODO: Replace this with empty array that gets filled out by result from service call

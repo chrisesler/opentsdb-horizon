@@ -21,6 +21,37 @@
         }
     }
 
+    // MATERIAL OVERRIDES
+
+    // Material Table
+    .mat-table.is-dense {
+        width: 100%;
+
+        td.mat-cell,
+        th.mat-header-cell {
+            padding: 0 8px;
+        }
+
+        td.mat-cell:first-child,
+        td.mat-footer-cell:first-child,
+        th.mat-header-cell:first-child {
+            padding-left: 16px;
+        }
+
+        td.mat-cell:last-child,
+        td.mat-footer-cell:last-child,
+        th.mat-header-cell:last-child {
+            padding-right: 16px;
+        }
+
+        tr.mat-header-row {
+            height: 30px;
+        }
+
+        th.mat-header-cell {
+            text-transform: uppercase;
+        }
+    }
 }
 // theme (aka look-n-feel)
 @mixin app-root-theme($theme-config) {
@@ -87,6 +118,8 @@
         border: 1px solid map-get($accent, default);
         background-color: map-get($background, menu); 
     }
+
+    
     
 
 
