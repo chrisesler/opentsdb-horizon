@@ -1,0 +1,50 @@
+    <div class="column">
+        <label class="display-label">Display</label>
+        <mat-button-toggle-group [formControl]="displayControl" class="display-toggle-group">
+                <mat-button-toggle value="vertical">
+                <mat-icon fontSet="denali" fontIcon="d-chart-bar-vertical"></mat-icon>
+                Vertical
+                </mat-button-toggle>
+                <mat-button-toggle value="horizontal">
+                <mat-icon fontSet="denali" fontIcon="d-chart-bar-horizontal"></mat-icon>
+                Horizontal
+                </mat-button-toggle>
+        </mat-button-toggle-group>
+    </div>
+
+    <div class="column">
+        <form [formGroup]="gForms">
+
+        <label class="display-label">Bars</label>
+        <div *ngFor="let group of widget.query.groups; let index=index " formArrayName="bars">
+                <span class="cell">Bar {{ index + 1 }} </span>
+        
+                <span [formGroupName]="index" class="cell">
+                    <mat-form-field appearance="fill">
+                        <input matInput formControlName="label">
+                    </mat-form-field>
+                </span>
+
+        
+            </div>
+        </form>
+
+    </div>
+
+    <div class="column">
+        <form [formGroup]="gForms">
+            <label class="display-label">Stacks</label>
+            <div *ngFor="let stack of widget.query.settings.visual.stacks; let index=index " formArrayName="stacks">
+                    <span class="cell">Stack {{ index + 1 }} </span>
+            
+                    <span [formGroupName]="index" class="cell">
+                        <mat-form-field appearance="fill">
+                            <input matInput formControlName="label">
+                        </mat-form-field>
+                    </span>
+                    <span class="cell">
+                            <color-picker (newColor)="selectColor($event,index)" [color]="stack.color"></color-picker>
+                    </span>
+            </div>
+        </form>
+    </div>

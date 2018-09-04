@@ -10,6 +10,23 @@
     // .edit-view-container.is-active { 
     //    .widget-panel-content.donut-widget { }
     // }
+
+    .widget-panel-content.donutchart-widget {
+        #container {
+            display:inline-block;
+            /* 
+                this is parent containter(#container) of chartjs canvas.
+                position:relative is required on parent container as 
+                chartjs-zoom and threshold plugins inserts a canvas on top of chart canvas.
+            */ 
+            position: relative;
+        }
+        
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    }
 }
 
 @mixin donut-widget-component-theme($theme-config) {
@@ -25,17 +42,3 @@
 
 }
 
-#container {
-    display:inline-block;
-    /* 
-        this is parent containter(#container) of chartjs canvas.
-        position:relative is required on parent container as 
-        chartjs-zoom and threshold plugins inserts a canvas on top of chart canvas.
-    */ 
-    position: relative;
-}
-
-canvas {
-	width: 100% !important;
-	height: 100% !important;
-}

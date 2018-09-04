@@ -1,9 +1,15 @@
 /* WIDGET CONFIG COMPONENT */
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
-@mixin widget-config-alerts-component-base() {
-    .widget-config-tab.alerts-configuration {
+@mixin donutchart-legend-component-base() {
+    .widget-config-tab.donutchart-legend-configuration {
         // style rules here
+        padding: 14px 0;
+        
+        > form {
+            flex-direction: column;
+        }
+
         .column:nth-child(n+2):nth-last-child(n+2) {
             padding-left: 30px;
             padding-right: 30px;
@@ -26,28 +32,6 @@
         .fixed-label {
             display: inline-block;
             width: 75px;        
-        }
-
-        .mat-form-field-subscript-wrapper {
-            padding: 0;
-        }
-
-        // this pulls the hint up into the input area to act almost as an inline placeholder that is already there
-        // see the Y1 Min and Y1 Max fields
-        .mat-form-field.inline-hint {
-            .mat-input-element {
-                margin-left: 60px;
-                width: auto;
-            }
-
-            .mat-form-field-subscript-wrapper {
-                padding: 0 1em;
-                margin: 0;
-                top: 12px;
-                white-space: nowrap;
-                font-size: 14px;
-                width: initial;
-            }
         }
 
         .config-control:not(.with-enable-label):not(.inline-controls) > .label {
@@ -79,38 +63,31 @@
                 }
             }
         }
-
-        .mat-form-field {
-            .mat-form-field-flex {
-                padding-top: 0;
-
-                .mat-form-field-infix {
-                    padding-top: 0;
-                }
-
-                // mat-select caret
-                .mat-select-arrow-wrapper {
-                    transform: initial;
-                }
-            }
-        }
     }
 }
 
-@mixin widget-config-alerts-component-theme($theme-config) {
+@mixin donutchart-legend-component-theme($theme-config) {
 
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
     $accent: map-get($theme-config, accent);
     $warn: map-get($theme-config, warn);
+    $success: map-get($theme-config, success);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $is-dark: map-get($theme-config, is-dark);
 
-    .widget-config-tab.alerts-configuration {
+    $good-green: if($is-dark, map-get($success, default), map-get($success, 600));
+
+    .widget-config-tab.legend-configuration {
         // style rules here
-        .column:not(:first-child) {
-            border-left: 1px solid map-get($foreground, divider);
+
+        .config-control.with-enable-label {
+            .mat-caption.is-enabled {
+                color: $good-green;
+            }
         }
     }
 
 }
+

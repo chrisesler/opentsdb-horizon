@@ -4,6 +4,72 @@
 @mixin widget-config-visual-appearance-component-base() {
     .widget-config-tab.visual-appearance-configuration {
         // style rules here
+        .column {
+            display: inline-flex;
+            flex-direction: row;
+        }
+        .column:nth-child(n+2):nth-last-child(n+2) {
+            padding-left: 30px;
+            padding-right: 30px;
+        }
+
+        .column:first-child {
+            width:200px;
+            padding-right: 30px;
+            flex-direction: column;
+        }
+
+        .column:last-child {
+            padding-left: 30px;
+            width: calc(100% - 250px);
+        }
+
+        .display-label {
+            display: block;
+            padding: 10px 5px;
+        }
+        mat-button-toggle-group {
+            background: #f0f4fe;
+            padding:10px 10px;
+        }
+
+        mat-button-toggle-group.display-toggle-group {
+            flex-direction: column;
+        }
+        mat-button-toggle {
+            display: block;
+            width:150px;
+            color: #84b6f1;
+        }
+
+        mat-button-toggle .mat-button-toggle-label-content {
+            display: block;
+            padding: 3px 3px;
+        }
+        mat-row, mat-header-row, mat-footer-row {
+            border-bottom-width: 1px;
+        }
+        .mat-button-toggle-checked {
+            background: #ffffff;
+            color: #000000;
+        }
+        mat-cell {
+            padding-top: 5px;
+            width:300px;
+        }
+
+        mat-row mat-cell:first-child {
+            width:100px;
+            flex: initial;
+        }
+
+        mat-table {
+            width: 100%;
+        }
+
+        form {
+            display: block;
+        }
     }    
 }
 

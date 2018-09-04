@@ -1,16 +1,16 @@
 <form [formGroup]="widgetConfigAxes">
-    <div class="column">
+    <div class="column" *ngIf="widgetConfigAxes.controls.y1" formGroupName="y1">
         <div class="config-control with-enable-label">
             <label class="fixed-label">Y1 Axis</label>
-            <div class="form-field-group">
-                <mat-slide-toggle formControlName="y1AxisEnabled"><span class="mat-caption" [ngClass]="{'is-enabled': y1AxisEnabled_label === 'enabled'}">{{y1AxisEnabled_label}}</span></mat-slide-toggle>
+            <div class="form-field-group" *ngIf="y1AxisEnabledToggleDisplay">
+                <mat-slide-toggle formControlName="enabled"><span class="mat-caption" [ngClass]="{'is-enabled': y1AxisEnabled_label === 'enabled'}">{{y1AxisEnabled_label}}</span></mat-slide-toggle>
             </div>
         </div>
         <div class="config-control inline-controls">
             <label class="fixed-label">Unit</label>
             <div class="form-field-group">
                 <mat-form-field appearance="fill">
-                    <mat-select formControlName="y1AxisUnit">
+                    <mat-select formControlName="unit">
                         <mat-option *ngFor="let option of yAxisUnitOptions" [value]="option.value">
                         {{ option.label }}
                         </mat-option>
@@ -20,7 +20,7 @@
             <label class="fixed-label">Scale</label>
             <div class="form-field-group">
                 <mat-form-field appearance="fill">
-                    <mat-select formControlName="y1AxisScale">
+                    <mat-select formControlName="scale">
                         <mat-option *ngFor="let option of yAxisScaleOptions" [value]="option.value">
                         {{ option.label }}
                         </mat-option>
@@ -32,11 +32,11 @@
             <label class="fixed-label">Values</label>
             <div class="form-field-group">
                 <mat-form-field class="inline-hint" appearance="fill" color="primary">
-                    <input matInput formControlName="y1AxisMin">
+                    <input matInput formControlName="min">
                     <mat-hint>Y1 Min</mat-hint>
                 </mat-form-field>
                 <mat-form-field class="inline-hint" appearance="fill" color="primary">
-                    <input matInput formControlName="y1AxisMax">
+                    <input matInput formControlName="max">
                     <mat-hint>Y1 Max</mat-hint>
                 </mat-form-field>
             </div>
@@ -44,30 +44,30 @@
         <div class="config-control inline-controls">
             <label class="fixed-label">Decimals</label>
             <mat-form-field appearance="fill" color="primary">
-                <input matInput formControlName="y1AxisDecimals">
+                <input matInput formControlName="decimals">
                 <mat-hint>Number of decimals</mat-hint>
             </mat-form-field>
         </div>
         <div class="config-control inline-controls">
             <label class="fixed-label">Label</label>
             <mat-form-field appearance="fill" color="primary">
-                <input matInput formControlName="y1AxisLabel">
+                <input matInput formControlName="label">
                 <mat-hint>Enter label for Y1 axis</mat-hint>
             </mat-form-field>
         </div>
     </div>
-    <div class="column">
+    <div class="column" *ngIf="widgetConfigAxes.controls.y2" formGroupName="y2">
         <div class="config-control with-enable-label">
             <label class="fixed-label">Y2 Axis</label>
             <div class="form-field-group">
-                <mat-slide-toggle formControlName="y2AxisEnabled"><span class="mat-caption" [ngClass]="{'is-enabled': y2AxisEnabled_label === 'enabled'}">{{y2AxisEnabled_label}}</span></mat-slide-toggle>
+                <mat-slide-toggle formControlName="enabled"><span class="mat-caption" [ngClass]="{'is-enabled': y2AxisEnabled_label === 'enabled'}">{{y2AxisEnabled_label}}</span></mat-slide-toggle>
             </div>
         </div>
         <div class="config-control inline-controls">
             <label class="fixed-label">Unit</label>
             <div class="form-field-group">
                 <mat-form-field appearance="fill">
-                    <mat-select formControlName="y2AxisUnit">
+                    <mat-select formControlName="unit">
                         <mat-option *ngFor="let option of yAxisUnitOptions" [value]="option.value">
                         {{ option.label }}
                         </mat-option>
@@ -77,7 +77,7 @@
             <label class="fixed-label">Scale</label>
             <div class="form-field-group">
                 <mat-form-field appearance="fill">
-                    <mat-select formControlName="y2AxisScale">
+                    <mat-select formControlName="scale">
                         <mat-option *ngFor="let option of yAxisScaleOptions" [value]="option.value">
                         {{ option.label }}
                         </mat-option>
@@ -89,11 +89,11 @@
             <label class="fixed-label">Values</label>
             <div class="form-field-group">
                 <mat-form-field class="inline-hint" appearance="fill" color="primary">
-                    <input matInput formControlName="y2AxisMin">
+                    <input matInput formControlName="min">
                     <mat-hint>Y2 Min</mat-hint>
                 </mat-form-field>
                 <mat-form-field class="inline-hint" appearance="fill" color="primary">
-                    <input matInput formControlName="y2AxisMax">
+                    <input matInput formControlName="max">
                     <mat-hint>Y2 Max</mat-hint>
                 </mat-form-field>
             </div>
@@ -101,30 +101,30 @@
         <div class="config-control inline-controls">
             <label class="fixed-label">Decimals</label>
             <mat-form-field appearance="fill" color="primary">
-                <input matInput formControlName="y2AxisDecimals">
+                <input matInput formControlName="decimals">
                 <mat-hint>Number of decimals</mat-hint>
             </mat-form-field>
         </div>
         <div class="config-control inline-controls">
             <label class="fixed-label">Label</label>
             <mat-form-field appearance="fill" color="primary">
-                <input matInput formControlName="y2AxisLabel">
+                <input matInput formControlName="label">
                 <mat-hint>Enter label for Y2 axis</mat-hint>
             </mat-form-field>
         </div>
     </div>
-    <div class="column">
+    <div class="column" *ngIf="widgetConfigAxes.controls.x" formGroupName="x">
         <div class="config-control with-enable-label">
             <label class="fixed-label">X-Axis</label>
             <div class="form-field-group">
-                <mat-slide-toggle formControlName="xAxisEnabled"><span class="mat-caption" [ngClass]="{'is-enabled': xAxisEnabled_label === 'enabled'}">{{xAxisEnabled_label}}</span></mat-slide-toggle>
+                <mat-slide-toggle formControlName="enabled"><span class="mat-caption" [ngClass]="{'is-enabled': xAxisEnabled_label === 'enabled'}">{{xAxisEnabled_label}}</span></mat-slide-toggle>
             </div>
         </div>
         <div class="config-control inline-controls">
             <label class="fixed-label">Mode</label>
             <div class="form-field-group">
                 <mat-form-field appearance="fill">
-                    <mat-select formControlName="xAxisMode">
+                    <mat-select formControlName="scale">
                         <mat-option *ngFor="let option of xAxisModeOptions" [value]="option.value">
                         {{ option.label }}
                         </mat-option>
