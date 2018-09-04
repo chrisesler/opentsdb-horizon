@@ -1,0 +1,35 @@
+/* SEARCH TOGGLE COMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+
+@mixin navbar-search-toggle-component-base() {
+    
+    .navbar-search-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        .mat-icon-button {
+            width: 24px;
+            height: 24px;
+            line-height: 1;
+        }
+        
+    }
+}
+
+@mixin navbar-search-toggle-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $success: map-get($theme-config, success);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+
+    .navbar-search-toggle {
+
+    }
+}

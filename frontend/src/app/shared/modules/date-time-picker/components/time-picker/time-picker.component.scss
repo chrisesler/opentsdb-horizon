@@ -6,20 +6,6 @@
         overflow: initial;
         max-width: initial;
 
-        // arrow
-        &::after {
-            bottom: 100%;
-            left: calc(100% - 20px);
-            border: solid transparent;
-            content: " ";
-            height: 0;
-            width: 0;
-            position: absolute;
-            pointer-events: none;
-            border-width: 6px;
-            margin-left: -6px;
-        }
-
         .timerange-picker-container {
             padding: 0 12px;
         }
@@ -27,9 +13,7 @@
 
 
     // actual picker
-    .dtp-time-picker {
-
-    }
+    // .dtp-time-picker { }
 }
 
 @mixin time-picker-component-theme($theme-config) {
@@ -58,9 +42,7 @@
     }
 
     // actual picker
-    .dtp-time-picker {
-
-    }
+    // .dtp-time-picker { }
 
     // cdk stuff
 

@@ -1,10 +1,11 @@
-<button mat-raised-button 
+<button mat-raised-button
+    [ngClass]="{'menu-trigger-underline': timerangePickerMenuIsOpen}"
     [matMenuTriggerFor]="timerangePickerMenu" 
     [matTooltip]="tooltipText"
-    matTooltipClass="dtp-tooltip-text">
-    <mat-icon fontSet="denali" fontIcon="d-time"></mat-icon>
+    matTooltipClass="dtp-tooltip-text"
+    #timerangePickerMenuTrigger>
     <span> {{startTime}} to {{endTime}}</span>
-    <mat-icon fontSet="denali" fontIcon="d-arrow-down"></mat-icon>
+    <mat-icon fontSet="denali" fontIcon="d-arrowhead-down"></mat-icon>
 </button>
 
 <mat-menu #timerangePickerMenu="matMenu" [overlapTrigger]="false" class="nav-bar-dropmenu timerange-picker-menu">

@@ -29,7 +29,8 @@
     }
 
     .nav-add-new-widget,
-    .nav-dashboard-actions {
+    .nav-dashboard-actions,
+    .nav-refresh-icon {
         .mat-raised-button {
             line-height: 24px;
             font-size: 12px;
@@ -64,6 +65,32 @@
         }
     }
 
+    .nav-refresh-icon {
+        &.navbar-item {
+            margin-right: 0;
+        }
+        
+        .mat-raised-button {
+            min-width: auto;
+            padding: 0;
+
+            .mat-icon {
+                &,
+                &:last-child,
+                &:first-child {
+                    margin-left: 3px;
+                    margin-right: 3px;
+                }
+            }
+        }
+    }
+
+    .nav-date-time-picker.dtp-time-picker {
+        &.navbar-item {
+            margin: 0 5px 0 2px;
+        }
+    }
+
     // cdk items
     .dashboard-actions-menu {
         width: 150px;
@@ -75,20 +102,6 @@
         position: relative;
         overflow: initial;
         //max-width: initial;
-
-        // arrow
-        &::after {
-            bottom: 100%;
-            left: calc(100% - 20px);
-            border: solid transparent;
-            content: " ";
-            height: 0;
-            width: 0;
-            position: absolute;
-            pointer-events: none;
-            border-width: 6px;
-            margin-left: -6px;
-        }
 
         .timerange-picker-container {
             padding: 0 12px;
@@ -207,7 +220,8 @@
     }
 
     .nav-add-new-widget,
-    .nav-dashboard-actions {
+    .nav-dashboard-actions,
+    .nav-refresh-icon {
         .mat-raised-button {
             background-color: lighten(map-get($background, navbar), 4%);
             color: map-get($foreground, navbar-text);
