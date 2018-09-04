@@ -97,8 +97,8 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             hightlightCircleSize: 5
         }
     };
-    data: any;
-    size: any;
+    data: any = [[0]];
+    size: any = {};
 
     // passing data to dialog using @Inject
     constructor(
