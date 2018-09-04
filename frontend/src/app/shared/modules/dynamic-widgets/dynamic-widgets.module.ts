@@ -19,6 +19,7 @@ import { DonutWidgetComponent } from './components/donut-widget/donut-widget.com
 import { StatusWidgetComponent } from './components/status-widget/status-widget.component';
 import { BarchartWidgetComponent, StackedBarchartWidgetComponent } from './components/barchart-widget/barchart-widget.component';
 import { StackedBarchartVisualAppearanceComponent } from './components/barchart-widget/children/stacked-barchart-visual-appearance/stacked-barchart-visual-appearance.component';
+import { DonutchartLegendComponent } from './components/donut-widget/children/donutchart-legend/donutchart-legend.component';
 
 
 @NgModule({
@@ -41,7 +42,8 @@ import { StackedBarchartVisualAppearanceComponent } from './components/barchart-
         BignumberVisualAppearanceComponent,
         DonutWidgetComponent,
         StatusWidgetComponent,
-        StackedBarchartVisualAppearanceComponent 
+        StackedBarchartVisualAppearanceComponent,
+        DonutchartLegendComponent
     ],
     declarations: [
         PlaceholderWidgetComponent,
@@ -53,7 +55,8 @@ import { StackedBarchartVisualAppearanceComponent } from './components/barchart-
         StatusWidgetComponent,
         BarchartWidgetComponent,
         StackedBarchartWidgetComponent,
-        StackedBarchartVisualAppearanceComponent
+        StackedBarchartVisualAppearanceComponent,
+        DonutchartLegendComponent
     ],
     entryComponents: [
         PlaceholderWidgetComponent,

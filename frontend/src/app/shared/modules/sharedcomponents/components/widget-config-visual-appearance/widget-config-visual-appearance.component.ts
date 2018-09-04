@@ -47,8 +47,15 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
             this.gForms.addControl(index, this.createFormArray(this.dataSources[index]));
         });
 
-        // handles horizontal or vertical switch
-        this.displayControl = new FormControl(this.widget.query.settings.visual.direction || 'vertical');
+        switch ( this.widget.settings.component_type ) {
+            case 'BarchartWidgetComponent':
+                this.displayControl = new FormControl(this.widget.query.settings.visual.type || 'vertical');
+            break;
+            case 'DonutWidgetComponent':
+                this.displayControl = new FormControl(this.widget.query.settings.visual.type || 'doughnut');
+            break;
+
+        }
 
         this.displayControl.valueChanges.subscribe( d => {
             console.log("display changed", d );

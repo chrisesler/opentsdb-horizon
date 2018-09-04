@@ -133,7 +133,6 @@ export class DatatranformerService {
             }
         }
 
-        ///*
         // set dataset values
         for (let gid in groupData ) {
           const gConfig = this.util.getObjectByKey(config.groups, 'id', gid);
@@ -141,23 +140,12 @@ export class DatatranformerService {
           for ( let i = 0; i < groupData[gid].length; i++ ) {
               const metric = this.util.getUniqueNameFromMetricConfig(groupData[gid][i]);
               const mConfig = this.getMetricConfigurationByName(metric, mConfigs);
-              const mData: any = groupData[gid][i].dps;
-              let sum = 0;
-              const n = Object.keys(mData).length;
-              for ( let k in mData ) {
-                  if (!isNaN(mData[k])) {
-                      sum += mData[k];
-                  }
-              }
-              //const label = stacked ? gSettings.visualization.label : mConfigs[i].settings.visual.stackLabel;
+              const mData: any = Object.values(groupData[gid][i].dps);
               const index = stacked ? options.labels.indexOf(gConfig.settings.visual.label) : metrics.indexOf(metric);
-              //console.log(JSON.stringify(metrics), metric, index);
-              //console.log("mconfig", metric, mConfig)
               const dsIndex = stacked ? mConfig.settings.visual.stack : 0;
-              datasets[dsIndex].data[index] = sum;
+              datasets[dsIndex].data[index] = this.util.getArrayAggregate( mConfig.settings.visual.aggregator, mData );
           }
         }
-        //*/
         return [...datasets];
     }
 
@@ -172,34 +160,34 @@ export class DatatranformerService {
         return config;
     }
 
-    getChartJSFormattedDataDonut(options, mConfigs, datasets, groupData, stacked) {
+    getChartJSFormattedDataDonut(options, config, datasets, groupData, stacked) {
         const gid = Object.keys(groupData)[0];
         const rawdata = groupData[gid];
+        const metrics = [];
 
-        options.labels = [];
 
-        // generate labels
+        const gConfig = this.util.getObjectByKey(config.groups, 'id', gid);
+        const mConfigs = gConfig.queries;
+        datasets[0] = {data: [], backgroundColor: []};
         for ( let i = 0; i < mConfigs.length; i++ ) {
+            const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
+            metrics.push(metric);
             const vConfig = mConfigs[i].settings.visual;
-            const label = vConfig.stackLabel;
-            if (!options.labels.includes(label)) {
-                options.labels.push(label);
-            }
+            let label = vConfig.stackLabel ? vConfig.stackLabel : metric;
+            const color = vConfig.color;
+            label = label.length <= 20 ? label : label.substr(0, 17) + '..';
+            options.labels.push( label );
+            datasets[0].data.push(null);
+            datasets[0].backgroundColor.push(color);
         }
+        options.legend = config.settings.legend;
 
-        datasets = [ {data: [], backgroundColor: []} ];
-        // set dataset values
         for ( let i = 0; i < rawdata.length; i++ ) {
-            const mData: any = rawdata[i].dps;
-            let sum = 0;
-            const n = Object.keys(mData).length;
-            for ( let k in mData ) {
-                if (!isNaN(mData[k])) {
-                    sum += mData[k];
-                }
-            }
-            datasets[0].data.push( sum );
-            datasets[0].backgroundColor.push(mConfigs[i].settings.visual.color);
+            const metric = this.util.getUniqueNameFromMetricConfig(rawdata[i]);
+            const mConfig = this.getMetricConfigurationByName(metric, mConfigs);
+            const mData: any = Object.values(rawdata[i].dps);
+            const index = metrics.indexOf(metric);
+            datasets[0].data[index] =  this.util.getArrayAggregate( mConfig.settings.visual.aggregator, mData ) ;
         }
         return [...datasets];
     }

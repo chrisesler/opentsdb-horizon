@@ -71,6 +71,7 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                         datasets: this.data
                     }
                 });
+                console.log(this.data, this.options, "this.options-1")
             } else if ( this.chart && ( changes.data  || changes.options ) ) {
                 this.chart.data.datasets = [];
                 this.updateDatasets(this.data);
@@ -90,19 +91,22 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                     }
                 };
 
-                Object.keys(this.options.scales).forEach( k => {
-                    this.options.scales[k].forEach( axis => {
-                        if ( axis.ticks ) {
-                            if ( axis.ticks.format ) {
-                                axis.ticks.callback = tickFormatter;
-                            } else {
-                                delete axis.ticks.callback;
+                if ( this.options.scales ) {
+                    Object.keys(this.options.scales).forEach( k => {
+                        this.options.scales[k].forEach( axis => {
+                            if ( axis.ticks ) {
+                                if ( axis.ticks.format ) {
+                                    axis.ticks.callback = tickFormatter;
+                                } else {
+                                    delete axis.ticks.callback;
+                                }
                             }
-                        }
+                        });
                     });
-                });
+                }
                 this.chart.options = Object.assign(this.defaultOptions, this.options);
                 this.chart.update(0);
+                console.log(this.data, this.options, "this.options-2")
             }  else if ( this.chart && changes.chartType ) {
                 this.chart.destroy();
                 const ctx = this.element.nativeElement.getContext('2d');

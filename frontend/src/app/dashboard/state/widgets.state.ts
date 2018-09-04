@@ -51,7 +51,7 @@ export interface WidgetModel {
         settings?: {
             time?: {};
             visual?: {
-                direction?: string;
+                type?: string;
                 stacks?: StackConfig[];
             };
             axes?: {
@@ -59,6 +59,7 @@ export interface WidgetModel {
                 y1?: Axis;
                 y2?: Axis;
             };
+            legend?: {},
             thresholds?: ThresholdConfig[];
         };
     };

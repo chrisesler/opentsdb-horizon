@@ -31,7 +31,7 @@ export class StackedBarchartVisualAppearanceComponent implements OnInit {
 
     ngOnInit() {
         // handles horizontal or vertical switch
-        this.displayControl = new FormControl(this.widget.query.settings.visual.direction || 'vertical');
+        this.displayControl = new FormControl(this.widget.query.settings.visual.type || 'vertical');
 
         this.displayControl.valueChanges.subscribe( d => {
             console.log("display changed", d );

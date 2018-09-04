@@ -497,7 +497,7 @@ export class HttpService {
               axes : {
               },
               visual: {
-                  direction: 'vertical',
+                  type: 'vertical',
                   stacks: [
                       {
                         label: 'Stack-1',
@@ -760,10 +760,33 @@ export class HttpService {
           start: '1h-ago',
           end: '',
           downsample: '1m-avg-nan',
+          settings: {
+            time: {
+                overrideRelativeTime: '',
+                shiftTime: '',
+                downsample: {
+                    value: '1h',
+                    aggregator: 'sum',
+                    customValue: '',
+                    customUnit: ''
+                }
+            },
+            visual: {
+
+            },
+            legend: {
+                display: false,
+                position: 'left',
+                showPercentages: true
+            }
+          },
           groups: [
             {
               id: 'ALL-COLO',
               title: 'group 1',
+              settings: {
+                visual: {},
+              },
               queries: [
                 {
                     aggregator: 'zimsum',

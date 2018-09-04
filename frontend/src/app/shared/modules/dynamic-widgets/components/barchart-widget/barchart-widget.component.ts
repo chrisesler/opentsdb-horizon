@@ -32,8 +32,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     // properties to pass to  chartjs chart directive
 
     type = 'bar';
-    direction$: BehaviorSubject<string>;
-    directionSub: Subscription;
+    type$: BehaviorSubject<string>;
+    typeSub: Subscription;
 
     categoryAxis: any = {
         type: 'category'
@@ -68,13 +68,13 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     ) { }
 
     ngOnInit() {
-        this.direction$ = new BehaviorSubject(this.widget.query.settings.visual.direction || 'vertical');
+        this.type$ = new BehaviorSubject(this.widget.query.settings.visual.type || 'vertical');
 
-        this.directionSub = this.direction$.subscribe( direction => {
-            this.widget.query.settings.visual.direction = direction;
-            this.options.scales.yAxes[0] = direction === 'vertical' ? this. valueAxis : this.categoryAxis;
-            this.options.scales.xAxes[0] = direction === 'vertical' ? this.categoryAxis : this.valueAxis;
-            this.type = direction === 'vertical' ? 'bar' : 'horizontalBar';
+        this.typeSub = this.type$.subscribe( type => {
+            this.widget.query.settings.visual.type = type;
+            this.options.scales.yAxes[0] = type === 'vertical' ? this. valueAxis : this.categoryAxis;
+            this.options.scales.xAxes[0] = type === 'vertical' ? this.categoryAxis : this.valueAxis;
+            this.type = type === 'vertical' ? 'bar' : 'horizontalBar';
         });
 
         // subscribe to event stream
@@ -140,7 +140,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 this.setAxis(message.payload.data);
                 break;
             case 'ChangeVisualization':
-                this.direction$.next(message.payload.type);
+                this.type$.next(message.payload.type);
                 break;
             case 'SetStackedBarBarVisuals':
                 this.setStackedBarLabels(message.payload.data);
@@ -283,7 +283,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         if (this.listenSub) {
             this.listenSub.unsubscribe();
         }
-        this.directionSub.unsubscribe();
+        this.typeSub.unsubscribe();
     }
 }
 
