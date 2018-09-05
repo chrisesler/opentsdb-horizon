@@ -230,4 +230,37 @@ export class DatatranformerService {
 
     return query;
   }
+
+  buildMetricObject(m) {
+    const q = {
+        aggregator: 'zimsum',
+        explicitTags: false,
+        downsample: '1m-avg-nan',
+        metric: m.metric,
+        rate: false,
+        rateOptions: {
+          counter: false,
+          resetValue: 1
+        },
+        filters: [],
+        settings: {
+            visual: {
+                visible: true
+            }
+        }
+      };
+
+      for (const k in m) {
+        if (k !== 'metric') {
+          const filter = {
+            type: 'literal_or',
+            tagk: k,
+            filter: m[k],
+            groupBy: true
+          };
+          q.filters.push(filter);
+        }
+      }
+    return q;
+  }
 }
