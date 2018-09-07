@@ -81,6 +81,13 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                             this.data = this.dataTransformer.yamasToDygraph(this.options, this.data, rawdata);
                         }
                         break;
+                    case 'getUpdatedWidgetConfig':
+                        if(this.widget.id === message.id) {
+                            this.widget = message.payload;
+                            console.log('call here erer', );                            
+                            this.refreshData();
+                        }
+                        break;
                 }
             }
         });
@@ -171,7 +178,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     refreshData() {
         this.isDataLoaded = false;
-        this.options.labels = {...this.options, labels: ['x']};
+        this.options = {...this.options, labels: ['x']};
         this.data = [[0]];
         this.requestData();
     }
@@ -187,10 +194,22 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
     // request send to update state to close edit mode
     closeViewEditMode() {
-        this.interCom.requestSend(<IMessage>{
+        this.interCom.requestSend({
             action: 'closeViewEditMode',
             payload: 'dashboard'
         });
+    }
+
+    // apply config from editing
+    applyConfig() {
+        let cloneWidget = {...this.widget};
+        cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
+        this.interCom.requestSend({
+            action: 'updateWidgetConfig',
+            payload: cloneWidget
+        });
+
+        this.closeViewEditMode();
     }
 
 }
