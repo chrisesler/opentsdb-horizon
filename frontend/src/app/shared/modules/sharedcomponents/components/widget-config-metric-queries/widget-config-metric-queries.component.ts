@@ -137,6 +137,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         // getting data passing out from dialog
         this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
             this.modGroup = dialog_out.mgroup;
+            this.widgetChange.emit({action: 'AddMetricsToGroup', payload: { data: this.modGroup }});
             console.log('return', this.modGroup);
         });
     }

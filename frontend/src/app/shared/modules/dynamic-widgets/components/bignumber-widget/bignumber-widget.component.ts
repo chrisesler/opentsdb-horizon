@@ -252,6 +252,18 @@ export class BignumberWidgetComponent implements OnInit {
         return str;
     }
 
+    updateConfig(message) {
+        switch ( message.action ) {
+            case 'SetMetaData':
+                this.setMetaData(message.payload.data);
+                break;
+        }
+    }
+
+    setMetaData(config) {
+        this.widget.settings = {...this.widget.settings, ...config};
+    }
+
     // tslint:disable-next-line:member-ordering
     valueIterationOptions: Array<any> = [
         {

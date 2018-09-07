@@ -190,9 +190,11 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     // handle when clicked to select a metric
     // should we check duplicate or same set of tags?
     selectMetric(m: any) {
+        console.log("metric=", m)
         if (!this.isMetricExit(m)) {
             this.selectedMetrics.push(m);
-            const mf = {...m, metric: this.selectedNamespace + '.' + m.metric };
+            let mf = {...m, metric: this.selectedNamespace + '.' + m.metric };
+            mf = this.dataTransformerService.buildMetricObject(mf);
             this.group.metrics.push(mf);
             this.getYamasData(this.group.metrics);
         }
@@ -201,13 +203,17 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     // to get query for selected metrics, my rebuild to keep time sync 1h-ago
     getYamasData(metrics: any[]) {
 
-        const query = this.dataTransformerService.buildAdhocYamasQuery(metrics);
+        const query = {
+            start: '1h-ago',
+            queries: metrics
+        };
+        console.log("query", query);
 
         this.httpService.getYamasData(query).subscribe(
             result => {
-                console.log('result', result);
-                // this.data = this.dataTransformerService.yamasToDygraph(this.options, result);
-                console.log('this options', this.options);
+                const groupData = {};
+                groupData[this.group.id] = result;
+                this.data = this.dataTransformerService.yamasToDygraph(this.options, [[0]] , groupData);
             },
             err => {
                 console.log('error', err);

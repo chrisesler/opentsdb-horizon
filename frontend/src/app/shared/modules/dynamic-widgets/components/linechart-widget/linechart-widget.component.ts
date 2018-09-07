@@ -5,6 +5,8 @@ import {
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
+import { UtilsService } from '../../../../../core/services/utils.service';
+
 
 import { Subscription } from 'rxjs/Subscription';
 import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
@@ -56,7 +58,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     constructor(
         private interCom: IntercomService,
-        private dataTransformer: DatatranformerService
+        private dataTransformer: DatatranformerService,
+        private util: UtilsService
     ) { }
 
     ngOnInit() {
@@ -93,6 +96,57 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         }
     }
 
+    updateConfig(message) {
+        switch ( message.action ) {
+            case 'AddMetricsToGroup':
+                this.addMetricsToGroup(message.payload.data);
+                this.refreshData();
+            case 'SetMetaData':
+                //this.setMetaData(message.payload.data);
+            case 'SetTimeConfiguration':
+                //this.setTimeConfiguration(message.payload.data);
+                break;
+            case 'SetVisualization':
+                //this.setVisualization( message.payload.gIndex, message.payload.data );
+                break;
+            case 'SetAlerts':
+                //this.setAlerts(message.payload.data);
+                break;
+            case 'SetAxes' :
+                //this.setAxis(message.payload.data);
+                break;
+        }
+    }
+
+    addMetricsToGroup(gConfig) {
+        let gid = gConfig.id;
+
+        if ( gid === 'new' ) {
+            const g = this.addNewGroup();
+            gid = g.id;
+        }
+
+        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+
+        config.queries = config.queries.concat(gConfig.metrics);
+    }
+
+    addNewGroup() {
+        const gid = this.util.generateId(6);
+        const g = {
+                    id: gid,
+                    title: 'untitled group',
+                    queries: [],
+                    settings: {
+                        tempUI: {
+                            selected: false
+                        }
+                    }
+                };
+        this.widget.query.groups.push(g);
+        return g;
+    }
+
     ngOnChanges(changes: SimpleChanges) {
         console.log('***** CHANGES *******', changes);
     }
@@ -115,9 +169,12 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     }
 
-    /**
-     * Services
-     */
+    refreshData() {
+        this.isDataLoaded = false;
+        this.options.labels = {...this.options, labels: ['x']};
+        this.data = [[0]];
+        this.requestData();
+    }
 
     requestData() {
         if (!this.isDataLoaded) {
