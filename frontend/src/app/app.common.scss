@@ -1,0 +1,251 @@
+/**
+ * COMMON STYLES APPLIED APP WIDE
+ * ALSO INCLUDES SOME COMMON OVERRIDES TO MATERIAL
+ */
+@mixin app-common-base() {
+
+    html,
+    body {
+        @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
+    }
+
+    /* GRIDSTER OVERRIDES */
+
+    .gridster-container {
+        min-height: 100%;
+
+        .position-highlight {
+            z-index: 0;
+
+            .inner {
+                position: absolute;
+                top: 5px;
+                bottom: 5px;
+                left: 5px;
+                right: 5px;
+
+                -webkit-transition: background 3s;
+                transition: background 3s;
+                border-radius: 3px;
+
+            }
+        }
+    }
+
+    .gridster-item-prototype {
+        display: block;
+        position: relative;
+        float: left;
+        z-index: 99;
+        text-align: center;
+        font-weight: bold;
+        margin: 5px;
+        width: 80px;
+        height: 60px;
+
+        &.is-over {
+            .gridster-item-inner {
+                visibility: visible;
+            }
+        }
+
+        .gridster-item-inner {
+            position: absolute;
+            top:0;
+            left: 0;
+            overflow: auto;
+            width: 80px;
+            height: 60px;
+            visibility: hidden;
+
+            -webkit-transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
+            -moz-transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
+            -o-transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
+            transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
+        }
+    }
+
+    .gridster-item {
+        .gridster-item-inner {
+            position: absolute;
+            border: 1px solid transparent;
+            top: 5px;
+            bottom: 5px;
+            left: 5px;
+            right: 5px;
+            -webkit-transition: background 3s;
+            transition: background 3s;
+            border-radius: 3px;
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
+        }
+
+        &.is-dragging {
+            .gridster-item-inner {
+                top: -3px;
+                bottom: 13px;
+            }
+        }
+    }
+
+
+    /* MATERIAL OVERRIDES */
+
+    // Material Table
+    .mat-table.is-dense {
+        width: 100%;
+
+        td.mat-cell,
+        th.mat-header-cell {
+            padding: 0 8px;
+        }
+
+        td.mat-cell:first-child,
+        td.mat-footer-cell:first-child,
+        th.mat-header-cell:first-child {
+            padding-left: 16px;
+        }
+
+        td.mat-cell:last-child,
+        td.mat-footer-cell:last-child,
+        th.mat-header-cell:last-child {
+            padding-right: 16px;
+        }
+
+        tr.mat-header-row {
+            height: 30px;
+        }
+
+        th.mat-header-cell {
+            text-transform: uppercase;
+        }
+    }
+
+}
+
+@mixin app-common-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark: map-get($theme-config, is-dark);
+
+    /* SCROLLBAR STYLING */
+    @include app-scrollbar($theme-config);
+
+    /* GRIDSTER OVERRIDES */
+
+    .gridster-item-prototype {
+        background-color: map-get($primary, darker);
+    }
+
+    .gridster-container {
+        .position-highlight {
+            .inner {
+                @include mat-elevation(3);
+                background-color: map-get($background, gridster-highlight);
+                border: 1px solid transparent;
+            }
+        }
+    }
+
+    .gridster-item {
+
+        &.is-dragging {
+            .gridster-item-inner {
+                @include mat-elevation(10);
+            }
+        }
+    }
+
+    /* MATERIAL OVERRIDES */
+    
+    // CDK items are outside of component namespace class - be sure to give them very unique names
+    .mat-menu-panel {
+        background-color: map-get($background, menu);
+
+        .mat-menu-item.is-active {
+            .mat-icon {
+                color: map-get($accent, default);
+            }
+        }
+
+    }
+
+    .mat-tab-group.mat-primary .mat-ink-bar,
+    .mat-tab-nav-bar.mat-primary .mat-ink-bar {
+        background: map-get($background, ink-bar);
+    }
+
+    .mat-datepicker-content {
+        border: 1px solid map-get($accent, default);
+        background-color: map-get($background, menu); 
+    }
+}
+
+@mixin app-scrollbar($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark: map-get($theme-config, is-dark);
+
+    /* Scrollbar config parts */
+    $scrollbar-size: 12px;
+    $scrollbar-radius: 0;
+
+    // STYLE ALL THE SCROLLBARS
+    * {
+        // background of the bar itself
+        &::-webkit-scrollbar {
+            background-color: transparent; 
+            &:vertical {
+                width: $scrollbar-size;
+            }
+            &:horizontal {
+                height: $scrollbar-size;
+            }
+        }
+        //  directional buttons on the scrollbar
+        /*&::-webkit-scrollbar-button {
+            background: purple;
+            width: $scrollbar-size - 2;
+            height: $scrollbar-size - 2;
+        }*/
+        // empty space “below” the progress bar
+        &::-webkit-scrollbar-track {
+            background-color: transparent;
+            border: 0;
+            padding: 2px;
+        }
+        // top-most layer of the the progress bar not covered by the thumb
+        &::-webkit-scrollbar-track-piece {
+            //background: cyan;
+
+            &:start {
+                background-color: map-get($foreground, divider);
+            }
+            &:end {
+                background-color: map-get($foreground, divider);
+            }
+        }
+        // draggable scrolling element resizes depending on the size of the scrollable element
+        &::-webkit-scrollbar-thumb {
+            background-color: if($is-dark, map-get($primary, default), map-get($background, navbar));
+            //border-radius: $scrollbar-radius;
+        }
+        // bottom corner of the scrollable element, where two scrollbar meet
+        &::-webkit-scrollbar-corner {
+            background-color: transparent;
+        }
+        // draggable resizing handle that appears above the scrollbar-corner at the bottom corner of some elements
+        /*&::-webkit-resizer {
+            background-color: transparent;
+        }*/
+    }
+}
