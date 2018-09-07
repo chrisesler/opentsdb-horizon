@@ -18,7 +18,7 @@ import { WidgetLoaderComponent } from '../widget-loader/widget-loader.component'
   styleUrls: ['./dboard-content.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-//changeDetection: ChangeDetectionStrategy.OnPush
+// changeDetection: ChangeDetectionStrategy.OnPush
 export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges {
   @HostBinding('class.app-dboard-content') private _hostClass = true;
 
@@ -30,6 +30,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   @Input() rerender: any;
   @Input() dashboardMode: string;
 
+  // tslint:disable-next-line:no-inferrable-types
   viewEditMode: boolean = false;
 
   gridsterOptions: IGridsterOptions = {
@@ -114,7 +115,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     }
 
     if (changes.dashboardMode && changes.dashboardMode.currentValue === 'edit') {
-      this.viewEditMode = true; 
+      this.viewEditMode = true;
     } else {
       this.viewEditMode = false;
       this.widgetViewContainer.viewContainerRef.clear();
@@ -155,12 +156,12 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   // this event will start first and set values of cellWidth and cellHeight
   // then update the this.widgets reference
   gridsterFlow(event: any) {
-    //console.log('gridsterFlow is calling and viewEditMode', this.viewEditMode);  
+    // console.log('gridsterFlow is calling and viewEditMode', this.viewEditMode);
     if (this.viewEditMode) { return; }
-    //console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
+    // console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
 
-    let width = event.gridsterComponent.gridster.cellWidth;
-    let height = event.gridsterComponent.gridster.cellHeight;
+    const width = event.gridsterComponent.gridster.cellWidth;
+    const height = event.gridsterComponent.gridster.cellHeight;
     this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height));
   }
 
@@ -168,20 +169,20 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
   // we call the function update all since we don't know which one for now.
   // the width and height unit might change but not the cell width and height.
   gridEventEnd(event: any) {
-    //console.log('drag-resize event', event);
-    //console.log('gridEventEnd is calling and viewEditMode', this.viewEditMode);  
+    // console.log('drag-resize event', event);
+    // console.log('gridEventEnd is calling and viewEditMode', this.viewEditMode);
     if (this.viewEditMode) { return; }
     // console.log(event, event.item.$element.getBoundingClientRect());
     if (event.action === 'resize' || event.action === 'drag') {
-      let width = event.item.itemComponent.gridster.cellWidth;
-      let height = event.item.itemComponent.gridster.cellHeight;
+      const width = event.item.itemComponent.gridster.cellWidth;
+      const height = event.item.itemComponent.gridster.cellHeight;
       this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height));
     }
   }
 
   // helper
   getWigetPosition(width: number, height: number): any {
-    let gridLayout = {
+    const gridLayout = {
       clientSize: {
         width: width,
         height: height
@@ -190,13 +191,13 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     };
     // position
     for (let i = 0; i < this.widgets.length; i++) {
-      let w = this.widgets[i];
+      const w = this.widgets[i];
       gridLayout.wgridPos[w.id] = {
         x: w.gridPos.xMd,
         y: w.gridPos.yMd,
         w: w.gridPos.w,
         h: w.gridPos.h
-      }
+      };
     }
     return gridLayout;
   }
