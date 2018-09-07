@@ -47,7 +47,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         strokeBorderWidth: this.isStackedGraph ? null : 1,
         highlightSeriesOpts: {
             strokeWidth: 3,
-            strockeBorderWidth: 1,
+            strokeBorderWidth: 1,
             hightlightCircleSize: 5
         }
     };
