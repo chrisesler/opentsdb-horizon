@@ -56,7 +56,6 @@
                 align-items: center;
             }
 
-            .mat-form-field-underline,
             .mat-form-field-label-wrapper {
                 display: none;
             }
@@ -88,6 +87,11 @@
 
             // specific overrides
             .search-context-form-field {
+
+                .mat-form-field-underline {
+                    display: none;
+                }
+
                 .mat-form-field-infix {
                     width: 90px;
                 }
@@ -95,6 +99,23 @@
                 .mat-select {
                     .mat-select-value-text {
                         font-size: 12px;
+                    }
+                }
+            }
+
+            .search-query-form-field {
+
+                .mat-icon {
+                    width: 14px;
+                    height: 14px;
+                    font-size: 100%;
+                }
+
+                .mat-form-field-underline {
+                    bottom: 0;
+
+                    &::before {
+                        display: none;
                     }
                 }
             }
@@ -112,15 +133,15 @@
         }
 
         .filter-column,
-        .result-column,
-        .shortcut-column {
+        .result-column {
+        // .shortcut-column {
             overflow: auto auto;
         }
 
         .filter-column {
             min-width: 240px;
 
-            .mat-nav-list[dense] {
+            /*.mat-nav-list[dense] {
                 .mat-subheader {
                     font-weight: 500;
                     padding-left: 20px;
@@ -139,19 +160,38 @@
                         padding-left: 20px;
                     }
                 }
+            }*/
+
+            .mat-selection-list {
+                .mat-list-text {
+                    flex-direction: row;
+
+                    :not(:last-child) {
+                        margin-right: 5px;
+                    }
+
+                    .mat-caption {
+                        font-size: 12px;
+                    }
+                }
+
+                .mat-pseudo-checkbox-checked::after {
+                    top: 4px;
+                    left: 2px;
+                }
             }
         }
 
         .result-column {
             flex: 1;
 
-            .result-summary {
+            /*.result-summary {
                 padding: 16px 10px 10px 10px;
-            }
+            }*/
             
             .search-results {
                 
-                .mat-nav-list[dense] {
+                /*.mat-nav-list[dense] {
                     margin-bottom: 15px;
 
                     .mat-subheader {
@@ -180,11 +220,11 @@
                             padding: 0 10px;
                         }
                     }
-                }
+                } */
             }
         }
 
-        .shortcut-column {
+        /*.shortcut-column {
             min-width: 298px;
 
             .mat-nav-list[dense] {
@@ -214,10 +254,11 @@
                     }
                 }
             }
-        }
+        }*/
 
-        .result-column,
-        .shortcut-column {
+        /*.result-column,
+        .shortcut-column {*/
+        .result-column {
             padding: 0 20px 10px 20px;
         }
     }
@@ -269,14 +310,33 @@
             border-bottom: 2px solid $divider;
         }
 
+        .dialog-search {
+
+            .mat-form-field {
+                .mat-form-field-flex {
+                    background-color: rgba(map-get($primary, default), .04);
+                }
+            }
+            .search-query-form-field {
+                .mat-icon {
+                    color: map-get($primary, default);
+                }
+                
+                .mat-form-field-ripple {
+                    background-color: map-get($primary, default);
+                }
+            }
+        }
+        
+
         .filter-column {
-            background-color: $divider;
+            //background-color: $divider;
 
             .mat-subheader {
                 color: map-get($foreground, text);
             }
 
-            .mat-list-item {
+            /*.mat-list-item {
                 color: map-get($foreground, link);
 
                 &.is-active {
@@ -284,14 +344,14 @@
                     background-color: $card-background;
                     box-shadow: inset 3px 0 0 map-get($primary, default);
                 }
-            }
+            }*/
 
             .mat-caption {
                 color: map-get($foreground, hint-text);
             }
         }
 
-        .result-column,
+        /*.result-column,
         .shortcut-column {
             .mat-nav-list[dense] {
 
@@ -299,14 +359,22 @@
                     color: map-get($foreground, link);
                 }
             }
-        }
+        }*/
 
         .result-column {
 
-            .result-summary {
-                color: map-get($foreground, hint-text);
-            }
+            /*.mat-nav-list[dense] {
 
+                .mat-list-item {
+                    color: map-get($foreground, link);
+                }
+            }*/
+
+            /*.result-summary {
+                color: map-get($foreground, hint-text);
+            }*/
+
+            /*
             .mat-nav-list[dense] {
                 .mat-subheader {
                     border-bottom: 1px solid map-get($foreground, divider);
@@ -319,12 +387,12 @@
                         color: map-get($foreground, link);
                     }
                 }
-            }
+            }*/
         }
 
-        .shortcut-column {
+        /*.shortcut-column {
             border-left: 2px solid $divider;
-        }
+        }*/
     }
 
     // CDK items
