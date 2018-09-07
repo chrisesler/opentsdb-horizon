@@ -1,4 +1,4 @@
-import { State, StateContext, Action, Selector } from '@ngxs/store';
+import { State, StateContext, Action, Selector, createSelector } from '@ngxs/store';
 import { WidgetsConfigState } from './widgets-config.state';
 import { WidgetsRawdataState } from './widgets-data.state';
 
@@ -76,6 +76,11 @@ export class UpdateGridPos {
     constructor(public readonly gridpos: any) {}
 }
 
+export class UpdateWidget {
+    public static type = '[Widget] Update Widget';
+    constructor(public readonly widget: any) {}
+}
+
 @State<WidgetModel[]>({
     name: 'Widgets',
     defaults: []
@@ -87,6 +92,14 @@ export class WidgetsState {
         return [...state];
     }
 
+    // a dynamic selector to return a selected widget by id
+    static getUpdatedWidget(wid: string) {
+        return createSelector([WidgetsState], (state: WidgetModel[]) => {
+            return state.filter(w => w.id === wid);
+        });
+    }
+
+    // update statte with the loading dashboard 
     @Action(LoadWidgets)
     loadWidgets(ctx: StateContext<WidgetModel[]>, { payload }: LoadWidgets) {
         ctx.setState(payload);
@@ -97,6 +110,19 @@ export class WidgetsState {
         const state = ctx.getState();
         for (let i = 0; i < state.length; i++) {
             state[i].gridPos = {...state[i].gridPos, ...gridpos[state[i].id]}
+        }
+        ctx.setState(state);
+    }
+
+    // updating a widget config after editing it
+    @Action(UpdateWidget)
+    updateWidget(ctx: StateContext<WidgetModel[]>, { widget }: UpdateWidget) {
+        const state = ctx.getState();
+        for (let i = 0; i < state.length; i++) {
+            if(state[i].id === widget.id) {
+                state[i] = widget;
+                break;
+            }
         }
         ctx.setState(state);
     }
