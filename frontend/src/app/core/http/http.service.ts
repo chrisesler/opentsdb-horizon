@@ -20,7 +20,7 @@ export class HttpService {
     widgets: [
         {
             id: 'bigNum1',
-            gridPos: { x: 0, y: 0, w: 4, h: 4 },
+            gridPos: { x: 0, y: 0, w: 4, h: 3 },
             settings: {
               title: 'SNMP Max Latency',
               component_type: 'BignumberWidgetComponent',
@@ -74,7 +74,7 @@ export class HttpService {
 
           {
             id: 'bigNum2',
-            gridPos: { x: 4, y: 0, w: 4, h: 4 },
+            gridPos: { x: 4, y: 0, w: 4, h: 3 },
             settings: {
               title: 'SNMP Min Latency',
               component_type: 'BignumberWidgetComponent',
@@ -128,7 +128,7 @@ export class HttpService {
 
           {
             id: 'bigNum3',
-            gridPos: { x: 8, y: 0, w: 4, h: 4 },
+            gridPos: { x: 8, y: 0, w: 4, h: 3 },
             settings: {
               title: 'SNMP Avg Latency',
               component_type: 'BignumberWidgetComponent',
@@ -181,7 +181,7 @@ export class HttpService {
           },
       {
         id: 'abcd',
-        gridPos: { x: 0, y: 4, w: 6, h: 5 },
+        gridPos: { x: 0, y: 6, w: 6, h: 5 },
         settings: {
           title: 'my widget title',
           component_type: 'LinechartWidgetComponent',
@@ -246,7 +246,7 @@ export class HttpService {
       },
       {
         id: 'cdft',
-        gridPos: { x: 6, y: 5, w: 6, h: 5 },
+        gridPos: { x: 6, y: 6, w: 6, h: 5 },
         settings: {
           title: 'my widget second title',
           component_type: 'LinechartWidgetComponent',
@@ -310,7 +310,7 @@ export class HttpService {
       },
       {
         id: 'multigroup',
-        gridPos: { x: 0, y: 11, w: 6, h: 5 },
+        gridPos: { x: 0, y: 11, w: 12, h: 5 },
         settings: {
           title: 'my widget third title',
           component_type: 'LinechartWidgetComponent',
@@ -408,7 +408,7 @@ export class HttpService {
       },
       {
         id: 'bar',
-        gridPos: { x: 6, y: 11, w: 6, h: 5 },
+        gridPos: { x: 4, y: 3, w: 4, h: 3 },
         settings: {
           title: 'Flickr CPU Speed',
           component_type: 'BarchartWidgetComponent',
@@ -546,7 +546,7 @@ export class HttpService {
       },
       {
         id: 'sbar',
-        gridPos: { x: 0, y: 11, w: 6, h: 5 },
+        gridPos: { x: 0, y: 3, w: 4, h: 3 },
         settings: {
           title: 'Flickr Application - CPU Speed by colo',
           component_type: 'StackedBarchartWidgetComponent',
@@ -823,7 +823,7 @@ export class HttpService {
       },
       {
         id: 'donut',
-        gridPos: { x: 6, y: 16, w: 6, h: 5 },
+        gridPos: { x: 8, y: 3, w: 4, h: 3 },
         settings: {
           title: 'Flickr CPU Speed',
           component_type: 'DonutWidgetComponent',
