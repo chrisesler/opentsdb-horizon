@@ -140,8 +140,7 @@ export class UnitNormalizerService {
   // Used for 'short' (auto) and time
   formatNumber(numUnit: INumberUnit, precision: number): IBigNum {
     if (numUnit.num) {
-      const fractionLength = this.getFractionLength(precision, numUnit.num);
-      const _bigNum: string = numUnit.num.toFixed(fractionLength);
+      const _bigNum: string = this.formatBigNumber(numUnit.num, precision);
       return {num: _bigNum, unit: numUnit.unit, unitPos: Position.right, changeIndicatorHasUnit: true};
     } else {
       return {num: '', unit: this.errorUnit, unitPos: Position.right, changeIndicatorHasUnit: true};
@@ -151,8 +150,7 @@ export class UnitNormalizerService {
   // Used for throughput, currency, custom units
   formatNumberWithDim(numUnit: INumberUnit, precision: number, dim: string): IBigNum {
     if (numUnit.num) {
-      const fractionLength = this.getFractionLength(precision, numUnit.num);
-      const _bigNum: string = numUnit.num.toFixed(fractionLength);
+      const _bigNum: string = this.formatBigNumber(numUnit.num, precision);
       return {num: _bigNum + numUnit.unit, unit: dim, unitPos: Position.right, changeIndicatorHasUnit: false};
     } else {
       return {num: '', unit: this.errorUnit + ' ' + dim, unitPos: Position.right, changeIndicatorHasUnit: false};
@@ -162,19 +160,18 @@ export class UnitNormalizerService {
   // Used for data, data rate
   formatNumberWithSuffixToAppend(numUnit: INumberUnit, precision: number, suffix: string): IBigNum {
     if (numUnit.num) {
-      const fractionLength = this.getFractionLength(precision, numUnit.num);
-      const _bigNum: string = numUnit.num.toFixed(fractionLength);
+      const _bigNum: string = this.formatBigNumber(numUnit.num, precision);
       return {num: _bigNum, unit: numUnit.unit + suffix, unitPos: Position.right, changeIndicatorHasUnit: true};
     } else {
       return {num: '', unit: this.errorUnit, unitPos: Position.right, changeIndicatorHasUnit: true};
     }
   }
 
-  getFractionLength(precision: number, num: number) {
+  formatBigNumber(num: number, precision: number): string {
     if (!(precision > 0 && precision < 10)) {
-      precision = 3;
+      precision = 0;
     }
-    return (precision - this.intLength(num) < 0) ? 0 : precision - this.intLength(num);
+    return parseFloat(num.toFixed(precision)).toString();
   }
 
   intLength(num: number): number {
