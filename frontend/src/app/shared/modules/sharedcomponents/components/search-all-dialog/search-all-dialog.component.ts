@@ -57,6 +57,80 @@ export class SearchAllDialogComponent implements OnInit, OnDestroy {
     ];
 
     // TODO: replace with real result array
+    fakeResultColumns: String[] = [
+        'dashboardName',
+        'owner',
+        'lastViewed'
+    ];
+    fakeSearchResults: Array<any> = [
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Hill Nguyen',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Hill Nguyen',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Arun Gupta',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Zack Burgess',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Zack Burgess',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Chris Esler',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Jazmin Orozco',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Jay Torres',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Chris Esler',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Hill Nguyen',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        },
+        {
+            dashboardName: 'Some dashboard title',
+            owner: 'Arun Gupta',
+            lastViewed: '02/24/18 2:18PM',
+            tags: ['Host', 'Colo']
+        }
+    ];
+    /* OLD RESULTS
     fakeSearchResults: Array<any> = [
         {
             groupLabel: 'jorozco',
@@ -133,7 +207,7 @@ export class SearchAllDialogComponent implements OnInit, OnDestroy {
                 }
             ]
         }
-    ];
+    ];*/
 
     // AutoSuggest
     // TODO: Replace this with empty array that gets filled out by result from service call
@@ -173,6 +247,7 @@ export class SearchAllDialogComponent implements OnInit, OnDestroy {
     // Selected filter
     // ? Might change: maybe more than one filter applied
     currentFilter: any = { label: 'All' };
+
 
     // TODO: replace with real array of possible filter keys
     fakeFilters: Array<any> = [
@@ -225,6 +300,8 @@ export class SearchAllDialogComponent implements OnInit, OnDestroy {
     /** Form Group */
     searchFormGroup: FormGroup;
 
+    filterFormGroup: FormGroup;
+
     constructor(
         private fb: FormBuilder
     ) { }
@@ -241,6 +318,10 @@ export class SearchAllDialogComponent implements OnInit, OnDestroy {
         this.searchFormGroup = this.fb.group({
            searchQuery: new FormControl(this.searchQuery),
            searchContext: new FormControl(this.searchContext)
+        });
+
+        this.filterFormGroup = this.fb.group({
+            currentFilters: new FormControl([])
         });
     }
 
@@ -263,6 +344,12 @@ export class SearchAllDialogComponent implements OnInit, OnDestroy {
      */
     querySuggestOptionSelected(event: any) {
         this.searchQuery = event.option.value;
+    }
+
+    onChange(event: any) {
+        console.log('ON CHANGE EVENT', event);
+        const vals = this.filterFormGroup.get('currentFilters').value;
+        console.log('OPTIONS SELECTED', vals);
     }
 
 }

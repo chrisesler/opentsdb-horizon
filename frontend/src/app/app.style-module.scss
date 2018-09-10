@@ -8,7 +8,9 @@
 //* Primarily it is just to help reduce code duplication
 
 // [ STEP 1 ] - IMPORT APPLICATION STYLE MODULE SCSS
+@import 'app.common';
 @import 'app.component';
+
 @import 'shared/modules/navbar/navbar.style-module';
 @import 'kitchen-sink/kitchen-sink.style-module';
 @import 'landing-page/landing-page.style-module';
@@ -21,6 +23,7 @@
 
 // [ STEP 2 ] - ADD MODULE'S BASE MIXINS (aka structure)
 @mixin app-core() {
+    @include app-common-base();
     @include app-root-base();
     @include navbar-module-core();
     @include kitchen-sink-module-core();
@@ -34,6 +37,7 @@
 
 // [ STEP 3 ] - ADD MODULES'S THEME MIXINS (aka look-n-feel)
 @mixin generate-app-theme ($theme-config) {
+    @include app-common-theme($theme-config);
     @include app-root-theme($theme-config);
     @include navbar-module-theme($theme-config);
     @include kitchen-sink-module-theme($theme-config);

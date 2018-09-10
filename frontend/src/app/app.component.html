@@ -1,55 +1,61 @@
-<!--<div fxLayout="column" fxFlexFill>
-    <header fxFlex="1 1 48px" fxLayout="row" fxLayoutAlign="stretch stretch" class="app-navigation">
-        <app-navbar fxFill fxLayout fxLayoutAlign="stretch stretch"></app-navbar>
-    </header>
-    <div fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" class="router-outlet">
-        <router-outlet></router-outlet>
-    </main>
-</div>-->
-
 <div class="app-root-wrap" fxLayout="column" fxFlexFill>
+    <!-- topmost navigation bar of the application -->
     <app-navbar fxFlex="1 1 48px" fxLayout fxLayoutAlign="stretch stretch" fxFlexFill (sidenavToggle)="toggleSidenav()"></app-navbar>
-    <!--<div fxLayout fxLayoutAlign="stretch stretch" fxFlexFill fxFlex="1 1 100%">
-        <side-navbar></side-navbar>
-        <div class="router-outlet" fxFlex="1 1 100%" fxLayout fxLayoutAlign="stretch stretch">
-            <router-outlet></router-outlet>
-        </div>
-    </div>-->
     <mat-sidenav-container class="example-container" fxFlex="1 1 100%" hasBackdrop="false">
+        <!-- the sidebar nav that slides out from left -->
         <mat-sidenav #sidenav mode="over" class="sidenav"
+            [ngClass]="{'is-expanded': sidenavExpanded}"
             [fixedInViewport]="true" 
             [fixedTopGap]="48"
             (mouseover)="sidenavMouseover($event)"
             (mouseout)="sidenavMouseout($event)"
             (mousemove)="sidenavMousemove($event)">
             <mat-nav-list>
-                <a mat-list-item>
+                <!--
+                    TODO: When we wire it up to the router state, then 
+                    we need to give an ngClass on the mat-list-items to 
+                    add .is-active when the app's location corresponds to
+                    the icon
+                -->
+                <a mat-list-item class="is-active">
                     <mat-icon fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
-                    <!--<span>Dashboards</span>-->
+                    <span class="nav-label">Dashboards</span>
                 </a>
                 <a mat-list-item>
                     <mat-icon fontSet="denali" fontIcon="d-chart-line"></mat-icon>
-                    <!--<span>Metric Explorer</span>-->
+                    <span class="nav-label">Metric Explorer</span>
                 </a>
                 <a mat-list-item>
                     <mat-icon fontSet="denali" fontIcon="d-notification"></mat-icon>
-                    <!--<span>Alerts</span>-->
+                    <span class="nav-label">Alerts</span>
                 </a>
                 <a mat-list-item>
                     <mat-icon fontSet="denali" fontIcon="d-heart-health"></mat-icon>
-                    <!--<span>Status</span>-->
+                    <span class="nav-label">Status</span>
                 </a>
                 <a mat-list-item>
                     <mat-icon fontSet="denali" fontIcon="d-flag"></mat-icon>
-                    <!--<span>Annotations</span>-->
+                    <span class="nav-label">Annotations</span>
                 </a>
                 <a mat-list-item>
                     <mat-icon fontSet="denali" fontIcon="d-user-secure"></mat-icon>
-                    <!--<span>Admin?</span>-->
+                    <span class="nav-label">Admin</span>
+                </a>
+                <a mat-list-item>
+                    <mat-icon fontSet="denali" fontIcon="d-star"></mat-icon>
+                    <span class="nav-label">Favorites</span>
+                </a>
+                <a mat-list-item>
+                    <mat-icon fontSet="denali" fontIcon="d-briefcase"></mat-icon>
+                    <span class="nav-label">Namespaces</span>
+                </a>
+                <a mat-list-item>
+                    <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+                    <span class="nav-label">Resources</span>
                 </a>
             </mat-nav-list>
         </mat-sidenav>
-
+        <!-- where the rest of the app gets output -->
         <mat-sidenav-content class="router-outlet" fxFlex="1 1 100%" fxLayout fxLayoutAlign="stretch stretch">
             <router-outlet></router-outlet>
         </mat-sidenav-content>
