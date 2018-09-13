@@ -25,7 +25,7 @@
         <mat-tab label="Queries">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent>
-                <!--<widget-config-metric-queries [widget]="widget"></widget-config-metric-queries>-->
+                <donutchart-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></donutchart-config-metric-queries>
             </ng-template>
         </mat-tab>
         <mat-tab label="Time Configuration">
