@@ -3,11 +3,19 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        margin-left: 0;
 
         .mat-icon-button {
             width: 24px;
             height: 24px;
             line-height: 1;
+
+            .mat-icon {
+                width: 14px;
+                height: 14px;
+                line-height: 14px;
+                font-size: 14px;
+            }
         }
     }
 }
