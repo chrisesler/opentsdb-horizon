@@ -1,0 +1,157 @@
+@mixin dashboard-settings-dialog-component-base(){ 
+    .dashboard-settings-dialog {
+        @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 100%;
+
+        .mat-dialog-title {
+            @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), subheading-2);
+            flex: 1 1 48px;
+            margin: 0;
+
+            &.mat-toolbar {
+                display: flex;
+                padding: 0 20px;
+            }
+
+            .close-dialog-btn {
+                min-width: auto;
+                padding: 4px;
+                line-height: 12px;
+                font-size: 12px;
+            }
+        }
+
+
+        .mat-dialog-content {
+            max-height: initial;
+            flex: 1 1 100%;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mat-dialog-actions {
+            flex: 1 1 65px;
+            padding: 12px 24px;
+            margin-bottom: initial;
+
+            // apply/cancel buttons
+            .mat-raised-button:not(:last-child) {
+                margin-right: 6px;
+            }
+        }
+
+        .content-container {
+            display: flex;
+            flex: 1;
+            flex-direction: row;
+            align-items: stretch;
+            justify-content: stretch;
+        }
+
+        .dashboard-settings-nav {
+            flex: 1 1 300px;
+            max-width: 300px;
+            min-width: 300px;
+
+            .mat-list-item {
+                &.is-active {
+                    pointer-events: none;
+                }
+            }
+        }
+
+        .setting-tab {
+            display: none;
+            flex: 1 1 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            &.is-active {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .tab-content {
+                padding: 12px 24px;
+            }
+        }
+        
+    }
+
+    // CDK ITEMS
+    .dashboard-settings-dialog-panel {
+        .mat-dialog-container {
+            transform: none;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: stretch;
+            padding: 0;
+        }
+    }
+}
+
+@mixin dashboard-settings-dialog-component-theme($theme-config) {
+    /* Theme config parts */
+    $tname: map-get($theme-config, theme-name);
+
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $widget: map-get($theme-config, widgets);
+    $is-dark: map-get($theme-config, is-dark);
+
+    $close-button-background: map-get($accent, A400);
+    $close-button-text: map-get($foreground, navbar-text);
+
+    $divider: map-get($background, background);
+    $card-background: map-get($background, card);
+
+    $light-gray-background: map-get($background, menu);
+
+    $expanded-header-bg: map-get($primary, default);
+    $expanded-header-text: map-get($primary, default-contrast);
+
+    $expanded-body-bg: rgba(map-get($primary, default), 0.05);
+
+    .dashboard-settings-dialog {
+        background-color: $card-background;
+
+        .mat-toolbar {
+            background: transparent;
+            border-bottom: 2px solid $divider;
+        }
+
+        .mat-dialog-actions { 
+            border-top: 2px solid $divider;
+        }
+
+        .content-container {
+            background: $card-background;
+        }
+
+        .dashboard-settings-nav {
+            background-color: $divider;
+
+            .mat-list-item {
+                &.is-active {
+                    background-color: $card-background;
+                    box-shadow: inset 3px 0 0 map-get($primary, default);
+                }
+            }
+        }
+    }
+
+    // CDK items
+    .cdk-overlay-pane.search-metrics-dialog-panel {
+        .mat-dialog-container {
+            background: map-get($background, background);
+        }
+    }
+}

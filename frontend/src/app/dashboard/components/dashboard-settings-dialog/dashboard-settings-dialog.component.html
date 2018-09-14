@@ -1,0 +1,65 @@
+<mat-toolbar mat-dialog-title>
+    <!--<span>Add Time Series</span>
+    <span class="flex-spacer"></span>
+    <button mat-icon-button [mat-dialog-close]="true">
+        <mat-icon>close</mat-icon>
+    </button>-->
+    <span class="dialog-title">Add Query</span>
+    <span class="flex-spacer"></span>
+    <span>
+        <button mat-button color="primary" class="close-dialog-btn" [mat-dialog-close]="true">
+            <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
+        </button>
+    </span>
+
+</mat-toolbar>
+<mat-dialog-content>
+    <div class="content-container">
+        <mat-nav-list class="dashboard-settings-nav">
+            <!-- need to figure out how to check if use is dashboard admin
+            <a mat-list-item 
+                (click)="selectSettingPanel('admin')"
+                *ngIf="user === 'admin'"
+                [ngClass]="{'is-active': selectedSettingPanel === section.idx}"><span>Admin Profile</span></a>
+            -->
+            <a mat-list-item 
+                *ngFor="let section of panelSections" 
+                (click)="selectSettingPanel(section.idx)"
+                [ngClass]="{'is-active': selectedSettingPanel === section.idx}"><span>{{ section.label }}</span></a>
+        </mat-nav-list>
+        <div class="setting-tab" [ngClass]="{'is-active': selectedSettingPanel === 0}">
+            <div class="tab-content">
+                GENERAL
+            </div>
+        </div>
+        <div class="setting-tab" [ngClass]="{'is-active': selectedSettingPanel === 1}">
+            <div class="tab-content">
+                ANNOTATIONS
+            </div>
+        </div>
+        <div class="setting-tab" [ngClass]="{'is-active': selectedSettingPanel === 2}">
+            <div class="tab-content">
+                VARIABLES
+            </div>
+        </div>
+        <div class="setting-tab" [ngClass]="{'is-active': selectedSettingPanel === 3}">
+            <div class="tab-content">
+                PERMISSIONS
+            </div>
+        </div>
+        <div class="setting-tab" [ngClass]="{'is-active': selectedSettingPanel === 4}">
+            <div class="tab-content">
+                VIEW JSON
+            </div>
+        </div>
+        <div class="setting-tab" [ngClass]="{'is-active': selectedSettingPanel === 'admin'}">
+            <div class="tab-content">
+                ADMIN PROFILE TAB
+            </div>
+        </div>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-raised-button color="primary" class="mat-elevation-z0" (click)="onClick_Apply()">APPLY</button>
+    <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="onClick_Cancel()">CANCEL</button>
+</mat-dialog-actions>
