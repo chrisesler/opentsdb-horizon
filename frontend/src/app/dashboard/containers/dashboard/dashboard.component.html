@@ -9,6 +9,9 @@
 
     <inline-editable class="navbar-item" [fieldValue]="'Dashboard Name'" [minLength]="3" [maxLength]="25" (updatedValue)="eventTriggered($event)">
     </inline-editable>
+    <span class="navbar-item navbar-icon-item nav-dashboard-config-trigger">
+        <dashboard-settings-toggle mat-button></dashboard-settings-toggle>
+    </span>
 
     <span class="flex-spacer"></span>
     <span class="navbar-item nav-add-new-widget" *ngIf="!(viewEditMode)">
