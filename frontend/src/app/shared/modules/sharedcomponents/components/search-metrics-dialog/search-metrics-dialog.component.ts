@@ -76,7 +76,7 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     selectedMetrics: any[] = [];
     group: any = {
         id: '',
-        metrics: []
+        queries: []
     };
     // properties for dygraph chart preview
     // tslint:disable-next-line:no-inferrable-types
@@ -195,8 +195,8 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             this.selectedMetrics.push(m);
             let mf = {...m, metric: this.selectedNamespace + '.' + m.metric };
             mf = this.dataTransformerService.buildMetricObject(mf);
-            this.group.metrics.push(mf);
-            this.getYamasData(this.group.metrics);
+            this.group.queries.push(mf);
+            this.getYamasData(this.group.queries);
         }
     }
 
@@ -213,7 +213,14 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             result => {
                 const groupData = {};
                 groupData[this.group.id] = result;
-                this.data = this.dataTransformerService.yamasToDygraph(this.options, [[0]] , groupData);
+                const config = {
+                                    query: {
+                                        groups: []
+                                    }
+                                };
+                config.query.groups[0] = this.group;
+                console.log("sdsdfs", config);
+                this.data = this.dataTransformerService.yamasToDygraph(config, this.options, [[0]] , groupData);
             },
             err => {
                 console.log('error', err);

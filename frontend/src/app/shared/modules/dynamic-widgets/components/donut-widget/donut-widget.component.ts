@@ -41,7 +41,16 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         labels : [ ],
         legend: {
             display: true,
-            position: 'right'
+            position: 'right',
+            labels: {
+                padding: 20
+            }
+        },
+        plugins: {
+            labels: {
+                render: 'percentage',
+                precision: 2
+            }
         }
     };
     data: any = [ { data: [] } ];
@@ -76,7 +85,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                     //const gid = Object.keys(message.payload)[0];
                     //const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
                     //console.log('donut widget==>', config.queries, gid , message);
-                    this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget.query, this.data, message.payload, false);
+                    this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget.query, this.data, message.payload);
                 break;
                 }
             }
@@ -108,6 +117,10 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     updateConfig(message) {
         switch ( message.action ) {
+            case 'AddMetricsToGroup':
+                this.addMetricsToGroup(message.payload.data);
+                    this.refreshData();
+                break;
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
             case 'SetTimeConfiguration':
@@ -125,33 +138,91 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    setVisualization( mconfigs ) {
+    addMetricsToGroup(gConfig) {
+        let gid = gConfig.id;
 
+        if ( gid === 'new' ) {
+            const g = this.addNewGroup();
+            gid = g.id;
+        }
+
+        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        const prevTotal = config.queries.length;
+
+        let i = 1;
+        const dVisaul = {
+            color: '#000000',
+            aggregator: 'sum'
+        };
+        console.log(gConfig, "gconfig")
+
+        for (const metric of gConfig.queries ) {
+            metric.settings.visual = {...dVisaul, ...metric.settings.visual };
+            metric.settings.visual.stackLabel = 'section-' + ( prevTotal + i) ;
+            i++;
+        }
+        console.log(gConfig.queries, "gconfig.metrics")
+        config.queries = config.queries.concat(gConfig.queries);
+        console.log('add metrics...', this.widget.query.groups[0].queries);
+        this.widget = {...this.widget};
+    }
+
+    addNewGroup() {
+        const gid = this.util.generateId(6);
+        const g = {
+                    id: gid,
+                    title: 'untitled group',
+                    queries: [],
+                    settings: {
+                    }
+                };
+        this.widget.query.groups.push(g);
+        return g;
+    }
+
+    refreshData() {
+        this.isDataLoaded = false;
+        this.requestData();
+    }
+
+    setVisualization( mconfigs ) {
+        console.log("setvisualication", JSON.stringify(mconfigs))
+        let reload = false;
         mconfigs.forEach( (config, i) => {
+            if (this.widget.query.groups[0].queries[i].settings.visual.aggregator !== config.aggregator ) {
+                reload = true;
+            }
             this.widget.query.groups[0].queries[i].settings.visual = { ...this.widget.query.groups[0].queries[i].settings.visual, ...config };
         });
 
-        const labels = [];
-        const colors = [];
-        const mConfigs = this.widget.query.groups[0].queries;
-        for ( let i = 0; i < mConfigs.length; i++ ) {
-            const vConfig = mConfigs[i].settings.visual;
-            let label = vConfig.stackLabel.length ? vConfig.stackLabel : mConfigs[i].metric;
-            label = label.length <= 20 ? label : label.substr(0, 17) + '..';
-            const color = vConfig.color;
-            labels.push( label );
-            colors.push(color);
+        if ( reload ) {
+            this.refreshData();
+        } else {
+            const labels = [];
+            const colors = [];
+            const mConfigs = this.widget.query.groups[0].queries;
+            for ( let i = 0; i < mConfigs.length; i++ ) {
+                const vConfig = mConfigs[i].settings.visual;
+                let label = vConfig.stackLabel.length ? vConfig.stackLabel : mConfigs[i].metric;
+                label = label.length <= 20 ? label : label.substr(0, 17) + '..';
+                const color = vConfig.color;
+                labels.push( label );
+                colors.push(color);
+            }
+            this.options.labels = labels;
+            this.options = {...this.options};
+            this.data[0] = { ...this.data[0], ...{'backgroundColor': colors } };
         }
-        this.options.labels = labels;
-        this.options = {...this.options};
-        this.data[0] = { ...this.data[0], ...{'backgroundColor': colors } };
     }
 
     setLegend(config) {
         this.widget.query.settings.legend = config;
         this.options.legend = {...this.widget.query.settings.legend};
+        this.options.plugins.labels = this.options.legend.showPercentages ? {
+            render: 'percentage',
+            precision: 2
+        } : false;
         this.options = {...this.options};
-        console.log("setlegend....", config);
     }
 
     setMetaData(config) {

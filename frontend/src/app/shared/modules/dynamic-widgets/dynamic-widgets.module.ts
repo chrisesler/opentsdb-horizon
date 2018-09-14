@@ -20,6 +20,7 @@ import { StatusWidgetComponent } from './components/status-widget/status-widget.
 import { BarchartWidgetComponent, StackedBarchartWidgetComponent } from './components/barchart-widget/barchart-widget.component';
 import { StackedBarchartVisualAppearanceComponent } from './components/barchart-widget/children/stacked-barchart-visual-appearance/stacked-barchart-visual-appearance.component';
 import { DonutchartLegendComponent } from './components/donut-widget/children/donutchart-legend/donutchart-legend.component';
+import { DonutchartConfigMetricQueriesComponent } from './components/donut-widget/children/donutchart-config-metric-queries/donutchart-config-metric-queries.component';
 
 
 @NgModule({
@@ -56,7 +57,8 @@ import { DonutchartLegendComponent } from './components/donut-widget/children/do
         BarchartWidgetComponent,
         StackedBarchartWidgetComponent,
         StackedBarchartVisualAppearanceComponent,
-        DonutchartLegendComponent
+        DonutchartLegendComponent,
+        DonutchartConfigMetricQueriesComponent
     ],
     entryComponents: [
         PlaceholderWidgetComponent,

@@ -1,4 +1,44 @@
 <!-- hrm.... material table or use natural table with classes ... think about this -->
+<ng-template [ngIf]="widget.settings.component_type==='LinechartWidgetComponent'">
+    <form [formGroup]="gForms">
+    <div *ngFor="let group of widget.query.groups; let gIndex=index">
+        <div>
+            <label class="display-label">{{ group.title }}</label>
+        </div>
+        <mat-table [dataSource]="group.queries" [formArrayName]="gIndex">
+            <ng-container cdkColumnDef="settings.visual.type">
+                    <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                            <dropdown-visual-type  formControlName="type"></dropdown-visual-type>
+                    </mat-cell>
+            </ng-container>
+            <ng-container cdkColumnDef="settings.visual.color">
+                <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                    <color-picker  (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
+                </mat-cell>
+            </ng-container>
+            <ng-container cdkColumnDef="settings.visual.lineWeight">
+                    <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                            <dropdown-line-weight  formControlName="lineWeight"></dropdown-line-weight>
+                    </mat-cell>
+            </ng-container>
+            <ng-container cdkColumnDef="settings.visual.lineType">
+                    <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                            <dropdown-line-type  formControlName="lineType"></dropdown-line-type>
+                    </mat-cell>
+            </ng-container>
+            <ng-container cdkColumnDef="settings.visual.axis">
+                    <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                        <mat-radio-group  formControlName="axis">
+                            <mat-radio-button   value="y">Y1</mat-radio-button>
+                            <mat-radio-button   value="y2">Y2</mat-radio-button>
+                        </mat-radio-group>
+                    </mat-cell>
+            </ng-container>
+            <mat-row *cdkRowDef="let row;  columns: ['settings.visual.type','settings.visual.color','settings.visual.lineWeight','settings.visual.lineType', 'settings.visual.axis']"></mat-row>
+        </mat-table>
+    </div>
+    </form>
+</ng-template>
 <ng-template [ngIf]="widget.settings.component_type==='BarchartWidgetComponent' || widget.settings.component_type==='StackedBarchartWidgetComponent'">
     <div class="column">
         <div>
