@@ -154,13 +154,15 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             color: '#000000',
             aggregator: 'sum'
         };
-        for (const metric of gConfig.metrics ) {
+        console.log(gConfig, "gconfig")
+
+        for (const metric of gConfig.queries ) {
             metric.settings.visual = {...dVisaul, ...metric.settings.visual };
             metric.settings.visual.stackLabel = 'section-' + ( prevTotal + i) ;
             i++;
         }
-        console.log(gConfig.metrics, "gconfig.metrics")
-        config.queries = config.queries.concat(gConfig.metrics);
+        console.log(gConfig.queries, "gconfig.metrics")
+        config.queries = config.queries.concat(gConfig.queries);
         console.log('add metrics...', this.widget.query.groups[0].queries);
         this.widget = {...this.widget};
     }

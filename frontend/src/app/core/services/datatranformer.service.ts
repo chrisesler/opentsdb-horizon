@@ -11,7 +11,7 @@ export class DatatranformerService {
   constructor(private util: UtilsService ) {  }
 
   // options will also be update of its labels array
-  yamasToDygraph(options: IDygraphOptions, normalizedData: any[], result: any): any {  
+  yamasToDygraph(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
 
     if (normalizedData[0].length === 1) {
       // there is no data in here but default, reset it
@@ -22,14 +22,28 @@ export class DatatranformerService {
     // generate a hash for all the keys, might have missing time
     // from multiple metric
     for (let gid in result) {
+        const gConfig = widget? this.util.getObjectByKey(widget.query.groups, 'id', gid) : {};
+        const mConfigs = gConfig ? gConfig.queries : [];
       for (let k in result[gid]) {
         let g = result[gid][k];
         // build lable, it's to send exactly duplicate metric
-        let label = g.metric + ':' + Object.values(g.tags).join('-');
+        let label = g.metric ;//+ ':' + Object.values(g.tags).join('-');
+        const mConfig = gConfig? this.getMetricConfigurationByName(label, mConfigs) : {};
+        const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
         // only pushing in if not exits, since we use same reference for view/edit
         if (!options.labels.includes(label)) {
           options.labels.push(label);     
         }
+
+        if ( options.series ) {
+            options.series[label] = {
+                strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
+                //strokePattern: this.getStrokePattern(vConfig.lineType),
+                color: vConfig.color? vConfig.color : '#000000',
+                axis: !vConfig.axis || vConfig.axis === 'y' ? 'y' : 'y2'
+            };
+        }
+
         // extract date of all series to fill it up, 
         for (let date in g.dps) {
           dpsHash[date] = true;
@@ -60,14 +74,14 @@ export class DatatranformerService {
     return [...normalizedData];
   }
 
-    yamasToChartJS( chartType, options, config, data, groupData, stacked ) {
+    yamasToChartJS( chartType, options, config, data, groupData, stacked = false ) {
         switch ( chartType ) {
             case 'bar':
                 return this.getChartJSFormattedDataBar(options, config, data, groupData, stacked);
             case 'horizontalBar':
                 return this.getChartJSFormattedDataBar(options, config, data, groupData, stacked);
             case 'donut':
-                return this.getChartJSFormattedDataDonut(options, config, data, groupData, stacked);
+                return this.getChartJSFormattedDataDonut(options, config, data, groupData);
         }
     }
 
@@ -160,7 +174,12 @@ export class DatatranformerService {
         return config;
     }
 
-    getChartJSFormattedDataDonut(options, config, datasets, groupData, stacked) {
+    getChartJSFormattedDataDonut(options, config, datasets, groupData) {
+        options.labels = [];
+        datasets[0] = {data: [], backgroundColor: []};
+        if (!groupData) {
+            return datasets;
+        }
         const gid = Object.keys(groupData)[0];
         const rawdata = groupData[gid];
         const metrics = [];
@@ -168,7 +187,7 @@ export class DatatranformerService {
 
         const gConfig = this.util.getObjectByKey(config.groups, 'id', gid);
         const mConfigs = gConfig.queries;
-        datasets[0] = {data: [], backgroundColor: []};
+
         for ( let i = 0; i < mConfigs.length; i++ ) {
             const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
             metrics.push(metric);
@@ -181,6 +200,10 @@ export class DatatranformerService {
             datasets[0].backgroundColor.push(color);
         }
         options.legend = config.settings.legend;
+        options.plugins.labels = config.settings.legend.showPercentages ? {
+                render: 'percentage',
+                precision: 2
+            } : false;
 
         for ( let i = 0; i < rawdata.length; i++ ) {
             const metric = this.util.getUniqueNameFromMetricConfig(rawdata[i]);

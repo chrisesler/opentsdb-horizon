@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, HostBinding, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, Input, Output, EventEmitter } from '@angular/core';
 
-import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 
 import { Subscription } from 'rxjs/Subscription';
 
@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs/Subscription';
     templateUrl: './widget-config-legend.component.html',
     styleUrls: []
 })
-export class WidgetConfigLegendComponent implements OnInit, OnDestroy, AfterViewInit {
+export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.legend-configuration') private _tabClass = true;
 
@@ -24,14 +24,7 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy, AfterView
     widgetConfigLegend: FormGroup;
 
     // subscriptions
-    widgetConfigLegend_Sub: Subscription;
-
-    // form values
-
-    legendHidden: any = false;
-    legendFormat: any;
-    legendPosition: any;
-    legendValues: any[] = [];
+    subscription: Subscription;
 
     /** Form Control Options */
 
@@ -65,26 +58,6 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy, AfterView
         }
     ];
 
-    valueOptions: any[] = [
-        {
-            label: 'Min',
-            value: 'min'
-        },
-        {
-            label: 'Max',
-            value: 'max'
-        },
-        {
-            label: 'Avg',
-            value: 'avg'
-        },
-        {
-            label: 'Total',
-            value: 'total'
-        }
-    ];
-
-
     constructor(private fb: FormBuilder) { }
 
     ngOnInit() {
@@ -92,42 +65,23 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy, AfterView
         this.createForm();
     }
 
-    ngAfterViewInit() {
-        // initiate any subscriptions
-    }
-
-    ngOnDestroy() {
-        // destroy any subscriptions
-    }
-
     createForm() {
+        console.log("creatform...", this.widget.query.settings.legend)
 
-        // ? INFO: These are mapped to the form variables set at top
         this.widgetConfigLegend = this.fb.group({
-            legendHidden:   new FormControl(false),
-            legendFormat: new FormControl('inline'),
-            legendPosition: new FormControl('bottom'),
-            legendValues: this.fb.array([])
+            display:   new FormControl( this.widget.query.settings.legend.display || false ),
+            format: new FormControl(this.widget.query.settings.legend.format || 'inline'),
+            position: new FormControl(this.widget.query.settings.legend.position || 'bottom')
+        });
+
+        this.subscription = this.widgetConfigLegend.valueChanges.subscribe(data => {
+            console.log("legend changes...", data);
+            this.widgetChange.emit( {action: 'SetLegend', payload: {data: data} } );
         });
 
     }
 
-    /**
-     * Services
-     */
-
-     /**
-      * Events
-      */
-
-     onLegendValuesCheckboxChange(val: string, isChecked: boolean) {
-        const legendValueFormArray = <FormArray>this.widgetConfigLegend.controls.legendValues;
-
-        if (isChecked) {
-            legendValueFormArray.push(new FormControl(val));
-        } else {
-          const index = legendValueFormArray.controls.findIndex(x => x.value === val);
-          legendValueFormArray.removeAt(index);
-        }
-      }
+    ngOnDestroy() {
+        this.subscription.unsubscribe();
+    }
 }
