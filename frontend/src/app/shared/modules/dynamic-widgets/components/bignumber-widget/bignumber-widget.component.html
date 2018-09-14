@@ -123,11 +123,6 @@
                     <widget-config-metric-queries [widget]="widget" [fakeMetrics]="fakeMetrics" [fakeGroups]="fakeGroups" [valueIterationOptions]="valueIterationOptions"></widget-config-metric-queries>
                 </ng-template> -->
             </mat-tab>
-            <mat-tab label="General">
-                <ng-template matTabContent>
-                    <widget-config-general [widget]="widget"></widget-config-general>
-                </ng-template>
-            </mat-tab>
             <mat-tab label="Time Configuration">
                 <ng-template matTabContent>
                     <widget-config-time [widget]="widget"></widget-config-time>
@@ -136,6 +131,11 @@
             <mat-tab label="Visual Appearance">
                 <ng-template matTabContent>
                     <big-number-visual-appearance [widget]="selectedMetric"></big-number-visual-appearance>
+                </ng-template>
+            </mat-tab>
+            <mat-tab label="Meta Data">
+                <ng-template matTabContent>
+                    <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
                 </ng-template>
             </mat-tab>
             

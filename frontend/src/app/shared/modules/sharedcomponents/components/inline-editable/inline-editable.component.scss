@@ -1,6 +1,13 @@
 @mixin inline-editable-component-base() {
     .inline-editable {
+        .mat-form-field-infix {
+            padding: 0px;
+            border-top-width: 14px;
+        }
 
+        .mat-form-field-wrapper {
+            padding-bottom: 1.35em;
+        }
     }
 }
 
