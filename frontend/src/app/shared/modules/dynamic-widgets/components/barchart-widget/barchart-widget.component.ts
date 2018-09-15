@@ -125,13 +125,17 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     updateConfig(message) {
         switch ( message.action ) {
+            case 'AddMetricsToGroup':
+                this.addMetricsToGroup(message.payload.data);
+                this.refreshData();
+            break;
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
                 break;
             case 'SetVisualization':
-                this.setVisualization( message.payload.gIndex, message.payload.data );
+                this.setBarVisualization( message.payload.gIndex, message.payload.data );
                 break;
             case 'SetAlerts':
                 this.setAlerts(message.payload.data);
@@ -149,6 +153,49 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 this.setStackedStackVisuals(message.payload.data);
                 break;
         }
+    }
+    addMetricsToGroup(gConfig) {
+        let gid = gConfig.id;
+
+        if ( gid === 'new' ) {
+            const g = this.addNewGroup();
+            gid = g.id;
+        }
+
+        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        const prevTotal = config.queries.length;
+
+        let i = 1;
+        const dVisaul = {
+            color: '#000000',
+            aggregator: 'sum'
+        };
+
+        for (const metric of gConfig.queries ) {
+            metric.settings.visual = {...dVisaul, ...metric.settings.visual };
+            metric.settings.visual.stackLabel = 'bar-' + ( prevTotal + i) ;
+            i++;
+        }
+        config.queries = config.queries.concat(gConfig.queries);
+        this.widget = {...this.widget};
+    }
+
+    addNewGroup() {
+        const gid = this.util.generateId(6);
+        const g = {
+                    id: gid,
+                    title: 'untitled group',
+                    queries: [],
+                    settings: {
+                    }
+                };
+        this.widget.query.groups.push(g);
+        return g;
+    }
+
+    refreshData() {
+        this.isDataLoaded = false;
+        this.requestData();
     }
 
     setMetaData(config) {
@@ -194,26 +241,33 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         this.options = {...this.options};
     }
 
-    setVisualization( gIndex, configs ) {
-
+    setBarVisualization( gIndex, configs ) {
+        let reload = false;
         configs.forEach( (config, i) => {
+            if (this.widget.query.groups[0].queries[i].settings.visual.aggregator !== config.aggregator ) {
+                reload = true;
+            }
             this.widget.query.groups[gIndex].queries[i].settings.visual = { ...this.widget.query.groups[gIndex].queries[i].settings.visual, ...config };
         });
 
-        const labels = [];
-        const colors = [];
-        const mConfigs = this.widget.query.groups[0].queries;
-        for ( let i = 0; i < mConfigs.length; i++ ) {
-            const vConfig = mConfigs[i].settings.visual;
-            let label = vConfig.stackLabel.length ? vConfig.stackLabel : mConfigs[i].metric;
-            label = label.length <= 20 ? label : label.substr(0, 17) + '..';
-            const color = vConfig.color;
-            labels.push( label );
-            colors.push(color);
+        if ( reload ) {
+            this.refreshData();
+        } else {
+            const labels = [];
+            const colors = [];
+            const mConfigs = this.widget.query.groups[0].queries;
+            for ( let i = 0; i < mConfigs.length; i++ ) {
+                const vConfig = mConfigs[i].settings.visual;
+                let label = vConfig.stackLabel.length ? vConfig.stackLabel : mConfigs[i].metric;
+                label = label.length <= 20 ? label : label.substr(0, 17) + '..';
+                const color = vConfig.color;
+                labels.push( label );
+                colors.push(color);
+            }
+            this.options.labels = labels;
+            this.options = {...this.options};
+            this.data[0] = { ...this.data[0], ...{'backgroundColor': colors } };
         }
-        this.options.labels = labels;
-        this.options = {...this.options};
-        this.data[0] = { ...this.data[0], ...{'backgroundColor': colors } };
     }
 
     setAlerts(thresholds) {
@@ -252,7 +306,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     setStackedBarLabels(gConfigs) {
-        let labels = [];
+        const labels = [];
         gConfigs.forEach( (config, i ) => {
             this.widget.query.groups[i].settings.visual.label = config.label;
             labels.push( config.label);
