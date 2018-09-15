@@ -21,6 +21,8 @@ import { BarchartWidgetComponent, StackedBarchartWidgetComponent } from './compo
 import { StackedBarchartVisualAppearanceComponent } from './components/barchart-widget/children/stacked-barchart-visual-appearance/stacked-barchart-visual-appearance.component';
 import { DonutchartLegendComponent } from './components/donut-widget/children/donutchart-legend/donutchart-legend.component';
 import { DonutchartConfigMetricQueriesComponent } from './components/donut-widget/children/donutchart-config-metric-queries/donutchart-config-metric-queries.component';
+import { BarchartConfigMetricQueriesComponent } from './components/barchart-widget/children/barchart-config-metric-queries/barchart-config-metric-queries.component';
+import { BignumberConfigMetricQueriesComponent } from './components/bignumber-widget/children/bignumber-config-metric-queries/bignumber-config-metric-queries.component';
 
 
 @NgModule({
@@ -58,7 +60,9 @@ import { DonutchartConfigMetricQueriesComponent } from './components/donut-widge
         StackedBarchartWidgetComponent,
         StackedBarchartVisualAppearanceComponent,
         DonutchartLegendComponent,
-        DonutchartConfigMetricQueriesComponent
+        DonutchartConfigMetricQueriesComponent,
+        BarchartConfigMetricQueriesComponent,
+        BignumberConfigMetricQueriesComponent
     ],
     entryComponents: [
         PlaceholderWidgetComponent,

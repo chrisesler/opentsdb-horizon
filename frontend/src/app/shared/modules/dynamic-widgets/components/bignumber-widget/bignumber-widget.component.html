@@ -119,13 +119,13 @@
         <mat-tab-group class="widget-configs" color="primary" [@.disabled]="'true'">
             <mat-tab label="Queries" class="test">
                 <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
-                <!-- <ng-template matTabContent>
-                    <widget-config-metric-queries [widget]="widget" [fakeMetrics]="fakeMetrics" [fakeGroups]="fakeGroups" [valueIterationOptions]="valueIterationOptions"></widget-config-metric-queries>
-                </ng-template> -->
+                <ng-template matTabContent>
+                    <bignumber-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></bignumber-config-metric-queries>
+                </ng-template>
             </mat-tab>
             <mat-tab label="Time Configuration">
                 <ng-template matTabContent>
-                    <widget-config-time [widget]="widget"></widget-config-time>
+                    <widget-config-time [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-time>
                 </ng-template>
             </mat-tab>
             <mat-tab label="Visual Appearance">

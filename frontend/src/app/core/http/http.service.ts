@@ -65,6 +65,11 @@ export class HttpService {
                         rateOptions: {
                           counter: false,
                           resetValue: 1
+                        },
+                        settings: {
+                            visual: {
+                                aggregator: 'sum'
+                            }
                         }
                       }
                     ]
@@ -118,6 +123,11 @@ export class HttpService {
                         rateOptions: {
                           counter: false,
                           resetValue: 1
+                        },
+                        settings: {
+                            visual: {
+                                aggregator: 'sum'
+                            }
                         }
                       }
                     ]
@@ -171,6 +181,11 @@ export class HttpService {
                         rateOptions: {
                           counter: false,
                           resetValue: 1
+                        },
+                        settings: {
+                            visual: {
+                                aggregator: 'sum'
+                            }
                         }
                       }
                     ]
@@ -479,7 +494,7 @@ export class HttpService {
                         settings: {
                             visual: {
                                 color: "#FF0000",
-                                aggregator: "SUM",
+                                aggregator: "sum",
                                 stackLabel: "WWW-BOTS"
                             }
                         }
@@ -499,7 +514,7 @@ export class HttpService {
                         settings: {
                             visual: {
                                 color: "#FFA500",
-                                aggregator: "SUM",
+                                aggregator: "sum",
                                 stackLabel: "UPLOAD"
                             }
                         }
@@ -519,7 +534,7 @@ export class HttpService {
                         settings: {
                             visual: {
                                 color: "#FFFF00",
-                                aggregator: "SUM",
+                                aggregator: "sum",
                                 stackLabel: "ZOOKEEPER"
                             }
                         }
@@ -539,7 +554,7 @@ export class HttpService {
                         settings: {
                             visual: {
                                 color: "#008000",
-                                aggregator: "SUM",
+                                aggregator: "sum",
                                 stackLabel: "TWEM"
                             }
                         }
@@ -559,7 +574,7 @@ export class HttpService {
                         settings: {
                             visual: {
                                 color: "#0000FF",
-                                aggregator: "SUM",
+                                aggregator: "sum",
                                 stackLabel: "STORM"
                             }
                         }

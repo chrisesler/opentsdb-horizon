@@ -133,6 +133,7 @@ export class DatatranformerService {
             const gConfig = this.util.getObjectByKey(config.groups, 'id', gid);
             const mConfigs = gConfig.queries;
             datasets[0] = {data: [], backgroundColor: []};
+            options.labels = [];
             for ( let i = 0; i < mConfigs.length; i++ ) {
                 const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
                 metrics.push(metric);

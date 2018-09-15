@@ -14,6 +14,8 @@
 @import 'components/barchart-widget/children/stacked-barchart-visual-appearance/stacked-barchart-visual-appearance.component';
 @import 'components/donut-widget/children/donutchart-legend/donutchart-legend.component';
 @import 'components/donut-widget/children/donutchart-config-metric-queries/donutchart-config-metric-queries.component';
+@import 'components/barchart-widget/children/barchart-config-metric-queries/barchart-config-metric-queries.component';
+@import 'components/bignumber-widget/children/bignumber-config-metric-queries/bignumber-config-metric-queries.component';
 
 @mixin dynamic-widgets-module-core() {
     // common
@@ -31,6 +33,8 @@
     @include stacked-barchart-visual-appearance-component-base();
     @include donutchart-legend-component-base();
     @include donutchart-config-metric-queries-component-base();
+    @include barchart-config-metric-queries-component-base();
+    @include bignumber-config-metric-queries-component-base();
 
 }
 
@@ -49,4 +53,6 @@
     @include stacked-barchart-visual-appearance-component-theme($theme-config);
     @include donutchart-legend-component-theme($theme-config);
     @include donutchart-config-metric-queries-component-theme($theme-config);
+    @include barchart-config-metric-queries-component-theme($theme-config);
+    @include bignumber-config-metric-queries-component-theme($theme-config);
 }

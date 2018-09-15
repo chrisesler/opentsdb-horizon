@@ -9,13 +9,13 @@ import {ExpressionDialogComponent} from '../../../../../sharedcomponents/compone
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'donutchart-config-metric-queries',
-  templateUrl: './donutchart-config-metric-queries.component.html',
-  styleUrls: ['./donutchart-config-metric-queries.component.scss']
+  selector: 'bignumber-config-metric-queries',
+  templateUrl: './bignumber-config-metric-queries.component.html',
+  styleUrls: ['./bignumber-config-metric-queries.component.scss']
 })
-export class DonutchartConfigMetricQueriesComponent implements OnInit, OnChanges {
+export class BignumberConfigMetricQueriesComponent  implements OnInit, OnChanges, OnDestroy {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
-    @HostBinding('class.donutchart-config-metric-queries-configuration') private _tabClass = true;
+    @HostBinding('class.bignumber-config-metric-queries-configuration') private _tabClass = true;
 
     /** Inputs */
     @Input() widget: any;
@@ -37,18 +37,8 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit, OnChanges
     modGroup: any; // current group that is adding metric
     mgroupId = undefined;
 
-    // lookup table for selected icons
-    // primarily for checkboxes that have intermediate states
-    selectedToggleIcon: any = {
-        'none': 'check_box_outline_blank',
-        'all': 'check_box',
-        'some': 'indeterminate_check_box'
-    };
-
-    selectAllToggle: String = 'none'; // none/all/some
-    showColorPickerIndex = -1;
-    gForms: FormGroup;
     subscription: Subscription;
+    gForms: FormGroup;
 
     constructor(public dialog: MatDialog, private fb: FormBuilder) { }
 
@@ -70,24 +60,12 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit, OnChanges
     }
 
     subscribeFormChanges() {
-        setTimeout(()=>{
+        setTimeout(() => {
             this.subscription = this.gForms.valueChanges.subscribe(data => {
                 const gid = this.widget.query.groups[0].id;
-                console.log(data, "updated... data222....")
                 this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: data[0] }});
             });
          }, 100);
-    }
-
-    openColorPopup(index) {
-        console.log("color index=", index);
-        this.showColorPickerIndex = index !== this.showColorPickerIndex ? index : -1;
-    }
-
-    selectColor(index, color) {
-        //console.log("set color =",  index, color);
-        //console.log(this.gForms.controls[0]['controls'][index]['controls'])
-        this.gForms.controls['0']['controls'][index]['controls'].color.setValue(color.hex);
     }
 
     openTimeSeriesMetricDialog() {
@@ -123,12 +101,13 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit, OnChanges
     }
 
     createFormArray(queries): FormArray {
-        console.log("create", queries.length)
-                return new FormArray(queries.map(item => new FormGroup({
-                    aggregator: new FormControl(item.settings.visual.aggregator),
-                    stackLabel : new FormControl(item.settings.visual.stackLabel),
-                    color : new FormControl(item.settings.visual.color)
-                })));
+        return new FormArray(queries.map(item => new FormGroup({
+            aggregator: new FormControl(item.settings.visual.aggregator)
+        })));
+    }
+
+    ngOnDestroy() {
+        this.subscription.unsubscribe();
     }
 
 }

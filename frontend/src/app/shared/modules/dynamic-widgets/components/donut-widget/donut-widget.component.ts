@@ -123,6 +123,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 break;
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
+                break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
                 break;
