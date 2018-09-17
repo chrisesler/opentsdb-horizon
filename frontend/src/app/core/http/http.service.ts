@@ -180,7 +180,7 @@ export class HttpService {
           },
       {
         id: 'abcd',
-        gridPos: { x: 0, y: 4, w: 12, h: 5 },
+        gridPos: { x: 0, y: 4, w: 6, h: 5 },
         settings: {
           title: 'my widget title',
           component_type: 'LinechartWidgetComponent',
@@ -193,80 +193,65 @@ export class HttpService {
           downsample: '1m-avg-nan',
           settings: {
             time: {
-                overrideRelativeTime: '',
-                shiftTime: '',
-                downsample: {
-                    value: '1h',
-                    aggregator: 'sum',
-                    customValue: '',
-                    customUnit: ''
-                }
+              overrideRelativeTime: '',
+              shiftTime: '',
+              downsample: {
+                value: '1h',
+                aggregator: 'sum',
+                customValue: '',
+                customUnit: ''
+              }
             },
-            query: {
-              start: '1h-ago',
-              end: '',
-              downsample: '1m-avg-nan',
+            visual: {},
+            legend: {
+              display: true,
+              position: 'right'
+            },
+            axes: {
+              y1: {},
+              y2: {}
+            }
+          },
+          groups: [
+            {
+              id: 'gaga',
+              title: 'group 2',
               settings: {
-                time: {
-                    overrideRelativeTime: '',
-                    shiftTime: '',
-                    downsample: {
-                        value: '1h',
-                        aggregator: 'sum',
-                        customValue: '',
-                        customUnit: ''
-                    }
-                },
-                visual: {},
-                legend: {
-                    display: true,
-                    position: 'right'
-                },
-                axes: {
-                    y1: {},
-                    y2: {}
+                visual: {
+                  visible: true
                 }
               },
-              groups: [
+              queries: [
                 {
-                  id: 'gaga',
-                  title: 'group 2',
+                  metric: 'SNMP-Net.intercolo.avg_latency',
+                  filters: [
+                    {
+                      type: 'wildcard',
+                      tagk: 'host',
+                      filter: '*',
+                      groupBy: true
+                    }
+                  ],
+                  aggregator: 'zimsum',
+                  explicitTags: false,
+                  rate: false,
+                  rateOptions: {
+                    counter: false,
+                    resetValue: 1
+                  },
                   settings: {
                     visual: {
-                      visible: true
+                      color: "#FF0000",
+                      type: 'line',
+                      label: "yahoo"
                     }
-                  },
-                  queries: [
-                    {
-                      metric: 'SNMP-Net.intercolo.avg_latency',
-                      filters: [
-                        {
-                          type: 'wildcard',
-                          tagk: 'host',
-                          filter: '*',
-                          groupBy: true
-                        }
-                      ],
-                      aggregator: 'zimsum',
-                      explicitTags: false,
-                      rate: false,
-                      rateOptions: {
-                        counter: false,
-                        resetValue: 1
-                      },
-                      settings: {
-                        visual: {
-                            color: "#FF0000",
-                            type: 'line',
-                            label: "yahoo"
-                        }
-                      }
-                    }
-                  ]
+                  }
                 }
               ]
             }
-          },
+          ]
+        }
+      },
       {
         id: 'cdft',
         gridPos: { x: 6, y: 6, w: 6, h: 5 },
