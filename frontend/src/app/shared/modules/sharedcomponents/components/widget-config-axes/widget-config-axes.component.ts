@@ -114,9 +114,9 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
                 this.widgetConfigAxes.addControl('y1', this.getAxisFormGroup(this.getAxisConfiguration('y1')));
             break;
             case 'LinechartWidgetComponent':
+                this.y1AxisEnabledToggleDisplay = false;
                 this.widgetConfigAxes.addControl('y1', this.getAxisFormGroup(this.getAxisConfiguration('y1')));
                 this.widgetConfigAxes.addControl('y2', this.getAxisFormGroup(this.getAxisConfiguration('y2')));
-                this.widgetConfigAxes.addControl('x', this.getAxisFormGroup(this.getAxisConfiguration('x')));
             break;
 
         }

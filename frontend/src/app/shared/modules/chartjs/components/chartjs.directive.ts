@@ -1,8 +1,9 @@
 import { OnInit, OnChanges, OnDestroy, Directive,
     Input, Output, EventEmitter, ElementRef, SimpleChanges } from '@angular/core';
-import { Chart } from 'chart.js';
+import 'chart.js';
 import * as thresholdPlugin from '../../../chartjs-threshold-plugin';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
+import 'chartjs-plugin-labels';
 
 
 
@@ -57,21 +58,18 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
 
     ngOnChanges(changes: SimpleChanges) {
         if ( changes ) {
-            console.log("chartjs", changes);
-
             if ( !this.chart && this.data ) {
                 const ctx = this.element.nativeElement.getContext('2d');
                 this.updateDatasets(this.data);
                 this.chart = new Chart(ctx, {
                     type: this.chartType,
-                    plugins:[thresholdPlugin],
+                    plugins: [ thresholdPlugin ],
                     options: Object.assign(this.defaultOptions, this.options),
                     data: {
                         labels: this.options.labels,
                         datasets: this.data
                     }
                 });
-                console.log(this.data, this.options, "this.options-1")
             } else if ( this.chart && ( changes.data  || changes.options ) ) {
                 this.chart.data.datasets = [];
                 this.updateDatasets(this.data);
@@ -106,21 +104,19 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                 }
                 this.chart.options = Object.assign(this.defaultOptions, this.options);
                 this.chart.update(0);
-                console.log(this.data, this.options, "this.options-2")
             }  else if ( this.chart && changes.chartType ) {
                 this.chart.destroy();
                 const ctx = this.element.nativeElement.getContext('2d');
                 this.updateDatasets(this.data);
                 this.chart = new Chart(ctx, {
                     type: this.chartType,
-                    plugins: [thresholdPlugin],
+                    plugins: [ thresholdPlugin ],
                     options: Object.assign(this.defaultOptions, this.options),
                     data: {
                         labels: this.options.labels,
                         datasets: this.data
                     }
                 });
-                console.log("this.options", this.chartType, (this.options), (this.data));
             }
         }
     }

@@ -13,6 +13,7 @@ export interface Axis {
     unit: string;
     scale: string;
     decimals: number;
+    enabled: boolean;
 }
 
 export interface ThresholdConfig {
@@ -59,7 +60,10 @@ export interface WidgetModel {
                 y1?: Axis;
                 y2?: Axis;
             };
-            legend?: {},
+            legend?: {
+                display: boolean;
+                position: string;
+            };
             thresholds?: ThresholdConfig[];
         };
     };
