@@ -27,11 +27,8 @@ import { ConfigTagsListComponent } from './components/config-tags-list/config-ta
 // directives
 import { WidgetDirective } from './directives/widget.directive';
 import { WidgetViewDirective } from './directives/widgetview.directive';
-
-// widget-type component for dynamic load
-//import { WidgetbaseComponent } from './widgets/components/widgetbase/widgetbase.component';
-//import { WsampleComponent } from './widgets/components/wsample/wsample.component';
-//import { LineChartComponent } from './widgets/components/chartjs/line-chart.component';
+import { DashboardSettingsDialogComponent } from './components/dashboard-settings-dialog/dashboard-settings-dialog.component';
+import { DashboardSettingsToggleComponent } from './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
 
 @NgModule({
     imports: [
@@ -42,7 +39,7 @@ import { WidgetViewDirective } from './directives/widgetview.directive';
         GridsterModule,
         SharedcomponentsModule,
         DashboardRoutingModule,
-        NgxsModule.forFeature([DBState, DBSettingsState, WidgetsState, 
+        NgxsModule.forFeature([DBState, DBSettingsState, WidgetsState,
             ClientSizeState, WidgetsRawdataState]),
         DynamicWidgetsModule
     ],
@@ -53,18 +50,15 @@ import { WidgetViewDirective } from './directives/widgetview.directive';
         WidgetLoaderComponent,
         WidgetDirective,
         WidgetViewDirective,
-        //WidgetbaseComponent,
-        //WsampleComponent,
-        //LineChartComponent,
-        ConfigTagsListComponent
+        ConfigTagsListComponent,
+        DashboardSettingsDialogComponent,
+        DashboardSettingsToggleComponent
     ],
     providers: [
         DashboardService
     ],
     entryComponents: [
-        //WidgetbaseComponent,
-        //WsampleComponent,
-        //LineChartComponent
+        DashboardSettingsDialogComponent
     ]
 })
 export class DashboardModule { }

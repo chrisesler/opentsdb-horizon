@@ -40,7 +40,8 @@ export class HttpService {
                             customValue: '',
                             customUnit: ''
                         }
-                    }
+                    },
+                    axes: {}
                 },
                 groups: [
                   {
@@ -71,7 +72,6 @@ export class HttpService {
                 ]
             }
           },
-
           {
             id: 'bigNum2',
             gridPos: { x: 4, y: 0, w: 4, h: 3 },
@@ -125,7 +125,6 @@ export class HttpService {
                 ]
             }
           },
-
           {
             id: 'bigNum3',
             gridPos: { x: 8, y: 0, w: 4, h: 3 },
@@ -181,7 +180,7 @@ export class HttpService {
           },
       {
         id: 'abcd',
-        gridPos: { x: 0, y: 6, w: 6, h: 5 },
+        gridPos: { x: 0, y: 4, w: 12, h: 5 },
         settings: {
           title: 'my widget title',
           component_type: 'LinechartWidgetComponent',
@@ -203,47 +202,71 @@ export class HttpService {
                     customUnit: ''
                 }
             },
-            visual: {},
-            legend: {}
-          },
-          groups: [
-            {
-              id: 'gaga',
-              title: 'group 2',
+            query: {
+              start: '1h-ago',
+              end: '',
+              downsample: '1m-avg-nan',
               settings: {
-                visual: {
-                  visible: true
+                time: {
+                    overrideRelativeTime: '',
+                    shiftTime: '',
+                    downsample: {
+                        value: '1h',
+                        aggregator: 'sum',
+                        customValue: '',
+                        customUnit: ''
+                    }
+                },
+                visual: {},
+                legend: {
+                    display: true,
+                    position: 'right'
+                },
+                axes: {
+                    y1: {},
+                    y2: {}
                 }
               },
-              queries: [
+              groups: [
                 {
-                  metric: 'SNMP-Net.intercolo.avg_latency',
-                  filters: [
-                    {
-                      type: 'wildcard',
-                      tagk: 'host',
-                      filter: '*',
-                      groupBy: true
-                    }
-                  ],
-                  aggregator: 'zimsum',
-                  explicitTags: false,
-                  rate: false,
-                  rateOptions: {
-                    counter: false,
-                    resetValue: 1
-                  },
+                  id: 'gaga',
+                  title: 'group 2',
                   settings: {
                     visual: {
                       visible: true
                     }
-                  }
+                  },
+                  queries: [
+                    {
+                      metric: 'SNMP-Net.intercolo.avg_latency',
+                      filters: [
+                        {
+                          type: 'wildcard',
+                          tagk: 'host',
+                          filter: '*',
+                          groupBy: true
+                        }
+                      ],
+                      aggregator: 'zimsum',
+                      explicitTags: false,
+                      rate: false,
+                      rateOptions: {
+                        counter: false,
+                        resetValue: 1
+                      },
+                      settings: {
+                        visual: {
+                            color: "#FF0000",
+                            type: 'line',
+                            label: "yahoo"
+                        }
+                      }
+                    }
+                  ]
                 }
               ]
             }
-          ]
-        }
-      },
+          },
       {
         id: 'cdft',
         gridPos: { x: 6, y: 6, w: 6, h: 5 },
@@ -268,6 +291,10 @@ export class HttpService {
                 }
             },
             visual: {},
+            axes: {
+                y1: {},
+                y2: {}
+            },
             legend: {}
           },
           groups: [
@@ -299,8 +326,11 @@ export class HttpService {
                   },
                   settings: {
                     visual: {
-                     visible: true
-                    }
+                        color: "#000000",
+                        type: 'line',
+                        label: "yahoo"
+                    },
+                    visible: true
                   }
                 }
               ]
@@ -332,6 +362,10 @@ export class HttpService {
                 }
             },
             visual: {},
+            axes: {
+                y1: {},
+                y2: {}
+            },
             legend: {}
           },
           groups: [
@@ -363,8 +397,11 @@ export class HttpService {
                   },
                   settings: {
                     visual: {
-                      visual: true
-                    }
+                        color: "#000000",
+                        type: 'line',
+                        label: "yahoo"
+                    },
+                    visible: true
                   }
                 }
               ]
@@ -397,8 +434,11 @@ export class HttpService {
                   },
                   settings: {
                     visual: {
-                      visible: true
-                    }
+                        color: "#0000FF ",
+                        type: 'line',
+                        label: "yahoo"
+                    },
+                    visible: true
                   }
                 }
               ]
@@ -846,8 +886,8 @@ export class HttpService {
             },
             visual: {},
             legend: {
-                display: false,
-                position: 'left',
+                display: true,
+                position: 'right',
                 showPercentages: true
             }
           },
@@ -873,8 +913,8 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "red",
-                            aggregator: "SUM",
+                            color: "#FF0000",
+                            aggregator: "avg",
                             stackLabel: "WWW-BOTS"
                         }
                     }
@@ -893,8 +933,8 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "orange",
-                            aggregator: "SUM",
+                            color: "#FFA500",
+                            aggregator: "avg",
                             stackLabel: "UPLOAD"
                         }
                     }
@@ -913,8 +953,8 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "yellow",
-                            aggregator: "SUM",
+                            color: "#FFFF00",
+                            aggregator: "avg",
                             stackLabel: "ZOOKEEPER"
                         }
                     }
@@ -933,8 +973,8 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "green",
-                            aggregator: "SUM",
+                            color: "#008000",
+                            aggregator: "avg",
                             stackLabel: "TWEM"
                         }
                     }
@@ -953,8 +993,8 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "blue",
-                            aggregator: "SUM",
+                            color: "#0000FF",
+                            aggregator: "avg",
                             stackLabel: "STORM"
                         }
                     }

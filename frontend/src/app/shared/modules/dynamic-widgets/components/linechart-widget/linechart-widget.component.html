@@ -7,16 +7,36 @@
             </button>
         </span>
     </div>
-    <div class="widget-output" #widgetoutput>
-        <div id="dygraph_div"
+    <div class="widget-output" #widgetoutput [style.marginTop]="editMode?'30px':'0'">
+        <div id="dygraphLegendTop" class="legend"
+            [style.visibility]="widget.query.settings.legend.display && widget.query.settings.legend.position=='top' ? 'visible':'hidden'"
+            [style.height]="widget.query.settings.legend.display && widget.query.settings.legend.position=='top' ? '20%':'0%'"></div>
+        <div id="dygraphLegendLeft" class="legend"
+            [style.visibility]="widget.query.settings.legend.display && widget.query.settings.legend.position=='left' ? 'visible':'hidden'"
+            [style.height]="size.height + 'px'" 
+            [style.width]="widget.query.settings.legend.display && widget.query.settings.legend.position=='left' ? '20%':'0%'"></div>
+        <div id="dygraph_div" 
             dygraphsChart
             [chartType]="chartType"
             [data]="data"
             [size]="size"
             [options]="options">
         </div>
+        <div id="dygraphLegendRight" class="legend"
+            [style.visibility]="widget.query.settings.legend.display && widget.query.settings.legend.position=='right' ? 'visible':'hidden'"
+            [style.height]="size.height + 'px'" 
+            [style.width]="widget.query.settings.legend.display && widget.query.settings.legend.position=='right' ? '20%':'0%'"></div>
+        <div id="dygraphLegendBottom" class="legend"
+            [style.visibility]="widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom' ? 'visible':'hidden'"
+            [style.top]="size.height + 'px'" 
+            [style.height]="widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom' ? '20%':'0%'"></div>
     </div>
 </div>
+<!--
+                [style.height]="widget.query.settings.legend.display && (widget.query.settings.legend.position=='top' || widget.query.settings.legend.position=='bottom') ? (size.height * 0.8) + 'px': size.height + 'px'"
+            [style.width]="widget.query.settings.legend.display && (widget.query.settings.legend.position=='left' || widget.query.settings.legend.position=='right') ? (size.width * 0.8) + 'px' : size.width + 'px'    "
+
+-->
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">
     <!-- tabs with config content -->
@@ -27,37 +47,36 @@
                 <widget-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
             </ng-template>
         </mat-tab>
-        <mat-tab label="General">
-            <ng-template matTabContent>
-                <widget-config-general [widget]="widget"></widget-config-general>
-            </ng-template>
-        </mat-tab>
         <mat-tab label="Time Configuration">
             <ng-template matTabContent>
-                <widget-config-time [widget]="widget"></widget-config-time>
+                <widget-config-time [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-time>
             </ng-template>
         </mat-tab>
         <mat-tab label="Axes">
             <ng-template matTabContent>
-                <widget-config-axes [widget]="widget"></widget-config-axes>
+                <widget-config-axes [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-axes>
             </ng-template>
         </mat-tab>
         <mat-tab label="Visual Appearance">
             <ng-template matTabContent>
-                <widget-config-visual-appearance [widget]="widget"></widget-config-visual-appearance>
-            </ng-template>
-        </mat-tab>
-        <mat-tab label="Legend">
-            <ng-template matTabContent>
-                <widget-config-legend [widget]="widget"></widget-config-legend>
+                <widget-config-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-visual-appearance>
             </ng-template>
         </mat-tab>
         <mat-tab label="Alerts">
             <ng-template matTabContent>
-                <widget-config-alerts [widget]="widget"></widget-config-alerts>
+                <widget-config-alerts [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-alerts>
             </ng-template>
         </mat-tab>
-
+        <mat-tab label="Legend">
+                <ng-template matTabContent>
+                    <widget-config-legend [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-legend>
+                </ng-template>
+        </mat-tab>
+        <mat-tab label="Meta Data">
+                <ng-template matTabContent>
+                    <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
+                </ng-template>
+            </mat-tab>
         <mat-tab>
             <!-- custom tab label. (see: https://material.angular.io/components/tabs/overview#labels) -->
             <ng-template mat-tab-label>

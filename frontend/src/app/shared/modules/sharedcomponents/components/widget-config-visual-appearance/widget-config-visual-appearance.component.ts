@@ -46,6 +46,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
             this.dataSources[index] = group.queries;
             this.gForms.addControl(index, this.createFormArray(this.dataSources[index]));
         });
+        console.log(this.gForms, "this.gforms")
 
         switch ( this.widget.settings.component_type ) {
             case 'BarchartWidgetComponent':
@@ -57,13 +58,16 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
 
         }
 
-        this.displayControl.valueChanges.subscribe( d => {
-            console.log("display changed", d );
-            this.widgetChange.emit( {'action': 'ChangeVisualization', payload: { type: d }});
-        });
+        if ( this.displayControl ) {
+            this.displayControl.valueChanges.subscribe( d => {
+                console.log("display changed", d );
+                this.widgetChange.emit( {'action': 'ChangeVisualization', payload: { type: d }});
+            });
+        }
 
         Object.keys(this.gForms.controls).forEach( gIndex => {
             this.gSubscriptions[gIndex] = this.gForms.get(gIndex).valueChanges.subscribe(data => {
+                console.log(data, "data....")
                 this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: gIndex, data: data }});
             });
         });
@@ -73,10 +77,23 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
 
     }
     createFormArray(ds): FormArray {
-        return new FormArray(ds.map(item => new FormGroup({
-            stackLabel : new FormControl(item.settings.visual.stackLabel),
-            color : new FormControl(item.settings.visual.color)
-        })));
+        switch ( this.widget.settings.component_type ) {
+            case 'BarchartWidgetComponent':
+            case 'DonutWidgetComponent':
+                return new FormArray(ds.map(item => new FormGroup({
+                    stackLabel : new FormControl(item.settings.visual.stackLabel),
+                    color : new FormControl(item.settings.visual.color)
+                })));
+            case 'LinechartWidgetComponent':
+                return new FormArray(ds.map(item => new FormGroup({
+                    type: new FormControl( item.settings.visual.type || 'bar'),
+                    label : new FormControl(item.settings.visual.label),
+                    color : new FormControl(item.settings.visual.color),
+                    lineWeight : new FormControl(item.settings.visual.lineWeight || '2px'),
+                    lineType: new FormControl(item.settings.visual.lineType),
+                    axis: new FormControl( item.settings.visual.axis || 'y' )
+                })));
+        }
     }
 
     selectColor(color, gIndex, index ) {

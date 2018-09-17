@@ -1,5 +1,5 @@
-<!-- color picker overlay -->
-<ng-container *ngIf="pickerMode === dropDown">
+<!-- dropDown button -->
+<ng-container *ngIf="pickerMode === dropDown else contentForOtherModes">
     <button mat-raised-button  cdkOverlayOrigin #trigger="cdkOverlayOrigin" (click)="toggle()">
         <span class="btn-picker">
             <div class="color-sample" [style.background]="color"></div>
@@ -20,14 +20,24 @@
     </ng-template>
 
 </ng-container>
-    
-<!-- color picker flat -->
-<ng-template *ngIf="isOpen" [cdkPortalOutlet]="overlayPanel"></ng-template>
+
+<!-- trigger color picker content for embeddedView and dropDownNoButton -->
+<ng-template 
+    #contentForOtherModes
+    cdkConnectedOverlay 
+    cdkConnectedOverlayHasBackdrop 
+    cdkConnectedOverlayBackdropClass="color-picker-backdrop"
+    [cdkConnectedOverlayOpen]="isOpen" 
+    (backdropClick)="backdropClick()">
+
+    <ng-template [cdkPortalOutlet]="overlayPanel"></ng-template>
+
+</ng-template>
 
 <!-- color picker component content -->
 <ng-template cdkPortal #overlayPanel="cdkPortal">
 
-    <div class="card cp" [ngClass]="{'mat-elevation-z4' : pickerMode != embedded}" >
+    <div *ngIf="isOpen" class="card cp" [ngClass]="{'mat-elevation-z4' : pickerMode != embedded}" >
 
         <!-- Default Color Selector -->
         <div *ngIf="!selectingCustomColor" >

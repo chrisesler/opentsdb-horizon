@@ -50,9 +50,26 @@
 
         .landing-page-utilities {
             .mat-toolbar {
+
+                &.mat-toolbar-single-row {
+                    padding-left: 0;
+                    padding-right: 0;
+                }
+
                 .search-utility,
                 .add-widget-button {
                     margin-right: 20px;
+                }
+
+                .add-widget-button,
+                .new-dashboard-button {
+                    .mat-icon {
+                        margin-right: 8px;
+                        font-size: 100%;
+                        width: 12px;
+                        height: 12px;
+                        line-height: 1;
+                    }
                 }
             }
 
@@ -70,7 +87,7 @@
                 }
     
                 .mat-form-field-infix {
-                    padding: .5em 0 .5em 0;
+                    padding: .35em 0 .35em 0;
                     border-top: 0;
                 }
     
@@ -130,15 +147,20 @@
                 }
     
                 .search-query-form-field {
+
+                    .mat-form-field-infix{
+                        padding-bottom: .45em;
+                    }
     
                     .mat-input-element {
                         font-size: 12px;
                     }
-                    
+
                     .mat-icon {
                         width: 14px;
                         height: 14px;
-                        font-size: 100%;
+                        font-size: 14px;
+                        line-height: 1;
                     }
     
                     .mat-form-field-underline {
@@ -187,6 +209,19 @@
         .landing-page-utilities {
             .search-utility {
                 background-color: map-get($background, card);
+                
+                .search-query-form-field {
+                    .mat-icon {
+                        color: map-get($primary, default);
+                    }
+
+                    .mat-form-field-underline {
+                        
+                        .mat-form-field-ripple {
+                            background-color: map-get($primary, default);
+                        }
+                    }
+                }
             }
         }
     }
