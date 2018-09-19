@@ -122,6 +122,91 @@
         }
     }
 
+
+    .mat-form-field {
+
+        
+        
+        // if mat-form-field[floatLabel="never"
+        &.mat-form-field-hide-placeholder {
+            .mat-form-field-wrapper {
+                padding-bottom: initial;
+            }
+    
+            .mat-form-field-flex {
+                line-height: 1;
+                border-radius: 4px;
+            }
+    
+            .mat-form-field-infix {
+                padding: 8px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-top: 0;
+            }
+
+            .mat-form-field-underline {
+                bottom: 0;
+            }
+
+            // MatInput
+
+            .mat-input-element {
+                padding: 0 8px;
+            }
+
+            
+        }
+
+        // if mat-form-field[appearance="fill"]
+        &.mat-form-field-appearance-fill {
+            .mat-form-field-wrapper {
+                padding-bottom: initial;
+            }
+
+            .mat-form-field-flex {
+                padding: 0;
+            }
+
+            .mat-form-field-infix {
+                padding: 8px;
+                border-top: 0;
+            }
+
+            .mat-form-field-underline {
+                bottom: 0;
+            }
+
+            // MatInput
+
+            // MatSelect
+
+            .mat-select {
+                .mat-select-trigger {
+                    width: 100%;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .mat-select-value {
+                    display: flex;
+                    width: 100%;
+                    max-width: initial;
+                }
+
+                .mat-select-arrow-wrapper {
+                    height: 100%;
+                    transform: initial;
+                    display: inline-flex;
+                    vertical-align: initial;
+                    align-items: center;
+                }
+            }
+        }
+    }
+
 }
 
 @mixin app-common-theme($theme-config) {
@@ -183,6 +268,45 @@
     .mat-datepicker-content {
         border: 1px solid map-get($accent, default);
         background-color: map-get($background, menu); 
+    }
+
+    // Mat Form Field
+    .mat-form-field {
+        &.mat-form-field-appearance-fill {
+            .mat-form-field-flex  {
+                background-color: rgba(map-get($primary, default), 0.08);
+            }
+
+            // remove the underline... inkbar will show on focus
+            // make it transparent, because there is some sort of animation
+            .mat-form-field-underline::before {
+                background-color: rgba(0,0,0,0); // this is transparent
+            }
+
+            &:hover:not(.mat-focused) {
+                .mat-form-field-underline {
+                    background-color: rgba(0,0,0,0); // this is transparent
+
+                    .mat-form-field-ripple {
+                        background-color: rgba(map-get($primary, default),0.3);
+                    }
+                }
+            }
+
+            &.mat-focused,
+            &:hover {
+                @include mat-elevation(1);
+            }
+        }
+
+        &.mat-form-field-legacy {
+            .mat-form-field-underline {
+                background-color: rgba(0,0,0,0); // this is transparent
+            }
+        }
+
+
+        
     }
 }
 
