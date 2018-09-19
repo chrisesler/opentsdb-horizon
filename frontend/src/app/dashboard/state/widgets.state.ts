@@ -24,6 +24,7 @@ export interface ThresholdConfig {
 }
 
 export interface StackConfig {
+    id: string;
     label: string;
     color: string;
 }

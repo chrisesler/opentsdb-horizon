@@ -195,10 +195,7 @@ export class BignumberWidgetComponent implements OnInit {
         if (!this.editMode) {
             this.requestData();
         } else {
-            this.interCom.requestSend({
-                id: this.widget.id,
-                action: 'getWidgetCachedData'
-            });
+            this.requestCachedData();
         }
     }
 
@@ -210,6 +207,13 @@ export class BignumberWidgetComponent implements OnInit {
                 payload: this.widget.query
             });
         }
+    }
+
+    requestCachedData() {
+        this.interCom.requestSend({
+            id: this.widget.id,
+            action: 'getWidgetCachedData'
+        });
     }
 
     transform(map: Map<any, any>): any[] {
@@ -268,7 +272,13 @@ export class BignumberWidgetComponent implements OnInit {
                 break;
             case 'SetVisualization':
                 this.setVisualization(message.payload.data);
-                this.refreshData();
+                this.refreshData(false);
+                break;
+            case 'ToggleQuery':
+                this.toggleQuery(message.payload.index);
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.payload.index);
                 break;
         }
     }
@@ -326,13 +336,31 @@ export class BignumberWidgetComponent implements OnInit {
                                          };
     }
 
+    toggleQuery(index) {
+        const gIndex = 0;
+        this.widget.query.groups[gIndex].queries[index].settings.visual.visible = !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+        console.log("toggleQuery", this.widget.query.groups[gIndex].queries);
+        //this.refreshData(false);
+    }
+
+    deleteQuery(index) {
+        const gIndex = 0;
+        this.widget.query.groups[gIndex].queries.splice(index, 1);
+        console.log("deleteQuery", this.widget.query.groups[gIndex].queries);
+        //this.refreshData(false);
+    }
+
     setMetaData(config) {
         this.widget.settings = {...this.widget.settings, ...config};
     }
 
-    refreshData() {
+    refreshData(reload = true) {
         this.isDataLoaded = false;
-        this.requestData();
+        if ( reload ) {
+            this.requestData();
+        } else {
+            this.requestCachedData();
+        }
     }
 
     // tslint:disable-next-line:member-ordering

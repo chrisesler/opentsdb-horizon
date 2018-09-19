@@ -44,7 +44,7 @@
 
                         'middle-align': (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitUndercased) || (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitSize!='l'),
                         'top-align': selectedMetric.configuration.bigNum.unitAlignment=='top'
-                        }">{{shortenString(UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit, maxLabelLength)}}</span>
+                        }">{{shortenString(UN.getBigNumber(selectedMetric.configuration.bigNum.c, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit, maxLabelLength)}}</span>
 
                     <span class="big-number">{{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).num}}</span>
                     

@@ -24,8 +24,9 @@
     <mat-tab-group class="widget-configs" [@.disabled]="'true'">
         <mat-tab label="Queries">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
-            <ng-template matTabContent>
-                <barchart-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></barchart-config-metric-queries>
+            <ng-template matTabContent >
+                <barchart-config-metric-queries *ngIf="!isStackedGraph"   [widget]="widget" (widgetChange)="updateConfig($event);"></barchart-config-metric-queries>
+                <stacked-barchart-config-metric-queries *ngIf="isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></stacked-barchart-config-metric-queries>
             </ng-template>
         </mat-tab>
         <mat-tab label="Time Configuration">

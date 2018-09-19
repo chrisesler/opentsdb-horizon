@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './bignumber-config-metric-queries.component.html',
   styleUrls: ['./bignumber-config-metric-queries.component.scss']
 })
-export class BignumberConfigMetricQueriesComponent  implements OnInit, OnChanges, OnDestroy {
+export class BignumberConfigMetricQueriesComponent  implements OnInit, OnDestroy {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.bignumber-config-metric-queries-configuration') private _tabClass = true;
 
@@ -37,14 +37,12 @@ export class BignumberConfigMetricQueriesComponent  implements OnInit, OnChanges
     modGroup: any; // current group that is adding metric
     mgroupId = undefined;
 
-    subscription: Subscription;
-    gForms: FormGroup;
 
-    constructor(public dialog: MatDialog, private fb: FormBuilder) { }
+    constructor(public dialog: MatDialog) { }
 
     ngOnInit() {
     }
-
+    /*
     ngOnChanges( changes: SimpleChanges) {
         if (changes.widget) {
             if (this.gForms) {
@@ -66,6 +64,26 @@ export class BignumberConfigMetricQueriesComponent  implements OnInit, OnChanges
                 this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: data[0] }});
             });
          }, 100);
+    }
+    */
+
+    setAggregator( index, value ) {
+        const visuals = [];
+        const gIndex = 0;
+        const queries = this.widget.query.groups[gIndex].queries;
+        for ( let i = 0; i < queries.length; i++ ) {
+            visuals.push( {...queries[i].settings.visual} );
+        }
+        visuals[index].aggregator = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: visuals }});
+    }
+
+    deleteQuery( index ) {
+        this.widgetChange.emit( {'action': 'DeleteQuery', payload: { index: index }});
+    }
+
+    toggleQuery( index ) {
+        this.widgetChange.emit( {'action': 'ToggleQuery', payload: { index: index }});
     }
 
     openTimeSeriesMetricDialog() {
@@ -107,7 +125,6 @@ export class BignumberConfigMetricQueriesComponent  implements OnInit, OnChanges
     }
 
     ngOnDestroy() {
-        this.subscription.unsubscribe();
     }
 
 }

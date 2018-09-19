@@ -2,7 +2,6 @@ import { Component, OnInit, HostBinding, Input, Output, EventEmitter, OnDestroy,
 
 import {MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 
-import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import {SearchMetricsDialogComponent} from '../../../../../sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import {ExpressionDialogComponent} from '../../../../../sharedcomponents/components/expression-dialog/expression-dialog.component';
 
@@ -45,45 +44,14 @@ export class BarchartConfigMetricQueriesComponent implements OnInit, OnChanges, 
         'some': 'indeterminate_check_box'
     };
 
-    gForms: FormGroup;
-    subscription: Subscription;
 
-    constructor(public dialog: MatDialog, private fb: FormBuilder) { }
+    constructor(public dialog: MatDialog) { }
 
     ngOnInit() {
     }
 
     ngOnChanges( changes: SimpleChanges) {
-        if (changes.widget) {
-            if (this.gForms) {
-                this.subscription.unsubscribe();
-                this.gForms.setControl('0', this.createFormArray(changes.widget.currentValue.query.groups[0].queries));
-
-            } else {
-                this.gForms = new FormGroup({});
-                this.gForms.addControl('0', this.createFormArray(changes.widget.currentValue.query.groups[0].queries));
-            }
-            this.subscribeFormChanges();
-        }
     }
-
-    subscribeFormChanges() {
-        setTimeout(() => {
-            this.subscription = this.gForms.valueChanges.subscribe(data => {
-                const gid = this.widget.query.groups[0].id;
-                this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: data[0] }});
-            });
-         }, 100);
-    }
-    /*
-    openColorPopup(index) {
-        this.showColorPickerIndex = index !== this.showColorPickerIndex ? index : -1;
-    }
-
-    selectColor(index, color) {
-        this.gForms.controls['0']['controls'][index]['controls'].color.setValue(color.hex);
-    }
-    */
 
     openTimeSeriesMetricDialog() {
         const mgroupId = this.widget.query.groups.length ? this.widget.query.groups[0].id : 'new';
@@ -117,14 +85,26 @@ export class BarchartConfigMetricQueriesComponent implements OnInit, OnChanges, 
         });
     }
 
-    createFormArray(queries): FormArray {
-        return new FormArray(queries.map(item => new FormGroup({
-            aggregator: new FormControl(item.settings.visual.aggregator)
-        })));
+    setAggregator(index, value) {
+        const visuals = [];
+        const gIndex = 0;
+        const queries = this.widget.query.groups[gIndex].queries;
+        for ( let i = 0; i < queries.length; i++ ) {
+            visuals.push( {...queries[i].settings.visual} );
+        }
+        visuals[index].aggregator = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: gIndex, data: visuals }});
+    }
+
+    deleteQuery( index ) {
+        this.widgetChange.emit( {'action': 'DeleteGroupQuery', payload: { gIndex: 0, index: index }});
+    }
+
+    toggleQuery( index ) {
+        this.widgetChange.emit( {'action': 'ToggleGroupQuery', payload: { gIndex: 0, index: index }});
     }
 
     ngOnDestroy() {
-        this.subscription.unsubscribe();
     }
 
 }

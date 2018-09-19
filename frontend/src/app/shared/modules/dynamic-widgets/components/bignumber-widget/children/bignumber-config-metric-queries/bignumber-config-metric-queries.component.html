@@ -8,8 +8,7 @@
             </div>
         </mat-toolbar-row>
     </mat-toolbar>
-    <form [formGroup]="gForms">
-    <div class="query-metrics-section" *ngIf="widget.query.groups.length!==0" formArrayName="0">
+    <div class="query-metrics-section" *ngIf="widget.query.groups.length!==0">
             <div class="query-metrics-wrap">
                 <mat-accordion class="query-group-list mat-elevation-z0" [ngClass]="{'items-selected': selectAllToggle !== 'none'}" displayMode="flat" [multi]="true" [hideToggle]="false">
                     <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [expanded]="true" *ngFor="let group of widget.query.groups ">
@@ -18,12 +17,12 @@
                             </div>
                         </mat-expansion-panel-header>
                         <div class="query-metric-row" *ngFor="let query of group.queries;let index=index">
-                            <div class="query-metric-item" [formGroupName]="index">
+                            <div class="query-metric-item">
                                 <div class="metric-detail">
                                     <div class="metric-name">{{ query.metric }}</div>
                                     <div class="metric-visual">
                                             <div class="label"> {{ query.settings.visual.stackLabel }}    </div>                                       
-                                            <div class="aggregator" *ngIf="gForms.controls['0']['controls'][index]"><strong>Value:</strong> <dropdown-aggregators [formControl]="gForms.controls['0']['controls'][index]['controls'].aggregator"></dropdown-aggregators></div>
+                                            <div class="aggregator"><strong>Value:</strong> <dropdown-aggregators [value]="query.settings.visual.aggregator" (change)="setAggregator(index,$event)"></dropdown-aggregators></div>
                                     </div>
                                     <div class="metric-tags">
                                             <strong>Tags:</strong>
@@ -34,14 +33,14 @@
                                 </div>
                                 <div class="metric-action">
                                         <span class="action-icons">
-                                                <button mat-icon-button color="primary" (click)="toggle_queryItemVisibility(query, $event)">
+                                                <button mat-icon-button color="primary" (click)="toggleQuery(index)">
                                                     <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
                                                     <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
                                                 </button>
-                                                <button mat-icon-button color="primary" (click)="clone_queryItem(query, $event)">
+                                                <!--<button mat-icon-button color="primary" (click)="clone_queryItem(query, $event)">
                                                     <mat-icon fontSet="denali" fontIcon="d-duplicate" class="mat-icon-rtl-mirror"></mat-icon>
-                                                </button>
-                                                <button mat-icon-button color="primary" (click)="delete_queryItem(query, $event)">
+                                                </button>-->
+                                                <button mat-icon-button color="primary" (click)="deleteQuery(index)">
                                                     <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                                                 </button>
                                             </span>
@@ -52,5 +51,4 @@
                 </mat-accordion>
             </div>
     </div>
-    </form>
 

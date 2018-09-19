@@ -1,8 +1,7 @@
-import { Component, OnInit, HostBinding, Input, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges} from '@angular/core';
+import { Component, OnInit, HostBinding, Input, Output, EventEmitter} from '@angular/core';
 
 import {MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 
-import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import {SearchMetricsDialogComponent} from '../../../../../sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import {ExpressionDialogComponent} from '../../../../../sharedcomponents/components/expression-dialog/expression-dialog.component';
 
@@ -13,7 +12,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './donutchart-config-metric-queries.component.html',
   styleUrls: ['./donutchart-config-metric-queries.component.scss']
 })
-export class DonutchartConfigMetricQueriesComponent implements OnInit, OnChanges {
+export class DonutchartConfigMetricQueriesComponent implements OnInit {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.donutchart-config-metric-queries-configuration') private _tabClass = true;
 
@@ -47,15 +46,15 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit, OnChanges
 
     selectAllToggle: String = 'none'; // none/all/some
     showColorPickerIndex = -1;
-    gForms: FormGroup;
-    subscription: Subscription;
 
-    constructor(public dialog: MatDialog, private fb: FormBuilder) { }
+
+    constructor(public dialog: MatDialog) { }
 
     ngOnInit() {
     }
 
-    ngOnChanges( changes: SimpleChanges) {
+    //ngOnChanges( changes: SimpleChanges) {
+        /*
         if (changes.widget) {
             if (this.gForms) {
                 this.subscription.unsubscribe();
@@ -67,8 +66,10 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit, OnChanges
             }
             this.subscribeFormChanges();
         }
-    }
+        */
+    //}
 
+    /*
     subscribeFormChanges() {
         setTimeout(()=>{
             this.subscription = this.gForms.valueChanges.subscribe(data => {
@@ -78,16 +79,17 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit, OnChanges
             });
          }, 100);
     }
+    */
 
     openColorPopup(index) {
-        console.log("color index=", index);
         this.showColorPickerIndex = index !== this.showColorPickerIndex ? index : -1;
     }
 
     selectColor(index, color) {
         //console.log("set color =",  index, color);
         //console.log(this.gForms.controls[0]['controls'][index]['controls'])
-        this.gForms.controls['0']['controls'][index]['controls'].color.setValue(color.hex);
+        //this.gForms.controls['0']['controls'][index]['controls'].color.setValue(color.hex);
+        this.setVisualization('color', index, color.hex);
     }
 
     openTimeSeriesMetricDialog() {
@@ -122,6 +124,7 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit, OnChanges
         });
     }
 
+    /*
     createFormArray(queries): FormArray {
         console.log("create", queries.length)
                 return new FormArray(queries.map(item => new FormGroup({
@@ -129,6 +132,27 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit, OnChanges
                     stackLabel : new FormControl(item.settings.visual.stackLabel),
                     color : new FormControl(item.settings.visual.color)
                 })));
+    }
+    */
+
+    setVisualization(key, index, value) {
+        console.log(key, index, value, "setvisualization....");
+        const visuals = [];
+        const gIndex = 0;
+        const queries = this.widget.query.groups[gIndex].queries;
+        for ( let i = 0; i < queries.length; i++ ) {
+            visuals.push( {...queries[i].settings.visual} );
+        }
+        visuals[index][key] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: gIndex, data: visuals }});
+    }
+
+    deleteQuery( index ) {
+        this.widgetChange.emit( {'action': 'DeleteQuery', payload: { index: index }});
+    }
+
+    toggleQuery( index ) {
+        this.widgetChange.emit( {'action': 'ToggleQuery', payload: { index: index }});
     }
 
 }

@@ -23,6 +23,8 @@ import { DonutchartLegendComponent } from './components/donut-widget/children/do
 import { DonutchartConfigMetricQueriesComponent } from './components/donut-widget/children/donutchart-config-metric-queries/donutchart-config-metric-queries.component';
 import { BarchartConfigMetricQueriesComponent } from './components/barchart-widget/children/barchart-config-metric-queries/barchart-config-metric-queries.component';
 import { BignumberConfigMetricQueriesComponent } from './components/bignumber-widget/children/bignumber-config-metric-queries/bignumber-config-metric-queries.component';
+import { StackedBarchartConfigMetricQueriesComponent } from './components/barchart-widget/children/stacked-barchart-config-metric-queries/stacked-barchart-config-metric-queries.component';
+import { DropdownStacksComponent } from './components/barchart-widget/children/dropdown-stacks/dropdown-stacks.component';
 
 
 @NgModule({
@@ -46,6 +48,7 @@ import { BignumberConfigMetricQueriesComponent } from './components/bignumber-wi
         DonutWidgetComponent,
         StatusWidgetComponent,
         StackedBarchartVisualAppearanceComponent,
+        StackedBarchartConfigMetricQueriesComponent,
         DonutchartLegendComponent
     ],
     declarations: [
@@ -62,7 +65,9 @@ import { BignumberConfigMetricQueriesComponent } from './components/bignumber-wi
         DonutchartLegendComponent,
         DonutchartConfigMetricQueriesComponent,
         BarchartConfigMetricQueriesComponent,
-        BignumberConfigMetricQueriesComponent
+        BignumberConfigMetricQueriesComponent,
+        StackedBarchartConfigMetricQueriesComponent,
+        DropdownStacksComponent
     ],
     entryComponents: [
         PlaceholderWidgetComponent,

@@ -103,27 +103,25 @@ export class DatatranformerService {
       // stack colors
         const colors = [];
         const metrics = [];
+        let stacks = [];
 
-        const nGroups = config.groups.length;
+        // only visible groups
+        const nGroups = config.groups.filter( d => d.settings.visual.visible ).length;
         const wSettings = config.settings;
 
         options.scales.xAxes[0].stacked = stacked;
         options.scales.yAxes[0].stacked = stacked;
 
         if ( stacked && wSettings.visual ) {
-            const stacks = wSettings.visual.stacks;
-            for ( let i = 0; i < stacks.length; i++ ) {
-                /*
-                options.stackSeries[stacks[i].label] =  {
-                                                            label: stacks[i].label,
-                                                            color: stacks[i].color,
-                                                            datasetIndex: Object.keys(options.stackSeries).length
-                                                        };
-                */
-                datasets.push( { data: Array(nGroups).fill(null), backgroundColor: stacks[i].color, label: stacks[i].label } );
+            stacks = wSettings.visual.stacks;
+            if ( !datasets.length ) {
+                for ( let i = 0; i < stacks.length; i++ ) {
+                    datasets.push( { data: Array(nGroups).fill(null), backgroundColor: stacks[i].color, label: stacks[i].label } );
+                }
             }
+
             for ( let i = 0; i < nGroups; i++ ) {
-                const label = config.groups[i].settings.visual.label;
+                const label = config.groups[i].title;
                 if ( !options.labels.includes(label) ) {
                     options.labels.push(label);
                 }
@@ -136,31 +134,36 @@ export class DatatranformerService {
             options.labels = [];
             for ( let i = 0; i < mConfigs.length; i++ ) {
                 const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
-                metrics.push(metric);
                 const vConfig = mConfigs[i].settings.visual;
-                let label = vConfig.stackLabel ? vConfig.stackLabel : metric;
-                const color = vConfig.color;
-                label = label.length <= 20 ? label : label.substr(0, 17) + '..';
-                options.labels.push( label );
-                datasets[0].data.push(null);
-                datasets[0].backgroundColor.push(color);
-                colors.push(color);
+                if ( vConfig.visible ) {
+                    metrics.push(metric);
+                    let label = vConfig.stackLabel ? vConfig.stackLabel : metric;
+                    const color = vConfig.color;
+                    label = label.length <= 20 ? label : label.substr(0, 17) + '..';
+                    options.labels.push( label );
+                    datasets[0].data.push(null);
+                    datasets[0].backgroundColor.push(color);
+                    colors.push(color);
+                }
             }
         }
 
         // set dataset values
         for (let gid in groupData ) {
           const gConfig = this.util.getObjectByKey(config.groups, 'id', gid);
-          const mConfigs = gConfig.queries;
+          const mConfigs = gConfig ? gConfig.queries : [];
           for ( let i = 0; i < groupData[gid].length; i++ ) {
               const metric = this.util.getUniqueNameFromMetricConfig(groupData[gid][i]);
               const mConfig = this.getMetricConfigurationByName(metric, mConfigs);
-              const mData: any = Object.values(groupData[gid][i].dps);
-              const index = stacked ? options.labels.indexOf(gConfig.settings.visual.label) : metrics.indexOf(metric);
-              const dsIndex = stacked ? mConfig.settings.visual.stack : 0;
-              datasets[dsIndex].data[index] = this.util.getArrayAggregate( mConfig.settings.visual.aggregator, mData );
+              if ( mConfig.settings && mConfig.settings.visual.visible ) {
+                const mData: any = Object.values(groupData[gid][i].dps);
+                const index = stacked ? options.labels.indexOf(gConfig.title) : metrics.indexOf(metric);
+                const dsIndex = stacked ? stacks.findIndex(d => d.id === mConfig.settings.visual.stack) : 0;
+                datasets[dsIndex].data[index] = this.util.getArrayAggregate( mConfig.settings.visual.aggregator, mData );
+              }
           }
         }
+        console.log("datasets", datasets);
         return [...datasets];
     }
 
@@ -191,14 +194,16 @@ export class DatatranformerService {
 
         for ( let i = 0; i < mConfigs.length; i++ ) {
             const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
-            metrics.push(metric);
             const vConfig = mConfigs[i].settings.visual;
             let label = vConfig.stackLabel ? vConfig.stackLabel : metric;
             const color = vConfig.color;
-            label = label.length <= 20 ? label : label.substr(0, 17) + '..';
-            options.labels.push( label );
-            datasets[0].data.push(null);
-            datasets[0].backgroundColor.push(color);
+            if ( vConfig.visible ) {
+                metrics.push(metric);
+                label = label.length <= 20 ? label : label.substr(0, 17) + '..';
+                options.labels.push( label );
+                datasets[0].data.push(null);
+                datasets[0].backgroundColor.push(color);
+            }
         }
         options.legend = config.settings.legend;
         options.plugins.labels = config.settings.legend.showPercentages ? {
@@ -210,8 +215,10 @@ export class DatatranformerService {
             const metric = this.util.getUniqueNameFromMetricConfig(rawdata[i]);
             const mConfig = this.getMetricConfigurationByName(metric, mConfigs);
             const mData: any = Object.values(rawdata[i].dps);
-            const index = metrics.indexOf(metric);
-            datasets[0].data[index] =  this.util.getArrayAggregate( mConfig.settings.visual.aggregator, mData ) ;
+            if ( mConfig.settings && mConfig.settings.visual.visible ) {
+                const index = metrics.indexOf(metric);
+                datasets[0].data[index] =  this.util.getArrayAggregate( mConfig.settings.visual.aggregator, mData ) ;
+            }
         }
         return [...datasets];
     }
