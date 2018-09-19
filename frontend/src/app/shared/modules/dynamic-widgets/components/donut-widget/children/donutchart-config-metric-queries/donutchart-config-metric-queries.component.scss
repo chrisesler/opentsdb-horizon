@@ -4,25 +4,31 @@
 @mixin donutchart-config-metric-queries-component-base() {
     $default-padding: map-get($widgets-common-config, default-padding);
     $edit-padding: map-get($widgets-common-config, edit-padding);
+    
     .widget-config-tab.donutchart-config-metric-queries-configuration {
         margin: 0;
         display: flex;
-        flex-direction: column;
 
         // config specific toolbar overrides
-        .config-toolbar.time-series-toolbar {
-            padding: 0 $edit-padding 0 0;
-            flex: 1 1 55px;
+        .config-toolbar.time-series-toolbar,
+        .config-toolbar.legend-toolbar {
+            padding: 0 $edit-padding;
+            flex: 1;
             align-items: stretch;
             justify-content: stretch;
+            min-height: 55px;
+            max-height: 55px;
 
             .mat-toolbar-row {
                 height: 100%;
-                align-items: inherit;
+                align-items: inherit; 
             }
 
-            .toolbar-item.master-checkbox {
-                margin-right: 3px;
+            .toolbar-item {
+                display: inline-flex;
+                align-items: center;
+
+                font-size: 14px;
             }
         }
 
@@ -30,27 +36,130 @@
             flex: 1 1 auto;
         }
 
-        // config section that shows the selected metrics
+        // TIME SERIES COLUMN
+
         .query-metrics-section {
+            flex: 1 1 100%;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 0 16px;
+
+            .mat-list {
+                padding-top: 0;
+
+                .mat-list-item {
+                    height: initial;
+                }
+
+                .mat-list-item-content {
+                    flex-direction: column;
+                    padding: 0;
+                }
+
+                .mat-divider {
+                    margin: 8px 0;
+
+                    &:last-child {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        .query-metric-item {
+ 
+            &,
+            .mat-toolbar {
+                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+            }
+
+            &:first-child {
+                padding-top: 4px;
+            }
+
+            .mat-toolbar {
+                background-color: transparent;
+                height: initial;
+                padding-right: 0;
+
+                strong {
+                    font-size: 14px;
+                }
+
+                // icons on the right
+                .action-icons {
+                    .mat-icon-button {
+                        width: 30px;
+                        height: 30px;
+                        line-height: 30px;
+                    }
+
+                    .mat-icon {
+                        font-size: 16px;
+                    }
+                }
+            }
+
+            .modifier-row,
+            .tags-row {
+                display: flex;
+                padding: 4px 16px;
+                width: 100%;
+            }
+
+            .modifier-row {
+                .modifier-item {
+                    display: inline-flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: center;
+
+                    &:not(:last-child) {
+                        margin-right: 12px;
+                    }
+
+                    > strong {
+                        margin-right: 8px;
+                    }
+                }
+            }
+
+            .tags-row {
+
+            }
+            
+        }
+
+        // config section that shows the selected metrics
+        /*.query-metrics-section {
             @include has-scroller();
             flex: 1 1 100%;
             width: 100%;
             
 
             .query-metrics-wrap {
-                width: 80%;
-
                 @include is-scroller();
             }
             
+        }*/
+
+        // LEGEND COLUMN
+
+        .query-legend-section {
+            display: flex;
+            flex: 1 1 100%;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
-        .query-legend-section{
+        /*.query-legend-section{
             width: 20%;
             height: 100%;
             float: right;
             padding: 15px 10px;
-        }
+        }*/
 
         .query-legend-item {
             padding: 5px 5px;
@@ -58,8 +167,12 @@
 
         .query-legend-item-color {
             display: inline-block;
-            width:15px;
-            height:15px;
+            min-width:10px;
+            max-width: 10px;
+            min-height:10px;
+            max-height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
             cursor: pointer;
         }
         
@@ -69,9 +182,9 @@
             margin-top: 5px;
         }
 
-        mat-form-field {
+        /*mat-form-field {
             width: 150px;
-        }
+        }*/
 
         .query-legend-item-label {
             display: inline-block;
@@ -83,25 +196,10 @@
             padding: 0 $edit-padding 0 0;
 
             &,
-            .mat-expansion-panel-header,
             .mat-toolbar {
                 font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
             }
-
-            .mat-expansion-panel-header {
-                flex-direction: row-reverse;
-                padding: 0;
-
-                // icon for the collapse icon direction
-                .mat-icon.arrow-down {
-                    display: none;
-                }
-                .mat-icon.arrow-right {
-                    display: inline-flex;
-                }
-            }
     
-            .mat-expansion-panel-header,
             .mat-expansion-panel-body {
                 padding: 0;
             }
@@ -177,27 +275,40 @@
             .query-metric-row {
                 display: flex;
                 justify-content: center;
-                padding-left: 43px;
+                padding-left: 16px;
             }
 
             // contains the metric row details
             .query-metric-item {
                 display: flex;
                 width:100%;
-                border-bottom:0.5px solid #f2f2f2;
-                /*
-                flex-direction: column;
-                flex-wrap: wrap;
-                
-                justify-content: stretch;
-                margin-bottom: 10px;
-                padding-left: 5px;
-                */
+
+                .modifier-row {
+                    .modifier-item {
+                        display: inline-flex;
+                        flex-direction: row;
+                        align-items: center;
+                        justify-content: center;
+
+                        &:not(:last-child) {
+                            margin-right: 12px;
+                        }
+
+                        > strong {
+                            margin-right: 8px;
+                        }
+                    }
+                }
+
+                .tags-row {
+
+                }
+
                 .metric-detail {
                     padding: 10px 5px;
                     align-items: stretch;
                     flex: 1;
-                    border: 0px solid yellow;
+
                     .metric-visual{
                         .color{
                             display: inline-block;
@@ -217,7 +328,8 @@
 
                 .metric-action {
                     width: 200px;
-                    background: 0px solid grey;
+                    display: inline-flex;
+                    justify-content: flex-end
                 }
 
 
@@ -320,9 +432,37 @@
     $background: map-get($theme-config, background);
 
     $chip-bg: rgba(map-get($primary, default), .1); 
+    $divider: rgba(map-get($foreground, divider), .05);
 
     .widget-config-tab.donutchart-config-metric-queries-configuration {
         // style rules here
+
+        .legend-column {
+            border-left: 2px solid $divider;
+
+            .mat-form-field {
+                &.mat-form-field-appearance-fill {
+                    .mat-form-field-flex  {
+                        background-color: rgba(map-get($primary, default), 0);
+                    }
+        
+                    &.mat-focused,
+                    &:hover {
+                        @include mat-elevation(1);
+                        
+                        .mat-form-field-flex  {
+                            background-color: rgba(map-get($primary, default), 0.08);
+                        }
+                        
+                    }
+                }
+            }
+        }
+
+        .config-toolbar.time-series-toolbar,
+        .config-toolbar.legend-toolbar {
+           border-bottom: 2px solid $divider;
+        }
 
         .query-metric-row {
             .metric-tags {
@@ -335,7 +475,13 @@
                     }
                 }
             }
+
+
         }
+
+        /*.query-metric-item {
+            border-bottom: 1px solid $divider;
+        }*/
 
         .value-options {
             mat-select {

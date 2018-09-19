@@ -128,6 +128,14 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit, OnChanges
         });
     }
 
+    openMetricExpressionDialog() {
+        alert('TODO: link up metric expression dialog');
+    }
+
+    openCustomValueDialog() {
+        alert('TODO: create and link up custom value dialog');
+    }
+
     createFormArray(queries): FormArray {
         console.log("create", queries.length)
                 return new FormArray(queries.map(item => new FormGroup({
