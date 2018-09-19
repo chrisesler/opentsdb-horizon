@@ -205,13 +205,9 @@ $widgets-common-config: (
     }
     
     .widget-panel-content {
-        .widget-configs {
-            // background-color: map-get($background, card);
-        }
-    
-        .widget-configs {
-            
 
+        .widget-configs {
+        
             .mat-tab-label:not(.mat-tab-disabled):not(.mat-tab-label-active):focus {
                 background-color: transparent;
             }
