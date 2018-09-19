@@ -83,9 +83,9 @@ export class UtilsService {
         case 'avg':
             return arr.reduce((a, b) => !isNaN(b) ? a + b : a, 0) / arr.length;
         case 'min':
-            return Math.min(...arr);
+            return arr.reduce((a, b) => !isNaN(b) && a > b ?  b : a, Infinity);
         case 'max':
-            return Math.max(...arr);
+            return arr.reduce((a, b) => !isNaN(b) && a < b ?  b : a, -Infinity);
         default:
             return null;
     }

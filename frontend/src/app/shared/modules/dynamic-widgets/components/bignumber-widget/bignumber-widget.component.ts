@@ -123,9 +123,11 @@ export class BignumberWidgetComponent implements OnInit {
                         }
                     }
                     lastValue = dps[lastValueTS];
+                    const mData: any = Object.values(dps);
+                    const aggregateValue = this.util.getArrayAggregate( this.widget.query.groups[0].queries[0].settings.visual.aggregator, mData );
 
                     let bigNumberMetric: IBigNumberMetric = {
-                        bigNumber: currentValue,
+                        bigNumber: aggregateValue   ,
 
                         prefix: '',
                         prefixSize: 's', // s m l
@@ -193,10 +195,7 @@ export class BignumberWidgetComponent implements OnInit {
         if (!this.editMode) {
             this.requestData();
         } else {
-            this.interCom.requestSend({
-                id: this.widget.id,
-                action: 'getWidgetCachedData'
-            });
+            this.requestCachedData();
         }
     }
 
@@ -208,6 +207,13 @@ export class BignumberWidgetComponent implements OnInit {
                 payload: this.widget.query
             });
         }
+    }
+
+    requestCachedData() {
+        this.interCom.requestSend({
+            id: this.widget.id,
+            action: 'getWidgetCachedData'
+        });
     }
 
     transform(map: Map<any, any>): any[] {
@@ -254,14 +260,107 @@ export class BignumberWidgetComponent implements OnInit {
 
     updateConfig(message) {
         switch ( message.action ) {
+            case 'AddMetricsToGroup':
+                this.addMetricsToGroup(message.payload.data);
+                this.refreshData();
+            break;
+            case 'SetTimeConfiguration':
+                this.setTimeConfiguration(message.payload.data);
+                break;
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
+                break;
+            case 'SetVisualization':
+                this.setVisualization(message.payload.data);
+                this.refreshData(false);
+                break;
+            case 'ToggleQuery':
+                this.toggleQuery(message.payload.index);
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.payload.index);
                 break;
         }
     }
 
+    addMetricsToGroup(gConfig) {
+        let gid = gConfig.id;
+
+        if ( gid === 'new' ) {
+            const g = this.addNewGroup();
+            gid = g.id;
+        }
+
+        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+
+        const dVisaul = {
+            aggregator: 'sum'
+        };
+
+        for (const metric of gConfig.queries ) {
+            metric.settings.visual = {...dVisaul, ...metric.settings.visual };
+        }
+        config.queries = config.queries.concat(gConfig.queries);
+        this.widget = {...this.widget};
+    }
+
+    addNewGroup() {
+        const gid = this.util.generateId(6);
+        const g = {
+                    id: gid,
+                    title: 'untitled group',
+                    queries: [],
+                    settings: {
+                    }
+                };
+        this.widget.query.groups.push(g);
+        return g;
+    }
+
+    setVisualization( mconfigs ) {
+        mconfigs.forEach( (config, i) => {
+            this.widget.query.groups[0].queries[i].settings.visual = { ...this.widget.query.groups[0].queries[i].settings.visual, ...config };
+        });
+    }
+
+    setTimeConfiguration(config) {
+        this.widget.query.settings.time = {
+                                             shiftTime: config.shiftTime,
+                                             overrideRelativeTime: config.overrideRelativeTime,
+                                             downsample: {
+                                                 value: config.downsample,
+                                                 aggregator: config.aggregator,
+                                                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
+                                                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+                                             }
+                                         };
+    }
+
+    toggleQuery(index) {
+        const gIndex = 0;
+        this.widget.query.groups[gIndex].queries[index].settings.visual.visible = !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+        console.log("toggleQuery", this.widget.query.groups[gIndex].queries);
+        //this.refreshData(false);
+    }
+
+    deleteQuery(index) {
+        const gIndex = 0;
+        this.widget.query.groups[gIndex].queries.splice(index, 1);
+        console.log("deleteQuery", this.widget.query.groups[gIndex].queries);
+        //this.refreshData(false);
+    }
+
     setMetaData(config) {
         this.widget.settings = {...this.widget.settings, ...config};
+    }
+
+    refreshData(reload = true) {
+        this.isDataLoaded = false;
+        if ( reload ) {
+            this.requestData();
+        } else {
+            this.requestCachedData();
+        }
     }
 
     // tslint:disable-next-line:member-ordering
