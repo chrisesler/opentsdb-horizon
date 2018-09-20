@@ -22,7 +22,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
 
     /** Local variables */
 
-    selectedMetric: object;
+    // selectedMetric: object;
     colorType: string;
 
     @ViewChild(MatMenuTrigger) private menuTrigger: MatMenuTrigger;
@@ -41,53 +41,53 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     constructor(public UN: UnitNormalizerService) { }
 
     ngOnInit() {
-        this.selectedMetric = this.widget;
+        // this.selectedMetric = this.widget;
         this.colorType = 'text'; // default color tab
     }
 
     // Prefix
     KeyedOnPrefixInputBox(value: string) {
         this.prefixDisabled = false;
-        this.selectedMetric['configuration']['bigNum']['prefix'] = value;
-        this.selectedMetric['configuration']['bigNum']['prefixUndercased'] = this.isStringOnlyLowercasedLetters(value);
+        this.widget.query.settings.visual['prefix'] = value;
+        this.widget.query.settings.visual['prefixUndercased'] = this.isStringOnlyLowercasedLetters(value);
     }
 
     selectedPrefixSize(value: string) {
-        this.selectedMetric['configuration']['bigNum']['prefixSize'] = value;
+        this.widget.query.settings.visual['prefixSize'] = value;
     }
 
     selectedPrefixAlignment(value: string) {
-        this.selectedMetric['configuration']['bigNum']['prefixAlignment'] = value;
+        this.widget.query.settings.visual['prefixAlignment'] = value;
     }
 
     // Postfix
     KeyedOnPostfixInputBox(value: string) {
-        this.selectedMetric['configuration']['bigNum']['postfix'] = value;
-        this.selectedMetric['configuration']['bigNum']['postfixUndercased'] = this.isStringOnlyLowercasedLetters(value);
+        this.widget.query.settings.visual['postfix'] = value;
+        this.widget.query.settings.visual['postfixUndercased'] = this.isStringOnlyLowercasedLetters(value);
     }
 
     selectedPostfixSize(value: string) {
-        this.selectedMetric['configuration']['bigNum']['postfixSize'] = value;
+        this.widget.query.settings.visual['postfixSize'] = value;
     }
 
     selectedPostfixAlignment(value: string) {
-        this.selectedMetric['configuration']['bigNum']['postfixAlignment'] = value;
+        this.widget.query.settings.visual['postfixAlignment'] = value;
     }
 
     // Unit
     KeyedOnUnitInputBox(value: string) {
-        this.selectedMetric['configuration']['bigNum']['unit'] = value;
-        this.selectedMetric['configuration']['bigNum']['unitUndercased'] =
-            this.isStringOnlyLowercasedLetters(this.UN.getBigNumber(this.selectedMetric['configuration']['bigNum']['bigNumber'],
-            this.selectedMetric['configuration']['bigNum']['unit']).unit);
+        this.widget.query.settings.visual['unit'] = value;
+        this.widget.query.settings.visual['unitUndercased'] =
+            this.isStringOnlyLowercasedLetters(this.UN.getBigNumber(this.widget.query.settings.visual['bigNumber'],
+            this.widget.query.settings.visual['unit']).unit);
     }
 
     selectedUnitSize(value: string) {
-        this.selectedMetric['configuration']['bigNum']['unitSize'] = value;
+        this.widget.query.settings.visual['unitSize'] = value;
     }
 
     selectedUnitAlignment(value: string) {
-        this.selectedMetric['configuration']['bigNum']['unitAlignment'] = value;
+        this.widget.query.settings.visual['unitAlignment'] = value;
     }
 
     stopPropagation(event) {
@@ -95,7 +95,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     }
 
     onMenuOpen(): void {
-        const unit: string = this.selectedMetric['configuration']['bigNum']['unit'];
+        const unit: string = this.widget.query.settings.visual['unit'];
 
         if (this.isUnitCustom(unit)) {
             (<HTMLInputElement>document.getElementById('custom-unit')).value = unit;
@@ -116,16 +116,16 @@ export class BignumberVisualAppearanceComponent implements OnInit {
 
     // Caption
     KeyedOnCaptionInputBox(value: string) {
-        this.selectedMetric['configuration']['bigNum']['caption'] = value;
+        this.widget.query.settings.visual['caption'] = value;
     }
 
     selectedCaptionSize(value: string) {
-        this.selectedMetric['configuration']['bigNum']['captionSize'] = value;
+        this.widget.query.settings.visual['captionSize'] = value;
     }
 
     // Precision
     KeyedOnPrecisionInputBox(value: string) {
-        this.selectedMetric['configuration']['bigNum']['precision'] = value;
+        this.widget.query.settings.visual['precision'] = value;
     }
 
     // Color Picker
@@ -136,9 +136,9 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     colorChanged(color: any) {
         if (color['hex']) { // make sure there is a hex
             if (this.colorType === 'text') {
-                this.selectedMetric['configuration']['bigNum']['textColor'] = color['hex'];
+                this.widget.query.settings.visual['textColor'] = color['hex'];
             } else { // background
-                this.selectedMetric['configuration']['bigNum']['backgroundColor'] = color['hex'];
+                this.widget.query.settings.visual['backgroundColor'] = color['hex'];
             }
         }
     }
@@ -149,7 +149,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
 
     indicatorToggleChange() {
         // tslint:disable-next-line:whitespace
-        this.selectedMetric['configuration']['bigNum']['changedIndicatorEnabled'] =!
-        this.selectedMetric['configuration']['bigNum']['changedIndicatorEnabled'];
+        this.widget.query.settings.visual['changedIndicatorEnabled'] =!
+        this.widget.query.settings.visual['changedIndicatorEnabled'];
     }
 }

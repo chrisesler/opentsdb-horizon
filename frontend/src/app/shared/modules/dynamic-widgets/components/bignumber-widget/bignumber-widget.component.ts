@@ -38,7 +38,7 @@ export class BignumberWidgetComponent implements OnInit {
 
     metrics: any; // cache all the metrics that we get from tsdb
 
-    selectedMetric: any; // used for macros and passing to visual config
+    selectedMetric: any; // used for macros
     bigNumber: number;
     changeIndicatorCompareValue: number;
     tags: any;

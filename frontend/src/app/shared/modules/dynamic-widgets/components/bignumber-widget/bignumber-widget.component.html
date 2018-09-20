@@ -81,9 +81,9 @@
                     </span>
 
                     <span *ngIf="widget.query.settings.visual.changedIndicatorEnabled" class="change-indicator">
-                            <span *ngIf="widget.query.settings.visual.changeIndicatorCompareValue >= 1">↑ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
-                            <span *ngIf="widget.query.settings.visual.changeIndicatorCompareValue <= -1">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
-                            <span *ngIf="widget.query.settings.visual.changeIndicatorCompareValue > -1 && widget.query.settings.visual.changeIndicatorCompareValue < 1">≈ No Change</span>        
+                            <span *ngIf="changeIndicatorCompareValue >= 1">↑ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
+                            <span *ngIf="changeIndicatorCompareValue <= -1">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
+                            <span *ngIf="changeIndicatorCompareValue > -1 && changeIndicatorCompareValue < 1">≈ No Change</span>        
                     </span>
                 </div>
 
@@ -130,7 +130,7 @@
             </mat-tab>
             <mat-tab label="Visual Appearance">
                 <ng-template matTabContent>
-                    <big-number-visual-appearance [widget]="selectedMetric"></big-number-visual-appearance>
+                    <big-number-visual-appearance [widget]="widget"></big-number-visual-appearance>
                 </ng-template>
             </mat-tab>
             <mat-tab label="Meta Data">
