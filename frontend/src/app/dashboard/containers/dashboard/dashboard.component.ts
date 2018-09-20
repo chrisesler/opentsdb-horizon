@@ -191,6 +191,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
         });
 
+        
         this.widgetRawData$.subscribe(result => {
 
         });
@@ -234,15 +235,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const payload = message.payload;
 
         const dt = this.getDashboardDateRange();
+        const downsample = this.getWidegetDownSample(payload);
 
         for (let i = 0; i < payload.groups.length; i++) {
             const group: any = payload.groups[i];
             groupid = group.id;
+            // set downsample
+            for ( let j = 0; j< group.queries.length; j++ ) {
+                group.queries[j].downsample = downsample;
+            }
             // format for opentsdb query
             const query: any = {
                 start: dt.start,
                 end: dt.end,
-                downsample: payload.downsample,
                 queries: group.queries
             };
             console.log('the group query', query);
@@ -267,6 +272,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
         endTime = endTime ? endTime : moment();
 
         return {start: startTime.valueOf() , end: endTime.valueOf()};
+    }
+
+    getWidegetDownSample(query) {
+        const dsSetting = query.settings.time.downsample;
+        const mAggregator = { 'sum': 'zimsum', 'avg': 'avg', 'max': 'mimmax', 'min': 'mimmin' };
+        let dsValue = dsSetting.value;
+        switch ( dsSetting.value ) {
+            case 'auto':
+                dsValue = '5m';
+                break;
+            case 'custom':
+                dsValue = dsSetting.customValue + dsSetting.customUnit;
+                break;
+        }
+        const downsample = dsValue + '-' + mAggregator[dsSetting.aggregator] + '-nan';
+        return downsample;
     }
 
     // this will call based on gridster reflow and size changes event

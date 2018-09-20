@@ -246,11 +246,14 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
         });
 
 
-        this.widgetConfigTimeSub = this.widgetConfigTime.valueChanges.subscribe( function(data) {
-            if ( this.widgetConfigTime.valid ) {
-                this.widgetChange.emit({'action': 'SetTimeConfiguration', payload: { data: data } });
-            }
-        }.bind(this));
+        this.widgetConfigTimeSub = this.widgetConfigTime.valueChanges
+                                        .debounceTime(1000)
+                                        .distinctUntilChanged()
+                                        .subscribe( function(data) {
+                                            if ( this.widgetConfigTime.valid ) {
+                                                this.widgetChange.emit({'action': 'SetTimeConfiguration', payload: { data: data } });
+                                            }
+                                        }.bind(this));
     }
 
 

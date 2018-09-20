@@ -110,9 +110,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 // when the widget first loaded in dashboard, we request to get data
                 // when in edit mode first time, we request to get cached raw data.
                 if (!this.editMode) {
-                    console.log("...ngOnInit.. RequestData");
                     this.requestData();
                 } else {
+                    this.setSize();
                     this.interCom.requestSend({
                         id: this.widget.id,
                         action: 'getWidgetCachedData'
@@ -179,11 +179,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     ngAfterViewInit() {
-
-        if (this.editMode) {
-            this.setSize();
-        }
-
     }
 
     setSize() {
@@ -214,6 +209,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                                                  customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                              }
                                          };
+        this.refreshData();
     }
 
     setAxes( axes ) {

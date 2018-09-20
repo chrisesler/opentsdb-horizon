@@ -67,7 +67,7 @@ export class DatatranformerService {
       for (let gid in result) {
         for (let k in result[gid]) {
           let g = result[gid][k];
-          (g.dps[dpsMs] !== undefined) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
+          (!isNaN(g.dps[dpsMs]) ) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
         }
       }
     }

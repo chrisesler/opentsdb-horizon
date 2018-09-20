@@ -337,6 +337,7 @@ export class BignumberWidgetComponent implements OnInit {
                                                  customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                              }
                                          };
+        this.refreshData();
     }
 
     toggleQuery(index) {

@@ -222,6 +222,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                                                  customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                              }
                                          };
+        this.refreshData();
      }
 
     toggleQuery(index) {
