@@ -86,6 +86,9 @@ export class BignumberWidgetComponent implements OnInit {
                     }
                 }
             }
+            if ( message.action === 'reQueryData' ) {
+                this.refreshData();
+            }
             if (message && (message.id === this.widget.id)) { // 2. Get and set the metric
                 switch (message.action) {
                     case 'updatedWidgetGroup':

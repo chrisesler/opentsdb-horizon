@@ -85,9 +85,15 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 // subscribe to event stream
                 this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
 
-                    if (message.action === 'resizeWidget') {
-                        this.setSize();
+                    switch( message.action ) {
+                        case 'resizeWidget':
+                            this.setSize();
+                            break;
+                        case 'reQueryData':
+                            this.refreshData();
+                            break;
                     }
+
                     if (message && (message.id === this.widget.id)) {
                         switch (message.action) {
                             case 'updatedWidgetGroup':
@@ -104,6 +110,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 // when the widget first loaded in dashboard, we request to get data
                 // when in edit mode first time, we request to get cached raw data.
                 if (!this.editMode) {
+                    console.log("...ngOnInit.. RequestData");
                     this.requestData();
                 } else {
                     this.interCom.requestSend({

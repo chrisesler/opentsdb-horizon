@@ -15,7 +15,11 @@ export class HttpService {
   private testDashboard: any = {
     id: 'abcdfg',
     settings: {
-      title: 'my test dashboard'
+      title: 'my test dashboard',
+      time: {
+          start: '1h ago',
+          end: 'now'
+      }
     },
     widgets: [
         {

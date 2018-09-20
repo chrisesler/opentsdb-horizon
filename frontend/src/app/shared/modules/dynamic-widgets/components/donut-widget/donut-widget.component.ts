@@ -72,10 +72,16 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            if ( message.action === 'resizeWidget' ) {
-                // we get the size to update the graph size
-                this.width = message.payload.width * this.widget.gridPos.w - 30 + 'px';
-                this.height = message.payload.height * this.widget.gridPos.h - 70 + 'px';
+            switch( message.action ) {
+                case 'resizeWidget':
+                    if ( !this.editMode ) {
+                        this.width = message.payload.width * this.widget.gridPos.w - 30 + 'px';
+                        this.height = message.payload.height * this.widget.gridPos.h - 70 + 'px';
+                    }
+                    break;
+                case 'reQueryData':
+                    this.refreshData();
+                    break;
             }
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {

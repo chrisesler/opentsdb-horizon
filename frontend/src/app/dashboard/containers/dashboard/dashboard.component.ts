@@ -4,6 +4,7 @@ import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
 
+import * as moment from 'moment';
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -11,12 +12,13 @@ import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
 import { ISelectedTime } from '../../../shared/modules/date-time-picker/models/models';
+import { UtilsService } from '../../../shared/modules/date-time-picker/services/utils.service'
 
 import { DBState, LoadDashboard } from '../../state/dashboard.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, WidgetModel} from '../../state/widgets.state';
 import { WidgetsRawdataState, GetQueryDataByGroup } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
-import { DBSettingsState, UpdateMode} from '../../state/settings.state';
+import { DBSettingsState, UpdateMode, UpdateDashboardTime, LoadDashboardSettings} from '../../state/settings.state';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
 
@@ -32,6 +34,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(AuthState.getAuth) auth$: Observable<string>;
     // new state
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
+    @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdata) widgetRawData$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
@@ -118,7 +121,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private interCom: IntercomService,
         private dbService: DashboardService,
-        private cdkService: CdkService
+        private cdkService: CdkService,
+        private dateUtil: UtilsService
     ) { }
 
     ngOnInit() {
@@ -175,8 +179,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.loadedRawDB$.subscribe( db => {
+            this.store.dispatch(new LoadDashboardSettings(db.settings));
             // update WidgetsState
             this.store.dispatch(new LoadWidgets(db.widgets));
+        });
+
+        this.dbTime$.subscribe ( t => {
+            this.interCom.responsePut({
+                action: 'reQueryData',
+                payload: t
+            });
         });
 
         this.widgetRawData$.subscribe(result => {
@@ -221,13 +233,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let groupid = '';
         const payload = message.payload;
 
+        const dt = this.getDashboardDateRange();
+
         for (let i = 0; i < payload.groups.length; i++) {
             const group: any = payload.groups[i];
             groupid = group.id;
             // format for opentsdb query
             const query: any = {
-                start: payload.start,
-                end: payload.end,
+                start: dt.start,
+                end: dt.end,
                 downsample: payload.downsample,
                 queries: group.queries
             };
@@ -240,6 +254,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // now dispatch request
             this.store.dispatch(new GetQueryDataByGroup(gquery));
         }
+    }
+
+    getDashboardDateRange() {
+        const dbSettings = this.store.selectSnapshot(DBSettingsState);
+        let startTime = moment(dbSettings.time.start);
+        startTime = startTime.isValid() ? startTime : this.dateUtil.relativeTimeToMoment(dbSettings.time.start);
+
+        let endTime = moment(dbSettings.time.end);
+        endTime = endTime.isValid() ? endTime : this.dateUtil.relativeTimeToMoment(dbSettings.time.end);
+        // relativeTimeToMoment returns undefined in case of now
+        endTime = endTime ? endTime : moment();
+
+        return {start: startTime.valueOf() , end: endTime.valueOf()};
     }
 
     // this will call based on gridster reflow and size changes event
@@ -266,8 +293,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.log('dashboard name save', event);
     }
 
-    eventTriggered(event: any) {
-        console.log(event);
+    eventTriggered(e: any) {
+        this.store.dispatch(new UpdateDashboardTime({start: e.startTimeDisplay, end: e.endTimeDisplay}));
     }
 
     click_cloneDashboard(event: any) {
