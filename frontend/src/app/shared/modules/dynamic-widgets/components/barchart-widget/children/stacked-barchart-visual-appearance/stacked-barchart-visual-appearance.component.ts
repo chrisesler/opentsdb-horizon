@@ -41,7 +41,7 @@ export class StackedBarchartVisualAppearanceComponent implements OnInit {
         this.gForms = new FormGroup({});
         this.gForms.addControl( 'bars', new FormArray(
                                                         this.widget.query.groups.map(item => new FormGroup({
-                                                            label : new FormControl(item.settings.visual.label)
+                                                            label : new FormControl(item.title)
                                                         }))
                                                     )
                                 );

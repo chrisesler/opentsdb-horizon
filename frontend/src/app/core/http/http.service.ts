@@ -65,6 +65,11 @@ export class HttpService {
                         rateOptions: {
                           counter: false,
                           resetValue: 1
+                        },
+                        settings: {
+                            visual: {
+                                aggregator: 'sum'
+                            }
                         }
                       }
                     ]
@@ -118,6 +123,11 @@ export class HttpService {
                         rateOptions: {
                           counter: false,
                           resetValue: 1
+                        },
+                        settings: {
+                            visual: {
+                                aggregator: 'sum'
+                            }
                         }
                       }
                     ]
@@ -171,6 +181,11 @@ export class HttpService {
                         rateOptions: {
                           counter: false,
                           resetValue: 1
+                        },
+                        settings: {
+                            visual: {
+                                aggregator: 'sum'
+                            }
                         }
                       }
                     ]
@@ -479,7 +494,8 @@ export class HttpService {
                         settings: {
                             visual: {
                                 color: "#FF0000",
-                                aggregator: "SUM",
+                                aggregator: "sum",
+                                visible: true,
                                 stackLabel: "WWW-BOTS"
                             }
                         }
@@ -499,7 +515,8 @@ export class HttpService {
                         settings: {
                             visual: {
                                 color: "#FFA500",
-                                aggregator: "SUM",
+                                aggregator: "sum",
+                                visible: true,
                                 stackLabel: "UPLOAD"
                             }
                         }
@@ -519,7 +536,8 @@ export class HttpService {
                         settings: {
                             visual: {
                                 color: "#FFFF00",
-                                aggregator: "SUM",
+                                aggregator: "sum",
+                                visible: true,
                                 stackLabel: "ZOOKEEPER"
                             }
                         }
@@ -539,7 +557,8 @@ export class HttpService {
                         settings: {
                             visual: {
                                 color: "#008000",
-                                aggregator: "SUM",
+                                aggregator: "sum",
+                                visible: true,
                                 stackLabel: "TWEM"
                             }
                         }
@@ -559,7 +578,8 @@ export class HttpService {
                         settings: {
                             visual: {
                                 color: "#0000FF",
-                                aggregator: "SUM",
+                                aggregator: "sum",
+                                visible: true,
                                 stackLabel: "STORM"
                             }
                         }
@@ -598,22 +618,27 @@ export class HttpService {
                   type: 'vertical',
                   stacks: [
                       {
+                        id: 1,
                         label: 'Stack-1',
                         color: '#FF0000'
                       },
                       {
+                        id: 2,
                         label: 'Stack-2',
                         color: '#FFA500'
                       },
                       {
+                        id: 3,
                         label: 'Stack-3',
                         color: '#FFFF00'
                       },
                       {
+                        id: 4,
                         label: 'Stack-4',
                         color: '#008000'
                       },
                       {
+                        id: 5,
                         label: 'Stack-5',
                         color: '#0000FF'
                       }
@@ -623,10 +648,13 @@ export class HttpService {
           groups: [
             {
               id: 'ALL-COLO',
-              title: 'group 1',
+              title: 'ALL COLO',
               settings: {
                 visual: {
-                    label : 'All Colo'
+                    visible: true
+                },
+                tempUI: {
+                    selected: false
                 }
               },
               queries: [
@@ -644,9 +672,9 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "red",
-                            aggregator: "SUM",
-                            stack: 0
+                            aggregator: "sum",
+                            visible: true  ,
+                            stack: 1
                         }
                     }
                 },
@@ -664,9 +692,9 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "orange",
-                            aggregator: "SUM",
-                            stack: 1
+                            aggregator: "sum",
+                            visible: true,
+                            stack: 2
                         }
                     }
                 },
@@ -684,9 +712,9 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "yellow",
-                            aggregator: "SUM",
-                            stack: 2
+                            aggregator: "sum",
+                            visible: true,
+                            stack: 3
                         }
                     }
                 },
@@ -704,9 +732,9 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "green",
-                            aggregator: "SUM",
-                            stack: 3
+                            aggregator: "sum",
+                            visible: true,
+                            stack: 4
                         }
                     }
                 },
@@ -724,9 +752,9 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "blue",
-                            aggregator: "SUM",
-                            stack: 4
+                            aggregator: "sum",
+                            visible: true,
+                            stack: 5
                         }
                     }
                 }
@@ -734,10 +762,13 @@ export class HttpService {
             },
             {
                 id: 'BF1',
-                title: 'group 2',
+                title: 'BF1',
                 settings: {
                     visual: {
-                        label : 'BF1'
+                        visible: true
+                    },
+                    tempUI: {
+                        selected: false
                     }
                 },
                 queries: [
@@ -756,8 +787,9 @@ export class HttpService {
                       tags: { colo: "bf1"},
                       settings: {
                         visual: {
-                            aggregator: "SUM",
-                            stack: 0
+                            aggregator: "sum",
+                            visible: true,
+                            stack: 1
                         }
                       }
                   },
@@ -776,8 +808,9 @@ export class HttpService {
                       tags: { colo: "bf1"},
                       settings: {
                         visual: {
-                            aggregator: "SUM",
-                            stack: 1
+                            aggregator: "sum",
+                            visible: true,
+                            stack: 2
                         }
                       }
                   },
@@ -796,8 +829,9 @@ export class HttpService {
                       tags: { colo: "bf1"},
                       settings: {
                         visual: {
-                            aggregator: "SUM",
-                            stack: 2
+                            aggregator: "sum",
+                            visible: true,
+                            stack: 3
                         }
                       }
                   },
@@ -816,8 +850,9 @@ export class HttpService {
                       tags: { colo: "bf1"},
                       settings: {
                         visual: {
-                            aggregator: "SUM",
-                            stack: 3
+                            aggregator: "sum",
+                            visible: true,
+                            stack: 4
                         }
                       }
                   },
@@ -836,8 +871,9 @@ export class HttpService {
                       tags: { colo: "bf1"},
                       settings: {
                         visual: {
-                            aggregator: "SUM",
-                            stack: 4
+                            aggregator: "sum",
+                            visible: true,
+                            stack: 5
                         }
                       }
                   }
@@ -900,6 +936,7 @@ export class HttpService {
                         visual: {
                             color: "#FF0000",
                             aggregator: "avg",
+                            visible: true,
                             stackLabel: "WWW-BOTS"
                         }
                     }
@@ -920,6 +957,7 @@ export class HttpService {
                         visual: {
                             color: "#FFA500",
                             aggregator: "avg",
+                            visible: true,
                             stackLabel: "UPLOAD"
                         }
                     }
@@ -940,6 +978,7 @@ export class HttpService {
                         visual: {
                             color: "#FFFF00",
                             aggregator: "avg",
+                            visible: true,
                             stackLabel: "ZOOKEEPER"
                         }
                     }
@@ -960,6 +999,7 @@ export class HttpService {
                         visual: {
                             color: "#008000",
                             aggregator: "avg",
+                            visible: true,
                             stackLabel: "TWEM"
                         }
                     }
@@ -980,6 +1020,7 @@ export class HttpService {
                         visual: {
                             color: "#0000FF",
                             aggregator: "avg",
+                            visible: true,
                             stackLabel: "STORM"
                         }
                     }
