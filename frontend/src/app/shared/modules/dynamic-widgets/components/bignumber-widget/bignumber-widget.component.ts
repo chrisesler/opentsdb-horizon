@@ -37,11 +37,10 @@ export class BignumberWidgetComponent implements OnInit {
     private isDataLoaded: boolean = false;
 
     metrics: any; // cache all the metrics that we get from tsdb
-
     selectedMetric: any; // used for macros
+    tags: any; // to display tags of currently selected metric
     bigNumber: number;
     changeIndicatorCompareValue: number;
-    tags: any;
 
     fontSizePercent: number;
     contentFillPercent: number = 0.75; // how much % content should take up widget
@@ -93,6 +92,7 @@ export class BignumberWidgetComponent implements OnInit {
         }
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+
             if (message.action === 'resizeWidget') {
                 if (!this.metrics) { // 1. If no metrics, only set the widget width and height.
                     this.widgetWidth = message.payload.width * this.widget.gridPos.w - 20;
@@ -133,8 +133,7 @@ export class BignumberWidgetComponent implements OnInit {
                         this.isDataLoaded = true;
                         this.metrics = message.payload;
                         this.setBigNumber(this.widget.query.settings.visual.queryID);
-
-                break;
+                        break;
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);
                         break;
@@ -151,17 +150,20 @@ export class BignumberWidgetComponent implements OnInit {
         }
     }
 
-    setBigNumber(queryId: string) {
-
-        let queryIndex: number;
-        queryIndex = parseInt(queryId, 10);
-
+    getMetric(queryID: string): any {
+        let queryIndex = parseInt(queryID, 10);
         let metric;
         // get the 'first' metric
         for (const [id, _metrics] of Object.entries(this.metrics)) {
             metric = _metrics[queryIndex];
             break;
         }
+        return metric;
+    }
+
+    setBigNumber(queryId: string) {
+        let metric = this.getMetric(queryId);
+        let queryIndex = parseInt(queryId, 10);
 
         const dps = metric['dps'];
         let currentValueTS: number = 0;
@@ -207,7 +209,7 @@ export class BignumberWidgetComponent implements OnInit {
         this.fontSizePercent = this.calcFontSizePercent(this.widget.query.settings.visual['fontSizePercent'],
             this.widget.query.settings.visual['widgetWidth'], this.widget.query.settings.visual['widgetHeight'],
             this.widgetWidth, this.widgetHeight);
-}
+    }
 
    requestData() {
         if (!this.isDataLoaded) {
@@ -238,13 +240,13 @@ export class BignumberWidgetComponent implements OnInit {
         return ret;
     }
 
-     bigNumToChangeIndicatorValue(bigNum: IBigNum): string {
+    bigNumToChangeIndicatorValue(bigNum: IBigNum): string {
         if (bigNum.changeIndicatorHasUnit) {
             return bigNum.num + bigNum.unit;
         } else {
             return bigNum.num;
         }
-     }
+    }
 
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
@@ -289,6 +291,9 @@ export class BignumberWidgetComponent implements OnInit {
                 break;
             case 'DeleteQuery':
                 this.deleteQuery(message.payload.index);
+                break;
+            case 'SetSelectedQuery':
+                this.setSelectedQuery(message.payload.data);
                 break;
         }
     }
@@ -357,13 +362,39 @@ export class BignumberWidgetComponent implements OnInit {
 
     deleteQuery(index) {
         const gIndex = 0;
-        this.widget.query.groups[gIndex].queries.splice(index, 1);
-        console.log('deleteQuery', this.widget.query.groups[gIndex].queries);
+
+        if (this.widget.query.groups[gIndex].queries.length > 1) {
+            let selectedQueryIndex = parseInt(this.widget.query.settings.visual.queryID, 10);
+            if (index === selectedQueryIndex ) { // set 0th index if deleting currently selected query
+                this.widget.query.settings.visual.queryID = (0).toString();
+            } else if (index < selectedQueryIndex) { // shift index by 1 if deleting before selected query
+                this.widget.query.settings.visual.queryID = (selectedQueryIndex - 1).toString();
+            }
+
+            this.widget.query.groups[gIndex].queries.splice(index, 1);
+            this.metrics[((Object.keys(this.metrics))[0])].splice(index, 1); // get first key of dict, then remove metric from array
+            this.setBigNumber(this.widget.query.settings.visual.queryID );
+
+        } else {
+            console.log('tried deleting last query');
+        }
+
         // this.refreshData(false);
     }
 
     setMetaData(config) {
         this.widget.settings = {...this.widget.settings, ...config};
+    }
+
+    setSelectedQuery(queryID: string) {
+        this.widget.query.settings.visual.queryID = queryID;
+
+        let metric = this.getMetric(queryID);
+        if (metric) {
+            this.setBigNumber(queryID);
+        } else {
+            this.refreshData();
+        }
     }
 
     refreshData(reload = true) {
@@ -375,31 +406,11 @@ export class BignumberWidgetComponent implements OnInit {
         }
     }
 
-    // tslint:disable-next-line:member-ordering
-    valueIterationOptions: Array<any> = [
-        {
-            label: 'max',
-            value: 'max'
-        },
-        {
-            label: 'min',
-            value: 'min'
-        },
-        {
-            label: 'average',
-            value: 'average'
-        },
-        {
-            label: 'latest',
-            value: 'latest'
-        }
-    ];
 }
 
 interface IBigNumberVisual {
 
     queryID: string;
-    value?: string; // max, min, average, latest
     comparedTo?: number;
 
     fontSizePercent: number;
@@ -422,7 +433,6 @@ interface IBigNumberVisual {
     unitUndercased?: boolean;
 
     caption?: string;
-    // captionSize?: string;
 
     precision: number;
 
