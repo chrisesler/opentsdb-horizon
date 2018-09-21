@@ -2,10 +2,11 @@ import { Component, OnInit, OnChanges, AfterViewInit, SimpleChanges, HostBinding
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
+import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
 
 import { Subscription } from 'rxjs/Subscription';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
+import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { isNumber } from 'util';
 import { CompilerConfig } from '../../../../../../../node_modules/@angular/compiler';
 
@@ -67,7 +68,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     constructor(
         private interCom: IntercomService,
         private dataTransformer: DatatranformerService,
-        private util: UtilsService
+        private util: UtilsService,
+        private unit: UnitConverterService
     ) { }
 
     ngOnInit() {
@@ -80,13 +82,20 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             this.options.scales.xAxes[0] = type === 'vertical' ? this.categoryAxis : this.valueAxis;
             this.type = type === 'vertical' ? 'bar' : 'horizontalBar';
         });
+        this.setAxisOption();
 
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            if ( message.action === 'resizeWidget' && !this.editMode ) {
-                // we get the size to update the graph size
-                this.width = message.payload.width * this.widget.gridPos.w - 30 + 'px';
-                this.height = message.payload.height * this.widget.gridPos.h - 70 + 'px';
+            switch( message.action ) {
+                case 'resizeWidget':
+                    if ( !this.editMode ) {
+                        this.width = message.payload.width * this.widget.gridPos.w - 30 + 'px';
+                        this.height = message.payload.height * this.widget.gridPos.h - 70 + 'px';
+                    }
+                    break;
+                case 'reQueryData':
+                    this.refreshData();
+                    break;
             }
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
@@ -148,7 +157,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 this.setAlerts(message.payload.data);
                 break;
             case 'SetAxes' :
-                this.setAxis(message.payload.data);
+                this.updateAlertValue(message.payload.data.y1);
+                this.widget.query.settings.axes = { ...this.widget.query.settings.axes, ...message.payload.data };
+                this.setAxisOption();
+                this.options = { ...this.options };
                 break;
             case 'ChangeVisualization':
                 this.type$.next(message.payload.type);
@@ -281,32 +293,27 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                                                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                             }
                                         };
+        this.refreshData();
     }
 
 
-    setAxis( axes ) {
-
-        this.widget.query.settings.axes = { ...this.widget.query.settings.axes, ...axes };
+    setAxisOption() {
         const axis = this.valueAxis;
-        const config = this.widget.query.settings.axes.y1;
+        const config = this.widget.query.settings.axes && this.widget.query.settings.axes.y1 ?
+                            this.widget.query.settings.axes.y1 : <Axis>{};
         axis.type = config.scale === 'linear' ? 'linear' : 'logarithmic';
-
         axis.ticks = {};
-
         if ( !isNaN( config.min ) ) {
             axis.ticks.min = config.min;
         }
         if ( !isNaN( config.max ) ) {
             axis.ticks.max = config.max;
         }
-        const label = config.label.trim();
+        const label = config.label ? config.label.trim() : '';
+        const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 2 : config.decimals;
         axis.scaleLabel = label ? { labelString: label, display: true } : {};
-
-        if ( config.decimals || config.unit  ) {
-            axis.ticks.format = { unit: config.unit, precision: config.decimals, unitDisplay: true };
-        }
-
-        this.options = {...this.options};
+        axis.ticks.format = { unit: config.unit, precision: decimals, unitDisplay: config.unit ? true : false };
+        console.log("setAxes", config, axis);
     }
 
     setStackedBarVisualization(gIndex, configs) {
@@ -326,8 +333,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     setAlerts(thresholds) {
         console.log('thresholds', thresholds);
+        const axis = this.widget.query.settings.axes ? this.widget.query.settings.axes.y1 : <Axis>{};
+        const oUnit = this.unit.getDetails(axis.unit);
+
         this.widget.query.settings.thresholds = thresholds;
         this.options.threshold = { thresholds: [] };
+
         Object.keys(thresholds).forEach( k => {
             const threshold = thresholds[k];
             if ( threshold.value !== '' ) {
@@ -347,7 +358,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                         break;
                 }
                 const o = {
-                    value: threshold.value,
+                    value: oUnit ? threshold.value * oUnit.m : threshold.value,
                     scaleId: 'y-axis-0',
                     borderColor: threshold.lineColor,
                     borderWidth: parseInt(threshold.lineWeight, 10),
@@ -357,6 +368,17 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
         this.options = { ...this.options };
+    }
+
+    updateAlertValue(nConfig) {
+        const oConfig = this.widget.query.settings.axes ? this.widget.query.settings.axes.y1 : <Axis>{};
+        const oUnit = this.unit.getDetails(oConfig.unit);
+        const nUnit = this.unit.getDetails(nConfig.unit);
+        const thresholds = this.widget.query.settings.thresholds || {};
+        for ( let i in thresholds ) {
+            thresholds[i].value = oUnit ? thresholds[i].value * oUnit.m : thresholds[i].value;
+            thresholds[i].value = nUnit ? thresholds[i].value / nUnit.m : thresholds[i].value;
+        }
     }
 
     setStackedBarLabels(gConfigs) {

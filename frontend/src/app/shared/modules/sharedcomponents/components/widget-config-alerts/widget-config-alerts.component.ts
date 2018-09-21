@@ -75,7 +75,7 @@ export class WidgetConfigAlertsComponent implements OnInit, OnDestroy {
 
     getThresholdFormGroup(threshold) {
         return this.fb.group({
-            value: new FormControl(threshold.value, [Validators.pattern('^[0-9]*$')]),
+            value: new FormControl(threshold.value, [Validators.pattern('^[0-9]+(\.[0-9]*)?$')]),
             lineWeight: new FormControl(threshold.lineWeight),
             lineType: new FormControl(threshold.lineType),
             lineColor: new FormControl(threshold.lineColor)
