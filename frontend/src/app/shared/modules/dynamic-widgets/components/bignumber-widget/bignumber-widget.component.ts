@@ -163,6 +163,21 @@ export class BignumberWidgetComponent implements OnInit {
 
     setBigNumber(queryId: string) {
         let metric = this.getMetric(queryId);
+
+        if (!metric) {
+            this.bigNumber = 0;
+            this.changeIndicatorCompareValue = 0;
+            this.tags = null;
+            this.selectedMetric.metric = '';
+            this.widget.query.settings.visual.prefix = '';
+            this.widget.query.settings.visual.postfix = '';
+            this.widget.query.settings.visual.unit = '';
+            this.widget.query.settings.visual.caption = '';
+            this.widget.query.settings.visual.sparkLineEnabled = false;
+            this.widget.query.settings.visual.changedIndicatorEnabled = false;
+            return;
+        }
+
         let queryIndex = parseInt(queryId, 10);
 
         const dps = metric['dps'];
@@ -363,21 +378,16 @@ export class BignumberWidgetComponent implements OnInit {
     deleteQuery(index) {
         const gIndex = 0;
 
-        if (this.widget.query.groups[gIndex].queries.length > 1) {
-            let selectedQueryIndex = parseInt(this.widget.query.settings.visual.queryID, 10);
-            if (index === selectedQueryIndex ) { // set 0th index if deleting currently selected query
-                this.widget.query.settings.visual.queryID = (0).toString();
-            } else if (index < selectedQueryIndex) { // shift index by 1 if deleting before selected query
-                this.widget.query.settings.visual.queryID = (selectedQueryIndex - 1).toString();
-            }
-
-            this.widget.query.groups[gIndex].queries.splice(index, 1);
-            this.metrics[((Object.keys(this.metrics))[0])].splice(index, 1); // get first key of dict, then remove metric from array
-            this.setBigNumber(this.widget.query.settings.visual.queryID );
-
-        } else {
-            console.log('tried deleting last query');
+        let selectedQueryIndex = parseInt(this.widget.query.settings.visual.queryID, 10);
+        if (index === selectedQueryIndex ) { // set 0th index if deleting currently selected query
+            this.widget.query.settings.visual.queryID = (0).toString();
+        } else if (index < selectedQueryIndex) { // shift index by 1 if deleting before selected query
+            this.widget.query.settings.visual.queryID = (selectedQueryIndex - 1).toString();
         }
+
+        this.widget.query.groups[gIndex].queries.splice(index, 1);
+        this.metrics[((Object.keys(this.metrics))[0])].splice(index, 1); // get first key of dict, then remove metric from array
+        this.setBigNumber(this.widget.query.settings.visual.queryID );
 
         // this.refreshData(false);
     }
