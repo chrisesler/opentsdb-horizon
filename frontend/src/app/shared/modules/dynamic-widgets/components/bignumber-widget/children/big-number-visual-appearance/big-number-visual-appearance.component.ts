@@ -50,28 +50,34 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         this.prefixDisabled = false;
         this.widget.query.settings.visual['prefix'] = value;
         this.widget.query.settings.visual['prefixUndercased'] = this.isStringOnlyLowercasedLetters(value);
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     selectedPrefixSize(value: string) {
         this.widget.query.settings.visual['prefixSize'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     selectedPrefixAlignment(value: string) {
         this.widget.query.settings.visual['prefixAlignment'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     // Postfix
     KeyedOnPostfixInputBox(value: string) {
         this.widget.query.settings.visual['postfix'] = value;
         this.widget.query.settings.visual['postfixUndercased'] = this.isStringOnlyLowercasedLetters(value);
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     selectedPostfixSize(value: string) {
         this.widget.query.settings.visual['postfixSize'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     selectedPostfixAlignment(value: string) {
         this.widget.query.settings.visual['postfixAlignment'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     // Unit
@@ -80,14 +86,17 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         this.widget.query.settings.visual['unitUndercased'] =
             this.isStringOnlyLowercasedLetters(this.UN.getBigNumber(this.widget.query.settings.visual['bigNumber'],
             this.widget.query.settings.visual['unit']).unit);
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     selectedUnitSize(value: string) {
         this.widget.query.settings.visual['unitSize'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     selectedUnitAlignment(value: string) {
         this.widget.query.settings.visual['unitAlignment'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     stopPropagation(event) {
@@ -117,15 +126,18 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     // Caption
     KeyedOnCaptionInputBox(value: string) {
         this.widget.query.settings.visual['caption'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     selectedCaptionSize(value: string) {
         this.widget.query.settings.visual['captionSize'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     // Precision
     KeyedOnPrecisionInputBox(value: string) {
         this.widget.query.settings.visual['precision'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
     }
 
     // Color Picker
@@ -137,8 +149,10 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         if (color['hex']) { // make sure there is a hex
             if (this.colorType === 'text') {
                 this.widget.query.settings.visual['textColor'] = color['hex'];
+                this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
             } else { // background
                 this.widget.query.settings.visual['backgroundColor'] = color['hex'];
+                this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
             }
         }
     }

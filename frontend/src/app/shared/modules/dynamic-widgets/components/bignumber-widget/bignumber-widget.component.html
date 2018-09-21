@@ -130,7 +130,7 @@
             </mat-tab>
             <mat-tab label="Visual Appearance">
                 <ng-template matTabContent>
-                    <big-number-visual-appearance [widget]="widget"></big-number-visual-appearance>
+                    <big-number-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></big-number-visual-appearance>
                 </ng-template>
             </mat-tab>
             <mat-tab label="Meta Data">

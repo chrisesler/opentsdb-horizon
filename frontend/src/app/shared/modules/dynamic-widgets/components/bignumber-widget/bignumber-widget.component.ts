@@ -347,11 +347,12 @@ export class BignumberWidgetComponent implements OnInit {
         return g;
     }
 
-    setVisualization( mconfigs ) {
-        mconfigs.forEach( (config, i) => {
-            // tslint:disable-next-line:max-line-length
-            this.widget.query.groups[0].queries[i].settings.visual = { ...this.widget.query.groups[0].queries[i].settings.visual, ...config };
-        });
+    setVisualization( vconfigs ) {
+        this.widget.query.settings.visual = vconfigs;
+        // mconfigs.forEach( (config, i) => {
+        //     // tslint:disable-next-line:max-line-length
+        //     this.widget.query.groups[0].queries[i].settings.visual = { ...this.widget.query.groups[0].queries[i].settings.visual, ...config };
+        // });
     }
 
     setTimeConfiguration(config) {
