@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostBinding, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, OnDestroy, HostBinding, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs/Subscription';
     templateUrl: './widget-config-alerts.component.html',
     styleUrls: []
 })
-export class WidgetConfigAlertsComponent implements OnInit, OnDestroy {
+export class WidgetConfigAlertsComponent implements OnInit, OnChanges, OnDestroy {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.alerts-configuration') private _tabClass = true;
 
@@ -25,17 +25,21 @@ export class WidgetConfigAlertsComponent implements OnInit, OnDestroy {
     thresholds: any = [
         {
             value: '',
+            axis: 'y1',
             lineWeight: '1px',
             lineType: 'solid',
             lineColor: '#000000'
         },
         {
             value: '',
+            axis: 'y1',
             lineWeight: '1px',
             lineType: 'solid',
             lineColor: '#000000'
         }
     ];
+
+    showAxis =  false;
 
     constructor(private fb: FormBuilder) { }
 
@@ -46,12 +50,23 @@ export class WidgetConfigAlertsComponent implements OnInit, OnDestroy {
         this.createForm();
     }
 
+    ngOnChanges( changes: SimpleChanges ) {
+        if ( changes.widget ) {
+            const widget = changes.widget.currentValue;
+            const y2Axis = widget.query.settings.axes && widget.query.settings.axes.y2 ? widget.query.settings.axes.y2 : {};
+            this.showAxis = widget.settings.component_type === 'LinechartWidgetComponent' && (!Object.keys(y2Axis).length || y2Axis.enabled) ? true : false;
+        }
+    }
+
 
     createForm() {
         this.formGroups = this.fb.group({});
         switch ( this.widget.settings.component_type ) {
             case 'BarchartWidgetComponent':
             case 'StackedBarchartWidgetComponent':
+                this.formGroups.addControl(0, this.getThresholdFormGroup(this.thresholds[0]));
+                this.formGroups.addControl(1, this.getThresholdFormGroup(this.thresholds[1]));
+                break;
             case 'LinechartWidgetComponent':
                 this.formGroups.addControl(0, this.getThresholdFormGroup(this.thresholds[0]));
                 this.formGroups.addControl(1, this.getThresholdFormGroup(this.thresholds[1]));
@@ -76,6 +91,7 @@ export class WidgetConfigAlertsComponent implements OnInit, OnDestroy {
     getThresholdFormGroup(threshold) {
         return this.fb.group({
             value: new FormControl(threshold.value, [Validators.pattern('^[0-9]+(\.[0-9]*)?$')]),
+            axis: new FormControl(threshold.axis),
             lineWeight: new FormControl(threshold.lineWeight),
             lineType: new FormControl(threshold.lineType),
             lineColor: new FormControl(threshold.lineColor)

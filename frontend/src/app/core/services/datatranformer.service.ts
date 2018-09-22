@@ -40,7 +40,7 @@ export class DatatranformerService {
                 strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
                 //strokePattern: this.getStrokePattern(vConfig.lineType),
                 color: vConfig.color? vConfig.color : '#000000',
-                axis: !vConfig.axis || vConfig.axis === 'y' ? 'y' : 'y2'
+                axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2'
             };
         }
 

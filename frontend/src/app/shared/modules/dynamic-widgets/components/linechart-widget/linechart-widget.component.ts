@@ -6,10 +6,11 @@ import {
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
+import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
 
 
 import { Subscription } from 'rxjs/Subscription';
-import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
+import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import multiColumnGroupPlotter from '../../../../../shared/dygraphs/plotters';
 
@@ -77,7 +78,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         private interCom: IntercomService,
         private dataTransformer: DatatranformerService,
         private util: UtilsService,
-        private elRef:ElementRef
+        private elRef: ElementRef,
+        private unit: UnitConverterService
     ) { }
 
     ngOnInit() {
@@ -136,10 +138,15 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 this.setVisualization( message.payload.gIndex, message.payload.data );
                 break;
             case 'SetAlerts':
-                this.setAlerts(message.payload.data);
+                this.widget.query.settings.thresholds = message.payload.data;
+                this.setAlertOption();
+                this.options = { ...this.options };
                 break;
             case 'SetAxes' :
-                this.setAxes(message.payload.data);
+                this.updateAlertValue(message.payload.data.y1);
+                this.widget.query.settings.axes = { ...this.widget.query.settings.axes, ...message.payload.data };
+                this.setAxesOption();
+                this.options = { ...this.options };
                 break;
             case 'SetLegend':
                 this.setLegend(message.payload.data);
@@ -212,16 +219,13 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         this.refreshData();
     }
 
-    setAxes( axes ) {
-console.log("...setAxes....", axes);
-        this.widget.query.settings.axes = { ...this.widget.query.settings.axes, ...axes };
-
-        const keys = Object.keys(this.widget.query.settings.axes);
-        for (let i = 0; i < keys.length; i++ ) {
-            const k = keys[i];
-            const config = this.widget.query.settings.axes[keys[i]];
-            const axisKey = k === 'y1' ? 'y' : k === 'y2' ? 'y2' : 'x';
-            const axis = this.options.axes[axisKey];
+    setAxesOption() {
+        const axisKeys = Object.keys(this.widget.query.settings.axes);
+        const thresholds = this.widget.query.settings.thresholds || {};
+        for (let i = 0; i < axisKeys.length; i++ ) {
+            const config = this.widget.query.settings.axes[axisKeys[i]];
+            const chartAxisID = axisKeys[i] === 'y1' ? 'y' : axisKeys[i] === 'y2' ? 'y2' : 'x';
+            const axis = this.options.axes[chartAxisID];
             if ( !isNaN( config.min ) ) {
                 axis.valueRange[0] = config.min;
             }
@@ -229,19 +233,15 @@ console.log("...setAxes....", axes);
                 axis.valueRange[1] = config.max;
             }
 
-            if ( axisKey === 'y' || axisKey === 'y2' ) {
+            if ( axisKeys[i] === 'y1' || axisKeys[i] === 'y2' ) {
                 axis.logscale = config.scale === 'linear' ? false : true;
                 const label = config.label.trim();
-                this.options[axisKey + 'label'] = label;
-            }
-
-            if ( config.enable) {
-
+                this.options[chartAxisID + 'label'] = label;
             }
 
             axis.drawAxis = config.enabled ? true : false;
             // move series from y2 to y1 if y2 is disabled
-            if ( this.options.series &&  axisKey === 'y2' && !config.enabled) {
+            if ( this.options.series &&  axisKeys[i] === 'y2' && !config.enabled) {
                 for ( let k in this.options.series ) {
                     this.options.series[k].axis = 'y';
                 }
@@ -249,25 +249,38 @@ console.log("...setAxes....", axes);
                 for ( let m = 0; m < groups.length; m++ ) {
                     const queries = groups[m].queries;
                     for ( let n = 0; n < queries.length; n++ ) {
-                        queries[n].settings.visual.axis = 'y';
+                        queries[n].settings.visual.axis = 'y1';
                     }
                 }
             }
-
-
-            if ( config.decimals || config.unit  ) {
-                axis.tickFormat = { unit: config.unit, precision: config.decimals, unitDisplay: true };
+            
+            // change threshold axis y2=>y1
+            if ( axisKeys[i] === 'y2' && !config.enabled  && Object.keys(thresholds).length ) {
+                for ( let i in thresholds ) {
+                    thresholds[i].axis = 'y1';
+                }
+                this.setAlertOption();
             }
+
+            const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 2 : config.decimals;
+            axis.tickFormat = { unit: config.unit, precision: decimals, unitDisplay: true };
         }
         console.log("setaxis",  this.options, this.widget.query.groups[0].queries);
-
-
-        this.options = {...this.options};
     }
 
-    setAlerts(thresholds) {
-        console.log('thresholds', thresholds);
-        this.widget.query.settings.thresholds = thresholds;
+    updateAlertValue(nConfig) {
+        const oConfig = this.widget.query.settings.axes ? this.widget.query.settings.axes.y1 : <Axis>{};
+        const oUnit = this.unit.getDetails(oConfig.unit);
+        const nUnit = this.unit.getDetails(nConfig.unit);
+        const thresholds = this.widget.query.settings.thresholds || {};
+        for ( let i in thresholds ) {
+            thresholds[i].value = oUnit ? thresholds[i].value * oUnit.m : thresholds[i].value;
+            thresholds[i].value = nUnit ? thresholds[i].value / nUnit.m : thresholds[i].value;
+        }
+    }
+
+    setAlertOption() {
+        const thresholds = this.widget.query.settings.thresholds;
         this.options.thresholds =  [] ;
         Object.keys(thresholds).forEach( k => {
             const threshold = thresholds[k];
@@ -287,9 +300,12 @@ console.log("...setAxes....", axes);
                         lineType = [4, 4, 2];
                         break;
                 }
+                const scaleId = !threshold.axis || threshold.axis !== 'y2' ? 'y' : threshold.axis;
+                const axis = this.widget.query.settings.axes ? this.widget.query.settings.axes[k] : null;
+                const oUnit = axis ? this.unit.getDetails(axis.unit) : null;
                 const o = {
-                    value: threshold.value,
-                    scaleId: 'y',
+                    value: oUnit ? threshold.value * oUnit.m : threshold.value,
+                    scaleId: scaleId,
                     borderColor: threshold.lineColor,
                     borderWidth: parseInt(threshold.lineWeight, 10),
                     borderDash: lineType
@@ -297,7 +313,6 @@ console.log("...setAxes....", axes);
                 this.options.thresholds.push(o);
             }
         });
-        this.options = { ...this.options };
     }
 
     setVisualization( gIndex, configs ) {
