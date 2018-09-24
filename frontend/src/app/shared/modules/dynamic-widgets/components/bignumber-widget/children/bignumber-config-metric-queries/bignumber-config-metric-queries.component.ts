@@ -3,6 +3,7 @@ import { Component, OnInit, HostBinding, Input, Output, EventEmitter, OnDestroy,
 import {MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 
 import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+// tslint:disable-next-line:max-line-length
 import {SearchMetricsDialogComponent} from '../../../../../sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import {ExpressionDialogComponent} from '../../../../../sharedcomponents/components/expression-dialog/expression-dialog.component';
 
@@ -19,7 +20,7 @@ export class BignumberConfigMetricQueriesComponent  implements OnInit, OnDestroy
 
     /** Inputs */
     @Input() widget: any;
- 
+
     /** Outputs */
     @Output() widgetChange = new EventEmitter;
 
@@ -124,7 +125,10 @@ export class BignumberConfigMetricQueriesComponent  implements OnInit, OnDestroy
         })));
     }
 
-    ngOnDestroy() {
+    querySelected(queryId: string) {
+        this.widgetChange.emit({action: 'SetSelectedQuery', payload: { data: queryId }});
     }
 
+    ngOnDestroy() {
+    }
 }

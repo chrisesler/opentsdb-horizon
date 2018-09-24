@@ -55,6 +55,7 @@ export interface WidgetModel {
             visual?: {
                 type?: string;
                 stacks?: StackConfig[];
+                [x: string]: any;
             };
             axes?: {
                 x?: Axis;
