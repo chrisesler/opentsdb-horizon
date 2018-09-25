@@ -91,7 +91,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
                     color : new FormControl(item.settings.visual.color),
                     lineWeight : new FormControl(item.settings.visual.lineWeight || '2px'),
                     lineType: new FormControl(item.settings.visual.lineType),
-                    axis: new FormControl( item.settings.visual.axis || 'y' )
+                    axis: new FormControl( item.settings.visual.axis || 'y1' )
                 })));
         }
     }

@@ -1,12 +1,12 @@
 <nav mat-tab-nav-bar class="timezone-toggle-options sliding-button-group">
     <a mat-tab-link
-        [active]="selectedTimezone === 'UTC'"
-        (click)="changeTimezone('UTC')">
+        [active]="selectedTimezone === 'utc'"
+        (click)="changeTimezone('utc')">
         UTC
     </a>
     <a mat-tab-link
-        [active]="selectedTimezone === 'Local'"
-        (click)="changeTimezone('Local')">
+        [active]="selectedTimezone === 'local'"
+        (click)="changeTimezone('local')">
         Local
     </a>
 </nav>

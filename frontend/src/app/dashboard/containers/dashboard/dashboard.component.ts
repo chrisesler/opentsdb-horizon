@@ -4,6 +4,7 @@ import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
 
+import * as moment from 'moment';
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -11,12 +12,13 @@ import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
 import { ISelectedTime } from '../../../shared/modules/date-time-picker/models/models';
+import { UtilsService } from '../../../shared/modules/date-time-picker/services/utils.service'
 
 import { DBState, LoadDashboard } from '../../state/dashboard.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, WidgetModel} from '../../state/widgets.state';
 import { WidgetsRawdataState, GetQueryDataByGroup } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
-import { DBSettingsState, UpdateMode} from '../../state/settings.state';
+import { DBSettingsState, UpdateMode, UpdateDashboardTime, LoadDashboardSettings, UpdateDashboardTimeZone} from '../../state/settings.state';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
 
@@ -32,6 +34,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(AuthState.getAuth) auth$: Observable<string>;
     // new state
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
+    @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdata) widgetRawData$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
@@ -104,6 +107,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ];
 
     // other variables
+    dbTime: any;
     listenSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
@@ -118,7 +122,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private interCom: IntercomService,
         private dbService: DashboardService,
-        private cdkService: CdkService
+        private cdkService: CdkService,
+        private dateUtil: UtilsService
     ) { }
 
     ngOnInit() {
@@ -130,6 +135,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 if (this.dbid === '_new_') {
                     console.log('creating a new dashboard...');
                     const newdboard = this.dbService.getDashboardPrototype();
+                    const settings = {
+                                        title: 'untitled dashboard',
+                                        mode: 'dashboard',
+                                        time: { start: '1h', end: 'now', zone: 'local' }
+                                    };
+                    this.store.dispatch(new LoadDashboardSettings(settings));
                     // this.store.dispatch(new dashboardActions.CreateNewDashboard(newdboard));
                 } else {
                     // load provided dashboard id, and need to handdle not found too
@@ -175,9 +186,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.loadedRawDB$.subscribe( db => {
+            this.store.dispatch(new LoadDashboardSettings(db.settings));
             // update WidgetsState
             this.store.dispatch(new LoadWidgets(db.widgets));
         });
+
+        this.dbTime$.subscribe ( t => {
+            console.log("___DBTIME___", JSON.stringify(this.dbTime), JSON.stringify(t));
+
+            if ( this.dbTime && this.dbTime.zone !== t.zone ) {
+                this.interCom.responsePut({
+                    action: 'TimezoneChanged',
+                    payload: t
+                });
+            } else {
+                this.interCom.responsePut({
+                    action: 'reQueryData',
+                    payload: t
+                });
+            }
+            this.dbTime = t;
+        });
+
 
         this.widgetRawData$.subscribe(result => {
 
@@ -212,7 +242,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.interCom.responsePut({
             id: wid,
             action: 'updatedWidgetGroup',
-            payload: rawdata
+            payload: {
+                        rawdata: rawdata,
+                        timezone: this.dbTime.zone
+                    }
         });
     }
 
@@ -221,14 +254,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let groupid = '';
         const payload = message.payload;
 
+        const dt = this.getDashboardDateRange();
+        const downsample = this.getWidegetDownSample(payload);
+
         for (let i = 0; i < payload.groups.length; i++) {
             const group: any = payload.groups[i];
             groupid = group.id;
+            // set downsample
+            for ( let j = 0; j< group.queries.length; j++ ) {
+                group.queries[j].downsample = downsample;
+            }
             // format for opentsdb query
             const query: any = {
-                start: payload.start,
-                end: payload.end,
-                downsample: payload.downsample,
+                start: dt.start,
+                end: dt.end,
                 queries: group.queries
             };
             console.log('the group query', query);
@@ -240,6 +279,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // now dispatch request
             this.store.dispatch(new GetQueryDataByGroup(gquery));
         }
+    }
+
+    getDashboardDateRange() {
+        const dbSettings = this.store.selectSnapshot(DBSettingsState);
+        let startTime = moment(dbSettings.time.start);
+        startTime = startTime.isValid() ? startTime : this.dateUtil.relativeTimeToMoment(dbSettings.time.start);
+
+        let endTime = moment(dbSettings.time.end);
+        endTime = endTime.isValid() ? endTime : this.dateUtil.relativeTimeToMoment(dbSettings.time.end);
+        // relativeTimeToMoment returns undefined in case of now
+        endTime = endTime ? endTime : moment();
+
+        return {start: startTime.valueOf() , end: endTime.valueOf()};
+    }
+
+    getWidegetDownSample(query) {
+        const dsSetting = query.settings.time.downsample;
+        const mAggregator = { 'sum': 'zimsum', 'avg': 'avg', 'max': 'mimmax', 'min': 'mimmin' };
+        let dsValue = dsSetting.value;
+        switch ( dsSetting.value ) {
+            case 'auto':
+                dsValue = '5m';
+                break;
+            case 'custom':
+                dsValue = dsSetting.customValue + dsSetting.customUnit;
+                break;
+        }
+        const downsample = dsValue + '-' + mAggregator[dsSetting.aggregator] + '-nan';
+        return downsample;
     }
 
     // this will call based on gridster reflow and size changes event
@@ -266,8 +334,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.log('dashboard name save', event);
     }
 
-    eventTriggered(event: any) {
-        console.log(event);
+    setDateRange(e: any) {
+        this.store.dispatch(new UpdateDashboardTime({start: e.startTimeDisplay, end: e.endTimeDisplay}));
+    }
+
+    setTimezone(e) {
+        this.store.dispatch(new UpdateDashboardTimeZone(e));
     }
 
     click_cloneDashboard(event: any) {

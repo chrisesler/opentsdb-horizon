@@ -11,11 +11,15 @@ import { UtilsService } from '../services/utils.service';
 export class HttpService {
 
   constructor(private http: HttpClient, private utilsService: UtilsService) { }
-
   private testDashboard: any = {
     id: 'abcdfg',
     settings: {
-      title: 'my test dashboard'
+      title: 'my test dashboard',
+      time: {
+        start: '1h',
+        end: 'now',
+        zone: 'local'
+      }
     },
     widgets: [
         {
@@ -27,15 +31,12 @@ export class HttpService {
               data_source: 'yamas'
             },
             query: {
-                start: '1h-ago',
-                end: '',
-                downsample: '1m-avg-nan',
                 settings: {
                     time: {
                         overrideRelativeTime: '',
                         shiftTime: '',
                         downsample: {
-                            value: '1h',
+                            value: '1m',
                             aggregator: 'sum',
                             customValue: '',
                             customUnit: ''
@@ -109,15 +110,12 @@ export class HttpService {
               data_source: 'yamas'
             },
             query: {
-                start: '1h-ago',
-                end: '',
-                downsample: '1m-avg-nan',
                 settings: {
                     time: {
                         overrideRelativeTime: '',
                         shiftTime: '',
                         downsample: {
-                            value: '1h',
+                            value: '1m',
                             aggregator: 'sum',
                             customValue: '',
                             customUnit: ''
@@ -167,15 +165,12 @@ export class HttpService {
               data_source: 'yamas'
             },
             query: {
-                start: '1h-ago',
-                end: '',
-                downsample: '1m-avg-nan',
                 settings: {
                     time: {
                         overrideRelativeTime: '',
                         shiftTime: '',
                         downsample: {
-                            value: '1h',
+                            value: '1m',
                             aggregator: 'sum',
                             customValue: '',
                             customUnit: ''
@@ -226,15 +221,12 @@ export class HttpService {
               description: 'test desc',
             },
             query: {
-              start: '1h-ago',
-              end: '',
-              downsample: '1m-avg-nan',
               settings: {
                 time: {
                     overrideRelativeTime: '',
                     shiftTime: '',
                     downsample: {
-                        value: '1h',
+                        value: '1m',
                         aggregator: 'sum',
                         customValue: '',
                         customUnit: ''
@@ -281,7 +273,8 @@ export class HttpService {
                         visual: {
                             color: "#FF0000",
                             type: 'line',
-                            label: "yahoo"
+                            label: "yahoo",
+                            visible: true
                         }
                       }
                     }
@@ -290,77 +283,74 @@ export class HttpService {
               ]
             }
           },
-      {
-        id: 'cdft',
-        gridPos: { x: 6, y: 5, w: 6, h: 5 },
-        settings: {
-          title: 'my widget second title',
-          component_type: 'LinechartWidgetComponent',
-          data_source: 'yamas'
-        },
-        query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
-          settings: {
-            time: {
-                overrideRelativeTime: '',
-                shiftTime: '',
-                downsample: {
-                    value: '1h',
-                    aggregator: 'sum',
-                    customValue: '',
-                    customUnit: ''
-                }
+          {
+            id: 'cdft',
+            gridPos: { x: 6, y: 5, w: 6, h: 5 },
+            settings: {
+              title: 'my widget second title',
+              component_type: 'LinechartWidgetComponent',
+              data_source: 'yamas'
             },
-            visual: {},
-            axes: {
-                y1: {},
-                y2: {}
-            },
-            legend: {}
-          },
-          groups: [
-            {
-              id: 'werd',
-              title: 'group 2',
+            query: {
               settings: {
-                visual: {
-                  visible: true
-                }
-              },
-              queries: [
-                {
-                  metric: 'SNMP-Net.intercolo.avg_latency',
-                  filters: [
-                    {
-                      type: 'wildcard',
-                      tagk: 'host',
-                      filter: '*',
-                      groupBy: false
+                time: {
+                    overrideRelativeTime: '',
+                    shiftTime: '',
+                    downsample: {
+                        value: '1m',
+                        aggregator: 'sum',
+                        customValue: '',
+                        customUnit: ''
                     }
-                  ],
-                  aggregator: 'zimsum',
-                  explicitTags: false,
-                  rate: false,
-                  rateOptions: {
-                    counter: false,
-                    resetValue: 1
-                  },
+                },
+                visual: {},
+                axes: {
+                    y1: {},
+                    y2: {}
+                },
+                legend: {}
+              },
+              groups: [
+                {
+                  id: 'werd',
+                  title: 'group 2',
                   settings: {
                     visual: {
-                        color: "#000000",
-                        type: 'line',
-                        label: "yahoo"
-                    },
-                    visible: true
-                  }
+                      visible: true
+                    }
+                  },
+                  queries: [
+                    {
+                      metric: 'SNMP-Net.intercolo.avg_latency',
+                      filters: [
+                        {
+                          type: 'wildcard',
+                          tagk: 'host',
+                          filter: '*',
+                          groupBy: false
+                        }
+                      ],
+                      aggregator: 'zimsum',
+                      explicitTags: false,
+                      rate: false,
+                      rateOptions: {
+                        counter: false,
+                        resetValue: 1
+                      },
+                      settings: {
+                        visual: {
+                            color: "#000000",
+                            type: 'line',
+                            label: "yahoo",
+                            visible: true
+                        },
+                      }
+                    }
+                  ]
                 }
               ]
             }
-          ]
-        }
-      },
+          },
       {
         id: 'multigroup',
         gridPos: { x: 0, y: 11, w: 6, h: 5 },
@@ -370,15 +360,12 @@ export class HttpService {
           data_source: 'yamas'
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',
                 shiftTime: '',
                 downsample: {
-                    value: '1h',
+                    value: '1m',
                     aggregator: 'sum',
                     customValue: '',
                     customUnit: ''
@@ -422,9 +409,9 @@ export class HttpService {
                     visual: {
                         color: "#000000",
                         type: 'line',
-                        label: "yahoo"
+                        label: "yahoo",
+                        visible: true
                     },
-                    visible: true
                   }
                 }
               ]
@@ -459,9 +446,9 @@ export class HttpService {
                     visual: {
                         color: "#0000FF ",
                         type: 'line',
-                        label: "yahoo"
+                        label: "yahoo",
+                        visible: true
                     },
-                    visible: true
                   }
                 }
               ]
@@ -478,15 +465,12 @@ export class HttpService {
           data_source: 'yamas',
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',
                 shiftTime: '',
                 downsample: {
-                    value: '1h',
+                    value: '1m',
                     aggregator: 'sum',
                     customValue: '',
                     customUnit: ''
@@ -621,15 +605,12 @@ export class HttpService {
           data_source: 'yamas'
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',
                 shiftTime: '',
                 downsample: {
-                    value: '1h',
+                    value: '1m',
                     aggregator: 'sum',
                     customValue: '',
                     customUnit: ''
@@ -914,15 +895,12 @@ export class HttpService {
           data_source: 'yamas'
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',
                 shiftTime: '',
                 downsample: {
-                    value: '1h',
+                    value: '1m',
                     aggregator: 'sum',
                     customValue: '',
                     customUnit: ''

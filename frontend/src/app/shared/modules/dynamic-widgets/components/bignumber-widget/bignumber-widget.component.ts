@@ -127,11 +127,14 @@ export class BignumberWidgetComponent implements OnInit {
                     }
                 }
             }
+            if ( message.action === 'reQueryData' ) {
+                this.refreshData();
+            }
             if (message && (message.id === this.widget.id)) { // 2. Get and set the metric
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                         this.isDataLoaded = true;
-                        this.metrics = message.payload;
+                        this.metrics = message.payload.rawdata;
                         this.setBigNumber(this.widget.query.settings.visual.queryID);
                         break;
                     case 'viewEditWidgetMode':
@@ -366,6 +369,7 @@ export class BignumberWidgetComponent implements OnInit {
                                                  customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                              }
                                          };
+        this.refreshData();
     }
 
     toggleQuery(index) {

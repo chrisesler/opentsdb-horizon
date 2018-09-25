@@ -13,9 +13,11 @@ export class NavbarTimezoneToggleComponent implements OnInit {
     // tslint:disable-next-line:no-inferrable-types
     @Input() timezone: string = '';
 
+    @Output() change = new EventEmitter;
+
     /** Local variables */
     // tslint:disable-next-line:no-inferrable-types
-    selectedTimezone: string = '';
+    selectedTimezone: string = 'local';
 
     constructor() {}
 
@@ -26,6 +28,7 @@ export class NavbarTimezoneToggleComponent implements OnInit {
     changeTimezone(tz: string) {
         if (this.selectedTimezone !== tz) {
             this.selectedTimezone = tz;
+            this.change.emit(tz);
         }
     }
 
