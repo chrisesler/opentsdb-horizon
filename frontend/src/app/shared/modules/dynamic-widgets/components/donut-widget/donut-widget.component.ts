@@ -80,11 +80,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
-                    console.log('updateWidget', message);
                     this.isDataLoaded = true;
-                    //const gid = Object.keys(message.payload)[0];
-                    //const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-                    //console.log('donut widget==>', config.queries, gid , message);
                     this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget.query, this.data, message.payload);
                 break;
                 }
@@ -95,10 +91,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         if (!this.editMode) {
             this.requestData();
         } else {
-            this.interCom.requestSend({
-                id: this.widget.id,
-                action: 'getWidgetCachedData'
-            });
+            this.requestCachedData();
         }
     }
 
@@ -115,6 +108,13 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    requestCachedData() {
+        this.interCom.requestSend({
+            id: this.widget.id,
+            action: 'getWidgetCachedData'
+        });
+    }
+
     updateConfig(message) {
         switch ( message.action ) {
             case 'AddMetricsToGroup':
@@ -123,6 +123,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 break;
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
+                break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
                 break;
@@ -134,6 +135,12 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 break;
             case 'SetVisualization':
                 this.setVisualization(message.payload.data);
+                break;
+            case 'ToggleQuery':
+                this.toggleQuery(message.payload.index);
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.payload.index);
                 break;
         }
     }
@@ -154,16 +161,13 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             color: '#000000',
             aggregator: 'sum'
         };
-        console.log(gConfig, "gconfig")
 
         for (const metric of gConfig.queries ) {
             metric.settings.visual = {...dVisaul, ...metric.settings.visual };
             metric.settings.visual.stackLabel = 'section-' + ( prevTotal + i) ;
             i++;
         }
-        console.log(gConfig.queries, "gconfig.metrics")
         config.queries = config.queries.concat(gConfig.queries);
-        console.log('add metrics...', this.widget.query.groups[0].queries);
         this.widget = {...this.widget};
     }
 
@@ -180,39 +184,11 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         return g;
     }
 
-    refreshData() {
-        this.isDataLoaded = false;
-        this.requestData();
-    }
-
     setVisualization( mconfigs ) {
-        console.log("setvisualication", JSON.stringify(mconfigs))
-        let reload = false;
         mconfigs.forEach( (config, i) => {
-            if (this.widget.query.groups[0].queries[i].settings.visual.aggregator !== config.aggregator ) {
-                reload = true;
-            }
             this.widget.query.groups[0].queries[i].settings.visual = { ...this.widget.query.groups[0].queries[i].settings.visual, ...config };
         });
-
-        if ( reload ) {
-            this.refreshData();
-        } else {
-            const labels = [];
-            const colors = [];
-            const mConfigs = this.widget.query.groups[0].queries;
-            for ( let i = 0; i < mConfigs.length; i++ ) {
-                const vConfig = mConfigs[i].settings.visual;
-                let label = vConfig.stackLabel.length ? vConfig.stackLabel : mConfigs[i].metric;
-                label = label.length <= 20 ? label : label.substr(0, 17) + '..';
-                const color = vConfig.color;
-                labels.push( label );
-                colors.push(color);
-            }
-            this.options.labels = labels;
-            this.options = {...this.options};
-            this.data[0] = { ...this.data[0], ...{'backgroundColor': colors } };
-        }
+        this.refreshData(false);
     }
 
     setLegend(config) {
@@ -241,6 +217,30 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                                              }
                                          };
      }
+
+    toggleQuery(index) {
+        const gIndex = 0;
+        this.widget.query.groups[gIndex].queries[index].settings.visual.visible = !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+        this.refreshData(false);
+    }
+
+    deleteQuery(index) {
+        const gIndex = 0;
+        this.widget.query.groups[gIndex].queries.splice(index, 1);
+        console.log(this.widget.query.groups[gIndex].queries, "gindex", gIndex, index);
+        this.refreshData(false);
+    }
+
+    refreshData(reload = true) {
+        this.isDataLoaded = false;
+        this.options.labels = [];
+        this.data = [];
+        if ( reload ) {
+            this.requestData();
+        } else {
+            this.requestCachedData();
+        }
+    }
 
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{

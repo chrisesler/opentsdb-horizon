@@ -9,93 +9,93 @@
     </div>
 
     <div class="widget-container" [ngClass]= "{'fixed-height' : editMode}">
-        <div *ngIf="selectedMetric" 
+        <div *ngIf="metrics" 
             class="big-num-container"
-            [style.background]="selectedMetric.configuration.bigNum.backgroundColor"
-            [style.color]="selectedMetric.configuration.bigNum.textColor"
+            [style.background]="widget.query.settings.visual.backgroundColor"
+            [style.color]="widget.query.settings.visual.textColor"
             [style.font-size]="fontSizePercent + '%'"
             [ngClass]= "{'no-flex' : editMode}">
 
             <div class="content-container" #contentContainer>
                 <div class="metric-container">
                     <span [ngClass]="{
-                        'large-size': selectedMetric.configuration.bigNum.prefixSize=='l' && !selectedMetric.configuration.bigNum.prefixUndercased, 
-                        'medium-size': selectedMetric.configuration.bigNum.prefixSize=='m' && !selectedMetric.configuration.bigNum.prefixUndercased, 
-                        'small-size': selectedMetric.configuration.bigNum.prefixSize=='s' && !selectedMetric.configuration.bigNum.prefixUndercased,
+                        'large-size': widget.query.settings.visual.prefixSize=='l' && !widget.query.settings.visual.prefixUndercased, 
+                        'medium-size': widget.query.settings.visual.prefixSize=='m' && !widget.query.settings.visual.prefixUndercased, 
+                        'small-size': widget.query.settings.visual.prefixSize=='s' && !widget.query.settings.visual.prefixUndercased,
                         
-                        'large-size-undercase': selectedMetric.configuration.bigNum.prefixSize=='l' && selectedMetric.configuration.bigNum.prefixUndercased, 
-                        'medium-size-undercase': selectedMetric.configuration.bigNum.prefixSize=='m' && selectedMetric.configuration.bigNum.prefixUndercased, 
-                        'small-size-undercase': selectedMetric.configuration.bigNum.prefixSize=='s' && selectedMetric.configuration.bigNum.prefixUndercased,
+                        'large-size-undercase': widget.query.settings.visual.prefixSize=='l' && widget.query.settings.visual.prefixUndercased, 
+                        'medium-size-undercase': widget.query.settings.visual.prefixSize=='m' && widget.query.settings.visual.prefixUndercased, 
+                        'small-size-undercase': widget.query.settings.visual.prefixSize=='s' && widget.query.settings.visual.prefixUndercased,
 
-                        'middle-align': (selectedMetric.configuration.bigNum.prefixAlignment=='middle' && selectedMetric.configuration.bigNum.prefixUndercased) || (selectedMetric.configuration.bigNum.prefixAlignment=='middle' && selectedMetric.configuration.bigNum.prefixSize!='l'),
-                        'top-align': selectedMetric.configuration.bigNum.prefixAlignment=='top'
+                        'middle-align': (widget.query.settings.visual.prefixAlignment=='middle' && widget.query.settings.visual.prefixUndercased) || (widget.query.settings.visual.prefixAlignment=='middle' && widget.query.settings.visual.prefixSize!='l'),
+                        'top-align': widget.query.settings.visual.prefixAlignment=='top'
                         }">
-                        {{shortenString(selectedMetric.configuration.bigNum.prefix, maxLabelLength)}}
+                        {{shortenString(widget.query.settings.visual.prefix, maxLabelLength)}}
                     </span>
                     
-                    <span *ngIf="UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unitPos === 0" [ngClass]="{
-                        'large-size': selectedMetric.configuration.bigNum.unitSize=='l' && !selectedMetric.configuration.bigNum.unitUndercased, 
-                        'medium-size': selectedMetric.configuration.bigNum.unitSize=='m' && !selectedMetric.configuration.bigNum.unitUndercased, 
-                        'small-size': selectedMetric.configuration.bigNum.unitSize=='s' && !selectedMetric.configuration.bigNum.unitUndercased,
+                    <span *ngIf="UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unitPos === 0" [ngClass]="{
+                        'large-size': widget.query.settings.visual.unitSize=='l' && !widget.query.settings.visual.unitUndercased, 
+                        'medium-size': widget.query.settings.visual.unitSize=='m' && !widget.query.settings.visual.unitUndercased, 
+                        'small-size': widget.query.settings.visual.unitSize=='s' && !widget.query.settings.visual.unitUndercased,
                         
-                        'large-size-undercase': selectedMetric.configuration.bigNum.unitSize=='l' && selectedMetric.configuration.bigNum.unitUndercased, 
-                        'medium-size-undercase': selectedMetric.configuration.bigNum.unitSize=='m' && selectedMetric.configuration.bigNum.unitUndercased, 
-                        'small-size-undercase': selectedMetric.configuration.bigNum.unitSize=='s' && selectedMetric.configuration.bigNum.unitUndercased,
+                        'large-size-undercase': widget.query.settings.visual.unitSize=='l' && widget.query.settings.visual.unitUndercased, 
+                        'medium-size-undercase': widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitUndercased, 
+                        'small-size-undercase': widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitUndercased,
 
-                        'middle-align': (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitUndercased) || (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitSize!='l'),
-                        'top-align': selectedMetric.configuration.bigNum.unitAlignment=='top'
-                        }">{{shortenString(UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit, maxLabelLength)}}</span>
+                        'middle-align': (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitUndercased) || (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitSize!='l'),
+                        'top-align': widget.query.settings.visual.unitAlignment=='top'
+                        }">{{shortenString(UN.getBigNumber(widget.query.settings.visual.c, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unit, maxLabelLength)}}</span>
 
-                    <span class="big-number">{{UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).num}}</span>
-                    
+                    <span class="big-number">{{UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).num}}</span>
+
                     <!-- Add space for units that have multiple units -->
-                    <span class="big-number" *ngIf="UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unitPos === 1 && 
-                                 !UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).changeIndicatorHasUnit">&nbsp;</span>
+                    <span class="big-number" *ngIf="UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unitPos === 1 && 
+                                 !UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).changeIndicatorHasUnit">&nbsp;</span>
 
-                    <span *ngIf="UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unitPos === 1" [ngClass]="{
-                        'large-size': selectedMetric.configuration.bigNum.unitSize=='l' && !selectedMetric.configuration.bigNum.unitUndercased, 
-                        'medium-size': selectedMetric.configuration.bigNum.unitSize=='m' && !selectedMetric.configuration.bigNum.unitUndercased, 
-                        'small-size': selectedMetric.configuration.bigNum.unitSize=='s' && !selectedMetric.configuration.bigNum.unitUndercased,
+                    <span *ngIf="UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unitPos === 1" [ngClass]="{
+                        'large-size': widget.query.settings.visual.unitSize=='l' && !widget.query.settings.visual.unitUndercased, 
+                        'medium-size': widget.query.settings.visual.unitSize=='m' && !widget.query.settings.visual.unitUndercased, 
+                        'small-size': widget.query.settings.visual.unitSize=='s' && !widget.query.settings.visual.unitUndercased,
                         
-                        'large-size-undercase': selectedMetric.configuration.bigNum.unitSize=='l' && selectedMetric.configuration.bigNum.unitUndercased, 
-                        'medium-size-undercase': selectedMetric.configuration.bigNum.unitSize=='m' && selectedMetric.configuration.bigNum.unitUndercased, 
-                        'small-size-undercase': selectedMetric.configuration.bigNum.unitSize=='s' && selectedMetric.configuration.bigNum.unitUndercased,
+                        'large-size-undercase': widget.query.settings.visual.unitSize=='l' && widget.query.settings.visual.unitUndercased, 
+                        'medium-size-undercase': widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitUndercased, 
+                        'small-size-undercase': widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitUndercased,
 
-                        'middle-align': (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitUndercased) || (selectedMetric.configuration.bigNum.unitAlignment=='middle' && selectedMetric.configuration.bigNum.unitSize!='l'),
-                        'top-align': selectedMetric.configuration.bigNum.unitAlignment=='top'
-                        }">{{shortenString(UN.getBigNumber(selectedMetric.configuration.bigNum.bigNumber, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision).unit, maxLabelLength)}}</span>
+                        'middle-align': (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitUndercased) || (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitSize!='l'),
+                        'top-align': widget.query.settings.visual.unitAlignment=='top'
+                        }">{{shortenString(UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unit, maxLabelLength)}}</span>
                     
                     <span [ngClass]="{
-                        'large-size': selectedMetric.configuration.bigNum.postfixSize=='l' && !selectedMetric.configuration.bigNum.postfixUndercased, 
-                        'medium-size': selectedMetric.configuration.bigNum.postfixSize=='m' && !selectedMetric.configuration.bigNum.postfixUndercased, 
-                        'small-size': selectedMetric.configuration.bigNum.postfixSize=='s' && !selectedMetric.configuration.bigNum.postfixUndercased,
+                        'large-size': widget.query.settings.visual.postfixSize=='l' && !widget.query.settings.visual.postfixUndercased, 
+                        'medium-size': widget.query.settings.visual.postfixSize=='m' && !widget.query.settings.visual.postfixUndercased, 
+                        'small-size': widget.query.settings.visual.postfixSize=='s' && !widget.query.settings.visual.postfixUndercased,
                         
-                        'large-size-undercase': selectedMetric.configuration.bigNum.postfixSize=='l' && selectedMetric.configuration.bigNum.postfixUndercased, 
-                        'medium-size-undercase': selectedMetric.configuration.bigNum.postfixSize=='m' && selectedMetric.configuration.bigNum.postfixUndercased, 
-                        'small-size-undercase': selectedMetric.configuration.bigNum.postfixSize=='s' && selectedMetric.configuration.bigNum.postfixUndercased,
+                        'large-size-undercase': widget.query.settings.visual.postfixSize=='l' && widget.query.settings.visual.postfixUndercased, 
+                        'medium-size-undercase': widget.query.settings.visual.postfixSize=='m' && widget.query.settings.visual.postfixUndercased, 
+                        'small-size-undercase': widget.query.settings.visual.postfixSize=='s' && widget.query.settings.visual.postfixUndercased,
 
-                        'middle-align': (selectedMetric.configuration.bigNum.postfixAlignment=='middle' && selectedMetric.configuration.bigNum.postfixUndercased) || (selectedMetric.configuration.bigNum.postfixAlignment=='middle' && selectedMetric.configuration.bigNum.postfixSize!='l'),
-                        'top-align': selectedMetric.configuration.bigNum.postfixAlignment=='top'
+                        'middle-align': (widget.query.settings.visual.postfixAlignment=='middle' && widget.query.settings.visual.postfixUndercased) || (widget.query.settings.visual.postfixAlignment=='middle' && widget.query.settings.visual.postfixSize!='l'),
+                        'top-align': widget.query.settings.visual.postfixAlignment=='top'
                         }">
-                        {{shortenString(selectedMetric.configuration.bigNum.postfix, maxLabelLength)}}
+                        {{shortenString(widget.query.settings.visual.postfix, maxLabelLength)}}
                     </span>
 
-                    <span *ngIf="selectedMetric.configuration.bigNum.changedIndicatorEnabled" class="change-indicator">
-                            <span *ngIf="selectedMetric.configuration.bigNum.changeIndicatorCompareValue >= 1">↑ {{bigNumToChangeIndicatorValue(UN.getBigNumber(selectedMetric.configuration.bigNum.changeIndicatorCompareValue, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision))}}</span>
-                            <span *ngIf="selectedMetric.configuration.bigNum.changeIndicatorCompareValue <= -1">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(selectedMetric.configuration.bigNum.changeIndicatorCompareValue, selectedMetric.configuration.bigNum.unit, selectedMetric.configuration.bigNum.precision))}}</span>
-                            <span *ngIf="selectedMetric.configuration.bigNum.changeIndicatorCompareValue > -1 && selectedMetric.configuration.bigNum.changeIndicatorCompareValue < 1">≈ No Change</span>        
+                    <span *ngIf="widget.query.settings.visual.changedIndicatorEnabled" class="change-indicator">
+                            <span *ngIf="changeIndicatorCompareValue >= 1">↑ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
+                            <span *ngIf="changeIndicatorCompareValue <= -1">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
+                            <span *ngIf="changeIndicatorCompareValue > -1 && changeIndicatorCompareValue < 1">≈ No Change</span>        
                     </span>
                 </div>
 
 
                 <!-- [ngClass]="{
-                    'large-size': selectedMetric.configuration.bigNum.captionSize=='l', 
-                    'medium-size': selectedMetric.configuration.bigNum.captionSize=='m', 
-                    'small-size': selectedMetric.configuration.bigNum.captionSize=='s',
-                    'top-margin': selectedMetric.configuration.bigNum.captionSize=='l'
+                    'large-size': widget.query.settings.visual.captionSize=='l', 
+                    'medium-size': widget.query.settings.visual.captionSize=='m', 
+                    'small-size': widget.query.settings.visual.captionSize=='s',
+                    'top-margin': widget.query.settings.visual.captionSize=='l'
                     }"> -->
                 <div class="caption">
-                    {{shortenString(util.tagMacro(selectedMetric, selectedMetric.configuration.bigNum.caption), maxCaptionLength) | uppercase }}
+                    {{shortenString(util.tagMacro(selectedMetric, widget.query.settings.visual.caption), maxCaptionLength) | uppercase }}
                 </div>
             </div>
         </div>
@@ -104,7 +104,7 @@
             <div class="metric-detail">
                 <div class="metric-label">{{ selectedMetric.metric }}</div>
                 <div class="metric-tags">
-                    <div class="metric-tag" *ngFor="let tag of selectedMetric.tagss">
+                    <div class="metric-tag" *ngFor="let tag of tags">
                         <span class="tag-key">{{ tag.key }}:</span>
                         <strong class="tag-value">{{ tag.value }}</strong>
                     </div>
@@ -119,18 +119,18 @@
         <mat-tab-group class="widget-configs" color="primary" [@.disabled]="'true'">
             <mat-tab label="Queries" class="test">
                 <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
-                <!-- <ng-template matTabContent>
-                    <widget-config-metric-queries [widget]="widget" [fakeMetrics]="fakeMetrics" [fakeGroups]="fakeGroups" [valueIterationOptions]="valueIterationOptions"></widget-config-metric-queries>
-                </ng-template> -->
+                <ng-template matTabContent>
+                    <bignumber-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></bignumber-config-metric-queries>
+                </ng-template>
             </mat-tab>
             <mat-tab label="Time Configuration">
                 <ng-template matTabContent>
-                    <widget-config-time [widget]="widget"></widget-config-time>
+                    <widget-config-time [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-time>
                 </ng-template>
             </mat-tab>
             <mat-tab label="Visual Appearance">
                 <ng-template matTabContent>
-                    <big-number-visual-appearance [widget]="selectedMetric"></big-number-visual-appearance>
+                    <big-number-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></big-number-visual-appearance>
                 </ng-template>
             </mat-tab>
             <mat-tab label="Meta Data">

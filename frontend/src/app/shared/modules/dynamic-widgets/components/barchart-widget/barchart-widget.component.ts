@@ -55,7 +55,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         labels : [ ],
         // contains stack series details like label, color, datasetIndex
         stackSeries : {},
-
+        legend: {
+            display: false,
+            position: 'right'
+        }
     };
     data: any = [ ];
     width = '100%';
@@ -69,6 +72,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit() {
         this.type$ = new BehaviorSubject(this.widget.query.settings.visual.type || 'vertical');
+        this.options.legend.display = this.isStackedGraph ? true : false;
 
         this.typeSub = this.type$.subscribe( type => {
             this.widget.query.settings.visual.type = type;
@@ -87,12 +91,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
-                        console.log('updateWidget', message);
                             this.isDataLoaded = true;
-                            //const gid = Object.keys(message.payload)[0];
-                            //const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-                            //config.wSettings = this.widget.query.settings;
-                            //console.log('bar widget==>', config.queries, gid , message);
                             this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget.query, this.data, message.payload, this.isStackedGraph);
                         break;
                 }
@@ -103,10 +102,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         if (!this.editMode) {
             this.requestData();
         } else {
-            this.interCom.requestSend({
-                id: this.widget.id,
-                action: 'getWidgetCachedData'
-            });
+            this.requestCachedData();
         }
     }
 
@@ -123,15 +119,30 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    requestCachedData() {
+        this.interCom.requestSend({
+            id: this.widget.id,
+            action: 'getWidgetCachedData'
+        });
+    }
+
     updateConfig(message) {
         switch ( message.action ) {
+            case 'AddMetricsToGroup':
+                this.addMetricsToGroup(message.payload.data);
+                this.refreshData();
+            break;
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
+                break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
                 break;
+            case 'SetStackedBarVisualization':
+                this.setStackedBarVisualization( message.payload.gIndex, message.payload.data );
+                break;
             case 'SetVisualization':
-                this.setVisualization( message.payload.gIndex, message.payload.data );
+                this.setBarVisualization( message.payload.gIndex, message.payload.data );
                 break;
             case 'SetAlerts':
                 this.setAlerts(message.payload.data);
@@ -148,6 +159,110 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             case 'SetStackedBarStackVisuals':
                 this.setStackedStackVisuals(message.payload.data);
                 break;
+            case 'ToggleGroup':
+                this.toggleGroup(message.payload.gIndex);
+                break;
+            case 'ToggleGroupQuery':
+                this.toggleGroupQuery(message.payload.gIndex, message.payload.index);
+                break;
+            case 'DeleteGroup':
+                this.deleteGroup(message.payload.gIndex);
+                break;
+            case 'DeleteGroupQuery':
+                console.log("DeleteGroupQuery", message.payload);
+                this.deleteGroupQuery(message.payload.gIndex, message.payload.index);
+                break;
+        }
+    }
+    addMetricsToGroup(gConfig) {
+        console.log("addMetricstogroup....", JSON.stringify(gConfig));
+        let gid = gConfig.id;
+
+        if ( gid === 'new' ) {
+            const g = this.addNewGroup();
+            gid = g.id;
+        }
+
+        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        const prevTotal = config.queries.length;
+
+        let i = 1;
+        const dVisaul = {
+            color: '#000000',
+            visible: true,
+            aggregator: 'sum'
+        };
+
+        for (const metric of gConfig.queries ) {
+            metric.settings.visual = {...dVisaul, ...metric.settings.visual };
+            if ( !this.isStackedGraph ) {
+                metric.settings.visual.stackLabel = 'bar-' + ( prevTotal + i) ;
+            }
+            i++;
+        }
+        config.queries = config.queries.concat(gConfig.queries);
+        
+        if ( this.isStackedGraph ) {
+            this.setStackForGroup(gid);
+        }
+
+        console.log("addMetricstogroup....", this.widget.query);
+        this.widget = {...this.widget};
+    }
+
+    setStackForGroup(gid) {
+        const gconfig = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        const queries = gconfig.queries;
+        const stacks = this.widget.query.settings.visual.stacks || [];
+
+        const availStacks = stacks.filter(x => !queries.find(function(a) { console.log("x=",x,'a=',a.settings.visual,"cno=",x.id === a.settings.visual.stack); return x.id === a.settings.visual.stack; } ));
+        console.log("available stacks", availStacks, "len=", availStacks.length);
+        for ( let i = 0; i < queries.length; i++ ) {
+            const vSetting = queries[i].settings.visual;
+            if ( !vSetting.stack ) {
+                const stack = availStacks.length ?  availStacks.shift() : this.addNewStack();
+                vSetting.stack = stack.id;
+            }
+        }
+    }
+
+    addNewStack() {
+        const oStack = {
+            id : this.util.generateId(3),
+            label: 'Stack-' + ( this.widget.query.settings.visual.stacks.length + 1 ),
+            color: '#000000'
+        };
+        const index = this.widget.query.settings.visual.stacks.push(oStack);
+        return oStack;
+    }
+
+    addNewGroup() {
+        const gid = this.util.generateId(6);
+        const g = {
+                    id: gid,
+                    title: 'untitled group',
+                    queries: [],
+                    settings: {
+                        tempUI: {
+                            selected: false
+                        },
+                        visual: {
+                            visible: true
+                        }
+                    }
+                };
+        this.widget.query.groups.push(g);
+        return g;
+    }
+
+    refreshData(reload = true) {
+        this.isDataLoaded = false;
+        this.options.labels = [];
+        this.data = [];
+        if ( reload ) {
+            this.requestData();
+        } else {
+            this.requestCachedData();
         }
     }
 
@@ -194,26 +309,19 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         this.options = {...this.options};
     }
 
-    setVisualization( gIndex, configs ) {
-
+    setStackedBarVisualization(gIndex, configs) {
+        console.log("setStackedBarVisualization", gIndex, configs);
         configs.forEach( (config, i) => {
             this.widget.query.groups[gIndex].queries[i].settings.visual = { ...this.widget.query.groups[gIndex].queries[i].settings.visual, ...config };
         });
+        this.refreshData(false);
+    }
 
-        const labels = [];
-        const colors = [];
-        const mConfigs = this.widget.query.groups[0].queries;
-        for ( let i = 0; i < mConfigs.length; i++ ) {
-            const vConfig = mConfigs[i].settings.visual;
-            let label = vConfig.stackLabel.length ? vConfig.stackLabel : mConfigs[i].metric;
-            label = label.length <= 20 ? label : label.substr(0, 17) + '..';
-            const color = vConfig.color;
-            labels.push( label );
-            colors.push(color);
-        }
-        this.options.labels = labels;
-        this.options = {...this.options};
-        this.data[0] = { ...this.data[0], ...{'backgroundColor': colors } };
+    setBarVisualization( gIndex, configs ) {
+        configs.forEach( (config, i) => {
+            this.widget.query.groups[gIndex].queries[i].settings.visual = { ...this.widget.query.groups[gIndex].queries[i].settings.visual, ...config };
+        });
+        this.refreshData(false);
     }
 
     setAlerts(thresholds) {
@@ -252,10 +360,17 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     setStackedBarLabels(gConfigs) {
-        let labels = [];
+        const labels = [];
+        const labelUntitled = 'untitled group';
+        let labelIndex = 1;
         gConfigs.forEach( (config, i ) => {
-            this.widget.query.groups[i].settings.visual.label = config.label;
-            labels.push( config.label);
+            let label = config.label;
+            if ( label === '' ) {
+                label = labelUntitled + (labelIndex === 1 ? '' : ' ' + labelIndex);
+                labelIndex++;
+            }
+            this.widget.query.groups[i].title = label;
+            labels.push( label );
         });
         this.options.labels = labels;
         this.options = {...this.options};
@@ -270,6 +385,26 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         });
         this.data = [...this.data];
         console.log("stacks..", this.data);
+    }
+
+    toggleGroup(gIndex) {
+        this.widget.query.groups[gIndex].settings.visual.visible = !this.widget.query.groups[gIndex].settings.visual.visible;
+        this.refreshData(false);
+    }
+    deleteGroup(gIndex) {
+        this.widget.query.groups.splice(gIndex, 1);
+        this.refreshData(false);
+    }
+
+    toggleGroupQuery(gIndex, index) {
+        this.widget.query.groups[gIndex].queries[index].settings.visual.visible = !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+        this.refreshData(false);
+    }
+
+    deleteGroupQuery(gIndex, index) {
+        this.widget.query.groups[gIndex].queries.splice(index, 1);
+        console.log(this.widget.query.groups[gIndex].queries, "gindex", gIndex, index);
+        this.refreshData(false);
     }
 
     closeViewEditMode() {

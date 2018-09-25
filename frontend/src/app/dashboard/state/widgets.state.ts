@@ -24,6 +24,7 @@ export interface ThresholdConfig {
 }
 
 export interface StackConfig {
+    id: string;
     label: string;
     color: string;
 }
@@ -54,6 +55,7 @@ export interface WidgetModel {
             visual?: {
                 type?: string;
                 stacks?: StackConfig[];
+                [x: string]: any;
             };
             axes?: {
                 x?: Axis;

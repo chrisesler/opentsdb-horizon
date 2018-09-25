@@ -23,6 +23,7 @@ import { LEFT_ARROW } from '@angular/cdk/keycodes';
 })
 
 export class BignumberWidgetComponent implements OnInit {
+
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.bignumber-widget') private _componentClass = true;
 
@@ -34,7 +35,12 @@ export class BignumberWidgetComponent implements OnInit {
     // tslint:disable:prefer-const
     private listenSub: Subscription;
     private isDataLoaded: boolean = false;
-    selectedMetric: any;
+
+    metrics: any; // cache all the metrics that we get from tsdb
+    selectedMetric: any; // used for macros
+    tags: any; // to display tags of currently selected metric
+    bigNumber: number;
+    changeIndicatorCompareValue: number;
 
     fontSizePercent: number;
     contentFillPercent: number = 0.75; // how much % content should take up widget
@@ -51,9 +57,44 @@ export class BignumberWidgetComponent implements OnInit {
 
     ngOnInit() {
 
+        // TODO: Remove
+        if (!this.widget.query.settings.visual) {
+            let bigNumberVisual: IBigNumberVisual = {
+                queryID: '0',
+
+                prefix: '',
+                prefixSize: 's', // s m l
+                prefixAlignment: 'top', // top middle bottom
+
+                widgetWidth: 420, // only needed when first loading widget
+                widgetHeight: 160, // only needed when first loading widget
+                fontSizePercent: 200, // only needed when first loading widget
+
+                postfix: '',
+                postfixSize: 's',
+                postfixAlignment: 'top',
+
+                unit: 'ms', // auto
+                unitSize: 'm',
+                unitAlignment: 'top',
+                unitUndercased: true,
+
+                caption: '{{tag.host}} Latency',
+                precision: 3,
+
+                textColor: '#ffffff',
+                backgroundColor: '#400080',
+
+                sparkLineEnabled: false,
+                changedIndicatorEnabled: false,
+            };
+            this.widget.query.settings.visual = bigNumberVisual;
+        }
+
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+
             if (message.action === 'resizeWidget') {
-                if (!this.selectedMetric) { // 1. If no metric, only set the widget width and height.
+                if (!this.metrics) { // 1. If no metrics, only set the widget width and height.
                     this.widgetWidth = message.payload.width * this.widget.gridPos.w - 20;
                     this.widgetHeight = message.payload.height * this.widget.gridPos.h - 60;
 
@@ -68,7 +109,7 @@ export class BignumberWidgetComponent implements OnInit {
                     let percentWidthChange: number;
                     let percentHeightChange: number;
 
-                    if (this.selectedMetric['configuration']['bigNum']['caption']) {
+                    if (this.widget.query.settings.visual['caption']) {
                         percentWidthChange = (newWidgetWidth * this.contentFillPercent) / contentWidth;
                         percentHeightChange = (newWidgetHeight * this.contentFillPercent) / contentHeight;
                     } else {
@@ -80,109 +121,21 @@ export class BignumberWidgetComponent implements OnInit {
 
                     if (percentChange > 1.01 || percentChange < 0.99) {
                         this.fontSizePercent = percentChange * this.fontSizePercent;
-                        this.selectedMetric['configuration']['bigNum']['fontSizePercent'] = this.fontSizePercent;
-                        this.selectedMetric['configuration']['bigNum']['widgetWidth'] = newWidgetWidth;
-                        this.selectedMetric['configuration']['bigNum']['widgetHeight'] = newWidgetHeight;
+                        this.widget.query.settings.visual['fontSizePercent'] = this.fontSizePercent;
+                        this.widget.query.settings.visual['widgetWidth'] = newWidgetWidth;
+                        this.widget.query.settings.visual['widgetHeight'] = newWidgetHeight;
                     }
                 }
             }
             if (message && (message.id === this.widget.id)) { // 2. Get and set the metric
                 switch (message.action) {
                     case 'updatedWidgetGroup':
-                    this.isDataLoaded = true;
-                    let metric;
-
-                    // get the 'first' metric
-                    for (const [id, _metrics] of Object.entries(message.payload)) {
-                        metric = _metrics[0];
+                        this.isDataLoaded = true;
+                        this.metrics = message.payload;
+                        this.setBigNumber(this.widget.query.settings.visual.queryID);
                         break;
-                    }
-
-                    const dps = metric['dps'];
-                    let currentValueTS: number = 0;
-                    let lastValueTS: number = 0;
-                    let currentValue: number = 0;
-                    let lastValue: number = 0;
-
-                    // get current value
-                    for (let key in dps) {
-                        if (dps.hasOwnProperty(key)) {
-                            if (parseInt(key, 10) > currentValueTS) {
-                                currentValueTS = parseInt(key, 10);
-                            }
-                        }
-                    }
-                    currentValue = dps[currentValueTS];
-
-                    // get last value
-                    for (let key in dps) {
-                        if (dps.hasOwnProperty(key)) {
-                            if (parseInt(key, 10) > lastValueTS && parseInt(key, 10) < currentValueTS) {
-                                lastValueTS = parseInt(key, 10);
-                            }
-                        }
-                    }
-                    lastValue = dps[lastValueTS];
-
-                    let bigNumberMetric: IBigNumberMetric = {
-                        bigNumber: currentValue,
-
-                        prefix: '',
-                        prefixSize: 's', // s m l
-                        prefixAlignment: 'top', // top middle bottom
-
-                        widgetWidth: 420, // only needed when first loading widget
-                        widgetHeight: 160, // only needed when first loading widget
-                        fontSizePercent: 200, // only needed when first loading widget
-
-                        postfix: '',
-                        postfixSize: 's',
-                        postfixAlignment: 'top',
-
-                        unit: 'ms', // auto
-                        unitSize: 'm',
-                        unitAlignment: 'top',
-                        unitUndercased: true,
-
-                        caption: '{{tag.host}} Latency',
-                        // captionSize: 's',
-
-                        precision: 3,
-
-                        textColor: '#ffffff',
-                        backgroundColor: '#400080',
-
-                        sparkLineEnabled: false,
-                        changedIndicatorEnabled: false,
-                        changeIndicatorCompareValue: currentValue - lastValue
-                    };
-
-                    this.fontSizePercent = this.calcFontSizePercent(bigNumberMetric.fontSizePercent,
-                            bigNumberMetric.widgetWidth, bigNumberMetric.widgetHeight, this.widgetWidth, this.widgetHeight);
-
-                    metric['configuration'] = {
-                        bigNum: bigNumberMetric
-                    };
-
-                    // change 'tags' from map to an array
-                    if (metric['tags']) {
-                        const tags: string[] = this.transform(metric['tags']);
-                        metric['tagss'] = tags;
-                    }
-
-                    // set the metric
-                    this.selectedMetric = metric;
-
-                break;
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);
-                            // this.isDataLoaded = true;
-                            // //this.data = this.dataTransformer.yamasToChartJS('donut', this.options, message.payload.rawdata);
-                            // // resize
-                            // let nWidth = this.widgetOutputElement.nativeElement.offsetWidth;
-                            // let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
-                            // this.width = nWidth - 20 + 'px';
-                            // this.height = nHeight - 60 + 'px';
                         break;
                 }
             }
@@ -193,11 +146,84 @@ export class BignumberWidgetComponent implements OnInit {
         if (!this.editMode) {
             this.requestData();
         } else {
-            this.interCom.requestSend({
-                id: this.widget.id,
-                action: 'getWidgetCachedData'
-            });
+            this.requestCachedData();
         }
+    }
+
+    getMetric(queryID: string): any {
+        let queryIndex = parseInt(queryID, 10);
+        let metric;
+        // get the 'first' metric
+        for (const [id, _metrics] of Object.entries(this.metrics)) {
+            metric = _metrics[queryIndex];
+            break;
+        }
+        return metric;
+    }
+
+    setBigNumber(queryId: string) {
+        let metric = this.getMetric(queryId);
+
+        if (!metric) {
+            this.bigNumber = 0;
+            this.changeIndicatorCompareValue = 0;
+            this.tags = null;
+            this.selectedMetric.metric = '';
+            this.widget.query.settings.visual.prefix = '';
+            this.widget.query.settings.visual.postfix = '';
+            this.widget.query.settings.visual.unit = '';
+            this.widget.query.settings.visual.caption = '';
+            this.widget.query.settings.visual.sparkLineEnabled = false;
+            this.widget.query.settings.visual.changedIndicatorEnabled = false;
+            return;
+        }
+
+        let queryIndex = parseInt(queryId, 10);
+
+        const dps = metric['dps'];
+        let currentValueTS: number = 0;
+        let lastValueTS: number = 0;
+        let currentValue: number = 0;
+        let lastValue: number = 0;
+
+        // get current value
+        for (let key in dps) {
+            if (dps.hasOwnProperty(key)) {
+                if (parseInt(key, 10) > currentValueTS) {
+                    currentValueTS = parseInt(key, 10);
+                }
+            }
+        }
+        currentValue = dps[currentValueTS];
+
+        // get last value
+        for (let key in dps) {
+            if (dps.hasOwnProperty(key)) {
+                if (parseInt(key, 10) > lastValueTS && parseInt(key, 10) < currentValueTS) {
+                    lastValueTS = parseInt(key, 10);
+                }
+            }
+        }
+        lastValue = dps[lastValueTS];
+        const mData: any = Object.values(dps);
+        // tslint:disable-next-line:max-line-length
+        const aggregateValue = this.util.getArrayAggregate( this.widget.query.groups[0].queries[queryIndex].settings.visual.aggregator, mData );
+
+        // SET LOCAL VARIABLES
+        this.bigNumber = aggregateValue;
+        this.changeIndicatorCompareValue = currentValue - lastValue;
+        this.selectedMetric = metric;
+
+        // get array of 'tags'
+        if (metric['tags']) {
+            this.tags = this.transform(metric['tags']);
+        } else {
+            this.tags = null;
+        }
+
+        this.fontSizePercent = this.calcFontSizePercent(this.widget.query.settings.visual['fontSizePercent'],
+            this.widget.query.settings.visual['widgetWidth'], this.widget.query.settings.visual['widgetHeight'],
+            this.widgetWidth, this.widgetHeight);
     }
 
    requestData() {
@@ -208,6 +234,13 @@ export class BignumberWidgetComponent implements OnInit {
                 payload: this.widget.query
             });
         }
+    }
+
+    requestCachedData() {
+        this.interCom.requestSend({
+            id: this.widget.id,
+            action: 'getWidgetCachedData'
+        });
     }
 
     transform(map: Map<any, any>): any[] {
@@ -222,13 +255,13 @@ export class BignumberWidgetComponent implements OnInit {
         return ret;
     }
 
-     bigNumToChangeIndicatorValue(bigNum: IBigNum): string {
+    bigNumToChangeIndicatorValue(bigNum: IBigNum): string {
         if (bigNum.changeIndicatorHasUnit) {
             return bigNum.num + bigNum.unit;
         } else {
             return bigNum.num;
         }
-     }
+    }
 
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
@@ -254,40 +287,141 @@ export class BignumberWidgetComponent implements OnInit {
 
     updateConfig(message) {
         switch ( message.action ) {
+            case 'AddMetricsToGroup':
+                this.addMetricsToGroup(message.payload.data);
+                this.refreshData();
+            break;
+            case 'SetTimeConfiguration':
+                this.setTimeConfiguration(message.payload.data);
+                break;
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
                 break;
+            case 'SetVisualization':
+                this.setVisualization(message.payload.data);
+                this.refreshData(false);
+                break;
+            case 'ToggleQuery':
+                this.toggleQuery(message.payload.index);
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.payload.index);
+                break;
+            case 'SetSelectedQuery':
+                this.setSelectedQuery(message.payload.data);
+                break;
         }
+    }
+
+    addMetricsToGroup(gConfig) {
+        let gid = gConfig.id;
+
+        if ( gid === 'new' ) {
+            const g = this.addNewGroup();
+            gid = g.id;
+        }
+
+        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+
+        const dVisaul = {
+            aggregator: 'sum'
+        };
+
+        for (const metric of gConfig.queries ) {
+            metric.settings.visual = {...dVisaul, ...metric.settings.visual };
+        }
+        config.queries = config.queries.concat(gConfig.queries);
+        this.widget = {...this.widget};
+    }
+
+    addNewGroup() {
+        const gid = this.util.generateId(6);
+        const g = {
+                    id: gid,
+                    title: 'untitled group',
+                    queries: [],
+                    settings: {
+                    }
+                };
+        this.widget.query.groups.push(g);
+        return g;
+    }
+
+    setVisualization( vconfigs ) {
+        this.widget.query.settings.visual = vconfigs;
+        // mconfigs.forEach( (config, i) => {
+        //     // tslint:disable-next-line:max-line-length
+        //     this.widget.query.groups[0].queries[i].settings.visual = { ...this.widget.query.groups[0].queries[i].settings.visual, ...config };
+        // });
+    }
+
+    setTimeConfiguration(config) {
+        this.widget.query.settings.time = {
+                                             shiftTime: config.shiftTime,
+                                             overrideRelativeTime: config.overrideRelativeTime,
+                                             downsample: {
+                                                 value: config.downsample,
+                                                 aggregator: config.aggregator,
+                                                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
+                                                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+                                             }
+                                         };
+    }
+
+    toggleQuery(index) {
+        const gIndex = 0;
+        // tslint:disable-next-line:max-line-length
+        this.widget.query.groups[gIndex].queries[index].settings.visual.visible = !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+        console.log('toggleQuery', this.widget.query.groups[gIndex].queries);
+        // this.refreshData(false);
+    }
+
+    deleteQuery(index) {
+        const gIndex = 0;
+
+        let selectedQueryIndex = parseInt(this.widget.query.settings.visual.queryID, 10);
+        if (index === selectedQueryIndex ) { // set 0th index if deleting currently selected query
+            this.widget.query.settings.visual.queryID = (0).toString();
+        } else if (index < selectedQueryIndex) { // shift index by 1 if deleting before selected query
+            this.widget.query.settings.visual.queryID = (selectedQueryIndex - 1).toString();
+        }
+
+        this.widget.query.groups[gIndex].queries.splice(index, 1);
+        this.metrics[((Object.keys(this.metrics))[0])].splice(index, 1); // get first key of dict, then remove metric from array
+        this.setBigNumber(this.widget.query.settings.visual.queryID );
+
+        // this.refreshData(false);
     }
 
     setMetaData(config) {
         this.widget.settings = {...this.widget.settings, ...config};
     }
 
-    // tslint:disable-next-line:member-ordering
-    valueIterationOptions: Array<any> = [
-        {
-            label: 'max',
-            value: 'max'
-        },
-        {
-            label: 'min',
-            value: 'min'
-        },
-        {
-            label: 'average',
-            value: 'average'
-        },
-        {
-            label: 'latest',
-            value: 'latest'
+    setSelectedQuery(queryID: string) {
+        this.widget.query.settings.visual.queryID = queryID;
+
+        let metric = this.getMetric(queryID);
+        if (metric) {
+            this.setBigNumber(queryID);
+        } else {
+            this.refreshData();
         }
-    ];
+    }
+
+    refreshData(reload = true) {
+        this.isDataLoaded = false;
+        if ( reload ) {
+            this.requestData();
+        } else {
+            this.requestCachedData();
+        }
+    }
+
 }
 
-interface IBigNumberMetric {
-    bigNumber: number;
-    value?: string; // max, min, average, latest
+interface IBigNumberVisual {
+
+    queryID: string;
     comparedTo?: number;
 
     fontSizePercent: number;
@@ -310,7 +444,6 @@ interface IBigNumberMetric {
     unitUndercased?: boolean;
 
     caption?: string;
-    // captionSize?: string;
 
     precision: number;
 
@@ -319,6 +452,5 @@ interface IBigNumberMetric {
 
     sparkLineEnabled: boolean;
     changedIndicatorEnabled?: boolean;
-    changeIndicatorCompareValue?: number;
     // changeIndicatorCompareOperator: string;
 }

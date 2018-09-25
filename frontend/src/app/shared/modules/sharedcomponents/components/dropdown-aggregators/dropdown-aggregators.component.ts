@@ -16,7 +16,7 @@ export class DropdownAggregatorsComponent implements OnInit, OnDestroy, ControlV
     @Input() value;
 
     @Output()
-    valueChange = new EventEmitter<string>();
+    change = new EventEmitter<string>();
 
     aggregatorOptions: Array<object> = [
         {
@@ -67,6 +67,7 @@ export class DropdownAggregatorsComponent implements OnInit, OnDestroy, ControlV
         this.aggregatorControl = new FormControl( this.value );
         this.subscription = this.aggregatorControl.valueChanges.subscribe( data => {
             this.propagateChange(data);
+            this.change.emit(data);
         });
     }
 
