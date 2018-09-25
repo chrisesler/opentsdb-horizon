@@ -43,7 +43,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         connectSeparatedPoints: true,
         drawPoints: false,
         //  labelsDivWidth: 0,
-        //legend: 'follow',
+        // legend: 'follow',
         logscale: true,
         digitsAfterDecimal: 2,
         stackedGraph: this.isStackedGraph,
@@ -77,7 +77,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         private interCom: IntercomService,
         private dataTransformer: DatatranformerService,
         private util: UtilsService,
-        private elRef:ElementRef
+        private elRef: ElementRef
     ) { }
 
     ngOnInit() {
@@ -191,9 +191,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         // let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
         let nHeight = this.editMode ? 300 : this.widgetOutputElement.nativeElement.offsetHeight;
         nHeight = nHeight * hm;
-        //const titleSpace = this.editMode ? 30 : 0;
+        // const titleSpace = this.editMode ? 30 : 0;
         this.size = { width: nWidth - 24, height: nHeight - 50 };
-        //console.log("sie", nWidth, nHeight, wm, hm, this.size);
+        // console.log("sie", nWidth, nHeight, wm, hm, this.size);
     }
 
     setTimeConfiguration(config) {
@@ -210,7 +210,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setAxes( axes ) {
-console.log("...setAxes....", axes);
+        // console.log("...setAxes....", axes);
         this.widget.query.settings.axes = { ...this.widget.query.settings.axes, ...axes };
 
         const keys = Object.keys(this.widget.query.settings.axes);
@@ -239,8 +239,11 @@ console.log("...setAxes....", axes);
             axis.drawAxis = config.enabled ? true : false;
             // move series from y2 to y1 if y2 is disabled
             if ( this.options.series &&  axisKey === 'y2' && !config.enabled) {
+                // tslint:disable-next-line:prefer-const
                 for ( let k in this.options.series ) {
-                    this.options.series[k].axis = 'y';
+                    if (this.options.series[k]) {
+                        this.options.series[k].axis = 'y';
+                    }
                 }
                 const groups = this.widget.query.groups;
                 for ( let m = 0; m < groups.length; m++ ) {
@@ -256,7 +259,7 @@ console.log("...setAxes....", axes);
                 axis.tickFormat = { unit: config.unit, precision: config.decimals, unitDisplay: true };
             }
         }
-        console.log("setaxis",  this.options, this.widget.query.groups[0].queries);
+        console.log('setaxis',  this.options, this.widget.query.groups[0].queries);
 
 
         this.options = {...this.options};
@@ -300,6 +303,7 @@ console.log("...setAxes....", axes);
     setVisualization( gIndex, configs ) {
 
         configs.forEach( (config, i) => {
+            // tslint:disable-next-line:max-line-length
             this.widget.query.groups[gIndex].queries[i].settings.visual = { ...this.widget.query.groups[gIndex].queries[i].settings.visual, ...config };
         });
 
@@ -317,7 +321,7 @@ console.log("...setAxes....", axes);
                 this.widget.query.settings.axes.y2.enabled = true;
             }
             if ( vConfig.type === 'bar' ) {
-                //this.options.series[label].plotter = multiColumnGroupPlotter;
+                // this.options.series[label].plotter = multiColumnGroupPlotter;
             }
         }
         console.log('set visual', this.options);
@@ -337,6 +341,7 @@ console.log("...setAxes....", axes);
     }
 
     setLegendDiv() {
+        // NOTE: This is a weird way to do this. Do we really need 4 different divs for legen position? Just style the one.
         const lConfig = this.widget.query.settings.legend;
         this.options.labelsDiv = null;
         this.options.legend = 'follow';

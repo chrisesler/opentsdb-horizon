@@ -43,7 +43,7 @@
             width: 100%;
             overflow-x: hidden;
             overflow-y: auto;
-            padding: 0 16px;
+            padding: 0 16px 16px 16px;
 
             .mat-list {
                 padding-top: 0;
@@ -87,6 +87,31 @@
                     font-size: 14px;
                 }
 
+                .minutiae {
+                    margin: auto 8px;
+                    font-size: 10px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    
+                    span {
+                        display: inline-flex;
+                        align-items: center;
+                        
+                        &:not(:last-child) {
+                            margin-right: 6px;
+                        }
+                    }
+
+                    .mat-icon {
+                        width: 10px;
+                        height: 10px;
+                        line-height: 1;
+                        font-size: 10px;
+                        margin-right: 4px;
+                    }
+                }
+
                 // icons on the right
                 .action-icons {
                     .mat-icon-button {
@@ -127,6 +152,81 @@
 
             .tags-row {
 
+                > strong {
+                    margin-right: 8px;
+                }
+
+                .mat-basic-chip {
+                    // second to last child shouldn't have it because of button width of last-child
+                    // last child is button to add new chip
+                    &:not(:nth-last-child(-n+2)) {
+                        margin-right: 6px;
+                    }
+                }
+
+                .mat-basic-chip:not(.add-tag-filter-button) {
+                    font-size: 12px;
+                    padding: 0 6px;
+                    border-radius: 4px;
+                    position: relative;
+                    overflow: initial;
+                    max-height: 24px;
+                    min-height: 24px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    &:hover {
+                        @include mat-elevation(1);
+                    }
+
+                    .tag-key {
+                        margin-right: 4px;
+                    }
+
+                    .remove-tag {
+                        @include mat-elevation(0);
+                        width: 24px;
+                        height: 24px;
+                        line-height: 1;
+                        //background-color: black;
+                        //color: white;
+                        border-radius: 4px; 
+                        transform: translateX(6px); // this offsets the padding
+
+                        .mat-button-wrapper {
+                            padding: 1px;
+                            line-height: 1;
+                        }
+
+                        .mat-icon {
+                            width: 18px;
+                            height: 18px;
+                            line-height: 1;
+                            font-size: 18px;
+                            //color: white;
+                        }
+                    }
+                }
+
+
+                .add-tag-filter-button {
+                    overflow: initial;
+                    
+
+                    .mat-icon-button {
+                        width: 28px;
+                        height: 28px;
+                        line-height: 28px;
+
+                        .mat-icon {
+                            width: 14px;
+                            height: 14px;
+                            line-height: 14px;
+                            font-size: 14px;
+                        }
+                    }
+                }
             }
             
         }
@@ -152,6 +252,10 @@
             width: 100%;
             overflow-x: hidden;
             overflow-y: auto;
+
+            .mat-list {
+                width: 100%;
+            }
         }
 
         /*.query-legend-section{
@@ -189,6 +293,7 @@
         .query-legend-item-label {
             display: inline-block;
             margin-left: 5px;
+            width: 100%;
         }
 
         // wrapper for the query metrics
@@ -437,6 +542,46 @@
     .widget-config-tab.donutchart-config-metric-queries-configuration {
         // style rules here
 
+        .config-toolbar.time-series-toolbar,
+        .config-toolbar.legend-toolbar {
+           border-bottom: 2px solid $divider;
+        }
+
+        .metric-column {
+            .query-metric-item {
+                //border-bottom: 1px solid $divider;
+                .mat-toolbar {
+                    .minutiae {
+                        color: map-get($foreground, 'hint-text');
+                    }
+                }
+    
+                .tags-row {
+                    .mat-basic-chip:not(.add-tag-filter-button) {
+                        background-color: $chip-bg;
+    
+                        // first-child should be the tag-key
+                        .tag-key {
+                            color: rgba(map-get($foreground, text), .65);
+                        }
+
+                        .tag-value {
+                            color: rgba(map-get($foreground, text), .65);
+                        }
+
+                        .remove-tag {
+                            background-color: $chip-bg;
+
+                            .mat-icon {
+                                color: map-get($primary, default);
+                            }
+                        }
+                    }
+                }
+                
+            }
+        }
+
         .legend-column {
             border-left: 2px solid $divider;
 
@@ -459,32 +604,8 @@
             }
         }
 
-        .config-toolbar.time-series-toolbar,
-        .config-toolbar.legend-toolbar {
-           border-bottom: 2px solid $divider;
-        }
-
-        .query-metric-row {
-            .metric-tags {
-                .mat-basic-chip {
-                    background-color: $chip-bg;
-
-                    // first-child should be the tag-key
-                    :first-child {
-                        color: rgba(map-get($foreground, text), .65);
-                    }
-                }
-            }
-
-
-        }
-
-        /*.query-metric-item {
-            border-bottom: 1px solid $divider;
-        }*/
-
         .value-options {
-            mat-select {
+            .mat-select {
                 background-color: $chip-bg;
             }
             .mat-form-field-underline {

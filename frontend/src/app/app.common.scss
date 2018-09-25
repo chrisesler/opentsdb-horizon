@@ -155,7 +155,6 @@
             .mat-input-element {
                 padding: 0 8px;
             }
-
             
         }
 
@@ -176,6 +175,29 @@
 
             .mat-form-field-underline {
                 bottom: 0;
+            }
+
+            .mat-form-field-subscript-wrapper {
+                top: calc(100% - .4em);
+            }
+
+            .mat-form-field-label-wrapper {
+                top: -1.1875em;
+                left: 8px;
+                padding-top: 1.1875em;
+
+                .mat-form-field-label {
+                    top: 1.1875em;
+                    margin-top: .5em;
+                }
+            }
+
+            &.mat-form-field-can-float {
+                &.mat-form-field-should-float {
+                    .mat-form-field-label {
+                        transform: translateY(-1.6875em) scale(0.75)
+                    }
+                }
             }
 
             // MatInput
@@ -219,7 +241,7 @@
     $is-dark: map-get($theme-config, is-dark);
 
     /* SCROLLBAR STYLING */
-    @include app-scrollbar($theme-config);
+    // @include app-scrollbar($theme-config);
 
     /* GRIDSTER OVERRIDES */
 

@@ -21,7 +21,7 @@
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">
     <!-- tabs with config content -->
-    <mat-tab-group class="widget-configs" [@.disabled]="'true'">
+    <mat-tab-group class="widget-configs" selectedIndex="4" [@.disabled]="'true'">
         <mat-tab label="Queries">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent>
@@ -44,10 +44,10 @@
             </ng-template>
         </mat-tab>
         <mat-tab label="Meta Data">
-                <ng-template matTabContent>
-                    <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
-                </ng-template>
-            </mat-tab>
+            <ng-template matTabContent>
+                <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
+            </ng-template>
+        </mat-tab>
         <mat-tab>
             <!-- custom tab label. (see: https://material.angular.io/components/tabs/overview#labels) -->
             <ng-template mat-tab-label>
