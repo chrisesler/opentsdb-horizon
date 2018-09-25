@@ -41,6 +41,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     options: IDygraphOptions = {
         labels: ['x'],
+        labelsUTC: false,
         connectSeparatedPoints: true,
         drawPoints: false,
         //  labelsDivWidth: 0,
@@ -115,10 +116,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                     this.requestData();
                 } else {
                     this.setSize();
-                    this.interCom.requestSend({
-                        id: this.widget.id,
-                        action: 'getWidgetCachedData'
-                    });
+                    this.requestCachedData();
                 }
     }
 
@@ -151,6 +149,30 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             case 'SetLegend':
                 this.setLegend(message.payload.data);
                 break;
+            case 'MergeMetrics':
+                this.mergeMetrics(message.payload.data);
+                this.refreshData();
+                break;
+            case 'SplitMetrics':
+                this.splitMetrics(message.payload.data);
+                this.refreshData();
+                break;
+            case 'DeleteMetrics':
+                this.deleteMetrics(message.payload.data);
+                this.refreshData(false);
+                break;
+            case 'ToggleGroup':
+                this.toggleGroup(message.payload.gIndex);
+                break;
+            case 'ToggleGroupQuery':
+                this.toggleGroupQuery(message.payload.gIndex, message.payload.index);
+                break;
+            case 'DeleteGroup':
+                this.deleteGroup(message.payload.gIndex);
+                break;
+            case 'DeleteGroupQuery':
+                this.deleteGroupQuery(message.payload.gIndex, message.payload.index);
+                break;
         }
     }
 
@@ -158,7 +180,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         let gid = gConfig.id;
 
         if ( gid === 'new' ) {
-            const g = this.addNewGroup();
+            const g = this.createNewGroup();
+            this.widget.query.groups.push(g);
             gid = g.id;
         }
 
@@ -166,7 +189,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         config.queries = config.queries.concat(gConfig.queries);
     }
 
-    addNewGroup() {
+    createNewGroup() {
         const gid = this.util.generateId(6);
         const g = {
                     id: gid,
@@ -175,10 +198,12 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                     settings: {
                         tempUI: {
                             selected: false
+                        },
+                        visual: {
+                            visible: true
                         }
                     }
                 };
-        this.widget.query.groups.push(g);
         return g;
     }
 
@@ -253,7 +278,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                     }
                 }
             }
-            
+
             // change threshold axis y2=>y1
             if ( axisKeys[i] === 'y2' && !config.enabled  && Object.keys(thresholds).length ) {
                 for ( let i in thresholds ) {
@@ -366,13 +391,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         }
     }
 
-    refreshData() {
-        this.isDataLoaded = false;
-        this.options = {...this.options, labels: ['x']};
-        this.data = [[0]];
-        this.requestData();
-    }
-
     requestData() {
         if (!this.isDataLoaded) {
             this.interCom.requestSend({
@@ -380,6 +398,24 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 action: 'getQueryData',
                 payload: this.widget.query
             });
+        }
+    }
+
+    requestCachedData() {
+        this.interCom.requestSend({
+            id: this.widget.id,
+            action: 'getWidgetCachedData'
+        });
+    }
+
+    refreshData(reload = true) {
+        this.isDataLoaded = false;
+        this.options = {...this.options, labels: ['x']};
+        this.data = [[0]];
+        if ( reload ) {
+            this.requestData();
+        } else {
+            this.requestCachedData();
         }
     }
 
@@ -402,6 +438,106 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         return pattern;
     }
 
+    mergeMetrics( groups ) {
+        const newGroup = this.createNewGroup();
+        let cntMergedQueries = 0;
+        for ( let i = groups.length - 1; i >= 0; i-- ) {
+            const group = groups[i];
+            const queries = group.queries;
+            if ( group.settings.tempUI.selected !== 'none' ) {
+                for ( let j = queries.length - 1; j >= 0; j-- ) {
+                    if ( queries[j].settings.selected ) {
+                        const items = queries.splice( j, 1 );
+                        newGroup.queries.push(items[0]);
+                        cntMergedQueries++;
+                    }
+                }
+                if ( !queries.length ) {
+                    groups.splice( i, 1);
+                }
+            }
+        }
+        if ( cntMergedQueries > 1 ) {
+            groups.unshift( newGroup );
+            this.widget.query.groups = groups;
+            this.widget = { ...this.widget };
+        }
+        console.log("___MERGE METRICS___",  groups, cntMergedQueries);
+    }
+
+    splitMetrics(groups) {
+        let split = false;
+        for ( let i = 0; i < groups.length; i++ ) {
+            const group = groups[i];
+            let cloneGroupIndex = 1;
+            const queries = group.queries;
+            if ( group.settings.tempUI.selected !== 'none') {
+                for ( let j = 0; queries.length > 1 && j < queries.length; j++ ) {
+                    if ( queries[j].settings.selected ) {
+                        const cloneGroup = Object.assign({}, group);
+                        cloneGroup.queries = [];
+                        cloneGroup.id = this.util.generateId(6);
+                        cloneGroup.title = 'clone ' +  cloneGroup.title + ' ' + (cloneGroupIndex++);
+                        const query = queries.splice( j, 1 );
+                        cloneGroup.queries.push(query[0]);
+                        groups.splice(i + 1, 0, cloneGroup);
+                        i++; // skip the loop for the newly created group
+                        split = true;
+                    }
+                }
+            }
+        }
+        if ( split ) {
+            this.widget.query.groups = groups;
+            this.widget = { ...this.widget };
+        }
+    }
+
+    deleteMetrics(groups) {
+        let deletedMetrics = false;
+        for ( let i = groups.length - 1; i >= 0; i-- ) {
+            const group = groups[i];
+            const queries = group.queries;
+            //group delete 
+            if ( group.settings.tempUI.selected === 'all' ) {
+                groups.splice( i, 1 );
+                deletedMetrics = true;
+            } else if ( group.settings.tempUI.selected !== 'none') {
+                for ( let j = queries.length - 1;  j >= 0; j-- ) {
+                    if ( queries[j].settings.selected ) {
+                        queries.splice( j, 1 );
+                        deletedMetrics = true;
+                    }
+                }
+            }
+        }
+        if ( deletedMetrics ) {
+            this.widget.query.groups = groups;
+            this.widget = { ...this.widget };
+        }
+    }
+
+    toggleGroup(gIndex) {
+        this.widget.query.groups[gIndex].settings.visual.visible = !this.widget.query.groups[gIndex].settings.visual.visible;
+        if ( this.widget.query.groups[gIndex].queries.length === 1 ) {
+            this.widget.query.groups[gIndex].queries[0].settings.visual.visible = this.widget.query.groups[gIndex].settings.visual.visible;
+        }
+        this.refreshData(false);
+    }
+    deleteGroup(gIndex) {
+        this.widget.query.groups.splice(gIndex, 1);
+        this.refreshData(false);
+    }
+
+    toggleGroupQuery(gIndex, index) {
+        this.widget.query.groups[gIndex].queries[index].settings.visual.visible = !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+        this.refreshData(false);
+    }
+
+    deleteGroupQuery(gIndex, index) {
+        this.widget.query.groups[gIndex].queries.splice(index, 1);
+        this.refreshData(false);
+    }
     // request send to update state to close edit mode
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{

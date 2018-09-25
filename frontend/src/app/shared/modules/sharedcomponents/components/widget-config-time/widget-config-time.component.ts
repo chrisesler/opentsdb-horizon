@@ -122,16 +122,20 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
 
     timeDownsampleOptions: Array<any> = [
         {
-            label: 'Auto',
-            value: 'auto'
-        },
-        {
             label: '1 min',
             value: '1m'
         },
         {
             label: '5 min',
             value: '5m'
+        },
+        {
+            label: '15 min',
+            value: '15m'
+        },
+        {
+            label: '30 min',
+            value: '30m'
         },
         {
             label: '1 hr',
@@ -231,7 +235,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
             downsample:     new FormControl(this.widget.query.settings.time.downsample.value || this.selectedDownsample),
             customDownsampleValue:  new FormControl(
                                                         {
-                                                            value: this.widget.query.settings.time.downsample.customValue || 0,
+                                                            value: this.widget.query.settings.time.downsample.customValue || 10,
                                                             disabled: !isCustomDownsample ? true : false
                                                         },
                                                         [Validators.min(1), Validators.pattern('^[0-9]+$') ]

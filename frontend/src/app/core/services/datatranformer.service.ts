@@ -24,38 +24,42 @@ export class DatatranformerService {
     for (let gid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.query.groups, 'id', gid) : {};
         const mConfigs = gConfig ? gConfig.queries : [];
-      for (let k in result[gid]) {
-        let g = result[gid][k];
-        // build lable, it's to send exactly duplicate metric
-        let label = g.metric ;//+ ':' + Object.values(g.tags).join('-');
-        const mConfig = gConfig? this.getMetricConfigurationByName(label, mConfigs) : {};
-        const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-        // only pushing in if not exits, since we use same reference for view/edit
-        if (!options.labels.includes(label)) {
-          options.labels.push(label);     
-        }
+        if ( gConfig.settings.visual.visible ) {
+            for (let k in result[gid]) {
+                let g = result[gid][k];
+                // build lable, it's to send exactly duplicate metric
+                let label = g.metric ;//+ ':' + Object.values(g.tags).join('-');
+                const mConfig = gConfig? this.getMetricConfigurationByName(label, mConfigs) : {};
+                const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
+                if ( vConfig.visible ) {
+                    // only pushing in if not exits, since we use same reference for view/edit
+                    if (!options.labels.includes(label)) {
+                    options.labels.push(label);     
+                    }
 
-        if ( options.series ) {
-            options.series[label] = {
-                strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
-                //strokePattern: this.getStrokePattern(vConfig.lineType),
-                color: vConfig.color? vConfig.color : '#000000',
-                axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2'
-            };
-        }
+                    if ( options.series ) {
+                        options.series[label] = {
+                            strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
+                            //strokePattern: this.getStrokePattern(vConfig.lineType),
+                            color: vConfig.color? vConfig.color : '#000000',
+                            axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2'
+                        };
+                    }
 
-        // extract date of all series to fill it up, 
-        for (let date in g.dps) {
-          dpsHash[date] = true;
+                    // extract date of all series to fill it up, 
+                    for (let date in g.dps) {
+                        dpsHash[date] = true;
+                    }
+                }
+            }
         }
-      }
     }
     let dpsHashKey = Object.keys(dpsHash);
     dpsHash = undefined;
     // sort time in case  new insert somewhere
     dpsHashKey.sort((a: any, b: any) => {
       return a - b;
-    });  
+    });
     for (let idx = 0, len = dpsHashKey.length; idx < len; idx++) {
       let dpsMs: any = dpsHashKey[idx];
       // if there is more than 1 group of query in widget, we append data from second group.
@@ -65,9 +69,17 @@ export class DatatranformerService {
         normalizedData[idx] = [new Date(dpsMs * 1000)];
       }
       for (let gid in result) {
-        for (let k in result[gid]) {
-          let g = result[gid][k];
-          (!isNaN(g.dps[dpsMs]) ) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
+        const gConfig = widget? this.util.getObjectByKey(widget.query.groups, 'id', gid) : {};
+        const mConfigs = gConfig ? gConfig.queries : [];
+        if ( gConfig.settings.visual.visible ) {
+            for (let k in result[gid]) {
+                let g = result[gid][k];
+                const mConfig = gConfig? this.getMetricConfigurationByName(g.metric, mConfigs) : {};
+                const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
+                if ( vConfig.visible ) {
+                    (!isNaN(g.dps[dpsMs]) ) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
+                }
+            }
         }
       }
     }
