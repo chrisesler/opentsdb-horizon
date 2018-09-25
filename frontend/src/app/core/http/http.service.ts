@@ -50,29 +50,52 @@ export class HttpService {
                     title: 'group 2',
                     visual: {},
                     queries: [
-                      {
-                        metric: 'SNMP-Net.intercolo.max_latency',
-                        filters: [
-                          {
-                            type: 'wildcard',
-                            tagk: 'host',
-                            filter: '*',
-                            groupBy: true
-                          }
-                        ],
-                        aggregator: 'zimsum',
-                        explicitTags: false,
-                        rate: false,
-                        rateOptions: {
-                          counter: false,
-                          resetValue: 1
-                        },
-                        settings: {
-                            visual: {
-                                aggregator: 'sum'
-                            }
+                    {
+                      metric: 'SNMP-Net.intercolo.avg_latency',
+                      filters: [
+                        {
+                          type: 'wildcard',
+                          tagk: 'host',
+                          filter: '*',
+                          groupBy: true
                         }
+                      ],
+                      aggregator: 'zimsum',
+                      explicitTags: false,
+                      rate: false,
+                      rateOptions: {
+                        counter: false,
+                        resetValue: 1
+                      },
+                      settings: {
+                          visual: {
+                              aggregator: 'sum'
+                          }
                       }
+                    },
+                    {
+                      metric: 'SNMP-Net.intercolo.min_latency',
+                      filters: [
+                        {
+                          type: 'wildcard',
+                          tagk: 'host',
+                          filter: '*',
+                          groupBy: true
+                        }
+                      ],
+                      aggregator: 'zimsum',
+                      explicitTags: false,
+                      rate: false,
+                      rateOptions: {
+                        counter: false,
+                        resetValue: 1
+                      },
+                      settings: {
+                          visual: {
+                              aggregator: 'sum'
+                          }
+                      }
+                    }
                     ]
                   }
                 ]
