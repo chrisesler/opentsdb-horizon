@@ -95,6 +95,10 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         case 'reQueryData':
                             this.refreshData();
                             break;
+                        case 'TimezoneChanged':
+                            this.setTimezone(message.payload);
+                            this.options = {...this.options};
+                            break;
                     }
 
                     if (message && (message.id === this.widget.id)) {
@@ -102,7 +106,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                             case 'updatedWidgetGroup':
                                 if (this.widget.id === message.id) {
                                     this.isDataLoaded = true;
-                                    const rawdata = message.payload;
+                                    const rawdata = message.payload.rawdata;
+                                    this.setTimezone(message.payload.timezone);
                                     this.setLegendDiv();
                                     this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
                                 }
@@ -228,6 +233,10 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         //const titleSpace = this.editMode ? 30 : 0;
         this.size = { width: nWidth - 24, height: nHeight - 50 };
         //console.log("sie", nWidth, nHeight, wm, hm, this.size);
+    }
+
+    setTimezone(timezone) {
+        this.options.labelsUTC = timezone === 'utc' ? true : false;
     }
 
     setTimeConfiguration(config) {

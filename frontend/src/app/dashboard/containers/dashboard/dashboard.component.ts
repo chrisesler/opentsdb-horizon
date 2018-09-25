@@ -18,7 +18,7 @@ import { DBState, LoadDashboard } from '../../state/dashboard.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, WidgetModel} from '../../state/widgets.state';
 import { WidgetsRawdataState, GetQueryDataByGroup } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
-import { DBSettingsState, UpdateMode, UpdateDashboardTime, LoadDashboardSettings} from '../../state/settings.state';
+import { DBSettingsState, UpdateMode, UpdateDashboardTime, LoadDashboardSettings, UpdateDashboardTimeZone} from '../../state/settings.state';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
 
@@ -107,6 +107,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ];
 
     // other variables
+    dbTime: any;
     listenSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
@@ -134,6 +135,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 if (this.dbid === '_new_') {
                     console.log('creating a new dashboard...');
                     const newdboard = this.dbService.getDashboardPrototype();
+                    const settings = {
+                                        title: 'untitled dashboard',
+                                        mode: 'dashboard',
+                                        time: { start: '1h', end: 'now', zone: 'local' }
+                                    };
+                    this.store.dispatch(new LoadDashboardSettings(settings));
                     // this.store.dispatch(new dashboardActions.CreateNewDashboard(newdboard));
                 } else {
                     // load provided dashboard id, and need to handdle not found too
@@ -185,13 +192,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbTime$.subscribe ( t => {
-            this.interCom.responsePut({
-                action: 'reQueryData',
-                payload: t
-            });
+            console.log("___DBTIME___", JSON.stringify(this.dbTime), JSON.stringify(t));
+
+            if ( this.dbTime && this.dbTime.zone !== t.zone ) {
+                this.interCom.responsePut({
+                    action: 'TimezoneChanged',
+                    payload: t
+                });
+            } else {
+                this.interCom.responsePut({
+                    action: 'reQueryData',
+                    payload: t
+                });
+            }
+            this.dbTime = t;
         });
 
-        
+
         this.widgetRawData$.subscribe(result => {
 
         });
@@ -225,7 +242,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.interCom.responsePut({
             id: wid,
             action: 'updatedWidgetGroup',
-            payload: rawdata
+            payload: {
+                        rawdata: rawdata,
+                        timezone: this.dbTime.zone
+                    }
         });
     }
 
@@ -316,6 +336,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     eventTriggered(e: any) {
         this.store.dispatch(new UpdateDashboardTime({start: e.startTimeDisplay, end: e.endTimeDisplay}));
+    }
+
+    setTimezone(e) {
+        this.store.dispatch(new UpdateDashboardTimeZone(e));
     }
 
     click_cloneDashboard(event: any) {

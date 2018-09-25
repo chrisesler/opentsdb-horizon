@@ -11,14 +11,14 @@ import { UtilsService } from '../services/utils.service';
 export class HttpService {
 
   constructor(private http: HttpClient, private utilsService: UtilsService) { }
-
   private testDashboard: any = {
     id: 'abcdfg',
     settings: {
       title: 'my test dashboard',
       time: {
-          start: '1h ago',
-          end: 'now'
+        start: '1h',
+        end: 'now',
+        zone: 'local'
       }
     },
     widgets: [
@@ -31,9 +31,6 @@ export class HttpService {
               data_source: 'yamas'
             },
             query: {
-                start: '1h-ago',
-                end: '',
-                downsample: '1m-avg-nan',
                 settings: {
                     time: {
                         overrideRelativeTime: '',
@@ -90,9 +87,6 @@ export class HttpService {
               data_source: 'yamas'
             },
             query: {
-                start: '1h-ago',
-                end: '',
-                downsample: '1m-avg-nan',
                 settings: {
                     time: {
                         overrideRelativeTime: '',
@@ -148,9 +142,6 @@ export class HttpService {
               data_source: 'yamas'
             },
             query: {
-                start: '1h-ago',
-                end: '',
-                downsample: '1m-avg-nan',
                 settings: {
                     time: {
                         overrideRelativeTime: '',
@@ -207,9 +198,6 @@ export class HttpService {
               description: 'test desc',
             },
             query: {
-              start: '1h-ago',
-              end: '',
-              downsample: '1m-avg-nan',
               settings: {
                 time: {
                     overrideRelativeTime: '',
@@ -262,7 +250,8 @@ export class HttpService {
                         visual: {
                             color: "#FF0000",
                             type: 'line',
-                            label: "yahoo"
+                            label: "yahoo",
+                            visible: true
                         }
                       }
                     }
@@ -280,9 +269,6 @@ export class HttpService {
               data_source: 'yamas'
             },
             query: {
-              start: '1h-ago',
-              end: '',
-              downsample: '1m-avg-nan',
               settings: {
                 time: {
                     overrideRelativeTime: '',
@@ -332,9 +318,9 @@ export class HttpService {
                         visual: {
                             color: "#000000",
                             type: 'line',
-                            label: "yahoo"
+                            label: "yahoo",
+                            visible: true
                         },
-                        visible: true
                       }
                     }
                   ]
@@ -351,9 +337,6 @@ export class HttpService {
           data_source: 'yamas'
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',
@@ -403,9 +386,9 @@ export class HttpService {
                     visual: {
                         color: "#000000",
                         type: 'line',
-                        label: "yahoo"
+                        label: "yahoo",
+                        visible: true
                     },
-                    visible: true
                   }
                 }
               ]
@@ -440,9 +423,9 @@ export class HttpService {
                     visual: {
                         color: "#0000FF ",
                         type: 'line',
-                        label: "yahoo"
+                        label: "yahoo",
+                        visible: true
                     },
-                    visible: true
                   }
                 }
               ]
@@ -459,9 +442,6 @@ export class HttpService {
           data_source: 'yamas',
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',
@@ -602,9 +582,6 @@ export class HttpService {
           data_source: 'yamas'
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',
@@ -895,9 +872,6 @@ export class HttpService {
           data_source: 'yamas'
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',

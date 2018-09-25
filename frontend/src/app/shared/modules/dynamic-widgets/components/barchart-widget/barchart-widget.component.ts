@@ -101,7 +101,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                             this.isDataLoaded = true;
-                            this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget.query, this.data, message.payload, this.isStackedGraph);
+                            this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget.query, this.data, message.payload.rawdata, this.isStackedGraph);
                         break;
                 }
             }

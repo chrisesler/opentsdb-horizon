@@ -96,7 +96,7 @@ export class BignumberWidgetComponent implements OnInit {
                     let metric;
 
                     // get the 'first' metric
-                    for (const [id, _metrics] of Object.entries(message.payload)) {
+                    for (const [id, _metrics] of Object.entries(message.payload.rawdata)) {
                         metric = _metrics[0];
                         break;
                     }

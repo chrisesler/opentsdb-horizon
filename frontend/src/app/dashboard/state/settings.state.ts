@@ -5,6 +5,7 @@ export interface DBSettingsModel {
     time: {
         start: string;
         end: string;
+        zone: string;
     };
 }
 
@@ -16,6 +17,11 @@ export class UpdateMode {
 export class UpdateDashboardTime {
     public static type = '[Dashboard] Update DashboardTime';
     constructor(public readonly time: any) {}
+}
+
+export class UpdateDashboardTimeZone {
+    public static type = '[Dashboard] Update Dashboard Timezone';
+    constructor(public readonly zone: string) {}
 }
 
 export class LoadDashboardSettings {
@@ -30,7 +36,8 @@ export class LoadDashboardSettings {
         mode: 'dashboard',
         time: {
             start: '',
-            end: ''
+            end: '',
+            zone: 'local'
         }
     }
 })
@@ -54,7 +61,16 @@ export class DBSettingsState {
     @Action(UpdateDashboardTime)
     updateDashboardTime(ctx: StateContext<DBSettingsModel>, { time }: UpdateDashboardTime) {
         const state = ctx.getState();
+        time.zone = state.time.zone;
         ctx.patchState({...state, time: time});
+    }
+
+    @Action(UpdateDashboardTimeZone)
+    updateDashboardTimeZone(ctx: StateContext<DBSettingsModel>, { zone}: UpdateDashboardTimeZone) {
+        const state = ctx.getState();
+        const time = {...state.time};
+        time.zone = zone;
+        ctx.patchState({...state, time: time });
     }
 
     @Action(LoadDashboardSettings)
