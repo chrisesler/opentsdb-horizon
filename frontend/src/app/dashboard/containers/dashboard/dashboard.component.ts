@@ -334,7 +334,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.log('dashboard name save', event);
     }
 
-    eventTriggered(e: any) {
+    setDateRange(e: any) {
         this.store.dispatch(new UpdateDashboardTime({start: e.startTimeDisplay, end: e.endTimeDisplay}));
     }
 
