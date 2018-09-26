@@ -2,21 +2,21 @@
     <mat-toolbar-row *ngIf="widget.query.groups && widget.query.groups.length > 0">
             <div class="toolbar-item master-checkbox">
                 <!--<mat-checkbox class=" master-checkbox"></mat-checkbox>-->
-                <button mat-icon-button color="primary" (click)="batch_selectAllToggle($event)">
+                <button mat-icon-button color="primary" (click)="batchSelectAllToggle($event)">
                     <mat-icon>{{ selectedToggleIcon[selectAllToggle] }}</mat-icon>
                 </button>
             </div>
             <div class="toolbar-item">
                 <div class="button-group">
-                    <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_groupMetrics($event)">
+                    <!--<button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_groupMetrics($event)">
                         <mat-icon fontSet="denali" fontIcon="d-merge"></mat-icon>
                         <span>Group</span>
                     </button>
                     <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_splitMetrics($event)">
                         <mat-icon fontSet="denali" fontIcon="d-split"></mat-icon>
                         <span>Split</span>
-                    </button>
-                    <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_deleteMetrics($event)">
+                    </button>-->
+                    <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batchDeleteMetrics($event)">
                         <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                         <span>Delete</span>
                     </button>
@@ -42,7 +42,7 @@
                     <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
                         <div class="group-selector">
                             <!--<mat-checkbox class="group-checkbox"></mat-checkbox>-->
-                            <button mat-icon-button class="group-checkbox" color="primary" (click)="toggle_groupSelected(group, $event)">
+                            <button mat-icon-button class="group-checkbox" color="primary" (click)="toggleGroupSelected(group, $event)">
                                 <mat-icon>{{ selectedToggleIcon[group.settings.tempUI.selected] }}</mat-icon>
                                 <!--<mat-icon *ngIf="selectedGroups.includes(group.id)">check_box</mat-icon>
                                 <mat-icon *ngIf="!selectedGroups.includes(group.id)">check_box_outline_blank</mat-icon>-->
@@ -50,9 +50,9 @@
                         </div>
                         <mat-toolbar class="group-item-toolbar">
                             <span class="toolbar-item">
-                                <button mat-icon-button [disableRipple]="true" (click)="toggle_groupCollapsed(group,$event)">
-                                    <mat-icon fontSet="denali" fontIcon="d-arrow-down" class="arrow-down"></mat-icon>
-                                    <mat-icon fontSet="denali" fontIcon="d-arrow-right" class="arrow-right"></mat-icon>
+                                <button mat-icon-button [disableRipple]="true" (click)="toggleGroupCollapsed(group,$event)">
+                                    <mat-icon *ngIf="!group.collapsed" fontSet="denali" fontIcon="d-arrow-down" class="arrow-down"></mat-icon>
+                                    <mat-icon *ngIf="group.collapsed" fontSet="denali" fontIcon="d-arrow-right" class="arrow-right"></mat-icon>
                                 </button>
                             </span>
                             <span class="toolbar-item group-label">
@@ -81,6 +81,11 @@
                         </mat-toolbar>
                     </mat-expansion-panel-header>
                     <div class="query-metric-row" *ngFor="let query of group.queries;let index=index">
+                        <div class="metric-selector">
+                            <button mat-icon-button class="group-checkbox" color="primary" (click)="toggleMetricSelected(query, group, $event)">
+                                <mat-icon>{{ (query.settings.selected) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                            </button>
+                        </div>
                         <div class="query-metric-item">
                             <div class="metric-detail">
                                 <div class="metric-name">{{ query.metric }}</div>

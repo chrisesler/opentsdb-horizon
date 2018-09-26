@@ -46,6 +46,7 @@ export class StackedBarchartConfigMetricQueriesComponent implements OnInit, OnCh
         'all': 'check_box',
         'some': 'indeterminate_check_box'
     };
+    selectAllToggle: String = 'none'; // none/all/some
 
     gStackForm: FormGroup;
     stackSubs: Subscription;
@@ -60,6 +61,7 @@ export class StackedBarchartConfigMetricQueriesComponent implements OnInit, OnCh
     ngOnChanges( changes: SimpleChanges) {
         if (changes.widget) {
             if (this.gStackForm) {
+                this.stackSubs.unsubscribe();
                 this.gStackForm.setControl( '0', this.createStackFormArray());
             } else {
                 this.gStackForm = new FormGroup({});
@@ -71,6 +73,22 @@ export class StackedBarchartConfigMetricQueriesComponent implements OnInit, OnCh
                 const stack = this.widget.query.settings.visual.stacks[i];
                 this.stacks[stack.id] = stack;
             }
+            this.updateTempUIState(changes.widget.currentValue);
+        }
+    }
+
+    // to add or remove the local tempUI state
+    updateTempUIState(widget: any) {
+        for (let i = 0; i < widget.query.groups.length; i++) {
+            const group = widget.query.groups[i];
+            group.settings.tempUI = {
+                selected: 'none',
+                collapsed: false
+            };
+
+            for (let j = 0; j < group.queries.length; j++) {
+                group.queries[j].settings.selected = false;
+            }
         }
     }
 
@@ -81,6 +99,119 @@ export class StackedBarchartConfigMetricQueriesComponent implements OnInit, OnCh
                 this.widgetChange.emit( { action: 'SetStackedBarStackVisuals', payload: { data: data[0]}} );
             });
          }, 100);
+    }
+
+    toggleGroupSelected(group: any, event: MouseEvent) {
+        console.log('TOGGLE::GroupSelected', group, event);
+        event.stopPropagation();
+
+        // some or none are selected, then we select them all
+        if (group.settings.tempUI.selected === 'some' || group.settings.tempUI.selected === 'none') {
+            group.settings.tempUI.selected = 'all';
+            group.queries.forEach(function(metric) {
+                metric.settings.selected = true;
+            });
+        } else {
+            group.settings.tempUI.selected = 'none';
+            group.queries.forEach(function(metric) {
+                metric.settings.selected = false;
+            });
+        }
+
+        // update master checkbox
+        const groupStates = {
+            all: 0,
+            none: 0,
+            some: 0
+        };
+
+        for (let i = 0; i < this.widget.query.groups; i++) {
+            let g = this.widget.query.groups[i];
+            if (g.settings.tempUI.selected === 'all') {
+                groupStates.all++;
+            } else if (g.settings.tempUI.selected === 'some') {
+                groupStates.some++;
+            } else {
+                groupStates.none++;
+            }
+        }
+
+        this.selectAllToggle = (groupStates.some > 0 || groupStates.all < this.widget.query.groups.length) ?
+            'some' : (groupStates.none === this.widget.query.groups.length) ? 'none' : 'all';
+    }
+
+    toggleMetricSelected(metric: any, group: any, event: MouseEvent) {
+        console.log('TOGGLE::MetricSelected', group, event);
+        event.stopPropagation();
+
+        metric.settings.selected = !metric.settings.selected;
+
+        const selectedGroupMetrics = group.queries.filter(function(m) {
+            return m.settings.selected;
+        });
+
+        // the 'some' case
+        if (selectedGroupMetrics.length > 0 && selectedGroupMetrics.length < group.queries.length) {
+            group.settings.tempUI.selected = 'some';
+            // if this is some, then the master level is some as well
+            this.selectAllToggle = 'some';
+        // the 'all'case
+        } else if (selectedGroupMetrics.length === group.queries.length) {
+            group.settings.tempUI.selected = 'all';
+
+            const selectedGroups = this.widget.query.groups.filter(function(g) {
+                return g.settings.tempUI.selected === 'all';
+            });
+
+            this.selectAllToggle = (selectedGroups.length === this.widget.query.groups.length) ? 'all' : 'some';
+
+        // the 'none' case
+        } else {
+            group.settings.tempUI.selected = 'none';
+
+            const selectedGroups = this.widget.query.groups.filter(function(g) {
+                return g.settings.tempUI.selected !== 'none';
+            });
+
+            this.selectAllToggle = (selectedGroups.length > 0) ? 'some' : 'none';
+        }
+    }
+
+    toggleGroupCollapsed(group: any, event: MouseEvent) {
+        console.log('TOGGLE::GroupCollapsed', group, event);
+        event.stopPropagation();
+        group.collapsed = !group.collapsed;
+    }
+
+    batchSelectAllToggle(event: MouseEvent) {
+        console.log('BATCH::SelectAllToggle', this.selectAllToggle);
+        event.stopPropagation();
+        let group, metric;
+        if (this.selectAllToggle === 'none' || this.selectAllToggle === 'some') {
+            this.selectAllToggle = 'all';
+            // mark all groups as selected
+            for (group of this.widget.query.groups) {
+                group.settings.tempUI.selected = 'all';
+                for (metric of group.queries) {
+                    metric.settings.selected = true;
+                }
+            }
+        } else {
+            this.selectAllToggle = 'none';
+            // mark all groups as un-selected
+            for (group of this.widget.query.groups) {
+                group.settings.tempUI.selected = 'none';
+                for (metric of group.queries) {
+                    metric.settings.selected = false;
+                }
+            }
+        }
+    }
+
+    batchDeleteMetrics(event: MouseEvent) {
+        console.log('BATCH::DeleteMetrics', event);
+        event.stopPropagation();
+        this.widgetChange.emit({action: 'DeleteMetrics', payload: { data: JSON.parse(JSON.stringify(this.widget.query.groups)) }});
     }
 
     openColorPopup(index) {
