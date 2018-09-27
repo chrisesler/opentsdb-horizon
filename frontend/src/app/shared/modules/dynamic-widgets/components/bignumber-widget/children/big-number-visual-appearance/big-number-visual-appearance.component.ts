@@ -12,6 +12,7 @@ import { UnitNormalizerService, IBigNum } from '../../../../services/unit-normal
 export class BignumberVisualAppearanceComponent implements OnInit {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.big-number-visual-appearance') private _tabClass = true;
+    @HostBinding('class.has-columns') private _hasColumns = true;
 
     /** Inputs */
     @Input() widget: any;
@@ -35,7 +36,9 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     currencyUnits: Array<string> = ['usd'];
     otherUnits: Array<string> = ['auto'];
 
+    // tslint:disable-next-line:no-inferrable-types
     captionPlaceholder: string = 'Enter Caption {{tag.key}}';
+    // tslint:disable-next-line:no-inferrable-types
     prefixDisabled: boolean = true;
 
     constructor(public UN: UnitNormalizerService) { }
