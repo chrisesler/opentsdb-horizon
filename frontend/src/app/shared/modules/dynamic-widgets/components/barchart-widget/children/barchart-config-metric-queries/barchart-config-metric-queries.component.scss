@@ -4,32 +4,15 @@
 @mixin barchart-config-metric-queries-component-base() {
     $default-padding: map-get($widgets-common-config, default-padding);
     $edit-padding: map-get($widgets-common-config, edit-padding);
+    
     .widget-config-tab.barchart-config-metric-queries-configuration {
         margin: 0;
         display: flex;
         flex-direction: column;
 
-        // config specific toolbar overrides
-        .config-toolbar.time-series-toolbar {
-            padding: 0 $edit-padding 0 0;
-            flex: 1 1 55px;
-            align-items: stretch;
-            justify-content: stretch;
 
-            .mat-toolbar-row {
-                height: 100%;
-                align-items: inherit;
-            }
-
-            .toolbar-item.master-checkbox {
-                margin-right: 3px;
-            }
-        }
-
-        .flex-spacer {
-            flex: 1 1 auto;
-        }
-
+        ////// OLD STYLES //////
+        
         // config section that shows the selected metrics
         .query-metrics-section {
             @include has-scroller();
