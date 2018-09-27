@@ -14,7 +14,9 @@ $widgets-common-config: (
     tab-width: initial,
     action-bar-height: 30px,
     output-radius: 4px,
-    widget-output-height: 300px
+    widget-output-height: 300px,
+    edit-toolbar-height: 50px,
+    edit-toolbar-border-width: 2px
 );
 
 @mixin widgets-common-base() {
@@ -28,6 +30,7 @@ $widgets-common-config: (
 
     .widget-panel-content {
         @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
+        padding-top: 10px;
         
         .widget-config {
             padding: 0 $default-padding;
@@ -165,6 +168,10 @@ $widgets-common-config: (
 
     // few items need overrides when we are in edit view
     .edit-view-container.is-active {
+        .widget-panel-content {
+            padding-top: 0;
+        }
+
         .widget-output-container {
             padding: 0 $edit-view-padding;
     
