@@ -9,33 +9,6 @@
         margin: 0;
         display: flex;
 
-        // config specific toolbar overrides
-        .config-toolbar.time-series-toolbar,
-        .config-toolbar.legend-toolbar {
-            padding: 0 $edit-padding;
-            flex: 1;
-            align-items: stretch;
-            justify-content: stretch;
-            min-height: 55px;
-            max-height: 55px;
-
-            .mat-toolbar-row {
-                height: 100%;
-                align-items: inherit; 
-            }
-
-            .toolbar-item {
-                display: inline-flex;
-                align-items: center;
-
-                font-size: 14px;
-            }
-        }
-
-        .flex-spacer {
-            flex: 1 1 auto;
-        }
-
         // TIME SERIES COLUMN
 
         .query-metrics-section {
@@ -189,8 +162,6 @@
                         width: 24px;
                         height: 24px;
                         line-height: 1;
-                        //background-color: black;
-                        //color: white;
                         border-radius: 4px; 
                         transform: translateX(6px); // this offsets the padding
 
@@ -204,11 +175,9 @@
                             height: 18px;
                             line-height: 1;
                             font-size: 18px;
-                            //color: white;
                         }
                     }
                 }
-
 
                 .add-tag-filter-button {
                     overflow: initial;
@@ -228,24 +197,9 @@
                     }
                 }
             }
-            
         }
 
-        // config section that shows the selected metrics
-        /*.query-metrics-section {
-            @include has-scroller();
-            flex: 1 1 100%;
-            width: 100%;
-            
-
-            .query-metrics-wrap {
-                @include is-scroller();
-            }
-            
-        }*/
-
         // LEGEND COLUMN
-
         .query-legend-section {
             display: flex;
             flex: 1 1 100%;
@@ -256,262 +210,37 @@
             .mat-list {
                 width: 100%;
             }
-        }
 
-        /*.query-legend-section{
-            width: 20%;
-            height: 100%;
-            float: right;
-            padding: 15px 10px;
-        }*/
-
-        .query-legend-item {
-            padding: 5px 5px;
-        }
-
-        .query-legend-item-color {
-            display: inline-block;
-            min-width:10px;
-            max-width: 10px;
-            min-height:10px;
-            max-height: 10px;
-            border-radius: 50%;
-            margin-right: 5px;
-            cursor: pointer;
-        }
-        
-        color-picker {
-            display: block;
-            position: absolute;
-            margin-top: 5px;
-        }
-
-        /*mat-form-field {
-            width: 150px;
-        }*/
-
-        .query-legend-item-label {
-            display: inline-block;
-            margin-left: 5px;
-            width: 100%;
-        }
-
-        // wrapper for the query metrics
-        .query-metrics-wrap {
-            padding: 0 $edit-padding 0 0;
-
-            &,
-            .mat-toolbar {
-                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-            }
-    
-            .mat-expansion-panel-body {
-                padding: 0;
+            .query-legend-item {
+                padding: 5px 5px;
             }
 
-            // General toolbar items
-            .toolbar-item {
-                display: flex;
-                align-items: top;
-                justify-content: center;
-
-                .mat-icon {
-                    display: inline-flex;
-                    align-items: top;
-                    justify-content: center;
-                }
+            .query-legend-item-color {
+                display: inline-block;
+                min-width:10px;
+                max-width: 10px;
+                min-height:10px;
+                max-height: 10px;
+                border-radius: 50%;
+                margin-right: 5px;
+                cursor: pointer;
             }
 
-            .toolbar-action-icons,
-            .action-icons {
-                .mat-icon-button {
-                    width: 30px;
-                    height: 30px;
-                    line-height: 30px;
-                }
-
-                .mat-icon {
-                    font-size: 16px;
-                }
+            .query-legend-item-label {
+                display: inline-block;
+                margin-left: 5px;
+                width: 100%;
             }
 
-            // selector checkboxes for group level and metric level
-            .group-selector,
-            .metric-selector {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                opacity: 0;
-            }
-
-            // group-level toolbar
-            .group-item-toolbar {
-                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-                height: auto;
-                padding: 0;
-                margin-left: 3px;
-                padding: 0 $default-padding 0 0;
-
-                .group-label {
-                    .mat-icon {
-                        font-size: 16px;
-                        margin-right: 4px;
-                    }
-                }
-
-                .add-query-actions {
-                    margin-right: 20px;
-
-                    .mat-icon {
-                        font-size: 16px; 
-                        margin-right: 2px;
-                    }
-
-                    .mat-button {
-                        font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-                        padding: 0 6px;
-                        line-height: 24px;
-                        min-width: initial;
-                    }
-                }
-            }
-
-            // group metric row wrapper - contains checkbox, then metric item details
-            .query-metric-row {
-                display: flex;
-                justify-content: center;
-                padding-left: 16px;
-            }
-
-            // contains the metric row details
-            .query-metric-item {
-                display: flex;
-                width:100%;
-
-                .modifier-row {
-                    .modifier-item {
-                        display: inline-flex;
-                        flex-direction: row;
-                        align-items: center;
-                        justify-content: center;
-
-                        &:not(:last-child) {
-                            margin-right: 12px;
-                        }
-
-                        > strong {
-                            margin-right: 8px;
-                        }
-                    }
-                }
-
-                .tags-row {
-
-                }
-
-                .metric-detail {
-                    padding: 10px 5px;
-                    align-items: stretch;
-                    flex: 1;
-
-                    .metric-visual{
-                        .color{
-                            display: inline-block;
-                            margin-right: 10px;
-                            width:15px;
-                            height:15px;
-                        }
-                        .label {
-                            margin-right: 10px;
-                            display: inline-block;
-                        }
-                        .aggregator {
-                            display: inline-block;
-                        }
-                    }
-                }
-
-                .metric-action {
-                    width: 200px;
-                    display: inline-flex;
-                    justify-content: flex-end
-                }
-
-
-                /*
-                .metric-tags {
-                    display: flex;
-                    align-items: center;
-
-                    // probably the 'tabs:' label
-                    :first-child {
-                        font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-                    }
-
-                    .mat-chip-list {
-                        margin-left: 10px;
-                    }
-
-                    .mat-basic-chip {
-                        padding: 3px 6px;
-                        border-radius: 3px;
-                        margin-right: 4px;
-
-                        // first-child should be the tag key
-                        :first-child {
-                            margin-right: 4px;
-                        }
-                    }
-                    
-                }*/
-            }
-
-            // mat-expansion-panel inside the accordion (.mat-accordion.query-group-list)
-            .mat-expansion-panel.query-group-item {
-                margin-bottom: 2px;
-
-                &:hover {
-                    .group-selector,
-                    .metric-selector {
-                        opacity: 1;
-                    }
-                }
-            }
-
-            // collapsible accordion list of the query groups
-            .mat-accordion.query-group-list {
-                display: flex;
-                flex-direction: column;
-
-                // if ANY checkbox is selected, then all the checkboxes become visible
-                &.items-selected {
-                    .query-group-item {
-                        .group-selector,
-                        .metric-selector {
-                            opacity: 1;
-                        }
-                    }
-                }
-            }
-
-            // EXPANDED MODE
-            .mat-expansion-panel-header.mat-expanded {
-                .mat-icon.arrow-down {
-                    display: inline-flex;
-                }
-                .mat-icon.arrow-right {
-                    display: none;
-                }
-            }
-
-            // NOT EXPANDED
-            // getting some wierd background on hover when it was not expaded
-            .mat-expansion-panel:not(.mat-expanded) .mat-expansion-panel-header:not([aria-disabled='true']):hover {
-                background: transparent;
+            color-picker {
+                display: block;
+                position: absolute;
+                margin-top: 5px;
             }
         }
 
-        .value-options {
+         // not sure this is needed in this component, but I'll leave it just in case
+         .value-options {
             padding-left: 5px;
 
             font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
@@ -528,7 +257,6 @@
 
 @mixin donutchart-config-metric-queries-component-theme($theme-config) {
 
-    /* Theme config parts */
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
     $accent: map-get($theme-config, accent);
@@ -608,6 +336,7 @@
             .mat-select {
                 background-color: $chip-bg;
             }
+
             .mat-form-field-underline {
                 background-color: transparent;
             }

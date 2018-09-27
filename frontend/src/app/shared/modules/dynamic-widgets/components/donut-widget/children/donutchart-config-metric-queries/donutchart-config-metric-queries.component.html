@@ -117,7 +117,7 @@
                 <mat-list dense>
                     <mat-list-item class="query-legend-item" *ngFor="let query of widget.query.groups[0].queries; let index=index">
                         <div class="query-legend-item-color" [style.backgroundColor]="query.settings.visual.color" (click)="openColorPopup(index)"></div>
-                        <mat-form-field class="query-legend-item-label yamas-mat-form-field" appearance="fill" floatLabel="never">
+                        <mat-form-field class="query-legend-item-label" appearance="fill" floatLabel="never">
                             <input matInput placeholder="Alias" [ngModel]="query.settings.visual.stackLabel" (ngModelChange)="setVisualization('stackLabel', index, $event)">
                         </mat-form-field>
                         <color-picker pickerMode="dropDownNoButton" [isOpen]="index===showColorPickerIndex" (newColor)="selectColor(index, $event)" [color]="query.settings.visual.color"></color-picker>

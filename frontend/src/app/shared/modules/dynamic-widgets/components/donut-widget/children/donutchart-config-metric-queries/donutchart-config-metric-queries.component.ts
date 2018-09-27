@@ -2,15 +2,21 @@ import { Component, OnInit, HostBinding, Input, Output, EventEmitter} from '@ang
 
 import {MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 
-import {SearchMetricsDialogComponent} from '../../../../../sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
-import {ExpressionDialogComponent} from '../../../../../sharedcomponents/components/expression-dialog/expression-dialog.component';
+import {
+    SearchMetricsDialogComponent
+} from '../../../../../sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
+
+import {
+    ExpressionDialogComponent
+} from '../../../../../sharedcomponents/components/expression-dialog/expression-dialog.component';
 
 import { Subscription } from 'rxjs';
 
 @Component({
+  // tslint:disable-next-line:component-selector
   selector: 'donutchart-config-metric-queries',
   templateUrl: './donutchart-config-metric-queries.component.html',
-  styleUrls: ['./donutchart-config-metric-queries.component.scss']
+  styleUrls: []
 })
 export class DonutchartConfigMetricQueriesComponent implements OnInit {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
@@ -18,7 +24,7 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit {
 
     /** Inputs */
     @Input() widget: any;
- 
+
     /** Outputs */
     @Output() widgetChange = new EventEmitter;
 
@@ -53,7 +59,7 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit {
     ngOnInit() {
     }
 
-    //ngOnChanges( changes: SimpleChanges) {
+    // ngOnChanges( changes: SimpleChanges) {
         /*
         if (changes.widget) {
             if (this.gForms) {
@@ -67,7 +73,7 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit {
             this.subscribeFormChanges();
         }
         */
-    //}
+    // }
 
     /*
     subscribeFormChanges() {
@@ -86,9 +92,9 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit {
     }
 
     selectColor(index, color) {
-        //console.log("set color =",  index, color);
-        //console.log(this.gForms.controls[0]['controls'][index]['controls'])
-        //this.gForms.controls['0']['controls'][index]['controls'].color.setValue(color.hex);
+        // console.log("set color =",  index, color);
+        // console.log(this.gForms.controls[0]['controls'][index]['controls'])
+        // this.gForms.controls['0']['controls'][index]['controls'].color.setValue(color.hex);
         this.setVisualization('color', index, color.hex);
     }
 
@@ -131,7 +137,7 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit {
     openCustomValueDialog() {
         alert('TODO: create and link up custom value dialog');
     }
-    
+
     /*
     createFormArray(queries): FormArray {
         console.log("create", queries.length)
@@ -144,7 +150,7 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit {
     */
 
     setVisualization(key, index, value) {
-        console.log(key, index, value, "setvisualization....");
+        console.log(key, index, value, 'setvisualization....');
         const visuals = [];
         const gIndex = 0;
         const queries = this.widget.query.groups[gIndex].queries;
