@@ -1,10 +1,8 @@
-<span>
-        <mat-form-field appearance="fill">
-            <mat-select placeholder="Visual Type" [formControl]="visualTypeControl">
-                <mat-option *ngFor="let option of visualTypeOptions" [value]="option.value">
-                <span></span>
-                <span>{{ option.label }}</span>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-</span>
+<mat-form-field appearance="fill">
+    <mat-select placeholder="Visual Type" [formControl]="visualTypeControl">
+        <mat-option *ngFor="let option of visualTypeOptions" [value]="option.value">
+        <span></span>
+        <span>{{ option.label }}</span>
+        </mat-option>
+    </mat-select>
+</mat-form-field>
