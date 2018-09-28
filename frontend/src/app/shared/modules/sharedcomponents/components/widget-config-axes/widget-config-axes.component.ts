@@ -144,7 +144,9 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
             decimals: 'auto',
             label: ''
         };
-        const wAxisConfig = this.widget.query.settings.axes && this.widget.query.settings.axes[axis] ? this.widget.query.settings.axes[axis] : {};
+
+        const widget = this.widget.query.settings;
+        const wAxisConfig = widget.axes && widget.axes[axis] ? widget.axes[axis] : {};
         return { ...defaultConfig, ...wAxisConfig };
 
     }
@@ -165,4 +167,12 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
         // destroy any subscriptions
         this.widgetConfigAxes_Sub.unsubscribe();
     }
+
+    /* function to attach to unit dropdown component when it gets finished
+    OnUnitUpdated(event: any) {
+        console.log('UNIT UPDATED', event, this.widgetConfigAxes.get('y1').get('unit'));
+        const y1 = this.widgetConfigAxes.get('y1');
+        y1.get('unit').setValue(event.selectedUnit);
+
+    }*/
 }
