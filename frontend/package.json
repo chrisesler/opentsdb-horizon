@@ -10,7 +10,9 @@
     "e2e": "ng e2e"
   },
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "date-fns": "^1.29.0"
+  },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.6.0",
     "@angular/animations": "6.0.4",

@@ -40,7 +40,8 @@ import { NavbarSearchToggleComponent } from './components/navbar-search-toggle/n
 import { SearchAllDialogComponent } from './components/search-all-dialog/search-all-dialog.component';
 import { DropdownAggregatorsComponent } from './components/dropdown-aggregators/dropdown-aggregators.component';
 import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropdown-unit-type.component';
-
+import { UtcDatepickerComponent } from './components/calendar-dialog/utc-datepicker.component';
+import { UtilsService } from './components/calendar-dialog/datepicker-utils';
 
 
 @NgModule({
@@ -78,7 +79,8 @@ import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropd
         NavbarSearchToggleComponent,
         SearchAllDialogComponent,
         DropdownAggregatorsComponent,
-        DropdownUnitTypeComponent
+        DropdownUnitTypeComponent,
+        UtcDatepickerComponent
     ],
     exports: [
         SearchMetricsDialogComponent,
@@ -102,12 +104,16 @@ import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropd
         NavbarInfoMenuComponent,
         NavbarTimezoneToggleComponent,
         NavbarSearchToggleComponent,
-        DropdownAggregatorsComponent
+        DropdownAggregatorsComponent,
+        UtcDatepickerComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponent,
         SearchAllDialogComponent,
         ExpressionDialogComponent
+    ],
+    providers : [
+         UtilsService
     ]
 })
 export class SharedcomponentsModule { }

@@ -1,0 +1,40 @@
+<button class="angular-utc-datepicker_button" (click)="openCalendar($event)" *ngIf="button && buttonPosition === 'before'"
+    (blur)="closeCalendar()" (keydown)="keydown($event)">
+    <i class="fa fa-calendar"></i>
+</button>
+
+<input #dateInput class="angular-utc-datepicker_input" [ngModel]="date" (ngModelChange)="onDateChange($event)"
+(focus)="openCalendar($event)" (blur)="closeCalendar()" (keydown)="keydown($event)">
+
+<button class="angular-utc-datepicker_button" (click)="openCalendar($event)" *ngIf="button && buttonPosition === 'after'"
+    (blur)="closeCalendar()" (keydown)="keydown($event)">
+    <i class="fa fa-calendar"></i>
+</button>
+
+<div class="angular-utc-datepicker_datepicker">
+    <div class="angular-utc-datepicker_calendar-popup" ngClass="calendarPosition" [hidden]="!showCalendar"
+        (blur)="closeCalendar()" (keydown)="keydown($event)" tabindex="0">
+        <div class="angular-utc-datepicker_calendar-controls">
+            <div class="angular-utc-datepicker_prev" (click)="prevMonth()" (keydown)="keydown($event)">
+                <i class="fa fa-arrow-left"></i>
+            </div>
+            <div class="angular-utc-datepicker_title">
+                {{calendarTitle}} <span class="angular-utc-datepicker_today" title="Today" (click)="selectToday()"
+                                        (keydown)="keydown($event)"><i class="fa fa-calendar-o"></i></span>
+            </div>
+            <div class="angular-utc-datepicker_next" (click)="nextMonth()" (keydown)="keydown($event)">
+                <i class="fa fa-arrow-right"></i>
+            </div>
+        </div>
+        <div class="angular-utc-datepicker_day-names">
+            <div class="angular-utc-datepicker_name" *ngFor="let name of dayNames">{{name}}</div>
+        </div>
+        <div class="angular-utc-datepicker_calendar">
+            <div class="angular-utc-datepicker_day {{day.selected}} {{day.enabled}}" *ngFor="let day of days"
+                (click)="selectDate(day)">
+                {{day.day}}
+            </div>
+            <div class="angular-utc-datepicker_clear"></div>
+        </div>
+    </div>
+</div>

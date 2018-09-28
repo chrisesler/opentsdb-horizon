@@ -49,6 +49,9 @@
 
     <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="setDateRange($event)" [startTime]="dbTime.start" [endTime]="dbTime.end" [xPosition]="menuXAlignValue"></time-picker>
 
+    <!-- <utc-datepicker [date]="myDate" (dateChange)="onDateChange($event)"></utc-datepicker> -->
+    <utc-datepicker [date]="'2017-09-13'" [button]="true" (dateChange)="onDateChange($event)"></utc-datepicker>
+
     <span class="navbar-item nav-timezone-toggle">
         <navbar-timezone-toggle [timezone]="dbTime.zone" (change)="setTimezone($event);"></navbar-timezone-toggle>
     </span>

@@ -1,0 +1,90 @@
+.angular-utc-datepicker_input {
+    padding: 5px;
+}
+.angular-utc-datepicker_button {
+    padding: 7px;
+}
+.angular-utc-datepicker_datepicker {
+    position: absolute;
+    top: auto;
+    left: auto;
+    z-index: 1000;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-icon {
+    cursor: pointer;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup {
+    width: 245px;
+    opacity: 0.9;
+    border-left: 1px solid #888;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup.angular-utc-datepicker_above {
+    margin-top: -293px;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup.angular-utc-datepicker_below {
+    margin-top: 5px;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_calendar-controls {
+    box-sizing: border-box;
+    background: #ccc;
+    width: 100%;
+    padding: 5px 0;
+    text-align: center;
+    color: #000;
+    border-top: 1px solid #888;
+    border-right: 1px solid #888;
+    display: flex;
+    justify-content: space-between;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_calendar-controls .angular-utc-datepicker_prev,
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_calendar-controls .angular-utc-datepicker_next,
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_calendar-controls .angular-utc-datepicker_today {
+    cursor: pointer;
+    padding: 0 7px;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_day-names {
+    background: #555;
+    color: #fff;
+    display: flex;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_day-names .angular-utc-datepicker_name {
+    width: 35px;
+    height: 15px;
+    padding: 1px;
+    text-align: center;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_calendar {
+    background: #fff;
+    width: 245px;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_calendar .angular-utc-datepicker_day {
+    box-sizing: border-box;
+    width: 35px;
+    height: 35px;
+    display: inline-block;
+    float: left;
+    padding: 2px;
+    border-right: 1px solid #888;
+    border-bottom: 1px solid #888;
+    color: #000;
+    background: #fff;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_calendar .angular-utc-datepicker_day:hover {
+    background: #ccc;
+    color: #000;
+    cursor: pointer;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_calendar .angular-utc-datepicker_day:last-child {
+    border-right: 1px solid #888;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_calendar .angular-utc-datepicker_selected {
+    background: #42a5f5;
+    color: #fff;
+}
+.angular-utc-datepicker_datepicker .angular-utc-datepicker_calendar-popup .angular-utc-datepicker_calendar .angular-utc-datepicker_disabled {
+    background: #ddd;
+    color: #555;
+}
+.angular-utc-datepicker_clear {
+    clear: both;
+}

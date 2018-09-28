@@ -192,9 +192,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new UpdateWidget(message.payload));
                     // many way to handle this, but we should do with the way
                     // store suppose to work.
-                    //const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
-                    //console.log('getting updated widget', message.payload, updatedWidget);
-                    
+                    // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
+                    // console.log('getting updated widget', message.payload, updatedWidget);
+
                     this.interCom.responsePut({
                         id: message.payload.id,
                         action: 'getUpdatedWidgetConfig',
@@ -326,6 +326,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // this.store.dispatch(new dashboardActions.AddWidget(payload));
         // trigger Update Widget layout event
         this.rerender = { 'reload': true };
+    }
+
+    onDateChange(date: any) {
+        console.log('selected date: ');
+        console.log(date);
     }
 
     // save dashboard name
