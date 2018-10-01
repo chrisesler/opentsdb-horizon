@@ -51,7 +51,22 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
      */
     _meta: any = {};
 
-    constructor( private element: ElementRef, private uConverter: UnitConverterService ) { }
+    constructor( private element: ElementRef, private uConverter: UnitConverterService ) { 
+        const self = this;
+        const tooltipFormatter = function(item, data) {
+            const axis = self.chartType.indexOf('horizontal') >= 0 ? 'x' : 'y';
+            if ( self.options.scales && self.options.scales[ axis + 'Axes' ][0].ticks.format ) {
+                const tickFormat = self.options.scales[axis + 'Axes'][0].ticks.format;
+                const unit = tickFormat.unit;
+                const precision = tickFormat.precision && !Number.isInteger(item[axis + 'Label']) ? tickFormat.precision : 0;
+                return self.uConverter.format(item[axis + 'Label'], { unit: unit, precision: precision } );
+            } else {
+                return item[axis + 'Label'] ?
+                    item[axis + 'Label'] : self.uConverter.format(data['datasets'][0]['data'][item['index']], { unit: '', precision: 2 });
+            }
+        };
+        this.defaultOptions.tooltips = { callbacks: { label : tooltipFormatter } } ;
+    }
 
     ngOnInit() {
     }

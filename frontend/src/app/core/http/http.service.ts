@@ -11,31 +11,32 @@ import { UtilsService } from '../services/utils.service';
 export class HttpService {
 
   constructor(private http: HttpClient, private utilsService: UtilsService) { }
-
   private testDashboard: any = {
     id: 'abcdfg',
     settings: {
-      title: 'my test dashboard'
+      title: 'my test dashboard',
+      time: {
+        start: '1h',
+        end: 'now',
+        zone: 'local'
+      }
     },
     widgets: [
         {
             id: 'bigNum1',
-            gridPos: { x: 0, y: 0, w: 4, h: 3 },
+            gridPos: { x: 0, y: 0, w: 4, h: 4 },
             settings: {
               title: 'SNMP Max Latency',
               component_type: 'BignumberWidgetComponent',
               data_source: 'yamas'
             },
             query: {
-                start: '1h-ago',
-                end: '',
-                downsample: '1m-avg-nan',
                 settings: {
                     time: {
                         overrideRelativeTime: '',
                         shiftTime: '',
                         downsample: {
-                            value: '1h',
+                            value: '1m',
                             aggregator: 'sum',
                             customValue: '',
                             customUnit: ''
@@ -102,22 +103,19 @@ export class HttpService {
           },
           {
             id: 'bigNum2',
-            gridPos: { x: 4, y: 0, w: 4, h: 3 },
+            gridPos: { x: 4, y: 0, w: 4, h: 4 },
             settings: {
               title: 'SNMP Min Latency',
               component_type: 'BignumberWidgetComponent',
               data_source: 'yamas'
             },
             query: {
-                start: '1h-ago',
-                end: '',
-                downsample: '1m-avg-nan',
                 settings: {
                     time: {
                         overrideRelativeTime: '',
                         shiftTime: '',
                         downsample: {
-                            value: '1h',
+                            value: '1m',
                             aggregator: 'sum',
                             customValue: '',
                             customUnit: ''
@@ -160,22 +158,19 @@ export class HttpService {
           },
           {
             id: 'bigNum3',
-            gridPos: { x: 8, y: 0, w: 4, h: 3 },
+            gridPos: { x: 8, y: 0, w: 4, h: 4 },
             settings: {
               title: 'SNMP Avg Latency',
               component_type: 'BignumberWidgetComponent',
               data_source: 'yamas'
             },
             query: {
-                start: '1h-ago',
-                end: '',
-                downsample: '1m-avg-nan',
                 settings: {
                     time: {
                         overrideRelativeTime: '',
                         shiftTime: '',
                         downsample: {
-                            value: '1h',
+                            value: '1m',
                             aggregator: 'sum',
                             customValue: '',
                             customUnit: ''
@@ -216,169 +211,161 @@ export class HttpService {
                 ]
             }
           },
-      {
-        id: 'abcd',
-        gridPos: { x: 0, y: 4, w: 6, h: 5 },
-        settings: {
-          title: 'my widget title',
-          component_type: 'LinechartWidgetComponent',
-          data_source: 'yamas',
-          description: 'test desc',
-        },
-        query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
-          settings: {
-            time: {
-              overrideRelativeTime: '',
-              shiftTime: '',
-              downsample: {
-                value: '1h',
-                aggregator: 'sum',
-                customValue: '',
-                customUnit: ''
-              }
+          {
+            id: 'abcd',
+            gridPos: { x: 0, y: 4, w: 12, h: 5 },
+            settings: {
+              title: 'my widget title',
+              component_type: 'LinechartWidgetComponent',
+              data_source: 'yamas',
+              description: 'test desc',
             },
-            visual: {},
-            legend: {
-              display: true,
-              position: 'right'
-            },
-            axes: {
-              y1: {},
-              y2: {}
-            }
-          },
-          groups: [
-            {
-              id: 'gaga',
-              title: 'group 2',
+            query: {
               settings: {
-                visual: {
-                  visible: true
+                time: {
+                    overrideRelativeTime: '',
+                    shiftTime: '',
+                    downsample: {
+                        value: '1m',
+                        aggregator: 'sum',
+                        customValue: '',
+                        customUnit: ''
+                    }
+                },
+                visual: {},
+                legend: {
+                    display: true,
+                    position: 'right'
+                },
+                axes: {
+                    y1: {},
+                    y2: {}
                 }
               },
-              queries: [
+              groups: [
                 {
-                  metric: 'SNMP-Net.intercolo.avg_latency',
-                  filters: [
-                    {
-                      type: 'wildcard',
-                      tagk: 'host',
-                      filter: '*',
-                      groupBy: true
-                    }
-                  ],
-                  aggregator: 'zimsum',
-                  explicitTags: false,
-                  rate: false,
-                  rateOptions: {
-                    counter: false,
-                    resetValue: 1
-                  },
+                  id: 'gaga',
+                  title: 'group 2',
                   settings: {
                     visual: {
-                      color: "#FF0000",
-                      type: 'line',
-                      label: "yahoo"
+                      visible: true
                     }
-                  }
+                  },
+                  queries: [
+                    {
+                      metric: 'SNMP-Net.intercolo.avg_latency',
+                      filters: [
+                        {
+                          type: 'wildcard',
+                          tagk: 'host',
+                          filter: '*',
+                          groupBy: true
+                        }
+                      ],
+                      aggregator: 'zimsum',
+                      explicitTags: false,
+                      rate: false,
+                      rateOptions: {
+                        counter: false,
+                        resetValue: 1
+                      },
+                      settings: {
+                        visual: {
+                            color: "#FF0000",
+                            type: 'line',
+                            label: "yahoo",
+                            visible: true
+                        }
+                      }
+                    }
+                  ]
                 }
               ]
             }
-          ]
-        }
-      },
-      {
-        id: 'cdft',
-        gridPos: { x: 6, y: 6, w: 6, h: 5 },
-        settings: {
-          title: 'my widget second title',
-          component_type: 'LinechartWidgetComponent',
-          data_source: 'yamas'
-        },
-        query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
-          settings: {
-            time: {
-                overrideRelativeTime: '',
-                shiftTime: '',
-                downsample: {
-                    value: '1h',
-                    aggregator: 'sum',
-                    customValue: '',
-                    customUnit: ''
-                }
-            },
-            visual: {},
-            axes: {
-                y1: {},
-                y2: {}
-            },
-            legend: {}
           },
-          groups: [
-            {
-              id: 'werd',
-              title: 'group 2',
+          {
+            id: 'cdft',
+            gridPos: { x: 6, y: 5, w: 6, h: 5 },
+            settings: {
+              title: 'my widget second title',
+              component_type: 'LinechartWidgetComponent',
+              data_source: 'yamas'
+            },
+            query: {
               settings: {
-                visual: {
-                  visible: true
-                }
-              },
-              queries: [
-                {
-                  metric: 'SNMP-Net.intercolo.avg_latency',
-                  filters: [
-                    {
-                      type: 'wildcard',
-                      tagk: 'host',
-                      filter: '*',
-                      groupBy: false
+                time: {
+                    overrideRelativeTime: '',
+                    shiftTime: '',
+                    downsample: {
+                        value: '1m',
+                        aggregator: 'sum',
+                        customValue: '',
+                        customUnit: ''
                     }
-                  ],
-                  aggregator: 'zimsum',
-                  explicitTags: false,
-                  rate: false,
-                  rateOptions: {
-                    counter: false,
-                    resetValue: 1
-                  },
+                },
+                visual: {},
+                axes: {
+                    y1: {},
+                    y2: {}
+                },
+                legend: {}
+              },
+              groups: [
+                {
+                  id: 'werd',
+                  title: 'group 2',
                   settings: {
                     visual: {
-                        color: "#000000",
-                        type: 'line',
-                        label: "yahoo"
-                    },
-                    visible: true
-                  }
+                      visible: true
+                    }
+                  },
+                  queries: [
+                    {
+                      metric: 'SNMP-Net.intercolo.avg_latency',
+                      filters: [
+                        {
+                          type: 'wildcard',
+                          tagk: 'host',
+                          filter: '*',
+                          groupBy: false
+                        }
+                      ],
+                      aggregator: 'zimsum',
+                      explicitTags: false,
+                      rate: false,
+                      rateOptions: {
+                        counter: false,
+                        resetValue: 1
+                      },
+                      settings: {
+                        visual: {
+                            color: "#000000",
+                            type: 'line',
+                            label: "yahoo",
+                            visible: true
+                        },
+                      }
+                    }
+                  ]
                 }
               ]
             }
-          ]
-        }
-      },
+          },
       {
         id: 'multigroup',
-        gridPos: { x: 0, y: 11, w: 12, h: 5 },
+        gridPos: { x: 0, y: 11, w: 6, h: 5 },
         settings: {
           title: 'my widget third title',
           component_type: 'LinechartWidgetComponent',
           data_source: 'yamas'
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',
                 shiftTime: '',
                 downsample: {
-                    value: '1h',
+                    value: '1m',
                     aggregator: 'sum',
                     customValue: '',
                     customUnit: ''
@@ -422,9 +409,9 @@ export class HttpService {
                     visual: {
                         color: "#000000",
                         type: 'line',
-                        label: "yahoo"
+                        label: "yahoo",
+                        visible: true
                     },
-                    visible: true
                   }
                 }
               ]
@@ -459,9 +446,9 @@ export class HttpService {
                     visual: {
                         color: "#0000FF ",
                         type: 'line',
-                        label: "yahoo"
+                        label: "yahoo",
+                        visible: true
                     },
-                    visible: true
                   }
                 }
               ]
@@ -471,22 +458,19 @@ export class HttpService {
       },
       {
         id: 'bar',
-        gridPos: { x: 4, y: 3, w: 4, h: 3 },
+        gridPos: { x: 6, y: 11, w: 6, h: 5 },
         settings: {
           title: 'Flickr CPU Speed',
           component_type: 'BarchartWidgetComponent',
           data_source: 'yamas',
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',
                 shiftTime: '',
                 downsample: {
-                    value: '1h',
+                    value: '1m',
                     aggregator: 'sum',
                     customValue: '',
                     customUnit: ''
@@ -614,22 +598,19 @@ export class HttpService {
       },
       {
         id: 'sbar',
-        gridPos: { x: 0, y: 3, w: 4, h: 3 },
+        gridPos: { x: 0, y: 11, w: 6, h: 5 },
         settings: {
           title: 'Flickr Application - CPU Speed by colo',
           component_type: 'StackedBarchartWidgetComponent',
           data_source: 'yamas'
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',
                 shiftTime: '',
                 downsample: {
-                    value: '1h',
+                    value: '1m',
                     aggregator: 'sum',
                     customValue: '',
                     customUnit: ''
@@ -907,22 +888,19 @@ export class HttpService {
       },
       {
         id: 'donut',
-        gridPos: { x: 8, y: 3, w: 4, h: 3 },
+        gridPos: { x: 6, y: 16, w: 6, h: 5 },
         settings: {
           title: 'Flickr CPU Speed',
           component_type: 'DonutWidgetComponent',
           data_source: 'yamas'
         },
         query: {
-          start: '1h-ago',
-          end: '',
-          downsample: '1m-avg-nan',
           settings: {
             time: {
                 overrideRelativeTime: '',
                 shiftTime: '',
                 downsample: {
-                    value: '1h',
+                    value: '1m',
                     aggregator: 'sum',
                     customValue: '',
                     customUnit: ''

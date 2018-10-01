@@ -14,6 +14,15 @@
                 </mat-error>
             </div>
         </div>
+        <div class="config-control inline-controls" *ngIf="showAxis">
+            <label class="fixed-label">Axis</label>
+            <div class="form-field-group">
+                    <mat-radio-group  formControlName="axis">
+                        <mat-radio-button   value="y1">Y1</mat-radio-button>
+                        <mat-radio-button   value="y2">Y2</mat-radio-button>
+                    </mat-radio-group>
+            </div>
+        </div>
         <div class="config-control inline-controls">
             <label class="fixed-label">Color</label>
             <div class="form-field-group">

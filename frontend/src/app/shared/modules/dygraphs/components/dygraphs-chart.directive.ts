@@ -34,7 +34,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         if (data.x == null) {
             return '<li>' + data.series.map(function(series) { return series.dashHTML + ' ' + series.labelHTML }).join('<li>');
         }
-
         let html = '<p>' + this.getLabels()[0] + ': ' + data.xHTML + '</p>';
         data.series.forEach(function(series) {
             if (!series.isVisible) {
@@ -83,13 +82,20 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 const precision = format.precision ? format.precision : 2;
                 return _self.uConverter.format(value, { unit: format.unit, precision: precision } );
         };
+        const valueFormatter = function(value, opts) {
+            const format = opts('tickFormat');
+            const precision = format.precision ? format.precision : 2;
+            return _self.uConverter.format(value, { unit: format.unit, precision: precision } );
+        };
         if ( options.axes ) {
             for ( const k of Object.keys(options.axes) ) {
                 const axis = options.axes[k];
                         if ( axis.tickFormat ) {
                             axis.axisLabelFormatter = tickFormatter;
+                            axis.valueFormatter = valueFormatter;
                         } else {
                             delete axis.axisLabelFormatter;
+                            delete axis.valueFormatter;
                         }
             }
         }
