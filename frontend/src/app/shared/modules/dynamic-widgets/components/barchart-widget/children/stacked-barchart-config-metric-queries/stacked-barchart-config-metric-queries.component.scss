@@ -26,10 +26,6 @@
             }
         }
 
-        .flex-spacer {
-            flex: 1 1 auto;
-        }
-
         // config section that shows the selected metrics
         .query-metrics-section {
             @include has-scroller();

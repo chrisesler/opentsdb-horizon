@@ -12,13 +12,19 @@ import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
 import { ISelectedTime } from '../../../shared/modules/date-time-picker/models/models';
-import { UtilsService } from '../../../shared/modules/date-time-picker/services/utils.service'
+import { UtilsService } from '../../../shared/modules/date-time-picker/services/utils.service';
 
 import { DBState, LoadDashboard } from '../../state/dashboard.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, WidgetModel} from '../../state/widgets.state';
 import { WidgetsRawdataState, GetQueryDataByGroup } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
-import { DBSettingsState, UpdateMode, UpdateDashboardTime, LoadDashboardSettings, UpdateDashboardTimeZone} from '../../state/settings.state';
+import {
+    DBSettingsState,
+    UpdateMode,
+    UpdateDashboardTime,
+    LoadDashboardSettings,
+    UpdateDashboardTimeZone
+} from '../../state/settings.state';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
 
@@ -192,7 +198,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbTime$.subscribe ( t => {
-            console.log("___DBTIME___", JSON.stringify(this.dbTime), JSON.stringify(t));
+            console.log('___DBTIME___', JSON.stringify(this.dbTime), JSON.stringify(t));
 
             if ( this.dbTime && this.dbTime.zone !== t.zone ) {
                 this.interCom.responsePut({
@@ -261,7 +267,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const group: any = payload.groups[i];
             groupid = group.id;
             // set downsample
-            for ( let j = 0; j< group.queries.length; j++ ) {
+            for ( let j = 0; j < group.queries.length; j++ ) {
                 group.queries[j].downsample = downsample;
             }
             // format for opentsdb query

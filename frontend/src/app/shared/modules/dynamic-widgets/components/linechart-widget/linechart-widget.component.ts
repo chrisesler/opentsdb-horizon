@@ -45,7 +45,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         connectSeparatedPoints: true,
         drawPoints: false,
         //  labelsDivWidth: 0,
-        //legend: 'follow',
+        // legend: 'follow',
         logscale: true,
         digitsAfterDecimal: 2,
         stackedGraph: this.isStackedGraph,
@@ -230,9 +230,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         // let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
         let nHeight = this.editMode ? 300 : this.widgetOutputElement.nativeElement.offsetHeight;
         nHeight = nHeight * hm;
-        //const titleSpace = this.editMode ? 30 : 0;
+        // const titleSpace = this.editMode ? 30 : 0;
         this.size = { width: nWidth - 24, height: nHeight - 50 };
-        //console.log("sie", nWidth, nHeight, wm, hm, this.size);
+        // console.log("sie", nWidth, nHeight, wm, hm, this.size);
     }
 
     setTimezone(timezone) {
@@ -277,7 +277,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             // move series from y2 to y1 if y2 is disabled
             if ( this.options.series &&  axisKeys[i] === 'y2' && !config.enabled) {
                 for ( let k in this.options.series ) {
-                    this.options.series[k].axis = 'y';
+                    if (this.options.series[k]) {
+                        this.options.series[k].axis = 'y';
+                    }
                 }
                 const groups = this.widget.query.groups;
                 for ( let m = 0; m < groups.length; m++ ) {
@@ -352,6 +354,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     setVisualization( gIndex, configs ) {
 
         configs.forEach( (config, i) => {
+            // tslint:disable-next-line:max-line-length
             this.widget.query.groups[gIndex].queries[i].settings.visual = { ...this.widget.query.groups[gIndex].queries[i].settings.visual, ...config };
         });
 
@@ -369,7 +372,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 this.widget.query.settings.axes.y2.enabled = true;
             }
             if ( vConfig.type === 'bar' ) {
-                //this.options.series[label].plotter = multiColumnGroupPlotter;
+                // this.options.series[label].plotter = multiColumnGroupPlotter;
             }
         }
         console.log('set visual', this.options);
@@ -389,6 +392,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setLegendDiv() {
+        // NOTE: This is a weird way to do this. Do we really need 4 different divs for legen position? Just style the one.
         const lConfig = this.widget.query.settings.legend;
         this.options.labelsDiv = null;
         this.options.legend = 'follow';
@@ -471,7 +475,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             this.widget.query.groups = groups;
             this.widget = { ...this.widget };
         }
-        console.log("___MERGE METRICS___",  groups, cntMergedQueries);
+        console.log('___MERGE METRICS___',  groups, cntMergedQueries);
     }
 
     splitMetrics(groups) {
@@ -507,7 +511,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         for ( let i = groups.length - 1; i >= 0; i-- ) {
             const group = groups[i];
             const queries = group.queries;
-            //group delete 
+            // group delete 
             if ( group.settings.tempUI.selected === 'all' ) {
                 groups.splice( i, 1 );
                 deletedMetrics = true;

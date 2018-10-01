@@ -1,9 +1,38 @@
 <form [formGroup]="formGroups">
-    <div class="column" *ngFor="let threshold of thresholds; let index=index" [formGroupName]="index">
-        <div class="config-control with-enable-label">
-            <label>Threshold-{{index+1}}</label>
+    <div class="column threshold-container" *ngFor="let threshold of thresholds; let index=index" [formGroupName]="index">
+        <span class="mat-label mat-body-strong">Threshold-{{index+1}}</span>
+        <div class="config-control value-control">
+            <span class="mat-label">Value</span>
+            <mat-form-field appearance="fill" color="primary">
+                <input  matInput [formControlName]="value">
+                <mat-error *ngIf="formGroups.controls[index].controls.value.invalid">
+                        Number only.
+                </mat-error>
+            </mat-form-field>  
         </div>
-        <div class="config-control inline-controls">
+        <div class="config-control axis-control" *ngIf="showAxis">
+            <span class="mat-label">Axis</span>
+            <mat-radio-group  formControlName="axis">
+                <mat-radio-button value="y1">Y1</mat-radio-button>
+                <mat-radio-button value="y2">Y2</mat-radio-button>
+            </mat-radio-group>
+        </div>
+        <div class="config-control color-control">
+            <span class="mat-label">Color</span>
+            <color-picker  (newColor)="selectColor($event,index)" [color]="threshold.lineColor"></color-picker>
+        </div>
+        <div class="config-control size-control">
+            <span class="mat-label">Size</span>
+            <dropdown-line-weight formControlName="lineWeight"></dropdown-line-weight>
+        </div>
+        <div class="config-control pattern-control">
+            <span class="mat-label">Pattern</span>
+            <dropdown-line-type formControlName="lineType"></dropdown-line-type>
+        </div>
+
+
+
+        <!--<div class="config-control inline-controls">
             <label class="fixed-label">Value</label>
             <div class="form-field-group">
                 <mat-form-field appearance="fill" color="primary">
@@ -40,6 +69,6 @@
             <div class="form-field-group">
                     <dropdown-line-type  formControlName="lineType"></dropdown-line-type>
             </div>
-        </div>
+        </div>-->
     </div>
 </form>

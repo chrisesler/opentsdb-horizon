@@ -2,9 +2,12 @@
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
 @mixin widget-config-general-component-base() {
+
+    $default-padding: map-get($widgets-common-config, default-padding);
+
     .widget-config-tab.general-configuration {
 
-        margin-top: map-get($widgets-common-config, default-padding);
+        margin-top: ($default-padding * 2);
         
         // title input
         .config-widget-title {

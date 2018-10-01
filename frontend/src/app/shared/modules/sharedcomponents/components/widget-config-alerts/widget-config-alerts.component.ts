@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs/Subscription';
 export class WidgetConfigAlertsComponent implements OnInit, OnChanges, OnDestroy {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.alerts-configuration') private _tabClass = true;
+    @HostBinding('class.has-columns') private _modifierClass = true;
 
     /** Inputs */
     @Input() widget: any;
