@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef, DialogPosition, MatSort, MatTableDataSou
 
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
 import { HttpService } from '../../../../../core/http/http.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
@@ -129,11 +129,9 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         this.filteredNamespaceOptions = this.namespaceControl.valueChanges
             .pipe(
                 startWith(''),
-                map(val => this.filterNamespace(val))
+                debounceTime(300),
+                switchMap(value => this.httpService.getNamespaces({ searchPattern: value}))
             );
-        this.httpService.getMetrics({namespace: 'mail-jedi', searchPattern: 'sys'}).subscribe(res => {
-            console.log('metric results=', res);
-        });
     }
 
     ngOnDestroy() { }
@@ -162,8 +160,13 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     // when user hit enter to search
     submitSearch(event: any) {
         this.queryObj.term = this.searchQueryControl.value;
+        const queryObj = {
+                            namespace: this.selectedNamespace,
+                            searchPattern: this.searchQueryControl.value
+                        };
+
         if (this.queryObj.term !== '') {
-            this.httpService.searchMetrics(this.queryObj).subscribe(
+            this.httpService.searchMetrics(queryObj).subscribe(
                 resp => {
                     console.log('resp', resp);
                     this.resultCount = resp.raw.length;
