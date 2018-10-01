@@ -39,6 +39,7 @@ import { NavbarTimezoneToggleComponent } from './components/navbar-timezone-togg
 import { NavbarSearchToggleComponent } from './components/navbar-search-toggle/navbar-search-toggle.component';
 import { SearchAllDialogComponent } from './components/search-all-dialog/search-all-dialog.component';
 import { DropdownAggregatorsComponent } from './components/dropdown-aggregators/dropdown-aggregators.component';
+import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropdown-unit-type.component';
 
 
 
@@ -76,7 +77,8 @@ import { DropdownAggregatorsComponent } from './components/dropdown-aggregators/
         NavbarTimezoneToggleComponent,
         NavbarSearchToggleComponent,
         SearchAllDialogComponent,
-        DropdownAggregatorsComponent
+        DropdownAggregatorsComponent,
+        DropdownUnitTypeComponent
     ],
     exports: [
         SearchMetricsDialogComponent,

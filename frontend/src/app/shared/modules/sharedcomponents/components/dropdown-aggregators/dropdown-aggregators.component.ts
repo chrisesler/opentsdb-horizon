@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 @Component({
   selector: 'dropdown-aggregators',
   templateUrl: './dropdown-aggregators.component.html',
-  styleUrls: ['./dropdown-aggregators.component.scss'],
+  styleUrls: [],
   providers: [{
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(() => DropdownAggregatorsComponent),

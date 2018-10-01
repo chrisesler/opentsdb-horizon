@@ -1,4 +1,5 @@
-import  { State, Action, StateContext, Selector } from '@ngxs/store';
+import { State, Action, StateContext, Selector } from '@ngxs/store';
+
 export interface DBSettingsModel {
     title: string;
     mode: string;

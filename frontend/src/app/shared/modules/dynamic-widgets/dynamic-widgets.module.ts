@@ -12,20 +12,29 @@ import { SharedcomponentsModule } from '../sharedcomponents/sharedcomponents.mod
 import { PlaceholderWidgetComponent } from './components/placeholder-widget/placeholder-widget.component';
 import { LinechartWidgetComponent } from './components/linechart-widget/linechart-widget.component';
 import { DeveloperWidgetComponent } from './components/developer-widget/developer-widget.component';
-import { BignumberWidgetComponent } from './components/bignumber-widget/bignumber-widget.component';
-// tslint:disable-next-line:max-line-length
-import { BignumberVisualAppearanceComponent } from './components/bignumber-widget/children/big-number-visual-appearance/big-number-visual-appearance.component';
-import { DonutWidgetComponent } from './components/donut-widget/donut-widget.component';
-import { StatusWidgetComponent } from './components/status-widget/status-widget.component';
-import { BarchartWidgetComponent, StackedBarchartWidgetComponent } from './components/barchart-widget/barchart-widget.component';
-import { StackedBarchartVisualAppearanceComponent } from './components/barchart-widget/children/stacked-barchart-visual-appearance/stacked-barchart-visual-appearance.component';
-import { DonutchartLegendComponent } from './components/donut-widget/children/donutchart-legend/donutchart-legend.component';
-import { DonutchartConfigMetricQueriesComponent } from './components/donut-widget/children/donutchart-config-metric-queries/donutchart-config-metric-queries.component';
-import { BarchartConfigMetricQueriesComponent } from './components/barchart-widget/children/barchart-config-metric-queries/barchart-config-metric-queries.component';
-import { BignumberConfigMetricQueriesComponent } from './components/bignumber-widget/children/bignumber-config-metric-queries/bignumber-config-metric-queries.component';
-import { StackedBarchartConfigMetricQueriesComponent } from './components/barchart-widget/children/stacked-barchart-config-metric-queries/stacked-barchart-config-metric-queries.component';
-import { DropdownStacksComponent } from './components/barchart-widget/children/dropdown-stacks/dropdown-stacks.component';
 
+import {
+    BignumberWidgetComponent,
+    BignumberVisualAppearanceComponent,
+    BignumberConfigMetricQueriesComponent
+} from './components/bignumber-widget';
+
+import {
+    DonutWidgetComponent,
+    DonutchartLegendComponent,
+    DonutchartConfigMetricQueriesComponent
+} from './components/donut-widget';
+
+import {
+    BarchartWidgetComponent,
+    StackedBarchartWidgetComponent,
+    StackedBarchartVisualAppearanceComponent,
+    BarchartConfigMetricQueriesComponent,
+    StackedBarchartConfigMetricQueriesComponent,
+    DropdownStacksComponent
+} from './components/barchart-widget';
+
+import { StatusWidgetComponent } from './components/status-widget/status-widget.component';
 
 @NgModule({
     imports: [

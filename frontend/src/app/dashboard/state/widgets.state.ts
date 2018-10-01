@@ -102,7 +102,7 @@ export class WidgetsState {
     updateGridPos(ctx: StateContext<WidgetModel[]>, { gridpos }: UpdateGridPos) {
         const state = ctx.getState();
         for (let i = 0; i < state.length; i++) {
-            state[i].gridPos = {...state[i].gridPos, ...gridpos[state[i].id]}
+            state[i].gridPos = {...state[i].gridPos, ...gridpos[state[i].id]};
         }
         ctx.setState(state);
     }

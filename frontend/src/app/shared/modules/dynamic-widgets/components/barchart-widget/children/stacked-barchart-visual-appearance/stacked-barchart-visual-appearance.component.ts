@@ -1,10 +1,12 @@
 import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@angular/core';
 
 import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+
 import { Subscription } from 'rxjs/Subscription';
 
 
 @Component({
+  // tslint:disable-next-line:component-selector
   selector: 'stacked-barchart-visual-appearance',
   templateUrl: './stacked-barchart-visual-appearance.component.html',
   styleUrls: ['./stacked-barchart-visual-appearance.component.scss']
@@ -34,7 +36,7 @@ export class StackedBarchartVisualAppearanceComponent implements OnInit {
         this.displayControl = new FormControl(this.widget.query.settings.visual.type || 'vertical');
 
         this.displayControl.valueChanges.subscribe( d => {
-            console.log("display changed", d );
+            console.log('display changed', d );
             this.widgetChange.emit( {'action': 'ChangeVisualization', payload: { type: d }});
         });
 

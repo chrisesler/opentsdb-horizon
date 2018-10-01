@@ -5,7 +5,10 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
 // NOTE: These styles cover ALL of the widget config panels generic classes.
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 @mixin widget-config-common-base() {
-
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-padding: map-get($widgets-common-config, edit-padding);
+    $edit-toolbar-height: map-get($widgets-common-config, edit-toolbar-height);
+    
     $action-bar-height: 30px;
     $flex-gap: 10px;
   
@@ -22,18 +25,26 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
         // possibly re-usable within a widget-config-tab
         .config-toolbar {
             height: auto;
-            padding: 0;
+            padding: 0 $edit-padding;
+            flex: 1 0 $edit-toolbar-height;
+            align-items: stretch;
+            justify-content: stretch;
 
             &.mat-toolbar-multiple-rows {
                 min-height: auto;
             }
 
             .mat-toolbar-row {
-                height: auto;
+                height: 100%;
+                align-items: inherit;
                 padding: 0;
             }
     
             .toolbar-item {
+                display: inline-flex;
+                align-items: center;
+                font-size: 14px;
+
                 &:not(:last-child) {
                     margin-right: 10px;
                 }
@@ -66,8 +77,6 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
                     padding-left: 8px;
                 }
             }
-
-           
         }
 
         // should be on an element that wraps a form element, like a <p> tag
@@ -88,18 +97,15 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
                 // debugging
                 //background-color: rgba(255,255,255,.15);
             }
-
-            //.column:not(:last-child) {}
-
         }
-
-        // specific tab overrides are in their own component style sheet
+        // NOTE: specific tab overrides are in their own component style sheet
        
     }
 
     // CUSTOM ELEMENT STYLES
-
     .button-group {
+        display: flex;
+        
         .mat-button,
         .mat-raised-button,
         .mat-stroked-button {
@@ -168,6 +174,9 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
     $background: map-get($theme-config, background);
     $is-dark: map-get($theme-config, is-dark);
     
+    $divider: rgba(map-get($foreground, divider), .05);
+
+    $edit-toolbar-border-width: map-get($widgets-common-config, edit-toolbar-border-width);
 
     // ** Config tab CONTENT ** //
     .widget-config-tab {
@@ -178,8 +187,12 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
             background: transparent;
         }
 
+        .config-toolbar {
+            border-bottom: $edit-toolbar-border-width solid $divider;
+        }
+
         .query-item:not(:last-child) {
-            border-bottom: 1px solid map-get($foreground, dividers);
+            border-bottom: 1px solid $divider;
         }
 
         // specific tab overrides are in their own component style sheet
@@ -204,7 +217,6 @@ COMMON STYLES FOR WIDGET CONFIG PANELS
         }
 
     }
-
 
     .sliding-button-group.mat-tab-nav-bar {
         background-color: if($is-dark, rgba(map-get($foreground, base), .1), lighten(map-get($primary, 50), 2%));
