@@ -18,6 +18,7 @@ export interface IDygraphOptions {
     width?: number;
     height?: number;
     labels?: any;
+    labelsUTC?: boolean;
     labelsDivWidth?: number; // width for label legend
     digitsAfterDecimal?: number;
     connectSeparatedPoints?: boolean;

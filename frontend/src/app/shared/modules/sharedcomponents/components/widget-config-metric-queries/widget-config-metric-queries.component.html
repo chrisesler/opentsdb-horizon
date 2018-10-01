@@ -47,7 +47,7 @@
 <div class="query-metrics-section">
     <div class="query-metrics-wrap">
         <mat-accordion class="query-group-list mat-elevation-z0" [ngClass]="{'items-selected': selectAllToggle !== 'none'}" displayMode="flat" [multi]="true" [hideToggle]="false">
-            <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [expanded]="true" *ngFor="let group of widget.query.groups ">
+            <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [expanded]="true" *ngFor="let group of widget.query.groups; let gIndex=index">
                 <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
                     <div class="group-selector">
                         <!--<mat-checkbox class="group-checkbox"></mat-checkbox>-->
@@ -76,20 +76,20 @@
                             <button mat-button color="primary" (click)="openMetricExpressionDialog(group); $event.stopPropagation()">Expression</button>
                         </span>
                         <span class="toolbar-action-icons">
-                            <button mat-icon-button color="primary" (click)="toggle_queryGroupVisibility(group, $event); $event.stopPropagation()">
-                                <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="group.visible"></mat-icon>
-                                <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!group.visible"></mat-icon>
+                            <button mat-icon-button color="primary" (click)="toggleGroup(gIndex); $event.stopPropagation()">
+                                <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="group.settings.visual.visible"></mat-icon>
+                                <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!group.settings.visual.visible"></mat-icon>
                             </button>
-                            <button mat-icon-button color="primary" (click)="clone_queryGroup(group, $event)">
+                            <!--<button mat-icon-button color="primary" (click)="clone_queryGroup(group, $event)">
                                 <mat-icon fontSet="denali" fontIcon="d-duplicate" class="mat-icon-rtl-mirror"></mat-icon>
-                            </button>
-                            <button mat-icon-button color="primary" (click)="delete_queryGroup(group, $event)">
+                            </button>-->
+                            <button mat-icon-button color="primary" (click)="deleteGroup(gIndex); $event.stopPropagation()">
                                 <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                             </button>
                         </span>
                     </mat-toolbar>
                 </mat-expansion-panel-header>
-                <div class="query-metric-row" *ngFor="let query of group.queries">
+                <div class="query-metric-row" *ngFor="let query of group.queries; let index=index">
                     <div class="metric-selector">
                         <button mat-icon-button class="group-checkbox" color="primary" (click)="toggle_metricSelected(query, group, $event)">
                             <mat-icon>{{ (query.settings.selected) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
@@ -111,14 +111,14 @@
                         -->
                             <span class="flex-spacer"></span>
                             <span class="action-icons">
-                                <button mat-icon-button color="primary" (click)="toggle_queryItemVisibility(query, $event)">
+                                <button mat-icon-button color="primary" (click)="toggleGroupQuery(gIndex, index); $event.stopPropagation();">
                                     <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
                                     <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
                                 </button>
-                                <button mat-icon-button color="primary" (click)="clone_queryItem(query, $event)">
+                                <!--<button mat-icon-button color="primary" (click)="clone_queryItem(query, $event)">
                                     <mat-icon fontSet="denali" fontIcon="d-duplicate" class="mat-icon-rtl-mirror"></mat-icon>
-                                </button>
-                                <button mat-icon-button color="primary" (click)="delete_queryItem(query, $event)">
+                                </button>-->
+                                <button mat-icon-button color="primary" (click)="deleteGroupQuery(gIndex, index); $event.stopPropagation();">
                                     <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                                 </button>
                             </span>

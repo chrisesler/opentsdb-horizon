@@ -43,7 +43,7 @@ var Thresholds= function() {
       ctx.lineDashOffset = 0;
 
       ctx.beginPath();
-      var y = !threshold.scaleId || threshold.scaleId === 'y' ? g.toDomYCoord(threshold.value) : g.toDomY2Coord(threshold.value);
+      var y = !threshold.scaleId || threshold.scaleId === 'y' ? g.toDomYCoord(threshold.value) : g.toDomYCoord(threshold.value,1);
       var a = g.getArea();
       ctx.moveTo(a.x, y);
       ctx.lineTo(a.x + a.w, y);

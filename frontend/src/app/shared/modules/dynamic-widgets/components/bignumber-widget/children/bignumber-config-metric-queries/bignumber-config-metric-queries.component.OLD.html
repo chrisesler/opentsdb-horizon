@@ -1,7 +1,7 @@
 <mat-toolbar class="config-toolbar time-series-toolbar">
         <mat-toolbar-row>
             <div class="toolbar-item">
-                <button class="mat-elevation-z0" mat-stroked-button color="primary"  (click)="openTimeSeriesMetricDialog()">
+                <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="openTimeSeriesMetricDialog()">
                     <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
                     <span>Add Query</span>
                 </button>
@@ -9,49 +9,46 @@
         </mat-toolbar-row>
     </mat-toolbar>
     <div class="query-metrics-section" *ngIf="widget.query.groups.length!==0">
-        <div class="query-metrics-wrap">
-            <mat-accordion class="query-group-list mat-elevation-z0" [ngClass]="{'items-selected': selectAllToggle !== 'none'}" displayMode="flat"
-                [multi]="true" [hideToggle]="false">
-                <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [expanded]="true" *ngFor="let group of widget.query.groups ">
-                    <div class="query-metric-row" *ngFor="let query of group.queries;let index=index">
-                        <div class="query-metric-item">
-                            <div class="metric-detail">
-                                <div class="metric-name">{{ query.metric }}</div>
-                                <div class="metric-visual">
-                                    <div class="label"> {{ query.settings.visual.stackLabel }} </div>
-                                    <div class="aggregator">
-                                        <strong>Value:</strong>
-                                        <dropdown-aggregators [value]="query.settings.visual.aggregator" (change)="setAggregator(index,$event)"></dropdown-aggregators>
+            <div class="query-metrics-wrap">
+                <mat-accordion class="query-group-list mat-elevation-z0" [ngClass]="{'items-selected': selectAllToggle !== 'none'}" displayMode="flat" [multi]="true" [hideToggle]="false">
+                    <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [expanded]="true" *ngFor="let group of widget.query.groups ">
+                        <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
+                            <div class="group-selector">
+                            </div>
+                        </mat-expansion-panel-header>
+                        
+                        <mat-radio-button class="query-metric-row" *ngFor="let query of group.queries;let index=index" [checked]="this.widget.query.settings.visual.queryID == index" (change)="querySelected(index)">
+                            <div class="query-metric-item">
+                                <div class="metric-detail">
+                                    <div class="metric-name">{{ query.metric }}</div>
+                                    <div class="metric-visual">
+                                        <div class="label"> {{ query.settings.visual.stackLabel }} </div>
+                                        <div class="aggregator"><strong>Value:</strong> <dropdown-aggregators [value]="query.settings.visual.aggregator" (change)="setAggregator(index,$event)"></dropdown-aggregators></div>
+                                    </div>
+                                    <div class="metric-tags">
+                                        <strong>Tags:</strong>
+                                        <mat-chip-list>
+                                            <mat-basic-chip *ngFor="let tag of query.filters"><span>{{ tag.tagk }}:</span> <strong>{{ tag.filter }}</strong></mat-basic-chip>
+                                        </mat-chip-list>
                                     </div>
                                 </div>
-                                <div class="metric-tags">
-                                    <strong>Tags:</strong>
-                                    <mat-chip-list>
-                                        <mat-basic-chip *ngFor="let tag of query.filters">
-                                            <span>{{ tag.tagk }}:</span>
-                                            <strong>{{ tag.filter }}</strong>
-                                        </mat-basic-chip>
-                                    </mat-chip-list>
+                                <div class="metric-action">
+                                    <span class="action-icons">
+                                        <!-- <button mat-icon-button color="primary" (click)="toggleQuery(index)">
+                                            <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
+                                            <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
+                                        </button> -->
+                                        <!--<button mat-icon-button color="primary" (click)="clone_queryItem(query, $event)">
+                                            <mat-icon fontSet="denali" fontIcon="d-duplicate" class="mat-icon-rtl-mirror"></mat-icon>
+                                        </button>-->
+                                        <button mat-icon-button color="primary" (click)="deleteQuery(index)">
+                                            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                        </button>
+                                    </span>
                                 </div>
                             </div>
-                            <div class="metric-action">
-                                <span class="action-icons">
-                                    <button mat-icon-button color="primary" (click)="toggleQuery(index)">
-                                        <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
-                                        <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
-                                    </button>
-                                    <!--<button mat-icon-button color="primary" (click)="clone_queryItem(query, $event)">
-                                        <mat-icon fontSet="denali" fontIcon="d-duplicate" class="mat-icon-rtl-mirror"></mat-icon>
-                                    </button>-->
-                                    <button mat-icon-button color="primary" (click)="deleteQuery(index)">
-                                        <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </mat-expansion-panel>
-            </mat-accordion>
-        </div>
+                        </mat-radio-button>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
     </div>
-    

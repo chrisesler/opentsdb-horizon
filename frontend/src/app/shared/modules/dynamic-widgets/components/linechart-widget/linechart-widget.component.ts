@@ -6,10 +6,11 @@ import {
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
+import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
 
 
 import { Subscription } from 'rxjs/Subscription';
-import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
+import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import multiColumnGroupPlotter from '../../../../../shared/dygraphs/plotters';
 
@@ -40,6 +41,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     options: IDygraphOptions = {
         labels: ['x'],
+        labelsUTC: false,
         connectSeparatedPoints: true,
         drawPoints: false,
         //  labelsDivWidth: 0,
@@ -77,7 +79,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         private interCom: IntercomService,
         private dataTransformer: DatatranformerService,
         private util: UtilsService,
-        private elRef: ElementRef
+        private elRef: ElementRef,
+        private unit: UnitConverterService
     ) { }
 
     ngOnInit() {
@@ -85,15 +88,26 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 // subscribe to event stream
                 this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
 
-                    if (message.action === 'resizeWidget') {
-                        this.setSize();
+                    switch( message.action ) {
+                        case 'resizeWidget':
+                            this.setSize();
+                            break;
+                        case 'reQueryData':
+                            this.refreshData();
+                            break;
+                        case 'TimezoneChanged':
+                            this.setTimezone(message.payload);
+                            this.options = {...this.options};
+                            break;
                     }
+
                     if (message && (message.id === this.widget.id)) {
                         switch (message.action) {
                             case 'updatedWidgetGroup':
                                 if (this.widget.id === message.id) {
                                     this.isDataLoaded = true;
-                                    const rawdata = message.payload;
+                                    const rawdata = message.payload.rawdata;
+                                    this.setTimezone(message.payload.timezone);
                                     this.setLegendDiv();
                                     this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
                                 }
@@ -106,10 +120,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 if (!this.editMode) {
                     this.requestData();
                 } else {
-                    this.interCom.requestSend({
-                        id: this.widget.id,
-                        action: 'getWidgetCachedData'
-                    });
+                    this.setSize();
+                    this.requestCachedData();
                 }
     }
 
@@ -129,13 +141,42 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 this.setVisualization( message.payload.gIndex, message.payload.data );
                 break;
             case 'SetAlerts':
-                this.setAlerts(message.payload.data);
+                this.widget.query.settings.thresholds = message.payload.data;
+                this.setAlertOption();
+                this.options = { ...this.options };
                 break;
             case 'SetAxes' :
-                this.setAxes(message.payload.data);
+                this.updateAlertValue(message.payload.data.y1);
+                this.widget.query.settings.axes = { ...this.widget.query.settings.axes, ...message.payload.data };
+                this.setAxesOption();
+                this.options = { ...this.options };
                 break;
             case 'SetLegend':
                 this.setLegend(message.payload.data);
+                break;
+            case 'MergeMetrics':
+                this.mergeMetrics(message.payload.data);
+                this.refreshData();
+                break;
+            case 'SplitMetrics':
+                this.splitMetrics(message.payload.data);
+                this.refreshData();
+                break;
+            case 'DeleteMetrics':
+                this.deleteMetrics(message.payload.data);
+                this.refreshData(false);
+                break;
+            case 'ToggleGroup':
+                this.toggleGroup(message.payload.gIndex);
+                break;
+            case 'ToggleGroupQuery':
+                this.toggleGroupQuery(message.payload.gIndex, message.payload.index);
+                break;
+            case 'DeleteGroup':
+                this.deleteGroup(message.payload.gIndex);
+                break;
+            case 'DeleteGroupQuery':
+                this.deleteGroupQuery(message.payload.gIndex, message.payload.index);
                 break;
         }
     }
@@ -144,7 +185,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         let gid = gConfig.id;
 
         if ( gid === 'new' ) {
-            const g = this.addNewGroup();
+            const g = this.createNewGroup();
+            this.widget.query.groups.push(g);
             gid = g.id;
         }
 
@@ -152,7 +194,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         config.queries = config.queries.concat(gConfig.queries);
     }
 
-    addNewGroup() {
+    createNewGroup() {
         const gid = this.util.generateId(6);
         const g = {
                     id: gid,
@@ -161,10 +203,12 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                     settings: {
                         tempUI: {
                             selected: false
+                        },
+                        visual: {
+                            visible: true
                         }
                     }
                 };
-        this.widget.query.groups.push(g);
         return g;
     }
 
@@ -172,11 +216,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     ngAfterViewInit() {
-
-        if (this.editMode) {
-            this.setSize();
-        }
-
     }
 
     setSize() {
@@ -196,6 +235,10 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         // console.log("sie", nWidth, nHeight, wm, hm, this.size);
     }
 
+    setTimezone(timezone) {
+        this.options.labelsUTC = timezone === 'utc' ? true : false;
+    }
+
     setTimeConfiguration(config) {
         this.widget.query.settings.time = {
                                              shiftTime: config.shiftTime,
@@ -207,18 +250,16 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                                                  customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                              }
                                          };
+        this.refreshData();
     }
 
-    setAxes( axes ) {
-        // console.log("...setAxes....", axes);
-        this.widget.query.settings.axes = { ...this.widget.query.settings.axes, ...axes };
-
-        const keys = Object.keys(this.widget.query.settings.axes);
-        for (let i = 0; i < keys.length; i++ ) {
-            const k = keys[i];
-            const config = this.widget.query.settings.axes[keys[i]];
-            const axisKey = k === 'y1' ? 'y' : k === 'y2' ? 'y2' : 'x';
-            const axis = this.options.axes[axisKey];
+    setAxesOption() {
+        const axisKeys = Object.keys(this.widget.query.settings.axes);
+        const thresholds = this.widget.query.settings.thresholds || {};
+        for (let i = 0; i < axisKeys.length; i++ ) {
+            const config = this.widget.query.settings.axes[axisKeys[i]];
+            const chartAxisID = axisKeys[i] === 'y1' ? 'y' : axisKeys[i] === 'y2' ? 'y2' : 'x';
+            const axis = this.options.axes[chartAxisID];
             if ( !isNaN( config.min ) ) {
                 axis.valueRange[0] = config.min;
             }
@@ -226,20 +267,15 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 axis.valueRange[1] = config.max;
             }
 
-            if ( axisKey === 'y' || axisKey === 'y2' ) {
+            if ( axisKeys[i] === 'y1' || axisKeys[i] === 'y2' ) {
                 axis.logscale = config.scale === 'linear' ? false : true;
                 const label = config.label.trim();
-                this.options[axisKey + 'label'] = label;
-            }
-
-            if ( config.enable) {
-
+                this.options[chartAxisID + 'label'] = label;
             }
 
             axis.drawAxis = config.enabled ? true : false;
             // move series from y2 to y1 if y2 is disabled
-            if ( this.options.series &&  axisKey === 'y2' && !config.enabled) {
-                // tslint:disable-next-line:prefer-const
+            if ( this.options.series &&  axisKeys[i] === 'y2' && !config.enabled) {
                 for ( let k in this.options.series ) {
                     if (this.options.series[k]) {
                         this.options.series[k].axis = 'y';
@@ -249,25 +285,38 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 for ( let m = 0; m < groups.length; m++ ) {
                     const queries = groups[m].queries;
                     for ( let n = 0; n < queries.length; n++ ) {
-                        queries[n].settings.visual.axis = 'y';
+                        queries[n].settings.visual.axis = 'y1';
                     }
                 }
             }
 
-
-            if ( config.decimals || config.unit  ) {
-                axis.tickFormat = { unit: config.unit, precision: config.decimals, unitDisplay: true };
+            // change threshold axis y2=>y1
+            if ( axisKeys[i] === 'y2' && !config.enabled  && Object.keys(thresholds).length ) {
+                for ( let i in thresholds ) {
+                    thresholds[i].axis = 'y1';
+                }
+                this.setAlertOption();
             }
+
+            const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 2 : config.decimals;
+            axis.tickFormat = { unit: config.unit, precision: decimals, unitDisplay: true };
         }
-        console.log('setaxis',  this.options, this.widget.query.groups[0].queries);
-
-
-        this.options = {...this.options};
+        console.log("setaxis",  this.options, this.widget.query.groups[0].queries);
     }
 
-    setAlerts(thresholds) {
-        console.log('thresholds', thresholds);
-        this.widget.query.settings.thresholds = thresholds;
+    updateAlertValue(nConfig) {
+        const oConfig = this.widget.query.settings.axes ? this.widget.query.settings.axes.y1 : <Axis>{};
+        const oUnit = this.unit.getDetails(oConfig.unit);
+        const nUnit = this.unit.getDetails(nConfig.unit);
+        const thresholds = this.widget.query.settings.thresholds || {};
+        for ( let i in thresholds ) {
+            thresholds[i].value = oUnit ? thresholds[i].value * oUnit.m : thresholds[i].value;
+            thresholds[i].value = nUnit ? thresholds[i].value / nUnit.m : thresholds[i].value;
+        }
+    }
+
+    setAlertOption() {
+        const thresholds = this.widget.query.settings.thresholds;
         this.options.thresholds =  [] ;
         Object.keys(thresholds).forEach( k => {
             const threshold = thresholds[k];
@@ -287,9 +336,12 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         lineType = [4, 4, 2];
                         break;
                 }
+                const scaleId = !threshold.axis || threshold.axis !== 'y2' ? 'y' : threshold.axis;
+                const axis = this.widget.query.settings.axes ? this.widget.query.settings.axes[k] : null;
+                const oUnit = axis ? this.unit.getDetails(axis.unit) : null;
                 const o = {
-                    value: threshold.value,
-                    scaleId: 'y',
+                    value: oUnit ? threshold.value * oUnit.m : threshold.value,
+                    scaleId: scaleId,
                     borderColor: threshold.lineColor,
                     borderWidth: parseInt(threshold.lineWeight, 10),
                     borderDash: lineType
@@ -297,7 +349,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 this.options.thresholds.push(o);
             }
         });
-        this.options = { ...this.options };
     }
 
     setVisualization( gIndex, configs ) {
@@ -353,13 +404,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         }
     }
 
-    refreshData() {
-        this.isDataLoaded = false;
-        this.options = {...this.options, labels: ['x']};
-        this.data = [[0]];
-        this.requestData();
-    }
-
     requestData() {
         if (!this.isDataLoaded) {
             this.interCom.requestSend({
@@ -367,6 +411,24 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 action: 'getQueryData',
                 payload: this.widget.query
             });
+        }
+    }
+
+    requestCachedData() {
+        this.interCom.requestSend({
+            id: this.widget.id,
+            action: 'getWidgetCachedData'
+        });
+    }
+
+    refreshData(reload = true) {
+        this.isDataLoaded = false;
+        this.options = {...this.options, labels: ['x']};
+        this.data = [[0]];
+        if ( reload ) {
+            this.requestData();
+        } else {
+            this.requestCachedData();
         }
     }
 
@@ -389,6 +451,106 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         return pattern;
     }
 
+    mergeMetrics( groups ) {
+        const newGroup = this.createNewGroup();
+        let cntMergedQueries = 0;
+        for ( let i = groups.length - 1; i >= 0; i-- ) {
+            const group = groups[i];
+            const queries = group.queries;
+            if ( group.settings.tempUI.selected !== 'none' ) {
+                for ( let j = queries.length - 1; j >= 0; j-- ) {
+                    if ( queries[j].settings.selected ) {
+                        const items = queries.splice( j, 1 );
+                        newGroup.queries.push(items[0]);
+                        cntMergedQueries++;
+                    }
+                }
+                if ( !queries.length ) {
+                    groups.splice( i, 1);
+                }
+            }
+        }
+        if ( cntMergedQueries > 1 ) {
+            groups.unshift( newGroup );
+            this.widget.query.groups = groups;
+            this.widget = { ...this.widget };
+        }
+        console.log('___MERGE METRICS___',  groups, cntMergedQueries);
+    }
+
+    splitMetrics(groups) {
+        let split = false;
+        for ( let i = 0; i < groups.length; i++ ) {
+            const group = groups[i];
+            let cloneGroupIndex = 1;
+            const queries = group.queries;
+            if ( group.settings.tempUI.selected !== 'none') {
+                for ( let j = 0; queries.length > 1 && j < queries.length; j++ ) {
+                    if ( queries[j].settings.selected ) {
+                        const cloneGroup = Object.assign({}, group);
+                        cloneGroup.queries = [];
+                        cloneGroup.id = this.util.generateId(6);
+                        cloneGroup.title = 'clone ' +  cloneGroup.title + ' ' + (cloneGroupIndex++);
+                        const query = queries.splice( j, 1 );
+                        cloneGroup.queries.push(query[0]);
+                        groups.splice(i + 1, 0, cloneGroup);
+                        i++; // skip the loop for the newly created group
+                        split = true;
+                    }
+                }
+            }
+        }
+        if ( split ) {
+            this.widget.query.groups = groups;
+            this.widget = { ...this.widget };
+        }
+    }
+
+    deleteMetrics(groups) {
+        let deletedMetrics = false;
+        for ( let i = groups.length - 1; i >= 0; i-- ) {
+            const group = groups[i];
+            const queries = group.queries;
+            // group delete 
+            if ( group.settings.tempUI.selected === 'all' ) {
+                groups.splice( i, 1 );
+                deletedMetrics = true;
+            } else if ( group.settings.tempUI.selected !== 'none') {
+                for ( let j = queries.length - 1;  j >= 0; j-- ) {
+                    if ( queries[j].settings.selected ) {
+                        queries.splice( j, 1 );
+                        deletedMetrics = true;
+                    }
+                }
+            }
+        }
+        if ( deletedMetrics ) {
+            this.widget.query.groups = groups;
+            this.widget = { ...this.widget };
+        }
+    }
+
+    toggleGroup(gIndex) {
+        this.widget.query.groups[gIndex].settings.visual.visible = !this.widget.query.groups[gIndex].settings.visual.visible;
+        if ( this.widget.query.groups[gIndex].queries.length === 1 ) {
+            this.widget.query.groups[gIndex].queries[0].settings.visual.visible = this.widget.query.groups[gIndex].settings.visual.visible;
+        }
+        this.refreshData(false);
+    }
+    deleteGroup(gIndex) {
+        this.widget.query.groups.splice(gIndex, 1);
+        this.refreshData(false);
+    }
+
+    toggleGroupQuery(gIndex, index) {
+        this.widget.query.groups[gIndex].queries[index].settings.visual.visible = !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+        this.refreshData(false);
+    }
+
+    deleteGroupQuery(gIndex, index) {
+        this.widget.query.groups[gIndex].queries.splice(index, 1);
+        this.refreshData(false);
+    }
     // request send to update state to close edit mode
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{

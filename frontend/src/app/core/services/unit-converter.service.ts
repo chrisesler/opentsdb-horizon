@@ -37,11 +37,17 @@ export class UnitConverterService {
 
     format( value, options ) {
         const oUnit = this.units[options.unit];
-        const precision = options.precision ? options.precision : 0;
+        let precision = options.precision ? options.precision : 0;
         if ( !oUnit ) {
+            precision = Number.isInteger(value) ? 0 : precision;
             return typeof(value) === 'number' ? value.toFixed(precision) : parseFloat(value).toFixed(precision);
         }
-        const result = ( value / oUnit.m ).toFixed(precision) + options.unit;
-        return result;
+        const result =  value / oUnit.m ;
+        precision = Number.isInteger(result) ? 0 : precision;
+        return result.toFixed(precision) + options.unit;
+    }
+
+    getDetails(unit) {
+        return this.units[unit];
     }
 }

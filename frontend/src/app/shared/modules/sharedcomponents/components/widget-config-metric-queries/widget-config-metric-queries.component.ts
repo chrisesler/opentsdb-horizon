@@ -17,6 +17,7 @@ import {
 } from '../expression-dialog/expression-dialog.component';
 
 import { Subscription } from 'rxjs';
+import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -60,7 +61,8 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
  
     constructor(
         public dialog: MatDialog,
-        private interCom: IntercomService
+        private interCom: IntercomService,
+        private util: UtilsService
     ) { }
 
     ngOnInit() {
@@ -70,15 +72,16 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     ngOnChanges(changes: SimpleChanges) {
         // when editing mode is loaded, we need to temporary adding default UI state
         // to editing widget
-        if (changes.widget.currentValue && changes.widget.firstChange) {
+        if (changes.widget.currentValue) {
             this.addRemoveTempUIState(true, changes.widget.currentValue);
-        }          
+        }
+
     }
 
     // to add or remove the local tempUI state
     addRemoveTempUIState(add: boolean, widget: any) {
-        for (let i = 0; i < widget.query.groups.length; i++) {
-            let group = widget.query.groups[i];
+        for (let i = 0; i < this.widget.query.groups.length; i++) {
+            let group = this.widget.query.groups[i];
             if (add) {
                 group.settings.tempUI = {
                     selected: 'none',
@@ -253,40 +256,42 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         group.collapsed = !group.collapsed;
     }
 
-    toggle_queryGroupVisibility(group: any, event: MouseEvent) {
-        console.log('TOGGLE::QueryGroupVisibility', group, event);
-        event.stopPropagation();
-        group.visible = !group.visible;
-    }
-
     clone_queryGroup(group: any, event: MouseEvent) {
         console.log('DUPLICATE QUERY Group ', group);
         event.stopPropagation();
         // do something
     }
 
-    delete_queryGroup(group: any, event: MouseEvent) {
-        console.log('DELETE QUERY Group ', group);
-        event.stopPropagation();
+    deleteGroup(gIndex) {
+        console.log('DELETE QUERY GROUP ', gIndex);
+        this.widgetChange.emit( {'action': 'DeleteGroup', payload: { gIndex: gIndex }});
         // do something
     }
 
-    toggle_queryItemVisibility(item: any, event: MouseEvent) {
-        console.log('TOGGLE QUERY ITEM VISIBILITY', item);
-        event.stopPropagation();
-        item.visible = !item.visible;
+    toggleGroup(gIndex) {
+        console.log('TOGGLE QUERY GROUP ', gIndex);
+        this.widgetChange.emit( {'action': 'ToggleGroup', payload: { gIndex: gIndex }});
+        // do something
     }
 
-    clone_queryItem(item: any, event: MouseEvent) {
+    toggleGroupQuery(gIndex, index) {
+        console.log('TOGGLE QUERY ITEM VISIBILITY');
+        this.widgetChange.emit( {'action': 'ToggleGroupQuery', payload: { gIndex: gIndex, index: index }});
+    }
+
+    cloneQuery(item: any, event: MouseEvent) {
         console.log('DUPLICATE QUERY ITEM ', item);
         event.stopPropagation();
         // do something
     }
 
-    delete_queryItem(item: any, event: MouseEvent) {
-        console.log('DELETE QUERY ITEM ', item);
-        event.stopPropagation();
-        // do something
+    deleteGroupQuery(gIndex, index) {
+        console.log('DELETE QUERY ITEM ', index);
+        if ( this.widget.query.groups[gIndex].queries.length === 1 && index === 0 ) {
+            this.deleteGroup(gIndex);
+        } else {
+            this.widgetChange.emit( {'action': 'DeleteGroupQuery', payload: { gIndex: gIndex, index: index }});
+        }
     }
 
     /**
@@ -319,21 +324,21 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     }
 
     batch_groupMetrics(event: MouseEvent) {
-        console.log('BATCH::GroupMetrics');
+        console.log('BATCH::GroupMetrics', event);
         event.stopPropagation();
-        // get the selected items, then group them
+        this.widgetChange.emit({action: 'MergeMetrics', payload: { data: JSON.parse(JSON.stringify(this.widget.query.groups)) }});
     }
 
     batch_splitMetrics(event: MouseEvent) {
-        console.log('BATCH::SplitMetrics');
+        console.log('BATCH::SplitMetrics', event);
         event.stopPropagation();
-        // get the selected items, then split them into seperate groups
+        this.widgetChange.emit({action: 'SplitMetrics', payload: { data: JSON.parse(JSON.stringify(this.widget.query.groups)) }});
     }
 
     batch_deleteMetrics(event: MouseEvent) {
-        console.log('BATCH::DeleteMetrics');
+        console.log('BATCH::DeleteMetrics', event);
         event.stopPropagation();
-        // get the selected items, then delete them
+        this.widgetChange.emit({action: 'DeleteMetrics', payload: { data: JSON.parse(JSON.stringify(this.widget.query.groups)) }});
     }
 
     /**
