@@ -11,7 +11,7 @@ PACKAGE_OS_SPECIFIC = no
 YINST bug-product Yamas
 YINST bug-component General
 
-YINST requires pkg ynodejs_core             6.0.0.0 6.9999.9999.9999
+YINST requires pkg ynodejs_core             8.0.0.0 8.9999.9999.9999
 YINST requires pkg ynodejs_cosmo            * *
 
 find 0644 - - share/node/overallhealth/ $(SRCDIRS)/ -name "*.*" -type f ! -ipath '*/artifacts/*' ! -ipath '*.yicf' ! -path '*.git*' ! -ipath '*/resources*' ! -ipath '*/config/*' ! -path '*/test/*' ! -path '*/tests/*' ! -path '*/screwdriver/*' ! -path '*/config.js'
