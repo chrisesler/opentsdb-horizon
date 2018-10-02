@@ -121,7 +121,7 @@ self.parseSearchTerms = function(terms) {
 */
 self.mSearch = function(list, query) {
     console.log('query', query);
-    var str = query.term;
+    var str = query.searchPattern;
     if (str === '') {
         return;
     }

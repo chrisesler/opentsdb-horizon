@@ -108,7 +108,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                                     this.isDataLoaded = true;
                                     const rawdata = message.payload.rawdata;
                                     this.setTimezone(message.payload.timezone);
-                                    this.setLegendDiv();
                                     this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
                                 }
                                 break;
@@ -123,6 +122,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                     this.setSize();
                     this.requestCachedData();
                 }
+                this.setLegendDiv();
+                this.setAxesOption();
+                this.setAlertOption();
     }
 
     updateConfig(message) {
@@ -146,7 +148,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 this.options = { ...this.options };
                 break;
             case 'SetAxes' :
-                this.updateAlertValue(message.payload.data.y1);
+                this.updateAlertValue(message.payload.data);
                 this.widget.query.settings.axes = { ...this.widget.query.settings.axes, ...message.payload.data };
                 this.setAxesOption();
                 this.options = { ...this.options };
@@ -261,19 +263,21 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             const chartAxisID = axisKeys[i] === 'y1' ? 'y' : axisKeys[i] === 'y2' ? 'y2' : 'x';
             const axis = this.options.axes[chartAxisID];
             if ( !isNaN( config.min ) ) {
-                axis.valueRange[0] = config.min;
+                const oUnit = this.unit.getDetails(config.unit);
+                axis.valueRange[0] = oUnit ? config.min * oUnit.m : config.min;
             }
             if ( !isNaN( config.max ) ) {
-                axis.valueRange[1] = config.max;
+                const oUnit = this.unit.getDetails(config.unit);
+                axis.valueRange[1] = oUnit ? config.max * oUnit.m : config.max;
             }
 
-            if ( axisKeys[i] === 'y1' || axisKeys[i] === 'y2' ) {
+            if (  axisKeys[i] === 'y1' || axisKeys[i] === 'y2' ) {
                 axis.logscale = config.scale === 'linear' ? false : true;
-                const label = config.label.trim();
+                const label = config.label ? config.label.trim() : '';
                 this.options[chartAxisID + 'label'] = label;
             }
 
-            axis.drawAxis = config.enabled ? true : false;
+            axis.drawAxis = config.enabled || axisKeys[i] === 'y1' && typeof config.enabled === 'undefined' ? true : false;
             // move series from y2 to y1 if y2 is disabled
             if ( this.options.series &&  axisKeys[i] === 'y2' && !config.enabled) {
                 for ( let k in this.options.series ) {
@@ -305,18 +309,23 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     updateAlertValue(nConfig) {
-        const oConfig = this.widget.query.settings.axes ? this.widget.query.settings.axes.y1 : <Axis>{};
-        const oUnit = this.unit.getDetails(oConfig.unit);
-        const nUnit = this.unit.getDetails(nConfig.unit);
         const thresholds = this.widget.query.settings.thresholds || {};
-        for ( let i in thresholds ) {
-            thresholds[i].value = oUnit ? thresholds[i].value * oUnit.m : thresholds[i].value;
-            thresholds[i].value = nUnit ? thresholds[i].value / nUnit.m : thresholds[i].value;
+        for ( let k in nConfig ) {
+            const oConfig = this.widget.query.settings.axes ? this.widget.query.settings.axes[k] : <Axis>{};
+            const oUnit = this.unit.getDetails(oConfig.unit);
+            const nUnit = this.unit.getDetails(nConfig[k].unit);
+            for ( let i in thresholds ) {
+                if ( thresholds[i].axis === k) {
+                    console.log("k=", k, thresholds[i], oUnit, nUnit);
+                    thresholds[i].value = oUnit ? thresholds[i].value * oUnit.m : thresholds[i].value;
+                    thresholds[i].value = nUnit ? thresholds[i].value / nUnit.m : thresholds[i].value;
+                }
+            }
         }
     }
 
     setAlertOption() {
-        const thresholds = this.widget.query.settings.thresholds;
+        const thresholds = this.widget.query.settings.thresholds || {};
         this.options.thresholds =  [] ;
         Object.keys(thresholds).forEach( k => {
             const threshold = thresholds[k];
@@ -337,7 +346,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         break;
                 }
                 const scaleId = !threshold.axis || threshold.axis !== 'y2' ? 'y' : threshold.axis;
-                const axis = this.widget.query.settings.axes ? this.widget.query.settings.axes[k] : null;
+                const axis = this.widget.query.settings.axes ? this.widget.query.settings.axes[threshold.axis] : null;
                 const oUnit = axis ? this.unit.getDetails(axis.unit) : null;
                 const o = {
                     value: oUnit ? threshold.value * oUnit.m : threshold.value,

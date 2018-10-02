@@ -288,7 +288,8 @@ export class DatatranformerService {
         filters: [],
         settings: {
             visual: {
-                visible: true
+                visible: true,
+                color: '#000000'
             }
         }
       };

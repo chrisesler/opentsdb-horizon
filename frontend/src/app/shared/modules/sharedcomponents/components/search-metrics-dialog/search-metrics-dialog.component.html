@@ -91,7 +91,7 @@
                 <div class="column-content has-scroller" fxFlex="1 1 100%">
                     <div class="is-scroller">
                         <mat-accordion multi="false" displayMode="flat">
-                            <mat-expansion-panel class="mat-elevation-z0" *ngFor="let k of results;">
+                            <mat-expansion-panel class="mat-elevation-z0" *ngFor="let k of results; let index=index" [expanded]="index === 0">
                                 <mat-expansion-panel-header [expandedHeight]="'48px'" [collapsedHeight]="'48px'">
                                     <span class="key">{{ k.key }}</span> <span class="count">({{k.values.length}})</span>
                                 </mat-expansion-panel-header>
