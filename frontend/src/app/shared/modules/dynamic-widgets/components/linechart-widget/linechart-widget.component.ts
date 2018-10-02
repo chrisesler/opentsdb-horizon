@@ -96,7 +96,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                             this.refreshData();
                             break;
                         case 'TimezoneChanged':
-                            this.setTimezone(message.payload);
+                            this.setTimezone(message.payload.zone);
                             this.options = {...this.options};
                             break;
                     }
