@@ -281,8 +281,7 @@ module.exports = function () {
                                 "bool": {
                                     "should": []
                                 }
-                            },
-                            "inner_hits": { name: "inner-" + index }
+                            }
                         }
                     };
         var regexCondition = function(key, pattern) {
@@ -331,9 +330,9 @@ module.exports = function () {
                         }
                     }
                 },
-                "size": 100,
+                "size": 1000,
                 "_source": {
-                    "excludes": ["lastSeenTime", "firstSeenTime", "application.raw", "timestamp", "AM_nested"]
+                    "excludes": ["lastSeenTime", "firstSeenTime", "application.raw", "timestamp"]
                 }
         };
 

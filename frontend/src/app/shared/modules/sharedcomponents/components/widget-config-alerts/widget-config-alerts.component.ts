@@ -1,6 +1,7 @@
 import { Component, OnInit, OnChanges, SimpleChanges, OnDestroy, HostBinding, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
+import { debounceTime } from 'rxjs/operators/debounceTime';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -59,7 +60,6 @@ export class WidgetConfigAlertsComponent implements OnInit, OnChanges, OnDestroy
         }
     }
 
-
     createForm() {
         this.formGroups = this.fb.group({});
         switch ( this.widget.settings.component_type ) {
@@ -74,14 +74,16 @@ export class WidgetConfigAlertsComponent implements OnInit, OnChanges, OnDestroy
             break;
         }
 
-        this.fgsSubscription = this.formGroups.valueChanges.subscribe(function(data) {
-            const thresholds = {};
-            Object.keys(data).forEach( k => {
-                thresholds[k] = data[k];
-                thresholds[k].value = this.formGroups.controls[k].controls['value'].valid ? thresholds[k].value : '';
-            });
-            this.widgetChange.emit( { action: 'SetAlerts', payload: { data: thresholds }} );
-        }.bind(this));
+        this.fgsSubscription = this.formGroups.valueChanges
+                                                .pipe(debounceTime(500))
+                                                .subscribe(function(data) {
+                                                    const thresholds = {};
+                                                    Object.keys(data).forEach( k => {
+                                                        thresholds[k] = data[k];
+                                                        thresholds[k].value = this.formGroups.controls[k].controls['value'].valid ? thresholds[k].value : '';
+                                                    });
+                                                    this.widgetChange.emit( { action: 'SetAlerts', payload: { data: thresholds }} );
+                                                }.bind(this));
     }
 
     setThresholds(k) {

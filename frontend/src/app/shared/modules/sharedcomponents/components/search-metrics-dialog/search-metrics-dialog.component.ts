@@ -76,7 +76,12 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     selectedMetrics: any[] = [];
     group: any = {
         id: '',
-        queries: []
+        queries: [],
+        settings: {
+            visual: {
+                visible: true
+            }
+        }
     };
     // properties for dygraph chart preview
     // tslint:disable-next-line:no-inferrable-types
@@ -171,6 +176,9 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
                     console.log('resp', resp);
                     this.resultCount = resp.raw.length;
                     this.results = resp.results;
+                    if ( this.results.length ) {
+                        this.listSelectedTag(this.results[0].values[0]);
+                    }
                 },
                 err => {
                     console.log('error', err);
@@ -348,8 +356,11 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
 
     removeSelectedMetric(metric: any) {
         // remove item from selected metrics
-        this.selectedMetrics.splice(this.selectedMetrics.indexOf(metric), 1);
-        // NOTE: Need to also remove it from the group?
+        const index = this.selectedMetrics.indexOf(metric);
+        if ( index !== -1 ) {
+            this.selectedMetrics.splice( index, 1);
+            this.group.queries.splice(index, 1);
+        }
     }
 
     /**
