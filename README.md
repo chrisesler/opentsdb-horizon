@@ -20,9 +20,10 @@ Horizon Yamas UI
   npm install node-sass grunt-sass
 ```
 
-#### Option 2: for Dev Machine
+#### Option 2: for Mac Machine
 ```
-  Install Node from: http://nodejs.org/download/
+  Install Node from: https://nodejs.org/en/
+  npm install node-sass grunt-sass
 ```
 
 ### 2. Install YNPM Dependencies
@@ -33,18 +34,16 @@ Horizon Yamas UI
   ynpm i express-okta-oath
 ```
 
-### 3. Install Horizon
+### 3. Install Horizon Frontend
 ```  
-  cd horizon
+  cd horizon/frontend
   npm install
 ```
 
-### 4. Install Gulp and ChartJS dependencies
-```
-npm i -g gulp
-cd frontend/src/app/shared/chartjs
-npm i
-gulp build
+### 4. Install Horizon Server (dev only)
+```  
+  cd horizon/server
+  ynpm install
 ```
 
 ### 5. Install Certificates

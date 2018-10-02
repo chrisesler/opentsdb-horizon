@@ -1,0 +1,22 @@
+platform: nodejs_lib
+
+# profiles:
+#     pull-request:
+#         build_containers: [node6]
+#         publish_containers: [node6]
+#     component:
+#         build_containers: [node6]
+#         publish_containers: [node6]
+# shared:
+#     steps:
+#         update-version:
+#             bump_method: dynamic
+#         postinstall-deps: npm run install-subdirs
+#     settings:
+#         YNPM_THREE: 1
+# jobs:
+#     pull-request:
+#         branch: dev
+#     component:
+#         branch: dev
+#         triggers: [sd@274168]
