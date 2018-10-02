@@ -1,4 +1,4 @@
-<div class="widget-output-container" fxLayout="column" #testing id="main-container">
+<div class="widget-output-container" fxLayout="column">
     <div class="widget-title" *ngIf="editMode" fxLayout="row" fxFlex="1 1 30px">
         <span fxFlex="1 1 100%">{{widget.settings.title}}</span>
         <span>
@@ -7,164 +7,152 @@
             </button>
         </span>
     </div>
-
-    <div class="widget-container" [ngClass]= "{'fixed-height' : editMode}">
-        <div *ngIf="metrics" 
-            class="big-num-container"
-            [style.background]="widget.query.settings.visual.backgroundColor"
-            [style.color]="widget.query.settings.visual.textColor"
-            [style.font-size]="fontSizePercent + '%'"
-            [ngClass]= "{'no-flex' : editMode}">
-
-            <div class="content-container" #contentContainer>
-                <div class="metric-container">
-                    <span [ngClass]="{
-                        'large-size': widget.query.settings.visual.prefixSize=='l' && !widget.query.settings.visual.prefixUndercased, 
-                        'medium-size': widget.query.settings.visual.prefixSize=='m' && !widget.query.settings.visual.prefixUndercased, 
-                        'small-size': widget.query.settings.visual.prefixSize=='s' && !widget.query.settings.visual.prefixUndercased,
+    <div class="widget-output">
+        <div class="widget-container">
+            <div class="big-num-container"
+                *ngIf="metrics"
+                [style.background]="widget.query.settings.visual.backgroundColor"
+                [style.color]="widget.query.settings.visual.textColor"
+                [style.font-size]="fontSizePercent + '%'"
+                [ngClass]= "{'edit-flex' : editMode}">
+    
+                <div class="content-container" #contentContainer>
+                    <div class="metric-container">
+                        <!-- NOTE: This class assignment is a lot. Maybe rework this? -->
+                        <span [ngClass]="{
+                            'large-size': widget.query.settings.visual.prefixSize=='l' && !widget.query.settings.visual.prefixUndercased, 
+                            'medium-size': widget.query.settings.visual.prefixSize=='m' && !widget.query.settings.visual.prefixUndercased, 
+                            'small-size': widget.query.settings.visual.prefixSize=='s' && !widget.query.settings.visual.prefixUndercased,
+                            
+                            'large-size-undercase': widget.query.settings.visual.prefixSize=='l' && widget.query.settings.visual.prefixUndercased, 
+                            'medium-size-undercase': widget.query.settings.visual.prefixSize=='m' && widget.query.settings.visual.prefixUndercased, 
+                            'small-size-undercase': widget.query.settings.visual.prefixSize=='s' && widget.query.settings.visual.prefixUndercased,
+    
+                            'middle-align': (widget.query.settings.visual.prefixAlignment=='middle' && widget.query.settings.visual.prefixUndercased) || (widget.query.settings.visual.prefixAlignment=='middle' && widget.query.settings.visual.prefixSize!='l'),
+                            'top-align': widget.query.settings.visual.prefixAlignment=='top'
+                            }">
+                            {{shortenString(widget.query.settings.visual.prefix, maxLabelLength)}}
+                        </span>
                         
-                        'large-size-undercase': widget.query.settings.visual.prefixSize=='l' && widget.query.settings.visual.prefixUndercased, 
-                        'medium-size-undercase': widget.query.settings.visual.prefixSize=='m' && widget.query.settings.visual.prefixUndercased, 
-                        'small-size-undercase': widget.query.settings.visual.prefixSize=='s' && widget.query.settings.visual.prefixUndercased,
-
-                        'middle-align': (widget.query.settings.visual.prefixAlignment=='middle' && widget.query.settings.visual.prefixUndercased) || (widget.query.settings.visual.prefixAlignment=='middle' && widget.query.settings.visual.prefixSize!='l'),
-                        'top-align': widget.query.settings.visual.prefixAlignment=='top'
-                        }">
-                        {{shortenString(widget.query.settings.visual.prefix, maxLabelLength)}}
-                    </span>
-                    
-                    <span *ngIf="UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unitPos === 0" [ngClass]="{
-                        'large-size': widget.query.settings.visual.unitSize=='l' && !widget.query.settings.visual.unitUndercased, 
-                        'medium-size': widget.query.settings.visual.unitSize=='m' && !widget.query.settings.visual.unitUndercased, 
-                        'small-size': widget.query.settings.visual.unitSize=='s' && !widget.query.settings.visual.unitUndercased,
+                        <span *ngIf="UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unitPos === 0" [ngClass]="{
+                            'large-size': widget.query.settings.visual.unitSize=='l' && !widget.query.settings.visual.unitUndercased, 
+                            'medium-size': widget.query.settings.visual.unitSize=='m' && !widget.query.settings.visual.unitUndercased, 
+                            'small-size': widget.query.settings.visual.unitSize=='s' && !widget.query.settings.visual.unitUndercased,
+                            
+                            'large-size-undercase': widget.query.settings.visual.unitSize=='l' && widget.query.settings.visual.unitUndercased, 
+                            'medium-size-undercase': widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitUndercased, 
+                            'small-size-undercase': widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitUndercased,
+    
+                            'middle-align': (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitUndercased) || (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitSize!='l'),
+                            'top-align': widget.query.settings.visual.unitAlignment=='top'
+                            }">{{shortenString(UN.getBigNumber(widget.query.settings.visual.c, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unit, maxLabelLength)}}</span>
+    
+                        <span class="big-number">{{UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).num}}</span>
+    
+                        <!-- Add space for units that have multiple units -->
+                        <span class="big-number" *ngIf="UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unitPos === 1 && 
+                                     !UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).changeIndicatorHasUnit">&nbsp;</span>
+    
+                        <span *ngIf="UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unitPos === 1" [ngClass]="{
+                            'large-size': widget.query.settings.visual.unitSize=='l' && !widget.query.settings.visual.unitUndercased, 
+                            'medium-size': widget.query.settings.visual.unitSize=='m' && !widget.query.settings.visual.unitUndercased, 
+                            'small-size': widget.query.settings.visual.unitSize=='s' && !widget.query.settings.visual.unitUndercased,
+                            
+                            'large-size-undercase': widget.query.settings.visual.unitSize=='l' && widget.query.settings.visual.unitUndercased, 
+                            'medium-size-undercase': widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitUndercased, 
+                            'small-size-undercase': widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitUndercased,
+    
+                            'middle-align': (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitUndercased) || (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitSize!='l'),
+                            'top-align': widget.query.settings.visual.unitAlignment=='top'
+                            }">{{shortenString(UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unit, maxLabelLength)}}</span>
                         
-                        'large-size-undercase': widget.query.settings.visual.unitSize=='l' && widget.query.settings.visual.unitUndercased, 
-                        'medium-size-undercase': widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitUndercased, 
-                        'small-size-undercase': widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitUndercased,
-
-                        'middle-align': (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitUndercased) || (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitSize!='l'),
-                        'top-align': widget.query.settings.visual.unitAlignment=='top'
-                        }">{{shortenString(UN.getBigNumber(widget.query.settings.visual.c, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unit, maxLabelLength)}}</span>
-
-                    <span class="big-number">{{UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).num}}</span>
-
-                    <!-- Add space for units that have multiple units -->
-                    <span class="big-number" *ngIf="UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unitPos === 1 && 
-                                 !UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).changeIndicatorHasUnit">&nbsp;</span>
-
-                    <span *ngIf="UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unitPos === 1" [ngClass]="{
-                        'large-size': widget.query.settings.visual.unitSize=='l' && !widget.query.settings.visual.unitUndercased, 
-                        'medium-size': widget.query.settings.visual.unitSize=='m' && !widget.query.settings.visual.unitUndercased, 
-                        'small-size': widget.query.settings.visual.unitSize=='s' && !widget.query.settings.visual.unitUndercased,
-                        
-                        'large-size-undercase': widget.query.settings.visual.unitSize=='l' && widget.query.settings.visual.unitUndercased, 
-                        'medium-size-undercase': widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitUndercased, 
-                        'small-size-undercase': widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitUndercased,
-
-                        'middle-align': (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitUndercased) || (widget.query.settings.visual.unitAlignment=='middle' && widget.query.settings.visual.unitSize!='l'),
-                        'top-align': widget.query.settings.visual.unitAlignment=='top'
-                        }">{{shortenString(UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unit, maxLabelLength)}}</span>
-                    
-                    <span [ngClass]="{
-                        'large-size': widget.query.settings.visual.postfixSize=='l' && !widget.query.settings.visual.postfixUndercased, 
-                        'medium-size': widget.query.settings.visual.postfixSize=='m' && !widget.query.settings.visual.postfixUndercased, 
-                        'small-size': widget.query.settings.visual.postfixSize=='s' && !widget.query.settings.visual.postfixUndercased,
-                        
-                        'large-size-undercase': widget.query.settings.visual.postfixSize=='l' && widget.query.settings.visual.postfixUndercased, 
-                        'medium-size-undercase': widget.query.settings.visual.postfixSize=='m' && widget.query.settings.visual.postfixUndercased, 
-                        'small-size-undercase': widget.query.settings.visual.postfixSize=='s' && widget.query.settings.visual.postfixUndercased,
-
-                        'middle-align': (widget.query.settings.visual.postfixAlignment=='middle' && widget.query.settings.visual.postfixUndercased) || (widget.query.settings.visual.postfixAlignment=='middle' && widget.query.settings.visual.postfixSize!='l'),
-                        'top-align': widget.query.settings.visual.postfixAlignment=='top'
-                        }">
-                        {{shortenString(widget.query.settings.visual.postfix, maxLabelLength)}}
-                    </span>
-
-                    <span *ngIf="widget.query.settings.visual.changedIndicatorEnabled" class="change-indicator">
-                            <span *ngIf="changeIndicatorCompareValue >= 1">↑ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
-                            <span *ngIf="changeIndicatorCompareValue <= -1">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
-                            <span *ngIf="changeIndicatorCompareValue > -1 && changeIndicatorCompareValue < 1">≈ No Change</span>        
-                    </span>
-                </div>
-
-
-                <!-- [ngClass]="{
-                    'large-size': widget.query.settings.visual.captionSize=='l', 
-                    'medium-size': widget.query.settings.visual.captionSize=='m', 
-                    'small-size': widget.query.settings.visual.captionSize=='s',
-                    'top-margin': widget.query.settings.visual.captionSize=='l'
-                    }"> -->
-                <div class="caption">
-                    {{shortenString(util.tagMacro(selectedMetric, widget.query.settings.visual.caption), maxCaptionLength) | uppercase }}
-                </div>
-            </div>
-        </div>
-
-        <div *ngIf="editMode" class="fully-qualified-metric">
-            <div class="metric-detail">
-                <div class="metric-label">{{ selectedMetric.metric }}</div>
-                <div class="metric-tags">
-                    <div class="metric-tag" *ngFor="let tag of tags">
-                        <span class="tag-key">{{ tag.key }}:</span>
-                        <strong class="tag-value">{{ tag.value }}</strong>
+                        <span [ngClass]="{
+                            'large-size': widget.query.settings.visual.postfixSize=='l' && !widget.query.settings.visual.postfixUndercased, 
+                            'medium-size': widget.query.settings.visual.postfixSize=='m' && !widget.query.settings.visual.postfixUndercased, 
+                            'small-size': widget.query.settings.visual.postfixSize=='s' && !widget.query.settings.visual.postfixUndercased,
+                            
+                            'large-size-undercase': widget.query.settings.visual.postfixSize=='l' && widget.query.settings.visual.postfixUndercased, 
+                            'medium-size-undercase': widget.query.settings.visual.postfixSize=='m' && widget.query.settings.visual.postfixUndercased, 
+                            'small-size-undercase': widget.query.settings.visual.postfixSize=='s' && widget.query.settings.visual.postfixUndercased,
+    
+                            'middle-align': (widget.query.settings.visual.postfixAlignment=='middle' && widget.query.settings.visual.postfixUndercased) || (widget.query.settings.visual.postfixAlignment=='middle' && widget.query.settings.visual.postfixSize!='l'),
+                            'top-align': widget.query.settings.visual.postfixAlignment=='top'
+                            }">
+                            {{shortenString(widget.query.settings.visual.postfix, maxLabelLength)}}
+                        </span>
+    
+                        <span *ngIf="widget.query.settings.visual.changedIndicatorEnabled" class="change-indicator">
+                                <span *ngIf="changeIndicatorCompareValue >= 1">↑ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
+                                <span *ngIf="changeIndicatorCompareValue <= -1">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
+                                <span *ngIf="changeIndicatorCompareValue > -1 && changeIndicatorCompareValue < 1">≈ No Change</span>        
+                        </span>
+                    </div>
+    
+    
+                    <!-- [ngClass]="{
+                        'large-size': widget.query.settings.visual.captionSize=='l', 
+                        'medium-size': widget.query.settings.visual.captionSize=='m', 
+                        'small-size': widget.query.settings.visual.captionSize=='s',
+                        'top-margin': widget.query.settings.visual.captionSize=='l'
+                        }"> -->
+                    <div class="caption">
+                        {{shortenString(util.tagMacro(selectedMetric, widget.query.settings.visual.caption), maxCaptionLength) | uppercase }}
                     </div>
                 </div>
             </div>
-        </div>    
-    </div>
-
-    <!-- NOTE: This needs to move to other component -->
-    <div class="widget-controls-container" *ngIf="editMode">
-        <!-- tabs with config content -->
-        <mat-tab-group class="widget-configs" color="primary" [@.disabled]="'true'">
-            <mat-tab label="Queries" class="test">
-                <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
-                <ng-template matTabContent>
-                    <bignumber-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></bignumber-config-metric-queries>
-                </ng-template>
-            </mat-tab>
-            <mat-tab label="Time Configuration">
-                <ng-template matTabContent>
-                    <widget-config-time [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-time>
-                </ng-template>
-            </mat-tab>
-            <mat-tab label="Visual Appearance">
-                <ng-template matTabContent>
-                    <big-number-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></big-number-visual-appearance>
-                </ng-template>
-            </mat-tab>
-            <mat-tab label="Meta Data">
-                <ng-template matTabContent>
-                    <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
-                </ng-template>
-            </mat-tab>
-            
-            <!-- <mat-tab label="Legend">
-                <ng-template matTabContent>
-                    <widget-config-legend-big-number [widget]="widget"></widget-config-legend-big-number>
-                </ng-template>
-            </mat-tab> -->
-                <!--
-            <mat-tab label="Alerts">
-                <ng-template matTabContent>
-                    <widget-config-alerts [widget]="widget"></widget-config-alerts>
-                </ng-template>
-            </mat-tab> -->
-        
-            <mat-tab>
-                <!-- custom tab label. (see: https://material.angular.io/components/tabs/overview#labels) -->
-                <ng-template mat-tab-label>
-                    &lt;/&gt; Query Editor
-                </ng-template>
-                <ng-template matTabContent>
-                    <widget-config-query-inspector [widget]="widget"></widget-config-query-inspector>
-                </ng-template>
-            </mat-tab>
-        </mat-tab-group>
-        <div class="widget-actions">
-            <!-- controls to save/cancel -->
-            <button mat-raised-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Apply</button>
-            <button mat-stroked-button color="primary" class="mat-elevation-z0">Cancel</button>
+            <div class="fully-qualified-metric" *ngIf="editMode">
+                <div class="metric-detail">
+                    <div class="metric-label">{{ selectedMetric.metric }}</div>
+                    <div class="metric-tags">
+                        <div class="metric-tag" *ngFor="let tag of tags">
+                            <span class="tag-key">{{ tag.key }}:</span>
+                            <strong class="tag-value">{{ tag.value }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
+
+<!-- NOTE: This needs to move to other component -->
+<div class="widget-controls-container" *ngIf="editMode">
+    <!-- tabs with config content -->
+    <mat-tab-group class="widget-configs" selectedIndex="2" color="primary" [@.disabled]="'true'">
+        <mat-tab label="Queries" class="test">
+            <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
+            <ng-template matTabContent>
+                <bignumber-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></bignumber-config-metric-queries>
+            </ng-template>
+        </mat-tab>
+        <mat-tab label="Time Configuration">
+            <ng-template matTabContent>
+                <widget-config-time [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-time>
+            </ng-template>
+        </mat-tab>
+        <mat-tab label="Visual Appearance">
+            <ng-template matTabContent>
+                <big-number-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></big-number-visual-appearance>
+            </ng-template>
+        </mat-tab>
+        <mat-tab label="Meta Data">
+            <ng-template matTabContent>
+                <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
+            </ng-template>
+        </mat-tab>
+        <mat-tab>
+            <!-- custom tab label. (see: https://material.angular.io/components/tabs/overview#labels) -->
+            <ng-template mat-tab-label>
+                &lt;/&gt; Query Editor
+            </ng-template>
+            <ng-template matTabContent>
+                <widget-config-query-inspector [widget]="widget"></widget-config-query-inspector>
+            </ng-template>
+        </mat-tab>
+    </mat-tab-group>
+    <div class="widget-actions">
+        <!-- controls to save/cancel -->
+        <button mat-raised-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Apply</button>
+        <button mat-stroked-button color="primary" class="mat-elevation-z0">Cancel</button>
     </div>
 </div>

@@ -184,6 +184,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 console.log("DeleteGroupQuery", message.payload);
                 this.deleteGroupQuery(message.payload.gIndex, message.payload.index);
                 break;
+            case 'DeleteMetrics':
+                this.deleteMetrics(message.payload.data);
+                this.refreshData(false);
+                break;
+
         }
     }
     addMetricsToGroup(gConfig) {
@@ -265,6 +270,41 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 };
         this.widget.query.groups.push(g);
         return g;
+    }
+
+    deleteMetrics(groups) {
+        let deletedMetrics = false;
+        const usedStacks = [];
+        for ( let i = groups.length - 1; i >= 0; i-- ) {
+            const group = groups[i];
+            const queries = group.queries;
+            //group delete 
+            if ( group.settings.tempUI.selected === 'all' ) {
+                groups.splice( i, 1 );
+                deletedMetrics = true;
+            } else {
+                for ( let j = queries.length - 1;  j >= 0; j-- ) {
+                    if ( queries[j].settings.selected ) {
+                        queries.splice( j, 1 );
+                        deletedMetrics = true;
+                    } else {
+                        const stack = queries[j].settings.visual.stack;
+                        if ( usedStacks.indexOf( stack) === -1 ) {
+                            usedStacks.push(stack);
+                        }
+                    }
+                }
+            }
+        }
+        if ( deletedMetrics ) {
+            this.widget.query.groups = groups;
+            // delete the stacks that are no longer used
+            const stacks = this.widget.query.settings.visual.stacks;
+            if ( usedStacks.length !== stacks.length ) {
+                this.widget.query.settings.visual.stacks = stacks.filter( stack => usedStacks.indexOf(stack.id) !== -1 );
+            }
+            this.widget = { ...this.widget };
+        }
     }
 
     refreshData(reload = true) {

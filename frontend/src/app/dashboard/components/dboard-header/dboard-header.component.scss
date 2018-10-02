@@ -2,11 +2,7 @@
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
 @mixin dboard-header-component-base() {
-    .dashboard-header {
-        .flex-spacer {
-            flex: 1 1 auto;
-        }
-    }
+    /*.dashboard-header {} */
 }
 
 @mixin dboard-header-component-theme($theme-config) {
@@ -20,11 +16,8 @@
     $is-dark-theme: map-get($theme-config, is-dark);
 
     .dashboard-header {
-
         .mat-toolbar {
             background: map-get($background, header);
-
         }
     }
-
 }

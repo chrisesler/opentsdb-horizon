@@ -4,13 +4,16 @@
     $tab-width: map-get($widgets-common-config, tab-width);
     $action-bar-height: map-get($widgets-common-config, action-bar-height);
 
-    #main-container {
-        max-height: none;
-        font-family: Helvetica;
-    }
-
-    bignumber-widget {
+    .widget-panel-content.bignumber-widget { 
+        // reset margin top on big number because it should be edge to edge
+        padding-top: 0;
         height: 100%;
+
+        .widget-output {
+            // reset padding to zero because in widget mode needs to be edge to edge
+            // return padding when in edit mode (see end of mixin)
+            padding: 0; 
+        }
 
         .widget-output-container {
             height: 100%;
@@ -23,14 +26,13 @@
                 }
             }
         }
-    }
-
-    .widget-panel-content.bignumber-widget { 
 
         .widget-container {
             display: flex;
+            flex: 1;
         }
 
+        // Big Number wrapper
         .big-num-container {
             flex: 1;
             display: flex;
@@ -39,17 +41,20 @@
             white-space: nowrap;
         }
 
-        .fully-qualified-metric {
-            flex: 1;
-            padding-left: 30px; 
-        }
-
+        // just a container
         .metric-container {
             text-align: center;
             height: 3em;
             line-height: 3em;
         }
 
+        // the actual big number
+        .big-number {
+            font-size: 3em;
+            font-weight: 600;
+        }
+
+        // caption below big number (if any)
         .caption {
             display: flex;
             align-items: center;
@@ -61,11 +66,9 @@
             padding-top: 5px;
         }
 
-        .big-number {
-            font-size: 3em;
-            font-weight: 600;
-        }
-
+        
+        // modifiers
+        // used for the prefixes/suffixes
         .top-align {
             vertical-align: top;
         }
@@ -103,43 +106,53 @@
             line-height: 0.65em;
         }
 
-        .top-margin {
-            margin-top: 0.5em;
-        }
-
-        .metric-details {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        .metric-tag {
-            font-size: 10px;
-            display: inline-flex;
-            margin-right: 10px;
-            margin-bottom: 8px;
-
-            .tag-key {
-                margin-right: 2px;
-            }
-        }
-
-        .fixed-height {
-            height: 300px;
-        }
-
-        .no-flex {
-            flex: none;
-            padding-left: 25px;
-            padding-right: 25px;
-            flex-grow: 0;
+        // In widget mode, don't display this.
+        // This is displayed only in edit mode
+        .fully-qualified-metric {
+            display: none;
         }
     }
 
     // when we are in edit view
-    // .edit-view-container.is-active { 
-    //    .widget-panel-content.bignumber-widget { }
-    // }
+    .edit-view-container.is-active { 
+        .widget-panel-content.bignumber-widget {
+            // in edit mode, give the output some padding
+            .widget-output {
+                padding: 16px;
+            }
+
+            // in edit mode, give big number a fixed width 
+            // close to something people might use
+            .big-num-container {
+                flex: 1 0 300px;
+                padding: 0 25px;
+            }
+
+            // in edit mode, show the metric representing the big number
+            .fully-qualified-metric {
+                display: block;
+                flex: 1 1 100%;
+                padding-left: 30px; 
+
+                .metric-details {
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1;
+                }
+        
+                .metric-tag {
+                    font-size: 10px;
+                    display: inline-flex;
+                    margin-right: 10px;
+                    margin-bottom: 8px;
+        
+                    .tag-key {
+                        margin-right: 2px;
+                    }
+                }
+            }
+        }
+    }
 }
 
 @mixin bignumber-widget-component-theme($theme-config) {

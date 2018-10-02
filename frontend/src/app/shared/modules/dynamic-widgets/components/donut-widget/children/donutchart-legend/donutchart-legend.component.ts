@@ -4,9 +4,10 @@ import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
+  // tslint:disable-next-line:component-selector
   selector: 'donutchart-legend',
   templateUrl: './donutchart-legend.component.html',
-  styleUrls: ['./donutchart-legend.component.scss']
+  styleUrls: []
 })
 export class DonutchartLegendComponent implements OnInit {
 
@@ -40,7 +41,7 @@ export class DonutchartLegendComponent implements OnInit {
     constructor(private fb: FormBuilder) { }
 
     ngOnInit() {
-        console.log(this.widget.query.settings.legend, "settings....")
+        console.log(this.widget.query.settings.legend, 'settings....');
         this.gForm = new FormGroup({
             display : new FormControl(this.widget.query.settings.legend.display || false),
             position: new FormControl(this.widget.query.settings.legend.position ||  'right'),
@@ -48,7 +49,7 @@ export class DonutchartLegendComponent implements OnInit {
         });
 
         this.subs = this.gForm.valueChanges.subscribe(data => {
-            //console.log("form changes...", data);
+            // console.log("form changes...", data);
             this.widgetChange.emit( {action: 'SetLegend', payload: {data: data} } );
         });
     }

@@ -7,7 +7,8 @@
     "debug": "NODE_ENV=dev nodemon --debug ./bin/www",
     "inspect": "NODE_ENV=dev nodemon --inspect ./bin/www"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "bluebird": "^3.5.1",
     "compression": "^1.7.2",
     "cookie-parser": "~1.4.3",

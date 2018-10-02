@@ -20,6 +20,7 @@
 @import './containers/dashboard/dashboard.component.scss'; // nothing to style yet
 
 // components
+@import './components/data-explorer/data-explorer.component';
 @import './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
 @import './components/dashboard-settings-dialog/dashboard-settings-dialog.component';
 @import './components/config-tags-list/config-tags-list.component';
@@ -39,6 +40,7 @@
   @include dashboard-component-base(); // nothing to style yet
 
   // components
+  @include data-explorer-component-base();
   @include dashboard-settings-toggle-component-base();
   @include dashboard-settings-dialog-component-base();
   @include config-tags-list-component-base();
@@ -59,6 +61,7 @@
   @include dashboard-component-theme($theme-config); //nothing to style yet
 
   // components
+  @include data-explorer-component-theme($theme-config);
   @include dashboard-settings-toggle-component-theme($theme-config);
   @include dashboard-settings-dialog-component-theme($theme-config);
   @include config-tags-list-component-theme($theme-config);

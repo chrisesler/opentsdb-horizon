@@ -29,6 +29,7 @@ import { WidgetDirective } from './directives/widget.directive';
 import { WidgetViewDirective } from './directives/widgetview.directive';
 import { DashboardSettingsDialogComponent } from './components/dashboard-settings-dialog/dashboard-settings-dialog.component';
 import { DashboardSettingsToggleComponent } from './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
+import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
 
 @NgModule({
     imports: [
@@ -52,7 +53,8 @@ import { DashboardSettingsToggleComponent } from './components/dashboard-setting
         WidgetViewDirective,
         ConfigTagsListComponent,
         DashboardSettingsDialogComponent,
-        DashboardSettingsToggleComponent
+        DashboardSettingsToggleComponent,
+        DataExplorerComponent
     ],
     providers: [
         DashboardService

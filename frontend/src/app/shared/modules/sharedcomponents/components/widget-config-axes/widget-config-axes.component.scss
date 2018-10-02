@@ -5,6 +5,130 @@
     .widget-config-tab.axes-configuration {
         // style rules here
 
+        &.has-columns .column {
+            display: flex;
+            flex-direction: column;
+
+            // column title/label
+            .mat-body-strong {
+                margin-bottom: 8px;
+            }
+
+            // individual columns - specific width
+            &.y1-axis-container {
+                flex: 1;
+            }
+        }
+
+        .y1-axis-container {
+            .config-control {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                > .mat-label {
+                    width: 70px;
+                    display: inline-flex;
+                    line-height: 24px;
+
+                    &:not(:first-child) {
+                        padding-left: 30px;
+                        padding-right: 30px;
+                        width: initial;
+                        flex-shrink: 0;
+                    }
+                }
+
+                .mat-form-field {
+                    //flex: 1;
+
+                    &.has-right-items {
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                    }
+
+                    /*.mat-form-field-infix {
+                        //display: flex;
+                        //padding: 0 0 0 8px;
+                    }*/
+
+                    .mat-form-field-flex {
+                        border-radius: 4px;
+                    }
+
+                    .mat-input-element {
+                        flex: 1;
+                    }
+                }
+
+                .mat-button-toggle-group {
+                    @include mat-elevation(0);
+                    border-radius: 0;
+
+                    .mat-button-toggle-label-content {
+                        line-height: 1.125;
+                        padding: 8px 16px;
+                    }
+
+                    .mat-icon {
+                        font-size: 14px;
+                        width: initial;
+                        height: initial;
+                    }
+                }
+
+                // MODIFIERS
+
+                // this is first control that primarily acts a column label, but it has a toggle control
+                // so we wrap it in control-config. But some control-config styles are problematic
+                &.with-enable-label {
+                    margin-bottom: initial;
+                    justify-content: flex-start;
+                }
+
+                // Ymin and Ymax have labels before the input
+                // need to adjust the hint placement to be inline with input
+                .mat-form-field.inline-hint {
+                    .mat-input-element {
+                        margin-left: 60px;
+                        width: calc(100% - 60px);
+                    }
+        
+                    .mat-form-field-subscript-wrapper {
+                        padding: 8px 1em;
+                        margin: 0;
+                        top: 0;
+                        white-space: nowrap;
+                        font-size: mat-font-size(map-get($app-fontface-config, sans), body-1);
+                        width: initial;
+                    }
+
+                    .mat-hint {
+                        @include unselectable();
+                    }
+                }
+            }
+
+            .config-control.values-control {
+                .mat-form-field.y1-min {
+                    .mat-form-field-flex {
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                    }
+                }
+
+                .mat-form-field.y1-max {
+                    .mat-form-field-flex {
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                    }
+                }
+            }
+        }
+
+        ////// OLD STYLES //////
+
+        /*
         .column:nth-child(n+2):nth-last-child(n+2) {
             padding-left: 30px;
             padding-right: 30px;
@@ -94,7 +218,7 @@
                     transform: initial;
                 }
             }
-        }
+        }*/
 
 
     }
@@ -116,6 +240,14 @@
     .widget-config-tab.axes-configuration {
         // style rules here
 
+        .mat-form-field.inline-hint {
+            .mat-hint {
+                color: map-get($foreground, hint-text);
+            }
+        }
+
+        ////// OLD STYLES //////
+        /*
         .column:not(:first-child) {
             border-left: 1px solid map-get($foreground, divider);
         }
@@ -124,6 +256,6 @@
             .mat-caption.is-enabled {
                 color: $good-green;
             }
-        }
+        }*/
     }
 }
