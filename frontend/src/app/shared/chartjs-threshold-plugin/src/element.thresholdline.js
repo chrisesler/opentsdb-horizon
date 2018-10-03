@@ -37,6 +37,10 @@ ThresholdLine.prototype.setBorder = function(border) {
  * @param {Object} ctx - target canvas context
  */
 ThresholdLine.prototype.draw = function(ctx) {
+    // don't draw line if out of chart area
+    if ( this.y1 < this.chart.chartArea.top || this.y1 > this.chart.chartArea.bottom ) {
+        return;
+    }
     ctx.beginPath();
 
     if (ctx.setLineDash) {
@@ -47,7 +51,6 @@ ThresholdLine.prototype.draw = function(ctx) {
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = this.options.borderColor || "#000000";
     ctx.lineDashOffset = this.options.borderDashOffset || 0;
-
     ctx.moveTo(this.x1,this.y1);
     ctx.lineTo(this.x2,this.y2);
     ctx.stroke();

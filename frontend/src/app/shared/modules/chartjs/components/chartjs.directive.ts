@@ -73,6 +73,30 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
 
     ngOnChanges(changes: SimpleChanges) {
         if ( changes ) {
+            const self = this;
+            const tickFormatter = function(value) {
+                if ( this.options.ticks && this.options.ticks.format ) {
+                    const unit = this.options.ticks.format.unit;
+                    const precision = this.options.ticks.format.precision ? this.options.ticks.format.precision : 0;
+                    return self.uConverter.format(value, { unit: unit, precision: precision } );
+                } else {
+                    return value;
+                }
+            };
+
+            if ( this.options.scales ) {
+                Object.keys(this.options.scales).forEach( k => {
+                    this.options.scales[k].forEach( axis => {
+                        if ( axis.ticks ) {
+                            if ( axis.ticks.format ) {
+                                axis.ticks.callback = tickFormatter;
+                            } else {
+                                delete axis.ticks.callback;
+                            }
+                        }
+                    });
+                });
+            }
             if ( !this.chart && this.data ) {
                 const ctx = this.element.nativeElement.getContext('2d');
                 this.updateDatasets(this.data);
@@ -92,31 +116,6 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                     this.chart.data.datasets.push(dataset);
                 });
                 this.chart.data.labels = this.options.labels;
-
-                const self = this;
-                const tickFormatter = function(value) {
-                    if ( this.options.ticks.format ) {
-                        const unit = this.options.ticks.format.unit;
-                        const precision = this.options.ticks.format.precision ? this.options.ticks.format.precision : 0;
-                        return self.uConverter.format(value, { unit: unit, precision: precision } );
-                    } else {
-                        return value;
-                    }
-                };
-
-                if ( this.options.scales ) {
-                    Object.keys(this.options.scales).forEach( k => {
-                        this.options.scales[k].forEach( axis => {
-                            if ( axis.ticks ) {
-                                if ( axis.ticks.format ) {
-                                    axis.ticks.callback = tickFormatter;
-                                } else {
-                                    delete axis.ticks.callback;
-                                }
-                            }
-                        });
-                    });
-                }
                 this.chart.options = Object.assign(this.defaultOptions, this.options);
                 this.chart.update(0);
             }  else if ( this.chart && changes.chartType ) {
@@ -155,7 +154,7 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
 
     setColor( dataset, n ) {
             const colors = dataset.backgroundColor || this.getColors(n);
-            dataset.backgroundColor = this.getAlpha(colors.concat([]), 0.5);
+            dataset.backgroundColor = colors;//this.getAlpha(colors.concat([]), 0.5);
             dataset.borderWidth = 1;
             dataset.borderColor = colors;
     }
