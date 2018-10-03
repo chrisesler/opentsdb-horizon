@@ -1,7 +1,7 @@
 import {inject, TestBed} from '@angular/core/testing';
 import {DayTimeCalendarService} from './day-time-calendar.service';
 import * as momentNs from 'moment';
-import {UtilsService} from '../common/services/utils.service';
+import {UtilsService} from '../../../../../core/services/utils.service';
 import {DayCalendarService} from '../day-calendar/day-calendar.service';
 import {TimeSelectService} from '../time-select/time-select.service';
 import {IDayCalendarConfigInternal} from '../day-calendar/day-calendar-config.model';
