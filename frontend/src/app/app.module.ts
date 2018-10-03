@@ -22,7 +22,6 @@ import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 // our
 import { AdminModule } from './admin/admin.module';
 import { AdhocModule } from './adhoc/adhoc.module';
-import { KitchenSinkModule } from './kitchen-sink/kitchen-sink.module';
 import { NavbarModule } from './shared/modules/navbar/navbar.module';
 
 import { AuthInterceptor } from './core/http/auth.interceptor';
@@ -49,7 +48,6 @@ import { CredentialsInterceptor } from './core/http/credentials.interceptor';
     NgxsReduxDevtoolsPluginModule.forRoot({ disabled: environment.production }),
     AdminModule,
     AdhocModule,
-    KitchenSinkModule,
     NavbarModule
   ],
   providers: [
