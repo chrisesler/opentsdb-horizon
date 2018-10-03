@@ -284,6 +284,29 @@ module.exports = function () {
                             }
                         }
                     };
+        var tagKeyValueCondition =  function(key, pattern) {
+            return {
+                        "nested": {
+                            "path": "tags",
+                            "query": {
+                                "bool": {
+                                    "must": [
+                                        {
+                                            "term": {
+                                                "tags.key.lowercase": key
+                                            }
+                                        },
+                                        {
+                                            "regexp": {
+                                                "tags.value": pattern
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                };
+        }
         var regexCondition = function(key, pattern) {
             var regexCondition = {
                 "regexp": {}
@@ -297,15 +320,24 @@ module.exports = function () {
                         };
         
         var patterns = pattern.split(",");
+        var freeTextSearch = false;
         for ( var i=0; i< patterns.length; i++ ) {
-            var esPattern = convertPatternESCompat(patterns[i]);
-            metricCondition.nested.query.bool.should.push(regexCondition( "AM_nested.name.lowercase" , esPattern));
-            tagKeyCondition.nested.query.bool.should.push(regexCondition( "tags.key.lowercase" , esPattern));
-            tagValueCondition.nested.query.bool.should.push(regexCondition( "tags.value" , esPattern));
+            if ( patterns[i].indexOf(":") !== -1 ) {
+                var kv = patterns[i].split(":");
+                condition.bool.should.push(tagKeyValueCondition(kv[0],convertPatternESCompat(kv[1])));
+            } else {
+                freeTextSearch = true;
+                var esPattern = convertPatternESCompat(patterns[i]);
+                metricCondition.nested.query.bool.should.push(regexCondition( "AM_nested.name.lowercase" , esPattern));
+                tagKeyCondition.nested.query.bool.should.push(regexCondition( "tags.key.lowercase" , esPattern));
+                tagValueCondition.nested.query.bool.should.push(regexCondition( "tags.value" , esPattern));
+            }
         }
-        condition.bool.should.push(metricCondition);
-        condition.bool.should.push(tagKeyCondition);
-        condition.bool.should.push(tagValueCondition);
+        if ( freeTextSearch ) {
+            condition.bool.should.push(metricCondition);
+            condition.bool.should.push(tagKeyCondition);
+            condition.bool.should.push(tagValueCondition);
+        }
         return condition;
     };
     

@@ -401,7 +401,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 }
                 const o = {
                     value: oUnit ? threshold.value * oUnit.m : threshold.value,
-                    scaleId: 'y-axis-0',
+                    scaleId: this.type === 'vertical' ? 'y-axis-0' : 'x-axis-0',
                     borderColor: threshold.lineColor,
                     borderWidth: parseInt(threshold.lineWeight, 10),
                     borderDash: lineType
