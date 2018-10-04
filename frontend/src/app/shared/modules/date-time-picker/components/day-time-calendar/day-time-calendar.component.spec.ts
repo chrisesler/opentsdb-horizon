@@ -5,7 +5,7 @@ import {DayTimeCalendarService} from './day-time-calendar.service';
 import {DayCalendarComponent} from '../day-calendar/day-calendar.component';
 import {TimeSelectService} from '../time-select/time-select.service';
 import {DayCalendarService} from '../day-calendar/day-calendar.service';
-import {UtilsService} from '../common/services/utils.service';
+import {UtilsService} from '../../../../../core/services/utils.service';
 import {MonthCalendarComponent} from '../month-calendar/month-calendar.component';
 import {CalendarNavComponent} from '../calendar-nav/calendar-nav.component';
 
