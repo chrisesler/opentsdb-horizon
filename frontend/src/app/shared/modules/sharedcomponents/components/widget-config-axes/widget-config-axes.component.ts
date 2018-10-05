@@ -3,6 +3,10 @@ import { Component, OnInit, OnDestroy, AfterViewInit, HostBinding, Input, Output
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 
 import { Subscription } from 'rxjs/Subscription';
+import { debounceTime } from 'rxjs/operators/debounceTime';
+import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
+
+
 import { isDefaultChangeDetectionStrategy } from '@angular/core/src/change_detection/constants';
 
 @Component({
@@ -36,6 +40,8 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
 
     // subscriptions
     widgetConfigAxes_Sub: Subscription;
+    y1UnitSub: Subscription;
+    y2UnitSub: Subscription;
 
 
     /** Form Control Options */
@@ -89,7 +95,7 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
         }
     ];
 
-    constructor(private fb: FormBuilder) { }
+    constructor(private fb: FormBuilder, private unit: UnitConverterService) { }
 
     ngOnInit() {
         // populate form controls
@@ -118,22 +124,52 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
                 this.widgetConfigAxes.addControl('y1', this.getAxisFormGroup(this.getAxisConfiguration('y1')));
                 this.widgetConfigAxes.addControl('y2', this.getAxisFormGroup(this.getAxisConfiguration('y2')));
             break;
-
         }
 
-        this.widgetConfigAxes.valueChanges.distinctUntilChanged( (prev, curr) => {
-            console.log('PREVIOUS/CURRENT', prev, curr);
-            return prev === curr;
-        });
+        this.y1UnitSub = this.widgetConfigAxes.controls['y1']['controls'].unit.valueChanges.subscribe( function(unit) {
+            const oUnit = this.unit.getDetails(this.widget.query.settings.axes.y1.unit);
+            const nUnit = this.unit.getDetails(unit);
+            let min = this.widgetConfigAxes.controls['y1']['controls'].min.value.toString().trim();
+            let max = this.widgetConfigAxes.controls['y1']['controls'].max.value.toString().trim();
 
-        this.widgetConfigAxes_Sub = this.widgetConfigAxes.valueChanges.subscribe(function(data) {
-            console.log('AXES CHANGES', data);
-            // no X axis for now
-            // this.xAxisEnabled_label = (data.xAxisEnabled) ? 'enabled' : 'disabled';
-            this.y1AxisEnabled_label = (data.y1.enabled) ? 'enabled' : 'disabled';
-            this.y2AxisEnabled_label = (data.y2.enabled) ? 'enabled' : 'disabled';
-            this.widgetChange.emit( {action: 'SetAxes', payload: { data: data }} );
+            if ( min !== 'auto' && min !== '' ) {
+                min = oUnit ? min * oUnit.m : min;
+                this.widgetConfigAxes.controls['y1']['controls'].min.setValue(nUnit ? min / nUnit.m : min);
+            }
+            if ( max !== 'auto' && max !== '' ) {
+                max = oUnit ? max * oUnit.m : max;
+                this.widgetConfigAxes.controls['y1']['controls'].max.setValue(nUnit ? max / nUnit.m : max);
+            }
         }.bind(this));
+
+        if ( this.widget.settings.component_type === 'LinechartWidgetComponent' ) {
+            this.y2UnitSub = this.widgetConfigAxes.controls['y2']['controls'].unit.valueChanges.subscribe( function(unit) {
+                const oUnit = this.unit.getDetails(this.widget.query.settings.axes.y2.unit);
+                const nUnit = this.unit.getDetails(unit);
+                let min = this.widgetConfigAxes.controls['y2']['controls'].min.value.toString().trim();
+                let max = this.widgetConfigAxes.controls['y2']['controls'].max.value.toString().trim();
+
+                if ( min !== 'auto' && min !== '' ) {
+                    min = oUnit ? min * oUnit.m : min;
+                    this.widgetConfigAxes.controls['y2']['controls'].min.setValue(nUnit ? min / nUnit.m : min);
+                }
+                if ( max !== 'auto' && max !== '' ) {
+                    max = oUnit ? max * oUnit.m : max;
+                    this.widgetConfigAxes.controls['y2']['controls'].max.setValue(nUnit ? max / nUnit.m : max);
+                }
+            }.bind(this));
+        }
+
+        this.widgetConfigAxes_Sub = this.widgetConfigAxes.valueChanges
+                                        // delay is required since we convert the min & max values to the respective unit size
+                                        .pipe(debounceTime(500))
+                                        .subscribe(function(data) {
+                                            console.log(" axes form data changed");
+                                            this.xAxisEnabled_label = (data.xAxisEnabled) ? 'enabled' : 'disabled';
+                                            this.y1AxisEnabled_label = (data.y1AxisEnabled) ? 'enabled' : 'disabled';
+                                            this.y2AxisEnabled_label = (data.y2AxisEnabled) ? 'enabled' : 'disabled';
+                                            this.widgetChange.emit( {action: 'SetAxes', payload: { data: data }} );
+                                        }.bind(this));
     }
 
     getAxisConfiguration(axis) {
@@ -168,6 +204,10 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
     ngOnDestroy() {
         // destroy any subscriptions
         this.widgetConfigAxes_Sub.unsubscribe();
+        this.y1UnitSub.unsubscribe();
+        if ( this.y2UnitSub ) {
+            this.y2UnitSub.unsubscribe();
+        }
     }
 
     /* function to attach to unit dropdown component when it gets finished

@@ -12,7 +12,6 @@
 @import 'app.component';
 
 @import 'shared/modules/navbar/navbar.style-module';
-@import 'kitchen-sink/kitchen-sink.style-module';
 @import 'landing-page/landing-page.style-module';
 @import 'dashboard/dashboard.style-module';
 
@@ -26,7 +25,6 @@
     @include app-common-base();
     @include app-root-base();
     @include navbar-module-core();
-    @include kitchen-sink-module-core();
     @include landing-page-module-core();
     @include dashboard-module-core();
     @include dynamic-widgets-module-core();
@@ -40,7 +38,6 @@
     @include app-common-theme($theme-config);
     @include app-root-theme($theme-config);
     @include navbar-module-theme($theme-config);
-    @include kitchen-sink-module-theme($theme-config);
     @include landing-page-module-theme($theme-config);
     @include dashboard-module-theme($theme-config);
     @include dynamic-widgets-module-theme($theme-config);

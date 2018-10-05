@@ -4,7 +4,7 @@
         <div class="config-control value-control">
             <span class="mat-label">Value</span>
             <mat-form-field appearance="fill" color="primary">
-                <input  matInput [formControlName]="value">
+                <input  matInput formControlName="value">
                 <mat-error *ngIf="formGroups.controls[index].controls.value.invalid">
                         Number only.
                 </mat-error>

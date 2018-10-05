@@ -11,7 +11,7 @@
             "source": [
                 {
                     "protocol": "https",
-                    "host": "proxy-meta-bf1.yamas.ops.yahoo.com",
+                    "host": "proxy-meta-gq1.yamas.ops.yahoo.com",
                     "port": 4443
                 }
             ],

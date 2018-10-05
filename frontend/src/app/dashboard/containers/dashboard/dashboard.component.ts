@@ -15,7 +15,7 @@ import { ISelectedTime } from '../../../shared/modules/date-time-picker/models/m
 import { UtilsService } from '../../../shared/modules/date-time-picker/services/utils.service';
 
 import { DBState, LoadDashboard } from '../../state/dashboard.state';
-import { WidgetsState, LoadWidgets, UpdateGridPos, WidgetModel} from '../../state/widgets.state';
+import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, WidgetModel} from '../../state/widgets.state';
 import { WidgetsRawdataState, GetQueryDataByGroup } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import {
@@ -185,6 +185,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     console.log('the query: ', message.payload);
                     // payload needs to break into group to send in
                     this.handleQueryPayload(message);
+                    break;
+                case 'updateWidgetConfig':
+                    this.store.dispatch(new UpdateWidget(message.payload));
+                    // many way to handle this, but we should do with the way
+                    // store suppose to work.
+                    //const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
+                    //console.log('getting updated widget', message.payload, updatedWidget);
+                    
+                    this.interCom.responsePut({
+                        id: message.payload.id,
+                        action: 'getUpdatedWidgetConfig',
+                        payload: message.payload
+                    });
                     break;
                 default:
                     break;
