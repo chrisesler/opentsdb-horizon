@@ -1,76 +1,101 @@
-<!-- hrm.... material table or use natural table with classes ... think about this -->
+<!-- LINE CHART COMPONENT -->
 <ng-template [ngIf]="widget.settings.component_type==='LinechartWidgetComponent'">
-    <form [formGroup]="gForms">
-    <div *ngFor="let group of widget.query.groups; let gIndex=index">
-        <div>
-            <label class="display-label">{{ group.title }}</label>
-        </div>
-        <mat-table [dataSource]="group.queries" [formArrayName]="gIndex">
-            <ng-container cdkColumnDef="settings.visual.type">
-                    <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                            <dropdown-visual-type  formControlName="type"></dropdown-visual-type>
-                    </mat-cell>
-            </ng-container>
-            <ng-container cdkColumnDef="settings.visual.color">
-                <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                    <color-picker  (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
-                </mat-cell>
-            </ng-container>
-            <ng-container cdkColumnDef="settings.visual.lineWeight">
-                    <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                            <dropdown-line-weight  formControlName="lineWeight"></dropdown-line-weight>
-                    </mat-cell>
-            </ng-container>
-            <ng-container cdkColumnDef="settings.visual.lineType">
-                    <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                            <dropdown-line-type  formControlName="lineType"></dropdown-line-type>
-                    </mat-cell>
-            </ng-container>
-            <ng-container cdkColumnDef="settings.visual.axis">
-                    <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                        <mat-radio-group  formControlName="axis">
-                            <mat-radio-button   value="y1">Y1</mat-radio-button>
-                            <mat-radio-button   value="y2">Y2</mat-radio-button>
-                        </mat-radio-group>
-                    </mat-cell>
-            </ng-container>
-            <mat-row *cdkRowDef="let row;  columns: ['settings.visual.type','settings.visual.color','settings.visual.lineWeight','settings.visual.lineType', 'settings.visual.axis']"></mat-row>
-        </mat-table>
+    <div class="column linechart-container" [formGroup]="gForms">
+        <table class="mat-table">
+            <thead>
+                <tr class="mat-header-row">
+                    <td class="mat-header-cell mat-column-folder-icon"></td>
+                    <th class="mat-header-cell mat-column-metric">Metric</th>
+                    <th class="mat-header-cell mat-column-mode">Mode</th>
+                    <th class="mat-header-cell mat-column-color-family">Color Family</th>
+                    <th class="mat-header-cell mat-column-line-weight">Line Weight</th>
+                    <th class="mat-header-cell mat-column-line-type">Line Type</th>
+                    <th class="mat-header-cell mat-column-axes">Axes</th>
+                    <th class="mat-header-cell mat-column-collapse"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let group of widget.query.groups; let gIndex=index">
+                    <tr class="metric-group-row">
+                        <td class="mat-cell mat-column-folder-icon">
+                            <mat-icon fontSet="denali" fontIcon="d-folder"></mat-icon>
+                        </td>
+                        <td class="mat-cell mat-column-metric">
+                            <span>{{group.title}}</span>
+                        </td>
+                        <td class="mat-cell mat-column-mode"></td>
+                        <td class="mat-cell mat-column-color-family"></td>
+                        <td class="mat-cell mat-column-line-weight"></td>
+                        <td class="mat-cell mat-column-line-type"></td>
+                        <td class="mat-cell mat-column-axes"></td>
+                        <td class="mat-cell mat-column-collapse"></td>
+                    </tr>
+                    <tr class="mat-row" *ngFor="let query of group.queries; let index = index" [formArrayName]="gIndex">
+                        <td colspan="2" class="mat-cell mat-column-metric" [formGroupName]="index">
+                            <mat-form-field appearance="fill">
+                                <input matInput formControlName="label">
+                                <mat-hint>{{query.metric}}</mat-hint>
+                            </mat-form-field>
+                        </td>
+                        <td class="mat-cell mat-column-mode" [formGroupName]="index"> 
+                            <dropdown-visual-type  formControlName="type"></dropdown-visual-type>   
+                        </td>
+                        <td class="mat-cell mat-column-color-family" [formGroupName]="index">
+                            <color-picker (newColor)="selectColor($event, gIndex, index)" [color]="query.settings.visual.color"></color-picker>
+                        </td>
+                        <td class="mat-cell mat-column-line-weight" [formGroupName]="index">
+                            <dropdown-line-weight formControlName="lineWeight"></dropdown-line-weight>
+                        </td>
+                        <td class="mat-cell mat-column-line-type" [formGroupName]="index">
+                            <dropdown-line-type formControlName="lineType"></dropdown-line-type>
+                        </td>
+                        <td class="mat-cell mat-column-axes" colspan="2" [formGroupName]="index">
+                            <mat-radio-group  formControlName="axis">
+                                <mat-radio-button value="y1">Y1</mat-radio-button>
+                                <mat-radio-button value="y2">Y2</mat-radio-button>
+                            </mat-radio-group>
+                        </td>
+                    </tr>           
+                </ng-container>
+            </tbody>
+        </table>
     </div>
-    </form>
 </ng-template>
-<ng-template [ngIf]="widget.settings.component_type==='BarchartWidgetComponent' || widget.settings.component_type==='StackedBarchartWidgetComponent'">
-    <div class="column">
-        <div>
-        <label class="display-label">Display</label>
+<!-- BAR CHART COMPONENT -->
+<ng-template [ngIf]="widget.settings.component_type==='BarchartWidgetComponent'">
+    <div class="column display-modifier-container">
+        <div class="config-control">
+            <span class="mat-label mat-body-strong">Display</span>
         </div>
-        <mat-button-toggle-group *ngIf="widget.settings.component_type!=='DonutWidgetComponent'" [formControl]="displayControl" class="display-toggle-group">
+        <div class="config-control">
+            <mat-button-toggle-group class="display-modifier" vertical="true" [formControl]="displayControl">
                 <mat-button-toggle value="vertical">
-                <mat-icon fontSet="denali" fontIcon="d-chart-bar-vertical"></mat-icon>
-                Vertical
+                    <mat-icon fontSet="denali" fontIcon="d-chart-bar-vertical"></mat-icon>
+                    <span>Vertical</span>
                 </mat-button-toggle>
                 <mat-button-toggle value="horizontal">
-                <mat-icon fontSet="denali" fontIcon="d-chart-bar-horizontal"></mat-icon>
-                Horizontal
+                    <mat-icon fontSet="denali" fontIcon="d-chart-bar-horizontal"></mat-icon>
+                    <span>Horizontal</span>
                 </mat-button-toggle>
-        </mat-button-toggle-group>
-    </div>
-    <div class="column">
-        <div>
-            <label class="display-label">Bars</label>
+            </mat-button-toggle-group>
         </div>
-        <form [formGroup]="gForms">
+    </div>
+    <div class="column barchart-container" [formGroup]="gForms">
+        <div class="config-control">
+            <span class="mat-label mat-body-strong">Bars</span>
+        </div>
         <mat-table *ngFor="let ds of dataSources; let gIndex=index" [dataSource]="ds" [formArrayName]="gIndex">
             <ng-container cdkColumnDef="metric">
-                <mat-cell *cdkCellDef="let row; let index=index">   Bar {{ index+1 }} </mat-cell>
+                <mat-cell *cdkCellDef="let row; let index=index"> Bar {{ index+1 }} </mat-cell>
             </ng-container>
 
             <ng-container cdkColumnDef="settings.visual.stackLabel">
-                    <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                        <mat-form-field appearance="fill">
-                            <input matInput placeholder="Alias" formControlName="stackLabel">
-                        </mat-form-field>
-                    </mat-cell>
+                <mat-cell *cdkCellDef="let row;let index = index" [formGroupName]="index">
+                    <mat-form-field appearance="fill">
+                        <input matInput placeholder="Alias" formControlName="stackLabel">
+                        <mat-hint>{{row.metric}}</mat-hint>
+                    </mat-form-field>
+                </mat-cell>
             </ng-container>
 
             <ng-container cdkColumnDef="settings.visual.color">
@@ -80,51 +105,114 @@
             </ng-container>
             <mat-row *cdkRowDef="let row;  columns: ['metric','settings.visual.stackLabel','settings.visual.color']"></mat-row>
         </mat-table>
-        </form>
-    </div>
+    </div>    
 </ng-template>
-<!-- hrm.... material table or use natural table with classes ... think about this -->
-<ng-template [ngIf]="widget.settings.component_type==='DonutWidgetComponent'">
-        <div class="column">
-            <div>
-            <label class="display-label">Display</label>
-            </div>
-            <mat-button-toggle-group [formControl]="displayControl" class="display-toggle-group">
-                    <mat-button-toggle value="pie">
-                    <mat-icon fontSet="denali" fontIcon=""></mat-icon>
-                    Pie Chart
-                    </mat-button-toggle>
-                    <mat-button-toggle value="doughnut">
-                    <mat-icon fontSet="denali" fontIcon="d-chart-bar"></mat-icon>
-                    Donut Chart
-                    </mat-button-toggle>
+<!-- BAR CHART AND STACKED BAR CHART COMPONENTS -->
+<ng-template [ngIf]="widget.settings.component_type==='StackedBarchartWidgetComponent'">
+    <div class="column display-modifier-container">
+        <div class="config-control">
+            <span class="mat-label mat-body-strong">Display</span>
+        </div>
+        <div class="config-control">
+            <mat-button-toggle-group class="display-modifier" vertical="true" [formControl]="displayControl">
+                <mat-button-toggle value="vertical">
+                    <mat-icon fontSet="denali" fontIcon="d-chart-bar-vertical"></mat-icon>
+                    <span>Vertical</span>
+                </mat-button-toggle>
+                <mat-button-toggle value="horizontal">
+                    <mat-icon fontSet="denali" fontIcon="d-chart-bar-horizontal"></mat-icon>
+                    <span>Horizontal</span>
+                </mat-button-toggle>
             </mat-button-toggle-group>
         </div>
-        <div class="column">
-            <div>
-                <label class="display-label">Sections</label>
-            </div>
-            <form [formGroup]="gForms">
-            <mat-table *ngFor="let ds of dataSources; let gIndex=index" [dataSource]="ds" [formArrayName]="gIndex">
-                <ng-container cdkColumnDef="metric">
-                    <mat-cell *cdkCellDef="let row; let index=index">   Section {{ index+1 }} </mat-cell>
-                </ng-container>
-    
-                <ng-container cdkColumnDef="settings.visual.stackLabel">
-                        <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                            <mat-form-field appearance="fill">
-                                <input matInput placeholder="Alias" formControlName="stackLabel">
-                            </mat-form-field>
-                        </mat-cell>
-                </ng-container>
-    
-                <ng-container cdkColumnDef="settings.visual.color">
-                    <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
-                        <color-picker  (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
-                    </mat-cell>
-                </ng-container>
-                <mat-row *cdkRowDef="let row;  columns: ['metric','settings.visual.stackLabel','settings.visual.color']"></mat-row>
-            </mat-table>
-            </form>
+    </div>
+    <div class="column stackbars-container" [formGroup]="gForms">
+        <div class="config-control">
+            <span class="mat-label mat-body-strong">Bars</span>
         </div>
+        <mat-table [dataSource]="widget.query.groups" formArrayName="bars">
+            <ng-container cdkColumnDef="id">
+                <mat-cell *cdkCellDef="let row; let index=index"> Bar {{ index+1 }} </mat-cell>
+            </ng-container>
+            <ng-container cdkColumnDef="title">
+                <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                    <mat-form-field appearance="fill">
+                        <input matInput formControlName="label">
+                    </mat-form-field>
+                </mat-cell>
+            </ng-container>
+            <mat-row *cdkRowDef="let row;  columns: ['id','title']"></mat-row>
+        </mat-table>
+        <!--<div>{{widget.query.groups|json}}</div>-->
+    </div>
+    <div class="column stacks-container" [formGroup]="gForms">
+        <div class="config-control">
+            <span class="mat-label mat-body-strong">Stacks</span>
+        </div>
+        <mat-table [dataSource]="widget.query.settings.visual.stacks" formArrayName="stacks">
+            <ng-container cdkColumnDef="id">
+                <mat-cell *cdkCellDef="let row; let index=index"> Stack {{ index+1 }} </mat-cell>
+            </ng-container>
+            <ng-container cdkColumnDef="label">
+                <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                    <mat-form-field appearance="fill">
+                        <input matInput formControlName="label">
+                    </mat-form-field>
+                </mat-cell>
+            </ng-container>
+            <ng-container cdkColumnDef="color">
+                <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                    <color-picker (newColor)="selectStackColor($event, index)" [color]="row.color"></color-picker>
+                </mat-cell>
+            </ng-container>
+            <mat-row *cdkRowDef="let row;  columns: ['id','label','color']"></mat-row>
+        </mat-table>
+        <!--<div>{{widget.query.settings.visual.stacks|json}}</div>-->
+    </div>
+</ng-template>
+<!-- DONUT CHART COMPONENT -->
+<ng-template [ngIf]="widget.settings.component_type==='DonutWidgetComponent'">
+     <div class="column display-modifier-container">
+        <div class="config-control">
+            <span class="mat-label mat-body-strong">Display</span>
+        </div>
+        <div class="config-control">
+            <mat-button-toggle-group class="display-modifier" vertical="true" [formControl]="displayControl">
+                <mat-button-toggle value="pie">
+                    <mat-icon fontSet="denali" fontIcon="d-chart-pie"></mat-icon>
+                    <span>Pie Cart</span>
+                </mat-button-toggle>
+                <mat-button-toggle value="doughnut">
+                    <mat-icon fontSet="denali" fontIcon="d-chart-donut"></mat-icon>
+                    <span>Donut Chart</span>
+                </mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+    </div>
+    <div class="column circlechart-container" [formGroup]="gForms">
+        <div class="config-control">
+            <span class="mat-label mat-body-strong">Sections</span>
+        </div>
+        <mat-table *ngFor="let ds of dataSources; let gIndex=index" [dataSource]="ds" [formArrayName]="gIndex">
+            <ng-container cdkColumnDef="metric">
+                <mat-cell *cdkCellDef="let row; let index=index">   Section {{ index+1 }} </mat-cell>
+            </ng-container>
+
+            <ng-container cdkColumnDef="settings.visual.stackLabel">
+                <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                    <mat-form-field appearance="fill">
+                        <input matInput placeholder="Alias" formControlName="stackLabel">
+                        <mat-hint>{{row.metric}}</mat-hint>
+                    </mat-form-field>
+                </mat-cell>
+            </ng-container>
+
+            <ng-container cdkColumnDef="settings.visual.color">
+                <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
+                    <color-picker  (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
+                </mat-cell>
+            </ng-container>
+            <mat-row *cdkRowDef="let row;  columns: ['metric','settings.visual.stackLabel','settings.visual.color']"></mat-row>
+        </mat-table>
+    </div>    
 </ng-template>

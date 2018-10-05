@@ -125,8 +125,6 @@
 
     .mat-form-field {
 
-        
-        
         // if mat-form-field[floatLabel="never"
         &.mat-form-field-hide-placeholder {
             .mat-form-field-wrapper {
@@ -175,6 +173,10 @@
 
             .mat-form-field-underline {
                 bottom: 0;
+            }
+
+            .mat-form-field-ripple {
+                height: 1 !important;
             }
 
             .mat-form-field-subscript-wrapper {
@@ -226,6 +228,12 @@
                     align-items: center;
                 }
             }
+        }
+    }
+
+    .mat-radio-group {
+        .mat-radio-button:not(:last-child) {
+            margin-right: 10px;
         }
     }
 
@@ -315,10 +323,10 @@
                 }
             }
 
-            &.mat-focused,
+            /*&.mat-focused,
             &:hover {
                 @include mat-elevation(1);
-            }
+            }*/
         }
 
         &.mat-form-field-legacy {

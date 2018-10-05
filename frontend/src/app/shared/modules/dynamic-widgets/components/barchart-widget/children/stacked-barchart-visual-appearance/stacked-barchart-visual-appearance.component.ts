@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class StackedBarchartVisualAppearanceComponent implements OnInit {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
-    @HostBinding('class.visual-appearance-configuration') private _tabClass = true;
+    @HostBinding('class.stacked-barchart-visual-appearance-configuration') private _tabClass = true;
 
 
     displayControl: FormControl;

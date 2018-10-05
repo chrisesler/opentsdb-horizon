@@ -1,11 +1,12 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, Input, Output, EventEmitter, forwardRef } from '@angular/core';
 import { FormControl, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
+  // tslint:disable-next-line:component-selector
   selector: 'dropdown-visual-type',
   templateUrl: './dropdown-visual-type.component.html',
-  styleUrls: ['./dropdown-visual-type.component.scss'],
+  styleUrls: [],
   providers: [{
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => DropdownVisualTypeComponent),
@@ -13,6 +14,8 @@ import { Subscription } from 'rxjs/Subscription';
     }]
 })
 export class DropdownVisualTypeComponent implements OnInit, OnDestroy, ControlValueAccessor {
+    @HostBinding('class.dropdown-visual-type') private _hostClass = true;
+
     @Input() value;
 
     @Output()
@@ -21,11 +24,13 @@ export class DropdownVisualTypeComponent implements OnInit, OnDestroy, ControlVa
     visualTypeOptions: Array<object> = [
         {
             label: 'Line',
-            value: 'line'
+            value: 'line',
+            icon: 'd-chart-line'
         },
         {
             label: 'Bar',
-            value: 'bar'
+            value: 'bar',
+            icon: 'd-chart-bar-vertical'
         }
     ];
 
@@ -33,6 +38,22 @@ export class DropdownVisualTypeComponent implements OnInit, OnDestroy, ControlVa
     defaultVisualType = 'line';
 
     subscription: Subscription;
+
+    get triggerIcon(): string {
+        const val: string = this.visualTypeControl.value;
+        const obj: any = this.visualTypeOptions.filter(function(opt: any) {
+            return opt.value === val;
+        });
+        return obj[0].icon;
+    }
+
+    get triggerLabel(): string {
+        const val: string = this.visualTypeControl.value;
+        const obj: any = this.visualTypeOptions.filter(function(opt: any) {
+            return opt.value === val;
+        });
+        return obj[0].label;
+    }
 
     constructor() { }
 

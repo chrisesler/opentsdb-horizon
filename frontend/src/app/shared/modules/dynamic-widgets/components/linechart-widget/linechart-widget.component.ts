@@ -29,7 +29,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     @Input() widget: WidgetModel;
 
     @ViewChild('widgetoutput') private widgetOutputElement: ElementRef;
-    @ViewChild('dygraphLegendLeft') private dygraphLegendLeft: ElementRef;
+    @ViewChild('graphLegend') private dygraphLegend: ElementRef;
 
     private listenSub: Subscription;
     // tslint:disable-next-line:no-inferrable-types
@@ -88,7 +88,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 // subscribe to event stream
                 this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
 
-                    switch( message.action ) {
+                    //console.log('MESSAGE', message);
+                    switch ( message.action ) {
                         case 'resizeWidget':
                             this.setSize();
                             break;
@@ -228,7 +229,14 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setSize() {
-        const wm =  this.widget.query.settings.legend.display &&
+
+        console.group('LINE-CHART');
+            console.log('WIDGET', this.widget);
+            console.log('EDIT MODE', this.editMode);
+            console.log('ELEMENT', this.widgetOutputElement);
+            console.log('OFFSET HEIGHT', this.widgetOutputElement.nativeElement.offsetHeight, this.widgetOutputElement.nativeElement.getBoundingClientRect());
+        console.groupEnd();
+        /*const wm =  this.widget.query.settings.legend.display &&
                     ( this.widget.query.settings.legend.position === 'left' ||
                         this.widget.query.settings.legend.position === 'right' ) ? .8 : 1;
         const hm = this.widget.query.settings.legend.display &&
@@ -237,11 +245,45 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         // update graph content size
         const nWidth = this.widgetOutputElement.nativeElement.offsetWidth * wm;
         // let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
-        let nHeight = this.editMode ? 300 : this.widgetOutputElement.nativeElement.offsetHeight;
+        let nHeight = this.editMode ? 270 : this.widgetOutputElement.nativeElement.offsetHeight;
         nHeight = nHeight * hm;
         // const titleSpace = this.editMode ? 30 : 0;
-        this.size = { width: nWidth - 24, height: nHeight - 50 };
-        // console.log("sie", nWidth, nHeight, wm, hm, this.size);
+        this.size = { width: nWidth - 24, height: nHeight };
+        // console.log("sie", nWidth, nHeight, wm, hm, this.size);*/
+
+        // REDOING THIS - Wasn't really rendering correctly
+
+        // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
+        // and read the size of the first element above the componentHostEl
+        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
+
+        const outputSize = nativeEl.getBoundingClientRect();
+
+        let nWidth, nHeight, padding;
+
+        const legendSettings = this.widget.query.settings.legend;
+
+        const widthModifier = legendSettings.display &&
+                              ( legendSettings.position === 'left' ||
+                                legendSettings.position === 'right' ) ? .8 : 1;
+
+        const heightModifier = legendSettings.display &&
+                               ( legendSettings.position === 'top' ||
+                                 legendSettings.position === 'bottom' ) ? .8 : 1;
+
+        if (this.editMode) {
+            padding = 8; // 8px top and bottom
+            nHeight = ((outputSize.height - 100) * heightModifier) - (padding * 2);
+            nWidth = (outputSize.width * widthModifier) - (padding * 2);
+        } else {
+            padding = 10; // 10px on the top
+            nHeight = (outputSize.height * heightModifier) - (padding * 2);
+            nWidth = (outputSize.width * widthModifier) - (padding * 2);
+        }
+
+        this.size = {width: nWidth, height: nHeight };
+
+
     }
 
     setTimezone(timezone) {
@@ -413,8 +455,12 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         this.options.labelsDiv = null;
         this.options.legend = 'follow';
         if ( lConfig.display ) {
-            const position = lConfig.position[0].toUpperCase() + lConfig.position.slice(1);
+            /*const position = lConfig.position[0].toUpperCase() + lConfig.position.slice(1);
             const legendDiv = this.elRef.nativeElement.querySelector('#dygraphLegend' + position );
+            this.options.labelsDiv = lConfig.display ? legendDiv  : null;
+            this.options.legend = lConfig.display ? 'always' : 'follow';*/
+
+            const legendDiv = this.dygraphLegend.nativeElement;
             this.options.labelsDiv = lConfig.display ? legendDiv  : null;
             this.options.legend = lConfig.display ? 'always' : 'follow';
         }

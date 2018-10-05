@@ -2,9 +2,35 @@
  * YAMAS - HORIZON HELPER CLASSES
  */
 
+.display-flex {
+    display: flex;
+}
+
+.flex {
+    flex: 1;
+}
+
 .flex-spacer {
     flex: 1 1 auto;
 }
+
+.flex-col {
+    flex-direction: column;
+}
+
+.flex-col-reverse {
+    flex-direction: column-reverse
+}
+
+.flex-row {
+    flex-direction: row;
+}
+
+.flex-row-reverse {
+    flex-direction: row-reverse;
+}
+
+
 
 .can-truncate {
     text-overflow: ellipsis;

@@ -1,12 +1,13 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, Input, Output, EventEmitter, forwardRef } from '@angular/core';
 import { FormControl, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
 
 @Component({
+  // tslint:disable-next-line:component-selector
   selector: 'dropdown-line-type',
   templateUrl: './dropdown-line-type.component.html',
-  styleUrls: ['./dropdown-line-type.component.scss'],
+  styleUrls: [],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -15,6 +16,7 @@ import { Subscription } from 'rxjs/Subscription';
     }]
 })
 export class DropdownLineTypeComponent implements OnInit, OnDestroy, ControlValueAccessor {
+    @HostBinding('class.dropdown-line-type') private _hostClass = true;
 
     @Input() value;
 
@@ -44,6 +46,14 @@ export class DropdownLineTypeComponent implements OnInit, OnDestroy, ControlValu
     defaultLineType = 'solid';
 
     subscription: Subscription;
+
+    get triggerLabel(): string {
+        const val: string = this.lineTypeControl.value;
+        const obj: any = this.lineTypeOptions.filter(function(opt: any) {
+            return opt.value === val;
+        });
+        return obj[0].label;
+    }
 
     constructor() { }
 
