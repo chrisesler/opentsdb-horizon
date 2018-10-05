@@ -2,7 +2,14 @@
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
 @mixin stacked-barchart-visual-appearance-component-base() {
-    .widget-config-tab.visual-appearance-configuration {
+
+    // ! FIX THIS
+    // FIX : THESE STYLES ARE BREAKING OTHER AREAS
+    // BECAUSE THEY USE GLOBALLY USED CLASS NAMES 
+    // INSTEAD OF THE COMPONENT SPECIFIC CLASS NAMES
+
+
+    /*.widget-config-tab.visual-appearance-configuration {
         // style rules here
 
         .column {
@@ -102,9 +109,6 @@
             .mat-form-field-flex {
                 padding-top: 0;
 
-                /*.mat-form-field-infix {
-                    padding-top: 0;
-                }*/
 
                 // mat-select caret
                 .mat-select-arrow-wrapper {
@@ -114,7 +118,7 @@
         }
 
 
-    }
+    }*/
 }
 
 @mixin stacked-barchart-visual-appearance-component-theme($theme-config) {
@@ -130,6 +134,7 @@
 
     $good-green: if($is-dark, map-get($success, default), map-get($success, 600));
 
+    /*
     .widget-config-tab.visual-appearance-configuration {
         // style rules here
 
@@ -142,5 +147,5 @@
                 color: $good-green;
             }
         }
-    }
+    }*/
 }

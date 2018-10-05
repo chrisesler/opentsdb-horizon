@@ -1,13 +1,14 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, Input, Output, EventEmitter, forwardRef } from '@angular/core';
 import { FormControl, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
 
 
 @Component({
+  // tslint:disable-next-line:component-selector
   selector: 'dropdown-line-weight',
   templateUrl: './dropdown-line-weight.component.html',
-  styleUrls: ['./dropdown-line-weight.component.scss'],
+  styleUrls: [],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -17,6 +18,7 @@ import { Subscription } from 'rxjs/Subscription';
 })
 
 export class DropdownLineWeightComponent implements ControlValueAccessor, OnInit, OnDestroy {
+    @HostBinding('class.dropdown-line-weight') private _hostClass = true;
 
     @Input() value;
 

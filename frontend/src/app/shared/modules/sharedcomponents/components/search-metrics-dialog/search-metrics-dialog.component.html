@@ -53,9 +53,9 @@
             <div class="mat-toolbar-row">
                 <div class="navbar-item namespace-search-control" fxFlex="1 1 288px" fxLayout="column">
                     <!--<strong>Search Results</strong>-->
-                    <mat-form-field appearance="fill" [color]="'primary'">
-                        <mat-label>Namespace</mat-label>
-                        <input type="text" matInput [formControl]="namespaceControl" [matAutocomplete]="namespaceAuto" (keydown.enter)="namespaceKeydown($event)"
+                    <mat-form-field appearance="fill" [color]="'primary'" floatLabel="never">
+                        <!--<mat-label>Namespace</mat-label>-->
+                        <input type="text" matInput placeholder="Namespace" [formControl]="namespaceControl" [matAutocomplete]="namespaceAuto" (keydown.enter)="namespaceKeydown($event)"
                         />
                     </mat-form-field>
                     <mat-autocomplete #namespaceAuto="matAutocomplete" (optionSelected)="namespaceOptionSelected($event)">
@@ -65,9 +65,9 @@
                     </mat-autocomplete>
                 </div>
                 <div class="navbar-item metric-search-control" fxFlex="1 1 100%" *ngIf="selectedNamespace">
-                    <mat-form-field appearance="fill" [color]="'primary'">
-                        <mat-label>Metric Search</mat-label>
-                        <input matInput [formControl]="searchQueryControl" (keydown.enter)="submitSearch($event)">
+                    <mat-form-field appearance="fill" [color]="'primary'" floatLabel="never">
+                        <!--<mat-label>Metric Search</mat-label>-->
+                        <input matInput placeholder="Metric Search" [formControl]="searchQueryControl" (keydown.enter)="submitSearch($event)">
                         <mat-icon matSuffix>search</mat-icon>
                         <!--<mat-hint>Displaying 2,000,000,000 results that include "blah blah" in tag keys and values. Grouping results
                             by tags and other amazing stuffz</mat-hint>-->

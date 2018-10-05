@@ -28,7 +28,7 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
     // tslint:disable-next-line:no-inferrable-types
     y2AxisEnabled_label: string = 'disabled';
     // tslint:disable-next-line:no-inferrable-types
-    xAxisEnabled_label:  string = 'enabled';
+    // xAxisEnabled_label:  string = 'enabled';
     y1AxisEnabledToggleDisplay = true;
 
     /** Form Group */
@@ -127,9 +127,11 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
         });
 
         this.widgetConfigAxes_Sub = this.widgetConfigAxes.valueChanges.subscribe(function(data) {
-            this.xAxisEnabled_label = (data.xAxisEnabled) ? 'enabled' : 'disabled';
-            this.y1AxisEnabled_label = (data.y1AxisEnabled) ? 'enabled' : 'disabled';
-            this.y2AxisEnabled_label = (data.y2AxisEnabled) ? 'enabled' : 'disabled';
+            console.log('AXES CHANGES', data);
+            // no X axis for now
+            // this.xAxisEnabled_label = (data.xAxisEnabled) ? 'enabled' : 'disabled';
+            this.y1AxisEnabled_label = (data.y1.enabled) ? 'enabled' : 'disabled';
+            this.y2AxisEnabled_label = (data.y2.enabled) ? 'enabled' : 'disabled';
             this.widgetChange.emit( {action: 'SetAxes', payload: { data: data }} );
         }.bind(this));
     }

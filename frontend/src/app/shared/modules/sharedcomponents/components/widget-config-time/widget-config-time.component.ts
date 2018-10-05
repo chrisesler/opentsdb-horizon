@@ -231,22 +231,29 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
         // ?INFO: these are mapped to the form variables set at top
         const isCustomDownsample = this.widget.query.settings.time.downsample.value === 'custom' ? true : false;
         this.widgetConfigTime = this.fb.group({
-            aggregator:     new FormControl(this.widget.query.settings.time.downsample.aggregator || this.selectedAggregator),
-            downsample:     new FormControl(this.widget.query.settings.time.downsample.value || this.selectedDownsample),
-            customDownsampleValue:  new FormControl(
-                                                        {
-                                                            value: this.widget.query.settings.time.downsample.customValue || 10,
-                                                            disabled: !isCustomDownsample ? true : false
-                                                        },
-                                                        [Validators.min(1), Validators.pattern('^[0-9]+$') ]
-                                                    ),
-            customDownsampleUnit:   new FormControl(
-                                                        {
-                                                            value: this.widget.query.settings.time.downsample.customUnit || this.customDownsampleUnit,
-                                                            disabled: isCustomDownsample ? false : true
-                                                        }),
-            overrideRelativeTime:   new FormControl(this.widget.query.settings.time.overrideRelativeTime),
-            shiftTime:              new FormControl(this.widget.query.settings.time.shiftTime)
+            aggregator:
+                new FormControl(this.widget.query.settings.time.downsample.aggregator || this.selectedAggregator),
+            downsample:
+                new FormControl(this.widget.query.settings.time.downsample.value || this.selectedDownsample),
+            customDownsampleValue:
+                new FormControl(
+                    {
+                        value: this.widget.query.settings.time.downsample.customValue || 10,
+                        disabled: !isCustomDownsample ? true : false
+                    },
+                    [Validators.min(1), Validators.pattern('^[0-9]+$') ]
+                ),
+            customDownsampleUnit:
+                new FormControl(
+                    {
+                        value: this.widget.query.settings.time.downsample.customUnit || this.customDownsampleUnit,
+                        disabled: isCustomDownsample ? false : true
+                    }
+                ),
+            overrideRelativeTime:
+                new FormControl(this.widget.query.settings.time.overrideRelativeTime),
+            shiftTime:
+                new FormControl(this.widget.query.settings.time.shiftTime)
         });
 
 

@@ -1,5 +1,5 @@
 <div class="widget-output-container" fxLayout="column" #testing>
-    <div class="widget-title" *ngIf="editMode" fxLayout="row" fxFlex="1 1 30px">
+    <div class="widget-title" *ngIf="editMode" fxLayout="row" fxFlex="1 0 30px">
         <span fxFlex="1 1 100%">{{ widget.settings.title }}</span>
         <span>
             <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
@@ -7,12 +7,19 @@
             </button>
         </span>
     </div>
-    <div class="widget-output" #widgetoutput [style.marginTop]="editMode?'30px':'0'">
-        <div id="dygraphLegendTop" class="legend"
-            [style.visibility]="widget.query.settings.legend.display && widget.query.settings.legend.position=='top' ? 'visible':'hidden'"
+    <div class="widget-output"
+        [ngClass]="{
+            'display-legend-top': widget.query.settings.legend.display && widget.query.settings.legend.position=='top',
+            'display-legend-right': widget.query.settings.legend.display && widget.query.settings.legend.position=='right',
+            'display-legend-bottom': widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom',
+            'display-legend-left': widget.query.settings.legend.display && widget.query.settings.legend.position=='left'
+        }"
+        #widgetoutput>
+        <!--<div id="dygraphLegendTop" class="legend"
+            [style.display]="widget.query.settings.legend.display && widget.query.settings.legend.position=='top' ? 'block':'none'"
             [style.height]="widget.query.settings.legend.display && widget.query.settings.legend.position=='top' ? '20%':'0%'"></div>
         <div id="dygraphLegendLeft" class="legend"
-            [style.visibility]="widget.query.settings.legend.display && widget.query.settings.legend.position=='left' ? 'visible':'hidden'"
+            [style.display]="widget.query.settings.legend.display && widget.query.settings.legend.position=='left' ? 'block':'none'"
             [style.height]="size.height + 'px'" 
             [style.width]="widget.query.settings.legend.display && widget.query.settings.legend.position=='left' ? '20%':'0%'"></div>
         <div id="dygraph_div" 
@@ -23,13 +30,22 @@
             [options]="options">
         </div>
         <div id="dygraphLegendRight" class="legend"
-            [style.visibility]="widget.query.settings.legend.display && widget.query.settings.legend.position=='right' ? 'visible':'hidden'"
+            [style.display]="widget.query.settings.legend.display && widget.query.settings.legend.position=='right' ? 'block':'none'"
             [style.height]="size.height + 'px'" 
             [style.width]="widget.query.settings.legend.display && widget.query.settings.legend.position=='right' ? '20%':'0%'"></div>
         <div id="dygraphLegendBottom" class="legend"
-            [style.visibility]="widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom' ? 'visible':'hidden'"
+            [style.display]="widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom' ? 'block':'none'"
             [style.top]="size.height + 'px'" 
-            [style.height]="widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom' ? '20%':'0%'"></div>
+            [style.height]="widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom' ? '20%':'0%'"></div>-->
+
+        <div id="dygraph_div" class="graph-chart"
+            dygraphsChart
+            [chartType]="chartType"
+            [data]="data"
+            [size]="size"
+            [options]="options">
+        </div>
+        <ul class="graph-legend" #graphLegend></ul>
     </div>
 </div>
 <!--
