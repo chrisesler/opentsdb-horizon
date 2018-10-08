@@ -101,6 +101,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                             this.isDataLoaded = true;
                             this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget.query, this.data, message.payload.rawdata, this.isStackedGraph);
                         break;
+                    case 'getUpdatedWidgetConfig':
+                        this.setOptions();
+                        this.widget = message.payload;
+                        this.refreshData();
+                        break;
                 }
             }
         });
@@ -380,7 +385,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         const oUnit = this.unit.getDetails(axis.unit);
 
         this.options.threshold = { thresholds: [] };
-
         Object.keys(thresholds).forEach( k => {
             const threshold = thresholds[k];
             if ( threshold.value !== '' ) {
@@ -401,7 +405,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 }
                 const o = {
                     value: oUnit ? threshold.value * oUnit.m : threshold.value,
-                    scaleId: this.type === 'vertical' ? 'y-axis-0' : 'x-axis-0',
+                    scaleId: this.type === 'bar' ? 'y-axis-0' : 'x-axis-0',
                     borderColor: threshold.lineColor,
                     borderWidth: parseInt(threshold.lineWeight, 10),
                     borderDash: lineType
@@ -481,6 +485,17 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             action: 'closeViewEditMode',
             payload: true
         });
+    }
+
+    applyConfig() {
+        const cloneWidget = { ...this.widget };
+        cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
+        this.interCom.requestSend({
+            action: 'updateWidgetConfig',
+            payload: cloneWidget
+        });
+
+        this.closeViewEditMode();
     }
 
     ngOnDestroy() {

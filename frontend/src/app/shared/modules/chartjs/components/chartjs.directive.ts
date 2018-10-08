@@ -109,6 +109,7 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                         datasets: this.data
                     }
                 });
+                console.log("comse here-1", Object.assign(this.defaultOptions, this.options));
             } else if ( this.chart && ( changes.data  || changes.options ) ) {
                 this.chart.data.datasets = [];
                 this.updateDatasets(this.data);
@@ -118,6 +119,7 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                 this.chart.data.labels = this.options.labels;
                 this.chart.options = Object.assign(this.defaultOptions, this.options);
                 this.chart.update(0);
+                console.log("comse here-2", Object.assign(this.defaultOptions, this.options));
             }  else if ( this.chart && changes.chartType ) {
                 this.chart.destroy();
                 const ctx = this.element.nativeElement.getContext('2d');

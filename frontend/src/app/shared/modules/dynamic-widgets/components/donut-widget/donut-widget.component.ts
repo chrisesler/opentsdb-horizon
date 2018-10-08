@@ -86,9 +86,15 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
-                    this.isDataLoaded = true;
-                    this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget.query, this.data, message.payload.rawdata);
-                break;
+                        this.setOptions();
+                        this.isDataLoaded = true;
+                        this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget.query, this.data, message.payload.rawdata);
+                        break;
+                    case 'getUpdatedWidgetConfig':
+                        this.setOptions();
+                        this.widget = message.payload;
+                        this.refreshData();
+                        break;
                 }
             }
         });
@@ -134,7 +140,9 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 this.setTimeConfiguration(message.payload.data);
                 break;
             case 'SetLegend':
-                this.setLegend(message.payload.data);
+                this.widget.query.settings.legend = message.payload.data;
+                this.setLegendOption();
+                this.options = {...this.options};
                 break;
             case 'ChangeVisualization':
                 this.type$.next(message.payload.type);
@@ -197,14 +205,35 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         this.refreshData(false);
     }
 
-    setLegend(config) {
-        this.widget.query.settings.legend = config;
+    setOptions() {
+        this.setLegendOption();
+        this.setLablesOption();
+    }
+
+    setLegendOption() {
         this.options.legend = {...this.widget.query.settings.legend};
         this.options.plugins.labels = this.options.legend.showPercentages ? {
             render: 'percentage',
-            precision: 2
+            precision: 2,
+            fontColor: 'black'
         } : false;
-        this.options = {...this.options};
+    }
+
+    setLablesOption() {
+        this.options.labels = [];
+
+        const gConfig = this.widget.query.groups[0];
+        const mConfigs = gConfig.queries;
+
+        for ( let i = 0; i < mConfigs.length; i++ ) {
+            const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
+            const vConfig = mConfigs[i].settings.visual;
+            let label = vConfig.stackLabel ? vConfig.stackLabel : metric;
+            if ( vConfig.visible ) {
+                label = label.length <= 20 ? label : label.substr(0, 17) + '..';
+                this.options.labels.push( label );
+            }
+        }
     }
 
     setMetaData(config) {
@@ -254,6 +283,16 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             action: 'closeViewEditMode',
             payload: true
         });
+    }
+
+    applyConfig() {
+        const cloneWidget = { ...this.widget };
+        cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
+        this.interCom.requestSend({
+            action: 'updateWidgetConfig',
+            payload: cloneWidget
+        });
+        this.closeViewEditMode();
     }
 
     ngOnDestroy() {

@@ -20,7 +20,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-if (utils.getProperty('auth_mode') === 'okta') {
+if (utils.getProperty('auth_mode') === 'bouncer' || utils.getEnv() === 'dev') {
+    app.use(authUtil.validateBouncerCredentials());
+} else if (utils.getProperty('auth_mode') === 'okta') {
   var oktaSecret = require('ysecure.node').getKey(utils.getProperty('okta_secret_key_name'));
   const okta     = new expressOkta.Okta({
       callbackPath: utils.getProperty('okta_callback_path') || '/oauth2/callback',
@@ -38,10 +40,7 @@ if (utils.getProperty('auth_mode') === 'okta') {
 else if (utils.getProperty('auth_mode') === 'athenz') {
     app.use(authUtil.validateAthenzCredentials());
 }
-// else node_env = yamas.ops | api.yamas.ops
-else if (utils.getProperty('auth_mode') === 'bouncer') {
-    app.use(authUtil.validateBouncerCredentials());
-}
+
 
 // error handler
 app.use(function(err, req, res, next) {
