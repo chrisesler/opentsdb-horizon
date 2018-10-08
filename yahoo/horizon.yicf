@@ -15,5 +15,5 @@ YINST requires pkg ynodejs_core             8.0.0.0 8.9999.9999.9999
 YINST requires pkg ynodejs_cosmo            * *
 
 find 0644 - - share/node/horizon/ $(SRCDIRS)/ -name "*" -type f ! -ipath '*/artifacts/*' ! -ipath '*.yicf' ! -path '*.git*' ! -ipath '*/resources*' ! -path '*/test/*' ! -path '*/tests/*' ! -path '*/screwdriver/*' ! -path '*/config.js'
-c - - - conf/node/services/horizon_dev_deploy.json  $(SRCDIRS)/horizon_dev_deploy.json overwrite
+c - - - conf/node/services/horizon_dev_deploy.json  $(SOURCE_DIR)/horizon_dev_deploy.json overwrite
 
