@@ -82,8 +82,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             this.options.scales.xAxes[0] = type === 'vertical' ? this.categoryAxis : this.valueAxis;
             this.type = type === 'vertical' ? 'bar' : 'horizontalBar';
         });
-        this.setAxisOption();
-
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch( message.action ) {
@@ -103,6 +101,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                             this.isDataLoaded = true;
                             this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget.query, this.data, message.payload.rawdata, this.isStackedGraph);
                         break;
+                    case 'getUpdatedWidgetConfig':
+                        this.setOptions();
+                        this.widget = message.payload;
+                        this.refreshData();
+                        break;
                 }
             }
         });
@@ -113,6 +116,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         } else {
             this.requestCachedData();
         }
+        this.setOptions();
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -154,7 +158,9 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 this.setBarVisualization( message.payload.gIndex, message.payload.data );
                 break;
             case 'SetAlerts':
-                this.setAlerts(message.payload.data);
+                this.widget.query.settings.thresholds = message.payload.data;
+                this.setAlertOption();
+                this.options = { ...this.options };
                 break;
             case 'SetAxes' :
                 this.updateAlertValue(message.payload.data.y1);
@@ -341,13 +347,15 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         const axis = this.valueAxis;
         const config = this.widget.query.settings.axes && this.widget.query.settings.axes.y1 ?
                             this.widget.query.settings.axes.y1 : <Axis>{};
-        axis.type = config.scale === 'linear' ? 'linear' : 'logarithmic';
+        const oUnit = this.unit.getDetails(config.unit);
+        axis.type = !config.scale || config.scale === 'linear' ? 'linear' : 'logarithmic';
         axis.ticks = {};
-        if ( !isNaN( config.min ) ) {
-            axis.ticks.min = config.min;
+        if ( !isNaN( config.min ) && config.min ) {
+            axis.ticks.min = oUnit ? config.min * oUnit.m : config.min;
         }
-        if ( !isNaN( config.max ) ) {
-            axis.ticks.max = config.max;
+        if ( !isNaN( config.max ) && config.max ) {
+            console.log("comes here", config.max, (oUnit ? config.max * oUnit.m : config.max));
+            axis.ticks.max = oUnit ? config.max * oUnit.m : config.max;
         }
         const label = config.label ? config.label.trim() : '';
         const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 2 : config.decimals;
@@ -371,14 +379,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         this.refreshData(false);
     }
 
-    setAlerts(thresholds) {
-        console.log('thresholds', thresholds);
+    setAlertOption() {
+        const thresholds = this.widget.query.settings.thresholds || {};
         const axis = this.widget.query.settings.axes ? this.widget.query.settings.axes.y1 : <Axis>{};
         const oUnit = this.unit.getDetails(axis.unit);
 
-        this.widget.query.settings.thresholds = thresholds;
         this.options.threshold = { thresholds: [] };
-
         Object.keys(thresholds).forEach( k => {
             const threshold = thresholds[k];
             if ( threshold.value !== '' ) {
@@ -399,7 +405,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 }
                 const o = {
                     value: oUnit ? threshold.value * oUnit.m : threshold.value,
-                    scaleId: 'y-axis-0',
+                    scaleId: this.type === 'bar' ? 'y-axis-0' : 'x-axis-0',
                     borderColor: threshold.lineColor,
                     borderWidth: parseInt(threshold.lineWeight, 10),
                     borderDash: lineType
@@ -407,7 +413,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 this.options.threshold.thresholds.push(o);
             }
         });
-        this.options = { ...this.options };
+    }
+
+    setOptions() {
+        this.setAxisOption();
+        this.setAlertOption();
+        this.options = {...this.options};
     }
 
     updateAlertValue(nConfig) {
@@ -474,6 +485,17 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             action: 'closeViewEditMode',
             payload: true
         });
+    }
+
+    applyConfig() {
+        const cloneWidget = { ...this.widget };
+        cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
+        this.interCom.requestSend({
+            action: 'updateWidgetConfig',
+            payload: cloneWidget
+        });
+
+        this.closeViewEditMode();
     }
 
     ngOnDestroy() {

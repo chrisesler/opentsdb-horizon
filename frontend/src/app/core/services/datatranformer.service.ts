@@ -191,7 +191,6 @@ export class DatatranformerService {
     }
 
     getChartJSFormattedDataDonut(options, config, datasets, groupData) {
-        options.labels = [];
         datasets[0] = {data: [], backgroundColor: []};
         if (!groupData) {
             return datasets;
@@ -207,21 +206,13 @@ export class DatatranformerService {
         for ( let i = 0; i < mConfigs.length; i++ ) {
             const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
             const vConfig = mConfigs[i].settings.visual;
-            let label = vConfig.stackLabel ? vConfig.stackLabel : metric;
             const color = vConfig.color;
             if ( vConfig.visible ) {
                 metrics.push(metric);
-                label = label.length <= 20 ? label : label.substr(0, 17) + '..';
-                options.labels.push( label );
                 datasets[0].data.push(null);
                 datasets[0].backgroundColor.push(color);
             }
         }
-        options.legend = config.settings.legend;
-        options.plugins.labels = config.settings.legend.showPercentages ? {
-                render: 'percentage',
-                precision: 2
-            } : false;
 
         for ( let i = 0; i < rawdata.length; i++ ) {
             const metric = this.util.getUniqueNameFromMetricConfig(rawdata[i]);

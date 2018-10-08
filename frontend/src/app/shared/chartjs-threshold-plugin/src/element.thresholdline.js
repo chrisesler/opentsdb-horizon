@@ -15,11 +15,18 @@ ThresholdLine.prototype.update = function() {
     var chart = this.chart;
     // subtracts 0.5 from x-axis position if the lineWidth is odd number
     var lineWidth = this.options.borderWidth || 1;
-    var d = lineWidth % 2 == 1 ? 0.5 : 0; 
-    this.x1 = Math.round(chart.chartArea.left);
-    this.y1 = chart.scales[this.scaleId].getPixelForValue(this.value) + d;
-    this.x2 = this.x1 + Math.round(chart.chartArea.right - chart.chartArea.left);
-    this.y2 = this.y1;
+    var d = lineWidth % 2 == 1 ? 0.5 : 0;
+    if ( chart.config.type === 'bar' ) {
+        this.x1 = Math.round(chart.chartArea.left);
+        this.y1 = chart.scales[this.scaleId].getPixelForValue(this.value) + d;
+        this.x2 = this.x1 + Math.round(chart.chartArea.right - chart.chartArea.left);
+        this.y2 = this.y1;
+    } else {
+        this.x1 = chart.scales[this.scaleId].getPixelForValue(this.value) + d;
+        this.x2 = this.x1;
+        this.y1 = Math.round(chart.chartArea.bottom);
+        this.y2 = Math.round(chart.chartArea.top);
+    }
 };
 
 /**
@@ -37,6 +44,11 @@ ThresholdLine.prototype.setBorder = function(border) {
  * @param {Object} ctx - target canvas context
  */
 ThresholdLine.prototype.draw = function(ctx) {
+    // don't draw line if out of chart area
+    if ( (this.chart.config.type === 'bar' && (this.y1 < this.chart.chartArea.top || this.y1 > this.chart.chartArea.bottom)) ||
+            (this.chart.config.type === 'horizontalBar' && (this.x1 < this.chart.chartArea.left || this.x1 > this.chart.chartArea.right)) ) {
+        return;
+    }
     ctx.beginPath();
 
     if (ctx.setLineDash) {
@@ -47,7 +59,6 @@ ThresholdLine.prototype.draw = function(ctx) {
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = this.options.borderColor || "#000000";
     ctx.lineDashOffset = this.options.borderDashOffset || 0;
-
     ctx.moveTo(this.x1,this.y1);
     ctx.lineTo(this.x2,this.y2);
     ctx.stroke();

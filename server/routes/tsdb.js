@@ -14,11 +14,12 @@ router.post('/hello', function (req, res, next) {
 
 router.post('/queryData', function (req, res, next) {
   var queryObj = req.body;
+  var headers = { cookie: req.headers.auth.cookie };
   var options = {
     method: 'POST',
     uri: conf.tsdb_host + '/api/query',
     body: queryObj,
-    headers: req.headers,
+    headers: headers,
     gzip: true,
     json: true
   };

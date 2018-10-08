@@ -12,9 +12,9 @@ var authUtil = {
     	    } else {
         		okta.protect({'action':'redirect'})(req, res, function () {
         		    // All good, pass only okta credentials
-        		    /*
                     let cookies      = cookie.parse(req.headers.cookie);
-        		    let oktaCookies  = 'okta_it=' + cookies['okta_it'] + '; okta_at=' + cookies['okta_at'];
+                    let oktaCookies  = 'okta_it=' + cookies['okta_it'] + '; okta_at=' + cookies['okta_at'];
+                    /*
         		    let auth         = new Auth();
         		    auth.init({
         			authMode: 'okta',
@@ -23,6 +23,7 @@ var authUtil = {
         		    });
         		    req.headers.auth = auth;
                     */
+                    req.headers.auth = { cookie:oktaCookies, principal:req.okta.claims.short_id };
         		    next();
         		});
     	    }
@@ -49,6 +50,7 @@ var authUtil = {
             } catch(e) {
                 req.ybyCookie = null;
             }
+            req.headers.auth = { cookie: req.headers.cookie };
             next();
         };
     }
