@@ -4,7 +4,166 @@
 @mixin widget-config-visual-appearance-component-base() {
     .widget-config-tab.visual-appearance-configuration {
         // style rules here
+         
+        form {
+            display: block;
+        }
+
+        .mat-table {
+            width: 100%;
+        }
+
         .column {
+            display: inline-flex;
+            flex-direction: column;
+        }
+
+        .column.linechart-container {
+            padding-left: 0;
+            padding-right: 0;
+
+            .mat-table {
+                .mat-header-row {
+                    height: 30px;
+                }
+
+                .mat-header-cell {
+                    text-transform: uppercase;
+                }
+
+                .metric-group-row {
+                    height: 40px;
+
+                    .mat-icon {
+                        width: 14px;
+                        height: 14px;
+                        font-size: 14px;
+                    }
+
+                    // column specific
+
+                    .mat-column-folder-icon {
+                        padding: 0 8px;
+                    }
+
+                    .mat-column-metric {
+                        font-weight: 500;
+                    }
+                }
+
+                .mat-row {
+                    height: 50px;
+
+                    .mat-cell {
+                        line-height: 1;
+                    }
+
+                    // specific columns
+                    .mat-column-metric {
+                        .mat-form-field {
+                            .mat-hint {
+                                display: none;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            }
+
+                            // modifiers
+
+                            &:hover,
+                            &.mat-focused {
+                                .mat-hint {
+                                    display: block;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .column.display-modifier-container {
+            flex: 1 1 200px;
+
+            .config-control:first-child {
+                margin-bottom: 12px;
+            }
+
+            .display-modifier {
+                padding: 10px 10px;
+
+                .mat-button-toggle {
+                    .mat-icon {
+                        margin-right: 8px;
+                    }
+                }
+            }
+        }
+
+        .column.barchart-container,
+        .column.circlechart-container,
+        .column.stackbars-container,
+        .column.stacks-container {
+            padding-left: 30px;
+
+            .config-control:first-child {
+                margin-bottom: 0;
+            }
+
+            .mat-table {
+                .mat-row {
+                    border-bottom: 0;
+
+                    .mat-cell {
+                        padding: 8px;
+                        overflow: initial
+                    }
+
+                    .mat-cell:first-child {
+                        padding-left: 0;
+                    }
+
+                    .mat-cell:last-child {
+                        width: 100%;
+                    }
+
+                    .mat-cell:not(:last-child) {
+                        flex: initial;
+                    }
+
+                    // specific columns
+                    .mat-column-settings-visual-stackLabel {
+                        width: 300px;
+
+                        .mat-form-field {
+                            width: 100%;
+                        }
+                    }
+                }
+            }
+
+            .mat-form-field {
+                .mat-form-field-subscript-wrapper {
+                    overflow: initial;
+                
+                    .mat-hint {
+                        white-space: nowrap;
+                    }
+                }
+            }
+        }
+
+        .column.stackbars-container {
+            flex: 1 1 450px;
+        }
+        
+        /* specific controls */
+
+        // display modifier
+
+        
+        ////// OLD STYLES //////
+        /*.column {
             display: inline-flex;
             flex-direction: row;
         }
@@ -28,6 +187,7 @@
             display: block;
             padding: 10px 5px;
         }
+
         mat-button-toggle-group {
             background: #f0f4fe;
             padding:10px 10px;
@@ -36,6 +196,7 @@
         mat-button-toggle-group.display-toggle-group {
             flex-direction: column;
         }
+
         mat-button-toggle {
             display: block;
             width:150px;
@@ -46,13 +207,16 @@
             display: block;
             padding: 3px 3px;
         }
+
         mat-row, mat-header-row, mat-footer-row {
             border-bottom-width: 1px;
         }
+
         .mat-button-toggle-checked {
             background: #ffffff;
             color: #000000;
         }
+
         mat-cell {
             padding-top: 5px;
             width:300px;
@@ -66,10 +230,8 @@
         mat-table {
             width: 100%;
         }
-
-        form {
-            display: block;
-        }
+        */
+        
     }    
 }
 
@@ -82,7 +244,30 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
 
+    $input-bg: rgba(map-get($primary, default), 0.08);
+
     .widget-config-tab.visual-appearance-configuration {
         // style rules here
+
+        .mat-table {
+            .metric-group-row {
+                background-color: map-get($background, app-bar);
+            }
+        }
+
+        .column.display-modifier-container {
+            .display-modifier {
+                background-color: $input-bg;
+            }
+
+            .mat-button-toggle {
+                color: map-get($foreground, link);
+            }
+
+            .mat-button-toggle-checked {
+                background: map-get($background, card);
+                color: map-get($foreground, text);
+            }
+        }
     } 
 }
