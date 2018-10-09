@@ -86,8 +86,12 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
+                        if ( !this.isDataLoaded ) {
+                            this.isDataLoaded = true;
+                            this.options.labels = [];
+                            this.data = [];
+                        }
                         this.setOptions();
-                        this.isDataLoaded = true;
                         this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget.query, this.data, message.payload.rawdata);
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -269,8 +273,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     refreshData(reload = true) {
         this.isDataLoaded = false;
-        this.options.labels = [];
-        this.data = [];
         if ( reload ) {
             this.requestData();
         } else {

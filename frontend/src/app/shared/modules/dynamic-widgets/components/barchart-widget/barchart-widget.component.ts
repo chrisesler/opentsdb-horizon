@@ -98,8 +98,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
+                        if ( !this.isDataLoaded ) {
+                            this.options.labels = [];
+                            this.data = [];
                             this.isDataLoaded = true;
-                            this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget.query, this.data, message.payload.rawdata, this.isStackedGraph);
+                        }
+                        this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget.query, this.data, message.payload.rawdata, this.isStackedGraph);
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.setOptions();
@@ -315,8 +319,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     refreshData(reload = true) {
         this.isDataLoaded = false;
-        this.options.labels = [];
-        this.data = [];
         if ( reload ) {
             this.requestData();
         } else {
