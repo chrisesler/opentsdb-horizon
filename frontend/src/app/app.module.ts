@@ -57,11 +57,11 @@ import { CredentialsInterceptor } from './core/http/credentials.interceptor';
       useClass: CredentialsInterceptor,
       multi: true
     }*/
-    /*{
+    {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    }*/
+    }
 
   ],
   bootstrap: [AppComponent]

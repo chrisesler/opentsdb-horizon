@@ -36,7 +36,9 @@ export class AppComponent implements OnInit {
         this.auth$.subscribe(auth => {
             if (auth === 'invalid') {
                 console.log('open auth dialog');
-                this.dialog.open(LoginExpireDialogComponent);
+                this.dialog.open(LoginExpireDialogComponent, {
+                    disableClose: true
+                });
             } else if (auth === 'valid') {
                 this.dialog.closeAll();
             }
