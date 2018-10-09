@@ -28,8 +28,9 @@
         "elasticsearch": {
             "source": [
                 {
-                    "host": "metasearch.yamas.ops.yahoo.com",
-                    "port": 9999
+                    "protocol": "https",
+                    "host": "proxy-meta-gq1.yamas.ops.yahoo.com",
+                    "port": 4443
                 },
                 {
                     "host": "bcp-metasearch.yamas.ops.yahoo.com",
