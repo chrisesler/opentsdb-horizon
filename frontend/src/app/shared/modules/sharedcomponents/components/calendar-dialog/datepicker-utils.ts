@@ -202,40 +202,60 @@ export class UtilsService {
   }
 
   timeToMoment(time: string, timezone: string): Moment {
-    time = time.toLowerCase().trim();
+    // time = time.toLowerCase().trim();
+    let _moment: Moment;
+
+    if (this.defaultTimeToMoment(time)) {
+      _moment = this.defaultTimeToMoment(time);
+    } else if (time.toLowerCase() === 'now') {
+      _moment = moment();
+    } else if (timeToTime(time)) {  // e.g., this 'quarter'
+      _moment = moment().startOf(timeToTime(time.toLowerCase()));
+    } else if (this.isTimeStampValid(time)) {  // e.g., 1234567890
+      _moment = moment.unix(Number(time));
+    } else if (this.relativeTimeToMoment(time)) {  // e.g., 1h
+      _moment = this.relativeTimeToMoment(time);
+    } else if (this.dateWithoutTimeToMoment(time)) {  // e.g., 05/05/18
+      _moment = this.dateWithoutTimeToMoment(time);
+    }
 
     if (timezone.toLowerCase() === 'utc') {
-
-        if (this.defaultTimeToMoment(time)) {
-            return this.defaultTimeToMoment(time).utc();
-        } else if (time.toLowerCase() === 'now') {
-            return moment().utc();
-        } else if (timeToTime(time)) {  // e.g., this 'quarter'
-            return moment().utc().startOf(timeToTime(time.toLowerCase()));
-        } else if (moment.unix(Number(time)).isValid()) {  // e.g., 1234567890
-            return moment.unix(Number(time)).utc();
-        } else if (this.relativeTimeToMoment(time)) {  // e.g., 1h
-            return this.relativeTimeToMoment(time).utc();
-        } else if (this.dateWithoutTimeToMoment(time)) {  // e.g., 05/05/18
-            return this.dateWithoutTimeToMoment(time).utc();
-        }
-
-    } else { // local time
-
-        if (this.defaultTimeToMoment(time)) {
-            return this.defaultTimeToMoment(time);
-        } else if (time.toLowerCase() === 'now') {
-            return moment();
-        } else if (timeToTime(time)) {  // e.g., this 'quarter'
-            return moment().startOf(timeToTime(time.toLowerCase()));
-        } else if (moment.unix(Number(time)).isValid()) {  // e.g., 1234567890
-            return moment.unix(Number(time));
-        } else if (this.relativeTimeToMoment(time)) {  // e.g., 1h
-            return this.relativeTimeToMoment(time);
-        } else if (this.dateWithoutTimeToMoment(time)) {  // e.g., 05/05/18
-            return this.dateWithoutTimeToMoment(time);
-        }
+      _moment = _moment.utc();
     }
+    return _moment;
+
+    // if (timezone.toLowerCase() === 'utc') {
+
+    //     if (this.defaultTimeToMoment(time)) {
+    //         return this.defaultTimeToMoment(time).utc();
+    //     } else if (time.toLowerCase() === 'now') {
+    //         return moment().utc();
+    //     } else if (timeToTime(time)) {  // e.g., this 'quarter'
+    //         return moment().utc().startOf(timeToTime(time.toLowerCase()));
+    //     } else if (this.isTimeStampValid(time)) {  // e.g., 1234567890
+    //         return moment.unix(Number(time)).utc();
+    //     } else if (this.relativeTimeToMoment(time)) {  // e.g., 1h
+    //         return this.relativeTimeToMoment(time).utc();
+    //     } else if (this.dateWithoutTimeToMoment(time)) {  // e.g., 05/05/18
+    //         return this.dateWithoutTimeToMoment(time).utc();
+    //     }
+
+    // } else { // local time
+
+    //     if (this.defaultTimeToMoment(time)) {
+    //         return this.defaultTimeToMoment(time);
+    //     } else if (time.toLowerCase() === 'now') {
+    //         return moment();
+    //     } else if (timeToTime(time)) {  // e.g., this 'quarter'
+    //         return moment().startOf(timeToTime(time.toLowerCase()));
+    //     } else if (this.isTimeStampValid(time)) {  // e.g., 1234567890
+    //         return moment.unix(Number(time));
+    //     } else if (this.relativeTimeToMoment(time)) {  // e.g., 1h
+    //         return this.relativeTimeToMoment(time);
+    //     } else if (this.dateWithoutTimeToMoment(time)) {  // e.g., 05/05/18
+    //         return this.dateWithoutTimeToMoment(time);
+    //     }
+    // }
   }
 
 //   createValidator({minDate, maxDate, minTime, maxTime}: DateLimits,
