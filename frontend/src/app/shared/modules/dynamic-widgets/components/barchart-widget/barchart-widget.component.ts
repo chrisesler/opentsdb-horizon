@@ -383,7 +383,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     setAlertOption() {
         const thresholds = this.widget.query.settings.thresholds || {};
-        const axis = this.widget.query.settings.axes ? this.widget.query.settings.axes.y1 : <Axis>{};
+        const axis = this.widget.query.settings.axes && this.widget.query.settings.axes.y1 ? this.widget.query.settings.axes.y1 : <Axis>{};
         const oUnit = this.unit.getDetails(axis.unit);
 
         this.options.threshold = { thresholds: [] };
@@ -424,7 +424,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     updateAlertValue(nConfig) {
-        const oConfig = this.widget.query.settings.axes ? this.widget.query.settings.axes.y1 : <Axis>{};
+        const oConfig = this.widget.query.settings.axes && this.widget.query.settings.axes.y1 ? this.widget.query.settings.axes.y1 : <Axis>{};
         const oUnit = this.unit.getDetails(oConfig.unit);
         const nUnit = this.unit.getDetails(nConfig.unit);
         const thresholds = this.widget.query.settings.thresholds || {};
