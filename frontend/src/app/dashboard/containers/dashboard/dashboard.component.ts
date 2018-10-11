@@ -329,8 +329,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     onDateChange(date: any) {
-        console.log('selected date: ');
-        console.log(date);
+        // console.log('selected date: ');
+        // console.log(date);
     }
 
     // save dashboard name

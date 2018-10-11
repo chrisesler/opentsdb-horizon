@@ -12,14 +12,25 @@ import { UtilsService } from './datepicker-utils';
 export class UtcDatepickerComponent implements OnInit {
     // tslint:disable:no-inferrable-types
     @Input() date: string;
-    @Input() timezone: string = 'utc';
+    @Input('timezone')
+    set timezone(value: string) {
+        this._timezone = value;
+        if (this.date && this.isInitialized) {
+            // this.generateCalendar(this.date);
+            this.onDateChange(this.date, true);
+        }
+    }
     @Input() button = false;
     @Input() buttonPosition = 'after'; // either before or after
     @Output() dateChange = new EventEmitter<string>();
     @ViewChild('dateInput') el: ElementRef;
 
-    // inputText: string; // keep track of the actual text of the input field
-    format = 'YYYY-MM-DD'; // TODO: remove
+    _timezone: string;
+    get timezone(): string {
+        return this._timezone;
+    }
+
+    unixTimestamp: Number;
     isDateValid: boolean = true;
     showCalendar = false;
     days: any[];
@@ -28,6 +39,8 @@ export class UtcDatepickerComponent implements OnInit {
     // tempDate: any; // moment object used for keeping track while cycling through months
     calendarPosition = 'angular-utc-datepicker_below';
     calendarTitleFormat: string = 'MMMM YYYY';
+    dateFormat = 'YYYY-MM-DD';
+    isInitialized: boolean = false;
 
     constructor(private utilsService: UtilsService) {
         this.days = [];
@@ -35,33 +48,40 @@ export class UtcDatepickerComponent implements OnInit {
     }
 
     ngOnInit() {
-        if (typeof this.date === 'object') {
-            // date was passed in as a JS Date object
-            this.date = moment(this.date).format(this.format);
-        }
-        this.calendarTitle = this.utilsService.timeToMoment(this.date, this.timezone).format('MMMM YYYY');
+        this.unixTimestamp = this.utilsService.timeToMoment(this.date, this.timezone).unix();
+        this.calendarTitle = this.utilsService.timeToMoment(this.date, this.timezone).format(this.calendarTitleFormat);
         // this.tempDate = this.getMomentDate(this.date);
         if (this.dayNames.length === 0) {
             this.generateDayNames();
         }
+        this.isInitialized = true;
     }
 
-    onDateChange = (value: string) => {
-
+    onDateChange = (value: string, timezoneChanged: boolean) => {
+        value = value.trim();
         const theMoment: Moment = this.utilsService.timeToMoment(value, this.timezone);
 
         // TODO: create validator
         if (theMoment) {
-            console.log('date valid: ' + theMoment.format(this.format));
-            this.date = value;
+            console.log('date valid: ' + value);
+            if (this.utilsService.isTimeStampValid(value)) { // input is timestamp
+                this.date = this.utilsService.timestampToTime(value, this.timezone);
+                this.unixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
+            } else if (timezoneChanged && !this.utilsService.relativeTimeToMoment(value)
+                && !this.utilsService.timeToTime(value)) {
+                this.date = this.utilsService.timestampToTime(this.unixTimestamp.toString(), this.timezone);
+            } else { // input changed
+                this.date = value;
+                this.unixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
+            }
             this.calendarTitle = theMoment.format(this.calendarTitleFormat);
             this.isDateValid = true;
-            this.generateCalendar(theMoment.format(this.format));
+            this.generateCalendar(theMoment.format(this.dateFormat));
             this.dateChange.emit(this.date);
         } else {
             console.log('date invalid: ' + value);
             this.isDateValid = false;
-            this.generateCalendar(this.utilsService.timeToMoment(this.date, this.timezone).format(this.format));
+            this.generateCalendar(this.utilsService.timeToMoment(this.date, this.timezone).format(this.dateFormat));
         }
     }
 
@@ -77,35 +97,34 @@ export class UtcDatepickerComponent implements OnInit {
         const rect = event.target.getBoundingClientRect();
         this.calendarPosition = window.innerHeight - rect.bottom < 250 ? 'angular-utc-datepicker_above' : 'angular-utc-datepicker_below';
         this.showCalendar = true;
-        this.generateCalendar(this.utilsService.timeToMoment(this.date, this.timezone).format(this.format));
+        this.generateCalendar(this.utilsService.timeToMoment(this.date, this.timezone).format(this.dateFormat));
     }
 
     closeCalendar = () => {
-    //     setTimeout(() => {
-    //         this.showCalendar = document.activeElement.className.includes('angular-utc-datepicker_calendar-popup') ||
-    //             document.activeElement.className.includes('angular-utc-datepicker_input');
-    //         if (!this.showCalendar) {
-    //             this.calendarTitle = this.getMomentDate(this.date).format(this.calendarTitleFormat);
-    //             this.tempDate = this.getMomentDate(this.date);
-    //             // if (this.inputText && this.inputText !== this.date) {
-    //             //     this.el.nativeElement.value = this.date;
-    //             // }
-    //         }
-    //     }, 50);
+        setTimeout(() => {
+            this.showCalendar = document.activeElement.className.includes('angular-utc-datepicker_calendar-popup') ||
+                document.activeElement.className.includes('angular-utc-datepicker_input');
+            if (!this.showCalendar) {
+                this.calendarTitle = this.utilsService.timeToMoment(this.date, this.timezone).format(this.calendarTitleFormat);
+                // this.tempDate = this.getMomentDate(this.date);
+                // if (this.inputText && this.inputText !== this.date) {
+                //     this.el.nativeElement.value = this.date;
+                // }
+            }
+        }, 50);
     }
 
     keydown = (event: any) => {
-        // if (event.keyCode === 27) { // escape key
-        //     this.showCalendar = false;
-        //     this.timezone = 'local';
-        // }
+        if (event.keyCode === 27) { // escape key
+            this.showCalendar = false;
+        }
     }
 
     /* GENERATE CALENDAR */
     // INPUT: 2018-09-20
     generateCalendar = (dateAsString: string) => {
         console.log('generating calendar for: ' + dateAsString);
-        const date = moment(dateAsString, this.format);
+        const date = moment(dateAsString, this.dateFormat);
 
         this.days = [];
 
@@ -151,27 +170,34 @@ export class UtcDatepickerComponent implements OnInit {
     }
 
     prevMonth = () => {
+        console.log('previous month');
         // this.tempDate.subtract(1, 'M');
         // this.calendarTitle = this.tempDate.format(this.calendarTitleFormat);
         // this.generateCalendar(this.tempDate);
     }
 
     nextMonth = () => {
+        console.log('next month');
         // this.tempDate.add(1, 'M');
         // this.calendarTitle = this.tempDate.format(this.calendarTitleFormat);
         // this.generateCalendar(this.tempDate);
     }
 
     selectDate = (date: any) => {
-        // const currDate = moment(this.date, this.format);
-        // const selectedDate = moment(`${date.year}-${date.month}-${date.day} ${currDate.hour()}:${currDate.minute()}:
-        //     ${currDate.second()}`, 'YYYY-M-D HH:mm:ss');
-        // this.date = selectedDate.format(this.format);
-        // this.tempDate = this.getMomentDate(this.date);
-        // this.calendarTitle = this.tempDate.format(this.calendarTitleFormat);
-        // this.generateCalendar(this.tempDate);
-        // this.dateChange.emit(this.date);
-        // this.showCalendar = false;
+        let selectedDate: Moment;
+        const currDate = this.utilsService.timeToMoment(this.unixTimestamp.toString(), this.timezone);
+
+        if (this.timezone.toLowerCase() === 'utc') {
+            selectedDate = moment.utc(`${date.year}-${date.month}-${date.day} ${currDate.hour()}:${currDate.minute()}:
+                ${currDate.second()}`, 'YYYY-M-D HH:mm:ss');
+        } else {
+            selectedDate = moment(`${date.year}-${date.month}-${date.day} ${currDate.hour()}:${currDate.minute()}:
+                ${currDate.second()}`, 'YYYY-M-D HH:mm:ss');
+        }
+
+        this.date = this.utilsService.timestampToTime(selectedDate.unix().toString(), this.timezone);
+        this.unixTimestamp = selectedDate.unix();
+        this.generateCalendar(selectedDate.format(this.dateFormat));
     }
 
     selectToday = () => {

@@ -3,7 +3,7 @@
     <i class="fa fa-calendar"></i>
 </button>
 
-<input #dateInput class="angular-utc-datepicker_input" [ngModel]="date" (ngModelChange)="onDateChange($event)"
+<input #dateInput class="angular-utc-datepicker_input" [ngModel]="date" (ngModelChange)="onDateChange($event, false)"
 (focus)="openCalendar($event)" (blur)="closeCalendar()" (keydown)="keydown($event)">
 
 <button class="angular-utc-datepicker_button" (click)="openCalendar($event)" *ngIf="button && buttonPosition === 'after'"

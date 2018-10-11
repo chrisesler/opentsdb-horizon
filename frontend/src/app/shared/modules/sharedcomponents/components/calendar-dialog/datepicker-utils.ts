@@ -9,13 +9,10 @@ import {Moment, unitOfTime, duration} from 'moment';
 // import {DateValidator} from '../types/validator.type';
 
 const moment = momentNs;
-// tslint:disable-next-line:no-inferrable-types
+// tslint:disable:no-inferrable-types
 const maxUnixTimestamp: number = 1000000000000; // 11/16/5138
-// tslint:disable-next-line:no-inferrable-types
 const minUnixTimestamp: number = 1000000000;    // 09/08/2001
-// tslint:disable-next-line:no-inferrable-types
 const minYear: number = 1970;                   // for relative time
-
 const defaultFormat: string = 'MM/DD/YYYY hh:mm A';
 
 // key is valid 'this' time AND keyword for moment to subtract.
@@ -52,18 +49,6 @@ export function abbrToTime (abbr: string): any {
   return;
 }
 
-function timeToTime(inputTime: string): any {
-  for (let time in timeAbbr) {
-      if (timeAbbr[time]) {
-        time = time.toString();
-        if (time === inputTime) {
-        return time;
-        }
-    }
-  }
-  return;
-
-}
 
 @Injectable()
 export class UtilsService {
@@ -78,13 +63,31 @@ export class UtilsService {
 //     };
 //   }
 
-
+  timeToTime(inputTime: string): any {
+    for (let time in timeAbbr) {
+        if (timeAbbr[time]) {
+          time = time.toString();
+          if (time === inputTime) {
+          return time;
+          }
+      }
+    }
+    return;
+  }
 
   isDateValid(date: string, format: string): boolean {
     if (date === '') {
       return true;
     }
     return moment(date, format, true).isValid();
+  }
+
+  timestampToTime(timestamp: string, timezone: string): string {
+    if (timezone.toLowerCase() === 'utc') {
+      return moment.unix(Number(timestamp)).utc().format(defaultFormat);
+    } else {
+      return moment.unix(Number(timestamp)).format(defaultFormat);
+    }
   }
 
   isTimeStampValid(time: string): boolean {
@@ -96,30 +99,15 @@ export class UtilsService {
             );
   }
 
-//   isStringAValidNonDefaultTime(time: string): Boolean {
-//     time = time.toLowerCase().trim();
-//     // tslint:disable-next-line:no-inferrable-types
-//     let stringIsValid: boolean = false;
+  dateWithoutTimeToMoment(time: string, timezone: string): Moment {
 
-//     if (this.relativeTimeToMoment(time)) {
-//        stringIsValid = true;
-//     } else if (this.isTimeStampValid(time)) {
-//       stringIsValid = true;
-//     } else if (this.dateWithoutTimeToMoment(time)) {
-//       stringIsValid = true;
-//     } else if (time === 'now') {
-//       stringIsValid = true;
-//     } else if (timeToTime(time)) {
-//       stringIsValid = true;
-//     }
-
-//     return stringIsValid;
-//   }
-
-  dateWithoutTimeToMoment(time: string): Moment {
     for (const format in validDateWithoutTimeFormat) {
       if (moment(time, format, true).isValid()) {
-        return moment(time, format, true);
+        if (timezone.toLowerCase() === 'utc') {
+          return moment.utc(time, format, true);
+        } else {
+          return moment(time, format, true);
+        }
       }
     }
     return;
@@ -194,68 +182,39 @@ export class UtilsService {
     return timeUnitAbbr;
   }
 
-  defaultTimeToMoment(time: string): Moment {
+  defaultTimeToMoment(time: string, timezone: string): Moment {
     if (moment(time, defaultFormat, true).isValid()) {
+      if (timezone.toLowerCase() === 'utc') {
+        return moment.utc(time, defaultFormat, true);
+      } else {
         return moment(time, defaultFormat, true);
+      }
     }
     return;
   }
 
   timeToMoment(time: string, timezone: string): Moment {
-    // time = time.toLowerCase().trim();
     let _moment: Moment;
 
-    if (this.defaultTimeToMoment(time)) {
-      _moment = this.defaultTimeToMoment(time);
+    if (this.defaultTimeToMoment(time, timezone)) {
+      _moment = this.defaultTimeToMoment(time, timezone);
     } else if (time.toLowerCase() === 'now') {
       _moment = moment();
-    } else if (timeToTime(time)) {  // e.g., this 'quarter'
-      _moment = moment().startOf(timeToTime(time.toLowerCase()));
+    } else if (this.timeToTime(time)) {  // e.g., this 'quarter'
+      _moment = moment().startOf(this.timeToTime(time.toLowerCase()));
     } else if (this.isTimeStampValid(time)) {  // e.g., 1234567890
       _moment = moment.unix(Number(time));
     } else if (this.relativeTimeToMoment(time)) {  // e.g., 1h
       _moment = this.relativeTimeToMoment(time);
-    } else if (this.dateWithoutTimeToMoment(time)) {  // e.g., 05/05/18
-      _moment = this.dateWithoutTimeToMoment(time);
+    } else if (this.dateWithoutTimeToMoment(time, timezone)) {  // e.g., 05/05/18
+      _moment = this.dateWithoutTimeToMoment(time, timezone);
     }
 
-    if (timezone.toLowerCase() === 'utc') {
+    if (_moment && timezone.toLowerCase() === 'utc') {
+      console.log('inside utc');
       _moment = _moment.utc();
     }
     return _moment;
-
-    // if (timezone.toLowerCase() === 'utc') {
-
-    //     if (this.defaultTimeToMoment(time)) {
-    //         return this.defaultTimeToMoment(time).utc();
-    //     } else if (time.toLowerCase() === 'now') {
-    //         return moment().utc();
-    //     } else if (timeToTime(time)) {  // e.g., this 'quarter'
-    //         return moment().utc().startOf(timeToTime(time.toLowerCase()));
-    //     } else if (this.isTimeStampValid(time)) {  // e.g., 1234567890
-    //         return moment.unix(Number(time)).utc();
-    //     } else if (this.relativeTimeToMoment(time)) {  // e.g., 1h
-    //         return this.relativeTimeToMoment(time).utc();
-    //     } else if (this.dateWithoutTimeToMoment(time)) {  // e.g., 05/05/18
-    //         return this.dateWithoutTimeToMoment(time).utc();
-    //     }
-
-    // } else { // local time
-
-    //     if (this.defaultTimeToMoment(time)) {
-    //         return this.defaultTimeToMoment(time);
-    //     } else if (time.toLowerCase() === 'now') {
-    //         return moment();
-    //     } else if (timeToTime(time)) {  // e.g., this 'quarter'
-    //         return moment().startOf(timeToTime(time.toLowerCase()));
-    //     } else if (this.isTimeStampValid(time)) {  // e.g., 1234567890
-    //         return moment.unix(Number(time));
-    //     } else if (this.relativeTimeToMoment(time)) {  // e.g., 1h
-    //         return this.relativeTimeToMoment(time);
-    //     } else if (this.dateWithoutTimeToMoment(time)) {  // e.g., 05/05/18
-    //         return this.dateWithoutTimeToMoment(time);
-    //     }
-    // }
   }
 
 //   createValidator({minDate, maxDate, minTime, maxTime}: DateLimits,
