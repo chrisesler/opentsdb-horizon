@@ -18,71 +18,55 @@ export class DatatranformerService {
       normalizedData = [];
     }
 
-    let dpsHash = {};
-    // generate a hash for all the keys, might have missing time
-    // from multiple metric
+    const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
     for (let gid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.query.groups, 'id', gid) : {};
         const mConfigs = gConfig ? gConfig.queries : [];
         if ( gConfig.settings.visual.visible ) {
-            for (let k in result[gid]) {
-                let g = result[gid][k];
-                // build lable, it's to send exactly duplicate metric
-                let label = g.metric ;//+ ':' + Object.values(g.tags).join('-');
-                const mConfig = gConfig? this.getMetricConfigurationByName(label, mConfigs) : {};
+            for ( let i = 0; i < result[gid].results.length; i++ ) {
+                const queryResults = result[gid].results[i];
+                const source = queryResults.source.split(":")[1].replace("m",'');
+                const timeSpecification = queryResults.timeSpecification;
+                const mConfig = mConfigs[source];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-                if ( vConfig.visible ) {
-                    // only pushing in if not exits, since we use same reference for view/edit
-                    if (!options.labels.includes(label)) {
-                    options.labels.push(label);     
-                    }
+                for ( let j = 0; j < queryResults.data.length; j ++ ) {
+                    const data = queryResults.data[j].NumericType;
+                    const tags = queryResults.data[j].tags;
+                    const metric = queryResults.data[j].metric;
+                    const numPoints = data.length;
 
-                    if ( options.series ) {
-                        options.series[label] = {
-                            strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
-                            //strokePattern: this.getStrokePattern(vConfig.lineType),
-                            color: vConfig.color? vConfig.color : '#000000',
-                            axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2'
-                        };
-                    }
+                    let label = metric + ':' + Object.values(tags).join('-');
+                    if ( vConfig.visible ) {
+                        if (!options.labels.includes(label)) {
+                            options.labels.push(label);     
+                        }
 
-                    // extract date of all series to fill it up, 
-                    for (let date in g.dps) {
-                        dpsHash[date] = true;
+                        if ( options.series ) {
+                            options.series[label] = {
+                                strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
+                                //strokePattern: this.getStrokePattern(vConfig.lineType),
+                                color: vConfig.color? vConfig.color : '#000000',
+                                axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2'
+                            };
+                        }
+                        const seriesIndex = options.labels.indexOf(label);
+                        const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+                        for (let k = 0; k< numPoints ; k++ ) {
+                            if (!isArray(normalizedData[k])) {
+                                const time = timeSpecification.start + ( k * mSeconds[unit] );
+                                normalizedData[k] = [ new Date(time * 1000) ];
+                            }
+                            normalizedData[k][seriesIndex]= !isNaN(data[k]) ? data[k] : null;
+                        }
                     }
                 }
             }
+            
+            
         }
+
     }
-    let dpsHashKey = Object.keys(dpsHash);
-    dpsHash = undefined;
-    // sort time in case  new insert somewhere
-    dpsHashKey.sort((a: any, b: any) => {
-      return a - b;
-    });
-    for (let idx = 0, len = dpsHashKey.length; idx < len; idx++) {
-      let dpsMs: any = dpsHashKey[idx];
-      // if there is more than 1 group of query in widget, we append data from second group.
-      // since they have same time range and downsample
-      if (!isArray(normalizedData[idx])) {
-        // convert to milisecond
-        normalizedData[idx] = [new Date(dpsMs * 1000)];
-      }
-      for (let gid in result) {
-        const gConfig = widget? this.util.getObjectByKey(widget.query.groups, 'id', gid) : {};
-        const mConfigs = gConfig ? gConfig.queries : [];
-        if ( gConfig.settings.visual.visible ) {
-            for (let k in result[gid]) {
-                let g = result[gid][k];
-                const mConfig = gConfig? this.getMetricConfigurationByName(g.metric, mConfigs) : {};
-                const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-                if ( vConfig.visible ) {
-                    (!isNaN(g.dps[dpsMs]) ) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
-                }
-            }
-        }
-      }
-    }
+    console.log("normalized data", normalizedData);
     return [...normalizedData];
   }
 

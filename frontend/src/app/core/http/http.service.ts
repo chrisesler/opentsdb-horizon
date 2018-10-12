@@ -11,6 +11,7 @@ import { UtilsService } from '../services/utils.service';
 export class HttpService {
 
   constructor(private http: HttpClient, private utilsService: UtilsService) { }
+
   private testDashboard: any = {
     id: 'abcdfg',
     settings: {
@@ -22,6 +23,7 @@ export class HttpService {
       }
     },
     widgets: [
+        /*
         {
             id: 'bigNum1',
             gridPos: { x: 0, y: 0, w: 4, h: 4 },
@@ -210,7 +212,7 @@ export class HttpService {
                   }
                 ]
             }
-          },
+          },*/
           {
             id: 'abcd',
             gridPos: { x: 0, y: 4, w: 12, h: 5 },
@@ -1086,15 +1088,5 @@ export class HttpService {
           .pipe(
             catchError(this.handleError)
           );
-    }
-
-    getMetrics(queryObj: any): Observable<any> {
-        const headers = new HttpHeaders({
-            'Content-Type': 'application/json'
-        });
-        return this.http.post('/search/metrics', queryObj, { headers, withCredentials: true })
-            .pipe(
-            catchError(this.handleError)
-            );
     }
 }

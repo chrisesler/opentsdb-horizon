@@ -277,7 +277,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const payload = message.payload;
 
         const dt = this.getDashboardDateRange();
-        const downSample = this.getWidegetDownSample(payload);
+        //const downSample = this.getWidegetDownSample(payload);
 
         // sending each group to get data.
         for (let i = 0; i < payload.groups.length; i++) {
@@ -333,25 +333,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
 
                 query.executionGraph.nodes.push(q);
-                query.executionGraph.nodes.push(this.getMetricGroupBy(mid,m));
+                query.executionGraph.nodes.push(this.getMetricGroupBy(mid, m));
+                query.executionGraph.nodes.push(this.getMetricDownSample(mid, payload));
             }
-            downSample.sources = mids;
-            query.executionGraph.nodes.push(downSample);
-
-
-            /*
-            // set downsample
-            for ( let j = 0; j < group.queries.length; j++ ) {
-                group.queries[j].downsample = downsample;
-            }
-            // format for opentsdb query
-            const query: any = {
-                start: dt.start,
-                end: dt.end,
-                queries: group.queries
-            };
-            
-            */
            console.log('the group query', JSON.stringify(query));
             const gquery = {
                 wid: message.id,
@@ -407,6 +391,39 @@ export class DashboardComponent implements OnInit, OnDestroy {
         return downsample;
     }
 
+    getMetricDownSample(mid, query) {
+        const dsSetting = query.settings.time.downsample;
+        let dsValue = dsSetting.value;
+        switch ( dsSetting.value ) {
+            case 'auto':
+                dsValue = '5m';
+                break;
+            case 'custom':
+                dsValue = dsSetting.customValue + dsSetting.customUnit;
+                break;
+        }
+        const downsampleId = 'downsample' + '-' + mid;
+        const downsample =  {
+            id: downsampleId,
+            type: 'downsample',
+            config: {
+                id : downsampleId,
+                aggregator: dsSetting.aggregator,
+                interval: dsValue,
+                fill: true,
+                interpolatorConfigs: [
+                    {
+                        dataType: 'numeric',
+                        fillPolicy: 'NAN',
+                        realFillPolicy: 'NONE'
+                    }
+                ]
+            },
+            sources: [mid]
+        };
+        return downsample;
+    }
+
     getMetricGroupBy(mid, mConfig) {
         const filters = mConfig.filters;
         const tagKeys = [];
@@ -415,7 +432,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 tagKeys.push(filters[i].tagk);
             }
         }
-        const groupById = 'groupby' + '' + mid;
+        const groupById = 'groupby' + '-' + mid;
         const metricGroupBy =  {
             id: groupById,
             type: 'groupby',
@@ -431,7 +448,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
                 ]
             },
-            sources: ['downsample']
+            sources: ['downsample-'  + mid ]
         };
         return metricGroupBy;
     }
