@@ -36,7 +36,7 @@ export class UtcDatepickerComponent implements OnInit {
     days: any[];
     dayNames: any[];
     calendarTitle: string;
-    // tempDate: any; // moment object used for keeping track while cycling through months
+    // tempDate: string; // moment object used for keeping track while cycling through months
     calendarPosition = 'angular-utc-datepicker_below';
     calendarTitleFormat: string = 'MMMM YYYY';
     dateFormat = 'YYYY-MM-DD';
@@ -50,7 +50,6 @@ export class UtcDatepickerComponent implements OnInit {
     ngOnInit() {
         this.unixTimestamp = this.utilsService.timeToMoment(this.date, this.timezone).unix();
         this.calendarTitle = this.utilsService.timeToMoment(this.date, this.timezone).format(this.calendarTitleFormat);
-        // this.tempDate = this.getMomentDate(this.date);
         if (this.dayNames.length === 0) {
             this.generateDayNames();
         }
@@ -67,8 +66,7 @@ export class UtcDatepickerComponent implements OnInit {
             if (this.utilsService.isTimeStampValid(value)) { // input is timestamp
                 this.date = this.utilsService.timestampToTime(value, this.timezone);
                 this.unixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
-            } else if (timezoneChanged && !this.utilsService.relativeTimeToMoment(value)
-                && !this.utilsService.timeToTime(value)) {
+            } else if (timezoneChanged && !this.utilsService.relativeTimeToMoment(value) && value.toLowerCase() !== 'now') {
                 this.date = this.utilsService.timestampToTime(this.unixTimestamp.toString(), this.timezone);
             } else { // input changed
                 this.date = value;
@@ -81,7 +79,8 @@ export class UtcDatepickerComponent implements OnInit {
         } else {
             console.log('date invalid: ' + value);
             this.isDateValid = false;
-            this.generateCalendar(this.utilsService.timeToMoment(this.date, this.timezone).format(this.dateFormat));
+            this.date = value;
+            this.generateCalendar(this.utilsService.timeToMoment(this.unixTimestamp.toString(), this.timezone).format(this.dateFormat));
         }
     }
 
@@ -197,6 +196,8 @@ export class UtcDatepickerComponent implements OnInit {
 
         this.date = this.utilsService.timestampToTime(selectedDate.unix().toString(), this.timezone);
         this.unixTimestamp = selectedDate.unix();
+        this.isDateValid = true;
+        this.calendarTitle = selectedDate.format(this.calendarTitleFormat);
         this.generateCalendar(selectedDate.format(this.dateFormat));
     }
 

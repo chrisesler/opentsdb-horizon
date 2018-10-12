@@ -195,13 +195,18 @@ export class UtilsService {
 
   timeToMoment(time: string, timezone: string): Moment {
     let _moment: Moment;
+    timezone = timezone.toLowerCase();
 
     if (this.defaultTimeToMoment(time, timezone)) {
       _moment = this.defaultTimeToMoment(time, timezone);
     } else if (time.toLowerCase() === 'now') {
       _moment = moment();
     } else if (this.timeToTime(time)) {  // e.g., this 'quarter'
-      _moment = moment().startOf(this.timeToTime(time.toLowerCase()));
+      if (timezone === 'utc') {
+        _moment = moment.utc().startOf(this.timeToTime(time.toLowerCase()));
+      } else {
+        _moment = moment().startOf(this.timeToTime(time.toLowerCase()));
+      }
     } else if (this.isTimeStampValid(time)) {  // e.g., 1234567890
       _moment = moment.unix(Number(time));
     } else if (this.relativeTimeToMoment(time)) {  // e.g., 1h
@@ -209,9 +214,7 @@ export class UtilsService {
     } else if (this.dateWithoutTimeToMoment(time, timezone)) {  // e.g., 05/05/18
       _moment = this.dateWithoutTimeToMoment(time, timezone);
     }
-
     if (_moment && timezone.toLowerCase() === 'utc') {
-      console.log('inside utc');
       _moment = _moment.utc();
     }
     return _moment;
