@@ -270,15 +270,76 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // dispatch payload query by group
     handleQueryPayload(message: any) {
+
+        console.log('query message', message);
+        
         let groupid = '';
         const payload = message.payload;
 
         const dt = this.getDashboardDateRange();
-        const downsample = this.getWidegetDownSample(payload);
+        const downSample = this.getWidegetDownSample(payload);
 
+        // sending each group to get data.
         for (let i = 0; i < payload.groups.length; i++) {
             const group: any = payload.groups[i];
             groupid = group.id;
+            
+            const query = {
+                start: dt.start,
+                end: dt.end,
+                executionGraph: {
+                    id: groupid, // use groupid for now
+                    nodes: []
+                }
+            };
+
+            const mids = [];
+            for (let j = 0; j < group.queries.length; j++) {
+                const m = group.queries[j];
+                const mid = 'm' + j;
+                const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
+                const filters = [];
+                mids.push(mid);
+                console.log("mids", mids);
+                for (let k = 0; k < m.filters.lenght; k++) {
+                    const f = m.filters[k];
+                    const filter = {
+                        type: filterTypes[f.type],
+                        filter: f.filter,
+                        tagKey: f.tagk
+                    };
+                    filters.push(filter);
+                }
+                const q = {
+                    id: mid, // using the loop index for now, might need to generate its own id
+                    type: 'DataSource',
+                    config: {
+                        id: mid,
+                        metric: {
+                            type: 'MetricLiteral',
+                            metric: m.metric
+                        },
+                        fetchLast: false,
+                        filter: {}
+                    }
+                };
+                if ( filters.length ) {
+                    q.config.filter = {
+                        type: 'Chain',
+                        filters: filters
+                    };
+                } else {
+                    delete q.config.filter;
+                }
+
+                query.executionGraph.nodes.push(q);
+                query.executionGraph.nodes.push(this.getMetricGroupBy(mid,m));
+            }
+            downSample.sources = mids;
+            query.executionGraph.nodes.push(downSample);
+
+
+            /*
             // set downsample
             for ( let j = 0; j < group.queries.length; j++ ) {
                 group.queries[j].downsample = downsample;
@@ -289,7 +350,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 end: dt.end,
                 queries: group.queries
             };
-            console.log('the group query', query);
+            
+            */
+           console.log('the group query', JSON.stringify(query));
             const gquery = {
                 wid: message.id,
                 gid: groupid,
@@ -315,7 +378,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     getWidegetDownSample(query) {
         const dsSetting = query.settings.time.downsample;
-        const mAggregator = { 'sum': 'zimsum', 'avg': 'avg', 'max': 'mimmax', 'min': 'mimmin' };
         let dsValue = dsSetting.value;
         switch ( dsSetting.value ) {
             case 'auto':
@@ -325,8 +387,53 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 dsValue = dsSetting.customValue + dsSetting.customUnit;
                 break;
         }
-        const downsample = dsValue + '-' + mAggregator[dsSetting.aggregator] + '-nan';
+        let downsample =  {
+            id: 'downsample',
+            config: {
+                id : 'downsample',
+                aggregator: dsSetting.aggregator,
+                interval: dsValue,
+                fill: true,
+                interpolatorConfigs: [
+                    {
+                        dataType: 'numeric',
+                        fillPolicy: 'NAN',
+                        realFillPolicy: 'NONE'
+                    }
+                ]
+            },
+            sources: []
+        };
         return downsample;
+    }
+
+    getMetricGroupBy(mid, mConfig) {
+        const filters = mConfig.filters;
+        const tagKeys = [];
+        for ( let i = 0; i < filters.length; i++ ) {
+            if ( filters[i].groupBy ) {
+                tagKeys.push(filters[i].tagk);
+            }
+        }
+        const groupById = 'groupby' + '' + mid;
+        const metricGroupBy =  {
+            id: groupById,
+            type: 'groupby',
+            config: {
+                id : groupById,
+                aggregator: 'sum', //mConfig.aggregator,
+                tagKeys: tagKeys,
+                interpolatorConfigs: [
+                    {
+                        dataType: 'numeric',
+                        fillPolicy: 'NAN',
+                        realFillPolicy: 'NONE'
+                    }
+                ]
+            },
+            sources: ['downsample']
+        };
+        return metricGroupBy;
     }
 
     // this will call based on gridster reflow and size changes event
