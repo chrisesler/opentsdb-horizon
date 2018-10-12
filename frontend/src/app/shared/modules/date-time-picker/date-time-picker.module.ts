@@ -11,15 +11,17 @@ import { DayCalendarComponent } from './components/day-calendar/day-calendar.com
 import { MonthCalendarComponent } from './components/month-calendar/month-calendar.component';
 import { CalendarNavComponent } from './components/calendar-nav/calendar-nav.component';
 import { TimePickerComponent } from './components/time-picker/time-picker.component';
+import { DatePickerComponent } from './components/date-picker/date-picker.component';
+import { KeypadComponent } from './components/keypad/keypad.component';
+import { DatepickerComponent } from './components/date-picker-2/datepicker.component';
 
 import { DayTimeCalendarService } from './components/day-time-calendar/day-time-calendar.service';
 import { DayCalendarService } from './components/day-calendar/day-calendar.service';
 import { MonthCalendarService } from './components/month-calendar/month-calendar.service';
 import { TimeSelectService } from './components/time-select/time-select.service';
 import { UtilsService } from './services/utils.service';
-import { DatePickerComponent } from './components/date-picker/date-picker.component';
 import { DatePickerService } from './components/date-picker/date-picker.service';
-import { KeypadComponent } from './components/keypad/keypad.component';
+import { UtilsService2 } from './components/date-picker-2/datepicker-utils';
 
 @NgModule({
   imports: [
@@ -36,7 +38,8 @@ import { KeypadComponent } from './components/keypad/keypad.component';
       MonthCalendarComponent,
       CalendarNavComponent,
       DatePickerComponent,
-      KeypadComponent
+      KeypadComponent,
+      DatepickerComponent
   ],
   providers: [
       DayTimeCalendarService,
@@ -44,7 +47,8 @@ import { KeypadComponent } from './components/keypad/keypad.component';
       MonthCalendarService,
       TimeSelectService,
       UtilsService,
-      DatePickerService
+      DatePickerService,
+      UtilsService2
   ],
   exports: [
     TimePickerComponent

@@ -10,6 +10,7 @@ import { CalendarMode } from '../../types/calendar-mode';
 import { TimeRangePickerOptions, ISelectedTime } from '../../models/models';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX } from '@angular/material';
+import { UtilsService2 } from '../date-picker-2/datepicker-utils';
 
 const moment = momentNs;
 
@@ -20,7 +21,7 @@ const moment = momentNs;
     styleUrls: []
 })
 
-export class TimePickerComponent implements AfterViewChecked {
+export class TimePickerComponent implements AfterViewChecked, OnInit {
     @HostBinding('class.dtp-time-picker') private _hostClass = true;
 
     /** View childs */
@@ -39,11 +40,7 @@ export class TimePickerComponent implements AfterViewChecked {
     /** Inputs */
     private _startTime: string;
     private _endTime: string;
-
-    // tslint:disable-next-line:no-inferrable-types
-    // @Input() startTime: string;
-    // tslint:disable-next-line:no-inferrable-types
-    // @Input() endTime: string;
+    private _timezone: string;
 
     @Input() xPosition: MenuPositionX = 'before';
 
@@ -63,9 +60,17 @@ export class TimePickerComponent implements AfterViewChecked {
         return this._endTime;
     }
 
+    @Input()
+    set timezone(value: string) {
+        this._timezone = value;
+        this.updateToolTips();
+    }
+    get timezone(): string {
+        return this._timezone;
+    }
+
     /** Outputs */
     @Output() timeSelected = new EventEmitter<ISelectedTime>();
-
 
     /** Variables */
 
@@ -76,6 +81,7 @@ export class TimePickerComponent implements AfterViewChecked {
     get tooltipText(): string {
         return this.startTimeToolTip + ' to ' + this.endTimeToolTip;
     }
+    isInitialized = false;
 
     // start time
 
@@ -84,18 +90,19 @@ export class TimePickerComponent implements AfterViewChecked {
     // tslint:disable-next-line:no-inferrable-types
     // _isOpen: boolean = false;
 
-    constructor(private cdRef: ChangeDetectorRef) {
+    constructor(private cdRef: ChangeDetectorRef, private utilsService: UtilsService2) { }
+
+    ngOnInit() {
         if (!this.options) {
             this.setDefaultOptionsValues();
         }
-
         if (this.startTime === undefined || this.startTime.length === 0) {
             this.startTime = '1h';
         }
-
         if (this.endTime === undefined || this.endTime.length === 0) {
             this.endTime = 'now';
         }
+        this.isInitialized = true;
     }
 
     setDefaultOptionsValues() {
@@ -129,9 +136,7 @@ export class TimePickerComponent implements AfterViewChecked {
 
     ngAfterViewChecked() {
         if (!this.startTimeToolTip && !this.endTimeToolTip) {
-            // tslint:disable-next-line:max-line-length
-            this.startTimeToolTip = this.timeRangePicker.startTimeReference.getAbsoluteTimeFromMoment(this.timeRangePicker.startTimeSelected);
-            this.endTimeToolTip = this.timeRangePicker.endTimeReference.getAbsoluteTimeFromMoment(this.timeRangePicker.endTimeSelected);
+          this.updateToolTips();
         }
         this.cdRef.detectChanges();
     }
@@ -149,8 +154,8 @@ export class TimePickerComponent implements AfterViewChecked {
     }
 
     closeTimeRangePicker() {
-        this.timeRangePicker.startTimeReference.setTime(this.startTime);
-        this.timeRangePicker.endTimeReference.setTime(this.endTime);
+        this.timeRangePicker.startTimeReference.date = this.startTime;
+        this.timeRangePicker.endTimeReference.date = this.endTime;
 
         // close mat-menu
         this.trigger.closeMenu();
@@ -163,5 +168,12 @@ export class TimePickerComponent implements AfterViewChecked {
             this.closeTimeRangePicker();
         }
     }
-}
 
+    updateToolTips() {
+        if (this.isInitialized) {
+            // tslint:disable:max-line-length
+            this.startTimeToolTip = this.utilsService.timestampToTime(this.utilsService.timeToMoment(this.startTime, this.timezone).unix().toString(), this.timezone);
+            this.endTimeToolTip = this.utilsService.timestampToTime(this.utilsService.timeToMoment(this.endTime, this.timezone).unix().toString(), this.timezone);
+        }
+    }
+}

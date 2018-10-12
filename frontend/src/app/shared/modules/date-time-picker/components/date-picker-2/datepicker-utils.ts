@@ -51,7 +51,7 @@ export function abbrToTime (abbr: string): any {
 
 
 @Injectable()
-export class UtilsService {
+export class UtilsService2 {
 //   static debounce(func: Function, wait: number) {
 //     let timeout;
 //     return function () {
