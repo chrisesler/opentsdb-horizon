@@ -20,19 +20,16 @@ export class UtcDatepickerComponent implements OnInit {
             this.onDateChange(this.date, true);
         }
     }
-    @Input() button = false;
-    @Input() buttonPosition = 'after'; // either before or after
+    get timezone(): string { return this._timezone; }
     @Output() dateChange = new EventEmitter<string>();
-    @ViewChild('dateInput') el: ElementRef;
-
-    _timezone: string;
-    get timezone(): string {
-        return this._timezone;
-    }
 
     unixTimestamp: Number;
     isDateValid: boolean = true;
+    isInitialized: boolean = false;
     showCalendar = false;
+    button = true;
+    buttonPosition = 'after'; // either before or after
+    _timezone: string;
     days: any[];
     dayNames: any[];
     calendarTitle: string;
@@ -40,7 +37,8 @@ export class UtcDatepickerComponent implements OnInit {
     calendarPosition = 'angular-utc-datepicker_below';
     calendarTitleFormat: string = 'MMMM YYYY';
     dateFormat = 'YYYY-MM-DD';
-    isInitialized: boolean = false;
+
+    @ViewChild('dateInput') el: ElementRef;
 
     constructor(private utilsService: UtilsService) {
         this.days = [];
@@ -122,8 +120,10 @@ export class UtcDatepickerComponent implements OnInit {
     /* GENERATE CALENDAR */
     // INPUT: 2018-09-20
     generateCalendar = (dateAsString: string) => {
-        console.log('generating calendar for: ' + dateAsString);
+        // console.log('generating calendar for: ' + dateAsString);
         const date = moment(dateAsString, this.dateFormat);
+        const now: number = Number(moment().add(10, 'seconds').format('YYYYMMDD'));
+        console.log(now);
 
         this.days = [];
 
@@ -136,12 +136,16 @@ export class UtcDatepickerComponent implements OnInit {
 
         for (let i = firstWeekDay; i <= totalDays; i++) {
             if (i > 0 && i <= moment(date).endOf('M').date()) {
+                console.log(year.toString() + month.toString() + i.toString());
                 // current month
                 this.days.push({
                     day: i,
                     month: month,
                     year: year,
-                    enabled: 'angular-utc-datepicker_enabled',
+                    enabled:
+                        Number(moment(year.toString() + month.toString() + i.toString(), 'YYYYMD').format('YYYYMMDD')) > now ?
+                        'angular-utc-datepicker_disabled' :
+                        'angular-utc-datepicker_enabled',
                     selected: i === date.date() && this.isDateValid ?
                         'angular-utc-datepicker_selected' :
                         'angular-utc-datepicker_unselected'
@@ -183,6 +187,7 @@ export class UtcDatepickerComponent implements OnInit {
     }
 
     selectDate = (date: any) => {
+        console.log(date);
         let selectedDate: Moment;
         const currDate = this.utilsService.timeToMoment(this.unixTimestamp.toString(), this.timezone);
 

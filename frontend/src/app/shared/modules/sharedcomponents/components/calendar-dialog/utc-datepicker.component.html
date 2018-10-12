@@ -19,8 +19,10 @@
                 <i class="fa fa-arrow-left"></i>
             </div>
             <div class="angular-utc-datepicker_title">
-                {{calendarTitle}} <span class="angular-utc-datepicker_today" title="Today" (click)="selectToday()"
-                                        (keydown)="keydown($event)"><i class="fa fa-calendar-o"></i></span>
+                {{calendarTitle}} 
+                <span class="angular-utc-datepicker_today" title="Today" (click)="selectToday()"
+                      (keydown)="keydown($event)"><i class="fa fa-calendar-o"></i>
+                </span>
             </div>
             <div class="angular-utc-datepicker_next" (click)="nextMonth()" (keydown)="keydown($event)">
                 <i class="fa fa-arrow-right"></i>
@@ -30,10 +32,13 @@
             <div class="angular-utc-datepicker_name" *ngFor="let name of dayNames">{{name}}</div>
         </div>
         <div class="angular-utc-datepicker_calendar">
+                <!-- (click)="day.disabled ? null : dayClicked(day); wtfIsTheDay(day);"> -->
+                <!-- [ngClass]="{'mat-calendar-body-today': isDayToday(day), 'mat-calendar-body-selected': day.selected}" -->
+                <!-- <button class="angular-utc-datepicker_day {{day.selected}} {{day.enabled}}" *ngFor="let day of days" -->
             <div class="angular-utc-datepicker_day {{day.selected}} {{day.enabled}}" *ngFor="let day of days"
-                (click)="selectDate(day)">
+                (click)="day.enabled === 'angular-utc-datepicker_enabled' ? selectDate(day) : null">
                 {{day.day}}
-            </div>
+                </div>
             <div class="angular-utc-datepicker_clear"></div>
         </div>
     </div>
