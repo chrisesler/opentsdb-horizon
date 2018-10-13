@@ -1,19 +1,49 @@
-<button class="angular-utc-datepicker_button" (click)="openCalendar($event)" *ngIf="button && buttonPosition === 'before'"
-    (blur)="closeCalendar()" (keydown)="keydown($event)">
-    <i class="fa fa-calendar"></i>
-</button>
+<!-- <mat-form-field appearance="fill" style="min-width: 296px;">
+        <mat-label>{{inputLabel}}</mat-label>
+        <input matInput 
+            id="input-box"
+            [placeholder]="placeholder"
+            [(ngModel)]="inputElementValue"
+            (ngModelChange)="onViewDateChange($event)"
+            (focus)="inputFocused()"
+            [readonly]="componentConfig.disableKeypress"
+            [disabled]="disabled"
+            (keyup.enter)="enterKeyed()">
+        <button matSuffix mat-icon-button (click)="toggleCalendars()">
+            <mat-icon fontSet="denali" fontIcon="d-calendar" color="primary"></mat-icon>
+        </button>
+        
+        <mat-error id="minDateValidation" *ngIf="errors?.minDate"><div>{{minDateError}} </div></mat-error>  
+        <mat-error id="maxDateValidation" *ngIf="errors?.maxDate"><div>{{maxDateError}}</div></mat-error> 
+    </mat-form-field> -->
 
-<input #dateInput class="angular-utc-datepicker_input" [ngModel]="date" (ngModelChange)="onDateChange($event, false)"
-(focus)="openCalendar($event)" (blur)="closeCalendar()" (keydown)="keydown($event)">
+<!-- class="angular-utc-datepicker_input" -->
+<mat-form-field appearance="fill" style="min-width: 296px;">
+     <!-- (keydown)="keydown($event)"> -->
+    <form [formGroup]="registerForm">
+        <div class="form-group">
+            <input matInput 
+                #dateInput 
+                [ngModel]="date" 
+                (ngModelChange)="onDateChange($event, false)" 
+                type="text" 
+                formControlName="dateInput" 
+                class="form-control"/>
 
-<button class="angular-utc-datepicker_button" (click)="openCalendar($event)" *ngIf="button && buttonPosition === 'after'"
-    (blur)="closeCalendar()" (keydown)="keydown($event)">
-    <i class="fa fa-calendar"></i>
+            <div *ngIf=" f.dateInput.errors" class="invalid-feedback">
+                <mat-error id="formatValidation"  *ngIf="f.dateInput.errors.format"><div [innerHTML]="formatError"> </div></mat-error>
+            </div>
+        </div>
+    </form>
+</mat-form-field>
+
+<button matSuffix mat-icon-button (click)="toggleCalendar()">
+        <mat-icon fontSet="denali" fontIcon="d-calendar" color="primary"></mat-icon>
 </button>
 
 <div class="angular-utc-datepicker_datepicker">
     <div class="angular-utc-datepicker_calendar-popup" ngClass="calendarPosition" [hidden]="!showCalendar"
-        (blur)="closeCalendar()" (keydown)="keydown($event)" tabindex="0">
+        (keydown)="keydown($event)" tabindex="0">
         <div class="angular-utc-datepicker_calendar-controls">
             <div class="angular-utc-datepicker_prev" (click)="prevMonth()" (keydown)="keydown($event)">
                 <i class="fa fa-arrow-left"></i>
@@ -32,9 +62,6 @@
             <div class="angular-utc-datepicker_name" *ngFor="let name of dayNames">{{name}}</div>
         </div>
         <div class="angular-utc-datepicker_calendar">
-                <!-- (click)="day.disabled ? null : dayClicked(day); wtfIsTheDay(day);"> -->
-                <!-- [ngClass]="{'mat-calendar-body-today': isDayToday(day), 'mat-calendar-body-selected': day.selected}" -->
-                <!-- <button class="angular-utc-datepicker_day {{day.selected}} {{day.enabled}}" *ngFor="let day of days" -->
             <div class="angular-utc-datepicker_day {{day.selected}} {{day.enabled}}" *ngFor="let day of days"
                 (click)="day.enabled === 'angular-utc-datepicker_enabled' ? selectDate(day) : null">
                 {{day.day}}

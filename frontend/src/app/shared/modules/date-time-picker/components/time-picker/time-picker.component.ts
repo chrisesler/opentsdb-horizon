@@ -153,8 +153,14 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
     }
 
     closeTimeRangePicker() {
+
+        console.log('inside close time range picker');
         this.timeRangePicker.startTimeReference.date = this.startTime;
         this.timeRangePicker.endTimeReference.date = this.endTime;
+
+        this.timeRangePicker.startTimeReference.closeCalendar();
+        this.timeRangePicker.endTimeReference.closeCalendar();
+        // closeCalendar
 
         // close mat-menu
         this.trigger.closeMenu();

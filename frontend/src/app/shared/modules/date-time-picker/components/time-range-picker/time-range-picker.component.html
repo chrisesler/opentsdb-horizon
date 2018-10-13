@@ -38,11 +38,8 @@
             [disableFutureDates]="options.startFutureTimesDisabled"
             [placeholder]="options.startTimePlaceholder"
             [maxDateError]="options.startMaxDateError"
-            [formatError]="options.startDateFormatError"
-            (onChange)="startTimeChanged($event)" 
             (onGoToCurrent)="startClockSelected()"
             (onFocus)="startInputFocused()"
-            (onEnter)="enterKeyedOnInputBox()"
             style="margin-right: 5px;"
             >
         </dp-date-picker> -->
@@ -50,7 +47,11 @@
         <datepicker2 #daytimePickerStart 
             [timezone]="timezone"
             (open)="startCalendarOpened()"
-            (close)="startCalendarClosed()">
+            (close)="startCalendarClosed()"
+            (onEnter)="enterKeyedOnInputBox()"
+            [formatError]="options.startDateFormatError"
+            >
+            <!-- (onChange)="startTimeChanged($event)" -->
         </datepicker2>
 
         <!-- end time -->
@@ -65,11 +66,8 @@
             [disableFutureDates]="options.endFutureTimesDisabled"
             [placeholder]="options.endTimePlaceholder"
             [maxDateError]="options.endMaxDateError"
-            [formatError]="options.endDateFormatError"
-            (onChange)="endTimeChanged($event)"
             (onGoToCurrent)="endClockSelected()"
             (onFocus)="endInputFocused()"
-            (onEnter)="enterKeyedOnInputBox()"
             style="margin-left: 5px;"
             >
         </dp-date-picker> -->
@@ -77,7 +75,11 @@
         <datepicker2 #daytimePickerEnd 
             [timezone]="timezone"
             (open)="endCalendarOpened()"
-            (close)="endCalendarClosed()">
+            (close)="endCalendarClosed()"
+            (onEnter)="enterKeyedOnInputBox()"
+            [formatError]="options.endDateFormatError"
+            >
+            <!-- (onChange)="endTimeChanged($event)" -->
         </datepicker2>
 
     </div>

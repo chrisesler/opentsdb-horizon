@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, ElementRef, ViewChild }
 import * as moment from 'moment';
 import { Moment, isDate } from 'moment';
 import { UtilsService2 } from './datepicker-utils';
+import { FormGroup , FormBuilder, Validators, ValidatorFn, AbstractControl} from '@angular/forms';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -15,28 +16,29 @@ export class DatepickerComponent implements OnInit {
     @Input() date: string;
     @Input('timezone')
     set timezone(value: string) {
-        console.log('setting timezone in datepicker');
         this._timezone = value;
         if (this.date && this.isInitialized) {
             this.onDateChange(this.date, true);
         }
     }
     get timezone(): string { return this._timezone; }
+    // @Input() minDateError: String;
+    // @Input() maxDateError: String;
+    @Input() formatError: String;
+
     @Output() dateChange = new EventEmitter<string>();
 
     @Output() open = new EventEmitter<void>();
     @Output() close = new EventEmitter<void>();
-    // @Output() onChange = new EventEmitter<CalendarValue>();
+    @Output() onChange = new EventEmitter<any>();
     // @Output() onGoToCurrent: EventEmitter<void> = new EventEmitter();
     // @Output() onFocus = new EventEmitter<void>();
-    // @Output() onEnter = new EventEmitter<void>();
+    @Output() onEnter = new EventEmitter<void>();
 
     unixTimestamp: Number;
     isDateValid: boolean = true;
     isInitialized: boolean = false;
     showCalendar = false;
-    button = true;
-    buttonPosition = 'after'; // either before or after
     _timezone: string;
     _date: string;
     days: any[];
@@ -45,15 +47,36 @@ export class DatepickerComponent implements OnInit {
     calendarPosition = 'angular-utc-datepicker_below';
     calendarTitleFormat: string = 'MMMM YYYY';
     dateFormat = 'YYYY-MM-DD';
+    // inputLabel: String = 'Select Date';
+    // validateFn: any;
+    // errors: ValidationErrors;
+    // type DateValidator = (inputVal: CalendarValue) => { [key: string]: any };
+    registerForm: FormGroup;
+    submitted = false;
 
     @ViewChild('dateInput') el: ElementRef;
 
-    constructor(private utilsService: UtilsService2) {
+    constructor(private utilsService: UtilsService2, private formBuilder: FormBuilder) {
         this.days = [];
         this.dayNames = [];
     }
 
+    forbiddenNameValidator(nameRe: RegExp): ValidatorFn {
+        return (control: AbstractControl): {[key: string]: any} | null => {
+            let forbidden: boolean = true;
+            if (this.utilsService.timeToMoment(control.value, this.timezone)) {
+                forbidden = false;
+            }
+            return forbidden ? {'format': {value: control.value}} : null;
+        };
+      }
+
     ngOnInit() {
+
+        this.registerForm = this.formBuilder.group({
+            dateInput: ['', [this.forbiddenNameValidator(/bob/i)]],
+        });
+
         if (!this.date) {
             this.date = '1h';
         }
@@ -68,6 +91,9 @@ export class DatepickerComponent implements OnInit {
         }
         this.isInitialized = true;
     }
+
+     // convenience getter for easy access to form fields
+     get f() { return this.registerForm.controls; }
 
     onDateChange = (value: string, timezoneChanged: boolean) => {
         value = value.trim();
@@ -106,8 +132,8 @@ export class DatepickerComponent implements OnInit {
     }
 
     openCalendar = (event: any) => {
-        const rect = event.target.getBoundingClientRect();
-        this.calendarPosition = window.innerHeight - rect.bottom < 250 ? 'angular-utc-datepicker_above' : 'angular-utc-datepicker_below';
+        // const rect = event.target.getBoundingClientRect();
+        // this.calendarPosition = window.innerHeight - rect.bottom < 250 ? 'angular-utc-datepicker_above' : 'angular-utc-datepicker_below';
         this.showCalendar = true;
         if (this.utilsService.timeToMoment(this.date, this.timezone)) {
             this.generateCalendar(this.utilsService.timeToMoment(this.date, this.timezone).format(this.dateFormat));
@@ -116,26 +142,42 @@ export class DatepickerComponent implements OnInit {
     }
 
     closeCalendar = () => {
-        setTimeout(() => {
-            this.showCalendar = document.activeElement.className.includes('angular-utc-datepicker_calendar-popup') ||
-                document.activeElement.className.includes('angular-utc-datepicker_input');
-            if (!this.showCalendar) {
-                if (this.utilsService.timeToMoment(this.date, this.timezone)) {
-                    this.calendarTitle = this.utilsService.timeToMoment(this.date, this.timezone).format(this.calendarTitleFormat);
-                }
-                // this.tempDate = this.getMomentDate(this.date);
-                // if (this.inputText && this.inputText !== this.date) {
-                //     this.el.nativeElement.value = this.date;
-                // }
-            }
-            this.close.emit();
-        }, 50);
+        console.log('inside dt picker close calendar');
+        this.showCalendar = false;
+        this.close.emit();
+
+        // setTimeout(() => {
+        //     this.showCalendar = document.activeElement.className.includes('angular-utc-datepicker_calendar-popup') ||
+        //         document.activeElement.className.includes('angular-utc-datepicker_input');
+        //     if (!this.showCalendar) {
+        //         if (this.utilsService.timeToMoment(this.date, this.timezone)) {
+        //             this.calendarTitle = this.utilsService.timeToMoment(this.date, this.timezone).format(this.calendarTitleFormat);
+        //         }
+        //     }
+        //     this.close.emit();
+        // }, 50);
+    }
+
+    toggleCalendar() {
+
+        if (this.showCalendar) {
+            this.closeCalendar();
+        } else {
+            this.openCalendar(null);
+        }
+        // this.showCalendar = !this.showCalendar;
     }
 
     keydown = (event: any) => {
         if (event.keyCode === 27) { // escape key
-            this.showCalendar = false;
+            console.log('escape - in datepicker');
+            // this.showCalendar = false;
+            this.closeCalendar();
         }
+    }
+
+    enterKeyed() {
+        this.onEnter.emit();
     }
 
     /* GENERATE CALENDAR */
@@ -162,24 +204,13 @@ export class DatepickerComponent implements OnInit {
 
         for (let i = firstWeekDay; i <= totalDays; i++) {
             if (i > 0 && i <= moment(date).endOf('M').date()) {
-
-                // format day and month to compare to now
-                let _day = i.toString();
-                let _month = month.toString();
-                if (i < 10) {
-                    _day = '0' + _day;
-                }
-                if (month < 10 ) {
-                    _month = '0' +  _month;
-                }
-
                 // current month
                 this.days.push({
                     day: i,
                     month: month,
                     year: year,
                     enabled:
-                        Number(moment(year.toString() + _month + _day, 'YYYYMMDD').format('YYYYMMDD')) > now ?
+                        Number(moment(year.toString() + '-' + month.toString() + '-' + i.toString(), 'YYYY-M-D').format('YYYYMMDD')) > now ?
                         'angular-utc-datepicker_disabled' :
                         'angular-utc-datepicker_enabled',
                     selected: i === date.date() && this.isDateValid ?
@@ -240,6 +271,7 @@ export class DatepickerComponent implements OnInit {
         this.isDateValid = true;
         this.calendarTitle = selectedDate.format(this.calendarTitleFormat);
         this.generateCalendar(selectedDate.format(this.dateFormat));
+        this.closeCalendar();
     }
 
     selectToday = () => {

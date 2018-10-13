@@ -23,12 +23,15 @@ import { UtilsService } from './services/utils.service';
 import { DatePickerService } from './components/date-picker/date-picker.service';
 import { UtilsService2 } from './components/date-picker-2/datepicker-utils';
 
+import { ReactiveFormsModule } from '@angular/forms';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     MaterialModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    ReactiveFormsModule
   ],
   declarations: [
       TimePickerComponent,
