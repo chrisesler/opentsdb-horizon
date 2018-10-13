@@ -15,6 +15,7 @@ export class DatepickerComponent implements OnInit {
     @Input() date: string;
     @Input('timezone')
     set timezone(value: string) {
+        console.log('setting timezone in datepicker');
         this._timezone = value;
         if (this.date && this.isInitialized) {
             this.onDateChange(this.date, true);
@@ -80,7 +81,7 @@ export class DatepickerComponent implements OnInit {
                 this.unixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
             } else if (timezoneChanged && !this.utilsService.relativeTimeToMoment(value) && value.toLowerCase() !== 'now') {
                 this.date = this.utilsService.timestampToTime(this.unixTimestamp.toString(), this.timezone);
-            } else { // input changed
+            } else if (!timezoneChanged) { // input changed
                 this.date = value;
                 this.unixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
             }
@@ -108,7 +109,9 @@ export class DatepickerComponent implements OnInit {
         const rect = event.target.getBoundingClientRect();
         this.calendarPosition = window.innerHeight - rect.bottom < 250 ? 'angular-utc-datepicker_above' : 'angular-utc-datepicker_below';
         this.showCalendar = true;
-        this.generateCalendar(this.utilsService.timeToMoment(this.date, this.timezone).format(this.dateFormat));
+        if (this.utilsService.timeToMoment(this.date, this.timezone)) {
+            this.generateCalendar(this.utilsService.timeToMoment(this.date, this.timezone).format(this.dateFormat));
+        }
         this.open.emit();
     }
 
@@ -117,7 +120,9 @@ export class DatepickerComponent implements OnInit {
             this.showCalendar = document.activeElement.className.includes('angular-utc-datepicker_calendar-popup') ||
                 document.activeElement.className.includes('angular-utc-datepicker_input');
             if (!this.showCalendar) {
-                this.calendarTitle = this.utilsService.timeToMoment(this.date, this.timezone).format(this.calendarTitleFormat);
+                if (this.utilsService.timeToMoment(this.date, this.timezone)) {
+                    this.calendarTitle = this.utilsService.timeToMoment(this.date, this.timezone).format(this.calendarTitleFormat);
+                }
                 // this.tempDate = this.getMomentDate(this.date);
                 // if (this.inputText && this.inputText !== this.date) {
                 //     this.el.nativeElement.value = this.date;
@@ -137,8 +142,14 @@ export class DatepickerComponent implements OnInit {
     // INPUT: 2018-09-20
     generateCalendar = (dateAsString: string) => {
         // console.log('generating calendar for: ' + dateAsString);
-        const date = moment(dateAsString, this.dateFormat);
-        const now: number = Number(moment().add(10, 'seconds').format('YYYYMMDD'));
+        const date: Moment = moment(dateAsString, this.dateFormat);
+        let now: Number;
+
+        if (this.timezone.toLowerCase() === 'utc') {
+            now = Number(moment.utc().add(10, 'seconds').format('YYYYMMDD'));
+        } else {
+            now = Number(moment().add(10, 'seconds').format('YYYYMMDD'));
+        }
 
         this.days = [];
 
@@ -151,13 +162,24 @@ export class DatepickerComponent implements OnInit {
 
         for (let i = firstWeekDay; i <= totalDays; i++) {
             if (i > 0 && i <= moment(date).endOf('M').date()) {
+
+                // format day and month to compare to now
+                let _day = i.toString();
+                let _month = month.toString();
+                if (i < 10) {
+                    _day = '0' + _day;
+                }
+                if (month < 10 ) {
+                    _month = '0' +  _month;
+                }
+
                 // current month
                 this.days.push({
                     day: i,
                     month: month,
                     year: year,
                     enabled:
-                        Number(moment(year.toString() + month.toString() + i.toString(), 'YYYYMD').format('YYYYMMDD')) > now ?
+                        Number(moment(year.toString() + _month + _day, 'YYYYMMDD').format('YYYYMMDD')) > now ?
                         'angular-utc-datepicker_disabled' :
                         'angular-utc-datepicker_enabled',
                     selected: i === date.date() && this.isDateValid ?

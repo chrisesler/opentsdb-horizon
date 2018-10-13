@@ -63,7 +63,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
     @Input()
     set timezone(value: string) {
         this._timezone = value;
-        this.updateToolTips();
+        this.updateToolTipsAndDisplayTimes();
     }
     get timezone(): string {
         return this._timezone;
@@ -129,20 +129,19 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
         this.options.startTimePlaceholder = '1h (or min,d,w,mo,q,y)';
         this.options.endTimePlaceholder = 'now';
 
-        this.options.formatMode = 'daytime'; // "daytime" format = 'MM/DD/YYYY hh:mm A'
+        // this.options.formatMode = 'daytime'; // "daytime" format = 'MM/DD/YYYY hh:mm A'
 
         this.options.minMinuteDuration = 2;
     }
 
     ngAfterViewChecked() {
         if (!this.startTimeToolTip && !this.endTimeToolTip) {
-          this.updateToolTips();
+          this.updateToolTipsAndDisplayTimes();
         }
         this.cdRef.detectChanges();
     }
 
     timeReceived(selectedTime: ISelectedTime) {
-        // this.isOpen = false;
         this.startTime = selectedTime.startTimeDisplay;
         this.endTime = selectedTime.endTimeDisplay;
         this.startTimeToolTip = this.timeRangePicker.startTimeReference.getAbsoluteTimeFromMoment(this.timeRangePicker.startTimeSelected);
@@ -169,11 +168,19 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
         }
     }
 
-    updateToolTips() {
+    updateToolTipsAndDisplayTimes() {
         if (this.isInitialized) {
             // tslint:disable:max-line-length
-            this.startTimeToolTip = this.utilsService.timestampToTime(this.utilsService.timeToMoment(this.startTime, this.timezone).unix().toString(), this.timezone);
-            this.endTimeToolTip = this.utilsService.timestampToTime(this.utilsService.timeToMoment(this.endTime, this.timezone).unix().toString(), this.timezone);
+            this.startTimeToolTip = this.utilsService.timestampToTime(this.timeRangePicker.startTimeReference.unixTimestamp.toString(), this.timezone);
+            this.endTimeToolTip = this.utilsService.timestampToTime(this.timeRangePicker.endTimeReference.unixTimestamp.toString(), this.timezone);
+
+            if (!this.utilsService.relativeTimeToMoment(this.startTime) && this.startTime.toLowerCase() !== 'now') {
+                this.startTime = this.utilsService.timestampToTime(this.timeRangePicker.startTimeReference.unixTimestamp.toString(), this.timezone);
+            }
+
+            if (!this.utilsService.relativeTimeToMoment(this.endTime) && this.endTime.toLowerCase() !== 'now') {
+                this.endTime = this.utilsService.timestampToTime(this.timeRangePicker.endTimeReference.unixTimestamp.toString(), this.timezone);
+            }
         }
     }
 }
