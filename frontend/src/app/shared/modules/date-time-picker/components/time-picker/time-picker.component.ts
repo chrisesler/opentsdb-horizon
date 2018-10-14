@@ -119,6 +119,9 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
         this.options.startMaxDateError = 'Future not allowed';
         this.options.endMaxDateError = 'Future not allowed';
 
+        this.options.startMinDateError = 'Must be > 1B seconds after unix epoch';
+        this.options.endMinDateError = 'Must be > 1B seconds after unix epoch';
+
         this.options.startDateFormatError =  'Invalid. Try <span class="code">1h</span> (or <span class="code">6min</span>, ';
         this.options.startDateFormatError += '<span class="code">5d</span>, <span class="code">4w</span>, <span class="code">3mo</span>, ';
         this.options.startDateFormatError += '<span class="code">2qtr</span>, <span class="code">1y</span>).';
@@ -153,14 +156,12 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
     }
 
     closeTimeRangePicker() {
-
         console.log('inside close time range picker');
-        this.timeRangePicker.startTimeReference.date = this.startTime;
-        this.timeRangePicker.endTimeReference.date = this.endTime;
+        this.timeRangePicker.startTimeReference.onDateChange(this.startTime, true);
+        this.timeRangePicker.endTimeReference.onDateChange(this.endTime, true);
 
         this.timeRangePicker.startTimeReference.closeCalendar();
         this.timeRangePicker.endTimeReference.closeCalendar();
-        // closeCalendar
 
         // close mat-menu
         this.trigger.closeMenu();

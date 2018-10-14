@@ -25,16 +25,20 @@
             <input matInput 
                 #dateInput 
                 [ngModel]="date" 
-                (ngModelChange)="onDateChange($event, false)" 
+                (ngModelChange)="onDateChange($event, false)"
+                (focus)="inputFocused()" 
                 type="text" 
                 formControlName="dateInput" 
                 class="form-control"/>
-
-            <div *ngIf=" f.dateInput.errors" class="invalid-feedback">
-                <mat-error id="formatValidation"  *ngIf="f.dateInput.errors.format"><div [innerHTML]="formatError"> </div></mat-error>
-            </div>
         </div>
+
     </form>
+
+    <div *ngIf="formFields.dateInput.errors" class="invalid-feedback">
+        <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.format"><div [innerHTML]="formatError"> </div></mat-error>
+        <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.maxDate"><div> {{maxDateError}} </div></mat-error>
+        <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.minDate"><div> {{minDateError}} </div></mat-error>
+    </div>
 </mat-form-field>
 
 <button matSuffix mat-icon-button (click)="toggleCalendar()">

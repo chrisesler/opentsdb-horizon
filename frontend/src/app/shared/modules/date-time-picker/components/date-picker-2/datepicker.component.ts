@@ -22,8 +22,8 @@ export class DatepickerComponent implements OnInit {
         }
     }
     get timezone(): string { return this._timezone; }
-    // @Input() minDateError: String;
-    // @Input() maxDateError: String;
+    @Input() minDateError: String;
+    @Input() maxDateError: String;
     @Input() formatError: String;
 
     @Output() dateChange = new EventEmitter<string>();
@@ -32,7 +32,7 @@ export class DatepickerComponent implements OnInit {
     @Output() close = new EventEmitter<void>();
     @Output() onChange = new EventEmitter<any>();
     // @Output() onGoToCurrent: EventEmitter<void> = new EventEmitter();
-    // @Output() onFocus = new EventEmitter<void>();
+    @Output() onFocus = new EventEmitter<void>();
     @Output() onEnter = new EventEmitter<void>();
 
     unixTimestamp: Number;
@@ -61,20 +61,10 @@ export class DatepickerComponent implements OnInit {
         this.dayNames = [];
     }
 
-    forbiddenNameValidator(nameRe: RegExp): ValidatorFn {
-        return (control: AbstractControl): {[key: string]: any} | null => {
-            let forbidden: boolean = true;
-            if (this.utilsService.timeToMoment(control.value, this.timezone)) {
-                forbidden = false;
-            }
-            return forbidden ? {'format': {value: control.value}} : null;
-        };
-      }
-
     ngOnInit() {
 
         this.registerForm = this.formBuilder.group({
-            dateInput: ['', [this.forbiddenNameValidator(/bob/i)]],
+            dateInput: ['', [this.formatValidator(), this.maxDateValidator(), this.minDateValidator()]],
         });
 
         if (!this.date) {
@@ -93,14 +83,13 @@ export class DatepickerComponent implements OnInit {
     }
 
      // convenience getter for easy access to form fields
-     get f() { return this.registerForm.controls; }
+     get formFields() { return this.registerForm.controls; }
 
     onDateChange = (value: string, timezoneChanged: boolean) => {
         value = value.trim();
         const theMoment: Moment = this.utilsService.timeToMoment(value, this.timezone);
 
-        // TODO: create validator
-        if (theMoment) {
+        if (theMoment && theMoment.unix() > this.utilsService.getMinUnixTimestamp()) {
             console.log('date valid: ' + value);
             if (this.utilsService.isTimeStampValid(value)) { // input is timestamp
                 this.date = this.utilsService.timestampToTime(value, this.timezone);
@@ -180,18 +169,16 @@ export class DatepickerComponent implements OnInit {
         this.onEnter.emit();
     }
 
+    inputFocused() {
+        this.onFocus.emit();
+    }
+
     /* GENERATE CALENDAR */
     // INPUT: 2018-09-20
     generateCalendar = (dateAsString: string) => {
         // console.log('generating calendar for: ' + dateAsString);
         const date: Moment = moment(dateAsString, this.dateFormat);
-        let now: Number;
-
-        if (this.timezone.toLowerCase() === 'utc') {
-            now = Number(moment.utc().add(10, 'seconds').format('YYYYMMDD'));
-        } else {
-            now = Number(moment().add(10, 'seconds').format('YYYYMMDD'));
-        }
+        const now: Number = Number(this.getNow().format('YYYYMMDD'));
 
         this.days = [];
 
@@ -204,13 +191,14 @@ export class DatepickerComponent implements OnInit {
 
         for (let i = firstWeekDay; i <= totalDays; i++) {
             if (i > 0 && i <= moment(date).endOf('M').date()) {
+                let _moment = moment(year.toString() + '-' + month.toString() + '-' + i.toString(), 'YYYY-M-D');
                 // current month
                 this.days.push({
                     day: i,
                     month: month,
                     year: year,
                     enabled:
-                        Number(moment(year.toString() + '-' + month.toString() + '-' + i.toString(), 'YYYY-M-D').format('YYYYMMDD')) > now ?
+                        Number(_moment.format('YYYYMMDD')) > now || Number(_moment.format('YYYYMMDD')) < 20010909 ?
                         'angular-utc-datepicker_disabled' :
                         'angular-utc-datepicker_enabled',
                     selected: i === date.date() && this.isDateValid ?
@@ -236,6 +224,46 @@ export class DatepickerComponent implements OnInit {
                     selected: 'angular-utc-datepicker_unselected'
                 });
             }
+        }
+    }
+
+    formatValidator(): ValidatorFn {
+        return (control: AbstractControl): {[key: string]: any} | null => {
+            let forbidden: boolean = true;
+            if (this.utilsService.timeToMoment(control.value, this.timezone)) {
+                forbidden = false;
+            }
+            return forbidden ? {'format': {value: control.value}} : null;
+        };
+    }
+
+    maxDateValidator(): ValidatorFn {
+        return (control: AbstractControl): {[key: string]: any} | null => {
+            let forbidden: boolean = false;
+            const _moment: Moment = this.utilsService.timeToMoment(control.value, this.timezone);
+            if (_moment && _moment.unix() > this.getNow().unix()) {
+                forbidden = true;
+            }
+            return forbidden ? {'maxDate': {value: control.value}} : null;
+        };
+    }
+
+    minDateValidator(): ValidatorFn {
+        return (control: AbstractControl): {[key: string]: any} | null => {
+            let forbidden: boolean = false;
+            const _moment: Moment = this.utilsService.timeToMoment(control.value, this.timezone);
+            if (_moment && _moment.unix() < this.utilsService.getMinUnixTimestamp()) {
+                forbidden = true;
+            }
+            return forbidden ? {'minDate': {value: control.value}} : null;
+        };
+    }
+
+    getNow(): Moment {
+        if (this.timezone.toLowerCase() === 'utc') {
+            return moment.utc().add(10, 'seconds');
+        } else {
+            return moment().add(10, 'seconds');
         }
     }
 

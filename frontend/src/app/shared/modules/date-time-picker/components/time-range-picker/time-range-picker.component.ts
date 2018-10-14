@@ -119,7 +119,7 @@ export class TimeRangePickerComponent implements OnInit {
     }
 
     applyClicked() {
-      // if (!this.startTimeReference.errors && !this.endTimeReference.errors) {
+      if (!this.startTimeReference.formFields.dateInput.errors && !this.endTimeReference.formFields.dateInput.errors) {
         this.closeCalendarsAndHideButtons();
 
         // sets the relative times to latest values
@@ -127,7 +127,7 @@ export class TimeRangePickerComponent implements OnInit {
         this.endTimeReference.onDateChange(this.endTimeReference.date, false);
 
         this.timeSelected.emit(this.getTimeSelected());
-      // }
+      }
     }
 
     cancelClicked() {

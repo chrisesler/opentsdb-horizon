@@ -37,9 +37,8 @@
             [mode]="this.options.formatMode"
             [disableFutureDates]="options.startFutureTimesDisabled"
             [placeholder]="options.startTimePlaceholder"
-            [maxDateError]="options.startMaxDateError"
+            
             (onGoToCurrent)="startClockSelected()"
-            (onFocus)="startInputFocused()"
             style="margin-right: 5px;"
             >
         </dp-date-picker> -->
@@ -50,6 +49,9 @@
             (close)="startCalendarClosed()"
             (onEnter)="enterKeyedOnInputBox()"
             [formatError]="options.startDateFormatError"
+            [maxDateError]="options.startMaxDateError"
+            [minDateError]="options.startMinDateError"
+            (onFocus)="startInputFocused()"
             >
             <!-- (onChange)="startTimeChanged($event)" -->
         </datepicker2>
@@ -65,9 +67,7 @@
             [mode]="this.options.formatMode"
             [disableFutureDates]="options.endFutureTimesDisabled"
             [placeholder]="options.endTimePlaceholder"
-            [maxDateError]="options.endMaxDateError"
             (onGoToCurrent)="endClockSelected()"
-            (onFocus)="endInputFocused()"
             style="margin-left: 5px;"
             >
         </dp-date-picker> -->
@@ -78,15 +78,17 @@
             (close)="endCalendarClosed()"
             (onEnter)="enterKeyedOnInputBox()"
             [formatError]="options.endDateFormatError"
+            [maxDateError]="options.endMaxDateError"
+            [minDateError]="options.endMinDateError"
+            (onFocus)="endInputFocused()"
             >
             <!-- (onChange)="endTimeChanged($event)" -->
         </datepicker2>
 
     </div>
-</div>
 
 <div class="dtp-action-controls" *ngIf="showApply">
-    <button mat-raised-button class="mat-elevation-z0" color="primary" id="button-apply" (click)="applyClicked()" [disabled]="daytimePickerStart.errors || daytimePickerEnd.errors">Apply</button>
+    <button mat-raised-button class="mat-elevation-z0" color="primary" id="button-apply" (click)="applyClicked()" [disabled]="daytimePickerStart.formFields.dateInput.errors || daytimePickerEnd.formFields.dateInput.errors">Apply</button>
     <button mat-stroked-button color="primary" id="button-cancel" (click)="cancelClicked()" >Cancel</button>
 </div>
 
