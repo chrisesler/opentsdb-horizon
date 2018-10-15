@@ -3,6 +3,7 @@ import * as moment from 'moment';
 import { Moment, isDate } from 'moment';
 import { UtilsService2 } from './datepicker-utils';
 import { FormGroup , FormBuilder, Validators, ValidatorFn, AbstractControl} from '@angular/forms';
+import { HostBinding } from '@angular/core';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -34,6 +35,8 @@ export class DatepickerComponent implements OnInit {
     @Output() onChange = new EventEmitter<any>();
     @Output() onFocus = new EventEmitter<void>();
     @Output() onEnter = new EventEmitter<void>();
+
+    @HostBinding('class.date-picker-component') private _hostClass = true;
 
     unixTimestamp: Number;
     tempUnixTimestamp: Number; // for cycling through months

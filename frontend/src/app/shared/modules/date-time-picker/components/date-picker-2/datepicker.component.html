@@ -1,23 +1,26 @@
-<mat-form-field [formGroup]="registerForm" appearance="fill" style="min-width: 296px;">
-        <mat-label>{{inputBoxName}}</mat-label>
-        <input matInput 
-            #dateInput 
-            [ngModel]="date" 
-            (ngModelChange)="onDateChange($event, false)"
-            (focus)="inputFocused()" 
-            type="text" 
-            formControlName="dateInput" 
-            class="form-control"/>
-    <button matSuffix mat-icon-button (click)="toggleCalendar()">
-        <mat-icon fontSet="denali" fontIcon="d-calendar" color="primary"></mat-icon>
-    </button>
-</mat-form-field>
-
-<div *ngIf="formFields.dateInput.errors" class="invalid-feedback">
-    <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.format && date"><div [innerHTML]="formatError"> </div></mat-error>
-    <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.maxDate"><div> {{maxDateError}} </div></mat-error>
-    <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.minDate"><div> {{minDateError}} </div></mat-error>
-</div>
+<span class="input-field">
+    <mat-form-field [formGroup]="registerForm" appearance="fill" style="min-width: 296px;">
+            <mat-label>{{inputBoxName}}</mat-label>
+            <input matInput 
+                id="input-box"
+                #dateInput 
+                [ngModel]="date" 
+                (ngModelChange)="onDateChange($event, false)"
+                (focus)="inputFocused()" 
+                type="text" 
+                formControlName="dateInput" 
+                class="form-control"/>
+        <button matSuffix mat-icon-button (click)="toggleCalendar()">
+            <mat-icon fontSet="denali" fontIcon="d-calendar" color="primary"></mat-icon>
+        </button>
+    </mat-form-field>
+    
+    <div *ngIf="formFields.dateInput.errors" class="invalid-feedback">
+        <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.format && date"><div [innerHTML]="formatError"> </div></mat-error>
+        <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.maxDate"><div> {{maxDateError}} </div></mat-error>
+        <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.minDate"><div> {{minDateError}} </div></mat-error>
+    </div>
+</span>
 
 <div class="angular-utc-datepicker_datepicker">
     <div class="angular-utc-datepicker_calendar-popup" ngClass="calendarPosition" [hidden]="!showCalendar"

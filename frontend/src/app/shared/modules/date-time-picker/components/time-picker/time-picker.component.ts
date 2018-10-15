@@ -132,8 +132,8 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
         this.options.startTimePlaceholder = '1h (or min,d,w,mo,q,y)';
         this.options.endTimePlaceholder = 'now';
 
-        this.options.endTimeInputBoxName = 'Start Date';
-        this.options.startTimeInputBoxName = 'End Date';
+        this.options.startTimeInputBoxName = 'Start Date';
+        this.options.endTimeInputBoxName = 'End Date';
 
         this.options.minMinuteDuration = 2;
     }
