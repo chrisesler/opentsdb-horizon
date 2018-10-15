@@ -23,7 +23,6 @@ export class HttpService {
       }
     },
     widgets: [
-        /*
         {
             id: 'bigNum1',
             gridPos: { x: 0, y: 0, w: 4, h: 4 },
@@ -212,7 +211,7 @@ export class HttpService {
                   }
                 ]
             }
-          },*/
+          },
           {
             id: 'abcd',
             gridPos: { x: 0, y: 4, w: 12, h: 5 },
