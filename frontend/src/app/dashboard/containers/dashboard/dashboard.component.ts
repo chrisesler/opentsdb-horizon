@@ -392,7 +392,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     getQuerySummarizer() {
         const summarizer =  {
             id: 'summarizer',
-            summaries: ['sum', 'max', 'min', 'count', 'avg'],
+            summaries: ['sum', 'max', 'min', 'count', 'avg', 'first', 'last'],
             sources: ['groupby']
         };
         return summarizer;
