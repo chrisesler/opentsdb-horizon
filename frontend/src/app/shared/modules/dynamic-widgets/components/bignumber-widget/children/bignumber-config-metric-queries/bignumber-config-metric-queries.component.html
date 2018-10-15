@@ -14,7 +14,7 @@
             <mat-list-item class="query-metric-item">
                 <mat-toolbar class="query-metric-toolbar">
                     <span class="enabled-metric-radio-button">
-                        <mat-radio-button class="query-metric-row" *ngFor="let query of group.queries;let index=index" [checked]="this.widget.query.settings.visual.queryID == index" (change)="querySelected(index)"></mat-radio-button>
+                        <mat-radio-button class="query-metric-row" [checked]="this.widget.query.settings.visual.queryID == index" (change)="querySelected(index)"></mat-radio-button>
                     </span>
                     <strong>
                         {{query.metric}}

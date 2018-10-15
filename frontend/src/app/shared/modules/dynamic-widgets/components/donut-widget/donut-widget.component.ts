@@ -86,8 +86,12 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
+                        if ( !this.isDataLoaded ) {
+                            this.isDataLoaded = true;
+                            this.options.labels = [];
+                            this.data = [];
+                        }
                         this.setOptions();
-                        this.isDataLoaded = true;
                         this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget.query, this.data, message.payload.rawdata);
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -115,7 +119,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
-                payload: this.widget.query
+                payload: this.widget
             });
         }
     }
@@ -226,7 +230,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         const mConfigs = gConfig.queries;
 
         for ( let i = 0; i < mConfigs.length; i++ ) {
-            const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
+            const metric = mConfigs[i].metric;
             const vConfig = mConfigs[i].settings.visual;
             let label = vConfig.stackLabel ? vConfig.stackLabel : metric;
             if ( vConfig.visible ) {
@@ -269,8 +273,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     refreshData(reload = true) {
         this.isDataLoaded = false;
-        this.options.labels = [];
-        this.data = [];
         if ( reload ) {
             this.requestData();
         } else {

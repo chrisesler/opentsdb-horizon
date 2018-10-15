@@ -134,7 +134,8 @@ export class BignumberWidgetComponent implements OnInit {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                         this.isDataLoaded = true;
-                        this.metrics = message.payload.rawdata;
+                        const gid = Object.keys(message.payload.rawdata)[0];
+                        this.metrics = gid !== 'error' ? message.payload.rawdata[gid].results : [];
                         this.setBigNumber(this.widget.query.settings.visual.queryID);
                         break;
                     case 'viewEditWidgetMode':
@@ -154,12 +155,15 @@ export class BignumberWidgetComponent implements OnInit {
     }
 
     getMetric(queryID: string): any {
-        let queryIndex = parseInt(queryID, 10);
-        let metric;
-        // get the 'first' metric
-        for (const [id, _metrics] of Object.entries(this.metrics)) {
-            metric = _metrics[queryIndex];
-            break;
+        let metric = {};
+        queryID = queryID.toString();
+        for ( let i = 0; this.metrics && i < this.metrics.length; i++ ) {
+            const mid = this.metrics[i].source.split(':')[1];
+            const configIndex = mid.replace('m', '');
+            if ( configIndex === queryID ) {
+                metric = this.metrics[i].data[0];
+                break;
+            }
         }
         return metric;
     }
@@ -183,34 +187,18 @@ export class BignumberWidgetComponent implements OnInit {
 
         let queryIndex = parseInt(queryId, 10);
 
-        const dps = metric['dps'];
-        let currentValueTS: number = 0;
-        let lastValueTS: number = 0;
         let currentValue: number = 0;
         let lastValue: number = 0;
 
-        // get current value
-        for (let key in dps) {
-            if (dps.hasOwnProperty(key)) {
-                if (parseInt(key, 10) > currentValueTS) {
-                    currentValueTS = parseInt(key, 10);
-                }
-            }
-        }
-        currentValue = dps[currentValueTS];
+        const aggs = metric.NumericSummaryType.aggregations;
+        const key = Object.keys(metric.NumericSummaryType.data[0])[0];
+        const aggData = metric.NumericSummaryType.data[0][key];
 
-        // get last value
-        for (let key in dps) {
-            if (dps.hasOwnProperty(key)) {
-                if (parseInt(key, 10) > lastValueTS && parseInt(key, 10) < currentValueTS) {
-                    lastValueTS = parseInt(key, 10);
-                }
-            }
-        }
-        lastValue = dps[lastValueTS];
-        const mData: any = Object.values(dps);
-        // tslint:disable-next-line:max-line-length
-        const aggregateValue = this.util.getArrayAggregate( this.widget.query.groups[0].queries[queryIndex].settings.visual.aggregator, mData );
+        const aggrIndex = aggs.indexOf(this.widget.query.groups[0].queries[queryIndex].settings.visual.aggregator);
+        const aggregateValue =  aggData[aggrIndex];
+
+        lastValue = aggData[aggs.indexOf('first')];
+        currentValue = aggData[aggs.indexOf('last')];
 
         // SET LOCAL VARIABLES
         this.bigNumber = aggregateValue;
@@ -234,7 +222,7 @@ export class BignumberWidgetComponent implements OnInit {
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
-                payload: this.widget.query
+                payload: this.widget
             });
         }
     }
@@ -391,7 +379,12 @@ export class BignumberWidgetComponent implements OnInit {
         }
 
         this.widget.query.groups[gIndex].queries.splice(index, 1);
-        this.metrics[((Object.keys(this.metrics))[0])].splice(index, 1); // get first key of dict, then remove metric from array
+
+        const source = 'summarizer:m' + index;
+        const metricIndex = this.metrics.findIndex( item => item.source === source );
+        if (metricIndex !== -1 ) {
+            this.metrics.splice(metricIndex, 1);
+        }
         this.setBigNumber(this.widget.query.settings.visual.queryID );
 
         // this.refreshData(false);

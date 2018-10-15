@@ -98,8 +98,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
+                        if ( !this.isDataLoaded ) {
+                            this.options.labels = [];
+                            this.data = [];
                             this.isDataLoaded = true;
-                            this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget.query, this.data, message.payload.rawdata, this.isStackedGraph);
+                        }
+                        this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget.query, this.data, message.payload.rawdata, this.isStackedGraph);
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.setOptions();
@@ -127,7 +131,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
-                payload: this.widget.query
+                payload: this.widget
             });
         }
     }
@@ -315,8 +319,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     refreshData(reload = true) {
         this.isDataLoaded = false;
-        this.options.labels = [];
-        this.data = [];
         if ( reload ) {
             this.requestData();
         } else {
@@ -381,7 +383,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     setAlertOption() {
         const thresholds = this.widget.query.settings.thresholds || {};
-        const axis = this.widget.query.settings.axes ? this.widget.query.settings.axes.y1 : <Axis>{};
+        const axis = this.widget.query.settings.axes && this.widget.query.settings.axes.y1 ? this.widget.query.settings.axes.y1 : <Axis>{};
         const oUnit = this.unit.getDetails(axis.unit);
 
         this.options.threshold = { thresholds: [] };
@@ -422,7 +424,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     updateAlertValue(nConfig) {
-        const oConfig = this.widget.query.settings.axes ? this.widget.query.settings.axes.y1 : <Axis>{};
+        const oConfig = this.widget.query.settings.axes && this.widget.query.settings.axes.y1 ? this.widget.query.settings.axes.y1 : <Axis>{};
         const oUnit = this.unit.getDetails(oConfig.unit);
         const nUnit = this.unit.getDetails(nConfig.unit);
         const thresholds = this.widget.query.settings.thresholds || {};

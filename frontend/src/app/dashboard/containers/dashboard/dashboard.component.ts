@@ -272,25 +272,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
     handleQueryPayload(message: any) {
 
         console.log('query message', message);
-        
+
         let groupid = '';
         const payload = message.payload;
+        const summary = payload.settings.component_type === 'LinechartWidgetComponent' ? false : true;
 
         const dt = this.getDashboardDateRange();
-        const downSample = this.getWidegetDownSample(payload);
 
         // sending each group to get data.
-        for (let i = 0; i < payload.groups.length; i++) {
-            const group: any = payload.groups[i];
+        for (let i = 0; i < payload.query.groups.length; i++) {
+            const group: any = payload.query.groups[i];
             groupid = group.id;
             
             const query = {
                 start: dt.start,
                 end: dt.end,
-                executionGraph: {
-                    id: groupid, // use groupid for now
-                    nodes: []
-                }
+                executionGraph: []
             };
 
             const mids = [];
@@ -300,8 +297,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
                 const filters = [];
                 mids.push(mid);
-                console.log("mids", mids);
-                for (let k = 0; k < m.filters.lenght; k++) {
+                for (let k = 0; m.filters && k < m.filters.length; k++) {
                     const f = m.filters[k];
                     const filter = {
                         type: filterTypes[f.type],
@@ -313,45 +309,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 const q = {
                     id: mid, // using the loop index for now, might need to generate its own id
                     type: 'DataSource',
-                    config: {
-                        id: mid,
-                        metric: {
-                            type: 'MetricLiteral',
-                            metric: m.metric
-                        },
-                        fetchLast: false,
-                        filter: {}
-                    }
+                    metric: {
+                        type: 'MetricLiteral',
+                        metric: m.metric
+                    },
+                    fetchLast: false,
+                    filter: {}
                 };
                 if ( filters.length ) {
-                    q.config.filter = {
+                    q.filter = {
                         type: 'Chain',
                         filters: filters
                     };
                 } else {
-                    delete q.config.filter;
+                    delete q.filter;
                 }
 
-                query.executionGraph.nodes.push(q);
-                query.executionGraph.nodes.push(this.getMetricGroupBy(mid,m));
+                query.executionGraph.push(q);
+                if ( !summary ) {
+                    query.executionGraph.push(this.getMetricGroupBy(mid, m));
+                }
             }
-            downSample.sources = mids;
-            query.executionGraph.nodes.push(downSample);
-
-
-            /*
-            // set downsample
-            for ( let j = 0; j < group.queries.length; j++ ) {
-                group.queries[j].downsample = downsample;
+            const downsample = this.getWidegetDownSample(payload.query);
+            downsample.sources = mids;
+            query.executionGraph.push(downsample);
+            if ( summary ) {
+                query.executionGraph.push(this.getMetricGroupBy());
+                query.executionGraph.push(this.getQuerySummarizer());
             }
-            // format for opentsdb query
-            const query: any = {
-                start: dt.start,
-                end: dt.end,
-                queries: group.queries
-            };
-            
-            */
            console.log('the group query', JSON.stringify(query));
             const gquery = {
                 wid: message.id,
@@ -387,50 +372,53 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 dsValue = dsSetting.customValue + dsSetting.customUnit;
                 break;
         }
-        let downsample =  {
+        const downsample =  {
             id: 'downsample',
-            config: {
-                id : 'downsample',
-                aggregator: dsSetting.aggregator,
-                interval: dsValue,
-                fill: true,
-                interpolatorConfigs: [
-                    {
-                        dataType: 'numeric',
-                        fillPolicy: 'NAN',
-                        realFillPolicy: 'NONE'
-                    }
-                ]
-            },
+            aggregator: dsSetting.aggregator,
+            interval: dsValue,
+            fill: true,
+            interpolatorConfigs: [
+                {
+                    dataType: 'numeric',
+                    fillPolicy: 'NAN',
+                    realFillPolicy: 'NONE'
+                }
+            ],
             sources: []
         };
         return downsample;
     }
 
-    getMetricGroupBy(mid, mConfig) {
-        const filters = mConfig.filters;
+    getQuerySummarizer() {
+        const summarizer =  {
+            id: 'summarizer',
+            summaries: ['sum', 'max', 'min', 'count', 'avg', 'first', 'last'],
+            sources: ['groupby']
+        };
+        return summarizer;
+    }
+
+    getMetricGroupBy(mid= null, mConfig= null) {
+        const filters = mConfig && mConfig.filters ? mConfig.filters : [];
         const tagKeys = [];
-        for ( let i = 0; i < filters.length; i++ ) {
+        for ( let i = 0; filters && i < filters.length; i++ ) {
             if ( filters[i].groupBy ) {
                 tagKeys.push(filters[i].tagk);
             }
         }
-        const groupById = 'groupby' + '' + mid;
+        const groupById = 'groupby' + (mid ? '-' + mid : '');
         const metricGroupBy =  {
             id: groupById,
             type: 'groupby',
-            config: {
-                id : groupById,
-                aggregator: 'sum', //mConfig.aggregator,
-                tagKeys: tagKeys,
-                interpolatorConfigs: [
-                    {
-                        dataType: 'numeric',
-                        fillPolicy: 'NAN',
-                        realFillPolicy: 'NONE'
-                    }
-                ]
-            },
+            aggregator: 'sum', //mConfig.aggregator,
+            tagKeys: tagKeys,
+            interpolatorConfigs: [
+                {
+                    dataType: 'numeric',
+                    fillPolicy: 'NAN',
+                    realFillPolicy: 'NONE'
+                }
+            ],
             sources: ['downsample']
         };
         return metricGroupBy;
