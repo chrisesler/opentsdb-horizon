@@ -25,6 +25,8 @@ export class DatepickerComponent implements OnInit {
     @Input() minDateError: String;
     @Input() maxDateError: String;
     @Input() formatError: String;
+    @Input() placeholder: string;
+    @Input() inputBoxName: string;
 
     @Output() dateChange = new EventEmitter<string>();
     @Output() open = new EventEmitter<void>();

@@ -1,47 +1,23 @@
-<!-- <mat-form-field appearance="fill" style="min-width: 296px;">
-        <mat-label>{{inputLabel}}</mat-label>
+<mat-form-field [formGroup]="registerForm" appearance="fill" style="min-width: 296px;">
+        <mat-label>{{inputBoxName}}</mat-label>
         <input matInput 
-            id="input-box"
-            [placeholder]="placeholder"
-            [(ngModel)]="inputElementValue"
-            (ngModelChange)="onViewDateChange($event)"
-            (focus)="inputFocused()"
-            [readonly]="componentConfig.disableKeypress"
-            [disabled]="disabled"
-            (keyup.enter)="enterKeyed()">
-        <button matSuffix mat-icon-button (click)="toggleCalendars()">
-            <mat-icon fontSet="denali" fontIcon="d-calendar" color="primary"></mat-icon>
-        </button>
-        
-    </mat-form-field> -->
-
-<!-- class="angular-utc-datepicker_input" -->
-<mat-form-field appearance="fill" style="min-width: 296px;">
-     <!-- (keydown)="keydown($event)"> -->
-    <form [formGroup]="registerForm">
-        <div class="form-group">
-            <input matInput 
-                #dateInput 
-                [ngModel]="date" 
-                (ngModelChange)="onDateChange($event, false)"
-                (focus)="inputFocused()" 
-                type="text" 
-                formControlName="dateInput" 
-                class="form-control"/>
-        </div>
-
-    </form>
-
-    <div *ngIf="formFields.dateInput.errors" class="invalid-feedback">
-        <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.format"><div [innerHTML]="formatError"> </div></mat-error>
-        <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.maxDate"><div> {{maxDateError}} </div></mat-error>
-        <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.minDate"><div> {{minDateError}} </div></mat-error>
-    </div>
+            #dateInput 
+            [ngModel]="date" 
+            (ngModelChange)="onDateChange($event, false)"
+            (focus)="inputFocused()" 
+            type="text" 
+            formControlName="dateInput" 
+            class="form-control"/>
+    <button matSuffix mat-icon-button (click)="toggleCalendar()">
+        <mat-icon fontSet="denali" fontIcon="d-calendar" color="primary"></mat-icon>
+    </button>
 </mat-form-field>
 
-<button matSuffix mat-icon-button (click)="toggleCalendar()">
-        <mat-icon fontSet="denali" fontIcon="d-calendar" color="primary"></mat-icon>
-</button>
+<div *ngIf="formFields.dateInput.errors" class="invalid-feedback">
+    <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.format && date"><div [innerHTML]="formatError"> </div></mat-error>
+    <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.maxDate"><div> {{maxDateError}} </div></mat-error>
+    <mat-error id="formatValidation"  *ngIf="formFields.dateInput.errors.minDate"><div> {{minDateError}} </div></mat-error>
+</div>
 
 <div class="angular-utc-datepicker_datepicker">
     <div class="angular-utc-datepicker_calendar-popup" ngClass="calendarPosition" [hidden]="!showCalendar"
@@ -56,16 +32,11 @@
                 {{monthCalendarTitle}} 
             </button>
 
-             <button class="angular-utc-datepicker_prev" (click)="prev()">
-                <--
-             </button>
+            <button class="angular-utc-datepicker_prev" (click)="prev()"><--</button>
 
-            <button class="angular-utc-datepicker_next" (click)="next()">
-                -->
-            </button>
+            <button class="angular-utc-datepicker_next" (click)="next()">--></button>
 
         </div>
-
 
         <div *ngIf="displayDayCalendar">
             <div class="angular-utc-datepicker_day-names">
@@ -82,22 +53,7 @@
         </div>
 
         <div *ngIf="!displayDayCalendar">
-            <!-- <div class="angular-utc-datepicker_day-names"> -->
-                <button class="angular-utc-datepicker_name" *ngFor="let month of monthNames; let i = index" (click)="monthSelected(i)">{{month}}</button>
-            <!-- </div> -->
-            
-            <!-- MONTHS -->
-            <!-- <div class="angular-utc-datepicker_day-names">
-                <div class="angular-utc-datepicker_name" *ngFor="let name of dayNames">{{name}}</div>
-            </div>
-            <div class="angular-utc-datepicker_calendar">
-                <div class="angular-utc-datepicker_day {{day.selected}} {{day.enabled}}" 
-                    *ngFor="let day of days"
-                    (click)="day.enabled === 'angular-utc-datepicker_enabled' ? selectDate(day) : null">
-                    {{day.day}}
-                </div>
-                <div class="angular-utc-datepicker_clear"></div>
-            </div> -->
+            <button class="angular-utc-datepicker_name" *ngFor="let month of monthNames; let i = index" (click)="monthSelected(i)">{{month}}</button>
         </div>
 
     </div>

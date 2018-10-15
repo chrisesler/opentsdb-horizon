@@ -30,28 +30,24 @@
         <!-- <dp-date-picker 
             id="daytimePickerStart"
             class="start-input"
-            inputLabel="Start Date"
             #daytimePickerStart="ngModel"
             #daytimePickerStart
-            [(ngModel)]="startTimeDisplay"
-            [mode]="this.options.formatMode"
-            [disableFutureDates]="options.startFutureTimesDisabled"
-            [placeholder]="options.startTimePlaceholder"
-            
             (onGoToCurrent)="startClockSelected()"
-            style="margin-right: 5px;"
             >
         </dp-date-picker> -->
 
         <datepicker2 #daytimePickerStart 
             [timezone]="timezone"
-            (open)="startCalendarOpened()"
-            (close)="startCalendarClosed()"
-            (onEnter)="enterKeyedOnInputBox()"
             [formatError]="options.startDateFormatError"
             [maxDateError]="options.startMaxDateError"
             [minDateError]="options.startMinDateError"
+            [placeholder]="options.startTimePlaceholder"
+            [inputBoxName]="options.startTimeInputBoxName"
+            (open)="startCalendarOpened()"
+            (close)="startCalendarClosed()"
+            (onEnter)="enterKeyedOnInputBox()"
             (onFocus)="startInputFocused()"
+            style="margin-right: 5px;"
             >
             <!-- (onChange)="startTimeChanged($event)" -->
         </datepicker2>
@@ -60,27 +56,24 @@
         <!-- <dp-date-picker 
             id="daytimePickerEnd"
             class="end-input"
-            inputLabel="End Date"
             #daytimePickerEnd="ngModel"
             #daytimePickerEnd
-            [(ngModel)]="endTimeDisplay"
-            [mode]="this.options.formatMode"
-            [disableFutureDates]="options.endFutureTimesDisabled"
-            [placeholder]="options.endTimePlaceholder"
             (onGoToCurrent)="endClockSelected()"
-            style="margin-left: 5px;"
             >
         </dp-date-picker> -->
 
         <datepicker2 #daytimePickerEnd 
             [timezone]="timezone"
-            (open)="endCalendarOpened()"
-            (close)="endCalendarClosed()"
-            (onEnter)="enterKeyedOnInputBox()"
+            [placeholder]="options.endTimePlaceholder"
             [formatError]="options.endDateFormatError"
             [maxDateError]="options.endMaxDateError"
             [minDateError]="options.endMinDateError"
+            [inputBoxName]="options.endTimeInputBoxName"
+            (open)="endCalendarOpened()"
+            (close)="endCalendarClosed()"
+            (onEnter)="enterKeyedOnInputBox()"
             (onFocus)="endInputFocused()"
+            style="margin-left: 5px;"
             >
             <!-- (onChange)="endTimeChanged($event)" -->
         </datepicker2>

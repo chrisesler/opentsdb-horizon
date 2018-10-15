@@ -37,6 +37,8 @@ export class TimeRangePickerOptions {
 
     startTimePlaceholder: string;
     endTimePlaceholder: string;
+    startTimeInputBoxName: string;
+    endTimeInputBoxName: string;
 
     defaultStartText: string;
     defaultEndText: string;
@@ -50,8 +52,6 @@ export class TimeRangePickerOptions {
     endDateFormatError: string;
     startMaxDateError: string;
     endMaxDateError: string;
-
-    formatMode: CalendarMode; // format set in date-picker.service.getDefaultFormatByMode
 
     minMinuteDuration: number;
 
