@@ -16,28 +16,7 @@
     <mat-error id="minDateValidation" *ngIf="errors?.minDate"><div>{{minDateError}} </div></mat-error>  
     <mat-error id="maxDateValidation" *ngIf="errors?.maxDate"><div>{{maxDateError}}</div></mat-error> 
 </mat-form-field>
-<!--<div class="dp-input-container"
-      [hidden]="componentConfig.hideInputContainer"
-      [attr.data-hidden]="componentConfig.hideInputContainer">
-  <input  id="input-box"
-          class="input is-inline"
-          [ngClass]="{'is-danger': errors}" 
-          type="text"
-          [placeholder]="placeholder"
-          [(ngModel)]="inputElementValue"
-          (ngModelChange)="onViewDateChange($event)"
-          (focus)="inputFocused()"
-          [readonly]="componentConfig.disableKeypress"
-          [disabled]="disabled"
-          (keyup.enter)="enterKeyed()"
-          />
 
-  <button mat-button id="calendar-icon" (click)="toggleCalendars()"> <mat-icon fontSet="denali" fontIcon="d-calendar"></mat-icon></button>
-  <mat-error id="formatValidation"  *ngIf="errors?.format"><div [innerHTML]="formatError"> </div></mat-error>
-  <mat-error id="minDateValidation" *ngIf="errors?.minDate"><div>{{minDateError}} </div></mat-error>  
-  <mat-error id="maxDateValidation" *ngIf="errors?.maxDate"><div>{{maxDateError}}</div></mat-error>    
-</div>
--->
 <div #container class="calendar-container">
     <div class="dp-popup"
         [ngSwitch]="mode"

@@ -124,7 +124,8 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
 
         this.options.startDateFormatError =  'Invalid. Try <span class="code">1h</span> (or <span class="code">6min</span>, ';
         this.options.startDateFormatError += '<span class="code">5d</span>, <span class="code">4w</span>, <span class="code">3mo</span>, ';
-        this.options.startDateFormatError += '<span class="code">2qtr</span>, <span class="code">1y</span>).';
+        this.options.startDateFormatError += '<span class="code">2qtr</span>, <span class="code">1y</span>, ';
+        this.options.startDateFormatError += '<span class="code">08/15/2018</span>).';
 
         this.options.endDateFormatError =  'Invalid. Try <span class="code">now</span> (or <span class="code">1h</span> ';
         this.options.endDateFormatError += 'or <span class="code">2w</span>).';
@@ -158,8 +159,10 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
 
     closeTimeRangePicker() {
         console.log('inside close time range picker');
-        this.timeRangePicker.startTimeReference.onDateChange(this.startTime, true);
-        this.timeRangePicker.endTimeReference.onDateChange(this.endTime, true);
+        this.timeRangePicker.startTimeReference.shouldUpdateTimestamp = false;
+        this.timeRangePicker.endTimeReference.shouldUpdateTimestamp = false;
+        this.timeRangePicker.startTimeReference.date = this.startTime;
+        this.timeRangePicker.endTimeReference.date = this.endTime;
 
         this.timeRangePicker.startTimeReference.closeCalendar();
         this.timeRangePicker.endTimeReference.closeCalendar();

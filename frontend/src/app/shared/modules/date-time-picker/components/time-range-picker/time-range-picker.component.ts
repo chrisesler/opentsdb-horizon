@@ -61,12 +61,12 @@ export class TimeRangePickerComponent implements OnInit {
 
     showApply: boolean;
     presetSelected: Preset;
-    presets: Preset[] = [ {name: abbrToTime(timeAbbr.hour),    buttonName: 'h',   abbr: timeAbbr.hour},
-                          {name: abbrToTime(timeAbbr.day),     buttonName: 'd',   abbr: timeAbbr.day},
-                          {name: abbrToTime(timeAbbr.week),    buttonName: 'wk',  abbr: 'wk'},
-                          {name: abbrToTime(timeAbbr.month),   buttonName: 'mo',  abbr: timeAbbr.month},
+    presets: Preset[] = [ {name: abbrToTime(timeAbbr.year),    buttonName: 'y',   abbr: timeAbbr.year},
                           {name: abbrToTime(timeAbbr.quarter), buttonName: 'qtr', abbr: 'qtr'},
-                          {name: abbrToTime(timeAbbr.year),    buttonName: 'y',   abbr: timeAbbr.year}
+                          {name: abbrToTime(timeAbbr.month),   buttonName: 'mo',  abbr: timeAbbr.month},
+                          {name: abbrToTime(timeAbbr.week),    buttonName: 'wk',  abbr: 'wk'},
+                          {name: abbrToTime(timeAbbr.day),     buttonName: 'd',   abbr: timeAbbr.day},
+                          {name: abbrToTime(timeAbbr.hour),    buttonName: 'h',   abbr: timeAbbr.hour}
                         ];
 
     constructor(private utilsService: UtilsService2) {}
@@ -108,7 +108,6 @@ export class TimeRangePickerComponent implements OnInit {
         time.endTimeDisplay = this.endTimeReference.date;
 
         console.log(time);
-
         return time;
     }
 
@@ -123,14 +122,15 @@ export class TimeRangePickerComponent implements OnInit {
         this.closeCalendarsAndHideButtons();
 
         // sets the relative times to latest values
-        this.startTimeReference.onDateChange(this.startTimeReference.date, false);
-        this.endTimeReference.onDateChange(this.endTimeReference.date, false);
+        this.startTimeReference.onDateChange(this.startTimeReference.date);
+        this.endTimeReference.onDateChange(this.endTimeReference.date);
 
         this.timeSelected.emit(this.getTimeSelected());
       }
     }
 
     cancelClicked() {
+      console.log('cancel clicked');
       this.closeCalendarsAndHideButtons();
       this.cancelSelected.emit();
     }
