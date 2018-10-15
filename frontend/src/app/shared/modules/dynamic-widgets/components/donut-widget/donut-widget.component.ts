@@ -119,7 +119,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
-                payload: this.widget.query
+                payload: this.widget
             });
         }
     }
@@ -230,7 +230,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         const mConfigs = gConfig.queries;
 
         for ( let i = 0; i < mConfigs.length; i++ ) {
-            const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
+            const metric = mConfigs[i].metric;
             const vConfig = mConfigs[i].settings.visual;
             let label = vConfig.stackLabel ? vConfig.stackLabel : metric;
             if ( vConfig.visible ) {

@@ -72,9 +72,6 @@ export class UtilsService {
     return inputString;
   }
 
-  getUniqueNameFromMetricConfig(config) {
-    return config.metric;
-  }
 
   getArrayAggregate( aggregate, arr ) {
     switch ( aggregate.toLowerCase() ) {

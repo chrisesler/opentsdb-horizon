@@ -475,7 +475,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
-                payload: this.widget.query
+                payload: this.widget
             });
         }
     }

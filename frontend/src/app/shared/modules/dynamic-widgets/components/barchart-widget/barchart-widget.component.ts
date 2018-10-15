@@ -131,7 +131,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
-                payload: this.widget.query
+                payload: this.widget
             });
         }
     }
