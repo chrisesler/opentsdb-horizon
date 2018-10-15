@@ -36,6 +36,7 @@ export class DatepickerComponent implements OnInit {
     @Output() onEnter = new EventEmitter<void>();
 
     unixTimestamp: Number;
+    tempUnixTimestamp: Number; // for cycling through months
     isDateValid: boolean = true;
     isInitialized: boolean = false;
     showCalendar = false;
@@ -43,14 +44,13 @@ export class DatepickerComponent implements OnInit {
     _date: string;
     days: any[];
     dayNames: any[];
+    monthNames: any[];
     calendarTitle: string;
+    monthCalendarTitle: string;
     calendarPosition = 'angular-utc-datepicker_below';
     calendarTitleFormat: string = 'MMMM YYYY';
     dateFormat = 'YYYY-MM-DD';
-    // inputLabel: String = 'Select Date';
-    // validateFn: any;
-    // errors: ValidationErrors;
-    // type DateValidator = (inputVal: CalendarValue) => { [key: string]: any };
+    displayDayCalendar: boolean = true;
     registerForm: FormGroup;
     submitted = false;
 
@@ -59,6 +59,7 @@ export class DatepickerComponent implements OnInit {
     constructor(private utilsService: UtilsService2, private formBuilder: FormBuilder) {
         this.days = [];
         this.dayNames = [];
+        this.monthNames = [];
     }
 
     ngOnInit() {
@@ -75,15 +76,23 @@ export class DatepickerComponent implements OnInit {
         }
 
         this.unixTimestamp = this.utilsService.timeToMoment(this.date, this.timezone).unix();
+        this.tempUnixTimestamp = this.unixTimestamp;
         this.calendarTitle = this.utilsService.timeToMoment(this.date, this.timezone).format(this.calendarTitleFormat);
+        this.monthCalendarTitle = this.utilsService.timeToMoment(this.tempUnixTimestamp.toString(), this.timezone).year().toString();
+
         if (this.dayNames.length === 0) {
             this.generateDayNames();
         }
+
+        if (this.monthNames.length === 0) {
+            this.generateMonthNames();
+        }
+
         this.isInitialized = true;
     }
 
-     // convenience getter for easy access to form fields
-     get formFields() { return this.registerForm.controls; }
+    // convenience getter for easy access to form fields
+    get formFields() { return this.registerForm.controls; }
 
     onDateChange = (value: string, timezoneChanged: boolean) => {
         value = value.trim();
@@ -91,6 +100,7 @@ export class DatepickerComponent implements OnInit {
 
         if (theMoment && theMoment.unix() > this.utilsService.getMinUnixTimestamp()) {
             console.log('date valid: ' + value);
+            this.tempUnixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
             if (this.utilsService.isTimeStampValid(value)) { // input is timestamp
                 this.date = this.utilsService.timestampToTime(value, this.timezone);
                 this.unixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
@@ -120,9 +130,15 @@ export class DatepickerComponent implements OnInit {
         }
     }
 
+    generateMonthNames = () => {
+        const date = moment('2017-01-01'); // jan
+        for (let i = 0; i < 12; i++) {
+            this.monthNames.push(date.format('MMMM'));
+            date.add('1', 'M');
+        }
+    }
+
     openCalendar = (event: any) => {
-        // const rect = event.target.getBoundingClientRect();
-        // this.calendarPosition = window.innerHeight - rect.bottom < 250 ? 'angular-utc-datepicker_above' : 'angular-utc-datepicker_below';
         this.showCalendar = true;
         if (this.utilsService.timeToMoment(this.date, this.timezone)) {
             this.generateCalendar(this.utilsService.timeToMoment(this.date, this.timezone).format(this.dateFormat));
@@ -157,6 +173,11 @@ export class DatepickerComponent implements OnInit {
         // this.showCalendar = !this.showCalendar;
     }
 
+    toggleDisplay() {
+        this.displayDayCalendar = !this.displayDayCalendar;
+        this.monthCalendarTitle = this.utilsService.timeToMoment(this.tempUnixTimestamp.toString(), this.timezone).year().toString();
+    }
+
     keydown = (event: any) => {
         if (event.keyCode === 27) { // escape key
             console.log('escape - in datepicker');
@@ -175,8 +196,10 @@ export class DatepickerComponent implements OnInit {
 
     /* GENERATE CALENDAR */
     // INPUT: 2018-09-20
-    generateCalendar = (dateAsString: string) => {
-        // console.log('generating calendar for: ' + dateAsString);
+    generateCalendar = (dateAsString: string, highlight?: boolean) => {
+        if (highlight === undefined) {
+            highlight = true;
+        }
         const date: Moment = moment(dateAsString, this.dateFormat);
         const now: Number = Number(this.getNow().format('YYYYMMDD'));
 
@@ -198,10 +221,10 @@ export class DatepickerComponent implements OnInit {
                     month: month,
                     year: year,
                     enabled:
-                        Number(_moment.format('YYYYMMDD')) > now || Number(_moment.format('YYYYMMDD')) < 20010909 ?
+                        (Number(_moment.format('YYYYMMDD')) > now || Number(_moment.format('YYYYMMDD')) < 20010909) ?
                         'angular-utc-datepicker_disabled' :
                         'angular-utc-datepicker_enabled',
-                    selected: i === date.date() && this.isDateValid ?
+                    selected: i === date.date() && this.isDateValid && highlight ?
                         'angular-utc-datepicker_selected' :
                         'angular-utc-datepicker_unselected'
                 });
@@ -267,18 +290,38 @@ export class DatepickerComponent implements OnInit {
         }
     }
 
-    prevMonth = () => {
-        console.log('previous month');
-        // this.tempDate.subtract(1, 'M');
-        // this.calendarTitle = this.tempDate.format(this.calendarTitleFormat);
-        // this.generateCalendar(this.tempDate);
+    prev(): void {
+        if (this.displayDayCalendar) { // month
+            const tempDate: Moment = this.utilsService.timeToMoment(this.tempUnixTimestamp.toString(), this.timezone).subtract(1, 'M');
+            this.tempUnixTimestamp = tempDate.unix();
+            this.calendarTitle = tempDate.format(this.calendarTitleFormat);
+            if (this.tempUnixTimestamp === this.unixTimestamp) {
+                this.generateCalendar(tempDate.format(this.dateFormat), true);
+            } else {
+                this.generateCalendar(tempDate.format(this.dateFormat), false);
+            }
+        } else { // year
+            const tempDate: Moment = this.utilsService.timeToMoment(this.tempUnixTimestamp.toString(), this.timezone).subtract(1, 'year');
+            this.monthCalendarTitle = tempDate.year().toString();
+            this.tempUnixTimestamp = tempDate.unix();
+        }
     }
 
-    nextMonth = () => {
-        console.log('next month');
-        // this.tempDate.add(1, 'M');
-        // this.calendarTitle = this.tempDate.format(this.calendarTitleFormat);
-        // this.generateCalendar(this.tempDate);
+    next(): void {
+        if (this.displayDayCalendar) { // month
+            const tempDate: Moment = this.utilsService.timeToMoment(this.tempUnixTimestamp.toString(), this.timezone).add(1, 'M');
+            this.tempUnixTimestamp = tempDate.unix();
+            this.calendarTitle = tempDate.format(this.calendarTitleFormat);
+            if (this.tempUnixTimestamp === this.unixTimestamp) {
+                this.generateCalendar(tempDate.format(this.dateFormat), true);
+            } else {
+                this.generateCalendar(tempDate.format(this.dateFormat), false);
+            }
+        } else { // year
+            const tempDate: Moment = this.utilsService.timeToMoment(this.tempUnixTimestamp.toString(), this.timezone).add(1, 'year');
+            this.monthCalendarTitle = tempDate.year().toString();
+            this.tempUnixTimestamp = tempDate.unix();
+        }
     }
 
     selectDate = (date: any) => {
@@ -300,6 +343,15 @@ export class DatepickerComponent implements OnInit {
         this.calendarTitle = selectedDate.format(this.calendarTitleFormat);
         this.generateCalendar(selectedDate.format(this.dateFormat));
         this.closeCalendar();
+    }
+
+    monthSelected(monthIndex: string) { // 0 represents Jan
+        // tslint:disable-next-line:max-line-length
+        const monthMoment = moment(this.monthCalendarTitle.toString() + '-' + (monthIndex + 1).toString() + '-' + '1'.toString(), 'YYYY-M-D');
+        this.toggleDisplay();
+        this.tempUnixTimestamp = monthMoment.unix();
+        this.calendarTitle = monthMoment.format(this.calendarTitleFormat);
+        this.generateCalendar(monthMoment.format(this.dateFormat), false);
     }
 
     selectToday = () => {

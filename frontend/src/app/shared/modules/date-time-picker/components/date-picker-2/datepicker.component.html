@@ -13,8 +13,6 @@
             <mat-icon fontSet="denali" fontIcon="d-calendar" color="primary"></mat-icon>
         </button>
         
-        <mat-error id="minDateValidation" *ngIf="errors?.minDate"><div>{{minDateError}} </div></mat-error>  
-        <mat-error id="maxDateValidation" *ngIf="errors?.maxDate"><div>{{maxDateError}}</div></mat-error> 
     </mat-form-field> -->
 
 <!-- class="angular-utc-datepicker_input" -->
@@ -49,28 +47,58 @@
     <div class="angular-utc-datepicker_calendar-popup" ngClass="calendarPosition" [hidden]="!showCalendar"
         (keydown)="keydown($event)" tabindex="0">
         <div class="angular-utc-datepicker_calendar-controls">
-            <div class="angular-utc-datepicker_prev" (click)="prevMonth()" (keydown)="keydown($event)">
-                <i class="fa fa-arrow-left"></i>
-            </div>
-            <div class="angular-utc-datepicker_title">
+
+            <button class="angular-utc-datepicker_title" (click)="toggleDisplay()" *ngIf="displayDayCalendar">
                 {{calendarTitle}} 
-                <span class="angular-utc-datepicker_today" title="Today" (click)="selectToday()"
-                      (keydown)="keydown($event)"><i class="fa fa-calendar-o"></i>
-                </span>
-            </div>
-            <div class="angular-utc-datepicker_next" (click)="nextMonth()" (keydown)="keydown($event)">
-                <i class="fa fa-arrow-right"></i>
-            </div>
+            </button>
+
+            <button class="angular-utc-datepicker_title" (click)="toggleDisplay()" *ngIf="!displayDayCalendar">
+                {{monthCalendarTitle}} 
+            </button>
+
+             <button class="angular-utc-datepicker_prev" (click)="prev()">
+                <--
+             </button>
+
+            <button class="angular-utc-datepicker_next" (click)="next()">
+                -->
+            </button>
+
         </div>
-        <div class="angular-utc-datepicker_day-names">
-            <div class="angular-utc-datepicker_name" *ngFor="let name of dayNames">{{name}}</div>
-        </div>
-        <div class="angular-utc-datepicker_calendar">
-            <div class="angular-utc-datepicker_day {{day.selected}} {{day.enabled}}" *ngFor="let day of days"
-                (click)="day.enabled === 'angular-utc-datepicker_enabled' ? selectDate(day) : null">
-                {{day.day}}
+
+
+        <div *ngIf="displayDayCalendar">
+            <div class="angular-utc-datepicker_day-names">
+                <div class="angular-utc-datepicker_name" *ngFor="let name of dayNames">{{name}}</div>
+            </div>
+            <div class="angular-utc-datepicker_calendar">
+                <div class="angular-utc-datepicker_day {{day.selected}} {{day.enabled}}" 
+                    *ngFor="let day of days"
+                    (click)="day.enabled === 'angular-utc-datepicker_enabled' ? selectDate(day) : null">
+                    {{day.day}}
                 </div>
-            <div class="angular-utc-datepicker_clear"></div>
+                <div class="angular-utc-datepicker_clear"></div>
+            </div>
         </div>
+
+        <div *ngIf="!displayDayCalendar">
+            <!-- <div class="angular-utc-datepicker_day-names"> -->
+                <button class="angular-utc-datepicker_name" *ngFor="let month of monthNames; let i = index" (click)="monthSelected(i)">{{month}}</button>
+            <!-- </div> -->
+            
+            <!-- MONTHS -->
+            <!-- <div class="angular-utc-datepicker_day-names">
+                <div class="angular-utc-datepicker_name" *ngFor="let name of dayNames">{{name}}</div>
+            </div>
+            <div class="angular-utc-datepicker_calendar">
+                <div class="angular-utc-datepicker_day {{day.selected}} {{day.enabled}}" 
+                    *ngFor="let day of days"
+                    (click)="day.enabled === 'angular-utc-datepicker_enabled' ? selectDate(day) : null">
+                    {{day.day}}
+                </div>
+                <div class="angular-utc-datepicker_clear"></div>
+            </div> -->
+        </div>
+
     </div>
 </div>
