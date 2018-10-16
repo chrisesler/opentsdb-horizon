@@ -18,71 +18,55 @@ export class DatatranformerService {
       normalizedData = [];
     }
 
-    let dpsHash = {};
-    // generate a hash for all the keys, might have missing time
-    // from multiple metric
+    const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
     for (let gid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.query.groups, 'id', gid) : {};
         const mConfigs = gConfig ? gConfig.queries : [];
         if ( gConfig.settings.visual.visible ) {
-            for (let k in result[gid]) {
-                let g = result[gid][k];
-                // build lable, it's to send exactly duplicate metric
-                let label = g.metric ;//+ ':' + Object.values(g.tags).join('-');
-                const mConfig = gConfig? this.getMetricConfigurationByName(label, mConfigs) : {};
+            for ( let i = 0; i < result[gid].results.length; i++ ) {
+                const queryResults = result[gid].results[i];
+                const source = queryResults.source.split(":")[1].replace("m",'');
+                const timeSpecification = queryResults.timeSpecification;
+                const mConfig = mConfigs[source];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-                if ( vConfig.visible ) {
-                    // only pushing in if not exits, since we use same reference for view/edit
-                    if (!options.labels.includes(label)) {
-                    options.labels.push(label);     
-                    }
+                for ( let j = 0; j < queryResults.data.length; j ++ ) {
+                    const data = queryResults.data[j].NumericType;
+                    const tags = queryResults.data[j].tags;
+                    const metric = queryResults.data[j].metric;
+                    const numPoints = data.length;
 
-                    if ( options.series ) {
-                        options.series[label] = {
-                            strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
-                            //strokePattern: this.getStrokePattern(vConfig.lineType),
-                            color: vConfig.color? vConfig.color : '#000000',
-                            axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2'
-                        };
-                    }
+                    let label = metric + ':' + Object.values(tags).join('-');
+                    if ( vConfig.visible ) {
+                        if (!options.labels.includes(label)) {
+                            options.labels.push(label);     
+                        }
 
-                    // extract date of all series to fill it up, 
-                    for (let date in g.dps) {
-                        dpsHash[date] = true;
+                        if ( options.series ) {
+                            options.series[label] = {
+                                strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
+                                //strokePattern: this.getStrokePattern(vConfig.lineType),
+                                color: vConfig.color? vConfig.color : '#000000',
+                                axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2'
+                            };
+                        }
+                        const seriesIndex = options.labels.indexOf(label);
+                        const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+                        for (let k = 0; k< numPoints ; k++ ) {
+                            if (!isArray(normalizedData[k])) {
+                                const time = timeSpecification.start + ( k * mSeconds[unit] );
+                                normalizedData[k] = [ new Date(time * 1000) ];
+                            }
+                            normalizedData[k][seriesIndex]= !isNaN(data[k]) ? data[k] : null;
+                        }
                     }
                 }
             }
+            
+            
         }
+
     }
-    let dpsHashKey = Object.keys(dpsHash);
-    dpsHash = undefined;
-    // sort time in case  new insert somewhere
-    dpsHashKey.sort((a: any, b: any) => {
-      return a - b;
-    });
-    for (let idx = 0, len = dpsHashKey.length; idx < len; idx++) {
-      let dpsMs: any = dpsHashKey[idx];
-      // if there is more than 1 group of query in widget, we append data from second group.
-      // since they have same time range and downsample
-      if (!isArray(normalizedData[idx])) {
-        // convert to milisecond
-        normalizedData[idx] = [new Date(dpsMs * 1000)];
-      }
-      for (let gid in result) {
-        const gConfig = widget? this.util.getObjectByKey(widget.query.groups, 'id', gid) : {};
-        const mConfigs = gConfig ? gConfig.queries : [];
-        if ( gConfig.settings.visual.visible ) {
-            for (let k in result[gid]) {
-                let g = result[gid][k];
-                const mConfig = gConfig? this.getMetricConfigurationByName(g.metric, mConfigs) : {};
-                const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-                if ( vConfig.visible ) {
-                    (!isNaN(g.dps[dpsMs]) ) ? normalizedData[idx].push(g.dps[dpsMs]) : normalizedData[idx].push(null);
-                }
-            }
-        }
-      }
-    }
+    console.log("normalized data", normalizedData);
     return [...normalizedData];
   }
 
@@ -114,7 +98,7 @@ export class DatatranformerService {
     getChartJSFormattedDataBar( options, config, datasets, groupData, stacked ) {
       // stack colors
         const colors = [];
-        const metrics = [];
+        const metricIndices = [];
         let stacks = [];
 
         // only visible groups
@@ -145,11 +129,11 @@ export class DatatranformerService {
             datasets[0] = {data: [], backgroundColor: []};
             options.labels = [];
             for ( let i = 0; i < mConfigs.length; i++ ) {
-                const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
+                const mid = 'm' + i;
                 const vConfig = mConfigs[i].settings.visual;
                 if ( vConfig.visible ) {
-                    metrics.push(metric);
-                    let label = vConfig.stackLabel ? vConfig.stackLabel : metric;
+                    metricIndices.push(mid);
+                    let label = vConfig.stackLabel ? vConfig.stackLabel : mConfigs[i].metric;
                     const color = vConfig.color;
                     label = label.length <= 20 ? label : label.substr(0, 17) + '..';
                     options.labels.push( label );
@@ -164,30 +148,25 @@ export class DatatranformerService {
         for (let gid in groupData ) {
           const gConfig = this.util.getObjectByKey(config.groups, 'id', gid);
           const mConfigs = gConfig ? gConfig.queries : [];
-          for ( let i = 0; i < groupData[gid].length; i++ ) {
-              const metric = this.util.getUniqueNameFromMetricConfig(groupData[gid][i]);
-              const mConfig = this.getMetricConfigurationByName(metric, mConfigs);
-              if ( mConfig.settings && mConfig.settings.visual.visible ) {
-                const mData: any = Object.values(groupData[gid][i].dps);
-                const index = stacked ? options.labels.indexOf(gConfig.title) : metrics.indexOf(metric);
-                const dsIndex = stacked ? stacks.findIndex(d => d.id === mConfig.settings.visual.stack) : 0;
-                datasets[dsIndex].data[index] = this.util.getArrayAggregate( mConfig.settings.visual.aggregator, mData );
-              }
+          const results = groupData[gid].results;
+          for ( let i = 0; results && i < results.length; i++ ) {
+            const mid = results[i].source.split(':')[1];
+            const configIndex = mid.replace('m', '');
+            const aggs = results[i].data[0].NumericSummaryType.aggregations;
+            const key = Object.keys(results[i].data[0].NumericSummaryType.data[0])[0];
+            const aggData = results[i].data[0].NumericSummaryType.data[0][key];
+            const mConfig = mConfigs[configIndex];
+            if ( mConfig.settings && mConfig.settings.visual.visible ) {
+                const aggrIndex = aggs.indexOf(mConfig.settings.visual.aggregator);
+                const index = stacked ? options.labels.indexOf(gConfig.title) : metricIndices.indexOf(mid);
+                const dsIndex = stacked ? stacks.findIndex(d => d.id === mConfig.settings.visual.stack) : 0; 
+                datasets[dsIndex].data[index] = aggData[aggrIndex]; 
+                console.log(mid, dsIndex, index,aggData[aggrIndex])
+                console.log(mid, mConfig.settings.visual.aggregator, aggrIndex, aggData, aggData[aggrIndex] );
+            }
           }
         }
-        console.log("datasets", datasets);
         return [...datasets];
-    }
-
-    getMetricConfigurationByName( name, configs ) {
-        const config = {};
-        for (let i = 0; i < configs.length; i++ ) {
-            const metric = this.util.getUniqueNameFromMetricConfig(configs[i]);
-            if ( name === metric ) {
-                return configs[i];
-            }
-        }
-        return config;
     }
 
     getChartJSFormattedDataDonut(options, config, datasets, groupData) {
@@ -196,31 +175,35 @@ export class DatatranformerService {
             return datasets;
         }
         const gid = Object.keys(groupData)[0];
-        const rawdata = groupData[gid];
-        const metrics = [];
+        const results = groupData[gid].results;
+        const metricIndices = [];
 
 
         const gConfig = this.util.getObjectByKey(config.groups, 'id', gid);
         const mConfigs = gConfig.queries;
 
         for ( let i = 0; i < mConfigs.length; i++ ) {
-            const metric = this.util.getUniqueNameFromMetricConfig(mConfigs[i]);
+            const metric = 'm' + i;
             const vConfig = mConfigs[i].settings.visual;
             const color = vConfig.color;
             if ( vConfig.visible ) {
-                metrics.push(metric);
+                metricIndices.push(metric);
                 datasets[0].data.push(null);
                 datasets[0].backgroundColor.push(color);
             }
         }
 
-        for ( let i = 0; i < rawdata.length; i++ ) {
-            const metric = this.util.getUniqueNameFromMetricConfig(rawdata[i]);
-            const mConfig = this.getMetricConfigurationByName(metric, mConfigs);
-            const mData: any = Object.values(rawdata[i].dps);
+        for ( let i = 0; results && i < results.length; i++ ) {
+            const mid = results[i].source.split(':')[1];
+            const configIndex = mid.replace('m', '');
+            const aggs = results[i].data[0].NumericSummaryType.aggregations;
+            const key = Object.keys(results[i].data[0].NumericSummaryType.data[0])[0];
+            const aggData = results[i].data[0].NumericSummaryType.data[0][key];
+            const mConfig = mConfigs[configIndex];
             if ( mConfig.settings && mConfig.settings.visual.visible ) {
-                const index = metrics.indexOf(metric);
-                datasets[0].data[index] =  this.util.getArrayAggregate( mConfig.settings.visual.aggregator, mData ) ;
+                const index = metricIndices.indexOf(mid);
+                const aggrIndex = aggs.indexOf(mConfig.settings.visual.aggregator);
+                datasets[0].data[index] =  aggData[aggrIndex];
             }
         }
         return [...datasets];
@@ -288,7 +271,7 @@ export class DatatranformerService {
       for (const k in m) {
         if (k !== 'metric') {
           const filter = {
-            type: 'literal_or',
+            type: 'literalor',
             tagk: k,
             filter: m[k],
             groupBy: true

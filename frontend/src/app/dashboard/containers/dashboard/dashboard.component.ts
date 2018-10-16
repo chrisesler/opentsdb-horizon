@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
+import { QueryService } from '../../../core/services/query.service';
 
 import * as moment from 'moment';
 import { DashboardService } from '../../services/dashboard.service';
@@ -129,7 +130,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private interCom: IntercomService,
         private dbService: DashboardService,
         private cdkService: CdkService,
-        private dateUtil: UtilsService
+        private dateUtil: UtilsService,
+        private queryService: QueryService
     ) { }
 
     ngOnInit() {
@@ -270,25 +272,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // dispatch payload query by group
     handleQueryPayload(message: any) {
+
+        console.log('query message', message);
+
         let groupid = '';
         const payload = message.payload;
-
         const dt = this.getDashboardDateRange();
-        const downsample = this.getWidegetDownSample(payload);
 
-        for (let i = 0; i < payload.groups.length; i++) {
-            const group: any = payload.groups[i];
+        // sending each group to get data.
+        for (let i = 0; i < payload.query.groups.length; i++) {
+            const group: any = payload.query.groups[i];
             groupid = group.id;
-            // set downsample
-            for ( let j = 0; j < group.queries.length; j++ ) {
-                group.queries[j].downsample = downsample;
-            }
-            // format for opentsdb query
-            const query: any = {
-                start: dt.start,
-                end: dt.end,
-                queries: group.queries
-            };
+
+            const query = this.queryService.buildQuery(payload, dt, group.queries);
             console.log('the group query', query);
             const gquery = {
                 wid: message.id,
@@ -311,22 +307,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         endTime = endTime ? endTime : moment();
 
         return {start: startTime.valueOf() , end: endTime.valueOf()};
-    }
-
-    getWidegetDownSample(query) {
-        const dsSetting = query.settings.time.downsample;
-        const mAggregator = { 'sum': 'zimsum', 'avg': 'avg', 'max': 'mimmax', 'min': 'mimmin' };
-        let dsValue = dsSetting.value;
-        switch ( dsSetting.value ) {
-            case 'auto':
-                dsValue = '5m';
-                break;
-            case 'custom':
-                dsValue = dsSetting.customValue + dsSetting.customUnit;
-                break;
-        }
-        const downsample = dsValue + '-' + mAggregator[dsSetting.aggregator] + '-nan';
-        return downsample;
     }
 
     // this will call based on gridster reflow and size changes event

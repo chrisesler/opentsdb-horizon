@@ -106,7 +106,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         switch (message.action) {
                             case 'updatedWidgetGroup':
                                 if (this.widget.id === message.id) {
-                                    this.isDataLoaded = true;
+                                    if ( !this.isDataLoaded ) {
+                                        this.isDataLoaded = true;
+                                        this.options = {...this.options, labels: ['x']};
+                                        this.data = [[0]];
+                                    }
                                     const rawdata = message.payload.rawdata;
                                     this.setTimezone(message.payload.timezone);
                                     this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
@@ -471,7 +475,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
-                payload: this.widget.query
+                payload: this.widget
             });
         }
     }
@@ -485,8 +489,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     refreshData(reload = true) {
         this.isDataLoaded = false;
-        this.options = {...this.options, labels: ['x']};
-        this.data = [[0]];
         if ( reload ) {
             this.requestData();
         } else {

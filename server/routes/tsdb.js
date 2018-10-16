@@ -17,7 +17,7 @@ router.post('/queryData', function (req, res, next) {
   var headers = { cookie: req.headers.auth.cookie };
   var options = {
     method: 'POST',
-    uri: conf.tsdb_host + '/api/query',
+    uri: conf.tsdb_host + '/api/query/graph',
     body: queryObj,
     headers: headers,
     gzip: true,
