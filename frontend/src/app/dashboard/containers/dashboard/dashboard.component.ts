@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
+import { QueryService } from '../../../core/services/query.service';
 
 import * as moment from 'moment';
 import { DashboardService } from '../../services/dashboard.service';
@@ -129,7 +130,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private interCom: IntercomService,
         private dbService: DashboardService,
         private cdkService: CdkService,
-        private dateUtil: UtilsService
+        private dateUtil: UtilsService,
+        private queryService: QueryService
     ) { }
 
     ngOnInit() {
@@ -275,69 +277,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         let groupid = '';
         const payload = message.payload;
-        const summary = payload.settings.component_type === 'LinechartWidgetComponent' ? false : true;
-
         const dt = this.getDashboardDateRange();
 
         // sending each group to get data.
         for (let i = 0; i < payload.query.groups.length; i++) {
             const group: any = payload.query.groups[i];
             groupid = group.id;
-            
-            const query = {
-                start: dt.start,
-                end: dt.end,
-                executionGraph: []
-            };
 
-            const mids = [];
-            for (let j = 0; j < group.queries.length; j++) {
-                const m = group.queries[j];
-                const mid = 'm' + j;
-                const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
-                const filters = [];
-                mids.push(mid);
-                for (let k = 0; m.filters && k < m.filters.length; k++) {
-                    const f = m.filters[k];
-                    const filter = {
-                        type: filterTypes[f.type],
-                        filter: f.filter,
-                        tagKey: f.tagk
-                    };
-                    filters.push(filter);
-                }
-                const q = {
-                    id: mid, // using the loop index for now, might need to generate its own id
-                    type: 'DataSource',
-                    metric: {
-                        type: 'MetricLiteral',
-                        metric: m.metric
-                    },
-                    fetchLast: false,
-                    filter: {}
-                };
-                if ( filters.length ) {
-                    q.filter = {
-                        type: 'Chain',
-                        filters: filters
-                    };
-                } else {
-                    delete q.filter;
-                }
-
-                query.executionGraph.push(q);
-                if ( !summary ) {
-                    query.executionGraph.push(this.getMetricGroupBy(mid, m));
-                }
-            }
-            const downsample = this.getWidegetDownSample(payload.query);
-            downsample.sources = mids;
-            query.executionGraph.push(downsample);
-            if ( summary ) {
-                query.executionGraph.push(this.getMetricGroupBy());
-                query.executionGraph.push(this.getQuerySummarizer());
-            }
-           console.log('the group query', JSON.stringify(query));
+            const query = this.queryService.buildQuery(payload, dt, group.queries);
+            console.log('the group query', query);
             const gquery = {
                 wid: message.id,
                 gid: groupid,
@@ -359,69 +307,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         endTime = endTime ? endTime : moment();
 
         return {start: startTime.valueOf() , end: endTime.valueOf()};
-    }
-
-    getWidegetDownSample(query) {
-        const dsSetting = query.settings.time.downsample;
-        let dsValue = dsSetting.value;
-        switch ( dsSetting.value ) {
-            case 'auto':
-                dsValue = '5m';
-                break;
-            case 'custom':
-                dsValue = dsSetting.customValue + dsSetting.customUnit;
-                break;
-        }
-        const downsample =  {
-            id: 'downsample',
-            aggregator: dsSetting.aggregator,
-            interval: dsValue,
-            fill: true,
-            interpolatorConfigs: [
-                {
-                    dataType: 'numeric',
-                    fillPolicy: 'NAN',
-                    realFillPolicy: 'NONE'
-                }
-            ],
-            sources: []
-        };
-        return downsample;
-    }
-
-    getQuerySummarizer() {
-        const summarizer =  {
-            id: 'summarizer',
-            summaries: ['sum', 'max', 'min', 'count', 'avg', 'first', 'last'],
-            sources: ['groupby']
-        };
-        return summarizer;
-    }
-
-    getMetricGroupBy(mid= null, mConfig= null) {
-        const filters = mConfig && mConfig.filters ? mConfig.filters : [];
-        const tagKeys = [];
-        for ( let i = 0; filters && i < filters.length; i++ ) {
-            if ( filters[i].groupBy ) {
-                tagKeys.push(filters[i].tagk);
-            }
-        }
-        const groupById = 'groupby' + (mid ? '-' + mid : '');
-        const metricGroupBy =  {
-            id: groupById,
-            type: 'groupby',
-            aggregator: 'sum', //mConfig.aggregator,
-            tagKeys: tagKeys,
-            interpolatorConfigs: [
-                {
-                    dataType: 'numeric',
-                    fillPolicy: 'NAN',
-                    realFillPolicy: 'NONE'
-                }
-            ],
-            sources: ['downsample']
-        };
-        return metricGroupBy;
     }
 
     // this will call based on gridster reflow and size changes event
