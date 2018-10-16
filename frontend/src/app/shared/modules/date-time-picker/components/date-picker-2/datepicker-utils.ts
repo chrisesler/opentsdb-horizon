@@ -1,12 +1,6 @@
-// import {ECalendarValue} from '../types/calendar-value-enum';
-// import {SingleCalendarValue} from '../types/single-calendar-value';
 import {Injectable} from '@angular/core';
 import * as momentNs from 'moment';
 import {Moment, unitOfTime, duration} from 'moment';
-// import {CalendarValue} from '../types/calendar-value';
-// import {IDate, ICalendarInternal} from '../models/models';
-// import {CalendarMode} from '../types/calendar-mode';
-// import {DateValidator} from '../types/validator.type';
 
 const moment = momentNs;
 // tslint:disable:no-inferrable-types
@@ -51,7 +45,7 @@ export function abbrToTime (abbr: string): any {
 
 
 @Injectable()
-export class UtilsService2 {
+export class UtilsService {
 //   static debounce(func: Function, wait: number) {
 //     let timeout;
 //     return function () {

@@ -27,15 +27,6 @@
     <h2>Custom Range</h2>
     <div class="time-ranges" fxLayout="row">
         <!-- start time -->
-        <!-- <dp-date-picker 
-            id="daytimePickerStart"
-            class="start-input"
-            #daytimePickerStart="ngModel"
-            #daytimePickerStart
-            (onGoToCurrent)="startClockSelected()"
-            >
-        </dp-date-picker> -->
-
         <datepicker2 #daytimePickerStart 
             [timezone]="timezone"
             [formatError]="options.startDateFormatError"
@@ -49,19 +40,9 @@
             (onFocus)="startInputFocused()"
             style="margin-right: 5px;"
             >
-            <!-- (onChange)="startTimeChanged($event)" -->
         </datepicker2>
 
         <!-- end time -->
-        <!-- <dp-date-picker 
-            id="daytimePickerEnd"
-            class="end-input"
-            #daytimePickerEnd="ngModel"
-            #daytimePickerEnd
-            (onGoToCurrent)="endClockSelected()"
-            >
-        </dp-date-picker> -->
-
         <datepicker2 #daytimePickerEnd 
             [timezone]="timezone"
             [placeholder]="options.endTimePlaceholder"
@@ -75,7 +56,6 @@
             (onFocus)="endInputFocused()"
             style="margin-left: 5px;"
             >
-            <!-- (onChange)="endTimeChanged($event)" -->
         </datepicker2>
 
     </div>

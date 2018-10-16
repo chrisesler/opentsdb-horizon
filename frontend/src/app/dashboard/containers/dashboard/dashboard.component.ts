@@ -13,7 +13,7 @@ import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
 import { ISelectedTime } from '../../../shared/modules/date-time-picker/models/models';
-import { UtilsService } from '../../../shared/modules/date-time-picker/services/utils.service';
+import { UtilsService } from '../../../shared/modules/date-time-picker/components/date-picker-2/datepicker-utils';
 
 import { DBState, LoadDashboard } from '../../state/dashboard.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, WidgetModel} from '../../state/widgets.state';
