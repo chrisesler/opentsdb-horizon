@@ -3,9 +3,7 @@ import { OnInit, OnChanges, OnDestroy, Directive,
 import 'chart.js';
 import * as thresholdPlugin from '../../../chartjs-threshold-plugin/src/index';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
-// import 'chartjs-plugin-labels';
-
-
+import 'chartjs-plugin-labels';
 
 @Directive({
   selector: '[chartjs]'

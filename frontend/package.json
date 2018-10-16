@@ -10,9 +10,7 @@
     "e2e": "ng e2e"
   },
   "private": true,
-  "dependencies": {
-    "date-fns": "^1.29.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.6.0",
     "@angular/animations": "6.0.4",
@@ -45,6 +43,7 @@
     "angular2gridster": "^1.5.2",
     "codelyzer": "^4.0.1",
     "core-js": "^2.4.1",
+    "date-fns": "^1.29.0",
     "d3": "^5.1.0",
     "dygraphs": "^2.1.0",
     "chart.js": "^2.7.2",
