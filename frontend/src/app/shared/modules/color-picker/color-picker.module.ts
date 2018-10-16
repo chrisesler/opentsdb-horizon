@@ -6,9 +6,16 @@ import { PortalModule } from '@angular/cdk/portal';
 import { MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule } from '@angular/material';
 
 import { EMPTY_COLOR } from './color-picker';
-import { ColorPickerService } from './color-picker.service';
-import { ColorPickerComponent } from './color-picker.component';
-import { ColorPickerSelectorComponent } from './color-picker-selector.component';
+
+// services
+import { ColorPickerService } from './services/color-picker.service';
+import { ColorService } from './services/color.service';
+
+// components
+import { ColorPickerComponent } from './containers/color-picker/color-picker.component';
+import { ColorPickerSelectorComponent } from './components/color-picker-selector/color-picker-selector.component';
+import { ColorPickerHueSliderComponent } from './components/color-picker-hue-slider/color-picker-hue-slider.component';
+import { ColorPickerHsvSelectorComponent } from './components/color-picker-hsv-selector/color-picker-hsv-selector.component';
 
 @NgModule({
   imports: [
@@ -23,12 +30,14 @@ import { ColorPickerSelectorComponent } from './color-picker-selector.component'
   ],
   declarations: [
     ColorPickerComponent,
-    ColorPickerSelectorComponent
+    ColorPickerSelectorComponent,
+    ColorPickerHueSliderComponent,
+    ColorPickerHsvSelectorComponent
   ],
   exports: [
     ColorPickerComponent
   ],
-  providers: [ColorPickerService, { provide: EMPTY_COLOR, useValue: 'none' }],
+  providers: [ColorPickerService, ColorService, { provide: EMPTY_COLOR, useValue: 'none' }],
 })
 
 export class ColorPickerModule { }
