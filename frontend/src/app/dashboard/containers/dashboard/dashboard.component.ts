@@ -298,13 +298,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     getDashboardDateRange() {
         const dbSettings = this.store.selectSnapshot(DBSettingsState);
-        let startTime = moment(dbSettings.time.start);
-        startTime = startTime.isValid() ? startTime : this.dateUtil.relativeTimeToMoment(dbSettings.time.start);
-
-        let endTime = moment(dbSettings.time.end);
-        endTime = endTime.isValid() ? endTime : this.dateUtil.relativeTimeToMoment(dbSettings.time.end);
-        // relativeTimeToMoment returns undefined in case of now
-        endTime = endTime ? endTime : moment();
+        const startTime = this.dateUtil.timeToMoment(dbSettings.time.start, dbSettings.time.zone);
+        const endTime = this.dateUtil.timeToMoment(dbSettings.time.end, dbSettings.time.zone);
 
         return {start: startTime.valueOf() , end: endTime.valueOf()};
     }
