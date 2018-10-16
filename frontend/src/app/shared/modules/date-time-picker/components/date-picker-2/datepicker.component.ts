@@ -101,7 +101,10 @@ export class DatepickerComponent implements OnInit {
             if (this.utilsService.isTimeStampValid(value)) { // input is timestamp
                 this.date = this.utilsService.timestampToTime(value, this.timezone);
                 this.unixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
-            } else if (!this.shouldUpdateTimestamp && !this.utilsService.relativeTimeToMoment(value) && value.toLowerCase() !== 'now') {
+            } else if (!this.shouldUpdateTimestamp &&
+                !this.utilsService.relativeTimeToMoment(value) &&
+                value.toLowerCase() !== 'now' &&
+                !this.utilsService.timeToTime(value)) { // input is relative time or 'this' time
                 this.date = this.utilsService.timestampToTime(this.unixTimestamp.toString(), this.timezone);
             } else if (this.shouldUpdateTimestamp) { // input changed
                 this.date = value;

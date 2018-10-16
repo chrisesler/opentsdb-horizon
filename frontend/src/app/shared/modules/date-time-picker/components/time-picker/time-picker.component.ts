@@ -165,17 +165,11 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
 
         this.timeRangePicker.startTimeReference.closeCalendar();
         this.timeRangePicker.endTimeReference.closeCalendar();
-
-        // close mat-menu
-        this.trigger.closeMenu();
     }
 
-    @HostListener('document:keydown', ['$event'])
-    closeIfEscapePressed(event: KeyboardEvent) {
-        const x = event.keyCode;
-        if (x === 27) {
-            this.closeTimeRangePicker();
-        }
+    triggerAndCloseTimeRangePicker() {
+        this.closeTimeRangePicker();
+        this.trigger.closeMenu();
     }
 
     updateToolTipsAndDisplayTimes() {
@@ -193,4 +187,8 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
             }
         }
     }
+
+    // hi(arg: any) {
+    //     console.log(arg);
+    // }
 }
