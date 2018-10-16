@@ -271,7 +271,7 @@ export class DatatranformerService {
       for (const k in m) {
         if (k !== 'metric') {
           const filter = {
-            type: 'literal_or',
+            type: 'literalor',
             tagk: k,
             filter: m[k],
             groupBy: true

@@ -5,6 +5,7 @@ import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
 import { HttpService } from '../../../../../core/http/http.service';
+import { QueryService } from '../../../../../core/services/query.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 
@@ -110,7 +111,8 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         public dialogRef: MatDialogRef<SearchMetricsDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public dialog_data: any,
         private httpService: HttpService,
-        private dataTransformerService: DatatranformerService
+        private dataTransformerService: DatatranformerService,
+        private queryService: QueryService
     ) {
         console.log('passing data', this.dialog_data);
         if (this.dialog_data.mgroupId === undefined) {
@@ -207,19 +209,22 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             let mf = {...m, metric: this.selectedNamespace + '.' + m.metric };
             mf = this.dataTransformerService.buildMetricObject(mf);
             this.group.queries.push(mf);
-            this.getYamasData(this.group.queries);
+            const widget = {
+                                settings: {
+                                    data_source: 'yamas',
+                                    component_type: 'LinechartWidgetComponent'
+                                }
+                        };
+            const time = {
+                start: '1h-ago'
+            };
+            const query = this.queryService.buildQuery(widget, time, this.group.queries);
+            this.getYamasData(query);
         }
     }
 
     // to get query for selected metrics, my rebuild to keep time sync 1h-ago
-    getYamasData(metrics: any[]) {
-
-        const query = {
-            start: '1h-ago',
-            queries: metrics
-        };
-        console.log("query", query);
-
+    getYamasData(query: any) {
         this.httpService.getYamasData(query).subscribe(
             result => {
                 const groupData = {};
