@@ -9,7 +9,6 @@ import { TimeRangePickerComponent } from './components/time-range-picker/time-ra
 import { TimePickerComponent } from './components/time-picker/time-picker.component';
 import { KeypadComponent } from './components/keypad/keypad.component';
 import { DatepickerComponent } from './components/date-picker-2/datepicker.component';
-import { UtilsService } from './components/date-picker-2/datepicker-utils';
 
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -27,9 +26,7 @@ import { ReactiveFormsModule } from '@angular/forms';
       KeypadComponent,
       DatepickerComponent
   ],
-  providers: [
-      UtilsService
-  ],
+  providers: [],
   exports: [
     TimePickerComponent
   ]

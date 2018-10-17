@@ -5,11 +5,11 @@ import {
 } from '@angular/core';
 import { Moment } from 'moment';
 import * as momentNs from 'moment';
-import { timeAbbr, abbrToTime } from '../../components/date-picker-2/datepicker-utils';
+import { timeAbbr, abbrToTime } from '../../../../../core/services/dateutils.service';
 import { TimeRangePickerOptions, ISelectedTime } from '../../models/models';
 import { } from '../time-picker/time-picker.component';
 import { DatepickerComponent } from '../date-picker-2/datepicker.component';
-import { UtilsService } from '../date-picker-2/datepicker-utils';
+import { DateUtilsService } from '../../../../../core/services/dateutils.service';
 
 const moment = momentNs;
 
@@ -65,7 +65,7 @@ export class TimeRangePickerComponent implements OnInit {
                           {name: abbrToTime(timeAbbr.hour),    buttonName: 'h',   abbr: timeAbbr.hour}
                         ];
 
-    constructor(private utilsService: UtilsService) {}
+    constructor(private utilsService: DateUtilsService) {}
 
     ngOnInit() {
       this.showApply = false;

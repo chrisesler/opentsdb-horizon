@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, ElementRef, ViewChild } from '@angular/core';
 import * as moment from 'moment';
 import { Moment, isDate } from 'moment';
-import { UtilsService } from './datepicker-utils';
+import { DateUtilsService } from '../../../../../core/services/dateutils.service';
 import { FormGroup , FormBuilder, Validators, ValidatorFn, AbstractControl} from '@angular/forms';
 import { HostBinding } from '@angular/core';
 
@@ -61,7 +61,7 @@ export class DatepickerComponent implements OnInit {
 
     @ViewChild('dateInput') el: ElementRef;
 
-    constructor(private utilsService: UtilsService, private formBuilder: FormBuilder) {
+    constructor(private utilsService: DateUtilsService, private formBuilder: FormBuilder) {
         this.dayNames = [];
         this.monthNames = [];
     }

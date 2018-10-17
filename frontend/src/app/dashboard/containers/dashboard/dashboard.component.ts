@@ -13,8 +13,7 @@ import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
 import { ISelectedTime } from '../../../shared/modules/date-time-picker/models/models';
-import { UtilsService } from '../../../shared/modules/date-time-picker/components/date-picker-2/datepicker-utils';
-
+import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard } from '../../state/dashboard.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, WidgetModel} from '../../state/widgets.state';
 import { WidgetsRawdataState, GetQueryDataByGroup } from '../../state/widgets-data.state';
@@ -130,8 +129,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private interCom: IntercomService,
         private dbService: DashboardService,
         private cdkService: CdkService,
-        private dateUtil: UtilsService,
-        private queryService: QueryService
+        private queryService: QueryService,
+        private dateUtil: DateUtilsService
     ) { }
 
     ngOnInit() {
@@ -324,8 +323,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     onDateChange(date: any) {
-        // console.log('selected date: ');
-        // console.log(date);
+        console.log(date);
     }
 
     // save dashboard name

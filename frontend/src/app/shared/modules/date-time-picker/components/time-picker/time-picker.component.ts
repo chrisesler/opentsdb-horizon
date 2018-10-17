@@ -7,9 +7,8 @@ import { TimeRangePickerComponent } from '../time-range-picker/time-range-picker
 import * as momentNs from 'moment';
 import { Moment, unitOfTime, duration } from 'moment';
 import { TimeRangePickerOptions, ISelectedTime } from '../../models/models';
-
 import { MatMenu, MatMenuTrigger, MenuPositionX } from '@angular/material';
-import { UtilsService } from '../date-picker-2/datepicker-utils';
+import { DateUtilsService } from '../../../../../core/services/dateutils.service';
 
 const moment = momentNs;
 
@@ -89,7 +88,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
     // tslint:disable-next-line:no-inferrable-types
     // _isOpen: boolean = false;
 
-    constructor(private cdRef: ChangeDetectorRef, private utilsService: UtilsService) { }
+    constructor(private cdRef: ChangeDetectorRef, private utilsService: DateUtilsService) { }
 
     ngOnInit() {
         if (!this.options) {
@@ -187,8 +186,4 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
             }
         }
     }
-
-    // hi(arg: any) {
-    //     console.log(arg);
-    // }
 }

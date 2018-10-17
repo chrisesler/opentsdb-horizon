@@ -43,19 +43,10 @@ export function abbrToTime (abbr: string): any {
   return;
 }
 
-
-@Injectable()
-export class UtilsService {
-//   static debounce(func: Function, wait: number) {
-//     let timeout;
-//     return function () {
-//       const context = this, args = arguments;
-//       timeout = clearTimeout(timeout);
-//       setTimeout(() => {
-//         func.apply(context, args);
-//       }, wait);
-//     };
-//   }
+@Injectable({
+    providedIn: 'root'
+  })
+export class DateUtilsService {
 
   timeToTime(inputTime: string): any {
     for (let time in timeAbbr) {
