@@ -5,24 +5,12 @@ import {
 } from '@angular/core';
 import { Moment } from 'moment';
 import * as momentNs from 'moment';
-import { timeAbbr, abbrToTime } from '../../../../../core/services/dateutils.service';
 import { TimeRangePickerOptions, ISelectedTime } from '../../models/models';
 import { } from '../time-picker/time-picker.component';
 import { DatepickerComponent } from '../date-picker-2/datepicker.component';
 import { DateUtilsService } from '../../../../../core/services/dateutils.service';
 
 const moment = momentNs;
-
-/**
-High-level Architecture:
-
-Time-range-picker      - has start and end picker with presets and apply
-  Date-picker          - input box
-    Day-time-calendar  - formats time
-      Day-calendar     - day picker
-        Calendar-nav   - switches between days and months picker
-        Month-calendar - month picker
-*/
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -57,12 +45,13 @@ export class TimeRangePickerComponent implements OnInit {
 
     showApply: boolean;
     presetSelected: Preset;
-    presets: Preset[] = [ {name: abbrToTime(timeAbbr.year),    buttonName: 'y',   abbr: timeAbbr.year},
-                          {name: abbrToTime(timeAbbr.quarter), buttonName: 'qtr', abbr: 'qtr'},
-                          {name: abbrToTime(timeAbbr.month),   buttonName: 'mo',  abbr: timeAbbr.month},
-                          {name: abbrToTime(timeAbbr.week),    buttonName: 'wk',  abbr: 'wk'},
-                          {name: abbrToTime(timeAbbr.day),     buttonName: 'd',   abbr: timeAbbr.day},
-                          {name: abbrToTime(timeAbbr.hour),    buttonName: 'h',   abbr: timeAbbr.hour}
+    presets: Preset[] = [ // tslint:disable:max-line-length
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.year),    buttonName: 'y',   abbr: this.utilsService.timeAbbr.year},
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.quarter), buttonName: 'qtr', abbr: 'qtr'},
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.month),   buttonName: 'mo',  abbr: this.utilsService.timeAbbr.month},
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.week),    buttonName: 'wk',  abbr: 'wk'},
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.day),     buttonName: 'd',   abbr: this.utilsService.timeAbbr.day},
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.hour),    buttonName: 'h',   abbr: this.utilsService.timeAbbr.hour}
                         ];
 
     constructor(private utilsService: DateUtilsService) {}
@@ -135,7 +124,6 @@ export class TimeRangePickerComponent implements OnInit {
     }
 
     cancelClicked() {
-      console.log('cancel clicked');
       this.closeCalendarsAndHideButtons();
       this.cancelSelected.emit();
     }

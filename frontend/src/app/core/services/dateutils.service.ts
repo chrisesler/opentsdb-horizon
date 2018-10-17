@@ -9,19 +9,6 @@ const minUnixTimestamp: number = 1000000000;    // 09/08/2001
 const minYear: number = 1970;                   // for relative time
 const defaultFormat: string = 'MM/DD/YYYY hh:mm A';
 
-// key is valid 'this' time AND keyword for moment to subtract.
-// value is valid abbr for relative-time user-input
-export const timeAbbr = {
- day : 'd',     // before year so 'y' in 'day' is not years
- year : 'y',
- quarter : 'q',
- month : 'mo',
- week : 'w',
- hour : 'h',
- minute : 'min',
- second: 'sec'  // not 's' so days or hours is not seconds
-};
-
 enum validDateWithoutTimeFormat {
   'M/D/YY',
   'M/D/YYYY',
@@ -34,23 +21,36 @@ enum validDateWithoutTimeFormat {
   'YYYY-MM-DD'
 }
 
-export function abbrToTime (abbr: string): any {
-  for (const index in timeAbbr) {
-    if (timeAbbr[index].toString() === abbr.toLowerCase()) {
-      return index;
-    }
-  }
-  return;
-}
-
 @Injectable({
     providedIn: 'root'
   })
 export class DateUtilsService {
 
+  // key is valid 'this' time AND keyword for moment to subtract.
+  // value is valid abbr for relative-time user-input
+  timeAbbr = {
+    day : 'd',     // before year so 'y' in 'day' is not years
+    year : 'y',
+    quarter : 'q',
+    month : 'mo',
+    week : 'w',
+    hour : 'h',
+    minute : 'min',
+    second: 'sec'  // not 's' so days or hours is not seconds
+  };
+
+  abbrToTime (abbr: string): any {
+    for (const index in this.timeAbbr) {
+      if (this.timeAbbr[index].toString() === abbr.toLowerCase()) {
+        return index;
+      }
+    }
+    return;
+  }
+
   timeToTime(inputTime: string): any {
-    for (let time in timeAbbr) {
-        if (timeAbbr[time]) {
+    for (let time in this.timeAbbr) {
+        if (this.timeAbbr[time]) {
           time = time.toString();
           if (time === inputTime) {
           return time;
@@ -128,16 +128,16 @@ export class DateUtilsService {
     }
 
     // protect moment from abusive numbers
-    if ( (timeUnit === timeAbbr.year && timeAmount < 1 * numYears)             ||
-        (timeUnit === timeAbbr.quarter && timeAmount < 4 * numYears)          ||
-        (timeUnit === timeAbbr.month && timeAmount < 12 * numYears)           ||
-        (timeUnit === timeAbbr.week && timeAmount < 52 * numYears)            ||
-        (timeUnit === timeAbbr.day && timeAmount < 365 * numYears)            ||
-        (timeUnit === timeAbbr.hour && timeAmount < 8760 * numYears)          ||
-        (timeUnit === timeAbbr.minute && timeAmount < 525600 * numYears)      ||
-        (timeUnit === timeAbbr.second && timeAmount < 525600 * 60 * numYears)) {
+    if ( (timeUnit === this.timeAbbr.year && timeAmount < 1 * numYears)             ||
+        (timeUnit === this.timeAbbr.quarter && timeAmount < 4 * numYears)          ||
+        (timeUnit === this.timeAbbr.month && timeAmount < 12 * numYears)           ||
+        (timeUnit === this.timeAbbr.week && timeAmount < 52 * numYears)            ||
+        (timeUnit === this.timeAbbr.day && timeAmount < 365 * numYears)            ||
+        (timeUnit === this.timeAbbr.hour && timeAmount < 8760 * numYears)          ||
+        (timeUnit === this.timeAbbr.minute && timeAmount < 525600 * numYears)      ||
+        (timeUnit === this.timeAbbr.second && timeAmount < 525600 * 60 * numYears)) {
 
-      _moment = now.subtract(timeAmount, abbrToTime(timeUnit));
+      _moment = now.subtract(timeAmount, this.abbrToTime(timeUnit));
     }
     return _moment;
   }
@@ -154,12 +154,12 @@ export class DateUtilsService {
 
     // check if user input contains a valid time unit abbr
     // in-case some browsers do not keep order of map, first check for 'day'
-    if (relativeTime.includes(timeAbbr.day)) {
-      timeUnitAbbr = timeAbbr.day;
+    if (relativeTime.includes(this.timeAbbr.day)) {
+      timeUnitAbbr = this.timeAbbr.day;
     } else {
-      for (const index in timeAbbr) {
-        if (relativeTime.includes(timeAbbr[index])) {
-          timeUnitAbbr = timeAbbr[index];
+      for (const index in this.timeAbbr) {
+        if (relativeTime.includes(this.timeAbbr[index])) {
+          timeUnitAbbr = this.timeAbbr[index];
           break;
         }
       }

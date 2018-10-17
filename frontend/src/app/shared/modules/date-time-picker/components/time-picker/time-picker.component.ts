@@ -156,7 +156,6 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
     }
 
     closeTimeRangePicker() {
-        console.log('inside close time range picker');
         this.timeRangePicker.startTimeReference.shouldUpdateTimestamp = false;
         this.timeRangePicker.endTimeReference.shouldUpdateTimestamp = false;
         this.timeRangePicker.startTimeReference.date = this.startTime;
