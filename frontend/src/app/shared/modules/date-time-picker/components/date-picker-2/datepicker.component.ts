@@ -218,7 +218,7 @@ export class DatepickerComponent implements OnInit {
                     isFuture: (Number(_moment.format('YYYYMMDD'))) > now,
                     isToday: (Number(_moment.format('YYYYMMDD'))) === now,
                     enabled:
-                        (Number(_moment.format('YYYYMMDD')) < now && Number(_moment.format('YYYYMMDD')) > 20010909),
+                        (Number(_moment.format('YYYYMMDD')) <= now && Number(_moment.format('YYYYMMDD')) > 20010909),
                     selected: Number(_moment.format('YYYYMMDD')) === selected && this.isDateValid,
                     currentMonth : true
                 });

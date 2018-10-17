@@ -117,7 +117,16 @@ export class TimeRangePickerComponent implements OnInit {
       if (!this.startTimeReference.formFields.dateInput.errors && !this.endTimeReference.formFields.dateInput.errors) {
         this.closeCalendarsAndHideButtons();
 
-        // sets the relative times to latest values
+        // strips relative time
+        if (this.utilsService.relativeTimeToMoment(this.startTimeReference.date)) {
+          this.startTimeReference.date = this.utilsService.strippedRelativeTime(this.startTimeReference.date);
+        }
+
+        if (this.utilsService.relativeTimeToMoment(this.endTimeReference.date)) {
+          this.endTimeReference.date = this.utilsService.strippedRelativeTime(this.endTimeReference.date);
+        }
+
+        // sets the relative times and 'this' to latest values
         this.startTimeReference.onDateChange(this.startTimeReference.date);
         this.endTimeReference.onDateChange(this.endTimeReference.date);
 

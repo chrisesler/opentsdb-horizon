@@ -30,6 +30,11 @@
     .date-picker-component {
         position: relative;
 
+        .calendar-container  {
+            position: fixed;
+            z-index: 1;
+        }
+
        .input-field {
             #input-box {
                 //height: 28px;
@@ -49,14 +54,7 @@
             .mat-error {
                 font-size: 9px;
             }
-    
-            .calendar-container  {
-                // width: 100%;
-                position: absolute;
-                top: calc(100% - 19px);
-                z-index: 1;
-            }
-    
+        
             // resetting some input fields 
             .mat-form-field.mat-form-field-appearance-fill {
     
