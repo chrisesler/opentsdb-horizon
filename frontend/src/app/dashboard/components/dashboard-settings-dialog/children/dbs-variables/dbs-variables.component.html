@@ -1,0 +1,51 @@
+<div [formGroup]="varForm">
+    <mat-toolbar class="template-variable-toolbar">
+        <div class="toolbar-item">
+            <button mat-button class="add-template-button" (click)="addTemplateVariable()">
+                <mat-icon fontSet="denali" fontIcon="d-add-circle"></mat-icon>
+                <span>Add Template</span>
+            </button>
+        </div>
+        <div class="flex-spacer"></div>
+        <div class="toolbar-item">
+            <mat-slide-toggle formControlName="enabled">
+                <span class="mat-caption" [ngClass]="{'is-enabled': varForm.get('enabled').value === true}">Disable all templates</span>
+            </mat-slide-toggle>
+        </div>
+    </mat-toolbar>
+    <div class="template-variable-list" formArrayName="tplVariables" [ngClass]="{'is-disabled': !!varForm['controls'].enabled.value}">
+        <ng-container *ngFor="let tpl of varForm['controls'].tplVariables['controls']; let i=index">
+            <div class="template-variable-item" [formGroupName]="i" [ngClass]="{'is-disabled': varForm['controls'].tplVariables['controls'][i]['controls'].enabled.value === false}">
+                <div class="settings-control tag-key-control">
+                    <div class="mat-label">Tag key</div>
+                    <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                        <input matInput placeholder="Enter tag key" formControlName="key">
+                    </mat-form-field>
+                </div>
+                <div class="settings-control alias-control">
+                    <div class="mat-label">Alias</div>
+                    <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                        <input matInput placeholder="Enter alias (optional)" formControlName="alias">
+                    </mat-form-field>
+                </div>
+                <div class="settings-control values-control">
+                    <div class="mat-label">Values</div>
+                    <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                        <input matInput placeholder="Enter value(s) seperated by commas" formControlName="values">
+                    </mat-form-field>
+                </div>
+                <div class="settings-control actions-control">
+                    <div class="mat-label">Actions</div>
+                    <div class="actions">
+                        <button mat-button (click)="removeTemplateVariable(i)">
+                            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                        </button>
+                        <mat-slide-toggle formControlName="enabled">
+                            <span class="mat-caption" [ngClass]="{'is-enabled': varForm['controls'].tplVariables['controls'][i]['controls'].enabled.value === true}">Enabled</span>
+                        </mat-slide-toggle>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>

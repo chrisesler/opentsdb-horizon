@@ -27,7 +27,12 @@ import { ConfigTagsListComponent } from './components/config-tags-list/config-ta
 // directives
 import { WidgetDirective } from './directives/widget.directive';
 import { WidgetViewDirective } from './directives/widgetview.directive';
-import { DashboardSettingsDialogComponent } from './components/dashboard-settings-dialog/dashboard-settings-dialog.component';
+import {
+    DashboardSettingsDialogComponent,
+    DbsJsonComponent,
+    DbsMetaComponent,
+    DbsVariablesComponent
+} from './components/dashboard-settings-dialog';
 import { DashboardSettingsToggleComponent } from './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
 import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
 
@@ -54,7 +59,10 @@ import { DataExplorerComponent } from './components/data-explorer/data-explorer.
         ConfigTagsListComponent,
         DashboardSettingsDialogComponent,
         DashboardSettingsToggleComponent,
-        DataExplorerComponent
+        DataExplorerComponent,
+        DbsMetaComponent,
+        DbsVariablesComponent,
+        DbsJsonComponent
     ],
     providers: [
         DashboardService
