@@ -1,16 +1,6 @@
 <div class="cps" [style.height]="heightOfComponent + 'px'">
-    <!--<div class="color-picker-selector" style="display: none;">
-        <div #block class="picker-selector"></div>
-        <canvas #blockCanvas id="picker" class="picker-canvas"></canvas>
-        <div #blockPointer class="picker-position"></div>
-    </div>-->
 
     <color-picker-hsv-selector [selectedColor]="selectedColor" (colorChanged)="changeColorValue($event)"></color-picker-hsv-selector>
-
-    <!-- Slider -->
-    <!--<div #stripContainer class="color-picker-hue" style="background-position-y: 0px;">
-        <canvas #strip height="156px" width="20" id="colors"></canvas>
-    </div>-->
 
     <color-picker-hue-slider [selectedColor]="selectedColor" (hueChanged)="changeHueColor($event)"></color-picker-hue-slider>
 
