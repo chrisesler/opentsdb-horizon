@@ -1,8 +1,5 @@
-/* WIDGET CONFIG COMPONENT */
+@mixin date-picker-component-base() {
 
-// TODO: Describe how this is setup & why there are two mixins (at a minimum)
-// $dtip-day-cal-btn-padding
-@mixin day-calendar-component-base() {
     $calendar-padding: 8px;
     $calendar-cell-size: 40px;
     $calendar-width: $calendar-cell-size * 7 + $calendar-padding * 2;
@@ -30,7 +27,78 @@
     $calendar-prev-icon-transform: translateX(2px) rotate(-45deg);
     $calendar-next-icon-transform: translateX(-2px) rotate(45deg);
 
-    .dtp-day-calendar {
+    .date-picker-component {
+        position: relative;
+
+        .calendar-container  {
+            position: fixed;
+            z-index: 1;
+        }
+
+       .input-field {
+            #input-box {
+                //height: 28px;
+                width: 210px;
+            }
+            
+            #calendar-icon {
+                min-width: 0px;
+                padding: 1px;
+                margin-left: 4px;
+            }
+            
+            .code {
+                font-weight: bold;
+            }
+            
+            .mat-error {
+                font-size: 9px;
+            }
+        
+            // resetting some input fields 
+            .mat-form-field.mat-form-field-appearance-fill {
+    
+                .mat-form-field-flex {
+                    padding: .75em .75em 0 .75em;
+                }
+    
+                .mat-form-field-infix {
+                    padding: 0.25em 0 0.75em 0;
+                    border-top: 0.84375em solid transparent;
+                }
+    
+                .mat-input-element {
+                    height: initial;
+                }
+    
+                .mat-form-field-subscript-wrapper {
+                    
+                }
+    
+                .mat-form-field-label-wrapper {
+                    top: -0.84375em;
+                    left: 0;
+                    padding-top: 0.84375em;
+    
+                    .mat-form-field-label {
+                        top: 1.09375em;
+                        margin-top: -0.5em;
+                    }
+                }
+    
+                &.mat-form-field-can-float {
+                    &.mat-form-field-should-float {
+                        .mat-form-field-label {
+                            -webkit-transform: translateY(-0.59375em) scale(0.75);
+                            transform: translateY(-0.59375em) scale(0.75);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .calendar-container {
         @include mat-elevation(5);
         display: block;
         font-size: 14px;
@@ -268,41 +336,41 @@
     }
 }
 
-@mixin day-calendar-component-theme($theme-config) {
+@mixin date-picker-component-theme($theme-config) {
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
     $accent: map-get($theme-config, accent);
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
-    $is-dark: map-get($theme-config, is-dark);
 
-    /*TODO: overwrite mat-button background: transparent */
-    .dp-selected {
-        // background: if($is-dark, true-value, false-value);
-        background: map-get($primary, default);
-    }
-
-    .dtp-day-calendar {
-        background-color: mat-color($background, card);
-        color: mat-color($foreground, text);
-
-        .mat-calendar-body-not-current {
-            background-color: map-get($background, hover);
-            
-            .mat-calendar-body-cell-content {
-                color: map-get($foreground, disabled);
+        /*TODO: overwrite mat-button background: transparent */
+        .dp-selected {
+            // background: if($is-dark, true-value, false-value);
+            background: map-get($primary, default);
+        }
+    
+        .calendar-container {
+            background-color: mat-color($background, card);
+            color: mat-color($foreground, text);
+    
+            .mat-calendar-body-not-current {
+                background-color: map-get($background, hover);
+                
+                .mat-calendar-body-cell-content {
+                    color: map-get($foreground, disabled);
+                }
+            }
+    
+            .mat-calendar-body-disabled {
+                background: repeating-linear-gradient(
+                    45deg,
+                    rgba(0,0,0,.03),
+                    rgba(0,0,0,.03) 2px,
+                    rgba(0,0,0,.05) 2px,
+                    rgba(0,0,0,.05) 4px
+                );
             }
         }
 
-        .mat-calendar-body-disabled {
-            background: repeating-linear-gradient(
-                45deg,
-                rgba(0,0,0,.03),
-                rgba(0,0,0,.03) 2px,
-                rgba(0,0,0,.05) 2px,
-                rgba(0,0,0,.05) 4px
-            );
-        }
-    }
-}
+  }

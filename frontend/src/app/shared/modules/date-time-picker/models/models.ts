@@ -1,28 +1,4 @@
 import { Moment } from 'moment';
-import { SingleCalendarValue } from '../types/single-calendar-value';
-import { CalendarMode } from '../types/calendar-mode';
-
-export interface ICalendar {
-    locale?: string;
-    min?: SingleCalendarValue;
-    max?: Moment | string;
-}
-
-export interface ICalendarInternal {
-    locale?: string;
-    min?: Moment;
-    max?: Moment;
-}
-
-export interface INavEvent {
-    from: Moment;
-    to: Moment;
-}
-
-export interface IDate {
-    date: Moment;
-    selected: boolean;
-}
 
 export class ISelectedTime {
     startTimeUnix: string;
@@ -37,6 +13,8 @@ export class TimeRangePickerOptions {
 
     startTimePlaceholder: string;
     endTimePlaceholder: string;
+    startTimeInputBoxName: string;
+    endTimeInputBoxName: string;
 
     defaultStartText: string;
     defaultEndText: string;
@@ -50,8 +28,6 @@ export class TimeRangePickerOptions {
     endDateFormatError: string;
     startMaxDateError: string;
     endMaxDateError: string;
-
-    formatMode: CalendarMode; // format set in date-picker.service.getDefaultFormatByMode
 
     minMinuteDuration: number;
 

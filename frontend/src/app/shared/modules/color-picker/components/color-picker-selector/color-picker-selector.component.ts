@@ -48,41 +48,6 @@ export class ColorPickerSelectorComponent
 
     @HostBinding('class.color-picker-selector-component') private _hostClass = true;
 
-    /**
-     * ElemenRef of the main color
-     */
-    // @ViewChild('block') _block: ElementRef;
-
-    /**
-     * ElemenRef of the pointer main color
-     */
-    // @ViewChild('blockPointer') _bp: ElementRef;
-
-    /**
-     * Canvas of the block
-     */
-    /*@ViewChild('blockCanvas')
-    set blockCursor(el: ElementRef) {
-        this._bc = el;
-    }
-    private _bc: ElementRef;
-    private _blockContext: any;*/
-    /**
-     * ElementRef of the color base
-     */
-    /*@ViewChild('strip') _strip: ElementRef;*/
-    // hold _strip context
-    // private _stripContext: any;
-
-    /**
-     * Container of the strip
-     */
-    /*@ViewChild('stripContainer')
-    set stripCursor(el: ElementRef) {
-        this._sc = el;
-    }
-    private _sc: ElementRef;*/
-
     // 3 Supported Modes: dropDown, dropDownNoButton, embedded
     // If using dropDownNoButton, programatically change [isOpen]
     @Input()
@@ -303,72 +268,7 @@ export class ColorPickerSelectorComponent
         }
     }
 
-    ngAfterViewInit() {
-        /*this.render.listen(this._block.nativeElement, 'mousedown', e => {
-            this._isPressed = true;
-            this.changeColor(e);
-        });
-        this.render.listen(this._block.nativeElement, 'mouseup', () => (this._isPressed = false));
-        this.render.listen(this._block.nativeElement, 'mouseout', () => (this._isPressed = false));
-        this.render.listen(this._block.nativeElement, 'mousemove', e => this.changeColor(e));
-        this._blockContext = this._bc.nativeElement.getContext('2d');
-        this._blockContext.rect(0, 0, this._bc.nativeElement.width, this._bc.nativeElement.height);*/
-
-        /*this.render.listen(this._strip.nativeElement, 'mousedown', e => {
-            this._isPressed = true;
-            this.changeBaseColor(e);
-        });
-        this.render.listen(this._strip.nativeElement, 'mouseup', () => (this._isPressed = false));
-        this.render.listen(this._strip.nativeElement, 'mouseout', () => (this._isPressed = false));
-        this.render.listen(this._strip.nativeElement, 'mousemove', e => this.changeBaseColor(e));
-        this._stripContext = this._strip.nativeElement.getContext('2d');
-        this._stripContext.rect(
-            0,
-            0,
-            this._strip.nativeElement.width,
-            this._strip.nativeElement.height
-        );
-        // set to width because slider is positioned horizontally
-        const grd1 = this._stripContext.createLinearGradient(0, 0, 0, this._bc.nativeElement.width);
-        grd1.addColorStop(0, 'rgba(255, 0, 0, 1)');
-        grd1.addColorStop(0.17, 'rgba(255, 255, 0, 1)');
-        grd1.addColorStop(0.34, 'rgba(0, 255, 0, 1)');
-        grd1.addColorStop(0.51, 'rgba(0, 255, 255, 1)');
-        grd1.addColorStop(0.68, 'rgba(0, 0, 255, 1)');
-        grd1.addColorStop(0.85, 'rgba(255, 0, 255, 1)');
-        grd1.addColorStop(1, 'rgba(255, 0, 0, 1)');
-        this._stripContext.fillStyle = grd1;
-        this._stripContext.fill();*/
-
-
-        // this._fillGradient();
-    }
-
-    /**
-     * Generate colors based on the RGBA color
-     */
-    /*
-    private _fillGradient(): void {
-        this._blockContext.fillStyle = this._rgbaColor;
-        this._blockContext.fillRect(0, 0, this._bc.nativeElement.width, this._bc.nativeElement.height);
-
-        const grdWhite = this._stripContext.createLinearGradient(0, 0, this._bc.nativeElement.width, 0);
-        grdWhite.addColorStop(0, 'rgba(255,255,255,1)');
-        grdWhite.addColorStop(1, 'rgba(255,255,255,0)');
-        this._blockContext.fillStyle = grdWhite;
-        this._blockContext.fillRect(0, 0, this._bc.nativeElement.width, this._bc.nativeElement.height);
-
-        const grdBlack = this._stripContext.createLinearGradient(
-            0,
-            0,
-            0,
-            this._bc.nativeElement.height
-        );
-        grdBlack.addColorStop(0, 'rgba(0,0,0,0)');
-        grdBlack.addColorStop(1, 'rgba(0,0,0,1)');
-        this._blockContext.fillStyle = grdBlack;
-        this._blockContext.fillRect(0, 0, this._bc.nativeElement.width, this._bc.nativeElement.height);
-    }*/
+    ngAfterViewInit() { }
 
     /**
      * Watch change on forms
@@ -470,22 +370,12 @@ export class ColorPickerSelectorComponent
      * Get selected base color from the canvas
      * @param e MouseEvent
      */
-    /*private changeBaseColor(e): void {
-        if (this._isPressed) {
-            // this.render.setStyle(this._sc.nativeElement, 'background-position-y', `${e.offsetY}px`);
-            const data = this._stripContext.getImageData(e.offsetX, e.offsetY, 1, 1).data;
-            this._updateRGBA(data);
-            this._fillGradient();
-            this.updateValues(data);
-        }
-    }*/
 
     /** NEW
      * Receiving event from color saturation/vibrance block
      * @param rgb Array
      */
     changeColorValue(rgb) {
-        console.log('[SELECTOR] CHANGE COLOR VALUE', rgb);
         // this._updateRGBA(rgb);
         this.updateValues(rgb);
     }
@@ -495,7 +385,6 @@ export class ColorPickerSelectorComponent
      * @param rgb Array
      */
     changeHueColor(rgb) {
-        console.log('[SELECTOR] CHANGE HUE COLOR', rgb);
         this._updateRGBA(rgb);
         // this._fillGradient();
         this.updateValues(rgb);
@@ -505,15 +394,6 @@ export class ColorPickerSelectorComponent
      * Get selected color from the canvas
      * @param e MouseEvent
      */
-    /*private changeColor(e): void {
-        if (this._isPressed) {
-            this.render.setStyle(this._bp.nativeElement, 'top', `${e.offsetY - 5}px`);
-            this.render.setStyle(this._bp.nativeElement, 'left', `${e.offsetX - 5}px`);
-
-            const data = this._blockContext.getImageData(e.offsetX, e.offsetY, 1, 1).data;
-            this.updateValues(data);
-        }
-    }*/
 
     /**
      * Emit update from the selected color

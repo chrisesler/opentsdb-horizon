@@ -8,33 +8,15 @@
     <mat-icon fontSet="denali" fontIcon="d-arrowhead-down"></mat-icon>
 </button>
 
-<mat-menu #timerangePickerMenu="matMenu" [overlapTrigger]="false" class="nav-bar-dropmenu timerange-picker-menu">
+<mat-menu #timerangePickerMenu="matMenu" [overlapTrigger]="false" class="nav-bar-dropmenu timerange-picker-menu" (closed)="closeTimeRangePicker()">
     <div class="timerange-picker-container" fxLayout="column" (click)="$event.stopPropagation()">
         <time-range-picker
             (timeSelected)="timeReceived($event)"
-            (cancelSelected)="closeTimeRangePicker()"
+            (cancelSelected)="triggerAndCloseTimeRangePicker()"
             [startTime]="startTime"
             [endTime]="endTime"
-            [options]="options">
+            [options]="options"
+            [timezone]="timezone">
         </time-range-picker>
     </div>
 </mat-menu>
-
-<!--<div class="tooltip">
-  <button mat-button (click)="toggleOpen()" > 
-      <i class="icon is-small"> <span class="dfi dfi-time-clock"></span></i>
-      <span> {{startTime}} to {{endTime}}</span>
-  </button>
-  <span class="tooltiptext" [ngClass]= "{invisible: isOpen}">{{startTimeToolTip}} to {{endTimeToolTip}}</span>
-</div>
-  
-<div class="box" [ngClass]= "{invisible: !isOpen}">
-  <time-range-picker
-    (timeSelected)="timeReceived($event)"
-    (cancelSelected)="closeTimeRangePicker()"
-    [startTime]="startTime"
-    [endTime]="endTime"
-    [options]="options"
-    >
-  </time-range-picker>
-</div>-->

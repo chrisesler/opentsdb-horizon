@@ -20,6 +20,18 @@
             height: 100%;
             display: flex;
 
+            .dygraph-legend {
+                z-index: 1000;
+                margin-top:30px;
+                background: #f0f0f0;
+                border: 1px solid #cccccc;
+                padding: 4px;
+                min-width:250px;
+                width: 300px;
+                position: fixed;
+                border-radius: 5px;
+            }
+
             .graph-legend {
                 display: none;
                 position: initial; // override dygraph style
@@ -33,6 +45,12 @@
             &.display-legend-left {
                 .graph-legend {
                     display: flex;
+                    .line-series{
+                        display: inline-flex;
+                        width:25px;
+                        height: 5px;
+                        margin-right: 5px;
+                    }
                 }
             }
 
@@ -54,6 +72,18 @@
                 align-items: flex-start;
             }
 
+            &.display-legend-left,
+            &.display-legend-right {
+                .graph-legend {
+                    display: flex;
+                    flex-wrap: wrap;
+                    li {
+                        display: inline-flex;
+                        flex: 0 0 100%;
+                        
+                    }
+                }
+            }
             &.display-legend-top,
             &.display-legend-bottom {
                 .graph-legend {

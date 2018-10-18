@@ -3,28 +3,14 @@ import {
     Output, EventEmitter, AfterContentInit,
     HostListener, ElementRef, HostBinding
 } from '@angular/core';
-import { IDatePickerConfig } from '../date-picker/date-picker-config.model';
-import { ECalendarValue } from '../../types/calendar-value-enum';
 import { Moment } from 'moment';
 import * as momentNs from 'moment';
-import { DatePickerComponent } from '../date-picker/date-picker.component';
-import { timeAbbr, abbrToTime } from '../../services/utils.service';
 import { TimeRangePickerOptions, ISelectedTime } from '../../models/models';
-import { CalendarMode } from '../../types/calendar-mode';
 import { } from '../time-picker/time-picker.component';
+import { DatepickerComponent } from '../date-picker-2/datepicker.component';
+import { DateUtilsService } from '../../../../../core/services/dateutils.service';
 
 const moment = momentNs;
-
-/**
-High-level Architecture:
-
-Time-range-picker      - has start and end picker with presets and apply
-  Date-picker          - input box
-    Day-time-calendar  - formats time
-      Day-calendar     - day picker
-        Calendar-nav   - switches between days and months picker
-        Month-calendar - month picker
-*/
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -36,14 +22,19 @@ Time-range-picker      - has start and end picker with presets and apply
 export class TimeRangePickerComponent implements OnInit {
     @HostBinding('class.dtp-time-range-picker') private _hostClass = true;
 
-    @Input() set startTime(time: string) { this.startTimeReference.setTime(String(time)); }
-    @Input() set endTime(time: string) { this.endTimeReference.setTime(String(time)); }
+    @Input() set startTime(time: string) {
+      this.startTimeReference.date = String(time);
+    }
+    @Input() set endTime(time: string) {
+      this.endTimeReference.date = String(time);
+    }
     @Input() options: TimeRangePickerOptions;
+    @Input() timezone: string;
     @Output() timeSelected = new EventEmitter<ISelectedTime>();
     @Output() cancelSelected = new EventEmitter();
 
-    @ViewChild('daytimePickerStart') startTimeReference: DatePickerComponent;
-    @ViewChild('daytimePickerEnd') endTimeReference: DatePickerComponent;
+    @ViewChild('daytimePickerStart') startTimeReference: DatepickerComponent;
+    @ViewChild('daytimePickerEnd') endTimeReference: DatepickerComponent;
     @ViewChild('presetsDiv') presetsDiv: ElementRef;
 
     startTimeSelected: Moment;
@@ -54,15 +45,16 @@ export class TimeRangePickerComponent implements OnInit {
 
     showApply: boolean;
     presetSelected: Preset;
-    presets: Preset[] = [ {name: abbrToTime(timeAbbr.hour),    buttonName: 'h',   abbr: timeAbbr.hour},
-                          {name: abbrToTime(timeAbbr.day),     buttonName: 'd',   abbr: timeAbbr.day},
-                          {name: abbrToTime(timeAbbr.week),    buttonName: 'wk',  abbr: 'wk'},
-                          {name: abbrToTime(timeAbbr.month),   buttonName: 'mo',  abbr: timeAbbr.month},
-                          {name: abbrToTime(timeAbbr.quarter), buttonName: 'qtr', abbr: 'qtr'},
-                          {name: abbrToTime(timeAbbr.year),    buttonName: 'y',   abbr: timeAbbr.year}
+    presets: Preset[] = [ // tslint:disable:max-line-length
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.year),    buttonName: 'y',   abbr: this.utilsService.timeAbbr.year},
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.quarter), buttonName: 'qtr', abbr: 'qtr'},
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.month),   buttonName: 'mo',  abbr: this.utilsService.timeAbbr.month},
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.week),    buttonName: 'wk',  abbr: 'wk'},
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.day),     buttonName: 'd',   abbr: this.utilsService.timeAbbr.day},
+                          {name: this.utilsService.abbrToTime(this.utilsService.timeAbbr.hour),    buttonName: 'h',   abbr: this.utilsService.timeAbbr.hour}
                         ];
 
-    constructor() {}
+    constructor(private utilsService: DateUtilsService) {}
 
     ngOnInit() {
       this.showApply = false;
@@ -71,16 +63,19 @@ export class TimeRangePickerComponent implements OnInit {
     getTimeSelected(): ISelectedTime {
         const time = new ISelectedTime();
 
+        this.startTimeSelected = this.utilsService.timeToMoment(this.startTimeReference.unixTimestamp.toString(), this.timezone);
+        this.endTimeSelected = this.utilsService.timeToMoment(this.endTimeReference.unixTimestamp.toString(), this.timezone);
+
         // default value for invalid time
         if (!this.startTimeSelected) {
             this.startTimeSelected = moment().subtract(this.options.defaultStartHoursFromNow, 'hour');
-            this.startTimeReference.setTime(this.options.defaultStartText);
+            this.startTimeReference.date = this.options.defaultStartText;
         }
 
         // default value for invalid time
         if (!this.endTimeSelected) {
             this.endTimeSelected = moment().subtract(this.options.defaultEndHoursFromNow, 'hour');
-            this.endTimeReference.setTime(this.options.defaultEndText);
+            this.endTimeReference.date = this.options.defaultEndText;
         }
 
         // duration atleast 2 minutes
@@ -94,25 +89,36 @@ export class TimeRangePickerComponent implements OnInit {
 
         time.startTimeUnix = this.startTimeSelected.unix().toString();
         time.endTimeUnix = this.endTimeSelected.unix().toString();
-        time.startTimeDisplay = this.startTimeReference.inputElementValue;
-        time.endTimeDisplay = this.endTimeReference.inputElementValue;
+        time.startTimeDisplay = this.startTimeReference.date;
+        time.endTimeDisplay = this.endTimeReference.date;
 
+        console.log(time);
         return time;
     }
 
     closeCalendarsAndHideButtons() {
-        this.endTimeReference.api.close();
-        this.startTimeReference.api.close();
+        this.endTimeReference.closeCalendar();
+        this.startTimeReference.closeCalendar();
         this.showApply = false;
     }
 
     applyClicked() {
-      if (!this.startTimeReference.errors && !this.endTimeReference.errors) {
+      if (!this.startTimeReference.formFields.dateInput.errors && !this.endTimeReference.formFields.dateInput.errors) {
         this.closeCalendarsAndHideButtons();
 
-        // sets the relative times to latest values
-        this.startTimeReference.setTime(this.startTimeReference.inputElementValue);
-        this.endTimeReference.setTime(this.endTimeReference.inputElementValue);
+        // strips relative time
+        if (this.utilsService.relativeTimeToMoment(this.startTimeReference.date)) {
+          this.startTimeReference.date = this.utilsService.strippedRelativeTime(this.startTimeReference.date);
+        }
+
+        if (this.utilsService.relativeTimeToMoment(this.endTimeReference.date)) {
+          this.endTimeReference.date = this.utilsService.strippedRelativeTime(this.endTimeReference.date);
+        }
+
+        // sets the relative times and 'this' to latest values
+        this.startTimeReference.onDateChange(this.startTimeReference.date);
+        this.endTimeReference.onDateChange(this.endTimeReference.date);
+
         this.timeSelected.emit(this.getTimeSelected());
       }
     }
@@ -145,13 +151,13 @@ export class TimeRangePickerComponent implements OnInit {
       this.presetSelected = null;
     }
 
-    startTimeChanged(item: Moment) {
-      this.startTimeSelected = item;
-    }
+    // startTimeChanged(item: Moment) {
+    //   this.startTimeSelected = item;
+    // }
 
-    endTimeChanged(item: Moment) {
-      this.endTimeSelected = item;
-    }
+    // endTimeChanged(item: Moment) {
+    //   this.endTimeSelected = item;
+    // }
 
     log(item) {}
 
