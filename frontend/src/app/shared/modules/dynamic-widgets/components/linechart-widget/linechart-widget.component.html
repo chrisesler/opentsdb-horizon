@@ -38,14 +38,22 @@
             [style.top]="size.height + 'px'" 
             [style.height]="widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom' ? '20%':'0%'"></div>-->
 
-        <div id="dygraph_div" class="graph-chart"
+        <div #dygraph class="graph-chart"
             dygraphsChart
             [chartType]="chartType"
             [data]="data"
             [size]="size"
             [options]="options">
         </div>
-        <ul class="graph-legend" #graphLegend></ul>
+        <div class="dygraph-legend" #graphLegend></div>
+        <ul class="graph-legend">
+            <table>
+                <tr *ngFor="let index of options.labels.slice(1)">
+                    <td class="line-series" [style.backgroundColor]= "options.series[index].color"></td>
+                    <td>{{ options.series[index].metric }}</td>
+                </tr>
+            </table>
+        </ul>
     </div>
 </div>
 <!--
