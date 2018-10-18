@@ -179,22 +179,25 @@
 
                     .mat-form-field {
                         display: flex;
+                        
 
                         .mat-form-field-infix {
                             width: 100%;
+                            padding-top: 7px;
+                            padding-bottom: 7px;
                         }
+
                         //for typing in hex
-                        /*width: 115px;
-                        height: 12px;
-                
                         .mat-input-element {
-                            height: 28px;
-                            border-radius: 3px;
-                            padding-left: 11px;
-                        }*/
+                            width: 102px;
+                        }
 
                         .mat-form-field-underline {
                             display: none;
+                        }
+
+                        .mat-form-field-flex {
+                            border-radius: 4px 4px 4px 4px;
                         }
                     }
                 }
