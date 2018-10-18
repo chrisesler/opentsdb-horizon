@@ -22,123 +22,46 @@
         </div>
     </div>
 </div>
-<!--<div class="presets-sliding-button">
-    <nav mat-tab-nav-bar class="sliding-button-group">
-        <a mat-tab-link
-            *ngFor="let preset of presets"
-            [active]="presetSelected === preset"
-            (click)="togglePreset(preset)">
-            <button mat-button [matMenuTriggerFor]="presetKeypad">
-                {{preset.buttonName}}
-            </button>
-            <mat-menu #presetKeypad [overlapTrigger]="false" class="preset-picker-menu" [xPosition]="preset.name == 'year' ? 'before' : 'after'">
-                <div class="preset-picker-container">
-                    <keypad (amountSelected)="presetAmountReceived($event)" 
-                            [disableKeysAt9]="preset.name == 'quarter' ? true : false"
-                            [disableKeysAt3]="preset.name == 'year' ? true : false"> 
-                    </keypad>
-                </div>
-            </mat-menu>
-        </a>
-    </nav>
-</div>-->
+
 <div class="custom-time-range" fxLayout="column">
     <h2>Custom Range</h2>
     <div class="time-ranges" fxLayout="row">
         <!-- start time -->
-        <dp-date-picker 
-            id="daytimePickerStart"
-            class="start-input"
-            inputLabel="Start Date"
-            #daytimePickerStart="ngModel"
-            #daytimePickerStart
-            [(ngModel)]="startTimeDisplay"
-            [mode]="this.options.formatMode"
-            [disableFutureDates]="options.startFutureTimesDisabled"
-            [placeholder]="options.startTimePlaceholder"
-            [maxDateError]="options.startMaxDateError"
+        <datepicker2 #daytimePickerStart 
+            [timezone]="timezone"
             [formatError]="options.startDateFormatError"
-            (onChange)="startTimeChanged($event)" 
+            [maxDateError]="options.startMaxDateError"
+            [minDateError]="options.startMinDateError"
+            [placeholder]="options.startTimePlaceholder"
+            [inputBoxName]="options.startTimeInputBoxName"
             (open)="startCalendarOpened()"
             (close)="startCalendarClosed()"
-            (onGoToCurrent)="startClockSelected()"
-            (onFocus)="startInputFocused()"
             (onEnter)="enterKeyedOnInputBox()"
+            (onFocus)="startInputFocused()"
             style="margin-right: 5px;"
             >
-        </dp-date-picker>
+        </datepicker2>
+
         <!-- end time -->
-        <dp-date-picker 
-            id="daytimePickerEnd"
-            class="end-input"
-            inputLabel="End Date"
-            #daytimePickerEnd="ngModel"
-            #daytimePickerEnd
-            [(ngModel)]="endTimeDisplay"
-            [mode]="this.options.formatMode"
-            [disableFutureDates]="options.endFutureTimesDisabled"
+        <datepicker2 #daytimePickerEnd 
+            [timezone]="timezone"
             [placeholder]="options.endTimePlaceholder"
-            [maxDateError]="options.endMaxDateError"
             [formatError]="options.endDateFormatError"
-            (onChange)="endTimeChanged($event)"
+            [maxDateError]="options.endMaxDateError"
+            [minDateError]="options.endMinDateError"
+            [inputBoxName]="options.endTimeInputBoxName"
             (open)="endCalendarOpened()"
             (close)="endCalendarClosed()"
-            (onGoToCurrent)="endClockSelected()"
-            (onFocus)="endInputFocused()"
             (onEnter)="enterKeyedOnInputBox()"
+            (onFocus)="endInputFocused()"
             style="margin-left: 5px;"
             >
-        </dp-date-picker>
+        </datepicker2>
+
     </div>
-</div>
-
-<!--
-<div class="dtpicker-start">
-    <h2>Start Time</h2>
-    <dp-date-picker 
-        id="daytimePickerStart"
-        #daytimePickerStart="ngModel"
-        #daytimePickerStart
-        [(ngModel)]="startTimeDisplay"
-        [mode]="this.options.formatMode"
-        [disableFutureDates]="options.startFutureTimesDisabled"
-        [placeholder]="options.startTimePlaceholder"
-        [maxDateError]="options.startMaxDateError"
-        [formatError]="options.startDateFormatError"
-        (onChange)="startTimeChanged($event)" 
-        (open)="startCalendarOpened()"
-        (close)="startCalendarClosed()"
-        (onGoToCurrent)="startClockSelected()"
-        (onFocus)="startInputFocused()"
-        (onEnter)="enterKeyedOnInputBox()"
-        >
-    </dp-date-picker>
-</div>
-
-<div class="dtpicker-end">
-    <h2>End Time</h2>
-    <dp-date-picker 
-        id="daytimePickerEnd"
-        #daytimePickerEnd="ngModel"
-        #daytimePickerEnd
-        [(ngModel)]="endTimeDisplay"
-        [mode]="this.options.formatMode"
-        [disableFutureDates]="options.endFutureTimesDisabled"
-        [placeholder]="options.endTimePlaceholder"
-        [maxDateError]="options.endMaxDateError"
-        [formatError]="options.endDateFormatError"
-        (onChange)="endTimeChanged($event)"
-        (open)="endCalendarOpened()"
-        (close)="endCalendarClosed()"
-        (onGoToCurrent)="endClockSelected()"
-        (onFocus)="endInputFocused()"
-        (onEnter)="enterKeyedOnInputBox()"
-        >
-    </dp-date-picker>
-</div>-->
 
 <div class="dtp-action-controls" *ngIf="showApply">
-    <button mat-raised-button class="mat-elevation-z0" color="primary" id="button-apply" (click)="applyClicked()" [disabled]="daytimePickerStart.errors || daytimePickerEnd.errors">Apply</button>
+    <button mat-raised-button class="mat-elevation-z0" color="primary" id="button-apply" (click)="applyClicked()" [disabled]="daytimePickerStart.formFields.dateInput.errors || daytimePickerEnd.formFields.dateInput.errors">Apply</button>
     <button mat-stroked-button color="primary" id="button-cancel" (click)="cancelClicked()" >Cancel</button>
 </div>
 
