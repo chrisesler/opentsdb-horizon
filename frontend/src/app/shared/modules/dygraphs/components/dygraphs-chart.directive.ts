@@ -51,7 +51,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     const legendFormatter = function(data) {
         const seriesConfig = this.user_attrs_.series;
         if (data.x == null) {
-            return '<li>' + data.series.map(function(series) { return series.dashHTML + ' ' + series.labelHTML; }).join('<li>');
+            return '<li>' + data.series.map(function(series) { return series.isVisible && series.isHighlighted ? series.dashHTML + ' ' + series.labelHTML : ''; }).join('<li>');
         }
 
         let html = '<p>' + data.xHTML + '</p>';
