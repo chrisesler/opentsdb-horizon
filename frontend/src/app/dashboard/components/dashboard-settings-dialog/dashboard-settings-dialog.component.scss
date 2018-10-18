@@ -1,3 +1,8 @@
+
+@import './children/dbs-json/dbs-json.component';
+@import './children/dbs-variables/dbs-variables.component';
+@import './children/dbs-meta/dbs-meta.component';
+
 @mixin dashboard-settings-dialog-component-base(){ 
     .dashboard-settings-dialog {
         @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
@@ -52,30 +57,61 @@
             justify-content: stretch;
         }
 
-        .dashboard-settings-nav {
-            flex: 1 1 300px;
-            max-width: 300px;
-            min-width: 300px;
+        // TAB GROUP
+        .dashboard-settings.mat-tab-group {
+            flex-direction: row;
+            flex: 1;
 
-            .mat-list-item {
-                &.is-active {
-                    pointer-events: none;
+            .mat-ink-bar {
+                height: 3px;
+            }
+
+            .mat-tab-label-container {
+                min-width: 300px;
+                width: 100%;
+                transform: rotate(90deg);
+                height: 300px;
+                flex-grow: 0;
+            }
+
+            .mat-tab-label {
+                min-height: 300px;
+                height: 100%;
+                min-width: 48px;
+                width: 48px;
+                text-align: start;
+                padding: 0;
+                justify-content: center;
+                align-items: flex-end;
+                display: flex;
+
+                .mat-ripple-element {
+                    transform-origin: center center;
+                }
+
+                &.mat-tab-label-active {
+                    opacity: 1;
                 }
             }
-        }
 
-        .setting-tab {
-            display: none;
-            flex: 1 1 100%;
-            overflow-y: auto;
-            overflow-x: hidden;
-
-            &.is-active {
-                display: flex;
-                flex-direction: column;
+            .mat-tab-label-content {
+                transform: rotate(-90deg);
+                padding: 0 24px;;
+                width: 100%;
+                height: 48px;
+                line-height: 48px;
+                display: block;
             }
 
-            .tab-content {
+            .mat-tab-body-wrapper {
+                flex: 1;
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+
+            .dbs-settings-tab {
+                width: 100%;
+                display: block;
                 padding: 12px 24px;
             }
         }
@@ -93,6 +129,12 @@
             padding: 0;
         }
     }
+
+
+    // CALL CHILDREN STYLES
+    @include dbs-json-component-base();
+    @include dbs-meta-component-base();
+    @include dbs-variables-component-base();
 }
 
 @mixin dashboard-settings-dialog-component-theme($theme-config) {
@@ -136,15 +178,41 @@
             background: $card-background;
         }
 
-        .dashboard-settings-nav {
-            background-color: $divider;
+        // TAB GROUP
+        .dashboard-settings.mat-tab-group {
 
-            .mat-list-item {
-                &.is-active {
-                    background-color: $card-background;
-                    box-shadow: inset 3px 0 0 map-get($primary, default);
-                }
+            .mat-ink-bar {
+                background: map-get($primary, default);
             }
+
+            .mat-tab-header {
+                background-color: $divider;
+            }
+
+            .mat-tab-label {
+                color: map-get($foreground, link);
+            }
+
+            .mat-tab-label.mat-tab-label-active {
+                background-color: $card-background;
+                color: map-get($foreground, text);
+            }
+        }
+
+        // COMMON SETTINGS FORM CLASSES
+        .settings-control {
+            display: flex;
+            flex-direction: column;
+
+            .mat-label {
+                font-weight: 500;
+                margin-bottom: 8px;
+            }
+
+            .mat-form-field:not(:last-child) {
+                margin-bottom: 12px;
+            }
+            
         }
     }
 
@@ -154,4 +222,9 @@
             background: map-get($background, background);
         }
     }
+
+    // CALL CHILDREN STYLES
+    @include dbs-json-component-theme($theme-config);
+    @include dbs-meta-component-theme($theme-config);
+    @include dbs-variables-component-theme($theme-config);
 }
