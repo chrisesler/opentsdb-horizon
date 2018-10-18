@@ -13,8 +13,7 @@ import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
 import { ISelectedTime } from '../../../shared/modules/date-time-picker/models/models';
-import { UtilsService } from '../../../shared/modules/date-time-picker/services/utils.service';
-
+import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard } from '../../state/dashboard.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, WidgetModel} from '../../state/widgets.state';
 import { WidgetsRawdataState, GetQueryDataByGroup } from '../../state/widgets-data.state';
@@ -130,8 +129,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private interCom: IntercomService,
         private dbService: DashboardService,
         private cdkService: CdkService,
-        private dateUtil: UtilsService,
-        private queryService: QueryService
+        private queryService: QueryService,
+        private dateUtil: DateUtilsService
     ) { }
 
     ngOnInit() {
@@ -192,9 +191,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new UpdateWidget(message.payload));
                     // many way to handle this, but we should do with the way
                     // store suppose to work.
-                    //const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
-                    //console.log('getting updated widget', message.payload, updatedWidget);
-                    
+                    // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
+                    // console.log('getting updated widget', message.payload, updatedWidget);
+
                     this.interCom.responsePut({
                         id: message.payload.id,
                         action: 'getUpdatedWidgetConfig',
@@ -298,13 +297,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     getDashboardDateRange() {
         const dbSettings = this.store.selectSnapshot(DBSettingsState);
-        let startTime = moment(dbSettings.time.start);
-        startTime = startTime.isValid() ? startTime : this.dateUtil.relativeTimeToMoment(dbSettings.time.start);
-
-        let endTime = moment(dbSettings.time.end);
-        endTime = endTime.isValid() ? endTime : this.dateUtil.relativeTimeToMoment(dbSettings.time.end);
-        // relativeTimeToMoment returns undefined in case of now
-        endTime = endTime ? endTime : moment();
+        const startTime = this.dateUtil.timeToMoment(dbSettings.time.start, dbSettings.time.zone);
+        const endTime = this.dateUtil.timeToMoment(dbSettings.time.end, dbSettings.time.zone);
 
         return {start: startTime.valueOf() , end: endTime.valueOf()};
     }
@@ -326,6 +320,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // this.store.dispatch(new dashboardActions.AddWidget(payload));
         // trigger Update Widget layout event
         this.rerender = { 'reload': true };
+    }
+
+    onDateChange(date: any) {
+        console.log(date);
     }
 
     // save dashboard name

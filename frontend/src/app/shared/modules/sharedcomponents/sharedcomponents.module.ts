@@ -41,8 +41,6 @@ import { SearchAllDialogComponent } from './components/search-all-dialog/search-
 import { DropdownAggregatorsComponent } from './components/dropdown-aggregators/dropdown-aggregators.component';
 import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropdown-unit-type.component';
 
-
-
 @NgModule({
     imports: [
         CommonModule,
@@ -78,7 +76,7 @@ import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropd
         NavbarSearchToggleComponent,
         SearchAllDialogComponent,
         DropdownAggregatorsComponent,
-        DropdownUnitTypeComponent
+        DropdownUnitTypeComponent,
     ],
     exports: [
         SearchMetricsDialogComponent,
@@ -102,12 +100,12 @@ import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropd
         NavbarInfoMenuComponent,
         NavbarTimezoneToggleComponent,
         NavbarSearchToggleComponent,
-        DropdownAggregatorsComponent
+        DropdownAggregatorsComponent,
     ],
     entryComponents: [
         SearchMetricsDialogComponent,
         SearchAllDialogComponent,
         ExpressionDialogComponent
-    ]
+    ],
 })
 export class SharedcomponentsModule { }

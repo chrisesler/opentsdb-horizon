@@ -5,8 +5,6 @@ import * as thresholdPlugin from '../../../chartjs-threshold-plugin/src/index';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
 import 'chartjs-plugin-labels';
 
-
-
 @Directive({
   selector: '[chartjs]'
 })
