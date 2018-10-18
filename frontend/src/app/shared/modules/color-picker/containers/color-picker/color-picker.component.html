@@ -1,5 +1,5 @@
 <!-- dropDown button -->
-<ng-container *ngIf="pickerMode === dropDown else contentForOtherModes">
+<ng-container *ngIf="pickerMode === dropDown; else contentForOtherModes">
 
     <div class="color-picker-wrapper" (click)="toggle()" cdkOverlayOrigin #trigger="cdkOverlayOrigin">
         <div class="color-picker-flex">
@@ -38,7 +38,6 @@
     cdkConnectedOverlay
     cdkConnectedOverlayHasBackdrop
     cdkConnectedOverlayBackdropClass="color-picker-backdrop"
-    [cdkConnectedOverlayOpen]="isOpen"
     (backdropClick)="backdropClick()"
     #contentForOtherModes>
 
