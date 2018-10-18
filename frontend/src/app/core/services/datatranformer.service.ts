@@ -35,8 +35,9 @@ export class DatatranformerService {
                     const metric = queryResults.data[j].metric;
                     const numPoints = data.length;
 
+                    let label = options.labels.length.toString();
                     if ( vConfig.visible ) {
-                        options.labels.push(options.labels.length.toString());     
+                        options.labels.push(label);     
 
                         if ( options.series ) {
                             options.series[label] = {
