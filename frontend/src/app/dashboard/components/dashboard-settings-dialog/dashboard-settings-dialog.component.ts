@@ -21,36 +21,26 @@ export class DashboardSettingsDialogComponent implements OnInit {
     // navigation panel options, index is used for determining which nav item is opened
     panelSections: Array<any> = [
         {
-            label: 'General',
-            tab: 'general',
+            label: 'Meta data',
+            tab: 'meta',
             idx: 0
-        },
-        {
-            label: 'Annotations',
-            tab: 'annotations',
-            idx: 1
         },
         {
             label: 'Variables',
             tab: 'variables',
+            idx: 1
+        },
+        {
+            label: 'JSON',
+            tab: 'json',
             idx: 2
-        },
-        {
-            label: 'Permissions',
-            tab: 'permissions',
-            idx: 3
-        },
-        {
-            label: 'View JSON',
-            tab: 'view-json',
-            idx: 4
         }
     ];
 
     constructor(
         public dialogRef: MatDialogRef<DashboardSettingsDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public dialog_data: any
-    ) { }
+        @Inject(MAT_DIALOG_DATA) public dbData: any
+    ) {}
 
     ngOnInit() {
     }
@@ -76,6 +66,12 @@ export class DashboardSettingsDialogComponent implements OnInit {
         //    data: this.dialog_data
         // });
         this.dialogRef.close({});
+    }
+
+
+    settingsDataUpdated(e: any) {
+        // SETTINGS UPDATED
+        console.log('SETTINGS UPDATED', e);
     }
 
 }
