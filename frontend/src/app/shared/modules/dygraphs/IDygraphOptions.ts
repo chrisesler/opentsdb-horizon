@@ -44,5 +44,6 @@ export interface IDygraphOptions {
     series?: any;
     labelsDiv?: any;
     legendFormatter?: any;
+    highlightCallback?: any;
 }
 

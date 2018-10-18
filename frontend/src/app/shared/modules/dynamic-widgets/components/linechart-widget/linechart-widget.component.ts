@@ -30,6 +30,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     @ViewChild('widgetoutput') private widgetOutputElement: ElementRef;
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
+    @ViewChild('dygraph') private dygraph: ElementRef;
 
     private listenSub: Subscription;
     // tslint:disable-next-line:no-inferrable-types
@@ -42,20 +43,17 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     options: IDygraphOptions = {
         labels: ['x'],
         labelsUTC: false,
-        connectSeparatedPoints: true,
+        connectSeparatedPoints: false,
         drawPoints: false,
         //  labelsDivWidth: 0,
         // legend: 'follow',
         logscale: true,
         digitsAfterDecimal: 2,
         stackedGraph: this.isStackedGraph,
-        hightlightCircleSize: 1,
         strokeWidth: 1,
         strokeBorderWidth: this.isStackedGraph ? null : 1,
         highlightSeriesOpts: {
-            strokeWidth: 3,
-            strokeBorderWidth: 1,
-            hightlightCircleSize: 5
+            highlightCircleSize: 7
         },
         xlabel: '',
         ylabel: '',
@@ -456,18 +454,20 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     setLegendDiv() {
         // NOTE: This is a weird way to do this. Do we really need 4 different divs for legen position? Just style the one.
         const lConfig = this.widget.query.settings.legend;
-        this.options.labelsDiv = null;
-        this.options.legend = 'follow';
+        this.options.labelsDiv = this.dygraphLegend.nativeElement;
         if ( lConfig.display ) {
             /*const position = lConfig.position[0].toUpperCase() + lConfig.position.slice(1);
             const legendDiv = this.elRef.nativeElement.querySelector('#dygraphLegend' + position );
             this.options.labelsDiv = lConfig.display ? legendDiv  : null;
             this.options.legend = lConfig.display ? 'always' : 'follow';*/
 
-            const legendDiv = this.dygraphLegend.nativeElement;
-            this.options.labelsDiv = lConfig.display ? legendDiv  : null;
-            this.options.legend = lConfig.display ? 'always' : 'follow';
+            //const legendDiv = this.dygraphLegend.nativeElement;
+            //this.options.labelsDiv = lConfig.display ? legendDiv  : null;
+            //this.options.legend = lConfig.display ? 'always' : 'follow';
         }
+    }
+
+    toggleChartSeries(index) {
     }
 
     requestData() {
