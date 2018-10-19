@@ -7,6 +7,7 @@
 
     .widget-panel-content.linechart-widget {
         flex: 1;
+        display: flex;
 
         // Don't have padding for line-charts
         .widget-output {
@@ -36,6 +37,8 @@
                 display: none;
                 position: initial; // override dygraph style
                 list-style: none;
+                height: 100%;
+                overflow: scroll;
             }
 
             // now for positioning of legend
@@ -47,8 +50,8 @@
                     display: flex;
                     .line-series{
                         display: inline-flex;
-                        width:25px;
-                        height: 5px;
+                        width:20px;
+                        height: 3px;
                         margin-right: 5px;
                     }
                 }
@@ -56,6 +59,9 @@
 
             &.display-legend-top{
                 flex-direction: column-reverse;
+                .graph-legend {
+                    margin-bottom: 6px;
+                }
             }
 
             &.display-legend-right {
@@ -75,12 +81,12 @@
             &.display-legend-left,
             &.display-legend-right {
                 .graph-legend {
-                    display: flex;
-                    flex-wrap: wrap;
-                    li {
-                        display: inline-flex;
-                        flex: 0 0 100%;
-                        
+                    flex: 0 0 30%;
+                    table {
+                        flex: 1;
+                    }
+                    tr {
+                        cursor: pointer;
                     }
                 }
             }
@@ -88,8 +94,14 @@
             &.display-legend-bottom {
                 .graph-legend {
                     flex: 1;
-                    align-items: center;
-                    justify-content: center;
+                    display: flex;
+                    flex-wrap: wrap;
+                    li {
+                        display: inline-flex;
+                        align-items: center;
+                        margin:2px 10px;
+                        cursor: pointer;
+                    }
                 }
             }
         }

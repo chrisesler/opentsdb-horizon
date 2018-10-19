@@ -37,8 +37,8 @@ export class DatatranformerService {
 
                     let label = options.labels.length.toString();
                     if ( vConfig.visible ) {
-                        options.labels.push(label);     
-
+                        options.labels.push(label);
+                        options.visibility.push(true);
                         if ( options.series ) {
                             options.series[label] = {
                                 strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,

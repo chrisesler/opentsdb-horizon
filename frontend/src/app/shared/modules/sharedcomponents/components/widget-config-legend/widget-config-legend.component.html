@@ -17,7 +17,10 @@
         <label class="fixed-label">Position</label>
         <div class="form-field-group">
             <mat-radio-group formControlName="position">  
-                <mat-radio-button *ngFor="let option of positionOptions" [value]="option.value">{{option.label}}</mat-radio-button>  
+                <mat-radio-button [disabled]="widgetConfigLegend.controls.format.value==='table'" value="top">Top</mat-radio-button>
+                <mat-radio-button [disabled]="widgetConfigLegend.controls.format.value==='table'" value="bottom">Bottom</mat-radio-button>
+                <mat-radio-button [disabled]="widgetConfigLegend.controls.format.value==='inline'" value="right">Right</mat-radio-button>
+                <mat-radio-button [disabled]="widgetConfigLegend.controls.format.value==='inline'" value="left">Left</mat-radio-button>
             </mat-radio-group>
         </div>
     </div>

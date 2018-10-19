@@ -236,6 +236,7 @@ export class HttpService {
                 visual: {},
                 legend: {
                     display: true,
+                    format: 'table',
                     position: 'right'
                 },
                 axes: {
