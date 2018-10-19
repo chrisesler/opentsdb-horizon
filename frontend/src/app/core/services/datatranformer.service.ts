@@ -18,6 +18,8 @@ export class DatatranformerService {
       normalizedData = [];
     }
 
+    console.log("result", result)
+
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
     for (let gid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.query.groups, 'id', gid) : {};
@@ -37,8 +39,8 @@ export class DatatranformerService {
 
                     let label = options.labels.length.toString();
                     if ( vConfig.visible ) {
-                        options.labels.push(label);     
-
+                        options.labels.push(label);
+                        options.visibility.push(true);
                         if ( options.series ) {
                             options.series[label] = {
                                 strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,

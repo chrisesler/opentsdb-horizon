@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, HostBinding, Input, Output, EventEmitter } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { debounceTime } from 'rxjs/operators/debounceTime';
 
 import { Subscription } from 'rxjs/Subscription';
 
@@ -25,6 +26,7 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
 
     // subscriptions
     subscription: Subscription;
+    formatsubs: Subscription;
 
     /** Form Control Options */
 
@@ -39,25 +41,6 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
         }
     ];
 
-    positionOptions: any[] = [
-        {
-            label: 'Top',
-            value: 'top'
-        },
-        {
-            label: 'Bottom',
-            value: 'bottom'
-        },
-        {
-            label: 'Right',
-            value: 'right'
-        },
-        {
-            label: 'Left',
-            value: 'left'
-        }
-    ];
-
     constructor(private fb: FormBuilder) { }
 
     ngOnInit() {
@@ -66,7 +49,6 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
     }
 
     createForm() {
-        console.log("creatform...", this.widget.query.settings.legend)
 
         this.widgetConfigLegend = this.fb.group({
             display:   new FormControl( this.widget.query.settings.legend.display || false ),
@@ -74,14 +56,19 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
             position: new FormControl(this.widget.query.settings.legend.position || 'bottom')
         });
 
-        this.subscription = this.widgetConfigLegend.valueChanges.subscribe(data => {
-            console.log("legend changes...", data);
-            this.widgetChange.emit( {action: 'SetLegend', payload: {data: data} } );
-        });
+        this.subscription = this.widgetConfigLegend.valueChanges
+                                                        .pipe(debounceTime(500))
+                                                        .subscribe(data => {
+                                                            this.widgetChange.emit( {action: 'SetLegend', payload: {data: data} } );
+                                                        });
 
+        this.formatsubs = this.widgetConfigLegend.controls.format.valueChanges.subscribe( format => {
+            this.widgetConfigLegend.controls.position.setValue(format === 'table' ? 'right' : 'bottom');
+        });
     }
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
+        this.formatsubs.unsubscribe();
     }
 }

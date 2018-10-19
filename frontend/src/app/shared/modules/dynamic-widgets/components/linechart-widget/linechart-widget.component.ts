@@ -69,9 +69,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             }
         },
         series: {},
+        visibility: []
     };
     data: any = [[0]];
     size: any = {};
+    legendDisplayColumns = [];
 
     constructor(
         private interCom: IntercomService,
@@ -129,7 +131,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 if (!this.editMode) {
                     this.requestData();
                 } else {
-                    this.setSize();
+                    this.setSize(true);
                     this.requestCachedData();
                 }
                 this.setLegendDiv();
@@ -230,7 +232,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     ngAfterViewInit() {
     }
 
-    setSize() {
+    setSize(init = false) {
 
         console.group('LINE-CHART');
             console.log('WIDGET', this.widget);
@@ -260,32 +262,46 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
 
         const outputSize = nativeEl.getBoundingClientRect();
+        const offset = init && this.editMode ? 100 : 0;
 
         let nWidth, nHeight, padding;
 
         const legendSettings = this.widget.query.settings.legend;
 
-        const widthModifier = legendSettings.display &&
+        let widthModifier = 1;
+        this.legendDisplayColumns = [];
+        if (legendSettings.display &&
                               ( legendSettings.position === 'left' ||
-                                legendSettings.position === 'right' ) ? .8 : 1;
+                                legendSettings.position === 'right' ) ) {
+            this.legendDisplayColumns = ['series', 'name'];
+            widthModifier = .7;
+        }
 
-        const heightModifier = legendSettings.display &&
+        let heightModifier = 1;
+        if ( legendSettings.display &&
                                ( legendSettings.position === 'top' ||
-                                 legendSettings.position === 'bottom' ) ? .8 : 1;
+                                 legendSettings.position === 'bottom' ) ) {
+            heightModifier = .75;
+        }
 
         if (this.editMode) {
             padding = 8; // 8px top and bottom
-            nHeight = ((outputSize.height - 100) * heightModifier) - (padding * 2);
+            nHeight = ((outputSize.height - offset) * heightModifier) - (padding * 2);
             nWidth = (outputSize.width * widthModifier) - (padding * 2);
         } else {
             padding = 10; // 10px on the top
             nHeight = (outputSize.height * heightModifier) - (padding * 2);
             nWidth = (outputSize.width * widthModifier) - (padding * 2);
         }
-
+        if ( this.legendDisplayColumns.length ) {
+            if (nWidth >= 800 ) {
+                this.legendDisplayColumns.push('min');
+            }
+            if (nWidth >= 1000 ) {
+                this.legendDisplayColumns.push('max');
+            }
+        }
         this.size = {width: nWidth, height: nHeight };
-
-
     }
 
     setTimezone(timezone) {
@@ -468,6 +484,20 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     toggleChartSeries(index) {
+        this.options.visibility[index - 1 ] = !this.options.visibility[index - 1];
+        this.options = {...this.options};
+    }
+
+    getSeriesAggregate( index, aggregate ) {
+        const sdata = [];
+        for ( let i = 0; i < this.data.length; i++ ) {
+            sdata.push( this.data[i][index]);
+        }
+        const value = this.util.getArrayAggregate( aggregate, sdata);
+        const config = this.options.series[index];
+        const format = config.axis === 'y' ? this.options.axes.y.tickFormat : this.options.axes.y2.tickFormat;
+        const precision = format.precision ? format.precision : 2;
+        return this.unit.format(value, { unit: format.unit, precision: precision } );
     }
 
     requestData() {
