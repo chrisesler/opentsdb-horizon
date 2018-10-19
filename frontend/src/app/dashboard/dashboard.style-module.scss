@@ -23,6 +23,7 @@
 @import './components/data-explorer/data-explorer.component';
 @import './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
 @import './components/dashboard-settings-dialog/dashboard-settings-dialog.component';
+@import './components/variable-template-bar/variable-template-bar.component';
 @import './components/config-tags-list/config-tags-list.component';
 @import './components/dboard-header/dboard-header.component';
 @import './components/dboard-content/dboard-content.component';
@@ -33,42 +34,40 @@
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin dashboard-module-core() {
-  // include your core mixins
-  // example: @include componentName-component-core();
+    // include your core mixins
+    // example: @include componentName-component-core();
 
-  // containers
-  @include dashboard-component-base(); // nothing to style yet
+    // containers
+    @include dashboard-component-base(); // nothing to style yet
 
-  // components
-  @include data-explorer-component-base();
-  @include dashboard-settings-toggle-component-base();
-  @include dashboard-settings-dialog-component-base();
-  @include config-tags-list-component-base();
-  @include dboard-header-component-base();
-  @include dboard-content-component-base();
-  @include widget-loader-component-base();
+    // components
+    @include data-explorer-component-base();
+    @include dashboard-settings-toggle-component-base();
+    @include dashboard-settings-dialog-component-base();
+    @include variable-template-bar-component-base();
+    @include config-tags-list-component-base();
+    @include dboard-header-component-base();
+    @include dboard-content-component-base();
+    @include widget-loader-component-base();
 
-  // widgets
-  //@include widget-common-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
 @mixin dashboard-module-theme($theme-config) {
-  // include your theme mixins, passing along the $theme-config
-  // example: @include componentName-component-theme($theme-config);
+    // include your theme mixins, passing along the $theme-config
+    // example: @include componentName-component-theme($theme-config);
 
-  // container
-  @include dashboard-component-theme($theme-config); //nothing to style yet
+    // container
+    @include dashboard-component-theme($theme-config); //nothing to style yet
 
-  // components
-  @include data-explorer-component-theme($theme-config);
-  @include dashboard-settings-toggle-component-theme($theme-config);
-  @include dashboard-settings-dialog-component-theme($theme-config);
-  @include config-tags-list-component-theme($theme-config);
-  @include dboard-header-component-theme($theme-config);
-  @include dboard-content-component-theme($theme-config);
-  @include widget-loader-component-theme($theme-config);
+    // components
+    @include data-explorer-component-theme($theme-config);
+    @include dashboard-settings-toggle-component-theme($theme-config);
+    @include dashboard-settings-dialog-component-theme($theme-config);
+    @include variable-template-bar-component-theme($theme-config);
+    @include config-tags-list-component-theme($theme-config);
+    @include dboard-header-component-theme($theme-config);
+    @include dboard-content-component-theme($theme-config);
+    @include widget-loader-component-theme($theme-config);
 
-  // widgets
-  //@include widget-common-theme($theme-config);
 }
