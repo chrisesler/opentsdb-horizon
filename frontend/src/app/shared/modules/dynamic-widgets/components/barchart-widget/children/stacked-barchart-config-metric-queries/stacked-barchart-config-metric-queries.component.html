@@ -121,20 +121,21 @@
         </div>
     </div>
 
-    <div class="query-legend-section">
-        <form [formGroup]="gStackForm">
-            <div>Legend</div>
-            <div class="query-legend-item" *ngFor="let stack of widget.query.settings.visual.stacks; let index=index" formArrayName="0">
-                <div class="query-legend-item-color" [style.backgroundColor]="stack.color" (click)="openColorPopup(index)"></div>
-                <div class="query-legend-item-label" [formGroupName]="index">
-                    <mat-form-field appearance="fill">
-                        <input matInput placeholder="Alias" formControlName="label">
-                    </mat-form-field>
+    <div class="query-legend-section has-scroller">
+        <div class="is-scroller">   
+            <form [formGroup]="gStackForm">
+                <div>Legend</div>
+                <div class="query-legend-item" *ngFor="let stack of widget.query.settings.visual.stacks; let index=index" formArrayName="0">
+                    <div class="query-legend-item-color" [style.backgroundColor]="stack.color" (click)="openColorPopup(index)"></div>
+                    <div class="query-legend-item-label" [formGroupName]="index">
+                        <mat-form-field appearance="fill">
+                            <input matInput placeholder="Alias" formControlName="label">
+                        </mat-form-field>
+                    </div>
+                    <color-picker pickerMode="dropDownNoButton" [isOpen]="index===showColorPickerIndex" (newColor)="selectColor(index, $event)" [color]="stack.color"></color-picker>
                 </div>
-
-                <color-picker pickerMode="dropDownNoButton" [isOpen]="index===showColorPickerIndex" (newColor)="selectColor(index, $event)" [color]="stack.color"></color-picker>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 

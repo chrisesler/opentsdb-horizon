@@ -236,6 +236,12 @@
                 display: block;
                 position: absolute;
                 margin-top: 5px;
+
+                .color-picker-component-control {
+                    margin-top: 15px;
+                    margin-bottom: 10px;
+                    position: absolute;
+                }
             }
         }
 
