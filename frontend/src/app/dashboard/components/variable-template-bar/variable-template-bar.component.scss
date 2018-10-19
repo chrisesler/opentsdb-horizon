@@ -1,0 +1,63 @@
+@mixin variable-template-bar-component-base() {
+    .variable-template-bar {
+        display:block;
+
+        .mat-toolbar {
+            min-height: 44px;
+
+            .mat-toolbar-row {
+                height: 44px;
+            }
+        }
+
+        .variable-item {
+            display: flex;
+            margin-right: 10px;
+            font-size: 14px;
+
+            .mat-label {
+                font-weight: 500;
+                margin-right: 8px;
+            }
+
+            .mat-form-field {
+                .mat-select-value-text {
+                    
+                }
+            }
+        }
+    }
+}
+
+@mixin variable-template-bar-component-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+    $bg-color: lighten(map-get($background, navbar), 5%);
+    $navbar-text: map-get($foreground, navbar-text);
+
+    .variable-template-bar {
+        
+        .mat-toolbar {
+            background-color: $bg-color;
+
+            .variable-item {
+                .mat-label {
+                    color: map-get($foreground, navbar-text);
+                }
+
+                .mat-form-field {
+                    .mat-select-trigger,
+                    .mat-select-placeholder {
+                        color: rgba($navbar-text, 0.8);
+                    }
+                }
+            }
+        }
+    }
+}
