@@ -38,14 +38,58 @@
             [style.top]="size.height + 'px'" 
             [style.height]="widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom' ? '20%':'0%'"></div>-->
 
-        <div id="dygraph_div" class="graph-chart"
+        <div #dygraph class="graph-chart"
             dygraphsChart
             [chartType]="chartType"
             [data]="data"
             [size]="size"
             [options]="options">
         </div>
-        <ul class="graph-legend" #graphLegend></ul>
+        <div class="dygraph-legend" #graphLegend></div>
+        <div class="graph-legend">
+            <ng-container *ngIf="widget.query.settings.legend.position=='left' || widget.query.settings.legend.position=='right'">
+                <table mat-table [dataSource]="options.labels.slice(1)">
+                    <ng-container matColumnDef="series">
+                            <th mat-header-cell *matHeaderCellDef></th>
+                            <td mat-cell *matCellDef="let index"><div class="line-series"  [style.backgroundColor]= "options.series[index].color"></div></td>
+                    </ng-container>
+                    <ng-container matColumnDef="name">
+                            <th mat-header-cell *matHeaderCellDef></th>
+                            <td mat-cell *matCellDef="let index" [style.textDecoration]="options.visibility[index-1]===true? 'none': 'line-through'" > {{ options.series[index].metric.length > 30 ? options.series[index].metric.substr(0,30) + '..' : options.series[index].metric }} </td>
+                    </ng-container>
+                    <ng-container *ngIf="legendDisplayColumns.indexOf('min')!==-1" matColumnDef="min">
+                            <th mat-header-cell *matHeaderCellDef>Min</th>
+                            <td mat-cell *matCellDef="let index"> {{ getSeriesAggregate(index, 'min') }} </td>
+                    </ng-container>
+                    <ng-container *ngIf="legendDisplayColumns.indexOf('max')!==-1" matColumnDef="max">
+                            <th mat-header-cell *matHeaderCellDef>Max</th>
+                            <td mat-cell *matCellDef="let index"> {{ getSeriesAggregate(index, 'max') }} </td>
+                    </ng-container>
+                    <ng-container >
+                        <tr mat-header-row *matHeaderRowDef="legendDisplayColumns;sticky: true" [style.display]="legendDisplayColumns.length>2?'table-row':'none'"></tr>
+                    </ng-container>
+                    <tr mat-row *matRowDef="let row; columns: legendDisplayColumns" (click)="toggleChartSeries(row)"></tr>
+                    <!--
+                    <tr>
+                        <th colspan=2></th>
+                        <th>Min</th>
+                        <th>Max</th>
+                    </tr>
+                    <tr *ngFor="let index of options.labels.slice(1)" (click)="toggleChartSeries(index)">
+                        <td class="line-series" [style.textDecoration]="options.visibility[index-1]===true? 'none': 'line-through'" [style.backgroundColor]= "options.series[index].color"></td>
+                        <td [style.textDecoration]="options.visibility[index-1]===true? 'none': 'line-through'">{{ options.series[index].metric }}</td>
+                        <td> {{ getSeriesAggregate(index, 'min') }} </td>
+                        <td>{{ getSeriesAggregate(index, 'max') }}</td>
+                    </tr>-->
+                </table>
+            </ng-container>
+            <ng-container *ngIf="widget.query.settings.legend.position=='top' || widget.query.settings.legend.position=='bottom'">
+                <li *ngFor="let index of options.labels.slice(1)" (click)="toggleChartSeries(index)">
+                    <div class="line-series" [style.textDecoration]="options.visibility[index-1]===true? 'none': 'line-through'" [style.backgroundColor]= "options.series[index].color"></div>
+                    <div [style.textDecoration]="options.visibility[index-1]===true? 'none': 'line-through'">{{ options.series[index].metric }}</div> 
+                </li>
+            </ng-container>
+        </div>
     </div>
 </div>
 <!--

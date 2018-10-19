@@ -4,6 +4,7 @@
         display: inline-block;
         position: relative;
         text-align: left;
+        z-index: 1;
         @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), input);
 
         .color-picker-wrapper {

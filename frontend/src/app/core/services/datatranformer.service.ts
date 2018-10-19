@@ -35,18 +35,18 @@ export class DatatranformerService {
                     const metric = queryResults.data[j].metric;
                     const numPoints = data.length;
 
-                    let label = metric + ':' + Object.values(tags).join('-');
+                    let label = options.labels.length.toString();
                     if ( vConfig.visible ) {
-                        if (!options.labels.includes(label)) {
-                            options.labels.push(label);     
-                        }
-
+                        options.labels.push(label);
+                        options.visibility.push(true);
                         if ( options.series ) {
                             options.series[label] = {
                                 strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
                                 //strokePattern: this.getStrokePattern(vConfig.lineType),
                                 color: vConfig.color? vConfig.color : '#000000',
-                                axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2'
+                                axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
+                                metric: metric,
+                                tags: tags
                             };
                         }
                         const seriesIndex = options.labels.indexOf(label);

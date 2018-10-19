@@ -7,6 +7,7 @@
 
     .widget-panel-content.linechart-widget {
         flex: 1;
+        display: flex;
 
         // Don't have padding for line-charts
         .widget-output {
@@ -20,10 +21,24 @@
             height: 100%;
             display: flex;
 
+            .dygraph-legend {
+                z-index: 1000;
+                margin-top:30px;
+                background: #f0f0f0;
+                border: 1px solid #cccccc;
+                padding: 4px;
+                min-width:250px;
+                width: 300px;
+                position: fixed;
+                border-radius: 5px;
+            }
+
             .graph-legend {
                 display: none;
                 position: initial; // override dygraph style
                 list-style: none;
+                height: 100%;
+                overflow: scroll;
             }
 
             // now for positioning of legend
@@ -33,11 +48,20 @@
             &.display-legend-left {
                 .graph-legend {
                     display: flex;
+                    .line-series{
+                        display: inline-flex;
+                        width:20px;
+                        height: 3px;
+                        margin-right: 5px;
+                    }
                 }
             }
 
             &.display-legend-top{
                 flex-direction: column-reverse;
+                .graph-legend {
+                    margin-bottom: 6px;
+                }
             }
 
             &.display-legend-right {
@@ -54,12 +78,30 @@
                 align-items: flex-start;
             }
 
+            &.display-legend-left,
+            &.display-legend-right {
+                .graph-legend {
+                    flex: 0 0 30%;
+                    table {
+                        flex: 1;
+                    }
+                    tr {
+                        cursor: pointer;
+                    }
+                }
+            }
             &.display-legend-top,
             &.display-legend-bottom {
                 .graph-legend {
                     flex: 1;
-                    align-items: center;
-                    justify-content: center;
+                    display: flex;
+                    flex-wrap: wrap;
+                    li {
+                        display: inline-flex;
+                        align-items: center;
+                        margin:2px 10px;
+                        cursor: pointer;
+                    }
                 }
             }
         }
