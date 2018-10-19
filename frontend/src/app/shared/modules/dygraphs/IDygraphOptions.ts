@@ -45,5 +45,6 @@ export interface IDygraphOptions {
     labelsDiv?: any;
     legendFormatter?: any;
     highlightCallback?: any;
+    visibility?: boolean[];
 }
 
