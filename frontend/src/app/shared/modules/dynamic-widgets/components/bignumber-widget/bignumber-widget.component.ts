@@ -77,7 +77,6 @@ export class BignumberWidgetComponent implements OnInit {
                 unit: 'ms', // auto
                 unitSize: 'm',
                 unitAlignment: 'top',
-                unitUndercased: true,
 
                 caption: 'Latency',
                 precision: 3,
@@ -428,17 +427,14 @@ interface IBigNumberVisual {
     prefix?: string;
     prefixSize?: string;
     prefixAlignment?: string;
-    prefixUndercased?: boolean;
 
     postfix?: string;
     postfixSize?: string;
     postfixAlignment?: string;
-    postfixUndercased?: boolean;
 
     unit: string;
     unitSize: string;
     unitAlignment: string;
-    unitUndercased?: boolean;
 
     caption?: string;
 
