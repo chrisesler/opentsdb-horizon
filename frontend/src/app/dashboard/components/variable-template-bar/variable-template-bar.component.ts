@@ -67,7 +67,7 @@ export class VariableTemplateBarComponent implements OnInit {
     }
 
     get variables() { return this.varForm.get('variables'); }
-    get variableControls() { return this.variables['controls']; }
+    get variableControls() { return this.varForm.get('variables')['controls']; }
 
     private initializeFormArrays() {
         const control = <FormArray>this.varForm.controls['variables'];
