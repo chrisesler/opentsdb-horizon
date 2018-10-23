@@ -1,0 +1,17 @@
+<mat-toolbar [formGroup]="varForm">
+    <mat-toolbar-row formArrayName="variables">
+        <ng-container *ngFor="let tpl of varForm['controls'].variables['controls']; let i=index">
+            <div class="variable-item" [formGroupName]="i">
+                <div class="mat-label">{{tpl['controls'].label.value}}:</div>
+                <mat-form-field appearance="fill" floatLabel="never">
+                    <mat-select placeholder="Select value(s)" [formControl]="options" disableOptionCentering="true" multiple>
+                        <mat-option *ngFor="let option of optionLists[tpl['controls'].key.value]" [value]="option">
+                        {{option}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </ng-container>
+        <span class="flex-spacer"></span>
+    </mat-toolbar-row>
+</mat-toolbar>
