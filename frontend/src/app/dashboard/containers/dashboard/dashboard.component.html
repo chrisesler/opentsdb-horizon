@@ -8,7 +8,7 @@
         <span class="dashboard-name">[[ Dashboard name ]]</span>
     </a> -->
 
-    <inline-editable class="navbar-item" [fieldValue]="'Dashboard Name'" [minLength]="3" [maxLength]="25" (updatedValue)="eventTriggered($event)">
+    <inline-editable class="navbar-item" [fieldValue]="meta.title" [minLength]="3" [maxLength]="25" (updatedValue)="setTitle($event)">
     </inline-editable>
     <span class="navbar-item navbar-icon-item nav-dashboard-config-trigger">
         <dashboard-settings-toggle mat-button></dashboard-settings-toggle>
