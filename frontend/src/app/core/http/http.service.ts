@@ -21,15 +21,27 @@ export class HttpService {
         zone: 'local'
       },
       meta: {
-          title: 'Untitled Dashboard',
-          description: '',
-          labels: [],
-          namespace: '',
-          isPersonal: false,
+        title: 'Untitled Dashboard',
+        description: '',
+        labels: [],
+        namespace: '',
+        isPersonal: false,
       },
       variables: {
-          enabled: true,
-          tplVariables: []
+        enabled: true,
+        tplVariables: [
+          { key: 'colo',
+            alias: '',
+            values: 'bf2,bf1, gq1, sg3  ',
+            enabled: true
+          },
+          {
+            key: 'variable1',
+            alias: 'variable_1',
+            values: 'rotation, system',
+            enabled: false
+          }
+        ]
       }
     },
     widgets: [

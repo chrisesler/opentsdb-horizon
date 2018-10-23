@@ -9,6 +9,7 @@ import {
 import { DashboardSettingsDialogComponent } from '../dashboard-settings-dialog/dashboard-settings-dialog.component';
 
 import { Subscription } from 'rxjs';
+import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -25,7 +26,8 @@ export class DashboardSettingsToggleComponent implements OnInit {
     dashboardSettingsDialogSub: Subscription;
 
     constructor(
-        public dialog: MatDialog
+        public dialog: MatDialog,
+        private interCom: IntercomService
     ) { }
 
     ngOnInit() {
@@ -50,11 +52,44 @@ export class DashboardSettingsToggleComponent implements OnInit {
 
         this.dashboardSettingsDialog = this.dialog.open(DashboardSettingsDialogComponent, dialogConf);
         this.dashboardSettingsDialog.updatePosition({top: '48px'});
+        this.dashboardSettingsDialog.componentInstance.dbData = {
+            time: {
+                start: '1h',
+                end: 'now',
+                zone: 'local'
+            },
+            meta: {
+                title: 'Untitled Dashboard',
+                description: '',
+                labels: [],
+                namespace: '',
+                isPersonal: false,
+            },
+            variables: {
+                enabled: true,
+                tplVariables: [
+                { key: 'colo',
+                    alias: '',
+                    values: 'bf2,bf1, gq1, sg3  ',
+                    enabled: true
+                },
+                {
+                    key: 'variable1',
+                    alias: 'variable_1',
+                    values: 'rotation, system',
+                    enabled: false
+                }
+                ]
+            }
+          };
 
         // getting data passing out from dialog
         this.dashboardSettingsDialog.afterClosed().subscribe((dialog_out: any) => {
-            console.log('return', dialog_out);
+            this.interCom.requestSend(<IMessage> {
+                action: 'updateDashboardSettings',
+                payload: dialog_out,
+                id: 'settingsToggle'
+            });
         });
     }
-
 }

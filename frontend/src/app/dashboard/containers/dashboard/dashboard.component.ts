@@ -24,7 +24,9 @@ import {
     UpdateDashboardTime,
     LoadDashboardSettings,
     UpdateDashboardTimeZone,
-    UpdateDashboardTitle
+    UpdateDashboardTitle,
+    UpdateVariables,
+    UpdateMeta
 } from '../../state/settings.state';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
@@ -43,6 +45,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
     @Select(DBSettingsState.getMeta) meta$: Observable<any>;
+    @Select(DBSettingsState.getVariables) variables$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdata) widgetRawData$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
@@ -117,6 +120,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // other variables
     dbTime: any;
     meta: any;
+    variables: any;
     listenSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
@@ -202,6 +206,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         payload: message.payload
                     });
                     break;
+
+                case 'updateDashboardSettings':
+                    console.log(message);
+                    // this.store.dispatch(new UpdateVariables(message.payload));
+                    // this.store.dispatch(new UpdateMeta(message.payload));
+                    break;
                 default:
                     break;
             }
@@ -233,6 +243,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.meta$.subscribe ( t => {
             console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
             this.meta = t;
+        });
+
+        this.variables$.subscribe ( t => {
+            console.log('___VARIABLES___', JSON.stringify(this.variables), JSON.stringify(t));
+            this.variables = t;
         });
 
         this.widgetRawData$.subscribe(result => {
