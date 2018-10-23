@@ -1,6 +1,6 @@
 <mat-toolbar [formGroup]="varForm">
     <mat-toolbar-row formArrayName="variables">
-        <ng-container *ngFor="let tpl of varForm['controls'].variables['controls']; let i=index">
+        <ng-container *ngFor="let tpl of variableControls; let i=index">
             <div class="variable-item" [formGroupName]="i">
                 <div class="mat-label">{{tpl['controls'].label.value}}:</div>
                 <mat-form-field appearance="fill" floatLabel="never">

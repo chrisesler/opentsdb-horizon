@@ -50,8 +50,6 @@ export class VariableTemplateBarComponent implements OnInit {
 
     varForm: FormGroup;
 
-    variables: FormArray;
-
     optionLists: any = {};
 
     constructor(
@@ -67,6 +65,9 @@ export class VariableTemplateBarComponent implements OnInit {
 
         this.initializeFormArrays();
     }
+
+    get variables() { return this.varForm.get('variables'); }
+    get variableControls() { return this.varForm.get('variables')['controls']; }
 
     private initializeFormArrays() {
         const control = <FormArray>this.varForm.controls['variables'];

@@ -1,9 +1,6 @@
 import { Component, Inject, OnInit, HostBinding } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, DialogPosition, MatSort, MatTableDataSource } from '@angular/material';
 
-import { FormControl } from '@angular/forms';
-import { Observable } from 'rxjs';
-
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'dashboard-settings-dialog',
