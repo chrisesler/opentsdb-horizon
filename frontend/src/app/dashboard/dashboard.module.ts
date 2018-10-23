@@ -36,6 +36,8 @@ import {
 import { DashboardSettingsToggleComponent } from './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
 import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
 import { VariableTemplateBarComponent } from './components/variable-template-bar/variable-template-bar.component';
+import { NavbarDashboardActionsMenuComponent } from './components/navbar-dashboard-actions-menu/navbar-dashboard-actions-menu.component';
+import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog/dashboard-save-dialog.component';
 
 @NgModule({
     imports: [
@@ -64,13 +66,16 @@ import { VariableTemplateBarComponent } from './components/variable-template-bar
         DbsMetaComponent,
         DbsVariablesComponent,
         DbsJsonComponent,
-        VariableTemplateBarComponent
+        VariableTemplateBarComponent,
+        NavbarDashboardActionsMenuComponent,
+        DashboardSaveDialogComponent
     ],
     providers: [
         DashboardService
     ],
     entryComponents: [
-        DashboardSettingsDialogComponent
+        DashboardSettingsDialogComponent,
+        DashboardSaveDialogComponent
     ]
 })
 export class DashboardModule { }
