@@ -8,7 +8,7 @@
     }
 
     // NAVBAR PORTAL ITEMS 
-    .nav-close-edit-view {
+    /*.nav-close-edit-view {
         .mat-raised-button {
             ///@include mat-elevation-transition;
             @include transition-property(background-color);
@@ -26,16 +26,16 @@
                 line-height: 36px;
             }
         }
-    }
+    }*/
 
     .nav-add-new-widget,
     .nav-dashboard-actions,
     .nav-refresh-icon {
-        .mat-raised-button {
+        .mat-raised-button,
+        .mat-flat-button {
             line-height: 24px;
             font-size: 12px;
             
-
             .mat-icon {
                 font-size: 1.2em;
                 display: inline-flex;
@@ -54,13 +54,15 @@
     }
 
     .nav-add-new-widget {
-        .mat-raised-button {
+        .mat-raised-button,
+        .mat-flat-button {
             padding-left: 6px;
         }
     }
 
     .nav-dashboard-actions {
-        .mat-raised-button {
+        .mat-raised-button,
+        .mat-flat-button {
             padding-right: 0;
         }
     }
@@ -70,7 +72,8 @@
             margin-right: 0;
         }
         
-        .mat-raised-button {
+        .mat-raised-button,
+        .mat-flat-button {
             min-width: auto;
             padding: 0;
 
@@ -209,10 +212,9 @@
     //.app-dashboard { }
 
     // 
-    .nav-close-edit-view {
+    /*.nav-close-edit-view {
 
-        .mat-raised-button
-        {
+        .mat-raised-button {
             // reversed since it is a blocked element
             background-color: $close-button-background;
             color: $close-button-text;
@@ -221,12 +223,13 @@
                 background-color: lighten($close-button-background, 15%);
             }
         }
-    }
+    }*/
 
     .nav-add-new-widget,
     .nav-dashboard-actions,
     .nav-refresh-icon {
-        .mat-raised-button {
+        .mat-raised-button,
+        .mat-flat-button {
             background-color: lighten(map-get($background, navbar), 4%);
             color: map-get($foreground, navbar-text);
 
@@ -237,13 +240,13 @@
     }
 
     // cdk items
-    .dashboard-actions-menu {
+    /*.dashboard-actions-menu {
         .mat-menu-item {
             .mat-icon {
                 color: map-get($foreground, link);
             }
         }
-    }
+    }*/
 
     .dashboard-available-widgets-menu {
         &::after {

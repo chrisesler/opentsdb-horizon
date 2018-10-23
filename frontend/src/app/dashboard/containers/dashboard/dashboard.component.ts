@@ -58,14 +58,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     // dashboard action menu trigger
-    @ViewChild('actionMenuTrigger', {read: MatMenuTrigger}) actionMenuTrigger: MatMenuTrigger;
+    /*@ViewChild('actionMenuTrigger', {read: MatMenuTrigger}) actionMenuTrigger: MatMenuTrigger;
 
     get actionMenuIsOpen(): boolean {
         if (this.actionMenuTrigger) {
             return this.actionMenuTrigger.menuOpen;
         }
         return false;
-    }
+    }*/
 
     // portal templates
     @ViewChild('dashboardNavbarTmpl') dashboardNavbarTmpl: TemplateRef<any>;
@@ -339,7 +339,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.store.dispatch(new UpdateDashboardTimeZone(e));
     }
 
-    click_cloneDashboard(event: any) {
+    /*click_cloneDashboard(event: any) {
         console.log('EVT: CLONE DASHBOARD', event);
     }
 
@@ -349,6 +349,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     click_deleteDashboard(event: any) {
         console.log('EVT: DELETE DASHBOARD', event);
+    }*/
+
+    receiveDashboardAction(event: any) {
+        console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
     }
 
     click_availableWidgetsTrigger() {
