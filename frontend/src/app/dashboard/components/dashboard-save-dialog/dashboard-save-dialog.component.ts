@@ -122,7 +122,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
 
             const dataReturn = {
                 title: this.title.value,
-                namespace: (this.isPersonal.value) ? '_personal_' : this.namespace.value,
+                namespace: this.namespace.value,
                 isPersonal: this.isPersonal.value
             };
 
