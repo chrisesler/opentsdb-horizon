@@ -9,11 +9,12 @@ import {
 import { DashboardSettingsDialogComponent } from '../dashboard-settings-dialog/dashboard-settings-dialog.component';
 
 import { Subscription } from 'rxjs';
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'dashboard-settings-toggle',
     templateUrl: './dashboard-settings-toggle.component.html',
-    styleUrls: ['./dashboard-settings-toggle.component.scss']
+    styleUrls: []
 })
 export class DashboardSettingsToggleComponent implements OnInit {
 
