@@ -1,12 +1,22 @@
 import { State, Action, StateContext, Selector } from '@ngxs/store';
 
 export interface DBSettingsModel {
-    title: string;
     mode: string;
     time: {
         start: string;
         end: string;
         zone: string;
+    };
+    meta: {
+        title: string;
+        description: string;
+        labels: Array<any>; // [{label: ''}]
+        namespace: string;
+        isPersonal: boolean;
+    };
+    variables: {
+        enabled: boolean, // if all variables are enabled
+        tplVariables: Array<object>; // [{ key: '', alias: '', values: [], enabled: true}]
     };
 }
 
@@ -30,15 +40,30 @@ export class LoadDashboardSettings {
     constructor(public readonly settings: any) {}
 }
 
+export class UpdateDashboardTitle {
+    public static type = '[Dashboard] Update Title';
+    constructor(public readonly title: string) {}
+}
+
 @State<DBSettingsModel>({
     name: 'Settings',
     defaults: {
-        title: 'untitle-default dashboard',
         mode: 'dashboard',
         time: {
-            start: '',
-            end: '',
+            start: 'now',
+            end: '1h',
             zone: 'local'
+        },
+        meta: {
+            title: 'Untitled Dashboard',
+            description: '',
+            labels: [],
+            namespace: '',
+            isPersonal: false,
+        },
+        variables: {
+            enabled: true,
+            tplVariables: []
         }
     }
 })
@@ -51,6 +76,14 @@ export class DBSettingsState {
 
     @Selector() static getDashboardTime(state: DBSettingsModel) {
         return state.time;
+    }
+
+    @Selector() static getMeta(state: DBSettingsModel) {
+        return state.meta;
+    }
+
+    @Selector() static getVariables(state: DBSettingsModel) {
+        return state.variables;
     }
 
     @Action(UpdateMode)
@@ -67,11 +100,19 @@ export class DBSettingsState {
     }
 
     @Action(UpdateDashboardTimeZone)
-    updateDashboardTimeZone(ctx: StateContext<DBSettingsModel>, { zone}: UpdateDashboardTimeZone) {
+    updateDashboardTimeZone(ctx: StateContext<DBSettingsModel>, { zone }: UpdateDashboardTimeZone) {
         const state = ctx.getState();
         const time = {...state.time};
         time.zone = zone;
         ctx.patchState({...state, time: time });
+    }
+
+    @Action(UpdateDashboardTitle)
+    updateDashboardTitle(ctx: StateContext<DBSettingsModel>, { title }: UpdateDashboardTitle) {
+        const state = ctx.getState();
+        const meta = {...state.meta};
+        meta.title = title;
+        ctx.patchState({...state, meta: meta});
     }
 
     @Action(LoadDashboardSettings)
