@@ -35,6 +35,7 @@ import {
 } from './components/dashboard-settings-dialog';
 import { DashboardSettingsToggleComponent } from './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
 import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
+import { VariableTemplateBarComponent } from './components/variable-template-bar/variable-template-bar.component';
 
 @NgModule({
     imports: [
@@ -62,7 +63,8 @@ import { DataExplorerComponent } from './components/data-explorer/data-explorer.
         DataExplorerComponent,
         DbsMetaComponent,
         DbsVariablesComponent,
-        DbsJsonComponent
+        DbsJsonComponent,
+        VariableTemplateBarComponent
     ],
     providers: [
         DashboardService
