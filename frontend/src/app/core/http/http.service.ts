@@ -15,11 +15,21 @@ export class HttpService {
   private testDashboard: any = {
     id: 'abcdfg',
     settings: {
-      title: 'my test dashboard',
       time: {
         start: '1h',
         end: 'now',
         zone: 'local'
+      },
+      meta: {
+          title: 'Untitled Dashboard',
+          description: '',
+          labels: [],
+          namespace: '',
+          isPersonal: false,
+      },
+      variables: {
+          enabled: true,
+          tplVariables: []
       }
     },
     widgets: [
@@ -1063,8 +1073,9 @@ export class HttpService {
   getYamasData(query: any): Observable<any> {
     const headers = new HttpHeaders(
       { 'Content-Type': 'application/json' });
-    // let apiUrl = environment.tsdb_host + '/api/query';
-    return this.http.post('/tsdb/queryData', query, { headers, withCredentials: true })
+      //'/tsdb/queryData'
+    let apiUrl = environment.tsdb_host + '/api/query/graph';
+    return this.http.post(apiUrl, query, { headers, withCredentials: true })
       .pipe(
         catchError(this.handleError)
       );

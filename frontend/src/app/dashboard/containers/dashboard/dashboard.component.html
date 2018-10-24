@@ -1,13 +1,14 @@
-<div fxFlexLayout="column" fxFlexFill>
-  <!--<app-dboard-header *ngIf="!viewEditMode" fxFlex="1 1 50px" (addWidget)="addNewWidget()"></app-dboard-header>-->
-  <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" [rerender]="rerender" [widgets]="widgets$ | async" [dashboardMode]="dashboardMode$ | async"></app-dboard-content>
+<div fxLayout="column" fxFlexFill>
+    <!-- need to figure out how to toggle on/off depending on whether there is template variables -->
+    <variable-template-bar></variable-template-bar>
+    <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" [rerender]="rerender" [widgets]="widgets$ | async" [dashboardMode]="dashboardMode$ | async"></app-dboard-content>
 </div>
 <ng-template #dashboardNavbarTmpl>
     <!-- <a mat-button class="navbar-item" routerLink="dashboard">     
         <span class="dashboard-name">[[ Dashboard name ]]</span>
     </a> -->
 
-    <inline-editable class="navbar-item" [fieldValue]="'Dashboard Name'" [minLength]="3" [maxLength]="25" (updatedValue)="eventTriggered($event)">
+    <inline-editable class="navbar-item" [fieldValue]="meta.title" [minLength]="3" [maxLength]="25" (updatedValue)="setTitle($event)">
     </inline-editable>
     <span class="navbar-item navbar-icon-item nav-dashboard-config-trigger">
         <dashboard-settings-toggle mat-button></dashboard-settings-toggle>
@@ -55,6 +56,7 @@
 
     <!--<simple-time-picker xPosition="before"></simple-time-picker>-->
     <span class="navbar-item nav-dashboard-actions">
+        <!--
         <button mat-raised-button class="mat-elevation-z0"
             [ngClass]="{'menu-trigger-underline': actionMenuIsOpen}"
             [matMenuTriggerFor]="dashboardActionMenu"
@@ -77,7 +79,8 @@
                     <span>Delete</span>
                 </button>
             </ng-template>
-        </mat-menu>
+        </mat-menu>-->
+        <navbar-dashboard-actions-menu mat-button (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
     </span>
 
     <span class="navbar-item navbar-icon-item nav-search-toggle">

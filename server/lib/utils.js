@@ -129,10 +129,28 @@ self.mSearch = function(list, query) {
     var sCondition = [];
     var matchKeys = [], invalidKeys = [];
     var q = self.parseSearchTerms(str);
+    console.log('qqqq', q);
+    //qqqq [ 'sys,host:bf1|gq1', 'cpu' ]
+    /*
+    for (var i = 0; i < q.length; i++) {
+        var tempArray = [];
+        var item = q[i].split(',');
+            for (var j = 0; j < item.length; j++) {
+                var or = item[j];
+                if (or.indexOf(':') > -1) {
+                    or = item[j].split(':');
+                }
+                tempArray.push(or);
+            }
+        sCondition.push(tempArray);      
+    }
+    */
+    ///*
     for (var i=0; i < q.length; i++) {
-        var t= q[i].split(':');
+        var t= q[i].split(',');
         sCondition.push(t);
     }
+    //*/
     console.log('sCond', sCondition);
  
     var groupingFn = function(key, matchkeys) {
@@ -146,72 +164,79 @@ self.mSearch = function(list, query) {
         var pass = false;
         var _matchKeys = [];
         for(var i=0; i < filterArray.length; i++) {
-            var filter = filterArray[i];
+            var condition_pass = false;
+            var condition = filterArray[i];
             // each filter is array with one or two elements
-            if(filter.length === 2) {              
-                if (!item.hasOwnProperty(filter[0])) {
-                    invalidKeys.push(filter[0]);
-                    return false;
-                }
-                // has key:value, filter value might have more | mean or of these vals
-                var fvals = [];
-                if (filter[1].indexOf('|') > -1) {
-                    fvals = filter[1].split('|');
-                } else {
-                    fvals = filter[1].split(',');
-                }
-                //var fvals = filter[1].split('|');
-                if(fvals.length > 1) {
-                    var check = false;
-                    for(var j=0; j < fvals.length; j++) {
-                        var mReg = new RegExp(fvals[j], 'gi');
-                        var _check = mReg.test(item[filter[0]]);
-                        if(_check) groupingFn(filter[0] +':' + item[filter[0]], _matchKeys);
-                        check = check || _check;
+            for ( var j=0; j<condition.length; j++ ) {
+                var filter = condition[j].split(':');
+                if(filter.length === 2) {              
+                    if (!item.hasOwnProperty(filter[0])) {
+                        invalidKeys.push(filter[0]);
+                        //return false;
+                        continue;
                     }
-                    pass = check;
-                    if(!pass) return false;
-                } else {  //fvals only have 1 vals mean and of this vals
-                    var mReg = new RegExp(fvals[0], 'gi');
-                    pass = mReg.test(item[filter[0]]);
-                    if(pass) groupingFn(filter[0] + ':' + item[filter[0]], _matchKeys);
-                    if(!pass) return false;
-                }              
-            } else {
-                // this is case when user did not specify key:, but may you pipe for multiple vals
-                //var fvals = filter[0].split('|');
-                var fvals = [];
-                if (filter[0].indexOf('|') > -1) {
-                    fvals = filter[0].split('|');
+                    // has key:value, filter value might have more | mean or of these vals
+                    var fvals = [];
+                    if (filter[1].indexOf('|') > -1) {
+                        fvals = filter[1].split('|');
+                    } else {
+                        fvals = filter[1].split(',');
+                    }
+                    //var fvals = filter[1].split('|');
+                    if(fvals.length > 1) {
+                        var check = false;
+                        for(var j=0; j < fvals.length; j++) {
+                            var mReg = new RegExp(fvals[j], 'gi');
+                            var _check = mReg.test(item[filter[0]]);
+                            if(_check) groupingFn(filter[0] +':' + item[filter[0]], _matchKeys);
+                            check = check || _check;
+                        }
+                        condition_pass = check;
+                        if(!condition_pass) continue;
+                    } else {  //fvals only have 1 vals mean and of this vals
+                        var mReg = new RegExp(fvals[0], 'gi');
+                        condition_pass = mReg.test(item[filter[0]]);
+                        if(condition_pass) groupingFn(filter[0] + ':' + item[filter[0]], _matchKeys);
+                        if(!condition_pass) continue;
+                    }              
                 } else {
-                    fvals = filter[0].split(',');
-                }                
-                if (fvals.length > 1) {
-                    var check = false;
-                    for (var j=0; j < fvals.length; j++) {
-                        var mReg = new RegExp(fvals[j], 'gi');
-                        // no key so we test it again both key and value of item
+                    // this is case when user did not specify key:, but may you pipe for multiple vals
+                    //var fvals = filter[0].split('|');
+                    var fvals = [];
+                    if (filter[0].indexOf('|') > -1) {
+                        fvals = filter[0].split('|');
+                    } else {
+                        fvals = filter[0].split(',');
+                    }                
+                    if (fvals.length > 1) {
+                        var check = false;
+                        for (var j=0; j < fvals.length; j++) {
+                            var mReg = new RegExp(fvals[j], 'gi');
+                            // no key so we test it again both key and value of item
+                            for (var k in item) {
+                                var _check = (sflag === '0') ? (mReg.test(k) || mReg.test(item[k])) : mReg.test(item[k]);
+                                if (_check) groupingFn(k + ':' + item[k], _matchKeys);
+                                check = check || _check;
+                            }    
+                        }
+                        condition_pass = check;
+                        if (!condition_pass) continue;
+                    } else {
+                        // a single free string
+                        var mReg = new RegExp(fvals[0], 'gi');
+                        var check = false;
                         for (var k in item) {
                             var _check = (sflag === '0') ? (mReg.test(k) || mReg.test(item[k])) : mReg.test(item[k]);
-                            if (_check) groupingFn(k + ':' + item[k], _matchKeys);
+                            if(_check) groupingFn(k + ':' + item[k], _matchKeys);
                             check = check || _check;
-                        }    
+                        }
+                        condition_pass = check;
+                        if(!condition_pass) continue;
                     }
-                    pass = check;
-                    if (!pass) return false;
-                } else {
-                    // a single free string
-                    var mReg = new RegExp(fvals[0], 'gi');
-                    var check = false;
-                    for (var k in item) {
-                        var _check = (sflag === '0') ? (mReg.test(k) || mReg.test(item[k])) : mReg.test(item[k]);
-                        if(_check) groupingFn(k + ':' + item[k], _matchKeys);
-                        check = check || _check;
-                    }
-                    pass = check;
-                    if(!pass) return false;
                 }
+                if (condition_pass) pass = true;
             }
+            if ( !pass) return false;
         }
         if(pass) {
             // merge the _matchKeys to matchKeys

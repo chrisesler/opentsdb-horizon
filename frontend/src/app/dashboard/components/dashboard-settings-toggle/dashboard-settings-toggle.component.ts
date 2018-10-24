@@ -9,11 +9,12 @@ import {
 import { DashboardSettingsDialogComponent } from '../dashboard-settings-dialog/dashboard-settings-dialog.component';
 
 import { Subscription } from 'rxjs';
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'dashboard-settings-toggle',
     templateUrl: './dashboard-settings-toggle.component.html',
-    styleUrls: ['./dashboard-settings-toggle.component.scss']
+    styleUrls: []
 })
 export class DashboardSettingsToggleComponent implements OnInit {
 
@@ -46,21 +47,6 @@ export class DashboardSettingsToggleComponent implements OnInit {
             right: '0px'
         };
         dialogConf.autoFocus = false;
-
-        // NOTE: this needs to be wired to the dasboard JSON/Config
-        // should be the dashboard.settings piece
-        dialogConf.data = {
-            id: 'nnnnnn',
-            meta: {
-                title: 'Some Dashboard Title',
-                description: 'Some dashboard description that gives more context',
-                labels: [{ label: 'gq1' }, { label: 'bf1' }] // Array<object> {label: ''}
-            },
-            variables: {
-                enabled: true, // if all variables are enabled
-                tplVariables: [] // Array<object> { key: '', alias: '', values: [], enabled: true }
-            }
-        };
 
         this.dashboardSettingsDialog = this.dialog.open(DashboardSettingsDialogComponent, dialogConf);
         this.dashboardSettingsDialog.updatePosition({top: '48px'});

@@ -23,7 +23,8 @@ import {
     UpdateMode,
     UpdateDashboardTime,
     LoadDashboardSettings,
-    UpdateDashboardTimeZone
+    UpdateDashboardTimeZone,
+    UpdateDashboardTitle
 } from '../../state/settings.state';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
@@ -41,6 +42,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // new state
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
+    @Select(DBSettingsState.getMeta) meta$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdata) widgetRawData$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
@@ -58,14 +60,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     // dashboard action menu trigger
-    @ViewChild('actionMenuTrigger', {read: MatMenuTrigger}) actionMenuTrigger: MatMenuTrigger;
+    /*@ViewChild('actionMenuTrigger', {read: MatMenuTrigger}) actionMenuTrigger: MatMenuTrigger;
 
     get actionMenuIsOpen(): boolean {
         if (this.actionMenuTrigger) {
             return this.actionMenuTrigger.menuOpen;
         }
         return false;
-    }
+    }*/
 
     // portal templates
     @ViewChild('dashboardNavbarTmpl') dashboardNavbarTmpl: TemplateRef<any>;
@@ -114,6 +116,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // other variables
     dbTime: any;
+    meta: any;
     listenSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
@@ -143,7 +146,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     console.log('creating a new dashboard...');
                     const newdboard = this.dbService.getDashboardPrototype();
                     const settings = {
-                                        title: 'untitled dashboard',
                                         mode: 'dashboard',
                                         time: { start: '1h', end: 'now', zone: 'local' }
                                     };
@@ -228,6 +230,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.dbTime = t;
         });
 
+        this.meta$.subscribe ( t => {
+            console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
+            this.meta = t;
+        });
 
         this.widgetRawData$.subscribe(result => {
 
@@ -339,7 +345,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.store.dispatch(new UpdateDashboardTimeZone(e));
     }
 
-    click_cloneDashboard(event: any) {
+    setTitle(e) {
+        this.store.dispatch(new UpdateDashboardTitle(e));
+    }
+    /*click_cloneDashboard(event: any) {
         console.log('EVT: CLONE DASHBOARD', event);
     }
 
@@ -349,6 +358,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     click_deleteDashboard(event: any) {
         console.log('EVT: DELETE DASHBOARD', event);
+    }*/
+
+    receiveDashboardAction(event: any) {
+        console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
     }
 
     click_availableWidgetsTrigger() {
