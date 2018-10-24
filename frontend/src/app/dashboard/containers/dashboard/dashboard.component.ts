@@ -43,6 +43,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
     @Select(DBSettingsState.getMeta) meta$: Observable<any>;
+    @Select(DBSettingsState.getVariables) variables$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdata) widgetRawData$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
@@ -117,6 +118,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // other variables
     dbTime: any;
     meta: any;
+    variables: any;
     listenSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
@@ -202,6 +204,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         payload: message.payload
                     });
                     break;
+                case 'dashboardSaveButtonMetaRequest':
+                    this.interCom.responsePut({
+                        id: message.id,
+                        action: 'dashboardSaveButtonMetaResponse',
+                        payload: {
+                            meta: this.meta
+                        }
+                    });
+                    break;
+                case 'dashboardSettingsToggleRequest':
+                    /*console.log('%cREQUEST DASHBOARD SETTINGS [ InterCom ]',
+                                'color: #ffffff; background-color: darkmagenta; padding: 2px 4px;',
+                                message);*/
+                        this.interCom.responsePut({
+                            id: message.id,
+                            action: 'dashboardSettingsToggleResponse',
+                            payload: {
+                                meta: this.meta,
+                                variables: this.variables
+                            }
+                        });
+                    break;
                 default:
                     break;
             }
@@ -214,7 +238,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbTime$.subscribe ( t => {
-            console.log('___DBTIME___', JSON.stringify(this.dbTime), JSON.stringify(t));
+            // console.log('___DBTIME___', JSON.stringify(this.dbTime), JSON.stringify(t));
 
             if ( this.dbTime && this.dbTime.zone !== t.zone ) {
                 this.interCom.responsePut({
@@ -231,8 +255,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.meta$.subscribe ( t => {
-            console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
+            // console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
             this.meta = t;
+        });
+
+        this.variables$.subscribe ( t => {
+            this.variables = t;
         });
 
         this.widgetRawData$.subscribe(result => {
@@ -256,9 +284,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.auth$.subscribe(auth => {
-            console.log('auth$ calling', auth);
+            // console.log('auth$ calling', auth);
             if (auth === 'invalid') {
-                console.log('open auth dialog');
+                // console.log('open auth dialog');
             }
         });
     }
@@ -278,7 +306,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // dispatch payload query by group
     handleQueryPayload(message: any) {
 
-        console.log('query message', message);
+        // console.log('query message', message);
 
         let groupid = '';
         const payload = message.payload;
@@ -290,7 +318,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             groupid = group.id;
 
             const query = this.queryService.buildQuery(payload, dt, group.queries);
-            console.log('the group query', query);
+            // console.log('the group query', query);
             const gquery = {
                 wid: message.id,
                 gid: groupid,
@@ -321,7 +349,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // event emit to add new widget from dashboard header
     addNewWidget(selectedWidget: any) {
-        console.log('%cADD NEW WIDGET', 'color: white; background-color: blue; font-weight: bold;', selectedWidget);
+        // console.log('%cADD NEW WIDGET', 'color: white; background-color: blue; font-weight: bold;', selectedWidget);
         const payload = { widget: this.dbService.getWidgetPrototype() };
         // this.store.dispatch(new dashboardActions.AddWidget(payload));
         // trigger Update Widget layout event
@@ -329,12 +357,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     onDateChange(date: any) {
-        console.log(date);
+        // console.log(date);
     }
 
     // save dashboard name
     saveDashboardName(event: any) {
-        console.log('dashboard name save', event);
+        // console.log('dashboard name save', event);
     }
 
     setDateRange(e: any) {
@@ -361,15 +389,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }*/
 
     receiveDashboardAction(event: any) {
-        console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
+        // console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
     }
 
     click_availableWidgetsTrigger() {
-        console.log('EVT: AVAILABLE WIDGETS TRIGGER', this.availableWidgetsMenuTrigger);
+        // console.log('EVT: AVAILABLE WIDGETS TRIGGER', this.availableWidgetsMenuTrigger);
     }
 
     click_refreshDashboard() {
-        console.log('EVT: REFRESH DASHBOARD');
+        // console.log('EVT: REFRESH DASHBOARD');
     }
 
     ngOnDestroy() {
