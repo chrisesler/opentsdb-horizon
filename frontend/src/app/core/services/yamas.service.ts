@@ -32,7 +32,7 @@ export class YamasService {
             }
             const q = {
                 id: mid, // using the loop index for now, might need to generate its own id
-                type: 'DataSource',
+                type: 'TimeSeriesDataSource',
                 metric: {
                     type: 'MetricLiteral',
                     metric: m.metric
@@ -63,6 +63,7 @@ export class YamasService {
             query.executionGraph.push(this.getMetricGroupBy());
             query.executionGraph.push(this.getQuerySummarizer());
         }
+        console.log(JSON.stringify(query));
         return query;
     }
 
