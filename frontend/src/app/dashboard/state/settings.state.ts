@@ -45,6 +45,16 @@ export class UpdateDashboardTitle {
     constructor(public readonly title: string) {}
 }
 
+export class UpdateVariables {
+    public static type = '[Dashboard] Update Variables';
+    constructor(public readonly variables: any) {}
+}
+
+export class UpdateMeta {
+    public static type = '[Dashboard] Update Meta';
+    constructor(public readonly meta: any) {}
+}
+
 @State<DBSettingsModel>({
     name: 'Settings',
     defaults: {
@@ -112,6 +122,18 @@ export class DBSettingsState {
         const state = ctx.getState();
         const meta = {...state.meta};
         meta.title = title;
+        ctx.patchState({...state, meta: meta});
+    }
+
+    @Action(UpdateVariables)
+    updateVariables(ctx: StateContext<DBSettingsModel>, { variables }: UpdateVariables) {
+        const state = ctx.getState();
+        ctx.patchState({...state, variables: variables});
+    }
+
+    @Action(UpdateMeta)
+    updateMeta(ctx: StateContext<DBSettingsModel>, { meta }: UpdateMeta) {
+        const state = ctx.getState();
         ctx.patchState({...state, meta: meta});
     }
 
