@@ -33,7 +33,7 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
 
     @HostBinding('class.navbar-dashboard-actions-menu') private _hostClass = true;
 
-    @Input() dbData: any = {};
+    @Input() dbSettingsMeta: any = {};
 
     // dashboard action menu trigger
     @ViewChild('actionMenuTrigger', {read: MatMenuTrigger}) actionMenuTrigger: MatMenuTrigger;
@@ -49,11 +49,10 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
 
     /** Dialogs */
     dashboardSaveDialog: MatDialogRef<DashboardSaveDialogComponent> | null;
-    dashboardSaveDialogSub: Subscription;
 
     // NOTE: change this bool back to false
     // tslint:disable-next-line:no-inferrable-types
-    needsSaving: boolean = true; // false default, true triggers visibility
+    @Input() needsSaving: boolean = true; // false default, true triggers visibility
 
     constructor(
         public dialog: MatDialog,
@@ -63,6 +62,7 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
     ngOnInit() {
     }
 
+    // NOTE:: these three click actions should probably intercom the dashboard container instead of emitting
     click_cloneDashboard(event: any) {
         this.dashboardAction.emit({
             action: 'clone'
@@ -91,9 +91,11 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
         // if first time saving, prompt first save dialog
         this.showFirstSaveDialog();
         // if not first time, then just save it
+        // this.triggerSaveAction();
     }
 
     private showFirstSaveDialog() {
+
         // do something
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.backdropClass = 'dashboard-save-dialog-backdrop';
@@ -104,20 +106,37 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
 
         // NOTE: this needs to be wired to the dasboard JSON/Config
         // should be the dashboard.settings piece
-        dialogConf.data = {
-            settings: {
-                name: '',
-                namespace: ''
-            }
-        };
+        dialogConf.data = this.dbSettingsMeta;
 
         this.dashboardSaveDialog = this.dialog.open(DashboardSaveDialogComponent, dialogConf);
         // this.dashboardSaveDialog.updatePosition({top: '48px'});
 
         // getting data passing out from dialog
         this.dashboardSaveDialog.afterClosed().subscribe((dialog_out: any) => {
-            console.log('return', dialog_out);
+            console.log('%cSAVE DIALOG CLOSED [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', dialog_out);
+
+            // save the dashboard now
+            // intercom to dashboard container
+            this.triggerSaveAction(dialog_out);
         });
     }
+
+    private triggerSaveAction(data?: any) {
+        const payload = { updateFirst: false };
+
+        if (data) {
+            payload.updateFirst = true;
+            payload['meta'] = data;
+        }
+
+        this.interCom.requestSend(<IMessage> {
+            id: 'saveButton',
+            action: 'dashboardSaveRequest',
+            payload: payload
+        });
+
+    }
+
+
 
 }
