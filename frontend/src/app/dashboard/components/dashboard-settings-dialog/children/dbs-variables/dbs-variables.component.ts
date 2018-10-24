@@ -25,7 +25,7 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
     @Input() dbData: any = {};
 
     /** Outputs */
-    @Output() dataUpdated: any = new EventEmitter();
+    @Output() dataModified: any = new EventEmitter();
 
     /** Local Variables */
     varForm: FormGroup;
@@ -45,13 +45,28 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
             tplVariables: this.fb.array([])
         });
 
+        this.varFormSub = this.varForm.valueChanges.subscribe(val => {
+            console.log('%cVARIABLES FORM [CHANGES]', 'background-color: skyblue; padding: 2px 4px;', val);
+
+            // need to remove unused variables (ones without keys)
+            const pending = val;
+            pending.tplVariables = val.tplVariables.filter(item => {
+                return item.key.length > 0;
+            });
+
+            this.dataModified.emit({
+                type: 'variables',
+                data: pending
+            });
+        });
+
         this.initializeTplVariables(this.dbData.variables.tplVariables);
 
-        console.log('%cVAR FORM', 'color: #fff; background-color: red;', this.varForm);
+        console.log('%cVAR FORM', 'background-color: skyblue; padding: 2px 4px', this.varForm);
     }
 
     ngOnDestroy() {
-        // this.varFormSub.unsubscribe();
+        this.varFormSub.unsubscribe();
     }
 
     initializeTplVariables(values: any) {
