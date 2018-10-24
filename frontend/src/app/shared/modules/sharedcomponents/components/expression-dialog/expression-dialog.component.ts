@@ -166,7 +166,7 @@ export class ExpressionDialogComponent implements OnInit, OnDestroy {
             }
         }
 
-        const isValid =  result != null && !invalidRefs.length;
+        const isValid =  this.metrics.length && result != null && !invalidRefs.length;
         this.metricExpressionForm.controls.expressionValue.setErrors( !isValid ? { 'invalid': true } : null );
         return isValid;
     }
