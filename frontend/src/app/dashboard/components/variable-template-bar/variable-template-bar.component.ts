@@ -20,7 +20,7 @@ export class VariableTemplateBarComponent implements OnInit {
     @HostBinding('class.variable-template-bar') private _hostClass = true;
 
     /** Inputs */
-    @Input() dbData: any; // dashboard settings data, containing the template vars
+    @Input() dbSettingsVariables: any; // dashboard settings data, containing the template vars
 
     /** Outputs */
 
@@ -72,7 +72,7 @@ export class VariableTemplateBarComponent implements OnInit {
     private initializeFormArrays() {
         const control = <FormArray>this.varForm.controls['variables'];
 
-        for (const tpl of this.fakeVariables) {
+        for (const tpl of this.dbSettingsVariables.tplVariables) {
             if (tpl.enabled) {
                 const tplGrp = this.fb.group({
                     key: tpl.key,
