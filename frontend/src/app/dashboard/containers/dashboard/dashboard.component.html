@@ -11,7 +11,7 @@
     <inline-editable class="navbar-item" [fieldValue]="meta.title" [minLength]="3" [maxLength]="25" (updatedValue)="setTitle($event)">
     </inline-editable>
     <span class="navbar-item navbar-icon-item nav-dashboard-config-trigger">
-        <dashboard-settings-toggle mat-button [dbSettingsMeta]="meta"></dashboard-settings-toggle>
+        <dashboard-settings-toggle mat-button ></dashboard-settings-toggle>
     </span>
 
     <span class="flex-spacer"></span>
@@ -80,7 +80,7 @@
                 </button>
             </ng-template>
         </mat-menu>-->
-        <navbar-dashboard-actions-menu mat-button (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
+        <navbar-dashboard-actions-menu mat-button [dbSettingsMeta]="meta" (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
     </span>
 
     <span class="navbar-item navbar-icon-item nav-search-toggle">

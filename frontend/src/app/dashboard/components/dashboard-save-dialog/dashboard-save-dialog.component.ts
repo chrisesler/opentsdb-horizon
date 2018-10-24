@@ -50,9 +50,9 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.saveForm = this.fb.group({
-            title: new FormControl(this.dbData.meta.title, [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
-            namespace: new FormControl(this.dbData.meta.title, [Validators.required]),
-            isPersonal: this.dbData.meta.isPersonal
+            title: new FormControl(this.dbData.title, [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
+            namespace: new FormControl(this.dbData.namespace, [Validators.required]),
+            isPersonal: this.dbData.isPersonal
         });
 
         this.filteredNamespaceOptions = this.namespace.valueChanges

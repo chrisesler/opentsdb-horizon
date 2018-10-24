@@ -21,15 +21,27 @@ export class HttpService {
         zone: 'local'
       },
       meta: {
-          title: 'Untitled Dashboard',
-          description: '',
-          labels: [],
-          namespace: '',
-          isPersonal: false,
+        title: 'Untitled Dashboard',
+        description: '',
+        labels: [],
+        namespace: '',
+        isPersonal: false,
       },
       variables: {
-          enabled: true,
-          tplVariables: []
+        enabled: true,
+        tplVariables: [
+          { key: 'colo',
+            alias: '',
+            values: 'bf2,bf1, gq1, sg3  ',
+            enabled: true
+          },
+          {
+            key: 'variable1',
+            alias: 'variable_1',
+            values: 'rotation, system',
+            enabled: false
+          }
+        ]
       }
     },
     widgets: [
@@ -1073,8 +1085,9 @@ export class HttpService {
   getYamasData(query: any): Observable<any> {
     const headers = new HttpHeaders(
       { 'Content-Type': 'application/json' });
-    // let apiUrl = environment.tsdb_host + '/api/query';
-    return this.http.post('/tsdb/queryData', query, { headers, withCredentials: true })
+      //'/tsdb/queryData'
+    let apiUrl = environment.tsdb_host + '/api/query/graph';
+    return this.http.post(apiUrl, query, { headers, withCredentials: true })
       .pipe(
         catchError(this.handleError)
       );

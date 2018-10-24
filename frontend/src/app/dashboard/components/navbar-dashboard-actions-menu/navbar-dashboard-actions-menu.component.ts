@@ -84,6 +84,7 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
     /** SAVE DASHBOARD */
 
     click_saveDashboard(event: any) {
+        console.log('%cCLICK SAVE BUTTON [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', event);
         // save dashboard
 
         // check if first time saving

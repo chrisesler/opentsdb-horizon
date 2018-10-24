@@ -24,7 +24,10 @@ import {
     UpdateDashboardTime,
     LoadDashboardSettings,
     UpdateDashboardTimeZone,
-    UpdateDashboardTitle
+    UpdateDashboardTitle,
+    UpdateVariables,
+    UpdateMeta
+
 } from '../../state/settings.state';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
@@ -204,14 +207,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         payload: message.payload
                     });
                     break;
-                case 'dashboardSaveButtonMetaRequest':
-                    this.interCom.responsePut({
-                        id: message.id,
-                        action: 'dashboardSaveButtonMetaResponse',
-                        payload: {
-                            meta: this.meta
-                        }
-                    });
+                case 'dashboardSaveRequest':
+                    if (message.payload.updateFirst === true) {
+                        // this.store.dispatch(new Update)
+                    }
                     break;
                 case 'dashboardSettingsToggleRequest':
                     /*console.log('%cREQUEST DASHBOARD SETTINGS [ InterCom ]',
@@ -225,6 +224,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                 variables: this.variables
                             }
                         });
+                    break;
+                case 'updateDashboardSettings':
+                    console.log(message);
+                    // this.store.dispatch(new UpdateVariables(message.payload));
+                    // this.store.dispatch(new UpdateMeta(message.payload));
                     break;
                 default:
                     break;

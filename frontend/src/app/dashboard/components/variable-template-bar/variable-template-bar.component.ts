@@ -26,28 +26,6 @@ export class VariableTemplateBarComponent implements OnInit {
 
     /** local variables */
 
-    // fake up some data. Would normally come from dbData
-    fakeVariables: Array<any> = [
-        {
-            key: 'colo',
-            alias: 'colo',
-            values: 'bf1,gq1,sg3',
-            enabled: true
-        },
-        {
-            key: 'variable1',
-            alias: 'variable 1',
-            values: 'rotation, system',
-            enabled: true
-        },
-        {
-            key: 'interface',
-            alias: 'interface',
-            values: 'docker',
-            enabled: true
-        }
-    ];
-
     varForm: FormGroup;
 
     optionLists: any = {};
@@ -64,6 +42,7 @@ export class VariableTemplateBarComponent implements OnInit {
         });
 
         this.initializeFormArrays();
+
     }
 
     get variables() { return this.varForm.get('variables'); }
@@ -84,7 +63,28 @@ export class VariableTemplateBarComponent implements OnInit {
                 control.push(tplGrp);
             }
         }
-
     }
 
+    getLabel(tmplVariable: any): string {
+        if (tmplVariable.alias && tmplVariable.alias.trim() !== '' ) {
+            return tmplVariable.alias;
+        } else {
+            return tmplVariable.key;
+        }
+    }
+
+    getValues(tmplVariable: any): string[] {
+       return tmplVariable.values.split(',');
+    }
+
+    atleastOneTemplateVariableEnabled(tmplVariables: any[]): boolean {
+        if (tmplVariables) {
+            for (let variable of tmplVariables) {
+                if (variable.enabled) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
