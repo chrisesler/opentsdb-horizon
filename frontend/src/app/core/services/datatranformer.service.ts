@@ -32,7 +32,7 @@ export class DatatranformerService {
                 for ( let j = 0; j < queryResults.data.length; j ++ ) {
                     const data = queryResults.data[j].NumericType;
                     const tags = queryResults.data[j].tags;
-                    const metric = queryResults.data[j].metric;
+                    const metric = vConfig.label || queryResults.data[j].metric;
                     const numPoints = data.length;
 
                     let label = options.labels.length.toString();

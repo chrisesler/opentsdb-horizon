@@ -13,21 +13,33 @@
     </span>
 </mat-toolbar>
 <mat-dialog-content>
+
     <div class="content-container">
-        <div class="expression-form-column">
-            <form [formGroup]="metricExpressionForm">
-                <mat-form-field appearance="fill">
-                    <mat-label>Expression Name</mat-label>
-                    <input matInput placeholder="Please enter a name for this expression" maxlength="100" formControlName="expressionName" required>
-                    <mat-hint>Max 100 characters</mat-hint>
-                    <mat-hint align="end">{{expressionName?.length || 0}}/100</mat-hint>
-                </mat-form-field>
-                <mat-form-field appearance="fill">
-                    <mat-label>Expression Value</mat-label>
-                    <textarea matInput rows="10" placeholder="Enter an expression value (e.g. [(m1+m2)/2]" formControlName="expressionValue" required></textarea>
-                    <mat-hint>Add an optional description of your widget</mat-hint>
-                </mat-form-field>
-            </form>
+        <div class="chart-expression-form-column">
+            <div class="graph-output" fxFlex="1 1 100%" fxLayout="column">
+                    <div class="graph-metric-list-title" fxFlex="1 1 30px">
+                        <strong>Line Chart Preview</strong>
+                    </div>
+                    <div id="dygraph_div" dygraphsChart [chartType]="chartType" [data]="data" [size]="size" [options]="options">
+                    </div>
+            </div>
+            <div class="expression-form">
+                <form [formGroup]="metricExpressionForm">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Expression Name</mat-label>
+                        <input matInput placeholder="Please enter a name for this expression" maxlength="100" formControlName="expressionName" required>
+                        <mat-hint>Max 100 characters</mat-hint>
+                        <mat-hint align="end">{{expressionName?.length || 0}}/100</mat-hint>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Expression Value</mat-label>
+                        <textarea matInput rows="10" placeholder="Enter an expression value (e.g. [(m1+m2)/2]" formControlName="expressionValue" required></textarea>
+                    </mat-form-field>
+                    <mat-error *ngIf="metricExpressionForm.controls.expressionValue.errors && metricExpressionForm.controls.expressionValue.errors.invalid">
+                            Invalid Expression.
+                    </mat-error>
+                </form>
+            </div>
         </div>
         <div class="query-list-column">
             <div class="column-header">
@@ -39,16 +51,16 @@
             </div>
             <div class="query-list has-scroller">
                 <div class="is-scroller">
-                    <div class="query-list-item" *ngFor="let metric of dialog_data.groupQueries.metrics">
+                    <div class="query-list-item" *ngFor="let k of Object.keys(metrics)">
                         <div class="metric-alias">
-                            <span>{{ metric.alias }}</span>
+                            <span>{{ k }}</span>
                         </div>
                         <div class="metric-detail">
-                            <div class="metric-label">{{ metric.label }}</div>
+                            <div class="metric-label">{{ metrics[k].metric }}</div>
                             <div class="metric-tags">
-                                <div class="metric-tag" *ngFor="let tag of metric.tags">
-                                    <span class="tag-key">{{ tag.key }}:</span>
-                                    <strong class="tag-value">{{ tag.value }}</strong>
+                                <div class="metric-tag" *ngFor="let tag of metrics[k].filters">
+                                    <span class="tag-key">{{ tag.tagk }}:</span>
+                                    <strong class="tag-value">{{ tag.filter }}</strong>
                                 </div>
                             </div>
                         </div>
