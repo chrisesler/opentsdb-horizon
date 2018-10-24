@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit, HostBinding } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, DialogPosition, MatSort, MatTableDataSource } from '@angular/material';
+import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -34,7 +35,13 @@ export class DashboardSettingsDialogComponent implements OnInit {
         }
     ];
 
+    // tslint:disable-next-line:no-inferrable-types
+    private pendingModifications: boolean = false;
+
+    private pendingData: any = {};
+
     constructor(
+        private interCom: IntercomService,
         public dialogRef: MatDialogRef<DashboardSettingsDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public dbData: any
     ) {}
@@ -62,13 +69,21 @@ export class DashboardSettingsDialogComponent implements OnInit {
         //    action: 'applyDialog',
         //    data: this.dialog_data
         // });
-        this.dialogRef.close({});
+        console.log('%cSETTINGS APPLY [EVENT]', 'color: white; background-color: blue; padding: 2px 4px;', this.pendingData);
+        this.dialogRef.close(this.pendingData);
     }
 
+    tabChangeEvent(e: any) {
+        console.log('%cSETTINGS TAB CHANGE [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', e);
+    }
 
-    settingsDataUpdated(e: any) {
+    settingsDataModified(e: any) {
         // SETTINGS UPDATED
-        console.log('SETTINGS UPDATED', e);
+        console.log('%cSETTINGS UPDATED [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', e);
+        if (!this.pendingModifications) {
+            this.pendingModifications = true;
+        }
+        this.pendingData[e.type] = e.data;
     }
 
 }
