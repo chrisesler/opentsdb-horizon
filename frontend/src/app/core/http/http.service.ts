@@ -15,11 +15,21 @@ export class HttpService {
   private testDashboard: any = {
     id: 'abcdfg',
     settings: {
-      title: 'my test dashboard',
       time: {
         start: '1h',
         end: 'now',
         zone: 'local'
+      },
+      meta: {
+          title: 'Untitled Dashboard',
+          description: '',
+          labels: [],
+          namespace: '',
+          isPersonal: false,
+      },
+      variables: {
+          enabled: true,
+          tplVariables: []
       }
     },
     widgets: [
