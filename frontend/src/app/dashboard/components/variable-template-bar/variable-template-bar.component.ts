@@ -1,13 +1,15 @@
 import {
     Component,
     OnInit,
+    OnDestroy,
     Input,
     Output,
     EventEmitter,
     HostBinding
 } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -15,12 +17,15 @@ import { Subscription } from 'rxjs/Subscription';
     templateUrl: './variable-template-bar.component.html',
     styleUrls: []
 })
-export class VariableTemplateBarComponent implements OnInit {
+export class VariableTemplateBarComponent implements OnInit, OnDestroy {
 
     @HostBinding('class.variable-template-bar') private _hostClass = true;
 
+    variables: any;
+
     /** Inputs */
-    @Input() dbSettingsVariables: any; // dashboard settings data, containing the template vars
+    @Input() dbSettingsVariables: Observable<any>; // dashboard settings data, containing the template vars
+    dbSettingsVariablesSub: Subscription;
 
     /** Outputs */
 
@@ -30,6 +35,9 @@ export class VariableTemplateBarComponent implements OnInit {
 
     optionLists: any = {};
 
+    // tslint:disable-next-line:no-inferrable-types
+    barReady: boolean = false;
+
     constructor(
         private fb: FormBuilder
     ) { }
@@ -37,21 +45,41 @@ export class VariableTemplateBarComponent implements OnInit {
     ngOnInit() {
         // create the form data
 
+        this.dbSettingsVariablesSub = this.dbSettingsVariables.subscribe(val => {
+            this.barReady = false;
+            this.variables = val;
+            if (this.varForm) {
+                this.initializeFormArrays();
+            }
+        });
+
+        this.createForm();
+    }
+
+    ngOnDestroy() {
+        this.dbSettingsVariablesSub.unsubscribe();
+    }
+
+    createForm() {
         this.varForm = this.fb.group({
-           variables: this.fb.array([])
+            tplVariables: this.fb.array([])
         });
 
         this.initializeFormArrays();
-
     }
 
-    get variables() { return this.varForm.get('variables'); }
-    get variableControls() { return this.varForm.get('variables')['controls']; }
+    get tplVariables() { return this.varForm.get('tplVariables') || []; }
+    get tplVariableControls() { return this.varForm.get('tplVariables')['controls']; }
 
     private initializeFormArrays() {
-        const control = <FormArray>this.varForm.controls['variables'];
+        const control = <FormArray>this.varForm.controls['tplVariables'];
 
-        for (const tpl of this.dbSettingsVariables.tplVariables) {
+        // clear the array first (primarily if there has been a state update)
+        while (control.length !== 0) {
+            control.removeAt(0);
+        }
+
+        for (const tpl of this.variables.tplVariables) {
             if (tpl.enabled) {
                 const tplGrp = this.fb.group({
                     key: tpl.key,
@@ -63,13 +91,17 @@ export class VariableTemplateBarComponent implements OnInit {
                 control.push(tplGrp);
             }
         }
+
+        this.barReady = true;
     }
 
-    getLabel(tmplVariable: any): string {
-        if (tmplVariable.alias && tmplVariable.alias.trim() !== '' ) {
-            return tmplVariable.alias;
+    getLabel(tplVariable: FormGroup): string {
+        const alias = tplVariable.get('alias').value;
+
+        if (alias && alias.trim() !== '' ) {
+            return alias;
         } else {
-            return tmplVariable.key;
+            return tplVariable.get('key').value;
         }
     }
 
@@ -79,7 +111,7 @@ export class VariableTemplateBarComponent implements OnInit {
 
     atleastOneTemplateVariableEnabled(tmplVariables: any[]): boolean {
         if (tmplVariables) {
-            for (let variable of tmplVariables) {
+            for (const variable of tmplVariables) {
                 if (variable.enabled) {
                     return true;
                 }
