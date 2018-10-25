@@ -47,7 +47,6 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
 
         this.initializeTplVariables(this.dbData.variables.tplVariables);
 
-        console.log('%cVAR FORM', 'color: #fff; background-color: red;', this.varForm);
     }
 
     ngOnDestroy() {
@@ -82,6 +81,6 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
     removeTemplateVariable(i: number) {
         const control = <FormArray>this.varForm.controls['tplVariables'];
         control.removeAt(i);
+        // this.dbData.variables.tplVariables.splice(i, 1);
     }
-
 }
