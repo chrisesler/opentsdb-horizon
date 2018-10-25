@@ -31,9 +31,6 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
     varForm: FormGroup;
     varFormSub: Subscription;
 
-    enabled: FormControl;
-    tplVariables: FormArray;
-
     constructor(
         private fb: FormBuilder
     ) { }
@@ -41,7 +38,7 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
     ngOnInit() {
 
         this.varForm = this.fb.group({
-            enabled: new FormControl(!this.dbData.variables.enabled),
+            disabled: new FormControl(this.dbData.variables.disabled),
             tplVariables: this.fb.array([])
         });
 
@@ -65,6 +62,9 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
         console.log('%cVAR FORM', 'background-color: skyblue; padding: 2px 4px', this.varForm);
     }
 
+    get disabled() { return this.varForm.get('disabled'); }
+    get tplVariables() { return this.varForm.get('tplVariables'); }
+
     ngOnDestroy() {
         this.varFormSub.unsubscribe();
     }
@@ -87,7 +87,8 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
             key: '',
             alias: '',
             values: '',
-            enabled: true
+            enabled: true,
+            type: 'literal'
         };
 
         const control = <FormArray>this.varForm.controls['tplVariables'];
