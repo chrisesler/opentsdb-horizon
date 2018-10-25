@@ -29,19 +29,19 @@ export class HttpService {
       variables: {
         disabled: false,
         tplVariables: [
-          { key: 'colo',
+          { key: 'src_colo',
             alias: '',
-            values: 'bf2,bf1, gq1, sg3  ',
+            values: '*',
             enabled: true,
             type: 'literal'
           },
-          {
-            key: 'variable1',
-            alias: 'variable_1',
-            values: 'rotation, system',
-            enabled: false,
-            type: 'literal'
-          }
+          // {
+          //   key: 'variable1',
+          //   alias: 'variable_1',
+          //   values: 'rotation, system',
+          //   enabled: false,
+          //   type: 'literal'
+          // }
         ]
       }
     },

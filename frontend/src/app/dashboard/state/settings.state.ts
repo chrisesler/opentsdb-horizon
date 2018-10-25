@@ -19,7 +19,7 @@ export interface DBSettingsModel {
         isPersonal: boolean;
     };
     variables: {
-        disabled: boolean, // if all variables are enabled
+        enabled: boolean, // if all variables are enabled
         tplVariables: Array<object>; // [{ key: '', alias: '', values: [], enabled: true, type: ''}]
     };
 }

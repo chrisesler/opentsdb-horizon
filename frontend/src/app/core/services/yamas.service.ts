@@ -7,8 +7,7 @@ export class YamasService {
 
     constructor() { }
 
-    buildQuery( time, metrics, downsample= {} , summary= false) {
-
+    buildQuery( time, metrics, downsample= {} , summary= false, dashboardTags?: any) {
         const query = {
             start: time.start,
             end: time.end,
@@ -22,11 +21,11 @@ export class YamasService {
             let q;
             let sources = [];
             if ( metrics[j].metric) {
-                q = this.getMetricQuery(metrics[j], j);
+                q = this.getMetricQuery(metrics[j], j, dashboardTags);
                 sources = [q.id];
                 query.executionGraph.push(q);
             } else {
-                const res = this.getExpressionQuery(metrics[j], j);
+                const res = this.getExpressionQuery(metrics[j], j, dashboardTags);
                 q = res.expression;
                 query.executionGraph = query.executionGraph.concat(res.queries);
                 sources = res.qids;
@@ -54,9 +53,15 @@ export class YamasService {
         return query;
     }
 
+<<<<<<< 780a80e639f35f81598d31a26e2360d1e2b824e8
     getMetricQuery(m, index) {
         const mid = 'm' + index;
         let filters = [];
+=======
+    getMetricQuery(m, index, dashboardTags?) {
+        const mid = 'm' + index;
+        const filters = this.createFilters(m, dashboardTags);
+>>>>>>> add dashboard tags to query
         const q = {
             id: mid, // using the loop index for now, might need to generate its own id
             type: 'TimeSeriesDataSource',
@@ -79,15 +84,25 @@ export class YamasService {
         return q;
     }
 
+<<<<<<< 780a80e639f35f81598d31a26e2360d1e2b824e8
     getExpressionQuery(query, index) {
         let filters = [];
         const eid = 'm' + index;
         const qids = [];
         let expValue = query.expression;
         filters = query.filters ? this.transformFilters(query.filters) : [];
+=======
+    getExpressionQuery(query, index, dashboardTags?) {
+        const filters = this.createFilters(query, dashboardTags);
+        const eid = 'm' + index;
+        const qids = [];
+        let expValue = query.expression;
+
+>>>>>>> add dashboard tags to query
         const queries = [];
         for ( let i = 0; i < query.metrics.length; i++ ) {
             const mid = 'm' + index.toString()  + (i + 1);
+
             const q = {
                 id: mid, // using the loop index for now, might need to generate its own id
                 type: 'TimeSeriesDataSource',
@@ -130,6 +145,7 @@ export class YamasService {
         return { expression: expression, queries: queries, qids: qids };
     }
 
+<<<<<<< 780a80e639f35f81598d31a26e2360d1e2b824e8
     transformFilters(fConfigs) {
         const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
         const filters = [];
@@ -145,6 +161,65 @@ export class YamasService {
         return filters;
     }
 
+=======
+    createFilters(metric: any, dashboardTags: any): Array<any> {
+        const filterTypes = {   'literalor': 'TagValueLiteralOr',
+                                'wildcard': 'TagValueWildCard',
+                                'regexp': 'TagValueRegex',
+                                'literal': 'TagValueLiteralOr' };
+        const filters = [];
+        if (!dashboardTags) {
+            dashboardTags = [];
+        }
+
+        for (let k = 0; metric.filters && k < metric.filters.length; k++) {
+            const f = metric.filters[k];
+            const filter = {
+                type: filterTypes[f.type],
+                filter: f.filter,
+                tagKey: f.tagk
+            };
+            if (!this.isTagKeyAlsoADashboardTagKey(f.tagk, dashboardTags)) {
+                filters.push(filter);
+            }
+        }
+
+        // Dashboard Tags
+        for (let tag of dashboardTags) {
+
+            const filter = {
+                type: '',
+                filter: tag.values,
+                tagKey: tag.key
+            };
+
+            if (String(tag.values).trim() === '*') { // wilcard
+                filter.type = 'TagValueWildCard';
+            } else { // literal
+                filter.type = 'TagValueLiteralOr';
+            }
+
+            // tag is enabled, tag key not empty, tag value not empty
+            if (tag.enabled && tag.key.trim().length && tag.values.trim().length) {
+                filters.push(filter);
+            }
+
+        }
+
+        return filters;
+    }
+
+    isTagKeyAlsoADashboardTagKey(key: string, dashboardTags: any) {
+        for (let tag of dashboardTags) {
+            // tag is enabled, tag keys are equal, tag values not empty
+            if (tag.enabled && String(tag.key).trim() === key.trim() && String(tag.values).trim().length) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+>>>>>>> add dashboard tags to query
     getMetricGroupBy(mConfig= null, qid= null, sources= []) {
         const filters = mConfig && mConfig.filters ? mConfig.filters : [];
         const tagKeys = [];
@@ -157,7 +232,7 @@ export class YamasService {
         const metricGroupBy =  {
             id: groupById,
             type: 'groupby',
-            aggregator: 'sum', //mConfig.aggregator,
+            aggregator: 'sum', //m Config.aggregator,
             tagKeys: tagKeys,
             interpolatorConfigs: [
                 {
