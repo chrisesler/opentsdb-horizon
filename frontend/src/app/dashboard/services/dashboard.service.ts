@@ -27,15 +27,43 @@ export class DashboardService {
   private widgetPrototype = {
     gridPos: {
       x: 0, y: 0,
-      h: 5, w: 6,
+      h: 5, w: 12,
       xMd: 0, yMd: 0,
       dragAndDrop: true,
       resizable: true
     },
-    config: {
+    settings: {
       title: 'untitled',
-      component_type: 'PlaceholderWidgetComponent'
+      component_type: 'PlaceholderWidgetComponent',
+      data_source: 'yamas'
+    },
+    query: {
+        settings: {
+            visual: {},
+            legend: {},
+            time: {
+                downsample: {
+                    value: '1m',
+                    aggregator: 'sum',
+                    customValue: '',
+                    customUnit: ''
+                }
+            }
+        },
+        groups: [
+                    {
+                        id: '',
+                        title: 'untitled group',
+                        queries: [],
+                        settings: {
+                            visual: {
+                                visible : true
+                            }
+                        }
+                    }
+                ]
     }
+
   };
 
   private widgetsConfig = {};
@@ -51,9 +79,25 @@ export class DashboardService {
     return this.updateWidgetsDimension[id];
   }
 
-  getWidgetPrototype(): any {
+  getWidgetPrototype(type= ''): any {
     const widget: any = Object.assign({}, this.widgetPrototype);
     widget.id = this.utils.generateId();
+    widget.query.groups[0].id = this.utils.generateId();
+    widget.settings.component_type = type;
+    switch ( type ) {
+        case 'LinechartWidgetComponent':
+            widget.query.settings.axes = {};
+            break;
+        case 'BarchartWidgetComponent':
+        case 'StackedBarchartWidgetComponent':
+            break;
+        case 'DonutWidgetComponent':
+        case 'DeveloperWidgetComponent':
+        case 'BignumberWidgetComponent':
+            break;
+        default:
+            widget.settings.component_type = 'PlaceholderWidgetComponent';
+    }
     return widget;
   }
 
@@ -66,13 +110,10 @@ export class DashboardService {
 
   // help to put new widget on top.
   // set new position of first position down
-  positionWidget(widgets: any) {
+  positionWidgetY(widgets: any, y) {
     for (let i = 0; i < widgets.length; i++) {
-      const wd: any = widgets[i];
-      if (wd.gridPos.x === 0 && wd.gridPos.y === 0) {
-        wd.gridPos.y = wd.gridPos.yMd = 5;
-        break;
-      }
+        const wd: any = widgets[i];
+        wd.gridPos.y += y; wd.gridPos.yMd += y;
     }
     return widgets;
   }

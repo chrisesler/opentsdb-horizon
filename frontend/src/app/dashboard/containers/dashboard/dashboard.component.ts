@@ -8,6 +8,7 @@ import { QueryService } from '../../../core/services/query.service';
 import * as moment from 'moment';
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+import { UtilsService } from '../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
@@ -28,6 +29,8 @@ import {
 } from '../../state/settings.state';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
+import { SearchMetricsDialogComponent } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
+import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 
 @Component({
     selector: 'app-dashboard',
@@ -84,40 +87,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
     availableWidgetTypes: Array<object> = [
         {
             label: 'Bar Graph',
-            type: 'WidgetBarGraphComponent',
+            type: 'BarchartWidgetComponent',
             iconClass: 'widget-icon-bar-graph'
         },
-        {
+        /*{
             label: 'Area Graph',
             type: 'WidgetAreaGraphComponent',
             iconClass: 'widget-icon-area-graph'
-        },
+        },*/
         {
             label: 'Line Chart',
-            type: 'LineChartComponent',
+            type: 'LinechartWidgetComponent',
             iconClass: 'widget-icon-line-chart'
         },
         {
             label: 'Big Number',
-            type: 'WidgetBigNumberComponent',
+            type: 'BignumberWidgetComponent',
             iconClass: 'widget-icon-big-number'
         },
         {
             label: 'Donut Chart',
-            type: 'WidgetDonutChartComponent',
+            type: 'DonutWidgetComponent',
             iconClass: 'widget-icon-donut-chart'
-        },
+        }/*,
         {
             label: 'Statuses',
             type: 'WidgetStatusComponent',
             iconClass: 'widget-icon-statuses'
-        }
+        }*/
     ];
-
     // other variables
     dbTime: any;
     meta: any;
     listenSub: Subscription;
+    widgetSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
@@ -126,6 +129,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // tslint:disable-next-line:no-inferrable-types
     viewEditMode: boolean = false;
 
+    searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
+
     constructor(
         private store: Store,
         private route: ActivatedRoute,
@@ -133,7 +138,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private dbService: DashboardService,
         private cdkService: CdkService,
         private queryService: QueryService,
-        private dateUtil: DateUtilsService
+        private dateUtil: DateUtilsService,
+        private dialog: MatDialog
     ) { }
 
     ngOnInit() {
@@ -146,9 +152,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     console.log('creating a new dashboard...');
                     const newdboard = this.dbService.getDashboardPrototype();
                     const settings = {
-                                        mode: 'dashboard',
-                                        time: { start: '1h', end: 'now', zone: 'local' }
-                                    };
+                        time: {
+                          start: '1h',
+                          end: 'now',
+                          zone: 'local'
+                        },
+                        meta: {
+                            title: 'Untitled Dashboard',
+                            description: '',
+                            labels: [],
+                            namespace: '',
+                            isPersonal: false,
+                        },
+                        variables: {
+                            enabled: true,
+                            tplVariables: []
+                        }
+                      };
                     this.store.dispatch(new LoadDashboardSettings(settings));
                     // this.store.dispatch(new dashboardActions.CreateNewDashboard(newdboard));
                 } else {
@@ -211,6 +231,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.store.dispatch(new LoadDashboardSettings(db.settings));
             // update WidgetsState
             this.store.dispatch(new LoadWidgets(db.widgets));
+        });
+
+        this.widgetSub = this.widgets$.subscribe( widgets => {
+            this.widgets = widgets;
         });
 
         this.dbTime$.subscribe ( t => {
@@ -288,16 +312,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         for (let i = 0; i < payload.query.groups.length; i++) {
             const group: any = payload.query.groups[i];
             groupid = group.id;
-
-            const query = this.queryService.buildQuery(payload, dt, group.queries);
-            console.log('the group query', query);
-            const gquery = {
-                wid: message.id,
-                gid: groupid,
-                query: query
-            };
-            // now dispatch request
-            this.store.dispatch(new GetQueryDataByGroup(gquery));
+            if ( group.queries.length ) {
+                const query = this.queryService.buildQuery(payload, dt, group.queries);
+                console.log('the group query', query);
+                const gquery = {
+                    wid: message.id,
+                    gid: groupid,
+                    query: query
+                };
+                // now dispatch request
+                this.store.dispatch(new GetQueryDataByGroup(gquery));
+            }
         }
     }
 
@@ -322,10 +347,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // event emit to add new widget from dashboard header
     addNewWidget(selectedWidget: any) {
         console.log('%cADD NEW WIDGET', 'color: white; background-color: blue; font-weight: bold;', selectedWidget);
-        const payload = { widget: this.dbService.getWidgetPrototype() };
-        // this.store.dispatch(new dashboardActions.AddWidget(payload));
-        // trigger Update Widget layout event
-        this.rerender = { 'reload': true };
+        const widget = this.dbService.getWidgetPrototype(selectedWidget.type) ;
+        this.openTimeSeriesMetricDialog(widget);
+    }
+
+    openTimeSeriesMetricDialog(widget) {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        dialogConf.width = '100%';
+        dialogConf.maxWidth = '100%';
+        dialogConf.height = 'calc(100% - 48px)';
+        dialogConf.backdropClass = 'search-metrics-dialog-backdrop';
+        dialogConf.panelClass = 'search-metrics-dialog-panel';
+        dialogConf.position = <DialogPosition>{
+            top: '48px',
+            bottom: '0px',
+            left: '0px',
+            right: '0px'
+        };
+        dialogConf.data = { mgroupId : widget.query.groups[0].id };
+
+        this.searchMetricsDialog = this.dialog.open(SearchMetricsDialogComponent, dialogConf);
+        this.searchMetricsDialog.updatePosition({top: '48px'});
+        this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
+            let widgets = [...this.widgets];
+            const group = dialog_out.mgroup;
+            widget.query.groups[0].queries = group.queries;
+            widgets = this.dbService.positionWidgetY(widgets, widget.gridPos.h);
+            widgets.unshift(widget);
+            this.store.dispatch(new LoadWidgets(widgets));
+            this.rerender = { 'reload': true };
+        });
     }
 
     onDateChange(date: any) {
@@ -375,6 +426,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.listenSub.unsubscribe();
         this.routeSub.unsubscribe();
+        this.widgetSub.unsubscribe();
         // we need to clear dashboard state
         // this.store.dispatch(new dashboardActions.ResetDashboardState);
     }
