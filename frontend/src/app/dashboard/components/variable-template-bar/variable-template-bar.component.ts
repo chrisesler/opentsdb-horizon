@@ -35,9 +35,6 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy {
 
     optionLists: any = {};
 
-    // tslint:disable-next-line:no-inferrable-types
-    barReady: boolean = false;
-
     constructor(
         private fb: FormBuilder
     ) { }
@@ -46,7 +43,6 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy {
         // create the form data
 
         this.dbSettingsVariablesSub = this.dbSettingsVariables.subscribe(val => {
-            this.barReady = false;
             this.variables = val;
             if (this.varForm) {
                 this.initializeFormArrays();
@@ -91,8 +87,6 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy {
                 control.push(tplGrp);
             }
         }
-
-        this.barReady = true;
     }
 
     getLabel(tplVariable: FormGroup): string {
