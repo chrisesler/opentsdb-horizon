@@ -20,33 +20,11 @@ export class VariableTemplateBarComponent implements OnInit {
     @HostBinding('class.variable-template-bar') private _hostClass = true;
 
     /** Inputs */
-    @Input() dbData: any; // dashboard settings data, containing the template vars
+    @Input() dbDataVariables: any; // dashboard settings data, containing the template vars
 
     /** Outputs */
 
     /** local variables */
-
-    // fake up some data. Would normally come from dbData
-    fakeVariables: Array<any> = [
-        {
-            key: 'colo',
-            alias: 'colo',
-            values: 'bf1,gq1,sg3',
-            enabled: true
-        },
-        {
-            key: 'variable1',
-            alias: 'variable 1',
-            values: 'rotation, system',
-            enabled: true
-        },
-        {
-            key: 'interface',
-            alias: 'interface',
-            values: 'docker',
-            enabled: true
-        }
-    ];
 
     varForm: FormGroup;
 
@@ -63,28 +41,32 @@ export class VariableTemplateBarComponent implements OnInit {
            variables: this.fb.array([])
         });
 
-        this.initializeFormArrays();
     }
 
     get variables() { return this.varForm.get('variables'); }
     get variableControls() { return this.varForm.get('variables')['controls']; }
 
-    private initializeFormArrays() {
-        const control = <FormArray>this.varForm.controls['variables'];
 
-        for (const tpl of this.fakeVariables) {
-            if (tpl.enabled) {
-                const tplGrp = this.fb.group({
-                    key: tpl.key,
-                    alias: tpl.alias,
-                    label: (tpl.alias.length > 0) ? tpl.alias : tpl.key,
-                    options: new FormControl()
-                });
-                this.optionLists[tpl.key] = tpl.values.split(',');
-                control.push(tplGrp);
-            }
+    getLabel(tmplVariable: any): string {
+        if (tmplVariable.alias && tmplVariable.alias.trim() !== '' ) {
+            return tmplVariable.alias;
+        } else {
+            return tmplVariable.key;
         }
-
     }
 
+    getValues(tmplVariable: any): string[] {
+       return tmplVariable.values.split(',');
+    }
+
+    atleastOneTemplateVariableEnabled(tmplVariables: any[]): boolean {
+        if (tmplVariables) {
+            for (let variable of tmplVariables) {
+                if (variable.enabled) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
