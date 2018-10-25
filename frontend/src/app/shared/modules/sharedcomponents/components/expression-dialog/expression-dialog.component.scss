@@ -55,28 +55,36 @@
 
 
         // CONTENT COLUMNS
-        .expression-form-column,
+        .chart-expression-form-column,
         .query-list-column {
             display:flex;
             flex: 1;
             flex-direction: column;
         }
 
-        .expression-form-column,
+        .chart-expression-form-column,
         .query-list-column .column-header,
         .query-list-column .is-scroller {
             padding: 10px 20px;
         }
         
-        .expression-form-column {
-
-            form {
-                display: flex;
-                flex-direction: column;
+        .chart-expression-form-column {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            .graph-output {
+                height: 300px;
             }
+            .expression-form {
+                flex: 1;
+                form {
+                    display: flex;
+                    flex-direction: column;
+                }
 
-            .mat-form-field {
-                margin-bottom: 20px;
+                .mat-form-field {
+                    margin-bottom: 20px;
+                }
             }
         }
 
