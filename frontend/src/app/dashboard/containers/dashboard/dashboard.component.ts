@@ -27,7 +27,6 @@ import {
     UpdateDashboardTitle,
     UpdateVariables,
     UpdateMeta
-
 } from '../../state/settings.state';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
@@ -208,27 +207,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     });
                     break;
                 case 'dashboardSaveRequest':
+                    // DashboardSaveRequest comes from the save button
+
+                    // needs to update first?
                     if (message.payload.updateFirst === true) {
-                        // this.store.dispatch(new Update)
+                        this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
+                    // trigger SAVE action here
                     break;
                 case 'dashboardSettingsToggleRequest':
-                    /*console.log('%cREQUEST DASHBOARD SETTINGS [ InterCom ]',
-                                'color: #ffffff; background-color: darkmagenta; padding: 2px 4px;',
-                                message);*/
-                        this.interCom.responsePut({
-                            id: message.id,
-                            action: 'dashboardSettingsToggleResponse',
-                            payload: {
-                                meta: this.meta,
-                                variables: this.variables
-                            }
-                        });
+
+                    this.interCom.responsePut({
+                        id: message.id,
+                        action: 'dashboardSettingsToggleResponse',
+                        payload: {
+                            meta: this.meta,
+                            variables: this.variables
+                        }
+                    });
                     break;
                 case 'updateDashboardSettings':
                     console.log(message);
                     // this.store.dispatch(new UpdateVariables(message.payload));
                     // this.store.dispatch(new UpdateMeta(message.payload));
+                    if (message.payload.meta) {
+                        this.store.dispatch(new UpdateMeta(message.payload.meta));
+                    }
+                    if (message.payload.variables) {
+                        this.store.dispatch(new UpdateVariables(message.payload.variables));
+                    }
                     break;
                 default:
                     break;
