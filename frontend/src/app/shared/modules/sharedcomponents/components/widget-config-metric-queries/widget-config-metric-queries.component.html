@@ -97,7 +97,19 @@
                     </div>
                     <div class="query-metric-item">
                         <div class="metric-detail">
-                            <span class="detail-item">{{ query.metric }}</span>
+                            <span class="detail-item" *ngIf="query.metric">{{ query.metric }}</span>
+                            
+                            <span class="expression" *ngIf="query.expression">
+                                <span class="expression-collapse">
+                                        <button mat-icon-button [disableRipple]="true" (click)="toggleExpressionCollapsed(query, group, $event)">
+                                        <mat-icon fontSet="denali" *ngIf="query.settings.expanded" fontIcon="d-arrowhead-down" class="arrow-down"></mat-icon>
+                                        <mat-icon fontSet="denali" *ngIf="!query.settings.expanded" fontIcon="d-arrowhead-right" class="arrow-right"></mat-icon>
+                                    </button>
+                                </span>
+                                <span class="expression-detail">
+                                    {{ query.settings.visual.label }} {{ query.expression }}
+                                </span>
+                            </span>
                             <!-- <span *ngIf="valueIterationOptions.length > 0" class="value-options"> 
                                 <strong>Value: </strong>
                                     <mat-form-field class="values-form-field">
@@ -128,6 +140,14 @@
                             <mat-chip-list>
                                 <mat-basic-chip *ngFor="let tag of query.filters"><span>{{ tag.tagk }}:</span> <strong>{{ tag.filter }}</strong></mat-basic-chip>
                             </mat-chip-list>
+                        </div>
+                        <div class="expression-metrics" *ngIf="query.settings.expanded">
+                            <div class="metric" *ngFor="let emetric of query.metrics">
+                                <div class="metric-alias">
+                                        <span>{{ emetric.id }}</span>
+                                </div>
+                                <div class="metric-label">{{ emetric.metric }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
