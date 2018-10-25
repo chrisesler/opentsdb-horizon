@@ -8,14 +8,14 @@
         </div>
         <div class="flex-spacer"></div>
         <div class="toolbar-item">
-            <mat-slide-toggle formControlName="enabled">
-                <span class="mat-caption" [ngClass]="{'is-enabled': varForm.get('enabled').value === true}">Disable all templates</span>
+            <mat-slide-toggle formControlName="disabled">
+                <span class="mat-caption">Disable all templates</span>
             </mat-slide-toggle>
         </div>
     </mat-toolbar>
-    <div class="template-variable-list" formArrayName="tplVariables" [ngClass]="{'is-disabled': !!varForm['controls'].enabled.value}">
-        <ng-container *ngFor="let tpl of varForm['controls'].tplVariables['controls']; let i=index">
-            <div class="template-variable-item" [formGroupName]="i" [ngClass]="{'is-disabled': varForm['controls'].tplVariables['controls'][i]['controls'].enabled.value === false}">
+    <div class="template-variable-list" formArrayName="tplVariables" [ngClass]="{'is-disabled': disabled.value}">
+        <ng-container *ngFor="let tpl of tplVariables['controls']; let i=index">
+            <div class="template-variable-item" [formGroupName]="i" [ngClass]="{'is-disabled': tplVariables['controls'][i]['controls'].enabled.value === false}">
                 <div class="settings-control tag-key-control">
                     <div class="mat-label">Tag key</div>
                     <mat-form-field appearance="fill" color="primary" floatLabel="never">
