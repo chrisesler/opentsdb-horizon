@@ -74,36 +74,6 @@ export class DashboardSettingsToggleComponent implements OnInit, OnDestroy {
 
         this.dashboardSettingsDialog = this.dialog.open(DashboardSettingsDialogComponent, dialogConf);
         this.dashboardSettingsDialog.updatePosition({top: '48px'});
-        this.dashboardSettingsDialog.componentInstance.dbData = {
-            time: {
-                start: '1h',
-                end: 'now',
-                zone: 'local'
-            },
-            meta: {
-                title: 'Untitled Dashboard',
-                description: '',
-                labels: [],
-                namespace: '',
-                isPersonal: false,
-            },
-            variables: {
-                enabled: true,
-                tplVariables: [
-                { key: 'colo',
-                    alias: '',
-                    values: 'bf2,bf1, gq1, sg3  ',
-                    enabled: true
-                },
-                {
-                    key: 'variable1',
-                    alias: 'variable_1',
-                    values: 'rotation, system',
-                    enabled: false
-                }
-                ]
-            }
-          };
 
         // getting data passing out from dialog
         this.dashboardSettingsDialog.afterClosed().subscribe((dialog_out: any) => {
