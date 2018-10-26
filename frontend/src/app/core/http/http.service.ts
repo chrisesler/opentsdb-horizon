@@ -27,19 +27,18 @@ export class HttpService {
         isPersonal: false,
       },
       variables: {
-        disabled: false,
+        enabled: false,
         tplVariables: [
           { key: 'src_colo',
-            alias: '',
-            values: '*',
-            enabled: true,
+            alias: 'colo',
+            allowedValues: [''],
+            enabledValues: [' ', 'bf2', 'gq1', 'blahh', '*'],
             type: 'literal'
           },
-          // {
-          //   key: 'variable1',
-          //   alias: 'variable_1',
-          //   values: 'rotation, system',
-          //   enabled: false,
+          // { key: 'src_coolio',
+          //   alias: 'bad_key',
+          //   allowedValues: [''],
+          //   enabledValues: ['blah'],
           //   type: 'literal'
           // }
         ]

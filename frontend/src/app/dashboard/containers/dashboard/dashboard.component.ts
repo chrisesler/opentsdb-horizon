@@ -138,7 +138,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     widgets: any[] = [];
     // tslint:disable-next-line:no-inferrable-types
     viewEditMode: boolean = false;
-    // dashboardTags: any = []; // [{'type': 'literal', 'values': '*', 'key': 'src_colo'}];
 
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
 
@@ -243,7 +242,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
                 case 'updateDashboardSettings':
                     console.log(message);
-                    this.store.dispatch(new UpdateVariables({}));
+                    // this.store.dispatch(new UpdateVariables(message.payload));
+                    console.log('*** Warning!! Setting key: src_colo, value: qf3 ***');
+                    this.store.dispatch(new UpdateVariables( {
+                        enabled: true,
+                        tplVariables: [
+                          { key: 'src_colo',
+                            alias: 'colo',
+                            allowedValues: [''],
+                            enabledValues: ['qf3'],
+                            type: 'literal'
+                          },
+                        ]
+                      }
+                    ));
                     // this.store.dispatch(new UpdateMeta(message.payload));
                     if (message.payload.meta) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
@@ -295,7 +307,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.variables$.subscribe ( t => {
             this.variables = t;
 
-            // TODO: fire off new query
             this.interCom.responsePut({
                 action: 'reQueryData',
                 payload: t

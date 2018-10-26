@@ -53,15 +53,9 @@ export class YamasService {
         return query;
     }
 
-<<<<<<< 780a80e639f35f81598d31a26e2360d1e2b824e8
     getMetricQuery(m, index) {
         const mid = 'm' + index;
         let filters = [];
-=======
-    getMetricQuery(m, index, dashboardTags?) {
-        const mid = 'm' + index;
-        const filters = this.createFilters(m, dashboardTags);
->>>>>>> add dashboard tags to query
         const q = {
             id: mid, // using the loop index for now, might need to generate its own id
             type: 'TimeSeriesDataSource',
@@ -84,21 +78,12 @@ export class YamasService {
         return q;
     }
 
-<<<<<<< 780a80e639f35f81598d31a26e2360d1e2b824e8
     getExpressionQuery(query, index) {
         let filters = [];
         const eid = 'm' + index;
         const qids = [];
         let expValue = query.expression;
         filters = query.filters ? this.transformFilters(query.filters) : [];
-=======
-    getExpressionQuery(query, index, dashboardTags?) {
-        const filters = this.createFilters(query, dashboardTags);
-        const eid = 'm' + index;
-        const qids = [];
-        let expValue = query.expression;
-
->>>>>>> add dashboard tags to query
         const queries = [];
         for ( let i = 0; i < query.metrics.length; i++ ) {
             const mid = 'm' + index.toString()  + (i + 1);
@@ -145,7 +130,6 @@ export class YamasService {
         return { expression: expression, queries: queries, qids: qids };
     }
 
-<<<<<<< 780a80e639f35f81598d31a26e2360d1e2b824e8
     transformFilters(fConfigs) {
         const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
         const filters = [];
@@ -161,7 +145,7 @@ export class YamasService {
         return filters;
     }
 
-=======
+
     createFilters(metric: any, dashboardTags: any): Array<any> {
         const filterTypes = {   'literalor': 'TagValueLiteralOr',
                                 'wildcard': 'TagValueWildCard',
@@ -186,40 +170,50 @@ export class YamasService {
 
         // Dashboard Tags
         for (let tag of dashboardTags) {
-
             const filter = {
-                type: '',
-                filter: tag.values,
+                type: 'TagValueLiteralOr',
+                filter: '',
                 tagKey: tag.key
             };
 
-            if (String(tag.values).trim() === '*') { // wilcard
-                filter.type = 'TagValueWildCard';
-            } else { // literal
-                filter.type = 'TagValueLiteralOr';
-            }
+            // append tag values together
+            let _filter = '';
+            for (let tagValue of tag.enabledValues) {
+                if (_filter.length) {
+                    _filter = _filter + '|' + tagValue.trim();
+                } else { // empty string
+                    _filter = tagValue.trim();
+                }
 
-            // tag is enabled, tag key not empty, tag value not empty
-            if (tag.enabled && tag.key.trim().length && tag.values.trim().length) {
+                // if any tagValue contains '*' - set to wildcard
+                if (String(tagValue).includes('*')) {
+                    _filter = tagValue;
+                    filter.type = 'TagValueWildCard';
+                    break;
+                }
+            }
+            // set the appended tag keys to filter
+            filter.filter = _filter;
+
+             if (filter.tagKey.trim().length && filter.filter.trim().length) {
                 filters.push(filter);
             }
-
         }
-
         return filters;
     }
 
     isTagKeyAlsoADashboardTagKey(key: string, dashboardTags: any) {
         for (let tag of dashboardTags) {
-            // tag is enabled, tag keys are equal, tag values not empty
-            if (tag.enabled && String(tag.key).trim() === key.trim() && String(tag.values).trim().length) {
+            console.log(tag);
+            // tag values exist, tag keys are equal
+            if (!this.isArrayOnlyEmptyValues(tag.enabledValues) &&
+                String(tag.key).trim() === key.trim()) {
                 return true;
             }
         }
         return false;
     }
 
->>>>>>> add dashboard tags to query
     getMetricGroupBy(mConfig= null, qid= null, sources= []) {
         const filters = mConfig && mConfig.filters ? mConfig.filters : [];
         const tagKeys = [];
@@ -232,7 +226,7 @@ export class YamasService {
         const metricGroupBy =  {
             id: groupById,
             type: 'groupby',
-            aggregator: 'sum', //m Config.aggregator,
+            aggregator: 'sum', // mConfig.aggregator,
             tagKeys: tagKeys,
             interpolatorConfigs: [
                 {
