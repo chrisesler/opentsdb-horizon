@@ -58,7 +58,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     };
 
     selectAllToggle: String = 'none'; // none/all/some
- 
+
     constructor(
         public dialog: MatDialog,
         private interCom: IntercomService,
@@ -94,6 +94,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                 let metric = group.queries[j];
                 if(add) {
                     metric.settings.selected = false;
+                    metric.settings.expanded = false;
                 } else {
                     delete metric.settings.selected;
                 }
@@ -145,8 +146,8 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         });
     }
 
-    openMetricExpressionDialog(mgroupId: string, groupData: any) {
-        console.log('%cMGROUP', 'background: purple; color: white;', mgroupId, groupData);
+    openMetricExpressionDialog(group: any) {
+        console.log('%cMGROUP', 'background: purple; color: white;', group);
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.width = '100%';
         dialogConf.maxWidth = '100%';
@@ -159,13 +160,16 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             left: '0px',
             right: '0px'
         };
-        dialogConf.data = { mgroupId: mgroupId, groupQueries: groupData};
+        dialogConf.data = { mgroupId: group.id, queries: group.queries};
 
         this.metricExpressionDialog = this.dialog.open(ExpressionDialogComponent, dialogConf);
         this.metricExpressionDialog.updatePosition({top: '48px'});
 
         this.metricExpressionDialog.afterClosed().subscribe((dialog_out: any) => {
             console.log('openMetricExpressionDialog::afterClosed', dialog_out);
+            this.modGroup = dialog_out.mgroup;
+            this.widgetChange.emit({action: 'AddMetricsToGroup', payload: { data: this.modGroup }});
+            console.log('...expression return...', this.modGroup);
         });
     }
 
@@ -248,6 +252,11 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
             this.selectAllToggle = (selectedGroups.length > 0) ? 'some' : 'none';
         }
+    }
+
+    toggleExpressionCollapsed(expression, group, $event) {
+        event.stopPropagation();
+        expression.settings.expanded = !expression.settings.expanded;
     }
 
     toggle_groupCollapsed(group: any, event: MouseEvent) {
