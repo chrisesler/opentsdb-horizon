@@ -8,7 +8,6 @@ import { WidgetDirective } from '../../directives/widget.directive';
 import { WidgetComponentModel } from '../../widgets/models/widgetcomponent';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { MatMenu, MatMenuTrigger } from '@angular/material';
-import { load } from '@angular/core/src/render3/instructions';
 
 @Component({
     selector: 'app-widget-loader',
@@ -45,7 +44,6 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                 const oldConfig = changes.widget.previousValue;
                 const newConfig = changes.widget.currentValue;
                 if ( oldConfig.settings.component_type !== newConfig.settings.component_type ) {
-                    console.log(oldConfig.settings.component_type, newConfig.settings.component_type, "widget config changes");
                     this.loadComponent();
                 }
             }
