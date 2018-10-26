@@ -5,22 +5,25 @@ import { UtilsService } from '../../core/services/utils.service';
 export class DashboardService {
 
   private dashboardProto: any = {
-    id: '',
     settings: {
-      title: 'untitled dashboard'
+        time: {
+          start: '1h',
+          end: 'now',
+          zone: 'local'
+        },
+        meta: {
+            title: 'Untitled Dashboard',
+            description: '',
+            labels: [],
+            namespace: '',
+            isPersonal: false,
+        },
+        variables: {
+            enabled: false,
+            tplVariables: []
+        }
     },
     widgets: [
-      {
-        gridPos: {
-        x: 0, y: 0,
-        w: 6, h: 5
-        },
-        config: {
-          title: 'PlaceholderWidgetComponent',
-          component_type: 'PlaceholderWidgetComponent',
-          data_source: ''
-        }
-      }
     ]
   };
 
@@ -40,6 +43,7 @@ export class DashboardService {
     query: {
         settings: {
             visual: {},
+            axes: {},
             legend: {},
             time: {
                 downsample: {
@@ -86,11 +90,8 @@ export class DashboardService {
     widget.settings.component_type = type;
     switch ( type ) {
         case 'LinechartWidgetComponent':
-            widget.query.settings.axes = {};
-            break;
         case 'BarchartWidgetComponent':
         case 'StackedBarchartWidgetComponent':
-            break;
         case 'DonutWidgetComponent':
         case 'DeveloperWidgetComponent':
         case 'BignumberWidgetComponent':
@@ -103,8 +104,9 @@ export class DashboardService {
 
   getDashboardPrototype(): any {
     const dashboard: any = Object.assign({}, this.dashboardProto);
-    dashboard.id = this.utils.generateId(8);
-    //this.modifyWidgets(dashboard);
+    const widget = this.getWidgetPrototype();
+    widget.gridPos.w = 6;
+    dashboard.widgets.push(widget);
     return dashboard;
   }
 

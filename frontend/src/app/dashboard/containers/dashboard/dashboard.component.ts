@@ -154,27 +154,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.dbid = params['dbid'];
                 if (this.dbid === '_new_') {
                     console.log('creating a new dashboard...');
-                    const newdboard = this.dbService.getDashboardPrototype();
-                    const settings = {
-                        time: {
-                          start: '1h',
-                          end: 'now',
-                          zone: 'local'
-                        },
-                        meta: {
-                            title: 'Untitled Dashboard',
-                            description: '',
-                            labels: [],
-                            namespace: '',
-                            isPersonal: false,
-                        },
-                        variables: {
-                            enabled: true,
-                            tplVariables: []
-                        }
-                      };
-                    this.store.dispatch(new LoadDashboardSettings(settings));
-                    // this.store.dispatch(new dashboardActions.CreateNewDashboard(newdboard));
+                    this.store.dispatch(new LoadDashboard(this.dbid));
                 } else {
                     // load provided dashboard id, and need to handdle not found too
                     // this.store.dispatch(new dashboardActions.LoadDashboard(this.dbid));
@@ -214,17 +194,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.handleQueryPayload(message);
                     break;
                 case 'updateWidgetConfig':
-                    this.store.dispatch(new UpdateWidget(message.payload));
-                    // many way to handle this, but we should do with the way
-                    // store suppose to work.
-                    // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
-                    // console.log('getting updated widget', message.payload, updatedWidget);
+                    const widgets = JSON.parse(JSON.stringify(this.widgets));
+                    const mIndex = widgets.findIndex( w => w.id === message.payload.id );
+                    // check the component type is PlaceholderWidgetComponent. If yes, it needs to be replaced with new component
+                    if ( widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent' ) {
+                        widgets[mIndex] = message.payload;
+                        this.store.dispatch(new LoadWidgets(widgets));
+                    } else {
+                        this.store.dispatch(new UpdateWidget(message.payload));
+                        // many way to handle this, but we should do with the way
+                        // store suppose to work.
+                        // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
+                        // console.log('getting updated widget', message.payload, updatedWidget);
 
-                    this.interCom.responsePut({
-                        id: message.payload.id,
-                        action: 'getUpdatedWidgetConfig',
-                        payload: message.payload
-                    });
+                        this.interCom.responsePut({
+                            id: message.payload.id,
+                            action: 'getUpdatedWidgetConfig',
+                            payload: message.payload
+                        });
+                    }
                     break;
 
                 case 'updateDashboardSettings':

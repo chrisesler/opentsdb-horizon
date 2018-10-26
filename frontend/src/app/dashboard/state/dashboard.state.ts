@@ -4,6 +4,7 @@ import { WidgetsState } from './widgets.state';
 import { WidgetsRawdataState } from './widgets-data.state';
 import { ClientSizeState } from './clientsize.state';
 import { HttpService } from '../../core/http/http.service';
+import { DashboardService } from '../services/dashboard.service';
 import { map, catchError } from 'rxjs/operators'; 
 
 
@@ -46,33 +47,38 @@ export class LoadDashboardFail {
 })
 
 export class DBState {
-    constructor(private httpService: HttpService) {}
+    constructor( private httpService: HttpService, private dbService: DashboardService ) {}
 
 
-    @Selector() static getLoadedDB(state: DBStateModel) {           
-        return state.loadedDB; 
+    @Selector() static getLoadedDB(state: DBStateModel) {
+        return state.loadedDB;
     }
 
     @Action(LoadDashboard)
     loadDashboard(ctx: StateContext<DBStateModel>, { id }: LoadDashboard) {
-        ctx.patchState({ loading: true});
-        return this.httpService.getDashoard(id).pipe(
-            map( (dashboard: any) => {
-                ctx.dispatch(new LoadDashboardSuccess(dashboard));
-            }),
-            catchError( error => ctx.dispatch(new LoadDashboardFail(error)))
-        );
+        if ( id !== '_new_' ) {
+            ctx.patchState({ loading: true});
+            return this.httpService.getDashoard(id).pipe(
+                map( (dashboard: any) => {
+                    ctx.dispatch(new LoadDashboardSuccess(dashboard));
+                }),
+                catchError( error => ctx.dispatch(new LoadDashboardFail(error)))
+            );
+        } else {
+            const dashboard = this.dbService.getDashboardPrototype();
+            ctx.dispatch(new LoadDashboardSuccess(dashboard));
+        }
     }
 
     @Action(LoadDashboardSuccess)
     loadDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: LoadDashboardSuccess) {
-        const state = ctx.getState();   
+        const state = ctx.getState();
         ctx.setState({...state,
             id: payload.id, 
             loaded: true, 
             loading: false,
             loadedDB: payload
-        });        
+        });
     }
 
     @Action(LoadDashboardFail)

@@ -8,6 +8,7 @@ import { WidgetDirective } from '../../directives/widget.directive';
 import { WidgetComponentModel } from '../../widgets/models/widgetcomponent';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { MatMenu, MatMenuTrigger } from '@angular/material';
+import { load } from '@angular/core/src/render3/instructions';
 
 @Component({
     selector: 'app-widget-loader',
@@ -40,16 +41,19 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
             // console.log(JSON.stringify(changes.widget.currentValue));
             // console.log(JSON.stringify(changes.widget.previousValue));
 
-            if (JSON.stringify(changes.widget.currentValue) === JSON.stringify(changes.widget.previousValue)) {
-                // console.log('same value');
-            } else {
-                // console.log('different value');
+            if ( changes.widget.previousValue !== undefined && changes.widget.currentValue ) {
+                const oldConfig = changes.widget.previousValue;
+                const newConfig = changes.widget.currentValue;
+                if ( oldConfig.settings.component_type !== newConfig.settings.component_type ) {
+                    console.log(oldConfig.settings.component_type, newConfig.settings.component_type, "widget config changes");
+                    this.loadComponent();
+                }
             }
         }
     }
 
     loadComponent() {
-        console.log('component creating', this.widget.id);
+        console.log('component creating', this.widget.id, this.widget.settings.component_type);
         let componentName = '__notfound__';
         if (this.widget.settings.component_type) {
             componentName = this.widget.settings.component_type;
@@ -61,6 +65,25 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         // const componentRef = viewContainerRef.createComponent(componentFactory);
         // (<WidgetComponent>componentRef.instance).config = this.widgetconf;
         this._component = this.viewContainerRef.createComponent(this.componentFactory);
+
+        if ( componentName === 'PlaceholderWidgetComponent' ) {
+            this._component.instance.loadNewWidget.subscribe( wConfig => {
+                const component: Type<any> = this.widgetService.getComponentToLoad(wConfig.type);
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
+                const widget = JSON.parse(JSON.stringify(this.widget)); // copy the widget config
+                widget.settings.component_type = wConfig.type;
+                this.editComponent.emit({
+                    'compFactory': componentFactory,
+                    'widget': widget
+                });
+                // intercom to container to update state
+                this.interCom.requestSend(<IMessage> {
+                    action: 'updateDashboardMode',
+                    payload: 'edit'
+                });
+            });
+        }
+
         (<WidgetComponentModel>this._component.instance).widget = this.widget;
         (<WidgetComponentModel>this._component.instance).editMode = false;
     }
