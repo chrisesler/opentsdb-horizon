@@ -15,8 +15,8 @@ export interface DBSettingsModel {
         isPersonal: boolean;
     };
     variables: {
-        enabled: boolean, // if all variables are enabled
-        tplVariables: Array<object>; // [{ key: '', alias: '', values: [], enabled: true}]
+        disabled: boolean, // if all variables are enabled
+        tplVariables: Array<object>; // [{ key: '', alias: '', values: [], enabled: true, type: ''}]
     };
 }
 
@@ -72,7 +72,7 @@ export class UpdateMeta {
             isPersonal: false,
         },
         variables: {
-            enabled: true,
+            disabled: false,
             tplVariables: []
         }
     }

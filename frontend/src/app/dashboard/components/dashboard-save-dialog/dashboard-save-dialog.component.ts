@@ -50,16 +50,16 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.saveForm = this.fb.group({
-            title: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
-            namespace: new FormControl('', [Validators.required]),
-            isPersonal: false
+            title: new FormControl(this.dbData.title, [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
+            namespace: new FormControl(this.dbData.namespace, [Validators.required]),
+            isPersonal: this.dbData.isPersonal
         });
 
         this.filteredNamespaceOptions = this.namespace.valueChanges
             .pipe(
                 startWith(''),
                 debounceTime(300),
-                map(val => this.filterNamespace(val))
+                map(val => this.filterNamespace(val)) // autosuggest options shuld come from somewhere else. Currently fake data
             );
     }
 
@@ -75,10 +75,10 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
     personalUseChecked(e: any) {
         console.log('%cPERSONAL USE CHECKBOX [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', e, this.isPersonal);
         if (e.checked) {
-            this.namespace.disable();
-            this.namespace.clearValidators(); // remove namespace validators
+            this.namespace.disable(); // disable namespace control
+            this.namespace.clearValidators(); // remove namespace validators, so it doesn't block submission
         } else {
-            this.namespace.enable();
+            this.namespace.enable(); // enable namespace control
             this.namespace.setValidators([Validators.required]); // add namespace validators
         }
     }
