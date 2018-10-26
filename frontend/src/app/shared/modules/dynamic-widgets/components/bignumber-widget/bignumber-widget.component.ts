@@ -79,7 +79,7 @@ export class BignumberWidgetComponent implements OnInit {
                 unitAlignment: 'top',
                 unitUndercased: true,
 
-                caption: '{{tag.host}} Latency',
+                caption: 'Latency',
                 precision: 3,
 
                 textColor: '#ffffff',

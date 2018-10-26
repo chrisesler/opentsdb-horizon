@@ -178,7 +178,7 @@ export class YamasService {
 
             // append tag values together
             let _filter = '';
-            for (let tagValue of tag.enabledValues) {
+            for (let tagValue of tag.selectedValues) {
 
                 // only set tagValue if not empty
                 if (tagValue.trim().length) {
@@ -193,19 +193,6 @@ export class YamasService {
                         _filter = tagValue;
                     }
                 }
-
-
-                // if (_filter.length) {
-                //         _filter = _filter + '|' + tagValue.trim();
-                //     } else { // empty string
-                //         _filter = tagValue.trim();
-                //     }
-                // // if any tagValue contains '*' - set to wildcard
-                // if (String(tagValue).includes('*')) {
-                //     _filter = tagValue;
-                //     filter.type = 'TagValueWildCard';
-                //     break;
-                // }
             }
             // set the appended tag keys to filter
             filter.filter = _filter;
@@ -221,8 +208,7 @@ export class YamasService {
         for (let tag of dashboardTags) {
             console.log(tag);
             // tag values exist, tag keys are equal
-            if (!this.isArrayOnlyEmptyValues(tag.enabledValues) &&
-                String(tag.key).trim() === key.trim()) {
+            if (String(tag.key).trim() === key.trim()) {
                 return true;
             }
         }

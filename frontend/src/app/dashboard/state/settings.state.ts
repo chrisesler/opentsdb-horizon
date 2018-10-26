@@ -20,7 +20,7 @@ export interface DBSettingsModel {
     };
     variables: {
         enabled: boolean, // if all variables are enabled
-        tplVariables: Array<object>; // [{ key: 'src_colo', alias: 'colo', allowedValues: [''], enabledValues: ['bf2'], type: 'literal' }]
+        tplVariables: Array<object>; // [{ key: 'src_colo', alias: 'colo', allowedValues: [''], selectedValues: ['bf2'], type: 'literal' }]
     };
 }
 
@@ -87,7 +87,7 @@ export class UpdateMeta {
             isPersonal: false,
         },
         variables: {
-            disabled: false,
+            enabled: false,
             tplVariables: []
         }
     }
