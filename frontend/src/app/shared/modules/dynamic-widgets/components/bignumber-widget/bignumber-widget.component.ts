@@ -270,7 +270,7 @@ export class BignumberWidgetComponent implements OnInit {
 
     // we have this method so that a caption or other labels will not make the big number really small
     shortenString(str: string, maxChars: number): string {
-        if (str.length > maxChars) {
+        if ( str && str.length > maxChars) {
             return str.substr(0, maxChars) + '...';
         }
         return str;

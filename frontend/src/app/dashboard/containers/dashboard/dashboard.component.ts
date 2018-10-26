@@ -8,6 +8,7 @@ import { QueryService } from '../../../core/services/query.service';
 import * as moment from 'moment';
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+import { UtilsService } from '../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
@@ -30,6 +31,8 @@ import {
 } from '../../state/settings.state';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
+import { SearchMetricsDialogComponent } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
+import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 
 @Component({
     selector: 'app-dashboard',
@@ -87,41 +90,41 @@ export class DashboardComponent implements OnInit, OnDestroy {
     availableWidgetTypes: Array<object> = [
         {
             label: 'Bar Graph',
-            type: 'WidgetBarGraphComponent',
+            type: 'BarchartWidgetComponent',
             iconClass: 'widget-icon-bar-graph'
         },
-        {
+        /*{
             label: 'Area Graph',
             type: 'WidgetAreaGraphComponent',
             iconClass: 'widget-icon-area-graph'
-        },
+        },*/
         {
             label: 'Line Chart',
-            type: 'LineChartComponent',
+            type: 'LinechartWidgetComponent',
             iconClass: 'widget-icon-line-chart'
         },
         {
             label: 'Big Number',
-            type: 'WidgetBigNumberComponent',
+            type: 'BignumberWidgetComponent',
             iconClass: 'widget-icon-big-number'
         },
         {
             label: 'Donut Chart',
-            type: 'WidgetDonutChartComponent',
+            type: 'DonutWidgetComponent',
             iconClass: 'widget-icon-donut-chart'
-        },
+        }/*,
         {
             label: 'Statuses',
             type: 'WidgetStatusComponent',
             iconClass: 'widget-icon-statuses'
-        }
+        }*/
     ];
-
     // other variables
     dbTime: any;
     meta: any;
     variables: any;
     listenSub: Subscription;
+    widgetSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
@@ -130,6 +133,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // tslint:disable-next-line:no-inferrable-types
     viewEditMode: boolean = false;
 
+    searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
+
     constructor(
         private store: Store,
         private route: ActivatedRoute,
@@ -137,7 +142,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private dbService: DashboardService,
         private cdkService: CdkService,
         private queryService: QueryService,
-        private dateUtil: DateUtilsService
+        private dateUtil: DateUtilsService,
+        private dialog: MatDialog
     ) { }
 
     ngOnInit() {
@@ -148,13 +154,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.dbid = params['dbid'];
                 if (this.dbid === '_new_') {
                     console.log('creating a new dashboard...');
-                    const newdboard = this.dbService.getDashboardPrototype();
-                    const settings = {
-                                        mode: 'dashboard',
-                                        time: { start: '1h', end: 'now', zone: 'local' }
-                                    };
-                    this.store.dispatch(new LoadDashboardSettings(settings));
-                    // this.store.dispatch(new dashboardActions.CreateNewDashboard(newdboard));
+                    this.store.dispatch(new LoadDashboard(this.dbid));
                 } else {
                     // load provided dashboard id, and need to handdle not found too
                     // this.store.dispatch(new dashboardActions.LoadDashboard(this.dbid));
@@ -194,17 +194,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.handleQueryPayload(message);
                     break;
                 case 'updateWidgetConfig':
-                    this.store.dispatch(new UpdateWidget(message.payload));
-                    // many way to handle this, but we should do with the way
-                    // store suppose to work.
-                    // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
-                    // console.log('getting updated widget', message.payload, updatedWidget);
+                    const widgets = JSON.parse(JSON.stringify(this.widgets));
+                    const mIndex = widgets.findIndex( w => w.id === message.payload.id );
+                    // check the component type is PlaceholderWidgetComponent. If yes, it needs to be replaced with new component
+                    if ( widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent' ) {
+                        widgets[mIndex] = message.payload;
+                        this.store.dispatch(new LoadWidgets(widgets));
+                    } else {
+                        this.store.dispatch(new UpdateWidget(message.payload));
+                        // many way to handle this, but we should do with the way
+                        // store suppose to work.
+                        // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
+                        // console.log('getting updated widget', message.payload, updatedWidget);
 
-                    this.interCom.responsePut({
-                        id: message.payload.id,
-                        action: 'getUpdatedWidgetConfig',
-                        payload: message.payload
-                    });
+                        this.interCom.responsePut({
+                            id: message.payload.id,
+                            action: 'getUpdatedWidgetConfig',
+                            payload: message.payload
+                        });
+                    }
                     break;
 
                 case 'updateDashboardSettings':
@@ -221,6 +229,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.store.dispatch(new LoadDashboardSettings(db.settings));
             // update WidgetsState
             this.store.dispatch(new LoadWidgets(db.widgets));
+        });
+
+        this.widgetSub = this.widgets$.subscribe( widgets => {
+            this.widgets = widgets;
         });
 
         this.dbTime$.subscribe ( t => {
@@ -303,16 +315,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         for (let i = 0; i < payload.query.groups.length; i++) {
             const group: any = payload.query.groups[i];
             groupid = group.id;
-
-            const query = this.queryService.buildQuery(payload, dt, group.queries);
-            console.log('the group query', query);
-            const gquery = {
-                wid: message.id,
-                gid: groupid,
-                query: query
-            };
-            // now dispatch request
-            this.store.dispatch(new GetQueryDataByGroup(gquery));
+            if ( group.queries.length ) {
+                const query = this.queryService.buildQuery(payload, dt, group.queries);
+                console.log('the group query', query);
+                const gquery = {
+                    wid: message.id,
+                    gid: groupid,
+                    query: query
+                };
+                // now dispatch request
+                this.store.dispatch(new GetQueryDataByGroup(gquery));
+            }
         }
     }
 
@@ -337,10 +350,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // event emit to add new widget from dashboard header
     addNewWidget(selectedWidget: any) {
         console.log('%cADD NEW WIDGET', 'color: white; background-color: blue; font-weight: bold;', selectedWidget);
-        const payload = { widget: this.dbService.getWidgetPrototype() };
-        // this.store.dispatch(new dashboardActions.AddWidget(payload));
-        // trigger Update Widget layout event
-        this.rerender = { 'reload': true };
+        const widget = this.dbService.getWidgetPrototype(selectedWidget.type) ;
+        this.openTimeSeriesMetricDialog(widget);
+    }
+
+    openTimeSeriesMetricDialog(widget) {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        dialogConf.width = '100%';
+        dialogConf.maxWidth = '100%';
+        dialogConf.height = 'calc(100% - 48px)';
+        dialogConf.backdropClass = 'search-metrics-dialog-backdrop';
+        dialogConf.panelClass = 'search-metrics-dialog-panel';
+        dialogConf.position = <DialogPosition>{
+            top: '48px',
+            bottom: '0px',
+            left: '0px',
+            right: '0px'
+        };
+        dialogConf.data = { mgroupId : widget.query.groups[0].id };
+
+        this.searchMetricsDialog = this.dialog.open(SearchMetricsDialogComponent, dialogConf);
+        this.searchMetricsDialog.updatePosition({top: '48px'});
+        this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
+            let widgets = [...this.widgets];
+            const group = dialog_out.mgroup;
+            widget.query.groups[0].queries = group.queries;
+            widgets = this.dbService.positionWidgetY(widgets, widget.gridPos.h);
+            widgets.unshift(widget);
+            this.store.dispatch(new LoadWidgets(widgets));
+            this.rerender = { 'reload': true };
+        });
     }
 
     onDateChange(date: any) {
@@ -390,6 +429,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.listenSub.unsubscribe();
         this.routeSub.unsubscribe();
+        this.widgetSub.unsubscribe();
         // we need to clear dashboard state
         // this.store.dispatch(new dashboardActions.ResetDashboardState);
     }

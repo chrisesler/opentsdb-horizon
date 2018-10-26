@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -13,39 +13,40 @@ export class PlaceholderWidgetComponent implements OnInit {
 
     @Input() editMode: boolean;
     @Input() widget: any;
+    @Output() loadNewWidget = new EventEmitter<any>();
 
     // Available Widget Types
     availableWidgetTypes: Array<object> = [
         {
             label: 'Bar Graph',
-            type: 'WidgetBarGraphComponent',
+            type: 'BarchartWidgetComponent',
             iconClass: 'widget-icon-bar-graph'
-        },
+        },/*
         {
             label: 'Area Graph',
             type: 'WidgetAreaGraphComponent',
             iconClass: 'widget-icon-area-graph'
-        },
+        },*/
         {
             label: 'Line Chart',
-            type: 'LineChartComponent',
+            type: 'LinechartWidgetComponent',
             iconClass: 'widget-icon-line-chart'
         },
         {
             label: 'Big Number',
-            type: 'WidgetBigNumberComponent',
+            type: 'BignumberWidgetComponent',
             iconClass: 'widget-icon-big-number'
         },
         {
             label: 'Donut Chart',
-            type: 'WidgetDonutChartComponent',
+            type: 'DonutWidgetComponent',
             iconClass: 'widget-icon-donut-chart'
-        },
+        }/*,
         {
             label: 'Statuses',
             type: 'WidgetStatusComponent',
             iconClass: 'widget-icon-statuses'
-        }
+        }*/
     ];
 
 
@@ -55,6 +56,7 @@ export class PlaceholderWidgetComponent implements OnInit {
 
     selectWidgetType(wtype: any) {
         console.log('SELECT WIDGET TYPE', wtype, event);
+        this.loadNewWidget.emit(wtype);
     }
 
 }
