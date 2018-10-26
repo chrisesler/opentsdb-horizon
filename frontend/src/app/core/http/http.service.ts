@@ -32,7 +32,7 @@ export class HttpService {
           { key: 'src_colo',
             alias: 'colo',
             allowedValues: [''],
-            enabledValues: [' ', 'bf2', 'gq1', 'blahh', '*'],
+            enabledValues: [' ', 'bf2', 'gq1', 'blahh'],
             type: 'literal'
           },
           // { key: 'src_coolio',

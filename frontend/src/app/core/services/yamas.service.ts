@@ -179,18 +179,33 @@ export class YamasService {
             // append tag values together
             let _filter = '';
             for (let tagValue of tag.enabledValues) {
-                if (_filter.length) {
-                    _filter = _filter + '|' + tagValue.trim();
-                } else { // empty string
-                    _filter = tagValue.trim();
+
+                // only set tagValue if not empty
+                if (tagValue.trim().length) {
+
+                    if (String(tagValue).includes('*')) { // set to wildcard
+                        _filter = tagValue;
+                        filter.type = 'TagValueWildCard';
+                        break;
+                    } else if (_filter.length) { // append to existing string
+                        _filter = _filter + '|' + tagValue;
+                    } else { // empty string
+                        _filter = tagValue;
+                    }
                 }
 
-                // if any tagValue contains '*' - set to wildcard
-                if (String(tagValue).includes('*')) {
-                    _filter = tagValue;
-                    filter.type = 'TagValueWildCard';
-                    break;
-                }
+
+                // if (_filter.length) {
+                //         _filter = _filter + '|' + tagValue.trim();
+                //     } else { // empty string
+                //         _filter = tagValue.trim();
+                //     }
+                // // if any tagValue contains '*' - set to wildcard
+                // if (String(tagValue).includes('*')) {
+                //     _filter = tagValue;
+                //     filter.type = 'TagValueWildCard';
+                //     break;
+                // }
             }
             // set the appended tag keys to filter
             filter.filter = _filter;
