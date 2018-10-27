@@ -1,4 +1,5 @@
 
+@import './children/dbs-variable-item/dbs-variable-item.component';
 @import './children/dbs-json/dbs-json.component';
 @import './children/dbs-variables/dbs-variables.component';
 @import './children/dbs-meta/dbs-meta.component';
@@ -132,6 +133,7 @@
 
 
     // CALL CHILDREN STYLES
+    @include dbs-variable-item-component-base();
     @include dbs-json-component-base();
     @include dbs-meta-component-base();
     @include dbs-variables-component-base();
@@ -224,6 +226,7 @@
     }
 
     // CALL CHILDREN STYLES
+    @include dbs-variable-item-component-theme($theme-config);
     @include dbs-json-component-theme($theme-config);
     @include dbs-meta-component-theme($theme-config);
     @include dbs-variables-component-theme($theme-config);
