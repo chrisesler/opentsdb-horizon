@@ -354,8 +354,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const group: any = payload.query.groups[i];
             groupid = group.id;
             if ( group.queries.length ) {
-                const query = this.queryService.buildQuery(payload, dt, group.queries);
-                console.log('the group query', query);
+                // override with dashboard filters
+                let queries  = JSON.parse(JSON.stringify(group.queries));
+                let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
+                // get only enabled filters
+                overrideFilters = overrideFilters.filter( d => d.enabled );
+                queries = overrideFilters.length ? this.dbService.overrideQueryFilters(queries, overrideFilters) : queries;
+                const query = this.queryService.buildQuery(payload, dt, queries);
+                console.log('the group query', queries, query);
                 const gquery = {
                     wid: message.id,
                     gid: groupid,
