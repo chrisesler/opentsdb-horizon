@@ -13,7 +13,7 @@
 
         .template-variable-list {
 
-            .template-variable-item {
+            /*.template-variable-item {
                 display: flex;
                 
                 &:not(:last-child) {
@@ -56,23 +56,29 @@
                         }
                     }
                 }
-            }
+            }*/
 
             // all items are disabled
             &.is-disabled {
                 opacity: .5;
                 pointer-events: none;
+
+                .template-variable-item.is-disabled {
+                    .settings-control {
+                        opacity: 1;
+                    }
+                }
             }
 
             // individual item is disabled
-            &:not(.is-disabled) {
+            /*&:not(.is-disabled) {
                 .template-variable-item.is-disabled {
                     .settings-control:not(.actions-control) {
                         opacity: .5;
                         pointer-events: none;
                     }
                 }
-            }
+            }*/
             
         }
     }
@@ -94,7 +100,7 @@
     .dbs-variables-component {
         .template-variable-list {
 
-            .template-variable-item {
+            /*.template-variable-item {
                 border: 2px solid $bg-color;
 
                 &:first-child {
@@ -115,7 +121,7 @@
                         }
                     }
                 }
-            }
+            }*/
 
             // all template items are disabled;
             &.is-disabled {
