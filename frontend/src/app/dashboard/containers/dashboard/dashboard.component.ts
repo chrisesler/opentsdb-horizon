@@ -24,6 +24,7 @@ import {
     UpdateMode,
     UpdateDashboardTime,
     LoadDashboardSettings,
+    LoadDashboardTags,
     UpdateDashboardTimeZone,
     UpdateDashboardTitle,
     UpdateVariables,
@@ -49,6 +50,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
     @Select(DBSettingsState.getMeta) meta$: Observable<any>;
     @Select(DBSettingsState.getVariables) variables$: Observable<any>;
+    @Select(DBSettingsState.getDashboardTags) dbTags$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdata) widgetRawData$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
@@ -123,8 +125,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dbTime: any;
     meta: any;
     variables: any;
+    dbTags: any;
     listenSub: Subscription;
     widgetSub: Subscription;
+    dbTagsSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
@@ -232,7 +236,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.widgetSub = this.widgets$.subscribe( widgets => {
+            console.log("--- widget subscription---", widgets);
             this.widgets = widgets;
+            const metrics = this.dbService.getMetricsFromWidgets(widgets);
+            this.store.dispatch(new LoadDashboardTags(metrics));
         });
 
         this.dbTime$.subscribe ( t => {
@@ -260,6 +267,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.variables$.subscribe ( t => {
             console.log('___VARIABLES___', JSON.stringify(this.variables), JSON.stringify(t));
             this.variables = t;
+        });
+
+        this.dbTagsSub = this.dbTags$.subscribe( tags => {
+            console.log( '__DB TAGS___', tags );
+            this.dbTags = tags ? tags : [];
         });
 
         this.widgetRawData$.subscribe(result => {
@@ -430,6 +442,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.listenSub.unsubscribe();
         this.routeSub.unsubscribe();
         this.widgetSub.unsubscribe();
+        this.dbTagsSub.unsubscribe();
         // we need to clear dashboard state
         // this.store.dispatch(new dashboardActions.ResetDashboardState);
     }

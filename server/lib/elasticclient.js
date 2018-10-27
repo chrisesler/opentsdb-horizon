@@ -1,5 +1,5 @@
 //external
-//var _             = require('lodash');
+var _             = require('lodash');
 var Q             = require('q');
 var os            = require('os');
 var elasticsearch = require('elasticsearch');
@@ -9,7 +9,7 @@ var elasticsearch = require('elasticsearch');
 var appconstant = require('../lib/shared/appconstant');
 //var collector   = require('./metricscollector');
 var utils       = require('./utils');
-//var sharedutils = require('./shared/utils');
+var sharedutils = require('./shared/utils');
 var app_setting = utils.getConfig();
 //var simpleCache = {};
 
@@ -400,6 +400,141 @@ module.exports = function () {
             appconstant.METRIC_ES_QUERY_TIMEOUT_MS
         ).then(function (resp) {
             defer.resolve(resp);
+        }, function (error) {
+            defer.reject(error);
+        });
+
+        return defer.promise;
+    };
+
+    self._splitByNamespaceAM = function (metrics) {
+        //build query params need for elastic search
+        var res, nsamMap = {};
+        for (var i = 0; i < metrics.length; i++) {
+            res = sharedutils.splitByNamespaceAndApplicationMetric(metrics[i]);
+
+            if ( !(nsamMap[res.namespace]) ) {
+                nsamMap[res.namespace] = {'namespace': res.namespace, 'applicationMetric': []};
+            }
+            if ( nsamMap[res.namespace].applicationMetric.indexOf(res.applicationMetric) === -1 ) {
+                nsamMap[res.namespace].applicationMetric.push(res.applicationMetric);
+            }
+        }
+        return nsamMap;
+    };
+
+    self._makeQueryBodyTagKeysForMetrics = function (queryParams) {
+
+        //to lowercase
+        queryParams.application_metric_lc = queryParams.applicationMetric.map(function (am) {
+            return am.toLowerCase();
+        });
+
+        var queryBody = {
+            "size": "0",
+            "query": {
+                "filtered": {
+                    "filter": {
+                        "bool": {
+                            "must": [
+                                //insert here the metric filters
+                            ]
+                        }
+                    }
+                }
+            },
+
+            "aggs": {
+                "elasticQueryResults": {
+                    "nested": {
+                        "path": "tags"
+                    },
+                    "aggs": {
+                        "elasticQueryResults": {
+                            "terms": {
+                                "field": "tags.key.raw",
+                                "size": 0
+                            }
+                        }
+                    }
+                }
+            }
+
+        };
+
+        //First: append the application_metric filters
+        var metricsFilter = {
+            "nested": {
+                "path": "AM_nested",
+                "query": {
+                    "bool": {
+                        "should": []
+                    }
+                }
+            }
+        };
+        var numTerms      = 0, metricsArray;
+        if (queryParams.application_metric_lc.length > 1024) {
+            metricsArray = _.cloneDeep(queryParams.application_metric_lc);
+            sharedutils.shuffleArray(metricsArray);
+        } else {
+            metricsArray = queryParams.application_metric_lc;
+        }
+        _.forEach(metricsArray, function (app_metric, idx) {
+            if (numTerms < 1024) {
+                numTerms++;
+                metricsFilter.nested.query.bool.should.push(
+                    {
+                        "term": {"AM_nested.name.lowercase": app_metric}
+                    }
+                );
+            }
+        });
+        queryBody.query.filtered.filter.bool.must.push(metricsFilter);
+
+        return queryBody;
+    };
+
+    self.getTagKeysForMetrics = function (params) {
+        var defer       = Q.defer();
+        var metrics     = params.metrics;
+        var headers     = params.headers;
+        var namQueries  = self._splitByNamespaceAM(metrics);
+        var suggestions = [];
+
+        var startTime, endTime, requestTime;
+        //build multiquery object
+        var multisearchQueryBody = [], queryMetadata, queryBody;
+        _.forEach(namQueries, function (namQuery, idx) {
+            queryMetadata = {
+                "index": namQuery.namespace.toLowerCase() + "_tagkeys",
+                "query_cache": true
+            };
+            queryBody     = self._makeQueryBodyTagKeysForMetrics(namQuery);
+
+            //note: keep insertion order, expected by elastic search
+            multisearchQueryBody.push(queryMetadata);
+            multisearchQueryBody.push(queryBody);
+        });
+
+        tags.endpoint = 'tagkeys';
+        //tags.userid   = headers.auth.getPrincipal();
+        console.log(JSON.stringify(multisearchQueryBody))
+        startTime = (new Date()).getTime();
+        //perform the query
+        self._makeESMultiQuery(
+            multisearchQueryBody,
+            headers,
+            appconstant.TAGKEYS_ES_QUERY_TIMEOUT_MS
+        ).then(function (resp) {
+            console.log("\n\n resp\n\n\n");
+            console.log(JSON.stringify(resp))
+
+            suggestions = extractResultsFromElasticSearchResponse(
+                resp,
+                getElasticQueryResultExtractor('tagKeys')
+            );
+            defer.resolve(suggestions);
         }, function (error) {
             defer.reject(error);
         });
