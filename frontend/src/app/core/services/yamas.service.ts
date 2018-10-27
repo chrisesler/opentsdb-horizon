@@ -19,10 +19,6 @@ export class YamasService {
         for (let j = 0; j < metrics.length; j++) {
             const isExpression = metrics[j].expression ? true : false;
 
-            if ( isExpression )  {
-                // continue;
-            }
-
             let q;
             let sources = [];
             if ( metrics[j].metric) {
@@ -59,18 +55,8 @@ export class YamasService {
     }
 
     getMetricQuery(m, index) {
-        const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
         const mid = 'm' + index;
-        const filters = [];
-        for (let k = 0; m.filters && k < m.filters.length; k++) {
-            const f = m.filters[k];
-            const filter = {
-                type: filterTypes[f.type],
-                filter: f.filter,
-                tagKey: f.tagk
-            };
-            filters.push(filter);
-        }
+        let filters = [];
         const q = {
             id: mid, // using the loop index for now, might need to generate its own id
             type: 'TimeSeriesDataSource',
@@ -81,6 +67,7 @@ export class YamasService {
             fetchLast: false,
             filter: {}
         };
+        filters = m.filters ? this.transformFilters(m.filters) : [];
         if ( filters.length ) {
             q.filter = {
                 type: 'Chain',
@@ -93,20 +80,11 @@ export class YamasService {
     }
 
     getExpressionQuery(query, index) {
-        const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
-        const filters = [];
+        let filters = [];
         const eid = 'm' + index;
         const qids = [];
         let expValue = query.expression;
-        for (let k = 0; query.filters && k < query.filters.length; k++) {
-            const f = query.filters[k];
-            const filter = {
-                type: filterTypes[f.type],
-                filter: f.filter,
-                tagKey: f.tagk
-            };
-            filters.push(filter);
-        }
+        filters = query.filters ? this.transformFilters(query.filters) : [];
         const queries = [];
         for ( let i = 0; i < query.metrics.length; i++ ) {
             const mid = 'm' + index.toString()  + (i + 1);
@@ -150,6 +128,21 @@ export class YamasService {
             sources: []
         };
         return { expression: expression, queries: queries, qids: qids };
+    }
+
+    transformFilters(fConfigs) {
+        const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
+        const filters = [];
+        for (let k = 0;  k < fConfigs.length; k++) {
+            const f = fConfigs[k];
+            const filter = {
+                type: filterTypes[f.type],
+                filter: Array.isArray(f.filter) ? f.filter.join('|') : f.filter,
+                tagKey: f.tagk
+            };
+            filters.push(filter);
+        }
+        return filters;
     }
 
     getMetricGroupBy(mConfig= null, qid= null, sources= []) {

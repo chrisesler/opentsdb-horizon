@@ -120,6 +120,42 @@ export class DashboardService {
     return widgets;
   }
 
+  getMetricsFromWidgets( widgets ) {
+    const metrics = [];
+    for ( let i = 0; i < widgets.length; i++ ) {
+        const groups = widgets[i].query.groups;
+        for ( let j = 0; j < groups.length; j++ ) {
+            const queries = groups[j].queries;
+            for ( let k = 0; k < queries.length; k++ ) {
+                if ( queries[k].metric ) {
+                    metrics.push(queries[k].metric);
+                } else {
+                    for ( let l = 0; l < queries[k].metrics.length; l++ ) {
+                        metrics.push(queries[k].metrics[l].metric);
+                    }
+                }
+            }
+        }
+    }
+    return metrics;
+  }
+
+    overrideQueryFilters(queries, filters) {
+        for ( let i = 0; i < filters.length; i++ ) {
+            for ( let j = 0; j < queries.length; j++ ) {
+                for ( let k = 0; queries[j].filters && k < queries[j].filters.length; k++ ) {
+                    console.log(k,filters[i].tagk , queries[j].filters[k].tagk, filters[i].tagk === queries[j].filters[k].tagk);
+                    if ( filters[i].tagk === queries[j].filters[k].tagk ) {
+                        queries[j].filters[k].filter = filters[i].filter;
+                        queries[j].filters[k].type = filters[i].type;
+                    }
+                }
+            }
+        }
+
+        return queries;
+    }
+
   // we might not need to generate id for widget or group
   // it should be done at the time of adding into dashboard
   // this function only here for testing stuff

@@ -24,6 +24,7 @@ import {
     UpdateMode,
     UpdateDashboardTime,
     LoadDashboardSettings,
+    LoadDashboardTags,
     UpdateDashboardTimeZone,
     UpdateDashboardTitle,
     UpdateVariables,
@@ -51,6 +52,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
     @Select(DBSettingsState.getMeta) meta$: Observable<any>;
     @Select(DBSettingsState.getVariables) variables$: Observable<any>;
+    @Select(DBSettingsState.getDashboardTags) dbTags$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdata) widgetRawData$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
@@ -125,8 +127,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dbTime: any;
     meta: any;
     variables: any;
+    dbTags: any;
     listenSub: Subscription;
     widgetSub: Subscription;
+    dbTagsSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
@@ -259,7 +263,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.widgetSub = this.widgets$.subscribe( widgets => {
+            console.log("--- widget subscription---", widgets);
             this.widgets = widgets;
+            const metrics = this.dbService.getMetricsFromWidgets(widgets);
+            this.store.dispatch(new LoadDashboardTags(metrics));
         });
 
         this.dbTime$.subscribe ( t => {
@@ -286,6 +293,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.variables$.subscribe ( t => {
             this.variables = t;
+        });
+
+        this.dbTagsSub = this.dbTags$.subscribe( tags => {
+            console.log( '__DB TAGS___', tags );
+            this.dbTags = tags ? tags : [];
         });
 
         this.widgetRawData$.subscribe(result => {
@@ -342,8 +354,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const group: any = payload.query.groups[i];
             groupid = group.id;
             if ( group.queries.length ) {
-                const query = this.queryService.buildQuery(payload, dt, group.queries);
-                console.log('the group query', query);
+                // override with dashboard filters
+                let queries  = JSON.parse(JSON.stringify(group.queries));
+                let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
+                // get only enabled filters
+                overrideFilters = overrideFilters.filter( d => d.enabled );
+                queries = overrideFilters.length ? this.dbService.overrideQueryFilters(queries, overrideFilters) : queries;
+                const query = this.queryService.buildQuery(payload, dt, queries);
+                console.log('the group query', queries, query);
                 const gquery = {
                     wid: message.id,
                     gid: groupid,
@@ -456,6 +474,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.listenSub.unsubscribe();
         this.routeSub.unsubscribe();
         this.widgetSub.unsubscribe();
+        this.dbTagsSub.unsubscribe();
         // we need to clear dashboard state
         // this.store.dispatch(new dashboardActions.ResetDashboardState);
     }
