@@ -1,3 +1,5 @@
+@import './children/variable-selector/variable-selector.component';
+
 @mixin variable-template-bar-component-base() {
     .variable-template-bar {
         display:block;
@@ -27,6 +29,9 @@
             }
         }
     }
+
+    // children styles
+    @include variable-selector-component-base();
 }
 
 @mixin variable-template-bar-component-theme($theme-config) {
@@ -60,4 +65,7 @@
             }
         }
     }
+
+    // children styles
+    @include variable-selector-component-theme($theme-config);
 }
