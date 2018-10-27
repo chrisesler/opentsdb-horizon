@@ -48,7 +48,8 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
             // need to remove unused variables (ones without keys)
             const pending = val;
             pending.tplVariables = val.tplVariables.filter(item => {
-                return item.key.length > 0;
+                const keyCheck = item.key.trim();
+                return keyCheck.length > 0;
             });
 
             this.dataModified.emit({
