@@ -32,7 +32,9 @@ import {
 } from '../../state/settings.state';
 
 import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
-import { SearchMetricsDialogComponent } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
+import {
+    SearchMetricsDialogComponent
+} from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 
 @Component({
@@ -218,11 +220,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         });
                     }
                     break;
+                case 'dashboardSaveRequest':
+                    // DashboardSaveRequest comes from the save button
 
+                    // needs to update first?
+                    if (message.payload.updateFirst === true) {
+                        this.store.dispatch(new UpdateMeta(message.payload.meta));
+                    }
+                    // trigger SAVE action here
+                    break;
+                case 'dashboardSettingsToggleRequest':
+
+                    this.interCom.responsePut({
+                        id: message.id,
+                        action: 'dashboardSettingsToggleResponse',
+                        payload: {
+                            meta: this.meta,
+                            variables: this.variables
+                        }
+                    });
+                    break;
                 case 'updateDashboardSettings':
                     console.log(message);
                     // this.store.dispatch(new UpdateVariables(message.payload));
                     // this.store.dispatch(new UpdateMeta(message.payload));
+                    if (message.payload.meta) {
+                        this.store.dispatch(new UpdateMeta(message.payload.meta));
+                    }
+                    if (message.payload.variables) {
+                        this.store.dispatch(new UpdateVariables(message.payload.variables));
+                    }
                     break;
                 default:
                     break;
@@ -243,7 +270,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbTime$.subscribe ( t => {
-            console.log('___DBTIME___', JSON.stringify(this.dbTime), JSON.stringify(t));
+            // console.log('___DBTIME___', JSON.stringify(this.dbTime), JSON.stringify(t));
 
             if ( this.dbTime && this.dbTime.zone !== t.zone ) {
                 this.interCom.responsePut({
@@ -260,12 +287,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.meta$.subscribe ( t => {
-            console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
+            // console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
             this.meta = t;
         });
 
         this.variables$.subscribe ( t => {
-            console.log('___VARIABLES___', JSON.stringify(this.variables), JSON.stringify(t));
             this.variables = t;
         });
 
@@ -295,9 +321,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.auth$.subscribe(auth => {
-            console.log('auth$ calling', auth);
+            // console.log('auth$ calling', auth);
             if (auth === 'invalid') {
-                console.log('open auth dialog');
+                // console.log('open auth dialog');
             }
         });
     }
@@ -317,7 +343,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // dispatch payload query by group
     handleQueryPayload(message: any) {
 
-        console.log('query message', message);
+        // console.log('query message', message);
 
         let groupid = '';
         const payload = message.payload;
@@ -395,12 +421,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     onDateChange(date: any) {
-        console.log(date);
+        // console.log(date);
     }
 
     // save dashboard name
     saveDashboardName(event: any) {
-        console.log('dashboard name save', event);
+        // console.log('dashboard name save', event);
     }
 
     setDateRange(e: any) {
@@ -427,15 +453,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }*/
 
     receiveDashboardAction(event: any) {
-        console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
+        // console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
     }
 
     click_availableWidgetsTrigger() {
-        console.log('EVT: AVAILABLE WIDGETS TRIGGER', this.availableWidgetsMenuTrigger);
+        // console.log('EVT: AVAILABLE WIDGETS TRIGGER', this.availableWidgetsMenuTrigger);
     }
 
     click_refreshDashboard() {
-        console.log('EVT: REFRESH DASHBOARD');
+        // console.log('EVT: REFRESH DASHBOARD');
     }
 
     ngOnDestroy() {

@@ -105,7 +105,7 @@ export class WidgetsState {
         });
     }
 
-    // update statte with the loading dashboard 
+    // update statte with the loading dashboard
     @Action(LoadWidgets)
     loadWidgets(ctx: StateContext<WidgetModel[]>, { payload }: LoadWidgets) {
         ctx.setState(payload);
@@ -125,7 +125,7 @@ export class WidgetsState {
     updateWidget(ctx: StateContext<WidgetModel[]>, { widget }: UpdateWidget) {
         const state = ctx.getState();
         for (let i = 0; i < state.length; i++) {
-            if(state[i].id === widget.id) {
+            if (state[i].id === widget.id) {
                 state[i] = widget;
                 break;
             }

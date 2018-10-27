@@ -29,15 +29,11 @@ export class DbsMetaComponent implements OnInit, OnDestroy {
     @Input() dbData: any = {};
 
     /** Outputs */
-    @Output() dataUpdated: any = new EventEmitter();
+    @Output() dataModified: any = new EventEmitter();
 
     /** Local Variables */
     metaForm: FormGroup;
     metaFormSub: Subscription;
-
-    title: FormControl;
-    description: FormControl;
-    labels: FormArray;
 
     @ViewChild('newLabelInput') newLabelInput: ElementRef;
 
@@ -49,16 +45,32 @@ export class DbsMetaComponent implements OnInit, OnDestroy {
 
         this.metaForm = this.fb.group({
             title: new FormControl(this.dbData.meta.title),
+            namespace: new FormControl(this.dbData.meta.namespace),
+            isPersonal: new FormControl(this.dbData.meta.isPersonal),
             description: new FormControl(this.dbData.meta.description),
             labels: this.fb.array([])
+        });
+
+        this.metaFormSub = this.metaForm.valueChanges.subscribe(val => {
+            console.log('%cMETA FORM [CHANGES]', 'background-color: skyblue; padding: 2px 4px;', val);
+            this.dataModified.emit({
+                type: 'meta',
+                data: val
+            });
         });
 
         this.intializeLabels(this.dbData.meta.labels);
 
     }
 
+    get title() { return this.metaForm.get('title'); }
+    get namespace() { return this.metaForm.get('namespace'); }
+    get isPersonal() { return this.metaForm.get('isPersonal'); }
+    get description() { return this.metaForm.get('description'); }
+    get labels() { return this.metaForm.get('labels'); }
+
     ngOnDestroy() {
-        // this.metaFormSub.unsubscribe();
+        this.metaFormSub.unsubscribe();
     }
 
     intializeLabels(values: any) {
@@ -68,7 +80,7 @@ export class DbsMetaComponent implements OnInit, OnDestroy {
             control.push(this.fb.group(item));
         }
 
-        console.log('%cMETA CONTROLS', 'color: red; font-weight: bold;', this.metaForm);
+        console.log('%cMETA CONTROLS', 'background-color: skyblue; padding: 2px 4px;', this.metaForm);
     }
 
 

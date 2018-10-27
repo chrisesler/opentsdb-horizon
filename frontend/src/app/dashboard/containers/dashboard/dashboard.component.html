@@ -1,7 +1,7 @@
 <div fxLayout="column" fxFlexFill>
     <!-- need to figure out how to toggle on/off depending on whether there is template variables -->
-    <variable-template-bar [dbDataVariables]="variables"></variable-template-bar>
-    <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" [rerender]="rerender" [widgets]="widgets" [dashboardMode]="dashboardMode$ | async"></app-dboard-content>
+    <variable-template-bar [dbSettingsVariables]="variables$"></variable-template-bar>
+    <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" [rerender]="rerender" [widgets]="widgets$ | async" [dashboardMode]="dashboardMode$ | async"></app-dboard-content>
 </div>
 <ng-template #dashboardNavbarTmpl>
     <!-- <a mat-button class="navbar-item" routerLink="dashboard">     
@@ -11,7 +11,7 @@
     <inline-editable class="navbar-item" [fieldValue]="meta.title" [minLength]="3" [maxLength]="25" (updatedValue)="setTitle($event)">
     </inline-editable>
     <span class="navbar-item navbar-icon-item nav-dashboard-config-trigger">
-        <dashboard-settings-toggle mat-button></dashboard-settings-toggle>
+        <dashboard-settings-toggle mat-button ></dashboard-settings-toggle>
     </span>
 
     <span class="flex-spacer"></span>
@@ -80,7 +80,7 @@
                 </button>
             </ng-template>
         </mat-menu>-->
-        <navbar-dashboard-actions-menu mat-button (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
+        <navbar-dashboard-actions-menu mat-button [dbSettingsMeta]="meta" (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
     </span>
 
     <span class="navbar-item navbar-icon-item nav-search-toggle">

@@ -1,4 +1,4 @@
-<mat-toolbar [formGroup]="varForm" *ngIf="dbDataVariables.enabled && atleastOneTemplateVariableEnabled(dbDataVariables.tplVariables)">
+<!--<mat-toolbar [formGroup]="varForm" *ngIf="dbDataVariables.enabled && atleastOneTemplateVariableEnabled(dbDataVariables.tplVariables)">
     <mat-toolbar-row formArrayName="variables">
             <ng-container *ngFor="let tpl of dbDataVariables.tplVariables; let i=index">
                 <div class="variable-item" *ngIf="tpl.enabled">
@@ -14,7 +14,26 @@
             </ng-container>
         <span class="flex-spacer"></span>
     </mat-toolbar-row>
+</mat-toolbar>-->
+
+<mat-toolbar [formGroup]="varForm" *ngIf="!variables.disabled && variables.tplVariables.length > 0">
+    <mat-toolbar-row formArrayName="tplVariables">
+        <ng-container *ngFor="let tpl of varForm['controls'].tplVariables['controls']; let i=index">
+            <div class="variable-item" formGroupName="{{i}}">
+                <div class="mat-label">{{getLabel(tpl)}}:</div>
+                <mat-form-field appearance="fill" floatLabel="never">
+                    <mat-select placeholder="Select value(s)" formControlName="options" disableOptionCentering="true" multiple>
+                        <mat-option *ngFor="let option of optionLists[tpl['controls'].key.value]" [value]="option">
+                        {{option}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </ng-container>
+        <span class="flex-spacer"></span>
+    </mat-toolbar-row>
 </mat-toolbar>
+
 
 <!-- [formGroupName]="i" -->
 <!-- [formControl]="options" -->

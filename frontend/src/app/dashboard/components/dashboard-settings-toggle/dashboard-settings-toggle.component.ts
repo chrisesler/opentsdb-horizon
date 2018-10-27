@@ -17,24 +17,45 @@ import { IntercomService, IMessage } from '../../../core/services/intercom.servi
     templateUrl: './dashboard-settings-toggle.component.html',
     styleUrls: []
 })
-export class DashboardSettingsToggleComponent implements OnInit {
+export class DashboardSettingsToggleComponent implements OnInit, OnDestroy {
 
     @HostBinding('class.dashboard-settings-toggle') private _hostClass = true;
 
     /** Dialogs */
     dashboardSettingsDialog: MatDialogRef<DashboardSettingsDialogComponent> | null;
-    dashboardSettingsDialogSub: Subscription;
+    listenSub: Subscription;
 
     constructor(
-        public dialog: MatDialog,
-        private interCom: IntercomService
+        private interCom: IntercomService,
+        public dialog: MatDialog
     ) { }
 
     ngOnInit() {
+        this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+            if (message.action === 'dashboardSettingsToggleResponse' && message.id === 'settingsToggle') {
+                console.log('%cSETTINGS TOGGLE ResponseGet [InterCom]',
+                        'color: white; background-color: darkmagenta; padding: 2px 4px;',
+                        message);
+                this.displaySettingsDialog(message.payload);
+            }
+        });
+    }
+
+    ngOnDestroy() {
+        this.listenSub.unsubscribe();
     }
 
     showDashboardSettingsDialog() {
-        console.log('SHOW DASHBOARD SETTINGS DIALOG');
+        // request settings data from dashboard
+        this.interCom.requestSend(<IMessage> {
+            id: 'settingsToggle',
+            action: 'dashboardSettingsToggleRequest',
+            payload: {}
+        });
+    }
+
+    private displaySettingsDialog(data: any) {
+        // console.log('SHOW DASHBOARD SETTINGS DIALOG');
         // do something
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.width = '100%';
@@ -49,46 +70,18 @@ export class DashboardSettingsToggleComponent implements OnInit {
             right: '0px'
         };
         dialogConf.autoFocus = false;
+        dialogConf.data = data;
 
         this.dashboardSettingsDialog = this.dialog.open(DashboardSettingsDialogComponent, dialogConf);
         this.dashboardSettingsDialog.updatePosition({top: '48px'});
-        this.dashboardSettingsDialog.componentInstance.dbData = {
-            time: {
-                start: '1h',
-                end: 'now',
-                zone: 'local'
-            },
-            meta: {
-                title: 'Untitled Dashboard',
-                description: '',
-                labels: [],
-                namespace: '',
-                isPersonal: false,
-            },
-            variables: {
-                enabled: true,
-                tplVariables: [
-                { key: 'colo',
-                    alias: '',
-                    values: 'bf2,bf1, gq1, sg3  ',
-                    enabled: true
-                },
-                {
-                    key: 'variable1',
-                    alias: 'variable_1',
-                    values: 'rotation, system',
-                    enabled: false
-                }
-                ]
-            }
-          };
 
         // getting data passing out from dialog
         this.dashboardSettingsDialog.afterClosed().subscribe((dialog_out: any) => {
+            console.log('%cSETTINGS DIALOG CLOSED [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', dialog_out);
             this.interCom.requestSend(<IMessage> {
+                id: 'settingsToggle',
                 action: 'updateDashboardSettings',
-                payload: dialog_out,
-                id: 'settingsToggle'
+                payload: dialog_out
             });
         });
     }
