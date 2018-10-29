@@ -28,21 +28,22 @@ export class HttpService {
         isPersonal: false,
       },
       variables: {
-        disabled: false,
+        enabled: true,
         tplVariables: [
-          { key: 'colo',
+          { tagk: 'colo',
             alias: '',
-            values: 'bf2,bf1, gq1, sg3  ',
+            allowedValues: [],
+            filter: ['bf2', 'gq1', 'blahh'],
             enabled: true,
             type: 'literal'
           },
-          {
+          /*{
             key: 'variable1',
             alias: 'variable_1',
             values: 'rotation, system',
             enabled: false,
             type: 'literal'
-          }
+          }*/
         ]
       }
     },
@@ -297,9 +298,9 @@ export class HttpService {
                       },
                       settings: {
                         visual: {
-                            color: "#FF0000",
+                            color: '#FF0000',
                             type: 'line',
-                            label: "yahoo",
+                            label: 'yahoo',
                             visible: true
                         }
                       }
@@ -365,9 +366,9 @@ export class HttpService {
                       },
                       settings: {
                         visual: {
-                            color: "#000000",
+                            color: '#000000',
                             type: 'line',
-                            label: "yahoo",
+                            label: 'yahoo',
                             visible: true
                         },
                       }
@@ -433,9 +434,9 @@ export class HttpService {
                   },
                   settings: {
                     visual: {
-                        color: "#000000",
+                        color: '#000000',
                         type: 'line',
-                        label: "yahoo",
+                        label: 'yahoo',
                         visible: true
                     },
                   }
@@ -470,9 +471,9 @@ export class HttpService {
                   },
                   settings: {
                     visual: {
-                        color: "#0000FF ",
+                        color: '#0000FF ',
                         type: 'line',
-                        label: "yahoo",
+                        label: 'yahoo',
                         visible: true
                     },
                   }
@@ -514,9 +515,9 @@ export class HttpService {
                 queries: [
                     {
                         aggregator: 'zimsum',
-                        explicitTags:false,
+                        explicitTags: false,
                         downsample: '1m-avg-nan',
-                        metric:'Flickr.WWW-BOTS.cpu_speed',
+                        metric: 'Flickr.WWW-BOTS.cpu_speed',
                         rate: false,
                         rateOptions : {
                             counter: false,
@@ -526,18 +527,18 @@ export class HttpService {
                         resetValue: 1,
                         settings: {
                             visual: {
-                                color: "#FF0000",
-                                aggregator: "sum",
+                                color: '#FF0000',
+                                aggregator: 'sum',
                                 visible: true,
-                                stackLabel: "WWW-BOTS"
+                                stackLabel: 'WWW-BOTS'
                             }
                         }
                     },
                     {
                         aggregator: 'zimsum',
                         downsample: '1m-avg-nan',
-                        explicitTags:false,
-                        metric:'Flickr.UPLOAD.cpu_speed',
+                        explicitTags: false,
+                        metric: 'Flickr.UPLOAD.cpu_speed',
                         rate: false,
                         rateOptions : {
                             counter: false,
@@ -547,18 +548,18 @@ export class HttpService {
                         resetValue: 1,
                         settings: {
                             visual: {
-                                color: "#FFA500",
-                                aggregator: "sum",
+                                color: '#FFA500',
+                                aggregator: 'sum',
                                 visible: true,
-                                stackLabel: "UPLOAD"
+                                stackLabel: 'UPLOAD'
                             }
                         }
                     },
                     {
                         aggregator: 'zimsum',
                         downsample: '1m-avg-nan',
-                        explicitTags:false,
-                        metric:'Flickr.ZOOKEEPER.cpu_speed',
+                        explicitTags: false,
+                        metric: 'Flickr.ZOOKEEPER.cpu_speed',
                         rate: false,
                         rateOptions : {
                             counter: false,
@@ -568,18 +569,18 @@ export class HttpService {
                         resetValue: 1,
                         settings: {
                             visual: {
-                                color: "#FFFF00",
-                                aggregator: "sum",
+                                color: '#FFFF00',
+                                aggregator: 'sum',
                                 visible: true,
-                                stackLabel: "ZOOKEEPER"
+                                stackLabel: 'ZOOKEEPER'
                             }
                         }
                     },
                     {
                         aggregator: 'zimsum',
                         downsample: '1m-avg-nan',
-                        explicitTags:false,
-                        metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
+                        explicitTags: false,
+                        metric: 'Flickr.TWEM-VIEWCOUNT.cpu_speed',
                         rate: false,
                         rateOptions : {
                             counter: false,
@@ -589,18 +590,18 @@ export class HttpService {
                         resetValue: 1,
                         settings: {
                             visual: {
-                                color: "#008000",
-                                aggregator: "sum",
+                                color: '#008000',
+                                aggregator: 'sum',
                                 visible: true,
-                                stackLabel: "TWEM"
+                                stackLabel: 'TWEM'
                             }
                         }
                     },
                     {
                         aggregator: 'zimsum',
                         downsample: '1m-avg-nan',
-                        explicitTags:false,
-                        metric:'Flickr.STORM-General.cpu_speed',
+                        explicitTags: false,
+                        metric: 'Flickr.STORM-General.cpu_speed',
                         rate: false,
                         rateOptions : {
                             counter: false,
@@ -610,10 +611,10 @@ export class HttpService {
                         resetValue: 1,
                         settings: {
                             visual: {
-                                color: "#0000FF",
-                                aggregator: "sum",
+                                color: '#0000FF',
+                                aggregator: 'sum',
                                 visible: true,
-                                stackLabel: "STORM"
+                                stackLabel: 'STORM'
                             }
                         }
                     }
@@ -690,9 +691,9 @@ export class HttpService {
               queries: [
                 {
                     aggregator: 'zimsum',
-                    explicitTags:false,
+                    explicitTags: false,
                     downsample: '1m-avg-nan',
-                    metric:'Flickr.WWW-BOTS.cpu_speed',
+                    metric: 'Flickr.WWW-BOTS.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -702,7 +703,7 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            aggregator: "sum",
+                            aggregator: 'sum',
                             visible: true  ,
                             stack: 1
                         }
@@ -711,8 +712,8 @@ export class HttpService {
                 {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.UPLOAD.cpu_speed',
+                    explicitTags: false,
+                    metric: 'Flickr.UPLOAD.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -722,7 +723,7 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            aggregator: "sum",
+                            aggregator: 'sum',
                             visible: true,
                             stack: 2
                         }
@@ -731,8 +732,8 @@ export class HttpService {
                 {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.ZOOKEEPER.cpu_speed',
+                    explicitTags: false,
+                    metric: 'Flickr.ZOOKEEPER.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -742,7 +743,7 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            aggregator: "sum",
+                            aggregator: 'sum',
                             visible: true,
                             stack: 3
                         }
@@ -751,8 +752,8 @@ export class HttpService {
                 {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
+                    explicitTags: false,
+                    metric: 'Flickr.TWEM-VIEWCOUNT.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -762,7 +763,7 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            aggregator: "sum",
+                            aggregator: 'sum',
                             visible: true,
                             stack: 4
                         }
@@ -782,7 +783,7 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            aggregator: "sum",
+                            aggregator: 'sum',
                             visible: true,
                             stack: 5
                         }
@@ -804,9 +805,9 @@ export class HttpService {
                 queries: [
                   {
                       aggregator: 'zimsum',
-                      explicitTags:false,
+                      explicitTags: false,
                       downsample: '1m-avg-nan',
-                      metric:'Flickr.WWW-BOTS.cpu_speed',
+                      metric: 'Flickr.WWW-BOTS.cpu_speed',
                       rate: false,
                       rateOptions : {
                           counter: false,
@@ -814,10 +815,10 @@ export class HttpService {
                       },
                       counter: false,
                       resetValue: 1,
-                      tags: { colo: "bf1"},
+                      tags: { colo: 'bf1'},
                       settings: {
                         visual: {
-                            aggregator: "sum",
+                            aggregator: 'sum',
                             visible: true,
                             stack: 1
                         }
@@ -826,8 +827,8 @@ export class HttpService {
                   {
                       aggregator: 'zimsum',
                       downsample: '1m-avg-nan',
-                      explicitTags:false,
-                      metric:'Flickr.UPLOAD.cpu_speed',
+                      explicitTags: false,
+                      metric: 'Flickr.UPLOAD.cpu_speed',
                       rate: false,
                       rateOptions : {
                           counter: false,
@@ -835,10 +836,10 @@ export class HttpService {
                       },
                       counter: false,
                       resetValue: 1,
-                      tags: { colo: "bf1"},
+                      tags: { colo: 'bf1'},
                       settings: {
                         visual: {
-                            aggregator: "sum",
+                            aggregator: 'sum',
                             visible: true,
                             stack: 2
                         }
@@ -847,8 +848,8 @@ export class HttpService {
                   {
                       aggregator: 'zimsum',
                       downsample: '1m-avg-nan',
-                      explicitTags:false,
-                      metric:'Flickr.ZOOKEEPER.cpu_speed',
+                      explicitTags: false,
+                      metric: 'Flickr.ZOOKEEPER.cpu_speed',
                       rate: false,
                       rateOptions : {
                           counter: false,
@@ -856,10 +857,10 @@ export class HttpService {
                       },
                       counter: false,
                       resetValue: 1,
-                      tags: { colo: "bf1"},
+                      tags: { colo: 'bf1'},
                       settings: {
                         visual: {
-                            aggregator: "sum",
+                            aggregator: 'sum',
                             visible: true,
                             stack: 3
                         }
@@ -868,8 +869,8 @@ export class HttpService {
                   {
                       aggregator: 'zimsum',
                       downsample: '1m-avg-nan',
-                      explicitTags:false,
-                      metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
+                      explicitTags: false,
+                      metric: 'Flickr.TWEM-VIEWCOUNT.cpu_speed',
                       rate: false,
                       rateOptions : {
                           counter: false,
@@ -877,10 +878,10 @@ export class HttpService {
                       },
                       counter: false,
                       resetValue: 1,
-                      tags: { colo: "bf1"},
+                      tags: { colo: 'bf1'},
                       settings: {
                         visual: {
-                            aggregator: "sum",
+                            aggregator: 'sum',
                             visible: true,
                             stack: 4
                         }
@@ -889,8 +890,8 @@ export class HttpService {
                   {
                       aggregator: 'zimsum',
                       downsample: '1m-avg-nan',
-                      explicitTags:false,
-                      metric:'Flickr.STORM-General.cpu_speed',
+                      explicitTags: false,
+                      metric: 'Flickr.STORM-General.cpu_speed',
                       rate: false,
                       rateOptions : {
                           counter: false,
@@ -898,10 +899,10 @@ export class HttpService {
                       },
                       counter: false,
                       resetValue: 1,
-                      tags: { colo: "bf1"},
+                      tags: { colo: 'bf1'},
                       settings: {
                         visual: {
-                            aggregator: "sum",
+                            aggregator: 'sum',
                             visible: true,
                             stack: 5
                         }
@@ -949,9 +950,9 @@ export class HttpService {
               queries: [
                 {
                     aggregator: 'zimsum',
-                    explicitTags:false,
+                    explicitTags: false,
                     downsample: '1m-avg-nan',
-                    metric:'Flickr.WWW-BOTS.cpu_speed',
+                    metric: 'Flickr.WWW-BOTS.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -961,18 +962,18 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "#FF0000",
-                            aggregator: "avg",
+                            color: '#FF0000',
+                            aggregator: 'avg',
                             visible: true,
-                            stackLabel: "WWW-BOTS"
+                            stackLabel: 'WWW-BOTS'
                         }
                     }
                 },
                 {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.UPLOAD.cpu_speed',
+                    explicitTags: false,
+                    metric: 'Flickr.UPLOAD.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -982,18 +983,18 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "#FFA500",
-                            aggregator: "avg",
+                            color: '#FFA500',
+                            aggregator: 'avg',
                             visible: true,
-                            stackLabel: "UPLOAD"
+                            stackLabel: 'UPLOAD'
                         }
                     }
                 },
                 {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.ZOOKEEPER.cpu_speed',
+                    explicitTags: false,
+                    metric: 'Flickr.ZOOKEEPER.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -1003,18 +1004,18 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "#FFFF00",
-                            aggregator: "avg",
+                            color: '#FFFF00',
+                            aggregator: 'avg',
                             visible: true,
-                            stackLabel: "ZOOKEEPER"
+                            stackLabel: 'ZOOKEEPER'
                         }
                     }
                 },
                 {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.TWEM-VIEWCOUNT.cpu_speed',
+                    explicitTags: false,
+                    metric: 'Flickr.TWEM-VIEWCOUNT.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -1024,18 +1025,18 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "#008000",
-                            aggregator: "avg",
+                            color: '#008000',
+                            aggregator: 'avg',
                             visible: true,
-                            stackLabel: "TWEM"
+                            stackLabel: 'TWEM'
                         }
                     }
                 },
                 {
                     aggregator: 'zimsum',
                     downsample: '1m-avg-nan',
-                    explicitTags:false,
-                    metric:'Flickr.STORM-General.cpu_speed',
+                    explicitTags: false,
+                    metric: 'Flickr.STORM-General.cpu_speed',
                     rate: false,
                     rateOptions : {
                         counter: false,
@@ -1045,10 +1046,10 @@ export class HttpService {
                     resetValue: 1,
                     settings: {
                         visual: {
-                            color: "#0000FF",
-                            aggregator: "avg",
+                            color: '#0000FF',
+                            aggregator: 'avg',
                             visible: true,
-                            stackLabel: "STORM"
+                            stackLabel: 'STORM'
                         }
                     }
                 }
@@ -1087,8 +1088,8 @@ export class HttpService {
   getYamasData(query: any): Observable<any> {
     const headers = new HttpHeaders(
       { 'Content-Type': 'application/json' });
-      //'/tsdb/queryData'
-    let apiUrl = environment.tsdb_host + '/api/query/graph';
+      // '/tsdb/queryData'
+    const apiUrl = environment.tsdb_host + '/api/query/graph';
     return this.http.post(apiUrl, query, { headers, withCredentials: true })
       .pipe(
         catchError(this.handleError)
