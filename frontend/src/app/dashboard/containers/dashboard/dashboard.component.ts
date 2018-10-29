@@ -236,7 +236,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         action: 'dashboardSettingsToggleResponse',
                         payload: {
                             meta: this.meta,
-                            variables: this.variables
+                            variables: this.variables,
+                            dbTags: this.dbTags
                         }
                     });
                     break;
@@ -263,7 +264,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.widgetSub = this.widgets$.subscribe( widgets => {
-            console.log("--- widget subscription---", widgets);
+            console.log('--- widget subscription---', widgets);
             this.widgets = widgets;
             const metrics = this.dbService.getMetricsFromWidgets(widgets);
             this.store.dispatch(new LoadDashboardTags(metrics));
