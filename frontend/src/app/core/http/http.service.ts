@@ -32,7 +32,7 @@ export class HttpService {
           {
             type: 'literalor',
             tagk: 'src_colo',
-            filter: ['bf2', 'gq1', 'blahh'],
+            filter: ['gq1', 'blahh'],
             alias: 'colo',
             allowedValues: [],
             enabled: true,

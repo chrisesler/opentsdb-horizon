@@ -249,6 +249,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
                     if (message.payload.variables) {
+                        console.log('updateVariables: ' , message.payload.variables);
                         this.store.dispatch(new UpdateVariables(message.payload.variables));
                     }
                     break;
@@ -294,6 +295,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.variables$.subscribe ( t => {
             this.variables = t;
+            console.log('variables$.subscribe [event]', t);
 
             this.interCom.responsePut({
                 action: 'reQueryData',
