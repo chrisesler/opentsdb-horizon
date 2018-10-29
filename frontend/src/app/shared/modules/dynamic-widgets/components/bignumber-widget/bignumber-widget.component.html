@@ -96,12 +96,13 @@
                         'top-margin': widget.query.settings.visual.captionSize=='l'
                         }"> -->
                     <div class="caption">
-                        {{shortenString(util.tagMacro(selectedMetric, widget.query.settings.visual.caption), maxCaptionLength) | uppercase }}
+                        <!-- {{shortenString(util.tagMacro(selectedMetric, widget.query.settings.visual.caption), maxCaptionLength) | uppercase }} -->
+                        {{shortenString(widget.query.settings.visual.caption, maxCaptionLength) | uppercase }} 
                     </div>
                 </div>
             </div>
             <div class="fully-qualified-metric" *ngIf="editMode">
-                <div class="metric-detail">
+                <div class="metric-detail" *ngIf="selectedMetric">
                     <div class="metric-label">{{ selectedMetric.metric }}</div>
                     <div class="metric-tags">
                         <div class="metric-tag" *ngFor="let tag of tags">

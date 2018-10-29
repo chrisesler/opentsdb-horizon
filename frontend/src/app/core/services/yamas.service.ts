@@ -8,7 +8,6 @@ export class YamasService {
     constructor() { }
 
     buildQuery( time, metrics, downsample= {} , summary= false) {
-
         const query = {
             start: time.start,
             end: time.end,
@@ -88,6 +87,7 @@ export class YamasService {
         const queries = [];
         for ( let i = 0; i < query.metrics.length; i++ ) {
             const mid = 'm' + index.toString()  + (i + 1);
+
             const q = {
                 id: mid, // using the loop index for now, might need to generate its own id
                 type: 'TimeSeriesDataSource',
@@ -157,7 +157,7 @@ export class YamasService {
         const metricGroupBy =  {
             id: groupById,
             type: 'groupby',
-            aggregator: 'sum', //mConfig.aggregator,
+            aggregator: 'sum', // mConfig.aggregator,
             tagKeys: tagKeys,
             interpolatorConfigs: [
                 {

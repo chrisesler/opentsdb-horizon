@@ -27,20 +27,15 @@ export class HttpService {
         isPersonal: false,
       },
       variables: {
-        disabled: false,
+        enabled: true,
         tplVariables: [
-          { key: 'colo',
-            alias: '',
-            values: 'bf2,bf1, gq1, sg3  ',
-            enabled: true,
-            type: 'literal'
-          },
           {
-            key: 'variable1',
-            alias: 'variable_1',
-            values: 'rotation, system',
-            enabled: false,
-            type: 'literal'
+            type: 'literalor',
+            tagk: 'src_colo',
+            filter: ['bf2', 'gq1', 'blahh'],
+            alias: 'colo',
+            allowedValues: [''],
+            enabled: true,
           }
         ]
       }
