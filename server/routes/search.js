@@ -75,4 +75,27 @@ router.post('/namespaces', function(req, res) {
 
 });
 
+router.post('/tagkeys', function(req, res) {
+    //validate mandatatory fields
+    if ( undefined === req.body.metrics ) {
+        res.status(400).json({
+            message: 'Empty metrics passed'
+        });
+    }
+
+    esclient.getTagKeysForMetrics({
+            'metrics': req.body.metrics,
+            'headers': req.headers
+        }
+    ).then(function(results){
+        console.log("\n\nTAG KEYS********\n\n", JSON.stringify(results));
+        res.json( results );
+    }, function(errorObj){
+        res.status(502).json({
+            message: errorObj.error
+        });
+    });
+
+});
+
 module.exports = router;

@@ -11,7 +11,6 @@ import { UtilsService } from '../services/utils.service';
 export class HttpService {
 
   constructor(private http: HttpClient, private utilsService: UtilsService) { }
-
   private testDashboard: any = {
     id: 'abcdfg',
     settings: {
@@ -1111,6 +1110,16 @@ export class HttpService {
           'Content-Type': 'application/json'
         });
         return this.http.post('/search/namespaces', queryObj, { headers, withCredentials: true })
+          .pipe(
+            catchError(this.handleError)
+          );
+    }
+
+    getTagKeys(queryObj: any): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json'
+        });
+        return this.http.post('/search/tagkeys', queryObj, { headers, withCredentials: true })
           .pipe(
             catchError(this.handleError)
           );
