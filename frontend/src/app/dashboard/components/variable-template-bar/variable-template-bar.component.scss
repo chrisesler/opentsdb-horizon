@@ -1,20 +1,24 @@
 @import './children/variable-selector/variable-selector.component';
 
 @mixin variable-template-bar-component-base() {
+    $vtb-height: 44px;
+
     .variable-template-bar {
         display:block;
 
         .mat-toolbar {
-            min-height: 44px;
+            min-height: $vtb-height;
 
             .mat-toolbar-row {
-                height: 44px;
+                height: $vtb-height;
+                padding: 0 8px;
             }
         }
 
         .variable-item {
             display: flex;
             margin-right: 10px;
+            height: $vtb-height;
             /*font-size: 14px;
 
             .mat-label {
