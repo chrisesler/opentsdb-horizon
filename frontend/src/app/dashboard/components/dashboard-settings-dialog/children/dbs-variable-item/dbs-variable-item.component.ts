@@ -32,6 +32,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
 
     @Input() formGroup: FormGroup;
     @Input() formGroupName: number;
+    @Input() dbTagKeys: string[] = [];
 
     @Output() itemDataChanged: any = new EventEmitter();
 
@@ -182,7 +183,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     }
 
     private filterTagKeyOptions(val: string) {
-        return this.fakeKeyOptions.filter(option => {
+        return this.dbTagKeys.filter(option => {
             return option.toLowerCase().includes(val.toLowerCase());
         });
     }

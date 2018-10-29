@@ -15,7 +15,7 @@
     </mat-toolbar>
     <div class="template-variable-list" formArrayName="tplVariables" [ngClass]="{'is-disabled': disabled}">
         <ng-container *ngFor="let tpl of tplVariables['controls']; let i=index">
-            <dbs-variable-item [formGroup]="tpl" [formGroupName]="i" (remove)="removeTemplateVariable(i)"></dbs-variable-item>
+            <dbs-variable-item [formGroup]="tpl" [formGroupName]="i" [dbTagKeys]="dbData.dbTags" (remove)="removeTemplateVariable(i)"></dbs-variable-item>
         </ng-container>
     </div>
 </div>
