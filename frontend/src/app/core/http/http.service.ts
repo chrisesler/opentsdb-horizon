@@ -29,18 +29,14 @@ export class HttpService {
       variables: {
         enabled: true,
         tplVariables: [
-          { key: 'src_colo',
+          {
+            type: 'literalor',
+            tagk: 'src_colo',
+            filter: ['bf2', 'gq1', 'blahh'],
             alias: 'colo',
             allowedValues: [''],
-            selectedValues: ['bf2', 'gq1', 'blahh'],
-            type: 'literalor'
-          },
-          // { key: 'src_coolio',
-          //   alias: 'bad_key',
-          //   allowedValues: [''],
-          //   selectedValues: ['blah'],
-          //   type: 'literalor'
-          // }
+            enabled: true,
+          }
         ]
       }
     },

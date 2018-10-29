@@ -7,7 +7,7 @@ export class YamasService {
 
     constructor() { }
 
-    buildQuery( time, metrics, downsample= {} , summary= false, dashboardTags?: any) {
+    buildQuery( time, metrics, downsample= {} , summary= false) {
         const query = {
             start: time.start,
             end: time.end,
@@ -21,11 +21,11 @@ export class YamasService {
             let q;
             let sources = [];
             if ( metrics[j].metric) {
-                q = this.getMetricQuery(metrics[j], j, dashboardTags);
+                q = this.getMetricQuery(metrics[j], j);
                 sources = [q.id];
                 query.executionGraph.push(q);
             } else {
-                const res = this.getExpressionQuery(metrics[j], j, dashboardTags);
+                const res = this.getExpressionQuery(metrics[j], j);
                 q = res.expression;
                 query.executionGraph = query.executionGraph.concat(res.queries);
                 sources = res.qids;

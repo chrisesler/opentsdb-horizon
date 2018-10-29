@@ -20,8 +20,9 @@ export interface DBSettingsModel {
     };
     variables: {
         enabled: boolean, // if all variables are enabled
-        tplVariables: Array<object>; // [{ key: 'src_colo', alias: 'colo', allowedValues: [''], selectedValues: ['bf2'], type: 'literal' }]
-    };
+        // tslint:disable-next-line:max-line-length
+        tplVariables: Array<object>; // [{ type: 'literalor', tagk: 'src_colo', filter: ['bf2', 'gq1', 'blahh'], alias: 'colo', allowedValues: [''], enabled: true }]
+      };
 }
 
 export class UpdateMode {

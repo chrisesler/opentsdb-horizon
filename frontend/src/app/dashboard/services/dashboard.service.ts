@@ -144,7 +144,7 @@ export class DashboardService {
         for ( let i = 0; i < filters.length; i++ ) {
             for ( let j = 0; j < queries.length; j++ ) {
                 for ( let k = 0; queries[j].filters && k < queries[j].filters.length; k++ ) {
-                    console.log(k,filters[i].tagk , queries[j].filters[k].tagk, filters[i].tagk === queries[j].filters[k].tagk);
+                    console.log(k, filters[i].tagk , queries[j].filters[k].tagk, filters[i].tagk === queries[j].filters[k].tagk);
                     if ( filters[i].tagk === queries[j].filters[k].tagk ) {
                         queries[j].filters[k].filter = filters[i].filter;
                         queries[j].filters[k].type = filters[i].type;
