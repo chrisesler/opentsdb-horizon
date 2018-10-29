@@ -294,6 +294,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.variables$.subscribe ( t => {
             this.variables = t;
+
+            this.interCom.responsePut({
+                action: 'reQueryData',
+                payload: t
+            });
         });
 
         this.dbTagsSub = this.dbTags$.subscribe( tags => {

@@ -140,7 +140,7 @@ export class DBSettingsState {
     @Action(LoadDashboardTags)
     loadDashboardTags(ctx: StateContext<DBSettingsModel>, { metrics }: LoadDashboardTags) {
         const query = { metrics: metrics }; // unique metric
-        console.log("LoadDashboardTags", query);
+        console.log('LoadDashboardTags', query);
         return this.httpService.getTagKeys(query).pipe(
             map( (tags: any) => {
                 ctx.dispatch(new UpdateDashboardTags(tags));
