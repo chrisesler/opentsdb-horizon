@@ -123,7 +123,7 @@ export class LandingPageContentComponent implements OnInit {
     }
 
     createDashboard() {
-        this.router.navigate(['dashboard', '_new_']);
+        this.router.navigate(['d', '_new_']);
     }
 
     // TODO: Get this link to yamas guide to work
