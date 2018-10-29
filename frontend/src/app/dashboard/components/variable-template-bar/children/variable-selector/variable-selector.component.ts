@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl, FormArray } from '@angular/forms';
-import { MatAutocompleteSelectedEvent, MatChipInputEvent, MatAutocomplete } from '@angular/material';
+import { MatAutocompleteSelectedEvent, MatChipInputEvent, MatAutocomplete, MatMenu, MatMenuTrigger } from '@angular/material';
 
 import { Observable } from 'rxjs';
 import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
@@ -30,6 +30,11 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
 
     // tslint:disable-next-line:no-inferrable-types
     @HostBinding('class.variable-selector') private _hostClass: boolean = true;
+
+    @ViewChild(MatMenu) valueMenu: MatMenu;
+    @ViewChild(MatMenuTrigger) valueMenuTrigger: MatMenuTrigger;
+    // tslint:disable-next-line:no-inferrable-types
+    valueMenuOpen: boolean = false;
 
     @Input() formGroup: FormGroup;
     @Input() formGroupName: number;
@@ -89,6 +94,7 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
         }
     }
 
+
     /** AUTO COMPLETE FUNCTIONS */
 
     selectFilterValueOption(event: any) {
@@ -124,6 +130,12 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
         }
     }
 
+    /** menu trigger events */
+    toggleValueMenuOpen() {
+        console.log('TOGGLE VALUE MENU OPEN', this.valueMenuTrigger.menuOpen);
+        this.valueMenuOpen = this.valueMenuTrigger.menuOpen;
+    }
+
 
     /** PRIVATE FUNCTIONS */
     private createSelectedValue(val: string) {
@@ -132,6 +144,9 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
     }
 
     private filterValueOptions(val: string) {
+        console.log('FILTER VALUE OPTIONS', val, this.allowedValues.value);
+
+        // TODO: Need to add a way to do a global value search if there are no allowed values or wildcard value
         return this.allowedValues.value.filter(option => {
             return option.toLowerCase().includes(val.toLowerCase());
         });
