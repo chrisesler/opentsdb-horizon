@@ -68,9 +68,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     /** form variables */
     separatorKeysCodes: number[] = [ENTER, COMMA];
 
-    restrictedValuesInput: FormControl = new FormControl();
-
-    restrictedValues: FormArray = new FormArray([]);
+    allowedValuesInput: FormControl = new FormControl();
 
     filteredKeyOptions: Observable<string[]>;
     filteredValueOptions: Observable<string[]>;
@@ -90,6 +88,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
             for (const key of keys) {
                 console.log('%c' + key + ':', 'font-weight: bold;', this.formGroup['controls'][key].value);
             }
+            console.log('%cformGroup', 'font-weight: bold;', this.formGroup);
         console.groupEnd();
 
         // preset whether the item is disabled or not
@@ -101,35 +100,30 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
             this._itemDisabled = !val;
         });
 
-        this.filteredKeyOptions = this.key.valueChanges
+        this.filteredKeyOptions = this.tagk.valueChanges
             .pipe(
                 startWith(''),
                 debounceTime(300),
                 map(val => this.filterTagKeyOptions(val)) // autosuggest options shuld come from somewhere else. Currently fake data
             );
 
-        this.filteredValueOptions = this.restrictedValuesInput.valueChanges
+        this.filteredValueOptions = this.allowedValuesInput.valueChanges
             .pipe(
                 startWith(''),
                 debounceTime(300),
                 map(val => this.filterTagValueOptions(val)) // autosuggest options shuld come from somewhere else. Currently fake data
             );
 
-        const tmpVals = this.values.value.split(',');
-        for (let val of tmpVals) {
-            val = val.trim();
-            this.createRestrictedValue(val);
-        }
-
     }
 
-    get key() { return this.formGroup.get('key'); }
+    get tagk() { return this.formGroup.get('tagk'); }
     get alias() { return this.formGroup.get('alias'); }
     get enabled() { return this.formGroup.get('enabled'); }
-    get values() { return this.formGroup.get('values'); }
+    get allowedValues() { return this.formGroup.get('allowedValues'); }
+    get filter() { return this.formGroup.get('filter'); }
     get type() { return this.formGroup.get('type'); }
 
-    get chipValues() { return this.restrictedValues['controls']; }
+    get chipValues() { return this.allowedValues['controls']; }
 
     ngOnDestroy() {
         this.enabledSub.unsubscribe();
@@ -142,7 +136,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
 
     // remove a filter value option
     removeValue(i: number) {
-        const control = <FormArray>this.restrictedValues;
+        const control = <FormArray>this.allowedValues;
         control.removeAt(i);
     }
 
@@ -152,9 +146,9 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
             const input = event.input;
             const value = event.value;
 
-            // Add our fruit
+            // Add our value
             if ((value || '').trim()) {
-              this.createRestrictedValue(value.trim());
+              this.createAllowedValue(value.trim());
             }
 
             // Reset the input value
@@ -162,30 +156,29 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
               input.value = '';
             }
 
-            this.restrictedValuesInput.setValue('');
+            this.allowedValuesInput.setValue('');
         }
     }
 
     /** Auto Complete Functions */
 
     selectFilterKeyOption(event: any) {
-        this.key.setValue(event.option.value);
+        this.tagk.setValue(event.option.value);
     }
 
     selectFilterValueOption(event: any) {
         //
-        this.createRestrictedValue(event.option.value);
+        this.createAllowedValue(event.option.value);
         this.filterValueInput.nativeElement.value = '';
-        this.restrictedValuesInput.setValue('');
+        this.allowedValuesInput.setValue('');
     }
 
 
     /** private functions */
 
-    private createRestrictedValue(val: string) {
-        const data = { value: val };
-        const control = <FormArray>this.restrictedValues;
-        control.push(this.fb.group(data));
+    private createAllowedValue(val: string) {
+        const control = <FormArray>this.allowedValues;
+        control.push(new FormControl(val));
     }
 
     private filterTagKeyOptions(val: string) {

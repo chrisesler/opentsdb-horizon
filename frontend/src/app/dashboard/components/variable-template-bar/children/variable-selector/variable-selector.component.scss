@@ -1,6 +1,17 @@
 @mixin variable-selector-component-base() {
-    .variable-selector {
+    .variable-selector{
+        font-size: 14px;
 
+        .mat-label {
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .mat-form-field {
+            .mat-select-value-text {
+                
+            }
+        }
     }
 }
 
@@ -13,7 +24,19 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
+    $bg-color: lighten(map-get($background, navbar), 5%);
+    $navbar-text: map-get($foreground, navbar-text);
+
     .variable-selector {
-        
+        .mat-label {
+            color: map-get($foreground, navbar-text);
+        }
+
+        .mat-form-field {
+            .mat-select-trigger,
+            .mat-select-placeholder {
+                color: rgba($navbar-text, 0.8);
+            }
+        }
     }
 }

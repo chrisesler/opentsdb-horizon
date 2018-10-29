@@ -21,6 +21,11 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy {
 
     @HostBinding('class.variable-template-bar') private _hostClass = true;
 
+    private _shouldDisplay = false;
+    get shouldDisplay(): boolean {
+        return this._shouldDisplay;
+    }
+
     variables: any;
 
     /** Inputs */
@@ -43,13 +48,26 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy {
         // create the form data
 
         this.dbSettingsVariablesSub = this.dbSettingsVariables.subscribe(val => {
+            console.group('%cVARIABLE CHANGES', 'color: white; background-color: red; padding: 8px; font-weight: bold;');
+            console.log('val', val);
             this.variables = val;
-            if (this.varForm) {
-                this.initializeFormArrays();
+            this.checkIfShouldDisplay();
+
+            console.log('should display', this._shouldDisplay);
+            if (this._shouldDisplay) {
+                if (!this.varForm) {
+                    console.log('creating form');
+                    this.createForm();
+                } else {
+                    console.log('re-initializing form arrays');
+                    this.initializeFormArrays();
+                }
+                console.log('VAR FORM', this.varForm);
             }
+            console.groupEnd();
         });
 
-        this.createForm();
+        // this.createForm();
     }
 
     ngOnDestroy() {
@@ -58,15 +76,31 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy {
 
     createForm() {
         this.varForm = this.fb.group({
+            enabled: this.variables.enabled,
             tplVariables: this.fb.array([])
         });
 
         this.initializeFormArrays();
     }
 
+    /** FORM ACCESORS */
     get tplVariables() { return this.varForm.get('tplVariables') || []; }
-    get tplVariableControls() { return this.varForm.get('tplVariables')['controls']; }
+    get tplVariableControls() { return this.varForm.get('tplVariables'); }
 
+    // helper to get nested group item control
+    variableControl(item: FormGroup, label: string, value?: boolean) {
+        if (value === true) {
+            // if value flag is true, return only the value
+            return item.get(label).value;
+        } else {
+            // return only the control
+            return item.get(label);
+        }
+    }
+
+    /** PRIVATE FUNCTIONS */
+
+    // initialize form arrays
     private initializeFormArrays() {
         const control = <FormArray>this.varForm.controls['tplVariables'];
 
@@ -76,7 +110,7 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy {
         }
 
         for (const tpl of this.variables.tplVariables) {
-            if (tpl.enabled) {
+            /*if (tpl.enabled) {
                 const tplGrp = this.fb.group({
                     key: tpl.key,
                     alias: tpl.alias,
@@ -85,32 +119,38 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy {
                 });
                 this.optionLists[tpl.key] = tpl.values.split(',');
                 control.push(tplGrp);
-            }
+            }*/
+
+            const varData = {
+                tagk: tpl.tagk,
+                alias: tpl.alias,
+                allowedValues: this.fb.array(tpl.allowedValues),
+                filter: this.fb.array(tpl.filter),
+                enabled: tpl.enabled,
+                type: tpl.type
+            };
+
+            control.push(this.fb.group(varData));
         }
     }
 
-    getLabel(tplVariable: FormGroup): string {
-        const alias = tplVariable.get('alias').value;
-
-        if (alias && alias.trim() !== '' ) {
-            return alias;
+    // check to see if the bar should form at all
+    private checkIfShouldDisplay() {
+        if (!this.variables.enabled) {
+            this._shouldDisplay = false;
         } else {
-            return tplVariable.get('key').value;
-        }
-    }
-
-    getValues(tmplVariable: any): string[] {
-       return tmplVariable.values.split(',');
-    }
-
-    atleastOneTemplateVariableEnabled(tmplVariables: any[]): boolean {
-        if (tmplVariables) {
-            for (const variable of tmplVariables) {
-                if (variable.enabled) {
-                    return true;
+            if (this.variables.tplVariables.length === 0) {
+                this._shouldDisplay = false;
+            } else {
+                let enabled = false;
+                for (const variable of this.variables.tplVariables) {
+                    if (variable.enabled) {
+                        enabled = true;
+                    }
                 }
+                this._shouldDisplay = enabled;
             }
         }
-        return false;
     }
+
 }

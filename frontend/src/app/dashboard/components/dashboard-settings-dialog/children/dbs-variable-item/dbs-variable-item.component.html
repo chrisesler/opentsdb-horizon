@@ -1,8 +1,8 @@
 
     <div class="settings-control tag-key-control">
-        <div class="mat-label">**Tag key</div>
+        <div class="mat-label">Tag key</div>
         <mat-form-field appearance="fill" color="primary" floatLabel="never">
-            <input matInput placeholder="Enter tag key" [formControl]="key" [matAutocomplete]="filterKeyAuto">
+            <input matInput placeholder="Enter tag key" [formControl]="tagk" [matAutocomplete]="filterKeyAuto">
             <mat-autocomplete #filterKeyAuto="matAutocomplete" (optionSelected)="selectFilterKeyOption($event)">
                 <mat-option *ngFor="let option of filteredKeyOptions | async" [value]="option">
                     {{option}}
@@ -26,13 +26,13 @@
                 <mat-chip
                     *ngFor="let val of chipValues; let n=index"
                     (removed)="removeValue(n)">
-                    <span>{{val.get('value').value}}</span>
+                    <span>{{val.value}}</span>
                     <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
                 </mat-chip>
                 <input
                     placeholder="Enter value(s) seperated by commas"
                     #filterValueInput
-                    [formControl]="restrictedValuesInput"
+                    [formControl]="allowedValuesInput"
                     [matAutocomplete]="filterValueAuto"
                     [matChipInputFor]="chipList"
                     [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
