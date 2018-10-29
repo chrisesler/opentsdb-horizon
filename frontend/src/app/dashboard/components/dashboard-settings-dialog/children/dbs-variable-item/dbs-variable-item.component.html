@@ -1,6 +1,6 @@
 
     <div class="settings-control tag-key-control">
-        <div class="mat-label">Tag key</div>
+        <div class="mat-label">Tag Key</div>
         <mat-form-field appearance="fill" color="primary" floatLabel="never">
             <input matInput placeholder="Enter tag key" [formControl]="tagk" [matAutocomplete]="filterKeyAuto">
             <mat-autocomplete #filterKeyAuto="matAutocomplete" (optionSelected)="selectFilterKeyOption($event)">
@@ -11,13 +11,13 @@
         </mat-form-field>
     </div>
     <div class="settings-control alias-control">
-        <div class="mat-label">Alias</div>
+        <div class="mat-label">Tag Key Alias</div>
         <mat-form-field appearance="fill" color="primary" floatLabel="never">
             <input matInput placeholder="Enter alias (optional)" [formControl]="alias">
         </mat-form-field>
     </div>
     <div class="settings-control values-control">
-        <div class="mat-label">Values</div>
+        <div class="mat-label">Allowed Tag Values</div>
         <!--<mat-form-field appearance="fill" color="primary" floatLabel="never">
             <input matInput placeholder="Enter value(s) seperated by commas" [formControl]="values">
         </mat-form-field>-->
