@@ -135,12 +135,15 @@ module.exports = function () {
 
         Q.allSettled(promises)
             .then(function (results) {
+                console.log("\n\n\nES RESULT", JSON.stringify(results) + "\n\n\n");
                 var error = [];
-                for (var i = 0; i < results.length; i += 1) {
+                for (var i = 0; i < results.length; i++ ) {
                     var result = results[i];
                     // if success, merge with responses from other colos, else discard
                     if (result.state === 'fulfilled') {
-                        elasticSearchResponseList.push(result.value.responses[0]);
+                        for (var j = 0; j < result.value.responses.length; j++ ) {
+                            elasticSearchResponseList.push(result.value.responses[j]);
+                        }
                     }
                     else if (result.state === 'rejected') {
                         console.log('es colo failed to respond with success response',
@@ -519,7 +522,6 @@ module.exports = function () {
 
         tags.endpoint = 'tagkeys';
         //tags.userid   = headers.auth.getPrincipal();
-        console.log(JSON.stringify(multisearchQueryBody))
         startTime = (new Date()).getTime();
         //perform the query
         self._makeESMultiQuery(
@@ -533,6 +535,255 @@ module.exports = function () {
             suggestions = extractResultsFromElasticSearchResponse(
                 resp,
                 getElasticQueryResultExtractor('tagKeys')
+            );
+            defer.resolve(suggestions);
+        }, function (error) {
+            defer.reject(error);
+        });
+
+        return defer.promise;
+    };
+
+    /**
+     * converts Java regular expression notation to Lucene regexp (used by ES).
+     * The conversion that we do is related to ^ and $, given that ES
+     * assumes that always the regexp are anchored
+     * https://www.elastic.co/guide/en/elasticsearch/reference/1.7/query-dsl-regexp-query.html#_standard_operators
+     *
+     * @param  String the regular expression in JAVA supported Regexp
+     * @return String converted regular expression in Lucenes regexp form
+     */
+    self._convertJavaRegexpToLuceneRegexp = function (value) {
+        var convertedValue = value;
+
+        convertedValue = convertedValue.trim();
+        var len;
+        len            = convertedValue.length;
+        if (convertedValue.substr(0, 1) === '^') {
+            convertedValue = convertedValue.substr(1, len - 1);
+        } else if (convertedValue.substr(0, 1) !== '~') {
+            convertedValue = '.*' + convertedValue;
+        }
+        len = convertedValue.length;
+
+        if (convertedValue.substr(len - 1) === '$' &&
+            self.numberTrailingBackslash(convertedValue.substr(0, len - 1)) % 2 === 0) {
+            convertedValue = convertedValue.substr(0, len - 1);
+        } else if ((convertedValue.substr(0, 1) !== '~') && (convertedValue.substr(len - 1, 1) !== ')')) {
+            convertedValue = convertedValue + '.*';
+        }
+
+        return convertedValue;
+    };
+
+    /**
+     * converts regexp/tab_separated/star yamas2 notation to
+     * elastic search notation, and inserts it in the passed object
+     * @param  Array Array where the converted tag filter will be inserted
+     * @param  String value of the tag
+     * @return Array Array after the insertion (optional) of the converted tag value
+     */
+    self._convertTagValueToESNotation = function (targetArray, value) {
+        //make it lower case
+        value = value.toLowerCase();
+
+        if (value === "*") {
+            //if *, do not filter by it because
+            //it will take all the series by default
+        } else if (value.match(/^regexp/i)) {
+            value = value.replace(/^regexp\(/i, "");
+            value = value.replace(/\)$/, "");
+            value = self._convertJavaRegexpToLuceneRegexp(value);
+            targetArray.push(
+                {
+                    "regexp": {"tags.value": value}
+                }
+            );
+        } else if (value.match(/^librange:\/\//i)) {
+            //Note: if there is a librange expression, we do not take it into account
+        } else if (-1 !== value.indexOf("|")) {
+            //NOTE: keep this after regexp, to avoid confusion with regex pipes
+            targetArray.push(
+                {
+                    "regexp": {"tags.value": value}
+                }
+            );
+        } else { //single value
+            targetArray.push(
+                {
+                    "term": {"tags.value": value}
+                }
+            );
+        }
+        return targetArray;
+    };
+
+    self._makeQueryBodyPossibleValuesForTag = function (queryParams) {
+
+        //to lowercase
+        queryParams.namespace         = queryParams.namespace.toLowerCase();
+        queryParams.applicationMetric = queryParams.applicationMetric.map(function (am) {
+            return am.toLowerCase();
+        });
+        queryParams.tag_search.key    = queryParams.tag_search.key.toLowerCase();
+        queryParams.tag_search.value  = queryParams.tag_search.value.toLowerCase();
+
+        var queryBody = {
+            "size": 0,
+            "query": {
+                "filtered": {
+                    "filter": {
+                        "bool": {
+                            "must": [
+                                //First: insert here the tag we are getting the values for
+                                //Second: insert here the already selected tag filters
+                                //Third: insert here the application_metric filters
+                            ]
+                        }
+                    }
+                }
+            },
+            "aggs": {
+                "elasticQueryResults": {
+                    "nested": {
+                        "path": "tags"
+                    },
+                    "aggs": {
+                        "elasticQueryResults": {
+                            "filter": {
+                                "bool": {
+                                    "must": [
+                                        {
+                                            "term": {
+                                                "tags.key.lowercase": queryParams.tag_search.key
+                                            }
+                                        },
+                                        //Fourth: tag search value
+                                    ]
+                                }
+                            },
+                            "aggs": {
+                                "elasticQueryResults": {
+                                    "terms": {
+                                        "field": "tags.value.raw",
+                                        "size": queryParams.limitResults
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        //First: append the filter tag value
+        queryBody.query.filtered.filter.bool.must.push(
+            {
+                "nested": {
+                    "path": "tags",
+                    "query": {
+                        "bool": {
+                            "must": [{
+                                "term": {
+                                    "tags.key.lowercase": queryParams.tag_search.key
+                                }
+                            }]
+                        }
+                    }
+                }
+            }
+        );
+
+        //Second: append the filters tagkey-tagvalue
+        _.forEach(queryParams.tags_filtered, function (tagInfo, idx) {
+            tagInfo.key   = tagInfo.key.toLowerCase();
+            tagInfo.value = tagInfo.value.toLowerCase();
+
+            var tagFilter = self._makeNestedQueryTagsFiltered(tagInfo.key, tagInfo.value);
+            queryBody.query.filtered.filter.bool.must.push(tagFilter);
+        });
+
+        //Third: append the application_metric filters
+        var metricsFilter = {
+            "nested": {
+                "path": "AM_nested",
+                "query": {
+                    "bool": {
+                        "should": [
+                            //fill the metrics here
+                        ]
+                    }
+                }
+            }
+        };
+
+        var numTerms = 0, metricsArray;
+        if (queryParams.applicationMetric.length > 1024) {
+            metricsArray = _.cloneDeep(queryParams.applicationMetric);
+            sharedutils.shuffleArray(metricsArray);
+        } else {
+            metricsArray = queryParams.applicationMetric;
+        }
+        _.forEach(metricsArray, function (app_metric, idx) {
+            if (numTerms < 1024) {
+                numTerms++;
+                metricsFilter.nested.query.bool.should.push(
+                    {
+                        "term": {"AM_nested.name.lowercase": app_metric}
+                    }
+                );
+            }
+        });
+        queryBody.query.filtered.filter.bool.must.push(metricsFilter);
+
+        //Fourth: push the filter for the searched tag value
+        self._convertTagValueToESNotation(queryBody.aggs.elasticQueryResults.aggs.elasticQueryResults.filter.bool.must, queryParams.tag_search.value);
+
+        return queryBody;
+    };
+
+    self.getPossibleValuesForTag = function (params) {
+        var defer       = Q.defer();
+        var suggestions = [];
+
+        var metrics     = params.metrics;
+        var headers     = params.headers;
+        var namtQueries = self._splitByNamespaceAM(metrics);
+
+        //augment the nsam_map with the other parameters
+        _.forEach(namtQueries, function (objInfo, nsam_key) {
+            objInfo.tags_filtered = params.tagsFiltered;
+            objInfo.tag_search    = params.tagSearch;
+            objInfo.limitResults  = params.limitResults || 50;
+        });
+
+        //build multiquery object
+        var multisearchQueryBody = [], queryMetadata, queryBody;
+        _.forEach(namtQueries, function (namtQuery, idx) {
+            queryMetadata = {
+                "index": namtQuery.namespace.toLowerCase(),
+                "query_cache": true
+            };
+            queryBody     = self._makeQueryBodyPossibleValuesForTag(namtQuery);
+
+            //note: keep insertion order, expected by elastic search
+            multisearchQueryBody.push(queryMetadata);
+            multisearchQueryBody.push(queryBody);
+        });
+
+        tags.endpoint = 'tagvalues';
+        //tags.userid   = headers.auth.getPrincipal();
+
+        startTime = (new Date()).getTime();
+        //perform the query
+        self._makeESMultiQuery(
+            multisearchQueryBody,
+            headers,
+            appconstant.TAGVALUES_ES_QUERY_TIMEOUT_MS
+        ).then(function (resp) {
+            suggestions = extractResultsFromElasticSearchResponse(
+                resp,
+                getElasticQueryResultExtractor('tagValues')
             );
             defer.resolve(suggestions);
         }, function (error) {

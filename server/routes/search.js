@@ -98,4 +98,32 @@ router.post('/tagkeys', function(req, res) {
 
 });
 
+router.post('/tagvalues', function(req, res) {
+    //validate mandatatory fields
+    if (
+        req.body.metrics === undefined || !Array.isArray(req.body.metrics) || req.body.metrics.length === 0 ||
+        req.body.tag === undefined || !req.body.tag.key || !req.body.tag.value 
+        //undefined === req.body.tags_filtered || !Array.isArray(req.body.tags_filtered)
+    ) {
+        res.status(400).json({
+            message: 'Error: metrics, tag_search or tags_filtered are empty or non valid params'
+        });
+    }
+
+    //if it passed basic validation, then execute query
+    esclient.getPossibleValuesForTag({
+        'metrics':      req.body.metrics,
+        'headers':       req.headers,
+        'tagsFiltered': req.body.tags_filtered || [],
+        'tagSearch':    req.body.tag
+    }).then(function( results ){
+        res.json( results );
+    }, function(errorObject){
+        res.status(502).json({
+            message: errorObject.error
+        });
+    });
+
+});
+
 module.exports = router;

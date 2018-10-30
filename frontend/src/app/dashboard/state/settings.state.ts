@@ -11,6 +11,7 @@ export interface DBSettingsModel {
         zone: string;
     };
     tags: Array<string>;
+    lastQueriedTagValues: Array<string>;
     meta: {
         title: string;
         description: string;
@@ -49,9 +50,19 @@ export class LoadDashboardTags {
     constructor(public readonly metrics: any) {}
 }
 
+export class LoadDashboardTagValues {
+    public static type = '[Dashboard] Load Dashboard Tag Values';
+    constructor(public readonly metrics: any, public readonly tag: any ) {}
+}
+
 export class UpdateDashboardTags {
     public static type = '[Dashboard] Update Dashboard Tags';
     constructor(public readonly tags: any) {}
+}
+
+export class UpdateDashboardTagValues {
+    public static type = '[Dashboard] Update Dashboard Tag Values';
+    constructor(public readonly tagValues: any) {}
 }
 
 export class UpdateDashboardTitle {
@@ -79,6 +90,7 @@ export class UpdateMeta {
             zone: 'local'
         },
         tags: [],
+        lastQueriedTagValues: [],
         meta: {
             title: 'Untitled Dashboard',
             description: '',
@@ -116,6 +128,10 @@ export class DBSettingsState {
         return state.tags;
     }
 
+    @Selector() static getDashboardTagValues(state: DBSettingsModel) {
+        return state.lastQueriedTagValues;
+    }
+
     @Action(UpdateMode)
     updateMode(ctx: StateContext<DBSettingsModel>, { mode }: UpdateMode) {
         const state = ctx.getState();
@@ -148,10 +164,27 @@ export class DBSettingsState {
         );
     }
 
+    @Action(LoadDashboardTagValues)
+    LoadDashboardTagValues(ctx: StateContext<DBSettingsModel>, { metrics: metrics, tag: tag }: LoadDashboardTagValues) {
+        const query = { metrics: metrics , tag: tag}; // unique metric
+        console.log("LoadDashboardTagValues", query);
+        return this.httpService.getTagValues(query).pipe(
+            map( (values: any) => {
+                ctx.dispatch(new UpdateDashboardTagValues(values));
+            })
+        );
+    }
+
     @Action(UpdateDashboardTags)
     updateDashboardTags(ctx: StateContext<DBSettingsModel>, { tags }: UpdateDashboardTags) {
         const state = ctx.getState();
         ctx.patchState({...state, tags: tags });
+    }
+
+    @Action(UpdateDashboardTagValues)
+    updateDashboardTagValues(ctx: StateContext<DBSettingsModel>, { tagValues }: UpdateDashboardTagValues) {
+        const state = ctx.getState();
+        ctx.patchState({...state, lastQueriedTagValues: tagValues });
     }
 
     @Action(UpdateDashboardTitle)

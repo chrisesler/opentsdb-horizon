@@ -4,6 +4,7 @@ import { Observable, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { catchError, tap } from 'rxjs/operators';
 import { UtilsService } from '../services/utils.service';
+import { post } from 'selenium-webdriver/http';
 
 @Injectable({
   providedIn: 'root'
@@ -1122,5 +1123,33 @@ export class HttpService {
           .pipe(
             catchError(this.handleError)
           );
+    }
+
+    // results should filter the lists from already selected filters
+    getTagValues(queryObj: any): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json'
+        });
+        return this.http.post('/search/tagvalues', queryObj, { headers, withCredentials: true })
+          .pipe(
+            catchError(this.handleError)
+          );
+    }
+
+    saveDashboard(id, data) {
+        let apiUrl = environment.configdb + '/v1/object';
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+        let method = 'post';
+        if ( id !== '_new_' ) {
+            method = 'put';
+            apiUrl = apiUrl + '/' + id;
+        }
+        console.log("save dahboard", apiUrl, method);
+        return this.http[method]( apiUrl, data, { headers, withCredentials: true })
+        .pipe(
+          catchError(this.handleError)
+        );
     }
 }
