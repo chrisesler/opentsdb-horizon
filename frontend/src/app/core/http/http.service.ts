@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { catchError, tap } from 'rxjs/operators';
 import { UtilsService } from '../services/utils.service';
-import { post } from 'selenium-webdriver/http';
 
 @Injectable({
   providedIn: 'root'
@@ -1131,20 +1130,35 @@ export class HttpService {
           );
     }
 
-    saveDashboard(id, data) {
-        let apiUrl = environment.configdb + '/v1/object';
+    getDashboards() {
+        const apiUrl = environment.configdb + '/object';
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
+        const params = new HttpParams();
+        params.set('userid', 'arunmohzi');
+        params.set('type', 'DASHBOARD');
+        console.log("get dahboards params", apiUrl, params);
+        return this.http.get( apiUrl, { params: params, headers, withCredentials: true })
+                    .pipe(
+                        catchError(this.handleError)
+                    );
+    }
+
+    saveDashboard(id, data) {
+        let apiUrl = environment.configdb + '/object';
         let method = 'post';
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
         if ( id !== '_new_' ) {
             method = 'put';
             apiUrl = apiUrl + '/' + id;
         }
-        console.log("save dahboard", apiUrl, method);
+        console.log("save dahboard params", apiUrl, method, data);
         return this.http[method]( apiUrl, data, { headers, withCredentials: true })
-        .pipe(
-          catchError(this.handleError)
-        );
+                    .pipe(
+                        catchError(this.handleError)
+                    );
     }
 }
