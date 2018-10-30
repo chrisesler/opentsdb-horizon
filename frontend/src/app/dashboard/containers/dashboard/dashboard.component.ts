@@ -306,12 +306,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.variables$.subscribe ( t => {
 
             console.log('variables$.subscribe [event]', t);
-
-            if (!this.variables) {
-                this.requeryData(t);
-                return;
-            } else {
-
+            if (this.variables) {
                 // diff whether selected values changed
                 for (let tag of t.tplVariables) {
                     const tagKey = tag.tagk;
@@ -353,8 +348,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             }
                     }
                 }
+            } else { // variables has never been set
+                this.requeryData(t);
+                return;
             }
 
+            // do not query new data
             this.variables = t;
         });
 
