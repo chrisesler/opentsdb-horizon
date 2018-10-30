@@ -294,10 +294,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.variables$.subscribe ( t => {
-            let requeryData = false;
+
+            console.log('variables$.subscribe [event]', t);
 
             if (!this.variables) {
-                requeryData = true;
+                this.requeryData(t);
+                return;
             } else {
 
                 // diff whether selected values changed
@@ -305,7 +307,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     const tagKey = tag.tagk;
                     if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
                         this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
-                        requeryData = true;
+                            this.requeryData(t);
+                            return;
                     }
                 }
 
@@ -313,7 +316,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     const tagKey = tag.tagk;
                     if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
                         this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
-                        requeryData = true;
+                            this.requeryData(t);
+                            return;
                     }
                 }
 
@@ -323,7 +327,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
                         this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
                             if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !== '') {
-                                requeryData = true;
+                                this.requeryData(t);
+                                return;
                             }
                     }
                 }
@@ -333,21 +338,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
                         this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
                             if (this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables)) !== '') {
-                                requeryData = true;
+                                this.requeryData(t);
+                                return;
                             }
                     }
                 }
             }
 
-            console.log('variables$.subscribe [event]', t);
             this.variables = t;
-
-            if (requeryData) {
-                this.interCom.responsePut({
-                    action: 'reQueryData',
-                    payload: t
-                });
-            }
         });
 
         this.dbTagsSub = this.dbTags$.subscribe( tags => {
@@ -380,6 +378,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (auth === 'invalid') {
                 // console.log('open auth dialog');
             }
+        });
+    }
+
+    requeryData(payload) {
+        this.variables = payload;
+        this.interCom.responsePut({
+            action: 'reQueryData',
+            payload: payload
         });
     }
 
