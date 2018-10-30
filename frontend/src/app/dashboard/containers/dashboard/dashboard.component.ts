@@ -25,13 +25,14 @@ import {
     UpdateDashboardTime,
     LoadDashboardSettings,
     LoadDashboardTags,
+    LoadDashboardTagValues,
     UpdateDashboardTimeZone,
     UpdateDashboardTitle,
     UpdateVariables,
     UpdateMeta
 } from '../../state/settings.state';
 
-import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY } from '@angular/material';
+import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY, MatSnackBar } from '@angular/material';
 import {
     SearchMetricsDialogComponent
 } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
@@ -53,6 +54,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBSettingsState.getMeta) meta$: Observable<any>;
     @Select(DBSettingsState.getVariables) variables$: Observable<any>;
     @Select(DBSettingsState.getDashboardTags) dbTags$: Observable<any>;
+    @Select(DBSettingsState.getDashboardTagValues) tagValues$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdata) widgetRawData$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
@@ -124,6 +126,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }*/
     ];
     // other variables
+    id: string; // dashboard id
     dbTime: any;
     meta: any;
     variables: any;
@@ -131,6 +134,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     listenSub: Subscription;
     widgetSub: Subscription;
     dbTagsSub: Subscription;
+    tagValuesSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
@@ -253,12 +257,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.store.dispatch(new UpdateVariables(message.payload.variables));
                     }
                     break;
+                case 'getTagValues':
+                    const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
+                    this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag, message.payload.filters));
+                    break;
                 default:
                     break;
             }
         });
 
         this.loadedRawDB$.subscribe( db => {
+            console.log("\n\nloadedrawdb=", db);
+            this.id = db.id || '_new_';
             this.store.dispatch(new LoadDashboardSettings(db.settings));
             // update WidgetsState
             this.store.dispatch(new LoadWidgets(db.widgets));
@@ -306,6 +316,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dbTagsSub = this.dbTags$.subscribe( tags => {
             console.log( '__DB TAGS___', tags );
             this.dbTags = tags ? tags : [];
+        });
+
+        this.tagValuesSub = this.tagValues$.subscribe( data => {
+            this.interCom.responsePut({
+                action: 'TagValueQueryReults',
+                payload: data
+            });
         });
 
         this.widgetRawData$.subscribe(result => {
@@ -483,6 +500,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.routeSub.unsubscribe();
         this.widgetSub.unsubscribe();
         this.dbTagsSub.unsubscribe();
+        this.tagValuesSub.unsubscribe();
         // we need to clear dashboard state
         // this.store.dispatch(new dashboardActions.ResetDashboardState);
     }
