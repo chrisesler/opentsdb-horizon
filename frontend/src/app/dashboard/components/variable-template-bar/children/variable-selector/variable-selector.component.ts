@@ -19,6 +19,7 @@ import { Observable } from 'rxjs';
 import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
+import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -44,14 +45,20 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
     addOnBlur = true;
 
     filterValueInput: FormControl = new FormControl('');
+    filterValueInputSub: Subscription;
 
     filteredValueOptions: Observable<string[]>;
 
     @ViewChild('filterValueInputEl') filterValueInputEl: ElementRef<HTMLInputElement>;
     @ViewChild('filterValueAuto') valueAutocomplete: MatAutocomplete;
 
+    private listenSub: Subscription; // intercom subscription
+    // tslint:disable-next-line:no-inferrable-types
+    private expectingIntercomData: boolean = false;
+
     constructor(
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private interCom: IntercomService
     ) { }
 
     ngOnInit() {
@@ -63,12 +70,53 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
             console.log('%cformGroup', 'font-weight: bold;', this.formGroup);
         console.groupEnd();
 
-        this.filteredValueOptions = this.filterValueInput.valueChanges
+        /*this.filteredValueOptions = this.filterValueInput.valueChanges
             .pipe(
                 startWith(''),
                 debounceTime(300),
                 map(val => this.filterValueOptions(val)) // autosuggest options shuld come from somewhere else. Currently fake data
-            );
+            );*/
+
+
+        // NOTE: come back to this and implement rxJS switchmap
+        this.filterValueInputSub = this.filterValueInput.valueChanges
+            .pipe(debounceTime(300))
+            .subscribe(val => {
+                if (this.allowedValues.value.length > 0) {
+                    // NOTE: Need to come back and check allowed values for REGEXP items
+                    this.filteredValueOptions = this.allowedValues.value.filter(option => {
+                        return option.toLowerCase().includes(val.toLowerCase());
+                    });
+                } else {
+                    // console.log('*** ', val);
+                    this.expectingIntercomData = true;
+                    let payload = '.*';
+                    if (val.trim().length > 0) {
+                        payload += val + '.*';
+                    }
+                    this.interCom.requestSend(<IMessage>{
+                        action: 'getTagValues',
+                        id: 'variable-selector-' + this.formGroupName,
+                        payload: {
+                            tag : {
+                                key: this.tagk.value.trim(),
+                                value: 'regexp(' + payload + ')'
+                            }
+                        }
+                    });
+                }
+            });
+
+        // listen to intercom
+        this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+            if (message.action === 'TagValueQueryReults' && this.expectingIntercomData) {
+                console.log('%cTAG VALUES ResponseGet [InterCom]',
+                        'color: white; background-color: darkmagenta; padding: 2px 4px;',
+                        message);
+                this.expectingIntercomData = false;
+                this.filteredValueOptions = message.payload;
+            }
+        });
     }
 
     ngOnDestroy() {

@@ -8,6 +8,7 @@ import {
     Output,
     EventEmitter,
     HostBinding,
+    HostListener,
     ViewChild,
     ElementRef
 } from '@angular/core';
@@ -18,6 +19,8 @@ import { MatAutocompleteSelectedEvent, MatChipInputEvent, MatAutocomplete } from
 import { Observable } from 'rxjs';
 import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
+
+import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -37,7 +40,10 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
 
     @Output() remove: any = new EventEmitter();
 
-    private enabledSub: Subscription;
+    private enabledSub: Subscription; // value change subscription for enabled
+    private listenSub: Subscription; // intercom subscription
+    // tslint:disable-next-line:no-inferrable-types
+    private expectingIntercomData: boolean = false;
 
     /** Autocomplete variables */
     /** FAKE DATA */
@@ -63,6 +69,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     separatorKeysCodes: number[] = [ENTER, COMMA];
 
     allowedValuesInput: FormControl = new FormControl(); // form control for adding allowed value item
+    allowedValuesInputSub: Subscription;
 
     filteredKeyOptions: Observable<string[]>; // options for key autosuggest
     filteredValueOptions: Observable<string[]>; // options for value autosuggest
@@ -73,7 +80,8 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     addOnBlur = true;
 
     constructor(
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private interCom: IntercomService
     ) { }
 
     ngOnInit() {
@@ -100,12 +108,47 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
                 map(val => this.filterTagKeyOptions(val)) // filter autosuggest values for key options
             );
 
-        this.filteredValueOptions = this.allowedValuesInput.valueChanges
+        /*this.filteredValueOptions = this.allowedValuesInput.valueChanges
             .pipe(
                 startWith(''),
                 debounceTime(300),
                 map(val => this.filterTagValueOptions(val)) // autosuggest options shuld come from somewhere else. Currently fake data
-            );
+            );*/
+
+        // NOTE: come back to this and implement rxJS switchmap
+        this.allowedValuesInputSub = this.allowedValuesInput.valueChanges
+            .pipe(debounceTime(300))
+            .subscribe(val => {
+                // console.log('*** ', val);
+                this.expectingIntercomData = true;
+                let payload = '.*';
+                if (val.trim().length > 0) {
+                    payload += val + '.*';
+                }
+                this.interCom.requestSend(<IMessage>{
+                    action: 'getTagValues',
+                    id: 'dbs-variable-item-' + this.formGroupName,
+                    payload: {
+                        tag : {
+                            key: this.tagk.value.trim(),
+                            value: 'regexp(' + payload + ')'
+                        }
+                    }
+                });
+            });
+
+        // listen to intercom
+        this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+            if (message.action === 'TagValueQueryReults' && this.expectingIntercomData) {
+                console.log('%cTAG VALUES ResponseGet [InterCom]',
+                        'color: white; background-color: darkmagenta; padding: 2px 4px;',
+                        message);
+                this.expectingIntercomData = false;
+                this.filteredValueOptions = message.payload.filter(val => {
+                    return !this.allowedValues.value.includes(val.toLowerCase());
+                });
+            }
+        });
 
     }
 

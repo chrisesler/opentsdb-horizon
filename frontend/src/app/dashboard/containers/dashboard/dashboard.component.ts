@@ -267,7 +267,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.loadedRawDB$.subscribe( db => {
-            console.log("\n\nloadedrawdb=", db);
+            console.log('\n\nloadedrawdb=', db);
             this.id = db.id || '_new_';
             this.store.dispatch(new LoadDashboardSettings(db.settings));
             // update WidgetsState
