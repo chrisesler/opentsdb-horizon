@@ -294,13 +294,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.variables$.subscribe ( t => {
-            this.variables = t;
-            console.log('variables$.subscribe [event]', t);
+            let requeryData = false;
 
-            this.interCom.responsePut({
-                action: 'reQueryData',
-                payload: t
-            });
+            if (!this.variables) {
+                requeryData = true;
+            } else {
+
+                // diff whether selected values changed
+                for (let tag of t.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
+                        this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
+                        requeryData = true;
+                    }
+                }
+
+                for (let tag of this.variables.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
+                        this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
+                        requeryData = true;
+                    }
+                }
+
+                // diff whether tags are enabled
+                for (let tag of t.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
+                        this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
+                            if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !== '') {
+                                requeryData = true;
+                            }
+                    }
+                }
+
+                for (let tag of this.variables.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
+                        this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
+                            if (this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables)) !== '') {
+                                requeryData = true;
+                            }
+                    }
+                }
+            }
+
+            console.log('variables$.subscribe [event]', t);
+            this.variables = t;
+
+            if (requeryData) {
+                this.interCom.responsePut({
+                    action: 'reQueryData',
+                    payload: t
+                });
+            }
         });
 
         this.dbTagsSub = this.dbTags$.subscribe( tags => {
@@ -476,6 +523,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     click_refreshDashboard() {
         // console.log('EVT: REFRESH DASHBOARD');
+    }
+
+    getTagValues (key: string, tplVariables: any[]): any[] {
+        for (let tplVariable of tplVariables) {
+            if (tplVariable.tagk === key) {
+                return tplVariable.filter;
+            }
+        }
+        return;
+    }
+
+    isTagKeyEnabled (key: string, tplVariables: any[]): boolean {
+        for (let tplVariable of tplVariables) {
+            if (tplVariable.tagk === key) {
+                return tplVariable.enabled;
+            }
+        }
+        return false;
+    }
+
+    arrayToString(array: any[]): string {
+        if (array) {
+            return array.sort().toString();
+        } else {
+            return '';
+        }
     }
 
     ngOnDestroy() {
