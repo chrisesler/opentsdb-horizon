@@ -304,13 +304,58 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.variables$.subscribe ( t => {
-            this.variables = t;
+
             console.log('variables$.subscribe [event]', t);
 
-            this.interCom.responsePut({
-                action: 'reQueryData',
-                payload: t
-            });
+            if (!this.variables) {
+                this.requeryData(t);
+                return;
+            } else {
+
+                // diff whether selected values changed
+                for (let tag of t.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
+                        this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
+                            this.requeryData(t);
+                            return;
+                    }
+                }
+
+                for (let tag of this.variables.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
+                        this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
+                            this.requeryData(t);
+                            return;
+                    }
+                }
+
+                // diff whether tags are enabled
+                for (let tag of t.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
+                        this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
+                            if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !== '') {
+                                this.requeryData(t);
+                                return;
+                            }
+                    }
+                }
+
+                for (let tag of this.variables.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
+                        this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
+                            if (this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables)) !== '') {
+                                this.requeryData(t);
+                                return;
+                            }
+                    }
+                }
+            }
+
+            this.variables = t;
         });
 
         this.dbTagsSub = this.dbTags$.subscribe( tags => {
@@ -350,6 +395,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (auth === 'invalid') {
                 // console.log('open auth dialog');
             }
+        });
+    }
+
+    requeryData(payload) {
+        this.variables = payload;
+        this.interCom.responsePut({
+            action: 'reQueryData',
+            payload: payload
         });
     }
 
@@ -493,6 +546,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     click_refreshDashboard() {
         // console.log('EVT: REFRESH DASHBOARD');
+    }
+
+    getTagValues (key: string, tplVariables: any[]): any[] {
+        for (let tplVariable of tplVariables) {
+            if (tplVariable.tagk === key) {
+                return tplVariable.filter;
+            }
+        }
+        return;
+    }
+
+    isTagKeyEnabled (key: string, tplVariables: any[]): boolean {
+        for (let tplVariable of tplVariables) {
+            if (tplVariable.tagk === key) {
+                return tplVariable.enabled;
+            }
+        }
+        return false;
+    }
+
+    arrayToString(array: any[]): string {
+        if (array) {
+            return array.sort().toString();
+        } else {
+            return '';
+        }
     }
 
     ngOnDestroy() {
