@@ -32,9 +32,8 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
 
     @Input() formGroup: FormGroup;
     @Input() formGroupName: number;
-    @Input() dbTagKeys: string[] = [];
-
-    @Output() itemDataChanged: any = new EventEmitter();
+    @Input() dbTagKeys: string[] = []; // all available tags from dashboard
+    @Input() selectedKeys: string[] = []; // keys that have already been added. Comes from parent
 
     @Output() remove: any = new EventEmitter();
 
@@ -42,12 +41,6 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
 
     /** Autocomplete variables */
     /** FAKE DATA */
-
-    fakeKeyOptions: string[] = [
-        'colo',
-        'host',
-        'appid'
-    ];
 
     fakeValueOptions: string[] = [
         'value-1',
@@ -69,13 +62,13 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     /** form variables */
     separatorKeysCodes: number[] = [ENTER, COMMA];
 
-    allowedValuesInput: FormControl = new FormControl();
+    allowedValuesInput: FormControl = new FormControl(); // form control for adding allowed value item
 
-    filteredKeyOptions: Observable<string[]>;
-    filteredValueOptions: Observable<string[]>;
+    filteredKeyOptions: Observable<string[]>; // options for key autosuggest
+    filteredValueOptions: Observable<string[]>; // options for value autosuggest
 
-    @ViewChild('filterValueInput') filterValueInput: ElementRef<HTMLInputElement>;
-    @ViewChild('filterValueAuto') valueAutocomplete: MatAutocomplete;
+    @ViewChild('filterValueInput') filterValueInput: ElementRef<HTMLInputElement>; // html element for allowedValuesInput.
+    @ViewChild('filterValueAuto') valueAutocomplete: MatAutocomplete; // autocomplete component for allowed values
 
     addOnBlur = true;
 
@@ -97,7 +90,6 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
 
         // listen for changes for enabled, and modify flag
         this.enabledSub = this.formGroup.get('enabled').valueChanges.subscribe(val => {
-            // console.log('ENABLED VAL', val);
             this._itemDisabled = !val;
         });
 
@@ -105,7 +97,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
             .pipe(
                 startWith(''),
                 debounceTime(300),
-                map(val => this.filterTagKeyOptions(val)) // autosuggest options shuld come from somewhere else. Currently fake data
+                map(val => this.filterTagKeyOptions(val)) // filter autosuggest values for key options
             );
 
         this.filteredValueOptions = this.allowedValuesInput.valueChanges
@@ -131,6 +123,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     }
 
     // removes the entire form group
+    // needs to emit this up, in order to remove from master array
     removeItem() {
         this.remove.emit(this.formGroupName);
     }
@@ -156,7 +149,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
             if (input) {
               input.value = '';
             }
-
+            // clear formControl input value
             this.allowedValuesInput.setValue('');
         }
     }
@@ -168,7 +161,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     }
 
     selectFilterValueOption(event: any) {
-        //
+        // TODO: filter real data
         this.createAllowedValue(event.option.value);
         this.filterValueInput.nativeElement.value = '';
         this.allowedValuesInput.setValue('');
@@ -183,8 +176,11 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     }
 
     private filterTagKeyOptions(val: string) {
+        // return available tag keys
+        // filter out the ones already selected
         return this.dbTagKeys.filter(option => {
-            return option.toLowerCase().includes(val.toLowerCase());
+            option = option.toLowerCase();
+            return option.includes(val.toLowerCase()) && !this.selectedKeys.includes(option);
         });
     }
 

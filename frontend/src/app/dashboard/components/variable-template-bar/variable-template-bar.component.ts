@@ -31,24 +31,19 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy, OnChange
         return this._shouldDisplay;
     }
 
-    variables: any;
-
     /** Inputs */
-    //@Input() dbSettingsVariables: Observable<any>; // dashboard settings data, containing the template vars
-    //dbSettingsVariablesSub: Subscription;
-
     @Input() dbSettingsVariables: any = {};
 
     /** Outputs */
 
     /** local variables */
-
-    varForm: FormGroup;
-    varFormSub: Subscription;
-
+    variables: any;
     // tslint:disable-next-line:no-inferrable-types
     isUpdating: boolean = true;
 
+    /** Form Variables */
+    varForm: FormGroup;
+    varFormSub: Subscription;
     optionLists: any = {};
 
     constructor(
@@ -57,61 +52,36 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy, OnChange
     ) { }
 
     ngOnInit() {
-        // create the form data
-
-        /*this.dbSettingsVariablesSub = this.dbSettingsVariables.subscribe(val => {
-            console.group('%cdbSettingsVariablesSub VARIABLE CHANGES', 'color: white; background-color: red; padding: 8px; font-weight: bold;');
-            console.log('variables', val);
-            this.variables = val;
-            this.checkIfShouldDisplay();
-
-            // console.log('should display', this._shouldDisplay);
-            if (this._shouldDisplay) {
-                //if (!this.varForm) {
-                    console.log('creating form');
-                    if (this.varForm) { this.varFormSub.unsubscribe(); }
-                    this.createForm();
-                //} else {
-                //    console.log('re-initializing form arrays');
-                //    this.initializeFormArrays();
-                //}
-                console.log('VAR FORM', this.varForm);
-                this.isUpdating = false;
-                console.log('%cDONE UPDATING', 'background-color: orange; padding: 8px;', this.isUpdating);
-            }
-            console.groupEnd();
-        });*/
-
-        // this.createForm();
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        console.log('%cCHANGES', 'background-color: red; color: white; padding: 8px;', changes);
         if (changes.dbSettingsVariables) {
             const data: SimpleChange = changes.dbSettingsVariables;
 
-            console.group('%cdbSettingsVariablesSub VARIABLE CHANGES', 'color: white; background-color: red; padding: 8px; font-weight: bold;');
+            console.group('%cVARIABLE CHANGES', 'background-color: orange; padding: 8px; font-weight: bold;');
             console.log('variables', data.currentValue);
+            // save local version
             this.variables = data.currentValue;
             this.checkIfShouldDisplay();
 
-            // console.log('should display', this._shouldDisplay);
             if (this._shouldDisplay) {
 
-                console.log('creating form');
-                if (this.varForm) { this.varFormSub.unsubscribe(); }
+                // check if there is an existing form
+                // if it exists, then remove the changes subscription (so a new one can be applied)
+                if (this.varForm) {
+                    this.varFormSub.unsubscribe();
+                }
+                // create the form
                 this.createForm();
-
-                console.log('VAR FORM', this.varForm);
+                // we are done updating
                 this.isUpdating = false;
-                console.log('%cDONE UPDATING', 'background-color: orange; padding: 8px;', this.isUpdating);
+                console.log('%cDONE UPDATING', 'background-color: green; color: white; padding: 8px;', this.isUpdating);
             }
             console.groupEnd();
         }
     }
 
     ngOnDestroy() {
-        // this.dbSettingsVariablesSub.unsubscribe();
         this.varFormSub.unsubscribe();
     }
 
@@ -182,17 +152,6 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy, OnChange
         }
 
         for (const tpl of this.variables.tplVariables) {
-            /*if (tpl.enabled) {
-                const tplGrp = this.fb.group({
-                    key: tpl.key,
-                    alias: tpl.alias,
-                    label: (tpl.alias.length > 0) ? tpl.alias : tpl.key,
-                    options: new FormControl()
-                });
-                this.optionLists[tpl.key] = tpl.values.split(',');
-                control.push(tplGrp);
-            }*/
-
             const varData = {
                 tagk: tpl.tagk,
                 alias: tpl.alias,
