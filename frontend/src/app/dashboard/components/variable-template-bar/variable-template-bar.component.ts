@@ -2,6 +2,9 @@ import {
     Component,
     OnInit,
     OnDestroy,
+    OnChanges,
+    SimpleChanges,
+    SimpleChange,
     Input,
     Output,
     EventEmitter,
@@ -19,7 +22,7 @@ import { IntercomService, IMessage } from '../../../core/services/intercom.servi
     templateUrl: './variable-template-bar.component.html',
     styleUrls: []
 })
-export class VariableTemplateBarComponent implements OnInit, OnDestroy {
+export class VariableTemplateBarComponent implements OnInit, OnDestroy, OnChanges {
 
     @HostBinding('class.variable-template-bar') private _hostClass = true;
 
@@ -31,8 +34,10 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy {
     variables: any;
 
     /** Inputs */
-    @Input() dbSettingsVariables: Observable<any>; // dashboard settings data, containing the template vars
-    dbSettingsVariablesSub: Subscription;
+    //@Input() dbSettingsVariables: Observable<any>; // dashboard settings data, containing the template vars
+    //dbSettingsVariablesSub: Subscription;
+
+    @Input() dbSettingsVariables: any = {};
 
     /** Outputs */
 
@@ -54,7 +59,7 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // create the form data
 
-        this.dbSettingsVariablesSub = this.dbSettingsVariables.subscribe(val => {
+        /*this.dbSettingsVariablesSub = this.dbSettingsVariables.subscribe(val => {
             console.group('%cdbSettingsVariablesSub VARIABLE CHANGES', 'color: white; background-color: red; padding: 8px; font-weight: bold;');
             console.log('variables', val);
             this.variables = val;
@@ -75,13 +80,38 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy {
                 console.log('%cDONE UPDATING', 'background-color: orange; padding: 8px;', this.isUpdating);
             }
             console.groupEnd();
-        });
+        });*/
 
         // this.createForm();
     }
 
+    ngOnChanges(changes: SimpleChanges) {
+        console.log('%cCHANGES', 'background-color: red; color: white; padding: 8px;', changes);
+        if (changes.dbSettingsVariables) {
+            const data: SimpleChange = changes.dbSettingsVariables;
+
+            console.group('%cdbSettingsVariablesSub VARIABLE CHANGES', 'color: white; background-color: red; padding: 8px; font-weight: bold;');
+            console.log('variables', data.currentValue);
+            this.variables = data.currentValue;
+            this.checkIfShouldDisplay();
+
+            // console.log('should display', this._shouldDisplay);
+            if (this._shouldDisplay) {
+
+                console.log('creating form');
+                if (this.varForm) { this.varFormSub.unsubscribe(); }
+                this.createForm();
+
+                console.log('VAR FORM', this.varForm);
+                this.isUpdating = false;
+                console.log('%cDONE UPDATING', 'background-color: orange; padding: 8px;', this.isUpdating);
+            }
+            console.groupEnd();
+        }
+    }
+
     ngOnDestroy() {
-        this.dbSettingsVariablesSub.unsubscribe();
+        // this.dbSettingsVariablesSub.unsubscribe();
         this.varFormSub.unsubscribe();
     }
 
