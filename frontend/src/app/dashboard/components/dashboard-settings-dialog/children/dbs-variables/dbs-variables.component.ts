@@ -31,6 +31,8 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
     varForm: FormGroup;
     varFormSub: Subscription;
 
+    selectedKeys: string[] = [];
+
     constructor(
         private fb: FormBuilder
     ) { }
@@ -47,10 +49,18 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
 
             // need to remove unused variables (ones without keys)
             const pending = val;
+            const pendingKeys = [];
             pending.tplVariables = val.tplVariables.filter(item => {
                 const keyCheck = item.tagk.trim();
-                return keyCheck.length > 0;
+                if (keyCheck.length > 0) {
+                    pendingKeys.push(keyCheck);
+                    return true;
+                } else {
+                    return false;
+                }
             });
+
+            this.selectedKeys = pendingKeys;
 
             this.dataModified.emit({
                 type: 'variables',
@@ -77,7 +87,9 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
             // add an empty one if there are no values
             this.addTemplateVariable();
         } else {
+            this.selectedKeys = [];
             for (const item of values) {
+                this.selectedKeys.push(item.tagk);
                 this.addTemplateVariable(item);
             }
         }
@@ -105,7 +117,6 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
     removeTemplateVariable(i: number) {
         const control = <FormArray>this.varForm.controls['tplVariables'];
         control.removeAt(i);
-        // this.dbData.variables.tplVariables.splice(i, 1);
     }
 
     /** ALL templates enable/disable toggle */
