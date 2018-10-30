@@ -85,6 +85,8 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
 
     addTemplateVariable(data?: any) {
 
+        // TODO: need to detect if filter contains '*' to change type to wildcard
+
         data = (data) ? data : {};
 
         const varData = {
@@ -93,7 +95,7 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
             allowedValues: (data.allowedValues) ? this.fb.array(data.allowedValues) : this.fb.array([]),
             filter: (data.filter) ? this.fb.array(data.filter) : this.fb.array([]),
             enabled: (data.enabled) ? data.enabled : true,
-            type: (data.type) ? data.type : 'literal'
+            type: (data.type) ? data.type : 'literalor'
         };
 
         const control = <FormArray>this.varForm.controls['tplVariables'];
