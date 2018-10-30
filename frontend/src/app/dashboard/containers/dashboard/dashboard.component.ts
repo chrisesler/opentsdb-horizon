@@ -257,7 +257,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
                 case 'getTagValues':
                     const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
-                    this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag));
+                    this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag, message.payload.filters));
                     break;
                 default:
                     break;
@@ -303,11 +303,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.variables$.subscribe ( t => {
             this.variables = t;
-
-            this.interCom.responsePut({
-                action: 'reQueryData',
-                payload: t
-            });
         });
 
         this.dbTagsSub = this.dbTags$.subscribe( tags => {

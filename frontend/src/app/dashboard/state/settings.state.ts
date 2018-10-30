@@ -53,7 +53,7 @@ export class LoadDashboardTags {
 
 export class LoadDashboardTagValues {
     public static type = '[Dashboard] Load Dashboard Tag Values';
-    constructor(public readonly metrics: any, public readonly tag: any ) {}
+    constructor(public readonly metrics: any, public readonly tag: any, public readonly filters: any ) {}
 }
 
 export class UpdateDashboardTags {
@@ -157,7 +157,6 @@ export class DBSettingsState {
     @Action(LoadDashboardTags)
     loadDashboardTags(ctx: StateContext<DBSettingsModel>, { metrics }: LoadDashboardTags) {
         const query = { metrics: metrics }; // unique metric
-        console.log("LoadDashboardTags", query);
         return this.httpService.getTagKeys(query).pipe(
             map( (tags: any) => {
                 ctx.dispatch(new UpdateDashboardTags(tags));
@@ -166,9 +165,8 @@ export class DBSettingsState {
     }
 
     @Action(LoadDashboardTagValues)
-    LoadDashboardTagValues(ctx: StateContext<DBSettingsModel>, { metrics: metrics, tag: tag }: LoadDashboardTagValues) {
-        const query = { metrics: metrics , tag: tag}; // unique metric
-        console.log("LoadDashboardTagValues", query);
+    LoadDashboardTagValues(ctx: StateContext<DBSettingsModel>, { metrics: metrics, tag: tag, filters: filters }: LoadDashboardTagValues) {
+        const query = { metrics: metrics , tag: tag, filters: filters }; // unique metric
         return this.httpService.getTagValues(query).pipe(
             map( (values: any) => {
                 ctx.dispatch(new UpdateDashboardTagValues(values));

@@ -103,7 +103,6 @@ router.post('/tagvalues', function(req, res) {
     if (
         req.body.metrics === undefined || !Array.isArray(req.body.metrics) || req.body.metrics.length === 0 ||
         req.body.tag === undefined || !req.body.tag.key || !req.body.tag.value 
-        //undefined === req.body.tags_filtered || !Array.isArray(req.body.tags_filtered)
     ) {
         res.status(400).json({
             message: 'Error: metrics, tag_search or tags_filtered are empty or non valid params'
@@ -114,7 +113,7 @@ router.post('/tagvalues', function(req, res) {
     esclient.getPossibleValuesForTag({
         'metrics':      req.body.metrics,
         'headers':       req.headers,
-        'tagsFiltered': req.body.tags_filtered || [],
+        'tagsFiltered': req.body.filters || [],
         'tagSearch':    req.body.tag
     }).then(function( results ){
         res.json( results );
