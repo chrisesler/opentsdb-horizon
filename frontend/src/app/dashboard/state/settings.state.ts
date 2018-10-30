@@ -20,9 +20,10 @@ export interface DBSettingsModel {
         isPersonal: boolean;
     };
     variables: {
-        disabled: boolean, // if all variables are enabled
-        tplVariables: Array<object>; // [{ key: '', alias: '', values: [], enabled: true, type: ''}]
-    };
+        enabled: boolean, // if all variables are enabled
+        // tslint:disable-next-line:max-line-length
+        tplVariables: Array<object>; // [{ type: 'literalor', tagk: 'src_colo', filter: ['bf2', 'gq1', 'blahh'], alias: 'colo', allowedValues: [''], enabled: true }]
+      };
 }
 
 export class UpdateMode {
@@ -99,7 +100,7 @@ export class UpdateMeta {
             isPersonal: false,
         },
         variables: {
-            disabled: false,
+            enabled: false,
             tplVariables: []
         }
     }
