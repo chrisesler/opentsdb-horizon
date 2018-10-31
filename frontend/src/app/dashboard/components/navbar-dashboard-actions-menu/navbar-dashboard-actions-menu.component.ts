@@ -33,6 +33,7 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
 
     @HostBinding('class.navbar-dashboard-actions-menu') private _hostClass = true;
 
+    @Input() id: string;
     @Input() dbSettingsMeta: any = {};
 
     // dashboard action menu trigger
@@ -90,9 +91,11 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
         // check if first time saving
 
         // if first time saving, prompt first save dialog
-        this.showFirstSaveDialog();
-        // if not first time, then just save it
-        // this.triggerSaveAction();
+        if ( this.id === '_new_') {
+            this.showFirstSaveDialog();
+        } else {
+            this.triggerSaveAction();
+        }
     }
 
     private showFirstSaveDialog() {
@@ -116,9 +119,10 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
         this.dashboardSaveDialog.afterClosed().subscribe((dialog_out: any) => {
             console.log('%cSAVE DIALOG CLOSED [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', dialog_out);
 
-            // save the dashboard now
-            // intercom to dashboard container
-            this.triggerSaveAction(dialog_out);
+            // dialog_out will be empty if the dialog is cancelled
+            if ( dialog_out ) {
+                this.triggerSaveAction(dialog_out);
+            }
         });
     }
 
@@ -131,7 +135,6 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
         }
 
         this.interCom.requestSend(<IMessage> {
-            id: 'saveButton',
             action: 'dashboardSaveRequest',
             payload: payload
         });

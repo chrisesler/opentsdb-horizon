@@ -156,6 +156,14 @@ export class DashboardService {
         return queries;
     }
 
+    getStorableFormatFromDBState(dbstate) {
+        const dashboard = {
+            settings: dbstate.Settings,
+            widgets: dbstate.Widgets
+        };
+        return dashboard;
+    }
+
   // we might not need to generate id for widget or group
   // it should be done at the time of adding into dashboard
   // this function only here for testing stuff

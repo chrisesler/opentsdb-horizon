@@ -13,6 +13,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Subscription, Observable } from 'rxjs';
 import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
+import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -27,7 +29,8 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
     selectedNamespace: String | null;
 
     // FAKE DATA
-    fakeNamespaceOptions = [
+    namespaceOptions = [
+        /*
         'FLICKR',
         'FLURRY',
         'MAIL',
@@ -35,23 +38,27 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         'UDB',
         'UDS',
         'YAMAS',
+        */
     ];
-    filteredNamespaceOptions: Observable<string[]>;
+    filteredNamespaceOptions: Observable<any[]>;
 
     /** Form Variables */
 
     saveForm: FormGroup;
+    listenSub: Subscription;
+    error: any;
 
     constructor(
         private fb: FormBuilder,
         public dialogRef: MatDialogRef<DashboardSaveDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public dbData: any
+        @Inject(MAT_DIALOG_DATA) public dbData: any,
+        private interCom: IntercomService
     ) { }
 
     ngOnInit() {
         this.saveForm = this.fb.group({
             title: new FormControl(this.dbData.title, [Validators.required, Validators.minLength(3), Validators.maxLength(50)]),
-            namespace: new FormControl(this.dbData.namespace, [Validators.required]),
+            namespace: new FormControl ( { value: this.dbData.namespace, disabled: this.dbData.isPersonal }),
             isPersonal: this.dbData.isPersonal
         });
 
@@ -61,6 +68,19 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
                 debounceTime(300),
                 map(val => this.filterNamespace(val)) // autosuggest options shuld come from somewhere else. Currently fake data
             );
+
+        this.interCom.requestSend(<IMessage> {
+            action: 'getUserNamespaces',
+            payload: {}
+        });
+        this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+            switch ( message.action ) {
+                case 'UserNamespaces':
+                    console.log("save dialog on listen", message, this.namespace);
+                    this.namespaceOptions = message.payload;
+                    break;
+            }
+        });
     }
 
     // form accessors should come after form initialized in ngOnInit
@@ -69,6 +89,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
     get isPersonal() { return this.saveForm.get('isPersonal'); }
 
     ngOnDestroy() {
+        this.listenSub.unsubscribe();
     }
 
     /** PERSONAL USE CHECKED */
@@ -76,18 +97,16 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         console.log('%cPERSONAL USE CHECKBOX [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', e, this.isPersonal);
         if (e.checked) {
             this.namespace.disable(); // disable namespace control
-            this.namespace.clearValidators(); // remove namespace validators, so it doesn't block submission
         } else {
             this.namespace.enable(); // enable namespace control
-            this.namespace.setValidators([Validators.required]); // add namespace validators
         }
     }
 
     /** NAMESPACE EVENTS */
 
     filterNamespace(val: string): string[] {
-        return this.fakeNamespaceOptions.filter(option => {
-            return option.toLowerCase().includes(val.toLowerCase());
+        return this.namespaceOptions.filter(option => {
+            return option.name.toLowerCase().includes(val.toLowerCase());
         });
     }
 
@@ -97,7 +116,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
      */
     namespaceKeydown(event: any) {
         // this.filterNamespace(this.namespace.value);
-        if (this.namespace.valid && this.fakeNamespaceOptions.includes(this.namespace.value)) {
+        if (this.namespace.valid && this.namespaceOptions.includes(this.namespace.value)) {
             this.selectedNamespace = this.namespace.value;
         }
     }
@@ -109,6 +128,24 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         this.selectedNamespace = event.option.value;
     }
 
+    isValidNamespaceSelected() {
+        if ( this.namespace.status === 'DISABLED' ) {
+             return true;
+        }
+        const namespace = this.namespace.value.trim();
+        const errors: any = {};
+        console.log(namespace, this.namespaceOptions.findIndex(d => namespace === d.name ));
+        if ( namespace === '') {
+            errors.required = true;
+        }
+        if ( namespace && this.namespaceOptions.findIndex(d => namespace === d.name ) === -1 ) {
+            errors.invalid = true;
+        }
+        this.namespace.setErrors(Object.keys(errors).length ? errors : null);
+        console.log(this.namespace);
+
+        return Object.keys(errors).length === 0 ? true : false;
+    }
     /** SAVE BUTTON */
 
     saveDashboardAction() {
@@ -116,17 +153,21 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         if (!this.saveForm.valid) {
             // form not good
             console.log('%cSAVE DASHBOARD [NOT VALID]', 'color: #ffffff; background-color: red; padding: 2px 4px;', this.saveForm);
-        } else {
+        } else if ( this.isValidNamespaceSelected() ) {
             // form is good, save it
             console.log('%cSAVE DASHBOARD [VALID]', 'color: #ffffff; background-color: green; padding: 2px 4px;', this.saveForm);
 
-            const dataReturn = {
+            const data: any = {
                 title: this.title.value,
-                namespace: this.namespace.value,
                 isPersonal: this.isPersonal.value
             };
 
-            this.dialogRef.close(dataReturn);
+            if ( !this.isPersonal.value ) {
+                data.namespace = this.namespace.value;
+            }
+
+            console.log("return data", data);
+            this.dialogRef.close(data);
         }
     }
 }
