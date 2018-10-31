@@ -308,7 +308,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             console.log('variables$.subscribe [event]', t);
             if (this.variables) {
                 // diff whether selected values changed
-                for (let tag of t.tplVariables) {
+                for (const tag of t.tplVariables) {
                     const tagKey = tag.tagk;
                     if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
                         this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
@@ -317,7 +317,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
                 }
 
-                for (let tag of this.variables.tplVariables) {
+                for (const tag of this.variables.tplVariables) {
                     const tagKey = tag.tagk;
                     if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
                         this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
@@ -327,7 +327,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
 
                 // diff whether tags are enabled
-                for (let tag of t.tplVariables) {
+                for (const tag of t.tplVariables) {
                     const tagKey = tag.tagk;
                     if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
                         this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
@@ -338,7 +338,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
                 }
 
-                for (let tag of this.variables.tplVariables) {
+                for (const tag of this.variables.tplVariables) {
                     const tagKey = tag.tagk;
                     if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
                         this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
@@ -548,7 +548,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     getTagValues (key: string, tplVariables: any[]): any[] {
-        for (let tplVariable of tplVariables) {
+        for (const tplVariable of tplVariables) {
             if (tplVariable.tagk === key) {
                 return tplVariable.filter;
             }
@@ -557,7 +557,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     isTagKeyEnabled (key: string, tplVariables: any[]): boolean {
-        for (let tplVariable of tplVariables) {
+        for (const tplVariable of tplVariables) {
             if (tplVariable.tagk === key) {
                 return tplVariable.enabled;
             }
