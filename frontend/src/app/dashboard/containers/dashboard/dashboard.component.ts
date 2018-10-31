@@ -341,7 +341,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (dbstate.loaded) {
                 this.widgets = widgets;
                 const metrics = this.dbService.getMetricsFromWidgets(widgets);
-                this.store.dispatch(new LoadDashboardTags(metrics));
+                if ( metrics.length ) {
+                    this.store.dispatch(new LoadDashboardTags(metrics));
+                }
             }
         });
 
