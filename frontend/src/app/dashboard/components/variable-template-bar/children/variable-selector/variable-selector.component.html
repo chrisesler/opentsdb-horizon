@@ -1,0 +1,53 @@
+<div class="value-trigger" 
+    [ngClass]="{'is-open': valueMenuOpen}"
+    [matMenuTriggerFor]="valueMenu"
+    (menuOpened)="toggleValueMenuOpen()"
+    (menuClosed)="toggleValueMenuOpen()"
+    #valueMenuTrigger>
+    <div class="mat-label">{{(alias.value.length > 0) ? alias.value : tagk.value}}:</div>
+    <div class="selected-values">
+        <span class="selected-values-text">{{(filter.value.length > 0) ? filter.value.join(', ') : 'Select filter value'}}</span>
+        <mat-icon fontSet="denali" fontIcon="d-arrowhead-down"></mat-icon>
+    </div>
+</div>
+<mat-menu #valueMenu="matMenu" [overlapTrigger]="false" class="allowed-value-menu">
+    <div class="value-select-form" (click)="$event.stopPropagation()">
+        <mat-form-field appearance="fill" color="primary" floatLabel="never">
+            <mat-chip-list class="filter-values-list" #chipList>
+                <mat-chip
+                    *ngFor="let val of chipValues; let n=index"
+                    (removed)="removeValue(n)">
+                    <span>{{val.value}}</span>
+                    <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
+                </mat-chip>
+                <!--<input
+                    placeholder="Search tag value"
+                    #filterValueInputEl
+                    [formControl]="filterValueInput"
+                    [matAutocomplete]="filterValueAuto"
+                    [matChipInputFor]="chipList"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                    [matChipInputAddOnBlur]="addOnBlur"
+                    (matChipInputTokenEnd)="addValue($event)">-->
+                    <input
+                    placeholder="Search tag value"
+                    #filterValueInputEl
+                    [formControl]="filterValueInput"
+                    [matAutocomplete]="filterValueAuto"
+                    [matChipInputFor]="chipList">
+            </mat-chip-list>
+            <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event)">
+                <mat-option *ngFor="let option of filteredValueOptions" [value]="option">
+                {{option}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <!--
+        <div class="form-actions">
+            <button mat-flat-button color="primary">Apply</button>
+            <button mat-stroked-button color="primary">Cancel</button>
+        </div>
+        -->
+    </div>
+</mat-menu>
+
