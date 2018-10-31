@@ -15,7 +15,7 @@ import { DashboardService } from './services/dashboard.service';
 // store
 import { NgxsModule } from '@ngxs/store';
 import { DBState, DBSettingsState, WidgetsState, ClientSizeState,
-         WidgetsConfigState, WidgetsRawdataState } from './state';
+         WidgetsConfigState, WidgetsRawdataState, UserSettingsState } from './state';
 
 // components
 import { DashboardComponent } from './containers/dashboard/dashboard.component';
@@ -42,6 +42,7 @@ import {
 } from './components/variable-template-bar';
 import { NavbarDashboardActionsMenuComponent } from './components/navbar-dashboard-actions-menu/navbar-dashboard-actions-menu.component';
 import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog/dashboard-save-dialog.component';
+import { DashboardDeleteDialogComponent } from './components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 
 @NgModule({
     imports: [
@@ -57,7 +58,8 @@ import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog
             DBSettingsState,
             WidgetsState,
             ClientSizeState,
-            WidgetsRawdataState
+            WidgetsRawdataState,
+            UserSettingsState
         ]),
         DynamicWidgetsModule
     ],
@@ -78,6 +80,7 @@ import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog
         VariableTemplateBarComponent,
         NavbarDashboardActionsMenuComponent,
         DashboardSaveDialogComponent,
+        DashboardDeleteDialogComponent,
         VariableSelectorComponent,
         DbsVariableItemComponent
     ],
@@ -86,7 +89,8 @@ import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog
     ],
     entryComponents: [
         DashboardSettingsDialogComponent,
-        DashboardSaveDialogComponent
+        DashboardSaveDialogComponent,
+        DashboardDeleteDialogComponent
     ]
 })
 export class DashboardModule { }

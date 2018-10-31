@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
@@ -15,7 +16,8 @@ import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
 import { ISelectedTime } from '../../../shared/modules/date-time-picker/models/models';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
-import { DBState, LoadDashboard } from '../../state/dashboard.state';
+import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
+import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, WidgetModel} from '../../state/widgets.state';
 import { WidgetsRawdataState, GetQueryDataByGroup } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
@@ -36,6 +38,7 @@ import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY, MatSnackBar } fr
 import {
     SearchMetricsDialogComponent
 } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
+import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 
 @Component({
@@ -49,7 +52,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     @Select(AuthState.getAuth) auth$: Observable<string>;
     // new state
+    @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
+    @Select(DBState.getDashboardId) dbId$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
+    @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
+    @Select(DBState.getDashboardError) dbError$: Observable<any>;
     @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
     @Select(DBSettingsState.getMeta) meta$: Observable<any>;
     @Select(DBSettingsState.getVariables) variables$: Observable<any>;
@@ -126,39 +133,48 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }*/
     ];
     // other variables
-    id: string; // dashboard id
     dbTime: any;
     meta: any;
     variables: any;
     dbTags: any;
+    dbIdSub: Subscription;
     listenSub: Subscription;
     widgetSub: Subscription;
     dbTagsSub: Subscription;
     tagValuesSub: Subscription;
+    dbStatusSub: Subscription;
+    dbErrorSub: Subscription;
+    userNamespacesSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
     widgets: any[] = [];
+    userNamespaces: any = [];
     // tslint:disable-next-line:no-inferrable-types
     viewEditMode: boolean = false;
 
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
+    dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
 
     constructor(
         private store: Store,
         private route: ActivatedRoute,
+        private router: Router,
+        private location: Location,
         private interCom: IntercomService,
         private dbService: DashboardService,
         private cdkService: CdkService,
         private queryService: QueryService,
         private dateUtil: DateUtilsService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private snackBar: MatSnackBar
     ) { }
 
     ngOnInit() {
         // handle route
         this.routeSub = this.route.params.subscribe(params => {
+            console.log("comes in router params....")
             // route to indicate create a new dashboard
             if (params['dbid']) {
                 this.dbid = params['dbid'];
@@ -231,7 +247,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (message.payload.updateFirst === true) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
-                    // trigger SAVE action here
+                    const dbcontent = this.dbService.getStorableFormatFromDBState(this.store.selectSnapshot(DBState));
+                    const dbSettings = this.store.selectSnapshot(DBSettingsState);
+                    const payload: any = {
+                        'name': dbSettings.meta.title,
+                        'type': 'DASHBOARD',
+                        'content': JSON.stringify(dbcontent)
+                    };
+                    if ( message.payload.meta && message.payload.meta.namespace ) {
+                        const namespace = this.userNamespaces.find( d => d.name === message.payload.meta.namespace );
+                        payload.namespaceid = namespace.id;
+                    }
+                    this.store.dispatch(new SaveDashboard(this.dbid, payload));
+                    console.log("dashboardSaveRequest", message.payload, payload);
                     break;
                 case 'dashboardSettingsToggleRequest':
 
@@ -261,17 +289,47 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
                     this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag, message.payload.filters));
                     break;
+                case 'getUserNamespaces':
+                    console.log("getUserNamespaces")
+                    this.store.dispatch(new LoadUserNamespaces());
+                    break;
                 default:
                     break;
             }
         });
 
         this.loadedRawDB$.subscribe( db => {
-            console.log('\n\nloadedrawdb=', db);
-            this.id = db.id || '_new_';
+            console.log("\n\nloadedrawdb=", db);
             this.store.dispatch(new LoadDashboardSettings(db.settings));
             // update WidgetsState
             this.store.dispatch(new LoadWidgets(db.widgets));
+        });
+
+        this.dbIdSub = this.dbId$.subscribe(id => {
+            if ( this.dbid === '_new_' && id ) {
+                this.dbid = id;
+                this.location.replaceState('/d/' + this.dbid);
+            }
+        });
+
+        this.dbStatusSub = this.dbStatus$.subscribe( status => {
+            switch ( status ) {
+                case 'save-success':
+                    this.snackBar.open('Dashboard has been saved.', '', {
+                        horizontalPosition: 'center',
+                        verticalPosition: 'top',
+                        duration: 5000,
+                        panelClass: 'info'});
+                    break;
+                case 'delete-success':
+                    this.router.navigate(['/home'], { queryParams: {'db-delete': true} } );
+                    break;
+            }
+        });
+
+        this.dbErrorSub = this.dbError$.subscribe(error => {
+            // show error popup if error is set
+            console.error(error);
         });
 
         this.widgetSub = this.widgets$.subscribe( widgets => {
@@ -374,6 +432,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 grawdata[result.gid] = result.rawdata;
                 this.updateWidgetGroup(result.wid, grawdata);
             }
+        });
+
+        this.userNamespaces$.subscribe( result => {
+            this.userNamespaces = result;
+            this.interCom.responsePut({
+                action: 'UserNamespaces',
+                payload: result
+            });
         });
 
         // all widgets should update their own size
@@ -531,7 +597,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }*/
 
     receiveDashboardAction(event: any) {
-        // console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
+         console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
+         switch ( event.action ) {
+             case 'clone':
+                this.dbid = '_new_';
+                const newTitle = 'Clone of ' + this.meta.title;
+                this.setTitle(newTitle);
+                this.location.replaceState('/d/' + this.dbid);
+                break;
+            case 'delete':
+                this.openDashboardDeleteDialog();
+                break;
+         }
+    }
+
+    openDashboardDeleteDialog() {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        dialogConf.backdropClass = 'dashboard-delete-dialog-backdrop';
+        dialogConf.hasBackdrop = true;
+        dialogConf.panelClass = 'dashboard-delete-dialog-panel';
+
+        dialogConf.autoFocus = true;
+        dialogConf.data = {};
+        this.dashboardDeleteDialog = this.dialog.open(DashboardDeleteDialogComponent, dialogConf);
+        this.dashboardDeleteDialog.afterClosed().subscribe((dialog_out: any) => {
+            console.log("delete dialog confirm", dialog_out);
+            if ( dialog_out && dialog_out.delete  ) {
+                this.store.dispatch(new DeleteDashboard(this.dbid));
+            }
+        });
     }
 
     click_availableWidgetsTrigger() {
@@ -565,6 +659,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.widgetSub.unsubscribe();
         this.dbTagsSub.unsubscribe();
         this.tagValuesSub.unsubscribe();
+        this.dbIdSub.unsubscribe();
+        this.dbStatusSub.unsubscribe();
+        this.dbErrorSub.unsubscribe();
+        this.userNamespacesSub.unsubscribe();
         // we need to clear dashboard state
         // this.store.dispatch(new dashboardActions.ResetDashboardState);
     }

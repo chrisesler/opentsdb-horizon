@@ -80,7 +80,7 @@
                 </button>
             </ng-template>
         </mat-menu>-->
-        <navbar-dashboard-actions-menu mat-button [dbSettingsMeta]="meta" (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
+        <navbar-dashboard-actions-menu mat-button [id]="dbid" [dbSettingsMeta]="meta" (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
     </span>
 
     <span class="navbar-item navbar-icon-item nav-search-toggle">
