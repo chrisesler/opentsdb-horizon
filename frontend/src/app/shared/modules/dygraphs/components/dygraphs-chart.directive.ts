@@ -79,7 +79,9 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
       if(!this._g && this.data) {
         this.options.plugins = [ ThresholdsPlugin ];
         this.options.legendFormatter = legendFormatter;
-        this.options.highlightCallback = mouseover;
+        if ( this.options.labelsDiv) {
+            this.options.highlightCallback = mouseover;
+        }
         //this.options.plotter = multiColumnGroupPlotter;
         this._g = new Dygraph(this.element.nativeElement, this.data, this.options);
       }

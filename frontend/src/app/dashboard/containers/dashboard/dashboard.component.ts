@@ -299,10 +299,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.loadedRawDB$.subscribe( db => {
-            console.log("\n\nloadedrawdb=", db);
-            this.store.dispatch(new LoadDashboardSettings(db.settings));
-            // update WidgetsState
-            this.store.dispatch(new LoadWidgets(db.widgets));
+            const dbstate = this.store.selectSnapshot(DBState);
+            console.log("\n\nloadedrawdb=", db, dbstate.loaded);
+            if (dbstate.loaded) {
+                this.store.dispatch(new LoadDashboardSettings(db.settings));
+                // update WidgetsState
+                this.store.dispatch(new LoadWidgets(db.widgets));
+            }
         });
 
         this.dbIdSub = this.dbId$.subscribe(id => {
@@ -333,10 +336,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.widgetSub = this.widgets$.subscribe( widgets => {
-            console.log('--- widget subscription---', widgets);
-            this.widgets = widgets;
-            const metrics = this.dbService.getMetricsFromWidgets(widgets);
-            this.store.dispatch(new LoadDashboardTags(metrics));
+            const dbstate = this.store.selectSnapshot(DBState);
+            console.log('--- widget subscription---', widgets, dbstate.loaded);
+            if (dbstate.loaded) {
+                this.widgets = widgets;
+                const metrics = this.dbService.getMetricsFromWidgets(widgets);
+                if ( metrics.length ) {
+                    this.store.dispatch(new LoadDashboardTags(metrics));
+                }
+            }
         });
 
         this.dbTime$.subscribe ( t => {
