@@ -84,6 +84,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     ) { }
 
     ngOnInit() {
+        console.log("this.widget", JSON.stringify(this.widget));
         // console.log('TEST', this.widgetOutputElement.nativeElement.getBoundingClientRect());
                 // subscribe to event stream
                 this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
@@ -659,7 +660,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     // apply config from editing
     applyConfig() {
-        let cloneWidget = {...this.widget};
+        const cloneWidget = JSON.parse(JSON.stringify(this.widget));
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
@@ -668,7 +669,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
         this.closeViewEditMode();
     }
-    
+
     ngOnDestroy() {
         if (this.listenSub) {
             this.listenSub.unsubscribe();
