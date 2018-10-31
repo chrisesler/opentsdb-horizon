@@ -91,6 +91,7 @@ export class DbsMetaComponent implements OnInit, OnDestroy {
         console.log('ADD NEW LABEL', e);
         const labelValue = this.newLabelInput.nativeElement.value;
         this.addDbLabel(labelValue);
+        this.newLabelInput.nativeElement.value = '';
     }
 
     /**
