@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { UtilsService } from '../services/utils.service';
 
 @Injectable({
@@ -1056,9 +1056,14 @@ export class HttpService {
 
   getDashoard(id: string): Observable<any> {
     // modify widget to support responsive, drag and drop, resize before return
-    this.utilsService.modifyWidgets(this.testDashboard);
-    return Observable.of(this.testDashboard);
-  }
+    //this.utilsService.modifyWidgets(this.testDashboard);
+    //return Observable.of(this.testDashboard);
+    const apiUrl = environment.configdb + '/object/' + id;
+    return this.http.get( apiUrl, { withCredentials: true })
+                    .pipe(
+                        map( (data: any)  => JSON.parse(data.content) )
+                    );
+    }
 
   /* to handle error  with more info */
   handleError(error: HttpErrorResponse) {
@@ -1135,14 +1140,9 @@ export class HttpService {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
-        const params = new HttpParams();
-        params.set('userid', 'arunmohzi');
-        params.set('type', 'DASHBOARD');
+        const params = { 'userId': 'user.arunmohzi', 'type': 'DASHBOARD'};
         console.log("get dahboards params", apiUrl, params);
-        return this.http.get( apiUrl, { params: params, headers, withCredentials: true })
-                    .pipe(
-                        catchError(this.handleError)
-                    );
+        return this.http.get( apiUrl, { params: params, headers, withCredentials: true });
     }
 
     saveDashboard(id, data) {
@@ -1156,9 +1156,18 @@ export class HttpService {
             apiUrl = apiUrl + '/' + id;
         }
         console.log("save dahboard params", apiUrl, method, data);
-        return this.http[method]( apiUrl, data, { headers, withCredentials: true })
-                    .pipe(
-                        catchError(this.handleError)
-                    );
+        return this.http[method]( apiUrl, data, { headers, withCredentials: true });
+    }
+
+    deleteDashboard(id) {
+        const apiUrl = environment.configdb + '/object/' + id;
+        console.log("delete dahboard ", apiUrl);
+        return this.http.delete(apiUrl, { withCredentials: true });
+    }
+
+    userNamespaces() {
+        const apiUrl = environment.configdb + '/namespace';
+        console.log("userNamespaces", apiUrl);
+        return this.http.get(apiUrl, { withCredentials: true });
     }
 }

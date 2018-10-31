@@ -57,7 +57,7 @@
 
     <!--<simple-time-picker xPosition="before"></simple-time-picker>-->
     <span class="navbar-item nav-dashboard-actions">
-        <navbar-dashboard-actions-menu mat-button [dbSettingsMeta]="meta" (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
+        <navbar-dashboard-actions-menu mat-button [id]="dbid" [dbSettingsMeta]="meta" (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
     </span>
 
     <span class="navbar-item navbar-icon-item nav-search-toggle">

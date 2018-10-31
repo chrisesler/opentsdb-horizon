@@ -101,7 +101,8 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             strokeWidth: 3,
             strockeBorderWidth: 1,
             hightlightCircleSize: 5
-        }
+        },
+        visibility: []
     };
     data: any = [[0]];
     size: any = {};
