@@ -132,7 +132,8 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     const component = viewContainerRef.createComponent(comp.compFactory);
     // we posfix __EDIT__ to original widget id
     // tslint:disable-next-line:prefer-const
-    let editWidget = {...comp.widget, id: '__EDIT__' + comp.widget.id};
+    let editWidget = JSON.parse(JSON.stringify(comp.widget));
+    editWidget.id = '__EDIT__' + comp.widget.id;
     // assign @input widget
     (<WidgetComponentModel>component.instance).widget = editWidget;
     (<WidgetComponentModel>component.instance).editMode =  true; // let it know it is in edit mode so it shows the config controls
