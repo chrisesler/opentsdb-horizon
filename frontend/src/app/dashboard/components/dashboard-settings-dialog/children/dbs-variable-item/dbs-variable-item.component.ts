@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl, FormArray } from '@angular/forms';
-import { MatAutocompleteSelectedEvent, MatChipInputEvent, MatAutocomplete } from '@angular/material';
+import { MatAutocompleteSelectedEvent, MatChipInputEvent, MatAutocomplete, MatAutocompleteTrigger } from '@angular/material';
 
 import { Observable } from 'rxjs';
 import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
@@ -40,44 +40,27 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
 
     @Output() remove: any = new EventEmitter();
 
+    /** Subscriptions */
     private enabledSub: Subscription; // value change subscription for enabled
     private listenSub: Subscription; // intercom subscription
+    private allowedValuesInputSub: Subscription; // Allowed values input change subscription
+
+    /** Local Variables */
     // tslint:disable-next-line:no-inferrable-types
     private expectingIntercomData: boolean = false;
 
     /** Autocomplete variables */
-    /** FAKE DATA */
-
-    fakeValueOptions: string[] = [
-        'value-1',
-        'value-2',
-        'value-3',
-        'value-4',
-        'value-5',
-        'value-6',
-        'value-7',
-        'value-8',
-        'value-9',
-        'value-10',
-        'value-11',
-        'value-12',
-        'value-13',
-        'value-14'
-    ];
+    filteredKeyOptions: Observable<string[]>; // options for key autosuggest
+    filteredValueOptions: Observable<string[]>; // options for value autosuggest
 
     /** form variables */
     separatorKeysCodes: number[] = [ENTER, COMMA];
 
     allowedValuesInput: FormControl = new FormControl(); // form control for adding allowed value item
-    allowedValuesInputSub: Subscription;
 
-    filteredKeyOptions: Observable<string[]>; // options for key autosuggest
-    filteredValueOptions: Observable<string[]>; // options for value autosuggest
-
-    @ViewChild('filterValueInput') filterValueInput: ElementRef<HTMLInputElement>; // html element for allowedValuesInput.
+    @ViewChild('filterValueInput', {read: MatAutocompleteTrigger}) valueTrigger: MatAutocompleteTrigger; // value autocomplete trigger
+    @ViewChild('filterValueInput') valueInput: ElementRef<HTMLInputElement>; // html element for allowedValuesInput.
     @ViewChild('filterValueAuto') valueAutocomplete: MatAutocomplete; // autocomplete component for allowed values
-
-    addOnBlur = true;
 
     constructor(
         private fb: FormBuilder,
@@ -152,6 +135,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
 
     }
 
+    /** Form Accessors */
     get tagk() { return this.formGroup.get('tagk'); }
     get alias() { return this.formGroup.get('alias'); }
     get enabled() { return this.formGroup.get('enabled'); }
@@ -159,10 +143,13 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     get filter() { return this.formGroup.get('filter'); }
     get type() { return this.formGroup.get('type'); }
 
+    /** form helpers */
     get chipValues() { return this.allowedValues['controls']; }
 
     ngOnDestroy() {
         this.enabledSub.unsubscribe();
+        this.listenSub.unsubscribe();
+        this.allowedValuesInputSub.unsubscribe();
     }
 
     // removes the entire form group
@@ -192,6 +179,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
             if (input) {
               input.value = '';
             }
+
             // clear formControl input value
             this.allowedValuesInput.setValue('');
         }
@@ -199,17 +187,22 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
 
     /** Auto Complete Functions */
 
+    // select suggested tag key
     selectFilterKeyOption(event: any) {
         this.tagk.setValue(event.option.value);
     }
 
+    // select suggested tag value
     selectFilterValueOption(event: any) {
-        // TODO: filter real data
         this.createAllowedValue(event.option.value);
-        this.filterValueInput.nativeElement.value = '';
         this.allowedValuesInput.setValue('');
     }
 
+    // open autocomplete on input focus
+    onValueInputFocus() {
+        this.valueTrigger._onChange('');
+        this.valueTrigger.openPanel();
+    }
 
     /** private functions */
 
@@ -224,12 +217,6 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
         return this.dbTagKeys.filter(option => {
             option = option.toLowerCase();
             return option.includes(val.toLowerCase()) && !this.selectedKeys.includes(option);
-        });
-    }
-
-    private filterTagValueOptions(val: string) {
-        return this.fakeValueOptions.filter(option => {
-            return option.toLowerCase().includes(val.toLowerCase());
         });
     }
 
