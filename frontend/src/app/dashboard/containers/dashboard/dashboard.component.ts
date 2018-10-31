@@ -304,56 +304,51 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.variables$.subscribe ( t => {
-
             console.log('variables$.subscribe [event]', t);
             if (this.variables) {
-                // diff whether selected values changed
-                for (let tag of t.tplVariables) {
-                    const tagKey = tag.tagk;
-                    if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
-                        this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
-                            this.requeryData(t);
-                            return;
-                    }
-                }
-
-                for (let tag of this.variables.tplVariables) {
-                    const tagKey = tag.tagk;
-                    if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
-                        this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
-                            this.requeryData(t);
-                            return;
-                    }
-                }
-
-                // diff whether tags are enabled
-                for (let tag of t.tplVariables) {
-                    const tagKey = tag.tagk;
-                    if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
-                        this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
-                            if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !== '') {
+                if (this.variables.enabled && t.enabled) { // was enabled, still enabled
+                    // diff whether selected values changed
+                    for (let tag of t.tplVariables) {
+                        const tagKey = tag.tagk;
+                        if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
+                            this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
                                 this.requeryData(t);
                                 return;
-                            }
+                        }
                     }
-                }
-
-                for (let tag of this.variables.tplVariables) {
-                    const tagKey = tag.tagk;
-                    if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
-                        this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
-                            if (this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables)) !== '') {
+                    for (let tag of this.variables.tplVariables) {
+                        const tagKey = tag.tagk;
+                        if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
+                            this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
                                 this.requeryData(t);
                                 return;
-                            }
+                        }
                     }
+                } else if (this.variables.enabled && !t.enabled) { // was enabled, now disabled
+                    for (let tag of this.variables.tplVariables) {
+                        const tagKey = tag.tagk;
+                        if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !== '') {
+                            this.requeryData(t);
+                            return;
+                        }
+                    }
+                } else if (!this.variables.enabled && t.enabled) { // was disabled, now enabled
+                    for (let tag of t.tplVariables) {
+                        const tagKey = tag.tagk;
+                        if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !== '') {
+                            this.requeryData(t);
+                            return;
+                        }
+                    }
+                } else { // was disabled, still disabled
+                    // do nothing
                 }
-            } else { // variables has never been set
+            } else { // this.variables has never been set
                 this.requeryData(t);
                 return;
             }
 
-            // do not query new data
+            // set new variables, but do not query new data
             this.variables = t;
         });
 
@@ -549,20 +544,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     getTagValues (key: string, tplVariables: any[]): any[] {
         for (let tplVariable of tplVariables) {
-            if (tplVariable.tagk === key) {
+            if (tplVariable.tagk === key && tplVariable.enabled) {
                 return tplVariable.filter;
             }
         }
         return;
-    }
-
-    isTagKeyEnabled (key: string, tplVariables: any[]): boolean {
-        for (let tplVariable of tplVariables) {
-            if (tplVariable.tagk === key) {
-                return tplVariable.enabled;
-            }
-        }
-        return false;
     }
 
     arrayToString(array: any[]): string {
