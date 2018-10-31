@@ -31,6 +31,8 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
     varForm: FormGroup;
     varFormSub: Subscription;
 
+    selectedKeys: string[] = [];
+
     constructor(
         private fb: FormBuilder
     ) { }
@@ -38,7 +40,7 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
     ngOnInit() {
 
         this.varForm = this.fb.group({
-            disabled: new FormControl(this.dbData.variables.disabled),
+            enabled: new FormControl(this.dbData.variables.enabled),
             tplVariables: this.fb.array([])
         });
 
@@ -47,9 +49,18 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
 
             // need to remove unused variables (ones without keys)
             const pending = val;
+            const pendingKeys = [];
             pending.tplVariables = val.tplVariables.filter(item => {
-                return item.key.length > 0;
+                const keyCheck = item.tagk.trim();
+                if (keyCheck.length > 0) {
+                    pendingKeys.push(keyCheck);
+                    return true;
+                } else {
+                    return false;
+                }
             });
+
+            this.selectedKeys = pendingKeys;
 
             this.dataModified.emit({
                 type: 'variables',
@@ -62,12 +73,13 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
         console.log('%cVAR FORM', 'background-color: skyblue; padding: 2px 4px', this.varForm);
     }
 
-    get disabled() { return this.varForm.get('disabled'); }
-    get tplVariables() { return this.varForm.get('tplVariables'); }
-
     ngOnDestroy() {
         this.varFormSub.unsubscribe();
     }
+
+    // form control accessors (come after form has been setup)
+    get enabled() { return this.varForm.get('enabled'); }
+    get tplVariables() { return this.varForm.get('tplVariables'); }
 
     initializeTplVariables(values: any) {
 
@@ -75,7 +87,9 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
             // add an empty one if there are no values
             this.addTemplateVariable();
         } else {
+            this.selectedKeys = [];
             for (const item of values) {
+                this.selectedKeys.push(item.tagk);
                 this.addTemplateVariable(item);
             }
         }
@@ -83,21 +97,37 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
 
     addTemplateVariable(data?: any) {
 
-        data = data ? data : {
-            key: '',
-            alias: '',
-            values: '',
-            enabled: true,
-            type: 'literal'
+        // TODO: need to detect if filter contains '*' to change type to wildcard
+
+        data = (data) ? data : {};
+
+        const varData = {
+            tagk: (data.tagk) ? data.tagk : '',
+            alias: (data.alias) ? data.alias : '',
+            allowedValues: (data.allowedValues) ? this.fb.array(data.allowedValues) : this.fb.array([]),
+            filter: (data.filter) ? this.fb.array(data.filter) : this.fb.array([]),
+            enabled: (data.enabled) ? data.enabled : true,
+            type: (data.type) ? data.type : 'literalor'
         };
 
         const control = <FormArray>this.varForm.controls['tplVariables'];
-        control.push(this.fb.group(data));
+        control.push(this.fb.group(varData));
     }
 
     removeTemplateVariable(i: number) {
         const control = <FormArray>this.varForm.controls['tplVariables'];
         control.removeAt(i);
-        // this.dbData.variables.tplVariables.splice(i, 1);
+    }
+
+    /** ALL templates enable/disable toggle */
+
+    // pivoting the enabled value for the toggle. easier to maintain
+    get disabled(): boolean {
+        return !this.varForm.get('enabled').value;
+    }
+
+    masterToggleChange(event: any) {
+        console.log('%cMASTER TOGGLE CHANGE [EVENT]', 'color: white; background-color: blue; padding: 2px 4px;', event);
+        this.varForm.get('enabled').setValue(!event.checked, { emitEvent: true });
     }
 }

@@ -1,19 +1,25 @@
+@import './children/variable-selector/variable-selector.component';
+
 @mixin variable-template-bar-component-base() {
+    $vtb-height: 44px;
+
     .variable-template-bar {
         display:block;
 
         .mat-toolbar {
-            min-height: 44px;
+            min-height: $vtb-height;
 
             .mat-toolbar-row {
-                height: 44px;
+                height: $vtb-height;
+                padding: 0 8px;
             }
         }
 
         .variable-item {
             display: flex;
             margin-right: 10px;
-            font-size: 14px;
+            height: $vtb-height;
+            /*font-size: 14px;
 
             .mat-label {
                 font-weight: 500;
@@ -24,9 +30,12 @@
                 .mat-select-value-text {
                     
                 }
-            }
+            }*/
         }
     }
+
+    // children styles
+    @include variable-selector-component-base();
 }
 
 @mixin variable-template-bar-component-theme($theme-config) {
@@ -46,7 +55,7 @@
         .mat-toolbar {
             background-color: $bg-color;
 
-            .variable-item {
+            /*.variable-item {
                 .mat-label {
                     color: map-get($foreground, navbar-text);
                 }
@@ -57,7 +66,10 @@
                         color: rgba($navbar-text, 0.8);
                     }
                 }
-            }
+            }*/
         }
     }
+
+    // children styles
+    @include variable-selector-component-theme($theme-config);
 }

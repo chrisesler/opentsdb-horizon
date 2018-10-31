@@ -21,9 +21,8 @@ export interface DBSettingsModel {
     };
     variables: {
         enabled: boolean, // if all variables are enabled
-        // tslint:disable-next-line:max-line-length
-        tplVariables: Array<object>; // [{ type: 'literalor', tagk: 'src_colo', filter: ['bf2', 'gq1', 'blahh'], alias: 'colo', allowedValues: [''], enabled: true }]
-      };
+        tplVariables: Array<object>; // [{ tagk: '', alias: '', allowedValues: [], filter: [], enabled: true, type: ''}]
+    };
 }
 
 export class UpdateMode {

@@ -78,11 +78,13 @@ export class DashboardSettingsToggleComponent implements OnInit, OnDestroy {
         // getting data passing out from dialog
         this.dashboardSettingsDialog.afterClosed().subscribe((dialog_out: any) => {
             console.log('%cSETTINGS DIALOG CLOSED [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', dialog_out);
-            this.interCom.requestSend(<IMessage> {
-                id: 'settingsToggle',
-                action: 'updateDashboardSettings',
-                payload: dialog_out
-            });
+            if (dialog_out) {
+                this.interCom.requestSend(<IMessage> {
+                    id: 'settingsToggle',
+                    action: 'updateDashboardSettings',
+                    payload: dialog_out
+                });
+            }
         });
     }
 }

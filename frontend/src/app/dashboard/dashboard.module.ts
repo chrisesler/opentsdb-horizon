@@ -31,11 +31,15 @@ import {
     DashboardSettingsDialogComponent,
     DbsJsonComponent,
     DbsMetaComponent,
-    DbsVariablesComponent
+    DbsVariablesComponent,
+    DbsVariableItemComponent
 } from './components/dashboard-settings-dialog';
 import { DashboardSettingsToggleComponent } from './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
 import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
-import { VariableTemplateBarComponent } from './components/variable-template-bar/variable-template-bar.component';
+import {
+    VariableTemplateBarComponent,
+    VariableSelectorComponent
+} from './components/variable-template-bar';
 import { NavbarDashboardActionsMenuComponent } from './components/navbar-dashboard-actions-menu/navbar-dashboard-actions-menu.component';
 import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog/dashboard-save-dialog.component';
 import { DashboardDeleteDialogComponent } from './components/dashboard-delete-dialog/dashboard-delete-dialog.component';
@@ -49,8 +53,14 @@ import { DashboardDeleteDialogComponent } from './components/dashboard-delete-di
         GridsterModule,
         SharedcomponentsModule,
         DashboardRoutingModule,
-        NgxsModule.forFeature([DBState, DBSettingsState, WidgetsState,
-            ClientSizeState, WidgetsRawdataState, UserSettingsState]),
+        NgxsModule.forFeature([
+            DBState,
+            DBSettingsState,
+            WidgetsState,
+            ClientSizeState,
+            WidgetsRawdataState,
+            UserSettingsState
+        ]),
         DynamicWidgetsModule
     ],
     declarations: [
@@ -70,7 +80,9 @@ import { DashboardDeleteDialogComponent } from './components/dashboard-delete-di
         VariableTemplateBarComponent,
         NavbarDashboardActionsMenuComponent,
         DashboardSaveDialogComponent,
-        DashboardDeleteDialogComponent
+        DashboardDeleteDialogComponent,
+        VariableSelectorComponent,
+        DbsVariableItemComponent
     ],
     providers: [
         DashboardService

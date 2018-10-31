@@ -152,7 +152,6 @@ export class DashboardService {
                 }
             }
         }
-
         return queries;
     }
 
@@ -167,7 +166,7 @@ export class DashboardService {
   // we might not need to generate id for widget or group
   // it should be done at the time of adding into dashboard
   // this function only here for testing stuff
- 
+
 /*
   addNewWidget(widgets: any[]) {
     const widget: any = Object.assign({}, this.widgetPrototype);

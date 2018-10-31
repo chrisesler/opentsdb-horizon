@@ -1,6 +1,6 @@
 <div fxLayout="column" fxFlexFill>
     <!-- need to figure out how to toggle on/off depending on whether there is template variables -->
-    <variable-template-bar [dbSettingsVariables]="variables$"></variable-template-bar>
+    <variable-template-bar [dbSettingsVariables]="variables"></variable-template-bar>
     <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" [rerender]="rerender" [widgets]="widgets$ | async" [dashboardMode]="dashboardMode$ | async"></app-dboard-content>
 </div>
 <ng-template #dashboardNavbarTmpl>

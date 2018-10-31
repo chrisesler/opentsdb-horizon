@@ -259,6 +259,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         payload.namespaceid = namespace.id;
                     }
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
+                    console.log("dashboardSaveRequest", message.payload, payload);
                     break;
                 case 'dashboardSettingsToggleRequest':
 
@@ -267,7 +268,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         action: 'dashboardSettingsToggleResponse',
                         payload: {
                             meta: this.meta,
-                            variables: this.variables
+                            variables: this.variables,
+                            dbTags: this.dbTags
                         }
                     });
                     break;
@@ -279,6 +281,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
                     if (message.payload.variables) {
+                        console.log('updateVariables: ' , message.payload.variables);
                         this.store.dispatch(new UpdateVariables(message.payload.variables));
                     }
                     break;
@@ -330,7 +333,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.widgetSub = this.widgets$.subscribe( widgets => {
-            console.log("--- widget subscription---", widgets);
+            console.log('--- widget subscription---', widgets);
             this.widgets = widgets;
             const metrics = this.dbService.getMetricsFromWidgets(widgets);
             this.store.dispatch(new LoadDashboardTags(metrics));
@@ -359,6 +362,56 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.variables$.subscribe ( t => {
+
+            console.log('variables$.subscribe [event]', t);
+            if (this.variables) {
+                // diff whether selected values changed
+                for (let tag of t.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
+                        this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
+                            this.requeryData(t);
+                            return;
+                    }
+                }
+
+                for (let tag of this.variables.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
+                        this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
+                            this.requeryData(t);
+                            return;
+                    }
+                }
+
+                // diff whether tags are enabled
+                for (let tag of t.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
+                        this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
+                            if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !== '') {
+                                this.requeryData(t);
+                                return;
+                            }
+                    }
+                }
+
+                for (let tag of this.variables.tplVariables) {
+                    const tagKey = tag.tagk;
+                    if (this.isTagKeyEnabled(tagKey, t.tplVariables) !==
+                        this.isTagKeyEnabled(tagKey, this.variables.tplVariables)) {
+                            if (this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables)) !== '') {
+                                this.requeryData(t);
+                                return;
+                            }
+                    }
+                }
+            } else { // variables has never been set
+                this.requeryData(t);
+                return;
+            }
+
+            // do not query new data
             this.variables = t;
         });
 
@@ -407,6 +460,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (auth === 'invalid') {
                 // console.log('open auth dialog');
             }
+        });
+    }
+
+    requeryData(payload) {
+        this.variables = payload;
+        this.interCom.responsePut({
+            action: 'reQueryData',
+            payload: payload
         });
     }
 
@@ -578,6 +639,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     click_refreshDashboard() {
         // console.log('EVT: REFRESH DASHBOARD');
+    }
+
+    getTagValues (key: string, tplVariables: any[]): any[] {
+        for (let tplVariable of tplVariables) {
+            if (tplVariable.tagk === key) {
+                return tplVariable.filter;
+            }
+        }
+        return;
+    }
+
+    isTagKeyEnabled (key: string, tplVariables: any[]): boolean {
+        for (let tplVariable of tplVariables) {
+            if (tplVariable.tagk === key) {
+                return tplVariable.enabled;
+            }
+        }
+        return false;
+    }
+
+    arrayToString(array: any[]): string {
+        if (array) {
+            return array.sort().toString();
+        } else {
+            return '';
+        }
     }
 
     ngOnDestroy() {
