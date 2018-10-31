@@ -1,9 +1,11 @@
 import {
-    Component, OnInit, Input, ViewChild, ViewEncapsulation,
+    Component, OnInit, OnDestroy, Input, ViewChild, ViewEncapsulation,
     ChangeDetectionStrategy, OnChanges, SimpleChanges, ComponentFactoryResolver,
     HostBinding, Output, EventEmitter, AfterViewInit, ViewChildren, QueryList
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
+
 
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 
@@ -14,6 +16,8 @@ import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDr
 // import { WidgetComponentModel } from '../../widgets/models/widgetcomponent';
 // import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+import { MatSnackBar } from '@angular/material';
+
 
 
 // import { WidgetLoaderComponent } from '../widget-loader/widget-loader.component';
@@ -24,7 +28,7 @@ import { IntercomService, IMessage } from '../../../core/services/intercom.servi
     templateUrl: './landing-page-content.component.html',
     styleUrls: []
 })
-export class LandingPageContentComponent implements OnInit {
+export class LandingPageContentComponent implements OnInit, OnDestroy {
     @HostBinding('class.landing-page-content') private _hostClass = true;
 
     /** Local variables */
@@ -98,16 +102,29 @@ export class LandingPageContentComponent implements OnInit {
 
     /** Form Group */
     searchFormGroup: FormGroup;
+    routeQueryParamsSub: Subscription;
 
     constructor(
         // private dbService: DashboardService,
         private interCom: IntercomService,
+        private route: ActivatedRoute,
         private router: Router,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private snackBar: MatSnackBar
     ) { }
 
     ngOnInit() {
         this.createSearchForm();
+        this.routeQueryParamsSub = this.route.queryParams.subscribe(params => {
+            console.log("comes in router params....", params)
+            if (params['db-delete']) {
+                this.snackBar.open('Dashboard has been deleted.', '', {
+                    horizontalPosition: 'center',
+                    verticalPosition: 'top',
+                    duration: 5000,
+                    panelClass: 'info'});
+            }
+        });
     }
 
     createSearchForm() {
@@ -144,6 +161,10 @@ export class LandingPageContentComponent implements OnInit {
      */
     querySuggestOptionSelected(event: any) {
         this.searchQuery = event.option.value;
+    }
+
+    ngOnDestroy() {
+        this.routeQueryParamsSub.unsubscribe();
     }
 
 }

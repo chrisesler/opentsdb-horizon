@@ -15,7 +15,7 @@ import { DashboardService } from './services/dashboard.service';
 // store
 import { NgxsModule } from '@ngxs/store';
 import { DBState, DBSettingsState, WidgetsState, ClientSizeState,
-         WidgetsConfigState, WidgetsRawdataState } from './state';
+         WidgetsConfigState, WidgetsRawdataState, UserSettingsState } from './state';
 
 // components
 import { DashboardComponent } from './containers/dashboard/dashboard.component';
@@ -31,13 +31,18 @@ import {
     DashboardSettingsDialogComponent,
     DbsJsonComponent,
     DbsMetaComponent,
-    DbsVariablesComponent
+    DbsVariablesComponent,
+    DbsVariableItemComponent
 } from './components/dashboard-settings-dialog';
 import { DashboardSettingsToggleComponent } from './components/dashboard-settings-toggle/dashboard-settings-toggle.component';
 import { DataExplorerComponent } from './components/data-explorer/data-explorer.component';
-import { VariableTemplateBarComponent } from './components/variable-template-bar/variable-template-bar.component';
+import {
+    VariableTemplateBarComponent,
+    VariableSelectorComponent
+} from './components/variable-template-bar';
 import { NavbarDashboardActionsMenuComponent } from './components/navbar-dashboard-actions-menu/navbar-dashboard-actions-menu.component';
 import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog/dashboard-save-dialog.component';
+import { DashboardDeleteDialogComponent } from './components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 
 @NgModule({
     imports: [
@@ -48,8 +53,14 @@ import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog
         GridsterModule,
         SharedcomponentsModule,
         DashboardRoutingModule,
-        NgxsModule.forFeature([DBState, DBSettingsState, WidgetsState,
-            ClientSizeState, WidgetsRawdataState]),
+        NgxsModule.forFeature([
+            DBState,
+            DBSettingsState,
+            WidgetsState,
+            ClientSizeState,
+            WidgetsRawdataState,
+            UserSettingsState
+        ]),
         DynamicWidgetsModule
     ],
     declarations: [
@@ -68,14 +79,18 @@ import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog
         DbsJsonComponent,
         VariableTemplateBarComponent,
         NavbarDashboardActionsMenuComponent,
-        DashboardSaveDialogComponent
+        DashboardSaveDialogComponent,
+        DashboardDeleteDialogComponent,
+        VariableSelectorComponent,
+        DbsVariableItemComponent
     ],
     providers: [
         DashboardService
     ],
     entryComponents: [
         DashboardSettingsDialogComponent,
-        DashboardSaveDialogComponent
+        DashboardSaveDialogComponent,
+        DashboardDeleteDialogComponent
     ]
 })
 export class DashboardModule { }
