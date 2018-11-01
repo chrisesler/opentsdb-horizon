@@ -123,6 +123,7 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
                 this.y1AxisEnabledToggleDisplay = false;
                 this.widgetConfigAxes.addControl('y1', this.getAxisFormGroup(this.getAxisConfiguration('y1')));
                 this.widgetConfigAxes.addControl('y2', this.getAxisFormGroup(this.getAxisConfiguration('y2')));
+                this.y2AxisEnabled_label = this.widgetConfigAxes.controls['y2']['controls'].enabled.value ? 'enabled' : 'disabled';
             break;
         }
 
@@ -164,17 +165,18 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
                                         // delay is required since we convert the min & max values to the respective unit size
                                         .pipe(debounceTime(500))
                                         .subscribe(function(data) {
-                                            console.log(" axes form data changed");
-                                            this.xAxisEnabled_label = (data.xAxisEnabled) ? 'enabled' : 'disabled';
-                                            this.y1AxisEnabled_label = (data.y1AxisEnabled) ? 'enabled' : 'disabled';
-                                            this.y2AxisEnabled_label = (data.y2AxisEnabled) ? 'enabled' : 'disabled';
+                                            console.log(" axes form data changed", data);
+                                            // this.xAxisEnabled_label = (data.xAxisEnabled) ? 'enabled' : 'disabled';
+                                            this.y1AxisEnabled_label = (data.y1.enabled) ? 'enabled' : 'disabled';
+                                            this.y2AxisEnabled_label = (data.y2.enabled) ? 'enabled' : 'disabled';
                                             this.widgetChange.emit( {action: 'SetAxes', payload: { data: data }} );
+                                            console.log("this.y2AxisEnabled_label", this.y2AxisEnabled_label);
                                         }.bind(this));
     }
 
     getAxisConfiguration(axis) {
         const defaultConfig = {
-            enabled: 'true',
+            enabled: axis === 'y1' ? true : false,
             unit: '',
             scale: 'linear',
             min: 'auto',
@@ -182,6 +184,7 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
             decimals: 'auto',
             label: ''
         };
+        console.log(axis, defaultConfig);
 
         const widget = this.widget.query.settings;
         const wAxisConfig = widget.axes && widget.axes[axis] ? widget.axes[axis] : {};

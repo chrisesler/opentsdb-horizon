@@ -33,4 +33,19 @@ export class WidgetService {
                 return PlaceholderWidgetComponent;
         }
     }
+
+    getWidgetDefaultSettings(name: string ) {
+        let settings = {};
+        switch (name) {
+            case 'LinechartWidgetComponent':
+                settings =  {
+                    axes: {
+                        y1: {},
+                        y2: {}
+                    }
+                };
+                break;
+        }
+        return settings;
+    }
 }

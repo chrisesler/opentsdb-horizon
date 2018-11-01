@@ -129,12 +129,10 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 });
                 // when the widget first loaded in dashboard, we request to get data
                 // when in edit mode first time, we request to get cached raw data.
-                if (!this.editMode) {
-                    this.requestData();
-                } else {
+                if (this.editMode) {
                     this.setSize(true);
-                    this.requestCachedData();
                 }
+                this.requestData();
                 this.setLegendDiv();
                 this.setAxesOption();
                 this.setAlertOption();
@@ -207,6 +205,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         }
 
         const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        for ( let i = 0; i < gConfig.queries.length; i++ ) {
+            gConfig.queries[i].settings.visual.type = 'line';
+        }
         config.queries = config.queries.concat(gConfig.queries);
     }
 
@@ -439,6 +440,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         const mConfigs = this.widget.query.groups[gIndex].queries;
         for ( let i = 0; i < mConfigs.length; i++ ) {
             const vConfig = mConfigs[i].settings.visual;
+            /*
             const label =  mConfigs[i].metric;
             this.options.series[label] = {
                 strokeWidth: parseFloat(vConfig.lineWeight),
@@ -446,6 +448,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 color: vConfig.color || '#000000',
                 axis: !vConfig.axis || vConfig.axis === 'y' ? 'y' : 'y2'
             };
+            */
             if ( vConfig.axis === 'y2' ) {
                 this.widget.query.settings.axes.y2.enabled = true;
             }
@@ -454,7 +457,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             }
         }
         console.log('set visual', this.options);
-        this.options = {...this.options};
+        //this.options = {...this.options};
+        this.refreshData(false);
     }
 
     setLegend(config) {
@@ -530,25 +534,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         } else {
             this.requestCachedData();
         }
-    }
-
-    getStrokePattern( lineType ) {
-        let pattern = [];
-        switch ( lineType ) {
-            case 'solid':
-                pattern = [];
-                break;
-            case 'dashed':
-                pattern = [4, 4];
-                break;
-            case 'dotted':
-                pattern = [2, 3];
-                break;
-            case 'dot-dashed':
-                pattern = [4, 4, 2];
-                break;
-        }
-        return pattern;
     }
 
     mergeMetrics( groups ) {
@@ -639,7 +624,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
     deleteGroup(gIndex) {
         this.widget.query.groups.splice(gIndex, 1);
-        this.refreshData(false);
+        this.refreshData();
     }
 
     toggleGroupQuery(gIndex, index) {
@@ -649,7 +634,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     deleteGroupQuery(gIndex, index) {
         this.widget.query.groups[gIndex].queries.splice(index, 1);
-        this.refreshData(false);
+        this.refreshData();
     }
     // request send to update state to close edit mode
     closeViewEditMode() {

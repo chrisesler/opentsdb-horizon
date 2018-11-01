@@ -17,13 +17,13 @@ export class DatatranformerService {
       // there is no data in here but default, reset it
       normalizedData = [];
     }
-
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
     for (let gid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.query.groups, 'id', gid) : {};
         const mConfigs = gConfig ? gConfig.queries : [];
         if ( gConfig.settings.visual.visible ) {
-            for ( let i = 0; i < result[gid].results.length; i++ ) {
+            // sometimes opentsdb returns empty results
+            for ( let i = 0; result[gid].results && i < result[gid].results.length; i++ ) {
                 const queryResults = result[gid].results[i];
                 const source = queryResults.source.split(":")[1].replace("m",'');
                 const timeSpecification = queryResults.timeSpecification;
@@ -42,7 +42,7 @@ export class DatatranformerService {
                         if ( options.series ) {
                             options.series[label] = {
                                 strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
-                                //strokePattern: this.getStrokePattern(vConfig.lineType),
+                                strokePattern: this.getStrokePattern(vConfig.lineType),
                                 color: vConfig.color? vConfig.color : '#000000',
                                 axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
                                 metric: metric,
@@ -207,6 +207,25 @@ export class DatatranformerService {
             }
         }
         return [...datasets];
+    }
+
+    getStrokePattern( lineType ) {
+        let pattern = [];
+        switch ( lineType ) {
+            case 'solid':
+                pattern = [];
+                break;
+            case 'dashed':
+                pattern = [4, 4];
+                break;
+            case 'dotted':
+                pattern = [2, 3];
+                break;
+            case 'dot-dashed':
+                pattern = [4, 4, 2];
+                break;
+        }
+        return pattern;
     }
 
   // build opentsdb query base on this of full quanlify metrics for exploer | adhoc
