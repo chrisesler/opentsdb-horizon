@@ -1,6 +1,6 @@
 <mat-toolbar mat-dialog-title>
     <span class="dialog-title">Search</span>
-    <span class="dialog-search flex-spacer">
+    <!--<span class="dialog-search flex-spacer">
         <form [formGroup]="searchFormGroup">
             <mat-form-field appearance="fill" class="search-context-form-field">
                 <mat-select formControlName="searchContext" [disableOptionCentering]="true">
@@ -22,7 +22,7 @@
                 </mat-autocomplete>
             </mat-form-field>
         </form>
-    </span>
+    </span>-->
     <span class="flex-spacer"></span>
     <span class="dialog-close">
         <button mat-button color="primary" class="close-dialog-btn" [mat-dialog-close]="true">
@@ -31,25 +31,8 @@
     </span>
 </mat-toolbar>
 <mat-dialog-content>
-    <div class="filter-column">
-        <!--
-        <mat-nav-list dense>
-            <h3 matSubheader>
-                <span>Filter results <span class="mat-caption">({{filterTotalResultCount}})</span></span>
-            </h3>
-            <a mat-list-item
-                [ngClass]="{'is-active': !currentFilter.label || currentFilter.label === 'All'}"
-                (click)="selectFilter({label: 'All'})">
-                <span>All <span class="mat-caption">({{filterTotalResultCount}})</span></span>
-            </a>
-            <a mat-list-item 
-                *ngFor="let filter of fakeFilters"
-                [ngClass]="{'is-active': currentFilter === filter}"
-                (click)="selectFilter(filter)">
-                <span>{{ filter.label }} <span class="mat-caption">({{filter.count}})</span></span>
-            </a>
-         </mat-nav-list>
-        -->
+    <!--<div class="filter-column">
+
         <form [formGroup]="filterFormGroup">
             <mat-selection-list formControlName="currentFilters" (selectionChange)="onChange($event)">
                 <h3 matSubheader>
@@ -65,23 +48,14 @@
             </mat-selection-list>
         </form>
         
-    </div>
+    </div>-->
     <div class="result-column">
+        <!--
         <div *ngIf="fakeSearchResults.length > 0">
-            <!--<div class="result-summary mat-caption">
+            <div class="result-summary mat-caption">
                 Displaying all <span class="search-context">{{searchContext}}</span> results whose titles match "{{searchQuery}}" <span class="search-filter" *ngIf="currentFilter.label !== 'All'">organized by {{currentFilter.label}}</span>
-            </div>-->
+            </div>
             <div class="search-results">
-                <!--<div class="result-group" *ngFor="let group of fakeSearchResults">
-                    <mat-nav-list dense>
-                        <h3 matSubheader class="group-title" *ngIf="group.groupLabel">
-                            <strong>{{group.groupLabel}}</strong> <span class="mat-caption">({{group.results.length}})</span> <a mat-button>view all &raquo;</a>
-                        </h3>
-                        <a mat-list-item *ngFor="let result of group.results">
-                            <span>{{result.label}}</span>
-                        </a>
-                    </mat-nav-list>
-                </div>-->
                 <table mat-table [dataSource]="fakeSearchResults" class="mat-elevation-z0 is-dense">
 
                     <ng-container matColumnDef="dashboardName">
@@ -103,7 +77,9 @@
                     <tr mat-row *matRowDef="let row; columns: fakeResultColumns;"></tr>
                 </table>
             </div>
-        </div>
+        </div>-->
+
+        <simple-dashboard-list fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch"></simple-dashboard-list>
     </div>
     <!--
     <div class="shortcut-column">

@@ -96,18 +96,6 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy, OnChange
 
         this.varFormSub = this.varForm.valueChanges.subscribe(val => {
             console.log('%cVARIABLES BAR FORM [CHANGES]', 'background-color: chartreuse; padding: 2px 4px;', val, this.isUpdating);
-            /*
-            // need to remove unused variables (ones without keys)
-            const pending = val;
-            pending.tplVariables = val.tplVariables.filter(item => {
-                const keyCheck = item.tagk.trim();
-                return keyCheck.length > 0;
-            });
-
-            this.dataModified.emit({
-                type: 'variables',
-                data: pending
-            });*/
 
             if (!this.isUpdating) {
                 console.log('%cIS UPDATING', 'background-color: orange; padding: 8px;');

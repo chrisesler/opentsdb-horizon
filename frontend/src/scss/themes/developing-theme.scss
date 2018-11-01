@@ -61,13 +61,13 @@ $developing-theme: (
     sidenav-text: rgba(map_get($mat-grey,900), .85)
   ),
   status: (
-      success: map_get($denali-lime, A400),
-      success-contrast: #000000,
-      error: map_get($denali-red, A400),
-      error-contrast: #ffffff,
-      warning: map_get($denali-yellow, A200),
-      warning-contrast: #000000,
-      info: map_get($denali-sky, A200),
-      info-contrast: #000000
-  )
+        success: map_get($denali-lime, A400),
+        success-contrast: #000000,
+        error: map_get($denali-red, A400),
+        error-contrast: #ffffff,
+        warning: map_get($denali-yellow, A700),
+        warning-contrast: #000000,
+        info: map_get($denali-sky, A700),
+        info-contrast: #ffffff
+    )
 );

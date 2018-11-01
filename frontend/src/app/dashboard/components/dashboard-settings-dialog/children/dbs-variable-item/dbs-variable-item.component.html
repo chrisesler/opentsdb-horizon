@@ -29,21 +29,13 @@
                     <span>{{val.value}}</span>
                     <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
                 </mat-chip>
-                <!--<input
-                    placeholder="Enter value(s) seperated by commas"
-                    #filterValueInput
-                    [formControl]="allowedValuesInput"
-                    [matAutocomplete]="filterValueAuto"
-                    [matChipInputFor]="chipList"
-                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                    [matChipInputAddOnBlur]="addOnBlur"
-                    (matChipInputTokenEnd)="addValue($event)">-->
                     <input
                     placeholder="Enter value(s) seperated by commas"
                     #filterValueInput
                     [formControl]="allowedValuesInput"
                     [matAutocomplete]="filterValueAuto"
-                    [matChipInputFor]="chipList">
+                    [matChipInputFor]="chipList"
+                    (focus)="onValueInputFocus()">
             </mat-chip-list>
             <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event)">
                 <mat-option *ngFor="let option of filteredValueOptions" [value]="option">

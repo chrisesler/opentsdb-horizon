@@ -1,3 +1,4 @@
+<generic-message-bar></generic-message-bar>
 <div class="app-root-wrap" fxLayout="column" fxFlexFill>
     <!-- topmost navigation bar of the application -->
     <app-navbar fxFlex="1 1 48px" fxLayout fxLayoutAlign="stretch stretch" fxFlexFill (sidenavToggle)="toggleSidenav()"></app-navbar>
@@ -17,7 +18,7 @@
                     add .is-active when the app's location corresponds to
                     the icon
                 -->
-                <a mat-list-item class="is-active">
+                <a mat-list-item href="/main" class="is-active">
                     <mat-icon fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
                     <span class="nav-label">Dashboards</span>
                 </a>

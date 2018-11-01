@@ -4,17 +4,18 @@
     <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" [rerender]="rerender" [widgets]="widgets$ | async" [dashboardMode]="dashboardMode$ | async"></app-dboard-content>
 </div>
 <ng-template #dashboardNavbarTmpl>
-    <!-- <a mat-button class="navbar-item" routerLink="dashboard">     
-        <span class="dashboard-name">[[ Dashboard name ]]</span>
-    </a> -->
-
-    <inline-editable class="navbar-item" [fieldValue]="meta.title" [minLength]="3" [maxLength]="25" (updatedValue)="setTitle($event)">
+    <inline-editable class="navbar-item" 
+        [fieldValue]="meta.title"
+        [minLength]="3"
+        [maxLength]="25"
+        (updatedValue)="setTitle($event)">
     </inline-editable>
     <span class="navbar-item navbar-icon-item nav-dashboard-config-trigger">
         <dashboard-settings-toggle mat-button ></dashboard-settings-toggle>
     </span>
 
     <span class="flex-spacer"></span>
+
     <span class="navbar-item nav-add-new-widget" *ngIf="!(viewEditMode)">
         <button mat-raised-button class="mat-elevation-z0" 
             [ngClass]="{'menu-trigger-underline': availableWidgetsMenuIsOpen}"
@@ -56,30 +57,6 @@
 
     <!--<simple-time-picker xPosition="before"></simple-time-picker>-->
     <span class="navbar-item nav-dashboard-actions">
-        <!--
-        <button mat-raised-button class="mat-elevation-z0"
-            [ngClass]="{'menu-trigger-underline': actionMenuIsOpen}"
-            [matMenuTriggerFor]="dashboardActionMenu"
-            #actionMenuTrigger>
-            <span>Dashboard Actions</span>
-            <mat-icon fontSet="denali" fontIcon="d-arrowhead-down"></mat-icon>
-        </button>
-        <mat-menu #dashboardActionMenu="matMenu" [overlapTrigger]="false" class="nav-bar-dropmenu dashboard-actions-menu" xPosition="before">
-            <ng-template matMenuContent>
-                <button mat-menu-item (click)="click_cloneDashboard($event)">
-                    <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
-                    <span>Clone</span>
-                </button>
-                <button mat-menu-item (click)="click_shareDashboard($event)">
-                    <mat-icon fontSet="denali" fontIcon="d-share"></mat-icon>
-                    <span>Share</span>
-                </button>
-                <button mat-menu-item (click)="click_deleteDashboard($event)">
-                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                    <span>Delete</span>
-                </button>
-            </ng-template>
-        </mat-menu>-->
         <navbar-dashboard-actions-menu mat-button [id]="dbid" [dbSettingsMeta]="meta" (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
     </span>
 
@@ -87,6 +64,7 @@
         <navbar-search-toggle mat-button></navbar-search-toggle>
     </span>
 
+    <!-- DISABLE FOR NOW
     <span class="navbar-item navbar-icon-item nav-info-menu">
         <navbar-info-menu mat-button></navbar-info-menu>
     </span>
@@ -98,4 +76,5 @@
     <span class="navbar-item navbar-icon-item nav-user-menu">
         <navbar-user-menu mat-button></navbar-user-menu>
     </span>
+    -->
 </ng-template>
