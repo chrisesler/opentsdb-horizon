@@ -123,9 +123,9 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
         // listen to intercom
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             if (message.action === 'TagValueQueryReults' && this.expectingIntercomData) {
-                console.log('%cTAG VALUES ResponseGet [InterCom]',
+                /*console.log('%cTAG VALUES ResponseGet [InterCom]',
                         'color: white; background-color: darkmagenta; padding: 2px 4px;',
-                        message);
+                        message);*/
                 this.expectingIntercomData = false;
                 this.filteredValueOptions = message.payload.filter(val => {
                     return !this.allowedValues.value.includes(val.toLowerCase());

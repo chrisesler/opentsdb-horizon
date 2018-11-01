@@ -21,10 +21,10 @@ export class GenericMessageBarComponent implements OnInit, OnDestroy {
 
     @HostBinding('class.generic-message-bar') private _hostClass = true;
 
-    @HostBinding('class.is-error') private _errorMsgType = false;
-    @HostBinding('class.is-success') private _successMsgType = false;
-    @HostBinding('class.is-warning') private _warningMsgType = false;
-    @HostBinding('class.is-info') private _infoMsgType = false;
+    @HostBinding('class.is-error')      private _errorMsgType = false;
+    @HostBinding('class.is-success')    private _successMsgType = false;
+    @HostBinding('class.is-warning')    private _warningMsgType = false;
+    @HostBinding('class.is-info')       private _infoMsgType = false;
 
     @HostBinding('class.show-message') private _showMessage = false;
 
@@ -87,9 +87,9 @@ export class GenericMessageBarComponent implements OnInit, OnDestroy {
                     break;
             }
 
-            console.log('%cGENERIC MESSAGE [InterCom]',
+            /*console.log('%cGENERIC MESSAGE [InterCom]',
                     'color: white; background-color: darkmagenta; padding: 2px 4px;',
-                    message);
+                    message);*/
 
         });
     }
@@ -111,12 +111,14 @@ export class GenericMessageBarComponent implements OnInit, OnDestroy {
 
 
     setTypeClass(type: string) {
+        // set message type
         this.messageType = type.toLowerCase();
 
-        this._errorMsgType = this.messageType === 'error';
-        this._successMsgType = this.messageType === 'success';
-        this._warningMsgType = this.messageType === 'warning';
-        this._infoMsgType = this.messageType === 'info';
+        // set HostBinding variables (lines 24-27) to make sure correct class is applied
+        this._errorMsgType      = this.messageType === 'error';
+        this._successMsgType    = this.messageType === 'success';
+        this._warningMsgType    = this.messageType === 'warning';
+        this._infoMsgType       = this.messageType === 'info';
     }
 
 }
