@@ -41,6 +41,7 @@ import { SearchAllDialogComponent } from './components/search-all-dialog/search-
 import { DropdownAggregatorsComponent } from './components/dropdown-aggregators/dropdown-aggregators.component';
 import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropdown-unit-type.component';
 import { GenericMessageBarComponent } from './components/generic-message-bar/generic-message-bar.component';
+import { SimpleDashboardListComponent } from './components/simple-dashboard-list/simple-dashboard-list.component';
 
 @NgModule({
     imports: [
@@ -79,6 +80,7 @@ import { GenericMessageBarComponent } from './components/generic-message-bar/gen
         DropdownAggregatorsComponent,
         DropdownUnitTypeComponent,
         GenericMessageBarComponent,
+        SimpleDashboardListComponent,
     ],
     exports: [
         SearchMetricsDialogComponent,
@@ -103,7 +105,8 @@ import { GenericMessageBarComponent } from './components/generic-message-bar/gen
         NavbarTimezoneToggleComponent,
         NavbarSearchToggleComponent,
         DropdownAggregatorsComponent,
-        GenericMessageBarComponent
+        GenericMessageBarComponent,
+        SimpleDashboardListComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponent,
