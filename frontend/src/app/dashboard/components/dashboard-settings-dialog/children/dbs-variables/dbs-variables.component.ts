@@ -123,11 +123,11 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
 
     // pivoting the enabled value for the toggle. easier to maintain
     get disabled(): boolean {
-        return !this.varForm.get('enabled').value;
+        return !this.enabled.value;
     }
 
     masterToggleChange(event: any) {
         console.log('%cMASTER TOGGLE CHANGE [EVENT]', 'color: white; background-color: blue; padding: 2px 4px;', event);
-        this.varForm.get('enabled').setValue(!event.checked, { emitEvent: true });
+        this.enabled.setValue(!event.checked, { emitEvent: true });
     }
 }

@@ -30,6 +30,8 @@ import { AuthState } from './shared/state/auth.state';
 
 import { CredentialsInterceptor } from './core/http/credentials.interceptor';
 
+import { SharedcomponentsModule } from './shared/modules/sharedcomponents/sharedcomponents.module';
+
 
 @NgModule({
   declarations: [
@@ -48,7 +50,8 @@ import { CredentialsInterceptor } from './core/http/credentials.interceptor';
     NgxsReduxDevtoolsPluginModule.forRoot({ disabled: environment.production }),
     AdminModule,
     AdhocModule,
-    NavbarModule
+    NavbarModule,
+    SharedcomponentsModule
   ],
   providers: [
     AuthService,

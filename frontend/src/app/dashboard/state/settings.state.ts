@@ -99,7 +99,7 @@ export class UpdateMeta {
             isPersonal: false,
         },
         variables: {
-            enabled: false,
+            enabled: true,
             tplVariables: []
         }
     }
