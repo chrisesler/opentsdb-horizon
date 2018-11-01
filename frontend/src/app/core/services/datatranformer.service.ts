@@ -21,7 +21,7 @@ export class DatatranformerService {
     for (let gid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.query.groups, 'id', gid) : {};
         const mConfigs = gConfig ? gConfig.queries : [];
-        if ( gConfig.settings.visual.visible && result[gid] && result[gid].results) {
+        if (gConfig && gConfig.settings.visual.visible && result[gid] && result[gid].results) {
             // sometimes opentsdb returns empty results
             for ( let i = 0;  i < result[gid].results.length; i++ ) {
                 const queryResults = result[gid].results[i];
