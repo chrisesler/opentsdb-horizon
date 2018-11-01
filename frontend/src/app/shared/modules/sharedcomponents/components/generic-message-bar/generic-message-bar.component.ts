@@ -65,26 +65,28 @@ export class GenericMessageBarComponent implements OnInit, OnDestroy {
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
 
-            switch (message.action) {
-                case 'genericErrorMessage':
-                    this.setTypeClass('error');
-                    this.showMessage(message.payload);
-                    break;
-                case 'genericSuccessMessage':
-                    this.setTypeClass('success');
-                    this.showMessage(message.payload);
-                    break;
-                case 'genericWarningMessage':
-                    this.setTypeClass('warning');
-                    this.showMessage(message.payload);
-                    break;
-                case 'genericInfoMessage':
-                    this.setTypeClass('info');
-                    this.data = message.payload;
-                    this._showMessage = true;
-                    break;
-                default:
-                    break;
+            if (message && message.action) {
+                switch (message.action) {
+                    case 'genericErrorMessage':
+                        this.setTypeClass('error');
+                        this.showMessage(message.payload);
+                        break;
+                    case 'genericSuccessMessage':
+                        this.setTypeClass('success');
+                        this.showMessage(message.payload);
+                        break;
+                    case 'genericWarningMessage':
+                        this.setTypeClass('warning');
+                        this.showMessage(message.payload);
+                        break;
+                    case 'genericInfoMessage':
+                        this.setTypeClass('info');
+                        this.data = message.payload;
+                        this._showMessage = true;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             /*console.log('%cGENERIC MESSAGE [InterCom]',
