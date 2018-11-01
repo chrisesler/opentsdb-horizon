@@ -43,6 +43,7 @@ import {
 import { NavbarDashboardActionsMenuComponent } from './components/navbar-dashboard-actions-menu/navbar-dashboard-actions-menu.component';
 import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog/dashboard-save-dialog.component';
 import { DashboardDeleteDialogComponent } from './components/dashboard-delete-dialog/dashboard-delete-dialog.component';
+import { WidgetDeleteDialogComponent } from './components/widget-delete-dialog/widget-delete-dialog.component';
 
 @NgModule({
     imports: [
@@ -82,7 +83,8 @@ import { DashboardDeleteDialogComponent } from './components/dashboard-delete-di
         DashboardSaveDialogComponent,
         DashboardDeleteDialogComponent,
         VariableSelectorComponent,
-        DbsVariableItemComponent
+        DbsVariableItemComponent,
+        WidgetDeleteDialogComponent
     ],
     providers: [
         DashboardService
@@ -90,7 +92,8 @@ import { DashboardDeleteDialogComponent } from './components/dashboard-delete-di
     entryComponents: [
         DashboardSettingsDialogComponent,
         DashboardSaveDialogComponent,
-        DashboardDeleteDialogComponent
+        DashboardDeleteDialogComponent,
+        WidgetDeleteDialogComponent
     ]
 })
 export class DashboardModule { }

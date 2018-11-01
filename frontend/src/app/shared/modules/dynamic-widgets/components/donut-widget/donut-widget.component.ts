@@ -95,8 +95,8 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                         this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget.query, this.data, message.payload.rawdata);
                         break;
                     case 'getUpdatedWidgetConfig':
-                        this.setOptions();
                         this.widget = message.payload;
+                        this.setOptions();
                         this.refreshData();
                         break;
                 }

@@ -18,7 +18,7 @@ import { ISelectedTime } from '../../../shared/modules/date-time-picker/models/m
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
-import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, WidgetModel} from '../../state/widgets.state';
+import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel} from '../../state/widgets.state';
 import { WidgetsRawdataState, GetQueryDataByGroup } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import {
@@ -207,7 +207,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new UpdateMode(message.payload));
                     break;
                 case 'removeWidget':
-                    // this.store.dispatch(new dashboardActions.RemoveWidget(message.payload));
+                    this.store.dispatch(new DeleteWidget(message.payload.widgetId));
                     this.rerender = { 'reload': true };
                     break;
                 case 'closeViewEditMode':
@@ -232,7 +232,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         // store suppose to work.
                         // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
                         // console.log('getting updated widget', message.payload, updatedWidget);
-
                         this.interCom.responsePut({
                             id: message.payload.id,
                             action: 'getUpdatedWidgetConfig',
