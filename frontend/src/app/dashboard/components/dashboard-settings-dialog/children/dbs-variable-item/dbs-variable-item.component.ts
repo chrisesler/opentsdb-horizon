@@ -102,7 +102,6 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
         this.allowedValuesInputSub = this.allowedValuesInput.valueChanges
             .pipe(debounceTime(300))
             .subscribe(val => {
-                // console.log('*** ', val);
                 this.expectingIntercomData = true;
                 let payload = '.*';
                 if (val.trim().length > 0) {
@@ -123,9 +122,6 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
         // listen to intercom
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             if (message.action === 'TagValueQueryReults' && this.expectingIntercomData) {
-                /*console.log('%cTAG VALUES ResponseGet [InterCom]',
-                        'color: white; background-color: darkmagenta; padding: 2px 4px;',
-                        message);*/
                 this.expectingIntercomData = false;
                 this.filteredValueOptions = message.payload.filter(val => {
                     return !this.allowedValues.value.includes(val.toLowerCase());
@@ -196,6 +192,13 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     selectFilterValueOption(event: any) {
         this.createAllowedValue(event.option.value);
         this.allowedValuesInput.setValue('');
+
+        // force autocomplete open
+        const self = this;
+        setTimeout(function () {
+            self.onValueInputFocus();
+        }, 1);
+
     }
 
     // open autocomplete on input focus
