@@ -54,7 +54,7 @@ export class PlaceholderWidgetComponent implements OnInit {
         console.log('WBASE :: onInit', this.widget);
     }
 
-    selectWidgetType(wtype: any) {
+    selectWidgetType(wtype: any, event: any) {
         console.log('SELECT WIDGET TYPE', wtype, event);
         this.loadNewWidget.emit(wtype);
     }
