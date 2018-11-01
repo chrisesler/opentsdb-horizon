@@ -85,8 +85,8 @@ export class UpdateMeta {
     defaults: {
         mode: 'dashboard',
         time: {
-            start: 'now',
-            end: '1h',
+            start: '1h',
+            end: 'now',
             zone: 'local'
         },
         tags: [],
