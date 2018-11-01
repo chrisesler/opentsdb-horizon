@@ -115,11 +115,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         });
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        if (!this.editMode) {
-            this.requestData();
-        } else {
-            this.requestCachedData();
-        }
+        this.requestData();
         this.setOptions();
     }
 
@@ -468,7 +464,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
     deleteGroup(gIndex) {
         this.widget.query.groups.splice(gIndex, 1);
-        this.refreshData(false);
+        this.refreshData();
     }
 
     toggleGroupQuery(gIndex, index) {
@@ -479,7 +475,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     deleteGroupQuery(gIndex, index) {
         this.widget.query.groups[gIndex].queries.splice(index, 1);
         console.log(this.widget.query.groups[gIndex].queries, "gindex", gIndex, index);
-        this.refreshData(false);
+        this.refreshData();
     }
 
     closeViewEditMode() {
