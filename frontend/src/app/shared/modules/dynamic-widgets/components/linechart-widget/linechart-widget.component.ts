@@ -118,9 +118,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                                 }
                                 break;
                             case 'getUpdatedWidgetConfig':
-                                if(this.widget.id === message.id) {
+                                if (this.widget.id === message.id) {
                                     this.widget = message.payload;
-                                    console.log('call here erer', );                            
+                                    this.setLegendDiv();
+                                    this.setAxesOption();
+                                    this.setAlertOption();
                                     this.refreshData();
                                 }
                                 break;
