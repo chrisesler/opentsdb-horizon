@@ -296,13 +296,13 @@ export class ActivityPanelComponent implements OnInit {
         const types = {};
 
         for (const ev of events) {
-            console.log('EV', ev);
+            //console.log('EV', ev);
             if (!types[ev.type]) {
                 types[ev.type] = 1;
             }
         }
 
-        console.log('====> TYPES', types);
+        //console.log('====> TYPES', types);
 
         return Object.keys(types);
 
