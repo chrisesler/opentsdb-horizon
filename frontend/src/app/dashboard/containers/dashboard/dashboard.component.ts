@@ -174,7 +174,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // handle route
         this.routeSub = this.route.params.subscribe(params => {
-            console.log("comes in router params....")
+            console.log('comes in router params....');
             // route to indicate create a new dashboard
             if (params['dbid']) {
                 this.dbid = params['dbid'];

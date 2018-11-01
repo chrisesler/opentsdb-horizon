@@ -65,9 +65,9 @@ $light-theme: (
         success-contrast: #000000,
         error: map_get($denali-red, A400),
         error-contrast: #ffffff,
-        warning: map_get($denali-yellow, A200),
+        warning: map_get($denali-yellow, A700),
         warning-contrast: #000000,
-        info: map_get($denali-sky, A200),
-        info-contrast: #000000
+        info: map_get($denali-sky, A700),
+        info-contrast: #ffffff
     )
 );
