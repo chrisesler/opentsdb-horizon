@@ -14,7 +14,7 @@
     <div class="settings-control dashboard-labels-control">
         <span class="mat-label">Labels</span>
         <mat-form-field appearance="fill" floatLabel="never">
-            <input matInput placeholder="Add new label" #newLabelInput>
+            <input matInput placeholder="Add new label" #newLabelInput (keyup.enter)="addNewLabel(newLabelInput.value)">
             <mat-icon fontSet="denali" fontIcon="d-add" (click)="addNewLabel($event)" matSuffix></mat-icon>
         </mat-form-field>
         <mat-chip-list class="dashboard-labels-list" formArrayName="labels">
