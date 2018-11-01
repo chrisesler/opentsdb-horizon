@@ -168,7 +168,7 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
                                             console.log(" axes form data changed", data);
                                             // this.xAxisEnabled_label = (data.xAxisEnabled) ? 'enabled' : 'disabled';
                                             this.y1AxisEnabled_label = (data.y1.enabled) ? 'enabled' : 'disabled';
-                                            this.y2AxisEnabled_label = (data.y2.enabled) ? 'enabled' : 'disabled';
+                                            this.y2AxisEnabled_label = (data.y2 && data.y2.enabled) ? 'enabled' : 'disabled';
                                             this.widgetChange.emit( {action: 'SetAxes', payload: { data: data }} );
                                             console.log("this.y2AxisEnabled_label", this.y2AxisEnabled_label);
                                         }.bind(this));
