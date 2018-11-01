@@ -17,6 +17,7 @@
 // example: @import './components/componentName/componentName.component.scss';
 
 // components
+@import 'components/generic-message-bar/generic-message-bar.component';
 @import 'components/search-metrics-dialog/search-metrics-dialog.component';
 @import 'components/search-all-dialog/search-all-dialog.component';
 @import 'components/expression-dialog/expression-dialog.component';
@@ -51,6 +52,7 @@
 @mixin sharedcomponents-module-core() {
     // include your core mixins
     // example: @include componentName-component-core();
+    @include generic-message-bar-component-base();
     @include search-metrics-dialog-component-base();
     @include search-all-dialog-component-base();
     @include expression-dialog-component-base();
@@ -84,6 +86,7 @@
 @mixin sharedcomponents-module-theme($theme-config) {
     // include your theme mixins, passing along the $theme-config
     // example: @include componentName-component-theme($theme-config);
+    @include generic-message-bar-component-theme($theme-config);
     @include search-metrics-dialog-component-theme($theme-config);
     @include search-all-dialog-component-theme($theme-config);
     @include expression-dialog-component-theme($theme-config);

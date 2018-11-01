@@ -12,3 +12,4 @@ export * from './widget-config-visual-appearance/widget-config-visual-appearance
 export * from './simple-time-picker/simple-time-picker.component';
 export * from './dropdown-line-weight/dropdown-line-weight.component';
 export * from './dropdown-aggregators/dropdown-aggregators.component';
+export * from './generic-message-bar/generic-message-bar.component';
