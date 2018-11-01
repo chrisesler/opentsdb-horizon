@@ -104,11 +104,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         });
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        if (!this.editMode) {
-            this.requestData();
-        } else {
-            this.requestCachedData();
-        }
+        this.requestData();
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -177,6 +173,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         let i = 1;
         const dVisaul = {
             color: '#000000',
+            visible: true,
             aggregator: 'sum'
         };
 
@@ -268,7 +265,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         const gIndex = 0;
         this.widget.query.groups[gIndex].queries.splice(index, 1);
         console.log(this.widget.query.groups[gIndex].queries, "gindex", gIndex, index);
-        this.refreshData(false);
+        this.refreshData();
     }
 
     refreshData(reload = true) {

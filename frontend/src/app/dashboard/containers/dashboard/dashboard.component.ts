@@ -199,7 +199,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     // taking the cached raw data
                     // we suffix original widget id with __EDIT__ (8 chars)
                     const wid = message.id.substring(8, message.id.length);
-                    const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(wid));
+                    const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(message.id));
                     this.updateWidgetGroup(message.id, widgetCachedData);
                     break;
                 case 'updateDashboardMode':

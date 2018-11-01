@@ -35,8 +35,9 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        // console.log('widget loader changes', changes);
         if (changes.widget) {
+                    console.log('widget loader changes', changes);
+
             // console.log(JSON.stringify(changes.widget.currentValue));
             // console.log(JSON.stringify(changes.widget.previousValue));
 
@@ -69,6 +70,8 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                 const component: Type<any> = this.widgetService.getComponentToLoad(wConfig.type);
                 const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
                 const widget = JSON.parse(JSON.stringify(this.widget)); // copy the widget config
+                widget.query.settings = { ...widget.query.settings, ...this.widgetService.getWidgetDefaultSettings(wConfig.type)};
+
                 widget.settings.component_type = wConfig.type;
                 this.editComponent.emit({
                     'compFactory': componentFactory,
