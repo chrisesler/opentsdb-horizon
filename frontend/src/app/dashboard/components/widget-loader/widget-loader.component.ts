@@ -8,6 +8,9 @@ import { WidgetDirective } from '../../directives/widget.directive';
 import { WidgetComponentModel } from '../../widgets/models/widgetcomponent';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { MatMenu, MatMenuTrigger } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
+import { WidgetDeleteDialogComponent } from '../widget-delete-dialog/widget-delete-dialog.component';
+
 
 @Component({
     selector: 'app-widget-loader',
@@ -25,9 +28,14 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     _component: any = null;
     componentFactory: any = null;
     viewContainerRef: any;
+    widgetDeleteDialog: MatDialogRef<WidgetDeleteDialogComponent> | null;
 
-    constructor(private widgetService: WidgetService, private interCom: IntercomService,
-        private componentFactoryResolver: ComponentFactoryResolver) { }
+    constructor(
+        private widgetService: WidgetService,
+        private interCom: IntercomService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private dialog: MatDialog
+        ) { }
 
     ngOnInit() {
         // console.log('WIDGET', this.widget);
@@ -120,10 +128,26 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     }
 
     widgetRemove() {
-        // we need to implement confirmation later
-        this.interCom.requestSend(<IMessage> {
-            action: 'removeWidget',
-            payload: { widgetId: this.widget.id }
+        this.openDeleteDialog();
+    }
+
+    openDeleteDialog() {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        dialogConf.backdropClass = 'widget-delete-dialog-backdrop';
+        dialogConf.hasBackdrop = true;
+        dialogConf.panelClass = 'widget-delete-dialog-panel';
+
+        dialogConf.autoFocus = true;
+        dialogConf.data = {};
+        this.widgetDeleteDialog = this.dialog.open(WidgetDeleteDialogComponent, dialogConf);
+        this.widgetDeleteDialog.afterClosed().subscribe((dialog_out: any) => {
+            console.log("delete widget confirm", dialog_out);
+            if ( dialog_out && dialog_out.delete  ) {
+                this.interCom.requestSend(<IMessage> {
+                    action: 'removeWidget',
+                    payload: { widgetId: this.widget.id }
+                });
+            }
         });
     }
 }

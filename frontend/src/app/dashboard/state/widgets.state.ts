@@ -87,6 +87,11 @@ export class UpdateWidget {
     constructor(public readonly widget: any) {}
 }
 
+export class DeleteWidget {
+    public static type = '[Widget] Delete Widget';
+    constructor(public readonly wid: string) {}
+}
+
 @State<WidgetModel[]>({
     name: 'Widgets',
     defaults: []
@@ -130,6 +135,16 @@ export class WidgetsState {
                 break;
             }
         }
-        ctx.setState(state);
+        ctx.setState([...state]);
+    }
+
+    @Action(DeleteWidget)
+    deleteWidget(ctx: StateContext<WidgetModel[]>, { wid }: DeleteWidget) {
+        const state = ctx.getState();
+        const index = state.findIndex( d => d.id === wid );
+        if ( index !== -1 ) {
+            state.splice(index, 1);
+            ctx.setState([...state]);
+        }
     }
 }
