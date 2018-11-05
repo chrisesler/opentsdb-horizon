@@ -4,13 +4,15 @@
         <div class="preset-button" fxFlex="1 1 50px" *ngFor="let preset of presets">
             <!-- preset buttons  -->
             <button mat-flat-button class="nav-bar-dropmenu time-picker-menu time-preset-button"
-                [matMenuTriggerFor]="presetKeypad" 
+                (focusout)="closePresets(preset)"
+                (focus)="closePresets(preset)"
+                [matMenuTriggerFor]="appMenu" 
                 (click)="togglePreset(preset)"
                 [ngClass]="{'is-selected': presetSelected == preset}">
                 {{preset.buttonName}}
             </button>
             <!-- keypad -->
-            <mat-menu #presetKeypad [overlapTrigger]="false" class="preset-picker-menu">
+            <mat-menu #appMenu="matMenu" [overlapTrigger]="false" class="preset-picker-menu">
                 <div class="preset-picker-container">
                     <keypad (amountSelected)="presetAmountReceived($event)" 
                             [disableKeysAt9]="preset.name == 'quarter' ? true : false"

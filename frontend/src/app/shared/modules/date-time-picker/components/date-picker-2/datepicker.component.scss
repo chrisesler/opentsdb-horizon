@@ -102,6 +102,7 @@
         @include mat-elevation(5);
         display: block;
         font-size: 14px;
+        width: $calendar-width;
 
         .mat-card {
             padding: 4px $calendar-padding $calendar-padding $calendar-padding;

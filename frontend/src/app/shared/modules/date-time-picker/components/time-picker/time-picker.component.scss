@@ -8,12 +8,9 @@
 
         .timerange-picker-container {
             padding: 0 12px;
+            height: initial;
         }
     }
-
-
-    // actual picker
-    // .dtp-time-picker { }
 }
 
 @mixin time-picker-component-theme($theme-config) {
@@ -24,7 +21,6 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $is-dark: map-get($theme-config, is-dark);
-
     
     // tooltip color
     .dtp-tooltip-text {
@@ -37,14 +33,13 @@
             border-color: rgba(255, 255, 255, 0);
             border-bottom-color: map-get($background, menu); // actual color of arrow
         }
-
-        
     }
 
-    // actual picker
-    // .dtp-time-picker { }
-
-    // cdk stuff
-
-    
+    .mat-menu-content {
+        .timerange-picker-container {
+            &.mat-menu-item {
+                background-color: transparent;
+            }
+        }
+    }
 }

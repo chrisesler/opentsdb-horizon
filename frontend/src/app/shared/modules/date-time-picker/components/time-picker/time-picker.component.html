@@ -1,4 +1,5 @@
 <button mat-raised-button
+    (keydown.tab)="$event.stopPropagation()"
     [ngClass]="{'menu-trigger-underline': timerangePickerMenuIsOpen}"
     [matMenuTriggerFor]="timerangePickerMenu" 
     [matTooltip]="tooltipText"
@@ -8,15 +9,16 @@
     <mat-icon fontSet="denali" fontIcon="d-arrowhead-down"></mat-icon>
 </button>
 
-<mat-menu #timerangePickerMenu="matMenu" [overlapTrigger]="false" class="nav-bar-dropmenu timerange-picker-menu" (closed)="closeTimeRangePicker()">
-    <div class="timerange-picker-container" fxLayout="column" (click)="$event.stopPropagation()">
+<mat-menu #timerangePickerMenu="matMenu" [overlapTrigger]="false" class="nav-bar-dropmenu timerange-picker-menu" (closed)="closeTimeRangePicker()" (keydown.tab)="$event.stopPropagation()">
+    <div mat-menu-item class="timerange-picker-container" [disableRipple]="'true'" fxLayout="column" (click)="$event.stopPropagation()" (keydown.tab)="$event.stopPropagation()">
         <time-range-picker
             (timeSelected)="timeReceived($event)"
             (cancelSelected)="triggerAndCloseTimeRangePicker()"
             [startTime]="startTime"
             [endTime]="endTime"
             [options]="options"
-            [timezone]="timezone">
+            [timezone]="timezone"
+            (keydown.tab)="$event.stopPropagation()">
         </time-range-picker>
     </div>
 </mat-menu>
