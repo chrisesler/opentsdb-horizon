@@ -11,6 +11,12 @@
             height: initial;
         }
     }
+    .timerange-picker-menu {
+        .mat-menu-content {
+            padding-top: 2px;
+            padding-bottom: 4px;
+        }
+    }
 }
 
 @mixin time-picker-component-theme($theme-config) {
@@ -35,10 +41,12 @@
         }
     }
 
-    .mat-menu-content {
-        .timerange-picker-container {
-            &.mat-menu-item {
-                background-color: transparent;
+    .timerange-picker-menu {
+        .mat-menu-content {
+            .timerange-picker-container {
+                &.mat-menu-item {
+                    background-color: transparent;
+                }
             }
         }
     }

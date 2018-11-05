@@ -34,8 +34,21 @@
             justify-content: center;
         }
 
+        .custom-time-range {
+            h2 {
+                height: 30px;
+                line-height: 32px;
+                font-size: 90%;
+            }
+        }
+
         .presets {
-            margin-bottom: 12px;
+
+            h2 {
+                height: 24px;
+                line-height: 32px;
+                font-size: 90%;
+            }
 
             .preset-button {
                 margin-right: 2px;
