@@ -58,6 +58,7 @@ export class DatepickerComponent implements OnInit {
     registerForm: FormGroup;
     submitted = false;
     shouldUpdateTimestamp: boolean = true;
+    calendarButtonEntered = false;
 
     @ViewChild('dateInput') el: ElementRef;
 
@@ -177,7 +178,17 @@ export class DatepickerComponent implements OnInit {
     }
 
     enterKeyed() {
-        this.onEnter.emit();
+        if (this.calendarButtonEntered) {
+            this.calendarButtonEntered = false;
+        } else {
+            this.onEnter.emit();
+        }
+    }
+
+    enterKeyedOnCalendarButton(event) {
+        if (event.keyCode === 13) { // enter
+            this.calendarButtonEntered = true;
+        }
     }
 
     inputFocused() {

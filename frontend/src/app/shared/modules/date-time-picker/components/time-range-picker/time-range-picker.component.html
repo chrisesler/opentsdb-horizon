@@ -1,16 +1,18 @@
 <div class="presets" #presetsDiv>
-    <h2>Presets time range</h2>
+    <h2>Preset Time Range</h2>
     <div class="preset-buttons" fxLayout="row" style="width: 100%;">
         <div class="preset-button" fxFlex="1 1 50px" *ngFor="let preset of presets">
             <!-- preset buttons  -->
             <button mat-flat-button class="nav-bar-dropmenu time-picker-menu time-preset-button"
-                [matMenuTriggerFor]="presetKeypad" 
+                (focusout)="closePresets(preset)"
+                (focus)="closePresets(preset)"
+                [matMenuTriggerFor]="appMenu" 
                 (click)="togglePreset(preset)"
                 [ngClass]="{'is-selected': presetSelected == preset}">
                 {{preset.buttonName}}
             </button>
             <!-- keypad -->
-            <mat-menu #presetKeypad [overlapTrigger]="false" class="preset-picker-menu">
+            <mat-menu #appMenu="matMenu" [overlapTrigger]="false" class="preset-picker-menu">
                 <div class="preset-picker-container">
                     <keypad (amountSelected)="presetAmountReceived($event)" 
                             [disableKeysAt9]="preset.name == 'quarter' ? true : false"
@@ -24,7 +26,7 @@
 </div>
 
 <div class="custom-time-range" fxLayout="column">
-    <h2>Custom Range</h2>
+    <h2>Custom Time Range</h2>
     <div class="time-ranges" fxLayout="row">
         <!-- start time -->
         <datepicker2 #daytimePickerStart 
