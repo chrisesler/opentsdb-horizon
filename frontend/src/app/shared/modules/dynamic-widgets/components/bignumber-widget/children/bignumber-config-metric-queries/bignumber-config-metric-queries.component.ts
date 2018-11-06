@@ -38,6 +38,7 @@ export class BignumberConfigMetricQueriesComponent  implements OnInit, OnDestroy
     modGroup: any; // current group that is adding metric
     mgroupId = undefined;
 
+    selectAllToggle: String = 'none'; // none/all/some
 
     constructor(public dialog: MatDialog) { }
 

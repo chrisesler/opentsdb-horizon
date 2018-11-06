@@ -322,6 +322,11 @@ export class BignumberWidgetComponent implements OnInit {
         }
         config.queries = config.queries.concat(gConfig.queries);
         this.widget = {...this.widget};
+
+        if (!this.widget.query.settings.visual.queryID) {
+            this.setSelectedQuery('0');
+        }
+
     }
 
     addNewGroup() {
