@@ -1,7 +1,7 @@
 import {
     Component, OnInit, ViewChild, Input,
     Output, EventEmitter, AfterContentInit,
-    HostListener, ElementRef, HostBinding
+    HostListener, ElementRef, HostBinding, ViewChildren, QueryList
 } from '@angular/core';
 import { Moment } from 'moment';
 import * as momentNs from 'moment';
@@ -9,6 +9,7 @@ import { TimeRangePickerOptions, ISelectedTime } from '../../models/models';
 import { } from '../time-picker/time-picker.component';
 import { DatepickerComponent } from '../date-picker-2/datepicker.component';
 import { DateUtilsService } from '../../../../../core/services/dateutils.service';
+import { MatMenuTrigger } from '@angular/material';
 
 const moment = momentNs;
 
@@ -36,6 +37,7 @@ export class TimeRangePickerComponent implements OnInit {
     @ViewChild('daytimePickerStart') startTimeReference: DatepickerComponent;
     @ViewChild('daytimePickerEnd') endTimeReference: DatepickerComponent;
     @ViewChild('presetsDiv') presetsDiv: ElementRef;
+    @ViewChildren(MatMenuTrigger) triggers: QueryList<MatMenuTrigger>;
 
     startTimeSelected: Moment;
     endTimeSelected: Moment;
@@ -181,11 +183,14 @@ export class TimeRangePickerComponent implements OnInit {
     startInputFocused() {
       this.showApply = true;
       this.removeSelectedPreset();
+      this.closeAllPresets();
+
     }
 
     endInputFocused() {
       this.showApply = true;
       this.removeSelectedPreset();
+      this.closeAllPresets();
     }
 
     enterKeyedOnInputBox() {
@@ -202,6 +207,22 @@ export class TimeRangePickerComponent implements OnInit {
     startCalendarClosed() {}
 
     endCalendarClosed() {}
+
+    closePresets(preset) {
+      let index = 0;
+      this.triggers.forEach(trigger =>  {
+        if (!this.presets || this.presets[index].buttonName !== preset.buttonName) {
+          trigger.closeMenu();
+        }
+        index++;
+      });
+    }
+
+    closeAllPresets() {
+      this.triggers.forEach(trigger =>  {
+        trigger.closeMenu();
+      });
+    }
 }
 
 interface Preset {
