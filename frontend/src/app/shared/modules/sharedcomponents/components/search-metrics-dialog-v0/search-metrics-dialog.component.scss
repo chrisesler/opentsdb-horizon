@@ -174,19 +174,6 @@
             }
         }
 
-        .metric-filters {
-            padding: 2px 6px;
-            .mat-chip {
-                padding: 3px 6px;
-                font-size: 10px;
-                margin: 2px 4px;
-                
-                strong {
-                    margin-left: 4px;
-                }
-            }
-        }
-
         .metric-result-count {
             padding: 2px 6px;
             
@@ -302,28 +289,10 @@
                     padding-right: 16px;
                 }
 
-                td.mat-column-expand,
-                th.mat-column-expand {
-                    width: 60px;
-                    cursor: pointer;
-                }
-
                 td.mat-column-selectMetric,
                 th.mat-column-selectMetric {
                     width: 60px;
                 }
-
-                td.mat-column-tags,
-                th.mat-column-tags {
-                    width: 60%;
-                    .mat-checkbox {
-                        margin-right: 10px;
-                    }
-                    .tag-value {
-                        margin-right: 10px;
-                    }
-                }
-                
 
                 td.mat-column-other,
                 th.mat-column-other {
@@ -342,17 +311,6 @@
 
                 th.mat-header-cell {
                     text-transform: uppercase;
-                }
-
-                tr.table-metric-tags {
-                    height: 0px;
-                    td.mat-cell.expand-detail {
-                        border: 0px;
-                        padding-left: 0;
-                        padding-right: 0;
-                        padding-bottom: 0;
-                        padding-top: 0;
-                    }
                 }
 
                 .select-metric-btn {
