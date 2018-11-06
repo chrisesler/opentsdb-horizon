@@ -296,10 +296,35 @@ self.mSearch = function(list, query) {
                 group = null;
             }  
     }
+    var getArrayKeySorted = function (item, allTags) {
+        var keys = [];
+        for ( var k in item ) {
+            if ( k != 'metric' ) {
+                keys.push(k);
+                if ( allTags.indexOf(k) === -1 ) {
+                    allTags.push(k);
+                }
+            }
+
+        }
+        return keys.sort().join(',');
+    };
+    var metrics = {};
+    for (var i=0, len = finalResult.length; i < len; i++) {
+        var metric = finalResult[i].metric;
+        if ( ! metrics[metric] ) {
+            metrics[metric] = { allTags: [], tagCombinations:[] };
+        }
+        var key = getArrayKeySorted(finalResult[i], metrics[metric].allTags);
+        if ( metrics[metric].tagCombinations.indexOf(key) === -1) {
+            metrics[metric].tagCombinations.push(key);
+        }
+    } 
     return {
       results: tg,
       gMetrics: self.arrayFromObject(resultGroups),
-      raw: finalResult
+      raw: finalResult,
+      metrics: metrics
     };
 
 };
