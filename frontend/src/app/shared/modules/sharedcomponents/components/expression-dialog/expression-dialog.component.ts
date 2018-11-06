@@ -145,7 +145,7 @@ export class ExpressionDialogComponent implements OnInit, OnDestroy {
 
         // JUST CHECKING VALUES
         this.metricExpressionForm_Sub = this.metricExpressionForm.valueChanges
-                                            .pipe(debounceTime(3000))
+                                            .pipe(debounceTime(2000))
                                             .subscribe(function(data) {
                                                 if ( this.isValidExpression() && this.metricExpressionForm.valid ) {
                                                     this.queryData();
@@ -166,7 +166,8 @@ export class ExpressionDialogComponent implements OnInit, OnDestroy {
             }
         }
 
-        const isValid =  this.metrics.length && result != null && !invalidRefs.length;
+        const isValid =  keys.length && result != null && !invalidRefs.length;
+        console.log("isValidExpression", isValid, keys.length , result != null , !invalidRefs.length)
         this.metricExpressionForm.controls.expressionValue.setErrors( !isValid ? { 'invalid': true } : null );
         return isValid;
     }
@@ -226,6 +227,7 @@ export class ExpressionDialogComponent implements OnInit, OnDestroy {
             const expression = this.getExpressionConfig();
             const metrics = [expression];
             const query = this.queryService.buildQuery(widget, time, metrics);
+            console.log(JSON.stringify(query))
             this.getYamasData(query, metrics);
     }
 

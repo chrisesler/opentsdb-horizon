@@ -1124,6 +1124,16 @@ export class HttpService {
           );
     }
 
+    getNamespaceTagKeys(queryObj: any): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json'
+        });
+        return this.http.post('/search/nstagkeys', queryObj, { headers, withCredentials: true })
+          .pipe(
+            catchError(this.handleError)
+          );
+    }
+
     // results should filter the lists from already selected filters
     getTagValues(queryObj: any): Observable<any> {
         const headers = new HttpHeaders({

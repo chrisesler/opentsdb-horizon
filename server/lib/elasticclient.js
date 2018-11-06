@@ -544,6 +544,80 @@ module.exports = function () {
         return defer.promise;
     };
 
+    self.getTagkeysForNamespace = function ( params ) {
+        var defer       = Q.defer();
+        var namespace     = params.namespace;
+        var headers     = params.headers;
+        var suggestions = [];
+
+        //build multiquery object
+        var multisearchQueryBody = [], queryMetadata, queryBody;
+            queryMetadata = {
+                "index": namespace.toLowerCase() + "_tagkeys",
+                "query_cache": true
+            };
+            queryBody  = {
+                "size": "0",
+                /*
+                "query": {
+                    "filtered": {
+                        "filter": {
+                            "bool": {
+                                "must": [
+                                ]
+                            }
+                        }
+                    }
+                },
+                */
+    
+                "aggs": {
+                    "elasticQueryResults": {
+                        "nested": {
+                            "path": "tags"
+                        },
+                        "aggs": {
+                            "elasticQueryResults": {
+                                "terms": {
+                                    "field": "tags.key.raw",
+                                    "size": 0
+                                }
+                            }
+                        }
+                    }
+                }
+    
+            };
+
+            //note: keep insertion order, expected by elastic search
+            multisearchQueryBody.push(queryMetadata);
+            multisearchQueryBody.push(queryBody);
+
+        
+
+        // tags.endpoint = 'tagkeys';
+        //tags.userid   = headers.auth.getPrincipal();
+        //perform the query
+        self._makeESMultiQuery(
+            multisearchQueryBody,
+            headers,
+            appconstant.TAGKEYS_ES_QUERY_TIMEOUT_MS
+        ).then(function (resp) {
+            console.log("\n\n resp\n\n\n");
+            console.log(JSON.stringify(resp))
+
+            suggestions = extractResultsFromElasticSearchResponse(
+                resp,
+                getElasticQueryResultExtractor('tagKeys')
+            );
+            defer.resolve(suggestions);
+        }, function (error) {
+            defer.reject(error);
+        });
+
+        return defer.promise;
+    };
+
     /**
      * converts Java regular expression notation to Lucene regexp (used by ES).
      * The conversion that we do is related to ^ and $, given that ES
