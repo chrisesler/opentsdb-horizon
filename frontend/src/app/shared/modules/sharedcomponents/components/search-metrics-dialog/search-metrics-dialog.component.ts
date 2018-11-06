@@ -39,11 +39,11 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
 
     @ViewChild('graphOutput') private graphOutput: ElementRef;
 
-    selectedNamespace: String |null = 'UDB';
+    selectedNamespace: String |null;
 
     // form controls
-    namespaceControl: FormControl = new FormControl('UDB');
-    searchQueryControl: FormControl = new FormControl('cpu');
+    namespaceControl: FormControl = new FormControl();
+    searchQueryControl: FormControl = new FormControl();
 
     // FAKE DATA
     fakeNamespaceOptions = [
@@ -142,7 +142,6 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             flag: this.searchFlag,
             term: this.searchQueryControl.value
         };
-        this.selectedNamespace = 'UDB';
         // console.log('DIALOG DATA', this.data);
         // console.log('DIALOG REF', this.dialogRef);
 
