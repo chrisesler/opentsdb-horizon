@@ -1,5 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, HostBinding, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import {animate, state, style, transition, trigger} from '@angular/animations';
+import { Component, Inject, OnInit, OnDestroy, HostBinding, EventEmitter, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, DialogPosition, MatSort, MatTableDataSource } from '@angular/material';
 
 import { FormControl } from '@angular/forms';
@@ -12,18 +11,11 @@ import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 
 @Component({
     // tslint:disable-next-line:component-selector
-    selector: 'search-metrics-dialog',
+    selector: 'search-metrics-dialog-v0',
     templateUrl: './search-metrics-dialog.component.html',
-    styleUrls: [],
-    animations: [
-        trigger('detailExpand', [
-          state('collapsed', style({height: '0px', minHeight: '0', display: 'none'})),
-          state('expanded', style({height: '*'})),
-          transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-        ]),
-      ],
+    styleUrls: []
 })
-export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
+export class SearchMetricsDialogComponentV0 implements OnInit, OnDestroy {
     @HostBinding('class.search-metrics-dialog') private _hostClass = true;
 
     // TODO: Add sort functionality to table
@@ -37,13 +29,11 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         return this._sort;
     }*/
 
-    @ViewChild('graphOutput') private graphOutput: ElementRef;
-
-    selectedNamespace: String |null = 'UDB';
+    selectedNamespace: String |null;
 
     // form controls
-    namespaceControl: FormControl = new FormControl('UDB');
-    searchQueryControl: FormControl = new FormControl('cpu');
+    namespaceControl: FormControl = new FormControl('');
+    searchQueryControl: FormControl = new FormControl('');
 
     // FAKE DATA
     fakeNamespaceOptions = [
@@ -116,12 +106,10 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     };
     data: any = [[0]];
     size: any = {};
-    Object = Object;
-    nsTagKeys = [];
 
     // passing data to dialog using @Inject
     constructor(
-        public dialogRef: MatDialogRef<SearchMetricsDialogComponent>,
+        public dialogRef: MatDialogRef<SearchMetricsDialogComponentV0>,
         @Inject(MAT_DIALOG_DATA) public dialog_data: any,
         private httpService: HttpService,
         private dataTransformerService: DatatranformerService,
@@ -142,7 +130,7 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             flag: this.searchFlag,
             term: this.searchQueryControl.value
         };
-        this.selectedNamespace = 'UDB';
+        this.selectedNamespace = '';
         // console.log('DIALOG DATA', this.data);
         // console.log('DIALOG REF', this.dialogRef);
 
@@ -153,31 +141,9 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
                 debounceTime(300),
                 switchMap(value => this.httpService.getNamespaces({ searchPattern: value}))
             );
-        this.setNamespaceTags();
     }
 
     ngOnDestroy() { }
-
-    setSize() {
-        console.log(this.graphOutput)
-        const nativeEl = this.graphOutput.nativeElement; //.closest('graph-output');
-
-        const outputSize = nativeEl.getBoundingClientRect();
-
-        const padding = 10; // 10px on the top
-        const nHeight = outputSize.height - (padding * 2);
-        const nWidth = outputSize.width - (padding * 2);
-
-        this.size = {width: nWidth, height: nHeight };
-        console.log(this.size, "this.size")
-    }
-
-    setNamespaceTags() {
-        const query = { namespace: this.selectedNamespace };
-        this.httpService.getNamespaceTagKeys(query).subscribe(tagKeys => {
-            this.nsTagKeys = tagKeys.slice(0, 8);
-        });
-    }
 
     filterNamespace(val: string): string[] {
         return this.fakeNamespaceOptions.filter(option => {
@@ -198,7 +164,6 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
      */
     namespaceOptionSelected(event: any) {
         this.selectedNamespace = event.option.value;
-        this.setNamespaceTags();
     }
 
     // when user hit enter to search
@@ -214,9 +179,9 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
                 resp => {
                     console.log('resp', resp);
                     this.resultCount = resp.raw.length;
-                    this.results = resp.metrics;
+                    this.results = resp.results;
                     if ( this.results.length ) {
-                        //this.listSelectedTag(this.results[0].values[0]);
+                        this.listSelectedTag(this.results[0].values[0]);
                     }
                 },
                 err => {
@@ -239,19 +204,12 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     }
     // handle when clicked to select a metric
     // should we check duplicate or same set of tags?
-    selectMetric(metric: any, tags ) {
-        tags = tags ? tags : [];
-        console.log("metric=", metric, tags);
-        const series = { metric: this.selectedNamespace + '.' + metric };
-        for ( let i = 0, len = tags.length; i < len; i++ ) {
-            series[tags[i]] = '*';
-        }
-        console.log("series=", series);
-        // return;
-        if (!this.isMetricExit(series)) {
-            this.selectedMetrics.push(series);
-            // let mf = {...m, metric: this.selectedNamespace + '.' + m.metric };
-            const mf = this.dataTransformerService.buildMetricObject(series);
+    selectMetric(m: any) {
+        console.log("metric=", m)
+        if (!this.isMetricExit(m)) {
+            this.selectedMetrics.push(m);
+            let mf = {...m, metric: this.selectedNamespace + '.' + m.metric };
+            mf = this.dataTransformerService.buildMetricObject(mf);
             this.group.queries.push(mf);
             const widget = {
                                 settings: {
@@ -310,13 +268,11 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
     // extract just the keys
     extractMetricTagKeys(metric: any, withoutMetric?: boolean) {
         const objKeys = Object.keys(metric);
-        console.log("key", JSON.stringify(objKeys), withoutMetric)
         // remove "metric"?
         if (withoutMetric) {
-            const idx = objKeys.indexOf('metric');
+            const idx = objKeys.indexOf(metric);
             objKeys.splice(idx, 1);
         }
-        console.log(metric, JSON.stringify(objKeys), "objKeys")
         return objKeys;
     }
 
@@ -412,26 +368,6 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
             this.selectedMetrics.splice( index, 1);
             this.group.queries.splice(index, 1);
         }
-    }
-
-    selectMetricTag( metric, tag, selected ) {
-        if ( !this.results[metric].selectedTags ) {
-            this.results[metric].selectedTags = [];
-        }
-
-        const index = this.results[metric].selectedTags.indexOf(tag);
-
-        if ( selected && index === -1  ) {
-            this.results[metric].selectedTags.push(tag);
-        }
-
-        if ( !selected && index !== -1  ) {
-            this.results[metric].selectedTags.splice(index, 1);
-        }
-    }
-
-    toggleDetails(metric) {
-        this.results[metric].expanded = !this.results[metric].expanded;
     }
 
     /**

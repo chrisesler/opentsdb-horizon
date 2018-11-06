@@ -98,6 +98,29 @@ router.post('/tagkeys', function(req, res) {
 
 });
 
+router.post('/nstagkeys', function(req, res) {
+    //validate mandatatory fields
+    if ( undefined === req.body.namespace ) {
+        res.status(400).json({
+            message: 'Empty namespace passed'
+        });
+    }
+
+    esclient.getTagkeysForNamespace({
+            'namespace': req.body.namespace,
+            'headers': req.headers
+        }
+    ).then(function(results){
+        console.log("\n\nTAG KEYS********\n\n", JSON.stringify(results));
+        res.json( results );
+    }, function(errorObj){
+        res.status(502).json({
+            message: errorObj.error
+        });
+    });
+
+});
+
 router.post('/tagvalues', function(req, res) {
     //validate mandatatory fields
     if (
