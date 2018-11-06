@@ -8,7 +8,6 @@ import { DatatranformerService } from '../../../../../core/services/datatranform
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
 
-
 import { Subscription } from 'rxjs/Subscription';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
@@ -619,9 +618,13 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     toggleGroup(gIndex) {
         this.widget.query.groups[gIndex].settings.visual.visible = !this.widget.query.groups[gIndex].settings.visual.visible;
-        if ( this.widget.query.groups[gIndex].queries.length === 1 ) {
-            this.widget.query.groups[gIndex].queries[0].settings.visual.visible = this.widget.query.groups[gIndex].settings.visual.visible;
+        for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
+            this.widget.query.groups[gIndex].queries[i].settings.visual.visible =
+            this.widget.query.groups[gIndex].settings.visual.visible;
         }
+        // if ( this.widget.query.groups[gIndex].queries.length === 1 ) {
+        //     this.widget.query.groups[gIndex].queries[0].settings.visual.visible = this.widget.query.groups[gIndex].settings.visual.visible;
+        // }
         this.refreshData(false);
     }
     deleteGroup(gIndex) {
