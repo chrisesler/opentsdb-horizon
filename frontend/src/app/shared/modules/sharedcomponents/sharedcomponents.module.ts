@@ -43,6 +43,7 @@ import { DropdownAggregatorsComponent } from './components/dropdown-aggregators/
 import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropdown-unit-type.component';
 import { GenericMessageBarComponent } from './components/generic-message-bar/generic-message-bar.component';
 import { SimpleDashboardListComponent } from './components/simple-dashboard-list/simple-dashboard-list.component';
+import { NamespaceTagValuesComponent } from './components/namespace-tag-values/namespace-tag-values.component';
 
 @NgModule({
     imports: [
@@ -83,6 +84,7 @@ import { SimpleDashboardListComponent } from './components/simple-dashboard-list
         DropdownUnitTypeComponent,
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
+        NamespaceTagValuesComponent,
     ],
     exports: [
         SearchMetricsDialogComponentV0,
