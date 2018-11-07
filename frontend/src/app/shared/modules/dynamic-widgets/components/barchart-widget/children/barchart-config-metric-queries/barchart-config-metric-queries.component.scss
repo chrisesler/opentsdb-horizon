@@ -10,57 +10,27 @@
         display: flex;
         flex-direction: column;
 
+        // config specific toolbar overrides
+        .config-toolbar.time-series-toolbar {
+            padding: 0 $edit-padding 0 0;
 
-        ////// OLD STYLES //////
-        
+            .toolbar-item.master-checkbox {
+                margin-right: 3px;
+            }
+        }
+
         // config section that shows the selected metrics
         .query-metrics-section {
             @include has-scroller();
             flex: 1 1 100%;
             width: 100%;
-            
+            height: 100%;
 
             .query-metrics-wrap {
-                width: 100%;
-
                 @include is-scroller();
+                padding-top: 5px;
             }
-            
         }
-        /*
-        .query-legend-section{
-            width: 20%;
-            height: 100%;
-            float: right;
-            padding: 15px 10px;
-        }
-
-        .query-legend-item {
-            padding: 5px 5px;
-        }
-
-        .query-legend-item-color {
-            display: inline-block;
-            width:15px;
-            height:15px;
-            cursor: pointer;
-        }
-        
-        color-picker {
-            display: block;
-            position: absolute;
-            margin-top: 5px;
-        }
-
-        mat-form-field {
-            width: 150px;
-        }
-
-        .query-legend-item-label {
-            display: inline-block;
-            margin-left: 5px;
-        }
-        */
 
         // wrapper for the query metrics
         .query-metrics-wrap {
@@ -93,13 +63,17 @@
             // General toolbar items
             .toolbar-item {
                 display: flex;
-                align-items: top;
+                align-items: center;
                 justify-content: center;
 
                 .mat-icon {
                     display: inline-flex;
-                    align-items: top;
+                    align-items: center;
                     justify-content: center;
+                }
+
+                strong {
+                    padding-left: 20px;
                 }
             }
 
@@ -114,6 +88,10 @@
                 .mat-icon {
                     font-size: 16px;
                 }
+            }
+
+            .toolbar-action-icons {
+                padding-right: 30px;
             }
 
             // selector checkboxes for group level and metric level
@@ -166,46 +144,21 @@
 
             // contains the metric row details
             .query-metric-item {
+                flex: 1;
                 display: flex;
-                width:100%;
-                border-bottom:0.5px solid #f2f2f2;
-                /*
                 flex-direction: column;
-                flex-wrap: wrap;
-                
+                align-items: stretch;
                 justify-content: stretch;
                 margin-bottom: 10px;
                 padding-left: 5px;
-                */
+
                 .metric-detail {
-                    padding: 10px 5px;
-                    align-items: stretch;
-                    flex: 1;
-                    border: 0px solid yellow;
-                    .metric-visual{
-                        .color{
-                            display: inline-block;
-                            margin-right: 10px;
-                            width:15px;
-                            height:15px;
-                        }
-                        .label {
-                            margin-right: 10px;
-                            display: inline-block;
-                        }
-                        .aggregator {
-                            display: inline-block;
-                        }
-                    }
+                    display: flex;
+                    align-items: center;
+                    justify-content: stretch;
+                    padding-right: 14px;
                 }
 
-                .metric-action {
-                    width: 200px;
-                    background: 0px solid grey;
-                }
-
-
-                /*
                 .metric-tags {
                     display: flex;
                     align-items: center;
@@ -229,8 +182,26 @@
                             margin-right: 4px;
                         }
                     }
-                    
-                }*/
+                }
+
+                .metric-visual {
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                    padding-top: 10px;
+                    .color {
+                        display: inline-block;
+                        margin-right: 10px;
+                        width:15px;
+                        height:15px;
+                        vertical-align: text-bottom;
+                    }
+                    .label {
+                        margin-right: 10px;
+                        display: inline-block;
+                    }
+                    .aggregator {
+                        display: inline-block;
+                    }
+                }
             }
 
             // mat-expansion-panel inside the accordion (.mat-accordion.query-group-list)
@@ -296,19 +267,21 @@
 @mixin barchart-config-metric-queries-component-theme($theme-config) {
 
     /* Theme config parts */
-    /* Theme config parts */
     $primary: map-get($theme-config, primary);
     $accent: map-get($theme-config, accent);
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
-
+    $is-dark: map-get($theme-config, is-dark);
+    $chip-bg: rgba(map-get($primary, default), .1);
+    $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
+    $alias-text: if($is-dark, rgba(255, 255, 255, .5), rgba(0, 0, 0, .5));
     $chip-bg: rgba(map-get($primary, default), .1); 
 
     .widget-config-tab.barchart-config-metric-queries-configuration {
-        // style rules here
+            // style rules here
 
-        .query-metric-row {
+            .query-metric-row {
             .metric-tags {
                 .mat-basic-chip {
                     background-color: $chip-bg;
@@ -319,6 +292,43 @@
                     }
                 }
             }
+            .query-metric-item {
+                .expression-metrics {
+                    .metric {
+                        display: flex;
+                        flex-direction: row;
+                        margin-bottom: 3px;
+                        align-items: center;
+                        padding: 5px 0px 5px 0px;
+                        border-bottom: 1px solid #f0f0f0;
+                        .metric-alias {
+                            display: inline-flex;
+                            
+                            width: 30px;
+                            margin-right: 10px;
+                            span {
+                                background-color: $alias-bg;
+                                color: $alias-text;
+                                font-size: 10px;
+                                padding: 0px 5px;
+                                border-radius: 4px;
+                                font-weight: bold;
+                            }
+                        }
+                        .metric-label {
+                            font-size: 12px;
+                            display: inline-flex;
+                        }
+                    }
+                    .metric:last-child {
+                        border-bottom: none;
+                    }
+                }
+            }
+        }
+
+        .group-item-toolbar {
+            background-color: white;
         }
 
         .value-options {
@@ -330,6 +340,5 @@
             }
         }
     }
-
 }
 
