@@ -1124,11 +1124,31 @@ export class HttpService {
           );
     }
 
+    getMetricsByNamespace(queryObj: any): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json'
+        });
+        return this.http.post('/search/nsmetrics', queryObj, { headers, withCredentials: true })
+          .pipe(
+            catchError(this.handleError)
+          );
+    }
+
     getNamespaceTagKeys(queryObj: any): Observable<any> {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json'
         });
         return this.http.post('/search/nstagkeys', queryObj, { headers, withCredentials: true })
+          .pipe(
+            catchError(this.handleError)
+          );
+    }
+
+    getTagValuesByNamespace(queryObj: any): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json'
+        });
+        return this.http.post('/search/nstagvalues', queryObj, { headers, withCredentials: true })
           .pipe(
             catchError(this.handleError)
           );
