@@ -1,0 +1,8 @@
+<mat-form-field appearance="fill" [color]="'primary'" floatLabel="never">
+        <input type="text" matInput placeholder="Namespace" [formControl]="namespaceControl" [matAutocomplete]="namespaceAuto" (keydown.enter)="namespaceKeydown($event)">
+    </mat-form-field>
+    <mat-autocomplete #namespaceAuto="matAutocomplete" (optionSelected)="namespaceOptionSelected($event)">
+        <mat-option *ngFor="let option of filteredNamespaceOptions | async" [value]="option">
+            {{ option }}
+        </mat-option>
+</mat-autocomplete>

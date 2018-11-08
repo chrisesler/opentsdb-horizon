@@ -1,0 +1,55 @@
+/* WIDGET CONFIG COMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+
+@mixin inline-query-editor-component-base() {
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-padding: map-get($widgets-common-config, edit-padding);
+
+    .inline-query-editor {
+        .namespace span {
+            font-weight: bold;
+        }
+        .metric-tags {
+            display: flex;
+            align-items: center;
+
+            // probably the 'tabs:' label
+            :first-child {
+                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+            }
+
+            .mat-chip-list {
+                margin-left: 10px;
+            }
+
+            .mat-basic-chip {
+                padding: 3px 6px;
+                border-radius: 3px;
+                margin-right: 4px;
+
+                // first-child should be the tag key
+                :first-child {
+                    margin-right: 4px;
+                }
+            }
+            
+        }
+    }
+}
+
+@mixin inline-query-editor-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark: map-get($theme-config, is-dark);
+    $chip-bg: rgba(map-get($primary, default), .1);
+    $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
+    $alias-text: if($is-dark, rgba(255, 255, 255, .5), rgba(0, 0, 0, .5));
+
+    .inline-query-editor {
+    }
+}

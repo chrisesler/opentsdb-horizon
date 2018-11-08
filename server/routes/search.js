@@ -132,6 +132,7 @@ router.post('/nstagkeys', function(req, res) {
 
     esclient.getTagkeysForNamespace({
             'namespace': req.body.namespace,
+            'metrics' : req.body.metrics || [],
             'headers': req.headers
         }
     ).then(function(results){
