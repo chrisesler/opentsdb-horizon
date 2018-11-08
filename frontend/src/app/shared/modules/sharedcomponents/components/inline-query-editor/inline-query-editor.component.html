@@ -1,0 +1,12 @@
+<div class="namespace">
+    <namespace-autocomplete (nschange)="setNamespace($event)" *ngIf="namespaceEdit" [value]="namespace"></namespace-autocomplete>
+    <span (click)="namespaceEdit=true" *ngIf="!namespaceEdit">{{ namespace }}</span>
+</div>
+
+<div class="metric-tags" *ngIf="namespace">
+    <span><strong>Tags:</strong></span>
+    <mat-chip-list>
+        <mat-basic-chip *ngFor="let tag of Object.keys(tags)"><span>{{ tag }}:</span> <span *ngFor="let v of tags[tag]"> {{ v }}</span></mat-basic-chip>
+    </mat-chip-list>
+    <namespace-tag-autocomplete [namespace]="namespace" [tagsSelected]="tags" (tagchange)="setTag($event)" *ngIf="showTagButton"></namespace-tag-autocomplete>
+</div>

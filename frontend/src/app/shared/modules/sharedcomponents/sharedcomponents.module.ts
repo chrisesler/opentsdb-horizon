@@ -43,6 +43,9 @@ import { DropdownAggregatorsComponent } from './components/dropdown-aggregators/
 import { DropdownUnitTypeComponent } from './components/dropdown-unit-type/dropdown-unit-type.component';
 import { GenericMessageBarComponent } from './components/generic-message-bar/generic-message-bar.component';
 import { SimpleDashboardListComponent } from './components/simple-dashboard-list/simple-dashboard-list.component';
+import { InlineQueryEditorComponent } from './components/inline-query-editor/inline-query-editor.component';
+import { NamespaceAutocompleteComponent } from './components/namespace-autocomplete/namespace-autocomplete.component';
+import { NamespaceTagAutocompleteComponent } from './components/namespace-tag-autocomplete/namespace-tag-autocomplete.component';
 import { NamespaceTagValuesComponent } from './components/namespace-tag-values/namespace-tag-values.component';
 
 @NgModule({
@@ -84,7 +87,10 @@ import { NamespaceTagValuesComponent } from './components/namespace-tag-values/n
         DropdownUnitTypeComponent,
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
-        NamespaceTagValuesComponent,
+        InlineQueryEditorComponent,
+        NamespaceAutocompleteComponent,
+        NamespaceTagAutocompleteComponent,
+        NamespaceTagValuesComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -111,13 +117,15 @@ import { NamespaceTagValuesComponent } from './components/namespace-tag-values/n
         NavbarSearchToggleComponent,
         DropdownAggregatorsComponent,
         GenericMessageBarComponent,
-        SimpleDashboardListComponent
+        SimpleDashboardListComponent,
+        InlineQueryEditorComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,
         SearchMetricsDialogComponent,
         SearchAllDialogComponent,
-        ExpressionDialogComponent
+        ExpressionDialogComponent,
+        InlineQueryEditorComponent
     ],
 })
 export class SharedcomponentsModule { }

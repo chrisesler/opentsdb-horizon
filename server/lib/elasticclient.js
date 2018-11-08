@@ -651,6 +651,7 @@ module.exports = function () {
     self.getTagkeysForNamespace = function ( params ) {
         var defer       = Q.defer();
         var namespace     = params.namespace;
+        var metrics = params.metrics || [];
         var headers     = params.headers;
         var suggestions = [];
 
@@ -660,29 +661,62 @@ module.exports = function () {
                 "index": namespace.toLowerCase() + "_tagkeys",
                 "query_cache": true
             };
-            queryBody  = {
-                "size": "0",
-                "aggs": {
-                    "elasticQueryResults": {
-                        "nested": {
-                            "path": "tags"
-                        },
-                        "aggs": {
-                            "elasticQueryResults": {
-                                "terms": {
-                                    "field": "tags.key.raw",
-                                    "size": 0
-                                }
+        queryBody  = {
+            "size": "0",
+            "aggs": {
+                "elasticQueryResults": {
+                    "nested": {
+                        "path": "tags"
+                    },
+                    "aggs": {
+                        "elasticQueryResults": {
+                            "terms": {
+                                "field": "tags.key.raw",
+                                "size": 0
                             }
                         }
                     }
                 }
-    
-            };
+            }
 
-            //note: keep insertion order, expected by elastic search
-            multisearchQueryBody.push(queryMetadata);
-            multisearchQueryBody.push(queryBody);
+        };
+
+        var filter = {
+                        "filtered": {
+                            "filter": {
+                                "bool": {
+                                    "must": [
+                                    ]
+                                }
+                            }
+                        }
+                    };
+        var metricFilter = {
+                                "nested": {
+                                    "path": "AM_nested",
+                                    "query": {
+                                        "bool": {
+                                            "should": []
+                                        }
+                                    }
+                                }
+                            };
+        
+        if ( metrics.length ) {
+            for ( var i=0, len = metrics.length; i < len; i++ ) {
+                metricFilter.nested.query.bool.should.push(
+                    {
+                        "term": {"AM_nested.name.lowercase": metrics[i].toLowerCase()}
+                    }
+                );
+            }
+            filter.filtered.filter.bool.must.push(metricFilter);
+            queryBody.query = filter;
+        }
+
+        //note: keep insertion order, expected by elastic search
+        multisearchQueryBody.push(queryMetadata);
+        multisearchQueryBody.push(queryBody);
 
         
 
@@ -714,6 +748,8 @@ module.exports = function () {
         var suggestions = [];
 
         var namespace     = params.namespace;
+        var metrics     = params.metrics || [];
+        var tags = params.tags || [];
         var headers     = params.headers;
 
         //build multiquery object
@@ -779,6 +815,50 @@ module.exports = function () {
                 }
             }
         };
+
+        if ( tags.length ) {
+            for ( var i=0, len = tags.length; i < len; i++ ) {
+                var tagFilter = {
+                    "nested": {
+                        "path": "tags",
+                        "filter": {
+                            "bool": {
+                                "must": [
+                                    {
+                                        "term": {
+                                            "tags.key.lowercase": tags[i].key.toLowerCase()
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                };
+                self._convertTagValueToESNotation(tagFilter.nested.filter.bool.must, tags[i].value);
+                queryBody.query.filtered.filter.bool.must.push(tagFilter);
+            }
+        }
+        
+        if ( metrics.length ) {
+            var metricFilter = {
+                "nested": {
+                    "path": "AM_nested",
+                    "query": {
+                        "bool": {
+                            "should": []
+                        }
+                    }
+                }
+            };
+            for ( var i=0, len = metrics.length; i < len; i++ ) {
+                metricFilter.nested.query.bool.should.push(
+                                                                {
+                                                                    "term": {"AM_nested.name.lowercase": metrics[i].toLowerCase()}
+                                                                }
+                                                            );
+            }
+            queryBody.query.filtered.filter.bool.must.push(metricFilter);
+        }
 
 
         //note: keep insertion order, expected by elastic search
