@@ -44,10 +44,13 @@ export class NamespaceTagAutocompleteComponent implements OnInit, OnChanges {
             console.log(" tag value on changes" , changes.tagsSelected);
             this.tagControl.setValue(this.value);
             this.tagInput.nativeElement.focus();
-            this.trigger._onChange("");
-this.trigger.openPanel();
-
+            this.showAutosuggest();
         }
+    }
+
+    showAutosuggest() {
+        this.trigger._onChange('');
+        this.trigger.openPanel();
     }
 
     setNamespaceTags() {
@@ -66,6 +69,7 @@ this.trigger.openPanel();
                                                             map(term => this.tags.filter( d => !term || d.toLowerCase().includes(term) )  )
                                                         );
             this.tagInput.nativeElement.focus();
+            this.showAutosuggest();
         });
 
     }

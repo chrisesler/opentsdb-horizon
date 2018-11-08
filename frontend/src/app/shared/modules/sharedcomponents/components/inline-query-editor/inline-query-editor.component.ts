@@ -27,7 +27,6 @@ export class InlineQueryEditorComponent implements OnInit {
 
     setNamespace( namespace ) {
         console.log(namespace, "setNamespace");
-        this.tags = {} ;
         this.namespace = namespace;
         this.showTagButton = true;
         this.showTags = true;
