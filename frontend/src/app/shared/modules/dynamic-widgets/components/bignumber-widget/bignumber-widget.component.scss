@@ -69,41 +69,43 @@
         
         // modifiers
         // used for the prefixes/suffixes
-        .top-align {
+
+        .small-top {
+            font-size: 1em;
+            line-height: 1.8em;
             vertical-align: top;
         }
 
-        .middle-align {
+        .small-middle {
+            font-size: 1em;
+            line-height: 1.8em;
             vertical-align: super;
         }
 
-        .small-size {
+        .small-bottom {
             font-size: 1em;
-            line-height: 1.3em;
+            line-height: 1.8em;
         }
 
-        .medium-size {
+        .medium-top {
+            font-size: 2em;
+            line-height: 1.2em;
+            vertical-align: top;
+        }
+
+        .medium-middle {
+            font-size: 2em;
+            line-height: 1.2em;
+            vertical-align: super;
+        }
+
+        .medium-bottom {
             font-size: 2em;
             line-height: 1.2em;
         }
 
         .large-size {
             font-size: 3em;
-        }
-
-        .small-size-undercase {
-            font-size: 1em;
-            line-height: 1.4em;
-        }
-
-        .medium-size-undercase {
-            font-size: 2em;
-            line-height: 0.85em;
-        }
-
-        .large-size-undercase {
-            font-size: 3em;
-            line-height: 0.65em;
         }
 
         // In widget mode, don't display this.

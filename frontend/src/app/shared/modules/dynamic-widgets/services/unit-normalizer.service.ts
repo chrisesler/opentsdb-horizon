@@ -117,6 +117,7 @@ export class UnitNormalizerService {
       // Currency
       case 'usd':
         bigNum = this.formatNumberWithDim(this.short(val), precision, '$');
+        bigNum.unit = '$';
         bigNum.unitPos = Position.left;
         bigNum.changeIndicatorHasUnit = false;
         break;
