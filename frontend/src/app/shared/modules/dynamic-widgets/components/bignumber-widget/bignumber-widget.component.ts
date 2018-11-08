@@ -57,38 +57,7 @@ export class BignumberWidgetComponent implements OnInit {
 
     ngOnInit() {
 
-        // TODO: Remove
-        if (!this.widget.query.settings.visual) {
-            let bigNumberVisual: IBigNumberVisual = {
-                queryID: '0',
-
-                prefix: '',
-                prefixSize: 's', // s m l
-                prefixAlignment: 'top', // top middle bottom
-
-                widgetWidth: 420, // only needed when first loading widget
-                widgetHeight: 160, // only needed when first loading widget
-                fontSizePercent: 200, // only needed when first loading widget
-
-                postfix: '',
-                postfixSize: 's',
-                postfixAlignment: 'top',
-
-                unit: 'ms', // auto
-                unitSize: 'm',
-                unitAlignment: 'top',
-
-                caption: 'Latency',
-                precision: 3,
-
-                textColor: '#ffffff',
-                backgroundColor: '#400080',
-
-                sparkLineEnabled: false,
-                changedIndicatorEnabled: false,
-            };
-            this.widget.query.settings.visual = bigNumberVisual;
-        }
+        this.setDefaultVisualization();
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
 
@@ -133,9 +102,11 @@ export class BignumberWidgetComponent implements OnInit {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                         this.isDataLoaded = true;
-                        const gid = Object.keys(message.payload.rawdata)[0];
-                        this.metrics = gid !== 'error' ? message.payload.rawdata[gid].results : [];
-                        this.setBigNumber(this.widget.query.settings.visual.queryID);
+                        if (message && message.payload && message.payload.rawdata) {
+                            const gid = Object.keys(message.payload.rawdata)[0];
+                            this.metrics = gid !== 'error' ? message.payload.rawdata[gid].results : [];
+                            this.setBigNumber(this.widget.query.settings.visual.queryID);
+                        }
                         break;
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);
@@ -169,51 +140,44 @@ export class BignumberWidgetComponent implements OnInit {
 
     setBigNumber(queryId: string) {
         let metric = this.getMetric(queryId);
-
-        if (!metric) {
-            this.bigNumber = 0;
-            this.changeIndicatorCompareValue = 0;
-            this.tags = null;
-            this.selectedMetric.metric = '';
-            this.widget.query.settings.visual.prefix = '';
-            this.widget.query.settings.visual.postfix = '';
-            this.widget.query.settings.visual.unit = '';
-            this.widget.query.settings.visual.caption = '';
-            this.widget.query.settings.visual.sparkLineEnabled = false;
-            this.widget.query.settings.visual.changedIndicatorEnabled = false;
-            return;
-        }
-
         let queryIndex = parseInt(queryId, 10);
-
         let currentValue: number = 0;
         let lastValue: number = 0;
 
-        const aggs = metric.NumericSummaryType.aggregations;
-        const key = Object.keys(metric.NumericSummaryType.data[0])[0];
-        const aggData = metric.NumericSummaryType.data[0][key];
+        if (metric && metric.NumericSummaryType) {
 
-        const aggrIndex = aggs.indexOf(this.widget.query.groups[0].queries[queryIndex].settings.visual.aggregator);
-        const aggregateValue =  aggData[aggrIndex];
+            const aggs = metric.NumericSummaryType.aggregations;
+            const key = Object.keys(metric.NumericSummaryType.data[0])[0];
+            const aggData = metric.NumericSummaryType.data[0][key];
 
-        lastValue = aggData[aggs.indexOf('first')];
-        currentValue = aggData[aggs.indexOf('last')];
+            const aggrIndex = aggs.indexOf(this.widget.query.groups[0].queries[queryIndex].settings.visual.aggregator);
+            const aggregateValue =  aggData[aggrIndex];
 
-        // SET LOCAL VARIABLES
-        this.bigNumber = aggregateValue;
-        this.changeIndicatorCompareValue = currentValue - lastValue;
-        this.selectedMetric = metric;
+            lastValue = aggData[aggs.indexOf('first')];
+            currentValue = aggData[aggs.indexOf('last')];
 
-        // get array of 'tags'
-        if (metric['tags']) {
-            this.tags = this.transform(metric['tags']);
+            // SET LOCAL VARIABLES
+            this.bigNumber = aggregateValue;
+            this.changeIndicatorCompareValue = currentValue - lastValue;
+            this.selectedMetric = metric;
+
+            // get array of 'tags'
+            if (metric['tags']) {
+                this.tags = this.transform(metric['tags']);
+            } else {
+                this.tags = null;
+            }
+
+            this.fontSizePercent = this.calcFontSizePercent(this.widget.query.settings.visual['fontSizePercent'],
+                this.widget.query.settings.visual['widgetWidth'], this.widget.query.settings.visual['widgetHeight'],
+                this.widgetWidth, this.widgetHeight);
         } else {
+            this.selectedMetric = {};
+            this.selectedMetric.metric = '';
+            this.bigNumber = 0;
+            this.changeIndicatorCompareValue = 0;
             this.tags = null;
         }
-
-        this.fontSizePercent = this.calcFontSizePercent(this.widget.query.settings.visual['fontSizePercent'],
-            this.widget.query.settings.visual['widgetWidth'], this.widget.query.settings.visual['widgetHeight'],
-            this.widgetWidth, this.widgetHeight);
     }
 
    requestData() {
@@ -326,7 +290,6 @@ export class BignumberWidgetComponent implements OnInit {
         if (!this.widget.query.settings.visual.queryID) {
             this.setSelectedQuery('0');
         }
-
     }
 
     addNewGroup() {
@@ -343,7 +306,7 @@ export class BignumberWidgetComponent implements OnInit {
     }
 
     setVisualization( vconfigs ) {
-        this.widget.query.settings.visual = vconfigs;
+        this.widget.query.settings.visual = { ...vconfigs};
         // mconfigs.forEach( (config, i) => {
         //     // tslint:disable-next-line:max-line-length
         //     this.widget.query.groups[0].queries[i].settings.visual = { ...this.widget.query.groups[0].queries[i].settings.visual, ...config };
@@ -381,7 +344,6 @@ export class BignumberWidgetComponent implements OnInit {
         } else if (index < selectedQueryIndex) { // shift index by 1 if deleting before selected query
             this.widget.query.settings.visual.queryID = (selectedQueryIndex - 1).toString();
         }
-
         this.widget.query.groups[gIndex].queries.splice(index, 1);
 
         const source = 'summarizer:m' + index;
@@ -416,6 +378,37 @@ export class BignumberWidgetComponent implements OnInit {
         } else {
             this.requestCachedData();
         }
+    }
+
+    applyConfig() {
+        const cloneWidget = { ...this.widget };
+        cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
+        this.interCom.requestSend({
+            action: 'updateWidgetConfig',
+            payload: cloneWidget
+        });
+        this.closeViewEditMode();
+    }
+
+    setDefaultVisualization() {
+        this.widget.query.settings.visual.prefix = this.widget.query.settings.visual.prefix || '';
+        this.widget.query.settings.visual.postfix = this.widget.query.settings.visual.postfix || '';
+        this.widget.query.settings.visual.unit = this.widget.query.settings.visual.unit || '';
+
+        this.widget.query.settings.visual.prefixAlignment = this.widget.query.settings.visual.prefixAlignment || 'bottom';
+        this.widget.query.settings.visual.postfixAlignment = this.widget.query.settings.visual.postfixAlignment || 'bottom';
+        this.widget.query.settings.visual.unitAlignment = this.widget.query.settings.visual.unitAlignment || 'bottom';
+
+        this.widget.query.settings.visual.prefixSize = this.widget.query.settings.visual.prefixSize || 's';
+        this.widget.query.settings.visual.postfixSize = this.widget.query.settings.visual.postfixSize || 's';
+        this.widget.query.settings.visual.unitSize = this.widget.query.settings.visual.unitSize || 's';
+
+        this.widget.query.settings.visual.caption = this.widget.query.settings.visual.caption || '';
+        this.widget.query.settings.visual.precision = this.widget.query.settings.visual.precision || '';
+        this.widget.query.settings.visual.backgroundColor = this.widget.query.settings.visual.backgroundColor || '#0B5ED2';
+        this.widget.query.settings.visual.textColor = this.widget.query.settings.visual.textColor || '#FFFFFF';
+        this.widget.query.settings.visual.sparkLineEnabled = this.widget.query.settings.visual.sparkLineEnabled || false;
+        this.widget.query.settings.visual.changedIndicatorEnabled = this.widget.query.settings.visual.changedIndicatorEnabled || false;
     }
 
 }
