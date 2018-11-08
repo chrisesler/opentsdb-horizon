@@ -20,7 +20,6 @@ import { DBState, DBSettingsState, WidgetsState, ClientSizeState,
 // components
 import { DashboardComponent } from './containers/dashboard/dashboard.component';
 import { DboardContentComponent } from './components/dboard-content/dboard-content.component';
-import { DboardHeaderComponent } from './components/dboard-header/dboard-header.component';
 import { WidgetLoaderComponent } from './components/widget-loader/widget-loader.component';
 import { ConfigTagsListComponent } from './components/config-tags-list/config-tags-list.component';
 
@@ -67,7 +66,6 @@ import { WidgetDeleteDialogComponent } from './components/widget-delete-dialog/w
     declarations: [
         DashboardComponent,
         DboardContentComponent,
-        DboardHeaderComponent,
         WidgetLoaderComponent,
         WidgetDirective,
         WidgetViewDirective,

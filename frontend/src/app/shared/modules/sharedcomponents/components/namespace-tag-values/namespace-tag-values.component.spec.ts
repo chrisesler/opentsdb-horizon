@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DboardHeaderComponent } from './dboard-header.component';
+import { NamespaceTagValuesComponent } from './namespace-tag-values.component';
 
-describe('DboardHeaderComponent', () => {
-  let component: DboardHeaderComponent;
-  let fixture: ComponentFixture<DboardHeaderComponent>;
+describe('NamespaceTagValuesComponent', () => {
+  let component: NamespaceTagValuesComponent;
+  let fixture: ComponentFixture<NamespaceTagValuesComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DboardHeaderComponent ]
+      declarations: [ NamespaceTagValuesComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DboardHeaderComponent);
+    fixture = TestBed.createComponent(NamespaceTagValuesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
