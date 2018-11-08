@@ -46,6 +46,7 @@ import { SimpleDashboardListComponent } from './components/simple-dashboard-list
 import { InlineQueryEditorComponent } from './components/inline-query-editor/inline-query-editor.component';
 import { NamespaceAutocompleteComponent } from './components/namespace-autocomplete/namespace-autocomplete.component';
 import { NamespaceTagAutocompleteComponent } from './components/namespace-tag-autocomplete/namespace-tag-autocomplete.component';
+import { NamespaceTagValuesComponent } from './components/namespace-tag-values/namespace-tag-values.component';
 
 @NgModule({
     imports: [
@@ -89,6 +90,7 @@ import { NamespaceTagAutocompleteComponent } from './components/namespace-tag-au
         InlineQueryEditorComponent,
         NamespaceAutocompleteComponent,
         NamespaceTagAutocompleteComponent,
+        NamespaceTagValuesComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
