@@ -1,0 +1,53 @@
+<generic-message-bar></generic-message-bar>
+<div class="app-shell-wrapper" fxLayout="column" fxFlexFill>
+    <!-- topmost navigation bar of the application -->
+    <app-navbar fxFlex="1 1 48px" fxLayout fxLayoutAlign="stretch stretch" fxFlexFill></app-navbar>
+    <mat-sidenav-container class="app-navigator" fxFlex="1 1 100%" hasBackdrop="false">
+        <!-- the sidebar nav that slides out from left -->
+        <mat-sidenav class="app-navigator-sidenav"
+            [fixedInViewport]="true" 
+            [fixedTopGap]="48"
+            mode="push" 
+            opened
+            disableClose
+            #sidenav>
+            <mat-nav-list>
+                <ng-container *ngFor="let nav of navItems">
+                    <a mat-list-item (click)="navigationAction(nav)" [ngClass]="{'is-active': activeNav.section === nav.section}">
+                        <mat-icon fontSet="denali" [fontIcon]="nav.icon"></mat-icon>
+                        <span class="nav-label">{{nav.label}}</span>
+                    </a>
+                    <span class="flex-spacer" *ngIf="nav.spacerAfter"></span>
+                </ng-container>
+            </mat-nav-list>
+        </mat-sidenav>
+        <!-- where the rest of the app gets output -->
+        <mat-sidenav-content class="app-navigator-output" fxFlex="1 1 100%" fxLayout fxLayoutAlign="stretch stretch">
+            <mat-drawer-container class="app-navigator-outlet-container" fxFlex="1 1 100%">
+                <mat-drawer class="app-navigator-drawer"
+                    (closedStart)="drawerClosedStart()"
+                    [mode]="drawerMode"
+                    [autoFocus]="false"
+                    #drawer>
+                    <!-- DRAWER CONTENTS -->
+                    <dashboard-navigator 
+                        *ngIf="activeNav.section === 'dashboard'"
+                        [activeNav]="activeNav"
+                        [drawerMode]="drawerMode"
+                        (toggleDrawer)="toggleDrawerMode($event)"
+                        ></dashboard-navigator>
+                    <test-navigator 
+                        *ngIf="activeNav.section === 'test'"
+                        [activeNav]="activeNav"
+                        [drawerMode]="drawerMode"
+                        (toggleDrawer)="toggleDrawerMode($event)"
+                        ></test-navigator>
+                </mat-drawer>
+                <mat-drawer-content class="router-outlet" fxLayout="column" fxFlex="1 1 100%">
+                    <!-- THE ENTIRE APP CONTENT FLOWS THROUGH HERE -->
+                    <ng-content></ng-content>
+                </mat-drawer-content>
+            </mat-drawer-container>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+</div>
