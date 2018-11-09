@@ -1,0 +1,12 @@
+<h3 class="mat-h3">{{activeNav.section}}</h3>
+
+<div>
+    <strong>ActiveNav:</strong><br />
+    <pre>
+        <code>{{activeNav | json}}</code>
+    </pre>
+</div>
+<div>
+    <strong>Drawer Mode:</strong> <span>{{drawerMode}}</span><br />
+    <button mat-flat-button color="primary" (click)="toggleDrawerMode()">Toggle Mode</button>
+</div>
