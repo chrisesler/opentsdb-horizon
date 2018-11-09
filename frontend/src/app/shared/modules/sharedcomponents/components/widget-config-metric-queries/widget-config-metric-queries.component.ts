@@ -59,7 +59,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
     namespace = '';
     showNewQueryEditor = false;
-    newId = '';
+    newQueryId = '';
     selectAllToggle: String = 'none'; // none/all/some
 
     constructor(
@@ -86,7 +86,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                             }
                         };
         query.id = this.util.generateId(3);
-        this.newId = query.id;
+        this.newQueryId = query.id;
         gconfig.queries.push(query);
         this.showNewQueryEditor = false;
         console.log("addNewQuery:::namepsace...", namespace, gid, gconfig);
@@ -169,6 +169,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         // });
         // getting data passing out from dialog
         this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
+            this.newQueryId = '';
             this.modGroup = dialog_out.mgroup;
             this.widgetChange.emit({action: 'AddMetricsToGroup', payload: { data: this.modGroup }});
             console.log('return', this.modGroup);
@@ -312,9 +313,13 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         // do something
     }
 
-    toggleGroupQuery(gIndex, index) {
+    toggleGroupQuery(gIndex, qid) {
         console.log('TOGGLE QUERY ITEM VISIBILITY');
-        this.widgetChange.emit( {'action': 'ToggleGroupQuery', payload: { gIndex: gIndex, index: index }});
+        const queries = this.widget.query.groups[gIndex].queries;
+        const index = queries.findIndex(query => query.id === qid );
+        if ( index !== -1 ) {
+            this.widgetChange.emit( {'action': 'ToggleGroupQuery', payload: { gIndex: gIndex, index: index }});
+        }
     }
 
     cloneQuery(item: any, event: MouseEvent) {
@@ -323,11 +328,14 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         // do something
     }
 
-    deleteGroupQuery(gIndex, index) {
-        console.log('DELETE QUERY ITEM ', index);
+    deleteGroupQuery(gIndex, qid) {
+        console.log('DELETE QUERY ITEM ', qid);
+        const queries = this.widget.query.groups[gIndex].queries;
+        const index = queries.findIndex(query => query.id === qid );
         if ( this.widget.query.groups[gIndex].queries.length === 1 && index === 0 ) {
-            this.deleteGroup(gIndex);
-        } else {
+            // this.deleteGroup(gIndex);
+        }
+        if ( index !== -1 ) {
             this.widgetChange.emit( {'action': 'DeleteGroupQuery', payload: { gIndex: gIndex, index: index }});
         }
     }
