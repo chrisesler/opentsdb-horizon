@@ -6,7 +6,17 @@
 <div class="metric-tags" *ngIf="namespace">
     <span><strong>Tags:</strong></span>
     <mat-chip-list>
-        <mat-basic-chip *ngFor="let tag of Object.keys(tags)"><span>{{ tag }}:</span> <span *ngFor="let v of tags[tag]"> {{ v }}</span></mat-basic-chip>
+        <span *ngFor="let tag of Object.keys(tags)">
+            <span>{{ tag }}:</span> 
+            <span *ngFor="let v of tags[tag]" (click)="setEditTagValue( tag, v )" >
+                    <span *ngIf="editTagValue !== tag + ':' + v "> {{ v }}</span>
+                    <span (blur)=showAddTagButton()>
+                        <app-namespace-tag-values *ngIf="editTagValue === tag + ':' + v " [namespace]="namespace" [value]="v" [tagkey]="tag" [tagsSelected]="tags" (tagValueChange)="setTagValue($event, tag)"></app-namespace-tag-values>
+                    </span>
+            </span>
+        </span>
     </mat-chip-list>
-    <namespace-tag-autocomplete [namespace]="namespace" [tagsSelected]="tags" (tagchange)="setTag($event)" *ngIf="showTagButton"></namespace-tag-autocomplete>
+    <namespace-tag-autocomplete [namespace]="namespace" [tagsSelected]="tags" (tagchange)="setTag($event)" *ngIf="showTagControl" (blur)="showAddTagButton()"></namespace-tag-autocomplete>
+    <app-namespace-tag-values [namespace]="namespace" [tagkey]="currentTag" [tagsSelected]="tags" (tagValueChange)="setTagValue($event, currentTag)" *ngIf="showTagValueControl"></app-namespace-tag-values>
+    <button mat-button color="primary" *ngIf="namespace!='' && !showTagControl && !showTagValueControl" (click)="activateTagAutoSuggest()">+</button>
 </div>

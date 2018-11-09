@@ -157,6 +157,8 @@ router.post('/nstagvalues', function(req, res) {
     esclient.getTagValuesByNamespace({
             'namespace': req.body.namespace,
             'tagkey': req.body.tagkey,
+            'metrics': req.body.metrics || [],
+            'tag' : req.body.tags || [],
             'headers': req.headers
         }
     ).then(function(results){
