@@ -1,0 +1,157 @@
+@mixin dashboard-navigator-component-base() {
+    .dashboard-navigator {
+        display: flex;
+        flex: 1;
+
+        &,
+        .mat-list .mat-list-item,
+        .mat-nav-list .mat-list-item  {
+            font-weight: 300;
+            font-size: 12px;
+
+            .path-icon,
+            .folder-icon,
+            .dashboard-icon {
+                margin-right: 8px;
+            }
+        }
+
+        .mat-list,
+        .mat-nav-list {
+            padding-top: 0;
+
+            .mat-list-item {
+                height: 36px;
+            }
+        }
+
+        .mat-icon {
+            height: 12px;
+            width: 12px;
+            font-size: 100%; 
+        }
+
+        .mat-icon-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+
+            .mat-button-wrapper {
+                line-height: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .mat-icon {
+                line-height: 1;
+                width: 24px;
+                height: 24px;
+                font-size: 18px;
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        .panel-header,
+        .folders-header,
+        .dashboards-header,
+        .namespaces-header {
+            display: flex;
+            padding: 0 16px;
+            display: flex;
+            justify-content: stretch;
+            align-items: center;
+            
+            
+            .header-label {
+                text-transform: uppercase;
+                font-weight: 300;
+            }
+        }
+
+        .panel-header {
+            height: 36px;
+            cursor: pointer;
+        }
+
+        .folders-header,
+        .dashboards-header,
+        .namespaces-header {
+            height: 32px;
+            margin-top: 16px;
+        }
+
+        .path-tree {
+            .path-tree-item {
+                .mat-icon {
+                    margin-right: 8px;
+                }
+
+                &.is-active {
+                    font-weight: 400;
+                }
+            }
+
+            @for $i from 1 to 10 {
+                $check: $i - 1;
+                $val: $check * 20px;
+                .leaf-#{$i} {
+                    padding-left: $val;
+                }
+            }
+        }
+        
+
+    }
+}
+
+@mixin dashboard-navigator-component-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+    .dashboard-navigator {
+
+        .navigator-panel-item,
+        .mat-list .mat-list-item,
+        .mat-nav-list .mat-list-item {
+            color: rgba(255,255,255,.5);
+        }
+
+        .mat-list .mat-list-item,
+        .mat-nav-list .mat-list-item {
+            color: rgba(255,255,255,.65);
+
+            .path-icon,
+            .folder-icon,
+            .dashboard-icon {
+                margin-right: 8px;
+                color: rgba(255,255,255,.5);
+            }
+
+            &.is-active {
+                color: rgba(255,255,255,.85);
+            }
+        }
+
+        .mat-nav-list:not(.path-tree) {
+            .mat-list-item:not(:last-child) {
+                border-bottom: 1px solid rgba(255,255,255,.07);
+            }
+        }
+
+        .folders-header,
+        .dashboards-header,
+        .namespaces-header {
+            background-color: rgba(0, 0, 0, .5);
+        }
+
+    }
+}
