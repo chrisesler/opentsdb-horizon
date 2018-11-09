@@ -8,7 +8,7 @@
     <mat-chip-list>
         <span *ngFor="let tag of query.filters">
             <span class="key">{{ tag.tagk }}:</span>
-            <span class="value" (click)="setEditTagValue( tag.tagk, tag.filter )" *ngIf="editTagValue !== tag.tagk + ':' + tag.filter "> {{ tag.filter }}</span>
+            <span class="value" (click)="setEditTagValue( tag.tagk, tag.filter ); $event.stopPropagation()" *ngIf="editTagValue !== tag.tagk + ':' + tag.filter "> {{ tag.filter }}</span>
             <span class="value-control">
                 <app-namespace-tag-values *ngIf="editTagValue === tag.tagk + ':' + tag.filter " [namespace]="namespace" [value]="tag.filter" [tagkey]="tag.tagk" [tagsSelected]="tags" (tagValueChange)="setTagValue($event, tag.tagk)"></app-namespace-tag-values>
             </span>

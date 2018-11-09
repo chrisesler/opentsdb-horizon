@@ -69,12 +69,12 @@
                         </span>
                         <span class="flex-spacer"></span>
                         <span class="toolbar-item add-query-actions">
-                            <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
-                            <span>Add:&nbsp;</span>
-                            <button mat-button color="primary" (click)="openTimeSeriesMetricDialog(group.id); $event.stopPropagation()" >Query</button>
-                            <button mat-button color="primary" (click)="openMetricExpressionDialog(group); $event.stopPropagation()">Expression</button>
+                            <!--<mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>-->
+                            <!--<span>Add:&nbsp;</span>-->
+                            <button mat-button color="primary" (click)="openTimeSeriesMetricDialog(group.id); $event.stopPropagation()" >Query Explorer</button>
+                            <!--<button mat-button color="primary" (click)="openMetricExpressionDialog(group); $event.stopPropagation()">Expression</button>-->
                         </span>
-                        <span class="toolbar-action-icons">
+                        <span class="toolbar-action-icons" *ngIf="group.queries.length">
                             <button mat-icon-button color="primary" (click)="toggleGroup(gIndex); $event.stopPropagation()">
                                 <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="group.settings.visual.visible"></mat-icon>
                                 <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!group.settings.visual.visible"></mat-icon>
@@ -108,20 +108,20 @@
                             
                                     <span class="flex-spacer"></span>
                                     <span class="action-icons">
-                                        <button mat-icon-button color="primary" (click)="toggleGroupQuery(gIndex, index); $event.stopPropagation();">
+                                        <button mat-icon-button color="primary" (click)="toggleGroupQuery(gIndex, query.id); $event.stopPropagation();">
                                             <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
                                             <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
                                         </button>
                                         <!--<button mat-icon-button color="primary" (click)="clone_queryItem(query, $event)">
                                                                     <mat-icon fontSet="denali" fontIcon="d-duplicate" class="mat-icon-rtl-mirror"></mat-icon>
                                                                 </button>-->
-                                        <button mat-icon-button color="primary" (click)="deleteGroupQuery(gIndex, index); $event.stopPropagation();">
+                                        <button mat-icon-button color="primary" (click)="deleteGroupQuery(gIndex, query.id); $event.stopPropagation();">
                                             <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                                         </button>
                                     </span>
                                 </div>
 
-                                <inline-query-editor [namespace]="query.metric.split('.')[0]" [query]="query"  (queryOutput)="updateQuery($event, group.id)"></inline-query-editor>   
+                                <inline-query-editor [namespace]="query.metric.split('.')[0]" [showTag]="query.id === newQueryId " [query]="query"  (queryOutput)="updateQuery($event, group.id)"></inline-query-editor>   
                             </div>                
                 </div>
                 <div class="query-metric-row" *ngIf="!group.queries.length || showNewQueryEditor ">

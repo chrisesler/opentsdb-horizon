@@ -15,7 +15,7 @@ export class InlineQueryEditorComponent implements OnInit, OnChanges {
     @HostBinding('class.inline-query-editor') private _hostClass = true;
     @Input() query: any = { filters: [] };
     @Input() showTag = false;
-    @Input() namespace ='';
+    @Input() namespace = '';
     @Output() queryOutput = new EventEmitter();
     nsTagKeys = [];
     tags: any = [];
@@ -23,7 +23,6 @@ export class InlineQueryEditorComponent implements OnInit, OnChanges {
     showTagControl = false;
     showTagValueControl = false;
     showAddTagBtn = false;
-    showTags = false;
     currentTag = '';
     editTagValue = '';
     Object = Object;
@@ -48,16 +47,11 @@ export class InlineQueryEditorComponent implements OnInit, OnChanges {
             console.log("query", query, this.namespace);
         }
 
-        if ( changes.namespace && changes.namespace.currentValue) {
-            this.setNamespace();
+        if ( changes.showTag && changes.showTag.currentValue) {
+            this.showTagControl = changes.showTag.currentValue;
         }
     }
 
-    setNamespace() {
-        // this.namespace = namespace;
-        this.showTagControl = true;
-        this.showTags = true;
-    }
 
     setTag( tag ) {
 

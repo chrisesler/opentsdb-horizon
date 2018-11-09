@@ -8,6 +8,7 @@ import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
 import { HttpService } from '../../../../../core/http/http.service';
 import { QueryService } from '../../../../../core/services/query.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
+import { UtilsService } from '../../../../../core/services/utils.service';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 
 @Component({
@@ -125,7 +126,8 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         @Inject(MAT_DIALOG_DATA) public dialog_data: any,
         private httpService: HttpService,
         private dataTransformerService: DatatranformerService,
-        private queryService: QueryService
+        private queryService: QueryService,
+        private utils: UtilsService
     ) {
         console.log('passing data', this.dialog_data);
         if (this.dialog_data.mgroupId === undefined) {
@@ -251,7 +253,8 @@ export class SearchMetricsDialogComponent implements OnInit, OnDestroy {
         if (!this.isMetricExit(series)) {
             this.selectedMetrics.push(series);
             // let mf = {...m, metric: this.selectedNamespace + '.' + m.metric };
-            const mf = this.dataTransformerService.buildMetricObject(series);
+            const mf: any = this.dataTransformerService.buildMetricObject(series);
+            mf.id = this.utils.generateId(3);
             this.group.queries.push(mf);
             const widget = {
                                 settings: {
