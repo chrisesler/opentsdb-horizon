@@ -1,8 +1,9 @@
-<div class="namespace">
+<!-- <div class="namespace">
+    <span>Namespace:</span>
     <namespace-autocomplete (nschange)="setNamespace($event)" *ngIf="namespaceEdit" [value]="namespace"></namespace-autocomplete>
     <span (click)="namespaceEdit=true" *ngIf="!namespaceEdit">{{ namespace }}</span>
 </div>
-
+-->
 <div class="metric-tags" *ngIf="namespace">
     <span><strong>Tags:</strong></span>
     <mat-chip-list>
@@ -16,7 +17,23 @@
             </span>
         </span>
     </mat-chip-list>
-    <namespace-tag-autocomplete [namespace]="namespace" [tagsSelected]="tags" (tagchange)="setTag($event)" *ngIf="showTagControl" (blur)="showAddTagButton()"></namespace-tag-autocomplete>
-    <app-namespace-tag-values [namespace]="namespace" [tagkey]="currentTag" [tagsSelected]="tags" (tagValueChange)="setTagValue($event, currentTag)" *ngIf="showTagValueControl"></app-namespace-tag-values>
-    <button mat-button color="primary" *ngIf="namespace!='' && !showTagControl && !showTagValueControl" (click)="activateTagAutoSuggest()">+</button>
+    <namespace-tag-autocomplete [namespace]="namespace" [tagsSelected]="tags" (tagchange)="setTag($event)" *ngIf="showTagButton"></namespace-tag-autocomplete>
 </div>
+
+
+
+
+    <div class="metric-tags">
+        <strong>Tags:</strong>
+        <mat-chip-list>
+            <mat-basic-chip *ngFor="let tag of query.filters"><span>{{ tag.tagk }}:</span> <strong>{{ tag.filter }}</strong></mat-basic-chip>
+        </mat-chip-list>
+    </div>
+    <div class="expression-metrics" *ngIf="query.settings.expanded">
+        <div class="metric" *ngFor="let emetric of query.metrics">
+            <div class="metric-alias">
+                <span>{{ emetric.id }}</span>
+            </div>
+            <div class="metric-label">{{ emetric.metric }}</div>
+        </div>
+    </div>
