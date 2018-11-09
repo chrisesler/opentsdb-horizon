@@ -633,7 +633,22 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     toggleGroupQuery(gIndex, index) {
-        this.widget.query.groups[gIndex].queries[index].settings.visual.visible = !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+        // toggle the individual query
+        this.widget.query.groups[gIndex].queries[index].settings.visual.visible =
+            !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+
+        // set the group to visible if the individual query is visible
+        if (this.widget.query.groups[gIndex].queries[index].settings.visual.visible) {
+            this.widget.query.groups[gIndex].settings.visual.visible = true;
+        } else { // set the group to invisible if all queries are invisible
+            this.widget.query.groups[gIndex].settings.visual.visible = false;
+            for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
+                if (this.widget.query.groups[gIndex].queries[i].settings.visual.visible) {
+                    this.widget.query.groups[gIndex].settings.visual.visible = true;
+                    break;
+                }
+            }
+        }
         this.refreshData(false);
     }
 

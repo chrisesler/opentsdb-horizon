@@ -18,7 +18,7 @@ export class BarchartConfigMetricQueriesComponent implements OnInit, OnChanges, 
 
     /** Inputs */
     @Input() widget: any;
- 
+
     /** Outputs */
     @Output() widgetChange = new EventEmitter;
 
@@ -43,6 +43,7 @@ export class BarchartConfigMetricQueriesComponent implements OnInit, OnChanges, 
         'all': 'check_box',
         'some': 'indeterminate_check_box'
     };
+    selectAllToggle: String = 'none'; // none/all/some
 
 
     constructor(public dialog: MatDialog) { }
@@ -100,8 +101,12 @@ export class BarchartConfigMetricQueriesComponent implements OnInit, OnChanges, 
         this.widgetChange.emit( {'action': 'DeleteGroupQuery', payload: { gIndex: 0, index: index }});
     }
 
-    toggleQuery( index ) {
-        this.widgetChange.emit( {'action': 'ToggleGroupQuery', payload: { gIndex: 0, index: index }});
+    toggleQuery( gIndex, index ) {
+        this.widgetChange.emit( {'action': 'ToggleGroupQuery', payload: { gIndex: gIndex, index: index }});
+    }
+
+    toggleGroup ( gIndex, index ) {
+        this.widgetChange.emit( {'action': 'ToggleGroup', payload: { gIndex: gIndex }});
     }
 
     ngOnDestroy() {
