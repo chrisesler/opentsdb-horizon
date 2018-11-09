@@ -1,9 +1,0 @@
-<!-- Navbar Theme -->
-<mat-toolbar fxFlex="1 1 100%">
-    <mat-toolbar-row fxLayout fxLayoutAlign="start stretch">
-        <button mat-button class="app-home-link" (click)="toggleSidenav()">
-            <img src="/assets/yamas-logo-icon-only.png"  class="app-yamas-logo"/>
-        </button>
-        <ng-container [cdkPortalOutlet]="cdkService.navbarPortal$ | async"></ng-container>
-    </mat-toolbar-row>
-</mat-toolbar>
