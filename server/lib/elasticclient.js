@@ -806,7 +806,7 @@ module.exports = function () {
                                 "elasticQueryResults": {
                                     "terms": {
                                         "field": "tags.value.raw",
-                                        "size": 10000
+                                        "size": 1000
                                     }
                                 }
                             }
