@@ -1,5 +1,8 @@
 <mat-form-field appearance="fill" [color]="'primary'" floatLabel="never">
-        <input type="text" #tagInput matInput placeholder="Tag" [formControl]="tagControl" [matAutocomplete]="tagAuto" (keydown.enter)="tagKeydown($event)">
+        <input type="text" #tagInput matInput placeholder="Tag" 
+                [formControl]="tagControl" [matAutocomplete]="tagAuto" 
+                (keydown.enter)="tagKeydown($event)"
+                (blur)="handleBlur($event)">
     </mat-form-field>
     <mat-autocomplete #tagAuto="matAutocomplete" (optionSelected)="tagSelected($event)">
         <mat-option *ngFor="let option of filteredTagOptions | async" [value]="option">

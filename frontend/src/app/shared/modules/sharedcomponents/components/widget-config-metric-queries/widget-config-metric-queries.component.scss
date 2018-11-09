@@ -138,7 +138,7 @@
             // group metric row wrapper - contains checkbox, then metric item details
             .query-metric-row {
                 display: flex;
-                justify-content: center;
+                justify-content: flex-start;
                 padding-left: 43px;
             }
 

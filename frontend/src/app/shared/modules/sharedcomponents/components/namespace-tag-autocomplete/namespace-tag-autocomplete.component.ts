@@ -25,6 +25,7 @@ export class NamespaceTagAutocompleteComponent implements OnInit, OnChanges {
     @Input() namespace;
     @Input() tagsSelected: any = {};
     @Output() tagchange = new EventEmitter();
+    @Output() blur = new EventEmitter();
     filteredTagOptions: Observable<string[]>;
     tagControl: FormControl;
     tags = [];
@@ -42,7 +43,7 @@ export class NamespaceTagAutocompleteComponent implements OnInit, OnChanges {
 
         if ( changes.tagsSelected  && this.tagControl ) {
             console.log(" tag value on changes" , changes.tagsSelected);
-            this.tagControl.setValue(this.value);
+            // this.tagControl.setValue(this.tagvalue);
             this.tagInput.nativeElement.focus();
             this.showAutosuggest();
         }
@@ -61,7 +62,13 @@ export class NamespaceTagAutocompleteComponent implements OnInit, OnChanges {
         }
 
         this.httpService.getNamespaceTagKeys(query).subscribe(tags => {
-            this.tags = tags;
+            if ( tags && tags.length ) {
+                this.tags = tags;
+            }
+            this.tags.unshift('metric');
+
+            const tagsSelected = Object.keys(this.tagsSelected);
+            this.tags = this.tags.filter( tag => tagsSelected.indexOf(tag) === -1 );
             console.log("___setTags___", tags);
             this.filteredTagOptions = this.tagControl.valueChanges
                                                         .pipe(
@@ -84,5 +91,11 @@ export class NamespaceTagAutocompleteComponent implements OnInit, OnChanges {
      */
     tagSelected(event: any) {
         this.tagchange.emit( event.option.value );
+    }
+
+    handleBlur(e) {
+        setTimeout(() => {
+            this.blur.emit(e);
+        }, 3000);
     }
 }

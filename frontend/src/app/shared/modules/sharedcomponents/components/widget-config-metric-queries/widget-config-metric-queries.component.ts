@@ -57,6 +57,9 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         'some': 'indeterminate_check_box'
     };
 
+    namespace = '';
+    showNewQueryEditor = false;
+    newId = '';
     selectAllToggle: String = 'none'; // none/all/some
 
     constructor(
@@ -69,6 +72,26 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         console.log('editting widget', this.widget);
     }
 
+    newQuery() {
+        this.namespace = '';
+        this.showNewQueryEditor = true;
+    }
+    addNewQuery(namespace, gid) {
+        const gconfig = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        const query: any = { metric: namespace , filters: [] };
+        query.settings = {
+                            visual: {
+                                visible: true,
+                                color: '#000000'
+                            }
+                        };
+        query.id = this.util.generateId(3);
+        this.newId = query.id;
+        gconfig.queries.push(query);
+        this.showNewQueryEditor = false;
+        console.log("addNewQuery:::namepsace...", namespace, gid, gconfig);
+    }
+
     ngOnChanges(changes: SimpleChanges) {
         // when editing mode is loaded, we need to temporary adding default UI state
         // to editing widget
@@ -76,6 +99,12 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             this.addRemoveTempUIState(true, changes.widget.currentValue);
         }
 
+    }
+
+    updateQuery(query, gid) {
+        console.log("widget-query :: updateQuery, query, gid", query, gid);
+        const payload = { action: 'UpdateQuery', payload: { gid: gid, query: query } };
+        this.widgetChange.emit(payload);
     }
 
     // to add or remove the local tempUI state

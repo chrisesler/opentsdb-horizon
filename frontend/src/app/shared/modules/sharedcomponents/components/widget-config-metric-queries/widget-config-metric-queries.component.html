@@ -92,7 +92,7 @@
                 <div class="query-metric-row" *ngFor="let query of group.queries; let index=index">
                         <div class="query-metric-item">
                                 <div class="metric-detail">
-                                    <span class="detail-item" *ngIf="query.metric">{{ query.metric }}</span>
+                                    <span class="detail-item" *ngIf="query.metric">{{ query.metric.split('.')[0] }}</span>
                             
                                     <span class="expression" *ngIf="query.expression">
                                         <span class="expression-collapse">
@@ -121,8 +121,14 @@
                                     </span>
                                 </div>
 
-                                <inline-query-editor [query]="query"></inline-query-editor>   
+                                <inline-query-editor [namespace]="query.metric.split('.')[0]" [query]="query"  (queryOutput)="updateQuery($event, group.id)"></inline-query-editor>   
                             </div>                
+                </div>
+                <div class="query-metric-row" *ngIf="!group.queries.length || showNewQueryEditor ">
+                        <namespace-autocomplete (nschange)="addNewQuery($event, group.id)"></namespace-autocomplete>
+                </div>
+                <div class="query-metric-row" *ngIf="group.queries.length" style="margin-top:25p;">
+                        <button  mat-button  mat-primary color="primary"  (click)="newQuery()">Add Query</button>
                 </div>
             </mat-expansion-panel>
         </mat-accordion>

@@ -501,19 +501,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if ( group.queries.length ) {
                 // override with dashboard filters
                 let queries  = JSON.parse(JSON.stringify(group.queries));
-                let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
-                // get only enabled filters
-                overrideFilters = overrideFilters.filter( d => d.enabled );
-                queries = overrideFilters.length ? this.dbService.overrideQueryFilters(queries, overrideFilters) : queries;
-                const query = this.queryService.buildQuery(payload, dt, queries);
-                console.log('the group query', queries, query);
-                const gquery = {
-                    wid: message.id,
-                    gid: groupid,
-                    query: query
-                };
-                // now dispatch request
-                this.store.dispatch(new GetQueryDataByGroup(gquery));
+                queries = this.dbService.filterQueries(queries);
+                console.log('the group query', queries);
+                if ( queries.length ) {
+                    let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
+                    // get only enabled filters
+                    overrideFilters = overrideFilters.filter( d => d.enabled );
+                    queries = overrideFilters.length ? this.dbService.overrideQueryFilters(queries, overrideFilters) : queries;
+                    const query = this.queryService.buildQuery(payload, dt, queries);
+                    console.log('the group query', queries, JSON.stringify(query));
+                    const gquery = {
+                        wid: message.id,
+                        gid: groupid,
+                        query: query
+                    };
+                    // now dispatch request
+                    this.store.dispatch(new GetQueryDataByGroup(gquery));
+                }
             }
         }
     }

@@ -18,6 +18,21 @@
                 font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
             }
 
+            .key {
+                margin-right: 3px;
+                font-weight: 500;
+            }
+
+            .value {
+                padding: 3px;
+                margin-right: 6px;
+                cursor: pointer;
+            }
+
+            .value-control {
+                margin-right: 8x;
+            }
+
             .mat-chip-list {
                 margin-left: 10px;
             }
@@ -34,8 +49,12 @@
             }
             
         }
-        button {
-            padding : 2px;
+
+        .mat-stroked-button.mat-primary {
+
+            color: #227aec;
+            min-width: 40px;
+            line-height: 25px;
         }
     }
 }
