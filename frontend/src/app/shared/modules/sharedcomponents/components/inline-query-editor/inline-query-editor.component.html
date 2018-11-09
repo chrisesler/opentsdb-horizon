@@ -1,39 +1,29 @@
-<!-- <div class="namespace">
+<!--<div class="namespace">
     <span>Namespace:</span>
     <namespace-autocomplete (nschange)="setNamespace($event)" *ngIf="namespaceEdit" [value]="namespace"></namespace-autocomplete>
     <span (click)="namespaceEdit=true" *ngIf="!namespaceEdit">{{ namespace }}</span>
-</div>
--->
-<div class="metric-tags" *ngIf="namespace">
+</div>-->
+<div class="metric-tags">
     <span><strong>Tags:</strong></span>
     <mat-chip-list>
-        <span *ngFor="let tag of Object.keys(tags)">
-            <span>{{ tag }}:</span> 
-            <span *ngFor="let v of tags[tag]" (click)="setEditTagValue( tag, v )" >
-                    <span *ngIf="editTagValue !== tag + ':' + v "> {{ v }}</span>
-                    <span (blur)=showAddTagButton()>
-                        <app-namespace-tag-values *ngIf="editTagValue === tag + ':' + v " [namespace]="namespace" [value]="v" [tagkey]="tag" [tagsSelected]="tags" (tagValueChange)="setTagValue($event, tag)"></app-namespace-tag-values>
-                    </span>
+        <span *ngFor="let tag of query.filters">
+            <span class="key">{{ tag.tagk }}:</span>
+            <span class="value" (click)="setEditTagValue( tag.tagk, tag.filter )" *ngIf="editTagValue !== tag.tagk + ':' + tag.filter "> {{ tag.filter }}</span>
+            <span class="value-control">
+                <app-namespace-tag-values *ngIf="editTagValue === tag.tagk + ':' + tag.filter " [namespace]="namespace" [value]="tag.filter" [tagkey]="tag.tagk" [tagsSelected]="tags" (tagValueChange)="setTagValue($event, tag.tagk)"></app-namespace-tag-values>
             </span>
         </span>
     </mat-chip-list>
-    <namespace-tag-autocomplete [namespace]="namespace" [tagsSelected]="tags" (tagchange)="setTag($event)" *ngIf="showTagButton"></namespace-tag-autocomplete>
+    <namespace-tag-autocomplete [namespace]="namespace"  [tagsSelected]="tags" (tagchange)="setTag($event)" *ngIf="showTagControl" (blur)="showAddTagButton()"></namespace-tag-autocomplete>
+
+    <app-namespace-tag-values [namespace]="namespace" [tagkey]="currentTag" [tagsSelected]="tags" *ngIf="showTagValueControl" (tagValueChange)="setTagValue($event, currentTag)" (blur)="setTagDefaultValue()"></app-namespace-tag-values>
+    <button mat-button mat-stroked-button mat-primary color="primary" *ngIf="namespace!='' && !showTagControl && !showTagValueControl" (click)="activateTagAutoSuggest()">+</button>
 </div>
-
-
-
-
-    <div class="metric-tags">
-        <strong>Tags:</strong>
-        <mat-chip-list>
-            <mat-basic-chip *ngFor="let tag of query.filters"><span>{{ tag.tagk }}:</span> <strong>{{ tag.filter }}</strong></mat-basic-chip>
-        </mat-chip-list>
-    </div>
-    <div class="expression-metrics" *ngIf="query.settings.expanded">
+<div class="expression-metrics" *ngIf="query.settings && query.settings.expanded">
         <div class="metric" *ngFor="let emetric of query.metrics">
             <div class="metric-alias">
                 <span>{{ emetric.id }}</span>
             </div>
             <div class="metric-label">{{ emetric.metric }}</div>
         </div>
-    </div>
+</div>

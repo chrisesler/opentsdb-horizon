@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import multiColumnGroupPlotter from '../../../../../shared/dygraphs/plotters';
+import { config } from 'rxjs';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -190,10 +191,30 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             case 'DeleteGroup':
                 this.deleteGroup(message.payload.gIndex);
                 break;
+            case 'UpdateQuery':
+                this.updateQuery(message.payload);
+                this.refreshData();
+                break;
             case 'DeleteGroupQuery':
                 this.deleteGroupQuery(message.payload.gIndex, message.payload.index);
                 break;
         }
+    }
+
+    updateQuery( payload ) {
+        console.log("linechart updateQuery", payload);
+        const query = payload.query;
+
+        const gid = payload.gid;
+        const gconfig = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        const qindex = query.id ? gconfig.queries.findIndex(q => q.id === query.id ) : -1;
+        if ( qindex === -1 ) {
+            query.id = this.util.generateId(6);
+            gconfig.queries.push(query);
+        } else {
+            gconfig.queries[qindex] = query;
+        }
+        console.log("line chart updateQuery", gconfig);
     }
 
     addMetricsToGroup(gConfig) {

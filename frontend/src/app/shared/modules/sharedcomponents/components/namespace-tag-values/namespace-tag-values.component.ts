@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, HostBinding, Input, Output, EventEmitter, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnChanges, AfterViewChecked, HostBinding, Input, Output, EventEmitter, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteTrigger } from '@angular/material';
 
@@ -12,7 +12,7 @@ import { HttpService } from '../../../../../core/http/http.service';
   templateUrl: './namespace-tag-values.component.html',
   styleUrls: ['./namespace-tag-values.component.scss']
 })
-export class NamespaceTagValuesComponent implements OnInit, OnChanges {
+export class NamespaceTagValuesComponent implements OnInit, OnChanges, AfterViewChecked {
 
     @HostBinding('class.namespace-tag-autocomplete') private _hostClass = true;
     @ViewChild('tagInput') tagInput: ElementRef;
@@ -24,6 +24,7 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges {
     @Input() tagkey;
     @Input() tagsSelected: any = {};
     @Output() tagValueChange = new EventEmitter();
+    @Output() blur = new EventEmitter();
     filteredTagOptions: Observable<string[]>;
     tagControl: FormControl;
     tags = [];
@@ -60,22 +61,26 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges {
                 }
                 this.filteredTagOptions = this.httpService.getTagValuesByNamespace(query);
             }
+            this.tagInput.nativeElement.focus();
         });
-
     }
 
     ngOnChanges( changes: SimpleChanges) {
         if ( changes.namespace && changes.namespace.currentValue ) {
+            // this.tagInput.nativeElement.focus();
         }
 
-        if ( changes.tagvalue  && this.tagControl ) {
-            // this.tagControl.setValue(this.value);
+        if ( changes.value  && this.tagControl ) {
+            this.tagControl.setValue(this.value);
         }
         if ( changes.tagsSelected  && this.tagControl ) {
             console.log(" tag value on changes" , changes.tagsSelected);
-            //this.tagControl.setValue('');
-            // this.tagInput.nativeElement.focus();
         }
+    }
+
+    ngAfterViewChecked() {
+
+        // this.showAutosuggest();
     }
 
     showAutosuggest() {
@@ -93,6 +98,12 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges {
      */
     tagSelected(event: any) {
         this.tagValueChange.emit( event.option.value );
+    }
+
+    handleBlur(e) {
+        setTimeout(() => {
+            this.blur.emit();
+        }, 3000);
     }
 
 }
