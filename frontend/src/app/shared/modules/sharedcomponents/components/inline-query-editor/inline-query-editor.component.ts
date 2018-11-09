@@ -1,10 +1,9 @@
-import { Component, OnInit, HostBinding } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
 
 import { HttpService } from '../../../../../core/http/http.service';
-
 
 @Component({
   selector: 'inline-query-editor',
@@ -13,6 +12,7 @@ import { HttpService } from '../../../../../core/http/http.service';
 })
 export class InlineQueryEditorComponent implements OnInit {
     @HostBinding('class.inline-query-editor') private _hostClass = true;
+    @Input() query: any;
     nsTagKeys = [];
     tags: any = {};
     namespace;
@@ -20,6 +20,7 @@ export class InlineQueryEditorComponent implements OnInit {
     showTagButton = true;
     showTags = false;
     Object = Object;
+
     constructor( private httpService: HttpService ) { }
 
     ngOnInit() {
