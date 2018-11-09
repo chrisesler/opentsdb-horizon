@@ -1,0 +1,40 @@
+// [ STEP 1 ] - IMPORT MODULE COMPONENT SCSS FILES
+// import your component scss
+// example: @import './components/componentName/componentName.component.scss';
+
+// containers
+@import './containers/app-shell/app-shell.component';
+
+// components
+@import './components/app-navbar/app-navbar.component';
+@import './components/navigator-panel/navigator-panel.component';
+@import './components/dashboard-navigator/dashboard-navigator.component';
+
+
+$navbar-config: (
+    'navbar-height': 48px,
+    'logo-height': 32px
+);
+
+// [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
+@mixin app-shell-module-core() {
+    // include your core mixins
+    // example: @include componentName-component-core();
+    @include app-shell-component-base();
+
+    @include app-navbar-component-base();
+    @include navigator-panel-component-base();
+    @include dashboard-navigator-component-base();
+}
+
+// [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
+@mixin app-shell-module-theme($theme-config) {
+    // include your theme mixins, passing along the $theme-config
+    // example: @include componentName-component-theme($theme-config);
+
+    @include app-shell-component-theme($theme-config);
+
+    @include app-navbar-component-theme($theme-config);
+    @include navigator-panel-component-theme($theme-config);
+    @include dashboard-navigator-component-theme($theme-config);
+}
