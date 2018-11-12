@@ -79,17 +79,25 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     addNewQuery(namespace, gid) {
         const gconfig = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
         const query: any = { metric: namespace , filters: [] };
-        query.settings = {
-                            visual: {
-                                visible: true,
-                                color: '#000000'
-                            }
-                        };
+        switch (this.widget.settings.component_type) {
+            case 'LinechartWidgetComponent':
+                query.settings = {
+                                    visual: {
+                                        visible: true,
+                                        color: '#000000',
+                                        type: 'line',
+                                        lineWeight: '1px',
+                                        lineType: 'solid',
+                                        label: ''
+                                    }
+                                };
+                break;
+        }
         query.id = this.util.generateId(3);
         this.newQueryId = query.id;
         gconfig.queries.push(query);
         this.showNewQueryEditor = false;
-        console.log("addNewQuery:::namepsace...", namespace, gid, gconfig);
+        console.log("addNewQuery:::namepsace...", namespace, gid, gconfig, this.widget);
     }
 
     ngOnChanges(changes: SimpleChanges) {
