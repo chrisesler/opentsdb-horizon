@@ -27,7 +27,8 @@ export class DashboardNavigatorComponent implements OnInit {
     @HostBinding('class.dashboard-navigator') private _hostClass = true;
     @ViewChild(NavigatorPanelComponent) private navPanel: NavigatorPanelComponent;
 
-    @Input() activeNav: any = {};
+    // tslint:disable-next-line:no-inferrable-types
+    @Input() activeNavSection: string = '';
     @Input() drawerMode: any = 'over';
 
     @Output() toggleDrawer: EventEmitter<any> = new EventEmitter();
@@ -109,6 +110,12 @@ export class DashboardNavigatorComponent implements OnInit {
         });
     }
 
+    closeDrawer() {
+        this.toggleDrawer.emit({
+            closeNavigator: true
+        });
+    }
+
     /**
      * navtoPanelFolder
      * pushes folder object to panels,
@@ -187,7 +194,15 @@ export class DashboardNavigatorComponent implements OnInit {
     }
 
     editFoldersIn(idx: number) {
-        // create a folder in the index item
+        // edit folder(s) in the index item
+    }
+
+    createDashboardIn(idx: number) {
+        // create a dashboard in the indicated folder
+    }
+
+    editDashboardsIn(idx: number) {
+        // edit dashboard(s) in the indicated folder
     }
 
     // NOTE: may not need this anymore

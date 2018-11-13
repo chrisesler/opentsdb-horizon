@@ -6,6 +6,10 @@
                     <mat-icon fontSet="denali" fontIcon="d-arrowhead-left"></mat-icon>
                 </button>
                 <strong class="header-label">Dashboards</strong>
+                <span class="flex-spacer"></span>
+                <button mat-icon-button (click)="closeDrawer()">
+                    <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
+                </button>
             </div>
             <mat-nav-list class="path-tree" *ngIf="panel.name !== 'masterPanel'">
                 <ng-container *ngFor="let leaf of panels; let n = index;">
@@ -40,6 +44,13 @@
             </mat-nav-list>
             <div class="dashboards-header" *ngIf="panel.name !== 'masterPanel'">
                 <span class="header-label">Dashboards</span>
+                <span class="flex-spacer"></span>
+                <button mat-icon-button (click)="createDashboardIn(i)">
+                    <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
+                </button>
+                <button mat-icon-button (click)="editDashboardsIn(i)">
+                    <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                </button>
             </div>
             <mat-nav-list *ngIf="panel.dashboards && panel.dashboards.length > 0">
                 <a mat-list-item href="/d/{{dashboard.id}}" class="dashboard-nav-item"
