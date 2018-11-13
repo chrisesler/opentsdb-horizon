@@ -17,7 +17,7 @@ export class TestNavigatorComponent implements OnInit {
 
     @HostBinding('class.test-navigator') private _hostClass = true;
 
-    @Input() activeNav: any = {};
+    @Input() activeNavSection: any = '';
     @Input() drawerMode: any = 'over';
 
     @Output() toggleDrawer: EventEmitter<any> = new EventEmitter();
@@ -25,6 +25,11 @@ export class TestNavigatorComponent implements OnInit {
     constructor() { }
 
     ngOnInit() {
+    }
+
+    toggleDrawerMode() {
+        // console.log('TOGGLE 1');
+        this.toggleDrawer.emit(true);
     }
 
 }
