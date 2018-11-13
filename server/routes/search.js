@@ -16,7 +16,7 @@ router.post('/mSearch', function(req, res, next){
     }
 
     //if it passed basic validation, then execute query
-    esclient.getMetricSuggestions({
+    esclient.getSeriesSuggestions({
             'query': req.body,
             'headers': req.headers
         }
@@ -85,6 +85,80 @@ router.post('/tagkeys', function(req, res) {
 
     esclient.getTagKeysForMetrics({
             'metrics': req.body.metrics,
+            'headers': req.headers
+        }
+    ).then(function(results){
+        console.log("\n\nTAG KEYS********\n\n", JSON.stringify(results));
+        res.json( results );
+    }, function(errorObj){
+        res.status(502).json({
+            message: errorObj.error
+        });
+    });
+
+});
+
+router.post('/nsmetrics', function(req, res) {
+    //validate mandatatory fields
+    if ( undefined === req.body.namespace ) {
+        res.status(400).json({
+            message: 'Empty namespace passed'
+        });
+    }
+
+    esclient.getMetricsSuggestions({
+            'namespace': req.body.namespace,
+            'search': req.body.search,
+            'headers': req.headers
+        }
+    ).then(function(results){
+        console.log("\n\nMETRICS********\n\n", JSON.stringify(results));
+        res.json( results );
+    }, function(errorObj){
+        res.status(502).json({
+            message: errorObj.error
+        });
+    });
+
+});
+
+router.post('/nstagkeys', function(req, res) {
+    //validate mandatatory fields
+    if ( undefined === req.body.namespace ) {
+        res.status(400).json({
+            message: 'Empty namespace passed'
+        });
+    }
+
+    esclient.getTagkeysForNamespace({
+            'namespace': req.body.namespace,
+            'metrics' : req.body.metrics || [],
+            'headers': req.headers
+        }
+    ).then(function(results){
+        console.log("\n\nTAG KEYS********\n\n", JSON.stringify(results));
+        res.json( results );
+    }, function(errorObj){
+        res.status(502).json({
+            message: errorObj.error
+        });
+    });
+
+});
+
+router.post('/nstagvalues', function(req, res) {
+    //validate mandatatory fields
+    if ( undefined === req.body.namespace ) {
+        res.status(400).json({
+            message: 'Empty namespace passed'
+        });
+    }
+
+    esclient.getTagValuesByNamespace({
+            'namespace': req.body.namespace,
+            'tagkey': req.body.tagkey,
+            'metrics': req.body.metrics || [],
+            'tag' : req.body.tags || [],
             'headers': req.headers
         }
     ).then(function(results){

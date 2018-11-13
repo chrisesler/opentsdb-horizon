@@ -71,6 +71,10 @@
                     align-items: center;
                     justify-content: center;
                 }
+
+                strong {
+                    padding-left: 20px;
+                }
             }
 
             .toolbar-action-icons,
@@ -84,6 +88,10 @@
                 .mat-icon {
                     font-size: 16px;
                 }
+            }
+
+            .toolbar-action-icons {
+                padding-right: 30px;
             }
 
             // selector checkboxes for group level and metric level
@@ -130,7 +138,7 @@
             // group metric row wrapper - contains checkbox, then metric item details
             .query-metric-row {
                 display: flex;
-                justify-content: center;
+                justify-content: flex-start;
                 padding-left: 43px;
             }
 
@@ -300,6 +308,10 @@
                     }
                 }
             }
+        }
+
+        .group-item-toolbar {
+            background-color: white;
         }
 
         .value-options {

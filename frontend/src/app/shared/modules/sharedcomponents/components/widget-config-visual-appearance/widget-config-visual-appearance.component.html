@@ -16,7 +16,7 @@
             </thead>
             <tbody>
                 <ng-container *ngFor="let group of widget.query.groups; let gIndex=index">
-                    <tr class="metric-group-row">
+                    <!-- <tr class="metric-group-row">
                         <td class="mat-cell mat-column-folder-icon">
                             <mat-icon fontSet="denali" fontIcon="d-folder"></mat-icon>
                         </td>
@@ -29,12 +29,11 @@
                         <td class="mat-cell mat-column-line-type"></td>
                         <td class="mat-cell mat-column-axes"></td>
                         <td class="mat-cell mat-column-collapse"></td>
-                    </tr>
+                    </tr> -->
                     <tr class="mat-row" *ngFor="let query of group.queries; let index = index" [formArrayName]="gIndex">
                         <td colspan="2" class="mat-cell mat-column-metric" [formGroupName]="index">
                             <mat-form-field appearance="fill">
-                                <input matInput formControlName="label">
-                                <mat-hint>{{query.metric}}</mat-hint>
+                                <input matInput formControlName="label" [placeholder]="query.metric">
                             </mat-form-field>
                         </td>
                         <td class="mat-cell mat-column-mode" [formGroupName]="index"> 

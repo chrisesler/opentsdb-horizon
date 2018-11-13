@@ -53,6 +53,7 @@
             
             .mat-error {
                 font-size: 9px;
+                line-height: 9px;
             }
         
             // resetting some input fields 
@@ -102,6 +103,7 @@
         @include mat-elevation(5);
         display: block;
         font-size: 14px;
+        width: $calendar-width;
 
         .mat-card {
             padding: 4px $calendar-padding $calendar-padding $calendar-padding;

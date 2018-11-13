@@ -57,6 +57,9 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         'some': 'indeterminate_check_box'
     };
 
+    namespace = '';
+    showNewQueryEditor = false;
+    newQueryId = '';
     selectAllToggle: String = 'none'; // none/all/some
 
     constructor(
@@ -69,6 +72,34 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         console.log('editting widget', this.widget);
     }
 
+    newQuery() {
+        this.namespace = '';
+        this.showNewQueryEditor = true;
+    }
+    addNewQuery(namespace, gid) {
+        const gconfig = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        const query: any = { metric: namespace , filters: [] };
+        switch (this.widget.settings.component_type) {
+            case 'LinechartWidgetComponent':
+                query.settings = {
+                                    visual: {
+                                        visible: true,
+                                        color: '#000000',
+                                        type: 'line',
+                                        lineWeight: '1px',
+                                        lineType: 'solid',
+                                        label: ''
+                                    }
+                                };
+                break;
+        }
+        query.id = this.util.generateId(3);
+        this.newQueryId = query.id;
+        gconfig.queries.push(query);
+        this.showNewQueryEditor = false;
+        console.log("addNewQuery:::namepsace...", namespace, gid, gconfig, this.widget);
+    }
+
     ngOnChanges(changes: SimpleChanges) {
         // when editing mode is loaded, we need to temporary adding default UI state
         // to editing widget
@@ -76,6 +107,12 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             this.addRemoveTempUIState(true, changes.widget.currentValue);
         }
 
+    }
+
+    updateQuery(query, gid) {
+        console.log("widget-query :: updateQuery, query, gid", query, gid);
+        const payload = { action: 'UpdateQuery', payload: { gid: gid, query: query } };
+        this.widgetChange.emit(payload);
     }
 
     // to add or remove the local tempUI state
@@ -140,6 +177,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         // });
         // getting data passing out from dialog
         this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
+            this.newQueryId = '';
             this.modGroup = dialog_out.mgroup;
             this.widgetChange.emit({action: 'AddMetricsToGroup', payload: { data: this.modGroup }});
             console.log('return', this.modGroup);
@@ -283,9 +321,13 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         // do something
     }
 
-    toggleGroupQuery(gIndex, index) {
+    toggleGroupQuery(gIndex, qid) {
         console.log('TOGGLE QUERY ITEM VISIBILITY');
-        this.widgetChange.emit( {'action': 'ToggleGroupQuery', payload: { gIndex: gIndex, index: index }});
+        const queries = this.widget.query.groups[gIndex].queries;
+        const index = queries.findIndex(query => query.id === qid );
+        if ( index !== -1 ) {
+            this.widgetChange.emit( {'action': 'ToggleGroupQuery', payload: { gIndex: gIndex, index: index }});
+        }
     }
 
     cloneQuery(item: any, event: MouseEvent) {
@@ -294,11 +336,14 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         // do something
     }
 
-    deleteGroupQuery(gIndex, index) {
-        console.log('DELETE QUERY ITEM ', index);
+    deleteGroupQuery(gIndex, qid) {
+        console.log('DELETE QUERY ITEM ', qid);
+        const queries = this.widget.query.groups[gIndex].queries;
+        const index = queries.findIndex(query => query.id === qid );
         if ( this.widget.query.groups[gIndex].queries.length === 1 && index === 0 ) {
-            this.deleteGroup(gIndex);
-        } else {
+            // this.deleteGroup(gIndex);
+        }
+        if ( index !== -1 ) {
             this.widgetChange.emit( {'action': 'DeleteGroupQuery', payload: { gIndex: gIndex, index: index }});
         }
     }

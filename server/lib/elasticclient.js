@@ -344,7 +344,7 @@ module.exports = function () {
         return condition;
     };
     
-    self.getMetricSuggestions = function (params) {
+    self.getSeriesSuggestions = function (params) {
         var defer       = Q.defer();
         var suggestions = [];
         var queryParams = params.query,
@@ -544,6 +544,347 @@ module.exports = function () {
         return defer.promise;
     };
 
+    self.getMetricsSuggestions = function (params) {
+        var defer       = Q.defer();
+        var suggestions = [];
+        var headers = params.headers;
+        var namespace     = params.namespace.toLowerCase();
+        var searchPattern = params.search.toLowerCase();
+        searchPattern = convertPatternESCompat(searchPattern);
+
+
+        var queryBody = {
+            "size": "0",
+            "query": {
+                "filtered": {
+                    "filter": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "nested": {
+                                        "path": "AM_nested",
+                                        "filter": {
+                                            "bool": {
+                                                "must": [
+                                                    {
+                                                        "regexp": {
+                                                            "AM_nested.name.lowercase": searchPattern
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "aggs": {
+                "elasticQueryResults": {
+                    "nested": {
+                        "path": "AM_nested"
+                    },
+                    "aggs": {
+                        "elasticQueryResults": {
+                            "filter": {
+                                "bool": {
+                                    "must": [
+                                        {
+                                            "regexp": {
+                                                "AM_nested.name.lowercase": searchPattern
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "aggs": {
+                                "elasticQueryResults": {
+                                    "terms": {
+                                        "field": "AM_nested.name.raw",
+                                        "size": 100
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+
+        //build multiquery object
+        var multisearchQueryBody = [], queryMetadata;
+        queryMetadata            = {
+            "index": namespace + "_am",
+            "query_cache": true
+        };
+        // am => only metrics
+        // tagkeys => only have metrics and tagKeys
+        // namespace will have everything
+
+        //note: keep insertion order, expected by elastic search
+        multisearchQueryBody.push(queryMetadata);
+        multisearchQueryBody.push(queryBody);
+
+        tags.endpoint = 'metrics';
+
+        //perform the query
+        self._makeESMultiQuery(
+            multisearchQueryBody,
+            headers,
+            appconstant.METRIC_ES_QUERY_TIMEOUT_MS
+        ).then(function (resp) {
+            suggestions = extractResultsFromElasticSearchResponse(
+                resp,
+                getElasticQueryResultExtractor('appMetrics')
+            );
+            defer.resolve(suggestions);
+        }, function (error) {
+            defer.reject(error);
+        });
+
+        return defer.promise;
+    };
+
+    self.getTagkeysForNamespace = function ( params ) {
+        var defer       = Q.defer();
+        var namespace     = params.namespace;
+        var metrics = params.metrics || [];
+        var headers     = params.headers;
+        var suggestions = [];
+
+        //build multiquery object
+        var multisearchQueryBody = [], queryMetadata, queryBody;
+            queryMetadata = {
+                "index": namespace.toLowerCase() + "_tagkeys",
+                "query_cache": true
+            };
+        queryBody  = {
+            "size": "0",
+            "aggs": {
+                "elasticQueryResults": {
+                    "nested": {
+                        "path": "tags"
+                    },
+                    "aggs": {
+                        "elasticQueryResults": {
+                            "terms": {
+                                "field": "tags.key.raw",
+                                "size": 0
+                            }
+                        }
+                    }
+                }
+            }
+
+        };
+
+        var filter = {
+                        "filtered": {
+                            "filter": {
+                                "bool": {
+                                    "must": [
+                                    ]
+                                }
+                            }
+                        }
+                    };
+        var metricFilter = {
+                                "nested": {
+                                    "path": "AM_nested",
+                                    "query": {
+                                        "bool": {
+                                            "should": []
+                                        }
+                                    }
+                                }
+                            };
+        
+        if ( metrics.length ) {
+            for ( var i=0, len = metrics.length; i < len; i++ ) {
+                metricFilter.nested.query.bool.should.push(
+                    {
+                        "term": {"AM_nested.name.lowercase": metrics[i].toLowerCase()}
+                    }
+                );
+            }
+            filter.filtered.filter.bool.must.push(metricFilter);
+            queryBody.query = filter;
+        }
+
+        //note: keep insertion order, expected by elastic search
+        multisearchQueryBody.push(queryMetadata);
+        multisearchQueryBody.push(queryBody);
+
+        
+
+        // tags.endpoint = 'tagkeys';
+        //tags.userid   = headers.auth.getPrincipal();
+        //perform the query
+        self._makeESMultiQuery(
+            multisearchQueryBody,
+            headers,
+            appconstant.TAGKEYS_ES_QUERY_TIMEOUT_MS
+        ).then(function (resp) {
+            console.log("\n\n resp\n\n\n");
+            console.log(JSON.stringify(resp))
+
+            suggestions = extractResultsFromElasticSearchResponse(
+                resp,
+                getElasticQueryResultExtractor('tagKeys')
+            );
+            defer.resolve(suggestions);
+        }, function (error) {
+            defer.reject(error);
+        });
+
+        return defer.promise;
+    };
+
+    self.getTagValuesByNamespace = function (params) {
+        var defer       = Q.defer();
+        var suggestions = [];
+
+        var namespace     = params.namespace;
+        var metrics     = params.metrics || [];
+        var tags = params.tags || [];
+        var headers     = params.headers;
+
+        //build multiquery object
+        var multisearchQueryBody = [], queryMetadata, queryBody;
+        queryMetadata = {
+            "index": namespace.toLowerCase(),
+            "query_cache": true
+        };
+        queryBody     =  {
+            "size": 0,
+            "query": {
+                "filtered": {
+                    "filter": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "nested": {
+                                        "path": "tags",
+                                        "query": {
+                                            "bool": {
+                                                "must": [{
+                                                    "term": {
+                                                        "tags.key.lowercase": params.tagkey.toLowerCase()
+                                                    }
+                                                }]
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "aggs": {
+                "elasticQueryResults": {
+                    "nested": {
+                        "path": "tags"
+                    },
+                    "aggs": {
+                        "elasticQueryResults": {
+                            "filter": {
+                                "bool": {
+                                    "must": [
+                                        {
+                                            "term": {
+                                                "tags.key.lowercase": params.tagkey
+                                            }
+                                        },
+                                    ]
+                                }
+                            },
+                            "aggs": {
+                                "elasticQueryResults": {
+                                    "terms": {
+                                        "field": "tags.value.raw",
+                                        "size": 1000
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        if ( tags.length ) {
+            for ( var i=0, len = tags.length; i < len; i++ ) {
+                var tagFilter = {
+                    "nested": {
+                        "path": "tags",
+                        "filter": {
+                            "bool": {
+                                "must": [
+                                    {
+                                        "term": {
+                                            "tags.key.lowercase": tags[i].key.toLowerCase()
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                };
+                self._convertTagValueToESNotation(tagFilter.nested.filter.bool.must, tags[i].value);
+                queryBody.query.filtered.filter.bool.must.push(tagFilter);
+            }
+        }
+        
+        if ( metrics.length ) {
+            var metricFilter = {
+                "nested": {
+                    "path": "AM_nested",
+                    "query": {
+                        "bool": {
+                            "should": []
+                        }
+                    }
+                }
+            };
+            for ( var i=0, len = metrics.length; i < len; i++ ) {
+                metricFilter.nested.query.bool.should.push(
+                                                                {
+                                                                    "term": {"AM_nested.name.lowercase": metrics[i].toLowerCase()}
+                                                                }
+                                                            );
+            }
+            queryBody.query.filtered.filter.bool.must.push(metricFilter);
+        }
+
+
+        //note: keep insertion order, expected by elastic search
+        multisearchQueryBody.push(queryMetadata);
+        multisearchQueryBody.push(queryBody);
+
+        tags.endpoint = 'tagvalues';
+
+        //perform the query
+        self._makeESMultiQuery(
+            multisearchQueryBody,
+            headers,
+            appconstant.TAGVALUES_ES_QUERY_TIMEOUT_MS
+        ).then(function (resp) {
+            suggestions = extractResultsFromElasticSearchResponse(
+                resp,
+                getElasticQueryResultExtractor('tagValues')
+            );
+            defer.resolve(suggestions);
+        }, function (error) {
+            defer.reject(error);
+        });
+
+        return defer.promise;
+    };
+
     /**
      * converts Java regular expression notation to Lucene regexp (used by ES).
      * The conversion that we do is related to ^ and $, given that ES
@@ -666,7 +1007,7 @@ module.exports = function () {
                                 "elasticQueryResults": {
                                     "terms": {
                                         "field": "tags.value.raw",
-                                        "size": queryParams.limitResults
+                                        "size": 0
                                     }
                                 }
                             }

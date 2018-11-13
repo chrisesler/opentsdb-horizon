@@ -288,15 +288,15 @@ export class DatatranformerService {
       };
 
       for (const k in m) {
-        if (k !== 'metric') {
+        const v = k !== 'metric' ? m[k] : m[k].substr(m[k].indexOf('.')+1);
+          const filtertype = m[k].indexOf('*') !== -1 ? 'wildcard' : 'literalor';
           const filter = {
-            type: 'literalor',
+            type: filtertype,
             tagk: k,
-            filter: m[k],
-            groupBy: true
+            filter: v ,
+            groupBy: false
           };
           q.filters.push(filter);
-        }
       }
     return q;
   }

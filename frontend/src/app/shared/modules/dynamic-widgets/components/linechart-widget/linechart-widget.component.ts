@@ -8,11 +8,11 @@ import { DatatranformerService } from '../../../../../core/services/datatranform
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
 
-
 import { Subscription } from 'rxjs/Subscription';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import multiColumnGroupPlotter from '../../../../../shared/dygraphs/plotters';
+import { config } from 'rxjs';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -47,7 +47,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         drawPoints: false,
         //  labelsDivWidth: 0,
         // legend: 'follow',
-        // logscale: false,
+        logscale: false,
         digitsAfterDecimal: 2,
         stackedGraph: this.isStackedGraph,
         strokeWidth: 1,
@@ -191,10 +191,30 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             case 'DeleteGroup':
                 this.deleteGroup(message.payload.gIndex);
                 break;
+            case 'UpdateQuery':
+                this.updateQuery(message.payload);
+                this.refreshData();
+                break;
             case 'DeleteGroupQuery':
                 this.deleteGroupQuery(message.payload.gIndex, message.payload.index);
                 break;
         }
+    }
+
+    updateQuery( payload ) {
+        console.log("linechart updateQuery", payload);
+        const query = payload.query;
+
+        const gid = payload.gid;
+        const gconfig = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        const qindex = query.id ? gconfig.queries.findIndex(q => q.id === query.id ) : -1;
+        if ( qindex === -1 ) {
+            query.id = this.util.generateId(6);
+            gconfig.queries.push(query);
+        } else {
+            gconfig.queries[qindex] = query;
+        }
+        console.log("line chart updateQuery", gconfig);
     }
 
     addMetricsToGroup(gConfig) {
@@ -345,6 +365,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
             if (  axisKeys[i] === 'y1' || axisKeys[i] === 'y2' ) {
                 axis.logscale = config.scale === 'logscale' ? true : false;
+                if ( axisKeys[i] === 'y1' ) {
+                    this.options.logscale = axis.logscale;
+                }
                 const label = config.label ? config.label.trim() : '';
                 this.options[chartAxisID + 'label'] = label;
             }
@@ -619,9 +642,13 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     toggleGroup(gIndex) {
         this.widget.query.groups[gIndex].settings.visual.visible = !this.widget.query.groups[gIndex].settings.visual.visible;
-        if ( this.widget.query.groups[gIndex].queries.length === 1 ) {
-            this.widget.query.groups[gIndex].queries[0].settings.visual.visible = this.widget.query.groups[gIndex].settings.visual.visible;
+        for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
+            this.widget.query.groups[gIndex].queries[i].settings.visual.visible =
+            this.widget.query.groups[gIndex].settings.visual.visible;
         }
+        // if ( this.widget.query.groups[gIndex].queries.length === 1 ) {
+        //     this.widget.query.groups[gIndex].queries[0].settings.visual.visible = this.widget.query.groups[gIndex].settings.visual.visible;
+        // }
         this.refreshData(false);
     }
     deleteGroup(gIndex) {
@@ -630,7 +657,22 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     toggleGroupQuery(gIndex, index) {
-        this.widget.query.groups[gIndex].queries[index].settings.visual.visible = !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+        // toggle the individual query
+        this.widget.query.groups[gIndex].queries[index].settings.visual.visible =
+            !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+
+        // set the group to visible if the individual query is visible
+        if (this.widget.query.groups[gIndex].queries[index].settings.visual.visible) {
+            this.widget.query.groups[gIndex].settings.visual.visible = true;
+        } else { // set the group to invisible if all queries are invisible
+            this.widget.query.groups[gIndex].settings.visual.visible = false;
+            for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
+                if (this.widget.query.groups[gIndex].queries[i].settings.visual.visible) {
+                    this.widget.query.groups[gIndex].settings.visual.visible = true;
+                    break;
+                }
+            }
+        }
         this.refreshData(false);
     }
 

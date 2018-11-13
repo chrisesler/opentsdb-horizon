@@ -29,7 +29,6 @@
 @import './components/dashboard-settings-dialog/dashboard-settings-dialog.component';
 @import './components/variable-template-bar/variable-template-bar.component';
 @import './components/config-tags-list/config-tags-list.component';
-@import './components/dboard-header/dboard-header.component';
 @import './components/dboard-content/dboard-content.component';
 @import './components/widget-loader/widget-loader.component';
 
@@ -55,7 +54,6 @@
     @include dashboard-settings-dialog-component-base();
     @include variable-template-bar-component-base();
     @include config-tags-list-component-base();
-    @include dboard-header-component-base();
     @include dboard-content-component-base();
     @include widget-loader-component-base();
 
@@ -79,7 +77,6 @@
     @include dashboard-settings-dialog-component-theme($theme-config);
     @include variable-template-bar-component-theme($theme-config);
     @include config-tags-list-component-theme($theme-config);
-    @include dboard-header-component-theme($theme-config);
     @include dboard-content-component-theme($theme-config);
     @include widget-loader-component-theme($theme-config);
 

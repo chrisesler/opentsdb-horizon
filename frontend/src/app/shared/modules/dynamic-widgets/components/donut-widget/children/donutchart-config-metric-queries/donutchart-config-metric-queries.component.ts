@@ -169,4 +169,8 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit {
         this.widgetChange.emit( {'action': 'ToggleQuery', payload: { index: index }});
     }
 
+    toggleGroup( gIndex ) {
+        this.widgetChange.emit( {'action': 'ToggleGroup', payload: { index: gIndex }});
+    }
+
 }

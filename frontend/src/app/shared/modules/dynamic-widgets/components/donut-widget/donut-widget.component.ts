@@ -153,6 +153,9 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             case 'ToggleQuery':
                 this.toggleQuery(message.payload.index);
                 break;
+            case 'ToggleGroup':
+                this.toggleGroup(message.payload.index);
+                break;
             case 'DeleteQuery':
                 this.deleteQuery(message.payload.index);
                 break;
@@ -257,7 +260,31 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     toggleQuery(index) {
         const gIndex = 0;
-        this.widget.query.groups[gIndex].queries[index].settings.visual.visible = !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+        // toggle the individual query
+        this.widget.query.groups[gIndex].queries[index].settings.visual.visible =
+        !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+
+        // set the group to visible if the individual query is visible
+        if (this.widget.query.groups[gIndex].queries[index].settings.visual.visible) {
+            this.widget.query.groups[gIndex].settings.visual.visible = true;
+        } else { // set the group to invisible if all queries are invisible
+            this.widget.query.groups[gIndex].settings.visual.visible = false;
+            for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
+                if (this.widget.query.groups[gIndex].queries[i].settings.visual.visible) {
+                    this.widget.query.groups[gIndex].settings.visual.visible = true;
+                    break;
+                }
+            }
+        }
+        this.refreshData(false);
+    }
+
+    toggleGroup(gIndex) {
+        this.widget.query.groups[gIndex].settings.visual.visible = !this.widget.query.groups[gIndex].settings.visual.visible;
+        for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
+            this.widget.query.groups[gIndex].queries[i].settings.visual.visible =
+            this.widget.query.groups[gIndex].settings.visual.visible;
+        }
         this.refreshData(false);
     }
 

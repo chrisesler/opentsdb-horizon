@@ -6,260 +6,310 @@
     $edit-padding: map-get($widgets-common-config, edit-padding);
     
     .widget-config-tab.donutchart-config-metric-queries-configuration {
-        margin: 0;
-        display: flex;
-
-        // TIME SERIES COLUMN
-
-        .query-metrics-section {
-            flex: 1 1 100%;
-            width: 100%;
-            overflow-x: hidden;
-            overflow-y: auto;
-            padding: 0 16px 16px 16px;
-
-            .mat-list {
-                padding-top: 0;
-
-                .mat-list-item {
-                    height: initial;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+    
+            // config specific toolbar overrides
+            .config-toolbar.time-series-toolbar {
+                padding: 0 $edit-padding 0 0;
+    
+                .toolbar-item.master-checkbox {
+                    margin-right: 3px;
                 }
-
-                .mat-list-item-content {
-                    flex-direction: column;
+            }
+    
+            // config section that shows the selected metrics
+            .query-metrics-section {
+                @include has-scroller();
+                flex: 1 1 100%;
+                width: 100%;
+                height: 100%;
+    
+                .query-metrics-wrap {
+                    @include is-scroller();
+                    padding-top: 5px;
+                }
+            }
+    
+            // wrapper for the query metrics
+            .query-metrics-wrap {
+                padding: 0 $edit-padding 0 0;
+    
+                &,
+                .mat-expansion-panel-header,
+                .mat-toolbar {
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                }
+    
+                .mat-expansion-panel-header {
+                    flex-direction: row-reverse;
                     padding: 0;
-                }
-
-                .mat-divider {
-                    margin: 8px 0;
-
-                    &:last-child {
+    
+                    // icon for the collapse icon direction
+                    .mat-icon.arrow-down {
                         display: none;
                     }
+                    .mat-icon.arrow-right {
+                        display: inline-flex;
+                    }
                 }
-            }
-        }
-
-        .query-metric-item {
- 
-            &,
-            .mat-toolbar {
-                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-            }
-
-            &:first-child {
-                padding-top: 4px;
-            }
-
-            .mat-toolbar {
-                background-color: transparent;
-                height: initial;
-                padding-right: 0;
-
-                strong {
-                    font-size: 14px;
+        
+                .mat-expansion-panel-header,
+                .mat-expansion-panel-body {
+                    padding: 0;
                 }
-
-                .minutiae {
-                    margin: auto 8px;
-                    font-size: 10px;
-                    display: inline-flex;
+    
+                // General toolbar items
+                .toolbar-item {
+                    display: flex;
                     align-items: center;
                     justify-content: center;
-                    
-                    span {
+    
+                    .mat-icon {
                         display: inline-flex;
                         align-items: center;
-                        
-                        &:not(:last-child) {
-                            margin-right: 6px;
-                        }
+                        justify-content: center;
                     }
-
-                    .mat-icon {
-                        width: 10px;
-                        height: 10px;
-                        line-height: 1;
-                        font-size: 10px;
-                        margin-right: 4px;
+    
+                    strong {
+                        padding-left: 20px;
                     }
                 }
-
-                // icons on the right
+    
+                .toolbar-action-icons,
                 .action-icons {
                     .mat-icon-button {
                         width: 30px;
                         height: 30px;
                         line-height: 30px;
                     }
-
+    
                     .mat-icon {
                         font-size: 16px;
                     }
                 }
-            }
-
-            .modifier-row,
-            .tags-row {
-                display: flex;
-                padding: 4px 16px;
-                width: 100%;
-            }
-
-            .modifier-row {
-                .modifier-item {
-                    display: inline-flex;
-                    flex-direction: row;
+    
+                .toolbar-action-icons {
+                    padding-right: 30px;
+                }
+    
+                // selector checkboxes for group level and metric level
+                .group-selector,
+                .metric-selector {
+                    display: flex;
                     align-items: center;
                     justify-content: center;
-
-                    &:not(:last-child) {
-                        margin-right: 12px;
+                    opacity: 0;
+                }
+    
+                // group-level toolbar
+                .group-item-toolbar {
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                    height: auto;
+                    padding: 0;
+                    margin-left: 3px;
+                    padding: 0 $default-padding 0 0;
+    
+                    .group-label {
+                        .mat-icon {
+                            font-size: 16px;
+                            margin-right: 4px;
+                        }
                     }
-
-                    > strong {
-                        margin-right: 8px;
+    
+                    .add-query-actions {
+                        margin-right: 20px;
+    
+                        .mat-icon {
+                            font-size: 16px; 
+                            margin-right: 2px;
+                        }
+    
+                        .mat-button {
+                            font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                            padding: 0 6px;
+                            line-height: 24px;
+                            min-width: initial;
+                        }
                     }
                 }
-            }
-
-            .tags-row {
-
-                > strong {
-                    margin-right: 8px;
-                }
-
-                .mat-basic-chip {
-                    // second to last child shouldn't have it because of button width of last-child
-                    // last child is button to add new chip
-                    &:not(:nth-last-child(-n+2)) {
-                        margin-right: 6px;
-                    }
-                }
-
-                .mat-basic-chip:not(.add-tag-filter-button) {
-                    font-size: 12px;
-                    padding: 0 6px;
-                    border-radius: 4px;
-                    position: relative;
-                    overflow: initial;
-                    max-height: 24px;
-                    min-height: 24px;
-                    display: inline-flex;
-                    align-items: center;
+    
+                // group metric row wrapper - contains checkbox, then metric item details
+                .query-metric-row {
+                    display: flex;
                     justify-content: center;
-
-                    &:hover {
-                        @include mat-elevation(1);
-                    }
-
-                    .tag-key {
-                        margin-right: 4px;
-                    }
-
-                    .remove-tag {
-                        @include mat-elevation(0);
-                        width: 24px;
-                        height: 24px;
-                        line-height: 1;
-                        border-radius: 4px; 
-                        transform: translateX(6px); // this offsets the padding
-
-                        .mat-button-wrapper {
-                            padding: 1px;
-                            line-height: 1;
-                        }
-
-                        .mat-icon {
-                            width: 18px;
-                            height: 18px;
-                            line-height: 1;
-                            font-size: 18px;
-                        }
-                    }
+                    padding-left: 43px;
                 }
-
-                .add-tag-filter-button {
-                    overflow: initial;
-                    
-
-                    .mat-icon-button {
-                        width: 28px;
-                        height: 28px;
-                        line-height: 28px;
-
-                        .mat-icon {
-                            width: 14px;
-                            height: 14px;
-                            line-height: 14px;
-                            font-size: 14px;
-                        }
-                    }
-                }
-            }
-        }
-
-        // LEGEND COLUMN
-        .query-legend-section {
-            display: flex;
-            flex: 1 1 100%;
-            width: 100%;
-            overflow-x: hidden;
-            overflow-y: auto;
-
-            .mat-list {
-                width: 100%;
-            }
-
-            .query-legend-item {
-                padding: 5px 5px;
-            }
-
-            .query-legend-item-color {
-                display: inline-block;
-                min-width:10px;
-                max-width: 10px;
-                min-height:10px;
-                max-height: 10px;
-                border-radius: 50%;
-                margin-right: 5px;
-                cursor: pointer;
-            }
-
-            .query-legend-item-label {
-                display: inline-block;
-                margin-left: 5px;
-                width: 100%;
-            }
-
-            color-picker {
-                display: block;
-                position: absolute;
-                margin-top: 5px;
-
-                .color-picker-component-control {
-                    margin-top: 15px;
+    
+                // contains the metric row details
+                .query-metric-item {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: stretch;
+                    justify-content: stretch;
                     margin-bottom: 10px;
-                    position: absolute;
+                    padding-left: 5px;
+    
+                    .metric-detail {
+                        display: flex;
+                        align-items: center;
+                        justify-content: stretch;
+                        padding-right: 14px;
+                    }
+    
+                    .metric-tags {
+                        display: flex;
+                        align-items: center;
+    
+                        // probably the 'tabs:' label
+                        :first-child {
+                            font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                        }
+    
+                        .mat-chip-list {
+                            margin-left: 10px;
+                        }
+    
+                        .mat-basic-chip {
+                            padding: 3px 6px;
+                            border-radius: 3px;
+                            margin-right: 4px;
+    
+                            // first-child should be the tag key
+                            :first-child {
+                                margin-right: 4px;
+                            }
+                        }
+                        
+                    }
+
+                    .modifier-row {
+                        font-size: 12px;
+                        padding-top: 8px;
+                        .modifier-item {
+                            display: inline-flex;
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: center;
+
+                            &:not(:last-child) {
+                                margin-right: 12px;
+                            }
+
+                            > strong {
+                                margin-right: 8px;
+                            }
+                        }
+                    }
+                }
+    
+                // mat-expansion-panel inside the accordion (.mat-accordion.query-group-list)
+                .mat-expansion-panel.query-group-item {
+                    margin-bottom: 2px;
+    
+                    &:hover {
+                        .group-selector,
+                        .metric-selector {
+                            opacity: 1;
+                        }
+                    }
+                }
+    
+                // collapsible accordion list of the query groups
+                .mat-accordion.query-group-list {
+                    display: flex;
+                    flex-direction: column;
+    
+                    // if ANY checkbox is selected, then all the checkboxes become visible
+                    &.items-selected {
+                        .query-group-item {
+                            .group-selector,
+                            .metric-selector {
+                                opacity: 1;
+                            }
+                        }
+                    }
+                }
+    
+                // EXPANDED MODE
+                .mat-expansion-panel-header.mat-expanded {
+                    .mat-icon.arrow-down {
+                        display: inline-flex;
+                    }
+                    .mat-icon.arrow-right {
+                        display: none;
+                    }
+                }
+    
+                // NOT EXPANDED
+                // getting some wierd background on hover when it was not expaded
+                .mat-expansion-panel:not(.mat-expanded) .mat-expansion-panel-header:not([aria-disabled='true']):hover {
+                    background: transparent;
                 }
             }
-        }
-
-         // not sure this is needed in this component, but I'll leave it just in case
-         .value-options {
-            padding-left: 5px;
-
-            font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-
-            mat-select {
-                padding: 5px;
+    
+            .value-options {
+                padding-left: 5px;
+    
+                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+    
+                mat-select {
+                    padding: 5px;
+                }
+                .values-form-field {
+                    width: 100px;
+                }
             }
-            .values-form-field {
-                width: 100px;
+
+             // LEGEND COLUMN
+            .query-legend-section {
+                display: flex;
+                flex: 1 1 100%;
+                width: 100%;
+                overflow-x: hidden;
+                overflow-y: auto;
+
+                .mat-list {
+                    width: 100%;
+                }
+
+                .query-legend-item {
+                    padding: 5px 5px;
+                }
+
+                .query-legend-item-color {
+                    display: inline-block;
+                    min-width:10px;
+                    max-width: 10px;
+                    min-height:10px;
+                    max-height: 10px;
+                    border-radius: 50%;
+                    margin-right: 5px;
+                    cursor: pointer;
+                }
+
+                .query-legend-item-label {
+                    display: inline-block;
+                    margin-left: 5px;
+                    width: 100%;
+                }
+
+                color-picker {
+                    display: block;
+                    position: absolute;
+                    margin-top: 5px;
+
+                    .color-picker-component-control {
+                        margin-top: 15px;
+                        margin-bottom: 10px;
+                        position: absolute;
+                    }
+                }
             }
         }
     }
-}
 
 @mixin donutchart-config-metric-queries-component-theme($theme-config) {
 
@@ -269,85 +319,89 @@
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
-
-    $chip-bg: rgba(map-get($primary, default), .1); 
+    $is-dark: map-get($theme-config, is-dark);
+    $chip-bg: rgba(map-get($primary, default), .1);
+    $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
+    $alias-text: if($is-dark, rgba(255, 255, 255, .5), rgba(0, 0, 0, .5));
     $divider: rgba(map-get($foreground, divider), .05);
-
+  
     .widget-config-tab.donutchart-config-metric-queries-configuration {
         // style rules here
-
-        .config-toolbar.time-series-toolbar,
-        .config-toolbar.legend-toolbar {
-           border-bottom: 2px solid $divider;
-        }
-
-        .metric-column {
-            .query-metric-item {
-                //border-bottom: 1px solid $divider;
-                .mat-toolbar {
-                    .minutiae {
-                        color: map-get($foreground, 'hint-text');
+        .query-metric-row {
+            .metric-tags {
+                .mat-basic-chip {
+                    background-color: $chip-bg;
+                    // first-child should be the tag-key
+                    :first-child {
+                        color: rgba(map-get($foreground, text), .65);
                     }
                 }
-    
-                .tags-row {
-                    .mat-basic-chip:not(.add-tag-filter-button) {
-                        background-color: $chip-bg;
-    
-                        // first-child should be the tag-key
-                        .tag-key {
-                            color: rgba(map-get($foreground, text), .65);
-                        }
+            }
 
-                        .tag-value {
-                            color: rgba(map-get($foreground, text), .65);
-                        }
-
-                        .remove-tag {
-                            background-color: $chip-bg;
-
-                            .mat-icon {
-                                color: map-get($primary, default);
+            .query-metric-item {
+                .expression-metrics {
+                    .metric {
+                        display: flex;
+                        flex-direction: row;
+                        margin-bottom: 3px;
+                        align-items: center;
+                        padding: 5px 0px 5px 0px;
+                        border-bottom: 1px solid #f0f0f0;
+                        .metric-alias {
+                            display: inline-flex;
+                            
+                            width: 30px;
+                            margin-right: 10px;
+                            span {
+                                background-color: $alias-bg;
+                                color: $alias-text;
+                                font-size: 10px;
+                                padding: 0px 5px;
+                                border-radius: 4px;
+                                font-weight: bold;
                             }
                         }
+                        .metric-label {
+                            font-size: 12px;
+                            display: inline-flex;
+                        }
+                    }
+                    .metric:last-child {
+                        border-bottom: none;
                     }
                 }
-                
+            }
+        }
+
+        .group-item-toolbar {
+            background-color: white;
+        }
+
+        .value-options {
+            mat-select {
+                background-color: $chip-bg;
+            }
+            .mat-form-field-underline {
+                background-color: transparent;
             }
         }
 
         .legend-column {
             border-left: 2px solid $divider;
-
             .mat-form-field {
                 &.mat-form-field-appearance-fill {
                     .mat-form-field-flex  {
                         background-color: rgba(map-get($primary, default), 0);
                     }
-        
                     &.mat-focused,
                     &:hover {
                         @include mat-elevation(1);
-                        
                         .mat-form-field-flex  {
                             background-color: rgba(map-get($primary, default), 0.08);
                         }
-                        
                     }
                 }
             }
         }
-
-        .value-options {
-            .mat-select {
-                background-color: $chip-bg;
-            }
-
-            .mat-form-field-underline {
-                background-color: transparent;
-            }
-        }
     }
-
 }
-

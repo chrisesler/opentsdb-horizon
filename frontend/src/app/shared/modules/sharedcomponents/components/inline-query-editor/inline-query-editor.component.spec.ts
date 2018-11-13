@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DboardHeaderComponent } from './dboard-header.component';
+import { InlineQueryEditorComponent } from './inline-query-editor.component';
 
-describe('DboardHeaderComponent', () => {
-  let component: DboardHeaderComponent;
-  let fixture: ComponentFixture<DboardHeaderComponent>;
+describe('InlineQueryEditorComponent', () => {
+  let component: InlineQueryEditorComponent;
+  let fixture: ComponentFixture<InlineQueryEditorComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DboardHeaderComponent ]
+      declarations: [ InlineQueryEditorComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DboardHeaderComponent);
+    fixture = TestBed.createComponent(InlineQueryEditorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
