@@ -15,6 +15,7 @@ import {
 
 import { MatDrawer } from '@angular/material';
 
+import { NavigatorSidenavComponent } from '../../components/navigator-sidenav/navigator-sidenav.component';
 
 @Component({
     selector: 'app-shell',
@@ -27,24 +28,14 @@ export class AppShellComponent implements OnInit, OnDestroy {
 
     @ViewChild('drawer', { read: MatDrawer }) private drawer: MatDrawer;
 
-    // tslint:disable-next-line:no-inferrable-types
-    activeNav: any = {};
+    @ViewChild(NavigatorSidenavComponent) private sideNav: NavigatorSidenavComponent;
 
     // tslint:disable-next-line:no-inferrable-types
-    drawerMode: string = 'over'; // over | side;
+    activeNavSection: string = '';
 
-    navItems: object[] = [
-        { section: 'dashboard',         label: 'Dashboards',        icon: 'd-dashboard-tile' },
-        { section: 'metric-explorer',   label: 'Metric Explorer',   icon: 'd-chart-line' },
-        { section: 'alerts',            label: 'Alerts',            icon: 'd-notification' },
-        { section: 'status',            label: 'Status',            icon: 'd-heart-health' },
-        { section: 'annotations',       label: 'Annotations',       icon: 'd-flag' },
-        { section: 'admin',             label: 'Admin',             icon: 'd-user-secure', requiresUserAdmin: true },
-        { section: 'favorites',         label: 'Favorites',         icon: 'd-star' },
-        { section: 'namespaces',        label: 'Namespaces',        icon: 'd-briefcase' },
-        { section: 'resources',         label: 'Resources',         icon: 'd-information-circle', spacerAfter: true },
-        { section: 'test',              label: 'Toggle Test',       icon: 'd-setting' }
-    ];
+    // tslint:disable-next-line:no-inferrable-types
+    drawerMode: string = 'push'; // over | side;
+
 
     constructor(
         private route: ActivatedRoute,
@@ -69,25 +60,20 @@ export class AppShellComponent implements OnInit, OnDestroy {
 
     /** EVENTS */
 
-    navigationAction(obj: any) {
-        if (this.drawer.opened && this.activeNav.section === obj.section) {
+    navigationAction(event: any) {
+        if (event.reset) {
             this.closeNavigator();
+            this.activeNavSection = '';
+            this.sideNav.resetActiveNav();
         } else {
-            this.activeNav = obj;
+            this.activeNavSection = event.section;
 
-            switch (obj.section) {
+            switch (this.activeNavSection) {
                 case 'test':
                 case 'dashboard':
                     this.drawer.open();
                     break;
-                case 'metric-explorer':
-                case 'alerts':
-                case 'status':
-                case 'annotations':
-                case 'favorites':
-                case 'namespaces':
-                case 'resources':
-                case 'admin':
+                // can add more cases if needed
                 default:
                     if (this.drawer.opened) {
                         this.closeNavigator();
@@ -95,19 +81,47 @@ export class AppShellComponent implements OnInit, OnDestroy {
                     break;
             }
         }
+
+        /*
+        if (this.drawer.opened && this.activeNavSection === obj.section) {
+            this.closeNavigator();
+            this.activeNavSection = '';
+            this.sideNav.resetActiveNav();
+        } else {
+            this.activeNavSection = obj.section;
+
+            switch (this.activeNavSection) {
+                case 'test':
+                case 'dashboard':
+                    this.drawer.open();
+                    break;
+                // can add more cases if needed
+                default:
+                    if (this.drawer.opened) {
+                        this.closeNavigator();
+                        this.activeNavSection = '';
+                        this.sideNav.resetActiveNav();
+                    }
+                    break;
+            }
+        }*/
     }
 
     closeNavigator() {
         this.drawer.close();
-        this.drawerMode = 'over';
+        this.drawerMode = 'push';
     }
 
     toggleDrawerMode(event?: any) {
-        // console.log('TOGGLE 2');
         if (event && event.drawerMode) {
             this.drawerMode = event.drawerMode;
+        } else if (event && event.closeNavigator) {
+            this.closeNavigator();
+            this.activeNavSection = '';
+            this.sideNav.resetActiveNav();
         } else {
-            this.drawerMode = (this.drawerMode === 'side') ? 'over' : 'side';
+            // this.drawerMode = (this.drawerMode === 'side') ? 'over' : 'side';
+            this.drawerMode = 'push';
         }
     }
 
