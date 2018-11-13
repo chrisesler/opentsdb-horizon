@@ -47,7 +47,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         drawPoints: false,
         //  labelsDivWidth: 0,
         // legend: 'follow',
-        // logscale: false,
+        logscale: false,
         digitsAfterDecimal: 2,
         stackedGraph: this.isStackedGraph,
         strokeWidth: 1,
@@ -365,6 +365,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
             if (  axisKeys[i] === 'y1' || axisKeys[i] === 'y2' ) {
                 axis.logscale = config.scale === 'logscale' ? true : false;
+                if ( axisKeys[i] === 'y1' ) {
+                    this.options.logscale = axis.logscale;
+                }
                 const label = config.label ? config.label.trim() : '';
                 this.options[chartAxisID + 'label'] = label;
             }
