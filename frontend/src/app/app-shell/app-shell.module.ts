@@ -15,6 +15,7 @@ import { AppNavbarComponent } from './components/app-navbar/app-navbar.component
 import { TestNavigatorComponent } from './components/test-navigator/test-navigator.component';
 import { NavigatorPanelItemDirective } from './directives/navigator-panel-item.directive';
 import { NavigatorPanelComponent, NavigatorPanelItemElement } from './components/navigator-panel/navigator-panel.component';
+import { NavigatorSidenavComponent } from './components/navigator-sidenav/navigator-sidenav.component';
 
 @NgModule({
     imports: [
@@ -31,7 +32,8 @@ import { NavigatorPanelComponent, NavigatorPanelItemElement } from './components
         TestNavigatorComponent,
         NavigatorPanelItemDirective,
         NavigatorPanelComponent,
-        NavigatorPanelItemElement
+        NavigatorPanelItemElement,
+        NavigatorSidenavComponent
     ],
     exports: [
         AppShellComponent
