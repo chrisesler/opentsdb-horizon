@@ -11,8 +11,8 @@
                             <input matInput  formControlName="customDownsampleValue">
                         </mat-form-field>
                         <mat-button-toggle-group formControlName="customDownsampleUnit">
-                            <mat-button-toggle value="min" name="customDownsampleUnit">Min</mat-button-toggle>
-                            <mat-button-toggle value="hrs" name="customDownsampleUnit">Hrs</mat-button-toggle>
+                            <mat-button-toggle value="m" name="customDownsampleUnit">Min</mat-button-toggle>
+                            <mat-button-toggle value="h" name="customDownsampleUnit">Hrs</mat-button-toggle>
                         </mat-button-toggle-group>
                         <div *ngIf="widgetConfigTime.controls.customDownsampleValue.errors">
                                 <div *ngIf="widgetConfigTime.controls.customDownsampleValue.errors.pattern">Must be an integer.</div>
