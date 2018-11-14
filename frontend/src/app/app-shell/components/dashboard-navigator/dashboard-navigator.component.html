@@ -1,0 +1,68 @@
+<navigator-panel #navPanel>
+    <ng-container *ngFor="let panel of panels; let i = index">
+        <ng-container *navigatorPanelItem>
+            <div class="panel-header" (click)="navtoSpecificPanel(0, i)">
+                <button mat-icon-button *ngIf="panel.name !== 'masterPanel'">
+                    <mat-icon fontSet="denali" fontIcon="d-arrowhead-left"></mat-icon>
+                </button>
+                <strong class="header-label">Dashboards</strong>
+                <span class="flex-spacer"></span>
+                <button mat-icon-button (click)="closeDrawer()">
+                    <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
+                </button>
+            </div>
+            <mat-nav-list class="path-tree" *ngIf="panel.name !== 'masterPanel'">
+                <ng-container *ngFor="let leaf of panels; let n = index;">
+                    <mat-list-item class="path-tree-item leaf-{{n}}" 
+                        *ngIf="leaf.name !== 'masterPanel' && n <= i" 
+                        [ngClass]="{'is-active': n === i}"
+                        (click)="navtoSpecificPanel(n, i)">
+                        <mat-icon class="path-icon" fontSet="denali" [fontIcon]="leaf.icon"></mat-icon>
+                        <span>{{leaf.name}}</span>
+                    </mat-list-item>
+                </ng-container>
+            </mat-nav-list>
+            <div class="folders-header" *ngIf="panel.name !== 'masterPanel'">
+                <span class="header-label">{{ panel.folders.length > 0 ? 'Folders' : 'Add Folder' }}</span>
+                <span class="flex-spacer"></span>
+                <button mat-icon-button (click)="createFolderIn(i)">
+                    <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
+                </button>
+                <button mat-icon-button (click)="editFoldersIn(i)">
+                    <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                </button>
+            </div>
+            <mat-nav-list *ngIf="panel.folders && panel.folders.length > 0">
+                <mat-list-item *ngFor="let folder of panel.folders" class="folder-nav-item" (click)="navtoPanelFolder(folder)">
+                    <mat-icon class="folder-icon" fontSet="denali" [fontIcon]="folder.icon"></mat-icon>
+                    <span>{{folder.name}}</span>
+                    <span class="flex-spacer"></span>
+                    <span class="counter">
+                        <span class="dashboard-count">{{folder.dashboards.length}}</span>
+                    </span>
+                    <button mat-icon-button >
+                        <mat-icon fontSet="denali" fontIcon="d-arrowhead-right"></mat-icon>
+                    </button>
+                </mat-list-item>
+            </mat-nav-list>
+            <div class="dashboards-header" *ngIf="panel.name !== 'masterPanel'">
+                <span class="header-label">Dashboards</span>
+                <span class="flex-spacer"></span>
+                <button mat-icon-button (click)="createDashboardIn(i)">
+                    <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
+                </button>
+                <button mat-icon-button (click)="editDashboardsIn(i)">
+                    <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                </button>
+            </div>
+            <mat-nav-list *ngIf="panel.dashboards && panel.dashboards.length > 0">
+                <a mat-list-item href="/d/{{dashboard.id}}" class="dashboard-nav-item"
+                    *ngFor="let dashboard of panel.dashboards" 
+                    (click)="clickDashboardLink(dashboard.id, $event);">
+                    <mat-icon class="dashboard-icon" fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
+                    <span>{{dashboard.name}}</span>
+                </a>
+            </mat-nav-list>
+        </ng-container>
+    </ng-container>
+</navigator-panel>

@@ -259,7 +259,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         payload.namespaceid = namespace.id;
                     }
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
-                    console.log("dashboardSaveRequest", message.payload, payload);
+                    console.log('dashboardSaveRequest', message.payload, payload);
                     break;
                 case 'dashboardSettingsToggleRequest':
 
@@ -290,7 +290,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag, message.payload.filters));
                     break;
                 case 'getUserNamespaces':
-                    console.log("getUserNamespaces")
+                    console.log('getUserNamespaces');
                     this.store.dispatch(new LoadUserNamespaces());
                     break;
                 default:
@@ -300,7 +300,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.loadedRawDB$.subscribe( db => {
             const dbstate = this.store.selectSnapshot(DBState);
-            console.log("\n\nloadedrawdb=", db, dbstate.loaded);
+            console.log('\n\nloadedrawdb=', db, dbstate.loaded);
             if (dbstate.loaded) {
                 this.store.dispatch(new LoadDashboardSettings(db.settings));
                 // update WidgetsState
@@ -312,6 +312,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if ( this.dbid === '_new_' && id ) {
                 this.dbid = id;
                 this.location.replaceState('/d/' + this.dbid);
+            } else if (this.dbid !== '_new_' && id) {
+                this.rerender = { 'reload': true };
             }
         });
 
@@ -379,6 +381,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (this.variables) {
                 if (this.variables.enabled && t.enabled) { // was enabled, still enabled
                     // diff whether selected values changed
+                    // tslint:disable-next-line:prefer-const
                     for (let tag of t.tplVariables) {
                         const tagKey = tag.tagk;
                         if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
@@ -387,6 +390,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                 return;
                         }
                     }
+                    // tslint:disable-next-line:prefer-const
                     for (let tag of this.variables.tplVariables) {
                         const tagKey = tag.tagk;
                         if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
@@ -396,6 +400,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         }
                     }
                 } else if (this.variables.enabled && !t.enabled) { // was enabled, now disabled
+                    // tslint:disable-next-line:prefer-const
                     for (let tag of this.variables.tplVariables) {
                         const tagKey = tag.tagk;
                         if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !== '') {
@@ -404,6 +409,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         }
                     }
                 } else if (!this.variables.enabled && t.enabled) { // was disabled, now enabled
+                    // tslint:disable-next-line:prefer-const
                     for (let tag of t.tplVariables) {
                         const tagKey = tag.tagk;
                         if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !== '') {
@@ -638,7 +644,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         dialogConf.data = {};
         this.dashboardDeleteDialog = this.dialog.open(DashboardDeleteDialogComponent, dialogConf);
         this.dashboardDeleteDialog.afterClosed().subscribe((dialog_out: any) => {
-            console.log("delete dialog confirm", dialog_out);
+            console.log('delete dialog confirm', dialog_out);
             if ( dialog_out && dialog_out.delete  ) {
                 this.store.dispatch(new DeleteDashboard(this.dbid));
             }
@@ -654,6 +660,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     getTagValues (key: string, tplVariables: any[]): any[] {
+        // tslint:disable-next-line:prefer-const
         for (let tplVariable of tplVariables) {
             if (tplVariable.tagk === key && tplVariable.enabled) {
                 return tplVariable.filter;

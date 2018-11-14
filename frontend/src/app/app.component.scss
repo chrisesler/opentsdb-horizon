@@ -7,39 +7,11 @@
         display: flex;
         flex: 1 1 100%;
         flex-direction: column;
-        //overflow-x: hidden;
         overflow: hidden;
-
-        .app-navigation {
-            z-index: 2;
-        }
-
-        .sidenav {
-            width: 60px;
-            overflow: hidden;
-            transition: width 300ms ease-in;
-
-            .nav-label {
-                white-space: nowrap;
-                margin-left: 8px;
-                opacity: 0.001;
-                transition: opacity 300ms ease-in;
-            }
-
-            
-
-            &.is-expanded {
-                width: 200px;
-
-                .nav-label {
-                    opacity: 1;
-                }
-            }
-        }
     }
 
 }
-// theme (aka look-n-feel)
+
 @mixin app-root-theme($theme-config) {
 
     /* Theme config parts */
@@ -53,16 +25,6 @@
     // App background on body
     &.mat-app-background {
         background-color: map-get($background, background);
-    }
-
-    .app-root {
-        .sidenav {
-
-            .mat-list-item.is-active {
-                background-color: rgba(map-get($primary, default), .08);
-                box-shadow: inset -3px 0 0 map-get($primary, default);
-            }
-        }
     }
 
 }

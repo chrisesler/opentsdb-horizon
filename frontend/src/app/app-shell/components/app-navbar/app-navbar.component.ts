@@ -2,14 +2,14 @@ import { Component, OnInit, Input, Output, EventEmitter, HostBinding, ViewChild 
 
 import { Router } from '@angular/router';
 
-import { CdkService } from '../../../../../core/services/cdk.service';
+import { CdkService } from '../../../core/services/cdk.service';
 
 @Component({
-    selector: 'app-navbar',
-    templateUrl: './navbar.component.html',
-    styleUrls: ['./navbar.component.scss']
+  selector: 'app-navbar',
+  templateUrl: './app-navbar.component.html',
+  styleUrls: []
 })
-export class NavbarComponent implements OnInit {
+export class AppNavbarComponent implements OnInit {
 
     @HostBinding('class.app-navbar') private _hostClass = true;
 

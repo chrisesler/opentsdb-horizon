@@ -1,7 +1,7 @@
 /* NAVBAR COMPONENT */
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 // core (aka structure)
-@mixin navbar-component-base() {
+@mixin app-navbar-component-base() {
     $navbar-height: map-get($navbar-config, 'navbar-height');
     $logo-height: map-get($navbar-config, 'logo-height');
 
@@ -63,7 +63,7 @@
     }
 }
 // theme (aka look-n-feel)
-@mixin navbar-component-theme($theme-config) {
+@mixin app-navbar-component-theme($theme-config) {
 
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
