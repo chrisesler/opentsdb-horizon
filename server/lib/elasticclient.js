@@ -43,8 +43,8 @@ function getElasticQueryResultExtractor(elasticSearchEndpoint) {
     }
     else if (elasticSearchEndpoint === 'tagKeys') {
         return function (response) {
-            if (response.aggregations.elasticQueryResults.elasticQueryResults.buckets) {
-                return response.aggregations.elasticQueryResults.elasticQueryResults.buckets;
+            if (response.aggregations.elasticQueryResults.elasticQueryResults.elasticQueryResults.buckets) {
+                return response.aggregations.elasticQueryResults.elasticQueryResults.elasticQueryResults.buckets;
             }
             else {
                 return [];
@@ -544,43 +544,100 @@ module.exports = function () {
         return defer.promise;
     };
 
+    self._convertRegexp = function (value) {
+        value = value.replace(/^regexp\(/i, "");
+        value = value.replace(/\)$/, "");
+        value = self._convertJavaRegexpToLuceneRegexp(value);
+        return value;
+    }
+
+    self.getQuery = function( tags, metrics ) {
+        var query = {
+            "filtered": {
+                "filter": {
+                    "bool": {
+                        "must": []
+                    }
+                }
+            }
+        };
+
+        var nestedQueryFilters = [];
+
+        // additional tag-value filters
+        if ( tags.length ) {
+            console.log('tag', tags)
+            for ( var i=0, len = tags.length; i < len; i++ ) {
+                var condition='must';
+                if ( tags[i].operator && tags[i].operator === 'NOTIN' ) {
+                        condition = 'must_not';
+                }
+                nestedQueryFilters.push(self.getNestedQueryFilter('tags', condition));
+                var key = tags[i].key.toLowerCase();
+                var filterType = 'term';
+                if ( key.indexOf('.*') !== -1   ) { 
+                    filterType = 'regexp';
+                }
+                var filter = {};
+                filter[filterType] = { "tags.key.lowercase": key };
+                nestedQueryFilters[nestedQueryFilters.length-1].nested.query.bool[condition].push(filter);
+                var v = Array.isArray(tags[i].value) ? tags[i].value.join('|') : tags[i].value;
+                if ( v ) {
+                    console.log('v=', v)
+                    self._convertTagValueToESNotation(nestedQueryFilters[nestedQueryFilters.length-1].nested.query.bool[condition], v);
+                }
+            }
+        }
+
+        if ( metrics.length ) {
+            nestedQueryFilters.push(self.getNestedQueryFilter('AM_nested', 'should'));
+
+            var n = nestedQueryFilters.length;
+            for ( var i=0, len = metrics.length; i < len; i++ ) {
+                var metric = metrics[i].toLowerCase();
+                console.log("metric=", metric)
+
+                var filterType = 'term';
+                if ( metric.indexOf('.*') !== -1  ) { 
+                    filterType = 'regexp';
+                    // metric = self._convertRegexp(metric);
+                }
+                var filter = {};
+                filter[filterType] = { "AM_nested.name.lowercase": metric };
+                nestedQueryFilters[n-1].nested.query.bool.should.push(filter);
+            }
+        }
+
+        query.filtered.filter.bool.must.push(nestedQueryFilters);
+
+        return query;
+    }
+    self.getNestedQueryFilter = function(path, operator) {
+        var queryFilter = {
+            "nested": {
+                "path": path,
+                "query": {
+                    "bool": {
+                    }
+                }
+            }
+        };
+        queryFilter.nested.query.bool[operator] =   [];
+       return queryFilter;
+    };
+
     self.getMetricsSuggestions = function (params) {
         var defer       = Q.defer();
         var suggestions = [];
         var headers = params.headers;
         var namespace     = params.namespace.toLowerCase();
-        var searchPattern = params.search.toLowerCase();
-        searchPattern = convertPatternESCompat(searchPattern);
+        var tags = params.tags || [];
+        var search = convertPatternESCompat(params.search);
 
 
         var queryBody = {
             "size": "0",
-            "query": {
-                "filtered": {
-                    "filter": {
-                        "bool": {
-                            "must": [
-                                {
-                                    "nested": {
-                                        "path": "AM_nested",
-                                        "filter": {
-                                            "bool": {
-                                                "must": [
-                                                    {
-                                                        "regexp": {
-                                                            "AM_nested.name.lowercase": searchPattern
-                                                        }
-                                                    }
-                                                ]
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
+            "query": {},
             "aggs": {
                 "elasticQueryResults": {
                     "nested": {
@@ -593,7 +650,7 @@ module.exports = function () {
                                     "must": [
                                         {
                                             "regexp": {
-                                                "AM_nested.name.lowercase": searchPattern
+                                                "AM_nested.name.lowercase": search
                                             }
                                         }
                                     ]
@@ -613,11 +670,13 @@ module.exports = function () {
             }
         };
 
+        queryBody.query = self.getQuery(tags, [search]);
+
 
         //build multiquery object
         var multisearchQueryBody = [], queryMetadata;
         queryMetadata            = {
-            "index": namespace + "_am",
+            "index": namespace,
             "query_cache": true
         };
         // am => only metrics
@@ -629,7 +688,6 @@ module.exports = function () {
         multisearchQueryBody.push(queryBody);
 
         tags.endpoint = 'metrics';
-
         //perform the query
         self._makeESMultiQuery(
             multisearchQueryBody,
@@ -654,66 +712,54 @@ module.exports = function () {
         var metrics = params.metrics || [];
         var headers     = params.headers;
         var suggestions = [];
+        var tags = params.tags || [];
+        var search = convertPatternESCompat(params.search);
 
         //build multiquery object
         var multisearchQueryBody = [], queryMetadata, queryBody;
             queryMetadata = {
-                "index": namespace.toLowerCase() + "_tagkeys",
+                "index": namespace.toLowerCase(),
                 "query_cache": true
             };
-        queryBody  = {
-            "size": "0",
-            "aggs": {
-                "elasticQueryResults": {
-                    "nested": {
-                        "path": "tags"
-                    },
-                    "aggs": {
-                        "elasticQueryResults": {
-                            "terms": {
-                                "field": "tags.key.raw",
-                                "size": 0
+            queryBody     =  {
+                "size": 0,
+                "query": {},
+                "aggs": {
+                    "elasticQueryResults": {
+                        "nested": {
+                            "path": "tags"
+                        },
+                        "aggs": {
+                            "elasticQueryResults": {
+                                "filter": {
+                                    "bool": {
+                                        "must": [
+                                            {
+                                                "regexp": {
+                                                    "tags.key.lowercase": search
+                                                }
+                                            },
+                                        ]
+                                    }
+                                },
+                                "aggs": {
+                                    "elasticQueryResults": {
+                                        "terms": {
+                                            "field": "tags.key.raw",
+                                            "size": 1000
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
 
-        };
+        var tagFilter = { key: search };
+        tags.unshift(tagFilter);
 
-        var filter = {
-                        "filtered": {
-                            "filter": {
-                                "bool": {
-                                    "must": [
-                                    ]
-                                }
-                            }
-                        }
-                    };
-        var metricFilter = {
-                                "nested": {
-                                    "path": "AM_nested",
-                                    "query": {
-                                        "bool": {
-                                            "should": []
-                                        }
-                                    }
-                                }
-                            };
-        
-        if ( metrics.length ) {
-            for ( var i=0, len = metrics.length; i < len; i++ ) {
-                metricFilter.nested.query.bool.should.push(
-                    {
-                        "term": {"AM_nested.name.lowercase": metrics[i].toLowerCase()}
-                    }
-                );
-            }
-            filter.filtered.filter.bool.must.push(metricFilter);
-            queryBody.query = filter;
-        }
-
+        queryBody.query = self.getQuery(tags, metrics);
         //note: keep insertion order, expected by elastic search
         multisearchQueryBody.push(queryMetadata);
         multisearchQueryBody.push(queryBody);
@@ -728,13 +774,18 @@ module.exports = function () {
             headers,
             appconstant.TAGKEYS_ES_QUERY_TIMEOUT_MS
         ).then(function (resp) {
-            console.log("\n\n resp\n\n\n");
-            console.log(JSON.stringify(resp))
-
             suggestions = extractResultsFromElasticSearchResponse(
                 resp,
                 getElasticQueryResultExtractor('tagKeys')
             );
+            if ( !metrics.length ) {
+                suggestions.unshift('metric');
+            }
+            var tagsSelected = [];
+            for ( var i = 0; i < tags.length; i++ ) {
+                tagsSelected.push(tags[i].key);
+            }
+            suggestions = suggestions.filter( tag => tagsSelected.indexOf(tag) === -1 );
             defer.resolve(suggestions);
         }, function (error) {
             defer.reject(error);
@@ -750,6 +801,8 @@ module.exports = function () {
         var namespace     = params.namespace;
         var metrics     = params.metrics || [];
         var tags = params.tags || [];
+        var tagkey = params.tagkey;
+        var search = params.search ? 'regexp(' + params.search + ')' : '';
         var headers     = params.headers;
 
         //build multiquery object
@@ -760,30 +813,7 @@ module.exports = function () {
         };
         queryBody     =  {
             "size": 0,
-            "query": {
-                "filtered": {
-                    "filter": {
-                        "bool": {
-                            "must": [
-                                {
-                                    "nested": {
-                                        "path": "tags",
-                                        "query": {
-                                            "bool": {
-                                                "must": [{
-                                                    "term": {
-                                                        "tags.key.lowercase": params.tagkey.toLowerCase()
-                                                    }
-                                                }]
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
+            "query": {},
             "aggs": {
                 "elasticQueryResults": {
                     "nested": {
@@ -816,50 +846,12 @@ module.exports = function () {
             }
         };
 
-        if ( tags.length ) {
-            for ( var i=0, len = tags.length; i < len; i++ ) {
-                var tagFilter = {
-                    "nested": {
-                        "path": "tags",
-                        "filter": {
-                            "bool": {
-                                "must": [
-                                    {
-                                        "term": {
-                                            "tags.key.lowercase": tags[i].key.toLowerCase()
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                };
-                self._convertTagValueToESNotation(tagFilter.nested.filter.bool.must, tags[i].value);
-                queryBody.query.filtered.filter.bool.must.push(tagFilter);
-            }
+        var tagFilter = { key: tagkey };
+        if ( search ) {
+            tagFilter.value = search;
         }
-        
-        if ( metrics.length ) {
-            var metricFilter = {
-                "nested": {
-                    "path": "AM_nested",
-                    "query": {
-                        "bool": {
-                            "should": []
-                        }
-                    }
-                }
-            };
-            for ( var i=0, len = metrics.length; i < len; i++ ) {
-                metricFilter.nested.query.bool.should.push(
-                                                                {
-                                                                    "term": {"AM_nested.name.lowercase": metrics[i].toLowerCase()}
-                                                                }
-                                                            );
-            }
-            queryBody.query.filtered.filter.bool.must.push(metricFilter);
-        }
-
+        tags.unshift(tagFilter);
+        queryBody.query = self.getQuery( tags, metrics );
 
         //note: keep insertion order, expected by elastic search
         multisearchQueryBody.push(queryMetadata);
