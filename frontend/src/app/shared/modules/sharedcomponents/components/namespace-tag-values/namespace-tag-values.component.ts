@@ -44,14 +44,14 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges, AfterView
             const query: any = { namespace: this.namespace, tags: [] };
 
             for ( const k in this.tagsSelected ) {
-                if ( k !== 'metric' && this.tagsSelected[k].length ) {
-                    query.tags.push({key: k , value: this.tagsSelected[k]});
+                if ( k !== 'metric' && k !== this.tagkey && this.tagsSelected[k].length ) {
+                    query.tags.push({key: k,  value: this.tagsSelected[k]});
                 }
             }
 
+            query.search = value;
             // console.log(JSON.stringify(query.tags), "tagvalues", JSON.stringify(this.tagsSelected));
             if ( this.tagkey === 'metric' ) {
-                query.search = value;
                 this.filteredTagOptions = this.httpService.getMetricsByNamespace(query);
             } else {
                 query.tagkey = this.tagkey;
