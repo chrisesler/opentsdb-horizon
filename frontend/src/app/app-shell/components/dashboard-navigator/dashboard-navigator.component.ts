@@ -63,7 +63,7 @@ export class DashboardNavigatorComponent implements OnInit {
         this.dashboardFolders.push(
             this.generateFolder('My Dashboards', 'd-dashboard-tile', 5),
             this.generateFolder('Favorites', 'd-star', 5),
-            this.generateFolder('Frequently Visited', 'd-duplicate', 2),
+            // this.generateFolder('Frequently Visited', 'd-duplicate', 2),
             this.generateFolder('Recently Visited', 'd-time', 3)
         );
 
