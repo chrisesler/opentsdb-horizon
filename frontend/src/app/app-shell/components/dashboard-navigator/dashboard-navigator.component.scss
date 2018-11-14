@@ -103,6 +103,19 @@
                 }
             }
         }
+
+        .folder-nav-item {
+            .counter {
+                padding: 0 6px;
+
+                .dashboard-count {
+                    border-radius: 4px;
+                    padding: 2px 4px;
+                    font-size: 10px;
+                    font-weight: 300;
+                }
+            }
+        }
         
 
     }
@@ -151,6 +164,15 @@
         .dashboards-header,
         .namespaces-header {
             background-color: rgba(0, 0, 0, .5);
+        }
+
+        .folder-nav-item {
+            .counter {
+                .dashboard-count {
+                    color: white;
+                    background-color: rgba(0, 0, 0, .25);
+                }
+            }
         }
 
     }

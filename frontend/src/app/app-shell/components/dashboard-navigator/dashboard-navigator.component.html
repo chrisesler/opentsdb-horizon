@@ -37,6 +37,9 @@
                     <mat-icon class="folder-icon" fontSet="denali" [fontIcon]="folder.icon"></mat-icon>
                     <span>{{folder.name}}</span>
                     <span class="flex-spacer"></span>
+                    <span class="counter">
+                        <span class="dashboard-count">{{folder.dashboards.length}}</span>
+                    </span>
                     <button mat-icon-button >
                         <mat-icon fontSet="denali" fontIcon="d-arrowhead-right"></mat-icon>
                     </button>
