@@ -22,7 +22,6 @@ import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 // our
 import { AdminModule } from './admin/admin.module';
 import { AdhocModule } from './adhoc/adhoc.module';
-import { NavbarModule } from './shared/modules/navbar/navbar.module';
 
 import { AuthInterceptor } from './core/http/auth.interceptor';
 import { AuthService } from './core/services/auth.service';
@@ -30,8 +29,7 @@ import { AuthState } from './shared/state/auth.state';
 
 import { CredentialsInterceptor } from './core/http/credentials.interceptor';
 
-import { SharedcomponentsModule } from './shared/modules/sharedcomponents/sharedcomponents.module';
-
+import { AppShellModule } from './app-shell/app-shell.module';
 
 @NgModule({
   declarations: [
@@ -50,8 +48,7 @@ import { SharedcomponentsModule } from './shared/modules/sharedcomponents/shared
     NgxsReduxDevtoolsPluginModule.forRoot({ disabled: environment.production }),
     AdminModule,
     AdhocModule,
-    NavbarModule,
-    SharedcomponentsModule
+    AppShellModule,
   ],
   providers: [
     AuthService,
