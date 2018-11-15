@@ -47,6 +47,7 @@ import { InlineQueryEditorComponent } from './components/inline-query-editor/inl
 import { NamespaceAutocompleteComponent } from './components/namespace-autocomplete/namespace-autocomplete.component';
 import { NamespaceTagAutocompleteComponent } from './components/namespace-tag-autocomplete/namespace-tag-autocomplete.component';
 import { NamespaceTagValuesComponent } from './components/namespace-tag-values/namespace-tag-values.component';
+import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.component';
 
 @NgModule({
     imports: [
@@ -90,7 +91,8 @@ import { NamespaceTagValuesComponent } from './components/namespace-tag-values/n
         InlineQueryEditorComponent,
         NamespaceAutocompleteComponent,
         NamespaceTagAutocompleteComponent,
-        NamespaceTagValuesComponent
+        NamespaceTagValuesComponent,
+        TagvEditviewComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
