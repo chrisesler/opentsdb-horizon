@@ -29,7 +29,7 @@
                 padding: 4px;
                 min-width:250px;
                 width: 300px;
-                position: fixed;
+                position: absolute;
                 border-radius: 5px;
             }
 
@@ -54,7 +54,7 @@
                         height: 3px;
                         margin-right: 5px;
                     }
-                }
+                  }
             }
 
             &.display-legend-top{
@@ -149,6 +149,7 @@
                 //top: 30px;
                 padding: 8px;
                 //display: block;
+                position: relative;
             }
         }
     }
