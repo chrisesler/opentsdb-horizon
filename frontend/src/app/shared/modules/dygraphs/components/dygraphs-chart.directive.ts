@@ -45,12 +45,15 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         }
         labelsDiv.style.left = (event.offsetX  + xOffset ) + 'px';
         labelsDiv.style.top = (event.offsetY   + yOffset)  + 'px';
+        labelsDiv.style.display = 'block';
     };
 
     const legendFormatter = function(data) {
         const seriesConfig = this.user_attrs_.series;
         if (data.x == null) {
-            return '<li>' + data.series.map(function(series) { return series.isVisible && series.isHighlighted ? series.dashHTML + ' ' + series.labelHTML : ''; }).join('<li>');
+            const labelsDiv = this.user_attrs_.labelsDiv;
+            labelsDiv.style.display = 'none';
+            return '';
         }
 
         let html = '<p>' + data.xHTML + '</p>';
