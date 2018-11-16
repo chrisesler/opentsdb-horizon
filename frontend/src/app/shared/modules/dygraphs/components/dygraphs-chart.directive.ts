@@ -32,20 +32,19 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
     const self = this;
     const mouseover = function(event, x, pts, row) {
-        const partentPos = self.element.nativeElement.getBoundingClientRect();
         const labelsDiv = this.user_attrs_.labelsDiv;
         let xOffset = 10;
         let yOffset = 10;
         const labelDivWidth = labelsDiv.clientWidth;
         const labelDivHeight = labelsDiv.clientHeight;
-        if (event.clientX > (window.innerWidth - (1.5 * labelDivWidth))) {
+        if (event.offsetX > (window.innerWidth - (1.2 * labelDivWidth))) {
             xOffset = - (labelDivWidth + 10);
         }
-        if (event.clientY > (window.innerHeight - (1.5 * labelDivHeight))){
+        if (event.offsetY > (window.innerHeight - (1.2 * labelDivHeight))){
             yOffset = - (labelDivHeight + 10);
         }
-        labelsDiv.style.left = (event.clientX - partentPos.left + xOffset ) + 'px';
-        labelsDiv.style.top = (event.clientY  - partentPos.top + yOffset)  + 'px';
+        labelsDiv.style.left = (event.offsetX  + xOffset ) + 'px';
+        labelsDiv.style.top = (event.offsetY   + yOffset)  + 'px';
     };
 
     const legendFormatter = function(data) {
