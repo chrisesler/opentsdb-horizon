@@ -1,0 +1,55 @@
+@mixin dnav-folder-item-component-base() {
+    .dnav-folder-item {
+        flex: 1;
+        display: flex;
+        justify-content: stretch;
+        align-items: stretch;
+        height: 36px;
+        font-weight: 300;
+        font-size: 12px;
+        
+        .mat-icon {
+            height: 12px;
+            width: 12px;
+            font-size: 100%; 
+        }
+        
+        .folder-icon {
+            margin-right: 8px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .folder-name {
+            span {
+                max-width: 198px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        
+    }
+}
+
+@mixin dnav-folder-item-component-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+    $status: map-get($theme-config, status);
+
+    .dnav-folder-item {
+        .save-folder-name {
+            color: map-get($status, success);
+        }
+    }
+}

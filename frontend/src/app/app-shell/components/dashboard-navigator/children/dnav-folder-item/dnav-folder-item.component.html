@@ -1,0 +1,42 @@
+<ng-container *ngIf="mode === 'new' && FolderForm.controls" >
+    <div class="list-item" [formGroup]="FolderForm">
+        <mat-form-field appearance="fill" floatLabel="never">
+            
+            <input matInput placeholder="Enter folder Name" formControlName="fc_FolderName">
+            <mat-icon matPrefix fontSet="denali" fontIcon="d-folder"></mat-icon>
+            <button mat-icon-button matSuffix class="save-folder-name" (click)="inputSave()" >
+                <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
+            </button>
+        </mat-form-field>
+    </div>
+</ng-container>
+<ng-container *ngIf="mode === 'edit' && FolderForm.controls">
+    <div class="list-item" [formGroup]="FolderForm">
+        <mat-checkbox formControlName="fc_FolderChecked" (change)="checkboxChange($event)"></mat-checkbox>
+        <mat-form-field appearance="fill" floatLabel="never">
+            <input matInput placeholder="Edit folder Name" formControlName="fc_FolderName">
+            <mat-icon matPrefix fontSet="denali" fontIcon="d-folder"></mat-icon>
+            <button mat-icon-button matSuffix class="save-folder-name" (click)="inputSave()" >
+                <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
+            </button>
+        </mat-form-field>
+    </div>
+</ng-container>
+<ng-container *ngIf="mode === 'display'">
+    <div class="list-item">
+        <mat-icon class="folder-icon" fontSet="denali" [fontIcon]="folder.icon"></mat-icon>
+    </div>
+    <div class="list-item folder-name flex-spacer">
+        <span>{{folder.name}}</span>
+    </div>
+    <div class="list-item">
+        <span class="counter">
+            <span class="chip-count">{{folder.dashboards.length}}</span>
+        </span>
+    </div>
+    <div class="list-item">
+        <button mat-icon-button >
+            <mat-icon fontSet="denali" fontIcon="d-arrowhead-right"></mat-icon>
+        </button>
+    </div>
+</ng-container>
