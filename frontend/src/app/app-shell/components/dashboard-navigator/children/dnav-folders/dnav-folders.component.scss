@@ -1,0 +1,69 @@
+// NOTE
+// Most stles come from 'dashboard-navigator.component.scss'
+// since the styles are shared
+@mixin dnav-folders-component-base() {
+    .dnav-folders {
+        display: flex;
+        flex-direction: column;
+
+        .block-header.folders-header {
+            align-items: stretch;
+            justify-content: stretch;
+
+            .block-header-label,
+            .edit-actions,
+            .create-actions,
+            .display-actions {
+                display: flex;
+                align-items: center;
+            }
+
+            .edit-actions,
+            .create-actions {
+                display: none;
+            }
+
+            &.has-create-actions {
+                .display-actions,
+                .edit-actions {
+                    display: none;
+                }
+
+                .create-actions {
+                    display: flex;
+                }
+            }
+
+            &.has-edit-actions {
+                .block-header-label,
+                .display-actions,
+                .create-actions {
+                    display: none;
+                }
+
+                .edit-actions {
+                    display: flex;
+                }
+            }
+
+        }
+    }
+}
+
+@mixin dnav-folders-component-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+    $status: map-get($theme-config, status);
+
+    .dnav-folders {
+        .remove-folders-button.is-active {
+            color: map-get($status, error);
+        }
+    }
+}
