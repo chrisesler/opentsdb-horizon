@@ -51,8 +51,8 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     timeOverTimePeriod: any = '';
 
     selectedDownsample: any = 'auto';
-    customDownsampleValue: any = 0;
-    customDownsampleUnit: any = 'min';
+    customDownsampleValue: any = 10;
+    customDownsampleUnit: any = 'm';
 
     overrideRelativeTime: any;
     timeShift: any;
@@ -238,7 +238,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
             customDownsampleValue:
                 new FormControl(
                     {
-                        value: this.widget.query.settings.time.downsample.customValue || 10,
+                        value: this.widget.query.settings.time.downsample.customValue || this.customDownsampleValue,
                         disabled: !isCustomDownsample ? true : false
                     },
                     [Validators.min(1), Validators.pattern('^[0-9]+$') ]

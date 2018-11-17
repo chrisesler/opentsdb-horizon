@@ -109,6 +109,7 @@ router.post('/nsmetrics', function(req, res) {
     esclient.getMetricsSuggestions({
             'namespace': req.body.namespace,
             'search': req.body.search,
+            'tags': req.body.tags || [],
             'headers': req.headers
         }
     ).then(function(results){
@@ -133,6 +134,8 @@ router.post('/nstagkeys', function(req, res) {
     esclient.getTagkeysForNamespace({
             'namespace': req.body.namespace,
             'metrics' : req.body.metrics || [],
+            'search': req.body.search || '',
+            'tags': req.body.tags || [],
             'headers': req.headers
         }
     ).then(function(results){
@@ -157,12 +160,13 @@ router.post('/nstagvalues', function(req, res) {
     esclient.getTagValuesByNamespace({
             'namespace': req.body.namespace,
             'tagkey': req.body.tagkey,
+            'search': req.body.search,
             'metrics': req.body.metrics || [],
-            'tag' : req.body.tags || [],
+            'tags' : req.body.tags || [],
             'headers': req.headers
         }
     ).then(function(results){
-        console.log("\n\nTAG KEYS********\n\n", JSON.stringify(results));
+        // console.log("\n\nTAG KEYS********\n\n", JSON.stringify(results));
         res.json( results );
     }, function(errorObj){
         res.status(502).json({

@@ -16,7 +16,7 @@
 
     <span class="flex-spacer"></span>
 
-    <span class="navbar-item nav-add-new-widget" *ngIf="!(viewEditMode)">
+    <span class="navbar-item nav-add-new-widget" *ngIf="!viewEditMode">
         <button mat-raised-button class="mat-elevation-z0" 
             [ngClass]="{'menu-trigger-underline': availableWidgetsMenuIsOpen}"
             [matMenuTriggerFor]="dashboardAvailableWidgetsMenu"
@@ -43,7 +43,7 @@
 
     <!-- <color-picker (newColor)="eventTriggered($event)" [color]="'#000001'"> </color-picker> -->
 
-    <span class="navbar-item nav-refresh-icon">
+    <span class="navbar-item nav-refresh-icon" *ngIf="!viewEditMode">
         <button mat-raised-button (click)="click_refreshDashboard()">
             <mat-icon fontSet="denali" fontIcon="d-refresh"></mat-icon>
         </button>
@@ -56,11 +56,11 @@
     </span>
 
     <!--<simple-time-picker xPosition="before"></simple-time-picker>-->
-    <span class="navbar-item nav-dashboard-actions">
+    <span class="navbar-item nav-dashboard-actions" *ngIf="!viewEditMode">
         <navbar-dashboard-actions-menu mat-button [id]="dbid" [dbSettingsMeta]="meta" (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
     </span>
 
-    <span class="navbar-item navbar-icon-item nav-search-toggle">
+    <span class="navbar-item navbar-icon-item nav-search-toggle" *ngIf="!viewEditMode">
         <navbar-search-toggle mat-button></navbar-search-toggle>
     </span>
 

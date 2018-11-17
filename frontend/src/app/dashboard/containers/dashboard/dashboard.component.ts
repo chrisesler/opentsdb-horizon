@@ -144,6 +144,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     tagValuesSub: Subscription;
     dbStatusSub: Subscription;
     dbErrorSub: Subscription;
+    dbModeSub: Subscription;
     userNamespacesSub: Subscription;
     private routeSub: Subscription;
     dbid: string; // passing dashboard id
@@ -346,6 +347,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new LoadDashboardTags(metrics));
                 }
             }
+        });
+
+        this.dbModeSub = this.dashboardMode$.subscribe( mode => {
+            console.log("mode changed", mode);
+            this.viewEditMode = mode === 'edit' || mode === 'view' ? true : false;
         });
 
         this.dbTime$.subscribe ( t => {
@@ -678,6 +684,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dbTagsSub.unsubscribe();
         this.tagValuesSub.unsubscribe();
         this.dbIdSub.unsubscribe();
+        this.dbModeSub.unsubscribe();
         this.dbStatusSub.unsubscribe();
         this.dbErrorSub.unsubscribe();
         this.userNamespacesSub.unsubscribe();
