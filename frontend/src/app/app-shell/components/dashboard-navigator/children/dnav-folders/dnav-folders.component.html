@@ -1,0 +1,44 @@
+<div class="block-header folders-header" *ngIf="!masterPanel" [ngClass]="{'has-create-actions': editMode === 'create', 'has-edit-actions': editMode === 'edit'}">
+    <div class="block-header-label">
+        <span class="header-label">{{ folders.length > 0 ? 'Folders' : 'Add Folder' }}</span>
+        <span class="counter" *ngIf="folders.length > 0">
+            <span class="chip-count">{{folders.length}}</span>
+        </span>
+    </div>
+    <div class="edit-actions">
+        <button mat-button class="remove-folders-button" (click)="removeFolders()" [disabled]="foldersToRemove.length === 0" [ngClass]="{'is-active': foldersToRemove.length > 0}">
+            <span>Remove</span>
+        </button>
+        <button mat-button (click)="cancelEdit()">
+            <span>Cancel</span>
+        </button>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="display-actions">
+        <button mat-icon-button (click)="createFolder()">
+            <mat-icon fontSet="denali" fontIcon="d-folder-add"></mat-icon>
+        </button>
+        <button mat-icon-button (click)="editFolders()">
+            <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+        </button>
+    </div>
+    <div class="edit-actions">
+        <button mat-button (click)="doneEdit()">
+            <span>Done</span>
+        </button>
+    </div>
+    <div class="create-actions">
+        <button mat-button (click)="cancelCreate()">
+            <span>Cancel</span>
+        </button>
+    </div>
+</div>
+
+<mat-nav-list *ngIf="folders && folders.length > 0">
+    <mat-list-item *ngIf="editMode === 'create' && !bulkEdit">
+        <dnav-folder-item [folder]="{ name: ''}" mode="new" (folderAction)="createFolderAction($event)"></dnav-folder-item>
+    </mat-list-item>
+    <mat-list-item *ngFor="let folder of folders; let i = index;" class="folder-nav-item" (click)="gotoFolder(i)">
+        <dnav-folder-item [folder]="folder" [mode]="bulkEdit ? 'edit' : 'display'" (folderAction)="editFolderAction(folder, $event)"></dnav-folder-item>
+    </mat-list-item>
+</mat-nav-list>

@@ -1,0 +1,18 @@
+<div class="block-header dashboards-header">
+    <span class="header-label">Dashboards</span>
+    <span class="counter" *ngIf="dashboards.length > 0">
+        <span class="chip-count">{{dashboards.length}}</span>
+    </span>
+    <span class="flex-spacer"></span>
+    <button mat-icon-button (click)="createDashboard()">
+        <mat-icon fontSet="denali" fontIcon="d-dashboard-tile-add"></mat-icon>
+    </button>
+    <button mat-icon-button (click)="editDashboards()">
+        <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+    </button>
+</div>
+<mat-nav-list class="dashboard-list" *ngIf="dashboards.length > 0">
+    <mat-list-item *ngFor="let dashboard of dashboards">
+        <dnav-dashboard-item [dashboard]="dashboard"></dnav-dashboard-item>
+    </mat-list-item>
+</mat-nav-list>

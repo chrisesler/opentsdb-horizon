@@ -42,6 +42,9 @@ export class DashboardNavigatorComponent implements OnInit {
 
     pathTree: any[];
 
+    // tslint:disable-next-line:no-inferrable-types
+    currentPaneIndex: number = 0;
+
     constructor(
         private http: HttpService,
         private router: Router
@@ -98,6 +101,11 @@ export class DashboardNavigatorComponent implements OnInit {
 
     /** EVENTS */
 
+    createDashboard(folderId?: number) {
+        this.router.navigate(['d', '_new_']);
+        this.closeDrawer();
+    }
+
     /**
      * toggleDrawerMode
      * notifies the app-shell to trigger side drawer to lock to 'side'
@@ -127,6 +135,8 @@ export class DashboardNavigatorComponent implements OnInit {
      */
     navtoPanelFolder(folder: any) {
         this.panels.push(folder);
+        this.currentPaneIndex = this.currentPaneIndex + 1;
+
         setTimeout(function() {
             this.navPanel.goNext();
         }.bind(this), 200);
@@ -144,6 +154,7 @@ export class DashboardNavigatorComponent implements OnInit {
      */
     navfromPanelFolder(folder: any) {
         const idx = this.panels.indexOf(folder);
+        this.currentPaneIndex = this.currentPaneIndex - 1;
         this.navPanel.goBack( () => {
             this.panels.splice(idx, 1);
         });
@@ -166,11 +177,19 @@ export class DashboardNavigatorComponent implements OnInit {
                 this.panels.splice(idx, 1);
             });
         } else {*/
+            this.currentPaneIndex = idx;
             this.panels.splice((idx + 1), (fromIdx - idx) - 1);
             this.navPanel.shiftTo(idx, idx + 1, () => {
                 this.panels.splice(idx + 1);
             });
         // }
+    }
+
+    // go all the way back to master panel
+    navtoMasterPanel() {
+        if (this.currentPaneIndex > 0) {
+            this.navtoSpecificPanel(0, this.currentPaneIndex);
+        }
     }
 
     /**
@@ -219,6 +238,16 @@ export class DashboardNavigatorComponent implements OnInit {
         }
 
         this.pathTree = newTree;
+    }
+
+    folderAction(panel, event) {
+        switch (event.action) {
+            case 'navtoPanelFolder':
+                this.navtoPanelFolder(panel.folders[event.idx]);
+                break;
+            default:
+                break;
+        }
     }
 
 }
