@@ -120,14 +120,16 @@ import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.
         DropdownAggregatorsComponent,
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
-        InlineQueryEditorComponent
+        InlineQueryEditorComponent,
+        NamespaceTagValuesComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,
         SearchMetricsDialogComponent,
         SearchAllDialogComponent,
         ExpressionDialogComponent,
-        InlineQueryEditorComponent
+        InlineQueryEditorComponent,
+        NamespaceTagValuesComponent
     ],
 })
 export class SharedcomponentsModule { }

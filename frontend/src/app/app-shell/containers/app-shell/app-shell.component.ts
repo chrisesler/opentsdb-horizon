@@ -34,7 +34,7 @@ export class AppShellComponent implements OnInit, OnDestroy {
     activeNavSection: string = '';
 
     // tslint:disable-next-line:no-inferrable-types
-    drawerMode: string = 'push'; // over | side;
+    drawerMode: string = 'side'; // over | side;
 
 
     constructor(
@@ -109,7 +109,7 @@ export class AppShellComponent implements OnInit, OnDestroy {
 
     closeNavigator() {
         this.drawer.close();
-        this.drawerMode = 'push';
+        this.drawerMode = 'side';
     }
 
     toggleDrawerMode(event?: any) {
@@ -121,7 +121,7 @@ export class AppShellComponent implements OnInit, OnDestroy {
             this.sideNav.resetActiveNav();
         } else {
             // this.drawerMode = (this.drawerMode === 'side') ? 'over' : 'side';
-            this.drawerMode = 'push';
+            this.drawerMode = 'side';
         }
     }
 

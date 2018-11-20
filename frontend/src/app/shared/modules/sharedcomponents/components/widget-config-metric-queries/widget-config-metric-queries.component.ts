@@ -1,5 +1,5 @@
 import {
-    Component, OnInit, HostBinding, Input, Output, EventEmitter, OnDestroy, OnChanges, SimpleChanges
+    Component, OnInit, HostBinding, Input, Output, ElementRef, EventEmitter, OnDestroy, OnChanges, SimpleChanges
 } from '@angular/core';
 
 import {
@@ -15,6 +15,7 @@ import {
 import {
     ExpressionDialogComponent
 } from '../expression-dialog/expression-dialog.component';
+import { InlineQueryEditorComponent } from '../inline-query-editor/inline-query-editor.component';
 
 import { Subscription } from 'rxjs';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -44,6 +45,10 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     metricExpressionDialog: MatDialogRef<ExpressionDialogComponent> | null;
     metricExpressionDialogSub: Subscription;
 
+    // Inline Query Editor
+    inlineQueryEditorDialog: MatDialogRef<InlineQueryEditorComponent> | null;
+    inlineQueryEditorDialogSub: Subscription;
+
     /** Local variables */
 
     modGroup: any; // current group that is adding metric
@@ -60,12 +65,14 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     namespace = '';
     showNewQueryEditor = false;
     newQueryId = '';
+    editQueryId = '';
     selectAllToggle: String = 'none'; // none/all/some
 
     constructor(
         public dialog: MatDialog,
         private interCom: IntercomService,
-        private util: UtilsService
+        private util: UtilsService,
+        private elRef: ElementRef
     ) { }
 
     ngOnInit() {
@@ -78,7 +85,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     }
     addNewQuery(namespace, gid) {
         const gconfig = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-        const query: any = { metric: namespace , filters: [] };
+        const query: any = { namespace: namespace , metrics: [], filters: [] };
         switch (this.widget.settings.component_type) {
             case 'LinechartWidgetComponent':
                 query.settings = {
@@ -100,6 +107,24 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         console.log("addNewQuery:::namepsace...", namespace, gid, gconfig, this.widget);
     }
 
+    editNamespace(queryId) {
+        this.editQueryId = queryId;
+    }
+
+    saveNamespace(namespace, gid, qid ) {
+        console.log("savenamespace", namespace, gid, qid);
+        const gconfig = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        const query = this.util.getObjectByKey(gconfig.queries, 'id', qid);
+        query.namespace = namespace;
+        this.editQueryId = '';
+        this.updateQuery(query, gid);
+    }
+
+    cancelSaveNamespace(e) {
+        this.editQueryId = '';
+        console.log("cancelsavens", e);
+
+    }
     ngOnChanges(changes: SimpleChanges) {
         // when editing mode is loaded, we need to temporary adding default UI state
         // to editing widget
@@ -112,6 +137,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     updateQuery(query, gid) {
         console.log("widget-query :: updateQuery, query, gid", query, gid);
         const payload = { action: 'UpdateQuery', payload: { gid: gid, query: query } };
+        this.newQueryId = '';
         this.widgetChange.emit(payload);
     }
 
@@ -208,6 +234,37 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             this.modGroup = dialog_out.mgroup;
             this.widgetChange.emit({action: 'AddMetricsToGroup', payload: { data: this.modGroup }});
             console.log('...expression return...', this.modGroup);
+        });
+    }
+
+    openInlineQueryEditorDialog(query: any) {
+        console.log('%cInlineQueryDialog', 'background: purple; color: white;', query);
+        const parentPos = this.elRef.nativeElement.closest('.widget-controls-container').getBoundingClientRect();
+        console.log("parentpos", parentPos);
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        const offsetHeight = 60;
+        dialogConf.width = parentPos.width + 'px';
+        dialogConf.maxWidth = '100%';
+        dialogConf.height = (parentPos.height - offsetHeight) + 'px';
+        dialogConf.backdropClass = 'inline-query-editor-dialog-backdrop';
+        dialogConf.panelClass = 'inline-query-editor-dialog-panel';
+        dialogConf.position = <DialogPosition>{
+            top: (parentPos.top + offsetHeight) + 'px',
+            bottom: '0px',
+            left: parentPos.left + 'px',
+            right: '0px'
+        };
+        console.log("dialogConf", dialogConf.position);
+        dialogConf.data = query;
+
+        this.inlineQueryEditorDialog = this.dialog.open(InlineQueryEditorComponent, dialogConf);
+        // this.inlineQueryEditorDialog.updatePosition({top: '48px'});
+
+        this.inlineQueryEditorDialog.afterClosed().subscribe((dialog_out: any) => {
+            console.log('openInlineQueryEditorDialog::afterClosed', dialog_out);
+            // this.modGroup = dialog_out.mgroup;
+            // this.widgetChange.emit({action: 'AddMetricsToGroup', payload: { data: this.modGroup }});
+            // console.log('...expression return...', this.modGroup);
         });
     }
 

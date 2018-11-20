@@ -61,7 +61,7 @@ export class YamasService {
             type: 'TimeSeriesDataSource',
             metric: {
                 type: 'MetricLiteral',
-                metric: m.metric
+                metric:  m.namespace + '.' + m.metric
             },
             fetchLast: false,
             filter: {}

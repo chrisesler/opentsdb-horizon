@@ -1,0 +1,32 @@
+<a href="/d/{{dashboard.id}}" class="dnav-dashboard-link flex-spacer">
+    <mat-icon class="dnav-dashboard-icon" fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
+    <span class="dnav-dashboard-label">{{dashboard.name}}</span>
+</a>
+<span class="dnav-dashboard-menu">
+    <button mat-icon-button (click)="clickMore($event)">
+        <mat-icon fontSet="denali" fontIcon="d-more-vertical"></mat-icon>
+    </button>
+</span>
+<span class="dnav-menu-trigger"
+    [matMenuTriggerFor]="dnavDashboardItemMenu" 
+    (menuOpened)="menuState(true)"
+    (menuClosed)="menuState(false)"></span>
+<mat-menu class="dnav-cdk-dashboard-menu" xPosition="after" #dnavDashboardItemMenu="matMenu" style="transform: translate3d(30px,-32px,0);">
+    <button mat-menu-item>
+        <mat-icon fontSet="denali" fontIcon="d-external"></mat-icon>
+        <span>Open in new tab</span>
+    </button>
+    <!-- Hiding for now
+    <button mat-menu-item>
+        <mat-icon fontSet="denali" fontIcon="d-folder-merge"></mat-icon>
+        <span>Move to folder</span>
+    </button>
+    <button mat-menu-item>
+        <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
+        <span>Copy</span>
+    </button>-->
+    <button mat-menu-item>
+        <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+        <span>Delete</span>
+    </button>
+</mat-menu>
