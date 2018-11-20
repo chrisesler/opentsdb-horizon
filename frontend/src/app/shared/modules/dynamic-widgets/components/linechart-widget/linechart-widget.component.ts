@@ -154,6 +154,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 break;
             case 'SetVisualization':
                 this.setVisualization( message.payload.gIndex, message.payload.data );
+                this.options = { ...this.options };
+                this.refreshData(false);
                 break;
             case 'SetAlerts':
                 this.widget.query.settings.thresholds = message.payload.data;
@@ -400,7 +402,28 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 2 : config.decimals;
             axis.tickFormat = { unit: config.unit, precision: decimals, unitDisplay: true };
         }
-        console.log("setaxis",  this.options, this.widget.query.groups[0].queries);
+
+        // draw the axis if one series on the axis
+        let y1Enabled = false, y2Enabled = false;
+        const groups = this.widget.query.groups;
+        for ( let m = 0; m < groups.length; m++ ) {
+            const queries = groups[m].queries;
+            for ( let n = 0; n < queries.length; n++ ) {
+                const vConfig = queries[n].settings.visual;
+                if ( !vConfig.axis || vConfig.axis === 'y1' ) {
+                    y1Enabled = true;
+                } else if ( vConfig.axis === 'y2') {
+                    y2Enabled = true;
+                }
+            }
+        }
+        // this.options.axes.y.drawAxis = y1Enabled;
+        // this.options.axisLabelWidth = y1Enabled ? 50 : 1;
+         this.options.axes.y.drawAxis = true;
+        // this.options.axes.y2.drawAxis = y2Enabled;
+        this.options.axes.y.axisLabelWidth = y1Enabled ? 50 : 0;
+        this.options.axes.y2.axisLabelWidth = y2Enabled ? 50 : 0;
+        console.log("setaxis",  y1Enabled, y2Enabled, this.options, this.widget.query.groups[0].queries);
     }
 
     updateAlertValue(nConfig) {
@@ -481,9 +504,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 // this.options.series[label].plotter = multiColumnGroupPlotter;
             }
         }
-        console.log('set visual', this.options);
-        //this.options = {...this.options};
-        this.refreshData(false);
+        // call only axis changes
+        this.setAxesOption();
+        console.log('set visual', this.options, this.widget);
     }
 
     setLegend(config) {

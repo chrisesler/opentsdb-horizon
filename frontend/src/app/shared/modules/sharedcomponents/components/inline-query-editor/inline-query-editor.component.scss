@@ -9,6 +9,156 @@
         .namespace span {
             font-weight: bold;
         }
+        .query{
+            background: #f0f0f0;
+
+            .mat-stroked-button {
+                font-weight: 300;
+            }
+            > div {
+                height: 100%;
+                display: flex;
+                flex-direction: row;
+                /*
+                margin: 7px;
+                background-color: #fff;
+                width: 25%;
+                */
+                .metrics{
+                    width: 30%;
+                    .caption{
+                        font-size: 12px;
+                        font-weight: 300;
+                        color: grey;
+                    }
+                    .metric{
+
+                    }
+                    .metric-add-btn{
+                        margin-top : 15px;
+                    }
+                }
+                .tags {
+                    width: 70%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: stretch;
+                    justify-content: stretch;
+                    flex-grow: 3;
+                    border: 2px solid #227aec;
+                    .container {
+                        display: flex;
+                        flex: 1;
+
+                        > div {
+                            width: 33.33%;
+                            border: 1px solid burlywood;
+                        }
+                        .tag-key {
+                            flex-basis: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            .caption {
+                                font-size: 10px;
+                                font-weight: 300;
+                                color: grey;
+                            }
+                            .filter {
+                                .search {
+                                }
+                            }
+                            .list {
+                                flex: 1;
+                                .option {
+                                    padding: 5px;
+                                    cursor: pointer;
+                                }
+                                .option:hover {
+                                    background: #fff;
+                                }
+                                .option.added {
+                                    background: #c5e3ff;
+                                    border-bottom: 1px solid #000;
+                                }
+                                .option.selected {
+                                    background: #227aec;
+                                    font-weight: 500;
+                                }
+                            }
+                        }
+                        .tag-values {
+                            flex-basis: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            .caption {
+                                font-size: 10px;
+                                font-weight: 300;
+                                color: grey;
+                            }
+                            .filter {
+                                display: flex;
+                                .search {
+
+                                }
+                                .type {
+                                    button {
+
+                                    }
+                                    button.active {
+
+                                    }
+                                }
+                            }
+                            .list {
+                                flex: 1;
+                                .option {
+                                    padding: 5px;
+                                    font-size: 10px;
+                                    display: flex;
+                                    flex-direction: row;
+                                    align-items: center;
+                                    mat-icon {
+                                        cursor: pointer;
+                                        font-size: 15px;
+                                        color: green;
+                                    }
+                                }
+                                .option:hover {
+                                    background: #fff;
+                                }
+                            }
+                        }
+                        .tag-values-selected{
+                            flex-basis: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            .caption {
+                                font-size: 10px;
+                                font-weight: 300;
+                                color: grey;
+                            }
+                            .list {
+                                flex: 1;
+                                .option {
+                                    padding: 5px;
+                                    font-size: 10px;
+                                    mat-icon {
+                                        cursor: pointer;
+                                        font-size: 15px;
+                                        color: red;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .action {
+                flex-grow: 4;
+                height: 40px;
+                background: #f0f0f0;
+            }
+        }
         .metric-tags {
             display: flex;
             align-items: center;

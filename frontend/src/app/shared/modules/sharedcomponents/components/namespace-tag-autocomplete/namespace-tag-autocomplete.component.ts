@@ -7,7 +7,6 @@ import { Observable, of } from 'rxjs';
 import { map, startWith, debounceTime, switchMap, filter, catchError } from 'rxjs/operators';
 
 import { HttpService } from '../../../../../core/http/http.service';
-import { namespace } from 'd3';
 
 
 @Component({
@@ -53,14 +52,18 @@ export class NamespaceTagAutocompleteComponent implements OnInit {
 
             // filter tags by metrics
             if ( this.tagsSelected && this.tagsSelected.metric ) {
+                console.log("tagsSelected", this.tagsSelected, Array.isArray(this.tagsSelected.metric));
                 query.metrics = Array.isArray(this.tagsSelected.metric) ? this.tagsSelected.metric : [ this.tagsSelected.metric ];
             }
+            console.log("tag query", query);
             this.httpService.getNamespaceTagKeys(query)
                                                         .pipe(
                                                             // debounceTime(200),
                                                             catchError(val => of(`I caught: ${val}`)),
                                                         ).subscribe( res => {
                                                             console.log("comsd ", res);
+                                                            const tagkeysSelected = Object.keys(this.tagsSelected);
+                                                            res = res.filter( tag => tagkeysSelected.indexOf(tag) === -1);
                                                             this.filteredTagOptions = of(res);
                                                         });
             this.tagInput.nativeElement.focus();

@@ -632,7 +632,7 @@ module.exports = function () {
         var headers = params.headers;
         var namespace     = params.namespace.toLowerCase();
         var tags = params.tags || [];
-        var search = convertPatternESCompat(params.search);
+        var search = convertPatternESCompat(params.search || '');
 
 
         var queryBody = {
@@ -778,9 +778,6 @@ module.exports = function () {
                 resp,
                 getElasticQueryResultExtractor('tagKeys')
             );
-            if ( !metrics.length ) {
-                suggestions.unshift('metric');
-            }
             var tagsSelected = [];
             for ( var i = 0; i < tags.length; i++ ) {
                 tagsSelected.push(tags[i].key);

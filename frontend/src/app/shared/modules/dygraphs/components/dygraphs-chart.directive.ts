@@ -72,6 +72,19 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         return html;
     };
 
+    const _self = this;
+    const tickFormatter = function(value, gran, opts) {
+            const format = opts('tickFormat');
+            const precision = format.precision ? format.precision : 2;
+            return _self.uConverter.format(value, { unit: format.unit, precision: precision } );
+    };
+    const valueFormatter = function(value, opts) {
+        const format = opts('tickFormat');
+        const precision = format.precision ? format.precision : 2;
+        return _self.uConverter.format(value, { unit: format.unit, precision: precision } );
+    };
+
+
 
     if (!changes) {
       return;
@@ -97,6 +110,19 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
       // if new data
       if (this._g && changes.data && changes.data.currentValue) {
         let ndata = changes.data.currentValue;
+        if ( this.options.axes ) {
+            for ( const k of Object.keys(this.options.axes) ) {
+                const axis = this.options.axes[k];
+                        if ( axis.tickFormat ) {
+                            axis.axisLabelFormatter = tickFormatter;
+                            axis.valueFormatter = valueFormatter;
+                        } else {
+                            delete axis.axisLabelFormatter;
+                            delete axis.valueFormatter;
+                        }
+            }
+        }
+
         this._g.destroy();
         this._g = new Dygraph(this.element.nativeElement, ndata, this.options);
       }
@@ -104,17 +130,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
       if ( this._g && changes.options && changes.options.currentValue ) {
         const options = changes.options.currentValue;
 
-        const _self = this;
-        const tickFormatter = function(value, gran, opts) {
-                const format = opts('tickFormat');
-                const precision = format.precision ? format.precision : 2;
-                return _self.uConverter.format(value, { unit: format.unit, precision: precision } );
-        };
-        const valueFormatter = function(value, opts) {
-            const format = opts('tickFormat');
-            const precision = format.precision ? format.precision : 2;
-            return _self.uConverter.format(value, { unit: format.unit, precision: precision } );
-        };
         if ( options.axes ) {
             for ( const k of Object.keys(options.axes) ) {
                 const axis = options.axes[k];
