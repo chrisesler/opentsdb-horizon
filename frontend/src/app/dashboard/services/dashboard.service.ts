@@ -144,8 +144,7 @@ export class DashboardService {
         let nQueries = [];
         for ( let i = 0; i < queries.length; i++ ) {
             // do not include the query  which doesn't have metric set
-            const metricArr = queries[i].metric.split('.');
-            if ( ! metricArr[1] ) {
+            if ( ! queries[i].metric ) {
                 continue;
             }
             // remove metric filter
