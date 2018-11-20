@@ -7,7 +7,7 @@ import {
     HostBinding
 } from '@angular/core';
 
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -18,6 +18,7 @@ import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 export class DnavFolderItemComponent implements OnInit {
 
     @HostBinding('class.dnav-folder-item') private _hostClass = true;
+    @HostBinding('class.is-editing') private _isEditingHostClass = false;
 
     @Input() folder: any = {};
 
@@ -32,7 +33,30 @@ export class DnavFolderItemComponent implements OnInit {
         if (prevMode !== val && val === 'edit') {
             this.setupControls('edit');
         }
+        if (prevMode !== val && val === 'new') {
+            this._isEditingHostClass = !this._isEditingHostClass;
+        }
+        if (val === 'display') {
+            this._isEditingHostClass = false;
+            this._nameEdit = false;
+        }
         this._mode = val;
+    }
+
+    // tslint:disable-next-line:no-inferrable-types
+    private _nameEdit: boolean = false;
+    get nameEdit() {
+        if (this._mode === 'edit') {
+            return this._nameEdit;
+        }
+        return false;
+    }
+
+    set nameEdit(val: boolean) {
+        if (this._mode === 'edit') {
+            this._nameEdit = val;
+            this._isEditingHostClass = this._nameEdit;
+        }
     }
 
     @Output() folderAction: EventEmitter<any> = new EventEmitter();
@@ -54,21 +78,32 @@ export class DnavFolderItemComponent implements OnInit {
     private setupControls(mode) {
         if (mode === 'new') {
             this.FolderForm = this.fb.group({
-                fc_FolderName: ''
+                fc_FolderName: new FormControl('', [Validators.required])
             });
         }
 
         if (mode === 'edit') {
             this.FolderForm = this.fb.group({
-                fc_FolderName: this.folder.name,
+                fc_FolderName: new FormControl(this.folder.name, [Validators.required]),
                 fc_FolderChecked: false
             });
         }
     }
 
+    // convenience getter for easy access to form fields
+    get f() {
+        if (this.FolderForm) {
+            return this.FolderForm.controls;
+        }
+        return {};
+    }
+
     /** events */
 
     inputSave() {
+        if (this.FolderForm.invalid) {
+            return;
+        }
         if (this.mode === 'new') {
             console.log('SAVE NEW', this.FolderForm.controls.fc_FolderName.value);
             this.folderAction.emit({
@@ -79,6 +114,7 @@ export class DnavFolderItemComponent implements OnInit {
 
         if (this.mode === 'edit') {
             console.log('SAVE EDIT', this.FolderForm.controls.fc_FolderName.value);
+            this.nameEdit = false;
             this.folderAction.emit({
                 action: 'editFolder',
                 name: this.FolderForm.controls.fc_FolderName.value
@@ -92,6 +128,10 @@ export class DnavFolderItemComponent implements OnInit {
             action: 'pendingRemoval',
             value: this.FolderForm.controls.fc_FolderChecked.value
         });
+    }
+
+    dblclickEditName() {
+        this.nameEdit = true;
     }
 
 }

@@ -7,6 +7,11 @@
         height: 36px;
         font-weight: 300;
         font-size: 12px;
+
+        &.is-editing {
+            margin-left: -6px;
+            margin-right: -6px;
+        }
         
         .mat-icon {
             height: 12px;
@@ -21,6 +26,20 @@
         .list-item {
             display: flex;
             align-items: center;
+
+            &.edit-form {
+                &,
+                .mat-form-field {
+                    flex: 1;
+                }
+                .mat-form-field-prefix {
+                    margin-left: 6px;
+                }
+            }
+        }
+
+        .mat-checkbox {
+            margin-right: 8px;
         }
 
         .folder-name {
@@ -50,6 +69,19 @@
     .dnav-folder-item {
         .save-folder-name {
             color: map-get($status, success);
+        }
+
+        .mat-checkbox:not(.mat-checkbox-checked) .mat-checkbox-frame {
+            border-color: rgba(255,255,255,.54);
+        }
+
+        .list-item.edit-form {
+                
+            .mat-form-field {
+                .mat-input-element::placeholder {
+                    color: rgba(255,2552,255, .25);
+                }
+            }
         }
     }
 }

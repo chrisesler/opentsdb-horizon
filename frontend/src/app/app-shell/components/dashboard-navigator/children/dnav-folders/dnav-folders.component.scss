@@ -23,6 +23,22 @@
                 display: none;
             }
 
+            .edit-actions,
+            .create-actions,
+            .display-actions {
+                .mat-button {
+                    min-width: initial;
+                    line-height: 30px;
+                    padding: 0 8px;
+                }
+            }
+
+            .edit-actions {
+                .remove-folders-button {
+                    margin-left: -8px;
+                }
+            }
+
             &.has-create-actions {
                 .display-actions,
                 .edit-actions {
@@ -62,6 +78,20 @@
     $status: map-get($theme-config, status);
 
     .dnav-folders {
+
+        .block-header.folders-header {
+            .edit-actions,
+            .create-actions,
+            .display-actions {
+                .mat-button:hover {
+                    background-color: rgba(255,255,255,0.08);
+                }
+            }
+        }
+        .remove-folders-button.mat-button[disabled] {
+            color: inherit;
+            opacity: .5;
+        }
         .remove-folders-button.is-active {
             color: map-get($status, error);
         }

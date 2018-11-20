@@ -1,5 +1,5 @@
 <ng-container *ngIf="mode === 'new' && FolderForm.controls" >
-    <div class="list-item" [formGroup]="FolderForm">
+    <div class="list-item edit-form" [formGroup]="FolderForm">
         <mat-form-field appearance="fill" floatLabel="never">
             
             <input matInput placeholder="Enter folder Name" formControlName="fc_FolderName">
@@ -7,18 +7,25 @@
             <button mat-icon-button matSuffix class="save-folder-name" (click)="inputSave()" >
                 <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
             </button>
+            <mat-error>  
+                <span *ngIf="!FolderForm.get('fc_FolderName').valid && FolderForm.get('fc_FolderName').touched">Please enter a valid folder name</span>  
+            </mat-error>
         </mat-form-field>
     </div>
 </ng-container>
 <ng-container *ngIf="mode === 'edit' && FolderForm.controls">
-    <div class="list-item" [formGroup]="FolderForm">
+    <div class="list-item edit-form" *ngIf="!nameEdit" [formGroup]="FolderForm">
         <mat-checkbox formControlName="fc_FolderChecked" (change)="checkboxChange($event)"></mat-checkbox>
+        <div class="flex-spacer" (dblclick)="dblclickEditName()">{{folder.name}}</div>
+    </div>
+    <div class="list-item edit-form" *ngIf="nameEdit" [formGroup]="FolderForm">
         <mat-form-field appearance="fill" floatLabel="never">
             <input matInput placeholder="Edit folder Name" formControlName="fc_FolderName">
-            <mat-icon matPrefix fontSet="denali" fontIcon="d-folder"></mat-icon>
+            <mat-icon matPrefix fontSet="denali" fontIcon="d-pencil"></mat-icon>
             <button mat-icon-button matSuffix class="save-folder-name" (click)="inputSave()" >
                 <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
             </button>
+            
         </mat-form-field>
     </div>
 </ng-container>
