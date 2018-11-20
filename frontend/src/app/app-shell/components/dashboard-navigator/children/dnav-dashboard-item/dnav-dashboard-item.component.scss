@@ -1,0 +1,115 @@
+@mixin dnav-dashboard-item-component-base() {
+    .dnav-dashboard-item {
+        flex: 1;
+        display: flex;
+        justify-content: stretch;
+        align-items: stretch;
+        height: 36px;
+
+        .mat-icon {
+            height: 12px;
+            width: 12px;
+            font-size: 100%; 
+        }
+        
+        .dnav-dashboard-link,
+        .dnav-dashboard-menu {
+            display: flex;
+            align-items: center;
+        }
+
+        .dnav-dashboard-link {
+            overflow: hidden; 
+        }
+
+        .dnav-dashboard-icon {
+            margin-right: 8px;
+        }
+
+        .dnav-dashboard-menu {
+            opacity: 0;
+            transition: opacity 200ms ease-in;
+
+            .mat-icon-button {
+                .mat-icon {
+                    justify-content: center;
+                    margin-left: -2px;
+                }
+            }
+        }
+
+        .dnav-menu-trigger {
+            width: 1px;
+            margin-left: 15px;
+        }
+
+        &:hover,
+        &.dnav-menu-opened {
+            .dnav-dashboard-menu {
+                opacity: 1;
+            }
+        }
+    }
+
+    // CDK
+    .dnav-cdk-dashboard-menu {
+        //transform: translate3d(40px, -32px, 0);
+
+        .mat-menu-item {
+            font-size: 12px;
+            font-weight: 300;
+            height: 24px;
+            line-height: 24px;
+
+            .mat-icon {
+                height: 12px;
+                width: 12px;
+                font-size: 100%; 
+            }
+        }
+    }
+}
+
+@mixin dnav-dashboard-item-component-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+    /* navbar config */
+    $sn-light: map-get($navbar-config, sn-light);
+    $sn-dark: map-get($navbar-config, sn-dark);
+    $sn-light-text: map-get($navbar-config, sn-light-text);
+    $sn-dark-text: map-get($navbar-config, sn-dark-text);
+    $sn-seperator: map-get($navbar-config, sn-seperator);
+    $sn-active: map-get($navbar-config, sn-active);
+
+    .dnav-dashboard-item {
+        .dnav-dashboard-menu {
+            .mat-icon-button {
+                background: rgba(0, 0, 0, .2);
+            }
+        }
+    }
+
+    // CDK
+    .dnav-cdk-dashboard-menu {
+        //transform: translate3d(40px, -32px, 0);
+        background-color: darken($sn-dark, 5%);
+
+        .mat-menu-item {
+            color: rgba(255,255,255,.85);
+
+            .mat-icon {
+                color: rgba(255,255,255,.5);
+            }
+
+            &:hover {
+                background-color: $sn-dark;
+            }
+        }
+    }
+}

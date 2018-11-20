@@ -1,5 +1,8 @@
 @mixin navigator-panel-component-base() {
     .navigator-panel {
+        display: flex;
+        flex: 1;
+        
         ul {
             list-style: none;
             margin: 0;
