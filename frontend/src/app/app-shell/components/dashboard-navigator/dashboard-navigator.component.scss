@@ -1,27 +1,39 @@
+
+@import './children/dnav-folders/dnav-folders.component';
+@import './children/dnav-dashboard-item/dnav-dashboard-item.component';
+@import './children/dnav-folder-item/dnav-folder-item.component';
+
 @mixin dashboard-navigator-component-base() {
+    $navbar-height: map-get($navbar-config, 'navbar-height');
+    $logo-height: map-get($navbar-config, 'logo-height');
+
     .dashboard-navigator {
         display: flex;
+        flex-direction: column;
         flex: 1;
+        font-weight: 300;
+        font-size: 12px;
 
-        &,
-        .mat-list .mat-list-item,
-        .mat-nav-list .mat-list-item  {
-            font-weight: 300;
-            font-size: 12px;
-
-            .path-icon,
-            .folder-icon,
-            .dashboard-icon {
-                margin-right: 8px;
-            }
-        }
-
-        .mat-list,
+        // Overrides for material elements specific to this component
         .mat-nav-list {
             padding-top: 0;
 
             .mat-list-item {
                 height: 36px;
+                font-weight: 300;
+                font-size: 12px;
+
+                .path-icon,
+                .folder-icon,
+                .dashboard-icon {
+                    margin-right: 8px;
+                }
+            }
+
+            &.dashboard-list {
+                .mat-list-item-content {
+                    padding-right: 0;
+                }
             }
         }
 
@@ -55,16 +67,64 @@
             }
         }
 
-        .panel-header,
-        .folders-header,
-        .dashboards-header,
-        .namespaces-header {
+        // dashboard toolbar at top of panel 
+        .panel-toolbar {
+            @include mat-elevation(0);
+            @include unselectable;
+            
+            .nav-item {
+                display: flex;
+                align-items: center;
+            }
+
+            .back-to-master {
+                width: 24px;
+                transform: translateX(0);
+                transition: all 200ms ease-in-out;
+            }
+
+            .panel-label {
+                cursor: pointer;
+
+                strong {
+                    font-weight: 400;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                }
+            }
+
+            &.is-master-panel {
+
+                .back-to-master {
+                    width: 0px;
+                    transform: translateX(-50px);
+                }
+
+                .panel-label {
+                    cursor: default;
+
+                    strong {
+                        text-transform: capitalize;
+                    }
+                }
+            }
+
+            &.mat-toolbar-multiple-rows,
+            &.mat-toolbar-single-row {
+                min-height: $navbar-height !important;
+                height: $navbar-height;
+            }
+        }
+
+        .block-header {
+            @include unselectable;
             display: flex;
             padding: 0 16px;
             display: flex;
             justify-content: stretch;
             align-items: center;
-            
+            height: 32px;
+            margin-top: 16px;
             
             .header-label {
                 text-transform: uppercase;
@@ -72,18 +132,7 @@
             }
         }
 
-        .panel-header {
-            height: 36px;
-            cursor: pointer;
-        }
-
-        .folders-header,
-        .dashboards-header,
-        .namespaces-header {
-            height: 32px;
-            margin-top: 16px;
-        }
-
+        // nested path tree at top
         .path-tree {
             .path-tree-item {
                 .mat-icon {
@@ -104,21 +153,44 @@
             }
         }
 
-        .folder-nav-item {
-            .counter {
-                padding: 0 6px;
+        // create dashboard button
+        .create-dashboard {
+            padding: 0 16px;
+            margin: 8px 0;
 
-                .dashboard-count {
-                    border-radius: 4px;
-                    padding: 2px 4px;
-                    font-size: 10px;
-                    font-weight: 300;
-                }
+            .mat-flat-button {
+                width: 100%;
+                font-size: 12px;
+                line-height: 24px;
+            }
+
+            .mat-icon {
+                margin-right: 6px;
+                height: 12px;
+                width: 12px;
+                font-size: 100%; 
+            
             }
         }
-        
 
+        // pill counters
+        .counter {
+            @include unselectable;
+            padding: 0 6px;
+
+            .chip-count {
+                border-radius: 4px;
+                padding: 2px 4px;
+                font-size: 10px;
+                font-weight: 300;
+            }
+        }
     }
+
+    // INCLUDE CHILDREN
+    @include dnav-folders-component-base();
+    @include dnav-dashboard-item-component-base();
+    @include dnav-folder-item-component-base();
 }
 
 @mixin dashboard-navigator-component-theme($theme-config) {
@@ -131,6 +203,18 @@
     $is-dark-theme: map-get($theme-config, is-dark);
 
     .dashboard-navigator {
+
+        .panel-toolbar {
+            background: transparent;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+            color: rgba(255,255,255,.5);
+
+            &.is-master-panel {
+                .header-label {
+                    color: rgba(255,255,255,.85);
+                }
+            }
+        }
 
         .navigator-panel-item,
         .mat-list .mat-list-item,
@@ -160,20 +244,30 @@
             }
         }
 
-        .folders-header,
-        .dashboards-header,
-        .namespaces-header {
-            background-color: rgba(0, 0, 0, .5);
+        .path-tree {
+            border-bottom: 1px solid rgba(255,255,255,.07);
         }
 
-        .folder-nav-item {
-            .counter {
-                .dashboard-count {
-                    color: white;
-                    background-color: rgba(0, 0, 0, .25);
-                }
+        .counter {
+            .chip-count {
+                color: white;
+                background-color: rgba(0, 0, 0, .25);
             }
         }
 
+        .block-header {
+            background-color: rgba(0, 0, 0, .5);
+
+            .counter {
+                .chip-count {
+                    background-color: rgba(255,255,255,.2);
+                }
+            }
+        }
     }
+
+    // INCLUDE CHILDREN
+    @include dnav-folders-component-theme($theme-config);
+    @include dnav-dashboard-item-component-theme($theme-config);
+    @include dnav-folder-item-component-theme($theme-config);
 }
