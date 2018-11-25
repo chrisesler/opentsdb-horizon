@@ -229,16 +229,16 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
         // NOTE: exception is 'time preset range', which is not a form control, and sets value on click
 
         // ?INFO: these are mapped to the form variables set at top
-        const isCustomDownsample = this.widget.query.settings.time.downsample.value === 'custom' ? true : false;
+        const isCustomDownsample = this.widget.settings.time.downsample.value === 'custom' ? true : false;
         this.widgetConfigTime = this.fb.group({
             aggregator:
-                new FormControl(this.widget.query.settings.time.downsample.aggregator || this.selectedAggregator),
+                new FormControl(this.widget.settings.time.downsample.aggregator || this.selectedAggregator),
             downsample:
-                new FormControl(this.widget.query.settings.time.downsample.value || this.selectedDownsample),
+                new FormControl(this.widget.settings.time.downsample.value || this.selectedDownsample),
             customDownsampleValue:
                 new FormControl(
                     {
-                        value: this.widget.query.settings.time.downsample.customValue || this.customDownsampleValue,
+                        value: this.widget.settings.time.downsample.customValue || this.customDownsampleValue,
                         disabled: !isCustomDownsample ? true : false
                     },
                     [Validators.min(1), Validators.pattern('^[0-9]+$') ]
@@ -246,14 +246,14 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
             customDownsampleUnit:
                 new FormControl(
                     {
-                        value: this.widget.query.settings.time.downsample.customUnit || this.customDownsampleUnit,
+                        value: this.widget.settings.time.downsample.customUnit || this.customDownsampleUnit,
                         disabled: isCustomDownsample ? false : true
                     }
                 ),
             overrideRelativeTime:
-                new FormControl(this.widget.query.settings.time.overrideRelativeTime),
+                new FormControl(this.widget.settings.time.overrideRelativeTime),
             shiftTime:
-                new FormControl(this.widget.query.settings.time.shiftTime)
+                new FormControl(this.widget.settings.time.shiftTime)
         });
 
 

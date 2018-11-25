@@ -19,8 +19,8 @@ export class DatatranformerService {
     }
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
     for (let gid in result) {
-        const gConfig = widget? this.util.getObjectByKey(widget.query.groups, 'id', gid) : {};
-        const mConfigs = gConfig ? gConfig.queries : [];
+        const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', gid) : {};
+        const mConfigs = gConfig ? gConfig.metrics : [];
         if (gConfig && gConfig.settings.visual.visible && result[gid] && result[gid].results) {
             // sometimes opentsdb returns empty results
             for ( let i = 0;  i < result[gid].results.length; i++ ) {

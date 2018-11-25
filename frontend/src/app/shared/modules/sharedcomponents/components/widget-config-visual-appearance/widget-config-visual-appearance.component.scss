@@ -31,6 +31,11 @@
                     text-transform: uppercase;
                 }
 
+                .mat-column-index {
+                    padding: 0 8px;
+                    width:30px;
+                }
+
                 .metric-group-row {
                     height: 40px;
 
@@ -42,10 +47,7 @@
 
                     // column specific
 
-                    .mat-column-folder-icon {
-                        padding: 0 8px;
-                    }
-
+                    
                     .mat-column-metric {
                         font-weight: 500;
                     }
@@ -59,6 +61,13 @@
                     }
 
                     // specific columns
+                    .mat-column-index div {
+                        padding: 5px;
+                        background: #cccccc;
+                        font-weight: 500;
+                        width: 30px;
+                        height: 30px;
+                    }
                     .mat-column-metric {
                         .mat-form-field {
                             .mat-hint {

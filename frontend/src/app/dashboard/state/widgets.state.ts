@@ -36,22 +36,7 @@ export interface WidgetModel {
         component_type: string;
         data_source?: string;
         description?: string;
-    };
-    gridPos: {
-        x: number;
-        y: number;
-        w: number;
-        h: number;
-        xMd?: number;
-        yMd?: number;
-    };
-    query: {
-        start: string;
-        end?: string;
-        downsample: string;
-        groups: any[];
-        settings?: {
-            time?: {};
+        time?: {};
             visual?: {
                 type?: string;
                 stacks?: StackConfig[];
@@ -67,8 +52,16 @@ export interface WidgetModel {
                 position: string;
             };
             thresholds?: ThresholdConfig[];
-        };
     };
+    gridPos: {
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+        xMd?: number;
+        yMd?: number;
+    };
+    queries: any[];
 }
 
 // actions
