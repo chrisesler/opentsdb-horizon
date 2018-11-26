@@ -6,11 +6,15 @@ import {
     EventEmitter,
     HostBinding,
     HostListener,
-    ViewChild
+    ViewChild,
+    ElementRef
 } from '@angular/core';
 
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+
 import {
-    MatMenuTrigger
+    MatMenuTrigger,
+    MatInput
 } from '@angular/material';
 
 @Component({
@@ -22,18 +26,80 @@ import {
 export class DnavDashboardItemComponent implements OnInit {
 
     @HostBinding('class.dnav-dashboard-item') private _hostClass = true;
-    @HostBinding('class.dnav-menu-opened') private menuOpened = false;
+    @HostBinding('class.dnav-menu-opened') private _menuOpened = false;
+    @HostBinding('class.is-editing') private _isEditingHostClass = false;
 
     @ViewChild(MatMenuTrigger) menuTrigger: MatMenuTrigger;
 
     @Input() dashboard: any = {};
 
+    private _mode: any = 'display'; // display | new | edit
+    @Input()
+    get mode() {
+        return this._mode;
+    }
+    set mode(val: string) {
+        const prevMode = this._mode;
+        if (prevMode !== val && val === 'edit') {
+            this.setupControls('edit');
+        }
+        if (prevMode !== val && val === 'new') {
+            this._isEditingHostClass = !this._isEditingHostClass;
+        }
+        if (val === 'display') {
+            this._isEditingHostClass = false;
+            this._nameEdit = false;
+        }
+        this._mode = val;
+    }
+
+    // tslint:disable-next-line:no-inferrable-types
+    private _nameEdit: boolean = false;
+    get nameEdit() {
+        if (this._mode === 'edit') {
+            return this._nameEdit;
+        }
+        return false;
+    }
+
+    set nameEdit(val: boolean) {
+        if (this._mode === 'edit') {
+            this._nameEdit = val;
+            this._isEditingHostClass = this._nameEdit;
+
+            if (val === true) {
+                setTimeout(function() {
+                    // const el = this.hostRef.nativeElement.querySelector('.mat-input-element');
+                    // el.focus();
+                }.bind(this), 200);
+            }
+        }
+    }
+
     @Output() dashboardAction: EventEmitter<any> = new EventEmitter();
 
-    constructor() { }
+    DashboardForm: FormGroup;
+
+    constructor(
+        private fb: FormBuilder,
+        private hostRef: ElementRef
+    ) { }
 
     ngOnInit() {
     }
+
+    /** privates */
+
+    private setupControls(mode) {
+        // setup formGroup
+    }
+
+    get f() {
+        return this.DashboardForm.controls;
+
+    }
+
+    /** Input Events */
 
     /** Menu Events */
 
@@ -44,7 +110,14 @@ export class DnavDashboardItemComponent implements OnInit {
 
     menuState(state: boolean) {
         console.log('MENU STATE', state);
-        this.menuOpened = state;
+        this._menuOpened = state;
+    }
+
+    menuAction(action: string, event?: any) {
+        switch (action.toLowerCase()) {
+            default:
+                break;
+        }
     }
 
 

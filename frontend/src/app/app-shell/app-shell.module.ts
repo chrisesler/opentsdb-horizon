@@ -9,7 +9,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../shared/modules/material/material.module';
 import { SharedcomponentsModule } from '../shared/modules/sharedcomponents/sharedcomponents.module';
 
+// services
+import { AppShellService } from './services/app-shell.service';
 
+// components
 import { DashboardNavigatorComponent } from './components/dashboard-navigator/dashboard-navigator.component';
 import { AppShellComponent } from './containers/app-shell/app-shell.component';
 import { AppNavbarComponent } from './components/app-navbar/app-navbar.component';
@@ -45,6 +48,9 @@ import { DnavDashboardsComponent } from './components/dashboard-navigator/childr
         DnavFolderItemComponent,
         DnavFoldersComponent,
         DnavDashboardsComponent
+    ],
+    providers: [
+        AppShellService
     ],
     exports: [
         AppShellComponent

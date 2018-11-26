@@ -35,7 +35,9 @@ export class DnavDashboardsComponent implements OnInit {
 
     // create new dashboard
     createDashboard() {
-
+        this.dashboardAction.emit({
+            action: 'createDashboard'
+        });
     }
 
     // bulk editing

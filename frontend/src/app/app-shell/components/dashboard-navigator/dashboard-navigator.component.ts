@@ -16,6 +16,8 @@ import { HttpService } from '../../../core/http/http.service';
 
 import { NavigatorPanelComponent } from '../navigator-panel/navigator-panel.component';
 
+import { AppShellService } from '../../services/app-shell.service';
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'dashboard-navigator',
@@ -47,6 +49,7 @@ export class DashboardNavigatorComponent implements OnInit {
 
     constructor(
         private http: HttpService,
+        private ass: AppShellService,
         private router: Router
     ) { }
 
@@ -56,6 +59,14 @@ export class DashboardNavigatorComponent implements OnInit {
                 this.dashboards = <Observable<object[]>>data;
                 this.generateFakeFolderData();
             });
+
+        const uid = this.ass.getUid().subscribe( (data: any) => {
+            console.log('data', data);
+            const folders = this.ass.getFolderList(data.uid)
+                .subscribe( list => {
+                    console.log('LIST', list);
+                });
+        });
 
         // console.log('NAVIGATOR', this.navPanel);
     }
@@ -240,10 +251,21 @@ export class DashboardNavigatorComponent implements OnInit {
         this.pathTree = newTree;
     }
 
+    /** actions from child sections -- folders and dashboards */
     folderAction(panel, event) {
         switch (event.action) {
             case 'navtoPanelFolder':
                 this.navtoPanelFolder(panel.folders[event.idx]);
+                break;
+            default:
+                break;
+        }
+    }
+
+    dashboardAction(panel, event) {
+        switch (event.action) {
+            case 'createDashboard':
+                this.createDashboard();
                 break;
             default:
                 break;

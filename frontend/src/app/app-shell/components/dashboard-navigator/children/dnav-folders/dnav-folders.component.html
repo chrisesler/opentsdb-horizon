@@ -34,7 +34,7 @@
     </div>
 </div>
 
-<mat-nav-list *ngIf="folders && folders.length > 0">
+<mat-nav-list class="folder-list" *ngIf="folders && folders.length > 0">
     <mat-list-item *ngIf="editMode === 'create' && !bulkEdit">
         <dnav-folder-item [folder]="{ name: ''}" mode="new" (folderAction)="createFolderAction($event)"></dnav-folder-item>
     </mat-list-item>
