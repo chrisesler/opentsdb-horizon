@@ -87,13 +87,13 @@
                                                             <div class="list-selected" *ngIf="query.filters.length">
                                                                 <div class="info">{{ query.filters.length }} tag key selected</div>
                                                                 <div class="option" *ngFor="let filter of query.filters" 
-                                                                    (click)="loadTagValues(filter.tagk)"
+                                                                    (click)="handlerTagClick(filter.tagk)"
                                                                     [ngClass]="filter.tagk === selectedTag ? 'active' : ''">
                                                                             {{ filter.tagk }}
                                                                 </div>
                                                             </div>
                                                             <div class="option" *ngFor="let option of tagOptions" 
-                                                            (click)="loadTagValues(option)"
+                                                            (click)="handlerTagClick(option)"
                                                             [ngClass]="option === selectedTag ? 'active' : ''">
                                                                     {{ option }}
                                                             </div>
@@ -103,13 +103,21 @@
                                             <div class="tag-values">
                                                     <div class="caption">ADD TAG VALUE(S) TO THE RIGHT</div>
                                                     <div class="tag-values-search">
-                                                        <div class="search"><input #tagValueSearchInput [formControl]="tagValueSearchControl"></div>
                                                         <div class="type">
-                                                            <button>Literal</button>
-                                                            <button>Regex</button>
+                                                            <mat-button-toggle-group [formControl]="tagValueTypeControl" aria-label="Font Style">
+                                                                <mat-button-toggle value="literalor" (click)="loadTagValues()">Literal</mat-button-toggle>
+                                                                <mat-button-toggle value="regexp">Regexp</mat-button-toggle>
+                                                            </mat-button-toggle-group>
                                                         </div>
+                                                        <div class="search">
+                                                            <mat-form-field appearance="fill" [color]="'primary'" floatLabel="never">
+                                                                <input #tagValueSearchInput [formControl]="tagValueSearchControl" matInput placeholder="" (keydown.enter)="addTagValueRegexp()">
+                                                                <mat-icon matSuffix *ngIf="tagValueTypeControl.value==='regexp'" (click)="addTagValueRegexp()">add_circle_outline</mat-icon>
+                                                            </mat-form-field>
+                                                        </div>
+                                                        
                                                     </div>
-                                                    <div class="list has-scroller">
+                                                    <div class="list has-scroller" *ngIf="tagValueTypeControl.value==='literalor'">
                                                         <div class="is-scroller">
                                                             <div class="option" *ngFor="let option of filteredTagValues">
                                                                     <mat-icon *ngIf="getTagValueIndex(selectedTag, option) === -1" (click)="updateTagValueSelection(option, 'add');">add_circle_outline</mat-icon>

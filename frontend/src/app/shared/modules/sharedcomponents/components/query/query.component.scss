@@ -193,16 +193,24 @@
                                     }
                                     .tag-values-search {
                                         display: flex;
+                                        flex-direction: column;
                                         .search {
-        
+                                            margin-top: 5px;
+                                            .mat-form-field-infix{
+                                                width: 100%;
+                                            }
+                                            .mat-icon {
+                                                cursor: pointer;
+                                                padding-top: 30%;
+                                                font-size: 120%;
+                                                color: green;
+                                            }
                                         }
                                         .type {
-                                            button {
-        
+                                            .mat-button-toggle-label-content {
+                                                line-height: 30px;
                                             }
-                                            button.active {
-        
-                                            }
+                                            
                                         }
                                     }
                                     .list {
