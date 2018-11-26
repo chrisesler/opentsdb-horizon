@@ -40,6 +40,7 @@ import {
 } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
+import { query } from '@angular/animations';
 
 @Component({
     selector: 'app-dashboard',
@@ -506,32 +507,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const payload = message.payload;
         const dt = this.getDashboardDateRange();
 
+        ///*
         // sending each group to get data.
-        for (let i = 0; i < payload.query.groups.length; i++) {
-            const group: any = payload.query.groups[i];
-            groupid = group.id;
-            if ( group.queries.length ) {
-                // override with dashboard filters
-                let queries  = JSON.parse(JSON.stringify(group.queries));
-                queries = this.dbService.filterQueries(queries);
-                console.log('the group query', queries);
-                if ( queries.length ) {
-                    let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
-                    // get only enabled filters
-                    overrideFilters = overrideFilters.filter( d => d.enabled );
-                    queries = overrideFilters.length ? this.dbService.overrideQueryFilters(queries, overrideFilters) : queries;
-                    const query = this.queryService.buildQuery(payload, dt, queries);
-                    console.log('the group query', queries, JSON.stringify(query));
-                    const gquery = {
-                        wid: message.id,
-                        gid: groupid,
-                        query: query
-                    };
-                    // now dispatch request
-                    this.store.dispatch(new GetQueryDataByGroup(gquery));
-                }
+        for (let i = 0; i < payload.queries.length; i++) {
+            let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
+            groupid = query.id;
+            if ( query.namespace && query.metrics.length ) {
+                // filter only visible metrics
+                // query = this.dbService.filterMetrics(query);
+                let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
+                // get only enabled filters
+                overrideFilters = overrideFilters.filter( d => d.enabled );
+                query = overrideFilters.length ? this.dbService.overrideQueryFilters(query, overrideFilters) : query;
+                query = this.queryService.buildQuery(payload, dt, query);
+                console.log('the group query-2', query, JSON.stringify(query));
+                const gquery = {
+                    wid: message.id,
+                    gid: groupid,
+                    query: query
+                };
+                // now dispatch request
+                this.store.dispatch(new GetQueryDataByGroup(gquery));
             }
         }
+        //*/
     }
 
     getDashboardDateRange() {

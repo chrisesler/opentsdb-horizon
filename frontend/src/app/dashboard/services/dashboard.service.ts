@@ -38,36 +38,20 @@ export class DashboardService {
     settings: {
       title: 'untitled',
       component_type: 'PlaceholderWidgetComponent',
-      data_source: 'yamas'
-    },
-    query: {
-        settings: {
-            visual: {},
-            axes: {},
-            legend: {},
-            time: {
-                downsample: {
-                    value: '1m',
-                    aggregator: 'sum',
-                    customValue: '',
-                    customUnit: ''
-                }
+      data_source: 'yamas',
+      visual: {},
+        axes: {},
+        legend: {},
+        time: {
+            downsample: {
+                value: '1m',
+                aggregator: 'sum',
+                customValue: '',
+                customUnit: ''
             }
-        },
-        groups: [
-                    {
-                        id: '',
-                        title: 'untitled group',
-                        queries: [],
-                        settings: {
-                            visual: {
-                                visible : true
-                            }
-                        }
-                    }
-                ]
-    }
-
+        }
+    },
+    queries: []
   };
 
   private widgetsConfig = {};
@@ -86,7 +70,6 @@ export class DashboardService {
   getWidgetPrototype(type= ''): any {
     const widget: any = Object.assign({}, this.widgetPrototype);
     widget.id = this.utils.generateId();
-    widget.query.groups[0].id = this.utils.generateId();
     widget.settings.component_type = type;
     switch ( type ) {
         case 'LinechartWidgetComponent':
@@ -123,51 +106,29 @@ export class DashboardService {
   getMetricsFromWidgets( widgets ) {
     const metrics = [];
     for ( let i = 0; i < widgets.length; i++ ) {
-        const groups = widgets[i].query.groups;
-        for ( let j = 0; j < groups.length; j++ ) {
-            const queries = groups[j].queries;
-            for ( let k = 0; k < queries.length; k++ ) {
-                if ( queries[k].metric ) {
-                    metrics.push(queries[k].metric);
-                } else {
-                    for ( let l = 0; l < queries[k].metrics.length; l++ ) {
-                        metrics.push(queries[k].metrics[l].metric);
-                    }
-                }
+        const queries = widgets[i].queries;
+        for ( let j = 0; j < queries.length; j++ ) {
+            for ( let k = 0; k < queries[j].metrics.length; k++ ) {
+                metrics.push(queries[j].namespace + '.' + queries[j].metrics[k].name);
             }
         }
     }
     return metrics;
   }
 
-    filterQueries(queries) {
-        let nQueries = [];
-        for ( let i = 0; i < queries.length; i++ ) {
-            // do not include the query  which doesn't have metric set
-            if ( ! queries[i].metric ) {
-                continue;
-            }
-            // remove metric filter
-            if ( queries[i].filters ) {
-                queries[i].filters = queries[i].filters.filter(query => query.tagk !== 'metric');
-            }
-            nQueries.push(queries[i]);
-        }
-        return nQueries;
+    filterMetrics(query) {
+        query.metrics = query.metrics.filter( item => item.settings.visual.visible === true);
+        return query;
     }
-    overrideQueryFilters(queries, filters) {
+    overrideQueryFilters(query, filters) {
         for ( let i = 0; i < filters.length; i++ ) {
-            for ( let j = 0; j < queries.length; j++ ) {
-                for ( let k = 0; queries[j].filters && k < queries[j].filters.length; k++ ) {
-                    if ( filters[i].tagk === queries[j].filters[k].tagk ) {
-                        queries[j].filters[k].filter = filters[i].filter;
-                        queries[j].filters[k].type = filters[i].type;
-                    }
+            for ( let j = 0; query.filters && j < query.filters.length; j++ ) {
+                if ( filters[i].tagk === query.filters[j].tagk ) {
+                    query.filters[j].filter = filters[i].filter;
                 }
             }
         }
-
-        return queries;
+        return query;
     }
 
     getStorableFormatFromDBState(dbstate) {

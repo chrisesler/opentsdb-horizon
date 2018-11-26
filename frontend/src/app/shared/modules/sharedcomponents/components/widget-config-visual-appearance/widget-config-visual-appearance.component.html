@@ -4,7 +4,7 @@
         <table class="mat-table">
             <thead>
                 <tr class="mat-header-row">
-                    <td class="mat-header-cell mat-column-folder-icon"></td>
+                    <th class="mat-header-cell mat-column-index"></th>
                     <th class="mat-header-cell mat-column-metric">Metric</th>
                     <th class="mat-header-cell mat-column-mode">Mode</th>
                     <th class="mat-header-cell mat-column-color-family">Color Family</th>
@@ -15,7 +15,7 @@
                 </tr>
             </thead>
             <tbody>
-                <ng-container *ngFor="let group of widget.query.groups; let gIndex=index">
+                <ng-container *ngFor="let query of widget.queries; let gIndex=index">
                     <!-- <tr class="metric-group-row">
                         <td class="mat-cell mat-column-folder-icon">
                             <mat-icon fontSet="denali" fontIcon="d-folder"></mat-icon>
@@ -30,17 +30,20 @@
                         <td class="mat-cell mat-column-axes"></td>
                         <td class="mat-cell mat-column-collapse"></td>
                     </tr> -->
-                    <tr class="mat-row" *ngFor="let query of group.queries; let index = index" [formArrayName]="gIndex">
-                        <td colspan="2" class="mat-cell mat-column-metric" [formGroupName]="index">
+                    <tr class="mat-row" *ngFor="let metric of query.metrics; let index = index" [formArrayName]="gIndex">
+                        <td class="mat-cell mat-column-index" *ngIf="index===0">
+                            <div>Q{{ gIndex + 1 }} </div>
+                        </td>
+                        <td class="mat-cell mat-column-metric" [formGroupName]="index">
                             <mat-form-field appearance="fill">
-                                <input matInput formControlName="label" [placeholder]="query.metric">
+                                <input matInput formControlName="label" [placeholder]="metric.name">
                             </mat-form-field>
                         </td>
                         <td class="mat-cell mat-column-mode" [formGroupName]="index"> 
                             <dropdown-visual-type  formControlName="type"></dropdown-visual-type>   
                         </td>
                         <td class="mat-cell mat-column-color-family" [formGroupName]="index">
-                            <color-picker (newColor)="selectColor($event, gIndex, index)" [color]="query.settings.visual.color"></color-picker>
+                            <color-picker (newColor)="selectColor($event, gIndex, index)" [color]="metric.settings.visual.color"></color-picker>
                         </td>
                         <td class="mat-cell mat-column-line-weight" [formGroupName]="index">
                             <dropdown-line-weight formControlName="lineWeight"></dropdown-line-weight>

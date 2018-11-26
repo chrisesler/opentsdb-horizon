@@ -29,7 +29,7 @@ export class BignumberWidgetComponent implements OnInit {
 
     /** Inputs */
     @Input() editMode: boolean;
-    @Input() widget: WidgetModel;
+    @Input() widget: any;
 
     // tslint:disable:no-inferrable-types
     // tslint:disable:prefer-const

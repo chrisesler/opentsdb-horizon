@@ -23,7 +23,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     @HostBinding('class.donutchart-widget') private _componentClass = true;
 
     @Input() editMode: boolean;
-    @Input() widget: WidgetModel;
+    @Input() widget: any;
 
     @ViewChild('widgetoutput') private widgetOutputElement: ElementRef;
 

@@ -128,7 +128,7 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
         }
 
         this.y1UnitSub = this.widgetConfigAxes.controls['y1']['controls'].unit.valueChanges.subscribe( function(unit) {
-            const oUnit = this.widget.query.settings.axes && this.widget.query.settings.axes.y1 ? this.unit.getDetails(this.widget.query.settings.axes.y1.unit) : null;
+            const oUnit = this.widget.settings.axes && this.widget.settings.axes.y1 ? this.unit.getDetails(this.widget.settings.axes.y1.unit) : null;
             const nUnit = this.unit.getDetails(unit);
             let min = this.widgetConfigAxes.controls['y1']['controls'].min.value.toString().trim();
             let max = this.widgetConfigAxes.controls['y1']['controls'].max.value.toString().trim();
@@ -145,7 +145,7 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
 
         if ( this.widget.settings.component_type === 'LinechartWidgetComponent' ) {
             this.y2UnitSub = this.widgetConfigAxes.controls['y2']['controls'].unit.valueChanges.subscribe( function(unit) {
-                const oUnit = this.widget.query.settings.axes && this.widget.query.settings.axes.y2 ? this.unit.getDetails(this.widget.query.settings.axes.y2.unit) : null;
+                const oUnit = this.widget.settings.axes && this.widget.settings.axes.y2 ? this.unit.getDetails(this.widget.settings.axes.y2.unit) : null;
                 const nUnit = this.unit.getDetails(unit);
                 let min = this.widgetConfigAxes.controls['y2']['controls'].min.value.toString().trim();
                 let max = this.widgetConfigAxes.controls['y2']['controls'].max.value.toString().trim();
@@ -186,7 +186,7 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
         };
         console.log(axis, defaultConfig);
 
-        const widget = this.widget.query.settings;
+        const widget = this.widget.settings;
         const wAxisConfig = widget.axes && widget.axes[axis] ? widget.axes[axis] : {};
         return { ...defaultConfig, ...wAxisConfig };
 

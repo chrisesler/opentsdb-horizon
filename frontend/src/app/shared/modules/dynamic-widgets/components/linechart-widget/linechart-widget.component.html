@@ -9,19 +9,19 @@
     </div>
     <div class="widget-output"
         [ngClass]="{
-            'display-legend-top': widget.query.settings.legend.display && widget.query.settings.legend.position=='top',
-            'display-legend-right': widget.query.settings.legend.display && widget.query.settings.legend.position=='right',
-            'display-legend-bottom': widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom',
-            'display-legend-left': widget.query.settings.legend.display && widget.query.settings.legend.position=='left'
+            'display-legend-top': widget.settings.legend.display && widget.settings.legend.position=='top',
+            'display-legend-right': widget.settings.legend.display && widget.settings.legend.position=='right',
+            'display-legend-bottom': widget.settings.legend.display && widget.settings.legend.position=='bottom',
+            'display-legend-left': widget.settings.legend.display && widget.settings.legend.position=='left'
         }"
         #widgetoutput>
         <!--<div id="dygraphLegendTop" class="legend"
-            [style.display]="widget.query.settings.legend.display && widget.query.settings.legend.position=='top' ? 'block':'none'"
-            [style.height]="widget.query.settings.legend.display && widget.query.settings.legend.position=='top' ? '20%':'0%'"></div>
+            [style.display]="widget.settings.legend.display && widget.settings.legend.position=='top' ? 'block':'none'"
+            [style.height]="widget.settings.legend.display && widget.settings.legend.position=='top' ? '20%':'0%'"></div>
         <div id="dygraphLegendLeft" class="legend"
-            [style.display]="widget.query.settings.legend.display && widget.query.settings.legend.position=='left' ? 'block':'none'"
+            [style.display]="widget.settings.legend.display && widget.settings.legend.position=='left' ? 'block':'none'"
             [style.height]="size.height + 'px'" 
-            [style.width]="widget.query.settings.legend.display && widget.query.settings.legend.position=='left' ? '20%':'0%'"></div>
+            [style.width]="widget.settings.legend.display && widget.settings.legend.position=='left' ? '20%':'0%'"></div>
         <div id="dygraph_div" 
             dygraphsChart
             [chartType]="chartType"
@@ -30,13 +30,13 @@
             [options]="options">
         </div>
         <div id="dygraphLegendRight" class="legend"
-            [style.display]="widget.query.settings.legend.display && widget.query.settings.legend.position=='right' ? 'block':'none'"
+            [style.display]="widget.settings.legend.display && widget.settings.legend.position=='right' ? 'block':'none'"
             [style.height]="size.height + 'px'" 
-            [style.width]="widget.query.settings.legend.display && widget.query.settings.legend.position=='right' ? '20%':'0%'"></div>
+            [style.width]="widget.settings.legend.display && widget.settings.legend.position=='right' ? '20%':'0%'"></div>
         <div id="dygraphLegendBottom" class="legend"
-            [style.display]="widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom' ? 'block':'none'"
+            [style.display]="widget.settings.legend.display && widget.settings.legend.position=='bottom' ? 'block':'none'"
             [style.top]="size.height + 'px'" 
-            [style.height]="widget.query.settings.legend.display && widget.query.settings.legend.position=='bottom' ? '20%':'0%'"></div>-->
+            [style.height]="widget.settings.legend.display && widget.settings.legend.position=='bottom' ? '20%':'0%'"></div>-->
 
         <div #dygraph class="graph-chart"
             dygraphsChart
@@ -47,7 +47,7 @@
         </div>
         <div class="dygraph-legend" #graphLegend></div>
         <div class="graph-legend">
-            <ng-container *ngIf="widget.query.settings.legend.position=='left' || widget.query.settings.legend.position=='right'">
+            <ng-container *ngIf="widget.settings.legend.position=='left' || widget.settings.legend.position=='right'">
                 <table mat-table [dataSource]="options.labels.slice(1)">
                     <ng-container matColumnDef="series">
                             <th mat-header-cell *matHeaderCellDef></th>
@@ -83,7 +83,7 @@
                     </tr>-->
                 </table>
             </ng-container>
-            <ng-container *ngIf="widget.query.settings.legend.position=='top' || widget.query.settings.legend.position=='bottom'">
+            <ng-container *ngIf="widget.settings.legend.position=='top' || widget.settings.legend.position=='bottom'">
                 <li *ngFor="let index of options.labels.slice(1)" (click)="toggleChartSeries(index)">
                     <div class="line-series" [style.textDecoration]="options.visibility[index-1]===true? 'none': 'line-through'" [style.backgroundColor]= "options.series[index].color"></div>
                     <div [style.textDecoration]="options.visibility[index-1]===true? 'none': 'line-through'">{{ options.series[index].metric }}</div> 
@@ -93,8 +93,8 @@
     </div>
 </div>
 <!--
-                [style.height]="widget.query.settings.legend.display && (widget.query.settings.legend.position=='top' || widget.query.settings.legend.position=='bottom') ? (size.height * 0.8) + 'px': size.height + 'px'"
-            [style.width]="widget.query.settings.legend.display && (widget.query.settings.legend.position=='left' || widget.query.settings.legend.position=='right') ? (size.width * 0.8) + 'px' : size.width + 'px'    "
+                [style.height]="widget.settings.legend.display && (widget.settings.legend.position=='top' || widget.settings.legend.position=='bottom') ? (size.height * 0.8) + 'px': size.height + 'px'"
+            [style.width]="widget.settings.legend.display && (widget.settings.legend.position=='left' || widget.settings.legend.position=='right') ? (size.width * 0.8) + 'px' : size.width + 'px'    "
 
 -->
 <!-- NOTE: This needs to move to other component -->
@@ -147,7 +147,7 @@
             </ng-template>
         </mat-tab>
     </mat-tab-group>
-    <div class="widget-actions">
+    <div class="widget-actions"  *ngIf="showAction">
         <!-- controls to save/cancel -->
         <button mat-raised-button color="primary" class="mat-elevation-z0" (click)="applyConfig()">Apply</button>
         <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Cancel</button>
