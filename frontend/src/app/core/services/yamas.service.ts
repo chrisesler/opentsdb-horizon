@@ -7,38 +7,42 @@ export class YamasService {
 
     constructor() { }
 
-    buildQuery( time, metrics, downsample= {} , summary= false) {
-        const query = {
+    // buildQuery( time, metrics, downsample= {} , summary= false) {
+    buildQuery( time, query, downsample= {} , summary= false) {
+        const transformedQuery = {
             start: time.start,
             end: time.end,
             executionGraph: []
         };
+
         const mids = [];
 
-        for (let j = 0; j < metrics.length; j++) {
-            const isExpression = metrics[j].expression ? true : false;
+        for (let j = 0; j < query.metrics.length; j++) {
+            const isExpression = query.metrics[j].expression ? true : false;
 
             let q;
             let sources = [];
-            if ( metrics[j].metric) {
-                q = this.getMetricQuery(metrics[j], j);
+            if ( query.metrics[j].name) {
+
+                q = this.getMetricQuery(query, j);
+
                 sources = [q.id];
-                query.executionGraph.push(q);
+                transformedQuery.executionGraph.push(q);
             } else {
-                const res = this.getExpressionQuery(metrics[j], j);
-                q = res.expression;
-                query.executionGraph = query.executionGraph.concat(res.queries);
-                sources = res.qids;
+                // const res = this.getExpressionQuery(query.metrics[j], j);
+                // q = res.expression;
+                // transformedQuery.executionGraph = transformedQuery.executionGraph.concat(res.queries);
+                // sources = res.qids;
             }
 
             mids.push(q.id);
             if ( !summary  ) {
-                query.executionGraph.push(this.getQueryDownSample(downsample, q.id, sources));
-                const groupby = this.getMetricGroupBy(metrics[j], q.id, [ 'downsample' + '-' + q.id]);
-                query.executionGraph.push(groupby);
+                transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, q.id, sources));
+                const groupby = this.getMetricGroupBy(query, j, q.id, [ 'downsample' + '-' + q.id]);
+                transformedQuery.executionGraph.push(groupby);
                 q.sources = [groupby.id];
                 if ( isExpression ) {
-                    query.executionGraph.push(q);
+                    transformedQuery.executionGraph.push(q);
                 }
             }
         }
@@ -46,14 +50,14 @@ export class YamasService {
         if ( summary ) {
             const dsConfig = this.getQueryDownSample(downsample);
             dsConfig.sources = mids;
-            query.executionGraph.push(dsConfig);
-            query.executionGraph.push(this.getMetricGroupBy(null, null, ['downsample']));
-            query.executionGraph.push(this.getQuerySummarizer());
+            transformedQuery.executionGraph.push(dsConfig);
+            transformedQuery.executionGraph.push(this.getMetricGroupBy(null, null, null, ['downsample']));
+            transformedQuery.executionGraph.push(this.getQuerySummarizer());
         }
-        return query;
+        return transformedQuery;
     }
 
-    getMetricQuery(m, index) {
+    getMetricQuery(query, index) {
         const mid = 'm' + index;
         let filters = [];
         const q = {
@@ -61,15 +65,16 @@ export class YamasService {
             type: 'TimeSeriesDataSource',
             metric: {
                 type: 'MetricLiteral',
-                metric: m.metric
+                metric:  query.namespace + '.' + query.metrics[index].name
             },
             fetchLast: false,
             filter: {}
         };
-        filters = m.filters ? this.transformFilters(m.filters) : [];
+        filters = query.filters ? this.transformFilters(query.filters) : [];
         if ( filters.length ) {
             q.filter = {
                 type: 'Chain',
+                op: 'AND',
                 filters: filters
             };
         } else {
@@ -82,7 +87,7 @@ export class YamasService {
         let filters = [];
         const eid = 'm' + index;
         const qids = [];
-        let expValue = query.expression;
+        let expValue = query.metrics[index].expression;
         filters = query.filters ? this.transformFilters(query.filters) : [];
         const queries = [];
         for ( let i = 0; i < query.metrics.length; i++ ) {
@@ -131,22 +136,42 @@ export class YamasService {
     }
 
     transformFilters(fConfigs) {
-        const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
         const filters = [];
         for (let k = 0;  k < fConfigs.length; k++) {
             const f = fConfigs[k];
-            const filter = {
-                type: filterTypes[f.type],
-                filter: Array.isArray(f.filter) ? f.filter.join('|') : f.filter,
-                tagKey: f.tagk
-            };
+            const values = f.filter;
+            const filter = values.length === 1 ? this.getFilter(f.tagk, values[0]) : this.getChainFilter(f.tagk, values);
             filters.push(filter);
         }
         return filters;
     }
 
-    getMetricGroupBy(mConfig= null, qid= null, sources= []) {
-        const filters = mConfig && mConfig.filters ? mConfig.filters : [];
+    getFilter(key, v) {
+        const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
+        const regexp = v.match(/regexp\((.*)\)/);
+        v = regexp ? regexp[1] : v;
+        const type = regexp  ? 'regexp' : 'literalor';
+        const filter = {
+            type: filterTypes[type],
+            filter: v,
+            tagKey: key
+        };
+        return filter;
+    }
+    getChainFilter(key, values) {
+        const chain = {
+                        'type': 'Chain',
+                        'op': 'OR',
+                        'filters': []
+                    };
+        for ( let i = 0, len = values.length; i < len; i++ ) {
+            chain.filters.push(this.getFilter(key, values[i]));
+        }
+        return chain;
+    }
+
+    getMetricGroupBy(query= null, index= null, qid= null, sources= []) {
+        const filters = query.filters || [];
         const tagKeys = [];
         for ( let i = 0; filters && i < filters.length; i++ ) {
             if ( filters[i].groupBy ) {

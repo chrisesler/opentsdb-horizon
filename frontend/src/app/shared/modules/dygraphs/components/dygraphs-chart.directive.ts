@@ -32,26 +32,28 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
     const self = this;
     const mouseover = function(event, x, pts, row) {
-        const partentPos = self.element.nativeElement.getBoundingClientRect();
         const labelsDiv = this.user_attrs_.labelsDiv;
         let xOffset = 10;
         let yOffset = 10;
         const labelDivWidth = labelsDiv.clientWidth;
         const labelDivHeight = labelsDiv.clientHeight;
-        if (event.clientX > (window.innerWidth - (1.5 * labelDivWidth))) {
+        if (event.offsetX > (window.innerWidth - (1.2 * labelDivWidth))) {
             xOffset = - (labelDivWidth + 10);
         }
-        if (event.clientY > (window.innerHeight - (1.5 * labelDivHeight))){
+        if (event.offsetY > (window.innerHeight - (1.2 * labelDivHeight))){
             yOffset = - (labelDivHeight + 10);
         }
-        labelsDiv.style.left = (event.clientX - partentPos.left + xOffset ) + 'px';
-        labelsDiv.style.top = (event.clientY  - partentPos.top + yOffset)  + 'px';
+        labelsDiv.style.left = (event.offsetX  + xOffset ) + 'px';
+        labelsDiv.style.top = (event.offsetY   + yOffset)  + 'px';
+        labelsDiv.style.display = 'block';
     };
 
     const legendFormatter = function(data) {
         const seriesConfig = this.user_attrs_.series;
         if (data.x == null) {
-            return '<li>' + data.series.map(function(series) { return series.isVisible && series.isHighlighted ? series.dashHTML + ' ' + series.labelHTML : ''; }).join('<li>');
+            const labelsDiv = this.user_attrs_.labelsDiv;
+            labelsDiv.style.display = 'none';
+            return '';
         }
 
         let html = '<p>' + data.xHTML + '</p>';
@@ -69,6 +71,19 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         });
         return html;
     };
+
+    const _self = this;
+    const tickFormatter = function(value, gran, opts) {
+            const format = opts('tickFormat');
+            const precision = format.precision ? format.precision : 2;
+            return _self.uConverter.format(value, { unit: format.unit, precision: precision } );
+    };
+    const valueFormatter = function(value, opts) {
+        const format = opts('tickFormat');
+        const precision = format.precision ? format.precision : 2;
+        return _self.uConverter.format(value, { unit: format.unit, precision: precision } );
+    };
+
 
 
     if (!changes) {
@@ -95,6 +110,19 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
       // if new data
       if (this._g && changes.data && changes.data.currentValue) {
         let ndata = changes.data.currentValue;
+        if ( this.options.axes ) {
+            for ( const k of Object.keys(this.options.axes) ) {
+                const axis = this.options.axes[k];
+                        if ( axis.tickFormat ) {
+                            axis.axisLabelFormatter = tickFormatter;
+                            axis.valueFormatter = valueFormatter;
+                        } else {
+                            delete axis.axisLabelFormatter;
+                            delete axis.valueFormatter;
+                        }
+            }
+        }
+
         this._g.destroy();
         this._g = new Dygraph(this.element.nativeElement, ndata, this.options);
       }
@@ -102,17 +130,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
       if ( this._g && changes.options && changes.options.currentValue ) {
         const options = changes.options.currentValue;
 
-        const _self = this;
-        const tickFormatter = function(value, gran, opts) {
-                const format = opts('tickFormat');
-                const precision = format.precision ? format.precision : 2;
-                return _self.uConverter.format(value, { unit: format.unit, precision: precision } );
-        };
-        const valueFormatter = function(value, opts) {
-            const format = opts('tickFormat');
-            const precision = format.precision ? format.precision : 2;
-            return _self.uConverter.format(value, { unit: format.unit, precision: precision } );
-        };
         if ( options.axes ) {
             for ( const k of Object.keys(options.axes) ) {
                 const axis = options.axes[k];

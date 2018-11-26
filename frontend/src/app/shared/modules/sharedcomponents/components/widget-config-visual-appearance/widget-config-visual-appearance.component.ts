@@ -66,9 +66,10 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
             });
         } else {
             // all others - LineChart, BarChart, DonutChart
-            this.widget.query.groups.forEach((group, index) => {
-                this.dataSources[index] = group.queries;
+            this.widget.queries.forEach((query, index) => {
+                this.dataSources[index] = query.metrics;
                 this.gForms.addControl(index, this.createFormArray(this.dataSources[index]));
+                console.log(this.gForms, "forms")
             });
         }
         // console.log(this.gForms, 'this.gforms');
@@ -114,12 +115,13 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
                     color : new FormControl(item.settings.visual.color)
                 })));
             case 'LinechartWidgetComponent':
+            console.log("visula", ds)
                 return new FormArray(ds.map(item => new FormGroup({
-                    type: new FormControl( item.settings.visual.type || 'bar'),
+                    type: new FormControl( item.settings.visual.type || 'line'),
                     label : new FormControl(item.settings.visual.label),
                     color : new FormControl(item.settings.visual.color),
-                    lineWeight : new FormControl(item.settings.visual.lineWeight),
-                    lineType: new FormControl(item.settings.visual.lineType),
+                    lineWeight : new FormControl(item.settings.visual.lineWeight || '1px'),
+                    lineType: new FormControl(item.settings.visual.lineType || 'solid'),
                     axis: new FormControl( item.settings.visual.axis || 'y1' )
                 })));
         }

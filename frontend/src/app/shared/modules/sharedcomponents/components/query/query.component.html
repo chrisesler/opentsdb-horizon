@@ -1,0 +1,146 @@
+    <div class="index"> {{ label }}</div>
+    <div class="container">
+            <div class="namespace-bar">
+                    <span class="title"> Namespace </span>
+                    <span class="value" *ngIf="!editNamespace" (click)="editNamespace=true;">
+                        {{ query.namespace }}
+                    </span>
+                    <span class="value" *ngIf="editNamespace">
+                        <namespace-autocomplete [value]="query.namespace" (nschange)="saveNamespace($event)" (blur)="cancelSaveNamespace($event)"></namespace-autocomplete>
+                    </span>
+                    <span class="flex-spacer"></span>
+                    <span class="action-icons">
+                        <!--<button mat-icon-button color="primary" (click)="toggleGroupQuery(gIndex, query.id); $event.stopPropagation();">
+                            <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
+                            <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
+                        </button>
+                        <button mat-icon-button color="primary" (click)="deleteGroupQuery(gIndex, query.id); $event.stopPropagation();">
+                            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                        </button>-->
+                    </span>
+            </div>
+            <div class="metrics" *ngIf="query.namespace || query.metrics.length || query.filters.length">
+                    <div class="help-text">Start by adding metric or filter and then click apply to save your query.</div>
+
+                    <div class="metrics-filters-container">
+                        <div class="metrics">
+                            <div class="label">METRICS</div>
+                            <ng-container *ngIf="query.metrics.length && edit.indexOf('metrics') === -1">
+                                <div class="metric" *ngFor="let metric of query.metrics"> {{ metric.name }}</div>
+                            </ng-container>
+                            <div class="action" *ngIf="!edit.length || !query.metrics.length && edit.indexOf('metrics') === -1">
+                                    <button (click)="requestEditMode('metrics')">Add Metrics</button>
+                            </div>           
+                            <div class="filter" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
+                                <div class="search"><input type=text  #metricSearchInput class="metric-search-input"  [formControl]="metricSearchControl"></div>
+                            </div>
+                            <div class="filter-result" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
+                                <mat-tab-group  color="primary" mat-align-tabs="start">
+                                        <mat-tab [label]="'Available(' + metricOptions.length + ')'">
+                                            <ng-template matTabContent>
+                                                    <div class="list has-scroller">
+                                                            <div class="is-scroller">
+                                                                <div class="option" *ngFor="let option of metricOptions" [ngClass]="getMetricIndex(option) !== -1 ? 'added' : ''">
+                                                                    <mat-icon *ngIf="getMetricIndex(option) === -1" (click)="updateMetricSelection(option, 'add');">add_circle_outline</mat-icon>
+                                                                    <mat-icon *ngIf="getMetricIndex(option) !== -1" (click)="updateMetricSelection(option, 'remove')">remove_circle_outline</mat-icon>
+                                                                    <div>{{ option }}</div>
+                                                                </div>
+                                                                <div *ngIf="message.metricSearchControl.message" [ngClass]="message.metricSearchControl.type === 'error'? 'error': 'info'">
+                                                                    {{ message['metricSearchControl']['message'] }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                            </ng-template>
+                                        </mat-tab>
+                                        <mat-tab [label]="'Selected(' + query.metrics.length + ')'">
+                                            <ng-template matTabContent>
+                                                <div class="list has-scroller">
+                                                    <div class="is-scroller">
+                                                        <div class="option" *ngFor="let metric of query.metrics">
+                                                            <mat-icon (click)="updateMetricSelection(metric.name, 'remove');">remove_circle_outline</mat-icon>
+                                                            <div>{{ metric.name }}</div>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                            </ng-template>
+                                        </mat-tab>
+                                </mat-tab-group>
+                            </div>
+                        </div>
+                        <div class="filters">
+                            <div class="label">FILTERS</div>
+                            <ng-container *ngIf="query.filters.length && edit.indexOf('filters') === -1">
+                                    <div *ngFor="let filter of query.filters"> {{ filter.tagk }}: {{ filter.filter.join(',') }}</div>
+                                </ng-container>
+                            <div class="action">
+                                <button (click)="requestEditMode('filters')">Add Filters</button>
+                            </div>
+                            <div class="filter" *ngIf="edit.length && edit.indexOf('filters') !== -1">
+                                    <div class="tag-key-value-container">
+                                            <div class="tag-key">
+                                                <div class="caption">TAG FILTERS</div>
+                                                <div class="tag-key-search">
+                                                    <div class="search"><input #tagSearchInput [formControl]="tagSearchControl"></div>
+                                                </div>
+                                                <div class="list has-scroller">
+                                                        <div class="is-scroller">
+                                                            <div class="list-selected" *ngIf="query.filters.length">
+                                                                <div class="info">{{ query.filters.length }} tag key selected</div>
+                                                                <div class="option" *ngFor="let filter of query.filters" 
+                                                                    (click)="loadTagValues(filter.tagk)"
+                                                                    [ngClass]="filter.tagk === selectedTag ? 'active' : ''">
+                                                                            {{ filter.tagk }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="option" *ngFor="let option of tagOptions" 
+                                                            (click)="loadTagValues(option)"
+                                                            [ngClass]="option === selectedTag ? 'active' : ''">
+                                                                    {{ option }}
+                                                            </div>
+                                                        </div>
+                                                </div>
+                                            </div>
+                                            <div class="tag-values">
+                                                    <div class="caption">ADD TAG VALUE(S) TO THE RIGHT</div>
+                                                    <div class="tag-values-search">
+                                                        <div class="search"><input #tagValueSearchInput [formControl]="tagValueSearchControl"></div>
+                                                        <div class="type">
+                                                            <button>Literal</button>
+                                                            <button>Regex</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="list has-scroller">
+                                                        <div class="is-scroller">
+                                                            <div class="option" *ngFor="let option of filteredTagValues">
+                                                                    <mat-icon *ngIf="getTagValueIndex(selectedTag, option) === -1" (click)="updateTagValueSelection(option, 'add');">add_circle_outline</mat-icon>
+                                                                    <mat-icon *ngIf="getTagValueIndex(selectedTag, option) !== -1" (click)="updateTagValueSelection(option, 'remove')">remove_circle_outline</mat-icon>
+                                                                <div>{{ option }}</div>
+                                                            </div>
+                                                            <div *ngIf="message.tagValueControl.message" [ngClass]="message.tagValueControl.type === 'error'? 'error': 'info'">
+                                                                {{ message['tagValueControl']['message'] }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                            <div class="tag-values-selected">
+                                                <div class="caption">SELECTED TAG VALUES</div>
+                                                <div class="list has-scroller" *ngIf="query.filters[selectedTagIndex]">
+                                                    <div class="is-scroller">
+                                                        <div class="option" *ngFor="let option of query.filters[selectedTagIndex].filter" >
+                                                                <mat-icon (click)="updateTagValueSelection(option, 'remove')">remove_circle_outline</mat-icon>
+                                                               <span> {{ option }} </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            <div class="actions" *ngIf="edit.length">
+                    <button mat-button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="apply()"> Apply </button>
+                    <button mat-button  class="mat-elevation-z0" (click)="cancel()"> Cancel </button>
+                </div>      
+    </div>
+    

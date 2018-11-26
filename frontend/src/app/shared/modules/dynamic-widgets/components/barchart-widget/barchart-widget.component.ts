@@ -21,7 +21,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     @HostBinding('class.barchart-widget') private _componentClass = true;
 
     @Input() editMode: boolean;
-    @Input() widget: WidgetModel;
+    @Input() widget: any;
 
     @ViewChild('widgetoutput') private widgetOutputElement: ElementRef;
 

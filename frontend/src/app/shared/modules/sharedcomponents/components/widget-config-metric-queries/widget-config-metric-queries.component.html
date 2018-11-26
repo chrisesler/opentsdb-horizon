@@ -1,52 +1,8 @@
-
-<!-- <mat-toolbar class="config-toolbar time-series-toolbar">
-    <mat-toolbar-row *ngIf="!widget.query.groups || widget.query.groups.length === 0">
-        <div class="toolbar-item">
-            <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="openTimeSeriesMetricDialog(mgroupId)">
-                <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
-                <span>Add Query</span>
-            </button>
-        </div>
-    </mat-toolbar-row>
-    <mat-toolbar-row *ngIf="widget.query.groups && widget.query.groups.length > 0">
-        <div class="toolbar-item master-checkbox">
-            <button mat-icon-button color="primary" (click)="batch_selectAllToggle($event)">
-                <mat-icon>{{ selectedToggleIcon[selectAllToggle] }}</mat-icon>
-            </button>
-        </div>
-        <div class="toolbar-item">
-            <div class="button-group">
-                <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_groupMetrics($event)">
-                    <mat-icon fontSet="denali" fontIcon="d-merge"></mat-icon>
-                    <span>Group</span>
-                </button>
-                <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_splitMetrics($event)">
-                    <mat-icon fontSet="denali" fontIcon="d-split"></mat-icon>
-                    <span>Split</span>
-                </button>
-                <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="batch_deleteMetrics($event)">
-                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                    <span>Delete</span>
-                </button>
-            </div>
-        </div>
-        <div class="toolbar-item">
-            <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="openTimeSeriesMetricDialog(mgroupId)">
-                <mat-icon fontSet="denali" fontIcon="d-merge"></mat-icon>
-                <span>New Group</span>
-            </button>
-        </div>
-        <span class="flex-spacer"></span>
-        <div class="toolbar-item">
-            <mat-slide-toggle (change)="toggle_displayGroupsIndividually($event)"><span class="mat-caption">Display groups individually</span></mat-slide-toggle>    
-        </div>
-    </mat-toolbar-row>
-</mat-toolbar> -->
 <!-- list of metric-items -->
 <div class="query-metrics-section">
     <div class="query-metrics-wrap">
         <mat-accordion class="query-group-list mat-elevation-z0" [ngClass]="{'items-selected': selectAllToggle !== 'none'}" displayMode="flat" [multi]="true" [hideToggle]="false">
-            <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [disabled]="true" [expanded]="true" *ngFor="let group of widget.query.groups; let gIndex=index">
+            <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [disabled]="true" [expanded]="true">
                 <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
                     <div class="group-selector">
                         <!--<mat-checkbox class="group-checkbox"></mat-checkbox>-->
@@ -71,29 +27,41 @@
                         <span class="toolbar-item add-query-actions">
                             <!--<mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>-->
                             <!--<span>Add:&nbsp;</span>-->
-                            <button mat-button color="primary" (click)="openTimeSeriesMetricDialog(group.id); $event.stopPropagation()" >Query Explorer</button>
+                            <!--<button mat-button color="primary" (click)="openTimeSeriesMetricDialog(); $event.stopPropagation()" >Query Explorer</button>-->
                             <!--<button mat-button color="primary" (click)="openMetricExpressionDialog(group); $event.stopPropagation()">Expression</button>-->
                         </span>
-                        <span class="toolbar-action-icons" *ngIf="group.queries.length">
+                        <!--<span class="toolbar-action-icons" *ngIf="group.queries.length">
                             <button mat-icon-button color="primary" (click)="toggleGroup(gIndex); $event.stopPropagation()">
                                 <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="group.settings.visual.visible"></mat-icon>
                                 <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!group.settings.visual.visible"></mat-icon>
                             </button>
-                            <!--<button mat-icon-button color="primary" (click)="clone_queryGroup(group, $event)">
+                            <button mat-icon-button color="primary" (click)="clone_queryGroup(group, $event)">
                                 <mat-icon fontSet="denali" fontIcon="d-duplicate" class="mat-icon-rtl-mirror"></mat-icon>
-                            </button>-->
-                            <!-- <button mat-icon-button color="primary" (click)="deleteGroup(gIndex); $event.stopPropagation()">
+                            </button>
+                            <button mat-icon-button color="primary" (click)="deleteGroup(gIndex); $event.stopPropagation()">
                                 <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                            </button> -->
-                        </span>
+                            </button> 
+                        </span>-->
                     </mat-toolbar>
                 </mat-expansion-panel-header>
-                
-                <div class="query-metric-row" *ngFor="let query of group.queries; let index=index">
-                        <div class="query-metric-item">
-                                <div class="metric-detail">
-                                    <span class="detail-item" *ngIf="query.metric">{{ query.metric.split('.')[0] }}</span>
-                            
+                <ng-container *ngIf="!queryEditMode">
+                    <div class="query-metric-row" *ngFor="let query of widget.queries; let index=index">
+                        <query [label]="'Q' + (index + 1)" [query]="query" (queryOutput)="handleQueryRequest($event)"></query>
+                    </div>
+                </ng-container>
+                <div class="query-metric-row" *ngIf="queryEditMode">
+                    <query [label]="getQueryLabel(editQuery.query)" [query]="editQuery.query" [edit]="editQuery.edit" (queryOutput)="handleQueryRequest($event)"></query>
+                </div>
+                <div class="query-metric-row" *ngIf="widget.queries.length && widget.queries[widget.queries.length-1].metrics.length && !queryEditMode" style="margin-top:25p;">
+                        <button  mat-button  mat-primary color="primary"  (click)="addNewQuery()">Add Query</button>
+                </div>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </div>
+</div>
+<!--
+                                    <inline-query-editor [namespace]="query.namespace" [showTag]="query.id === newQueryId " [query]="query"  (queryOutput)="updateQuery($event, group.id)"></inline-query-editor>   
+
                                     <span class="expression" *ngIf="query.expression">
                                         <span class="expression-collapse">
                                             <button mat-icon-button [disableRipple]="true" (click)="toggleExpressionCollapsed(query, group, $event)">
@@ -105,32 +73,4 @@
                                             {{ query.settings.visual.label }} {{ query.expression }}
                                         </span>
                                     </span>
-                            
-                                    <span class="flex-spacer"></span>
-                                    <span class="action-icons">
-                                        <button mat-icon-button color="primary" (click)="toggleGroupQuery(gIndex, query.id); $event.stopPropagation();">
-                                            <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
-                                            <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
-                                        </button>
-                                        <!--<button mat-icon-button color="primary" (click)="clone_queryItem(query, $event)">
-                                                                    <mat-icon fontSet="denali" fontIcon="d-duplicate" class="mat-icon-rtl-mirror"></mat-icon>
-                                                                </button>-->
-                                        <button mat-icon-button color="primary" (click)="deleteGroupQuery(gIndex, query.id); $event.stopPropagation();">
-                                            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                                        </button>
-                                    </span>
-                                </div>
-
-                                <inline-query-editor [namespace]="query.metric.split('.')[0]" [showTag]="query.id === newQueryId " [query]="query"  (queryOutput)="updateQuery($event, group.id)"></inline-query-editor>   
-                            </div>                
-                </div>
-                <div class="query-metric-row" *ngIf="!group.queries.length || showNewQueryEditor ">
-                        <namespace-autocomplete (nschange)="addNewQuery($event, group.id)"></namespace-autocomplete>
-                </div>
-                <div class="query-metric-row" *ngIf="group.queries.length" style="margin-top:25p;">
-                        <button  mat-button  mat-primary color="primary"  (click)="newQuery()">Add Query</button>
-                </div>
-            </mat-expansion-panel>
-        </mat-accordion>
-    </div>
-</div>
+-->

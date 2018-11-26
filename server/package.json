@@ -3,9 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "NODE_ENV=dev nodemon ./bin/www",
-    "debug": "NODE_ENV=dev nodemon --debug ./bin/www",
-    "inspect": "NODE_ENV=dev nodemon --inspect ./bin/www"
+    "start": "NODE_ENV=dev concurrently ./bin/www"
   },
   "dependencies": {},
   "devDependencies": {
@@ -17,7 +15,7 @@
     "express-okta-oath": "^0.13.8",
     "http-errors": "~1.6.2",
     "morgan": "~1.9.0",
-    "nodemon": "^1.17.3",
+    "concurrently": "^4.1.0",
     "properties-reader": "0.0.16",
     "request": "^2.86.0",
     "request-promise": "^4.2.2",
