@@ -74,6 +74,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     data: any = [[0]];
     size: any = {};
     legendDisplayColumns = [];
+    showAction  = true;
 
     constructor(
         private interCom: IntercomService,
@@ -158,20 +159,30 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 this.refreshData(false);
                 break;
             case 'SetAlerts':
-                this.widget.query.settings.thresholds = message.payload.data;
+                this.widget.settings.thresholds = message.payload.data;
                 this.setAlertOption();
                 this.options = { ...this.options };
                 break;
             case 'SetAxes' :
                 this.updateAlertValue(message.payload.data); // update the alert unit type and value
                 console.log('axs', message);
-                this.widget.query.settings.axes = { ...this.widget.query.settings.axes, ...message.payload.data };
+                this.widget.settings.axes = { ...this.widget.settings.axes, ...message.payload.data };
                 this.setAxesOption();
                 this.options = { ...this.options };
                 break;
             case 'SetLegend':
                 this.setLegend(message.payload.data);
                 break;
+            case 'UpdateQuery':
+                this.updateQuery(message.payload);
+                this.widget.queries = [...this.widget.queries];
+                this.refreshData();
+                break;
+            case 'ToggleWidgetAction':
+                console.log("line toggle", message)
+                    this.showAction = message.payload.display;
+                break;
+                /*
             case 'MergeMetrics':
                 this.mergeMetrics(message.payload.data);
                 this.refreshData();
@@ -193,30 +204,25 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             case 'DeleteGroup':
                 this.deleteGroup(message.payload.gIndex);
                 break;
-            case 'UpdateQuery':
-                this.updateQuery(message.payload);
-                this.refreshData();
-                break;
+
             case 'DeleteGroupQuery':
                 this.deleteGroupQuery(message.payload.gIndex, message.payload.index);
                 break;
+                */
         }
     }
 
     updateQuery( payload ) {
-        console.log("linechart updateQuery", payload);
+        console.log("linechart updateQuery", payload, this.widget.queries);
         const query = payload.query;
-
-        const gid = payload.gid;
-        const gconfig = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-        const qindex = query.id ? gconfig.queries.findIndex(q => q.id === query.id ) : -1;
+        const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
         if ( qindex === -1 ) {
             query.id = this.util.generateId(6);
-            gconfig.queries.push(query);
+            this.widget.queries.push(query);
         } else {
-            gconfig.queries[qindex] = query;
+            this.widget.queries[qindex] = query;
         }
-        console.log("line chart updateQuery", gconfig);
+        console.log("line chart updateQuery", this.widget.queries);
     }
 
     addMetricsToGroup(gConfig) {
@@ -224,23 +230,24 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
         if ( gid === 'new' ) {
             const g = this.createNewGroup();
-            this.widget.query.groups.push(g);
+            this.widget.queries.push(g);
             gid = g.id;
         }
 
-        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-        for ( let i = 0; i < gConfig.queries.length; i++ ) {
-            gConfig.queries[i].settings.visual.type = 'line';
+        /*
+        const config = this.util.getObjectByKey(this.widget.queries, 'id', gid);
+        for ( let i = 0; i < gConfig.metrics.length; i++ ) {
+            gConfig.metrics[i].settings.visual.type = 'line';
         }
-        config.queries = config.queries.concat(gConfig.queries);
+        config.metrics = config.queries.concat(gConfig.queries);
+        */
     }
 
     createNewGroup() {
         const gid = this.util.generateId(6);
         const g = {
                     id: gid,
-                    title: 'untitled group',
-                    queries: [],
+                    metrics: [],
                     settings: {
                         tempUI: {
                             selected: false
@@ -293,7 +300,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
         let nWidth, nHeight, padding;
 
-        const legendSettings = this.widget.query.settings.legend;
+        const legendSettings = this.widget.settings.legend;
 
         let widthModifier = 1;
         this.legendDisplayColumns = [];
@@ -336,7 +343,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setTimeConfiguration(config) {
-        this.widget.query.settings.time = {
+        this.widget.settings.time = {
                                              shiftTime: config.shiftTime,
                                              overrideRelativeTime: config.overrideRelativeTime,
                                              downsample: {
@@ -350,10 +357,10 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setAxesOption() {
-        const axisKeys = Object.keys(this.widget.query.settings.axes);
-        const thresholds = this.widget.query.settings.thresholds || {};
+        const axisKeys = Object.keys(this.widget.settings.axes);
+        const thresholds = this.widget.settings.thresholds || {};
         for (let i = 0; i < axisKeys.length; i++ ) {
-            const config = this.widget.query.settings.axes[axisKeys[i]];
+            const config = this.widget.settings.axes[axisKeys[i]];
             const chartAxisID = axisKeys[i] === 'y1' ? 'y' : axisKeys[i] === 'y2' ? 'y2' : 'x';
             const axis = this.options.axes[chartAxisID];
             if ( !isNaN( config.min ) ) {
@@ -382,11 +389,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         this.options.series[k].axis = 'y';
                     }
                 }
-                const groups = this.widget.query.groups;
-                for ( let m = 0; m < groups.length; m++ ) {
-                    const queries = groups[m].queries;
-                    for ( let n = 0; n < queries.length; n++ ) {
-                        queries[n].settings.visual.axis = 'y1';
+                const queries = this.widget.queries;
+                for ( let m = 0; m < queries.length; m++ ) {
+                    const metrics = queries[m].metrics;
+                    for ( let n = 0; n < metrics.length; n++ ) {
+                        metrics[n].settings.visual.axis = 'y1';
                     }
                 }
             }
@@ -405,11 +412,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
         // draw the axis if one series on the axis
         let y1Enabled = false, y2Enabled = false;
-        const groups = this.widget.query.groups;
-        for ( let m = 0; m < groups.length; m++ ) {
-            const queries = groups[m].queries;
-            for ( let n = 0; n < queries.length; n++ ) {
-                const vConfig = queries[n].settings.visual;
+        const queries = this.widget.queries;
+        for ( let m = 0; m < queries.length; m++ ) {
+            const metrics = queries[m].metrics;
+            for ( let n = 0; n < metrics.length; n++ ) {
+                const vConfig = metrics[n].settings.visual;
                 if ( !vConfig.axis || vConfig.axis === 'y1' ) {
                     y1Enabled = true;
                 } else if ( vConfig.axis === 'y2') {
@@ -423,13 +430,13 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         // this.options.axes.y2.drawAxis = y2Enabled;
         this.options.axes.y.axisLabelWidth = y1Enabled ? 50 : 0;
         this.options.axes.y2.axisLabelWidth = y2Enabled ? 50 : 0;
-        console.log("setaxis",  y1Enabled, y2Enabled, this.options, this.widget.query.groups[0].queries);
+        console.log("setaxis",  y1Enabled, y2Enabled, this.options, this.widget.queries);
     }
 
     updateAlertValue(nConfig) {
-        const thresholds = this.widget.query.settings.thresholds || {};
+        const thresholds = this.widget.settings.thresholds || {};
         for ( let k in nConfig ) {
-            const oConfig = this.widget.query.settings.axes ? this.widget.query.settings.axes[k] : <Axis>{};
+            const oConfig = this.widget.settings.axes ? this.widget.settings.axes[k] : <Axis>{};
             const oUnit = this.unit.getDetails(oConfig.unit);
             const nUnit = this.unit.getDetails(nConfig[k].unit);
             for ( let i in thresholds ) {
@@ -443,7 +450,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setAlertOption() {
-        const thresholds = this.widget.query.settings.thresholds || {};
+        const thresholds = this.widget.settings.thresholds || {};
         this.options.thresholds =  [] ;
         Object.keys(thresholds).forEach( k => {
             const threshold = thresholds[k];
@@ -464,7 +471,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                         break;
                 }
                 const scaleId = !threshold.axis || threshold.axis !== 'y2' ? 'y' : threshold.axis;
-                const axis = this.widget.query.settings.axes ? this.widget.query.settings.axes[threshold.axis] : null;
+                const axis = this.widget.settings.axes ? this.widget.settings.axes[threshold.axis] : null;
                 const oUnit = axis ? this.unit.getDetails(axis.unit) : null;
                 const o = {
                     value: oUnit ? threshold.value * oUnit.m : threshold.value,
@@ -478,14 +485,14 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         });
     }
 
-    setVisualization( gIndex, configs ) {
+    setVisualization( qIndex, configs ) {
 
         configs.forEach( (config, i) => {
             // tslint:disable-next-line:max-line-length
-            this.widget.query.groups[gIndex].queries[i].settings.visual = { ...this.widget.query.groups[gIndex].queries[i].settings.visual, ...config };
+            this.widget.queries[qIndex].metrics[i].settings.visual = { ...this.widget.queries[qIndex].metrics[i].settings.visual, ...config };
         });
 
-        const mConfigs = this.widget.query.groups[gIndex].queries;
+        const mConfigs = this.widget.queries[qIndex].metrics;
         for ( let i = 0; i < mConfigs.length; i++ ) {
             const vConfig = mConfigs[i].settings.visual;
             /*
@@ -498,7 +505,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             };
             */
             if ( vConfig.axis === 'y2' ) {
-                this.widget.query.settings.axes.y2.enabled = true;
+                this.widget.settings.axes.y2.enabled = true;
             }
             if ( vConfig.type === 'bar' ) {
                 // this.options.series[label].plotter = multiColumnGroupPlotter;
@@ -510,7 +517,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setLegend(config) {
-        this.widget.query.settings.legend = config;
+        this.widget.settings.legend = config;
         this.setLegendDiv();
         this.setSize();
         this.options = {...this.options};
@@ -523,7 +530,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     setLegendDiv() {
         // NOTE: This is a weird way to do this. Do we really need 4 different divs for legen position? Just style the one.
-        const lConfig = this.widget.query.settings.legend;
+        const lConfig = this.widget.settings.legend;
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
         if ( lConfig.display ) {
             /*const position = lConfig.position[0].toUpperCase() + lConfig.position.slice(1);
@@ -584,6 +591,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         }
     }
 
+    /*
     mergeMetrics( groups ) {
         const newGroup = this.createNewGroup();
         let cntMergedQueries = 0;
@@ -703,6 +711,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         this.widget.query.groups[gIndex].queries.splice(index, 1);
         this.refreshData();
     }
+    */
     // request send to update state to close edit mode
     closeViewEditMode() {
         this.interCom.requestSend({

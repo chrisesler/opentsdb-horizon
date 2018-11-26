@@ -1,0 +1,486 @@
+/* WIDGET CONFIG COMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+
+@mixin query-component-base() {
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-padding: map-get($widgets-common-config, edit-padding);
+
+    .query {
+        display: flex;
+        max-width: 1000px;
+        .index  {
+            background: #d2d3d5;
+            padding: 5px 6px;
+            font-weight: 500;
+            width: 30px;
+            height: 30px;
+        }
+        // contains the metric row details
+        .container {
+            flex: 1 1 100%;
+            display: flex;
+            flex-direction: column;
+            background: #e4e5e7;
+            /* display: flex; */
+            /*
+            align-items: stretch;
+            justify-content: space-between;
+            min-height: 100%;
+            background: #365696;
+            */
+            margin-bottom: 10px;
+            .namespace-bar {
+                /*
+                display: flex;
+                align-items: center;
+                justify-content: stretch;
+                */
+                padding-right: 14px;
+                height: 30px;
+            }
+            .metrics{
+                flex: 1 1 100%;
+                display: flex;
+                flex-direction: column;
+                padding: 15px;
+                .help-text {
+                    font-size: 10px;
+                    padding: 5px 5px;
+                }
+                .metrics-filters-container {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: row;
+                    > div {
+                        margin-right: 15px;
+                    }
+                    > div:last-child {
+                        margin-right: 0px;
+                    }
+                    .metrics {
+                        padding: 10px;
+                        background: #fff;
+                        display: flex;
+                        flex: 1;
+                        flex-direction: column;
+                        
+                        .filter {
+                            
+                        }
+                        .filter-result {
+                            margin-top: 5px;
+                            display: flex;
+                            flex:1;
+                            min-height: 200px;
+                            .mat-tab-group{
+                                flex: 1 1 100%;
+                            }
+                            .mat-tab-header {
+                                padding: 0px;
+                            }
+                            .mat-tab-label-container {
+                                flex-grow: 0;
+                            }
+                            .mat-tab-label {
+                                height: 25px;
+                                font-size: 12px;
+                                font-weight: 300;
+                            }
+                            .mat-tab-label-active {
+                                font-weight: 500;
+                            }
+                            mat-tab-body {
+                                /*
+                                > * {
+                                    flex: 0 0 auto;			
+                                }
+                                */
+
+                                .list {
+                                    flex: 1;
+                                    justify-content: space-between;
+                                    .option{
+                                        padding: 5px;
+                                        font-size: 10px;
+                                        display: flex;
+                                        flex-direction: row;
+                                        align-items: center;
+                                        mat-icon {
+                                            cursor: pointer;
+                                            font-size: 15px;
+                                            color: green;
+                                        }
+                                    }
+                                    .option:hover {
+                                        background: #c5e3ff;
+                                    }
+                                    .option.added {
+                                        background: #c5e3ff;
+                                        border-bottom: 1px solid #000;
+                                    }
+                                    .option.selected {
+                                        background: #227aec;
+                                        font-weight: 500;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        
+                    }
+                    .filters {
+                        padding: 10px;
+                        background: #fff;
+                        display: flex;
+                        flex: 1;
+                        flex-direction: column;
+                        .filter {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: stretch;
+                            justify-content: stretch;
+                            flex-grow: 3;
+                            .tag-key-value-container {
+                                display: flex;
+                                flex: 1;
+                                flex-direction: row;
+        
+                                > div {
+                                    width: 33.33%;
+                                }
+                                .tag-key {
+                                    flex-basis: 100%;
+                                    display: flex;
+                                    flex-direction: column;
+                                    min-height: 200px;
+                                    .caption {
+                                        font-size: 10px;
+                                        font-weight: 300;
+                                        color: grey;
+                                    }
+                                    .tag-key-search {
+                                        .search {
+                                        }
+                                    }
+                                    .list {
+                                        flex: 1;
+                                        .option {
+                                            padding: 5px;
+                                            cursor: pointer;
+                                        }
+                                        .option:hover {
+                                            background: #fff;
+                                        }
+                                        .option.active {
+                                            background: #c5e3ff;
+                                            border-bottom: 1px solid #000;
+                                        }
+                                        .option.selected {
+                                            background: #227aec;
+                                            font-weight: 500;
+                                        }
+                                    }
+                                }
+                                .tag-values {
+                                    flex-basis: 100%;
+                                    display: flex;
+                                    flex-direction: column;
+                                    min-height: 200px;
+                                    .caption {
+                                        font-size: 10px;
+                                        font-weight: 300;
+                                        color: grey;
+                                    }
+                                    .tag-values-search {
+                                        display: flex;
+                                        .search {
+        
+                                        }
+                                        .type {
+                                            button {
+        
+                                            }
+                                            button.active {
+        
+                                            }
+                                        }
+                                    }
+                                    .list {
+                                        flex: 1;
+                                        .option {
+                                            padding: 5px;
+                                            font-size: 10px;
+                                            display: flex;
+                                            flex-direction: row;
+                                            align-items: center;
+                                            mat-icon {
+                                                cursor: pointer;
+                                                font-size: 15px;
+                                                color: green;
+                                            }
+                                        }
+                                        .option:hover {
+                                            background: #fff;
+                                        }
+                                    }
+                                }
+                                .tag-values-selected{
+                                    flex-basis: 100%;
+                                    display: flex;
+                                    flex-direction: column;
+                                    min-height: 200px;
+                                    .caption {
+                                        font-size: 10px;
+                                        font-weight: 300;
+                                        color: grey;
+                                    }
+                                    .list {
+                                        flex: 1;
+                                        .option {
+                                            padding: 5px;
+                                            font-size: 10px;
+                                            mat-icon {
+                                                cursor: pointer;
+                                                font-size: 15px;
+                                                color: red;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .filter-result {
+                            margin-top: 5px;
+                            display: flex;
+                            flex:1;
+                        }
+                        
+                    }
+                }
+            }
+
+            .actions {
+                border-top: 1px solid #fff;
+                text-align: center;
+                padding: 10px;
+                .mat-stroked-button, .mat-button {
+                    font-weight: 300;
+                    color: #227aec;
+                    min-width: 80px;
+                    line-height: 25px;
+                }
+            }
+        }
+        /*
+        .namespace span {
+            font-weight: bold;
+        }
+
+        .query{
+            background: #f0f0f0;
+
+            .mat-stroked-button {
+                font-weight: 300;
+            }
+            > div {
+                height: 100%;
+                display: flex;
+                flex-direction: row;
+
+                .metrics{
+                    width: 30%;
+                    .caption{
+                        font-size: 12px;
+                        font-weight: 300;
+                        color: grey;
+                    }
+                    .metric{
+
+                    }
+                    .metric-add-btn{
+                        margin-top : 15px;
+                    }
+                }
+                .tags {
+                    width: 70%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: stretch;
+                    justify-content: stretch;
+                    flex-grow: 3;
+                    border: 2px solid #227aec;
+                    .container {
+                        display: flex;
+                        flex: 1;
+
+                        > div {
+                            width: 33.33%;
+                            border: 1px solid burlywood;
+                        }
+                        .tag-key {
+                            flex-basis: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            .caption {
+                                font-size: 10px;
+                                font-weight: 300;
+                                color: grey;
+                            }
+                            .filter {
+                                .search {
+                                }
+                            }
+                            .list {
+                                flex: 1;
+                                .option {
+                                    padding: 5px;
+                                    cursor: pointer;
+                                }
+                                .option:hover {
+                                    background: #fff;
+                                }
+                                .option.added {
+                                    background: #c5e3ff;
+                                    border-bottom: 1px solid #000;
+                                }
+                                .option.selected {
+                                    background: #227aec;
+                                    font-weight: 500;
+                                }
+                            }
+                        }
+                        .tag-values {
+                            flex-basis: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            .caption {
+                                font-size: 10px;
+                                font-weight: 300;
+                                color: grey;
+                            }
+                            .filter {
+                                display: flex;
+                                .search {
+
+                                }
+                                .type {
+                                    button {
+
+                                    }
+                                    button.active {
+
+                                    }
+                                }
+                            }
+                            .list {
+                                flex: 1;
+                                .option {
+                                    padding: 5px;
+                                    font-size: 10px;
+                                    display: flex;
+                                    flex-direction: row;
+                                    align-items: center;
+                                    mat-icon {
+                                        cursor: pointer;
+                                        font-size: 15px;
+                                        color: green;
+                                    }
+                                }
+                                .option:hover {
+                                    background: #fff;
+                                }
+                            }
+                        }
+                        .tag-values-selected{
+                            flex-basis: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            .caption {
+                                font-size: 10px;
+                                font-weight: 300;
+                                color: grey;
+                            }
+                            .list {
+                                flex: 1;
+                                .option {
+                                    padding: 5px;
+                                    font-size: 10px;
+                                    mat-icon {
+                                        cursor: pointer;
+                                        font-size: 15px;
+                                        color: red;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .action {
+                flex-grow: 4;
+                height: 40px;
+                background: #f0f0f0;
+            }
+        }
+        .metric-tags {
+            display: flex;
+            align-items: center;
+
+            // probably the 'tabs:' label
+            :first-child {
+                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+            }
+
+            .key {
+                margin-right: 3px;
+                font-weight: 500;
+            }
+
+            .value {
+                padding: 3px;
+                margin-right: 6px;
+                cursor: pointer;
+            }
+
+            .value-control {
+                margin-right: 8x;
+            }
+
+            .mat-chip-list {
+                margin-left: 10px;
+            }
+
+            .mat-basic-chip {
+                padding: 3px 6px;
+                border-radius: 3px;
+                margin-right: 4px;
+
+                // first-child should be the tag key
+                :first-child {
+                    margin-right: 4px;
+                }
+            }
+            
+        }
+        */
+
+        
+    }
+}
+
+@mixin query-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark: map-get($theme-config, is-dark);
+    $chip-bg: rgba(map-get($primary, default), .1);
+    $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
+    $alias-text: if($is-dark, rgba(255, 255, 255, .5), rgba(0, 0, 0, .5));
+
+    .query {
+    }
+}

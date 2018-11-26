@@ -51,9 +51,9 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
     createForm() {
 
         this.widgetConfigLegend = this.fb.group({
-            display:   new FormControl( this.widget.query.settings.legend.display || false ),
-            format: new FormControl(this.widget.query.settings.legend.format || 'inline'),
-            position: new FormControl(this.widget.query.settings.legend.position || 'bottom')
+            display:   new FormControl( this.widget.settings.legend.display || false ),
+            format: new FormControl(this.widget.settings.legend.format || 'inline'),
+            position: new FormControl(this.widget.settings.legend.position || 'bottom')
         });
 
         this.subscription = this.widgetConfigLegend.valueChanges

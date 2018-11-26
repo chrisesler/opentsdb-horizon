@@ -78,7 +78,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                 const component: Type<any> = this.widgetService.getComponentToLoad(wConfig.type);
                 const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
                 const widget = JSON.parse(JSON.stringify(this.widget)); // copy the widget config
-                widget.query.settings = { ...widget.query.settings, ...this.widgetService.getWidgetDefaultSettings(wConfig.type)};
+                widget.settings = { ...widget.settings, ...this.widgetService.getWidgetDefaultSettings(wConfig.type)};
 
                 widget.settings.component_type = wConfig.type;
                 this.editComponent.emit({

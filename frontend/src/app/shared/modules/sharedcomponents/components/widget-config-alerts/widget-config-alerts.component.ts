@@ -55,7 +55,7 @@ export class WidgetConfigAlertsComponent implements OnInit, OnChanges, OnDestroy
     ngOnChanges( changes: SimpleChanges ) {
         if ( changes.widget ) {
             const widget = changes.widget.currentValue;
-            const y2Axis = widget.query.settings.axes && widget.query.settings.axes.y2 ? widget.query.settings.axes.y2 : {};
+            const y2Axis = widget.settings.axes && widget.settings.axes.y2 ? widget.settings.axes.y2 : {};
             this.showAxis = widget.settings.component_type === 'LinechartWidgetComponent' && (!Object.keys(y2Axis).length || y2Axis.enabled) ? true : false;
         }
     }
@@ -87,7 +87,7 @@ export class WidgetConfigAlertsComponent implements OnInit, OnChanges, OnDestroy
     }
 
     setThresholds(k) {
-        const wThresholdConfig = this.widget.query.settings.thresholds && this.widget.query.settings.thresholds[k] ? this.widget.query.settings.thresholds[k] : {};
+        const wThresholdConfig = this.widget.settings.thresholds && this.widget.settings.thresholds[k] ? this.widget.settings.thresholds[k] : {};
         this.thresholds[k] = Object.assign(this.thresholds[k], wThresholdConfig);
     }
 

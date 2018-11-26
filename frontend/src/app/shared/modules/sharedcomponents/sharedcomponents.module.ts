@@ -48,6 +48,7 @@ import { NamespaceAutocompleteComponent } from './components/namespace-autocompl
 import { NamespaceTagAutocompleteComponent } from './components/namespace-tag-autocomplete/namespace-tag-autocomplete.component';
 import { NamespaceTagValuesComponent } from './components/namespace-tag-values/namespace-tag-values.component';
 import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.component';
+import { QueryComponent } from './components/query/query.component';
 
 @NgModule({
     imports: [
@@ -92,7 +93,8 @@ import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.
         NamespaceAutocompleteComponent,
         NamespaceTagAutocompleteComponent,
         NamespaceTagValuesComponent,
-        TagvEditviewComponent
+        TagvEditviewComponent,
+        QueryComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
