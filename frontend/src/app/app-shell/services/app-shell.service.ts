@@ -67,15 +67,16 @@ export class AppShellService {
             );
     }
 
-    getFolderList(uid?: string) {
-        const apiUrl = environment.configdb2 + '/user.' + ((uid) ? uid : this._uid) + '/folder';
+    getFolderList(folderId?: any, namespaceId?: any ) {
+        const apiUrl = environment.configdb2 + '/folder';
         const params = { 'recursive': 'true' };
-        const headers = this.headers;
-        // headers['Access-Control-Request-Method']
+        const headers = new HttpHeaders(this.headers);
+
         return this.http.get(apiUrl, {
             params: params,
-            headers: this.headers,
-            withCredentials: true
+            headers: headers,
+            withCredentials: true,
+            responseType: 'json'
         })
         .pipe(
             catchError(this.handleError)

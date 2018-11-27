@@ -35,10 +35,13 @@ export class DashboardNavigatorComponent implements OnInit {
 
     @Output() toggleDrawer: EventEmitter<any> = new EventEmitter();
 
-    dashboards: Observable<object[]>;
+    dashboards: Observable<any[]>;
     dashboardsSub: Subscription;
 
-    dashboardFolders: object[] = [];
+    resourcesSub: Subscription;
+
+    dashboardFolders: any[] = [];
+    namespaceFolders: any[] = [];
 
     panels: any[] = [];
 
@@ -54,19 +57,25 @@ export class DashboardNavigatorComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.dashboardsSub = this.http.getDashboards()
+        /*this.dashboardsSub = this.http.getDashboards()
             .subscribe( data => {
                 this.dashboards = <Observable<object[]>>data;
                 this.generateFakeFolderData();
-            });
+            });*/
 
-        const uid = this.ass.getUid().subscribe( (data: any) => {
+        /*const uid = this.ass.getUid().subscribe( (data: any) => {
             console.log('data', data);
             const folders = this.ass.getFolderList(data.uid)
                 .subscribe( list => {
                     console.log('LIST', list);
                 });
-        });
+        });*/
+
+        this.resourcesSub = this.ass.getFolderList()
+                .subscribe( list => {
+                    console.log('%cFOLDER LIST', 'color: white; background: purple; padding: 4px 8px;', list);
+                    this.dashboards = <Observable<any[]>>list.personal;
+                });
 
         // console.log('NAVIGATOR', this.navPanel);
     }
