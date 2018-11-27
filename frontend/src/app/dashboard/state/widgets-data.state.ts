@@ -16,6 +16,11 @@ export class GetQueryDataByGroup {
     constructor(public readonly payload: any) {}
 }
 
+export class SetQueryDataByGroup {
+    public static type = '[Rawdata] Set Query Data By Group';
+    constructor(public readonly payload: any) {}
+}
+
 
 
 @State<RawDataModel>({
@@ -50,14 +55,22 @@ export class WidgetsRawdataState {
     @Action(GetQueryDataByGroup)
     getQueryDataByGroup(ctx: StateContext<RawDataModel>, { payload }: GetQueryDataByGroup) {
         this.httpService.getYamasData(payload.query).subscribe(
-            data => {    
-                //console.log('query ==> ',payload.wid, payload.gid, data);                
-                const state = ctx.getState();
-                if (!state.data[payload.wid]) state.data[payload.wid] = {}
-                state.data[payload.wid][payload.gid] = data;
-                state.lastModifiedWidget = { wid: payload.wid, gid: payload.gid};
-                ctx.setState({...state});            
+            data => {
+                //console.log('query ==> ',payload.wid, payload.gid, data);
+                payload.data = data;
+                ctx.dispatch(new SetQueryDataByGroup(payload));
             }
         );
+    }
+
+    @Action(SetQueryDataByGroup)
+    setQueryDataByGroup(ctx: StateContext<RawDataModel>, { payload }: SetQueryDataByGroup) {
+        const state = ctx.getState();
+        if (!state.data[payload.wid]) {
+            state.data[payload.wid] = {};
+        }
+        state.data[payload.wid][payload.gid] = payload.data;
+        state.lastModifiedWidget = { wid: payload.wid, gid: payload.gid};
+        ctx.setState({...state});
     }
 }

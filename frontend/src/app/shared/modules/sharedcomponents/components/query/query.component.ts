@@ -330,7 +330,7 @@ export class QueryComponent implements OnInit, OnChanges {
         v = v.trim();
         if ( this.selectedTagIndex === -1  && operation === 'add' ) {
             this.selectedTagIndex = this.query.filters.length;
-            this.query.filters[this.selectedTagIndex] = { tagk: this.selectedTag, filter: []};
+            this.query.filters[this.selectedTagIndex] = { tagk: this.selectedTag, groupBy: true, filter: []};
         }
 
         if (  operation === 'add') {

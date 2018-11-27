@@ -5,7 +5,7 @@
                     <span class="value" *ngIf="!editNamespace" (click)="editNamespace=true;">
                         {{ query.namespace }}
                     </span>
-                    <span class="value" *ngIf="editNamespace">
+                    <span class="value" *ngIf="editNamespace || !query.namespace.trim() ">
                         <namespace-autocomplete [value]="query.namespace" (nschange)="saveNamespace($event)" (blur)="cancelSaveNamespace($event)"></namespace-autocomplete>
                     </span>
                     <span class="flex-spacer"></span>
