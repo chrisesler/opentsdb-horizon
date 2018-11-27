@@ -1,4 +1,4 @@
-<mat-form-field appearance="fill" [color]="'primary'" floatLabel="never">
+<!--<mat-form-field appearance="fill" [color]="'primary'" floatLabel="never">
         <input type="text" #tagInput matInput placeholder="Values" 
         [formControl]="tagControl" 
         [matAutocomplete]="tagAuto" 
@@ -9,4 +9,30 @@
         <mat-option *ngFor="let option of filteredTagOptions | async" [value]="option">
             {{ option }}
         </mat-option>
-</mat-autocomplete>
+</mat-autocomplete>-->
+
+<mat-form-field>
+        <mat-chip-list #chipList>
+          <mat-chip
+            *ngFor="let v of tagValues"
+            [selectable]="'true'"
+            [removable]="'true'"
+            (removed)="removeItem(v)">
+            {{v}}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+          <input
+            #tagInput
+            [formControl]="tagControl"
+            [matAutocomplete]="tagAuto"
+            [matChipInputFor]="chipList"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            matChipInputAddOnBlur="false"
+            (matChipInputTokenEnd)="add($event)">
+        </mat-chip-list>
+        <mat-autocomplete #tagAuto="matAutocomplete" (optionSelected)="tagSelected($event)">
+                <mat-option *ngFor="let option of filteredTagOptions | async" [value]="option">
+                    {{ option }}
+                </mat-option>
+        </mat-autocomplete>
+</mat-form-field>

@@ -8,14 +8,15 @@ export class YamasService {
     constructor() { }
 
     // buildQuery( time, metrics, downsample= {} , summary= false) {
-    buildQuery( time, query, downsample= {} , summary= false) {
-        const transformedQuery = {
+    buildQuery( time, query, downsample= {} , summaryOnly= false) {
+        const transformedQuery: any = {
             start: time.start,
             end: time.end,
             executionGraph: []
         };
 
         const mids = [];
+        const groupbyIds = [];
 
         for (let j = 0; j < query.metrics.length; j++) {
             const isExpression = query.metrics[j].expression ? true : false;
@@ -36,23 +37,37 @@ export class YamasService {
             }
 
             mids.push(q.id);
-            if ( !summary  ) {
+            if ( !summaryOnly  ) {
                 transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, q.id, sources));
                 const groupby = this.getMetricGroupBy(query, j, q.id, [ 'downsample' + '-' + q.id]);
                 transformedQuery.executionGraph.push(groupby);
+
                 q.sources = [groupby.id];
+                groupbyIds.push(groupby.id);
                 if ( isExpression ) {
                     transformedQuery.executionGraph.push(q);
                 }
+
             }
         }
 
-        if ( summary ) {
+        if ( summaryOnly ) {
             const dsConfig = this.getQueryDownSample(downsample);
             dsConfig.sources = mids;
             transformedQuery.executionGraph.push(dsConfig);
-            transformedQuery.executionGraph.push(this.getMetricGroupBy(null, null, null, ['downsample']));
+            transformedQuery.executionGraph.push(this.getMetricGroupBy(query, null, null, ['downsample']));
             transformedQuery.executionGraph.push(this.getQuerySummarizer());
+        } else {
+            transformedQuery.executionGraph.push({
+                id: 'summarizer',
+                summaries: ['sum', 'max', 'min', 'count', 'avg', 'first', 'last'],
+                sources: groupbyIds
+            });
+
+            transformedQuery.serdesConfigs = [{
+                id: 'JsonV3QuerySerdes',
+                filter: [ ...groupbyIds, 'summarizer']
+            }];
         }
         return transformedQuery;
     }

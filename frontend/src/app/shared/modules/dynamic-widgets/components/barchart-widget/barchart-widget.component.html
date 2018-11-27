@@ -25,7 +25,7 @@
         <mat-tab label="Queries">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent >
-                <barchart-config-metric-queries *ngIf="!isStackedGraph"   [widget]="widget" (widgetChange)="updateConfig($event);"></barchart-config-metric-queries>
+                <widget-config-metric-queries *ngIf="!isStackedGraph"   [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
                 <stacked-barchart-config-metric-queries *ngIf="isStackedGraph" [widget]="widget" (widgetChange)="updateConfig($event);"></stacked-barchart-config-metric-queries>
             </ng-template>
         </mat-tab>
@@ -48,11 +48,11 @@
                 -->
             </ng-template>
         </mat-tab>
-        <mat-tab label="Alerts">
+        <!--<mat-tab label="Alerts">
             <ng-template matTabContent>
                 <widget-config-alerts [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-alerts>
             </ng-template>
-        </mat-tab>
+        </mat-tab>-->
         <mat-tab label="Meta Data">
                 <ng-template matTabContent>
                     <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
@@ -68,7 +68,7 @@
             </ng-template>
         </mat-tab>
     </mat-tab-group>
-    <div class="widget-actions">
+    <div class="widget-actions"  *ngIf="showAction">
         <!-- controls to save/cancel -->
         <button mat-raised-button color="primary" class="mat-elevation-z0" (click)="applyConfig()">Apply</button>
         <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Cancel</button>

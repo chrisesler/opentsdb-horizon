@@ -93,6 +93,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         const query: any = { namespace: '' , metrics: [], filters: [] };
         switch (this.widget.settings.component_type) {
             case 'LinechartWidgetComponent':
+            case 'BarchartWidgetComponent':
                 query.settings = {
                                     visual: {
                                         visible: true,

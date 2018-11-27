@@ -1,6 +1,8 @@
-import { Component, OnInit, OnChanges, AfterViewChecked, HostBinding, Input, Output, EventEmitter, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnChanges, HostBinding, HostListener, Input, Output, EventEmitter, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatAutocompleteTrigger } from '@angular/material';
+import { MatAutocompleteTrigger, MatChipInputEvent, MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material';
+import {COMMA, TAB, ENTER} from '@angular/cdk/keycodes';
+
 
 
 import { Observable } from 'rxjs';
@@ -12,27 +14,33 @@ import { HttpService } from '../../../../../core/http/http.service';
   templateUrl: './namespace-tag-values.component.html',
   styleUrls: ['./namespace-tag-values.component.scss']
 })
-export class NamespaceTagValuesComponent implements OnInit, OnChanges, AfterViewChecked {
+export class NamespaceTagValuesComponent implements OnInit, OnChanges {
 
     @HostBinding('class.namespace-tag-autocomplete') private _hostClass = true;
     @ViewChild('tagInput') tagInput: ElementRef;
     @ViewChild(MatAutocompleteTrigger) trigger;
+    @ViewChild('tagAuto') matAutocomplete: MatAutocomplete;
 
 
-    @Input() value = '';
+    @Input() value = [];
     @Input() namespace;
     @Input() tagkey;
     @Input() tagsSelected: any = {};
     @Output() tagValueChange = new EventEmitter();
     @Output() blur = new EventEmitter();
+    separatorKeysCodes: number[] = [ENTER, COMMA];
     filteredTagOptions: Observable<string[]>;
     tagControl: FormControl;
+    chipControl: FormControl;
     tags = [];
+    tagValues = [];
 
-    constructor( private httpService: HttpService ) { }
+    constructor( private httpService: HttpService, private elRef: ElementRef ) { }
 
     ngOnInit() {
-        this.tagControl = new FormControl(this.value);
+        this.tagControl = new FormControl('');
+        this.chipControl = new FormControl();
+        this.tagValues = this.value || [];
 
         // need to include switchMap to cancel the previous call
         this.tagControl.valueChanges
@@ -62,6 +70,7 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges, AfterView
                 this.filteredTagOptions = this.httpService.getTagValuesByNamespace(query);
             }
             this.tagInput.nativeElement.focus();
+            this.trigger.openPanel();
         });
     }
 
@@ -71,16 +80,44 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges, AfterView
         }
 
         if ( changes.value  && this.tagControl ) {
-            this.tagControl.setValue(this.value);
+            this.tagValues = changes.value.currentValue;
+            this.tagControl.setValue(null);
+            console.log("on change tagValues=", this.tagValues);
         }
         if ( changes.tagsSelected  && this.tagControl ) {
             console.log(" tag value on changes" , changes.tagsSelected);
         }
     }
 
-    ngAfterViewChecked() {
+    add(event: MatChipInputEvent): void {
+        // Add fruit only when MatAutocomplete is not open
+        // To make sure this does not conflict with OptionSelected Event
+        if (!this.matAutocomplete.isOpen) {
+          const input = event.input;
+          const value = event.value;
 
-        // this.showAutosuggest();
+          // Add our fruit
+          if ((value || '').trim()) {
+            this.tagValues.push(value.trim());
+          }
+
+          // Reset the input value
+          if (input) {
+            input.value = '';
+          }
+
+          console.log("tagvalues=>", this.tagValues);
+          this.tagControl.setValue(null);
+        }
+    }
+
+    removeItem(v: string): void {
+        const index = this.tagValues.indexOf(v);
+        if (index >= 0) {
+          this.tagValues.splice(index, 1);
+        }
+        console.log("revmoe item", this.tagValues);
+        this.trigger.closePanel();
     }
 
     showAutosuggest() {
@@ -97,13 +134,34 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges, AfterView
      * * Event fired when an autocomplete option is selected
      */
     tagSelected(event: any) {
-        this.tagValueChange.emit( event.option.value );
+        this.tagValues.push(event.option.viewValue);
+        this.tagInput.nativeElement.value = '';
+        this.tagControl.setValue(null);
     }
 
-    handleBlur(e) {
-        setTimeout(() => {
-            this.blur.emit();
-        }, 3000);
+    @HostListener('click', ['$event'])
+    hostClickHandler(e) {
+        e.stopPropagation();
     }
 
+    @HostListener('document:click', ['$event.target'])
+    documentClickHandler(target) {
+        if ( ! target.classList.contains('mat-option-text')) {
+            console.log('window:click outside', this.elRef, target);
+            this.sendTagValues();
+        }
+    }
+
+    @HostListener('document:keydown', ['$event'])
+    keydown(e: KeyboardEvent) {
+      if ( e.keyCode === TAB ) {
+        console.log('keydown: tab', e);
+        this.sendTagValues();
+      }
+    }
+
+    sendTagValues() {
+        this.trigger.closePanel();
+        this.tagValueChange.emit(this.tagValues);
+    }
 }

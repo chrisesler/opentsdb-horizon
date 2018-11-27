@@ -64,6 +64,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     data: any = [ ];
     width = '100%';
     height = '100%';
+    showAction  = true;
 
     constructor(
         private interCom: IntercomService,
@@ -73,11 +74,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     ) { }
 
     ngOnInit() {
-        this.type$ = new BehaviorSubject(this.widget.query.settings.visual.type || 'vertical');
+        console.log("this.widget", this.widget)
+        this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'vertical');
         this.options.legend.display = this.isStackedGraph ? true : false;
 
         this.typeSub = this.type$.subscribe( type => {
-            this.widget.query.settings.visual.type = type;
+            this.widget.settings.visual.type = type;
             this.options.scales.yAxes[0] = type === 'vertical' ? this. valueAxis : this.categoryAxis;
             this.options.scales.xAxes[0] = type === 'vertical' ? this.categoryAxis : this.valueAxis;
             this.type = type === 'vertical' ? 'bar' : 'horizontalBar';
@@ -95,7 +97,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                     this.refreshData();
                     break;
             }
+            console.log("come shere ", message)
             if (message && (message.id === this.widget.id)) {
+                console.log("come shere ", message)
+
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                         if ( !this.isDataLoaded ) {
@@ -103,7 +108,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                             this.data = [];
                             this.isDataLoaded = true;
                         }
-                        this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget.query, this.data, message.payload.rawdata, this.isStackedGraph);
+                        this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget, this.data, message.payload.rawdata, this.isStackedGraph);
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.widget = message.payload;
@@ -141,10 +146,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     updateConfig(message) {
         switch ( message.action ) {
+            /*
             case 'AddMetricsToGroup':
                 this.addMetricsToGroup(message.payload.data);
                 this.refreshData();
             break;
+            */
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
                 break;
@@ -158,19 +165,29 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 this.setBarVisualization( message.payload.gIndex, message.payload.data );
                 break;
             case 'SetAlerts':
-                this.widget.query.settings.thresholds = message.payload.data;
+                this.widget.settings.thresholds = message.payload.data;
                 this.setAlertOption();
                 this.options = { ...this.options };
                 break;
             case 'SetAxes' :
                 this.updateAlertValue(message.payload.data.y1);
-                this.widget.query.settings.axes = { ...this.widget.query.settings.axes, ...message.payload.data };
+                this.widget.settings.axes = { ...this.widget.settings.axes, ...message.payload.data };
                 this.setAxisOption();
                 this.options = { ...this.options };
                 break;
             case 'ChangeVisualization':
                 this.type$.next(message.payload.type);
                 break;
+            case 'UpdateQuery':
+                this.updateQuery(message.payload);
+                this.widget.queries = [...this.widget.queries];
+                this.refreshData();
+                break;
+            case 'ToggleWidgetAction':
+                console.log("line toggle", message)
+                    this.showAction = message.payload.display;
+                break;
+            /*
             case 'SetStackedBarBarVisuals':
                 this.setStackedBarLabels(message.payload.data);
                 break;
@@ -194,9 +211,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 this.deleteMetrics(message.payload.data);
                 this.refreshData(false);
                 break;
+                */
 
         }
     }
+    /*
     addMetricsToGroup(gConfig) {
         console.log("addMetricstogroup....", JSON.stringify(gConfig));
         let gid = gConfig.id;
@@ -206,7 +225,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             gid = g.id;
         }
 
-        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        const config = this.util.getObjectByKey(this.widget.queries, 'id', gid);
         const prevTotal = config.queries.length;
 
         let i = 1;
@@ -224,7 +243,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             i++;
         }
         config.queries = config.queries.concat(gConfig.queries);
-        
         if ( this.isStackedGraph ) {
             this.setStackForGroup(gid);
         }
@@ -232,11 +250,35 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         console.log("addMetricstogroup....", this.widget.query);
         this.widget = {...this.widget};
     }
+    */
+
+    updateQuery( payload ) {
+        console.log("barchart updateQuery", payload, this.widget.queries);
+        const query = payload.query;
+        const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
+        /*
+        if ( qindex === -1 ) {
+            query.id = this.util.generateId(6);
+            // query.title = '';
+            query.settings =  {
+                                visual: {
+                                    visible: true
+                                }
+                            };
+            this.widget.queries.push(query);
+        } else {
+        } */
+        if ( qindex !== -1 ) {
+            this.widget.queries[qindex] = query;
+        }
+
+        console.log("bar chart updateQuery", qindex, this.widget.queries);
+    }
 
     setStackForGroup(gid) {
-        const gconfig = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
+        const gconfig = this.util.getObjectByKey(this.widget.queries.groups, 'id', gid);
         const queries = gconfig.queries;
-        const stacks = this.widget.query.settings.visual.stacks || [];
+        const stacks = this.widget.settings.visual.stacks || [];
 
         const availStacks = stacks.filter(x => !queries.find(function(a) { console.log("x=",x,'a=',a.settings.visual,"cno=",x.id === a.settings.visual.stack); return x.id === a.settings.visual.stack; } ));
         console.log("available stacks", availStacks, "len=", availStacks.length);
@@ -252,10 +294,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     addNewStack() {
         const oStack = {
             id : this.util.generateId(3),
-            label: 'Stack-' + ( this.widget.query.settings.visual.stacks.length + 1 ),
+            label: 'Stack-' + ( this.widget.settings.visual.stacks.length + 1 ),
             color: '#000000'
         };
-        const index = this.widget.query.settings.visual.stacks.push(oStack);
+        const index = this.widget.settings.visual.stacks.push(oStack);
         return oStack;
     }
 
@@ -274,7 +316,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                         }
                     }
                 };
-        this.widget.query.groups.push(g);
+        this.widget.queries.push(g);
         return g;
     }
 
@@ -303,11 +345,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             }
         }
         if ( deletedMetrics ) {
-            this.widget.query.groups = groups;
+            this.widget.queries.groups = groups;
             // delete the stacks that are no longer used
-            const stacks = this.widget.query.settings.visual.stacks;
+            const stacks = this.widget.settings.visual.stacks;
             if ( usedStacks.length !== stacks.length ) {
-                this.widget.query.settings.visual.stacks = stacks.filter( stack => usedStacks.indexOf(stack.id) !== -1 );
+                this.widget.settings.visual.stacks = stacks.filter( stack => usedStacks.indexOf(stack.id) !== -1 );
             }
             this.widget = { ...this.widget };
         }
@@ -327,7 +369,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     setTimeConfiguration(config) {
-       this.widget.query.settings.time = {
+       this.widget.settings.time = {
                                             shiftTime: config.shiftTime,
                                             overrideRelativeTime: config.overrideRelativeTime,
                                             downsample: {
@@ -343,8 +385,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     setAxisOption() {
         const axis = this.valueAxis;
-        const config = this.widget.query.settings.axes && this.widget.query.settings.axes.y1 ?
-                            this.widget.query.settings.axes.y1 : <Axis>{};
+        const config = this.widget.settings.axes && this.widget.settings.axes.y1 ?
+                            this.widget.settings.axes.y1 : <Axis>{};
         const oUnit = this.unit.getDetails(config.unit);
         axis.type = !config.scale || config.scale === 'linear' ? 'linear' : 'logarithmic';
         axis.ticks = {};
@@ -365,21 +407,21 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     setStackedBarVisualization(gIndex, configs) {
         console.log("setStackedBarVisualization", gIndex, configs);
         configs.forEach( (config, i) => {
-            this.widget.query.groups[gIndex].queries[i].settings.visual = { ...this.widget.query.groups[gIndex].queries[i].settings.visual, ...config };
+            this.widget.queries.groups[gIndex].queries[i].settings.visual = { ...this.widget.queries.groups[gIndex].queries[i].settings.visual, ...config };
         });
         this.refreshData(false);
     }
 
     setBarVisualization( gIndex, configs ) {
         configs.forEach( (config, i) => {
-            this.widget.query.groups[gIndex].queries[i].settings.visual = { ...this.widget.query.groups[gIndex].queries[i].settings.visual, ...config };
+            this.widget.queries[gIndex].metrics[i].settings.visual = { ...this.widget.queries[gIndex].metrics[i].settings.visual, ...config };
         });
         this.refreshData(false);
     }
 
     setAlertOption() {
-        const thresholds = this.widget.query.settings.thresholds || {};
-        const axis = this.widget.query.settings.axes && this.widget.query.settings.axes.y1 ? this.widget.query.settings.axes.y1 : <Axis>{};
+        const thresholds = this.widget.settings.thresholds || {};
+        const axis = this.widget.settings.axes && this.widget.settings.axes.y1 ? this.widget.settings.axes.y1 : <Axis>{};
         const oUnit = this.unit.getDetails(axis.unit);
 
         this.options.threshold = { thresholds: [] };
@@ -420,10 +462,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     updateAlertValue(nConfig) {
-        const oConfig = this.widget.query.settings.axes && this.widget.query.settings.axes.y1 ? this.widget.query.settings.axes.y1 : <Axis>{};
+        const oConfig = this.widget.settings.axes && this.widget.settings.axes.y1 ? this.widget.settings.axes.y1 : <Axis>{};
         const oUnit = this.unit.getDetails(oConfig.unit);
         const nUnit = this.unit.getDetails(nConfig.unit);
-        const thresholds = this.widget.query.settings.thresholds || {};
+        const thresholds = this.widget.settings.thresholds || {};
         for ( let i in thresholds ) {
             thresholds[i].value = oUnit ? thresholds[i].value * oUnit.m : thresholds[i].value;
             thresholds[i].value = nUnit ? thresholds[i].value / nUnit.m : thresholds[i].value;
@@ -440,17 +482,17 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 label = labelUntitled + (labelIndex === 1 ? '' : ' ' + labelIndex);
                 labelIndex++;
             }
-            this.widget.query.groups[i].title = label;
+            this.widget.queries.groups[i].title = label;
             labels.push( label );
         });
         this.options.labels = labels;
         this.options = {...this.options};
-        console.log(this.widget.query.groups);
+        console.log(this.widget.queries.groups);
     }
 
     setStackedStackVisuals(configs) {
-        this.widget.query.settings.visual.stacks = configs;
-        this.widget.query.settings.visual.stacks.forEach((config, i) => {
+        this.widget.settings.visual.stacks = configs;
+        this.widget.settings.visual.stacks.forEach((config, i) => {
             this.data[i].label = config.label;
             this.data[i].backgroundColor = config.color;
         });
@@ -459,31 +501,31 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     toggleGroup(gIndex) {
-        this.widget.query.groups[gIndex].settings.visual.visible = !this.widget.query.groups[gIndex].settings.visual.visible;
-        for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
-            this.widget.query.groups[gIndex].queries[i].settings.visual.visible =
-            this.widget.query.groups[gIndex].settings.visual.visible;
+        this.widget.queries.groups[gIndex].settings.visual.visible = !this.widget.queries.groups[gIndex].settings.visual.visible;
+        for (let i = 0; i < this.widget.queries.groups[gIndex].queries.length; i++) {
+            this.widget.queries.groups[gIndex].queries[i].settings.visual.visible =
+            this.widget.queries.groups[gIndex].settings.visual.visible;
         }
         this.refreshData(false);
     }
     deleteGroup(gIndex) {
-        this.widget.query.groups.splice(gIndex, 1);
+        this.widget.queries.splice(gIndex, 1);
         this.refreshData();
     }
 
     toggleGroupQuery(gIndex, index) {
         // toggle the individual query
-        this.widget.query.groups[gIndex].queries[index].settings.visual.visible =
-        !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
+        this.widget.queries.groups[gIndex].queries[index].settings.visual.visible =
+        !this.widget.queries.groups[gIndex].queries[index].settings.visual.visible;
 
         // set the group to visible if the individual query is visible
-        if (this.widget.query.groups[gIndex].queries[index].settings.visual.visible) {
-            this.widget.query.groups[gIndex].settings.visual.visible = true;
+        if (this.widget.queries.groups[gIndex].queries[index].settings.visual.visible) {
+            this.widget.queries.groups[gIndex].settings.visual.visible = true;
         } else { // set the group to invisible if all queries are invisible
-            this.widget.query.groups[gIndex].settings.visual.visible = false;
-            for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
-                if (this.widget.query.groups[gIndex].queries[i].settings.visual.visible) {
-                    this.widget.query.groups[gIndex].settings.visual.visible = true;
+            this.widget.queries.groups[gIndex].settings.visual.visible = false;
+            for (let i = 0; i < this.widget.queries.groups[gIndex].queries.length; i++) {
+                if (this.widget.queries.groups[gIndex].queries[i].settings.visual.visible) {
+                    this.widget.queries.groups[gIndex].settings.visual.visible = true;
                     break;
                 }
             }
@@ -492,8 +534,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     deleteGroupQuery(gIndex, index) {
-        this.widget.query.groups[gIndex].queries.splice(index, 1);
-        console.log(this.widget.query.groups[gIndex].queries, "gindex", gIndex, index);
+        this.widget.queries.groups[gIndex].queries.splice(index, 1);
+        console.log(this.widget.queries.groups[gIndex].queries, "gindex", gIndex, index);
         this.refreshData();
     }
 
