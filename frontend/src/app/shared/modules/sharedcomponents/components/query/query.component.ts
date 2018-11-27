@@ -34,6 +34,7 @@ export class QueryComponent implements OnInit, OnChanges {
     metricOptions = [];
     selectedTagIndex = -1;
     selectedTag = '';
+    tagValueTypeControl = new FormControl('literalor');
     metricSearchControl: FormControl;
     tagSearchControl: FormControl;
     tagValueSearchControl: FormControl;
@@ -207,7 +208,7 @@ export class QueryComponent implements OnInit, OnChanges {
 
             for ( let i = 0, len = this.query.filters.length; i < len; i++  ) {
                 const filter: any =  { key: this.query.filters[i].tagk };
-                if ( this.query.filters[i].filter.length ) {
+                if ( this.query.filters[i].filter.length && this.query.filters[i].tagk !== this.selectedTag ) {
                     filter.value = this.query.filters[i].filter;
                 }
                 query.tags.push(filter);
@@ -219,7 +220,7 @@ export class QueryComponent implements OnInit, OnChanges {
             if ( this.query.metrics ) {
                 query.metrics = this.query.metrics.map( item => item.name );
             }
-            if ( this.selectedTag ) {
+            if ( this.selectedTag && this.tagValueTypeControl.value === 'literalor' ) {
                 console.log("query tab value", query)
                 query.tagkey = this.selectedTag;
                 this.httpService.getTagValuesByNamespace(query)
@@ -286,26 +287,18 @@ export class QueryComponent implements OnInit, OnChanges {
         return index;
     }
 
-    /*
-    metricSearchKeydown($event) {
-        const value = this.metricSearchControl.value;
-        this.addMetric(value);
-        console.log($event, this.query.metrics);
-    }
-
-    metricOptionSelected(event) {
-        this.addMetric(event.option.value);
-    }
-    */
-
-    loadTagValues( tag ) {
+    handlerTagClick( tag ) {
         // const selected = this.query.filters.map(item => item.tagk);
         // res = res.filter( tag => selected.indexOf(tag) === -1);
         this.selectedTag = tag;
         this.selectedTagIndex = this.getTagIndex(tag);
+        if ( this.tagValueTypeControl.value === 'literalor' ) {
+            this.loadTagValues();
+        }
+    }
+
+    loadTagValues() {
         this.tagValueSearchControl.setValue(null);
-        this.tagValueSearchInput.nativeElement.focus();
-        console.log("load tags", this.tagOptions);
     }
 
     getTagIndex ( tag ) {
@@ -322,6 +315,15 @@ export class QueryComponent implements OnInit, OnChanges {
         return tagValueIndex;
     }
 
+    addTagValueRegexp() {
+        let v = this.tagValueSearchControl.value.trim();
+        if ( this.tagValueTypeControl.value === 'regexp' && v ) {
+            v = 'regexp(' + v + ')';
+            this.updateTagValueSelection(v, 'add');
+            this.tagValueSearchControl.setValue(null);
+        }
+    }
+
 
     updateTagValueSelection(v, operation) {
         console.log('tag value=', v);
@@ -336,9 +338,10 @@ export class QueryComponent implements OnInit, OnChanges {
         } else if ( this.selectedTagIndex !== -1 && operation === 'remove' ) {
             const index = this.query.filters[this.selectedTagIndex].filter.indexOf(v);
             this.query.filters[this.selectedTagIndex].filter.splice(index, 1);
-            if ( !this.query.filters[this.selectedTagIndex].length ) {
+            if ( !this.query.filters[this.selectedTagIndex].filter.length ) {
                 this.query.filters.splice(this.selectedTagIndex, 1);
                 this.tagOptions.unshift(this.selectedTag);
+                this.selectedTagIndex = -1;
             }
         }
         this.filterTagOptions();

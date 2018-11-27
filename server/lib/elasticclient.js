@@ -556,13 +556,14 @@ module.exports = function () {
             "filtered": {
                 "filter": {
                     "bool": {
-                        "must": []
+                        "must": [],
                     }
                 }
             }
         };
 
         var nestedQueryFilters = [];
+        var nestedQueryShouldFilters = [];
 
         // additional tag-value filters
         if ( tags.length ) {
@@ -572,7 +573,6 @@ module.exports = function () {
                 if ( tags[i].operator && tags[i].operator === 'NOTIN' ) {
                         condition = 'must_not';
                 }
-                nestedQueryFilters.push(self.getNestedQueryFilter('tags', condition));
                 var key = tags[i].key.toLowerCase();
                 var filterType = 'term';
                 if ( key.indexOf('.*') !== -1   ) { 
@@ -580,12 +580,36 @@ module.exports = function () {
                 }
                 var filter = {};
                 filter[filterType] = { "tags.key.lowercase": key };
-                nestedQueryFilters[nestedQueryFilters.length-1].nested.query.bool[condition].push(filter);
-                var v = Array.isArray(tags[i].value) ? tags[i].value.join('|') : tags[i].value;
-                if ( v ) {
-                    console.log('v=', v)
-                    self._convertTagValueToESNotation(nestedQueryFilters[nestedQueryFilters.length-1].nested.query.bool[condition], v);
+                // nestedQueryFilters.push(self.getNestedQueryFilter('tags', condition));
+                // nestedQueryFilters[nestedQueryFilters.length-1].nested.query.bool[condition].push(filter);
+                
+                // var v = Array.isArray(tags[i].value) ? tags[i].value.join('|') : tags[i].value;
+                
+                
+                if ( tags[i].value ) {
+                    // nestedQueryFilter.nested.query.bool['should'] = [];
+                    var nestedQueryFilter = self.getNestedQueryFilter('tags', 'should');
+                        
+                    for ( var j=0;  j<tags[i].value.length; j++ ){
+                        var v = tags[i].value[j];
+                        var bool = { bool: { must: [  ] }};
+                        bool.bool.must.push(filter);
+                        self._convertTagValueToESNotation( bool.bool.must, v);
+                        nestedQueryFilter.nested.query.bool['should'].push(bool);
+                        // nestedQueryShouldFilters.push(nestedQueryFilter);
+                    }
+                    nestedQueryFilters.push(nestedQueryFilter);
+                } else {
+                    var nestedQueryFilter = self.getNestedQueryFilter('tags', condition);
+                    nestedQueryFilter.nested.query.bool[condition].push(filter);
+                    nestedQueryFilters.push(nestedQueryFilter);
                 }
+
+                // if ( Array.isArray(tags[i].value) ) {
+                //    console.log('v=', v)
+                // } else {
+                //    self._convertTagValueToESNotation(nestedQueryFilters[nestedQueryFilters.length-1].nested.query.bool[condition], v);
+                // }
             }
         }
 
@@ -607,7 +631,9 @@ module.exports = function () {
                 nestedQueryFilters[n-1].nested.query.bool.should.push(filter);
             }
         }
-
+        if ( nestedQueryShouldFilters.length ) {
+            // query.filtered.filter.bool.should = nestedQueryShouldFilters;
+        }
         query.filtered.filter.bool.must.push(nestedQueryFilters);
 
         return query;
