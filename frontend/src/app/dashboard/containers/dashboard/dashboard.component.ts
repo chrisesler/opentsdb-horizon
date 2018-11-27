@@ -19,7 +19,7 @@ import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel} from '../../state/widgets.state';
-import { WidgetsRawdataState, GetQueryDataByGroup } from '../../state/widgets-data.state';
+import { WidgetsRawdataState, GetQueryDataByGroup, SetQueryDataByGroup } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import {
     DBSettingsState,
@@ -512,6 +512,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         for (let i = 0; i < payload.queries.length; i++) {
             let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
             groupid = query.id;
+            const gquery: any = {
+                wid: message.id,
+                gid: groupid,
+            };
             if ( query.namespace && query.metrics.length ) {
                 // filter only visible metrics
                 // query = this.dbService.filterMetrics(query);
@@ -521,13 +525,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 query = overrideFilters.length ? this.dbService.overrideQueryFilters(query, overrideFilters) : query;
                 query = this.queryService.buildQuery(payload, dt, query);
                 console.log('the group query-2', query, JSON.stringify(query));
-                const gquery = {
-                    wid: message.id,
-                    gid: groupid,
-                    query: query
-                };
+                gquery.query = query;
                 // now dispatch request
                 this.store.dispatch(new GetQueryDataByGroup(gquery));
+            } else {
+                gquery.data = {};
+                this.store.dispatch(new SetQueryDataByGroup(gquery));
             }
         }
         //*/
