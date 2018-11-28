@@ -76,7 +76,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
 
         if (this.widget.settings.component_type !== 'LinechartWidgetComponent') {
             const displayControlDefault = (this.widget.settings.component_type === 'DonutWidgetComponent') ? 'doughnut' : 'vertical';
-            this.displayControl = new FormControl(this.widget.query.settings.visual.type || displayControlDefault);
+            this.displayControl = new FormControl(this.widget.settings.visual.type || displayControlDefault);
         }
         /*
         switch ( this.widget.settings.component_type ) {

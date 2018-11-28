@@ -1,5 +1,10 @@
 ::ng-deep .cdk-overlay-pane {
     /* Do you changes here */
     // min-width:450px;
-    width: auto !important;
  }
+
+ ::ng-deep .mat-autocomplete-panel{
+    position: fixed !important;
+    width: auto !important;
+    font-size: 12px;
+} 
