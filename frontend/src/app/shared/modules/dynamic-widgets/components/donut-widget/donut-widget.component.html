@@ -25,7 +25,7 @@
         <mat-tab label="Queries">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent>
-                <donutchart-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></donutchart-config-metric-queries>
+                <widget-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
             </ng-template>
         </mat-tab>
         <mat-tab label="Time Configuration">
@@ -58,7 +58,7 @@
             </ng-template>
         </mat-tab>
     </mat-tab-group>
-    <div class="widget-actions">
+    <div class="widget-actions" *ngIf="showAction">
         <!-- controls to save/cancel -->
         <button mat-raised-button color="primary" class="mat-elevation-z0"  (click)="applyConfig()">Apply</button>
         <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Cancel</button>
