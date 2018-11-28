@@ -56,6 +56,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     data: any = [ { data: [] } ];
     width = '100%';
     height = '100%';
+    showAction  = true;
 
     constructor(
         private interCom: IntercomService,
@@ -64,9 +65,9 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     ) { }
 
     ngOnInit() {
-        this.type$ = new BehaviorSubject(this.widget.query.settings.visual.type || 'doughnut');
+        this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'doughnut');
         this.typeSub = this.type$.subscribe( type => {
-            this.widget.query.settings.visual.type = type;
+            this.widget.settings.visual.type = type;
             this.type = type === 'doughnut' ? 'doughnut' : 'pie';
         });
 
@@ -92,7 +93,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                             this.data = [];
                         }
                         this.setOptions();
-                        this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget.query, this.data, message.payload.rawdata);
+                        this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget, this.data, message.payload.rawdata);
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.widget = message.payload;
@@ -129,10 +130,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     updateConfig(message) {
         switch ( message.action ) {
-            case 'AddMetricsToGroup':
-                this.addMetricsToGroup(message.payload.data);
-                    this.refreshData();
-                break;
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
                 break;
@@ -140,7 +137,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 this.setTimeConfiguration(message.payload.data);
                 break;
             case 'SetLegend':
-                this.widget.query.settings.legend = message.payload.data;
+                this.widget.settings.legend = message.payload.data;
                 this.setLegendOption();
                 this.options = {...this.options};
                 break;
@@ -150,6 +147,16 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             case 'SetVisualization':
                 this.setVisualization(message.payload.data);
                 break;
+            case 'UpdateQuery':
+                this.updateQuery(message.payload);
+                this.widget.queries = [...this.widget.queries];
+                this.refreshData();
+                break;
+            case 'ToggleWidgetAction':
+                console.log("line toggle", message)
+                    this.showAction = message.payload.display;
+                break;
+            /*
             case 'ToggleQuery':
                 this.toggleQuery(message.payload.index);
                 break;
@@ -159,52 +166,23 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             case 'DeleteQuery':
                 this.deleteQuery(message.payload.index);
                 break;
+            */
         }
     }
 
-    addMetricsToGroup(gConfig) {
-        let gid = gConfig.id;
-
-        if ( gid === 'new' ) {
-            const g = this.addNewGroup();
-            gid = g.id;
+    updateQuery( payload ) {
+        const query = payload.query;
+        const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
+        if ( qindex !== -1 ) {
+            this.widget.queries[qindex] = query;
         }
 
-        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-        const prevTotal = config.queries.length;
-
-        let i = 1;
-        const dVisaul = {
-            color: '#000000',
-            visible: true,
-            aggregator: 'sum'
-        };
-
-        for (const metric of gConfig.queries ) {
-            metric.settings.visual = {...dVisaul, ...metric.settings.visual };
-            metric.settings.visual.stackLabel = 'section-' + ( prevTotal + i) ;
-            i++;
-        }
-        config.queries = config.queries.concat(gConfig.queries);
-        this.widget = {...this.widget};
-    }
-
-    addNewGroup() {
-        const gid = this.util.generateId(6);
-        const g = {
-                    id: gid,
-                    title: 'untitled group',
-                    queries: [],
-                    settings: {
-                    }
-                };
-        this.widget.query.groups.push(g);
-        return g;
+        console.log("donut chart updateQuery", qindex, this.widget.queries);
     }
 
     setVisualization( mconfigs ) {
         mconfigs.forEach( (config, i) => {
-            this.widget.query.groups[0].queries[i].settings.visual = { ...this.widget.query.groups[0].queries[i].settings.visual, ...config };
+            this.widget.queries[0].metrics[i].settings.visual = { ...this.widget.queries[0].metrics[i].settings.visual, ...config };
         });
         this.refreshData(false);
     }
@@ -215,7 +193,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     setLegendOption() {
-        this.options.legend = {...this.widget.query.settings.legend};
+        this.options.legend = {...this.widget.settings.legend};
         this.options.plugins.labels = this.options.legend.showPercentages ? {
             render: 'percentage',
             precision: 2,
@@ -226,13 +204,13 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     setLablesOption() {
         this.options.labels = [];
 
-        const gConfig = this.widget.query.groups[0];
-        const mConfigs = gConfig.queries;
+        const qConfig = this.widget.queries[0];
+        const mConfigs = qConfig.metrics;
 
         for ( let i = 0; i < mConfigs.length; i++ ) {
-            const metric = mConfigs[i].metric;
+            const metric = mConfigs[i].name;
             const vConfig = mConfigs[i].settings.visual;
-            let label = vConfig.stackLabel ? vConfig.stackLabel : metric;
+            let label = vConfig.label ? vConfig.label : metric;
             if ( vConfig.visible ) {
                 label = label.length <= 20 ? label : label.substr(0, 17) + '..';
                 this.options.labels.push( label );
@@ -245,7 +223,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     setTimeConfiguration(config) {
-        this.widget.query.settings.time = {
+        this.widget.settings.time = {
                                              shiftTime: config.shiftTime,
                                              overrideRelativeTime: config.overrideRelativeTime,
                                              downsample: {
@@ -258,6 +236,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         this.refreshData();
      }
 
+     /*
     toggleQuery(index) {
         const gIndex = 0;
         // toggle the individual query
@@ -294,6 +273,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         console.log(this.widget.query.groups[gIndex].queries, "gindex", gIndex, index);
         this.refreshData();
     }
+    */
 
     refreshData(reload = true) {
         this.isDataLoaded = false;

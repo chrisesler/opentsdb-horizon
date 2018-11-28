@@ -19,13 +19,13 @@ export class DatatranformerService {
       normalizedData = [];
     }
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
-    for (let gid in result) {
-        const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', gid) : {};
+    for (let qid in result) {
+        const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
         const mConfigs = gConfig ? gConfig.metrics : [];
-        if (gConfig && gConfig.settings.visual.visible && result[gid] && result[gid].results) {
+        if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
             // sometimes opentsdb returns empty results
-            for ( let i = 0;  i < result[gid].results.length; i++ ) {
-                const queryResults = result[gid].results[i];
+            for ( let i = 0;  i < result[qid].results.length; i++ ) {
+                const queryResults = result[qid].results[i];
                 const [ source, mid ] = queryResults.source.split(":");
                 if ( source === 'summarizer') {
                     continue;
@@ -75,14 +75,14 @@ export class DatatranformerService {
     return [...normalizedData];
   }
 
-    yamasToChartJS( chartType, options, widget, data, groupData, stacked = false ) {
+    yamasToChartJS( chartType, options, widget, data, queryData, stacked = false ) {
         switch ( chartType ) {
             case 'bar':
-                return this.getChartJSFormattedDataBar(options, widget, data, groupData, stacked);
+                return this.getChartJSFormattedDataBar(options, widget, data, queryData, stacked);
             case 'horizontalBar':
-                return this.getChartJSFormattedDataBar(options, widget, data, groupData, stacked);
+                return this.getChartJSFormattedDataBar(options, widget, data, queryData, stacked);
             case 'donut':
-                return this.getChartJSFormattedDataDonut(options, widget, data, groupData);
+                return this.getChartJSFormattedDataDonut(options, widget, data, queryData);
         }
     }
 
@@ -100,7 +100,7 @@ export class DatatranformerService {
      *   So, we are going to generate series for each stack labels.
      */
 
-    getChartJSFormattedDataBar( options, widget, datasets, groupData, stacked ) {
+    getChartJSFormattedDataBar( options, widget, datasets, queryData, stacked ) {
       // stack colors
         const colors = [];
         const metricIndices = [];
@@ -128,8 +128,8 @@ export class DatatranformerService {
                 }
             }
         } else {
-            const gid = Object.keys(groupData)[0];
-            const gConfig = this.util.getObjectByKey(widget.queries, 'id', gid);
+            const qid = Object.keys(queryData)[0];
+            const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
             const mConfigs = gConfig.metrics;
             datasets[0] = {data: [], backgroundColor: []};
             options.labels = [];
@@ -152,10 +152,10 @@ export class DatatranformerService {
         }
 
         // set dataset values
-        for (let gid in groupData ) {
-            const gConfig = this.util.getObjectByKey(widget.queries, 'id', gid);
+        for (let qid in queryData ) {
+            const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
             const mConfigs = gConfig ? gConfig.metrics : [];
-            const results = groupData[gid].results? groupData[gid].results[0] : [];
+            const results = queryData[qid].results? queryData[qid].results[0] : [];
             if ( results.data ) {
                 const mid = results.source.split(':')[1];
                 const configIndex = mid.replace('m', '');
@@ -170,15 +170,10 @@ export class DatatranformerService {
 
                     if ( mConfig.settings && mConfig.settings.visual.visible ) {
                         const aggrIndex = aggs.indexOf(aggregator);
-                        // const index = stacked ? options.labels.indexOf(gConfig.title) : metricIndices.indexOf(mid);
-                        // const dsIndex = stacked ? stacks.findIndex(d => d.id === mConfig.settings.visual.stack) : 0; 
                         let label = this.getLableFromMetricTags(metric, tags);
-                        // label = label.length <= 20 ? label : label.substr(0, 17) + '..';
                         options.labels.push(label);
                         datasets[0].data.push(aggData[aggrIndex]);
                         datasets[0].backgroundColor.push(this.getRandomColor());
-                        // console.log(mid, dsIndex, index,aggData[aggrIndex])
-                        // console.log(mid, mConfig.settings.visual.aggregator, aggrIndex, aggData, aggData[aggrIndex] );
                     }
                 }
             }
@@ -199,43 +194,36 @@ export class DatatranformerService {
         return label;
     }
 
-    getChartJSFormattedDataDonut(options, widget, datasets, groupData) {
+    getChartJSFormattedDataDonut(options, widget, datasets, queryData) {
         datasets[0] = {data: [], backgroundColor: []};
-        if (!groupData) {
+        if (!queryData) {
             return datasets;
         }
-        const gid = Object.keys(groupData)[0];
-        const results = groupData[gid].results;
+        const qid = Object.keys(queryData)[0];
+        const results = queryData[qid].results ? queryData[qid].results[0] : [];
+
         const metricIndices = [];
-
-
-        const gConfig = this.util.getObjectByKey(widget.queries, 'id', gid);
+        const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
         const mConfigs = gConfig.metrics;
 
-        /*
-        for ( let i = 0; i < mConfigs.length; i++ ) {
-            const metric = 'm' + i;
-            const vConfig = mConfigs[i].settings.visual;
-            const color = vConfig.color;
-            if ( vConfig.visible ) {
-                metricIndices.push(metric);
-                datasets[0].data.push(null);
-                datasets[0].backgroundColor.push(color);
-            }
-        }
-        */
-
-        for ( let i = 0; results && i < results.length; i++ ) {
-            const mid = results[i].source.split(':')[1];
+       if ( results.data ) {
+            const mid = results.source.split(':')[1];
             const configIndex = mid.replace('m', '');
-            const aggs = results[i].data[0].NumericSummaryType.aggregations;
-            const key = Object.keys(results[i].data[0].NumericSummaryType.data[0])[0];
-            const aggData = results[i].data[0].NumericSummaryType.data[0][key];
             const mConfig = mConfigs[configIndex];
-            if ( mConfig.settings && mConfig.settings.visual.visible ) {
-                const index = metricIndices.indexOf(mid);
-                const aggrIndex = aggs.indexOf(mConfig.settings.visual.aggregator);
-                datasets[0].data[index] =  aggData[aggrIndex];
+            const aggregator = mConfig.settings.visual.aggregator || 'sum';
+            for ( let i = 0; i < results.data.length; i++ ) {
+                const aggs = results.data[i].NumericSummaryType.aggregations;
+                const metric = results.data[i].metric;
+                const tags = results.data[i].tags;
+                const key = Object.keys(results.data[i].NumericSummaryType.data[0])[0];
+                const aggData = results.data[i].NumericSummaryType.data[0][key];
+                if ( mConfig.settings && mConfig.settings.visual.visible ) {
+                    const aggrIndex = aggs.indexOf(aggregator);
+                    const label = this.getLableFromMetricTags(metric, tags);
+                    options.labels.push(label);
+                    datasets[0].data.push(aggData[aggrIndex]);
+                    datasets[0].backgroundColor.push(this.getRandomColor());
+                }
             }
         }
         return [...datasets];

@@ -200,10 +200,10 @@
                 <mat-cell *cdkCellDef="let row; let index=index">   Section {{ index+1 }} </mat-cell>
             </ng-container>
 
-            <ng-container cdkColumnDef="settings.visual.stackLabel">
+            <ng-container cdkColumnDef="settings.visual.label">
                 <mat-cell *cdkCellDef="let row;let index = index"  [formGroupName]="index">
                     <mat-form-field appearance="fill">
-                        <input matInput placeholder="Alias" formControlName="stackLabel">
+                        <input matInput placeholder="Alias" formControlName="label">
                         <mat-hint>{{row.metric}}</mat-hint>
                     </mat-form-field>
                 </mat-cell>
@@ -214,7 +214,7 @@
                     <color-picker  (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
                 </mat-cell>
             </ng-container>
-            <mat-row *cdkRowDef="let row;  columns: ['metric','settings.visual.stackLabel','settings.visual.color']"></mat-row>
+            <mat-row *cdkRowDef="let row;  columns: ['metric','settings.visual.label','settings.visual.color']"></mat-row>
         </mat-table>
     </div>    
 </ng-template>
