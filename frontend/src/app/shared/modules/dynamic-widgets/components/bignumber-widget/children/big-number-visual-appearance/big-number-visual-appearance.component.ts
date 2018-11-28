@@ -51,55 +51,55 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     // Prefix
     KeyedOnPrefixInputBox(value: string) {
         this.prefixDisabled = false;
-        this.widget.query.settings.visual['prefix'] = value;
-        this.widget.query.settings.visual['prefixUndercased'] = this.isStringOnlyLowercasedLetters(value);
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['prefix'] = value;
+        this.widget.settings.visual['prefixUndercased'] = this.isStringOnlyLowercasedLetters(value);
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     selectedPrefixSize(value: string) {
-        this.widget.query.settings.visual['prefixSize'] = value;
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['prefixSize'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     selectedPrefixAlignment(value: string) {
-        this.widget.query.settings.visual['prefixAlignment'] = value;
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['prefixAlignment'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     // Postfix
     KeyedOnPostfixInputBox(value: string) {
-        this.widget.query.settings.visual['postfix'] = value;
-        this.widget.query.settings.visual['postfixUndercased'] = this.isStringOnlyLowercasedLetters(value);
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['postfix'] = value;
+        this.widget.settings.visual['postfixUndercased'] = this.isStringOnlyLowercasedLetters(value);
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     selectedPostfixSize(value: string) {
-        this.widget.query.settings.visual['postfixSize'] = value;
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['postfixSize'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     selectedPostfixAlignment(value: string) {
-        this.widget.query.settings.visual['postfixAlignment'] = value;
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['postfixAlignment'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     // Unit
     KeyedOnUnitInputBox(value: string) {
-        this.widget.query.settings.visual['unit'] = value;
-        this.widget.query.settings.visual['unitUndercased'] =
-            this.isStringOnlyLowercasedLetters(this.UN.getBigNumber(this.widget.query.settings.visual['bigNumber'],
-            this.widget.query.settings.visual['unit']).unit);
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['unit'] = value;
+        this.widget.settings.visual['unitUndercased'] =
+            this.isStringOnlyLowercasedLetters(this.UN.getBigNumber(this.widget.settings.visual['bigNumber'],
+            this.widget.settings.visual['unit']).unit);
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     selectedUnitSize(value: string) {
-        this.widget.query.settings.visual['unitSize'] = value;
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['unitSize'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     selectedUnitAlignment(value: string) {
-        this.widget.query.settings.visual['unitAlignment'] = value;
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['unitAlignment'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     stopPropagation(event) {
@@ -107,7 +107,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     }
 
     onMenuOpen(): void {
-        const unit: string = this.widget.query.settings.visual['unit'];
+        const unit: string = this.widget.settings.visual['unit'];
 
         if (this.isUnitCustom(unit)) {
             (<HTMLInputElement>document.getElementById('custom-unit')).value = unit;
@@ -128,19 +128,19 @@ export class BignumberVisualAppearanceComponent implements OnInit {
 
     // Caption
     KeyedOnCaptionInputBox(value: string) {
-        this.widget.query.settings.visual['caption'] = value;
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['caption'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     selectedCaptionSize(value: string) {
-        this.widget.query.settings.visual['captionSize'] = value;
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['captionSize'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     // Precision
     KeyedOnPrecisionInputBox(value: string) {
-        this.widget.query.settings.visual['precision'] = value;
-        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+        this.widget.settings.visual['precision'] = value;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
     // Color Picker
@@ -151,11 +151,11 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     colorChanged(color: any) {
         if (color['hex']) { // make sure there is a hex
             if (this.colorType === 'text') {
-                this.widget.query.settings.visual['textColor'] = color['hex'];
-                this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+                this.widget.settings.visual['textColor'] = color['hex'];
+                this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
             } else { // background
-                this.widget.query.settings.visual['backgroundColor'] = color['hex'];
-                this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.query.settings.visual }});
+                this.widget.settings.visual['backgroundColor'] = color['hex'];
+                this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
             }
         }
     }
@@ -166,7 +166,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
 
     indicatorToggleChange() {
         // tslint:disable-next-line:whitespace
-        this.widget.query.settings.visual['changedIndicatorEnabled'] =!
-        this.widget.query.settings.visual['changedIndicatorEnabled'];
+        this.widget.settings.visual['changedIndicatorEnabled'] =!
+        this.widget.settings.visual['changedIndicatorEnabled'];
     }
 }

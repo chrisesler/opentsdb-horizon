@@ -45,6 +45,12 @@ export class WidgetService {
                     }
                 };
                 break;
+            case 'BignumberWidgetComponent':
+                settings = {
+                    visual: {
+                        queryID:0
+                    }
+                };
         }
         return settings;
     }

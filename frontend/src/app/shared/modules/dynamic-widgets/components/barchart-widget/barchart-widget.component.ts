@@ -146,12 +146,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     updateConfig(message) {
         switch ( message.action ) {
-            /*
-            case 'AddMetricsToGroup':
-                this.addMetricsToGroup(message.payload.data);
-                this.refreshData();
-            break;
-            */
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
                 break;

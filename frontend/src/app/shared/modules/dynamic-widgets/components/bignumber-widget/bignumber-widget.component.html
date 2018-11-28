@@ -11,69 +11,69 @@
         <div class="widget-container">
             <div class="big-num-container"
                 *ngIf="metrics"
-                [style.background]="widget.query.settings.visual.backgroundColor"
-                [style.color]="widget.query.settings.visual.textColor"
+                [style.background]="widget.settings.visual.backgroundColor"
+                [style.color]="widget.settings.visual.textColor"
                 [style.font-size]="fontSizePercent + '%'"
                 [ngClass]= "{'edit-flex' : editMode}">
     
                 <div class="content-container" #contentContainer>
                     <div class="metric-container">
                         <span [ngClass]="{
-                            'small-top':     widget.query.settings.visual.prefixSize=='s' && widget.query.settings.visual.prefixAlignment=='top',
-                            'small-middle':  widget.query.settings.visual.prefixSize=='s' && widget.query.settings.visual.prefixAlignment=='middle',
-                            'small-bottom':  widget.query.settings.visual.prefixSize=='s' && widget.query.settings.visual.prefixAlignment=='bottom',
-                            'medium-top':    widget.query.settings.visual.prefixSize=='m' && widget.query.settings.visual.prefixAlignment=='top',
-                            'medium-middle': widget.query.settings.visual.prefixSize=='m' && widget.query.settings.visual.prefixAlignment=='middle',
-                            'medium-bottom': widget.query.settings.visual.prefixSize=='m' && widget.query.settings.visual.prefixAlignment=='bottom',
-                            'large-size':    widget.query.settings.visual.prefixSize=='l'
+                            'small-top':     widget.settings.visual.prefixSize=='s' && widget.settings.visual.prefixAlignment=='top',
+                            'small-middle':  widget.settings.visual.prefixSize=='s' && widget.settings.visual.prefixAlignment=='middle',
+                            'small-bottom':  widget.settings.visual.prefixSize=='s' && widget.settings.visual.prefixAlignment=='bottom',
+                            'medium-top':    widget.settings.visual.prefixSize=='m' && widget.settings.visual.prefixAlignment=='top',
+                            'medium-middle': widget.settings.visual.prefixSize=='m' && widget.settings.visual.prefixAlignment=='middle',
+                            'medium-bottom': widget.settings.visual.prefixSize=='m' && widget.settings.visual.prefixAlignment=='bottom',
+                            'large-size':    widget.settings.visual.prefixSize=='l'
                             }">
-                            {{shortenString(widget.query.settings.visual.prefix, maxLabelLength) | uppercase}}
+                            {{shortenString(widget.settings.visual.prefix, maxLabelLength) | uppercase}}
                         </span>
                         
-                        <span *ngIf="UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unitPos === 0" [ngClass]="{
-                            'small-top':     widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitAlignment=='top',
-                            'small-middle':  widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitAlignment=='middle',
-                            'small-bottom':  widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitAlignment=='bottom',
-                            'medium-top':    widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitAlignment=='top',
-                            'medium-middle': widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitAlignment=='middle',
-                            'medium-bottom': widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitAlignment=='bottom',
-                            'large-size':    widget.query.settings.visual.unitSize=='l'
-                            }">{{shortenString(UN.getBigNumber(widget.query.settings.visual.c, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unit, maxLabelLength) | uppercase}}</span>
+                        <span *ngIf="UN.getBigNumber(bigNumber, widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 0" [ngClass]="{
+                            'small-top':     widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='top',
+                            'small-middle':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='middle',
+                            'small-bottom':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='bottom',
+                            'medium-top':    widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='top',
+                            'medium-middle': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='middle',
+                            'medium-bottom': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='bottom',
+                            'large-size':    widget.settings.visual.unitSize=='l'
+                            }">{{shortenString(UN.getBigNumber(widget.settings.visual.c, widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) | uppercase}}</span>
     
-                        <span class="big-number">&nbsp;{{UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).num}}&nbsp;</span>
+                        <span class="big-number">&nbsp;{{UN.getBigNumber(bigNumber, widget.settings.visual.unit, widget.settings.visual.precision).num}}&nbsp;</span>
     
-                        <span *ngIf="UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unitPos === 1" [ngClass]="{
-                            'small-top':     widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitAlignment=='top',
-                            'small-middle':  widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitAlignment=='middle',
-                            'small-bottom':  widget.query.settings.visual.unitSize=='s' && widget.query.settings.visual.unitAlignment=='bottom',
-                            'medium-top':    widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitAlignment=='top',
-                            'medium-middle': widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitAlignment=='middle',
-                            'medium-bottom': widget.query.settings.visual.unitSize=='m' && widget.query.settings.visual.unitAlignment=='bottom',
-                            'large-size':    widget.query.settings.visual.unitSize=='l'
-                            }">{{shortenString(UN.getBigNumber(bigNumber, widget.query.settings.visual.unit, widget.query.settings.visual.precision).unit, maxLabelLength) | uppercase}}</span>
+                        <span *ngIf="UN.getBigNumber(bigNumber, widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 1" [ngClass]="{
+                            'small-top':     widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='top',
+                            'small-middle':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='middle',
+                            'small-bottom':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='bottom',
+                            'medium-top':    widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='top',
+                            'medium-middle': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='middle',
+                            'medium-bottom': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='bottom',
+                            'large-size':    widget.settings.visual.unitSize=='l'
+                            }">{{shortenString(UN.getBigNumber(bigNumber, widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) | uppercase}}</span>
                         
                         <span [ngClass]="{
-                            'small-top':     widget.query.settings.visual.postfixSize=='s' && widget.query.settings.visual.postfixAlignment=='top',
-                            'small-middle':  widget.query.settings.visual.postfixSize=='s' && widget.query.settings.visual.postfixAlignment=='middle',
-                            'small-bottom':  widget.query.settings.visual.postfixSize=='s' && widget.query.settings.visual.postfixAlignment=='bottom',
-                            'medium-top':    widget.query.settings.visual.postfixSize=='m' && widget.query.settings.visual.postfixAlignment=='top',
-                            'medium-middle': widget.query.settings.visual.postfixSize=='m' && widget.query.settings.visual.postfixAlignment=='middle',
-                            'medium-bottom': widget.query.settings.visual.postfixSize=='m' && widget.query.settings.visual.postfixAlignment=='bottom',
-                            'large-size':    widget.query.settings.visual.postfixSize=='l'
+                            'small-top':     widget.settings.visual.postfixSize=='s' && widget.settings.visual.postfixAlignment=='top',
+                            'small-middle':  widget.settings.visual.postfixSize=='s' && widget.settings.visual.postfixAlignment=='middle',
+                            'small-bottom':  widget.settings.visual.postfixSize=='s' && widget.settings.visual.postfixAlignment=='bottom',
+                            'medium-top':    widget.settings.visual.postfixSize=='m' && widget.settings.visual.postfixAlignment=='top',
+                            'medium-middle': widget.settings.visual.postfixSize=='m' && widget.settings.visual.postfixAlignment=='middle',
+                            'medium-bottom': widget.settings.visual.postfixSize=='m' && widget.settings.visual.postfixAlignment=='bottom',
+                            'large-size':    widget.settings.visual.postfixSize=='l'
                             }">
-                            {{shortenString(widget.query.settings.visual.postfix, maxLabelLength) | uppercase }}
+                            {{shortenString(widget.settings.visual.postfix, maxLabelLength) | uppercase }}
                         </span>
     
-                        <span *ngIf="widget.query.settings.visual.changedIndicatorEnabled" class="change-indicator">
-                                <span *ngIf="changeIndicatorCompareValue >= 1">↑ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
-                                <span *ngIf="changeIndicatorCompareValue <= -1">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.query.settings.visual.unit, widget.query.settings.visual.precision))}}</span>
+                        <span *ngIf="widget.settings.visual.changedIndicatorEnabled" class="change-indicator">
+                                <span *ngIf="changeIndicatorCompareValue >= 1">↑ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.settings.visual.unit, widget.settings.visual.precision))}}</span>
+                                <span *ngIf="changeIndicatorCompareValue <= -1">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.settings.visual.unit, widget.settings.visual.precision))}}</span>
                                 <span *ngIf="changeIndicatorCompareValue > -1 && changeIndicatorCompareValue < 1">≈ No Change</span>        
                         </span>
                     </div>
 
                     <div class="caption">
-                        <!-- {{shortenString(util.tagMacro(selectedMetric, widget.query.settings.visual.caption), maxCaptionLength) | uppercase }} -->
-                        {{shortenString(widget.query.settings.visual.caption, maxCaptionLength) | uppercase }} 
+                        <!-- {{shortenString(util.tagMacro(selectedMetric, widget.settings.visual.caption), maxCaptionLength) | uppercase }} -->
+                        {{shortenString(widget.settings.visual.caption, maxCaptionLength) | uppercase }} 
                     </div>
                 </div>
             </div>
@@ -99,7 +99,7 @@
         <mat-tab label="Queries" class="test">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent>
-                <bignumber-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></bignumber-config-metric-queries>
+                <widget-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
             </ng-template>
         </mat-tab>
         <mat-tab label="Time Configuration">
@@ -127,7 +127,7 @@
             </ng-template>
         </mat-tab>
     </mat-tab-group>
-    <div class="widget-actions">
+    <div class="widget-actions" *ngIf="showAction">
         <!-- controls to save/cancel -->
         <button mat-raised-button color="primary" class="mat-elevation-z0" (click)="applyConfig()">Apply</button>
         <button mat-stroked-button color="primary" class="mat-elevation-z0">Cancel</button>

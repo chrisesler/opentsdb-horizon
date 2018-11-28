@@ -111,7 +111,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
             case 'BarchartWidgetComponent':
             case 'DonutWidgetComponent':
                 return new FormArray(ds.map(item => new FormGroup({
-                    stackLabel : new FormControl(item.settings.visual.stackLabel),
+                    label : new FormControl(item.settings.visual.label),
                     color : new FormControl(item.settings.visual.color)
                 })));
             case 'LinechartWidgetComponent':
