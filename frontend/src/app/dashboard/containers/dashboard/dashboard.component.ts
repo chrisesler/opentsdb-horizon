@@ -335,8 +335,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbErrorSub = this.dbError$.subscribe(error => {
-            // show error popup if error is set
-            console.error(error);
+            if(Object.keys(error).length > 0) {
+                console.error(error);
+            }
         });
 
         this.widgetSub = this.widgets$.subscribe( widgets => {
