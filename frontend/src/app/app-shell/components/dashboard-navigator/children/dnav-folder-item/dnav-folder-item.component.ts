@@ -32,6 +32,7 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit {
     @ViewChild(MatMenuTrigger) menuTrigger: MatMenuTrigger;
 
     @Input() folder: any = {};
+    @Input() resourceType: any = ''; // personal<string> | namespace<string>
 
     private _mode: any = 'display'; // display | new | edit
     @Input()

@@ -9,9 +9,9 @@
         <button mat-button class="remove-folders-button" (click)="removeFolders()" [disabled]="foldersToRemove.length === 0" [ngClass]="{'is-active': foldersToRemove.length > 0}">
             <span>Remove</span>
         </button>
-        <button mat-button (click)="cancelEdit()">
+        <!--<button mat-button (click)="cancelEdit()">
             <span>Cancel</span>
-        </button>
+        </button>-->
     </div>
     <span class="flex-spacer"></span>
     <div class="display-actions">
@@ -34,11 +34,17 @@
     </div>
 </div>
 
-<mat-nav-list class="folder-list" *ngIf="folders && folders.length > 0">
+<div class="block-header folders-header" *ngIf="masterPanel && resourceType === 'namespaces'">
+    <div class="block-header-label">
+        <span class="header-label">Namespaces</span>
+    </div>
+</div>
+
+<mat-nav-list class="folder-list">
     <mat-list-item *ngIf="editMode === 'create' && !bulkEdit">
-        <dnav-folder-item [folder]="{ name: ''}" mode="new" (folderAction)="createFolderAction($event)"></dnav-folder-item>
+        <dnav-folder-item [folder]="{ name: ''}" mode="new" [resourceType]="resourceType" (folderAction)="createFolderAction($event)"></dnav-folder-item>
     </mat-list-item>
     <mat-list-item *ngFor="let folder of folders; let i = index;" class="folder-nav-item" (click)="gotoFolder(i)">
-        <dnav-folder-item [folder]="folder" [mode]="bulkEdit ? 'edit' : 'display'" (folderAction)="editFolderAction(folder, $event)"></dnav-folder-item>
+        <dnav-folder-item [folder]="folder" [mode]="bulkEdit ? 'edit' : 'display'" [resourceType]="resourceType" (folderAction)="editFolderAction(folder, $event)"></dnav-folder-item>
     </mat-list-item>
 </mat-nav-list>

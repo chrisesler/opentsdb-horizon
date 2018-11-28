@@ -35,13 +35,10 @@ export class DashboardNavigatorComponent implements OnInit {
 
     @Output() toggleDrawer: EventEmitter<any> = new EventEmitter();
 
-    dashboards: Observable<any[]>;
-    dashboardsSub: Subscription;
+    resourceData: Observable<any[]>;
+    resourceDataSub: Subscription;
 
-    resourcesSub: Subscription;
-
-    dashboardFolders: any[] = [];
-    namespaceFolders: any[] = [];
+    navigateFolders: any[] = [];
 
     panels: any[] = [];
 
@@ -71,17 +68,104 @@ export class DashboardNavigatorComponent implements OnInit {
                 });
         });*/
 
-        this.resourcesSub = this.ass.getFolderList()
-                .subscribe( list => {
+        this.resourceDataSub = this.ass.getFolderList()
+                .subscribe( (list: any) => {
                     console.log('%cFOLDER LIST', 'color: white; background: purple; padding: 4px 8px;', list);
-                    this.dashboards = <Observable<any[]>>list.personal;
+
+                    // this.resourceData = <Observable<any[]>>list;
+                    this.normalizeResourceData(list);
+                    this.generateResourceNavigation();
+
+                    console.log('%cMASTER PANEL', 'color: white; background: green; padding: 4px 8px;', this.panels[0]);
                 });
 
         // console.log('NAVIGATOR', this.navPanel);
     }
 
     /** PRIVATE */
-    private generateFakeFolderData() {
+    private normalizeResourceData(data: any) {
+        const personal = [];
+        const namespaces = [];
+        for (const f of data.personal) {
+            const folder = this.normalizeResourceFolder(f, 'personal');
+            personal.push(folder);
+        }
+        for (const f of data.namespaces) {
+            const folder = this.normalizeResourceFolder(f, 'namespace');
+            namespaces.push(folder);
+        }
+        data.personal = personal;
+        data.namespaces = namespaces;
+
+        this.resourceData = <Observable<any[]>>data;
+    }
+
+    private normalizeResourceFolder(folder: any, topLevel?: string) {
+
+        if (topLevel === 'namespace') {
+            folder.icon = 'd-dashboard-tile';
+        } else if (topLevel === 'personal') {
+            switch (folder.name) {
+                case 'My Dashboard':
+                    folder.icon = 'd-dashboard-tile';
+                    break;
+                case 'Trash':
+                    folder.icon = 'd-trash';
+                    break;
+                case 'Favorites':
+                    folder.icon = 'd-star';
+                    break;
+                case 'Frequently Visited':
+                    folder.icon = 'd-duplicate';
+                    break;
+                case 'Recently Visited':
+                    folder.icon = 'd-time';
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            folder.icon = 'd-folder';
+        }
+
+        if (!folder.files) {
+            folder.files = [];
+        }
+
+        if (!folder.subfolder) {
+            folder.subfolder = [];
+        } else {
+            // tslint:disable-next-line:forin
+            for (const i in folder.subfolder) {
+                folder.subfolder[i] = this.normalizeResourceFolder(folder.subfolder[i]);
+            }
+        }
+
+        return folder;
+
+    }
+
+    private generateResourceNavigation() {
+        const masterPanel = {
+            name: 'masterPanel',
+            icon: '',
+            subfolder: [],
+            namespaces: []
+        };
+
+        console.log(
+            '%cGENERATE RESOURCE NAVIGATION',
+            'color: white; background: blue; padding: 4px 8px;',
+            this.resourceData
+        );
+
+        masterPanel.subfolder = this.resourceData['personal'];
+        masterPanel.namespaces = this.resourceData['namespaces'];
+
+        this.panels.push(masterPanel);
+    }
+
+    /*private generateFakeFolderData() {
 
         this.dashboardFolders.push(
             this.generateFolder('My Dashboards', 'd-dashboard-tile', 5),
@@ -117,7 +201,7 @@ export class DashboardNavigatorComponent implements OnInit {
             }
         }
         return folder;
-    }
+    }*/
 
     /** EVENTS */
 
@@ -262,13 +346,31 @@ export class DashboardNavigatorComponent implements OnInit {
 
     /** actions from child sections -- folders and dashboards */
     folderAction(panel, event) {
+
+        console.group(
+            '%cEVENT%c[folderAction]',
+            'color: white; background-color: blue; padding: 4px 8px;',
+            'color: blue; padding: 4px 8px; font-weight: bold;'
+        );
+        console.log('EVENT', event);
+        console.log('ORIGINATING PANEL', panel);
+
         switch (event.action) {
             case 'navtoPanelFolder':
-                this.navtoPanelFolder(panel.folders[event.idx]);
+                let newPanel;
+                if (panel.name === 'masterPanel' && event.resourceType === 'namespaces') {
+                    newPanel = panel.namespaces[event.idx];
+                } else {
+                    newPanel = panel.subfolder[event.idx];
+                }
+                newPanel.resourceType = event.resourceType;
+                console.log('NEW PANEL', newPanel);
+                this.navtoPanelFolder(newPanel);
                 break;
             default:
                 break;
         }
+        console.groupEnd();
     }
 
     dashboardAction(panel, event) {

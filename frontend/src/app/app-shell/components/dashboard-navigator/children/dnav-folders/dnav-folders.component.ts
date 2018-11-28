@@ -21,6 +21,7 @@ export class DnavFoldersComponent implements OnInit {
 
     // tslint:disable-next-line:no-inferrable-types
     @Input() masterPanel: boolean = false;
+    @Input() resourceType: any = ''; // personal<string> | namespace<string>
     @Input() folders: any[] = [];
 
     @Output() folderAction: EventEmitter<any> = new EventEmitter();
@@ -54,7 +55,7 @@ export class DnavFoldersComponent implements OnInit {
                 const newFolder = {
                     name: event.name,
                     icon: 'd-folder',
-                    dashboards: [],
+                    subfolder: [],
                     folders: []
                 };
                 // send this to API, after success, then push to current array
@@ -88,17 +89,19 @@ export class DnavFoldersComponent implements OnInit {
         }
     }
 
-    cancelEdit() {
+    /*cancelEdit() {
         this.bulkEdit = false;
         this.editMode = 'display';
         this.foldersToRemove = [];
-    }
+    }*/
 
     doneEdit() {
         // check for changes, then do something
 
         // then reset
-        this.cancelEdit();
+        this.bulkEdit = false;
+        this.editMode = 'display';
+        this.foldersToRemove = [];
     }
 
     editFolderAction(folder, event) {
@@ -129,6 +132,7 @@ export class DnavFoldersComponent implements OnInit {
         if (!this.bulkEdit) {
             this.folderAction.emit({
                 action: 'navtoPanelFolder',
+                resourceType: this.resourceType,
                 idx: folderIdx
             });
         }

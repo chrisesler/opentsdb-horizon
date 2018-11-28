@@ -32,6 +32,7 @@ export class DnavDashboardItemComponent implements OnInit {
     @ViewChild(MatMenuTrigger) menuTrigger: MatMenuTrigger;
 
     @Input() dashboard: any = {};
+    @Input() resourceType: any = ''; // personal<string> | namespace<string>
 
     private _mode: any = 'display'; // display | new | edit
     @Input()

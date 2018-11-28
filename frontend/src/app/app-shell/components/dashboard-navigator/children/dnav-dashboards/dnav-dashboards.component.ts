@@ -20,6 +20,7 @@ export class DnavDashboardsComponent implements OnInit {
     @HostBinding('class.dnav-dashboards') private _hostClass = true;
 
     @Input() dashboards: any[] = [];
+    @Input() resourceType: any = ''; // personal<string> | namespace<string>
 
     @Output() dashboardAction: EventEmitter<any> = new EventEmitter();
 
