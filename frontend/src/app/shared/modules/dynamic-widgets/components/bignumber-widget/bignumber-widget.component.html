@@ -17,7 +17,10 @@
                 [ngClass]= "{'edit-flex' : editMode}">
     
                 <div class="content-container" #contentContainer>
-                    <div class="metric-container">
+                    <div *ngFor="let agg of aggF; let i = index;">
+                    <div *ngIf="isNumber(aggV[i])" class="metric-container">
+                        <span [ngClass]="{}">{{agg}}:</span>
+
                         <span [ngClass]="{
                             'small-top':     widget.settings.visual.prefixSize=='s' && widget.settings.visual.prefixAlignment=='top',
                             'small-middle':  widget.settings.visual.prefixSize=='s' && widget.settings.visual.prefixAlignment=='middle',
@@ -30,7 +33,7 @@
                             {{shortenString(widget.settings.visual.prefix, maxLabelLength) | uppercase}}
                         </span>
                         
-                        <span *ngIf="UN.getBigNumber(bigNumber, widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 0" [ngClass]="{
+                        <span *ngIf="UN.getBigNumber(aggV[i], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 0" [ngClass]="{
                             'small-top':     widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='top',
                             'small-middle':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='middle',
                             'small-bottom':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='bottom',
@@ -40,9 +43,9 @@
                             'large-size':    widget.settings.visual.unitSize=='l'
                             }">{{shortenString(UN.getBigNumber(widget.settings.visual.c, widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) | uppercase}}</span>
     
-                        <span class="big-number">&nbsp;{{UN.getBigNumber(bigNumber, widget.settings.visual.unit, widget.settings.visual.precision).num}}&nbsp;</span>
+                        <span class="big-number">&nbsp;{{UN.getBigNumber(aggV[i], widget.settings.visual.unit, widget.settings.visual.precision).num}}&nbsp;</span>
     
-                        <span *ngIf="UN.getBigNumber(bigNumber, widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 1" [ngClass]="{
+                        <span *ngIf="UN.getBigNumber(aggV[i], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 1" [ngClass]="{
                             'small-top':     widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='top',
                             'small-middle':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='middle',
                             'small-bottom':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='bottom',
@@ -50,7 +53,7 @@
                             'medium-middle': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='middle',
                             'medium-bottom': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='bottom',
                             'large-size':    widget.settings.visual.unitSize=='l'
-                            }">{{shortenString(UN.getBigNumber(bigNumber, widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) | uppercase}}</span>
+                            }">{{shortenString(UN.getBigNumber(aggV[i], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) | uppercase}}</span>
                         
                         <span [ngClass]="{
                             'small-top':     widget.settings.visual.postfixSize=='s' && widget.settings.visual.postfixAlignment=='top',
@@ -65,11 +68,12 @@
                         </span>
     
                         <span *ngIf="widget.settings.visual.changedIndicatorEnabled" class="change-indicator">
-                                <span *ngIf="changeIndicatorCompareValue >= 1">↑ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.settings.visual.unit, widget.settings.visual.precision))}}</span>
-                                <span *ngIf="changeIndicatorCompareValue <= -1">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeIndicatorCompareValue, widget.settings.visual.unit, widget.settings.visual.precision))}}</span>
-                                <span *ngIf="changeIndicatorCompareValue > -1 && changeIndicatorCompareValue < 1">≈ No Change</span>        
+                                <span *ngIf="changePct >= changeThreshold">↑ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision))}}</span>
+                                <span *ngIf="changePct <= -1*changeThreshold">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision))}}</span>
+                                <span *ngIf="changePct > -1*changeThreshold && changePct < changeThreshold">↔</span>        
                         </span>
                     </div>
+                </div>
 
                     <div class="caption">
                         <!-- {{shortenString(util.tagMacro(selectedMetric, widget.settings.visual.caption), maxCaptionLength) | uppercase }} -->
@@ -130,6 +134,6 @@
     <div class="widget-actions" *ngIf="showAction">
         <!-- controls to save/cancel -->
         <button mat-raised-button color="primary" class="mat-elevation-z0" (click)="applyConfig()">Apply</button>
-        <button mat-stroked-button color="primary" class="mat-elevation-z0">Cancel</button>
+        <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Cancel</button>
     </div>
 </div>
