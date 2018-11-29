@@ -90,7 +90,12 @@
                 </li>
             </ng-container>
         </div>
+        <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
+        <div class="error" *ngIf="error" (click)="showError()">
+            <mat-icon>error</mat-icon>
+        </div>
     </div>
+    
 </div>
 <!--
                 [style.height]="widget.settings.legend.display && (widget.settings.legend.position=='top' || widget.settings.legend.position=='bottom') ? (size.height * 0.8) + 'px': size.height + 'px'"
