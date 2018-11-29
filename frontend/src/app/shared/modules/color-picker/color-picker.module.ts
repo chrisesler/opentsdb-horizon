@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 import { MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule } from '@angular/material';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { EMPTY_COLOR } from './color-picker';
 
@@ -26,7 +27,8 @@ import { ColorPickerHsvSelectorComponent } from './components/color-picker-hsv-s
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatTooltipModule
   ],
   declarations: [
     ColorPickerComponent,

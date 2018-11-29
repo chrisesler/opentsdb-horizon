@@ -50,7 +50,9 @@
         <div *ngIf="!selectingCustomColor">
             <div class="grid-container">
                 <div class="grid-item" *ngFor="let _color of DefaultColors" [ngClass]="{'isSelected' : _color.value==color}">
-                    <button mat-button [ngClass]="{'grey-outline' : _color.text=='White'}" class="default-color-button"
+                    <button mat-raised-button [ngClass]="{'grey-outline' : _color.text=='White'}"
+                        [matTooltip]="_color.text" matTooltipPosition="below"
+                        class="default-color-button"
                         [style.background-color]="_color.value" (click)="colorSelected(_color.value)">
                     </button>
                 </div>
