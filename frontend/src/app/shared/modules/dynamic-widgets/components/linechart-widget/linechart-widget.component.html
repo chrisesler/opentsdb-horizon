@@ -54,7 +54,12 @@
                 </li>
             </ng-container>
         </div>
+        <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
+        <div class="error" *ngIf="error" (click)="showError()">
+            <mat-icon>error</mat-icon>
+        </div>
     </div>
+    
 </div>
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">

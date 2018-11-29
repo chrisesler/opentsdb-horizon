@@ -59,6 +59,10 @@ export class WidgetsRawdataState {
                 //console.log('query ==> ',payload.wid, payload.gid, data);
                 payload.data = data;
                 ctx.dispatch(new SetQueryDataByGroup(payload));
+            },
+            err => {
+                payload.error = err;
+                ctx.dispatch(new SetQueryDataByGroup(payload));
             }
         );
     }
@@ -69,7 +73,7 @@ export class WidgetsRawdataState {
         if (!state.data[payload.wid]) {
             state.data[payload.wid] = {};
         }
-        state.data[payload.wid][payload.gid] = payload.data;
+        state.data[payload.wid][payload.gid] = payload.data !== undefined ? payload.data : { error: payload.error };
         state.lastModifiedWidget = { wid: payload.wid, gid: payload.gid};
         ctx.setState({...state});
     }

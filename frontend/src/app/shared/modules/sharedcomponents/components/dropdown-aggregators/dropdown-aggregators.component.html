@@ -1,7 +1,6 @@
-<mat-form-field appearance="fill" [floatLabel]="'never'">
-    <mat-select placeholder="Aggregator" [formControl]="aggregatorControl">
+<mat-form-field  [floatLabel]="'never'">
+    <mat-select placeholder="Aggregator" [formControl]="aggregatorControl" [multiple]="multiple" (selectionChange)="selectionChanged()" (openedChange)="selected($event)">
         <mat-option *ngFor="let option of aggregatorOptions" [value]="option.value">
-        <span></span>
         <span>{{ option.label }}</span>
         </mat-option>
     </mat-select>
