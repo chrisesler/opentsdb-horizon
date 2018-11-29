@@ -30,7 +30,7 @@ export class DashboardService {
   private widgetPrototype = {
     gridPos: {
       x: 0, y: 0,
-      h: 5, w: 12,
+      h: 4, w: 12,
       xMd: 0, yMd: 0,
       dragAndDrop: true,
       resizable: true
@@ -68,7 +68,7 @@ export class DashboardService {
   }
 
   getWidgetPrototype(type= ''): any {
-    const widget: any = Object.assign({}, this.widgetPrototype);
+    const widget: any = JSON.parse(JSON.stringify(this.widgetPrototype));
     widget.id = this.utils.generateId();
     widget.settings.component_type = type;
     switch ( type ) {
@@ -82,13 +82,14 @@ export class DashboardService {
         default:
             widget.settings.component_type = 'PlaceholderWidgetComponent';
     }
+    console.log('nenwenwnewnenwen', widget);
     return widget;
   }
 
   getDashboardPrototype(): any {
     const dashboard: any = Object.assign({}, this.dashboardProto);
-    const widget = this.getWidgetPrototype();
-    widget.gridPos.w = 6;
+    const widget: any = JSON.parse(JSON.stringify(this.getWidgetPrototype())); 
+    //widget.gridPos.w = 6;
     dashboard.widgets.push(widget);
     return dashboard;
   }
