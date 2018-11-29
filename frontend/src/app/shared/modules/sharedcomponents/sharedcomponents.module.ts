@@ -49,6 +49,7 @@ import { NamespaceTagAutocompleteComponent } from './components/namespace-tag-au
 import { NamespaceTagValuesComponent } from './components/namespace-tag-values/namespace-tag-values.component';
 import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.component';
 import { QueryComponent } from './components/query/query.component';
+import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
 
 @NgModule({
     imports: [
@@ -94,7 +95,8 @@ import { QueryComponent } from './components/query/query.component';
         NamespaceTagAutocompleteComponent,
         NamespaceTagValuesComponent,
         TagvEditviewComponent,
-        QueryComponent
+        QueryComponent,
+        ErrorDialogComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -131,7 +133,8 @@ import { QueryComponent } from './components/query/query.component';
         SearchAllDialogComponent,
         ExpressionDialogComponent,
         InlineQueryEditorComponent,
-        NamespaceTagValuesComponent
+        NamespaceTagValuesComponent,
+        ErrorDialogComponent
     ],
 })
 export class SharedcomponentsModule { }

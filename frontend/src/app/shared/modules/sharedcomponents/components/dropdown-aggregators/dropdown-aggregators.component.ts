@@ -13,10 +13,12 @@ import { Subscription } from 'rxjs/Subscription';
   }]
 })
 export class DropdownAggregatorsComponent implements OnInit, OnDestroy, ControlValueAccessor {
+    @Input() multiple = false;
     @Input() value;
 
     @Output()
     change = new EventEmitter<string>();
+    hasChanges = false;
 
     aggregatorOptions: Array<object> = [
         {
@@ -34,11 +36,19 @@ export class DropdownAggregatorsComponent implements OnInit, OnDestroy, ControlV
         {
             label: 'SUM',
             value: 'sum'
+        },
+        {
+            label: 'FIRST',
+            value: 'first'
+        },
+        {
+            label: 'LAST',
+            value: 'last'
         }
     ];
 
     aggregatorControl: FormControl;
-    defaultAggregator = 'sum';
+    defaultAggregator = '';
 
     subscription: Subscription;
 
@@ -64,14 +74,30 @@ export class DropdownAggregatorsComponent implements OnInit, OnDestroy, ControlV
             this.value = this.defaultAggregator;
             this.propagateChange(this.value);
         }
+        this.value = this.multiple ? this.value : this.value.join();
         this.aggregatorControl = new FormControl( this.value );
+        /*
         this.subscription = this.aggregatorControl.valueChanges.subscribe( data => {
             this.propagateChange(data);
             this.change.emit(data);
         });
+        */
+    }
+
+    selectionChanged() {
+        this.hasChanges = true;
+    }
+
+    selected(opened) {
+        if ( !opened && this.hasChanges ) {
+            this.hasChanges = false;
+            this.propagateChange(this.aggregatorControl.value);
+            const value = this.multiple ? this.aggregatorControl.value : [this.aggregatorControl.value];
+            this.change.emit(value);
+        }
     }
 
     ngOnDestroy() {
-        this.subscription.unsubscribe();
+        // this.subscription.unsubscribe();
     }
 }

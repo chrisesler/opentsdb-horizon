@@ -13,6 +13,7 @@ import { UtilsService } from '../../../../../core/services/utils.service';
 })
 export class QueryComponent implements OnInit, OnChanges {
     @HostBinding('class.query') private _hostClass = true;
+    @Input() type;
     @Input() query: any = {   metrics: [] , filters: [], settings: {visual: {visible: true}}};
     @Input() label = '';
     @Input() edit = [];
@@ -262,12 +263,19 @@ export class QueryComponent implements OnInit, OnChanges {
                                     visual: {
                                         visible: true,
                                         color: '#000000',
+                                        aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['sum'],
                                         label: ''}}
                             };
             this.query.metrics.push(oMetric);
         } else if ( index !== -1 && operation === 'remove' ) {
             this.query.metrics.splice(index, 1);
         }
+        this.triggerQueryChanges();
+    }
+
+    setMetricSummarizer(id, value) {
+        const index  = this.query.metrics.findIndex( item => item.id === id );
+        this.query.metrics[index].settings.visual.aggregator = value;
         this.triggerQueryChanges();
     }
 
