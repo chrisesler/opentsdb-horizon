@@ -17,6 +17,8 @@ import {
     MatMenuTrigger
 } from '@angular/material';
 
+import { IntercomService } from '../../../../../core/services/intercom.service';
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'dnav-folder-item',
@@ -85,7 +87,8 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit {
 
     constructor(
         private fb: FormBuilder,
-        private hostRef: ElementRef
+        private hostRef: ElementRef,
+        private interCom: IntercomService
     ) { }
 
     ngOnInit() {
@@ -100,6 +103,8 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit {
             el.focus();
         }
     }
+
+
 
     /** privates */
 

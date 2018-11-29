@@ -4,6 +4,7 @@ import {
     HostBinding,
     Input,
     OnInit,
+    OnDestroy,
     Output,
     ViewChild
 } from '@angular/core';
@@ -17,6 +18,7 @@ import { HttpService } from '../../../core/http/http.service';
 import { NavigatorPanelComponent } from '../navigator-panel/navigator-panel.component';
 
 import { AppShellService } from '../../services/app-shell.service';
+import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -24,7 +26,7 @@ import { AppShellService } from '../../services/app-shell.service';
     templateUrl: './dashboard-navigator.component.html',
     styleUrls: []
 })
-export class DashboardNavigatorComponent implements OnInit {
+export class DashboardNavigatorComponent implements OnInit, OnDestroy {
 
     @HostBinding('class.dashboard-navigator') private _hostClass = true;
     @ViewChild(NavigatorPanelComponent) private navPanel: NavigatorPanelComponent;
@@ -35,8 +37,11 @@ export class DashboardNavigatorComponent implements OnInit {
 
     @Output() toggleDrawer: EventEmitter<any> = new EventEmitter();
 
+    intercomSub: Subscription;
+
     resourceData: Observable<any[]>;
     resourceDataSub: Subscription;
+
 
     navigateFolders: any[] = [];
 
@@ -46,31 +51,28 @@ export class DashboardNavigatorComponent implements OnInit {
 
     // tslint:disable-next-line:no-inferrable-types
     currentPaneIndex: number = 0;
+    // tslint:disable-next-line:no-inferrable-types
+    currentResourceType: string = 'master';
+    // tslint:disable-next-line:no-inferrable-types
+    currentNamespaceId: number = 0;
 
     constructor(
         private http: HttpService,
         private ass: AppShellService,
+        private interCom: IntercomService,
         private router: Router
     ) { }
 
     ngOnInit() {
-        /*this.dashboardsSub = this.http.getDashboards()
-            .subscribe( data => {
-                this.dashboards = <Observable<object[]>>data;
-                this.generateFakeFolderData();
-            });*/
-
-        /*const uid = this.ass.getUid().subscribe( (data: any) => {
-            console.log('data', data);
-            const folders = this.ass.getFolderList(data.uid)
-                .subscribe( list => {
-                    console.log('LIST', list);
-                });
-        });*/
 
         this.resourceDataSub = this.ass.getFolderList()
                 .subscribe( (list: any) => {
-                    console.log('%cFOLDER LIST', 'color: white; background: purple; padding: 4px 8px;', list);
+                    console.log(
+                        '%cAPI%cFOLDER LIST',
+                        'color: white; background: purple; padding: 4px 8px; font-weight: bold;',
+                        'color: purple; border: 1px solid purple; padding: 4px 8px;',
+                        list
+                    );
 
                     // this.resourceData = <Observable<any[]>>list;
                     this.normalizeResourceData(list);
@@ -79,7 +81,22 @@ export class DashboardNavigatorComponent implements OnInit {
                     console.log('%cMASTER PANEL', 'color: white; background: green; padding: 4px 8px;', this.panels[0]);
                 });
 
+        // Intercom Manager
+        this.intercomSub = this.interCom.requestListen().subscribe((message: IMessage) => {
+            switch (message.action) {
+                case 'dnav_CreateFolder':
+
+                    break;
+                default:
+                    break;
+            }
+        });
+
         // console.log('NAVIGATOR', this.navPanel);
+    }
+
+    ngOnDestroy() {
+
     }
 
     /** PRIVATE */
@@ -165,43 +182,117 @@ export class DashboardNavigatorComponent implements OnInit {
         this.panels.push(masterPanel);
     }
 
-    /*private generateFakeFolderData() {
-
-        this.dashboardFolders.push(
-            this.generateFolder('My Dashboards', 'd-dashboard-tile', 5),
-            this.generateFolder('Favorites', 'd-star', 5),
-            // this.generateFolder('Frequently Visited', 'd-duplicate', 2),
-            this.generateFolder('Recently Visited', 'd-time', 3)
-        );
-
-        const masterPanel = {
-            name: 'masterPanel',
-            icon: '',
-            folders: this.dashboardFolders
-        };
-
-        this.panels.push(masterPanel);
-
-        // console.log('DASHBOARD FOLDERS', this.dashboardFolders);
+    private findTrashId() {
+        if (this.currentResourceType === 'namespace') {
+            const nsPanel = this.panels[1];
+            const nsTrash = nsPanel.subfolder.filter(item => item.name.toLowerCase() === 'trash');
+            return nsTrash[0].id;
+        } else if (this.currentResourceType === 'personal') {
+            const nsPanel = this.panels[0];
+            const nsTrash = nsPanel.subfolder.filter(item => item.name.toLowerCase() === 'trash');
+            return nsTrash[0].id;
+        }
+        return false;
     }
 
-    private generateFolder(name: string, icon: string, folders: number) {
-        const folder = {
-            name: name,
-            icon: icon,
-            dashboards: this.dashboards,
-            folders: []
-        };
+    /**
+     * ACTIONS
+     * from child sections -- folders and dashboards
+     */
+    folderAction(panel, event) {
 
-        if (folders > 0) {
-            let i = 0;
-            while ( i < folders) {
-                folder.folders.push(this.generateFolder('sub folder ' + (i + 1), 'd-folder', ((folders - 2) > 0) ? folders - 2 : 0));
-                i++;
-            }
+        console.group(
+            '%cEVENT%cfolderAction',
+            'color: white; background-color: blue; padding: 4px 8px; font-weight: bold; ',
+            'color: blue; padding: 4px 8px; border: 1px solid blue;'
+        );
+        console.log('EVENT', event);
+        console.log('ORIGINATING PANEL', panel);
+
+        switch (event.action) {
+            case 'navtoPanelFolder':
+                let newPanel;
+                if (panel.name === 'masterPanel' && event.resourceType === 'namespaces') {
+                    newPanel = panel.namespaces[event.idx];
+                } else {
+                    newPanel = panel.subfolder[event.idx];
+                }
+                newPanel.resourceType = event.resourceType;
+                console.log('NEW PANEL', newPanel);
+                this.navtoPanelFolder(newPanel);
+                break;
+            case 'createFolder':
+                const panelId = this.panels[this.currentPaneIndex].id;
+                const namespaceId = this.currentNamespaceId;
+                this.createFolder_action(event.data, panelId, namespaceId);
+                break;
+            default:
+                break;
         }
-        return folder;
-    }*/
+        console.groupEnd();
+    }
+
+    dashboardAction(panel, event) {
+        switch (event.action) {
+            case 'createDashboard':
+                this.createDashboard();
+                break;
+            default:
+                break;
+        }
+    }
+
+    createFolder_action(data: any, parentId?: number, namespaceId?: number) {
+        // create a folder in the index item
+        console.log(
+            '%cACTION%cCreate Folder',
+            'color: black; background: skyblue; padding: 4px 8px; font-weight: bold;',
+            'color: black; border: 1px solid skyblue; padding: 4px 8px;',
+            parentId, data
+            );
+
+        const payload: any = {
+            'name': data.name
+        };
+        if (parentId) {
+            payload.parentid = parentId;
+        }
+        if (namespaceId && namespaceId > 0) {
+            payload.namespaceid = namespaceId;
+        }
+
+        this.ass.createFolder(payload).subscribe( folder => {
+            folder = this.normalizeResourceFolder(folder);
+            console.log(
+                '%cAPI%cCreate Folder Response',
+                'color: white; font-weight: bold; backround: purple; padding: 4px 8px;',
+                'color: purple; border: 1px solid purple; padding: 4px 8px;',
+                folder
+            );
+
+            this.panels[this.currentPaneIndex].subfolder.unshift(folder);
+        });
+    }
+
+    editFolder_action(data: any, parentId: number) {
+        // edit folder(s) in the index item
+    }
+
+    deleteFolder_action(data: any, parentId: number) {
+
+    }
+
+    createDashboard_action(parentId: number) {
+        // create a dashboard in the indicated folder
+    }
+
+    editDashboard_action(data: any, parentId: number) {
+        // edit dashboard(s) in the indicated folder
+    }
+
+    deleteDashboard_action(data: any, parentId: number) {
+
+    }
 
     /** EVENTS */
 
@@ -238,6 +329,14 @@ export class DashboardNavigatorComponent implements OnInit {
      *
      */
     navtoPanelFolder(folder: any) {
+        if (this.currentResourceType === 'master' && folder.namespaceid) {
+            this.currentNamespaceId = folder.namespaceid;
+            this.currentResourceType = 'namespace';
+        } else if (this.currentResourceType === 'master' && folder.id) {
+            this.currentNamespaceId = 0;
+            this.currentResourceType = 'personal';
+        }
+
         this.panels.push(folder);
         this.currentPaneIndex = this.currentPaneIndex + 1;
 
@@ -262,6 +361,10 @@ export class DashboardNavigatorComponent implements OnInit {
         this.navPanel.goBack( () => {
             this.panels.splice(idx, 1);
         });
+        if (this.currentPaneIndex === 0) {
+            this.currentResourceType = 'master';
+            this.currentNamespaceId = 0;
+        }
     }
 
     /**
@@ -293,6 +396,8 @@ export class DashboardNavigatorComponent implements OnInit {
     navtoMasterPanel() {
         if (this.currentPaneIndex > 0) {
             this.navtoSpecificPanel(0, this.currentPaneIndex);
+            this.currentResourceType = 'master';
+            this.currentNamespaceId = 0;
         }
     }
 
@@ -312,75 +417,5 @@ export class DashboardNavigatorComponent implements OnInit {
         this.router.navigate(['/d/' + dbId]);
     }
 
-    createFolderIn(idx: number) {
-        // create a folder in the index item
-    }
-
-    editFoldersIn(idx: number) {
-        // edit folder(s) in the index item
-    }
-
-    createDashboardIn(idx: number) {
-        // create a dashboard in the indicated folder
-    }
-
-    editDashboardsIn(idx: number) {
-        // edit dashboard(s) in the indicated folder
-    }
-
-    // NOTE: may not need this anymore
-    updatePathTree() {
-        const newTree = [];
-        for ( const i in this.panels ) {
-            if (this.panels[i] && this.panels[i].name !== 'masterPanel') {
-                newTree.push({
-                    idx: i,
-                    name: this.panels[i].name,
-                    icon: this.panels[i].icon
-                });
-            }
-        }
-
-        this.pathTree = newTree;
-    }
-
-    /** actions from child sections -- folders and dashboards */
-    folderAction(panel, event) {
-
-        console.group(
-            '%cEVENT%c[folderAction]',
-            'color: white; background-color: blue; padding: 4px 8px;',
-            'color: blue; padding: 4px 8px; font-weight: bold;'
-        );
-        console.log('EVENT', event);
-        console.log('ORIGINATING PANEL', panel);
-
-        switch (event.action) {
-            case 'navtoPanelFolder':
-                let newPanel;
-                if (panel.name === 'masterPanel' && event.resourceType === 'namespaces') {
-                    newPanel = panel.namespaces[event.idx];
-                } else {
-                    newPanel = panel.subfolder[event.idx];
-                }
-                newPanel.resourceType = event.resourceType;
-                console.log('NEW PANEL', newPanel);
-                this.navtoPanelFolder(newPanel);
-                break;
-            default:
-                break;
-        }
-        console.groupEnd();
-    }
-
-    dashboardAction(panel, event) {
-        switch (event.action) {
-            case 'createDashboard':
-                this.createDashboard();
-                break;
-            default:
-                break;
-        }
-    }
 
 }

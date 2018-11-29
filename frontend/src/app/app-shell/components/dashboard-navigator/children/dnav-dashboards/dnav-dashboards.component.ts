@@ -9,6 +9,8 @@ import {
     ViewChild
 } from '@angular/core';
 
+import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'dnav-dashboards',
@@ -27,7 +29,9 @@ export class DnavDashboardsComponent implements OnInit {
     // tslint:disable-next-line:no-inferrable-types
     bulkEdit: boolean = false;
 
-    constructor() { }
+    constructor(
+        private interCom: IntercomService
+    ) { }
 
     ngOnInit() {
     }

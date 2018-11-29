@@ -9,6 +9,8 @@ import {
     ViewChild
 } from '@angular/core';
 
+import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'dnav-folders',
@@ -33,7 +35,9 @@ export class DnavFoldersComponent implements OnInit {
     foldersToRemove: any[] = [];
     pendingNameChanges: any[] = [];
 
-    constructor() { }
+    constructor(
+        private interCom: IntercomService
+    ) { }
 
     ngOnInit() {
     }
@@ -52,16 +56,22 @@ export class DnavFoldersComponent implements OnInit {
         console.log('EVENT', event);
         switch (event.action) {
             case 'createFolder':
-                const newFolder = {
+                /*const newFolder = {
                     name: event.name,
                     icon: 'd-folder',
                     subfolder: [],
-                    folders: []
-                };
+                    files: []
+                };*/
                 // send this to API, after success, then push to current array
                 // ALSO... need to check for duplicate name
                 // after response, and check, then add to front of array
-                this.folders.unshift(newFolder);
+                // this.folders.unshift(newFolder);
+                this.folderAction.emit({
+                    action: 'createFolder',
+                    data: {
+                        name: event.name
+                    }
+                });
                 this.editMode = 'display';
                 break;
             default:

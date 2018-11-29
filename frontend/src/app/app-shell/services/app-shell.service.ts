@@ -82,4 +82,18 @@ export class AppShellService {
             catchError(this.handleError)
         );
     }
+
+    createFolder(folder: any) {
+        const apiUrl = environment.configdb2 + '/folder';
+        const headers = new HttpHeaders(this.headers);
+
+        return this.http.post(
+            apiUrl,
+            folder,
+            { headers, withCredentials: true }
+        ).pipe(
+            catchError(this.handleError)
+        );
+
+    }
 }
