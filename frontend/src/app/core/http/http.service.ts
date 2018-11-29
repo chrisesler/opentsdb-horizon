@@ -1088,10 +1088,7 @@ export class HttpService {
       { 'Content-Type': 'application/json' });
       // '/tsdb/queryData'
     const apiUrl = environment.tsdb_host + '/api/query/graph';
-    return this.http.post(apiUrl, query, { headers, withCredentials: true })
-      .pipe(
-        catchError(this.handleError)
-      );
+    return this.http.post(apiUrl, query, { headers, withCredentials: true });
   }
   /* post to search for metric */
   searchMetrics(queryObj: any): Observable<any> {
@@ -1138,10 +1135,7 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json'
         });
-        return this.http.post('/search/nstagkeys', queryObj, { headers, withCredentials: true })
-          .pipe(
-            catchError(this.handleError)
-          );
+        return this.http.post('/search/nstagkeys', queryObj, { headers, withCredentials: true });
     }
 
     getTagValuesByNamespace(queryObj: any): Observable<any> {
@@ -1155,14 +1149,11 @@ export class HttpService {
     }
 
     // results should filter the lists from already selected filters
-    getTagValues(queryObj: any): Observable<any> {
+    getTagValues(queryObj: any): Observable<string[]> {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json'
         });
-        return this.http.post('/search/tagvalues', queryObj, { headers, withCredentials: true })
-          .pipe(
-            catchError(this.handleError)
-          );
+        return this.http.post<string[]>('/search/tagvalues', queryObj, { headers, withCredentials: true });
     }
 
     getDashboards() {

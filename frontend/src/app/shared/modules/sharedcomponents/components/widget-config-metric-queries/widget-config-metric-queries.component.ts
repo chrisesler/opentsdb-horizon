@@ -77,7 +77,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     ) { }
 
     ngOnInit() {
-        console.log('editting widget', this.widget);
+        console.log('editting widget query', this.widget);
         if ( !this.widget.queries.length ) {
             this.addNewQuery();
             // this.queryEditMode = true;
@@ -136,11 +136,11 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                 this.queryEditMode = true;
                 console.log(JSON.stringify(this.widget), "queires...")
                 const queires = this.widget.queries.filter( query => query.id === message.id );
-                this.editQuery = { query: queires[0], edit: message.payload.edit };
-                this.widgetChange.emit({ action: 'ToggleWidgetAction', payload: {display: false}});
+                this.editQuery = { query: queires[0], edit: message.payload.edit, type: this.widget.settings.component_type };
+                this.widgetChange.emit({ action: 'SetQueryEditMode', payload: { id: message.id }});
                 break;
             case 'CloseQueryEditMode':
-                this.widgetChange.emit({ action: 'ToggleWidgetAction', payload: {display: true}});
+                this.widgetChange.emit({ action: 'CloseQueryEditMode' });
                 this.queryEditMode = false;
                 this.editQuery = null;
                 break;
