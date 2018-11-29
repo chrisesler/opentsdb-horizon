@@ -1,4 +1,4 @@
-<div class="widget-output-container" fxLayout="column" #testing>
+<div class="widget-output-container" fxLayout="column">
     <div class="widget-title" *ngIf="editMode" fxLayout="row" fxFlex="1 0 30px">
         <span fxFlex="1 1 100%">{{ widget.settings.title }}</span>
         <span>
@@ -7,37 +7,13 @@
             </button>
         </span>
     </div>
-    <div class="widget-output"
+    <div class="widget-output" #widgetoutput
         [ngClass]="{
             'display-legend-top': widget.settings.legend.display && widget.settings.legend.position=='top',
             'display-legend-right': widget.settings.legend.display && widget.settings.legend.position=='right',
             'display-legend-bottom': widget.settings.legend.display && widget.settings.legend.position=='bottom',
             'display-legend-left': widget.settings.legend.display && widget.settings.legend.position=='left'
-        }"
-        #widgetoutput>
-        <!--<div id="dygraphLegendTop" class="legend"
-            [style.display]="widget.settings.legend.display && widget.settings.legend.position=='top' ? 'block':'none'"
-            [style.height]="widget.settings.legend.display && widget.settings.legend.position=='top' ? '20%':'0%'"></div>
-        <div id="dygraphLegendLeft" class="legend"
-            [style.display]="widget.settings.legend.display && widget.settings.legend.position=='left' ? 'block':'none'"
-            [style.height]="size.height + 'px'" 
-            [style.width]="widget.settings.legend.display && widget.settings.legend.position=='left' ? '20%':'0%'"></div>
-        <div id="dygraph_div" 
-            dygraphsChart
-            [chartType]="chartType"
-            [data]="data"
-            [size]="size"
-            [options]="options">
-        </div>
-        <div id="dygraphLegendRight" class="legend"
-            [style.display]="widget.settings.legend.display && widget.settings.legend.position=='right' ? 'block':'none'"
-            [style.height]="size.height + 'px'" 
-            [style.width]="widget.settings.legend.display && widget.settings.legend.position=='right' ? '20%':'0%'"></div>
-        <div id="dygraphLegendBottom" class="legend"
-            [style.display]="widget.settings.legend.display && widget.settings.legend.position=='bottom' ? 'block':'none'"
-            [style.top]="size.height + 'px'" 
-            [style.height]="widget.settings.legend.display && widget.settings.legend.position=='bottom' ? '20%':'0%'"></div>-->
-
+        }">
         <div #dygraph class="graph-chart"
             dygraphsChart
             [chartType]="chartType"
@@ -69,18 +45,6 @@
                         <tr mat-header-row *matHeaderRowDef="legendDisplayColumns;sticky: true" [style.display]="legendDisplayColumns.length>2?'table-row':'none'"></tr>
                     </ng-container>
                     <tr mat-row *matRowDef="let row; columns: legendDisplayColumns" (click)="toggleChartSeries(row)"></tr>
-                    <!--
-                    <tr>
-                        <th colspan=2></th>
-                        <th>Min</th>
-                        <th>Max</th>
-                    </tr>
-                    <tr *ngFor="let index of options.labels.slice(1)" (click)="toggleChartSeries(index)">
-                        <td class="line-series" [style.textDecoration]="options.visibility[index-1]===true? 'none': 'line-through'" [style.backgroundColor]= "options.series[index].color"></td>
-                        <td [style.textDecoration]="options.visibility[index-1]===true? 'none': 'line-through'">{{ options.series[index].metric }}</td>
-                        <td> {{ getSeriesAggregate(index, 'min') }} </td>
-                        <td>{{ getSeriesAggregate(index, 'max') }}</td>
-                    </tr>-->
                 </table>
             </ng-container>
             <ng-container *ngIf="widget.settings.legend.position=='top' || widget.settings.legend.position=='bottom'">
@@ -97,11 +61,6 @@
     </div>
     
 </div>
-<!--
-                [style.height]="widget.settings.legend.display && (widget.settings.legend.position=='top' || widget.settings.legend.position=='bottom') ? (size.height * 0.8) + 'px': size.height + 'px'"
-            [style.width]="widget.settings.legend.display && (widget.settings.legend.position=='left' || widget.settings.legend.position=='right') ? (size.width * 0.8) + 'px' : size.width + 'px'    "
-
--->
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">
     <!-- tabs with config content -->

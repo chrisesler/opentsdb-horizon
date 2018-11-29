@@ -155,6 +155,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     userNamespaces: any = [];
     // tslint:disable-next-line:no-inferrable-types
     viewEditMode: boolean = false;
+    newWidget: any; // setup new widget based on type from top bar
 
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
@@ -562,11 +563,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    // event emit to add new widget from dashboard header
+    // setup the new widget type and using as input to dashboard-content to load edting it.
     addNewWidget(selectedWidget: any) {
-        console.log('%cADD NEW WIDGET', 'color: white; background-color: blue; font-weight: bold;', selectedWidget);
-        const widget = this.dbService.getWidgetPrototype(selectedWidget.type) ;
-        this.openTimeSeriesMetricDialog(widget);
+        this.newWidget = this.dbService.getWidgetPrototype(selectedWidget.type);
     }
 
     openTimeSeriesMetricDialog(widget) {
