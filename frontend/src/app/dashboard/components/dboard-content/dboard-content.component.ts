@@ -117,11 +117,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
   }
 
   newComponent(widget) {
-    // need to set dashboard mode to editing component
-    this.interCom.requestSend(<IMessage> {
-      action: 'updateDashboardMode',
-      payload: 'edit'
-    });
+    this.viewEditMode = true;
     const component: Type<any> = this.widgetService.getComponentToLoad(widget.settings.component_type);
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     widget.settings = { ...widget.settings, ...this.widgetService.getWidgetDefaultSettings(widget.settings.component_type)};
