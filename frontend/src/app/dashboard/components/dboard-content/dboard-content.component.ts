@@ -1,16 +1,14 @@
 import {
   Component, OnInit, Input, ViewChild, ViewEncapsulation,
-  ChangeDetectionStrategy, OnChanges, SimpleChanges, ComponentFactoryResolver,
-  HostBinding, Output, EventEmitter, AfterViewInit, ViewChildren, QueryList
+  OnChanges, SimpleChanges, ComponentFactoryResolver, Type,
+  HostBinding, Output, EventEmitter
 } from '@angular/core';
 import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDraggableOptions } from 'angular2gridster';
 import { WidgetViewDirective } from '../../directives/widgetview.directive';
 import { WidgetComponentModel } from '../../widgets/models/widgetcomponent';
 import { DashboardService } from '../../services/dashboard.service';
+import { WidgetService } from '../../../core/services/widget.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
-
-// TODO: TEMP ITEMS ONLY FOR DEV. WILL REMOVE
-import { WidgetLoaderComponent } from '../widget-loader/widget-loader.component';
 
 @Component({
   selector: 'app-dboard-content',
@@ -19,7 +17,7 @@ import { WidgetLoaderComponent } from '../widget-loader/widget-loader.component'
   encapsulation: ViewEncapsulation.None
 })
 // changeDetection: ChangeDetectionStrategy.OnPush
-export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges {
+export class DboardContentComponent implements OnInit, OnChanges {
   @HostBinding('class.app-dboard-content') private _hostClass = true;
 
   @ViewChild(WidgetViewDirective) widgetViewContainer: WidgetViewDirective;
@@ -27,6 +25,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
 
   @Output() widgetsLayoutUpdate = new EventEmitter();
   @Input() widgets: any[];
+  @Input() newWidget: any; // new widget when adding from top bar
   @Input() rerender: any;
   @Input() dashboardMode: string;
 
@@ -74,12 +73,10 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     handlerClass: 'panel-heading'
   };
 
-  // TEMPORARY ITEMS to remove start here
-  @ViewChildren(WidgetLoaderComponent) widgetItems: QueryList<WidgetLoaderComponent>;
-  // end temporary items to remove
-
   constructor(
     private dbService: DashboardService,
+    private widgetService: WidgetService,
+    private componentFactoryResolver: ComponentFactoryResolver,
     private interCom: IntercomService
   ) { }
 
@@ -94,14 +91,6 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
 
   getWidgetConfig(id) {
     return this.dbService.getWidgetConfigById(id);
-  }
-
-  ngAfterViewInit() {
-      // TODO: FOR DEV ONLY
-      // Need to remove once developing done
-      // console.log('AVI ::', this.widgetItems);
-      // this.widgetItems.last.openWidgetView();
-      // this.widgetItems.first.openWidgetView();
   }
 
   trackByWidget(index: number, widget: any) {
@@ -120,6 +109,23 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
       this.viewEditMode = false;
       this.widgetViewContainer.viewContainerRef.clear();
     }
+    // check if the new editing widget is needed
+    if ( changes.newWidget && changes.newWidget.currentValue ) {
+      this.newComponent(changes.newWidget.currentValue);
+    }
+
+  }
+
+  newComponent(widget) {
+    // need to set dashboard mode to editing component
+    this.interCom.requestSend(<IMessage> {
+      action: 'updateDashboardMode',
+      payload: 'edit'
+    });
+    const component: Type<any> = this.widgetService.getComponentToLoad(widget.settings.component_type);
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
+    widget.settings = { ...widget.settings, ...this.widgetService.getWidgetDefaultSettings(widget.settings.component_type)};
+    this.editComponent( { 'compFactory': componentFactory, widget: widget });
   }
 
   // to load selected component factory to edit
@@ -135,6 +141,7 @@ export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges 
     let editWidget = JSON.parse(JSON.stringify(comp.widget));
     editWidget.id = '__EDIT__' + comp.widget.id;
     // assign @input widget
+    console.log('new widget to edit', editWidget);
     (<WidgetComponentModel>component.instance).widget = editWidget;
     (<WidgetComponentModel>component.instance).editMode =  true; // let it know it is in edit mode so it shows the config controls
   }

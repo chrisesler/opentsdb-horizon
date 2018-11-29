@@ -100,6 +100,13 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                                     }
                                 };
                 break;
+            case 'BignumberWidgetComponent':
+                    query.settings = {
+                        visual: {
+                            visible: true,
+                            queryID: 0
+                        }
+                    };
         }
         query.id = this.util.generateId(3);
         // this.newQueryId = query.id;
