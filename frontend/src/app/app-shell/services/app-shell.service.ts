@@ -5,9 +5,7 @@ import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
 import { UtilsService } from '../../core/services/utils.service';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class AppShellService {
 
     private _uid: string;
@@ -20,9 +18,7 @@ export class AppShellService {
 
     constructor(
         private http: HttpClient
-    ) {
-        this.getUid();
-    }
+    ) {}
 
     /* to handle error  with more info */
     handleError(error: HttpErrorResponse) {
@@ -40,31 +36,6 @@ export class AppShellService {
         return throwError(
             'Something bad happened; please try again later.'
         );
-    }
-
-    getUid() {
-        const self = this;
-        return this.http.get('/uid')
-            .pipe(
-                map(
-                    (res: any) => {
-                        self._uid = res.uid;
-                        console.log('RES', res);
-                        return Observable.of(res);
-                    }
-                ),
-                catchError(
-                    error => {
-                        // fallback...
-                        // TODO: remove
-                        self._uid = 'cesler';
-                        if ( error.status === 401 ) {
-                            return error;
-                        }
-                        return Observable.of('uid-check-error');
-                    }
-                )
-            );
     }
 
     getFolderList(folderId?: any, namespaceId?: any ) {
