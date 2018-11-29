@@ -2,6 +2,7 @@ import {
     AfterViewInit,
     Component,
     OnInit,
+    OnDestroy,
     Input,
     Output,
     EventEmitter,
@@ -17,7 +18,10 @@ import {
     MatMenuTrigger
 } from '@angular/material';
 
-import { IntercomService } from '../../../../../core/services/intercom.service';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs';
+
+import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -25,13 +29,15 @@ import { IntercomService } from '../../../../../core/services/intercom.service';
     templateUrl: './dnav-folder-item.component.html',
     styleUrls: []
 })
-export class DnavFolderItemComponent implements OnInit, AfterViewInit {
+export class DnavFolderItemComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @HostBinding('class.dnav-folder-item') private _hostClass = true;
     @HostBinding('class.dnav-menu-opened') private _menuOpened = false;
     @HostBinding('class.is-editing') private _isEditingHostClass = false;
 
     @ViewChild(MatMenuTrigger) menuTrigger: MatMenuTrigger;
+
+    listenSub: Subscription;
 
     @Input() folder: any = {};
     @Input() resourceType: any = ''; // personal<string> | namespace<string>
@@ -73,7 +79,7 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit {
 
             if (val === true) {
                 // set timeout so it has time to render
-                setTimeout(function() {
+                setTimeout(function () {
                     const el = this.hostRef.nativeElement.querySelector('.mat-input-element');
                     el.focus();
                 }.bind(this), 200);
@@ -104,7 +110,11 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit {
         }
     }
 
-
+    ngOnDestroy() {
+        if (this.listenSub) {
+            this.listenSub.unsubscribe();
+        }
+    }
 
     /** privates */
 
