@@ -87,12 +87,9 @@ export class DashboardService {
 
   getDashboardPrototype(): any {
     const dashboard: any = Object.assign({}, this.dashboardProto);
-    // just add 6 box widgets for now
-    for (let i=0; i <= 11; i++) {
-      const widget = this.getWidgetPrototype();
-      widget.gridPos.w = 6;
-      dashboard.widgets.push(widget);
-    }
+    const widget = this.getWidgetPrototype();
+    widget.gridPos.w = 6;
+    dashboard.widgets.push(widget);
     return dashboard;
   }
 
