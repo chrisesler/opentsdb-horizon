@@ -14,7 +14,15 @@ import { HostBinding } from '@angular/core';
 export class DatepickerComponent implements OnInit {
     // tslint:disable:no-inferrable-types
     // tslint:disable:no-output-on-prefix
-    @Input() date: string;
+    @Input('date')
+    set date(value: string) {
+        this._date = value;
+        if (this.dateForm) {
+            this.dateForm.setValue({dateInput: value});
+        }
+    }
+    get date(): string { return this._date; }
+
     @Input('timezone')
     set timezone(value: string) {
         this._timezone = value;
@@ -78,8 +86,8 @@ export class DatepickerComponent implements OnInit {
         if (!this.timezone) {
             this.timezone = 'local';
         }
+        this.date = this.date; // sets the dateForm
 
-        this.dateForm.setValue({dateInput: this.date});
         this.unixTimestamp = this.utilsService.timeToMoment(this.date, this.timezone).unix();
         this.tempUnixTimestamp = this.unixTimestamp;
         this.monthCalendarTitle = this.utilsService.timeToMoment(this.tempUnixTimestamp.toString(), this.timezone).year().toString();
@@ -110,15 +118,14 @@ export class DatepickerComponent implements OnInit {
             } else if (!this.shouldUpdateTimestamp &&
                 !this.utilsService.relativeTimeToMoment(value) &&
                 value.toLowerCase() !== 'now' &&
-                !this.utilsService.timeToTime(value)) { // input is relative time or 'this' time
+                !this.utilsService.timeToTime(value)) { // input is not relative time or 'this' time
                 this.date = this.utilsService.timestampToTime(this.unixTimestamp.toString(), this.timezone);
             } else if (this.shouldUpdateTimestamp) { // input changed
                 this.date = value;
                 this.unixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
             }
-            this.dateForm.setValue({dateInput: this.date});
             this.isDateValid = true;
-            this.generateCalendar(theMoment.format(this.dateFormat));
+            this.generateCalendar(this.utilsService.timeToMoment(value, this.timezone).format(this.dateFormat));
             this.dateChange.emit(this.date);
         } else {
             console.log('date invalid: ' + value);
@@ -395,7 +402,6 @@ export class DatepickerComponent implements OnInit {
         }
 
         this.date = this.utilsService.timestampToTime(selectedDate.unix().toString(), this.timezone);
-        this.dateForm.setValue({dateInput: this.date});
         this.unixTimestamp = selectedDate.unix();
         this.isDateValid = true;
         this.generateCalendar(selectedDate.format(this.dateFormat));
