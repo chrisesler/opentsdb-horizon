@@ -97,11 +97,12 @@ export class DashboardService {
   // help to put new widget on top.
   // set new position of first position down
   positionWidgetY(widgets: any, y) {
-    for (let i = 0; i < widgets.length; i++) {
-        const wd: any = widgets[i];
-        wd.gridPos.y += y; wd.gridPos.yMd += y;
+    const modWidgets = widgets;
+    for (let i = 0; i < modWidgets.length; i++) {
+      modWidgets[i].gridPos.y = modWidgets[i].gridPos.y + y; 
+      modWidgets[i].gridPos.yMd = modWidgets[i].gridPos.yMd + y;
     }
-    return widgets;
+    return modWidgets;
   }
 
   getMetricsFromWidgets( widgets ) {

@@ -223,14 +223,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.handleQueryPayload(message);
                     break;
                 case 'updateWidgetConfig':
-                    const widgets = JSON.parse(JSON.stringify(this.widgets));
+                    let widgets = JSON.parse(JSON.stringify(this.widgets));
                     const mIndex = widgets.findIndex(w => w.id === message.payload.id);
+
                     if (mIndex === -1) {
+                        // update position to put new on on top
+                        const newWidgetY = message.payload.gridPos.y;
+                        widgets = this.dbService.positionWidgetY(widgets, newWidgetY);
                         // this is the newly adding widget
-                        widgets.push(message.payload);
+                        widgets.unshift(message.payload);
+                        console.log('HILL', newWidgetY, widgets, message);
                         this.store.dispatch(new LoadWidgets(widgets));
                     } else {
-                        // check the component type is PlaceholderWidgetComponent. If yes, it needs to be replaced with new component
+                        // check the component type is PlaceholderWidgetComponent. If yes, it needs to be replaced with new component                    
                         if (widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
                             widgets[mIndex] = message.payload;
                             this.store.dispatch(new LoadWidgets(widgets));
@@ -574,6 +579,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // setup the new widget type and using as input to dashboard-content to load edting it.
     addNewWidget(selectedWidget: any) {
         this.newWidget = this.dbService.getWidgetPrototype(selectedWidget.type);
+        console.log('newewewe widget', this.newWidget);
     }
 
     openTimeSeriesMetricDialog(widget) {
