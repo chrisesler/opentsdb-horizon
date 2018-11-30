@@ -73,11 +73,9 @@
                         <div class="filters">
                             <div class="label">FILTERS</div>
                             <ng-container *ngIf="query.filters.length && edit.indexOf('filters') === -1">
-                                    <div *ngFor="let filter of query.filters"> 
-                                            <!--<button mat-icon-button [matMenuTriggerFor]="groupByOptions">
-                                                <mat-icon>more_vert</mat-icon>
-                                            </button>-->
-                                            {{ filter.tagk }}: {{ filter.filter.join(',') }}
+                                    <div *ngFor="let filter of query.filters; let index=index"> 
+                                        <span><tag-aggregator [value]="filter.aggregator" [exclude]="type === 'BignumberWidgetComponent'?['unmerge']:[]" (change)="setTagAggregator(index, $event)"></tag-aggregator></span>
+                                        <span>{{ filter.tagk }}: {{ filter.filter.join(',') }}</span>
                                     </div>
                                 </ng-container>
                             <div class="action" *ngIf="!edit.length || !query.filters.length && edit.indexOf('filters') === -1">
@@ -159,13 +157,3 @@
                     <button mat-button  class="mat-elevation-z0" (click)="cancel()"> Cancel </button>
                 </div>      
     </div>
-    <!--
-    
-          <mat-menu #groupByOptions="matMenu">
-            <button mat-menu-item *ngFor="let option of aggregateOptions" (click)="">{{ option.label }}</button>
-            <button mat-menu-item>Avg</button>
-            <button mat-menu-item>Min</button>
-            <button mat-menu-item>Max</button>
-          </mat-menu>
-    
-        -->

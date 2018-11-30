@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { filter } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,16 @@ export class YamasService {
         };
 
         const mids = [];
+        let filterId = '';
         const groupbyIds = [];
+
+        // add filters
+        if ( query.filters.length ) {
+            filterId = 'filter';
+            const filter: any = this.getFilterQuery(query);
+            filter.id = filterId;
+            transformedQuery.filters = [filter];
+        }
 
         for (let j = 0; j < query.metrics.length; j++) {
             const isExpression = query.metrics[j].expression ? true : false;
@@ -26,9 +36,12 @@ export class YamasService {
             if ( query.metrics[j].name) {
 
                 q = this.getMetricQuery(query, j);
-
+                if ( filterId ) {
+                    q.filterId = filterId;
+                }
                 sources = [q.id];
                 transformedQuery.executionGraph.push(q);
+                mids.push(q.id);
             } else {
                 // const res = this.getExpressionQuery(query.metrics[j], j);
                 // q = res.expression;
@@ -36,45 +49,33 @@ export class YamasService {
                 // sources = res.qids;
             }
 
-            mids.push(q.id);
+            /*
             if ( !summaryOnly  ) {
-                transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, q.id, sources));
-                const groupby = this.getMetricGroupBy(query, j, q.id, [ 'downsample' + '-' + q.id]);
-                transformedQuery.executionGraph.push(groupby);
-
                 q.sources = [groupby.id];
-                groupbyIds.push(groupby.id);
+                // groupbyIds.push(groupby.id);
                 if ( isExpression ) {
                     transformedQuery.executionGraph.push(q);
                 }
 
             }
+            */
         }
 
-        if ( summaryOnly ) {
-            const dsConfig = this.getQueryDownSample(downsample);
-            dsConfig.sources = mids;
-            transformedQuery.executionGraph.push(dsConfig);
-            transformedQuery.executionGraph.push(this.getMetricGroupBy(query, null, null, ['downsample']));
-            transformedQuery.executionGraph.push(this.getQuerySummarizer());
-        } else {
-            transformedQuery.executionGraph.push({
-                id: 'summarizer',
-                summaries: ['sum', 'max', 'min', 'count', 'avg', 'first', 'last'],
-                sources: groupbyIds
-            });
+        const dsConfig = this.getQueryDownSample(downsample);
+        dsConfig.sources = mids;
+        transformedQuery.executionGraph.push(dsConfig);
+        transformedQuery.executionGraph.push(this.getQueryGroupBy(query, ['downsample']));
+        transformedQuery.executionGraph.push(this.getQuerySummarizer());
 
             transformedQuery.serdesConfigs = [{
                 id: 'JsonV3QuerySerdes',
-                filter: [ ...groupbyIds, 'summarizer']
+                filter: summaryOnly ? ['summarizer'] : [ 'groupby', 'summarizer']
             }];
-        }
         return transformedQuery;
     }
 
     getMetricQuery(query, index) {
         const mid = 'm' + index;
-        let filters = [];
         const q = {
             id: mid, // using the loop index for now, might need to generate its own id
             type: 'TimeSeriesDataSource',
@@ -83,19 +84,21 @@ export class YamasService {
                 metric:  query.namespace + '.' + query.metrics[index].name
             },
             fetchLast: false,
-            filter: {}
         };
-        filters = query.filters ? this.transformFilters(query.filters) : [];
-        if ( filters.length ) {
-            q.filter = {
-                type: 'Chain',
-                op: 'AND',
-                filters: filters
-            };
-        } else {
-            delete q.filter;
-        }
+
         return q;
+    }
+
+    getFilterQuery(query) {
+        const filters = query.filters ? this.transformFilters(query.filters) : [];
+        const filter = {
+                        filter : {
+                            type: 'Chain',
+                            op: 'AND',
+                            filters: filters
+                        }
+                    };
+        return filter;
     }
 
     getExpressionQuery(query, index) {
@@ -185,19 +188,22 @@ export class YamasService {
         return chain;
     }
 
-    getMetricGroupBy(query= null, index= null, qid= null, sources= []) {
+    getQueryGroupBy(query, sources= []) {
         const filters = query.filters || [];
         const tagKeys = [];
+        let aggregator = 'sum';
         for ( let i = 0; filters && i < filters.length; i++ ) {
-            if ( filters[i].groupBy ) {
+            if ( filters[i].aggregator === 'unmerge' ) {
                 tagKeys.push(filters[i].tagk);
+            } else {
+                // set the aggregator from any non-groupby tag filter
+                aggregator = filters[i].aggregator;
             }
         }
-        const groupById = 'groupby' + (qid ? '-' + qid : '');
         const metricGroupBy =  {
-            id: groupById,
+            id: 'groupby',
             type: 'groupby',
-            aggregator: 'sum', // mConfig.aggregator,
+            aggregator: aggregator,
             tagKeys: tagKeys,
             interpolatorConfigs: [
                 {
@@ -208,6 +214,7 @@ export class YamasService {
             ],
             sources: sources
         };
+        console.log("----groupby-----", metricGroupBy.tagKeys, metricGroupBy.aggregator);
         return metricGroupBy;
     }
 

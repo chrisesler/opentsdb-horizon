@@ -7,8 +7,9 @@ import { UnitConverterService } from '../../../../../core/services/unit-converte
 import { Subscription } from 'rxjs/Subscription';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
-import { isNumber } from 'util';
-import { CompilerConfig } from '../../../../../../../node_modules/@angular/compiler';
+import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
+import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
+
 
 
 @Component({
@@ -37,7 +38,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     typeSub: Subscription;
 
     categoryAxis: any = {
-        type: 'category'
+        type: 'category',
+        ticks: {
+            autoSkip: false
+        }
     };
 
     valueAxis: any = {
@@ -64,11 +68,15 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     data: any = [ ];
     width = '100%';
     height = '100%';
-    showAction  = true;
+    editQueryId = null;
+    nQueryDataLoading = 0;
+    error: any;
+    errorDialog: MatDialogRef < ErrorDialogComponent > | null;
 
     constructor(
         private interCom: IntercomService,
         private dataTransformer: DatatranformerService,
+        public dialog: MatDialog,
         private util: UtilsService,
         private unit: UnitConverterService
     ) { }
@@ -103,10 +111,14 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
                 switch (message.action) {
                     case 'updatedWidgetGroup':
+                        this.nQueryDataLoading--;
                         if ( !this.isDataLoaded ) {
                             this.options.labels = [];
                             this.data = [];
                             this.isDataLoaded = true;
+                        }
+                        if ( message.payload.error ) {
+                            this.error = message.payload.error;
                         }
                         this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget, this.data, message.payload.rawdata, this.isStackedGraph);
                         break;
@@ -129,6 +141,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     requestData() {
         if (!this.isDataLoaded) {
+            this.nQueryDataLoading = this.widget.queries.length;
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
@@ -177,9 +190,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
                 break;
-            case 'ToggleWidgetAction':
-                console.log("line toggle", message)
-                    this.showAction = message.payload.display;
+            case 'SetQueryEditMode':
+                this.editQueryId = message.payload.id;
+                break;
+            case 'CloseQueryEditMode':
+                this.editQueryId = null;
                 break;
             /*
             case 'SetStackedBarBarVisuals':
@@ -209,42 +224,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
         }
     }
-    /*
-    addMetricsToGroup(gConfig) {
-        console.log("addMetricstogroup....", JSON.stringify(gConfig));
-        let gid = gConfig.id;
-
-        if ( gid === 'new' ) {
-            const g = this.addNewGroup();
-            gid = g.id;
-        }
-
-        const config = this.util.getObjectByKey(this.widget.queries, 'id', gid);
-        const prevTotal = config.queries.length;
-
-        let i = 1;
-        const dVisaul = {
-            color: '#000000',
-            visible: true,
-            aggregator: 'sum'
-        };
-
-        for (const metric of gConfig.queries ) {
-            metric.settings.visual = {...dVisaul, ...metric.settings.visual };
-            if ( !this.isStackedGraph ) {
-                metric.settings.visual.stackLabel = 'bar-' + ( prevTotal + i) ;
-            }
-            i++;
-        }
-        config.queries = config.queries.concat(gConfig.queries);
-        if ( this.isStackedGraph ) {
-            this.setStackForGroup(gid);
-        }
-
-        console.log("addMetricstogroup....", this.widget.query);
-        this.widget = {...this.widget};
-    }
-    */
 
     updateQuery( payload ) {
         console.log("barchart updateQuery", payload, this.widget.queries);
@@ -531,6 +510,22 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         this.widget.queries.groups[gIndex].queries.splice(index, 1);
         console.log(this.widget.queries.groups[gIndex].queries, "gindex", gIndex, index);
         this.refreshData();
+    }
+
+    showError() {
+        console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        const offsetHeight = 60;
+        dialogConf.width = '50%';
+        dialogConf.minWidth = '500px';
+        dialogConf.height = '200px';
+        dialogConf.backdropClass = 'error-dialog-backdrop';
+        dialogConf.panelClass = 'error-dialog-panel';
+        dialogConf.data = this.error;
+
+        this.errorDialog = this.dialog.open(ErrorDialogComponent, dialogConf);
+        this.errorDialog.afterClosed().subscribe((dialog_out: any) => {
+        });
     }
 
     closeViewEditMode() {
