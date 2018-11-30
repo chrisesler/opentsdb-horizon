@@ -69,7 +69,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
             this.widget.queries.forEach((query, index) => {
                 this.dataSources[index] = query.metrics;
                 this.gForms.addControl(index, this.createFormArray(this.dataSources[index]));
-                console.log(this.gForms, "forms")
+                console.log(this.gForms, "forms", this.widget.queries)
             });
         }
         // console.log(this.gForms, 'this.gforms');

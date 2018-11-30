@@ -20,9 +20,30 @@
 
             .widget-container {
                 height: 100%;
+                position: relative;
 
                 .big-num-container {
                     height: 100%;
+                }
+                .loader{
+                    position: absolute;
+                    left: 0px;
+                    top: 0px;
+                    z-index: 1;
+                    width: 30px;
+                    height: 30px;
+                    background-image: url(/assets/denali-loader.svg);
+                    background-color:#fff;
+                }
+        
+                .error{
+                    position: absolute;
+                    left: 0px;
+                    top: 0px;
+                    z-index: 1;
+                    width: 30px;
+                    height: 30px;
+                    color: red;
                 }
             }
         }
