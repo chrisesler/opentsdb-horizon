@@ -55,7 +55,7 @@ export class DatepickerComponent implements OnInit {
     calendarTitleFormat: string = 'MMMM YYYY';
     dateFormat = 'YYYY-MM-DD';
     displayDayCalendar: boolean = true;
-    registerForm: FormGroup;
+    dateForm: FormGroup;
     submitted = false;
     shouldUpdateTimestamp: boolean = true;
     calendarButtonEntered = false;
@@ -68,7 +68,7 @@ export class DatepickerComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.registerForm = this.formBuilder.group({
+        this.dateForm = this.formBuilder.group({
             dateInput: ['', [this.formatValidator(), this.maxDateValidator(), this.minDateValidator()]],
         });
 
@@ -79,6 +79,7 @@ export class DatepickerComponent implements OnInit {
             this.timezone = 'local';
         }
 
+        this.dateForm.setValue({dateInput: this.date});
         this.unixTimestamp = this.utilsService.timeToMoment(this.date, this.timezone).unix();
         this.tempUnixTimestamp = this.unixTimestamp;
         this.monthCalendarTitle = this.utilsService.timeToMoment(this.tempUnixTimestamp.toString(), this.timezone).year().toString();
@@ -91,7 +92,11 @@ export class DatepickerComponent implements OnInit {
     }
 
     // convenience getter for easy access to form fields
-    get formFields() { return this.registerForm.controls; }
+    get formFields() { return this.dateForm.controls; }
+
+    dateInputChanged() {
+        this.onDateChange(this.dateForm.value.dateInput);
+    }
 
     onDateChange = (value: string) => {
         value = value.trim();
@@ -111,6 +116,7 @@ export class DatepickerComponent implements OnInit {
                 this.date = value;
                 this.unixTimestamp = this.utilsService.timeToMoment(value, this.timezone).unix();
             }
+            this.dateForm.setValue({dateInput: this.date});
             this.isDateValid = true;
             this.generateCalendar(theMoment.format(this.dateFormat));
             this.dateChange.emit(this.date);
@@ -389,6 +395,7 @@ export class DatepickerComponent implements OnInit {
         }
 
         this.date = this.utilsService.timestampToTime(selectedDate.unix().toString(), this.timezone);
+        this.dateForm.setValue({dateInput: this.date});
         this.unixTimestamp = selectedDate.unix();
         this.isDateValid = true;
         this.generateCalendar(selectedDate.format(this.dateFormat));

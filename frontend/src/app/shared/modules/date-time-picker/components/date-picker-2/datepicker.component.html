@@ -1,17 +1,16 @@
 <!-- INPUT FIELD -->
 <span class="input-field">
-    <mat-form-field [formGroup]="registerForm" appearance="fill" style="min-width: 296px;">
-            <mat-label>{{inputBoxName}}</mat-label>
-            <input matInput 
-                id="input-box"
-                #dateInput 
-                [ngModel]="date" 
-                (ngModelChange)="onDateChange($event)"
-                (focus)="inputFocused()"
-                (keyup.enter)="enterKeyed()"
-                type="text" 
-                formControlName="dateInput" 
-                class="form-control"/>
+    <mat-form-field [formGroup]="dateForm" appearance="fill" style="min-width: 296px;">
+        <mat-label>{{inputBoxName}}</mat-label>
+        <input matInput
+            id="input-box"
+            #dateInput
+            (input)="dateInputChanged()"
+            (focus)="inputFocused()"
+            (keyup.enter)="enterKeyed()"
+            type="text"
+            formControlName="dateInput"
+            class="form-control"/>
         <button mat-button matSuffix mat-icon-button (click)="toggleCalendar()" (keydown)="enterKeyedOnCalendarButton($event)">
             <mat-icon fontSet="denali" fontIcon="d-calendar" color="primary"></mat-icon>
         </button>
