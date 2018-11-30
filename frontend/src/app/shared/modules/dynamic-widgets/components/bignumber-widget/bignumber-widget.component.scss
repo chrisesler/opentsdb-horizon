@@ -20,12 +20,13 @@
 
             .widget-container {
                 height: 100%;
+                position: relative;
 
                 .big-num-container {
                     height: 100%;
                 }
                 .loader{
-                    position: relative;
+                    position: absolute;
                     left: 0px;
                     top: 0px;
                     z-index: 1;

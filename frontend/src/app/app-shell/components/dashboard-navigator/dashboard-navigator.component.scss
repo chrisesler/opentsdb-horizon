@@ -30,7 +30,8 @@
                 }
             }
 
-            &.dashboard-list {
+            &.dashboard-list,
+            &.folder-list {
                 .mat-list-item-content {
                     padding-right: 0;
                 }

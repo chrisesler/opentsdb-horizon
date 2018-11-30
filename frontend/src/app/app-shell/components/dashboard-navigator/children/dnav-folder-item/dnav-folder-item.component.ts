@@ -1,13 +1,27 @@
 import {
+    AfterViewInit,
     Component,
     OnInit,
+    OnDestroy,
     Input,
     Output,
     EventEmitter,
-    HostBinding
+    HostBinding,
+    ViewChild,
+    ElementRef
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+
+import {
+    MatInput,
+    MatMenuTrigger
+} from '@angular/material';
+
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs';
+
+import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -15,12 +29,18 @@ import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms'
     templateUrl: './dnav-folder-item.component.html',
     styleUrls: []
 })
-export class DnavFolderItemComponent implements OnInit {
+export class DnavFolderItemComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @HostBinding('class.dnav-folder-item') private _hostClass = true;
+    @HostBinding('class.dnav-menu-opened') private _menuOpened = false;
     @HostBinding('class.is-editing') private _isEditingHostClass = false;
 
+    @ViewChild(MatMenuTrigger) menuTrigger: MatMenuTrigger;
+
+    listenSub: Subscription;
+
     @Input() folder: any = {};
+    @Input() resourceType: any = ''; // personal<string> | namespace<string>
 
     private _mode: any = 'display'; // display | new | edit
     @Input()
@@ -56,6 +76,14 @@ export class DnavFolderItemComponent implements OnInit {
         if (this._mode === 'edit') {
             this._nameEdit = val;
             this._isEditingHostClass = this._nameEdit;
+
+            if (val === true) {
+                // set timeout so it has time to render
+                setTimeout(function () {
+                    const el = this.hostRef.nativeElement.querySelector('.mat-input-element');
+                    el.focus();
+                }.bind(this), 200);
+            }
         }
     }
 
@@ -64,12 +92,27 @@ export class DnavFolderItemComponent implements OnInit {
     FolderForm: FormGroup;
 
     constructor(
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private hostRef: ElementRef,
+        private interCom: IntercomService
     ) { }
 
     ngOnInit() {
         if (this.mode === 'new') {
             this.setupControls('new');
+        }
+    }
+
+    ngAfterViewInit() {
+        if (this.mode === 'new') {
+            const el = this.hostRef.nativeElement.querySelector('.mat-input-element');
+            el.focus();
+        }
+    }
+
+    ngOnDestroy() {
+        if (this.listenSub) {
+            this.listenSub.unsubscribe();
         }
     }
 
@@ -130,8 +173,25 @@ export class DnavFolderItemComponent implements OnInit {
         });
     }
 
-    dblclickEditName() {
-        this.nameEdit = true;
+    /** Menu Events */
+
+    clickMore(event) {
+        event.stopPropagation();
+        this.menuTrigger.toggleMenu();
     }
 
+    menuState(state: boolean) {
+        console.log('MENU STATE', state);
+        this._menuOpened = state;
+    }
+
+    menuAction(action: string, event?: any) {
+        switch (action.toLowerCase()) {
+            case 'editname':
+                this.nameEdit = true;
+                break;
+            default:
+                break;
+        }
+    }
 }

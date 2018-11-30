@@ -125,6 +125,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     requestData() {
         if (!this.isDataLoaded) {
             this.nQueryDataLoading = this.widget.queries.length;
+            this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
