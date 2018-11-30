@@ -15,6 +15,10 @@
                 [data]="data"
                 [options]="options"
                 ></canvas>
+            <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
+            <div class="error" *ngIf="error" (click)="showError()">
+                <mat-icon>error</mat-icon>
+            </div>
         </div>
     </div>
 </div>
@@ -28,22 +32,22 @@
                 <widget-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
             </ng-template>
         </mat-tab>
-        <mat-tab label="Time Configuration">
+        <mat-tab label="Time Configuration" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <widget-config-time [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-time>
             </ng-template>
         </mat-tab>
-        <mat-tab label="Visual Appearance">
+        <mat-tab label="Visual Appearance" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <widget-config-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-visual-appearance>
             </ng-template>
         </mat-tab>
-        <mat-tab label="Legend">
+        <mat-tab label="Legend" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <donutchart-legend [widget]="widget" (widgetChange)="updateConfig($event);"></donutchart-legend>
             </ng-template>
         </mat-tab>
-        <mat-tab label="Meta Data">
+        <mat-tab label="Meta Data" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
             </ng-template>
@@ -58,7 +62,7 @@
             </ng-template>
         </mat-tab>
     </mat-tab-group>
-    <div class="widget-actions" *ngIf="showAction">
+    <div class="widget-actions" *ngIf="!editQueryId">
         <!-- controls to save/cancel -->
         <button mat-raised-button color="primary" class="mat-elevation-z0"  (click)="applyConfig()">Apply</button>
         <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Cancel</button>

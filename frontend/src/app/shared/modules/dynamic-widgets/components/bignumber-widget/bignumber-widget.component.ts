@@ -14,6 +14,8 @@ import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.s
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
 import { LEFT_ARROW } from '@angular/cdk/keycodes';
+import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
+import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -40,7 +42,11 @@ export class BignumberWidgetComponent implements OnInit {
     selectedMetric: any; // used for macros
     tags: any; // to display tags of currently selected metric
     bigNumber: number;
-    changeIndicatorCompareValue: number;
+    changeValue: number;
+    changePct: number;
+    changeThreshold: number = 0.01; // hard coding this for now, needs to be configurable
+    aggF: string[];
+    aggV: any[];
 
     fontSizePercent: number;
     contentFillPercent: number = 0.75; // how much % content should take up widget
@@ -50,11 +56,18 @@ export class BignumberWidgetComponent implements OnInit {
 
     widgetWidth: number;
     widgetHeight: number;
-    showAction  = true;
+    editQueryId = null;
+    nQueryDataLoading = 0;
+    error: any;
+    errorDialog: MatDialogRef < ErrorDialogComponent > | null;
 
     @ViewChild('contentContainer') contentContainer: ElementRef;
 
-    constructor(private interCom: IntercomService, public util: UtilsService, public UN: UnitNormalizerService) { }
+    constructor(
+        private interCom: IntercomService,
+        public dialog: MatDialog,
+        public util: UtilsService,
+        public UN: UnitNormalizerService) { }
 
     ngOnInit() {
 
@@ -102,7 +115,13 @@ export class BignumberWidgetComponent implements OnInit {
             if (message && (message.id === this.widget.id)) { // 2. Get and set the metric
                 switch (message.action) {
                     case 'updatedWidgetGroup':
+                        this.nQueryDataLoading--;
                         this.isDataLoaded = true;
+
+                        if ( message.payload.error ) {
+                            this.error = message.payload.error;
+                        }
+
                         if (message && message.payload && message.payload.rawdata) {
                             const gid = Object.keys(message.payload.rawdata)[0];
                             this.metrics = gid !== 'error' ? message.payload.rawdata[gid].results : [];
@@ -141,6 +160,10 @@ export class BignumberWidgetComponent implements OnInit {
         return metric;
     }
 
+    isNumber(value: string | number): boolean {
+        return !isNaN(Number(value.toString()));
+    }
+
     setBigNumber(queryId: string) {
         console.log("setBignumber", queryId)
         let metric = this.getMetric(queryId);
@@ -163,8 +186,13 @@ export class BignumberWidgetComponent implements OnInit {
 
             // SET LOCAL VARIABLES
             this.bigNumber = aggregateValue;
-            this.changeIndicatorCompareValue = currentValue - lastValue;
+            this.changeValue = currentValue - lastValue;
+            this.changePct = (this.changeValue/lastValue) * 100;
             this.selectedMetric = metric;
+            this.aggF = aggs;
+            this.aggV = aggData;
+
+            console.log("aggF: ", this.aggF, "aggV: ", this.aggV);
 
             // get array of 'tags'
             if (metric['tags']) {
@@ -180,13 +208,18 @@ export class BignumberWidgetComponent implements OnInit {
             this.selectedMetric = {};
             this.selectedMetric.metric = '';
             this.bigNumber = 0;
-            this.changeIndicatorCompareValue = 0;
+            this.changeValue = 0;
+            this.changePct = 0;
+            this.aggF = [];
+            this.aggV = [];
             this.tags = null;
         }
     }
 
    requestData() {
         if (!this.isDataLoaded) {
+            this.nQueryDataLoading = this.widget.queries.length;
+            this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
@@ -220,13 +253,6 @@ export class BignumberWidgetComponent implements OnInit {
         } else {
             return bigNum.num;
         }
-    }
-
-    closeViewEditMode() {
-        this.interCom.requestSend(<IMessage>{
-            action: 'closeViewEditMode',
-            payload: { editMode: false, widgetId: ''}
-        });
     }
 
     calcFontSizePercent(percent: number, originalWidth: number, originalHeight: number, newWidth: number, newHeight: number): number {
@@ -270,9 +296,11 @@ export class BignumberWidgetComponent implements OnInit {
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
                 break;
-            case 'ToggleWidgetAction':
-                console.log("line toggle", message)
-                    this.showAction = message.payload.display;
+                case 'SetQueryEditMode':
+                this.editQueryId = message.payload.id;
+                break;
+            case 'CloseQueryEditMode':
+                this.editQueryId = null;
                 break;
         }
     }
@@ -287,45 +315,7 @@ export class BignumberWidgetComponent implements OnInit {
 
         console.log("bignumber updateQuery", qindex, this.widget.queries);
     }
-    /*
-    addMetricsToGroup(gConfig) {
-        let gid = gConfig.id;
 
-        if ( gid === 'new' ) {
-            const g = this.addNewGroup();
-            gid = g.id;
-        }
-
-        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-
-        const dVisaul = {
-            aggregator: 'sum'
-        };
-
-        for (const metric of gConfig.queries ) {
-            metric.settings.visual = {...dVisaul, ...metric.settings.visual };
-        }
-        config.queries = config.queries.concat(gConfig.queries);
-        this.widget = {...this.widget};
-
-        if (!this.widget.settings.visual.queryID) {
-            this.setSelectedQuery('0');
-        }
-    }
-
-    addNewGroup() {
-        const gid = this.util.generateId(6);
-        const g = {
-                    id: gid,
-                    title: 'untitled group',
-                    queries: [],
-                    settings: {
-                    }
-                };
-        this.widget.query.groups.push(g);
-        return g;
-    }
-    */
 
     setVisualization( vconfigs ) {
         this.widget.settings.visual = { ...vconfigs};
@@ -400,6 +390,29 @@ export class BignumberWidgetComponent implements OnInit {
         }
     }
 
+    showError() {
+        console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        const offsetHeight = 60;
+        dialogConf.width = '50%';
+        dialogConf.minWidth = '500px';
+        dialogConf.height = '200px';
+        dialogConf.backdropClass = 'error-dialog-backdrop';
+        dialogConf.panelClass = 'error-dialog-panel';
+        dialogConf.data = this.error;
+
+        this.errorDialog = this.dialog.open(ErrorDialogComponent, dialogConf);
+        this.errorDialog.afterClosed().subscribe((dialog_out: any) => {
+        });
+    }
+
+    closeViewEditMode() {
+        this.interCom.requestSend({
+            action: 'closeViewEditMode',
+            payload: 'dashboard'
+        });
+    }
+
     applyConfig() {
         const cloneWidget = { ...this.widget };
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
@@ -415,16 +428,16 @@ export class BignumberWidgetComponent implements OnInit {
         this.widget.settings.visual.postfix = this.widget.settings.visual.postfix || '';
         this.widget.settings.visual.unit = this.widget.settings.visual.unit || '';
 
-        this.widget.settings.visual.prefixAlignment = this.widget.settings.visual.prefixAlignment || 'bottom';
-        this.widget.settings.visual.postfixAlignment = this.widget.settings.visual.postfixAlignment || 'bottom';
-        this.widget.settings.visual.unitAlignment = this.widget.settings.visual.unitAlignment || 'bottom';
+        this.widget.settings.visual.prefixAlignment = this.widget.settings.visual.prefixAlignment || 'middle';
+        this.widget.settings.visual.postfixAlignment = this.widget.settings.visual.postfixAlignment || 'middle';
+        this.widget.settings.visual.unitAlignment = this.widget.settings.visual.unitAlignment || 'middle';
 
-        this.widget.settings.visual.prefixSize = this.widget.settings.visual.prefixSize || 's';
-        this.widget.settings.visual.postfixSize = this.widget.settings.visual.postfixSize || 's';
-        this.widget.settings.visual.unitSize = this.widget.settings.visual.unitSize || 's';
+        this.widget.settings.visual.prefixSize = this.widget.settings.visual.prefixSize || 'm';
+        this.widget.settings.visual.postfixSize = this.widget.settings.visual.postfixSize || 'm';
+        this.widget.settings.visual.unitSize = this.widget.settings.visual.unitSize || 'm';
 
         this.widget.settings.visual.caption = this.widget.settings.visual.caption || '';
-        this.widget.settings.visual.precision = this.widget.settings.visual.precision || '';
+        this.widget.settings.visual.precision = this.widget.settings.visual.precision || 2;
         this.widget.settings.visual.backgroundColor = this.widget.settings.visual.backgroundColor || '#0B5ED2';
         this.widget.settings.visual.textColor = this.widget.settings.visual.textColor || '#FFFFFF';
         this.widget.settings.visual.sparkLineEnabled = this.widget.settings.visual.sparkLineEnabled || false;

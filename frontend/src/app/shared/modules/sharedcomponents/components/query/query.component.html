@@ -26,7 +26,10 @@
                         <div class="metrics">
                             <div class="label">METRICS</div>
                             <ng-container *ngIf="query.metrics.length && edit.indexOf('metrics') === -1">
-                                <div class="metric" *ngFor="let metric of query.metrics"> {{ metric.name }}</div>
+                                <div class="metric" *ngFor="let metric of query.metrics"> 
+                                    <div>{{ metric.name }}</div>
+                                    <div *ngIf="type !== 'LinechartWidgetComponent'">Summarizer: <dropdown-aggregators [multiple]="type === 'BignumberWidgetComponent' ? true : false" [value]="metric.settings.visual.aggregator" (change)="setMetricSummarizer(metric.id, $event)"></dropdown-aggregators></div>
+                                </div>
                             </ng-container>
                             <div class="action" *ngIf="!edit.length || !query.metrics.length && edit.indexOf('metrics') === -1">
                                     <button (click)="requestEditMode('metrics')">Add Metrics</button>
@@ -70,9 +73,12 @@
                         <div class="filters">
                             <div class="label">FILTERS</div>
                             <ng-container *ngIf="query.filters.length && edit.indexOf('filters') === -1">
-                                    <div *ngFor="let filter of query.filters"> {{ filter.tagk }}: {{ filter.filter.join(',') }}</div>
+                                    <div *ngFor="let filter of query.filters; let index=index"> 
+                                        <span><tag-aggregator [value]="filter.aggregator" [exclude]="type === 'BignumberWidgetComponent'?['unmerge']:[]" (change)="setTagAggregator(index, $event)"></tag-aggregator></span>
+                                        <span>{{ filter.tagk }}: {{ filter.filter.join(',') }}</span>
+                                    </div>
                                 </ng-container>
-                            <div class="action">
+                            <div class="action" *ngIf="!edit.length || !query.filters.length && edit.indexOf('filters') === -1">
                                 <button (click)="requestEditMode('filters')">Add Filters</button>
                             </div>
                             <div class="filter" *ngIf="edit.length && edit.indexOf('filters') !== -1">
@@ -151,4 +157,3 @@
                     <button mat-button  class="mat-elevation-z0" (click)="cancel()"> Cancel </button>
                 </div>      
     </div>
-    

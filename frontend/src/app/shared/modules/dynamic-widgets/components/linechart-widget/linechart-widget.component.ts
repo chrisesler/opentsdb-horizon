@@ -11,8 +11,8 @@ import { UnitConverterService } from '../../../../../core/services/unit-converte
 import { Subscription } from 'rxjs/Subscription';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
-import multiColumnGroupPlotter from '../../../../../shared/dygraphs/plotters';
-import { config } from 'rxjs';
+import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
+import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -73,11 +73,14 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     };
     data: any = [[0]];
     size: any = {};
+    nQueryDataLoading = 0;
+    error: any;
+    errorDialog: MatDialogRef < ErrorDialogComponent > | null;
     legendDisplayColumns = [];
-    showAction  = true;
-
+    editQueryId = null;
     constructor(
         private interCom: IntercomService,
+        public dialog: MatDialog,
         private dataTransformer: DatatranformerService,
         private util: UtilsService,
         private elRef: ElementRef,
@@ -107,16 +110,19 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                     if (message && (message.id === this.widget.id)) {
                         switch (message.action) {
                             case 'updatedWidgetGroup':
-                                if (this.widget.id === message.id) {
-                                    if ( !this.isDataLoaded ) {
-                                        this.isDataLoaded = true;
-                                        this.options = {...this.options, labels: ['x']};
-                                        this.data = [[0]];
-                                    }
-                                    const rawdata = message.payload.rawdata;
-                                    this.setTimezone(message.payload.timezone);
-                                    this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
+                            console.log("updatedWidgetGroup...", message);
+                                this.nQueryDataLoading--;
+                                if ( !this.isDataLoaded ) {
+                                    this.isDataLoaded = true;
+                                    this.options = {...this.options, labels: ['x']};
+                                    this.data = [[0]];
                                 }
+                                if ( message.payload.error ) {
+                                    this.error = message.payload.error;
+                                }
+                                const rawdata = message.payload.rawdata;
+                                this.setTimezone(message.payload.timezone);
+                                this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
                                 break;
                             case 'getUpdatedWidgetConfig':
                                 if (this.widget.id === message.id) {
@@ -178,9 +184,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
                 break;
-            case 'ToggleWidgetAction':
-                console.log("line toggle", message)
-                    this.showAction = message.payload.display;
+            case 'SetQueryEditMode':
+                this.editQueryId = message.payload.id;
+                break;
+            case 'CloseQueryEditMode':
+                this.editQueryId = null;
                 break;
                 /*
             case 'MergeMetrics':
@@ -567,12 +575,15 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     requestData() {
         if (!this.isDataLoaded) {
+            this.nQueryDataLoading = this.widget.queries.length;
+            this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
-                payload: this.widget
+                payload: this.widget,
             });
         }
+        console.log("nQueryDataLoading", this.nQueryDataLoading)
     }
 
     requestCachedData() {
@@ -712,6 +723,33 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         this.refreshData();
     }
     */
+
+    showError() {
+        console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
+        const parentPos = this.elRef.nativeElement.getBoundingClientRect();
+        console.log("parentpos", parentPos);
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        const offsetHeight = 60;
+        dialogConf.width = '50%';
+        dialogConf.minWidth = '500px';
+        dialogConf.height = '200px';
+        dialogConf.backdropClass = 'error-dialog-backdrop';
+        dialogConf.panelClass = 'error-dialog-panel';
+        /*
+        dialogConf.position = <DialogPosition>{
+            top:   '30%',
+            bottom: '0px',
+            left: parentPos.left + 'px',
+            right: '0px'
+        };
+        console.log("dialogConf", dialogConf.position);
+        */
+        dialogConf.data = this.error;
+
+        this.errorDialog = this.dialog.open(ErrorDialogComponent, dialogConf);
+        this.errorDialog.afterClosed().subscribe((dialog_out: any) => {
+        });
+    }
     // request send to update state to close edit mode
     closeViewEditMode() {
         this.interCom.requestSend({

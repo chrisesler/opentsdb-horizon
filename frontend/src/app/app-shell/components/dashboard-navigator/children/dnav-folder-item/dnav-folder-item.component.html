@@ -3,7 +3,7 @@
         <mat-form-field appearance="fill" floatLabel="never">
             
             <input matInput placeholder="Enter folder Name" formControlName="fc_FolderName">
-            <mat-icon matPrefix fontSet="denali" fontIcon="d-folder"></mat-icon>
+            <mat-icon matPrefix fontSet="denali" fontIcon="d-folder-add"></mat-icon>
             <button mat-icon-button matSuffix class="save-folder-name" (click)="inputSave()" >
                 <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
             </button>
@@ -16,7 +16,12 @@
 <ng-container *ngIf="mode === 'edit' && FolderForm.controls">
     <div class="list-item edit-form" *ngIf="!nameEdit" [formGroup]="FolderForm">
         <mat-checkbox formControlName="fc_FolderChecked" (change)="checkboxChange($event)"></mat-checkbox>
-        <div class="flex-spacer" (dblclick)="dblclickEditName()">{{folder.name}}</div>
+        <div class="flex-spacer" (dblclick)="menuAction('editname')">{{folder.name}}</div>
+        <span class="dnav-folder-menu">
+            <button mat-icon-button (click)="clickMore($event)">
+                <mat-icon fontSet="denali" fontIcon="d-more-vertical"></mat-icon>
+            </button>
+        </span>
     </div>
     <div class="list-item edit-form" *ngIf="nameEdit" [formGroup]="FolderForm">
         <mat-form-field appearance="fill" floatLabel="never">
@@ -24,10 +29,32 @@
             <mat-icon matPrefix fontSet="denali" fontIcon="d-pencil"></mat-icon>
             <button mat-icon-button matSuffix class="save-folder-name" (click)="inputSave()" >
                 <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
-            </button>
-            
+            </button>   
         </mat-form-field>
     </div>
+    <span class="dnav-menu-trigger"
+    [matMenuTriggerFor]="dnavFolderItemMenu" 
+    (menuOpened)="menuState(true)"
+    (menuClosed)="menuState(false)"></span>
+    <mat-menu class="dnav-cdk-folder-menu" xPosition="after" #dnavFolderItemMenu="matMenu" style="transform: translate3d(30px,-32px,0);">
+        <button mat-menu-item (click)="menuAction('editName')">
+            <mat-icon fontSet="denali" fontIcon="d-external"></mat-icon>
+            <span>Edit name</span>
+        </button>
+        <!-- Hiding for now
+        <button mat-menu-item>
+            <mat-icon fontSet="denali" fontIcon="d-folder-merge"></mat-icon>
+            <span>Move to folder</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
+            <span>Copy</span>
+        </button>-->
+        <button mat-menu-item (click)="menuAction('deleteFolder')">
+            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+            <span>Delete</span>
+        </button>
+    </mat-menu>
 </ng-container>
 <ng-container *ngIf="mode === 'display'">
     <div class="list-item">
@@ -38,10 +65,10 @@
     </div>
     <div class="list-item">
         <span class="counter">
-            <span class="chip-count">{{folder.dashboards.length}}</span>
+            <span class="chip-count">{{folder.subfolder.length}}</span>
         </span>
     </div>
-    <div class="list-item">
+    <div class="list-item goto-next-folder">
         <button mat-icon-button >
             <mat-icon fontSet="denali" fontIcon="d-arrowhead-right"></mat-icon>
         </button>

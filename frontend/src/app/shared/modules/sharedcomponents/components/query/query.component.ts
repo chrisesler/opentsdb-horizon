@@ -13,6 +13,7 @@ import { UtilsService } from '../../../../../core/services/utils.service';
 })
 export class QueryComponent implements OnInit, OnChanges {
     @HostBinding('class.query') private _hostClass = true;
+    @Input() type;
     @Input() query: any = {   metrics: [] , filters: [], settings: {visual: {visible: true}}};
     @Input() label = '';
     @Input() edit = [];
@@ -262,12 +263,19 @@ export class QueryComponent implements OnInit, OnChanges {
                                     visual: {
                                         visible: true,
                                         color: '#000000',
+                                        aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['sum'],
                                         label: ''}}
                             };
             this.query.metrics.push(oMetric);
         } else if ( index !== -1 && operation === 'remove' ) {
             this.query.metrics.splice(index, 1);
         }
+        this.triggerQueryChanges();
+    }
+
+    setMetricSummarizer(id, value) {
+        const index  = this.query.metrics.findIndex( item => item.id === id );
+        this.query.metrics[index].settings.visual.aggregator = value;
         this.triggerQueryChanges();
     }
 
@@ -330,7 +338,9 @@ export class QueryComponent implements OnInit, OnChanges {
         v = v.trim();
         if ( this.selectedTagIndex === -1  && operation === 'add' ) {
             this.selectedTagIndex = this.query.filters.length;
-            this.query.filters[this.selectedTagIndex] = { tagk: this.selectedTag, groupBy: true, filter: []};
+            const filter: any = { tagk: this.selectedTag,  filter: []};
+            filter.aggregator = this.type === 'LinechartWidgetComponent' ? 'unmerge' : 'sum';
+            this.query.filters[this.selectedTagIndex] = filter;
         }
 
         if (  operation === 'add') {
@@ -346,6 +356,19 @@ export class QueryComponent implements OnInit, OnChanges {
         }
         this.filterTagOptions();
         console.log("updateTagValueSelection", this.query.filters);
+        this.triggerQueryChanges();
+    }
+
+    setTagAggregator(index, value) {
+        this.query.filters[index].aggregator = value;
+        if ( value !== 'unmerge' ) {
+            for ( let i = 0; i < this.query.filters.lenght; i++ ) {
+                if ( index !== i && this.query.filters[i].aggregator !== 'unmerge' ) {
+                    this.query.filters[i].aggregator = value;
+                }
+            }
+        }
+        console.log("---value---", this.query.filters[0].aggregator, index, value);
         this.triggerQueryChanges();
     }
 

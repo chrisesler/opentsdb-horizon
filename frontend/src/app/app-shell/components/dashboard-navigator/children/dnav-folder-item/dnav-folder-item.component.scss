@@ -36,6 +36,10 @@
                     margin-left: 6px;
                 }
             }
+
+            &.goto-next-folder {
+                margin-right: 8px;
+            }
         }
 
         .mat-checkbox {
@@ -51,7 +55,47 @@
             }
         }
 
-        
+        .dnav-folder-menu {
+            opacity: 0;
+            transition: opacity 200ms ease-in;
+
+            .mat-icon-button {
+                .mat-icon {
+                    justify-content: center;
+                    margin-left: -2px;
+                }
+            }
+        }
+
+        .dnav-menu-trigger {
+            width: 1px;
+            margin-left: 15px;
+        }
+
+        &:hover,
+        &.dnav-menu-opened {
+            .dnav-folder-menu {
+                opacity: 1;
+            }
+        }
+    }
+
+    // CDK Items
+    .dnav-cdk-folder-menu {
+        //transform: translate3d(40px, -32px, 0);
+
+        .mat-menu-item {
+            font-size: 12px;
+            font-weight: 300;
+            height: 24px;
+            line-height: 24px;
+
+            .mat-icon {
+                height: 12px;
+                width: 12px;
+                font-size: 100%; 
+            }
+        }
     }
 }
 
@@ -65,6 +109,14 @@
     $is-dark-theme: map-get($theme-config, is-dark);
 
     $status: map-get($theme-config, status);
+
+    /* navbar config */
+    $sn-light: map-get($navbar-config, sn-light);
+    $sn-dark: map-get($navbar-config, sn-dark);
+    $sn-light-text: map-get($navbar-config, sn-light-text);
+    $sn-dark-text: map-get($navbar-config, sn-dark-text);
+    $sn-seperator: map-get($navbar-config, sn-seperator);
+    $sn-active: map-get($navbar-config, sn-active);
 
     .dnav-folder-item {
         .save-folder-name {
@@ -81,6 +133,30 @@
                 .mat-input-element::placeholder {
                     color: rgba(255,2552,255, .25);
                 }
+            }
+        }
+
+        .dnav-folder-menu {
+            .mat-icon-button {
+                background: rgba(0, 0, 0, .2);
+            }
+        }
+    }
+
+    // CDK
+    .dnav-cdk-folder-menu {
+        //transform: translate3d(40px, -32px, 0);
+        background-color: darken($sn-dark, 5%);
+
+        .mat-menu-item {
+            color: rgba(255,255,255,.85);
+
+            .mat-icon {
+                color: rgba(255,255,255,.5);
+            }
+
+            &:hover {
+                background-color: $sn-dark;
             }
         }
     }

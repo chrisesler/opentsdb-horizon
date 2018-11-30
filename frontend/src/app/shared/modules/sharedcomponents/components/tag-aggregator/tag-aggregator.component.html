@@ -1,0 +1,6 @@
+<button mat-button [matMenuTriggerFor]="aggregatorMenu" style="min-width:10px;line-height: 15px;border:1px solid #ccc;">
+    {{ aggregatorOptions[selectedIndex].icon }}
+</button>
+<mat-menu #aggregatorMenu="matMenu">
+  <button mat-menu-item *ngFor="let option of aggregatorOptions" (click)="selectOption(option.value)">{{option.icon}}</button>
+</mat-menu>

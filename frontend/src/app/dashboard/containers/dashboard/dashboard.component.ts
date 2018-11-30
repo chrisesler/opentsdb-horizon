@@ -449,9 +449,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.widgetGroupRawData$.subscribe(result => {
             if (result !== undefined) {
-                const grawdata = {};
-                grawdata[result.gid] = result.rawdata;
-                this.updateWidgetGroup(result.wid, grawdata);
+                let error = null;
+                let grawdata = {};
+                // if one of the query contains error, send the entire data. so that chart can rerender with success query result
+                if ( !result.rawdata.error ) {
+                    grawdata[result.gid] = result.rawdata;
+                } else {
+                    error = result.rawdata.error;
+                    grawdata = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(result.wid));
+                }
+                this.updateWidgetGroup(result.wid, grawdata, error);
             }
         });
 
@@ -488,12 +495,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     // to passing raw data to widget
-    updateWidgetGroup(wid, rawdata) {
+    updateWidgetGroup(wid, rawdata, error= null) {
         this.interCom.responsePut({
             id: wid,
             action: 'updatedWidgetGroup',
             payload: {
                         rawdata: rawdata,
+                        error: error,
                         timezone: this.dbTime.zone
                     }
         });
