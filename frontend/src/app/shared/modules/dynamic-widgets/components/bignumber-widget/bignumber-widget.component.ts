@@ -45,12 +45,12 @@ export class BignumberWidgetComponent implements OnInit {
     changeValue: number;
     changePct: number;
     changeThreshold: number = 0.01; // hard coding this for now, needs to be configurable
-    aggF: string[];
-    aggV: any[];
+    aggregators: string[] = [];
+    aggregatorValues: any[] = [];
 
     fontSizePercent: number;
-    contentFillPercent: number = 0.75; // how much % content should take up widget
-    contentFillPercentWithNoCaption: number = 0.60; // how much % content should take up widget
+    contentFillPercent: number = 0.80; // how much % content should take up widget
+    contentFillPercentWithNoCaption: number = 0.80; // how much % content should take up widget
     maxCaptionLength: number = 36;
     maxLabelLength: number = 10; // postfix, prefix, unit
 
@@ -132,6 +132,12 @@ export class BignumberWidgetComponent implements OnInit {
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);
                         break;
+                    case 'getUpdatedWidgetConfig':
+                        if (this.widget.id === message.id) {
+                            this.widget = message.payload;
+                            this.setBigNumber(this.widget.settings.visual.queryID);
+                        }
+                        break;
                 }
             }
         });
@@ -165,34 +171,32 @@ export class BignumberWidgetComponent implements OnInit {
     }
 
     setBigNumber(queryId: string) {
-        console.log("setBignumber", queryId)
         let metric = this.getMetric(queryId);
         let queryIndex = parseInt(queryId, 10);
         let currentValue: number = 0;
         let lastValue: number = 0;
 
         if (metric && metric.NumericSummaryType) {
-
-            const aggs = metric.NumericSummaryType.aggregations;
+            const responseAggregators = metric.NumericSummaryType.aggregations;
             const key = Object.keys(metric.NumericSummaryType.data[0])[0];
-            const aggData = metric.NumericSummaryType.data[0][key];
-            const aggregator = this.widget.queries[0].metrics[queryIndex].settings.visual.aggregator || 'sum';
+            const responseAggregatorValues = metric.NumericSummaryType.data[0][key];
+            const configuredAggregators = this.widget.queries[0].metrics[queryIndex].settings.visual.aggregator || ['last'];
 
-            const aggrIndex = aggs.indexOf(aggregator);
-            const aggregateValue =  aggData[aggrIndex];
+            this.aggregators = [];
+            this.aggregatorValues = [];
+            for (let agg of configuredAggregators) {
+                let index = responseAggregators.indexOf(agg);
+                this.aggregatorValues.push(responseAggregatorValues[index]);
+                this.aggregators.push(agg);
+            }
 
-            lastValue = aggData[aggs.indexOf('first')];
-            currentValue = aggData[aggs.indexOf('last')];
+            lastValue = responseAggregatorValues[responseAggregators.indexOf('first')];
+            currentValue = responseAggregatorValues[responseAggregators.indexOf('last')];
 
             // SET LOCAL VARIABLES
-            this.bigNumber = aggregateValue;
             this.changeValue = currentValue - lastValue;
             this.changePct = (this.changeValue/lastValue) * 100;
             this.selectedMetric = metric;
-            this.aggF = aggs;
-            this.aggV = aggData;
-
-            console.log("aggF: ", this.aggF, "aggV: ", this.aggV);
 
             // get array of 'tags'
             if (metric['tags']) {
@@ -210,8 +214,8 @@ export class BignumberWidgetComponent implements OnInit {
             this.bigNumber = 0;
             this.changeValue = 0;
             this.changePct = 0;
-            this.aggF = [];
-            this.aggV = [];
+            this.aggregators = [];
+            this.aggregatorValues = [];
             this.tags = null;
         }
     }
@@ -435,6 +439,7 @@ export class BignumberWidgetComponent implements OnInit {
         this.widget.settings.visual.prefixSize = this.widget.settings.visual.prefixSize || 'm';
         this.widget.settings.visual.postfixSize = this.widget.settings.visual.postfixSize || 'm';
         this.widget.settings.visual.unitSize = this.widget.settings.visual.unitSize || 'm';
+        this.widget.settings.visual.fontSizePercent = 100;
 
         this.widget.settings.visual.caption = this.widget.settings.visual.caption || '';
         this.widget.settings.visual.precision = this.widget.settings.visual.precision || 2;
