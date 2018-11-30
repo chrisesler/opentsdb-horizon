@@ -17,6 +17,8 @@ import { MatDrawer } from '@angular/material';
 
 import { NavigatorSidenavComponent } from '../../components/navigator-sidenav/navigator-sidenav.component';
 
+import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+
 @Component({
     selector: 'app-shell',
     templateUrl: './app-shell.component.html',
@@ -39,7 +41,8 @@ export class AppShellComponent implements OnInit, OnDestroy {
 
     constructor(
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private interCom: IntercomService
     ) {
         console.log(this.router, this.route);
     }
@@ -54,6 +57,7 @@ export class AppShellComponent implements OnInit, OnDestroy {
 
 
     /** BEHAVIORS */
+
     drawerClosedStart() {
         // console.log('DRAWER IS CLOSING');
     }
@@ -81,30 +85,6 @@ export class AppShellComponent implements OnInit, OnDestroy {
                     break;
             }
         }
-
-        /*
-        if (this.drawer.opened && this.activeNavSection === obj.section) {
-            this.closeNavigator();
-            this.activeNavSection = '';
-            this.sideNav.resetActiveNav();
-        } else {
-            this.activeNavSection = obj.section;
-
-            switch (this.activeNavSection) {
-                case 'test':
-                case 'dashboard':
-                    this.drawer.open();
-                    break;
-                // can add more cases if needed
-                default:
-                    if (this.drawer.opened) {
-                        this.closeNavigator();
-                        this.activeNavSection = '';
-                        this.sideNav.resetActiveNav();
-                    }
-                    break;
-            }
-        }*/
     }
 
     closeNavigator() {

@@ -13,6 +13,10 @@
 
     .widget-panel-content.donutchart-widget {
 
+        .widget-output {
+            padding: 5px 0px;
+        }
+
         #container {
             display:inline-block;
             /* 
@@ -25,8 +29,27 @@
                 width: 100% !important;
                 height: 100% !important;
             }
+            .loader{
+                position: absolute;
+                left: 5px;
+                top: 5px;
+                z-index: 1;
+                width: 30px;
+                height: 30px;
+                background-image: url(/assets/denali-loader.svg);
+                background-color:#fff;
+            }
+    
+            .error{
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                z-index: 1;
+                width: 30px;
+                height: 30px;
+                color: red;
+            }
         }
-        
     }
 }
 

@@ -14,6 +14,8 @@ import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.s
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
 import { LEFT_ARROW } from '@angular/cdk/keycodes';
+import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
+import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -54,11 +56,18 @@ export class BignumberWidgetComponent implements OnInit {
 
     widgetWidth: number;
     widgetHeight: number;
-    showAction  = true;
+    editQueryId = null;
+    nQueryDataLoading = 0;
+    error: any;
+    errorDialog: MatDialogRef < ErrorDialogComponent > | null;
 
     @ViewChild('contentContainer') contentContainer: ElementRef;
 
-    constructor(private interCom: IntercomService, public util: UtilsService, public UN: UnitNormalizerService) { }
+    constructor(
+        private interCom: IntercomService,
+        public dialog: MatDialog,
+        public util: UtilsService,
+        public UN: UnitNormalizerService) { }
 
     ngOnInit() {
 
@@ -106,7 +115,13 @@ export class BignumberWidgetComponent implements OnInit {
             if (message && (message.id === this.widget.id)) { // 2. Get and set the metric
                 switch (message.action) {
                     case 'updatedWidgetGroup':
+                        this.nQueryDataLoading--;
                         this.isDataLoaded = true;
+
+                        if ( message.payload.error ) {
+                            this.error = message.payload.error;
+                        }
+
                         if (message && message.payload && message.payload.rawdata) {
                             const gid = Object.keys(message.payload.rawdata)[0];
                             this.metrics = gid !== 'error' ? message.payload.rawdata[gid].results : [];
@@ -203,6 +218,8 @@ export class BignumberWidgetComponent implements OnInit {
 
    requestData() {
         if (!this.isDataLoaded) {
+            this.nQueryDataLoading = this.widget.queries.length;
+            this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
@@ -279,9 +296,11 @@ export class BignumberWidgetComponent implements OnInit {
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
                 break;
-            case 'ToggleWidgetAction':
-                console.log("line toggle", message)
-                    this.showAction = message.payload.display;
+                case 'SetQueryEditMode':
+                this.editQueryId = message.payload.id;
+                break;
+            case 'CloseQueryEditMode':
+                this.editQueryId = null;
                 break;
         }
     }
@@ -296,45 +315,7 @@ export class BignumberWidgetComponent implements OnInit {
 
         console.log("bignumber updateQuery", qindex, this.widget.queries);
     }
-    /*
-    addMetricsToGroup(gConfig) {
-        let gid = gConfig.id;
 
-        if ( gid === 'new' ) {
-            const g = this.addNewGroup();
-            gid = g.id;
-        }
-
-        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-
-        const dVisaul = {
-            aggregator: 'sum'
-        };
-
-        for (const metric of gConfig.queries ) {
-            metric.settings.visual = {...dVisaul, ...metric.settings.visual };
-        }
-        config.queries = config.queries.concat(gConfig.queries);
-        this.widget = {...this.widget};
-
-        if (!this.widget.settings.visual.queryID) {
-            this.setSelectedQuery('0');
-        }
-    }
-
-    addNewGroup() {
-        const gid = this.util.generateId(6);
-        const g = {
-                    id: gid,
-                    title: 'untitled group',
-                    queries: [],
-                    settings: {
-                    }
-                };
-        this.widget.query.groups.push(g);
-        return g;
-    }
-    */
 
     setVisualization( vconfigs ) {
         this.widget.settings.visual = { ...vconfigs};
@@ -407,6 +388,22 @@ export class BignumberWidgetComponent implements OnInit {
         } else {
             this.requestCachedData();
         }
+    }
+
+    showError() {
+        console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        const offsetHeight = 60;
+        dialogConf.width = '50%';
+        dialogConf.minWidth = '500px';
+        dialogConf.height = '200px';
+        dialogConf.backdropClass = 'error-dialog-backdrop';
+        dialogConf.panelClass = 'error-dialog-panel';
+        dialogConf.data = this.error;
+
+        this.errorDialog = this.dialog.open(ErrorDialogComponent, dialogConf);
+        this.errorDialog.afterClosed().subscribe((dialog_out: any) => {
+        });
     }
 
     closeViewEditMode() {

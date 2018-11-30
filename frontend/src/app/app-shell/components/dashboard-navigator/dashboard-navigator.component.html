@@ -26,7 +26,7 @@
                         *ngIf="leaf.name !== 'masterPanel' && n <= i" 
                         [ngClass]="{'is-active': n === i}"
                         (click)="navtoSpecificPanel(n, i)">
-                        <mat-icon class="path-icon" fontSet="denali" [fontIcon]="leaf.icon"></mat-icon>
+                        <mat-icon class="path-icon" fontSet="denali" [fontIcon]="leaf.icon ? leaf.icon : 'd-folder'"></mat-icon>
                         <span>{{leaf.name}}</span>
                     </mat-list-item>
                 </ng-container>
@@ -59,12 +59,19 @@
                 </mat-list-item>
             </mat-nav-list>-->
             <dnav-folders 
-                [folders]="panel.folders" 
+                [folders]="panel.subfolder" 
                 [masterPanel]="panel.name === 'masterPanel'"
+                [resourceType]="'personal'"
+                (folderAction)="folderAction(panel,$event)"></dnav-folders>
+            <dnav-folders 
+                *ngIf="panel.name === 'masterPanel' && panel.namespaces"
+                [folders]="panel.namespaces" 
+                [masterPanel]="panel.name === 'masterPanel'"
+                [resourceType]="'namespaces'"
                 (folderAction)="folderAction(panel,$event)"></dnav-folders>
             <dnav-dashboards
                 *ngIf="panel.name !== 'masterPanel'"
-                [dashboards]="panel.dashboards"
+                [dashboards]="panel.files"
                 (dashboardAction)="dashboardAction(panel,$event)"></dnav-dashboards>
             <!--<div class="block-header dashboards-header" *ngIf="panel.name !== 'masterPanel'">
                 <span class="header-label">Dashboards</span>

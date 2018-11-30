@@ -9,6 +9,8 @@ import {
     ViewChild
 } from '@angular/core';
 
+import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'dnav-folders',
@@ -21,6 +23,7 @@ export class DnavFoldersComponent implements OnInit {
 
     // tslint:disable-next-line:no-inferrable-types
     @Input() masterPanel: boolean = false;
+    @Input() resourceType: any = ''; // personal<string> | namespace<string>
     @Input() folders: any[] = [];
 
     @Output() folderAction: EventEmitter<any> = new EventEmitter();
@@ -32,7 +35,9 @@ export class DnavFoldersComponent implements OnInit {
     foldersToRemove: any[] = [];
     pendingNameChanges: any[] = [];
 
-    constructor() { }
+    constructor(
+        private interCom: IntercomService
+    ) { }
 
     ngOnInit() {
     }
@@ -51,16 +56,22 @@ export class DnavFoldersComponent implements OnInit {
         console.log('EVENT', event);
         switch (event.action) {
             case 'createFolder':
-                const newFolder = {
+                /*const newFolder = {
                     name: event.name,
                     icon: 'd-folder',
-                    dashboards: [],
-                    folders: []
-                };
+                    subfolder: [],
+                    files: []
+                };*/
                 // send this to API, after success, then push to current array
                 // ALSO... need to check for duplicate name
                 // after response, and check, then add to front of array
-                this.folders.unshift(newFolder);
+                // this.folders.unshift(newFolder);
+                this.folderAction.emit({
+                    action: 'createFolder',
+                    data: {
+                        name: event.name
+                    }
+                });
                 this.editMode = 'display';
                 break;
             default:
@@ -88,17 +99,19 @@ export class DnavFoldersComponent implements OnInit {
         }
     }
 
-    cancelEdit() {
+    /*cancelEdit() {
         this.bulkEdit = false;
         this.editMode = 'display';
         this.foldersToRemove = [];
-    }
+    }*/
 
     doneEdit() {
         // check for changes, then do something
 
         // then reset
-        this.cancelEdit();
+        this.bulkEdit = false;
+        this.editMode = 'display';
+        this.foldersToRemove = [];
     }
 
     editFolderAction(folder, event) {
@@ -129,6 +142,7 @@ export class DnavFoldersComponent implements OnInit {
         if (!this.bulkEdit) {
             this.folderAction.emit({
                 action: 'navtoPanelFolder',
+                resourceType: this.resourceType,
                 idx: folderIdx
             });
         }

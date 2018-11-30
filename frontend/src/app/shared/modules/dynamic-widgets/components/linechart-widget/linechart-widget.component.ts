@@ -77,7 +77,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
     legendDisplayColumns = [];
-    showAction  = true;
     editQueryId = null;
     constructor(
         private interCom: IntercomService,
@@ -113,7 +112,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                             case 'updatedWidgetGroup':
                             console.log("updatedWidgetGroup...", message);
                                 this.nQueryDataLoading--;
-                                if ( !this.isDataLoaded || message.payload.error ) {
+                                if ( !this.isDataLoaded ) {
                                     this.isDataLoaded = true;
                                     this.options = {...this.options, labels: ['x']};
                                     this.data = [[0]];
@@ -187,11 +186,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
-                this.showAction = false;
                 break;
             case 'CloseQueryEditMode':
                 this.editQueryId = null;
-                this.showAction = true;
                 break;
                 /*
             case 'MergeMetrics':

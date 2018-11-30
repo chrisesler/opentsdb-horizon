@@ -10,6 +10,9 @@ import { UtilsService } from '../../../../../core/services/utils.service';
 import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 import { Subscription } from 'rxjs/Subscription';
 import { BehaviorSubject } from '../../../../../../../node_modules/rxjs';
+import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
+import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
+
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -56,11 +59,15 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     data: any = [ { data: [] } ];
     width = '100%';
     height = '100%';
-    showAction  = true;
+    editQueryId = null;
+    nQueryDataLoading = 0;
+    error: any;
+    errorDialog: MatDialogRef < ErrorDialogComponent > | null;
 
     constructor(
         private interCom: IntercomService,
         private dataTransformer: DatatranformerService,
+        public dialog: MatDialog,
         private util: UtilsService
     ) { }
 
@@ -87,10 +94,14 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
+                        this.nQueryDataLoading--;
                         if ( !this.isDataLoaded ) {
                             this.isDataLoaded = true;
                             this.options.labels = [];
                             this.data = [];
+                        }
+                        if ( message.payload.error ) {
+                            this.error = message.payload.error;
                         }
                         this.setOptions();
                         this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget, this.data, message.payload.rawdata);
@@ -113,6 +124,8 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     requestData() {
         if (!this.isDataLoaded) {
+            this.nQueryDataLoading = this.widget.queries.length;
+            this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
@@ -152,9 +165,11 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
                 break;
-            case 'ToggleWidgetAction':
-                console.log("line toggle", message)
-                    this.showAction = message.payload.display;
+            case 'SetQueryEditMode':
+                this.editQueryId = message.payload.id;
+                break;
+            case 'CloseQueryEditMode':
+                this.editQueryId = null;
                 break;
             /*
             case 'ToggleQuery':
@@ -189,7 +204,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     setOptions() {
         this.setLegendOption();
-        this.setLablesOption();
     }
 
     setLegendOption() {
@@ -199,23 +213,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             precision: 2,
             fontColor: 'black'
         } : false;
-    }
-
-    setLablesOption() {
-        this.options.labels = [];
-
-        const qConfig = this.widget.queries[0];
-        const mConfigs = qConfig.metrics;
-
-        for ( let i = 0; i < mConfigs.length; i++ ) {
-            const metric = mConfigs[i].name;
-            const vConfig = mConfigs[i].settings.visual;
-            let label = vConfig.label ? vConfig.label : metric;
-            if ( vConfig.visible ) {
-                label = label.length <= 20 ? label : label.substr(0, 17) + '..';
-                this.options.labels.push( label );
-            }
-        }
     }
 
     setMetaData(config) {
@@ -282,6 +279,22 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         } else {
             this.requestCachedData();
         }
+    }
+
+    showError() {
+        console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        const offsetHeight = 60;
+        dialogConf.width = '50%';
+        dialogConf.minWidth = '500px';
+        dialogConf.height = '200px';
+        dialogConf.backdropClass = 'error-dialog-backdrop';
+        dialogConf.panelClass = 'error-dialog-panel';
+        dialogConf.data = this.error;
+
+        this.errorDialog = this.dialog.open(ErrorDialogComponent, dialogConf);
+        this.errorDialog.afterClosed().subscribe((dialog_out: any) => {
+        });
     }
 
     closeViewEditMode() {
