@@ -182,7 +182,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (params['dbid']) {
                 this.dbid = params['dbid'];
                 if (this.dbid === '_new_') {
-                    console.log('creating a new dashboard...');
+                    //console.log('creating a new dashboard...');
                     this.store.dispatch(new LoadDashboard(this.dbid));
                 } else {
                     // load provided dashboard id, and need to handdle not found too
@@ -228,11 +228,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
                     if (mIndex === -1) {
                         // update position to put new on on top
-                        const newWidgetY = message.payload.gridPos.y;
+                        const newWidgetY = message.payload.gridPos.h;
                         widgets = this.dbService.positionWidgetY(widgets, newWidgetY);
                         // this is the newly adding widget
-                        widgets.unshift(message.payload);
-                        console.log('HILL', newWidgetY, widgets, message);
+                        if(widgets.length === 1 && widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
+                            widgets[0] = message.payload;
+                        } else {
+                            widgets.unshift(message.payload);
+                        }
                         this.store.dispatch(new LoadWidgets(widgets));
                     } else {
                         // check the component type is PlaceholderWidgetComponent. If yes, it needs to be replaced with new component                    
@@ -287,14 +290,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     });
                     break;
                 case 'updateDashboardSettings':
-                    console.log(message);
+                    //console.log(message);
                     // this.store.dispatch(new UpdateVariables(message.payload));
                     // this.store.dispatch(new UpdateMeta(message.payload));
                     if (message.payload.meta) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
                     if (message.payload.variables) {
-                        console.log('updateVariables: ', message.payload.variables);
+                        //console.log('updateVariables: ', message.payload.variables);
                         this.store.dispatch(new UpdateVariables(message.payload.variables));
                     }
                     break;
@@ -303,7 +306,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag, message.payload.filters));
                     break;
                 case 'getUserNamespaces':
-                    console.log('getUserNamespaces');
+                    //console.log('getUserNamespaces');
                     this.store.dispatch(new LoadUserNamespaces());
                     break;
                 default:

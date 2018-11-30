@@ -36,7 +36,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
     // core configuration is default one - for smallest view. It has hidden minWidth: 0.
     lanes: 1, // amount of lanes (cells) in the grid
     direction: 'vertical', // floating top - vertical, left - horizontal
-    floating: false, // no gravity floating
+    floating: true, // no gravity floating
     dragAndDrop: true, // enable/disable drag and drop for all items in grid
     resizable: true, // enable/disable resizing by drag and drop for all items in grid
     resizeHandles: {
