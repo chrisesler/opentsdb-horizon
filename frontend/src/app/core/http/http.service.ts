@@ -1188,7 +1188,12 @@ export class HttpService {
 
     userNamespaces() {
         const apiUrl = environment.configdb + '/namespace';
+        const httpOptions = {
+          headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+          withCredentials: true, 
+          observe: 'response' as 'response'
+        };
         console.log("userNamespaces", apiUrl);
-        return this.http.get(apiUrl, { withCredentials: true });
+        return this.http.get(apiUrl, httpOptions);
     }
 }
