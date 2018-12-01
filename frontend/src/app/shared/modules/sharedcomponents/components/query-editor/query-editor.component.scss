@@ -5,7 +5,7 @@
     $default-padding: map-get($widgets-common-config, default-padding);
     $edit-padding: map-get($widgets-common-config, edit-padding);
 
-    .query {
+    .query-editor {
         display: flex;
         min-width: 1000px;
         .index  {
@@ -489,6 +489,6 @@
     $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
     $alias-text: if($is-dark, rgba(255, 255, 255, .5), rgba(0, 0, 0, .5));
 
-    .query {
+    .query-editor {
     }
 }
