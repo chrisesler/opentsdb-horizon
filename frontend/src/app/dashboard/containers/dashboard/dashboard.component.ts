@@ -267,7 +267,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     const dbSettings = this.store.selectSnapshot(DBSettingsState);
                     const payload: any = {
                         'name': dbSettings.meta.title,
-                        'type': 'DASHBOARD',
                         'content': JSON.stringify(dbcontent)
                     };
                     if (message.payload.meta && message.payload.meta.namespace) {
