@@ -25,13 +25,13 @@
                     <div class="metrics-filters-container">
                         <div class="metrics">
                             <div class="label">METRICS</div>
-                            <ng-container *ngIf="query.metrics.length && edit.indexOf('metrics') === -1">
+                            <ng-container *ngIf="edit.indexOf('metrics') === -1">
                                 <div class="metric" *ngFor="let metric of query.metrics"> 
                                     <div>{{ metric.name }}</div>
                                     <div *ngIf="type !== 'LinechartWidgetComponent'">Summarizer: <dropdown-aggregators [multiple]="type === 'BignumberWidgetComponent' ? true : false" [value]="metric.settings.visual.aggregator" (change)="setMetricSummarizer(metric.id, $event)"></dropdown-aggregators></div>
                                 </div>
                             </ng-container>
-                            <div class="action" *ngIf="!edit.length || !query.metrics.length && edit.indexOf('metrics') === -1">
+                            <div class="action" *ngIf=" !query.metrics.length && edit.indexOf('metrics') === -1">
                                     <button (click)="requestEditMode('metrics')">Add Metrics</button>
                             </div>           
                             <div class="filter" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
