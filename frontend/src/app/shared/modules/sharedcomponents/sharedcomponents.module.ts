@@ -48,7 +48,7 @@ import { NamespaceAutocompleteComponent } from './components/namespace-autocompl
 import { NamespaceTagAutocompleteComponent } from './components/namespace-tag-autocomplete/namespace-tag-autocomplete.component';
 import { NamespaceTagValuesComponent } from './components/namespace-tag-values/namespace-tag-values.component';
 import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.component';
-import { QueryComponent } from './components/query/query.component';
+import { QueryEditorComponent } from './components/query-editor/query-editor.component';
 import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
 import { TagAggregatorComponent } from './components/tag-aggregator/tag-aggregator.component';
 
@@ -96,7 +96,7 @@ import { TagAggregatorComponent } from './components/tag-aggregator/tag-aggregat
         NamespaceTagAutocompleteComponent,
         NamespaceTagValuesComponent,
         TagvEditviewComponent,
-        QueryComponent,
+        QueryEditorComponent,
         ErrorDialogComponent,
         TagAggregatorComponent
     ],
