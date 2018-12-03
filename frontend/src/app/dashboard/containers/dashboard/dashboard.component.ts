@@ -1,20 +1,17 @@
-import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
+import { TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
 import { QueryService } from '../../../core/services/query.service';
 
-import * as moment from 'moment';
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
-import { UtilsService } from '../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
-import { ISelectedTime } from '../../../shared/modules/date-time-picker/models/models';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
@@ -34,13 +31,12 @@ import {
     UpdateMeta
 } from '../../state/settings.state';
 
-import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY, MatSnackBar } from '@angular/material';
+import { MatMenuTrigger, MenuPositionX, MatSnackBar } from '@angular/material';
 import {
     SearchMetricsDialogComponent
 } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
-import { query } from '@angular/animations';
 
 @Component({
     selector: 'app-dashboard',
@@ -171,7 +167,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private queryService: QueryService,
         private dateUtil: DateUtilsService,
         private dialog: MatDialog,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private cdRef: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
@@ -208,6 +205,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'updateDashboardMode':
                     // when click on view/edit mode, update db setting state of the mode
                     this.store.dispatch(new UpdateMode(message.payload));
+                    this.cdRef.detectChanges();
                     break;
                 case 'removeWidget':
                     this.store.dispatch(new DeleteWidget(message.payload.widgetId));
