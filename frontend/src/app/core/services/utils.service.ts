@@ -88,4 +88,77 @@ export class UtilsService {
     }
   }
 
+    getColors(color= null, n= 1) {
+        const colors = [];
+        const goldenRatio = 0.618033988749895;
+        let hue;
+        if ( color ) {
+            const r = parseInt(color.substring(1, 3), 16);
+            const g = parseInt(color.substring(3, 5), 16);
+            const b = parseInt(color.substring(5, 7), 16);
+            hue = this.rgbToHsv(r, g, b)[0];
+        } else {
+            hue = Math.random();
+        }
+        let s = 1, v = 1;
+        for ( let i = 0; i < n;  i++ ) {
+            if ( color ) {
+                s = Math.random() * (1 - 0.1) + 0.1; // random no. between 0.1 to 1
+                v = Math.random() * ( 1 - 0.2) + 0.2;
+            } else {
+                hue = hue + goldenRatio;
+                hue = hue % 1;
+            }
+            colors.push(this.rgbToHex(this.hsvToRGB(hue, s, v)));
+        }
+        return n === 1 ? colors[0] : colors;
+    }
+
+    hsvToRGB(h, s, v) {
+        let r, g, b;
+
+        const i = Math.floor(h * 6);
+        const f = h * 6 - i;
+        const p = v * (1 - s);
+        const q = v * (1 - f * s);
+        const t = v * (1 - (1 - f) * s);
+
+        switch (i % 6) {
+            case 0: r = v, g = t, b = p; break;
+            case 1: r = q, g = v, b = p; break;
+            case 2: r = p, g = v, b = t; break;
+            case 3: r = p, g = q, b = v; break;
+            case 4: r = t, g = p, b = v; break;
+            case 5: r = v, g = p, b = q; break;
+        }
+
+        return [Math.floor(r * 255), Math.floor(g * 255), Math.floor(b * 255)];
+    }
+
+    rgbToHex(rgb) {
+        const color = '#' + rgb.map(x => {
+                    const hex = x.toString(16);
+                    return hex.length === 1 ? '0' + hex : hex;
+                }).join('');
+        return color;
+    }
+
+    rgbToHsv(r, g, b) {
+        r /= 255, g /= 255, b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, v = max;
+        const d = max - min;
+        s = max === 0 ? 0 : d / max;
+        if (max === min) {
+          h = 0;
+        } else {
+          switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+          }
+          h /= 6;
+        }
+        return [ h, s, v ];
+    }
 }

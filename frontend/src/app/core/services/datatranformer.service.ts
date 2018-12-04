@@ -34,7 +34,9 @@ export class DatatranformerService {
                 const timeSpecification = queryResults.timeSpecification;
                 const mConfig = mConfigs[mIndex];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-                for ( let j = 0; j < queryResults.data.length; j ++ ) {
+                const n = queryResults.data.length;
+                const colors = n === 1 ? [vConfig.color] : this.util.getColors( vConfig.color , n );
+                for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults.data[j].NumericType;
                     const tags = queryResults.data[j].tags;
                     const metric = vConfig.label || queryResults.data[j].metric;
@@ -48,7 +50,7 @@ export class DatatranformerService {
                             options.series[label] = {
                                 strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
                                 strokePattern: this.getStrokePattern(vConfig.lineType),
-                                color: vConfig.color? vConfig.color : '#000000',
+                                color: colors[j],
                                 axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
                                 metric: metric,
                                 tags: tags
@@ -69,7 +71,6 @@ export class DatatranformerService {
             
             
         }
-
     }
     console.log("normalized data", normalizedData);
     return [...normalizedData];
@@ -161,7 +162,9 @@ export class DatatranformerService {
                 const configIndex = mid.replace('m', '');
                 const mConfig = mConfigs[configIndex];
                 const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
-                for ( let j = 0, n = results[i].data.length;  j < n; j++ ) {
+                const n = results[i].data.length;
+                const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
+                for ( let j = 0;  j < n; j++ ) {
                     const aggs = results[i].data[j].NumericSummaryType.aggregations;
                     const tags = results[i].data[j].tags;
                     const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
@@ -173,21 +176,13 @@ export class DatatranformerService {
                         let label = this.getLableFromMetricTags(metric, tags);
                         options.labels.push(label);
                         datasets[0].data.push(aggData[aggrIndex]);
-                        datasets[0].backgroundColor.push(this.getColor(mConfig.settings.visual, n, j));
+                        datasets[0].backgroundColor.push(colors[j]);
                         datasets[0].tooltipData.push({ metric: metric, ...tags });
                     }
                 }
             }
         }
         return [...datasets];
-    }
-
-    getColor(settings, n, index ) {
-        const color = settings.color ? settings.color : this.getRandomColor();
-        return color;
-    }
-    getRandomColor() {
-        return '#' + (Math.round(Math.random() * 0XFFFFFF)).toString(16);
     }
 
     getLableFromMetricTags(metric, tags ) {
@@ -216,7 +211,9 @@ export class DatatranformerService {
             const configIndex = mid.replace('m', '');
             const mConfig = mConfigs[configIndex];
             const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
-            for ( let j = 0, n = results[i].length; j < results[i].data.length; j++ ) {
+            const n = results[i].data.length;
+            const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
+            for ( let j = 0; j < n; j++ ) {
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
@@ -227,7 +224,7 @@ export class DatatranformerService {
                     const label = this.getLableFromMetricTags(metric, tags);
                     options.labels.push(label);
                     datasets[0].data.push(aggData[aggrIndex]);
-                    datasets[0].backgroundColor.push(this.getColor(mConfig.settings.visual, n, j));
+                    datasets[0].backgroundColor.push(colors[j]);
                     datasets[0].tooltipData.push({metric: metric, ...tags});
                 }
             }
