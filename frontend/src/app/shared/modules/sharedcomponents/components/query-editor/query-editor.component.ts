@@ -7,12 +7,12 @@ import { HttpService } from '../../../../../core/http/http.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
-  selector: 'query',
-  templateUrl: './query.component.html',
-  styleUrls: ['./query.component.scss']
+  selector: 'query-editor',
+  templateUrl: './query-editor.component.html',
+  styleUrls: ['./query-editor.component.scss']
 })
-export class QueryComponent implements OnInit, OnChanges {
-    @HostBinding('class.query') private _hostClass = true;
+export class QueryEditorComponent implements OnInit, OnChanges {
+    @HostBinding('class.query-editor') private _hostClass = true;
     @Input() type;
     @Input() query: any = {   metrics: [] , filters: [], settings: {visual: {visible: true}}};
     @Input() label = '';

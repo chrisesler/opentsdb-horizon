@@ -1167,17 +1167,23 @@ export class HttpService {
     }
 
     saveDashboard(id, data) {
-        let apiUrl = environment.configdb + '/object';
-        let method = 'post';
-        const headers = new HttpHeaders({
-            'Content-Type': 'application/json'
-        });
-        if ( id !== '_new_' ) {
+        const apiUrl = environment.configdb + '/dashboard/file';
+        const httpOptions = {
+          headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+          withCredentials: true, 
+          observe: 'response' as 'response'
+        };
+        if (id !== '_new_') {
+          data.id = id;
+        } 
+
+        /*if ( id !== '_new_' ) {
             method = 'put';
             apiUrl = apiUrl + '/' + id;
         }
-        console.log("save dahboard params", apiUrl, method, data);
-        return this.http[method]( apiUrl, data, { headers, withCredentials: true });
+        */
+        console.log("save dahboard params", apiUrl, data);
+        return this.http.put( apiUrl, data, httpOptions);
     }
 
     deleteDashboard(id) {
@@ -1188,7 +1194,12 @@ export class HttpService {
 
     userNamespaces() {
         const apiUrl = environment.configdb + '/namespace';
+        const httpOptions = {
+          headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+          withCredentials: true, 
+          observe: 'response' as 'response'
+        };
         console.log("userNamespaces", apiUrl);
-        return this.http.get(apiUrl, { withCredentials: true });
+        return this.http.get(apiUrl, httpOptions);
     }
 }

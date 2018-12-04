@@ -15,15 +15,12 @@ export class UtilsService {
 
   modifyWidgets(dashboard: any) {
     // add extra info item behaviors
-    console.log('passing dashbaord', dashboard);
-
     for (let i = 0; i < dashboard.widgets.length; i++) {
       const wd: any = dashboard.widgets[i];
       //wd.id = this.utils.generateId(); // we set it manually to test
       const mod = { 'xMd': wd.gridPos.x, 'yMd': wd.gridPos.y, 'dragAndDrop': true, 'resizable': true };
       wd.gridPos = { ...wd.gridPos, ...mod };
     }
-    console.log('modified dashbaord', dashboard);
     //return dashboard;
   }
 
