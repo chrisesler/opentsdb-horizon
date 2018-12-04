@@ -174,12 +174,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // handle route
         this.routeSub = this.route.params.subscribe(params => {
-            console.log('comes in router params....');
             // route to indicate create a new dashboard
             if (params['dbid']) {
                 this.dbid = params['dbid'];
                 if (this.dbid === '_new_') {
-                    //console.log('creating a new dashboard...');
                     this.store.dispatch(new LoadDashboard(this.dbid));
                 } else {
                     // load provided dashboard id, and need to handdle not found too
@@ -216,7 +214,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.rerender = { 'reload': true };
                     break;
                 case 'getQueryData':
-                    console.log('the query: ', message.payload);
                     // payload needs to break into group to send in
                     this.handleQueryPayload(message);
                     break;
@@ -245,7 +242,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             // many way to handle this, but we should do with the way
                             // store suppose to work.
                             // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
-                            // console.log('getting updated widget', message.payload, updatedWidget);
                             this.interCom.responsePut({
                                 id: message.payload.id,
                                 action: 'getUpdatedWidgetConfig',
@@ -287,7 +283,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     });
                     break;
                 case 'updateDashboardSettings':
-                    //console.log(message);
                     // this.store.dispatch(new UpdateVariables(message.payload));
                     // this.store.dispatch(new UpdateMeta(message.payload));
                     if (message.payload.meta) {
@@ -522,14 +517,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // dispatch payload query by group
     handleQueryPayload(message: any) {
-
-        // console.log('query message', message);
-
         let groupid = '';
         const payload = message.payload;
         const dt = this.getDashboardDateRange();
 
-        ///*
         // sending each group to get data.
         for (let i = 0; i < payload.queries.length; i++) {
             let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
@@ -555,7 +546,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.store.dispatch(new SetQueryDataByGroup(gquery));
             }
         }
-        //*/
     }
 
     getDashboardDateRange() {
