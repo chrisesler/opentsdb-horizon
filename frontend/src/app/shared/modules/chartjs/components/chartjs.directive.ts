@@ -5,7 +5,6 @@ import customTooltip from '../../../chart.js/tooltip/custom-tooltip';
 import * as thresholdPlugin from '../../../chartjs-threshold-plugin/src/index';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
 import 'chartjs-plugin-labels';
- console.log(customTooltip, "chart options")
 @Directive({
   selector: '[chartjs]'
 })
