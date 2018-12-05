@@ -46,7 +46,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     customTimeRangeStart: any;
     customTimeRangeEnd: any;
 
-    selectedAggregator: any = 'SUM';
+    selectedAggregator: any = 'Avg';
     timeOverTimeNumber: any = '';
     timeOverTimePeriod: any = '';
 
@@ -121,6 +121,10 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     ];
 
     timeDownsampleOptions: Array<any> = [
+        {
+            label: 'Auto',
+            value: 'auto'
+        },
         {
             label: '1 min',
             value: '1m'

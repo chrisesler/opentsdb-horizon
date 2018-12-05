@@ -1,24 +1,21 @@
-import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
+import { TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
 import { QueryService } from '../../../core/services/query.service';
 
-import * as moment from 'moment';
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
-import { UtilsService } from '../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
-import { ISelectedTime } from '../../../shared/modules/date-time-picker/models/models';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
-import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel} from '../../state/widgets.state';
+import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel } from '../../state/widgets.state';
 import { WidgetsRawdataState, GetQueryDataByGroup, SetQueryDataByGroup } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import {
@@ -34,13 +31,12 @@ import {
     UpdateMeta
 } from '../../state/settings.state';
 
-import { MatMenu, MatMenuTrigger, MenuPositionX, MenuPositionY, MatSnackBar } from '@angular/material';
+import { MatMenuTrigger, MenuPositionX, MatSnackBar } from '@angular/material';
 import {
     SearchMetricsDialogComponent
 } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
-import { query } from '@angular/animations';
 
 @Component({
     selector: 'app-dashboard',
@@ -70,7 +66,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
 
     // available widgets menu trigger
-    @ViewChild('availableWidgetsMenuTrigger', {read: MatMenuTrigger}) availableWidgetsMenuTrigger: MatMenuTrigger;
+    @ViewChild('availableWidgetsMenuTrigger', { read: MatMenuTrigger }) availableWidgetsMenuTrigger: MatMenuTrigger;
 
     get availableWidgetsMenuIsOpen(): boolean {
         if (this.availableWidgetsMenuTrigger) {
@@ -171,18 +167,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private queryService: QueryService,
         private dateUtil: DateUtilsService,
         private dialog: MatDialog,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private cdRef: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
         // handle route
         this.routeSub = this.route.params.subscribe(params => {
-            console.log('comes in router params....');
             // route to indicate create a new dashboard
             if (params['dbid']) {
                 this.dbid = params['dbid'];
                 if (this.dbid === '_new_') {
-                    console.log('creating a new dashboard...');
                     this.store.dispatch(new LoadDashboard(this.dbid));
                 } else {
                     // load provided dashboard id, and need to handdle not found too
@@ -208,6 +203,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'updateDashboardMode':
                     // when click on view/edit mode, update db setting state of the mode
                     this.store.dispatch(new UpdateMode(message.payload));
+                    this.cdRef.detectChanges();
                     break;
                 case 'removeWidget':
                     this.store.dispatch(new DeleteWidget(message.payload.widgetId));
@@ -218,28 +214,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.rerender = { 'reload': true };
                     break;
                 case 'getQueryData':
-                    console.log('the query: ', message.payload);
                     // payload needs to break into group to send in
                     this.handleQueryPayload(message);
                     break;
                 case 'updateWidgetConfig':
-                    const widgets = JSON.parse(JSON.stringify(this.widgets));
-                    const mIndex = widgets.findIndex( w => w.id === message.payload.id );
-                    // check the component type is PlaceholderWidgetComponent. If yes, it needs to be replaced with new component
-                    if ( widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent' ) {
-                        widgets[mIndex] = message.payload;
+                    let widgets = JSON.parse(JSON.stringify(this.widgets));
+                    const mIndex = widgets.findIndex(w => w.id === message.payload.id);
+
+                    if (mIndex === -1) {
+                        // update position to put new on on top
+                        const newWidgetY = message.payload.gridPos.h;
+                        widgets = this.dbService.positionWidgetY(widgets, newWidgetY);
+                        // this is the newly adding widget
+                        if(widgets.length === 1 && widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
+                            widgets[0] = message.payload;
+                        } else {
+                            widgets.unshift(message.payload);
+                        }
                         this.store.dispatch(new LoadWidgets(widgets));
                     } else {
-                        this.store.dispatch(new UpdateWidget(message.payload));
-                        // many way to handle this, but we should do with the way
-                        // store suppose to work.
-                        // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
-                        // console.log('getting updated widget', message.payload, updatedWidget);
-                        this.interCom.responsePut({
-                            id: message.payload.id,
-                            action: 'getUpdatedWidgetConfig',
-                            payload: message.payload
-                        });
+                        // check the component type is PlaceholderWidgetComponent. If yes, it needs to be replaced with new component                    
+                        if (widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
+                            widgets[mIndex] = message.payload;
+                            this.store.dispatch(new LoadWidgets(widgets));
+                        } else {
+                            this.store.dispatch(new UpdateWidget(message.payload));
+                            // many way to handle this, but we should do with the way
+                            // store suppose to work.
+                            // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
+                            this.interCom.responsePut({
+                                id: message.payload.id,
+                                action: 'getUpdatedWidgetConfig',
+                                payload: message.payload
+                            });
+                        }
                     }
                     break;
                 case 'dashboardSaveRequest':
@@ -253,11 +261,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     const dbSettings = this.store.selectSnapshot(DBSettingsState);
                     const payload: any = {
                         'name': dbSettings.meta.title,
-                        'type': 'DASHBOARD',
                         'content': JSON.stringify(dbcontent)
                     };
-                    if ( message.payload.meta && message.payload.meta.namespace ) {
-                        const namespace = this.userNamespaces.find( d => d.name === message.payload.meta.namespace );
+                    if (message.payload.meta && message.payload.meta.namespace) {
+                        const namespace = this.userNamespaces.find(d => d.name === message.payload.meta.namespace);
                         payload.namespaceid = namespace.id;
                     }
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
@@ -276,14 +283,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     });
                     break;
                 case 'updateDashboardSettings':
-                    console.log(message);
                     // this.store.dispatch(new UpdateVariables(message.payload));
                     // this.store.dispatch(new UpdateMeta(message.payload));
                     if (message.payload.meta) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
                     if (message.payload.variables) {
-                        console.log('updateVariables: ' , message.payload.variables);
+                        //console.log('updateVariables: ', message.payload.variables);
                         this.store.dispatch(new UpdateVariables(message.payload.variables));
                     }
                     break;
@@ -292,7 +298,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag, message.payload.filters));
                     break;
                 case 'getUserNamespaces':
-                    console.log('getUserNamespaces');
+                    //console.log('getUserNamespaces');
                     this.store.dispatch(new LoadUserNamespaces());
                     break;
                 default:
@@ -300,7 +306,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.loadedRawDB$.subscribe( db => {
+        this.loadedRawDB$.subscribe(db => {
             const dbstate = this.store.selectSnapshot(DBState);
             console.log('\n\nloadedrawdb=', db, dbstate.loaded);
             if (dbstate.loaded) {
@@ -311,7 +317,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbIdSub = this.dbId$.subscribe(id => {
-            if ( this.dbid === '_new_' && id ) {
+            if (this.dbid === '_new_' && id) {
                 this.dbid = id;
                 this.location.replaceState('/d/' + this.dbid);
             } else if (this.dbid !== '_new_' && id) {
@@ -319,47 +325,49 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.dbStatusSub = this.dbStatus$.subscribe( status => {
-            switch ( status ) {
+        this.dbStatusSub = this.dbStatus$.subscribe(status => {
+            switch (status) {
                 case 'save-success':
                     this.snackBar.open('Dashboard has been saved.', '', {
                         horizontalPosition: 'center',
                         verticalPosition: 'top',
                         duration: 5000,
-                        panelClass: 'info'});
+                        panelClass: 'info'
+                    });
                     break;
                 case 'delete-success':
-                    this.router.navigate(['/home'], { queryParams: {'db-delete': true} } );
+                    this.router.navigate(['/home'], { queryParams: { 'db-delete': true } });
                     break;
             }
         });
 
         this.dbErrorSub = this.dbError$.subscribe(error => {
-            // show error popup if error is set
-            console.error(error);
+            if (Object.keys(error).length > 0) {
+                console.error(error);
+            }
         });
 
-        this.widgetSub = this.widgets$.subscribe( widgets => {
+        this.widgetSub = this.widgets$.subscribe(widgets => {
             const dbstate = this.store.selectSnapshot(DBState);
             console.log('--- widget subscription---', widgets, dbstate.loaded);
             if (dbstate.loaded) {
                 this.widgets = widgets;
                 const metrics = this.dbService.getMetricsFromWidgets(widgets);
-                if ( metrics.length ) {
+                if (metrics.length) {
                     this.store.dispatch(new LoadDashboardTags(metrics));
                 }
             }
         });
 
-        this.dbModeSub = this.dashboardMode$.subscribe( mode => {
+        this.dbModeSub = this.dashboardMode$.subscribe(mode => {
             console.log("mode changed", mode);
             this.viewEditMode = mode === 'edit' || mode === 'view' ? true : false;
         });
 
-        this.dbTime$.subscribe ( t => {
+        this.dbTime$.subscribe(t => {
             // console.log('___DBTIME___', JSON.stringify(this.dbTime), JSON.stringify(t));
 
-            if ( this.dbTime && this.dbTime.zone !== t.zone ) {
+            if (this.dbTime && this.dbTime.zone !== t.zone) {
                 this.interCom.responsePut({
                     action: 'TimezoneChanged',
                     payload: t
@@ -373,12 +381,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.dbTime = t;
         });
 
-        this.meta$.subscribe ( t => {
+        this.meta$.subscribe(t => {
             // console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
             this.meta = t;
         });
 
-        this.variables$.subscribe ( t => {
+        this.variables$.subscribe(t => {
             console.log('variables$.subscribe [event]', t);
             if (this.variables) {
                 if (this.variables.enabled && t.enabled) { // was enabled, still enabled
@@ -388,8 +396,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         const tagKey = tag.tagk;
                         if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
                             this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
-                                this.requeryData(t);
-                                return;
+                            this.requeryData(t);
+                            return;
                         }
                     }
                     // tslint:disable-next-line:prefer-const
@@ -397,8 +405,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         const tagKey = tag.tagk;
                         if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
                             this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
-                                this.requeryData(t);
-                                return;
+                            this.requeryData(t);
+                            return;
                         }
                     }
                 } else if (this.variables.enabled && !t.enabled) { // was enabled, now disabled
@@ -431,12 +439,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.variables = t;
         });
 
-        this.dbTagsSub = this.dbTags$.subscribe( tags => {
-            console.log( '__DB TAGS___', tags );
+        this.dbTagsSub = this.dbTags$.subscribe(tags => {
+            console.log('__DB TAGS___', tags);
             this.dbTags = tags ? tags : [];
         });
 
-        this.tagValuesSub = this.tagValues$.subscribe( data => {
+        this.tagValuesSub = this.tagValues$.subscribe(data => {
             this.interCom.responsePut({
                 action: 'TagValueQueryReults',
                 payload: data
@@ -462,7 +470,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.userNamespaces$.subscribe( result => {
+        this.userNamespaces$.subscribe(result => {
             this.userNamespaces = result;
             this.interCom.responsePut({
                 action: 'UserNamespaces',
@@ -471,7 +479,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         // all widgets should update their own size
-        this.gridsterUnitSize$.subscribe( unitSize => {
+        this.gridsterUnitSize$.subscribe(unitSize => {
             this.interCom.responsePut({
                 action: 'resizeWidget',
                 payload: unitSize
@@ -509,14 +517,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // dispatch payload query by group
     handleQueryPayload(message: any) {
-
-        // console.log('query message', message);
-
         let groupid = '';
         const payload = message.payload;
         const dt = this.getDashboardDateRange();
 
-        ///*
         // sending each group to get data.
         for (let i = 0; i < payload.queries.length; i++) {
             let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
@@ -525,12 +529,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 wid: message.id,
                 gid: groupid,
             };
-            if ( query.namespace && query.metrics.length ) {
+            if (query.namespace && query.metrics.length) {
                 // filter only visible metrics
                 // query = this.dbService.filterMetrics(query);
                 let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
                 // get only enabled filters
-                overrideFilters = overrideFilters.filter( d => d.enabled );
+                overrideFilters = overrideFilters.filter(d => d.enabled);
                 query = overrideFilters.length ? this.dbService.overrideQueryFilters(query, overrideFilters) : query;
                 query = this.queryService.buildQuery(payload, dt, query);
                 console.log('the group query-2', query, JSON.stringify(query));
@@ -542,7 +546,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.store.dispatch(new SetQueryDataByGroup(gquery));
             }
         }
-        //*/
     }
 
     getDashboardDateRange() {
@@ -550,7 +553,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const startTime = this.dateUtil.timeToMoment(dbSettings.time.start, dbSettings.time.zone);
         const endTime = this.dateUtil.timeToMoment(dbSettings.time.end, dbSettings.time.zone);
 
-        return {start: startTime.valueOf() , end: endTime.valueOf()};
+        return { start: startTime.valueOf(), end: endTime.valueOf() };
     }
 
     // this will call based on gridster reflow and size changes event
@@ -566,6 +569,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // setup the new widget type and using as input to dashboard-content to load edting it.
     addNewWidget(selectedWidget: any) {
         this.newWidget = this.dbService.getWidgetPrototype(selectedWidget.type);
+        console.log('newewewe widget', this.newWidget);
     }
 
     openTimeSeriesMetricDialog(widget) {
@@ -581,10 +585,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
             left: '0px',
             right: '0px'
         };
-        dialogConf.data = { mgroupId : widget.query.groups[0].id };
+        dialogConf.data = { mgroupId: widget.query.groups[0].id };
 
         this.searchMetricsDialog = this.dialog.open(SearchMetricsDialogComponent, dialogConf);
-        this.searchMetricsDialog.updatePosition({top: '48px'});
+        this.searchMetricsDialog.updatePosition({ top: '48px' });
         this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
             let widgets = [...this.widgets];
             const group = dialog_out.mgroup;
@@ -606,7 +610,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     setDateRange(e: any) {
-        this.store.dispatch(new UpdateDashboardTime({start: e.startTimeDisplay, end: e.endTimeDisplay}));
+        this.store.dispatch(new UpdateDashboardTime({ start: e.startTimeDisplay, end: e.endTimeDisplay }));
     }
 
     setTimezone(e) {
@@ -629,9 +633,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }*/
 
     receiveDashboardAction(event: any) {
-         console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
-         switch ( event.action ) {
-             case 'clone':
+        console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
+        switch (event.action) {
+            case 'clone':
                 this.dbid = '_new_';
                 const newTitle = 'Clone of ' + this.meta.title;
                 this.setTitle(newTitle);
@@ -640,7 +644,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             case 'delete':
                 this.openDashboardDeleteDialog();
                 break;
-         }
+        }
     }
 
     openDashboardDeleteDialog() {
@@ -654,7 +658,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dashboardDeleteDialog = this.dialog.open(DashboardDeleteDialogComponent, dialogConf);
         this.dashboardDeleteDialog.afterClosed().subscribe((dialog_out: any) => {
             console.log('delete dialog confirm', dialog_out);
-            if ( dialog_out && dialog_out.delete  ) {
+            if (dialog_out && dialog_out.delete) {
                 this.store.dispatch(new DeleteDashboard(this.dbid));
             }
         });
@@ -668,7 +672,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // console.log('EVT: REFRESH DASHBOARD');
     }
 
-    getTagValues (key: string, tplVariables: any[]): any[] {
+    getTagValues(key: string, tplVariables: any[]): any[] {
         // tslint:disable-next-line:prefer-const
         for (let tplVariable of tplVariables) {
             if (tplVariable.tagk === key && tplVariable.enabled) {

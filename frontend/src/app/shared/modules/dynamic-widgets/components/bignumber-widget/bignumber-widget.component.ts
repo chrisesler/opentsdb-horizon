@@ -14,6 +14,8 @@ import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.s
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
 import { LEFT_ARROW } from '@angular/cdk/keycodes';
+import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
+import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -43,28 +45,36 @@ export class BignumberWidgetComponent implements OnInit {
     changeValue: number;
     changePct: number;
     changeThreshold: number = 0.01; // hard coding this for now, needs to be configurable
-    aggF: string[];
-    aggV: any[];
+    aggregators: string[] = [];
+    aggregatorValues: any[] = [];
 
     fontSizePercent: number;
-    contentFillPercent: number = 0.75; // how much % content should take up widget
-    contentFillPercentWithNoCaption: number = 0.60; // how much % content should take up widget
+    contentFillPercent: number = 0.8; // how much % content should take up widget
+    contentFillPercentWithNoCaption: number = 0.8; // how much % content should take up widget
     maxCaptionLength: number = 36;
     maxLabelLength: number = 10; // postfix, prefix, unit
 
     widgetWidth: number;
     widgetHeight: number;
-    showAction  = true;
+    editQueryId = null;
+    nQueryDataLoading = 0;
+    error: any;
+    errorDialog: MatDialogRef < ErrorDialogComponent > | null;
 
     @ViewChild('contentContainer') contentContainer: ElementRef;
 
-    constructor(private interCom: IntercomService, public util: UtilsService, public UN: UnitNormalizerService) { }
+    constructor(
+        private interCom: IntercomService,
+        public dialog: MatDialog,
+        public util: UtilsService,
+        public UN: UnitNormalizerService) { }
 
     ngOnInit() {
 
         this.setDefaultVisualization();
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+            console.log("message", message);
 
             if (message.action === 'resizeWidget') {
                 if (!this.metrics) { // 1. If no metrics, only set the widget width and height.
@@ -79,26 +89,9 @@ export class BignumberWidgetComponent implements OnInit {
                     const contentWidth: number = this.contentContainer.nativeElement.clientWidth;
                     const contentHeight: number = this.contentContainer.nativeElement.clientHeight;
 
-                    let percentWidthChange: number;
-                    let percentHeightChange: number;
-
-                    if (this.widget.settings.visual['caption']) {
-                        percentWidthChange = (newWidgetWidth * this.contentFillPercent) / contentWidth;
-                        percentHeightChange = (newWidgetHeight * this.contentFillPercent) / contentHeight;
-                    } else {
-                        percentWidthChange = (newWidgetWidth * this.contentFillPercentWithNoCaption) / contentWidth;
-                        percentHeightChange = (newWidgetHeight * this.contentFillPercentWithNoCaption) / contentHeight;
-                    }
-
-                    const percentChange: number =  Math.min(percentHeightChange, percentWidthChange);
-
-                    if (percentChange > 1.01 || percentChange < 0.99) {
-                        this.fontSizePercent = percentChange * this.fontSizePercent;
-                        this.widget.settings.visual['fontSizePercent'] = this.fontSizePercent;
-                        this.widget.settings.visual['widgetWidth'] = newWidgetWidth;
-                        this.widget.settings.visual['widgetHeight'] = newWidgetHeight;
-                    }
+                    this.updateVisualDimensions(this.fontSizePercent, contentWidth, contentHeight, newWidgetWidth, newWidgetHeight);
                 }
+
             }
             if ( message.action === 'reQueryData' ) {
                 this.refreshData();
@@ -106,16 +99,37 @@ export class BignumberWidgetComponent implements OnInit {
             if (message && (message.id === this.widget.id)) { // 2. Get and set the metric
                 switch (message.action) {
                     case 'updatedWidgetGroup':
+                        this.nQueryDataLoading--;
                         this.isDataLoaded = true;
+
+                        if ( message.payload.error ) {
+                            this.error = message.payload.error;
+                        }
+
                         if (message && message.payload && message.payload.rawdata) {
                             const gid = Object.keys(message.payload.rawdata)[0];
                             this.metrics = gid !== 'error' ? message.payload.rawdata[gid].results : [];
-                            console.log(this.widget, "visual");
+
                             this.setBigNumber(this.widget.settings.visual.queryID);
+                            this.updateVisualDimensions(
+                                this.fontSizePercent,
+                                this.widget.contentWidth, this.widget.contentHeight,
+                                this.widget.settings.visual.widgetWidth, this.widget.settings.visual.widgetHeight);
                         }
                         break;
                     case 'viewEditWidgetMode':
                         console.log('vieweditwidgetmode', message, this.widget);
+                        break;
+                    case 'getUpdatedWidgetConfig':
+                        if (this.widget.id === message.id) {
+                            this.widget = message.payload;
+                            this.updateVisualDimensions(
+                                this.fontSizePercent,
+                                this.widget.contentWidth, this.widget.contentHeight,
+                                this.widget.settings.visual.widgetWidth, this.widget.settings.visual.widgetHeight);
+
+                            this.setBigNumber(this.widget.settings.visual.queryID);
+                        }
                         break;
                 }
             }
@@ -150,34 +164,32 @@ export class BignumberWidgetComponent implements OnInit {
     }
 
     setBigNumber(queryId: string) {
-        console.log("setBignumber", queryId)
         let metric = this.getMetric(queryId);
         let queryIndex = parseInt(queryId, 10);
         let currentValue: number = 0;
         let lastValue: number = 0;
 
         if (metric && metric.NumericSummaryType) {
-
-            const aggs = metric.NumericSummaryType.aggregations;
+            const responseAggregators = metric.NumericSummaryType.aggregations;
             const key = Object.keys(metric.NumericSummaryType.data[0])[0];
-            const aggData = metric.NumericSummaryType.data[0][key];
-            const aggregator = this.widget.queries[0].metrics[queryIndex].settings.visual.aggregator || 'sum';
+            const responseAggregatorValues = metric.NumericSummaryType.data[0][key];
+            const configuredAggregators = this.widget.queries[0].metrics[queryIndex].settings.visual.aggregator || ['avg'];
 
-            const aggrIndex = aggs.indexOf(aggregator);
-            const aggregateValue =  aggData[aggrIndex];
+            this.aggregators = [];
+            this.aggregatorValues = [];
+            for (let agg of configuredAggregators) {
+                let index = responseAggregators.indexOf(agg);
+                this.aggregatorValues.push(responseAggregatorValues[index]);
+                this.aggregators.push(agg);
+            }
 
-            lastValue = aggData[aggs.indexOf('first')];
-            currentValue = aggData[aggs.indexOf('last')];
+            lastValue = responseAggregatorValues[responseAggregators.indexOf('first')];
+            currentValue = responseAggregatorValues[responseAggregators.indexOf('last')];
 
             // SET LOCAL VARIABLES
-            this.bigNumber = aggregateValue;
             this.changeValue = currentValue - lastValue;
             this.changePct = (this.changeValue/lastValue) * 100;
             this.selectedMetric = metric;
-            this.aggF = aggs;
-            this.aggV = aggData;
-
-            console.log("aggF: ", this.aggF, "aggV: ", this.aggV);
 
             // get array of 'tags'
             if (metric['tags']) {
@@ -189,20 +201,23 @@ export class BignumberWidgetComponent implements OnInit {
             this.fontSizePercent = this.calcFontSizePercent(this.widget.settings.visual['fontSizePercent'],
                 this.widget.settings.visual['widgetWidth'], this.widget.settings.visual['widgetHeight'],
                 this.widgetWidth, this.widgetHeight);
+
         } else {
             this.selectedMetric = {};
             this.selectedMetric.metric = '';
             this.bigNumber = 0;
             this.changeValue = 0;
             this.changePct = 0;
-            this.aggF = [];
-            this.aggV = [];
+            this.aggregators = [];
+            this.aggregatorValues = [];
             this.tags = null;
         }
     }
 
    requestData() {
         if (!this.isDataLoaded) {
+            this.nQueryDataLoading = this.widget.queries.length;
+            this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
@@ -239,10 +254,46 @@ export class BignumberWidgetComponent implements OnInit {
     }
 
     calcFontSizePercent(percent: number, originalWidth: number, originalHeight: number, newWidth: number, newHeight: number): number {
-        const percentChangeWidth: number = newWidth / originalWidth;
-        const percentChangeHeight: number = newHeight / originalHeight;
-        const percentChange: number = Math.min(percentChangeWidth, percentChangeHeight);
-        return percent * percentChange;
+        if (!originalWidth || !originalHeight) {
+            return percent;
+        }
+
+        let fillPercent: number = this.widget.settings.visual['caption'] ? this.contentFillPercent : this.contentFillPercentWithNoCaption;
+        let percentWidthChange = (newWidth * fillPercent) / originalWidth;
+        let percentHeightChange = (newHeight * fillPercent) / originalHeight;
+        let percentChange: number = Math.min(percentHeightChange, percentWidthChange);
+
+        if (percentChange > 1.01 || percentChange < 0.99) {
+            return percentChange * percent;
+        }
+        else {
+            return percent;
+        }
+    }
+
+    updateVisualDimensions (fontSizePercent: number, contentWidth: number, contentHeight: number, widgetWidth: number, widgetHeight: number) {
+console.log("in updatevisualdimensions fontsizepercet", fontSizePercent, "contentwidth", contentWidth, "contentheight", contentHeight, "widgetWidth", widgetWidth, "widgetHeight", widgetHeight);
+        let percentChange: number;
+
+        if (!contentWidth || !contentHeight) {
+            percentChange = 1.0;
+        }
+        else {
+            let fillPercent: number = this.widget.settings.visual['caption'] ? this.contentFillPercent : this.contentFillPercentWithNoCaption;
+            let percentWidthChange = (widgetWidth * fillPercent) / contentWidth;
+            let percentHeightChange = (widgetHeight * fillPercent) / contentHeight;
+            percentChange = Math.min(percentHeightChange, percentWidthChange);
+        }
+
+        if (percentChange > 1.01 || percentChange < 0.99) {
+            this.fontSizePercent = percentChange * fontSizePercent;
+        }
+
+        if (this.fontSizePercent) {
+            this.widget.settings.visual['fontSizePercent'] = this.fontSizePercent;
+        }
+        this.widget.settings.visual['widgetWidth'] = widgetWidth;
+        this.widget.settings.visual['widgetHeight'] = widgetHeight;
     }
 
     // we have this method so that a caption or other labels will not make the big number really small
@@ -279,9 +330,11 @@ export class BignumberWidgetComponent implements OnInit {
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
                 break;
-            case 'ToggleWidgetAction':
-                console.log("line toggle", message)
-                    this.showAction = message.payload.display;
+                case 'SetQueryEditMode':
+                this.editQueryId = message.payload.id;
+                break;
+            case 'CloseQueryEditMode':
+                this.editQueryId = null;
                 break;
         }
     }
@@ -296,45 +349,7 @@ export class BignumberWidgetComponent implements OnInit {
 
         console.log("bignumber updateQuery", qindex, this.widget.queries);
     }
-    /*
-    addMetricsToGroup(gConfig) {
-        let gid = gConfig.id;
 
-        if ( gid === 'new' ) {
-            const g = this.addNewGroup();
-            gid = g.id;
-        }
-
-        const config = this.util.getObjectByKey(this.widget.query.groups, 'id', gid);
-
-        const dVisaul = {
-            aggregator: 'sum'
-        };
-
-        for (const metric of gConfig.queries ) {
-            metric.settings.visual = {...dVisaul, ...metric.settings.visual };
-        }
-        config.queries = config.queries.concat(gConfig.queries);
-        this.widget = {...this.widget};
-
-        if (!this.widget.settings.visual.queryID) {
-            this.setSelectedQuery('0');
-        }
-    }
-
-    addNewGroup() {
-        const gid = this.util.generateId(6);
-        const g = {
-                    id: gid,
-                    title: 'untitled group',
-                    queries: [],
-                    settings: {
-                    }
-                };
-        this.widget.query.groups.push(g);
-        return g;
-    }
-    */
 
     setVisualization( vconfigs ) {
         this.widget.settings.visual = { ...vconfigs};
@@ -346,15 +361,15 @@ export class BignumberWidgetComponent implements OnInit {
 
     setTimeConfiguration(config) {
         this.widget.settings.time = {
-                                             shiftTime: config.shiftTime,
-                                             overrideRelativeTime: config.overrideRelativeTime,
-                                             downsample: {
-                                                 value: config.downsample,
-                                                 aggregator: config.aggregator,
-                                                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                                                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
-                                             }
-                                         };
+            shiftTime: config.shiftTime,
+            overrideRelativeTime: config.overrideRelativeTime,
+            downsample: {
+                value: config.downsample,
+                aggregator: config.aggregator,
+                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
+                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+            }
+        };
         this.refreshData();
     }
 
@@ -409,6 +424,22 @@ export class BignumberWidgetComponent implements OnInit {
         }
     }
 
+    showError() {
+        console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        const offsetHeight = 60;
+        dialogConf.width = '50%';
+        dialogConf.minWidth = '500px';
+        dialogConf.height = '200px';
+        dialogConf.backdropClass = 'error-dialog-backdrop';
+        dialogConf.panelClass = 'error-dialog-panel';
+        dialogConf.data = this.error;
+
+        this.errorDialog = this.dialog.open(ErrorDialogComponent, dialogConf);
+        this.errorDialog.afterClosed().subscribe((dialog_out: any) => {
+        });
+    }
+
     closeViewEditMode() {
         this.interCom.requestSend({
             action: 'closeViewEditMode',
@@ -419,6 +450,14 @@ export class BignumberWidgetComponent implements OnInit {
     applyConfig() {
         const cloneWidget = { ...this.widget };
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
+
+        //<HACK>
+        let contentWidth = this.contentContainer.nativeElement.clientWidth;
+        let contentHeight = this.contentContainer.nativeElement.clientHeight;
+        cloneWidget.contentWidth = contentWidth;
+        cloneWidget.contentHeight = contentHeight;
+        //</HACK>
+
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
             payload: cloneWidget
@@ -438,6 +477,7 @@ export class BignumberWidgetComponent implements OnInit {
         this.widget.settings.visual.prefixSize = this.widget.settings.visual.prefixSize || 'm';
         this.widget.settings.visual.postfixSize = this.widget.settings.visual.postfixSize || 'm';
         this.widget.settings.visual.unitSize = this.widget.settings.visual.unitSize || 'm';
+        this.widget.settings.visual.fontSizePercent = 100;
 
         this.widget.settings.visual.caption = this.widget.settings.visual.caption || '';
         this.widget.settings.visual.precision = this.widget.settings.visual.precision || 2;
@@ -445,6 +485,9 @@ export class BignumberWidgetComponent implements OnInit {
         this.widget.settings.visual.textColor = this.widget.settings.visual.textColor || '#FFFFFF';
         this.widget.settings.visual.sparkLineEnabled = this.widget.settings.visual.sparkLineEnabled || false;
         this.widget.settings.visual.changedIndicatorEnabled = this.widget.settings.visual.changedIndicatorEnabled || false;
+
+        //<HACK/>
+        this.fontSizePercent = this.widget.settings.visual.fontSizePercent;
     }
 
 }

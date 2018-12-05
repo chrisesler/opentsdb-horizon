@@ -45,10 +45,18 @@ export class WidgetService {
                     }
                 };
                 break;
+            case 'DonutWidgetComponent':
+                settings = {
+                    legend: {
+                        display: true,
+                        position: 'right'
+                    }
+                };
+                break;
             case 'BignumberWidgetComponent':
                 settings = {
                     visual: {
-                        queryID:0
+                        queryID: 0
                     }
                 };
         }

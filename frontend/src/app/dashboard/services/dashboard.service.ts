@@ -44,8 +44,8 @@ export class DashboardService {
         legend: {},
         time: {
             downsample: {
-                value: '1m',
-                aggregator: 'sum',
+                value: 'auto',
+                aggregator: 'avg',
                 customValue: '',
                 customUnit: ''
             }
@@ -68,7 +68,7 @@ export class DashboardService {
   }
 
   getWidgetPrototype(type= ''): any {
-    const widget: any = Object.assign({}, this.widgetPrototype);
+    const widget: any = JSON.parse(JSON.stringify(this.widgetPrototype));
     widget.id = this.utils.generateId();
     widget.settings.component_type = type;
     switch ( type ) {
@@ -87,23 +87,21 @@ export class DashboardService {
 
   getDashboardPrototype(): any {
     const dashboard: any = Object.assign({}, this.dashboardProto);
-    // just add 6 box widgets for now
-    for (let i=0; i <= 11; i++) {
-      const widget = this.getWidgetPrototype();
-      widget.gridPos.w = 6;
-      dashboard.widgets.push(widget);
-    }
+    const widget: any = JSON.parse(JSON.stringify(this.getWidgetPrototype())); 
+    //widget.gridPos.w = 6;
+    dashboard.widgets.push(widget);
     return dashboard;
   }
 
   // help to put new widget on top.
   // set new position of first position down
   positionWidgetY(widgets: any, y) {
-    for (let i = 0; i < widgets.length; i++) {
-        const wd: any = widgets[i];
-        wd.gridPos.y += y; wd.gridPos.yMd += y;
+    const modWidgets = widgets;
+    for (let i = 0; i < modWidgets.length; i++) {
+      modWidgets[i].gridPos.y = modWidgets[i].gridPos.y + y; 
+      modWidgets[i].gridPos.yMd = modWidgets[i].gridPos.yMd + y;
     }
-    return widgets;
+    return modWidgets;
   }
 
   getMetricsFromWidgets( widgets ) {

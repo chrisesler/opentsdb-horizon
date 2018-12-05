@@ -107,7 +107,9 @@ export class DboardContentComponent implements OnInit, OnChanges {
       this.viewEditMode = true;
     } else {
       this.viewEditMode = false;
-      this.widgetViewContainer.viewContainerRef.clear();
+      if (this.widgetViewContainer.viewContainerRef) {
+        this.widgetViewContainer.viewContainerRef.clear();
+      }
     }
     // check if the new editing widget is needed
     if ( changes.newWidget && changes.newWidget.currentValue ) {
@@ -117,11 +119,11 @@ export class DboardContentComponent implements OnInit, OnChanges {
   }
 
   newComponent(widget) {
-    // need to set dashboard mode to editing component
+    //this.viewEditMode = true;
     this.interCom.requestSend(<IMessage> {
       action: 'updateDashboardMode',
       payload: 'edit'
-    });
+    });    
     const component: Type<any> = this.widgetService.getComponentToLoad(widget.settings.component_type);
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     widget.settings = { ...widget.settings, ...this.widgetService.getWidgetDefaultSettings(widget.settings.component_type)};

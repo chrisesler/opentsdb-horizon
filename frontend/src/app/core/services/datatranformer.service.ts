@@ -19,9 +19,59 @@ export class DatatranformerService {
       normalizedData = [];
     }
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
+/*
+    let dict = {};
     for (let qid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
         const mConfigs = gConfig ? gConfig.metrics : [];
+        if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
+            dict[qid] = {};
+            for ( let i = 0;  i < result[qid].results.length; i++ ) {
+                const queryResults = result[qid].results[i];
+                const [ source, mid ] = queryResults.source.split(":");
+                if (!dict[qid][mid]) {
+                    dict[qid][mid] = { hashes: {}};
+
+                }
+                if ( source === 'summarizer') {
+                    dict[qid][mid]['summarizer'] = queryResults.data;
+                    continue;
+                }
+                else {
+                    dict[qid][mid]['values'] = queryResults.data;
+                }
+                const mIndex = mid.replace("m",'');
+                const n = queryResults.data.length;
+                for ( let j = 0; j < n; j ++ ) {
+                    const tags = queryResults.data[j].tags;
+                    let hashCode = JSON.stringify(tags);
+                    dict[qid][mid]['hashes'][hashCode] = j;
+                }
+            }
+        }
+    }
+
+    for (let qid in dict) {
+        for(let mid in dict[qid]) {
+            dict[qid][mid].values.sort((a,b) => {
+                let a_hash = JSON.stringify(a.tags);
+                let b_hash = JSON.stringify(b.tags);
+                let a_index = dict[qid][mid]['hashes'][a_hash];
+                let b_index = dict[qid][mid]['hashes'][b_hash];
+                return dict[qid][mid]['summarizer'][a_index]['NumericSummaryType']['aggregations'][2] 
+                     > dict[qid][mid]['summarizer'][b_index]['NumericSummaryType']['aggregations'][2];
+            });
+        }
+    }
+
+    console.log("dict", dict);
+    */
+
+    ///*
+    for (let qid in result) {
+        const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
+        const mConfigs = gConfig ? gConfig.metrics : [];
+        let summary = [];
         if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
             // sometimes opentsdb returns empty results
             for ( let i = 0;  i < result[qid].results.length; i++ ) {
@@ -31,10 +81,13 @@ export class DatatranformerService {
                     continue;
                 }
                 const mIndex = mid.replace("m",'');
+
                 const timeSpecification = queryResults.timeSpecification;
                 const mConfig = mConfigs[mIndex];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-                for ( let j = 0; j < queryResults.data.length; j ++ ) {
+                const n = queryResults.data.length;
+                const colors = n === 1 ? [vConfig.color] : this.util.getColors( vConfig.color , n );
+                for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults.data[j].NumericType;
                     const tags = queryResults.data[j].tags;
                     const metric = vConfig.label || queryResults.data[j].metric;
@@ -48,7 +101,7 @@ export class DatatranformerService {
                             options.series[label] = {
                                 strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
                                 strokePattern: this.getStrokePattern(vConfig.lineType),
-                                color: vConfig.color? vConfig.color : '#000000',
+                                color: colors[j],
                                 axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
                                 metric: metric,
                                 tags: tags
@@ -69,8 +122,8 @@ export class DatatranformerService {
             
             
         }
-
     }
+    //*/    
     console.log("normalized data", normalizedData);
     return [...normalizedData];
   }
@@ -131,7 +184,7 @@ export class DatatranformerService {
             const qid = Object.keys(queryData)[0];
             const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
             const mConfigs = gConfig.metrics;
-            datasets[0] = {data: [], backgroundColor: []};
+            datasets[0] = {data: [], backgroundColor: [], tooltipData: []};
             options.labels = [];
             /*
             for ( let i = 0; i < mConfigs.length; i++ ) {
@@ -155,25 +208,28 @@ export class DatatranformerService {
         for (let qid in queryData ) {
             const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
             const mConfigs = gConfig ? gConfig.metrics : [];
-            const results = queryData[qid].results? queryData[qid].results[0] : [];
-            if ( results.data ) {
-                const mid = results.source.split(':')[1];
+            const results = queryData[qid].results? queryData[qid].results : [];
+            for ( let i = 0;  i < results.length; i++ ) {
+                const mid = results[i].source.split(':')[1];
                 const configIndex = mid.replace('m', '');
                 const mConfig = mConfigs[configIndex];
-                const aggregator = mConfig.settings.visual.aggregator || 'sum';
-                for ( let i = 0;  i < results.data.length; i++ ) {
-                    const aggs = results.data[i].NumericSummaryType.aggregations;
-                    const metric = results.data[i].metric;
-                    const tags = results.data[i].tags;
-                    const key = Object.keys(results.data[i].NumericSummaryType.data[0])[0];
-                    const aggData = results.data[i].NumericSummaryType.data[0][key];
+                const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
+                const n = results[i].data.length;
+                const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
+                for ( let j = 0;  j < n; j++ ) {
+                    const aggs = results[i].data[j].NumericSummaryType.aggregations;
+                    const tags = results[i].data[j].tags;
+                    const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
+                    const aggData = results[i].data[j].NumericSummaryType.data[0][key];
 
                     if ( mConfig.settings && mConfig.settings.visual.visible ) {
+                        const metric = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                         const aggrIndex = aggs.indexOf(aggregator);
                         let label = this.getLableFromMetricTags(metric, tags);
                         options.labels.push(label);
                         datasets[0].data.push(aggData[aggrIndex]);
-                        datasets[0].backgroundColor.push(this.getRandomColor());
+                        datasets[0].backgroundColor.push(colors[j]);
+                        datasets[0].tooltipData.push({ metric: metric, ...tags });
                     }
                 }
             }
@@ -181,48 +237,47 @@ export class DatatranformerService {
         return [...datasets];
     }
 
-    getRandomColor() {
-        return '#' + (Math.round(Math.random() * 0XFFFFFF)).toString(16);
-    }
-
     getLableFromMetricTags(metric, tags ) {
         let label = metric;
         for ( let k in tags ) {
             label = label + '-' + tags[k];
         }
-        console.log(metric, tags, label);
         return label;
     }
 
     getChartJSFormattedDataDonut(options, widget, datasets, queryData) {
-        datasets[0] = {data: [], backgroundColor: []};
+        datasets[0] = {data: [], backgroundColor: [], tooltipData: [] };
+        options.labels = [];
         if (!queryData) {
             return datasets;
         }
         const qid = Object.keys(queryData)[0];
-        const results = queryData[qid].results ? queryData[qid].results[0] : [];
+        const results = queryData[qid].results ? queryData[qid].results : [];
 
         const metricIndices = [];
         const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
         const mConfigs = gConfig.metrics;
 
-       if ( results.data ) {
-            const mid = results.source.split(':')[1];
+       for ( let i = 0; i < results.length; i++ ) {
+            const mid = results[i].source.split(':')[1];
             const configIndex = mid.replace('m', '');
             const mConfig = mConfigs[configIndex];
-            const aggregator = mConfig.settings.visual.aggregator || 'sum';
-            for ( let i = 0; i < results.data.length; i++ ) {
-                const aggs = results.data[i].NumericSummaryType.aggregations;
-                const metric = results.data[i].metric;
-                const tags = results.data[i].tags;
-                const key = Object.keys(results.data[i].NumericSummaryType.data[0])[0];
-                const aggData = results.data[i].NumericSummaryType.data[0][key];
+            const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
+            const n = results[i].data.length;
+            const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
+            for ( let j = 0; j < n; j++ ) {
+                const aggs = results[i].data[j].NumericSummaryType.aggregations;
+                const tags = results[i].data[j].tags;
+                const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
+                const aggData = results[i].data[j].NumericSummaryType.data[0][key];
                 if ( mConfig.settings && mConfig.settings.visual.visible ) {
+                    const metric = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                     const aggrIndex = aggs.indexOf(aggregator);
                     const label = this.getLableFromMetricTags(metric, tags);
                     options.labels.push(label);
                     datasets[0].data.push(aggData[aggrIndex]);
-                    datasets[0].backgroundColor.push(this.getRandomColor());
+                    datasets[0].backgroundColor.push(colors[j]);
+                    datasets[0].tooltipData.push({metric: metric, ...tags});
                 }
             }
         }

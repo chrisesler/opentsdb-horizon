@@ -1,18 +1,20 @@
-import { Component, OnInit, HostBinding, Input, Output, EventEmitter, ElementRef, Renderer, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, OnInit, HostBinding, Input, Output, EventEmitter, ElementRef, Renderer, ViewChild, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormControl, AbstractControl, ValidatorFn } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith, debounceTime, switchMap, filter, catchError } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+
 
 import { HttpService } from '../../../../../core/http/http.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
-  selector: 'query',
-  templateUrl: './query.component.html',
-  styleUrls: ['./query.component.scss']
+  selector: 'query-editor',
+  templateUrl: './query-editor.component.html',
+  styleUrls: ['./query-editor.component.scss']
 })
-export class QueryComponent implements OnInit, OnChanges {
-    @HostBinding('class.query') private _hostClass = true;
+export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
+    @HostBinding('class.query-editor') private _hostClass = true;
     @Input() type;
     @Input() query: any = {   metrics: [] , filters: [], settings: {visual: {visible: true}}};
     @Input() label = '';
@@ -43,12 +45,27 @@ export class QueryComponent implements OnInit, OnChanges {
     message = { 'tagControl' : { message: ''}, 'tagValueControl' : { message: '' }, 'metricSearchControl': { message : ''} };
     Object = Object;
 
+    metricSelectedTabIndex = 0;
+    isEditExpression = false;
+    aliases = [];
+     /** Form Group */
+     expressionForm: FormGroup;
+
+     // subscriptions
+     expressionForm_Sub: Subscription;
+
+    // form values
+    expressionName: string;
+    expressionValue: string;
+    metrics: any[] = [];
+
     formControlInitiated = false;
 
     constructor(
         private elRef: ElementRef,
         private renderer: Renderer,
         private httpService: HttpService,
+        private fb: FormBuilder,
         private utils: UtilsService ) {
 
         }
@@ -56,6 +73,25 @@ export class QueryComponent implements OnInit, OnChanges {
     ngOnInit() {
         // console.log("this.query", JSON.stringify(this.query))
         // this.query.id  = this.utils.generateId();
+        this.createForm();
+    }
+
+    createForm() {
+        this.expressionForm = this.fb.group({
+            expressionName:     new FormControl('untitled expression'),
+            expressionValue:    new FormControl('')
+        });
+
+        // JUST CHECKING VALUES
+        /*
+        this.expressionForm_Sub = this.expressionForm.valueChanges
+                                            .pipe(debounceTime(2000))
+                                            .subscribe(function(data) {
+                                                // if ( this.isValidExpression() && this.expressionForm.valid ) {
+                                                    // this.queryData();
+                                                // }
+                                            }.bind(this));
+                                            */
     }
 
     ngOnChanges( changes: SimpleChanges) {
@@ -262,8 +298,8 @@ export class QueryComponent implements OnInit, OnChanges {
                                 settings: {
                                     visual: {
                                         visible: true,
-                                        color: '#000000',
-                                        aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['sum'],
+                                        color: this.utils.getColors(null, 1),
+                                        aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['avg'],
                                         label: ''}}
                             };
             this.query.metrics.push(oMetric);
@@ -338,7 +374,9 @@ export class QueryComponent implements OnInit, OnChanges {
         v = v.trim();
         if ( this.selectedTagIndex === -1  && operation === 'add' ) {
             this.selectedTagIndex = this.query.filters.length;
-            this.query.filters[this.selectedTagIndex] = { tagk: this.selectedTag, groupBy: true, filter: []};
+            const filter: any = { tagk: this.selectedTag,  filter: []};
+            filter.aggregator = this.type === 'LinechartWidgetComponent' ? 'unmerge' : 'sum';
+            this.query.filters[this.selectedTagIndex] = filter;
         }
 
         if (  operation === 'add') {
@@ -357,12 +395,127 @@ export class QueryComponent implements OnInit, OnChanges {
         this.triggerQueryChanges();
     }
 
+    setTagAggregator(index, value) {
+        this.query.filters[index].aggregator = value;
+        if ( value !== 'unmerge' ) {
+            for ( let i = 0; i < this.query.filters.lenght; i++ ) {
+                if ( index !== i && this.query.filters[i].aggregator !== 'unmerge' ) {
+                    this.query.filters[i].aggregator = value;
+                }
+            }
+        }
+        console.log("---value---", this.query.filters[0].aggregator, index, value);
+        this.triggerQueryChanges();
+    }
+
     isInfilteredKeys(key) {
         const keys = [];
         for ( let i = 0, len = this.query.filters.length; i < len; i++  ) {
             keys.push(this.query.filters[i].tagk );
         }
         return keys.indexOf(key);
+    }
+
+    showExpressionForm() {
+        this.expressionForm.controls.expressionName.setValue('untitled expression');
+        this.expressionForm.controls.expressionValue.setValue('');
+        this.isEditExpression = true;
+        this.metricSelectedTabIndex = 1;
+        this.aliases = [];
+        let mIndex = 1, eIndex = 1;
+        for ( let i = 0, n = this.query.metrics.length; i < n; i++ ) {
+            let id,  displayName, metrics = [], expression;
+            if ( this.query.metrics[i].expression ) {
+                id = 'e' + eIndex;
+                displayName = this.query.metrics[i].name;
+                expression = '(' + this.query.metrics[i].expression + ')';
+                eIndex++;
+            } else {
+                id = 'm' + mIndex;
+                displayName = this.query.metrics[i].name;
+                const metric = this.query.namespace + '.' + this.query.metrics[i].name;
+                metrics = [metric];
+                expression = metric;
+                mIndex++;
+            }
+            this.aliases.push( {    id: id,
+                                    displayName: displayName,
+                                    expression: expression,
+                                    expand: false,
+                                    metrics: metrics
+                                });
+        }
+        console.log("aliases", this.aliases);
+    }
+
+    createExpression() {
+        if ( this.isValidExpression() && this.expressionForm.valid ) {
+            this.isEditExpression = false;
+            const expression = this.getExpressionConfig();
+            this.query.metrics.push(expression);
+            this.triggerQueryChanges();
+            console.log("expression", JSON.stringify(expression));
+        }
+    }
+
+    isValidExpression() {
+        const value = this.expressionForm.controls.expressionValue.value.trim();
+        const result = value.match(/((m|e)[0-9]+)/gi);
+        const invalidRefs = [];
+
+        for (let i = 0; result && i < result.length; i++ ) {
+            const index = this.aliases.findIndex(item => item.id === result[i]);
+            if ( index === -1 ) {
+                invalidRefs.push( result[i] );
+            }
+        }
+
+        const isValid =   result != null && !invalidRefs.length;
+        console.log("isValidExpression", isValid, result != null , !invalidRefs.length)
+        this.expressionForm.controls.expressionValue.setErrors( !isValid ? { 'invalid': true } : null );
+        return isValid;
+    }
+
+    getExpressionConfig() {
+        let expInput = this.expressionForm.controls.expressionValue.value;
+        let result = expInput.match(/((m|e)[0-9]+)/gi);
+        result = result ? this.utils.arrayUnique(result) : result;
+        let metrics = [];
+        const replace = [];
+
+        console.log(result, "matches")
+        for (let i = 0; i < result.length; i++ ) {
+            const alias = this.aliases.find(item => item.id === result[i]);
+            console.log(result[i], alias);
+            replace.push( { 'old': result[i], 'new': alias.expression } );
+            metrics = metrics.concat(alias.metrics);
+        }
+        metrics = this.utils.arrayUnique(metrics);
+
+
+        // update the expression with new reference ids
+        for ( let i = 0; i < replace.length; i++ ) {
+            const regex = new RegExp( replace[i].old , 'g');
+            expInput = expInput.replace( regex, replace[i].new);
+        }
+
+        const expression = {
+            id: this.utils.generateId(),
+            name: this.expressionForm.controls.expressionName.value,
+            expression : expInput,
+            metrics: metrics,
+            settings: {
+                visual: {
+                    label: this.expressionForm.controls.expressionName.value,
+                    visible: true
+                }
+            },
+        };
+        return expression;
+    }
+
+    cancelExpression() {
+        this.isEditExpression = false;
     }
 
     closeEditMode() {
@@ -382,5 +535,9 @@ export class QueryComponent implements OnInit, OnChanges {
     apply(): any {
         this.closeEditMode();
         console.log("this.query", JSON.stringify(this.query));
+    }
+
+    ngOnDestroy() {
+        // this.expressionForm_Sub.unsubscribe();
     }
 }

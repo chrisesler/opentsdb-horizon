@@ -17,9 +17,8 @@
                 [ngClass]= "{'edit-flex' : editMode}">
     
                 <div class="content-container" #contentContainer>
-                    <div *ngFor="let agg of aggF; let i = index;">
-                    <div *ngIf="isNumber(aggV[i])" class="metric-container">
-                        <span [ngClass]="{}">{{agg}}:</span>
+                    <div *ngFor="let agg of aggregators; let i = index;">
+                    <div *ngIf="isNumber(aggregatorValues[i])" class="metric-container">
 
                         <span [ngClass]="{
                             'small-top':     widget.settings.visual.prefixSize=='s' && widget.settings.visual.prefixAlignment=='top',
@@ -33,7 +32,7 @@
                             {{shortenString(widget.settings.visual.prefix, maxLabelLength) | uppercase}}
                         </span>
                         
-                        <span *ngIf="UN.getBigNumber(aggV[i], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 0" [ngClass]="{
+                        <span *ngIf="UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 0" [ngClass]="{
                             'small-top':     widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='top',
                             'small-middle':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='middle',
                             'small-bottom':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='bottom',
@@ -43,9 +42,9 @@
                             'large-size':    widget.settings.visual.unitSize=='l'
                             }">{{shortenString(UN.getBigNumber(widget.settings.visual.c, widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) | uppercase}}</span>
     
-                        <span class="big-number">&nbsp;{{UN.getBigNumber(aggV[i], widget.settings.visual.unit, widget.settings.visual.precision).num}}&nbsp;</span>
+                        <span class="big-number">&nbsp;{{UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).num}}&nbsp;</span>
     
-                        <span *ngIf="UN.getBigNumber(aggV[i], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 1" [ngClass]="{
+                        <span *ngIf="UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 1" [ngClass]="{
                             'small-top':     widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='top',
                             'small-middle':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='middle',
                             'small-bottom':  widget.settings.visual.unitSize=='s' && widget.settings.visual.unitAlignment=='bottom',
@@ -53,7 +52,7 @@
                             'medium-middle': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='middle',
                             'medium-bottom': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='bottom',
                             'large-size':    widget.settings.visual.unitSize=='l'
-                            }">{{shortenString(UN.getBigNumber(aggV[i], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) | uppercase}}</span>
+                            }">{{shortenString(UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) | uppercase}}</span>
                         
                         <span [ngClass]="{
                             'small-top':     widget.settings.visual.postfixSize=='s' && widget.settings.visual.postfixAlignment=='top',
@@ -72,6 +71,8 @@
                                 <span *ngIf="changePct <= -1*changeThreshold">↓ {{bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision))}}</span>
                                 <span *ngIf="changePct > -1*changeThreshold && changePct < changeThreshold">↔</span>        
                         </span>
+
+                        <span *ngIf="aggregators.length > 1" [ngClass]="{}">{{agg | uppercase}}</span>
                     </div>
                 </div>
 
@@ -80,6 +81,10 @@
                         {{shortenString(widget.settings.visual.caption, maxCaptionLength) | uppercase }} 
                     </div>
                 </div>
+            </div>
+            <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
+            <div class="error" *ngIf="error" (click)="showError()">
+                <mat-icon>error</mat-icon>
             </div>
             <div class="fully-qualified-metric" *ngIf="editMode">
                 <div class="metric-detail" *ngIf="selectedMetric">
@@ -106,17 +111,17 @@
                 <widget-config-metric-queries [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
             </ng-template>
         </mat-tab>
-        <mat-tab label="Time Configuration">
+        <mat-tab label="Time Configuration" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <widget-config-time [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-time>
             </ng-template>
         </mat-tab>
-        <mat-tab label="Visual Appearance">
+        <mat-tab label="Visual Appearance" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <big-number-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></big-number-visual-appearance>
             </ng-template>
         </mat-tab>
-        <mat-tab label="Meta Data">
+        <mat-tab label="Meta Data" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
             </ng-template>
@@ -131,7 +136,7 @@
             </ng-template>
         </mat-tab>
     </mat-tab-group>
-    <div class="widget-actions" *ngIf="showAction">
+    <div class="widget-actions" *ngIf="!editQueryId">
         <!-- controls to save/cancel -->
         <button mat-raised-button color="primary" class="mat-elevation-z0" (click)="applyConfig()">Apply</button>
         <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Cancel</button>
