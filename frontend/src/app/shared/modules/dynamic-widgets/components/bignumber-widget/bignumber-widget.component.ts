@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 import {
@@ -60,14 +60,22 @@ export class BignumberWidgetComponent implements OnInit {
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
+    shadowInitialized: boolean = false;
 
     @ViewChild('contentContainer') contentContainer: ElementRef;
+
+      // What to clone
+      @ViewChild('clone') template;
+
+      // Where to insert the cloned content
+      @ViewChild('container', {read: ViewContainerRef}) container;
 
     constructor(
         private interCom: IntercomService,
         public dialog: MatDialog,
         public util: UtilsService,
-        public UN: UnitNormalizerService) { }
+        public UN: UnitNormalizerService,
+        private resolver: ComponentFactoryResolver) { }
 
     ngOnInit() {
 
@@ -92,6 +100,11 @@ export class BignumberWidgetComponent implements OnInit {
                     this.updateVisualDimensions(this.fontSizePercent, contentWidth, contentHeight, newWidgetWidth, newWidgetHeight);
                 }
 
+                if (this.container) {
+                    console.log('initializing shadow');
+                    this.container.createEmbeddedView(this.template);
+                    this.shadowInitialized = true;
+                }
             }
             if ( message.action === 'reQueryData' ) {
                 this.refreshData();
@@ -212,6 +225,8 @@ export class BignumberWidgetComponent implements OnInit {
             this.aggregatorValues = [];
             this.tags = null;
         }
+
+      
     }
 
    requestData() {
@@ -330,7 +345,7 @@ console.log("in updatevisualdimensions fontsizepercet", fontSizePercent, "conten
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
                 break;
-                case 'SetQueryEditMode':
+            case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
                 break;
             case 'CloseQueryEditMode':
@@ -339,6 +354,9 @@ console.log("in updatevisualdimensions fontsizepercet", fontSizePercent, "conten
         }
     }
 
+    cloneee() {
+        // this.container.createEmbeddedView(this.template);
+    }
 
     updateQuery( payload ) {
         const query = payload.query;

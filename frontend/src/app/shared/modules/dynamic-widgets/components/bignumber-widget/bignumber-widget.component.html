@@ -15,8 +15,13 @@
                 [style.color]="widget.settings.visual.textColor"
                 [style.font-size]="fontSizePercent + '%'"
                 [ngClass]= "{'edit-flex' : editMode}">
+
+                
     
-                <div class="content-container" #contentContainer>
+                <div class="content-container">
+                    <div *ngIf="!metrics else clone"> </div>
+
+                    <ng-template #clone>
                     <div *ngFor="let agg of aggregators; let i = index;">
                     <div *ngIf="isNumber(aggregatorValues[i])" class="metric-container">
 
@@ -80,7 +85,10 @@
                         <!-- {{shortenString(util.tagMacro(selectedMetric, widget.settings.visual.caption), maxCaptionLength) | uppercase }} -->
                         {{shortenString(widget.settings.visual.caption, maxCaptionLength) | uppercase }} 
                     </div>
+                </ng-template>
                 </div>
+                <!-- <button (click)="cloneee()"> clone </button> -->
+                <div #container></div>
             </div>
             <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
             <div class="error" *ngIf="error" (click)="showError()">
@@ -97,6 +105,7 @@
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
 </div>
