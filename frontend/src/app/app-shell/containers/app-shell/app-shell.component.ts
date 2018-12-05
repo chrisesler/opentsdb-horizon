@@ -7,17 +7,19 @@ import {
 } from '@angular/core';
 
 import {
-    Routes,
-    RouterModule,
     Router,
     ActivatedRoute
 } from '@angular/router';
+
+import { Store, Select } from '@ngxs/store';
+import { Observable } from 'rxjs';
 
 import { MatDrawer } from '@angular/material';
 
 import { NavigatorSidenavComponent } from '../../components/navigator-sidenav/navigator-sidenav.component';
 
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+import { NavigatorState } from '../../state';
 
 @Component({
     selector: 'app-shell',
@@ -28,6 +30,11 @@ export class AppShellComponent implements OnInit, OnDestroy {
 
     @HostBinding('class.app-shell') private _hostClass = true;
 
+    // new state
+    @Select(NavigatorState.getCurrentApp) currentApp$: Observable<string>;
+
+
+    // View Children
     @ViewChild('drawer', { read: MatDrawer }) private drawer: MatDrawer;
 
     @ViewChild(NavigatorSidenavComponent) private sideNav: NavigatorSidenavComponent;
@@ -42,12 +49,16 @@ export class AppShellComponent implements OnInit, OnDestroy {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private interCom: IntercomService
+        private interCom: IntercomService,
+        private store: Store
     ) {
         console.log(this.router, this.route);
     }
 
     ngOnInit() {
+        this.currentApp$.subscribe( app => {
+            this.activeNavSection = app;
+        });
     }
 
     ngOnDestroy() {
