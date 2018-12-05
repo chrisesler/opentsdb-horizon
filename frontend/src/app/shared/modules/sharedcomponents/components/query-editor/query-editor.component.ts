@@ -263,7 +263,7 @@ export class QueryEditorComponent implements OnInit, OnChanges {
                                     visual: {
                                         visible: true,
                                         color: '#000000',
-                                        aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['sum'],
+                                        aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['avg'],
                                         label: ''}}
                             };
             this.query.metrics.push(oMetric);
