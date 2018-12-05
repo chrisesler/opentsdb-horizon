@@ -61,11 +61,11 @@
         <mat-icon class="folder-icon" fontSet="denali" [fontIcon]="folder.icon"></mat-icon>
     </div>
     <div class="list-item folder-name flex-spacer">
-        <span>{{folder.name}}</span>
+        <span>{{folder.name || 'BROKEN'}}</span>
     </div>
     <div class="list-item">
         <span class="counter">
-            <span class="chip-count">{{folder.subfolder.length}}</span>
+            <span class="chip-count">{{folder.subfolder ? folder.subfolder.length : '0'}}</span>
         </span>
     </div>
     <div class="list-item goto-next-folder">
