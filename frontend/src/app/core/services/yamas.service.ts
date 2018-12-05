@@ -18,7 +18,7 @@ export class YamasService {
 
         const mids = [];
         let filterId = '';
-        const groupbyIds = [];
+        const outputIds = [];
 
         // add filters
         if ( query.filters.length ) {
@@ -32,44 +32,40 @@ export class YamasService {
             const isExpression = query.metrics[j].expression ? true : false;
 
             let q;
-            let sources = [];
-            if ( query.metrics[j].name) {
-
+            if ( query.metrics[j].expression ) {
+                const res = this.getExpressionQuery(query.metrics[j], j, filterId);
+                q = res.expression;
+                // add metrics for the expression
+                transformedQuery.executionGraph = transformedQuery.executionGraph.concat(res.queries);
+                // add downsample for the expression
+                const ds = this.getQueryDownSample(downsample, q.id, res.mids);
+                transformedQuery.executionGraph.push(ds);
+                // add groupby for the expression
+                const groupbyId = 'groupby-' + q.id;
+                transformedQuery.executionGraph.push(this.getQueryGroupBy(query, [ds.id], groupbyId));
+                q.sources = [groupbyId];
+                transformedQuery.executionGraph.push(q);
+                outputIds.push(q.id);
+            } else {
                 q = this.getMetricQuery(query, j);
                 if ( filterId ) {
                     q.filterId = filterId;
                 }
-                sources = [q.id];
                 transformedQuery.executionGraph.push(q);
                 mids.push(q.id);
-            } else {
-                // const res = this.getExpressionQuery(query.metrics[j], j);
-                // q = res.expression;
-                // transformedQuery.executionGraph = transformedQuery.executionGraph.concat(res.queries);
-                // sources = res.qids;
+                outputIds.push('groupby');
             }
-
-            /*
-            if ( !summaryOnly  ) {
-                q.sources = [groupby.id];
-                // groupbyIds.push(groupby.id);
-                if ( isExpression ) {
-                    transformedQuery.executionGraph.push(q);
-                }
-
-            }
-            */
         }
 
         const dsConfig = this.getQueryDownSample(downsample);
         dsConfig.sources = mids;
         transformedQuery.executionGraph.push(dsConfig);
         transformedQuery.executionGraph.push(this.getQueryGroupBy(query, ['downsample']));
-        transformedQuery.executionGraph.push(this.getQuerySummarizer());
+        transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
 
             transformedQuery.serdesConfigs = [{
                 id: 'JsonV3QuerySerdes',
-                filter: summaryOnly ? ['summarizer'] : [ 'groupby', 'summarizer']
+                filter: summaryOnly ? ['summarizer'] : outputIds.concat(['summarizer'])
             }];
         return transformedQuery;
     }
@@ -101,43 +97,34 @@ export class YamasService {
         return filter;
     }
 
-    getExpressionQuery(query, index) {
-        let filters = [];
+    getExpressionQuery(config, index, filterId) {
         const eid = 'm' + index;
-        const qids = [];
-        let expValue = query.metrics[index].expression;
-        filters = query.filters ? this.transformFilters(query.filters) : [];
+        const mids = [];
+
         const queries = [];
-        for ( let i = 0; i < query.metrics.length; i++ ) {
+        for ( let i = 0; i < config.metrics.length; i++ ) {
             const mid = 'm' + index.toString()  + (i + 1);
 
-            const q = {
+            const q: any = {
                 id: mid, // using the loop index for now, might need to generate its own id
                 type: 'TimeSeriesDataSource',
                 metric: {
                     type: 'MetricLiteral',
-                    metric: query.metrics[i].metric
+                    metric: config.metrics[i]
                 },
                 fetchLast: false,
-                filter: {}
             };
-            if ( filters.length ) {
-                q.filter = {
-                    type: 'Chain',
-                    filters: filters
-                };
-            } else {
-                delete q.filter;
+
+            if ( filterId ) {
+                q.filterId = filterId;
             }
             queries.push(q);
-            qids.push(mid);
-            const regex = new RegExp( 'm' + (i + 1) , 'g');
-            expValue = expValue.replace( regex, mid);
+            mids.push(mid);
         }
         const expression = {
             id: eid,
             type: 'expression',
-            expression: expValue,
+            expression: config.expression,
             join: {
                 type: 'Join',
                 joinType: 'NATURAL'
@@ -150,7 +137,7 @@ export class YamasService {
             variableInterpolators: {},
             sources: []
         };
-        return { expression: expression, queries: queries, qids: qids };
+        return { expression: expression, queries: queries, mids: mids };
     }
 
     transformFilters(fConfigs) {
@@ -188,7 +175,7 @@ export class YamasService {
         return chain;
     }
 
-    getQueryGroupBy(query, sources= []) {
+    getQueryGroupBy(query, sources= [], id= null) {
         const filters = query.filters || [];
         const tagKeys = [];
         let aggregator = 'sum';
@@ -201,7 +188,7 @@ export class YamasService {
             }
         }
         const metricGroupBy =  {
-            id: 'groupby',
+            id: id ? id : 'groupby',
             type: 'groupby',
             aggregator: aggregator,
             tagKeys: tagKeys,
@@ -241,11 +228,11 @@ export class YamasService {
         return downsample;
     }
 
-    getQuerySummarizer() {
+    getQuerySummarizer(sources= []) {
         const summarizer =  {
             id: 'summarizer',
+            sources: sources ? sources : ['groupby'],
             summaries: ['avg', 'max', 'min', 'count', 'sum', 'first', 'last'],
-            sources: ['groupby']
         };
         return summarizer;
     }

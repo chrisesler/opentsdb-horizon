@@ -19,9 +19,59 @@ export class DatatranformerService {
       normalizedData = [];
     }
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
+/*
+    let dict = {};
     for (let qid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
         const mConfigs = gConfig ? gConfig.metrics : [];
+        if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
+            dict[qid] = {};
+            for ( let i = 0;  i < result[qid].results.length; i++ ) {
+                const queryResults = result[qid].results[i];
+                const [ source, mid ] = queryResults.source.split(":");
+                if (!dict[qid][mid]) {
+                    dict[qid][mid] = { hashes: {}};
+
+                }
+                if ( source === 'summarizer') {
+                    dict[qid][mid]['summarizer'] = queryResults.data;
+                    continue;
+                }
+                else {
+                    dict[qid][mid]['values'] = queryResults.data;
+                }
+                const mIndex = mid.replace("m",'');
+                const n = queryResults.data.length;
+                for ( let j = 0; j < n; j ++ ) {
+                    const tags = queryResults.data[j].tags;
+                    let hashCode = JSON.stringify(tags);
+                    dict[qid][mid]['hashes'][hashCode] = j;
+                }
+            }
+        }
+    }
+
+    for (let qid in dict) {
+        for(let mid in dict[qid]) {
+            dict[qid][mid].values.sort((a,b) => {
+                let a_hash = JSON.stringify(a.tags);
+                let b_hash = JSON.stringify(b.tags);
+                let a_index = dict[qid][mid]['hashes'][a_hash];
+                let b_index = dict[qid][mid]['hashes'][b_hash];
+                return dict[qid][mid]['summarizer'][a_index]['NumericSummaryType']['aggregations'][2] 
+                     > dict[qid][mid]['summarizer'][b_index]['NumericSummaryType']['aggregations'][2];
+            });
+        }
+    }
+
+    console.log("dict", dict);
+    */
+
+    ///*
+    for (let qid in result) {
+        const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
+        const mConfigs = gConfig ? gConfig.metrics : [];
+        let summary = [];
         if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
             // sometimes opentsdb returns empty results
             for ( let i = 0;  i < result[qid].results.length; i++ ) {
@@ -31,6 +81,7 @@ export class DatatranformerService {
                     continue;
                 }
                 const mIndex = mid.replace("m",'');
+
                 const timeSpecification = queryResults.timeSpecification;
                 const mConfig = mConfigs[mIndex];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
@@ -72,6 +123,7 @@ export class DatatranformerService {
             
         }
     }
+    //*/    
     console.log("normalized data", normalizedData);
     return [...normalizedData];
   }

@@ -95,15 +95,15 @@ export class UtilsService {
             const b = parseInt(color.substring(5, 7), 16);
             hue = this.rgbToHsv(r, g, b)[0];
         } else {
-            hue = Math.random();
+            hue = n === 1 ? Math.random() : 0;
         }
-        let s = 1, v = 1;
+        let s = .7, v = .7;
         for ( let i = 0; i < n;  i++ ) {
             if ( color ) {
                 s = Math.random() * (1 - 0.1) + 0.1; // random no. between 0.1 to 1
-                v = Math.random() * ( 1 - 0.2) + 0.2;
+                v = Math.random() * ( 0.9  - 0.2) + 0.2;
             } else {
-                hue = hue + goldenRatio;
+                hue += ( 1 / n);
                 hue = hue % 1;
             }
             colors.push(this.rgbToHex(this.hsvToRGB(hue, s, v)));
@@ -157,5 +157,12 @@ export class UtilsService {
           h /= 6;
         }
         return [ h, s, v ];
+    }
+
+    arrayUnique(items) {
+        items = items.filter((elem, pos, arr) => {
+            return arr.indexOf(elem) === pos;
+        });
+        return items;
     }
 }
