@@ -72,6 +72,7 @@
                             display: flex;
                             flex:1;
                             min-height: 200px;
+                            position: relative;
                             .mat-tab-group{
                                 flex: 1 1 100%;
                             }
@@ -123,6 +124,13 @@
                                         font-weight: 500;
                                     }
                                 }
+                            }
+                            .add-expression {
+                                position: absolute;
+                                top: 0px;
+                                right: 0px;
+                                line-height: 20px;
+                                font-weight: 300;
                             }
                         }
                         
@@ -263,6 +271,26 @@
                             flex:1;
                         }
                         
+                    }
+                    .expression-form {
+                        padding: 10px;
+                        background: #fff;
+                        display: flex;
+                        flex: 1;
+                        flex-direction: column;
+                        .mat-form-field {
+                            padding-top: 20px;
+                            width: 100%;
+                        }
+                        .actions {
+                            padding: 10px;
+                            text-align: start;
+                            .mat-stroked-button, .mat-button {
+                                font-weight: 300;
+                                min-width: 80px;
+                                line-height: 25px;
+                            }
+                        }
                     }
                 }
             }
