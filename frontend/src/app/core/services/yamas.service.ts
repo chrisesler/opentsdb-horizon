@@ -206,19 +206,14 @@ export class YamasService {
     }
 
     getQueryDownSample(dsSetting, qid= null, sources= []) {
-        let dsValue = dsSetting.value || '1m';
-        switch ( dsSetting.value ) {
-            case 'auto':
-                dsValue = '5m';
-                break;
-            case 'custom':
-                dsValue = dsSetting.customValue + dsSetting.customUnit;
-                break;
+        let dsValue = dsSetting.value || 'auto';
+        if ('custom' === dsSetting.value) {
+            dsValue = dsSetting.customValue + dsSetting.customUnit;
         }
         const downsample =  {
             id: 'downsample' + ( qid ? '-' + qid : ''),
             type: 'downsample',
-            aggregator: dsSetting.aggregator || 'sum',
+            aggregator: dsSetting.aggregator || 'avg',
             interval: dsValue,
             fill: true,
             interpolatorConfigs: [
@@ -236,8 +231,8 @@ export class YamasService {
     getQuerySummarizer(sources= []) {
         const summarizer =  {
             id: 'summarizer',
-            summaries: ['sum', 'max', 'min', 'count', 'avg', 'first', 'last'],
-            sources: sources ? sources : ['groupby']
+            sources: sources ? sources : ['groupby'],
+            summaries: ['avg', 'max', 'min', 'count', 'sum', 'first', 'last'],
         };
         return summarizer;
     }

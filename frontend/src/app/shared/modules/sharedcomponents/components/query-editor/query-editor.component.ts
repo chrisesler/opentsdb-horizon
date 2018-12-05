@@ -299,7 +299,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                                     visual: {
                                         visible: true,
                                         color: this.utils.getColors(null, 1),
-                                        aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['sum'],
+                                        aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['avg'],
                                         label: ''}}
                             };
             this.query.metrics.push(oMetric);
