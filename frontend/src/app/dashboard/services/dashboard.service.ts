@@ -44,8 +44,8 @@ export class DashboardService {
         legend: {},
         time: {
             downsample: {
-                value: '1m',
-                aggregator: 'sum',
+                value: 'auto',
+                aggregator: 'avg',
                 customValue: '',
                 customUnit: ''
             }

@@ -12,7 +12,7 @@ export class QueryService {
     buildQuery(widget, time, query) {
         const source = widget.settings.data_source;
         const summary = widget.settings.component_type === 'LinechartWidgetComponent' ? false : true;
-        const downsample = widget.queries.settings && widget.queries.settings.time ? widget.queries.settings.time.downsample : {};
+        const downsample = widget.settings && widget.settings.time ? widget.settings.time.downsample : {};
         return this[source].buildQuery(time, query, downsample, summary);
     }
 }
