@@ -31,15 +31,15 @@
                                     <div *ngIf="type !== 'LinechartWidgetComponent'">Summarizer: <dropdown-aggregators [multiple]="type === 'BignumberWidgetComponent' ? true : false" [value]="metric.settings.visual.aggregator" (change)="setMetricSummarizer(metric.id, $event)"></dropdown-aggregators></div>
                                 </div>
                             </ng-container>
-                            <div class="action" *ngIf="!edit.length || !query.metrics.length && edit.indexOf('metrics') === -1">
+                            <div class="action" *ngIf="!edit.length || edit.indexOf('metrics') === -1">
                                     <button (click)="requestEditMode('metrics')">Add Metrics</button>
                             </div>           
                             <div class="filter" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
                                 <div class="search"><input type=text  #metricSearchInput class="metric-search-input"  [formControl]="metricSearchControl"></div>
                             </div>
                             <div class="filter-result" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
-                                <mat-tab-group  color="primary" mat-align-tabs="start">
-                                        <mat-tab [label]="'Available(' + metricOptions.length + ')'">
+                                <mat-tab-group  color="primary" mat-align-tabs="start" [(selectedIndex)]="metricSelectedTabIndex">
+                                        <mat-tab [label]="'Available(' + metricOptions.length + ')'" [disabled]="isEditExpression">
                                             <ng-template matTabContent>
                                                     <div class="list has-scroller">
                                                             <div class="is-scroller">
@@ -58,19 +58,26 @@
                                         <mat-tab [label]="'Selected(' + query.metrics.length + ')'">
                                             <ng-template matTabContent>
                                                 <div class="list has-scroller">
-                                                    <div class="is-scroller">
-                                                        <div class="option" *ngFor="let metric of query.metrics">
+                                                    <div class="is-scroller" *ngIf="!isEditExpression">
+                                                        <div class="option" *ngFor="let metric of query.metrics; let index=index">
                                                             <mat-icon (click)="updateMetricSelection(metric.name, 'remove');">remove_circle_outline</mat-icon>
                                                             <div>{{ metric.name }}</div>
                                                         </div>
                                                     </div>
+                                                    <div class="is-scroller" *ngIf="isEditExpression">
+                                                        <div class="option" *ngFor="let alias of aliases">
+                                                            <span>{{ alias.id }}: </span>
+                                                            <div>{{ alias.displayName }}</div>
+                                                        </div>
                                                     </div>
+                                                </div>
                                             </ng-template>
                                         </mat-tab>
                                 </mat-tab-group>
+                                <button *ngIf="query.metrics.length" class="add-expression" mat-button color="primary"  (click)="showExpressionForm()" [disabled]="isEditExpression">+ Add Expression </button>
                             </div>
                         </div>
-                        <div class="filters">
+                        <div class="filters" *ngIf="!isEditExpression">
                             <div class="label">FILTERS</div>
                             <ng-container *ngIf="query.filters.length && edit.indexOf('filters') === -1">
                                     <div *ngFor="let filter of query.filters; let index=index"> 
@@ -78,7 +85,7 @@
                                         <span>{{ filter.tagk }}: {{ filter.filter.join(',') }}</span>
                                     </div>
                                 </ng-container>
-                            <div class="action" *ngIf="!edit.length || !query.filters.length && edit.indexOf('filters') === -1">
+                            <div class="action" *ngIf="!edit.length ||  edit.indexOf('filters') === -1">
                                 <button (click)="requestEditMode('filters')">Add Filters</button>
                             </div>
                             <div class="filter" *ngIf="edit.length && edit.indexOf('filters') !== -1">
@@ -149,6 +156,25 @@
                                             </div>
                                     </div>
                             </div>
+                        </div>
+                        <div class="expression-form" *ngIf="isEditExpression">
+                            <form [formGroup]="expressionForm">
+                                <mat-form-field appearance="fill">
+                                    <mat-label>Expression Name</mat-label>
+                                    <input matInput placeholder="Please enter a name for this expression" maxlength="100" formControlName="expressionName" required>
+                                </mat-form-field>
+                                <mat-form-field appearance="fill">
+                                    <mat-label>Expression</mat-label>
+                                    <textarea matInput rows="10" placeholder="Enter an expression value (e.g. [(m1+m2)/2]" formControlName="expressionValue" required></textarea>
+                                </mat-form-field>
+                                <mat-error *ngIf="expressionForm.controls.expressionValue.errors && expressionForm.controls.expressionValue.errors.invalid">
+                                        Invalid Expression(Atleast one alias should be used in the expression)
+                                </mat-error>
+                            </form>
+                            <div class="actions">
+                                <button mat-button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="createExpression()"> Create </button>
+                                <button mat-button  class="mat-elevation-z0" (click)="cancelExpression()"> Cancel </button>
+                            </div> 
                         </div>
                     </div>
             </div>
