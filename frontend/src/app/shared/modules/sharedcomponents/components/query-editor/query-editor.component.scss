@@ -38,6 +38,19 @@
                 padding-right: 14px;
                 height: 30px;
             }
+            .action-icons {
+                float: right;
+                .mat-icon-button {
+                    width: 20px;
+                    height: 20px;
+                    line-height: 20px;
+                }
+
+                .mat-icon {
+                    font-size: 16px;
+                }
+            }
+
             .metrics{
                 flex: 1 1 100%;
                 display: flex;
@@ -63,7 +76,14 @@
                         display: flex;
                         flex: 1;
                         flex-direction: column;
-                        
+                        .metric{
+                            padding: 5px;
+                            background: #EFF4FF;
+                            border-top: 1px solid #fff;
+                            .metric-item-detail{
+                                float:left;
+                            }
+                        }
                         .filter {
                             
                         }
@@ -105,18 +125,26 @@
                                         font-size: 10px;
                                         display: flex;
                                         flex-direction: row;
-                                        align-items: center;
+                                        align-items: stretch;
+                                        justify-content: stretch;
                                         mat-icon {
                                             cursor: pointer;
                                             font-size: 15px;
-                                            color: green;
+                                            color: #3296f2;
+                                            width:auto;
+                                            height: auto;
                                         }
-                                        mat-icon.edit {
-                                            position: absolute;
-                                            color: #ffb405;
-                                            right: 0px;
+                                        .option-row-item {
+                                            display: flex;
+                                            align-items: center;
+                                            justify-content: center;
+                                            min-height: 24px;
                                         }
-                                        .expression-detail{
+                                        
+                                        .option-row-item.label {
+                                            flex: 1;
+                                            margin: auto 5px;
+                                            justify-content: flex-start;
                                         }
             
                                     }
@@ -159,6 +187,14 @@
                         display: flex;
                         flex: 1;
                         flex-direction: column;
+                        .tag {
+                            background: #EFF4FF;
+                            border-top: 1px solid #fff;
+                            padding: 5px;
+                            .tag-item-detail{
+                                float:left;
+                            }
+                        }
                         .filter {
                             display: flex;
                             flex-direction: column;
