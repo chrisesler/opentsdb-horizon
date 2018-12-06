@@ -49,14 +49,21 @@ export class BignumberWidgetComponent implements OnInit {
     aggregatorValues: any[] = [];
 
     // Used to calculate auto-resizing
+    autoScaleThreshold: number = 0.1; // percent change that causes resizing
     fontSizePercent: number = 100;
     defaultFontSize: number = 14;
-    defaultFontWeight: number = 600;
+    defaultFontWeight: number = 400;
+    defaultBigNumberFontWeight: number = 600;
+    defaultCaptionFontWeight: number = 500;
     defaultFont: string = 'Ubuntu';
     contentFillPercent: number = 0.8; // how much % content should take up widget
     contentFillPercentWithNoCaption: number = 0.8; // how much % content should take up widget
     heightOfLargeFont: number = 47;
-    heightOfSmallFont: number = 16;
+    heightOfSmallFont: number = 15;
+    heightOfMarginAboveCaption: number = 5;
+    mediumFontSizeMultiplier: number = 2;
+    largeFontSizeMultiplier: number = 3;
+    captionFontSizeMultiplier: number = 1.2;
 
     maxCaptionLength: number = 36;
     maxLabelLength: number = 10; // postfix, prefix, unit
@@ -69,7 +76,6 @@ export class BignumberWidgetComponent implements OnInit {
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
     shadowInitialized: boolean = false;
 
-    @ViewChild('contentContainer') contentContainer: ElementRef;
     @ViewChild('myCanvas') myCanvas: ElementRef;
     public context: CanvasRenderingContext2D;
 
@@ -218,7 +224,7 @@ export class BignumberWidgetComponent implements OnInit {
                 let prefixWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.prefix, this.maxLabelLength), this.widget.settings.visual.prefixSize);
                 let unitWidth = this.getWidthOfText(this.shortenString(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).unit, this.maxLabelLength), this.widget.settings.visual.unitSize);
                 let postfixWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.postfix, this.maxLabelLength), this.widget.settings.visual.postfixSize);
-                let bigNumberWidth = this.getWidthOfText(' ' + this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num + ' ', 'l');
+                let bigNumberWidth = this.getWidthOfText(' ' + this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num + ' ', 'l', this.defaultBigNumberFontWeight);
 
                 let changeIndicatorWidth = 0;
                 if (this.widget.settings.visual.changedIndicatorEnabled) {
@@ -236,28 +242,16 @@ export class BignumberWidgetComponent implements OnInit {
                     aggregatorWidth = this.getWidthOfText(agg);
                 }
 
-                let captionWidth = this.getWidthOfText( this.shortenString(this.widget.settings.visual.caption, this.maxCaptionLength));
-
-                console.log('*****');
-                console.log('prefix', prefixWidth);
-                console.log('unitwidth', unitWidth, this.shortenString(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).unit, this.maxLabelLength), this.widget.settings.visual.c);
-                console.log('postfix', postfixWidth);
-                console.log('bignumwidth', bigNumberWidth);
-                console.log('changeindicator', changeIndicatorWidth);
-                console.log('aggregatorWidth', aggregatorWidth);
-                console.log('*****');
-
                 let tmpBigNumberWithOtherLabelsWidth: number = prefixWidth + unitWidth + postfixWidth + bigNumberWidth + changeIndicatorWidth + aggregatorWidth;
-                // let tmpBigNumberWithOtherLabelsWidth: number = bigNumberWidth;
-                let tmpCaptionWidth: number = captionWidth;
+                let tmpCaptionWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.caption, this.maxCaptionLength), 'c', this.defaultCaptionFontWeight);
 
                 // assign if largest width
                 if (tmpBigNumberWithOtherLabelsWidth >  bigNumberWithOtherLabelsWidth) {
                     bigNumberWithOtherLabelsWidth = tmpBigNumberWithOtherLabelsWidth;
                 }
 
-                if (tmpCaptionWidth > captionWidth ) {
-                    captionWidth = tmpCaptionWidth;
+                if (tmpCaptionWidth > captionLabelWidth ) {
+                    captionLabelWidth = tmpCaptionWidth;
                 }
             }
             i++;
@@ -268,11 +262,21 @@ export class BignumberWidgetComponent implements OnInit {
 
     determineHeightofBigNumber(): number {
         return this.widget.settings.visual['caption'].trim() ?
-            this.heightOfLargeFont * this.aggregators.length + this.heightOfSmallFont :
+            this.heightOfLargeFont * this.aggregators.length + this.heightOfSmallFont + this.heightOfMarginAboveCaption :
             this.heightOfLargeFont * this.aggregators.length;
     }
 
     determineFontSizePercent(width: number, height: number) {
+
+        if (this.editMode) {
+            if (this.aggregators.length > 4) {
+                this.fontSizePercent = 75;
+            } else {
+                this.fontSizePercent = 100;
+            }
+            return;
+        }
+
         let fillPercent: number = this.widget.settings.visual['caption'] ? this.contentFillPercent : this.contentFillPercentWithNoCaption;
 
         let maxWidth: number = width * fillPercent;
@@ -284,34 +288,30 @@ export class BignumberWidgetComponent implements OnInit {
         let percentHeight = (maxHeight / contentHeight) * 100;
         let fontSizePercent: number = Math.min(percentHeight, percentWidth);
 
-        console.log('fillPercent', fillPercent);
-        console.log('maxWidth', maxWidth);
-        console.log('maxHeight', maxHeight);
-        console.log('contentHeight', contentHeight);
-        console.log('contentWidth', contentWidth);
-        console.log('percentWidth', percentWidth);
-        console.log('percentHeight', percentHeight);
-        console.log('fontSizePercent', fontSizePercent);
-
-        if (Math.abs(fontSizePercent - this.fontSizePercent) > 0.1) {
-            this.fontSizePercent = fontSizePercent;
-        }
+        this.fontSizePercent = fontSizePercent + 0.1 * Math.random(); // random so we always redraw
     }
 
-    getWidthOfText(text: string, size?: string): number {
+    getWidthOfText(text: string, size?: string, weight?: number): number {
         if (!text ||  text.trim() === '') {
             return 0;
         }
 
         let fontsize: number = this.defaultFontSize;
         if (size && size.toLowerCase() === 'm') {
-            fontsize = 2 * fontsize;
+            fontsize = this.mediumFontSizeMultiplier * fontsize;
         } else if (size && size.toLowerCase() === 'l') {
-            fontsize = 3 * fontsize;
+            fontsize = this.largeFontSizeMultiplier * fontsize;
+        } else if (size && size.toLowerCase() === 'c') {
+            fontsize = this.captionFontSizeMultiplier * fontsize;
+        }
+
+        let fontWeight: number = this.defaultFontWeight;
+        if (weight) {
+            fontWeight = weight;
         }
 
         this.context = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
-        let fullFont: string = this.defaultFontWeight + ' ' + fontsize + 'px ' + this.defaultFont;
+        let fullFont: string = fontWeight + ' ' + fontsize + 'px ' + this.defaultFont;
         this.context.font = fullFont;
 
         return this.context.measureText(text.toUpperCase()).width;
@@ -356,24 +356,6 @@ export class BignumberWidgetComponent implements OnInit {
         }
     }
 
-    calcFontSizePercent(percent: number, originalWidth: number, originalHeight: number, newWidth: number, newHeight: number): number {
-        if (!originalWidth || !originalHeight) {
-            return percent;
-        }
-
-        let fillPercent: number = this.widget.settings.visual['caption'] ? this.contentFillPercent : this.contentFillPercentWithNoCaption;
-        let percentWidthChange = (newWidth * fillPercent) / originalWidth;
-        let percentHeightChange = (newHeight * fillPercent) / originalHeight;
-        let percentChange: number = Math.min(percentHeightChange, percentWidthChange);
-
-        if (percentChange > 1.01 || percentChange < 0.99) {
-            return percentChange * percent;
-        } else {
-            return percent;
-        }
-    }
-
-
     // we have this method so that a caption or other labels will not make the big number really small
     shortenString(str: string, maxChars: number): string {
         if ( str && str.length > maxChars) {
@@ -415,10 +397,6 @@ export class BignumberWidgetComponent implements OnInit {
                 this.editQueryId = null;
                 break;
         }
-    }
-
-    cloneee() {
-        // this.container.createEmbeddedView(this.template);
     }
 
     updateQuery( payload ) {
@@ -558,7 +536,6 @@ export class BignumberWidgetComponent implements OnInit {
         this.widget.settings.visual.textColor = this.widget.settings.visual.textColor || '#FFFFFF';
         this.widget.settings.visual.sparkLineEnabled = this.widget.settings.visual.sparkLineEnabled || false;
         this.widget.settings.visual.changedIndicatorEnabled = this.widget.settings.visual.changedIndicatorEnabled || false;
-
     }
 
 }
