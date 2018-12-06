@@ -55,7 +55,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
             .pipe(
                 startWith(''),
                 debounceTime(300),
-                map(val => this.filterNamespace(val)) // autosuggest options shuld come from somewhere else. Currently fake data
+                map(val => this.filterNamespace(val))
             );
 
         this.interCom.requestSend(<IMessage> {
@@ -65,7 +65,6 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch ( message.action ) {
                 case 'UserNamespaces':
-                    //console.log("save dialog on listen", message, this.namespace);
                     this.namespaceOptions = message.payload;
                     break;
             }
@@ -81,9 +80,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         this.listenSub.unsubscribe();
     }
 
-    /** PERSONAL USE CHECKED */
     personalUseChecked(e: any) {
-        //console.log('%cPERSONAL USE CHECKBOX [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', e, this.isPersonal);
         if (e.checked) {
             this.namespace.disable(); // disable namespace control
         } else {
@@ -91,15 +88,14 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         }
     }
 
-    /** NAMESPACE EVENTS */
-
     filterNamespace(val: string): string[] {
-        console.log('hilll', Array.isArray(this.namespaceOptions), this.namespaceOptions);
-        //return this.namespaceOptions.filter(option => {
-        //    return option.name.toLowerCase().includes(val.toLowerCase());
-        //});
-
-        return [];
+        return this.namespaceOptions.filter(option => {
+            if(val === '') {
+                return option.name;
+            } else {
+                return option.name.toLowerCase().includes(val.toLowerCase());
+            }
+        });
     }
 
     /**
@@ -139,16 +135,11 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         return Object.keys(errors).length === 0 ? true : false;
     }
     /** SAVE BUTTON */
-
     saveDashboardAction() {
-        //console.log('%cSAVE DASHBOARD [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;');
         if (!this.saveForm.valid) {
             // form not good
-            //console.log('%cSAVE DASHBOARD [NOT VALID]', 'color: #ffffff; background-color: red; padding: 2px 4px;', this.saveForm);
         } else if ( this.isValidNamespaceSelected() ) {
             // form is good, save it
-            //console.log('%cSAVE DASHBOARD [VALID]', 'color: #ffffff; background-color: green; padding: 2px 4px;', this.saveForm);
-
             const data: any = {
                 title: this.title.value,
                 isPersonal: this.isPersonal.value
@@ -158,7 +149,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
                 data.namespace = this.namespace.value;
             }
 
-            console.log("return data", data);
+            //console.log("return data", data);
             this.dialogRef.close(data);
         }
     }

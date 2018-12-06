@@ -3,13 +3,11 @@ import {
     HostBinding,
     OnDestroy,
     OnInit,
-    ViewChild
+    ViewChild,
+    Input,
+    OnChanges,
+    SimpleChanges
 } from '@angular/core';
-
-import {
-    Router,
-    ActivatedRoute
-} from '@angular/router';
 
 import { Store, Select } from '@ngxs/store';
 import { Observable } from 'rxjs';
@@ -26,9 +24,11 @@ import { NavigatorState } from '../../state';
     templateUrl: './app-shell.component.html',
     styleUrls: []
 })
-export class AppShellComponent implements OnInit, OnDestroy {
+export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
 
     @HostBinding('class.app-shell') private _hostClass = true;
+
+    @Input() fullUrlPath: string;
 
     // new state
     @Select(NavigatorState.getCurrentApp) currentApp$: Observable<string>;
@@ -47,18 +47,22 @@ export class AppShellComponent implements OnInit, OnDestroy {
 
 
     constructor(
-        private route: ActivatedRoute,
-        private router: Router,
         private interCom: IntercomService,
         private store: Store
-    ) {
-        console.log(this.router, this.route);
-    }
+    ) {}
 
     ngOnInit() {
         this.currentApp$.subscribe( app => {
             this.activeNavSection = app;
         });
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        // when then path is changes
+        if (changes.fullUrlPath && changes.fullUrlPath.currentValue) {
+            // now do whatever with this full path
+            console.log('new url path', changes.fullUrlPath.currentValue);
+        }
     }
 
     ngOnDestroy() {
