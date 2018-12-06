@@ -18,7 +18,7 @@
         <button mat-icon-button (click)="createFolder()">
             <mat-icon fontSet="denali" fontIcon="d-folder-add"></mat-icon>
         </button>
-        <button mat-icon-button (click)="editFolders()">
+        <button mat-icon-button (click)="editFolders()" *ngIf="folders.length > 0">
             <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
         </button>
     </div>
