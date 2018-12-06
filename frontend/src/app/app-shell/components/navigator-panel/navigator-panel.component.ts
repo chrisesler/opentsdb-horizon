@@ -42,7 +42,8 @@ export class NavigatorPanelComponent implements AfterViewInit {
     @Input() timing = '200ms cubic-bezier(0.250, 0.460, 0.450, 0.940)';
 
     private player: AnimationPlayer;
-    private currentSlide = 0;
+    // tslint:disable-next-line:no-inferrable-types
+    private currentSlide: number = 0;
     // tslint:disable-next-line:no-inferrable-types
     private itemWidth: number = 300;
 
@@ -55,6 +56,11 @@ export class NavigatorPanelComponent implements AfterViewInit {
     ) { }
 
     ngAfterViewInit() {
+        console.log('NAVPANEL CurSlide', this.currentSlide);
+        if (this.currentSlide > 0) {
+            const offset = this.currentSlide * this.itemWidth;
+            // this.panel.nativeElement.style.transform = `translateX(-${tmpOffset}px)`;
+        }
     }
 
     goNext(isDone?: any) {
@@ -121,6 +127,12 @@ export class NavigatorPanelComponent implements AfterViewInit {
         });
         this.player.play();
 
+    }
+
+    startAt(idx: any) {
+        this.currentSlide = idx;
+        const tmpOffset = this.currentSlide * this.itemWidth;
+        this.panel.nativeElement.style.transform = `translateX(-${tmpOffset}px)`;
     }
 
     /** Privates */
