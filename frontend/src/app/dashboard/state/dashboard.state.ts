@@ -100,14 +100,23 @@ export class DBState {
 
     @Action(LoadDashboard)
     loadDashboard(ctx: StateContext<DBStateModel>, { id }: LoadDashboard) {
+        // id is the path
         if ( id !== '_new_' ) {
             ctx.patchState({ loading: true});
+            return this.httpService.getDashboardByPath(id).pipe(
+                map(dashboard => {
+                    ctx.dispatch(new LoadDashboardSuccess(dashboard.body));
+                }),
+                catchError( error => ctx.dispatch(new LoadDashboardFail(error)))
+            );
+            /*
             return this.httpService.getDashoard(id).pipe(
                 map( (dashboard: any) => {
                     ctx.dispatch(new LoadDashboardSuccess(dashboard));
                 }),
                 catchError( error => ctx.dispatch(new LoadDashboardFail(error)))
             );
+            */
         } else {
             const dashboard = this.dbService.getDashboardPrototype();
             ctx.dispatch(new LoadDashboardSuccess(dashboard));
@@ -121,7 +130,7 @@ export class DBState {
             id: payload.id,
             loaded: true,
             loading: false,
-            loadedDB: payload
+            loadedDB: JSON.parse(payload.content)
         });
     }
 
