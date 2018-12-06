@@ -126,6 +126,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         // when editing mode is loaded, we need to temporary adding default UI state
         // to editing widget
         if (changes.widget.currentValue) {
+            console.log("widget config changed", changes.widget.currentValue)
             this.addRemoveTempUIState(true, changes.widget.currentValue);
         }
     }
@@ -143,6 +144,21 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                 this.widgetChange.emit({ action: 'CloseQueryEditMode' });
                 this.queryEditMode = false;
                 this.editQuery = null;
+                break;
+            case 'ToggleQueryVisibility':
+                this.widgetChange.emit({ id: message.id, action: 'ToggleQueryVisibility' });
+                break;
+            case 'ToggleQueryMetricVisibility':
+                this.widgetChange.emit({ id: message.id, action: 'ToggleQueryMetricVisibility', payload: {  mid: message.payload.mid }});
+                break;
+            case 'DeleteQuery':
+                this.widgetChange.emit({ id: message.id, action: 'DeleteQuery' });
+                break;
+            case 'DeleteQueryMetric':
+                this.widgetChange.emit({ id: message.id, action: 'DeleteQueryMetric', payload: {  mid: message.payload.mid }});
+                break;
+            case 'DeleteQueryFilter':
+                this.widgetChange.emit({ id: message.id, action: 'DeleteQueryFilter', payload: {  findex: message.payload.findIndex }});
                 break;
             case 'QueryChange':
                 this.updateQuery(message.payload.query);

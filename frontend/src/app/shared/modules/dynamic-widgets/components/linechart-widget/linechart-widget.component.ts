@@ -43,6 +43,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     options: IDygraphOptions = {
         labels: ['x'],
         labelsUTC: false,
+        labelsKMB: true,
         connectSeparatedPoints: false,
         drawPoints: false,
         //  labelsDivWidth: 0,
@@ -128,9 +129,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                             case 'getUpdatedWidgetConfig':
                                 if (this.widget.id === message.id) {
                                     this.widget = message.payload;
-                                    this.setLegendDiv();
-                                    this.setAxesOption();
-                                    this.setAlertOption();
+                                    this.setOptions();
                                     this.refreshData();
                                 }
                                 break;
@@ -143,9 +142,12 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                     this.setSize(true);
                 }
                 this.requestData();
-                this.setLegendDiv();
-                this.setAxesOption();
-                this.setAlertOption();
+                this.setOptions();
+    }
+    setOptions() {
+        this.setLegendDiv();
+        this.setAxesOption();
+        this.setAlertOption();
     }
 
     updateConfig(message) {
@@ -183,6 +185,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
+                this.setOptions();
                 this.refreshData();
                 break;
             case 'SetQueryEditMode':
@@ -190,6 +193,31 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 break;
             case 'CloseQueryEditMode':
                 this.editQueryId = null;
+                break;
+            case 'ToggleQueryVisibility':
+                this.toggleQueryVisibility(message.id);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                console.log("toggleQuery", this.widget.queries);
+                break;
+            case 'ToggleQueryMetricVisibility':
+                this.toggleQueryMetricVisibility(message.id, message.payload.mid);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.id);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
+                console.log("deleteQuery", this.widget.queries);
+                break;
+            case 'DeleteQueryMetric':
+                this.deleteQueryMetric(message.id, message.payload.mid);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
+                break;
+            case 'DeleteQueryFilter':
+                this.deleteQueryFilter(message.id, message.payload.findex);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
                 break;
                 /*
             case 'MergeMetrics':
@@ -699,31 +727,43 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         this.refreshData();
     }
 
-    toggleGroupQuery(gIndex, index) {
-        // toggle the individual query
-        this.widget.query.groups[gIndex].queries[index].settings.visual.visible =
-            !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
-
-        // set the group to visible if the individual query is visible
-        if (this.widget.query.groups[gIndex].queries[index].settings.visual.visible) {
-            this.widget.query.groups[gIndex].settings.visual.visible = true;
-        } else { // set the group to invisible if all queries are invisible
-            this.widget.query.groups[gIndex].settings.visual.visible = false;
-            for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
-                if (this.widget.query.groups[gIndex].queries[i].settings.visual.visible) {
-                    this.widget.query.groups[gIndex].settings.visual.visible = true;
-                    break;
-                }
-            }
-        }
-        this.refreshData(false);
-    }
-
     deleteGroupQuery(gIndex, index) {
         this.widget.query.groups[gIndex].queries.splice(index, 1);
         this.refreshData();
     }
     */
+
+    toggleQueryVisibility(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].settings.visual.visible =
+            !this.widget.queries[qindex].settings.visual.visible;
+        this.refreshData(false);
+    }
+
+    deleteQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries.splice(qindex, 1);
+    }
+    toggleQueryMetricVisibility(qid, mid) {
+        // toggle the individual query metric
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
+            !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
+        this.refreshData(false);
+    }
+
+    deleteQueryMetric(qid, mid) {
+        // toggle the individual query
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        this.widget.queries[qindex].metrics.splice(mindex, 1);
+    }
+
+    deleteQueryFilter(qid, findex) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].filters.splice(findex, 1);
+    }
 
     showError() {
         console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
