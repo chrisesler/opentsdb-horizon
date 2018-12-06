@@ -1156,6 +1156,16 @@ export class HttpService {
         return this.http.post<string[]>('/search/tagvalues', queryObj, { headers, withCredentials: true });
     }
 
+    getDashboardByPath(path: string) {
+      const apiUrl = environment.configdb + '/dashboard/' + path;
+      const httpOptions = {
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+        withCredentials: true,
+        observe: 'response' as 'response'
+      };
+      return this.http.get( apiUrl, httpOptions);      
+    } 
+
     getDashboards() {
         const apiUrl = environment.configdb + '/object';
         const headers = new HttpHeaders({
