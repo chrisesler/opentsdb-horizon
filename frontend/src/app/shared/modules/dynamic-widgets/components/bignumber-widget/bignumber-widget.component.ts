@@ -48,9 +48,16 @@ export class BignumberWidgetComponent implements OnInit {
     aggregators: string[] = [];
     aggregatorValues: any[] = [];
 
-    fontSizePercent: number;
+    // Used to calculate auto-resizing
+    fontSizePercent: number = 100;
+    defaultFontSize: number = 14;
+    defaultFontWeight: number = 600;
+    defaultFont: string = 'Ubuntu';
     contentFillPercent: number = 0.8; // how much % content should take up widget
     contentFillPercentWithNoCaption: number = 0.8; // how much % content should take up widget
+    heightOfLargeFont: number = 47;
+    heightOfSmallFont: number = 16;
+
     maxCaptionLength: number = 36;
     maxLabelLength: number = 10; // postfix, prefix, unit
 
@@ -63,12 +70,8 @@ export class BignumberWidgetComponent implements OnInit {
     shadowInitialized: boolean = false;
 
     @ViewChild('contentContainer') contentContainer: ElementRef;
-
-      // What to clone
-      @ViewChild('clone') template;
-
-      // Where to insert the cloned content
-      @ViewChild('container', {read: ViewContainerRef}) container;
+    @ViewChild('myCanvas') myCanvas: ElementRef;
+    public context: CanvasRenderingContext2D;
 
     constructor(
         private interCom: IntercomService,
@@ -82,28 +85,15 @@ export class BignumberWidgetComponent implements OnInit {
         this.setDefaultVisualization();
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            console.log("message", message);
+            console.log('message', message);
 
             if (message.action === 'resizeWidget') {
-                if (!this.metrics) { // 1. If no metrics, only set the widget width and height.
-                    this.widgetWidth = message.payload.width * this.widget.gridPos.w - 20;
-                    this.widgetHeight = message.payload.height * this.widget.gridPos.h - 60;
 
-                } else { // 3. Given the metric, set all the new widths and heights.
+                this.widgetWidth = message.payload.width * this.widget.gridPos.w - 12;
+                this.widgetHeight = message.payload.height * this.widget.gridPos.h - 40;
 
-                    const newWidgetWidth: number = message.payload.width * this.widget.gridPos.w - 20;
-                    const newWidgetHeight: number = message.payload.height * this.widget.gridPos.h - 60;
-
-                    const contentWidth: number = this.contentContainer.nativeElement.clientWidth;
-                    const contentHeight: number = this.contentContainer.nativeElement.clientHeight;
-
-                    this.updateVisualDimensions(this.fontSizePercent, contentWidth, contentHeight, newWidgetWidth, newWidgetHeight);
-                }
-
-                if (this.container) {
-                    console.log('initializing shadow');
-                    this.container.createEmbeddedView(this.template);
-                    this.shadowInitialized = true;
+                if (this.metrics) {
+                    this.determineFontSizePercent(this.widgetWidth, this.widgetHeight);
                 }
             }
             if ( message.action === 'reQueryData' ) {
@@ -124,10 +114,6 @@ export class BignumberWidgetComponent implements OnInit {
                             this.metrics = gid !== 'error' ? message.payload.rawdata[gid].results : [];
 
                             this.setBigNumber(this.widget.settings.visual.queryID);
-                            this.updateVisualDimensions(
-                                this.fontSizePercent,
-                                this.widget.contentWidth, this.widget.contentHeight,
-                                this.widget.settings.visual.widgetWidth, this.widget.settings.visual.widgetHeight);
                         }
                         break;
                     case 'viewEditWidgetMode':
@@ -136,17 +122,11 @@ export class BignumberWidgetComponent implements OnInit {
                     case 'getUpdatedWidgetConfig':
                         if (this.widget.id === message.id) {
                             this.widget = message.payload;
-                            this.updateVisualDimensions(
-                                this.fontSizePercent,
-                                this.widget.contentWidth, this.widget.contentHeight,
-                                this.widget.settings.visual.widgetWidth, this.widget.settings.visual.widgetHeight);
-
                             this.setBigNumber(this.widget.settings.visual.queryID);
                         }
                         break;
                 }
-            }
-        });
+            }        });
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
@@ -156,7 +136,6 @@ export class BignumberWidgetComponent implements OnInit {
             this.requestCachedData();
         }
     }
-
 
     getMetric(queryID: string): any {
         let metric = {};
@@ -201,7 +180,7 @@ export class BignumberWidgetComponent implements OnInit {
 
             // SET LOCAL VARIABLES
             this.changeValue = currentValue - lastValue;
-            this.changePct = (this.changeValue/lastValue) * 100;
+            this.changePct = (this.changeValue / lastValue) * 100;
             this.selectedMetric = metric;
 
             // get array of 'tags'
@@ -211,9 +190,7 @@ export class BignumberWidgetComponent implements OnInit {
                 this.tags = null;
             }
 
-            this.fontSizePercent = this.calcFontSizePercent(this.widget.settings.visual['fontSizePercent'],
-                this.widget.settings.visual['widgetWidth'], this.widget.settings.visual['widgetHeight'],
-                this.widgetWidth, this.widgetHeight);
+            this.determineFontSizePercent(this.widgetWidth, this.widgetHeight);
 
         } else {
             this.selectedMetric = {};
@@ -225,8 +202,119 @@ export class BignumberWidgetComponent implements OnInit {
             this.aggregatorValues = [];
             this.tags = null;
         }
+    }
 
-      
+    // Auto Scaling
+    determineWidthOfBigNumber(): number {
+
+        let bigNumberWithOtherLabelsWidth: number = 0;
+        let captionLabelWidth: number = 0;
+        let i: number = 0;
+
+        for (let agg of this.aggregators) {
+            if (this.isNumber(this.aggregatorValues[i])) {
+
+                // tslint:disable:max-line-length
+                let prefixWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.prefix, this.maxLabelLength), this.widget.settings.visual.prefixSize);
+                let unitWidth = this.getWidthOfText(this.shortenString(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).unit, this.maxLabelLength), this.widget.settings.visual.unitSize);
+                let postfixWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.postfix, this.maxLabelLength), this.widget.settings.visual.postfixSize);
+                let bigNumberWidth = this.getWidthOfText(' ' + this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num + ' ', 'l');
+
+                let changeIndicatorWidth = 0;
+                if (this.widget.settings.visual.changedIndicatorEnabled) {
+                    if (this.changePct >= this.changeThreshold) {
+                        changeIndicatorWidth = this.getWidthOfText( '↑ ' + this.bigNumToChangeIndicatorValue(this.UN.getBigNumber(this.changeValue, this.widget.settings.visual.unit, this.widget.settings.visual.precision)));
+                    } else if (this.changePct <= -1 * this.changeThreshold) {
+                        changeIndicatorWidth = this.getWidthOfText( '↓ ' + this.bigNumToChangeIndicatorValue(this.UN.getBigNumber(this.changeValue, this.widget.settings.visual.unit, this.widget.settings.visual.precision)));
+                    } else {
+                        changeIndicatorWidth = this.getWidthOfText('↔');
+                    }
+                }
+
+                let aggregatorWidth = 0;
+                if (this.aggregators.length > 1) {
+                    aggregatorWidth = this.getWidthOfText(agg);
+                }
+
+                let captionWidth = this.getWidthOfText( this.shortenString(this.widget.settings.visual.caption, this.maxCaptionLength));
+
+                console.log('*****');
+                console.log('prefix', prefixWidth);
+                console.log('unitwidth', unitWidth, this.shortenString(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).unit, this.maxLabelLength), this.widget.settings.visual.c);
+                console.log('postfix', postfixWidth);
+                console.log('bignumwidth', bigNumberWidth);
+                console.log('changeindicator', changeIndicatorWidth);
+                console.log('aggregatorWidth', aggregatorWidth);
+                console.log('*****');
+
+                let tmpBigNumberWithOtherLabelsWidth: number = prefixWidth + unitWidth + postfixWidth + bigNumberWidth + changeIndicatorWidth + aggregatorWidth;
+                // let tmpBigNumberWithOtherLabelsWidth: number = bigNumberWidth;
+                let tmpCaptionWidth: number = captionWidth;
+
+                // assign if largest width
+                if (tmpBigNumberWithOtherLabelsWidth >  bigNumberWithOtherLabelsWidth) {
+                    bigNumberWithOtherLabelsWidth = tmpBigNumberWithOtherLabelsWidth;
+                }
+
+                if (tmpCaptionWidth > captionWidth ) {
+                    captionWidth = tmpCaptionWidth;
+                }
+            }
+            i++;
+        }
+        return Math.max(bigNumberWithOtherLabelsWidth, captionLabelWidth);
+    }
+
+
+    determineHeightofBigNumber(): number {
+        return this.widget.settings.visual['caption'].trim() ?
+            this.heightOfLargeFont * this.aggregators.length + this.heightOfSmallFont :
+            this.heightOfLargeFont * this.aggregators.length;
+    }
+
+    determineFontSizePercent(width: number, height: number) {
+        let fillPercent: number = this.widget.settings.visual['caption'] ? this.contentFillPercent : this.contentFillPercentWithNoCaption;
+
+        let maxWidth: number = width * fillPercent;
+        let maxHeight: number = height * fillPercent;
+        let contentHeight: number = this.determineHeightofBigNumber();
+        let contentWidth: number = this.determineWidthOfBigNumber();
+
+        let percentWidth = (maxWidth / contentWidth) * 100;
+        let percentHeight = (maxHeight / contentHeight) * 100;
+        let fontSizePercent: number = Math.min(percentHeight, percentWidth);
+
+        console.log('fillPercent', fillPercent);
+        console.log('maxWidth', maxWidth);
+        console.log('maxHeight', maxHeight);
+        console.log('contentHeight', contentHeight);
+        console.log('contentWidth', contentWidth);
+        console.log('percentWidth', percentWidth);
+        console.log('percentHeight', percentHeight);
+        console.log('fontSizePercent', fontSizePercent);
+
+        if (Math.abs(fontSizePercent - this.fontSizePercent) > 0.1) {
+            this.fontSizePercent = fontSizePercent;
+        }
+    }
+
+    getWidthOfText(text: string, size?: string): number {
+        if (!text ||  text.trim() === '') {
+            return 0;
+        }
+
+        let fontsize: number = this.defaultFontSize;
+        if (size && size.toLowerCase() === 'm') {
+            fontsize = 2 * fontsize;
+        } else if (size && size.toLowerCase() === 'l') {
+            fontsize = 3 * fontsize;
+        }
+
+        this.context = (<HTMLCanvasElement>this.myCanvas.nativeElement).getContext('2d');
+        let fullFont: string = this.defaultFontWeight + ' ' + fontsize + 'px ' + this.defaultFont;
+        this.context.font = fullFont;
+
+        return this.context.measureText(text.toUpperCase()).width;
     }
 
    requestData() {
@@ -280,36 +368,11 @@ export class BignumberWidgetComponent implements OnInit {
 
         if (percentChange > 1.01 || percentChange < 0.99) {
             return percentChange * percent;
-        }
-        else {
+        } else {
             return percent;
         }
     }
 
-    updateVisualDimensions (fontSizePercent: number, contentWidth: number, contentHeight: number, widgetWidth: number, widgetHeight: number) {
-console.log("in updatevisualdimensions fontsizepercet", fontSizePercent, "contentwidth", contentWidth, "contentheight", contentHeight, "widgetWidth", widgetWidth, "widgetHeight", widgetHeight);
-        let percentChange: number;
-
-        if (!contentWidth || !contentHeight) {
-            percentChange = 1.0;
-        }
-        else {
-            let fillPercent: number = this.widget.settings.visual['caption'] ? this.contentFillPercent : this.contentFillPercentWithNoCaption;
-            let percentWidthChange = (widgetWidth * fillPercent) / contentWidth;
-            let percentHeightChange = (widgetHeight * fillPercent) / contentHeight;
-            percentChange = Math.min(percentHeightChange, percentWidthChange);
-        }
-
-        if (percentChange > 1.01 || percentChange < 0.99) {
-            this.fontSizePercent = percentChange * fontSizePercent;
-        }
-
-        if (this.fontSizePercent) {
-            this.widget.settings.visual['fontSizePercent'] = this.fontSizePercent;
-        }
-        this.widget.settings.visual['widgetWidth'] = widgetWidth;
-        this.widget.settings.visual['widgetHeight'] = widgetHeight;
-    }
 
     // we have this method so that a caption or other labels will not make the big number really small
     shortenString(str: string, maxChars: number): string {
@@ -365,7 +428,7 @@ console.log("in updatevisualdimensions fontsizepercet", fontSizePercent, "conten
             this.widget.queries[qindex] = query;
         }
 
-        console.log("bignumber updateQuery", qindex, this.widget.queries);
+        console.log('bignumber updateQuery', qindex, this.widget.queries);
     }
 
 
@@ -469,13 +532,6 @@ console.log("in updatevisualdimensions fontsizepercet", fontSizePercent, "conten
         const cloneWidget = { ...this.widget };
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
 
-        //<HACK>
-        let contentWidth = this.contentContainer.nativeElement.clientWidth;
-        let contentHeight = this.contentContainer.nativeElement.clientHeight;
-        cloneWidget.contentWidth = contentWidth;
-        cloneWidget.contentHeight = contentHeight;
-        //</HACK>
-
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
             payload: cloneWidget
@@ -495,7 +551,6 @@ console.log("in updatevisualdimensions fontsizepercet", fontSizePercent, "conten
         this.widget.settings.visual.prefixSize = this.widget.settings.visual.prefixSize || 'm';
         this.widget.settings.visual.postfixSize = this.widget.settings.visual.postfixSize || 'm';
         this.widget.settings.visual.unitSize = this.widget.settings.visual.unitSize || 'm';
-        this.widget.settings.visual.fontSizePercent = 100;
 
         this.widget.settings.visual.caption = this.widget.settings.visual.caption || '';
         this.widget.settings.visual.precision = this.widget.settings.visual.precision || 2;
@@ -504,8 +559,6 @@ console.log("in updatevisualdimensions fontsizepercet", fontSizePercent, "conten
         this.widget.settings.visual.sparkLineEnabled = this.widget.settings.visual.sparkLineEnabled || false;
         this.widget.settings.visual.changedIndicatorEnabled = this.widget.settings.visual.changedIndicatorEnabled || false;
 
-        //<HACK/>
-        this.fontSizePercent = this.widget.settings.visual.fontSizePercent;
     }
 
 }
@@ -514,10 +567,6 @@ interface IBigNumberVisual {
 
     queryID: string;
     comparedTo?: number;
-
-    fontSizePercent: number;
-    widgetWidth: number;
-    widgetHeight: number;
 
     prefix?: string;
     prefixSize?: string;
