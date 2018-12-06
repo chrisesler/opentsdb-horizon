@@ -226,14 +226,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         const newWidgetY = message.payload.gridPos.h;
                         widgets = this.dbService.positionWidgetY(widgets, newWidgetY);
                         // this is the newly adding widget
-                        if(widgets.length === 1 && widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
+                        if (widgets.length === 1 && widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
                             widgets[0] = message.payload;
                         } else {
                             widgets.unshift(message.payload);
                         }
                         this.store.dispatch(new LoadWidgets(widgets));
                     } else {
-                        // check the component type is PlaceholderWidgetComponent. If yes, it needs to be replaced with new component                    
+                        // check the component type is PlaceholderWidgetComponent.
+                        // If yes, it needs to be replaced with new component
                         if (widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
                             widgets[mIndex] = message.payload;
                             this.store.dispatch(new LoadWidgets(widgets));
@@ -289,7 +290,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
                     if (message.payload.variables) {
-                        //console.log('updateVariables: ', message.payload.variables);
+                        // console.log('updateVariables: ', message.payload.variables);
                         this.store.dispatch(new UpdateVariables(message.payload.variables));
                     }
                     break;
@@ -298,7 +299,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag, message.payload.filters));
                     break;
                 case 'getUserNamespaces':
-                    //console.log('getUserNamespaces');
+                    // console.log('getUserNamespaces');
                     this.store.dispatch(new LoadUserNamespaces());
                     break;
                 default:
@@ -360,7 +361,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbModeSub = this.dashboardMode$.subscribe(mode => {
-            console.log("mode changed", mode);
+            console.log('mode changed', mode);
             this.viewEditMode = mode === 'edit' || mode === 'view' ? true : false;
         });
 

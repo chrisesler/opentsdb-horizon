@@ -24,7 +24,8 @@ import {
     DashboardNavigatorState,
     DBNAVloadNavResources,
     DBNAVaddPanel,
-    DBNAVupdatePanels
+    DBNAVupdatePanels,
+    DBNAVcreateFolder
 } from '../../state';
 
 import {
@@ -69,12 +70,6 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
     @Output() toggleDrawer: EventEmitter<any> = new EventEmitter();
 
     intercomSub: Subscription;
-
-
-    // tslint:disable-next-line:no-inferrable-types
-    // currentResourceType: string = 'master';
-    // tslint:disable-next-line:no-inferrable-types
-    // currentNamespaceId: number = 0;
 
     constructor(
         private store: Store,
@@ -244,7 +239,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
         const self = this;
 
         console.group(
-            '%cEVENT%cfolderAction',
+            '%cEVENT%cfolderAction [' + event.action + ']',
             'color: white; background-color: blue; padding: 4px 8px; font-weight: bold; ',
             'color: blue; padding: 4px 8px; border: 1px solid blue;'
         );
@@ -253,17 +248,6 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
 
         switch (event.action) {
             case 'navtoPanelFolder':
-                /*let newPanel;
-                if (panel.name === 'masterPanel' && event.resourceType === 'namespaces') {
-                    newPanel = panel.namespaces[event.idx];
-                } else {
-                    newPanel = panel.subfolder[event.idx];
-                }
-                newPanel.resourceType = event.resourceType;
-                console.log('NEW PANEL', newPanel);
-                this.navtoPanelFolder(newPanel);*/
-
-                // const folder = this.store.selectSnapshot(DashboardNavigatorState.getFolderResource(event.path, event.resourceType));
 
                 const newPanel = this.store.dispatch(
                     new DBNAVaddPanel({
@@ -278,6 +262,13 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 /*const panelId = this.panels[this.currentPaneIndex].id;
                 const namespaceId = this.currentNamespaceId;
                 this.createFolder_action(event.data, panelId, namespaceId);*/
+                this.store.dispatch(
+                    new DBNAVcreateFolder(
+                        event.data.name,
+                        this.panels[this.currentPanelIndex].path,
+                        this.currentPanelIndex
+                    )
+                );
                 break;
             default:
                 break;
@@ -301,8 +292,16 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
             '%cACTION%cCreate Folder',
             'color: black; background: skyblue; padding: 4px 8px; font-weight: bold;',
             'color: black; border: 1px solid skyblue; padding: 4px 8px;',
-            parentId, data
+            parentId, data, this.panels[this.currentPanelIndex]
             );
+
+        this.store.dispatch(
+            new DBNAVcreateFolder(
+                data.name,
+                this.panels[this.currentPanelIndex].path,
+                this.currentPanelIndex
+            )
+        );
         /*
         const payload: any = {
             'name': data.name
