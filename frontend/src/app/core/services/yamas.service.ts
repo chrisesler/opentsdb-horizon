@@ -19,6 +19,7 @@ export class YamasService {
         const mids = [];
         let filterId = '';
         const outputIds = [];
+        let hasMetricTS = false;
 
         // add filters
         if ( query.filters.length ) {
@@ -47,6 +48,7 @@ export class YamasService {
                 transformedQuery.executionGraph.push(q);
                 outputIds.push(q.id);
             } else {
+                hasMetricTS = true;
                 q = this.getMetricQuery(query, j);
                 if ( filterId ) {
                     q.filterId = filterId;
@@ -57,16 +59,18 @@ export class YamasService {
             }
         }
 
-        const dsConfig = this.getQueryDownSample(downsample);
-        dsConfig.sources = mids;
-        transformedQuery.executionGraph.push(dsConfig);
-        transformedQuery.executionGraph.push(this.getQueryGroupBy(query, ['downsample']));
+        if ( hasMetricTS ) {
+            const dsConfig = this.getQueryDownSample(downsample);
+            dsConfig.sources = mids;
+            transformedQuery.executionGraph.push(dsConfig);
+            transformedQuery.executionGraph.push(this.getQueryGroupBy(query, ['downsample']));
+        }
         transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
 
-            transformedQuery.serdesConfigs = [{
-                id: 'JsonV3QuerySerdes',
-                filter: summaryOnly ? ['summarizer'] : outputIds.concat(['summarizer'])
-            }];
+        transformedQuery.serdesConfigs = [{
+            id: 'JsonV3QuerySerdes',
+            filter: summaryOnly ? ['summarizer'] : outputIds.concat(['summarizer'])
+        }];
         return transformedQuery;
     }
 
@@ -110,7 +114,7 @@ export class YamasService {
                 type: 'TimeSeriesDataSource',
                 metric: {
                     type: 'MetricLiteral',
-                    metric: config.metrics[i]
+                    metric: config.metrics[i].name
                 },
                 fetchLast: false,
             };
