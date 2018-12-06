@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { MatDialog} from '@angular/material';
 import { LoginExpireDialogComponent } from './core/components/login-expire-dialog/login-expire-dialog.component';
 import { Select } from '@ngxs/store';
+import { Router,  NavigationEnd } from '@angular/router';
 
 @Component({
     selector: 'app-root',
@@ -17,9 +18,20 @@ export class AppComponent implements OnInit {
     /** Local variables */
     title = 'app';
 
+    fullUrlPath: string;
+
     constructor(
-        private dialog: MatDialog
-    ) { }
+        private dialog: MatDialog,
+        private router: Router
+    ) { 
+        // register this router events to capture url changes
+        this.router.events.subscribe((event) => {
+          if (event instanceof NavigationEnd) {
+            // after resolve path, this is the url the app uses
+            this.fullUrlPath = event.urlAfterRedirects;
+          }
+        });
+    }
 
     ngOnInit() {
         this.auth$.subscribe(auth => {
