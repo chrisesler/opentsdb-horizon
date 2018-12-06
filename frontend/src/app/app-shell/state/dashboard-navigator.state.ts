@@ -431,7 +431,7 @@ export class DashboardNavigatorState {
         );
     }
 
-    @Action(DBNAVcreateFolder)
+    @Action(DBNAVcreateFolderSuccess)
     createFolderSuccess(ctx: StateContext<DBNAVStateModel>, { response: response, panelIndex: panelIndex }: DBNAVcreateFolderSuccess) {
         this.stateSuccess('Create Folder Success', response);
         const state = ctx.getState();
@@ -466,7 +466,7 @@ export class DashboardNavigatorState {
 
     }
 
-    @Action(DBNAVcreateFolder)
+    @Action(DBNAVcreateFolderFail)
     createFolderFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVcreateFolderFail) {
         this.stateError('Create Folder Failure', error);
     }

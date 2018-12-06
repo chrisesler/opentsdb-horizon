@@ -55,7 +55,8 @@ export class DashboardNavigatorService {
 
         const httpOptions: any = {
             headers,
-            withCredentials: true
+            withCredentials: true,
+            responseType: 'json'
         };
 
         if (params) {
@@ -75,7 +76,8 @@ export class DashboardNavigatorService {
 
         const httpOptions: any = {
             headers,
-            withCredentials: true
+            withCredentials: true,
+            responseType: 'json'
         };
 
         if (params) {
