@@ -138,12 +138,14 @@ export class DnavFoldersComponent implements OnInit {
     }
 
     // navigate to folder
-    gotoFolder(folderIdx: number) {
+    // gotoFolder(folderIdx: number) {
+    gotoFolder(folder: any) {
         if (!this.bulkEdit) {
             this.folderAction.emit({
                 action: 'navtoPanelFolder',
-                resourceType: this.resourceType,
-                idx: folderIdx
+                resourceType: folder.resourceType,
+                // idx: folderIdx
+                path: folder.path
             });
         }
     }
