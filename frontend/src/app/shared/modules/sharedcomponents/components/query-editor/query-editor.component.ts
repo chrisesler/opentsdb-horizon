@@ -46,6 +46,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
     Object = Object;
 
     metricSelectedTabIndex = 0;
+    editExpressionId = 0;
     isEditExpression = false;
     aliases = [];
      /** Form Group */
@@ -308,6 +309,13 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.triggerQueryChanges();
     }
+    removeMetricById(mid) {
+        const index = this.query.metrics.findIndex( d => d.id === mid );
+        if ( index !== -1 ) {
+            this.query.metrics.splice(index, 1);
+        }
+        this.triggerQueryChanges();
+    }
 
     setMetricSummarizer(id, value) {
         const index  = this.query.metrics.findIndex( item => item.id === id );
@@ -416,19 +424,17 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         return keys.indexOf(key);
     }
 
-    showExpressionForm() {
-        this.expressionForm.controls.expressionName.setValue('untitled expression');
-        this.expressionForm.controls.expressionValue.setValue('');
-        this.isEditExpression = true;
-        this.metricSelectedTabIndex = 1;
+    showExpressionForm(id= 0) {
         this.aliases = [];
         let mIndex = 1, eIndex = 1;
         for ( let i = 0, n = this.query.metrics.length; i < n; i++ ) {
-            let id,  displayName, metrics = [], expression;
+            let id,  displayName, metrics = [], expression, isExpression;
             if ( this.query.metrics[i].expression ) {
+                continue;
                 id = 'e' + eIndex;
                 displayName = this.query.metrics[i].name;
                 expression = '(' + this.query.metrics[i].expression + ')';
+                isExpression = true;
                 eIndex++;
             } else {
                 id = 'm' + mIndex;
@@ -436,23 +442,80 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                 const metric = this.query.namespace + '.' + this.query.metrics[i].name;
                 metrics = [metric];
                 expression = metric;
+                isExpression = false;
                 mIndex++;
             }
             this.aliases.push( {    id: id,
                                     displayName: displayName,
                                     expression: expression,
-                                    expand: false,
+                                    isExpression: isExpression,
+                                    expanded: false,
                                     metrics: metrics
                                 });
         }
+        this.setExpressionFormEditMode(id);
+    }
+
+    setExpressionFormEditMode(id) {
+        this.editExpressionId = id;
+        const editExpression = this.query.metrics.find( d => d.id === id );
+
+        let name = 'untitled expression';
+        let expression = '';
+        if ( editExpression ) {
+            const mAliases = this.aliases.filter( d => d.isExpression === false );
+            let mIndex = mAliases.length + 1;
+            name = editExpression.name;
+            expression = editExpression.expression;
+            const metrics = editExpression.metrics;
+            // add the metric aliases if it is not there in the metric list
+            // const namespace = this.query.namespace;
+            for ( let i = 0, len = metrics.length; i < len; i++ ) {
+                const metric = metrics[i];
+                const index = this.aliases.findIndex(d => !d.isExpression && d.metrics[0] === metric.name );
+                if ( index === -1 ) {
+                    const id = 'm' + mIndex;
+                    this.aliases.push( {
+                                            id: id,
+                                            displayName: metric.name,
+                                            expression: metric.name,
+                                            isExpression: false,
+                                            expanded: false,
+                                            metrics: [metric.name]
+                                        });
+                    mIndex++;
+                }
+            }
+
+            // form the expression
+            for (let i = 0; i < this.aliases.length; i++ ) {
+                 const id = this.aliases[i].id;
+                 const metric = this.aliases[i].expression;
+                 const regex = new RegExp( metric , 'g');
+                 expression = expression.replace( regex, id);
+            }
+        }
+        this.expressionForm.controls.expressionName.setValue(name);
+        this.expressionForm.controls.expressionValue.setValue(expression);
+        this.isEditExpression = true;
+        this.metricSelectedTabIndex = 1;
         console.log("aliases", this.aliases);
     }
 
-    createExpression() {
+    toggleExpressionDetail(index) {
+        this.aliases[index].expanded = !this.aliases[index].expanded;
+    }
+
+    updateExpression() {
         if ( this.isValidExpression() && this.expressionForm.valid ) {
             this.isEditExpression = false;
             const expression = this.getExpressionConfig();
-            this.query.metrics.push(expression);
+            const index = this.query.metrics.findIndex(d => d.id === this.editExpressionId );
+            if ( index === -1 ) {
+                this.query.metrics.push(expression);
+            } else {
+                this.query.metrics[index] = expression;
+            }
             this.triggerQueryChanges();
             console.log("expression", JSON.stringify(expression));
         }
@@ -488,9 +551,13 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             const alias = this.aliases.find(item => item.id === result[i]);
             console.log(result[i], alias);
             replace.push( { 'old': result[i], 'new': alias.expression } );
-            metrics = metrics.concat(alias.metrics);
+            const metric = { name: alias.metrics[0], refId: result[i]};
+            const index = metrics.findIndex(d => d.name === alias.metrics[0] );
+            if ( index === -1 ) {
+                metrics.push(metric);
+            }
         }
-        metrics = this.utils.arrayUnique(metrics);
+        // metrics = this.utils.arrayUnique(metrics);
 
 
         // update the expression with new reference ids
@@ -500,9 +567,10 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         const expression = {
-            id: this.utils.generateId(),
+            id: this.editExpressionId || this.utils.generateId(),
             name: this.expressionForm.controls.expressionName.value,
             expression : expInput,
+            originalExpression: this.expressionForm.controls.expressionValue.value,
             metrics: metrics,
             settings: {
                 visual: {

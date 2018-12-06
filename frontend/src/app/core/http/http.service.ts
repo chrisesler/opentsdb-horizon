@@ -1156,13 +1156,23 @@ export class HttpService {
         return this.http.post<string[]>('/search/tagvalues', queryObj, { headers, withCredentials: true });
     }
 
+    getDashboardByPath(path: string) {
+      const apiUrl = environment.configdb + '/dashboard/' + path;
+      const httpOptions = {
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+        withCredentials: true,
+        observe: 'response' as 'response'
+      };
+      return this.http.get( apiUrl, httpOptions);      
+    } 
+
     getDashboards() {
         const apiUrl = environment.configdb + '/object';
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
         const params = { 'userId': 'user.arunmohzi', 'type': 'DASHBOARD'};
-        console.log("get dahboards params", apiUrl, params);
+        //console.log("get dahboards params", apiUrl, params);
         return this.http.get( apiUrl, { params: params, headers, withCredentials: true });
     }
 
@@ -1170,25 +1180,18 @@ export class HttpService {
         const apiUrl = environment.configdb + '/dashboard/file';
         const httpOptions = {
           headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-          withCredentials: true, 
+          withCredentials: true,
           observe: 'response' as 'response'
         };
         if (id !== '_new_') {
           data.id = id;
         } 
-
-        /*if ( id !== '_new_' ) {
-            method = 'put';
-            apiUrl = apiUrl + '/' + id;
-        }
-        */
-        console.log("save dahboard params", apiUrl, data);
+        //console.log("save dahboard params", apiUrl, data);
         return this.http.put( apiUrl, data, httpOptions);
     }
 
     deleteDashboard(id) {
         const apiUrl = environment.configdb + '/object/' + id;
-        console.log("delete dahboard ", apiUrl);
         return this.http.delete(apiUrl, { withCredentials: true });
     }
 
@@ -1199,7 +1202,6 @@ export class HttpService {
           withCredentials: true, 
           observe: 'response' as 'response'
         };
-        console.log("userNamespaces", apiUrl);
         return this.http.get(apiUrl, httpOptions);
     }
 }

@@ -158,7 +158,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     constructor(
         private store: Store,
-        private route: ActivatedRoute,
+        private activatedRoute: ActivatedRoute,
         private router: Router,
         private location: Location,
         private interCom: IntercomService,
@@ -172,20 +172,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        // handle route
-        this.routeSub = this.route.params.subscribe(params => {
-            // route to indicate create a new dashboard
-            if (params['dbid']) {
-                this.dbid = params['dbid'];
-                if (this.dbid === '_new_') {
-                    this.store.dispatch(new LoadDashboard(this.dbid));
-                } else {
-                    // load provided dashboard id, and need to handdle not found too
-                    // this.store.dispatch(new dashboardActions.LoadDashboard(this.dbid));
-                    this.store.dispatch(new LoadDashboard(this.dbid));
-                }
+        // handle route for dashboardModule
+        this.routeSub = this.activatedRoute.url.subscribe(url => {
+            console.log('url', url);
+            if (url.length === 1 && url[0].path === '_new_') {
+                this.dbid = '_new_';
+                this.store.dispatch(new LoadDashboard(this.dbid));
+            } else {
+                let paths = [];
+                url.forEach(segment => {
+                    paths.push(segment.path);
+                });
+                this.store.dispatch(new LoadDashboard(paths.join('%2F')));
             }
-        });
+        });   
         // setup navbar portal
         this.dashboardNavbarPortal = new TemplatePortal(this.dashboardNavbarTmpl, undefined, {});
         this.cdkService.setNavbarPortal(this.dashboardNavbarPortal);
