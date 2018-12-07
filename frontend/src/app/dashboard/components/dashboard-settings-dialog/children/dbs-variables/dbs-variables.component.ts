@@ -45,7 +45,7 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
         });
 
         this.varFormSub = this.varForm.valueChanges.subscribe(val => {
-            console.log('%cVARIABLES FORM [CHANGES]', 'background-color: skyblue; padding: 2px 4px;', val);
+            //console.log('%cVARIABLES FORM [CHANGES]', 'background-color: skyblue; padding: 2px 4px;', val);
 
             // need to remove unused variables (ones without keys)
             const pending = val;
@@ -70,7 +70,7 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
 
         this.initializeTplVariables(this.dbData.variables.tplVariables);
 
-        console.log('%cVAR FORM', 'background-color: skyblue; padding: 2px 4px', this.varForm);
+        //console.log('%cVAR FORM', 'background-color: skyblue; padding: 2px 4px', this.varForm);
     }
 
     ngOnDestroy() {
@@ -127,7 +127,7 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
     }
 
     masterToggleChange(event: any) {
-        console.log('%cMASTER TOGGLE CHANGE [EVENT]', 'color: white; background-color: blue; padding: 2px 4px;', event);
+        //console.log('%cMASTER TOGGLE CHANGE [EVENT]', 'color: white; background-color: blue; padding: 2px 4px;', event);
         this.enabled.setValue(!event.checked, { emitEvent: true });
     }
 }

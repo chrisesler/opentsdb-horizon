@@ -117,49 +117,28 @@ export class DashboardService {
     return metrics;
   }
 
-    filterMetrics(query) {
-        query.metrics = query.metrics.filter( item => item.settings.visual.visible === true);
-        return query;
-    }
-    overrideQueryFilters(query, filters) {
-        for ( let i = 0; i < filters.length; i++ ) {
-            for ( let j = 0; query.filters && j < query.filters.length; j++ ) {
-                if ( filters[i].tagk === query.filters[j].tagk ) {
-                    query.filters[j].filter = filters[i].filter;
-                }
-            }
+  filterMetrics(query) {
+    query.metrics = query.metrics.filter(item => item.settings.visual.visible === true);
+    return query;
+  }
+  overrideQueryFilters(query, filters) {
+    for (let i = 0; i < filters.length; i++) {
+      for (let j = 0; query.filters && j < query.filters.length; j++) {
+        if (filters[i].tagk === query.filters[j].tagk) {
+          query.filters[j].filter = filters[i].filter;
         }
-        return query;
-    }
-
-    getStorableFormatFromDBState(dbstate) {
-        const dashboard = {
-            settings: dbstate.Settings,
-            widgets: dbstate.Widgets
-        };
-        return dashboard;
-    }
-
-  // we might not need to generate id for widget or group
-  // it should be done at the time of adding into dashboard
-  // this function only here for testing stuff
-
-/*
-  addNewWidget(widgets: any[]) {
-    const widget: any = Object.assign({}, this.widgetPrototype);
-    widget.id = this.utils.generateId();
-    // before adding, we more the first one down
-    for (let i = 0; i < widgets.length; i++) {
-      const wd: any = widgets[i];
-      if (wd.gridPos.x === 0 && wd.gridPos.y === 0) {
-        wd.gridPos.y = wd.gridPos.yMd = 5;
-        break;
       }
     }
-    widgets.unshift(widget);
-    return widgets;
+    return query;
   }
-*/
+
+  getStorableFormatFromDBState(dbstate) {
+    const dashboard = {
+      settings: dbstate.Settings,
+      widgets: dbstate.Widgets
+    };
+    return dashboard;
+  }
   updateWidgetsDimension(width, height, pWidgets) {
     /*
     for (let i = 0; i < pWidgets.length; i++) {
