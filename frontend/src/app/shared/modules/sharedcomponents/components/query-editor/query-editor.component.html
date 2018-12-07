@@ -9,7 +9,7 @@
                         <namespace-autocomplete [value]="query.namespace" (nschange)="saveNamespace($event)" (blur)="cancelSaveNamespace($event)"></namespace-autocomplete>
                     </span>
                     <span class="flex-spacer"></span>
-                    <span class="action-icons">
+                    <span class="action-icons" *ngIf=" !editNamespace && type === 'LinechartWidgetComponent' ">
                         <button mat-icon-button color="primary" (click)="toggleQuery(); $event.stopPropagation();">
                             <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
                             <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
@@ -31,7 +31,7 @@
                                         <div>{{ metric.name }}</div>
                                         <div *ngIf="type !== 'LinechartWidgetComponent'">Summarizer: <dropdown-aggregators [multiple]="type === 'BignumberWidgetComponent' ? true : false" [value]="metric.settings.visual.aggregator" (change)="setMetricSummarizer(metric.id, $event)"></dropdown-aggregators></div>
                                     </div>
-                                    <span class="action-icons">
+                                    <span class="action-icons" *ngIf="type !== 'BignumberWidgetComponent'">
                                         <button mat-icon-button color="primary" (click)="toggleMetricVisibility(metric.id); $event.stopPropagation()">
                                             <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="metric.settings.visual.visible"></mat-icon>
                                             <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!metric.settings.visual.visible"></mat-icon>

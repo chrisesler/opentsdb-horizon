@@ -336,6 +336,20 @@ console.log("in updatevisualdimensions fontsizepercet", fontSizePercent, "conten
             case 'CloseQueryEditMode':
                 this.editQueryId = null;
                 break;
+            case 'ToggleQueryMetricVisibility':
+                // this.toggleQueryMetricVisibility(message.id, message.payload.mid);
+                // this.widget.queries = this.util.deepClone(this.widget.queries);
+                break;
+            case 'DeleteQueryMetric':
+                // this.deleteQueryMetric(message.id, message.payload.mid);
+                // this.widget.queries = this.util.deepClone(this.widget.queries);
+                // this.refreshData();
+                break;
+            case 'DeleteQueryFilter':
+                this.deleteQueryFilter(message.id, message.payload.findex);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
+                break;
         }
     }
 
@@ -488,6 +502,28 @@ console.log("in updatevisualdimensions fontsizepercet", fontSizePercent, "conten
 
         //<HACK/>
         this.fontSizePercent = this.widget.settings.visual.fontSizePercent;
+    }
+
+    toggleQueryMetricVisibility(qid, mid) {
+        // toggle the individual query metric
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
+            !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
+        
+        this.refreshData(false);
+    }
+
+    deleteQueryMetric(qid, mid) {
+        // toggle the individual query
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        this.widget.queries[qindex].metrics.splice(mindex, 1);
+    }
+
+    deleteQueryFilter(qid, findex) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].filters.splice(findex, 1);
     }
 
 }
