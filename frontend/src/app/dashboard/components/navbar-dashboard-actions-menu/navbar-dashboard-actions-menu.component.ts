@@ -129,9 +129,10 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
         if (data) {
             payload.updateFirst = true;
             payload.name = data.name;
-        }
-        if(data.parentPath) {
-            payload.parentPath = data.parentPath;
+            
+            if(data.parentPath) {
+                payload.parentPath = data.parentPath;
+            }
         }
         // now intercom to save it.
         
