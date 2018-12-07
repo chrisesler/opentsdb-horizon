@@ -1,4 +1,4 @@
-<div class="block-header dashboards-header">
+<div class="block-header dashboards-header" *ngIf="resourceType === 'namespace' || resourceType === 'namespaces' || resourceType === 'personal'">
     <span class="header-label">Dashboards</span>
     <span class="counter" *ngIf="dashboards.length > 0">
         <span class="chip-count">{{dashboards.length}}</span>
@@ -10,6 +10,14 @@
     <button mat-icon-button (click)="editDashboards()" *ngIf="dashboards.length > 0">
         <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
     </button>
+</div>
+<div class="block-header dashboards-header" *ngIf="resourceType !== 'namespace' && resourceType !== 'namespaces' && resourceType !== 'personal'">
+    <span class="header-label">
+        {{resourceType}}
+    </span>
+    <span class="counter" *ngIf="dashboards.length > 0">
+        <span class="chip-count">{{dashboards.length}}</span>
+    </span>
 </div>
 <mat-nav-list class="dashboard-list" *ngIf="dashboards.length > 0">
     <mat-list-item *ngFor="let dashboard of dashboards">

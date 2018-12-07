@@ -6,7 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // store
 import { NgxsModule } from '@ngxs/store';
-import { 
+import {
     DashboardNavigatorState
  } from './state';
 
@@ -31,6 +31,7 @@ import { DnavDashboardItemComponent } from './components/dashboard-navigator/chi
 import { DnavFolderItemComponent } from './components/dashboard-navigator/children/dnav-folder-item/dnav-folder-item.component';
 import { DnavFoldersComponent } from './components/dashboard-navigator/children/dnav-folders/dnav-folders.component';
 import { DnavDashboardsComponent } from './components/dashboard-navigator/children/dnav-dashboards/dnav-dashboards.component';
+
 
 @NgModule({
     imports: [
