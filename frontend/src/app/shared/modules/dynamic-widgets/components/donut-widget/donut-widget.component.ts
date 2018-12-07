@@ -74,6 +74,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     ngOnInit() {
         this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'doughnut');
         this.typeSub = this.type$.subscribe( type => {
+            console.log("mail...type...", type)
             this.widget.settings.visual.type = type;
             this.type = type === 'doughnut' ? 'doughnut' : 'pie';
         });
@@ -206,6 +207,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     setOptions() {
+        this.type$.next(this.widget.settings.visual.type);
         this.setLegendOption();
     }
 
