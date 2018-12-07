@@ -12,14 +12,10 @@ import {
     MatDialog,
     MatDialogConfig,
     MatDialogRef,
-    DialogPosition,
     MatMenuTrigger
 } from '@angular/material';
 
 import { DashboardSaveDialogComponent } from '../dashboard-save-dialog/dashboard-save-dialog.component';
-
-import { Subscription } from 'rxjs';
-
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 
 
@@ -127,20 +123,21 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
     }
 
     private triggerSaveAction(data?: any) {
-        const payload = { updateFirst: false };
+
+        const payload: any = { updateFirst: false, name: ''};
 
         if (data) {
             payload.updateFirst = true;
-            payload['meta'] = data;
+            payload.name = data.name;
         }
-
+        if(data.parentPath) {
+            payload.parentPath = data.parentPath;
+        }
+        // now intercom to save it.
+        
         this.interCom.requestSend(<IMessage> {
             action: 'dashboardSaveRequest',
             payload: payload
         });
-
     }
-
-
-
 }
