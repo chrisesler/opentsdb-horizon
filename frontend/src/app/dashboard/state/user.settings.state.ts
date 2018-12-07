@@ -42,7 +42,13 @@ export class UserSettingsState {
     loadUserNamespaces(ctx: StateContext<UserSettingsModel>) {
         return this.httpService.userNamespaces().pipe(
             map( (namespaces: any) => {
-                ctx.dispatch(new UpdateUserNamespaces(namespaces));
+                // this needs to clean up with this return
+                let ns = [];
+                for (let i=0; i < namespaces.body.length; i++) {
+                    ns.push({id: namespaces.body[i].id, name: namespaces.body[i].name});
+                    ns.sort();
+                }
+                ctx.dispatch(new UpdateUserNamespaces(ns));
             })
         );
     }

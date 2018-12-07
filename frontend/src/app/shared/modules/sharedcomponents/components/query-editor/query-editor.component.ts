@@ -1,7 +1,9 @@
-import { Component, OnInit, HostBinding, Input, Output, EventEmitter, ElementRef, Renderer, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, OnInit, HostBinding, Input, Output, EventEmitter, ElementRef, Renderer, ViewChild, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormControl, AbstractControl, ValidatorFn } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith, debounceTime, switchMap, filter, catchError } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+
 
 import { HttpService } from '../../../../../core/http/http.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -11,7 +13,7 @@ import { UtilsService } from '../../../../../core/services/utils.service';
   templateUrl: './query-editor.component.html',
   styleUrls: ['./query-editor.component.scss']
 })
-export class QueryEditorComponent implements OnInit, OnChanges {
+export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
     @HostBinding('class.query-editor') private _hostClass = true;
     @Input() type;
     @Input() query: any = {   metrics: [] , filters: [], settings: {visual: {visible: true}}};
@@ -43,12 +45,28 @@ export class QueryEditorComponent implements OnInit, OnChanges {
     message = { 'tagControl' : { message: ''}, 'tagValueControl' : { message: '' }, 'metricSearchControl': { message : ''} };
     Object = Object;
 
+    metricSelectedTabIndex = 0;
+    editExpressionId = 0;
+    isEditExpression = false;
+    aliases = [];
+     /** Form Group */
+     expressionForm: FormGroup;
+
+     // subscriptions
+     expressionForm_Sub: Subscription;
+
+    // form values
+    expressionName: string;
+    expressionValue: string;
+    metrics: any[] = [];
+
     formControlInitiated = false;
 
     constructor(
         private elRef: ElementRef,
         private renderer: Renderer,
         private httpService: HttpService,
+        private fb: FormBuilder,
         private utils: UtilsService ) {
 
         }
@@ -56,6 +74,25 @@ export class QueryEditorComponent implements OnInit, OnChanges {
     ngOnInit() {
         // console.log("this.query", JSON.stringify(this.query))
         // this.query.id  = this.utils.generateId();
+        this.createForm();
+    }
+
+    createForm() {
+        this.expressionForm = this.fb.group({
+            expressionName:     new FormControl('untitled expression'),
+            expressionValue:    new FormControl('')
+        });
+
+        // JUST CHECKING VALUES
+        /*
+        this.expressionForm_Sub = this.expressionForm.valueChanges
+                                            .pipe(debounceTime(2000))
+                                            .subscribe(function(data) {
+                                                // if ( this.isValidExpression() && this.expressionForm.valid ) {
+                                                    // this.queryData();
+                                                // }
+                                            }.bind(this));
+                                            */
     }
 
     ngOnChanges( changes: SimpleChanges) {
@@ -113,6 +150,23 @@ export class QueryEditorComponent implements OnInit, OnChanges {
         }
     }
 
+    toggleQuery() {
+        this.requestChanges('ToggleQueryVisibility');
+    }
+    deleteQuery() {
+        this.requestChanges('DeleteQuery');
+    }
+    toggleMetricVisibility(id) {
+        this.requestChanges('ToggleQueryMetricVisibility', { mid: id });
+    }
+
+    deleteMetric(id) {
+        this.requestChanges('DeleteQueryMetric', { mid: id });
+    }
+
+    deleteFilter(index) {
+        this.requestChanges('DeleteQueryFilter', { findex: index });
+    }
 
     setMetricSearch() {
         this.metricSearchControl = new FormControl();
@@ -262,12 +316,19 @@ export class QueryEditorComponent implements OnInit, OnChanges {
                                 settings: {
                                     visual: {
                                         visible: true,
-                                        color: '#000000',
+                                        color: this.utils.getColors(null, 1),
                                         aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['avg'],
                                         label: ''}}
                             };
             this.query.metrics.push(oMetric);
         } else if ( index !== -1 && operation === 'remove' ) {
+            this.query.metrics.splice(index, 1);
+        }
+        this.triggerQueryChanges();
+    }
+    removeMetricById(mid) {
+        const index = this.query.metrics.findIndex( d => d.id === mid );
+        if ( index !== -1 ) {
             this.query.metrics.splice(index, 1);
         }
         this.triggerQueryChanges();
@@ -380,6 +441,168 @@ export class QueryEditorComponent implements OnInit, OnChanges {
         return keys.indexOf(key);
     }
 
+    showExpressionForm(id= 0) {
+        this.aliases = [];
+        let mIndex = 1, eIndex = 1;
+        for ( let i = 0, n = this.query.metrics.length; i < n; i++ ) {
+            let id,  displayName, metrics = [], expression, isExpression;
+            if ( this.query.metrics[i].expression ) {
+                continue;
+                id = 'e' + eIndex;
+                displayName = this.query.metrics[i].name;
+                expression = '(' + this.query.metrics[i].expression + ')';
+                isExpression = true;
+                eIndex++;
+            } else {
+                id = 'm' + mIndex;
+                displayName = this.query.metrics[i].name;
+                const metric = this.query.namespace + '.' + this.query.metrics[i].name;
+                metrics = [metric];
+                expression = metric;
+                isExpression = false;
+                mIndex++;
+            }
+            this.aliases.push( {    id: id,
+                                    displayName: displayName,
+                                    expression: expression,
+                                    isExpression: isExpression,
+                                    expanded: false,
+                                    metrics: metrics
+                                });
+        }
+        this.setExpressionFormEditMode(id);
+    }
+
+    setExpressionFormEditMode(id) {
+        this.editExpressionId = id;
+        const editExpression = this.query.metrics.find( d => d.id === id );
+
+        let name = 'untitled expression';
+        let expression = '';
+        if ( editExpression ) {
+            const mAliases = this.aliases.filter( d => d.isExpression === false );
+            let mIndex = mAliases.length + 1;
+            name = editExpression.name;
+            expression = editExpression.expression;
+            const metrics = editExpression.metrics;
+            // add the metric aliases if it is not there in the metric list
+            // const namespace = this.query.namespace;
+            for ( let i = 0, len = metrics.length; i < len; i++ ) {
+                const metric = metrics[i];
+                const index = this.aliases.findIndex(d => !d.isExpression && d.metrics[0] === metric.name );
+                if ( index === -1 ) {
+                    const id = 'm' + mIndex;
+                    this.aliases.push( {
+                                            id: id,
+                                            displayName: metric.name,
+                                            expression: metric.name,
+                                            isExpression: false,
+                                            expanded: false,
+                                            metrics: [metric.name]
+                                        });
+                    mIndex++;
+                }
+            }
+
+            // form the expression
+            for (let i = 0; i < this.aliases.length; i++ ) {
+                 const id = this.aliases[i].id;
+                 const metric = this.aliases[i].expression;
+                 const regex = new RegExp( metric , 'g');
+                 expression = expression.replace( regex, id);
+            }
+        }
+        this.expressionForm.controls.expressionName.setValue(name);
+        this.expressionForm.controls.expressionValue.setValue(expression);
+        this.isEditExpression = true;
+        this.metricSelectedTabIndex = 1;
+        console.log("aliases", this.aliases);
+    }
+
+    toggleExpressionDetail(index) {
+        this.aliases[index].expanded = !this.aliases[index].expanded;
+    }
+
+    updateExpression() {
+        if ( this.isValidExpression() && this.expressionForm.valid ) {
+            this.isEditExpression = false;
+            const expression = this.getExpressionConfig();
+            const index = this.query.metrics.findIndex(d => d.id === this.editExpressionId );
+            if ( index === -1 ) {
+                this.query.metrics.push(expression);
+            } else {
+                this.query.metrics[index] = expression;
+            }
+            this.triggerQueryChanges();
+            console.log("expression", JSON.stringify(expression));
+        }
+    }
+
+    isValidExpression() {
+        const value = this.expressionForm.controls.expressionValue.value.trim();
+        const result = value.match(/((m|e)[0-9]+)/gi);
+        const invalidRefs = [];
+
+        for (let i = 0; result && i < result.length; i++ ) {
+            const index = this.aliases.findIndex(item => item.id === result[i]);
+            if ( index === -1 ) {
+                invalidRefs.push( result[i] );
+            }
+        }
+
+        const isValid =   result != null && !invalidRefs.length;
+        console.log("isValidExpression", isValid, result != null , !invalidRefs.length)
+        this.expressionForm.controls.expressionValue.setErrors( !isValid ? { 'invalid': true } : null );
+        return isValid;
+    }
+
+    getExpressionConfig() {
+        let expInput = this.expressionForm.controls.expressionValue.value;
+        let result = expInput.match(/((m|e)[0-9]+)/gi);
+        result = result ? this.utils.arrayUnique(result) : result;
+        let metrics = [];
+        const replace = [];
+
+        console.log(result, "matches")
+        for (let i = 0; i < result.length; i++ ) {
+            const alias = this.aliases.find(item => item.id === result[i]);
+            console.log(result[i], alias);
+            replace.push( { 'old': result[i], 'new': alias.expression } );
+            const metric = { name: alias.metrics[0], refId: result[i]};
+            const index = metrics.findIndex(d => d.name === alias.metrics[0] );
+            if ( index === -1 ) {
+                metrics.push(metric);
+            }
+        }
+        // metrics = this.utils.arrayUnique(metrics);
+
+
+        // update the expression with new reference ids
+        for ( let i = 0; i < replace.length; i++ ) {
+            const regex = new RegExp( replace[i].old , 'g');
+            expInput = expInput.replace( regex, replace[i].new);
+        }
+
+        const expression = {
+            id: this.editExpressionId || this.utils.generateId(),
+            name: this.expressionForm.controls.expressionName.value,
+            expression : expInput,
+            originalExpression: this.expressionForm.controls.expressionValue.value,
+            metrics: metrics,
+            settings: {
+                visual: {
+                    label: this.expressionForm.controls.expressionName.value,
+                    visible: true
+                }
+            },
+        };
+        return expression;
+    }
+
+    cancelExpression() {
+        this.isEditExpression = false;
+    }
+
     closeEditMode() {
         this.edit = [];
         this.requestChanges('CloseQueryEditMode');
@@ -397,5 +620,9 @@ export class QueryEditorComponent implements OnInit, OnChanges {
     apply(): any {
         this.closeEditMode();
         console.log("this.query", JSON.stringify(this.query));
+    }
+
+    ngOnDestroy() {
+        // this.expressionForm_Sub.unsubscribe();
     }
 }

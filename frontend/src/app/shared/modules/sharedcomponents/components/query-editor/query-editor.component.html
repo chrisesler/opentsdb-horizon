@@ -9,14 +9,14 @@
                         <namespace-autocomplete [value]="query.namespace" (nschange)="saveNamespace($event)" (blur)="cancelSaveNamespace($event)"></namespace-autocomplete>
                     </span>
                     <span class="flex-spacer"></span>
-                    <span class="action-icons">
-                        <!--<button mat-icon-button color="primary" (click)="toggleGroupQuery(gIndex, query.id); $event.stopPropagation();">
+                    <span class="action-icons" *ngIf=" !editNamespace && type === 'LinechartWidgetComponent' ">
+                        <button mat-icon-button color="primary" (click)="toggleQuery(); $event.stopPropagation();">
                             <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
                             <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
                         </button>
-                        <button mat-icon-button color="primary" (click)="deleteGroupQuery(gIndex, query.id); $event.stopPropagation();">
+                        <button mat-icon-button color="primary" (click)="deleteQuery(); $event.stopPropagation();">
                             <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                        </button>-->
+                        </button>
                     </span>
             </div>
             <div class="metrics" *ngIf="query.namespace || query.metrics.length || query.filters.length">
@@ -27,19 +27,33 @@
                             <div class="label">METRICS</div>
                             <ng-container *ngIf="edit.indexOf('metrics') === -1">
                                 <div class="metric" *ngFor="let metric of query.metrics"> 
-                                    <div>{{ metric.name }}</div>
-                                    <div *ngIf="type !== 'LinechartWidgetComponent'">Summarizer: <dropdown-aggregators [multiple]="type === 'BignumberWidgetComponent' ? true : false" [value]="metric.settings.visual.aggregator" (change)="setMetricSummarizer(metric.id, $event)"></dropdown-aggregators></div>
+                                    <div class="metric-item-detail">
+                                        <div>{{ metric.name }}</div>
+                                        <div *ngIf="type !== 'LinechartWidgetComponent'">Summarizer: <dropdown-aggregators [multiple]="type === 'BignumberWidgetComponent' ? true : false" [value]="metric.settings.visual.aggregator" (change)="setMetricSummarizer(metric.id, $event)"></dropdown-aggregators></div>
+                                    </div>
+                                    <span class="action-icons" *ngIf="type !== 'BignumberWidgetComponent'">
+                                        <button mat-icon-button color="primary" (click)="toggleMetricVisibility(metric.id); $event.stopPropagation()">
+                                            <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="metric.settings.visual.visible"></mat-icon>
+                                            <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!metric.settings.visual.visible"></mat-icon>
+                                        </button>
+                                        <!--<button mat-icon-button color="primary" (click)="editMetric(metric.id); $event.stopPropagation()">
+                                                <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                        </button>-->
+                                        <button mat-icon-button color="primary" (click)="deleteMetric(metric.id); $event.stopPropagation()">
+                                            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                        </button> 
+                                    </span>
                                 </div>
                             </ng-container>
-                            <div class="action" *ngIf="!edit.length || !query.metrics.length && edit.indexOf('metrics') === -1">
-                                    <button (click)="requestEditMode('metrics')">Add Metrics</button>
+                            <div class="action" *ngIf="!edit.length || edit.indexOf('metrics') === -1">
+                                    <button (click)="requestEditMode('metrics')">{{ query.metrics.length ? 'Edit': 'Add' }} Metrics</button>
                             </div>           
                             <div class="filter" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
                                 <div class="search"><input type=text  #metricSearchInput class="metric-search-input"  [formControl]="metricSearchControl"></div>
                             </div>
                             <div class="filter-result" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
-                                <mat-tab-group  color="primary" mat-align-tabs="start">
-                                        <mat-tab [label]="'Available(' + metricOptions.length + ')'">
+                                <mat-tab-group  color="primary" mat-align-tabs="start" [(selectedIndex)]="metricSelectedTabIndex">
+                                        <mat-tab [label]="'Available(' + metricOptions.length + ')'" [disabled]="isEditExpression">
                                             <ng-template matTabContent>
                                                     <div class="list has-scroller">
                                                             <div class="is-scroller">
@@ -58,28 +72,52 @@
                                         <mat-tab [label]="'Selected(' + query.metrics.length + ')'">
                                             <ng-template matTabContent>
                                                 <div class="list has-scroller">
-                                                    <div class="is-scroller">
-                                                        <div class="option" *ngFor="let metric of query.metrics">
-                                                            <mat-icon (click)="updateMetricSelection(metric.name, 'remove');">remove_circle_outline</mat-icon>
-                                                            <div>{{ metric.name }}</div>
+                                                    <div class="is-scroller" *ngIf="!isEditExpression">
+                                                        <div class="option" *ngFor="let metric of query.metrics; let index=index">
+                                                            <div class="option-row-item">
+                                                                    <mat-icon (click)="removeMetricById(metric.id);">remove_circle_outline</mat-icon>
+                                                            </div>
+                                                            <div class="option-row-item label">{{ metric.name }}</div>
+                                                            <div class="option-row-item">
+                                                                <mat-icon fontSet="denali" fontIcon="d-pencil" *ngIf="metric.expression" (click)="showExpressionForm(metric.id);"></mat-icon>
+                                                            </div>
                                                         </div>
                                                     </div>
+                                                    <div class="is-scroller" *ngIf="isEditExpression">
+                                                        <div class="option expression" *ngFor="let alias of aliases; let index=index">
+                                                            <div>
+                                                                <span>{{ alias.id }}: </span>
+                                                                <span>{{ alias.displayName }}</span>
+                                                                <span class="link" *ngIf="alias.isExpression" (click)="toggleExpressionDetail(index)">{{ alias.expanded? 'Hide Detail' : 'Show Detail'}}</span>
+                                                            </div>
+                                                            <div class="expression-detail" *ngIf="alias.expanded">{{ alias.expression }}</div>
+                                                        </div>
                                                     </div>
+                                                </div>
                                             </ng-template>
                                         </mat-tab>
                                 </mat-tab-group>
+                                <button *ngIf="query.metrics.length" class="add-expression" mat-button color="primary"  (click)="showExpressionForm()" [disabled]="isEditExpression">+ Add Expression </button>
                             </div>
                         </div>
-                        <div class="filters">
+                        <div class="filters" *ngIf="!isEditExpression">
                             <div class="label">FILTERS</div>
                             <ng-container *ngIf="query.filters.length && edit.indexOf('filters') === -1">
-                                    <div *ngFor="let filter of query.filters; let index=index"> 
-                                        <span><tag-aggregator [value]="filter.aggregator" [exclude]="type === 'BignumberWidgetComponent'?['unmerge']:[]" (change)="setTagAggregator(index, $event)"></tag-aggregator></span>
-                                        <span>{{ filter.tagk }}: {{ filter.filter.join(',') }}</span>
+                                    <div class="tag" *ngFor="let filter of query.filters; let index=index"> 
+                                        <div class="tag-item-detail">
+                                            <span><tag-aggregator [value]="filter.aggregator" [exclude]="type === 'BignumberWidgetComponent'?['unmerge']:[]" (change)="setTagAggregator(index, $event)"></tag-aggregator></span>
+                                            <span>{{ filter.tagk }}: {{ filter.filter.join(',') }}</span>
+                                        </div>
+                                        <span class="action-icons">
+                                                <button mat-icon-button color="primary" (click)="deleteFilter(index); $event.stopPropagation()">
+                                                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                                </button> 
+                                        </span>
                                     </div>
+                                    
                                 </ng-container>
-                            <div class="action" *ngIf="!edit.length || !query.filters.length && edit.indexOf('filters') === -1">
-                                <button (click)="requestEditMode('filters')">Add Filters</button>
+                            <div class="action" *ngIf="!edit.length ||  edit.indexOf('filters') === -1">
+                                <button (click)="requestEditMode('filters')">{{ query.filters.length ? 'Edit': 'Add'}} Filters</button>
                             </div>
                             <div class="filter" *ngIf="edit.length && edit.indexOf('filters') !== -1">
                                     <div class="tag-key-value-container">
@@ -150,6 +188,25 @@
                                     </div>
                             </div>
                         </div>
+                        <div class="expression-form" *ngIf="isEditExpression">
+                            <form [formGroup]="expressionForm">
+                                <mat-form-field appearance="fill">
+                                    <mat-label>Expression Name</mat-label>
+                                    <input matInput placeholder="Please enter a name for this expression" maxlength="100" formControlName="expressionName" required>
+                                </mat-form-field>
+                                <mat-form-field appearance="fill">
+                                    <mat-label>Expression</mat-label>
+                                    <textarea matInput rows="10" placeholder="Enter an expression value (e.g. [(m1+m2)/2]" formControlName="expressionValue" required></textarea>
+                                </mat-form-field>
+                                <mat-error *ngIf="expressionForm.controls.expressionValue.errors && expressionForm.controls.expressionValue.errors.invalid">
+                                        Invalid Expression(Atleast one alias should be used in the expression)
+                                </mat-error>
+                            </form>
+                            <div class="actions">
+                                <button mat-button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="updateExpression()"> {{ this.editExpressionId ? 'Update' : 'Create'}} </button>
+                                <button mat-button  class="mat-elevation-z0" (click)="cancelExpression()"> Cancel </button>
+                            </div> 
+                        </div>
                     </div>
             </div>
             <div class="actions" *ngIf="edit.length">
@@ -157,3 +214,47 @@
                     <button mat-button  class="mat-elevation-z0" (click)="cancel()"> Cancel </button>
                 </div>      
     </div>
+
+    
+
+    <!--
+    <div  class="option ng-star-inserted">
+        <div class="option-row-item">
+            <mat-icon  class="mat-icon material-icons" role="img" aria-hidden="true" style="
+                height: auto;
+                width: auto;
+                ">remove_circle_outline</mat-icon>
+        </div>
+        <div _ngcontent-c29="" class="option-row-item label"><span>untitled expression</span></div>
+        <div class="option-row-item"><mat-icon _ngcontent-c29="" class="edit mat-icon material-icons ng-star-inserted" role="img" aria-hidden="true" style="
+            width: auto;
+            height: auto;
+        ">edit</mat-icon>
+        </div>
+    </div>
+
+    <div class="option" *ngFor="let metric of query.metrics; let index=index">
+        <div class="option-row-item">
+            <mat-icon (click)="removeMetricById(metric.id);">remove_circle_outline</mat-icon>
+        </div
+        <div _ngcontent-c29="" class="option-row-item label">{{ metric.name }}</div>
+        <div class="option-row-item"><mat-icon class="edit" *ngIf="metric.expression" (click)="showExpressionForm(metric.id);">edit</mat-icon></div>
+    </div>
+.m-row-item:first-child {
+    /* margin-right: 12px; */
+}
+
+.option-row-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+}
+
+.option-row-item.label {
+    flex: 1;
+    margin: auto 12px;
+    justify-content: flex-start;
+}
+
+    -->

@@ -1,4 +1,4 @@
-<mat-toolbar class="panel-toolbar" [ngClass]="{'is-master-panel': currentPaneIndex === 0}">
+<mat-toolbar class="panel-toolbar" [ngClass]="{'is-master-panel': currentPanelIndex === 0}">
     <mat-toolbar-row fxLayout fxLayoutAlign="start stretch">
         <div class="nav-item back-to-master">
             <button mat-icon-button (click)="navtoMasterPanel()">
@@ -59,9 +59,9 @@
                 </mat-list-item>
             </mat-nav-list>-->
             <dnav-folders 
-                [folders]="panel.subfolder" 
+                [folders]="(panel.personal) ? panel.personal : (panel.subfolders) ? panel.subfolders : []" 
                 [masterPanel]="panel.name === 'masterPanel'"
-                [resourceType]="'personal'"
+                [resourceType]="panel.resourceType"
                 (folderAction)="folderAction(panel,$event)"></dnav-folders>
             <dnav-folders 
                 *ngIf="panel.name === 'masterPanel' && panel.namespaces"

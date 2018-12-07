@@ -43,6 +43,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     options: IDygraphOptions = {
         labels: ['x'],
         labelsUTC: false,
+        labelsKMB: true,
         connectSeparatedPoints: false,
         drawPoints: false,
         //  labelsDivWidth: 0,
@@ -53,6 +54,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         strokeWidth: 1,
         strokeBorderWidth: this.isStackedGraph ? null : 1,
         highlightSeriesOpts: {
+            strokeWidth: 3,
             highlightCircleSize: 7
         },
         xlabel: '',
@@ -88,12 +90,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     ) { }
 
     ngOnInit() {
-        console.log("this.widget", JSON.stringify(this.widget));
-        // console.log('TEST', this.widgetOutputElement.nativeElement.getBoundingClientRect());
                 // subscribe to event stream
                 this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-
-                    //console.log('MESSAGE', message);
                     switch ( message.action ) {
                         case 'resizeWidget':
                             this.setSize();
@@ -114,8 +112,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                                 this.nQueryDataLoading--;
                                 if ( !this.isDataLoaded ) {
                                     this.isDataLoaded = true;
-                                    this.options = {...this.options, labels: ['x']};
-                                    this.data = [[0]];
+                                    this.resetChart();
                                 }
                                 if ( message.payload.error ) {
                                     this.error = message.payload.error;
@@ -127,9 +124,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                             case 'getUpdatedWidgetConfig':
                                 if (this.widget.id === message.id) {
                                     this.widget = message.payload;
-                                    this.setLegendDiv();
-                                    this.setAxesOption();
-                                    this.setAlertOption();
+                                    this.setOptions();
                                     this.refreshData();
                                 }
                                 break;
@@ -142,9 +137,17 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                     this.setSize(true);
                 }
                 this.requestData();
-                this.setLegendDiv();
-                this.setAxesOption();
-                this.setAlertOption();
+                this.setOptions();
+    }
+    setOptions() {
+        this.setLegendDiv();
+        this.setAxesOption();
+        this.setAlertOption();
+    }
+
+    resetChart() {
+        this.options = {...this.options, labels: ['x']};
+        this.data = [[0]];
     }
 
     updateConfig(message) {
@@ -171,7 +174,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 break;
             case 'SetAxes' :
                 this.updateAlertValue(message.payload.data); // update the alert unit type and value
-                console.log('axs', message);
                 this.widget.settings.axes = { ...this.widget.settings.axes, ...message.payload.data };
                 this.setAxesOption();
                 this.options = { ...this.options };
@@ -182,6 +184,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
+                this.setOptions();
                 this.refreshData();
                 break;
             case 'SetQueryEditMode':
@@ -190,38 +193,33 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             case 'CloseQueryEditMode':
                 this.editQueryId = null;
                 break;
-                /*
-            case 'MergeMetrics':
-                this.mergeMetrics(message.payload.data);
+            case 'ToggleQueryVisibility':
+                this.toggleQueryVisibility(message.id);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                break;
+            case 'ToggleQueryMetricVisibility':
+                this.toggleQueryMetricVisibility(message.id, message.payload.mid);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.id);
+                this.widget = this.util.deepClone(this.widget);
                 this.refreshData();
                 break;
-            case 'SplitMetrics':
-                this.splitMetrics(message.payload.data);
+            case 'DeleteQueryMetric':
+                this.deleteQueryMetric(message.id, message.payload.mid);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
                 break;
-            case 'DeleteMetrics':
-                this.deleteMetrics(message.payload.data);
-                this.refreshData(false);
+            case 'DeleteQueryFilter':
+                this.deleteQueryFilter(message.id, message.payload.findex);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
                 break;
-            case 'ToggleGroup':
-                this.toggleGroup(message.payload.gIndex);
-                break;
-            case 'ToggleGroupQuery':
-                this.toggleGroupQuery(message.payload.gIndex, message.payload.index);
-                break;
-            case 'DeleteGroup':
-                this.deleteGroup(message.payload.gIndex);
-                break;
-
-            case 'DeleteGroupQuery':
-                this.deleteGroupQuery(message.payload.gIndex, message.payload.index);
-                break;
-                */
         }
     }
 
     updateQuery( payload ) {
-        console.log("linechart updateQuery", payload, this.widget.queries);
         const query = payload.query;
         const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
         if ( qindex === -1 ) {
@@ -230,7 +228,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         } else {
             this.widget.queries[qindex] = query;
         }
-        console.log("line chart updateQuery", this.widget.queries);
     }
 
     addMetricsToGroup(gConfig) {
@@ -276,12 +273,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
     setSize(init = false) {
 
-        console.group('LINE-CHART');
-            console.log('WIDGET', this.widget);
-            console.log('EDIT MODE', this.editMode);
-            console.log('ELEMENT', this.widgetOutputElement);
-            console.log('OFFSET HEIGHT', this.widgetOutputElement.nativeElement.offsetHeight, this.widgetOutputElement.nativeElement.getBoundingClientRect());
-        console.groupEnd();
         /*const wm =  this.widget.query.settings.legend.display &&
                     ( this.widget.query.settings.legend.position === 'left' ||
                         this.widget.query.settings.legend.position === 'right' ) ? .8 : 1;
@@ -438,7 +429,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         // this.options.axes.y2.drawAxis = y2Enabled;
         this.options.axes.y.axisLabelWidth = y1Enabled ? 50 : 0;
         this.options.axes.y2.axisLabelWidth = y2Enabled ? 50 : 0;
-        console.log("setaxis",  y1Enabled, y2Enabled, this.options, this.widget.queries);
     }
 
     updateAlertValue(nConfig) {
@@ -449,7 +439,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             const nUnit = this.unit.getDetails(nConfig[k].unit);
             for ( let i in thresholds ) {
                 if ( thresholds[i].axis === k) {
-                    console.log("k=", k, thresholds[i], oUnit, nUnit);
                     thresholds[i].value = oUnit ? thresholds[i].value * oUnit.m : thresholds[i].value;
                     thresholds[i].value = nUnit ? thresholds[i].value / nUnit.m : thresholds[i].value;
                 }
@@ -521,7 +510,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         }
         // call only axis changes
         this.setAxesOption();
-        console.log('set visual', this.options, this.widget);
     }
 
     setLegend(config) {
@@ -583,7 +571,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 payload: this.widget,
             });
         }
-        console.log("nQueryDataLoading", this.nQueryDataLoading)
     }
 
     requestCachedData() {
@@ -602,132 +589,40 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         }
     }
 
-    /*
-    mergeMetrics( groups ) {
-        const newGroup = this.createNewGroup();
-        let cntMergedQueries = 0;
-        for ( let i = groups.length - 1; i >= 0; i-- ) {
-            const group = groups[i];
-            const queries = group.queries;
-            if ( group.settings.tempUI.selected !== 'none' ) {
-                for ( let j = queries.length - 1; j >= 0; j-- ) {
-                    if ( queries[j].settings.selected ) {
-                        const items = queries.splice( j, 1 );
-                        newGroup.queries.push(items[0]);
-                        cntMergedQueries++;
-                    }
-                }
-                if ( !queries.length ) {
-                    groups.splice( i, 1);
-                }
-            }
-        }
-        if ( cntMergedQueries > 1 ) {
-            groups.unshift( newGroup );
-            this.widget.query.groups = groups;
-            this.widget = { ...this.widget };
-        }
-        console.log('___MERGE METRICS___',  groups, cntMergedQueries);
-    }
-
-    splitMetrics(groups) {
-        let split = false;
-        for ( let i = 0; i < groups.length; i++ ) {
-            const group = groups[i];
-            let cloneGroupIndex = 1;
-            const queries = group.queries;
-            if ( group.settings.tempUI.selected !== 'none') {
-                for ( let j = 0; queries.length > 1 && j < queries.length; j++ ) {
-                    if ( queries[j].settings.selected ) {
-                        const cloneGroup = Object.assign({}, group);
-                        cloneGroup.queries = [];
-                        cloneGroup.id = this.util.generateId(6);
-                        cloneGroup.title = 'clone ' +  cloneGroup.title + ' ' + (cloneGroupIndex++);
-                        const query = queries.splice( j, 1 );
-                        cloneGroup.queries.push(query[0]);
-                        groups.splice(i + 1, 0, cloneGroup);
-                        i++; // skip the loop for the newly created group
-                        split = true;
-                    }
-                }
-            }
-        }
-        if ( split ) {
-            this.widget.query.groups = groups;
-            this.widget = { ...this.widget };
-        }
-    }
-
-    deleteMetrics(groups) {
-        let deletedMetrics = false;
-        for ( let i = groups.length - 1; i >= 0; i-- ) {
-            const group = groups[i];
-            const queries = group.queries;
-            // group delete 
-            if ( group.settings.tempUI.selected === 'all' ) {
-                groups.splice( i, 1 );
-                deletedMetrics = true;
-            } else if ( group.settings.tempUI.selected !== 'none') {
-                for ( let j = queries.length - 1;  j >= 0; j-- ) {
-                    if ( queries[j].settings.selected ) {
-                        queries.splice( j, 1 );
-                        deletedMetrics = true;
-                    }
-                }
-            }
-        }
-        if ( deletedMetrics ) {
-            this.widget.query.groups = groups;
-            this.widget = { ...this.widget };
-        }
-    }
-
-    toggleGroup(gIndex) {
-        this.widget.query.groups[gIndex].settings.visual.visible = !this.widget.query.groups[gIndex].settings.visual.visible;
-        for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
-            this.widget.query.groups[gIndex].queries[i].settings.visual.visible =
-            this.widget.query.groups[gIndex].settings.visual.visible;
-        }
-        // if ( this.widget.query.groups[gIndex].queries.length === 1 ) {
-        //     this.widget.query.groups[gIndex].queries[0].settings.visual.visible = this.widget.query.groups[gIndex].settings.visual.visible;
-        // }
+    toggleQueryVisibility(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].settings.visual.visible =
+            !this.widget.queries[qindex].settings.visual.visible;
         this.refreshData(false);
     }
-    deleteGroup(gIndex) {
-        this.widget.query.groups.splice(gIndex, 1);
-        this.refreshData();
+
+    deleteQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries.splice(qindex, 1);
+    }
+    toggleQueryMetricVisibility(qid, mid) {
+        // toggle the individual query metric
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
+            !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
+        this.refreshData(false);
     }
 
-    toggleGroupQuery(gIndex, index) {
+    deleteQueryMetric(qid, mid) {
         // toggle the individual query
-        this.widget.query.groups[gIndex].queries[index].settings.visual.visible =
-            !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
-
-        // set the group to visible if the individual query is visible
-        if (this.widget.query.groups[gIndex].queries[index].settings.visual.visible) {
-            this.widget.query.groups[gIndex].settings.visual.visible = true;
-        } else { // set the group to invisible if all queries are invisible
-            this.widget.query.groups[gIndex].settings.visual.visible = false;
-            for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
-                if (this.widget.query.groups[gIndex].queries[i].settings.visual.visible) {
-                    this.widget.query.groups[gIndex].settings.visual.visible = true;
-                    break;
-                }
-            }
-        }
-        this.refreshData(false);
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        this.widget.queries[qindex].metrics.splice(mindex, 1);
     }
 
-    deleteGroupQuery(gIndex, index) {
-        this.widget.query.groups[gIndex].queries.splice(index, 1);
-        this.refreshData();
+    deleteQueryFilter(qid, findex) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].filters.splice(findex, 1);
     }
-    */
 
     showError() {
-        console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
         const parentPos = this.elRef.nativeElement.getBoundingClientRect();
-        console.log("parentpos", parentPos);
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         const offsetHeight = 60;
         dialogConf.width = '50%';
@@ -735,15 +630,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         dialogConf.height = '200px';
         dialogConf.backdropClass = 'error-dialog-backdrop';
         dialogConf.panelClass = 'error-dialog-panel';
-        /*
-        dialogConf.position = <DialogPosition>{
-            top:   '30%',
-            bottom: '0px',
-            left: parentPos.left + 'px',
-            right: '0px'
-        };
-        console.log("dialogConf", dialogConf.position);
-        */
         dialogConf.data = this.error;
 
         this.errorDialog = this.dialog.open(ErrorDialogComponent, dialogConf);

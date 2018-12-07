@@ -16,7 +16,7 @@ import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel } from '../../state/widgets.state';
-import { WidgetsRawdataState, GetQueryDataByGroup, SetQueryDataByGroup } from '../../state/widgets-data.state';
+import { WidgetsRawdataState, GetQueryDataByGroup, SetQueryDataByGroup, ClearQueryData } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import {
     DBSettingsState,
@@ -37,6 +37,7 @@ import {
 } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
+import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 
 @Component({
     selector: 'app-dashboard',
@@ -158,7 +159,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     constructor(
         private store: Store,
-        private route: ActivatedRoute,
+        private activatedRoute: ActivatedRoute,
         private router: Router,
         private location: Location,
         private interCom: IntercomService,
@@ -172,20 +173,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        // handle route
-        this.routeSub = this.route.params.subscribe(params => {
-            // route to indicate create a new dashboard
-            if (params['dbid']) {
-                this.dbid = params['dbid'];
-                if (this.dbid === '_new_') {
-                    this.store.dispatch(new LoadDashboard(this.dbid));
-                } else {
-                    // load provided dashboard id, and need to handdle not found too
-                    // this.store.dispatch(new dashboardActions.LoadDashboard(this.dbid));
-                    this.store.dispatch(new LoadDashboard(this.dbid));
-                }
+        // handle route for dashboardModule
+        this.routeSub = this.activatedRoute.url.subscribe(url => {
+            console.log('url', url);
+            if (url.length === 1 && url[0].path === '_new_') {
+                this.dbid = '_new_';
+                this.store.dispatch(new LoadDashboard(this.dbid));
+            } else {
+                let paths = [];
+                url.forEach(segment => {
+                    paths.push(segment.path);
+                });
+                this.store.dispatch(new LoadDashboard(paths.join('%2F')));
             }
-        });
+        });   
         // setup navbar portal
         this.dashboardNavbarPortal = new TemplatePortal(this.dashboardNavbarTmpl, undefined, {});
         this.cdkService.setNavbarPortal(this.dashboardNavbarPortal);
@@ -226,14 +227,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         const newWidgetY = message.payload.gridPos.h;
                         widgets = this.dbService.positionWidgetY(widgets, newWidgetY);
                         // this is the newly adding widget
-                        if(widgets.length === 1 && widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
+                        if (widgets.length === 1 && widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
                             widgets[0] = message.payload;
                         } else {
                             widgets.unshift(message.payload);
                         }
                         this.store.dispatch(new LoadWidgets(widgets));
                     } else {
-                        // check the component type is PlaceholderWidgetComponent. If yes, it needs to be replaced with new component                    
+                        // check the component type is PlaceholderWidgetComponent.
+                        // If yes, it needs to be replaced with new component
                         if (widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
                             widgets[mIndex] = message.payload;
                             this.store.dispatch(new LoadWidgets(widgets));
@@ -289,7 +291,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
                     if (message.payload.variables) {
-                        //console.log('updateVariables: ', message.payload.variables);
+                        // console.log('updateVariables: ', message.payload.variables);
                         this.store.dispatch(new UpdateVariables(message.payload.variables));
                     }
                     break;
@@ -298,7 +300,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag, message.payload.filters));
                     break;
                 case 'getUserNamespaces':
-                    //console.log('getUserNamespaces');
+                    // console.log('getUserNamespaces');
                     this.store.dispatch(new LoadUserNamespaces());
                     break;
                 default:
@@ -360,7 +362,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbModeSub = this.dashboardMode$.subscribe(mode => {
-            console.log("mode changed", mode);
+            console.log('mode changed', mode);
             this.viewEditMode = mode === 'edit' || mode === 'view' ? true : false;
         });
 
@@ -456,13 +458,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.widgetGroupRawData$.subscribe(result => {
+            let error = null;
+            let grawdata = {};
             if (result !== undefined) {
-                let error = null;
-                let grawdata = {};
                 // if one of the query contains error, send the entire data. so that chart can rerender with success query result
-                if ( !result.rawdata.error ) {
+                if ( result.rawdata !== undefined && !result.rawdata.error ) {
                     grawdata[result.gid] = result.rawdata;
-                } else {
+                } else if ( result.rawdata !== undefined ) {
                     error = result.rawdata.error;
                     grawdata = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(result.wid));
                 }
@@ -520,31 +522,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let groupid = '';
         const payload = message.payload;
         const dt = this.getDashboardDateRange();
-
-        // sending each group to get data.
-        for (let i = 0; i < payload.queries.length; i++) {
-            let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
-            groupid = query.id;
-            const gquery: any = {
-                wid: message.id,
-                gid: groupid,
-            };
-            if (query.namespace && query.metrics.length) {
-                // filter only visible metrics
-                // query = this.dbService.filterMetrics(query);
-                let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
-                // get only enabled filters
-                overrideFilters = overrideFilters.filter(d => d.enabled);
-                query = overrideFilters.length ? this.dbService.overrideQueryFilters(query, overrideFilters) : query;
-                query = this.queryService.buildQuery(payload, dt, query);
-                console.log('the group query-2', query, JSON.stringify(query));
-                gquery.query = query;
-                // now dispatch request
-                this.store.dispatch(new GetQueryDataByGroup(gquery));
-            } else {
-                gquery.data = {};
-                this.store.dispatch(new SetQueryDataByGroup(gquery));
+        if ( payload.queries.length ) {
+            // sending each group to get data.
+            for (let i = 0; i < payload.queries.length; i++) {
+                let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
+                groupid = query.id;
+                const gquery: any = {
+                    wid: message.id,
+                    gid: groupid,
+                };
+                if (query.namespace && query.metrics.length) {
+                    // filter only visible metrics
+                    // query = this.dbService.filterMetrics(query);
+                    let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
+                    // get only enabled filters
+                    overrideFilters = overrideFilters.filter(d => d.enabled);
+                    query = overrideFilters.length ? this.dbService.overrideQueryFilters(query, overrideFilters) : query;
+                    query = this.queryService.buildQuery(payload, dt, query);
+                    console.log('the group query-2', query, JSON.stringify(query));
+                    gquery.query = query;
+                    // now dispatch request
+                    this.store.dispatch(new GetQueryDataByGroup(gquery));
+                } else {
+                    gquery.data = {};
+                    this.store.dispatch(new SetQueryDataByGroup(gquery));
+                }
             }
+        } else {
+            this.store.dispatch(new ClearQueryData({ wid: message.id }));
         }
     }
 

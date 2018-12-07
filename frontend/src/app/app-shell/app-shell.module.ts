@@ -4,6 +4,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+// store
+import { NgxsModule } from '@ngxs/store';
+import { 
+    DashboardNavigatorState
+ } from './state';
+
 
 // modules
 import { MaterialModule } from '../shared/modules/material/material.module';
@@ -11,6 +17,7 @@ import { SharedcomponentsModule } from '../shared/modules/sharedcomponents/share
 
 // services
 import { AppShellService } from './services/app-shell.service';
+import { DashboardNavigatorService } from './services/dashboard-navigator.service';
 
 // components
 import { DashboardNavigatorComponent } from './components/dashboard-navigator/dashboard-navigator.component';
@@ -33,7 +40,10 @@ import { DnavDashboardsComponent } from './components/dashboard-navigator/childr
         MaterialModule,
         FormsModule,
         ReactiveFormsModule,
-        SharedcomponentsModule
+        SharedcomponentsModule,
+        NgxsModule.forFeature([
+            DashboardNavigatorState
+        ])
     ],
     declarations: [
         DashboardNavigatorComponent,
@@ -50,7 +60,8 @@ import { DnavDashboardsComponent } from './components/dashboard-navigator/childr
         DnavDashboardsComponent
     ],
     providers: [
-        AppShellService
+        AppShellService,
+        DashboardNavigatorService
     ],
     exports: [
         AppShellComponent
