@@ -151,6 +151,14 @@
             border: 2px solid transparent;
         }
 
+        .auto-color {
+            width: 140px;
+            height: 24px;
+            border: 2px solid transparent;
+            margin-left: 22px;
+            margin-top: 10px;
+        }
+
         .default-color-button {
             //the default color buttons
             border-radius: 5px;
@@ -160,6 +168,12 @@
             margin: 1px;
             min-width: 18px;
             padding: 0px;
+        }
+
+        .auto-color-button {
+            width: 136px;
+            line-height: 20px;
+            border-radius: 5px;
         }
 
         .isSelected {

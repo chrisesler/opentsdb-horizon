@@ -50,6 +50,7 @@ export class ColorPickerComponent implements OnInit {
     @ViewChild('contentForOtherModes') contentForOtherModes: ElementRef;
 
     /* Inputs */
+    @Input() enableAuto: boolean; // allow auto to be selected - outputs {hex: 'auto', color: 'auto'}
 
     // Behavior of when to output newColor. Valid Values: dropDown, dropDownNoButton, embedded.
     @Input() get pickerMode(): string {
@@ -72,7 +73,7 @@ export class ColorPickerComponent implements OnInit {
         if (this.isRgbValid(value)) {
             this._color = this.rgbToHex(value);
         } else {
-            this._color = coerceHexaColor(value) || this.emptyColor;
+            this._color = coerceHexaColor(value) || 'Auto';
         }
 
         // if on embedded view, do not attempt to switch between default and custom
@@ -141,6 +142,11 @@ export class ColorPickerComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+
+        if (this.enableAuto === undefined) {
+            this.enableAuto = false;
+        }
+
         if (!this._color) {
             this._color = '#000000';
         }
@@ -164,7 +170,13 @@ export class ColorPickerComponent implements OnInit {
 
     /* Picker Behaviors */
     determineIfCustomColor() {
-        this.selectingCustomColor = (this.colorToName(this.color) === this.color);
+        if (this.color.toLowerCase() === 'auto') {
+            this.selectingCustomColor = false;
+        } else if (this.colorToName(this.color) === this.color) {
+            this.selectingCustomColor = true;
+        } else {
+            this.selectingCustomColor = false;
+        }
     }
 
     toggleSelector() {
@@ -173,10 +185,19 @@ export class ColorPickerComponent implements OnInit {
 
     colorSelected(hexColor: string): void {
         this.color = hexColor;
-        this.newColor.emit(this.hexToColor(hexColor));
+        this.emitColor();
+
         // if on custom color and we hit a default color, do not switch to default view
         if (this.pickerMode !== 'embedded') {
             this.toggle();
+        }
+    }
+
+    emitColor() {
+        if (this.color.toLowerCase() === 'auto') {
+            this.newColor.emit( { hex: 'auto', rgb: 'auto'});
+        } else {
+            this.newColor.emit(this.hexToColor(this.color));
         }
     }
 
@@ -224,7 +245,7 @@ export class ColorPickerComponent implements OnInit {
 
     // Update selectedColor and close the panel
     confirmSelectedColor() {
-        this.newColor.emit(this.hexToColor(this._color));
+        this.emitColor();
         this.toggle();
     }
 

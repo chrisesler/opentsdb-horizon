@@ -43,7 +43,7 @@
                             <dropdown-visual-type  formControlName="type"></dropdown-visual-type>   
                         </td>
                         <td class="mat-cell mat-column-color-family" [formGroupName]="index">
-                            <color-picker (newColor)="selectColor($event, gIndex, index)" [color]="metric.settings.visual.color"></color-picker>
+                            <color-picker (newColor)="selectColor($event, gIndex, index)" [color]="metric.settings.visual.color" enableAuto="'true'"></color-picker>
                         </td>
                         <td class="mat-cell mat-column-line-weight" [formGroupName]="index">
                             <dropdown-line-weight formControlName="lineWeight"></dropdown-line-weight>
