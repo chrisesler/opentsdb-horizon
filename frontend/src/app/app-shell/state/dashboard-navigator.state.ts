@@ -8,7 +8,8 @@ import {
 
 import {
     map,
-    catchError
+    catchError,
+    reduce
 } from 'rxjs/operators';
 
 import {
@@ -97,11 +98,15 @@ import {
 })
 
 export class DashboardNavigatorState {
+
     constructor (
         private navService: DashboardNavigatorService,
     ) {}
 
-    /** Selectors */
+    /**************************
+     * SELECTORS
+     **************************/
+
     @Selector() static getResourceData(state: DBNAVStateModel) {
         return state.resourceData;
     }
@@ -140,10 +145,62 @@ export class DashboardNavigatorState {
         return state.panelAction;
     }
 
-    /** Actions */
+    /**************************
+     * UTILS
+     **************************/
 
+    stateLog(title: string, params?: any) {
+        if (params) {
+            console.group(
+                '%cDashboardNavigatorState%c' + title,
+                'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
+                'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
+            );
+            console.log('%cParams', 'font-weight: bold;', params);
+            console.groupEnd();
+        } else {
+            console.log(
+                '%cDashboardNavigatorState%c' + title,
+                'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
+                'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
+            );
+        }
+    }
+
+    stateError(title: string, error: any) {
+        console.group(
+            '%cDashboardNavigatorState [ERROR]%c' + title,
+            'color: white; background-color: red; padding: 4px 8px; font-weight: bold;',
+            'color: red; padding: 4px 8px; border: 1px solid red;'
+        );
+        console.log('%cErrorMsg', 'font-weight: bold;', error);
+        console.groupEnd();
+    }
+
+    stateSuccess(title: string, response: any) {
+        console.group(
+            '%cDashboardNavigatorState [SUCCESS]%c' + title,
+            'color: white; background-color: green; padding: 4px 8px; font-weight: bold;',
+            'color: green; padding: 4px 8px; border: 1px solid green;',
+            response
+        );
+        console.log('%cResponse', 'font-weight: bold;', response);
+        console.groupEnd();
+    }
+
+    /**************************
+     * ACTIONS
+     **************************/
+
+
+    /**
+     * Navigator Resources
+     * @param ctx
+     * @param param1
+     */
     @Action(DBNAVgetFolderResource)
     getFolderResource(ctx: StateContext<DBNAVStateModel>, { path: path, type: type }: DBNAVgetFolderResource) {
+        this.stateLog('Get Folder Resource');
         const state = ctx.getState();
         const resources = {...state.resourceData};
         return resources[type][path];
@@ -154,11 +211,7 @@ export class DashboardNavigatorState {
     // Top level Namespaces you are members of
     @Action(DBNAVloadNavResources)
     loadNavResources(ctx: StateContext<DBNAVStateModel>, {}: DBNAVloadNavResources) {
-        console.log(
-            '%cSTATE REQUEST%cNavigation Resource List',
-            'color: white; background-color: blue; padding: 4px 8px; font-weight: bold;',
-            'color: blue; padding: 4px 8px; border: 1px solid blue;'
-        );
+        this.stateLog('Load Navigation Resource List');
         const state = ctx.getState();
         if (!state.loaded) {
             ctx.patchState({ loading: true});
@@ -176,12 +229,8 @@ export class DashboardNavigatorState {
     @Action(DBNAVloadNavResourcesSuccess)
     loadNavResourcesSuccess(ctx: StateContext<DBNAVStateModel>, { response }: DBNAVloadNavResourcesSuccess) {
         const state = ctx.getState();
-        console.log(
-            '%cSUCCESS%cNavigation Resource List',
-            'color: white; background-color: green; padding: 4px 8px; font-weight: bold;',
-            'color: green; padding: 4px 8px; border: 1px solid green;',
-            response
-        );
+
+        this.stateSuccess('Load Navigation Resource List', response);
 
         const user = response.user;
 
@@ -269,12 +318,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVloadNavResourcesFail)
     loadNavResourcesFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVloadNavResourcesFail) {
-        console.log(
-            '%cERROR%cNavigation Resource List',
-            'color: white; background-color: red; padding: 4px 8px; font-weight: bold;',
-            'color: red; padding: 4px 8px; border: 1px solid red;',
-            error
-        );
+        this.stateError('Load Navigation Resource List', error);
         ctx.dispatch({
             loading: false,
             loaded: false,
@@ -287,12 +331,8 @@ export class DashboardNavigatorState {
     // take folder resource and add to panels
     @Action(DBNAVaddPanel)
     addPanel(ctx: StateContext<DBNAVStateModel>, { payload }: DBNAVaddPanel) {
-        console.log(
-            '%cSTATE REQUEST%cAdd folder panel',
-            'color: white; background-color: blue; padding: 4px 8px; font-weight: bold;',
-            'color: blue; padding: 4px 8px; border: 1px solid blue;',
-            payload
-        );
+
+        this.stateLog('Add Folder Panel', { payload });
         const state = ctx.getState();
         const panels = [...state.panels];
         const resources = {...state.resourceData};
@@ -313,10 +353,10 @@ export class DashboardNavigatorState {
             parentPath.pop();
 
             parentPath = parentPath.join('/');
-            console.log('parent', resourceType, parentPath);
+            // console.log('parent', resourceType, parentPath);
 
             const parent = resources[resourceType][parentPath];
-            console.log('parent', parent);
+            // console.log('parent', parent);
 
             const child = parent.subfolders.filter( item => {
                 return item.path = payload.path;
@@ -336,21 +376,21 @@ export class DashboardNavigatorState {
                 resourceData: resources
             });
 
-            console.log('CHILD', child);
+            // console.log('CHILD', child);
 
         }
 
         const newPanel = <DBNAVPanelModel>resources[resourceType][payload.path];
 
         // check if one exists
-        console.log('%cCHECK', 'color: black; background-color: pink; padding: 4px 8px;', panels.indexOf(newPanel));
+        // console.log('%cCHECK', 'color: black; background-color: pink; padding: 4px 8px;', panels.indexOf(newPanel));
 
         if (panels.indexOf(newPanel) < 0) {
             panels.push(newPanel);
 
             ctx.patchState({...state,
                 panels,
-                currentPanelIndex: currentPanelIndex + 1,
+                currentPanelIndex: (panels.length - 1),
                 panelAction: {
                     method: payload.panelAction
                 }
@@ -364,15 +404,81 @@ export class DashboardNavigatorState {
     @Action(DBNAVupdatePanels)
     updatePanels(ctx: StateContext<DBNAVStateModel>, { payload }: DBNAVupdatePanels) {
         const state = ctx.getState();
+        const idx = (payload.panels.length - 1);
         ctx.patchState({...state,
             panels: payload.panels,
-            currentPanelIndex: payload.currentPanelIndex,
+            currentPanelIndex: (idx < 0) ? 0 : idx,
             panelAction: (payload.panelAction) ? payload.panelAction : {}
         });
     }
 
+    /**************************
+     * FOLDERS
+     **************************/
+    @Action(DBNAVcreateFolder)
+    createFolder(ctx: StateContext<DBNAVStateModel>, { name: name, parentPath: parentPath, panelIndex: panelIndex }: DBNAVcreateFolder) {
+        this.stateLog('Create Folder', { name, parentPath, panelIndex});
+        const folder = {
+            name: name,
+            parentPath: parentPath
+        };
 
-    /** Get a subfolder */
+        return this.navService.createFolder(folder).pipe(
+            map( (payload: any) => {
+                ctx.dispatch(new DBNAVcreateFolderSuccess(payload, panelIndex));
+            }),
+            catchError( error => ctx.dispatch(new DBNAVcreateFolderFail(error)))
+        );
+    }
+
+    @Action(DBNAVcreateFolderSuccess)
+    createFolderSuccess(ctx: StateContext<DBNAVStateModel>, { response: response, panelIndex: panelIndex }: DBNAVcreateFolderSuccess) {
+        this.stateSuccess('Create Folder Success', response);
+        const state = ctx.getState();
+
+        const path = response.path.split('/');
+        const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
+        const resourceType = (type === 'namespace') ? 'namespaces' : 'personal';
+
+        const folder: DBNAVFolder = {...response,
+            responseType: type,
+            subfolders: [],
+            files: [],
+            icon: 'd-folder'
+        };
+
+        const panels = [...state.panels];
+        panels[panelIndex].subfolders.unshift(folder);
+
+        const resourceData = {...state.resourceData};
+        resourceData[resourceType][folder.path] = folder;
+
+        ctx.patchState({...state,
+            panels,
+            resourceData,
+            panelAction: {
+                method: 'createFolderSuccess',
+                folder: folder
+            }
+        });
+
+        // return folder;
+
+    }
+
+    @Action(DBNAVcreateFolderFail)
+    createFolderFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVcreateFolderFail) {
+        this.stateError('Create Folder Failure', error);
+    }
+
+
+    /**
+     * Get a subfolder
+     * @param ctx
+     * @param param1
+     *
+     * returns Observable
+     */
     @Action(DBNAVloadSubfolder)
     loadSubfolder(ctx: StateContext<DBNAVStateModel>, { path }: DBNAVloadSubfolder) {
         console.log(
@@ -390,5 +496,13 @@ export class DashboardNavigatorState {
         );
 
     }
+
+    /**************************
+     * FILES
+     **************************/
+
+    /**************************
+     * NAMESPACES
+     **************************/
 
 }
