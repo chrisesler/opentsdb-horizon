@@ -132,7 +132,7 @@
     <div class="config-control precision-control">
         <span class="mat-label">Decimals</span>
         <mat-form-field appearance="fill" floatLabel="never">
-            <input matInput #precisionBox placeholder="Enter Number of Decimals to Display [0-10]" [value]="widget.settings.visual.precision"
+            <input matInput #precisionBox placeholder="Enter Number of Decimals to Display [0-9]" [value]="widget.settings.visual.precision"
                 (keyup)="KeyedOnPrecisionInputBox(precisionBox.value)">
         </mat-form-field>
         <span class="flex-spacer"></span>

@@ -71,8 +71,8 @@
 
         // the actual big number
         .big-number {
-            font-size: 3em;
-            font-weight: 600;
+            font-size: 3em;         // If modified, change corresponding variable setting in .ts
+            font-weight: 600;       // If modified, change corresponding variable setting in .ts
         }
 
         // caption below big number (if any)
@@ -82,9 +82,17 @@
             justify-content: center;
             text-align: center;
 
-            font-size: 1.2em;
-            font-weight: 500;
-            padding-top: 0.3em;
+            font-size: 1.2em;       // If modified, change corresponding variable setting in .ts
+            font-weight: 500;       // If modified, change corresponding variable setting in .ts
+            padding-top: 0.3em;     // If modified, change corresponding variable setting in .ts
+        }
+
+        .change-indicator {
+            font-size: 1em;
+        }
+
+        .aggregator {
+            font-size: 1em;
         }
 
         
@@ -92,41 +100,41 @@
         // used for the prefixes/suffixes
 
         .small-top {
-            font-size: 1em;
+            font-size: 1em;         // If modified, change corresponding variable setting in .ts
             line-height: 1.8em;
             vertical-align: top;
         }
 
         .small-middle {
-            font-size: 1em;
+            font-size: 1em;         // If modified, change corresponding variable setting in .ts
             line-height: 1.8em;
             vertical-align: super;
         }
 
         .small-bottom {
-            font-size: 1em;
+            font-size: 1em;         // If modified, change corresponding variable setting in .ts
             line-height: 1.8em;
         }
 
         .medium-top {
-            font-size: 2em;
+            font-size: 2em;         // If modified, change corresponding variable setting in .ts
             line-height: 1.2em;
             vertical-align: top;
         }
 
         .medium-middle {
-            font-size: 2em;
+            font-size: 2em;         // If modified, change corresponding variable setting in .ts
             line-height: 1.2em;
             vertical-align: super;
         }
 
         .medium-bottom {
-            font-size: 2em;
+            font-size: 2em;         // If modified, change corresponding variable setting in .ts
             line-height: 1.2em;
         }
 
         .large-size {
-            font-size: 3em;
+            font-size: 3em;         // If modified, change corresponding variable setting in .ts  
         }
 
         // In widget mode, don't display this.
