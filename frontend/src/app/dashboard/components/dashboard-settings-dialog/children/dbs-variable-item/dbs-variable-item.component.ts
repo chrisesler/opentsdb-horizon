@@ -68,13 +68,13 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        console.group('%cDBS VARIABLE ITEM', 'color: white; background: black; padding: 2px 4px;');
+        //console.group('%cDBS VARIABLE ITEM', 'color: white; background: black; padding: 2px 4px;');
             const keys = Object.keys(this.formGroup['controls']);
             for (const key of keys) {
-                console.log('%c' + key + ':', 'font-weight: bold;', this.formGroup['controls'][key].value);
+                //console.log('%c' + key + ':', 'font-weight: bold;', this.formGroup['controls'][key].value);
             }
-            console.log('%cformGroup', 'font-weight: bold;', this.formGroup);
-        console.groupEnd();
+            //console.log('%cformGroup', 'font-weight: bold;', this.formGroup);
+        //console.groupEnd();
 
         // preset whether the item is disabled or not
         this._itemDisabled = !(this.formGroup.get('enabled').value);
