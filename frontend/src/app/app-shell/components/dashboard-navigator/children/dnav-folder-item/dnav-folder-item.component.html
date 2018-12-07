@@ -65,7 +65,7 @@
     </div>
     <div class="list-item">
         <span class="counter">
-            <span class="chip-count">{{folder.subfolder ? folder.subfolder.length : '0'}}</span>
+            <span class="chip-count">{{((folder.subfolders) ? folder.subfolders.length : 0) + ((folder.files) ? folder.files.length : 0)}}</span>
         </span>
     </div>
     <div class="list-item goto-next-folder">

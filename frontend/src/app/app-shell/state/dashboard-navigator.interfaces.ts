@@ -22,6 +22,8 @@ export interface DBNAVFolder {
     updatedTime?: number;
     updatedBy?: string;
     type?: string;
+    loaded?: boolean;
+    synthetic?: boolean;
 }
 
 // panel is basically a folder, but with the potential of having an icon, namespaces, or personal

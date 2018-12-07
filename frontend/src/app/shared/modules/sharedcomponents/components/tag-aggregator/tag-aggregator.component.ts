@@ -22,7 +22,7 @@ export class TagAggregatorComponent implements OnInit {
     aggregatorOptions: Array<any> = [
         {
             value: 'unmerge',
-            icon : 'um'
+            icon : 'unmerge'
         },
         {
             value: 'avg',

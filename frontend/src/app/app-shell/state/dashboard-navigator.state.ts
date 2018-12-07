@@ -236,13 +236,121 @@ export class DashboardNavigatorState {
 
         // save the raw
         const resourceData = {...state.resourceData};
-        let personal = [];
         const namespaces = [];
-        let masterPersonal = [];
+        const masterPersonal = [];
 
         // TODO: Need to build a better way to handle first time users who have NO DASHBOARDS OR FOLDERS
         // TODO: FIX THIS
-        if (response.personalFolder && response.personalFolder.subfolders && response.personalFolder.subfolders.length > 0) {
+
+        // create synthetic folders
+        // master
+        masterPersonal[0] = {
+            id: 0,
+            name: 'My Dashboards',
+            path: '/' + user.userid.replace('.', '/'),
+            subfolders: [],
+            files: [],
+            resourceType: 'personal',
+            type: 'DASHBOARD',
+            icon: 'd-dashboard-tile',
+            synthetic: true,
+            loaded: false
+        };
+        resourceData.personal[masterPersonal[0].path] = masterPersonal[0];
+        // favorites
+        masterPersonal[1] = {
+            id: 0,
+            name: 'My Favorites',
+            path: '/' + user.userid.replace('.', '/') + '/favorites',
+            files: [],
+            resourceType: 'favorites',
+            icon: 'd-star',
+            synthetic: true,
+            loaded: false
+        };
+        resourceData.personal[masterPersonal[1].path] = masterPersonal[1];
+        // frequently visited
+        masterPersonal[2] = {
+            id: 0,
+            name: 'Frequently Visited',
+            path: '/' + user.userid.replace('.', '/') + '/frequently-visited',
+            files: [],
+            resourceType: 'frequentlyVisited',
+            type: 'DASHBOARD',
+            icon: 'd-duplicate',
+            synthetic: true,
+            loaded: false
+        };
+        resourceData.personal[masterPersonal[2].path] = masterPersonal[2];
+        // recently visited
+        masterPersonal[3] = {
+            id: 0,
+            name: 'Recently Visited',
+            path: '/' + user.userid.replace('.', '/') + '/recently-visited',
+            files: [],
+            resourceType: 'recentlyVisited',
+            type: 'DASHBOARD',
+            icon: 'd-duplicate',
+            synthetic: true,
+            loaded: false
+        };
+        resourceData.personal[masterPersonal[3].path] = masterPersonal[3];
+        // trash
+        masterPersonal[4] = {
+            id: 0,
+            name: 'Trash',
+            path: '/' + user.userid.replace('.', '/') + '/trash',
+            subfolders: [],
+            files: [],
+            resourceType: 'trash',
+            type: 'DASHBOARD',
+            icon: 'd-trash',
+            synthetic: true,
+            loaded: false
+        };
+        resourceData.personal[masterPersonal[4].path] = masterPersonal[4];
+
+        if (response.personalFolder && response.personalFolder.subfolders) {
+            // do trash first so we can pull it up to root level
+            // find trash
+            const trashFilter = response.personalFolder.subfolders.filter( folder => {
+                return folder.path === '/' + user.userid.replace('.', '/') + '/trash';
+            });
+
+            if (trashFilter.length > 0) {
+                const trashIndex = response.personalFolder.subfolders.indexOf(trashFilter[0]);
+                const trashFolder = response.personalFolder.subfolders.splice(trashIndex, 1);
+                masterPersonal[4] = trashFolder;
+                masterPersonal[4] = {...masterPersonal[4],
+                    icon: 'd-trash',
+                    loaded: true,
+                    resourceType: 'personal'
+                };
+                delete masterPersonal[4].synthetic;
+            }
+
+            // adjust my dashboards
+            masterPersonal[0].subfolders = (response.personalFolder.subfolders) ? response.personalFolder.subfolders : [];
+            masterPersonal[0].files = (response.personalFolder.files) ? response.personalFolder.files : [];
+            masterPersonal[0].loaded = true;
+            delete masterPersonal[0].synthetic;
+
+            // adjust personal root
+            resourceData.personal[masterPersonal[0].path] = masterPersonal[0];
+
+            // adjust folders
+            // tslint:disable-next-line:forin
+            for (const i in masterPersonal[0].subfolders) {
+                const folder = masterPersonal[0].subfolders[i];
+                if (!folder.subfolders) { folder.subfolders = []; }
+                if (!folder.files) { folder.files = []; }
+                folder.resourceType = 'personal';
+                folder.icon = 'd-folder';
+                resourceData.personal[folder.path] = folder;
+            }
+        }
+
+        /*if (response.personalFolder && response.personalFolder.subfolders && response.personalFolder.subfolders.length > 0) {
             personal = response.personalFolder.subfolders;
             masterPersonal = new Array();
 
@@ -256,7 +364,8 @@ export class DashboardNavigatorState {
                 switch (folder.name) {
                     case 'My Dashboards':
                         folder.icon = 'd-dashboard-tile';
-                        masterPersonal[0] = folder;
+                        masterPersonal[0].subfolders = (folder.subfolders) ? folder.subfolders : [];
+                        masterPersonal[0].files = (folder.files) ? folder.files : [];
                         break;
                     case 'My Favorites':
                         folder.icon = 'd-star';
@@ -281,7 +390,7 @@ export class DashboardNavigatorState {
             }
         } else {
             masterPersonal = personal;
-        }
+        }*/
 
         // format namespaces
         if (response.memberNamespaces && response.memberNamespaces.length > 0) {
