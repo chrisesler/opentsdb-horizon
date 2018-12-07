@@ -323,7 +323,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbPathSub = this.dbPath$.subscribe(path => {
-            if(path !== '_new_') {
+            if(path !== '_new_' && this.router.url === '/d/_new_') {
                 this.location.replaceState('/d' + path);
             }
         });
