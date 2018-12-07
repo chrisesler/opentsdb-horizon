@@ -91,7 +91,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             this.options.scales.yAxes[0] = type === 'vertical' ? this. valueAxis : this.categoryAxis;
             this.options.scales.xAxes[0] = type === 'vertical' ? this.categoryAxis : this.valueAxis;
             this.type = type === 'vertical' ? 'bar' : 'horizontalBar';
-            this.refreshData(false);
         });
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
@@ -420,6 +419,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     setOptions() {
+        console.log(this.widget.settings.visual,"visual")
         this.type$.next(this.widget.settings.visual.type);
         this.setAxisOption();
         this.setAlertOption();
