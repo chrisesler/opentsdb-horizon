@@ -50,7 +50,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(AuthState.getAuth) auth$: Observable<string>;
     // new state
     @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
-    @Select(DBState.getDashboardId) dbId$: Observable<string>;
+    //@Select(DBState.getDashboardId) dbId$: Observable<string>;
+    @Select(DBState.getDashboardPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
     @Select(DBState.getDashboardError) dbError$: Observable<any>;
@@ -135,6 +136,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     variables: any;
     dbTags: any;
     dbIdSub: Subscription;
+    dbPathSub: Subscription;
     listenSub: Subscription;
     widgetSub: Subscription;
     dbTagsSub: Subscription;
@@ -252,23 +254,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
                 case 'dashboardSaveRequest':
                     // DashboardSaveRequest comes from the save button
-
-                    // needs to update first?
-                    if (message.payload.updateFirst === true) {
-                        this.store.dispatch(new UpdateMeta(message.payload.meta));
+                    // we just need to update the title of dashboard
+                    if (message.payload.updateFirst === true) {   
+                        this.store.dispatch(new UpdateDashboardTitle(message.payload.name));
                     }
                     const dbcontent = this.dbService.getStorableFormatFromDBState(this.store.selectSnapshot(DBState));
-                    const dbSettings = this.store.selectSnapshot(DBSettingsState);
                     const payload: any = {
-                        'name': dbSettings.meta.title,
-                        'content': JSON.stringify(dbcontent)
+                        'name': dbcontent.settings.meta.title,
+                        'content': dbcontent
                     };
-                    if (message.payload.meta && message.payload.meta.namespace) {
-                        const namespace = this.userNamespaces.find(d => d.name === message.payload.meta.namespace);
-                        payload.namespaceid = namespace.id;
+                    if (message.payload.parentPath) {
+                        payload.parentPath = message.payload.parentPath;
+                    }
+                    if (this.dbid !== '_new_') {
+                        payload.id = this.dbid;
                     }
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
-                    console.log('dashboardSaveRequest', message.payload, payload);
+                    //console.log('dashboardSaveRequest', this.dbid, payload);
                     break;
                 case 'dashboardSettingsToggleRequest':
 
@@ -308,20 +310,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.loadedRawDB$.subscribe(db => {
             const dbstate = this.store.selectSnapshot(DBState);
-            console.log('\n\nloadedrawdb=', db, dbstate.loaded);
+            //console.log('\n\nloadedrawdb=', db, dbstate.loaded);
             if (dbstate.loaded) {
-                this.store.dispatch(new LoadDashboardSettings(db.settings));
+                this.store.dispatch(new LoadDashboardSettings(db.content.settings));
                 // update WidgetsState
-                this.store.dispatch(new LoadWidgets(db.widgets));
+                this.store.dispatch(new LoadWidgets(db.content.widgets));
             }
         });
 
-        this.dbIdSub = this.dbId$.subscribe(id => {
-            if (this.dbid === '_new_' && id) {
-                this.dbid = id;
-                this.location.replaceState('/d/' + this.dbid);
-            } else if (this.dbid !== '_new_' && id) {
-                this.rerender = { 'reload': true };
+        this.dbPathSub = this.dbPath$.subscribe(path => {
+            if(path !== '_new_') {
+                this.location.replaceState('/d' + path);
             }
         });
 
@@ -569,7 +568,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // setup the new widget type and using as input to dashboard-content to load edting it.
     addNewWidget(selectedWidget: any) {
         this.newWidget = this.dbService.getWidgetPrototype(selectedWidget.type);
-        console.log('newewewe widget', this.newWidget);
     }
 
     openTimeSeriesMetricDialog(widget) {
@@ -697,6 +695,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dbTagsSub.unsubscribe();
         this.tagValuesSub.unsubscribe();
         this.dbIdSub.unsubscribe();
+        this.dbPathSub.unsubscribe();
         this.dbModeSub.unsubscribe();
         this.dbStatusSub.unsubscribe();
         this.dbErrorSub.unsubscribe();
