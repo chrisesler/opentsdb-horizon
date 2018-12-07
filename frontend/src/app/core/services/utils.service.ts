@@ -87,7 +87,6 @@ export class UtilsService {
 
     getColors(color= null, n= 1) {
         const colors = [];
-        const goldenRatio = 0.618033988749895;
         let hue;
         if ( color ) {
             const r = parseInt(color.substring(1, 3), 16);
@@ -95,16 +94,31 @@ export class UtilsService {
             const b = parseInt(color.substring(5, 7), 16);
             hue = this.rgbToHsv(r, g, b)[0];
         } else {
-            hue = n === 1 ? Math.random() : 0;
+            hue = n === 1 ? Math.random() : -1 / n;
         }
-        let s = .7, v = .7;
+
+        // saturation & value/brightness ranges
+        const srange = [ 0.05, 0.9], vrange = [ 0.9, 0.2];
+
+        // no. of colors on light to bright (sBand) and no. of bright to dark (vBand)
+        const sBand = Math.ceil(n * 0.7 ), vBand = Math.floor(n * 0.3);
+        const sStep = (srange[1] - srange[0]) / sBand;
+        const vStep = (vrange[0] - vrange[1]) / vBand;
+
+        // if random color set SV to 0.8
+        let s = color ? srange[0] - sStep : 0.8;
+        let v = color ?  vrange[0] : 0.8;
         for ( let i = 0; i < n;  i++ ) {
             if ( color ) {
-                s = Math.random() * (1 - 0.1) + 0.1; // random no. between 0.1 to 1
-                v = Math.random() * ( 0.9  - 0.2) + 0.2;
+                // get the shades
+                if ( i < sBand) {
+                    s = s + sStep;
+                } else {
+                    v = v - vStep;
+                }
             } else {
-                hue += ( 1 / n);
-                hue = hue % 1;
+                // random colors
+                hue  += ( 1 / n);
             }
             colors.push(this.rgbToHex(this.hsvToRGB(hue, s, v)));
         }

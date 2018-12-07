@@ -64,7 +64,6 @@ export class DatatranformerService {
         }
     }
 
-    console.log("dict", dict);
     */
 
     ///*
@@ -124,7 +123,6 @@ export class DatatranformerService {
         }
     }
     //*/    
-    console.log("normalized data", normalizedData);
     return [...normalizedData];
   }
 
@@ -235,7 +233,6 @@ export class DatatranformerService {
         if ( Object.keys(queryData).length === 0) {
             return datasets;
         }
-        console.log("data....", queryData)
         const qid = Object.keys(queryData)[0];
         const results = queryData[qid].results ? queryData[qid].results : [];
 
