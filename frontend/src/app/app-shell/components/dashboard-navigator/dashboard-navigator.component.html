@@ -31,7 +31,7 @@
                     </mat-list-item>
                 </ng-container>
             </mat-nav-list>
-            <div class="create-dashboard">
+            <div class="create-dashboard" *ngIf="panel.resourceType === 'master' || panel.resourceType === 'namespaces' || panel.resourceType === 'namespace' || panel.resourceType === 'personal'">
                 <button mat-flat-button color="primary" (click)="createDashboard()">
                     <mat-icon fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
                     <span>Create Dashboard</span>
@@ -58,9 +58,15 @@
                     <dnav-folder-item [folder]="folder"></dnav-folder-item>
                 </mat-list-item>
             </mat-nav-list>-->
-            <dnav-folders 
+            <dnav-folders
+                *ngIf="!panel.synthetic"
                 [folders]="(panel.personal) ? panel.personal : (panel.subfolders) ? panel.subfolders : []" 
                 [masterPanel]="panel.name === 'masterPanel'"
+                [resourceType]="panel.resourceType"
+                (folderAction)="folderAction(panel,$event)"></dnav-folders>
+            <dnav-folders
+                *ngIf="panel.resourceType === 'trash'"
+                [folders]="(panel.subfolders) ? panel.subfolders : []" 
                 [resourceType]="panel.resourceType"
                 (folderAction)="folderAction(panel,$event)"></dnav-folders>
             <dnav-folders 
@@ -72,6 +78,7 @@
             <dnav-dashboards
                 *ngIf="panel.name !== 'masterPanel'"
                 [dashboards]="panel.files"
+                [resourceType]="panel.resourceType"
                 (dashboardAction)="dashboardAction(panel,$event)"></dnav-dashboards>
             <!--<div class="block-header dashboards-header" *ngIf="panel.name !== 'masterPanel'">
                 <span class="header-label">Dashboards</span>

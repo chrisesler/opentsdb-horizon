@@ -15,7 +15,7 @@ import { IntercomService, IMessage } from '../../../../../core/services/intercom
     // tslint:disable-next-line:component-selector
     selector: 'dnav-dashboards',
     templateUrl: './dnav-dashboards.component.html',
-    styleUrls: ['./dnav-dashboards.component.scss']
+    styleUrls: []
 })
 export class DnavDashboardsComponent implements OnInit {
 

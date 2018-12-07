@@ -1,6 +1,6 @@
 <div class="block-header folders-header" *ngIf="!masterPanel" [ngClass]="{'has-create-actions': editMode === 'create', 'has-edit-actions': editMode === 'edit'}">
     <div class="block-header-label">
-        <span class="header-label">{{ folders.length > 0 ? 'Folders' : 'Add Folder' }}</span>
+        <span class="header-label">{{ (resourceType === 'trash' || folders.length > 0) ? 'Folders' : 'Add Folder' }}</span>
         <span class="counter" *ngIf="folders.length > 0">
             <span class="chip-count">{{folders.length}}</span>
         </span>
@@ -14,7 +14,7 @@
         </button>-->
     </div>
     <span class="flex-spacer"></span>
-    <div class="display-actions">
+    <div class="display-actions" *ngIf="resourceType !== 'trash'">
         <button mat-icon-button (click)="createFolder()">
             <mat-icon fontSet="denali" fontIcon="d-folder-add"></mat-icon>
         </button>
