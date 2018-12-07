@@ -105,7 +105,6 @@ export class UtilsService {
         const sStep = (srange[1] - srange[0]) / sBand;
         const vStep = (vrange[0] - vrange[1]) / vBand;
 
-        console.log("init", n, sBand, vBand, sStep, vStep)
         // if random color set SV to 0.8
         let s = color ? srange[0] - sStep : 0.8;
         let v = color ?  vrange[0] : 0.8;
@@ -122,9 +121,7 @@ export class UtilsService {
                 hue  += ( 1 / n);
             }
             colors.push(this.rgbToHex(this.hsvToRGB(hue, s, v)));
-            console.log("i="+i, hue, s , v , this.hsvToRGB(hue, s, v), this.rgbToHex(this.hsvToRGB(hue, s, v)) )
         }
-        console.log("colors", colors);
         return n === 1 ? colors[0] : colors;
     }
 
