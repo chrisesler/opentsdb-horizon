@@ -110,7 +110,9 @@ export class DashboardService {
         const queries = widgets[i].queries;
         for ( let j = 0; j < queries.length; j++ ) {
             for ( let k = 0; k < queries[j].metrics.length; k++ ) {
-                metrics.push(queries[j].namespace + '.' + queries[j].metrics[k].name);
+                if ( !queries[j].metrics[k].expression ) {
+                    metrics.push(queries[j].namespace + '.' + queries[j].metrics[k].name);
+                }
             }
         }
     }
