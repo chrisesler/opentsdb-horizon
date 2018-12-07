@@ -165,4 +165,8 @@ export class UtilsService {
         });
         return items;
     }
+
+    deepClone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    } 
 }

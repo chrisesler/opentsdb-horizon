@@ -197,31 +197,20 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
             case 'CloseQueryEditMode':
                 this.editQueryId = null;
                 break;
-            /*
-            case 'SetStackedBarBarVisuals':
-                this.setStackedBarLabels(message.payload.data);
+            case 'ToggleQueryMetricVisibility':
+                this.toggleQueryMetricVisibility(message.id, message.payload.mid);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
-            case 'SetStackedBarStackVisuals':
-                this.setStackedStackVisuals(message.payload.data);
+            case 'DeleteQueryMetric':
+                this.deleteQueryMetric(message.id, message.payload.mid);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
                 break;
-            case 'ToggleGroup':
-                this.toggleGroup(message.payload.gIndex);
+            case 'DeleteQueryFilter':
+                this.deleteQueryFilter(message.id, message.payload.findex);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
                 break;
-            case 'ToggleGroupQuery':
-                this.toggleGroupQuery(message.payload.gIndex, message.payload.index);
-                break;
-            case 'DeleteGroup':
-                this.deleteGroup(message.payload.gIndex);
-                break;
-            case 'DeleteGroupQuery':
-                console.log("DeleteGroupQuery", message.payload);
-                this.deleteGroupQuery(message.payload.gIndex, message.payload.index);
-                break;
-            case 'DeleteMetrics':
-                this.deleteMetrics(message.payload.data);
-                this.refreshData(false);
-                break;
-                */
 
         }
     }
@@ -507,10 +496,24 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         this.refreshData(false);
     }
 
-    deleteGroupQuery(gIndex, index) {
-        this.widget.queries.groups[gIndex].queries.splice(index, 1);
-        console.log(this.widget.queries.groups[gIndex].queries, "gindex", gIndex, index);
-        this.refreshData();
+    toggleQueryMetricVisibility(qid, mid) {
+        // toggle the individual query metric
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
+            !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
+        this.refreshData(false);
+    }
+
+    deleteQueryMetric(qid, mid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        this.widget.queries[qindex].metrics.splice(mindex, 1);
+    }
+
+    deleteQueryFilter(qid, findex) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].filters.splice(findex, 1);
     }
 
     showError() {

@@ -150,6 +150,23 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    toggleQuery() {
+        this.requestChanges('ToggleQueryVisibility');
+    }
+    deleteQuery() {
+        this.requestChanges('DeleteQuery');
+    }
+    toggleMetricVisibility(id) {
+        this.requestChanges('ToggleQueryMetricVisibility', { mid: id });
+    }
+
+    deleteMetric(id) {
+        this.requestChanges('DeleteQueryMetric', { mid: id });
+    }
+
+    deleteFilter(index) {
+        this.requestChanges('DeleteQueryFilter', { findex: index });
+    }
 
     setMetricSearch() {
         this.metricSearchControl = new FormControl();

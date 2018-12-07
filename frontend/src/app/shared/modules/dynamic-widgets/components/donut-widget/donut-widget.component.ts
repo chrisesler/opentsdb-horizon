@@ -171,17 +171,20 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
             case 'CloseQueryEditMode':
                 this.editQueryId = null;
                 break;
-            /*
-            case 'ToggleQuery':
-                this.toggleQuery(message.payload.index);
+            case 'ToggleQueryMetricVisibility':
+                this.toggleQueryMetricVisibility(message.id, message.payload.mid);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
-            case 'ToggleGroup':
-                this.toggleGroup(message.payload.index);
+            case 'DeleteQueryMetric':
+                this.deleteQueryMetric(message.id, message.payload.mid);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
                 break;
-            case 'DeleteQuery':
-                this.deleteQuery(message.payload.index);
+            case 'DeleteQueryFilter':
+                this.deleteQueryFilter(message.id, message.payload.findex);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
                 break;
-            */
         }
     }
 
@@ -233,45 +236,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         this.refreshData();
      }
 
-     /*
-    toggleQuery(index) {
-        const gIndex = 0;
-        // toggle the individual query
-        this.widget.query.groups[gIndex].queries[index].settings.visual.visible =
-        !this.widget.query.groups[gIndex].queries[index].settings.visual.visible;
-
-        // set the group to visible if the individual query is visible
-        if (this.widget.query.groups[gIndex].queries[index].settings.visual.visible) {
-            this.widget.query.groups[gIndex].settings.visual.visible = true;
-        } else { // set the group to invisible if all queries are invisible
-            this.widget.query.groups[gIndex].settings.visual.visible = false;
-            for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
-                if (this.widget.query.groups[gIndex].queries[i].settings.visual.visible) {
-                    this.widget.query.groups[gIndex].settings.visual.visible = true;
-                    break;
-                }
-            }
-        }
-        this.refreshData(false);
-    }
-
-    toggleGroup(gIndex) {
-        this.widget.query.groups[gIndex].settings.visual.visible = !this.widget.query.groups[gIndex].settings.visual.visible;
-        for (let i = 0; i < this.widget.query.groups[gIndex].queries.length; i++) {
-            this.widget.query.groups[gIndex].queries[i].settings.visual.visible =
-            this.widget.query.groups[gIndex].settings.visual.visible;
-        }
-        this.refreshData(false);
-    }
-
-    deleteQuery(index) {
-        const gIndex = 0;
-        this.widget.query.groups[gIndex].queries.splice(index, 1);
-        console.log(this.widget.query.groups[gIndex].queries, "gindex", gIndex, index);
-        this.refreshData();
-    }
-    */
-
     refreshData(reload = true) {
         this.isDataLoaded = false;
         if ( reload ) {
@@ -281,6 +245,26 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    toggleQueryMetricVisibility(qid, mid) {
+        // toggle the individual query metric
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
+            !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
+        this.refreshData(false);
+    }
+
+    deleteQueryMetric(qid, mid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        this.widget.queries[qindex].metrics.splice(mindex, 1);
+    }
+
+    deleteQueryFilter(qid, findex) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].filters.splice(findex, 1);
+    }
+    
     showError() {
         console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
         const dialogConf: MatDialogConfig = new MatDialogConfig();
