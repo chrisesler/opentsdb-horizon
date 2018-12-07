@@ -21,6 +21,7 @@ var tags    = {
 };
 
 function getElasticQueryResultExtractor(elasticSearchEndpoint) {
+
     if (elasticSearchEndpoint === 'namespaces') {
         return function (response) {
             if (response.aggregations.elasticQueryResults.buckets) {
@@ -35,6 +36,16 @@ function getElasticQueryResultExtractor(elasticSearchEndpoint) {
         return function (response) {
             if (response.aggregations.elasticQueryResults.elasticQueryResults.elasticQueryResults.buckets) {
                 return response.aggregations.elasticQueryResults.elasticQueryResults.elasticQueryResults.buckets;
+            }
+            else {
+                return [];
+            }
+        }
+    }
+    else if (elasticSearchEndpoint === 'nstagKeys') {
+        return function (response) {
+            if (response.aggregations.elasticQueryResults.elasticQueryResults.buckets) {
+                return response.aggregations.elasticQueryResults.elasticQueryResults.buckets;
             }
             else {
                 return [];
@@ -529,13 +540,11 @@ module.exports = function () {
             headers,
             appconstant.TAGKEYS_ES_QUERY_TIMEOUT_MS
         ).then(function (resp) {
-            console.log("\n\n resp\n\n\n");
-            console.log(JSON.stringify(resp))
-
-            suggestions = extractResultsFromElasticSearchResponse(
-                resp,
-                getElasticQueryResultExtractor('tagKeys')
-            );
+            // console.log(JSON.stringify(resp));
+            // suggestions  =  extractResultsFromElasticSearchResponse(resp, getElasticQueryResultExtractor('tagValues'));
+            if (resp[0].timed_out === false && undefined !== resp[0].hits) {
+                suggestions = resp[0].aggregations.elasticQueryResults.elasticQueryResults.buckets;
+            }
             defer.resolve(suggestions);
         }, function (error) {
             defer.reject(error);
