@@ -70,7 +70,7 @@
     @include dropdown-line-weight-component-base();
     @include dropdown-unit-type-component-base();
     @include dropdown-visual-type-component-base();
-    @include query-component-base();
+    @include query-editor-component-base();
     @include namespace-tag-autocomplete-component-base();
 
 
@@ -107,7 +107,7 @@
     @include dropdown-line-weight-component-theme($theme-config);
     @include dropdown-unit-type-component-theme($theme-config);
     @include dropdown-visual-type-component-theme($theme-config);
-    @include query-component-theme($theme-config);
+    @include query-editor-component-theme($theme-config);
     @include namespace-tag-autocomplete-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS
