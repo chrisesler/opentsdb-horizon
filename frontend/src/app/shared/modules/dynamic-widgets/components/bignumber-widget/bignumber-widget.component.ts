@@ -1,20 +1,9 @@
-import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
-import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
-import {
-    WidgetConfigAlertsComponent,
-    WidgetConfigAxesComponent,
-    WidgetConfigGeneralComponent,
-    WidgetConfigLegendComponent,
-    WidgetConfigMetricQueriesComponent,
-    WidgetConfigQueryInspectorComponent,
-    WidgetConfigTimeComponent
-} from '../../../sharedcomponents/components';
 import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
-import { LEFT_ARROW } from '@angular/cdk/keycodes';
-import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 
 @Component({
@@ -24,7 +13,7 @@ import { ErrorDialogComponent } from '../../../sharedcomponents/components/error
     styleUrls: []
 })
 
-export class BignumberWidgetComponent implements OnInit {
+export class BignumberWidgetComponent implements OnInit, OnDestroy {
 
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.bignumber-widget') private _componentClass = true;
@@ -47,29 +36,28 @@ export class BignumberWidgetComponent implements OnInit {
     changeThreshold: number = 0.01; // hard coding this for now, needs to be configurable
     aggregators: string[] = [];
     aggregatorValues: any[] = [];
+    widgetWidth: number;
+    widgetHeight: number;
 
-    // Used to calculate auto-resizing
-    autoScaleThreshold: number = 0.1; // percent change that causes resizing
-    fontSizePercent: number = 100;
+    // Auto-scaling
+    fontSizePercent: number = 100;  // how much to scale
+    contentFillPercent: number = 0.8; // how much % content should take up widget
+    contentFillPercentWithNoCaption: number = 0.8; // how much % content should take up widget
+    defaultFont: string = 'Ubuntu';
     defaultFontSize: number = 14;
+    captionFontSizeMultiplier: number = 1.2;
+    mediumFontSizeMultiplier: number = 2;
+    largeFontSizeMultiplier: number = 3;
     defaultFontWeight: number = 400;
     defaultBigNumberFontWeight: number = 600;
     defaultCaptionFontWeight: number = 500;
-    defaultFont: string = 'Ubuntu';
-    contentFillPercent: number = 0.8; // how much % content should take up widget
-    contentFillPercentWithNoCaption: number = 0.8; // how much % content should take up widget
     heightOfLargeFont: number = 47;
     heightOfSmallFont: number = 15;
     heightOfMarginAboveCaption: number = 5;
-    mediumFontSizeMultiplier: number = 2;
-    largeFontSizeMultiplier: number = 3;
-    captionFontSizeMultiplier: number = 1.2;
 
     maxCaptionLength: number = 36;
     maxLabelLength: number = 10; // postfix, prefix, unit
 
-    widgetWidth: number;
-    widgetHeight: number;
     editQueryId = null;
     nQueryDataLoading = 0;
     error: any;
@@ -83,8 +71,8 @@ export class BignumberWidgetComponent implements OnInit {
         private interCom: IntercomService,
         public dialog: MatDialog,
         public util: UtilsService,
-        public UN: UnitNormalizerService,
-        private resolver: ComponentFactoryResolver) { }
+        public UN: UnitNormalizerService
+        ) { }
 
     ngOnInit() {
 
@@ -397,13 +385,13 @@ export class BignumberWidgetComponent implements OnInit {
                 this.editQueryId = null;
                 break;
             case 'ToggleQueryMetricVisibility':
-                // this.toggleQueryMetricVisibility(message.id, message.payload.mid);
-                // this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.toggleQueryMetricVisibility(message.id, message.payload.mid);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
             case 'DeleteQueryMetric':
-                // this.deleteQueryMetric(message.id, message.payload.mid);
-                // this.widget.queries = this.util.deepClone(this.widget.queries);
-                // this.refreshData();
+                this.deleteQueryMetric(message.id, message.payload.mid);
+                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
@@ -448,7 +436,6 @@ export class BignumberWidgetComponent implements OnInit {
 
     toggleQuery(index) {
         const qIndex = 0;
-        // tslint:disable-next-line:max-line-length
         this.widget.queries[qIndex].metrics[index].settings.visual.visible = !this.widget.queries[qIndex].metrics[index].settings.visual.visible;
     }
 
@@ -556,9 +543,12 @@ export class BignumberWidgetComponent implements OnInit {
         // toggle the individual query metric
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-        this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
-            !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
-        
+
+        for (let metric of this.widget.queries[0].metrics) {
+            metric.settings.visual.visible = false;
+        }
+        this.widget.queries[0].metrics[mindex].settings.visual.visible = true;
+        this.widget.settings.visual.queryID = mindex;
         this.refreshData(false);
     }
 
@@ -567,6 +557,14 @@ export class BignumberWidgetComponent implements OnInit {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
         this.widget.queries[qindex].metrics.splice(mindex, 1);
+
+        // only reindex visibility if there are metrics AND deleted metric is before visible metric
+        if (mindex <= this.widget.settings.visual.queryID && this.widget.queries[qindex].metrics.length !== 0) {
+             for (let metric of this.widget.queries[0].metrics) {
+                 metric.settings.visual.visible = false;
+             }
+             this.widget.queries[0].metrics[this.widget.settings.visual.queryID].settings.visual.visible = true;
+         }
     }
 
     deleteQueryFilter(qid, findex) {
@@ -574,10 +572,16 @@ export class BignumberWidgetComponent implements OnInit {
         this.widget.queries[qindex].filters.splice(findex, 1);
     }
 
+    ngOnDestroy() {
+        if (this.listenSub) {
+            this.listenSub.unsubscribe();
+        }
+        // this.typeSub.unsubscribe();
+    }
+
 }
 
 interface IBigNumberVisual {
-
     queryID: string;
     comparedTo?: number;
 
@@ -602,5 +606,4 @@ interface IBigNumberVisual {
 
     sparkLineEnabled: boolean;
     changedIndicatorEnabled?: boolean;
-    // changeIndicatorCompareOperator: string;
 }
