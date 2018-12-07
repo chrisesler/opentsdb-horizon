@@ -419,6 +419,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     setOptions() {
+        console.log(this.widget.settings.visual,"visual")
+        this.type$.next(this.widget.settings.visual.type);
         this.setAxisOption();
         this.setAlertOption();
         this.options = {...this.options};
