@@ -2,10 +2,7 @@ import {
     Component,
     OnInit,
     OnDestroy,
-    Input,
-    Output,
     Inject,
-    EventEmitter,
     HostBinding
 } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
@@ -122,7 +119,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         }
         const namespace = this.namespace.value.trim();
         const errors: any = {};
-        console.log(namespace, this.namespaceOptions.findIndex(d => namespace === d.name ));
+        //console.log(namespace, this.namespaceOptions.findIndex(d => namespace === d.name ));
         if ( namespace === '') {
             errors.required = true;
         }
@@ -130,7 +127,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
             errors.invalid = true;
         }
         this.namespace.setErrors(Object.keys(errors).length ? errors : null);
-        console.log(this.namespace);
+        //console.log(this.namespace);
 
         return Object.keys(errors).length === 0 ? true : false;
     }
@@ -140,16 +137,18 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
             // form not good
         } else if ( this.isValidNamespaceSelected() ) {
             // form is good, save it
-            const data: any = {
-                title: this.title.value,
-                isPersonal: this.isPersonal.value
-            };
-
+            const data: any = { name: this.title.value}; 
             if ( !this.isPersonal.value ) {
-                data.namespace = this.namespace.value;
+                // find the alias to build parentPath not the name
+                let alias = '';
+                for (let i =0; i < this.namespaceOptions.length; i++) {
+                    if (this.namespaceOptions[i].name === this.namespace.value) {
+                        alias = this.namespaceOptions[i].alias;
+                        break;
+                    }
+                }
+                data.parentPath = '/namespace/' + alias;
             }
-
-            //console.log("return data", data);
             this.dialogRef.close(data);
         }
     }

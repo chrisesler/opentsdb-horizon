@@ -8,7 +8,7 @@ import { map, catchError } from 'rxjs/operators';
 @Injectable()
 export class AuthService {
     constructor(private http: HttpClient, private store: Store) {
-        console.log('auth service store=>', this.store);
+        //console.log('auth service store=>', this.store);
     }
 
     /*

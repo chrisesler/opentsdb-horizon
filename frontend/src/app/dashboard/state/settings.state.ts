@@ -16,8 +16,6 @@ export interface DBSettingsModel {
         title: string;
         description: string;
         labels: Array<any>; // [{label: ''}]
-        namespace: string;
-        isPersonal: boolean;
     };
     variables: {
         enabled: boolean, // if all variables are enabled
@@ -94,9 +92,7 @@ export class UpdateMeta {
         meta: {
             title: 'Untitled Dashboard',
             description: '',
-            labels: [],
-            namespace: '',
-            isPersonal: false,
+            labels: []
         },
         variables: {
             enabled: true,
@@ -204,7 +200,6 @@ export class DBSettingsState {
         const state = ctx.getState();
         ctx.patchState({...state, meta: meta});
     }
-
     @Action(LoadDashboardSettings)
     loadDashboardSettings(ctx: StateContext<DBSettingsModel>, { settings }: LoadDashboardSettings) {
         const state = ctx.getState();
