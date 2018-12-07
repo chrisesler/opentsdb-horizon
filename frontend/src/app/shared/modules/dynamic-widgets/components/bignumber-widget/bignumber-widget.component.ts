@@ -414,7 +414,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
         let index = 0;
         for (let metric of this.widget.queries[0].metrics) {
-            if (this.widget.settings.visual.queryID !== index) {
+            if (this.widget.settings.visual.queryID === index) {
+                metric.settings.visual.visible = true;
+            } else {
                 metric.settings.visual.visible = false;
             }
             index++;
@@ -560,6 +562,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         this.widget.queries[0].metrics[mindex].settings.visual.visible = true;
         this.widget.settings.visual.queryID = mindex;
         this.refreshData(false);
+        this.setBigNumber(this.widget.settings.visual.queryID);
     }
 
     deleteQueryMetric(qid, mid) {
@@ -572,7 +575,12 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         if (mindex === this.widget.settings.visual.queryID && this.widget.queries[qindex].metrics.length !== 0) {
              this.widget.queries[0].metrics[0].settings.visual.visible = true;
              this.widget.settings.visual.queryID = 0;
-         }
+        }
+
+        if (this.widget.queries[qindex].metrics.length === 1) {
+            this.widget.queries[0].metrics[0].settings.visual.visible = true;
+            this.widget.settings.visual.queryID = 0;
+        }
     }
 
     deleteQueryFilter(qid, findex) {
