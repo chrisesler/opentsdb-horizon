@@ -149,7 +149,7 @@ export class HttpService {
     }
 
     userNamespaces() {
-        const apiUrl = environment.configdb + '/namespace';
+        const apiUrl = environment.configdb + '/namespace/member';
         const httpOptions = {
           headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
           withCredentials: true, 
