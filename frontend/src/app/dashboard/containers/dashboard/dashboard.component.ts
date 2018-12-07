@@ -51,7 +51,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(AuthState.getAuth) auth$: Observable<string>;
     // new state
     @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
-    //@Select(DBState.getDashboardId) dbId$: Observable<string>;
     @Select(DBState.getDashboardPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
@@ -186,7 +185,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 url.forEach(segment => {
                     paths.push(segment.path);
                 });
-                this.store.dispatch(new LoadDashboard(paths.join('%2F')));
+                this.store.dispatch(new LoadDashboard(paths.join('/')));
             }
         });   
         // setup navbar portal
@@ -271,6 +270,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (this.dbid !== '_new_') {
                         payload.id = this.dbid;
                     }
+                    
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
                     //console.log('dashboardSaveRequest', this.dbid, payload);
                     break;
@@ -314,6 +314,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const dbstate = this.store.selectSnapshot(DBState);
             //console.log('\n\nloadedrawdb=', db, dbstate.loaded);
             if (dbstate.loaded) {
+                // need to carry new loaded dashboard id from confdb
+                this.dbid = db.id;
                 this.store.dispatch(new LoadDashboardSettings(db.content.settings));
                 // update WidgetsState
                 this.store.dispatch(new LoadWidgets(db.content.widgets));
