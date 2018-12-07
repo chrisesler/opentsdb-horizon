@@ -256,6 +256,11 @@ $widgets-common-config: (
                 }
             }
 
+            .mat-tab-label.mat-tab-disabled {
+                color: #A2A2A5;
+                cursor: no-drop;
+                pointer-events: none;
+            }
             .mat-tab-body {
                 background-color: map-get($background, card);
                 border: 1px solid map-get($foreground, dividers);

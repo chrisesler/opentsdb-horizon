@@ -241,7 +241,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
 
             // filter tags by metrics
             if ( this.query.metrics ) {
-                query.metrics = this.query.metrics.map( item => item.name );
+                query.metrics = this.query.metrics.filter(item => !item.expression).map( item => item.name);
             }
             console.log('tag query', query);
             if ( this.edit.indexOf('filters') !== -1 ) {
@@ -287,7 +287,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
 
             // filter by metrics
             if ( this.query.metrics ) {
-                query.metrics = this.query.metrics.map( item => item.name );
+                query.metrics = this.query.metrics.filter(item => !item.expression).map( item => item.name);
             }
             if ( this.selectedTag && this.tagValueTypeControl.value === 'literalor' ) {
                 // console.log('query tab value', query)
