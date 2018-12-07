@@ -88,6 +88,7 @@ $widgets-common-config: (
         // mat-tab-group
         .widget-configs {
             flex: 1 1 100%;
+            margin: 12px;
         
             .mat-tab-body-wrapper {
                 flex: 1 1 100%;
@@ -97,7 +98,8 @@ $widgets-common-config: (
             }
         
             .mat-tab-header {
-                padding: 0 $edit-view-padding;
+                //padding: 0 $edit-view-padding;
+                padding: 0;
                 border-bottom: 0;
 
                 .mat-tab-label {
@@ -113,6 +115,24 @@ $widgets-common-config: (
                     &:last-child {
                         margin-left: auto;
                     }
+                }
+
+                .mat-tab-label-active {
+                    position: relative;
+
+                    &::after {
+                        content: "";
+                        display: block;
+                        height: 5px;
+                        position: absolute;
+                        width: calc(100% - 2px);
+                        bottom: -3px;
+                        z-index: 2;
+                    }
+                }
+
+                .mat-ink-bar {
+                    bottom: calc(100% - 2px);
                 }
             }
         
@@ -228,14 +248,22 @@ $widgets-common-config: (
             .mat-tab-label:not(.mat-tab-disabled):focus {
                 opacity: 1;
                 background-color: map-get($background, card);
-                border-top-left-radius: 4px;
-                border-top-right-radius: 4px;
-            }
+                border-radius: 0;
+                box-shadow: inset 1px 0 0 map-get($foreground, dividers), inset -1px 0 0 map-get($foreground, dividers);
 
-            
+                &::after {
+                    background-color: map-get($background, card);
+                }
+            }
 
             .mat-tab-body {
                 background-color: map-get($background, card);
+                border: 1px solid map-get($foreground, dividers);
+                border-top: 0;
+            }
+
+            .mat-tab-header {
+                box-shadow: inset 0 -1px 0 map-get($foreground, dividers);
             }
         }
 

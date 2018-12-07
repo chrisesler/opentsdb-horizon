@@ -236,43 +236,51 @@ export class DashboardNavigatorState {
 
         // save the raw
         const resourceData = {...state.resourceData};
-        const personal = response.personalFolder.subfolders;
+        let personal = [];
         const namespaces = [];
+        let masterPersonal = [];
 
-        const masterPersonal = new Array(5);
+        // TODO: Need to build a better way to handle first time users who have NO DASHBOARDS OR FOLDERS
+        // TODO: FIX THIS
+        if (response.personalFolder && response.personalFolder.subfolders && response.personalFolder.subfolders.length > 0) {
+            personal = response.personalFolder.subfolders;
+            masterPersonal = new Array();
 
-        // format personal
-        // tslint:disable-next-line:forin
-        for (const i in personal) {
-            const folder = personal[i];
-            if (!folder.subfolders) { folder.subfolders = []; }
-            if (!folder.files) { folder.files = []; }
-            folder.resourceType = 'personal';
-            switch (folder.name) {
-                case 'My Dashboards':
-                    folder.icon = 'd-dashboard-tile';
-                    masterPersonal[0] = folder;
-                    break;
-                case 'My Favorites':
-                    folder.icon = 'd-star';
-                    masterPersonal[1] = folder;
-                    break;
-                case 'Frequently Visited':
-                    folder.icon = 'd-duplicate';
-                    masterPersonal[2] = folder;
-                    break;
-                case 'Recently Visited':
-                    folder.icon = 'd-time';
-                    masterPersonal[3] = folder;
-                    break;
-                case 'Trash':
-                    folder.icon = 'd-trash';
-                    masterPersonal[4] = folder;
-                    break;
-                default:
-                    break;
+            // format personal
+            // tslint:disable-next-line:forin
+            for (const i in personal) {
+                const folder = personal[i];
+                if (!folder.subfolders) { folder.subfolders = []; }
+                if (!folder.files) { folder.files = []; }
+                folder.resourceType = 'personal';
+                switch (folder.name) {
+                    case 'My Dashboards':
+                        folder.icon = 'd-dashboard-tile';
+                        masterPersonal[0] = folder;
+                        break;
+                    case 'My Favorites':
+                        folder.icon = 'd-star';
+                        masterPersonal[1] = folder;
+                        break;
+                    case 'Frequently Visited':
+                        folder.icon = 'd-duplicate';
+                        masterPersonal[2] = folder;
+                        break;
+                    case 'Recently Visited':
+                        folder.icon = 'd-time';
+                        masterPersonal[3] = folder;
+                        break;
+                    case 'Trash':
+                        folder.icon = 'd-trash';
+                        masterPersonal[4] = folder;
+                        break;
+                    default:
+                        break;
+                }
+                resourceData.personal[folder.path] = folder;
             }
-            resourceData.personal[folder.path] = folder;
+        } else {
+            masterPersonal = personal;
         }
 
         // format namespaces

@@ -25,16 +25,12 @@
             flex: 1 1 100%;
             width: 100%;
             height: 100%;
-
-            .query-metrics-wrap {
-                @include is-scroller();
-                padding-top: 5px;
-            }
         }
 
         // wrapper for the query metrics
         .query-metrics-wrap {
-            padding: 0 $edit-padding 0 0;
+            @include is-scroller();
+            padding: 10px;
 
             &,
             .mat-expansion-panel-header,
