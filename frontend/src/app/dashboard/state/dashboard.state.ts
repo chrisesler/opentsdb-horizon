@@ -15,6 +15,7 @@ export interface DBStateModel {
     loaded: boolean;
     status: string;
     error: any;
+    path: string;
     loadedDB: any;  
 }
 
@@ -74,6 +75,7 @@ export class DeleteDashboardFail {
         loaded: false,
         error: {},
         status: '',
+        path: '_new_',
         loadedDB: {}
     },
     children: [ UserSettingsState, DBSettingsState, WidgetsState, ClientSizeState, WidgetsRawdataState ]
@@ -84,6 +86,10 @@ export class DBState {
 
     @Selector() static getDashboardId(state: DBStateModel) {
         return state.id;
+    }
+
+    @Selector() static getDashboardPath(state: DBStateModel) {
+        return state.path;
     }
 
     @Selector() static getLoadedDB(state: DBStateModel) {
@@ -109,17 +115,14 @@ export class DBState {
                 }),
                 catchError( error => ctx.dispatch(new LoadDashboardFail(error)))
             );
-            /*
-            return this.httpService.getDashoard(id).pipe(
-                map( (dashboard: any) => {
-                    ctx.dispatch(new LoadDashboardSuccess(dashboard));
-                }),
-                catchError( error => ctx.dispatch(new LoadDashboardFail(error)))
-            );
-            */
         } else {
-            const dashboard = this.dbService.getDashboardPrototype();
-            ctx.dispatch(new LoadDashboardSuccess(dashboard));
+            const payload = {
+                content: this.dbService.getDashboardPrototype(),
+                id: '_new_',
+                name: 'Untitled Dashboard',
+                path: ''
+            };
+            ctx.dispatch(new LoadDashboardSuccess(payload));
         }
     }
 
@@ -130,7 +133,7 @@ export class DBState {
             id: payload.id,
             loaded: true,
             loading: false,
-            loadedDB: JSON.parse(payload.content)
+            loadedDB: payload
         });
     }
 
@@ -143,8 +146,9 @@ export class DBState {
     saveDashboard(ctx: StateContext<DBStateModel>, { id: id, payload: payload }: SaveDashboard) {
             ctx.patchState({ status: 'save-progress', error: {} });
             return this.httpService.saveDashboard(id, payload).pipe(
-                map( (dashboard: any) => {
-                    ctx.dispatch(new SaveDashboardSuccess(dashboard));
+                map( (res: any) => {
+                    console.log('DASHBOARD after saved:', res);
+                    ctx.dispatch(new SaveDashboardSuccess(res.body));
                 }),
                 catchError( error => ctx.dispatch(new SaveDashboardFail(error)))
             );
@@ -154,7 +158,7 @@ export class DBState {
     saveDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: SaveDashboardSuccess) {
         const state = ctx.getState();
         console.log('save dashboard success', payload);
-        ctx.patchState({...state, id: payload.id, status: 'save-success' });
+        ctx.patchState({...state, id: payload.id, path: payload.path, status: 'save-success' });
     }
 
     @Action(SaveDashboardFail)

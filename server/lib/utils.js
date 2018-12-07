@@ -120,7 +120,6 @@ self.parseSearchTerms = function(terms) {
 * space is AND
 */
 self.mSearch = function(list, query) {
-    console.log('query', query);
     var str = query.searchPattern;
     if (str === '') {
         return;
@@ -129,7 +128,6 @@ self.mSearch = function(list, query) {
     var sCondition = [];
     var matchKeys = [], invalidKeys = [];
     var q = self.parseSearchTerms(str);
-    console.log('qqqq', q);
     //qqqq [ 'sys,host:bf1|gq1', 'cpu' ]
     /*
     for (var i = 0; i < q.length; i++) {
@@ -151,7 +149,6 @@ self.mSearch = function(list, query) {
         sCondition.push(t);
     }
     //*/
-    console.log('sCond', sCondition);
  
     var groupingFn = function(key, matchkeys) {
         if(matchkeys.indexOf(key) === -1) {
@@ -251,7 +248,6 @@ self.mSearch = function(list, query) {
     };
   
     var finalResult = self.filter(list, sCondition, invalidKeys, matchKeys, sflag, filterValueFn);
-    //console.log('matchkey', matchKeys);
     // try to group the matchkey and key
     var group, groups = {};
     for (var i=0; i < matchKeys.length; i++) {
@@ -262,7 +258,6 @@ self.mSearch = function(list, query) {
             group = null;
         }  
     }
-    //console.log('groups', groups);
 
     // for now, just result not performance
    var tg = [];
