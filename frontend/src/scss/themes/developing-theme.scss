@@ -31,7 +31,7 @@ $developing-theme: (
   ),
   background: (
     status-bar:               map_get($mat-grey, 300),
-    ink-bar:                  map_get($mat-pink, A400),
+    ink-bar:                  map_get($denali-brand-6, 500),
     app-bar:                  map_get($mat-grey, 100),
     navbar:                   #172F33,
     background:               lighten(map_get($denali-cool-grey, 50), 4%),
@@ -53,7 +53,10 @@ $developing-theme: (
   ),
   widgets: (
     widget-icons-background: #F5F8FE,
-    widget-icons-background-hover: rgba(#3697F2, .26)
+    widget-icons-background-hover: rgba(map_get($denali-brand-6, 500), .26),
+    query-editor-marker: map_get($denali-brand-6, 500),
+    query-editor-marker-text: #ffffff,
+    query-editor-block-bg: lighten(map-get($denali-cool-grey, A100), 15%)
   ),
   ks: (
     sidenav-background: map_get($mat-blue-grey, 800),
