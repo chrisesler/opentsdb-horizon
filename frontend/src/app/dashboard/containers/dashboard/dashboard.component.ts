@@ -16,7 +16,7 @@ import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel } from '../../state/widgets.state';
-import { WidgetsRawdataState, GetQueryDataByGroup, SetQueryDataByGroup } from '../../state/widgets-data.state';
+import { WidgetsRawdataState, GetQueryDataByGroup, SetQueryDataByGroup, ClearQueryData } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import {
     DBSettingsState,
@@ -37,6 +37,7 @@ import {
 } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
+import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 
 @Component({
     selector: 'app-dashboard',
@@ -457,13 +458,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.widgetGroupRawData$.subscribe(result => {
+            let error = null;
+            let grawdata = {};
             if (result !== undefined) {
-                let error = null;
-                let grawdata = {};
                 // if one of the query contains error, send the entire data. so that chart can rerender with success query result
-                if ( !result.rawdata.error ) {
+                if ( result.rawdata !== undefined && !result.rawdata.error ) {
                     grawdata[result.gid] = result.rawdata;
-                } else {
+                } else if ( result.rawdata !== undefined ) {
                     error = result.rawdata.error;
                     grawdata = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(result.wid));
                 }
@@ -521,31 +522,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let groupid = '';
         const payload = message.payload;
         const dt = this.getDashboardDateRange();
-
-        // sending each group to get data.
-        for (let i = 0; i < payload.queries.length; i++) {
-            let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
-            groupid = query.id;
-            const gquery: any = {
-                wid: message.id,
-                gid: groupid,
-            };
-            if (query.namespace && query.metrics.length) {
-                // filter only visible metrics
-                // query = this.dbService.filterMetrics(query);
-                let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
-                // get only enabled filters
-                overrideFilters = overrideFilters.filter(d => d.enabled);
-                query = overrideFilters.length ? this.dbService.overrideQueryFilters(query, overrideFilters) : query;
-                query = this.queryService.buildQuery(payload, dt, query);
-                console.log('the group query-2', query, JSON.stringify(query));
-                gquery.query = query;
-                // now dispatch request
-                this.store.dispatch(new GetQueryDataByGroup(gquery));
-            } else {
-                gquery.data = {};
-                this.store.dispatch(new SetQueryDataByGroup(gquery));
+        if ( payload.queries.length ) {
+            // sending each group to get data.
+            for (let i = 0; i < payload.queries.length; i++) {
+                let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
+                groupid = query.id;
+                const gquery: any = {
+                    wid: message.id,
+                    gid: groupid,
+                };
+                if (query.namespace && query.metrics.length) {
+                    // filter only visible metrics
+                    // query = this.dbService.filterMetrics(query);
+                    let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
+                    // get only enabled filters
+                    overrideFilters = overrideFilters.filter(d => d.enabled);
+                    query = overrideFilters.length ? this.dbService.overrideQueryFilters(query, overrideFilters) : query;
+                    query = this.queryService.buildQuery(payload, dt, query);
+                    console.log('the group query-2', query, JSON.stringify(query));
+                    gquery.query = query;
+                    // now dispatch request
+                    this.store.dispatch(new GetQueryDataByGroup(gquery));
+                } else {
+                    gquery.data = {};
+                    this.store.dispatch(new SetQueryDataByGroup(gquery));
+                }
             }
+        } else {
+            this.store.dispatch(new ClearQueryData({ wid: message.id }));
         }
     }
 

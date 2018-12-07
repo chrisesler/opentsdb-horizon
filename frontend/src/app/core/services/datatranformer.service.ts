@@ -154,7 +154,10 @@ export class DatatranformerService {
      */
 
     getChartJSFormattedDataBar( options, widget, datasets, queryData, stacked ) {
-      // stack colors
+        if ( Object.keys(queryData).length === 0 ) {
+            return datasets;
+        }
+        // stack colors
         const colors = [];
         const metricIndices = [];
         let stacks = [];
@@ -181,27 +184,8 @@ export class DatatranformerService {
                 }
             }
         } else {
-            const qid = Object.keys(queryData)[0];
-            const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
-            const mConfigs = gConfig.metrics;
             datasets[0] = {data: [], backgroundColor: [], tooltipData: []};
             options.labels = [];
-            /*
-            for ( let i = 0; i < mConfigs.length; i++ ) {
-                const mid = 'm' + i;
-                const vConfig = mConfigs[i].settings.visual;
-                if ( vConfig.visible ) {
-                    metricIndices.push(mid);
-                    let label = vConfig.label ? vConfig.label : mConfigs[i].name;
-                    const color = vConfig.color;
-                    label = label.length <= 20 ? label : label.substr(0, 17) + '..';
-                    options.labels.push( label );
-                    datasets[0].data.push(null);
-                    datasets[0].backgroundColor.push(color);
-                    colors.push(color);
-                }
-            }
-            */
         }
 
         // set dataset values
@@ -248,9 +232,10 @@ export class DatatranformerService {
     getChartJSFormattedDataDonut(options, widget, datasets, queryData) {
         datasets[0] = {data: [], backgroundColor: [], tooltipData: [] };
         options.labels = [];
-        if (!queryData) {
+        if ( Object.keys(queryData).length === 0) {
             return datasets;
         }
+        console.log("data....", queryData)
         const qid = Object.keys(queryData)[0];
         const results = queryData[qid].results ? queryData[qid].results : [];
 

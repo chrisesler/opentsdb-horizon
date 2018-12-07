@@ -82,7 +82,11 @@ export class ColorPickerSelectorComponent
         return this._selectedColor;
     }
     set selectedColor(value: string) {
-        this._selectedColor = value || this.emptyColor;
+        if (!value || value.toLowerCase() === 'auto') {
+            this._selectedColor = '#000000';
+        } else {
+            this._selectedColor = value;
+        }
     }
     // tslint:disable-next-line:no-inferrable-types
     private _selectedColor: string = '';

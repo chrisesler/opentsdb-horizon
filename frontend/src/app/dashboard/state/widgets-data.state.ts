@@ -21,6 +21,11 @@ export class SetQueryDataByGroup {
     constructor(public readonly payload: any) {}
 }
 
+export class ClearQueryData {
+    public static type = '[Rawdata] Clear Query Data';
+    constructor(public readonly payload: any) {}
+}
+
 
 
 @State<RawDataModel>({
@@ -75,6 +80,14 @@ export class WidgetsRawdataState {
         }
         state.data[payload.wid][payload.gid] = payload.data !== undefined ? payload.data : { error: payload.error };
         state.lastModifiedWidget = { wid: payload.wid, gid: payload.gid};
+        ctx.setState({...state});
+    }
+
+    @Action(ClearQueryData)
+    clearQueryData(ctx: StateContext<RawDataModel>, { payload }: ClearQueryData) {
+        const state = ctx.getState();
+        state.data[payload.wid] = {};
+        state.lastModifiedWidget = { wid: payload.wid, gid: null};
         ctx.setState({...state});
     }
 }

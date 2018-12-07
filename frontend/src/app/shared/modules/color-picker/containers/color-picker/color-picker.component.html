@@ -5,7 +5,7 @@
         <div class="color-picker-flex">
             <div class="color-picker-infix">
                 <div class="color-picker-trigger">
-                    <div class="color-preview-wrapper">
+                    <div class="color-preview-wrapper" *ngIf="color !== 'Auto'">
                         <div class="color-preview-chip" [style.background]="color"></div>
                     </div>
                     <div class="color-hex-value">
@@ -48,6 +48,11 @@
 
         <!-- Default Color Selector -->
         <div *ngIf="!selectingCustomColor">
+
+            <div *ngIf="enableAuto" class="auto-color" [ngClass]="{'isSelected' : 'Auto'==color}">
+                <button mat-raised-button class="auto-color-button" (click)="colorSelected('auto')" matTooltip="System chooses color" matTooltipPosition="below"> Auto </button>
+            </div>
+
             <div class="grid-container">
                 <div class="grid-item" *ngFor="let _color of DefaultColors" [ngClass]="{'isSelected' : _color.value==color}">
                     <button mat-raised-button [ngClass]="{'grey-outline' : _color.text=='White'}"

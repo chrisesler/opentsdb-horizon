@@ -79,7 +79,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     ngOnInit() {
         console.log('editting widget query', this.widget);
         if ( !this.widget.queries.length ) {
-            this.addNewQuery();
+            // this.addNewQuery();
             // this.queryEditMode = true;
         }
     }
@@ -125,9 +125,12 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     ngOnChanges(changes: SimpleChanges) {
         // when editing mode is loaded, we need to temporary adding default UI state
         // to editing widget
-        if (changes.widget.currentValue) {
-            console.log("widget config changed", changes.widget.currentValue)
-            this.addRemoveTempUIState(true, changes.widget.currentValue);
+        console.log("widget config changed", changes.widget.currentValue);
+        if ( changes.widget.currentValue ) {
+            console.log("widget config changed", changes.widget.currentValue);
+            if ( !changes.widget.currentValue.queries.length ) {
+                this.addNewQuery();
+            }
         }
     }
 
