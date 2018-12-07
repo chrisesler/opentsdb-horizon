@@ -64,7 +64,6 @@ export class DatatranformerService {
         }
     }
 
-    console.log("dict", dict);
     */
 
     ///*
@@ -124,7 +123,6 @@ export class DatatranformerService {
         }
     }
     //*/    
-    console.log("normalized data", normalizedData);
     return [...normalizedData];
   }
 

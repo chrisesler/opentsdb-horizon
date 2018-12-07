@@ -98,15 +98,16 @@ export class UtilsService {
         }
 
         // saturation & value/brightness ranges
-        const srange = [ 0.0, 0.9], vrange = [ 0.9, 0.2];
+        const srange = [ 0.05, 0.9], vrange = [ 0.9, 0.2];
 
         // no. of colors on light to bright (sBand) and no. of bright to dark (vBand)
         const sBand = Math.ceil(n * 0.7 ), vBand = Math.floor(n * 0.3);
         const sStep = (srange[1] - srange[0]) / sBand;
         const vStep = (vrange[0] - vrange[1]) / vBand;
 
+        console.log("init", n, sBand, vBand, sStep, vStep)
         // if random color set SV to 0.8
-        let s = color ? srange[0] : 0.8;
+        let s = color ? srange[0] - sStep : 0.8;
         let v = color ?  vrange[0] : 0.8;
         for ( let i = 0; i < n;  i++ ) {
             if ( color ) {
@@ -121,7 +122,9 @@ export class UtilsService {
                 hue  += ( 1 / n);
             }
             colors.push(this.rgbToHex(this.hsvToRGB(hue, s, v)));
+            console.log("i="+i, hue, s , v , this.hsvToRGB(hue, s, v), this.rgbToHex(this.hsvToRGB(hue, s, v)) )
         }
+        console.log("colors", colors);
         return n === 1 ? colors[0] : colors;
     }
 
