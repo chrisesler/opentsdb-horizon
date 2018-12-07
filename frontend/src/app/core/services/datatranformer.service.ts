@@ -235,7 +235,6 @@ export class DatatranformerService {
         if ( Object.keys(queryData).length === 0) {
             return datasets;
         }
-        console.log("data....", queryData)
         const qid = Object.keys(queryData)[0];
         const results = queryData[qid].results ? queryData[qid].results : [];
 
