@@ -606,7 +606,9 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             settings: {
                 visual: {
                     label: this.expressionForm.controls.expressionName.value,
-                    visible: true
+                    visible: true,
+                    aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['avg'],
+                    color: this.utils.getColors()
                 }
             },
         };
