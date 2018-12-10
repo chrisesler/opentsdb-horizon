@@ -290,7 +290,7 @@ export class DashboardNavigatorState {
             files: [],
             resourceType: 'recentlyVisited',
             type: 'DASHBOARD',
-            icon: 'd-duplicate',
+            icon: 'd-time',
             synthetic: true,
             loaded: false
         };
@@ -324,7 +324,7 @@ export class DashboardNavigatorState {
                 masterPersonal[4] = {...masterPersonal[4],
                     icon: 'd-trash',
                     loaded: true,
-                    resourceType: 'personal'
+                    resourceType: 'trash'
                 };
                 delete masterPersonal[4].synthetic;
             }
@@ -455,16 +455,13 @@ export class DashboardNavigatorState {
         const resources = {...state.resourceData};
         const currentPanelIndex = state.currentPanelIndex;
 
-        // if type is 'namespace' we need to pluralize it for our lookup
-        let resourceType = (payload.type === 'namespace') ? 'namespaces' : payload.type;
+        const specialType = (payload.type !== 'namespace' || payload.type !== 'personal') ? payload.type : false;
 
-        // uhm... resource type somehow is empty. Need to infer resourceType from path
-        if (!resourceType) {
-            const path = payload.path.split('/');
-            resourceType = (path[1].toLowerCase() === 'namespace') ? 'namespaces' : 'personal';
-        }
+        // need to infer the resourceType from path
+        const path = payload.path.split('/');
+        const resourceType = (path[1].toLowerCase() === 'namespace') ? 'namespaces' : 'personal';
 
-        if (!resources[resourceType][payload.path]) {
+        if (!resources[resourceType][payload.path] || (resourceType === 'namespaces' && specialType === 'trash')) {
             // ruh roh... need to fetch it
             let parentPath = payload.path.split('/');
             parentPath.pop();
@@ -475,25 +472,29 @@ export class DashboardNavigatorState {
             const parent = resources[resourceType][parentPath];
             // console.log('parent', parent);
 
-            const child = parent.subfolders.filter( item => {
-                return item.path = payload.path;
-            })[0];
+            if (!specialType) {
+                const child = parent.subfolders.filter( item => {
+                    return item.path = payload.path;
+                })[0];
 
-            const folder = {...child,
-                subfolders: (child.subfolders) ? child.subfolders : [],
-                files: (child.files) ? child.files : [],
-                type: (child.type) ? child.type : 'DASHBOARD',
-                icon: 'd-folder',
-                resourceType: resourceType
-            };
+                const folder = {...child,
+                    subfolders: (child.subfolders) ? child.subfolders : [],
+                    files: (child.files) ? child.files : [],
+                    type: (child.type) ? child.type : 'DASHBOARD',
+                    icon: 'd-folder',
+                    resourceType: resourceType
+                };
 
-            resources[resourceType][folder.path] = folder;
+                resources[resourceType][folder.path] = folder;
+
+            } else {
+                const folder = resources[resourceType][payload.path];
+                // now what? its special... do we need to load anything?
+            }
 
             ctx.patchState({...state,
                 resourceData: resources
             });
-
-            // console.log('CHILD', child);
 
         }
 

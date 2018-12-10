@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, OnDestroy,  AfterViewInit } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -13,7 +13,7 @@ import { ErrorDialogComponent } from '../../../sharedcomponents/components/error
     styleUrls: []
 })
 
-export class BignumberWidgetComponent implements OnInit, OnDestroy {
+export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.bignumber-widget') private _componentClass = true;
@@ -73,6 +73,10 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
         public util: UtilsService,
         public UN: UnitNormalizerService
         ) { }
+
+     ngAfterViewInit() {
+         this.setBigNumber(this.widget.settings.visual.queryID);
+    }
 
     ngOnInit() {
 
@@ -408,6 +412,15 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
             this.widget.queries[qindex] = query;
         }
 
+        let index = 0;
+        for (let metric of this.widget.queries[0].metrics) {
+            if (this.widget.settings.visual.queryID === index) {
+                metric.settings.visual.visible = true;
+            } else {
+                metric.settings.visual.visible = false;
+            }
+            index++;
+        }
         console.log('bignumber updateQuery', qindex, this.widget.queries);
     }
 
@@ -510,7 +523,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
     applyConfig() {
         const cloneWidget = { ...this.widget };
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
-
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
             payload: cloneWidget
@@ -550,6 +562,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
         this.widget.queries[0].metrics[mindex].settings.visual.visible = true;
         this.widget.settings.visual.queryID = mindex;
         this.refreshData(false);
+        this.setBigNumber(this.widget.settings.visual.queryID);
     }
 
     deleteQueryMetric(qid, mid) {
@@ -558,13 +571,16 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
         const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
         this.widget.queries[qindex].metrics.splice(mindex, 1);
 
-        // only reindex visibility if there are metrics AND deleted metric is before visible metric
-        if (mindex <= this.widget.settings.visual.queryID && this.widget.queries[qindex].metrics.length !== 0) {
-             for (let metric of this.widget.queries[0].metrics) {
-                 metric.settings.visual.visible = false;
-             }
-             this.widget.queries[0].metrics[this.widget.settings.visual.queryID].settings.visual.visible = true;
-         }
+        // only reindex visibility if there are metrics AND deleted metric is visible metric
+        if (mindex === this.widget.settings.visual.queryID && this.widget.queries[qindex].metrics.length !== 0) {
+             this.widget.queries[0].metrics[0].settings.visual.visible = true;
+             this.widget.settings.visual.queryID = 0;
+        }
+
+        if (this.widget.queries[qindex].metrics.length === 1) {
+            this.widget.queries[0].metrics[0].settings.visual.visible = true;
+            this.widget.settings.visual.queryID = 0;
+        }
     }
 
     deleteQueryFilter(qid, findex) {

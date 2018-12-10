@@ -88,8 +88,16 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
             this.activeNavSection = event.section;
 
             switch (this.activeNavSection) {
-                case 'test':
                 case 'dashboard':
+                case 'metric-explorer':
+                case 'alerts':
+                case 'status':
+                case 'annotations':
+                case 'admin':
+                case 'favorites':
+                case 'namespaces':
+                case 'resources':
+                case 'test':
                     this.drawer.open();
                     break;
                 // can add more cases if needed

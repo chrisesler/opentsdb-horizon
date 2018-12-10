@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 // store
 import { NgxsModule } from '@ngxs/store';
-import { 
+import {
     DashboardNavigatorState
  } from './state';
 
@@ -32,6 +33,7 @@ import { DnavFolderItemComponent } from './components/dashboard-navigator/childr
 import { DnavFoldersComponent } from './components/dashboard-navigator/children/dnav-folders/dnav-folders.component';
 import { DnavDashboardsComponent } from './components/dashboard-navigator/children/dnav-dashboards/dnav-dashboards.component';
 
+
 @NgModule({
     imports: [
         CommonModule,
@@ -43,7 +45,8 @@ import { DnavDashboardsComponent } from './components/dashboard-navigator/childr
         SharedcomponentsModule,
         NgxsModule.forFeature([
             DashboardNavigatorState
-        ])
+        ]),
+        RouterModule
     ],
     declarations: [
         DashboardNavigatorComponent,
