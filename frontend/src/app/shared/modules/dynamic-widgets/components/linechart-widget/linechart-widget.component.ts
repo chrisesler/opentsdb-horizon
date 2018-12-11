@@ -133,9 +133,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 });
                 // when the widget first loaded in dashboard, we request to get data
                 // when in edit mode first time, we request to get cached raw data.
-                if (this.editMode) {
-                    this.setSize(true);
-                }
+
+                this.setSize(this.editMode);
                 this.requestData();
                 this.setOptions();
     }
@@ -272,23 +271,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setSize(init = false) {
-
-        /*const wm =  this.widget.query.settings.legend.display &&
-                    ( this.widget.query.settings.legend.position === 'left' ||
-                        this.widget.query.settings.legend.position === 'right' ) ? .8 : 1;
-        const hm = this.widget.query.settings.legend.display &&
-                    ( this.widget.query.settings.legend.position === 'top' ||
-                        this.widget.query.settings.legend.position === 'bottom' ) ? .8 : 1;
-        // update graph content size
-        const nWidth = this.widgetOutputElement.nativeElement.offsetWidth * wm;
-        // let nHeight = this.widgetOutputElement.nativeElement.offsetHeight;
-        let nHeight = this.editMode ? 270 : this.widgetOutputElement.nativeElement.offsetHeight;
-        nHeight = nHeight * hm;
-        // const titleSpace = this.editMode ? 30 : 0;
-        this.size = { width: nWidth - 24, height: nHeight };
-        // console.log("sie", nWidth, nHeight, wm, hm, this.size);*/
-
-        // REDOING THIS - Wasn't really rendering correctly
 
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
