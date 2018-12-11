@@ -105,9 +105,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                     this.refreshData();
                     break;
             }
-            console.log("come shere ", message)
             if (message && (message.id === this.widget.id)) {
-                console.log("come shere ", message)
 
                 switch (message.action) {
                     case 'updatedWidgetGroup':

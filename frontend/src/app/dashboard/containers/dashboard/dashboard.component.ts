@@ -531,6 +531,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 const gquery: any = {
                     wid: message.id,
                     gid: groupid,
+                    isEditMode: this.viewEditMode
                 };
                 if (query.namespace && query.metrics.length) {
                     // filter only visible metrics
