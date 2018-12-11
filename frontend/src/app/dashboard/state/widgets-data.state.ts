@@ -43,10 +43,8 @@ export class ClearQueryData {
 })
 
 export class WidgetsRawdataState {
-    editQueryTs$ = new BehaviorSubject(0);
     queryObserver: Observable<any>;
-    queryObserverSub: Subscription;
-
+    
     constructor(private httpService: HttpService, private actions$: Actions ) {}
 
     static getWidgetRawdataByID(id: string) {
