@@ -83,10 +83,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch( message.action ) {
                 case 'resizeWidget':
-                    if ( !this.editMode ) {
-                        this.width = message.payload.width * this.widget.gridPos.w - 30 + 'px';
-                        this.height = message.payload.height * this.widget.gridPos.h - 70 + 'px';
-                    }
+                    this.setSize();
                     break;
                 case 'reQueryData':
                     this.refreshData();
@@ -115,12 +112,31 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 }
             }
         });
+        // call even for first time
+        this.setSize();
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
         this.requestData();
     }
 
     ngOnChanges(changes: SimpleChanges) {
+    }
+
+      // for first time and call.
+      setSize() {
+
+        // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
+        // and read the size of the first element above the componentHostEl
+        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
+
+        const outputSize = nativeEl.getBoundingClientRect();
+        if (this.editMode) {
+            this.width = '100%';
+            this.height = '100%';
+        } else {
+            this.width = (outputSize.width - 30) + 'px';
+            this.height = (outputSize.height - 20) + 'px';
+        }
     }
 
     requestData() {
