@@ -21,7 +21,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
     /** Inputs */
     @Input() editMode: boolean;
     @Input() widget: any;
-
+    @ViewChild('widgetoutput') private widgetOutputElement: ElementRef;
     // tslint:disable:no-inferrable-types
     // tslint:disable:prefer-const
     private listenSub: Subscription;
@@ -83,8 +83,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
 
             if (message.action === 'resizeWidget') {
 
-                this.widgetWidth = message.payload.width * this.widget.gridPos.w - 12;
-                this.widgetHeight = message.payload.height * this.widget.gridPos.h - 40;
+                //this.widgetWidth = message.payload.width * this.widget.gridPos.w - 12;
+                //this.widgetHeight = message.payload.height * this.widget.gridPos.h - 40;
+                this.setSize();
 
                 if (this.metrics) {
                     this.determineFontSizePercent(this.widgetWidth, this.widgetHeight);
@@ -129,6 +130,19 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
         } else {
             this.requestCachedData();
         }
+        // call this for widget init
+        this.setSize();
+    }
+
+    // for first time and call.
+    setSize() {
+        // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
+        // and read the size of the first element above the componentHostEl
+        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
+
+        const outputSize = nativeEl.getBoundingClientRect();
+        this.widgetWidth = outputSize.width;
+        this.widgetHeight = outputSize.height;
     }
 
     getMetric(queryID: string): any {
