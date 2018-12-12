@@ -3,9 +3,10 @@ import { IntercomService, IMessage } from '../../../../../core/services/intercom
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
-
+import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { Subscription } from 'rxjs/Subscription';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { debounceTime } from 'rxjs/operators';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
@@ -17,7 +18,7 @@ import { ErrorDialogComponent } from '../../../sharedcomponents/components/error
   templateUrl: './barchart-widget.component.html',
   styleUrls: ['./barchart-widget.component.scss'],
 })
-export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
+export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.barchart-widget') private _componentClass = true;
 
@@ -66,6 +67,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         }
     };
     data: any = [ ];
+    newSize$: BehaviorSubject<any>;
+    newSizeSub: Subscription;
     width = '100%';
     height = '100%';
     editQueryId = null;
@@ -95,9 +98,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch( message.action ) {
-                case 'resizeWidget':
-                    this.setSize();
-                    break;
                 case 'reQueryData':
                     this.refreshData();
                     break;
@@ -125,7 +125,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                 }
             }
         });
-        this.setSize();
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
         this.requestData();
@@ -133,8 +132,35 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges) {
+
     }
 
+    ngAfterViewInit() {
+        // this event will happend on resize the #widgetoutput element,
+        // in bar chart we don't need to pass the dimension to it.
+        // Dimension will be picked up by parent node which is #container
+        ElementQueries.listen();
+        ElementQueries.init();
+        let initSize = {
+            width: this.widgetOutputElement.nativeElement.clientWidth,
+            height: this.widgetOutputElement.nativeElement.clientHeight
+        };
+        this.newSize$ = new BehaviorSubject(initSize);
+
+        this.newSizeSub = this.newSize$.pipe(
+            debounceTime(100)
+        ).subscribe(size => {
+            this.setSize();
+        });
+        
+        new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+             const newSize = {
+                width: this.widgetOutputElement.nativeElement.clientWidth,
+                height: this.widgetOutputElement.nativeElement.clientHeight
+            };
+            this.newSize$.next(newSize);
+        });
+    }
     requestData() {
         if (!this.isDataLoaded) {
             this.nQueryDataLoading = this.widget.queries.length;
