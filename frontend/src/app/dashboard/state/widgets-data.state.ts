@@ -64,13 +64,13 @@ export class WidgetsRawdataState {
     @Action(GetQueryDataByGroup)
     getQueryDataByGroup(ctx: StateContext<RawDataModel>, { payload }: GetQueryDataByGroup) {
         if ( payload.isEditMode ) {
-             this.queryObserver = this.httpService.getYamasData( { query: payload.query} )
+             this.queryObserver = this.httpService.getYamasData( payload.query )
                             .pipe(
                                 takeUntil(this.actions$.pipe(ofActionDispatched(GetQueryDataByGroup)))
                             );
 
         } else {
-            this.queryObserver = this.httpService.getYamasData({query: payload.query});
+            this.queryObserver = this.httpService.getYamasData(payload.query);
         }
 
         this.queryObserver.subscribe(
