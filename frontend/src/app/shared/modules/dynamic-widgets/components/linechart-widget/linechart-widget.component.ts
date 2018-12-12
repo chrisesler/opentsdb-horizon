@@ -2,7 +2,7 @@ import {
     Component, OnInit, OnChanges, AfterViewInit, SimpleChanges, HostBinding, Input,
     OnDestroy, ViewChild, ElementRef
 } from '@angular/core';
-
+import { ElementQueries, ResizeSensor} from 'css-element-queries';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -13,6 +13,9 @@ import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state'
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
+import { BehaviorSubject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -75,6 +78,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     };
     data: any = [[0]];
     size: any = {};
+    newSize$: BehaviorSubject<any>;
+    newSizeSub: Subscription;
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
@@ -93,9 +98,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 // subscribe to event stream
                 this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
                     switch ( message.action ) {
-                        case 'resizeWidget':
-                            this.setSize();
-                            break;
                         case 'reQueryData':
                             this.refreshData();
                             break;
@@ -133,8 +135,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 });
                 // when the widget first loaded in dashboard, we request to get data
                 // when in edit mode first time, we request to get cached raw data.
-
-                this.setSize(this.editMode);
                 this.requestData();
                 this.setOptions();
     }
@@ -268,16 +268,38 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     ngAfterViewInit() {
+
+        ElementQueries.listen();
+        ElementQueries.init();
+        let initSize = {
+            width: this.widgetOutputElement.nativeElement.clientWidth,
+            height: this.widgetOutputElement.nativeElement.clientHeight
+        };
+        this.newSize$ = new BehaviorSubject(initSize);
+
+        this.newSizeSub = this.newSize$.pipe(
+            debounceTime(100)
+        ).subscribe(size => {
+            this.setSize(size);
+        });
+        
+        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+             const newSize = {
+                width: this.widgetOutputElement.nativeElement.clientWidth,
+                height: this.widgetOutputElement.nativeElement.clientHeight
+            };
+            this.newSize$.next(newSize);
+        });
     }
 
-    setSize(init = false) {
+    setSize(newSize: any) {
 
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
-        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
+        //const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
 
-        const outputSize = nativeEl.getBoundingClientRect();
-        const offset = init && this.editMode ? 100 : 0;
+        //const outputSize = nativeEl.getBoundingClientRect();
+        const offset = this.editMode ? 100 : 0;
 
         let nWidth, nHeight, padding;
 
@@ -301,12 +323,12 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
         if (this.editMode) {
             padding = 8; // 8px top and bottom
-            nHeight = ((outputSize.height - offset) * heightModifier) - (padding * 2);
-            nWidth = (outputSize.width * widthModifier) - (padding * 2);
+            nHeight = ((newSize.height - offset) * heightModifier) - (padding * 2);
+            nWidth = (newSize.width * widthModifier) - (padding * 2);
         } else {
             padding = 10; // 10px on the top
-            nHeight = (outputSize.height * heightModifier) - (padding * 2);
-            nWidth = (outputSize.width * widthModifier) - (padding * 2);
+            nHeight = (newSize.height * heightModifier) - (padding * 2);
+            nWidth = (newSize.width * widthModifier) - (padding * 2);
         }
         if ( this.legendDisplayColumns.length ) {
             if (nWidth >= 800 ) {
@@ -497,7 +519,10 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     setLegend(config) {
         this.widget.settings.legend = config;
         this.setLegendDiv();
-        this.setSize();
+        this.setSize({
+            width: this.widgetOutputElement.nativeElement.clientWidth,
+            height: this.widgetOutputElement.nativeElement.clientHeight
+        });
         this.options = {...this.options};
     }
 
@@ -639,9 +664,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     ngOnDestroy() {
-        if (this.listenSub) {
-            this.listenSub.unsubscribe();
-        }
+        this.listenSub.unsubscribe();
+        this.newSizeSub.unsubscribe();
     }
 
 }
