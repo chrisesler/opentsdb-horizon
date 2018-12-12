@@ -3,6 +3,9 @@ import { IntercomService, IMessage } from '../../../../../core/services/intercom
 import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
+import { BehaviorSubject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 
@@ -21,7 +24,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     /** Inputs */
     @Input() editMode: boolean;
     @Input() widget: any;
-
+    @ViewChild('widgetoutput') private widgetOutputElement: ElementRef;
     // tslint:disable:no-inferrable-types
     // tslint:disable:prefer-const
     private listenSub: Subscription;
@@ -64,6 +67,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
     shadowInitialized: boolean = false;
 
+    newSize$: BehaviorSubject<any>;
+    newSizeSub: Subscription;
+
     @ViewChild('myCanvas') myCanvas: ElementRef;
     public context: CanvasRenderingContext2D;
 
@@ -74,26 +80,12 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         public UN: UnitNormalizerService
         ) { }
 
-     ngAfterViewInit() {
-         this.setBigNumber(this.widget.settings.visual.queryID);
-    }
-
     ngOnInit() {
 
         this.setDefaultVisualization();
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            console.log('message', message);
-
-            if (message.action === 'resizeWidget') {
-
-                this.widgetWidth = message.payload.width * this.widget.gridPos.w - 12;
-                this.widgetHeight = message.payload.height * this.widget.gridPos.h - 40;
-
-                if (this.metrics) {
-                    this.determineFontSizePercent(this.widgetWidth, this.widgetHeight);
-                }
-            }
+            
             if ( message.action === 'reQueryData' ) {
                 this.refreshData();
             }
@@ -133,6 +125,47 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         } else {
             this.requestCachedData();
         }
+    }
+  ngAfterViewInit() {
+    this.setBigNumber(this.widget.settings.visual.queryID);
+        // this event will happend on resize the #widgetoutput element,
+        // in bar chart we don't need to pass the dimension to it.
+        // Dimension will be picked up by parent node which is #container
+        ElementQueries.listen();
+        ElementQueries.init();
+        let initSize = {
+            width: this.widgetOutputElement.nativeElement.clientWidth,
+            height: this.widgetOutputElement.nativeElement.clientHeight
+        };
+        this.newSize$ = new BehaviorSubject(initSize);
+
+        this.newSizeSub = this.newSize$.pipe(
+            debounceTime(100)
+        ).subscribe(size => {
+            this.setSize();
+        });
+        
+        new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+             const newSize = {
+                width: this.widgetOutputElement.nativeElement.clientWidth,
+                height: this.widgetOutputElement.nativeElement.clientHeight
+            };
+            this.newSize$.next(newSize);
+        });
+    }
+    // for first time and call.
+    setSize() {
+        // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
+        // and read the size of the first element above the componentHostEl
+        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
+
+        const outputSize = nativeEl.getBoundingClientRect();
+        this.widgetWidth = outputSize.width;
+        this.widgetHeight = outputSize.height;
+        
+        if (this.metrics) {
+            this.determineFontSizePercent(this.widgetWidth, this.widgetHeight);
+        }        
     }
 
     getMetric(queryID: string): any {

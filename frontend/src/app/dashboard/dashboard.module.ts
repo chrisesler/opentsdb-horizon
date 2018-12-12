@@ -50,7 +50,7 @@ import { WidgetDeleteDialogComponent } from './components/widget-delete-dialog/w
         FormsModule,
         ReactiveFormsModule,
         MaterialModule,
-        GridsterModule,
+        GridsterModule.forRoot(),
         SharedcomponentsModule,
         DashboardRoutingModule,
         NgxsModule.forFeature([
