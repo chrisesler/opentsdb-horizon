@@ -4,13 +4,13 @@
 
 <div class="gridster-stage has-scroller" fxFlex="1 1 100%" [style.display]="viewEditMode ? 'none' : 'block'">
     <div class="is-scroller">
-        <gridster #gridster1 class="dashboard"
+        <ngx-gridster #gridster1 class="dashboard"
             [options]="gridsterOptions"
             (optionsChange)="breakpointChange($event)"
             (reflow)="gridsterFlow($event)"
             [draggableOptions]="{ handlerClass: 'panel-heading' }">
 
-            <gridster-item #itemComp class="gridster-item"
+            <ngx-gridster-item #itemComp class="gridster-item"
                 *ngFor="let widget of widgets; let idx = index; trackBy: trackByWidget"
                 [dragAndDrop]="widget.gridPos.dragAndDrop"
                 [resizable]="widget.gridPos.resizable"
@@ -25,8 +25,8 @@
               <app-widget-loader
                 (editComponent)="editComponent($event)"
                 [widget]="widget"></app-widget-loader>
-            </gridster-item>
-        </gridster>
+            </ngx-gridster-item>
+        </ngx-gridster>
     </div>
 </div>
 <!-- <data-explorer [style.display]="viewEditMode ? 'none' : 'block'"></data-explorer> -->
