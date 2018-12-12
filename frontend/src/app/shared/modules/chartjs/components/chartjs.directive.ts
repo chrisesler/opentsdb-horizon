@@ -109,6 +109,20 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                     });
                 });
             }
+            if ( this.chart && changes.chartType ) {
+                this.chart.destroy();
+                const ctx = this.element.nativeElement.getContext('2d');
+                this.updateDatasets(this.data);
+                this.chart = new Chart(ctx, {
+                    type: this.chartType,
+                    plugins: [ thresholdPlugin ],
+                    options: Object.assign(this.defaultOptions, this.options),
+                    data: {
+                        labels: this.options.labels,
+                        datasets: this.data
+                    }
+                });
+            }
             if ( !this.chart && this.data ) {
                 const ctx = this.element.nativeElement.getContext('2d');
                 this.updateDatasets(this.data);
@@ -132,19 +146,6 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                 this.chart.options = Object.assign(this.defaultOptions, this.options);
                 this.chart.update(0);
                 console.log("comse here-2", Object.assign(this.defaultOptions, this.options));
-            }  else if ( this.chart && changes.chartType ) {
-                this.chart.destroy();
-                const ctx = this.element.nativeElement.getContext('2d');
-                this.updateDatasets(this.data);
-                this.chart = new Chart(ctx, {
-                    type: this.chartType,
-                    plugins: [ thresholdPlugin ],
-                    options: Object.assign(this.defaultOptions, this.options),
-                    data: {
-                        labels: this.options.labels,
-                        datasets: this.data
-                    }
-                });
             }
         }
     }
