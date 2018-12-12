@@ -97,7 +97,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                         if ( message.payload.error ) {
                             this.error = message.payload.error;
                         }
-                        this.setOptions();
                         this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget, this.data, message.payload.rawdata);
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -110,6 +109,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         });
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
+        this.setOptions();
         this.requestData();
     }
 
