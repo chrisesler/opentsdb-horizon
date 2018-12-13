@@ -8,7 +8,7 @@ import { RouterModule } from '@angular/router';
 // store
 import { NgxsModule } from '@ngxs/store';
 import {
-    DashboardNavigatorState
+    NavigatorState, DashboardNavigatorState
  } from './state';
 
 
@@ -44,6 +44,7 @@ import { DnavDashboardsComponent } from './components/dashboard-navigator/childr
         ReactiveFormsModule,
         SharedcomponentsModule,
         NgxsModule.forFeature([
+            NavigatorState,
             DashboardNavigatorState
         ]),
         RouterModule
