@@ -18,26 +18,26 @@ jobs:
     component:
         triggers: [sd@311249]
 
----
-# V4 config
-version: 4
-shared:
-  environment:
-    # Used for configuring code coverage results in SonarQube
-    # https://docs.screwdriver.cd/user-guide/configuration/code-coverage
-    SD_SONAR_OPTS: "-Dsonar.sources=index.js -Dsonar.javascript.lcov.reportPath=$COVERAGE_DIR/lcov.info"
-  settings:
-    # Setting up email notifications
-    # https://docs.screwdriver.cd/user-guide/configuration/settings
-    email: yamas-devel@oath.com
-jobs:
-  main:
-    # Setting up the workflow
-    # https://docs.screwdriver.cd/user-guide/configuration/workflow
-    requires: [~pr, ~commit, ~sd@311249]
-    # Using the nodejs/lib template
-    # https://git.ouroath.com/NodeJS/sdv4-template-nodejs-lib
-    template: nodejs/lib@stable
+# ---
+# # V4 config
+# version: 4
+# shared:
+#   environment:
+#     # Used for configuring code coverage results in SonarQube
+#     # https://docs.screwdriver.cd/user-guide/configuration/code-coverage
+#     SD_SONAR_OPTS: "-Dsonar.sources=index.js -Dsonar.javascript.lcov.reportPath=$COVERAGE_DIR/lcov.info"
+#   settings:
+#     # Setting up email notifications
+#     # https://docs.screwdriver.cd/user-guide/configuration/settings
+#     email: yamas-devel@oath.com
+# jobs:
+#   main:
+#     # Setting up the workflow
+#     # https://docs.screwdriver.cd/user-guide/configuration/workflow
+#     requires: [~pr, ~commit, ~sd@311249]
+#     # Using the nodejs/lib template
+#     # https://git.ouroath.com/NodeJS/sdv4-template-nodejs-lib
+#     template: nodejs/lib@stable
 
 # cache:
 #    event:
