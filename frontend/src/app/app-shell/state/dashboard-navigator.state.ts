@@ -589,6 +589,43 @@ export class DashboardNavigatorState {
         this.stateError('Create Folder Failure', error);
     }
 
+    @Action(DBNAVupdateFolder)
+    updateFolder(ctx: StateContext<DBNAVStateModel>, { id: id, updates: updates, panelIndex: panelIndex }: DBNAVupdateFolder) {
+        this.stateLog('Update Folder', { id, updates });
+
+        return this.navService.updateFolder(id, updates).pipe(
+            map( (payload: any) => {
+                ctx.dispatch(new DBNAVupdateFolderSuccess(payload, panelIndex));
+            }),
+            catchError( error => ctx.dispatch(new DBNAVupdateFolderFail(error)) )
+        );
+    }
+
+    @Action(DBNAVupdateFolder)
+    updateFolderSuccess(ctx: StateContext<DBNAVStateModel>, { response: response, panelIndex: panelIndex }: DBNAVupdateFolderSuccess) {
+        this.stateSuccess('Update Folder Success', { response, panelIndex });
+
+        const state = ctx.getState();
+        const resourceData = {...state.resourceData};
+
+        const path = response.path.split('/');
+        const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
+        const resourceType = (type === 'namespace') ? 'namespaces' : 'personal';
+        // const updateName = path.
+
+
+
+
+    }
+
+    @Action(DBNAVupdateFolder)
+    updateFolderFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVupdateFolderFail) {
+        this.stateError('Update Folder Error', error);
+        ctx.dispatch({
+            error: error
+        });
+    }
+
 
     /**
      * Get a subfolder

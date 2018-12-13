@@ -67,12 +67,17 @@ export class DBNAVcreateFolderFail {
 
 export class DBNAVupdateFolder {
     static readonly type = '[DashboardNavigator] Update Folder';
-    constructor() {}
+    constructor(
+        public readonly id: number,
+        public readonly updates: any,
+        public readonly panelIndex: number
+    ) {}
 }
 export class DBNAVupdateFolderSuccess {
     static readonly type = '[DashboardNavigator] Update Folder [SUCCESS]';
     constructor(
-        public readonly response: any
+        public readonly response: any,
+        public readonly panelIndex: number
     ) {}
 }
 export class DBNAVupdateFolderFail {

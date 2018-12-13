@@ -66,7 +66,12 @@
                     </button>
                 </div>
                 <div class="metric-filter" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
-                    <div class="search"><input type=text #metricSearchInput class="metric-search-input" [formControl]="metricSearchControl"></div>
+                    <div class="search">
+                        <mat-form-field class="metric-search-input-field" appearance="fill" color="primary" floatLabel="never">
+                            <input matInput placeholder="Filter metrics" [formControl]="metricSearchControl" #metricSearchInput>
+                        </mat-form-field>
+                        <!--<input type=text  class="metric-search-input" [formControl]="metricSearchControl">-->
+                    </div>
                 </div>
                 <div class="filter-result" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
                     <mat-tab-group color="primary" mat-align-tabs="start" [(selectedIndex)]="metricSelectedTabIndex">
@@ -75,9 +80,11 @@
                                 <div class="list has-scroller">
                                     <div class="is-scroller">
                                         <div class="option" *ngFor="let option of metricOptions" [ngClass]="getMetricIndex(option) !== -1 ? 'added' : ''">
-                                            <mat-icon *ngIf="getMetricIndex(option) === -1" (click)="updateMetricSelection(option, 'add');">add_circle_outline</mat-icon>
-                                            <mat-icon *ngIf="getMetricIndex(option) !== -1" (click)="updateMetricSelection(option, 'remove')">remove_circle_outline</mat-icon>
-                                            <div>{{ option }}</div>
+                                            <div class="option-row-item">
+                                                <mat-icon *ngIf="getMetricIndex(option) === -1" (click)="updateMetricSelection(option, 'add');">add_circle_outline</mat-icon>
+                                                <mat-icon *ngIf="getMetricIndex(option) !== -1" (click)="updateMetricSelection(option, 'remove')">remove_circle_outline</mat-icon>
+                                            </div>
+                                            <div class="option-row-item label">{{ option }}</div>
                                         </div>
                                         <div *ngIf="message.metricSearchControl.message" [ngClass]="message.metricSearchControl.type === 'error'? 'error': 'info'">
                                             {{ message['metricSearchControl']['message'] }}
