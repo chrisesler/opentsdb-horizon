@@ -6,7 +6,7 @@
 export const environment = {
   production: false,
   // tsdb_host: 'https://tsdbr-1-bf2.yamas.ouroath.com:4443',
-  tsdb_host: 'https://tsdbr-1-gq1.yamas.ops.yahoo.com:4443',
+  tsdb_host: 'https://tsdbr-1-bf2.yamas.ouroath.com:4443',
   // configdb: 'http://stg-horizon-service-1.yms.gq1.yahoo.com:4080/api/v1'
   configdb: 'https://stg-horizonapi.yamas.ouroath.com:4443/api/v1',
   configdb2: 'https://stg-horizonapi.yamas.ouroath.com:4443/api/v1'
