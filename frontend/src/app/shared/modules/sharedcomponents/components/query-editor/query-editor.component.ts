@@ -13,7 +13,7 @@ import {
     SimpleChanges
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl, AbstractControl, ValidatorFn } from '@angular/forms';
-import { Observable, of } from 'rxjs';
+import { Observable, of, BehaviorSubject } from 'rxjs';
 import { map, startWith, debounceTime, switchMap, filter, catchError } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
@@ -76,6 +76,9 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     formControlInitiated = false;
 
+    queryChanges$: BehaviorSubject<boolean>;
+    queryChangeSub: Subscription;
+
     constructor(
         private elRef: ElementRef,
         private renderer: Renderer,
@@ -86,9 +89,18 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
 
     ngOnInit() {
-        // console.log('this.query', JSON.stringify(this.query))
-        // this.query.id  = this.utils.generateId();
         this.createForm();
+        this.queryChanges$ = new BehaviorSubject(false);
+
+        this.queryChangeSub = this.queryChanges$
+                                        .pipe(
+                                            debounceTime(1000)
+                                        )
+                                        .subscribe( trigger => {
+                                            if ( trigger ) {
+                                                this.triggerQueryChanges();
+                                            }
+                                        });
     }
 
     createForm() {
@@ -96,17 +108,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             expressionName:     new FormControl('untitled expression'),
             expressionValue:    new FormControl('')
         });
-
-        // JUST CHECKING VALUES
-        /*
-        this.expressionForm_Sub = this.expressionForm.valueChanges
-                                            .pipe(debounceTime(2000))
-                                            .subscribe(function(data) {
-                                                // if ( this.isValidExpression() && this.expressionForm.valid ) {
-                                                    // this.queryData();
-                                                // }
-                                            }.bind(this));
-                                            */
     }
 
     ngOnChanges( changes: SimpleChanges) {
@@ -116,7 +117,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                 this.editNamespace = true;
             }
 
-            // console.log('come shere', this.edit);
             if ( this.edit.length ) {
                 this.initFormControls();
                 this.queryBeforeEdit = JSON.parse(JSON.stringify(this.query));
@@ -134,12 +134,10 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.query.namespace = namespace;
         this.editNamespace = false;
         this.triggerQueryChanges();
-        // console.log( 'savenamespace', this.query);
     }
 
     cancelSaveNamespace(e) {
         this.editNamespace = false;
-        // console.log('cancelsavens', e);
     }
 
     requestEditMode(type) {
@@ -149,7 +147,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             this.edit.push(type);
             this.setEditMode();
         }
-        // console.log('seteditmode', this.edit);
     }
 
     setEditMode() {
@@ -311,9 +308,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     triggerQueryChanges() {
-        // if ( !this.query.metrics.length ) {
-        //    return;
-        // }
         this.requestChanges('QueryChange', {'query': this.query});
     }
 
@@ -338,20 +332,20 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         } else if ( index !== -1 && operation === 'remove' ) {
             this.query.metrics.splice(index, 1);
         }
-        this.triggerQueryChanges();
+        this.queryChanges$.next(true);
     }
     removeMetricById(mid) {
         const index = this.query.metrics.findIndex( d => d.id === mid );
         if ( index !== -1 ) {
             this.query.metrics.splice(index, 1);
         }
-        this.triggerQueryChanges();
+        this.queryChanges$.next(true);
     }
 
     setMetricSummarizer(id, value) {
         const index  = this.query.metrics.findIndex( item => item.id === id );
         this.query.metrics[index].settings.visual.aggregator = value;
-        this.triggerQueryChanges();
+        this.queryChanges$.next(true);
     }
 
     getMetricIndex(metric) {
@@ -431,7 +425,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.filterTagOptions();
         console.log('updateTagValueSelection', this.query.filters);
-        this.triggerQueryChanges();
+        this.queryChanges$.next(true);
     }
 
     setTagAggregator(index, value) {
@@ -444,7 +438,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             }
         }
         // console.log('---value---', this.query.filters[0].aggregator, index, value);
-        this.triggerQueryChanges();
+        this.queryChanges$.next(true);
     }
 
     isInfilteredKeys(key) {
@@ -547,8 +541,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             } else {
                 this.query.metrics[index] = expression;
             }
-            this.triggerQueryChanges();
-            // console.log('expression', JSON.stringify(expression));
+            this.queryChanges$.next(true);
         }
     }
 
@@ -606,7 +599,9 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             settings: {
                 visual: {
                     label: this.expressionForm.controls.expressionName.value,
-                    visible: true
+                    visible: true,
+                    aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['avg'],
+                    color: this.utils.getColors()
                 }
             },
         };
@@ -638,5 +633,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnDestroy() {
         // this.expressionForm_Sub.unsubscribe();
+        this.queryChangeSub.unsubscribe();
     }
 }

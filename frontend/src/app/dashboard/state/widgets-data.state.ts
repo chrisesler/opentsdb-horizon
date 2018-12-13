@@ -1,5 +1,8 @@
 import { State, Action, StateContext, Selector, createSelector } from '@ngxs/store';
 import { HttpService } from '../../core/http/http.service';
+import { Observable, BehaviorSubject, Subscription } from 'rxjs';
+import {  takeUntil } from 'rxjs/operators';
+import { Actions, ofActionDispatched } from '@ngxs/store';
 
 export interface RawDataModel {
     lastModifiedWidget: {
@@ -40,8 +43,9 @@ export class ClearQueryData {
 })
 
 export class WidgetsRawdataState {
-
-    constructor(private httpService: HttpService) {}
+    queryObserver: Observable<any>;
+    
+    constructor(private httpService: HttpService, private actions$: Actions ) {}
 
     static getWidgetRawdataByID(id: string) {
         return createSelector([WidgetsRawdataState], (state: RawDataModel) => {
@@ -59,9 +63,18 @@ export class WidgetsRawdataState {
 
     @Action(GetQueryDataByGroup)
     getQueryDataByGroup(ctx: StateContext<RawDataModel>, { payload }: GetQueryDataByGroup) {
-        this.httpService.getYamasData(payload.query).subscribe(
+        if ( payload.isEditMode ) {
+             this.queryObserver = this.httpService.getYamasData( payload.query )
+                            .pipe(
+                                takeUntil(this.actions$.pipe(ofActionDispatched(GetQueryDataByGroup)))
+                            );
+
+        } else {
+            this.queryObserver = this.httpService.getYamasData(payload.query);
+        }
+
+        this.queryObserver.subscribe(
             data => {
-                //console.log('query ==> ',payload.wid, payload.gid, data);
                 payload.data = data;
                 ctx.dispatch(new SetQueryDataByGroup(payload));
             },
@@ -81,6 +94,7 @@ export class WidgetsRawdataState {
         state.data[payload.wid][payload.gid] = payload.data !== undefined ? payload.data : { error: payload.error };
         state.lastModifiedWidget = { wid: payload.wid, gid: payload.gid};
         ctx.setState({...state});
+        this.queryObserver = null;
     }
 
     @Action(ClearQueryData)

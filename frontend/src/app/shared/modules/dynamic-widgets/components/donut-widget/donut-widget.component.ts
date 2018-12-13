@@ -1,15 +1,12 @@
-import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-
-// import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
+import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
-
-
-import { WidgetModel } from '../../../../../dashboard/state/widgets.state';
 import { Subscription } from 'rxjs/Subscription';
-import { BehaviorSubject } from '../../../../../../../node_modules/rxjs';
+import { BehaviorSubject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 
@@ -21,7 +18,7 @@ import { ErrorDialogComponent } from '../../../sharedcomponents/components/error
     styleUrls: ['./donut-widget.component.scss']
 })
 
-export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
+export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.donutchart-widget') private _componentClass = true;
 
@@ -59,6 +56,8 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     data: any = [ { data: [] } ];
     width = '100%';
     height = '100%';
+    newSize$: BehaviorSubject<any>;
+    newSizeSub: Subscription;
     editQueryId = null;
     nQueryDataLoading = 0;
     error: any;
@@ -74,6 +73,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     ngOnInit() {
         this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'doughnut');
         this.typeSub = this.type$.subscribe( type => {
+            console.log("mail...type...", type)
             this.widget.settings.visual.type = type;
             this.type = type === 'doughnut' ? 'doughnut' : 'pie';
         });
@@ -81,12 +81,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch( message.action ) {
-                case 'resizeWidget':
-                    if ( !this.editMode ) {
-                        this.width = message.payload.width * this.widget.gridPos.w - 30 + 'px';
-                        this.height = message.payload.height * this.widget.gridPos.h - 70 + 'px';
-                    }
-                    break;
                 case 'reQueryData':
                     this.refreshData();
                     break;
@@ -103,7 +97,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
                         if ( message.payload.error ) {
                             this.error = message.payload.error;
                         }
-                        this.setOptions();
                         this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget, this.data, message.payload.rawdata);
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -116,10 +109,56 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
         });
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
+        this.setOptions();
         this.requestData();
     }
 
     ngOnChanges(changes: SimpleChanges) {
+
+    }
+
+    ngAfterViewInit() {
+        // this event will happend on resize the #widgetoutput element,
+        // in  chartjs we don't need to pass the dimension to it.
+        // Dimension will be picked up by parent node which is #container
+        ElementQueries.listen();
+        ElementQueries.init();
+        let initSize = {
+            width: this.widgetOutputElement.nativeElement.clientWidth,
+            height: this.widgetOutputElement.nativeElement.clientHeight
+        };
+        this.newSize$ = new BehaviorSubject(initSize);
+
+        this.newSizeSub = this.newSize$.pipe(
+            debounceTime(100)
+        ).subscribe(size => {
+            this.setSize();
+        });
+        
+        new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+             const newSize = {
+                width: this.widgetOutputElement.nativeElement.clientWidth,
+                height: this.widgetOutputElement.nativeElement.clientHeight
+            };
+            this.newSize$.next(newSize);
+        });
+    }
+
+      // this will be first called from AfterViewInit.
+      setSize() {
+
+        // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
+        // and read the size of the first element above the componentHostEl
+        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
+
+        const outputSize = nativeEl.getBoundingClientRect();
+        if (this.editMode) {
+            this.width = '100%';
+            this.height = '100%';
+        } else {
+            this.width = (outputSize.width - 30) + 'px';
+            this.height = (outputSize.height - 20) + 'px';
+        }
     }
 
     requestData() {
@@ -206,6 +245,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     setOptions() {
+        this.type$.next(this.widget.settings.visual.type);
         this.setLegendOption();
     }
 

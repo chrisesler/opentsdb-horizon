@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-moment-adapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -262,8 +263,10 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
 
 
         this.widgetConfigTimeSub = this.widgetConfigTime.valueChanges
-                                        .debounceTime(1000)
-                                        .distinctUntilChanged()
+                                        .pipe(
+                                            debounceTime(1000),
+                                            distinctUntilChanged()
+                                        )
                                         .subscribe( function(data) {
                                             if ( this.widgetConfigTime.valid ) {
                                                 this.widgetChange.emit({'action': 'SetTimeConfiguration', payload: { data: data } });

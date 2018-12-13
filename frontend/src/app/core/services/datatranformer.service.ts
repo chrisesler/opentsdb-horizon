@@ -152,7 +152,7 @@ export class DatatranformerService {
      */
 
     getChartJSFormattedDataBar( options, widget, datasets, queryData, stacked ) {
-        if ( Object.keys(queryData).length === 0 ) {
+        if ( queryData === undefined || Object.keys(queryData).length === 0 ) {
             return datasets;
         }
         // stack colors
@@ -230,7 +230,7 @@ export class DatatranformerService {
     getChartJSFormattedDataDonut(options, widget, datasets, queryData) {
         datasets[0] = {data: [], backgroundColor: [], tooltipData: [] };
         options.labels = [];
-        if ( Object.keys(queryData).length === 0) {
+        if ( queryData === undefined || Object.keys(queryData).length === 0) {
             return datasets;
         }
         const qid = Object.keys(queryData)[0];

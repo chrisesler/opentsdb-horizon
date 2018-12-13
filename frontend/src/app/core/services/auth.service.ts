@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Store } from '@ngxs/store';
 import { SetAuth } from '../../shared/state/auth.state';
-import { Observable } from 'rxjs';
+import { Observable , of} from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 @Injectable()
@@ -44,7 +44,7 @@ export class AuthService {
                 map(
                     (res) => {
                         self.store.dispatch(new SetAuth('valid'));
-                        return Observable.of('cookie-valid');
+                        return of('cookie-valid');
                     }
                 ),
                 catchError(
@@ -52,7 +52,7 @@ export class AuthService {
                         if ( error.status === 401 ) {
                             return this.canCookieRenewed();
                         }
-                        return Observable.of('cookie-check-error');
+                        return of('cookie-check-error');
                     }
                 )
             );

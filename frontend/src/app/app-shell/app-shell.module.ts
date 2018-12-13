@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 // store
 import { NgxsModule } from '@ngxs/store';
@@ -44,7 +45,8 @@ import { DnavDashboardsComponent } from './components/dashboard-navigator/childr
         SharedcomponentsModule,
         NgxsModule.forFeature([
             DashboardNavigatorState
-        ])
+        ]),
+        RouterModule
     ],
     declarations: [
         DashboardNavigatorComponent,

@@ -63,7 +63,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdata) widgetRawData$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
-    @Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
+    // temporary disable for now, will delete once we are clear
+    //@Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
 
     // available widgets menu trigger
@@ -482,12 +483,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         // all widgets should update their own size
-        this.gridsterUnitSize$.subscribe(unitSize => {
+        // this code is disable for now since we use ResizeSensor to handle this.
+        /* this.gridsterUnitSize$.subscribe(unitSize => {
             this.interCom.responsePut({
                 action: 'resizeWidget',
                 payload: unitSize
             });
-        });
+        }); */
 
         this.auth$.subscribe(auth => {
             // console.log('auth$ calling', auth);
@@ -531,6 +533,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 const gquery: any = {
                     wid: message.id,
                     gid: groupid,
+                    isEditMode: this.viewEditMode
                 };
                 if (query.namespace && query.metrics.length) {
                     // filter only visible metrics

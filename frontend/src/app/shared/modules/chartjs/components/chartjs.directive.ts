@@ -5,6 +5,12 @@ import customTooltip from '../../../chart.js/tooltip/custom-tooltip';
 import * as thresholdPlugin from '../../../chartjs-threshold-plugin/src/index';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
 import 'chartjs-plugin-labels';
+
+Chart.defaults.global.defaultFontColor = '#000000';
+Chart.defaults.global.defaultFontFamily = 'Ubuntu';
+Chart.defaults.global.defaultFontSize = 10;
+
+
 @Directive({
   selector: '[chartjs]'
 })
@@ -22,6 +28,9 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
      * default chart options
      */
     defaultOptions: any = {
+        layout: {
+            padding: 5
+        },
         animation: {
             duration: 0,
         },
@@ -109,6 +118,20 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                     });
                 });
             }
+            if ( this.chart && changes.chartType ) {
+                this.chart.destroy();
+                const ctx = this.element.nativeElement.getContext('2d');
+                this.updateDatasets(this.data);
+                this.chart = new Chart(ctx, {
+                    type: this.chartType,
+                    plugins: [ thresholdPlugin ],
+                    options: Object.assign(this.defaultOptions, this.options),
+                    data: {
+                        labels: this.options.labels,
+                        datasets: this.data
+                    }
+                });
+            }
             if ( !this.chart && this.data ) {
                 const ctx = this.element.nativeElement.getContext('2d');
                 this.updateDatasets(this.data);
@@ -132,19 +155,6 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                 this.chart.options = Object.assign(this.defaultOptions, this.options);
                 this.chart.update(0);
                 console.log("comse here-2", Object.assign(this.defaultOptions, this.options));
-            }  else if ( this.chart && changes.chartType ) {
-                this.chart.destroy();
-                const ctx = this.element.nativeElement.getContext('2d');
-                this.updateDatasets(this.data);
-                this.chart = new Chart(ctx, {
-                    type: this.chartType,
-                    plugins: [ thresholdPlugin ],
-                    options: Object.assign(this.defaultOptions, this.options),
-                    data: {
-                        labels: this.options.labels,
-                        datasets: this.data
-                    }
-                });
             }
         }
     }

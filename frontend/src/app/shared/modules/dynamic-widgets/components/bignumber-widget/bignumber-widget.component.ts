@@ -1,8 +1,11 @@
-import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, OnDestroy,  AfterViewInit } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription } from 'rxjs/Subscription';
+import { BehaviorSubject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 
@@ -13,7 +16,7 @@ import { ErrorDialogComponent } from '../../../sharedcomponents/components/error
     styleUrls: []
 })
 
-export class BignumberWidgetComponent implements OnInit, OnDestroy {
+export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.bignumber-widget') private _componentClass = true;
@@ -21,7 +24,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
     /** Inputs */
     @Input() editMode: boolean;
     @Input() widget: any;
-
+    @ViewChild('widgetoutput') private widgetOutputElement: ElementRef;
     // tslint:disable:no-inferrable-types
     // tslint:disable:prefer-const
     private listenSub: Subscription;
@@ -64,6 +67,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
     shadowInitialized: boolean = false;
 
+    newSize$: BehaviorSubject<any>;
+    newSizeSub: Subscription;
+
     @ViewChild('myCanvas') myCanvas: ElementRef;
     public context: CanvasRenderingContext2D;
 
@@ -79,17 +85,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
         this.setDefaultVisualization();
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            console.log('message', message);
-
-            if (message.action === 'resizeWidget') {
-
-                this.widgetWidth = message.payload.width * this.widget.gridPos.w - 12;
-                this.widgetHeight = message.payload.height * this.widget.gridPos.h - 40;
-
-                if (this.metrics) {
-                    this.determineFontSizePercent(this.widgetWidth, this.widgetHeight);
-                }
-            }
+            
             if ( message.action === 'reQueryData' ) {
                 this.refreshData();
             }
@@ -129,6 +125,47 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
         } else {
             this.requestCachedData();
         }
+    }
+  ngAfterViewInit() {
+    this.setBigNumber(this.widget.settings.visual.queryID);
+        // this event will happend on resize the #widgetoutput element,
+        // in bar chart we don't need to pass the dimension to it.
+        // Dimension will be picked up by parent node which is #container
+        ElementQueries.listen();
+        ElementQueries.init();
+        let initSize = {
+            width: this.widgetOutputElement.nativeElement.clientWidth,
+            height: this.widgetOutputElement.nativeElement.clientHeight
+        };
+        this.newSize$ = new BehaviorSubject(initSize);
+
+        this.newSizeSub = this.newSize$.pipe(
+            debounceTime(100)
+        ).subscribe(size => {
+            this.setSize();
+        });
+        
+        new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+             const newSize = {
+                width: this.widgetOutputElement.nativeElement.clientWidth,
+                height: this.widgetOutputElement.nativeElement.clientHeight
+            };
+            this.newSize$.next(newSize);
+        });
+    }
+    // for first time and call.
+    setSize() {
+        // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
+        // and read the size of the first element above the componentHostEl
+        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
+
+        const outputSize = nativeEl.getBoundingClientRect();
+        this.widgetWidth = outputSize.width;
+        this.widgetHeight = outputSize.height;
+        
+        if (this.metrics) {
+            this.determineFontSizePercent(this.widgetWidth, this.widgetHeight);
+        }        
     }
 
     getMetric(queryID: string): any {
@@ -408,6 +445,15 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
             this.widget.queries[qindex] = query;
         }
 
+        let index = 0;
+        for (let metric of this.widget.queries[0].metrics) {
+            if (this.widget.settings.visual.queryID === index) {
+                metric.settings.visual.visible = true;
+            } else {
+                metric.settings.visual.visible = false;
+            }
+            index++;
+        }
         console.log('bignumber updateQuery', qindex, this.widget.queries);
     }
 
@@ -510,7 +556,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
     applyConfig() {
         const cloneWidget = { ...this.widget };
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
-
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
             payload: cloneWidget
@@ -550,6 +595,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
         this.widget.queries[0].metrics[mindex].settings.visual.visible = true;
         this.widget.settings.visual.queryID = mindex;
         this.refreshData(false);
+        this.setBigNumber(this.widget.settings.visual.queryID);
     }
 
     deleteQueryMetric(qid, mid) {
@@ -558,13 +604,16 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy {
         const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
         this.widget.queries[qindex].metrics.splice(mindex, 1);
 
-        // only reindex visibility if there are metrics AND deleted metric is before visible metric
-        if (mindex <= this.widget.settings.visual.queryID && this.widget.queries[qindex].metrics.length !== 0) {
-             for (let metric of this.widget.queries[0].metrics) {
-                 metric.settings.visual.visible = false;
-             }
-             this.widget.queries[0].metrics[this.widget.settings.visual.queryID].settings.visual.visible = true;
-         }
+        // only reindex visibility if there are metrics AND deleted metric is visible metric
+        if (mindex === this.widget.settings.visual.queryID && this.widget.queries[qindex].metrics.length !== 0) {
+             this.widget.queries[0].metrics[0].settings.visual.visible = true;
+             this.widget.settings.visual.queryID = 0;
+        }
+
+        if (this.widget.queries[qindex].metrics.length === 1) {
+            this.widget.queries[0].metrics[0].settings.visual.visible = true;
+            this.widget.settings.visual.queryID = 0;
+        }
     }
 
     deleteQueryFilter(qid, findex) {
