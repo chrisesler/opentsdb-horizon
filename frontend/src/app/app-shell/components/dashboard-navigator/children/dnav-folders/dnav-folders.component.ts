@@ -131,6 +131,14 @@ export class DnavFoldersComponent implements OnInit {
                 // ALSO... need to check for duplicate name
                 // after response, and check, then add to front of array
                 folder.name = event.name;
+                this.folderAction.emit({
+                    action: 'editFolder',
+                    data: {
+                        name: event.name,
+                        id: folder.id,
+                        path: folder.path
+                    }
+                });
                 break;
             default:
                 break;

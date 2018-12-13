@@ -25,7 +25,8 @@ import {
     DBNAVloadNavResources,
     DBNAVaddPanel,
     DBNAVupdatePanels,
-    DBNAVcreateFolder
+    DBNAVcreateFolder,
+    DBNAVupdateFolder
 } from '../../state';
 
 import {
@@ -266,6 +267,15 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                     new DBNAVcreateFolder(
                         event.data.name,
                         this.panels[this.currentPanelIndex].path,
+                        this.currentPanelIndex
+                    )
+                );
+                break;
+            case 'editFolder':
+                this.store.dispatch(
+                    new DBNAVupdateFolder(
+                        event.data.id,
+                        event.data,
                         this.currentPanelIndex
                     )
                 );

@@ -17,6 +17,10 @@
             width: 60px;
             overflow: hidden;
             display: flex;
+
+            .mat-drawer-inner-container {
+                display: flex;
+            }
         }
 
         // this contains the sliding drawer & the router-outlet

@@ -56,10 +56,17 @@ export class NavigatorPanelComponent implements AfterViewInit {
     ) { }
 
     ngAfterViewInit() {
-        console.log('NAVPANEL CurSlide', this.currentSlide);
-        if (this.currentSlide > 0) {
-            const offset = this.currentSlide * this.itemWidth;
-            // this.panel.nativeElement.style.transform = `translateX(-${tmpOffset}px)`;
+        console.log(
+            '%cNAVPANEL%cCurSlide',
+            'color:white; background-color: purple; padding: 4px 8px;',
+            'color: purple; border: 1px solid purple; padding: 4px 8px;',
+            this.currentSlide,
+            this.items
+        );
+        if (this.items.length > 0) {
+            this.currentSlide = this.items.length - 1;
+            const tmpOffset = this.currentSlide * this.itemWidth;
+            this.panel.nativeElement.style.transform = `translateX(-${tmpOffset}px)`;
         }
     }
 
