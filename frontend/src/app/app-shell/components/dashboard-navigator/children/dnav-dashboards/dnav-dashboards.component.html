@@ -7,7 +7,7 @@
     <button mat-icon-button (click)="createDashboard()">
         <mat-icon fontSet="denali" fontIcon="d-dashboard-tile-add"></mat-icon>
     </button>
-    <button mat-icon-button (click)="editDashboards()" *ngIf="dashboards.length > 0">
+    <button mat-icon-button (click)="editDashboards()" *ngIf="dashboards.length > 0" style="display: none;">
         <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
     </button>
 </div>
