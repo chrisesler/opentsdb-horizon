@@ -30,7 +30,7 @@ import {
     UpdateVariables,
     UpdateMeta
 } from '../../state/settings.state';
-
+import { NavigatorState } from '../../../app-shell/state/navigator.state';
 import { MatMenuTrigger, MenuPositionX, MatSnackBar } from '@angular/material';
 import {
     SearchMetricsDialogComponent
@@ -66,6 +66,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // temporary disable for now, will delete once we are clear
     //@Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
+    @Select(NavigatorState.getNavigatorSideNav) sideNav$: Observable<any>;
 
     // available widgets menu trigger
     @ViewChild('availableWidgetsMenuTrigger', { read: MatMenuTrigger }) availableWidgetsMenuTrigger: MatMenuTrigger;
@@ -147,6 +148,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dbModeSub: Subscription;
     userNamespacesSub: Subscription;
     private routeSub: Subscription;
+    authSub: Subscription;
+    sideNavSub: Subscription;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
@@ -491,11 +494,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
         }); */
 
-        this.auth$.subscribe(auth => {
+        this.authSub = this.auth$.subscribe(auth => {
             // console.log('auth$ calling', auth);
             if (auth === 'invalid') {
                 // console.log('open auth dialog');
             }
+        });
+
+        this.sideNavSub = this.sideNav$.subscribe( sideNav => {
+            setTimeout(() => {
+                this.rerender = { 'reload': true };
+            }, 200);
         });
     }
 
@@ -710,6 +719,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dbStatusSub.unsubscribe();
         this.dbErrorSub.unsubscribe();
         this.userNamespacesSub.unsubscribe();
+        this.authSub.unsubscribe();
+        this.sideNavSub.unsubscribe();
         // we need to clear dashboard state
         // this.store.dispatch(new dashboardActions.ResetDashboardState);
     }

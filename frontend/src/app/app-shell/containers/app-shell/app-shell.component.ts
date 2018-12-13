@@ -18,6 +18,7 @@ import { NavigatorSidenavComponent } from '../../components/navigator-sidenav/na
 
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { NavigatorState } from '../../state';
+import { UpdateNavigatorSideNav } from '../../state/navigator.state';
 
 @Component({
     selector: 'app-shell',
@@ -108,6 +109,7 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
                     break;
             }
         }
+        this.store.dispatch(new UpdateNavigatorSideNav({mode: this.drawerMode, activeNav: this.activeNavSection}));
     }
 
     closeNavigator() {
@@ -126,6 +128,7 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
             // this.drawerMode = (this.drawerMode === 'side') ? 'over' : 'side';
             this.drawerMode = 'side';
         }
+        this.store.dispatch(new UpdateNavigatorSideNav({mode: this.drawerMode, activeNav: this.activeNavSection}));
     }
 
 }
