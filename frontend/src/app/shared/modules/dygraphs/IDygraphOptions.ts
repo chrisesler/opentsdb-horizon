@@ -12,6 +12,7 @@ export interface DygraphOptionsAxis {
     drawAxis?: boolean;
     drawGrid?: boolean;
     independentTicks?: true;
+    digitsAfterDecimal?: number;
     axisLabelWidth?: number;
 }
 
