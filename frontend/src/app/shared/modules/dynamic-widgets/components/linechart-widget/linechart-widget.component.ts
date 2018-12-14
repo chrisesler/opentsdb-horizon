@@ -110,7 +110,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                     if (message && (message.id === this.widget.id)) {
                         switch (message.action) {
                             case 'updatedWidgetGroup':
-                            console.log("updatedWidgetGroup...", message);
                                 this.nQueryDataLoading--;
                                 if ( !this.isDataLoaded ) {
                                     this.isDataLoaded = true;
@@ -293,7 +292,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setSize(newSize: any) {
-
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
         //const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
