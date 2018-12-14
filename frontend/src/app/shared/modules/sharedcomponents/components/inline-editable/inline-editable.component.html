@@ -4,7 +4,7 @@
 
     <form class="example-form" *ngIf="isEditView">
         <mat-form-field class="example-full-width">
-          <input matInput [formControl]="fieldFormControl" (keyup.enter)="save()">
+          <input matInput [value]="fieldValue" [formControl]="fieldFormControl" (keyup.enter)="save()">
       
           <!-- Errors -->
           <mat-error *ngIf="fieldFormControl.hasError('required')">

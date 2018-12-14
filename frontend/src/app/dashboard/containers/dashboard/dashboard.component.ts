@@ -50,6 +50,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     @Select(AuthState.getAuth) auth$: Observable<string>;
     // new state
+    @Select(DBSettingsState.getDashboardSettings) dbSettings$: Observable<any>;
     @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
     @Select(DBState.getDashboardPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
@@ -63,6 +64,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdata) widgetRawData$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
+
     // temporary disable for now, will delete once we are clear
     //@Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
@@ -133,6 +135,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }*/
     ];
     // other variables
+    dbSettings: any;
     dbTime: any;
     meta: any;
     variables: any;
@@ -385,8 +388,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.dbTime = t;
         });
 
+        this.dbSettings$.subscribe (settings => {
+            console.log('setting', settings);
+            this.dbSettings = settings;
+        });
+
         this.meta$.subscribe(t => {
-            // console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
+            console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
             this.meta = t;
         });
 

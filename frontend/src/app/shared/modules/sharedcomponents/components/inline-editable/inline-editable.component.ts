@@ -1,6 +1,7 @@
-import { Component, Input, EventEmitter, Output, ViewChild, Renderer2, ElementRef, HostListener, HostBinding } from '@angular/core';
+import { Component, Input, EventEmitter, Output, ViewChild, Renderer2,
+          ElementRef, HostListener, HostBinding, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
+
 
 @Component({
   selector: 'inline-editable',

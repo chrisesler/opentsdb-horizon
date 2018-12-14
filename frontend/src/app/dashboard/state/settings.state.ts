@@ -104,6 +104,10 @@ export class UpdateMeta {
 export class DBSettingsState {
     constructor( private httpService: HttpService, private dbService: DashboardService ) {}
 
+    @Selector() static getDashboardSettings(state: DBSettingsModel ) {
+        return state;
+    }
+
     @Selector() static GetDashboardMode(state: DBSettingsModel) {
         return state.mode;
     }
@@ -203,6 +207,6 @@ export class DBSettingsState {
     @Action(LoadDashboardSettings)
     loadDashboardSettings(ctx: StateContext<DBSettingsModel>, { settings }: LoadDashboardSettings) {
         const state = ctx.getState();
-        ctx.setState(settings);
+        ctx.setState({...state, ...settings});
     }
 }
