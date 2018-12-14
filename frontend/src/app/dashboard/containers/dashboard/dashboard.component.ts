@@ -66,7 +66,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
 
     // temporary disable for now, will delete once we are clear
-    //@Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
+    // @Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
     @Select(NavigatorState.getNavigatorSideNav) sideNav$: Observable<any>;
 
@@ -191,7 +191,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 });
                 this.store.dispatch(new LoadDashboard(paths.join('/')));
             }
-        });   
+        });
         // setup navbar portal
         this.dashboardNavbarPortal = new TemplatePortal(this.dashboardNavbarTmpl, undefined, {});
         this.cdkService.setNavbarPortal(this.dashboardNavbarPortal);
@@ -260,7 +260,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'dashboardSaveRequest':
                     // DashboardSaveRequest comes from the save button
                     // we just need to update the title of dashboard
-                    if (message.payload.updateFirst === true) {   
+                    if (message.payload.updateFirst === true) {
                         this.store.dispatch(new UpdateDashboardTitle(message.payload.name));
                     }
                     const dbcontent = this.dbService.getStorableFormatFromDBState(this.store.selectSnapshot(DBState));
@@ -274,9 +274,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (this.dbid !== '_new_') {
                         payload.id = this.dbid;
                     }
-                    
+
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
-                    //console.log('dashboardSaveRequest', this.dbid, payload);
+                    // console.log('dashboardSaveRequest', this.dbid, payload);
                     break;
                 case 'dashboardSettingsToggleRequest':
 
@@ -316,7 +316,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.loadedRawDB$.subscribe(db => {
             const dbstate = this.store.selectSnapshot(DBState);
-            //console.log('\n\nloadedrawdb=', db, dbstate.loaded);
+            // console.log('\n\nloadedrawdb=', db, dbstate.loaded);
             if (dbstate.loaded) {
                 // need to carry new loaded dashboard id from confdb
                 this.dbid = db.id;
@@ -327,7 +327,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbPathSub = this.dbPath$.subscribe(path => {
-            if(path !== '_new_' && this.router.url === '/d/_new_') {
+            if (path !== '_new_' && this.router.url === '/d/_new_') {
                 this.location.replaceState('/d' + path);
             }
         });

@@ -90,7 +90,7 @@ export class UpdateMeta {
         tags: [],
         lastQueriedTagValues: [],
         meta: {
-            title: 'Untitled Dashboard',
+            title: '',
             description: '',
             labels: []
         },

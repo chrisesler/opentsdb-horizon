@@ -2,7 +2,6 @@ import { Component, Input, EventEmitter, Output, ViewChild, Renderer2,
           ElementRef, HostListener, HostBinding, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 
-
 @Component({
   selector: 'inline-editable',
   templateUrl: './inline-editable.component.html',
@@ -21,13 +20,14 @@ export class InlineEditableComponent implements OnInit {
   isRequired: boolean = true;
   isEditView: boolean = false;
   fieldFormControl: FormControl;
+  placeholder: string = '_placeholder';
 
   constructor(private renderer: Renderer2) { }
 
   ngOnInit() {
 
     if (!this.fieldValue || this.fieldValue.trim().length === 0) {
-      this.fieldValue = 'placeholder';
+      this.fieldValue = this.placeholder;
     }
 
     this.fieldFormControl = new FormControl('', []);
