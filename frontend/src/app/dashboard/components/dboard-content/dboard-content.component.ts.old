@@ -1,14 +1,18 @@
 import {
   Component, OnInit, Input, ViewChild, ViewEncapsulation,
-  OnChanges, SimpleChanges, ComponentFactoryResolver, Type,
-  HostBinding, Output, EventEmitter
+  ChangeDetectionStrategy, OnChanges, SimpleChanges, ComponentFactoryResolver,
+  HostBinding, Output, EventEmitter, AfterViewInit, ViewChildren, QueryList, Type
 } from '@angular/core';
 import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDraggableOptions } from 'angular2gridster';
 import { WidgetViewDirective } from '../../directives/widgetview.directive';
 import { WidgetComponentModel } from '../../widgets/models/widgetcomponent';
 import { DashboardService } from '../../services/dashboard.service';
-import { WidgetService } from '../../../core/services/widget.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+import { WidgetService } from '../../../core/services/widget.service';
+
+
+// TODO: TEMP ITEMS ONLY FOR DEV. WILL REMOVE
+import { WidgetLoaderComponent } from '../widget-loader/widget-loader.component';
 
 @Component({
   selector: 'app-dboard-content',
@@ -17,7 +21,7 @@ import { IntercomService, IMessage } from '../../../core/services/intercom.servi
   encapsulation: ViewEncapsulation.None
 })
 // changeDetection: ChangeDetectionStrategy.OnPush
-export class DboardContentComponent implements OnInit, OnChanges {
+export class DboardContentComponent implements OnInit, AfterViewInit, OnChanges {
   @HostBinding('class.app-dboard-content') private _hostClass = true;
 
   @ViewChild(WidgetViewDirective) widgetViewContainer: WidgetViewDirective;
@@ -25,7 +29,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
 
   @Output() widgetsLayoutUpdate = new EventEmitter();
   @Input() widgets: any[];
-  @Input() newWidget: any; // new widget when adding from top bar
+  @Input() newWidget: any;
   @Input() rerender: any;
   @Input() dashboardMode: string;
 
@@ -40,9 +44,9 @@ export class DboardContentComponent implements OnInit, OnChanges {
     dragAndDrop: true, // enable/disable drag and drop for all items in grid
     resizable: true, // enable/disable resizing by drag and drop for all items in grid
     resizeHandles: {
+      s: true,
       e: true,
       w: true,
-      s: true,
       se: true,
       sw: true
     },
@@ -73,11 +77,15 @@ export class DboardContentComponent implements OnInit, OnChanges {
     handlerClass: 'panel-heading'
   };
 
+  // TEMPORARY ITEMS to remove start here
+  @ViewChildren(WidgetLoaderComponent) widgetItems: QueryList<WidgetLoaderComponent>;
+  // end temporary items to remove
+
   constructor(
     private dbService: DashboardService,
-    private widgetService: WidgetService,
+    private interCom: IntercomService,
     private componentFactoryResolver: ComponentFactoryResolver,
-    private interCom: IntercomService
+    private widgetService: WidgetService
   ) { }
 
   ngOnInit() {
@@ -91,6 +99,14 @@ export class DboardContentComponent implements OnInit, OnChanges {
 
   getWidgetConfig(id) {
     return this.dbService.getWidgetConfigById(id);
+  }
+
+  ngAfterViewInit() {
+      // TODO: FOR DEV ONLY
+      // Need to remove once developing done
+      // console.log('AVI ::', this.widgetItems);
+      // this.widgetItems.last.openWidgetView();
+      // this.widgetItems.first.openWidgetView();
   }
 
   trackByWidget(index: number, widget: any) {
@@ -107,32 +123,27 @@ export class DboardContentComponent implements OnInit, OnChanges {
       this.viewEditMode = true;
     } else {
       this.viewEditMode = false;
-      if (this.widgetViewContainer.viewContainerRef) {
-        this.widgetViewContainer.viewContainerRef.clear();
-      }
+      this.widgetViewContainer.viewContainerRef.clear();
     }
-    // check if the new editing widget is needed
-    if ( changes.newWidget && changes.newWidget.currentValue ) {
-      this.newComponent(changes.newWidget.currentValue);
-    }
+    console.log("new widget", changes.newWidget);
 
+    if ( changes.newWidget.currentValue ) {
+        console.log("new widget", changes.newWidget);
+        this.newComponent(changes.newWidget.currentValue);
+    }
   }
 
   newComponent(widget) {
-    //this.viewEditMode = true;
-    this.interCom.requestSend(<IMessage> {
-      action: 'updateDashboardMode',
-      payload: 'edit'
-    });    
     const component: Type<any> = this.widgetService.getComponentToLoad(widget.settings.component_type);
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
-    widget.settings = { ...widget.settings, ...this.widgetService.getWidgetDefaultSettings(widget.settings.component_type)};
+    widget.query.settings = { ...widget.query.settings, ...this.widgetService.getWidgetDefaultSettings(widget.settings.component_type)};
+
     this.editComponent( { 'compFactory': componentFactory, widget: widget });
   }
 
   // to load selected component factory to edit
   editComponent(comp: any) {
-    // console.log('component to edit:', comp);
+    // console.log('component to fwidget-view-container:', comp);
     // get the view container
     const viewContainerRef = this.widgetViewContainer.viewContainerRef;
     viewContainerRef.clear();
@@ -143,7 +154,6 @@ export class DboardContentComponent implements OnInit, OnChanges {
     let editWidget = JSON.parse(JSON.stringify(comp.widget));
     editWidget.id = '__EDIT__' + comp.widget.id;
     // assign @input widget
-    console.log('new widget to edit', editWidget);
     (<WidgetComponentModel>component.instance).widget = editWidget;
     (<WidgetComponentModel>component.instance).editMode =  true; // let it know it is in edit mode so it shows the config controls
   }
