@@ -356,7 +356,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.widgetSub = this.widgets$.subscribe(widgets => {
             const dbstate = this.store.selectSnapshot(DBState);
-            console.log('--- widget subscription---', widgets, dbstate.loaded);
+            // console.log('--- widget subscription---', widgets, dbstate.loaded);
             if (dbstate.loaded) {
                 this.widgets = widgets;
                 const metrics = this.dbService.getMetricsFromWidgets(widgets);
@@ -367,7 +367,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbModeSub = this.dashboardMode$.subscribe(mode => {
-            console.log('mode changed', mode);
+            // console.log('mode changed', mode);
             this.viewEditMode = mode === 'edit' || mode === 'view' ? true : false;
         });
 
@@ -389,17 +389,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbSettings$.subscribe (settings => {
-            console.log('setting', settings);
             this.dbSettings = settings;
         });
 
         this.meta$.subscribe(t => {
-            console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
+            // console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
             this.meta = t;
         });
 
         this.variables$.subscribe(t => {
-            console.log('variables$.subscribe [event]', t);
+            // console.log('variables$.subscribe [event]', t);
             if (this.variables) {
                 if (this.variables.enabled && t.enabled) { // was enabled, still enabled
                     // diff whether selected values changed
@@ -452,7 +451,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbTagsSub = this.dbTags$.subscribe(tags => {
-            console.log('__DB TAGS___', tags);
+            // console.log('__DB TAGS___', tags);
             this.dbTags = tags ? tags : [];
         });
 
@@ -557,7 +556,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     overrideFilters = overrideFilters.filter(d => d.enabled);
                     query = overrideFilters.length ? this.dbService.overrideQueryFilters(query, overrideFilters) : query;
                     query = this.queryService.buildQuery(payload, dt, query);
-                    console.log('the group query-2', query, JSON.stringify(query));
+                    // console.log('the group query-2', query, JSON.stringify(query));
                     gquery.query = query;
                     // now dispatch request
                     this.store.dispatch(new GetQueryDataByGroup(gquery));
@@ -655,7 +654,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }*/
 
     receiveDashboardAction(event: any) {
-        console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
+        // console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
         switch (event.action) {
             case 'clone':
                 this.dbid = '_new_';
@@ -679,7 +678,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         dialogConf.data = {};
         this.dashboardDeleteDialog = this.dialog.open(DashboardDeleteDialogComponent, dialogConf);
         this.dashboardDeleteDialog.afterClosed().subscribe((dialog_out: any) => {
-            console.log('delete dialog confirm', dialog_out);
+            // console.log('delete dialog confirm', dialog_out);
             if (dialog_out && dialog_out.delete) {
                 this.store.dispatch(new DeleteDashboard(this.dbid));
             }
