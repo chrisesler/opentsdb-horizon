@@ -40,7 +40,6 @@ export class DboardContentComponent implements OnInit, OnChanges {
     dragAndDrop: true, // enable/disable drag and drop for all items in grid
     resizable: true, // enable/disable resizing by drag and drop for all items in grid
     resizeHandles: {
-      s: true,
       e: true,
       w: true,
       se: true,

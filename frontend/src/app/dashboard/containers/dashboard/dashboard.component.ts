@@ -137,7 +137,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     meta: any;
     variables: any;
     dbTags: any;
-    dbIdSub: Subscription;
     dbPathSub: Subscription;
     listenSub: Subscription;
     widgetSub: Subscription;
@@ -146,7 +145,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dbStatusSub: Subscription;
     dbErrorSub: Subscription;
     dbModeSub: Subscription;
-    userNamespacesSub: Subscription;
     private routeSub: Subscription;
     authSub: Subscription;
     sideNavSub: Subscription;
@@ -180,7 +178,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // handle route for dashboardModule
         this.routeSub = this.activatedRoute.url.subscribe(url => {
-            console.log('url', url);
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
@@ -713,12 +710,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.widgetSub.unsubscribe();
         this.dbTagsSub.unsubscribe();
         this.tagValuesSub.unsubscribe();
-        this.dbIdSub.unsubscribe();
         this.dbPathSub.unsubscribe();
         this.dbModeSub.unsubscribe();
         this.dbStatusSub.unsubscribe();
         this.dbErrorSub.unsubscribe();
-        this.userNamespacesSub.unsubscribe();
         this.authSub.unsubscribe();
         this.sideNavSub.unsubscribe();
         // we need to clear dashboard state
