@@ -73,7 +73,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     ngOnInit() {
         this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'doughnut');
         this.typeSub = this.type$.subscribe( type => {
-            console.log("mail...type...", type)
             this.widget.settings.visual.type = type;
             this.type = type === 'doughnut' ? 'doughnut' : 'pie';
         });
@@ -233,8 +232,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         if ( qindex !== -1 ) {
             this.widget.queries[qindex] = query;
         }
-
-        console.log("donut chart updateQuery", qindex, this.widget.queries);
     }
 
     setVisualization( mconfigs ) {
@@ -306,7 +303,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     }
     
     showError() {
-        console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         const offsetHeight = 60;
         dialogConf.width = '50%';

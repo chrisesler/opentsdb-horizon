@@ -110,7 +110,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                     if (message && (message.id === this.widget.id)) {
                         switch (message.action) {
                             case 'updatedWidgetGroup':
-                            console.log("updatedWidgetGroup...", message);
                                 this.nQueryDataLoading--;
                                 if ( !this.isDataLoaded ) {
                                     this.isDataLoaded = true;
@@ -293,7 +292,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setSize(newSize: any) {
-
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
         //const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
@@ -410,7 +408,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             }
 
             const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 2 : config.decimals;
-            axis.tickFormat = { unit: config.unit, precision: decimals, unitDisplay: true };
+            if ( config.unit ) {
+                axis.tickFormat = { unit: config.unit, precision: decimals, unitDisplay: true };
+            } else {
+                axis.digitsAfterDecimal = decimals;
+            }
         }
 
         // draw the axis if one series on the axis
@@ -427,11 +429,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                 }
             }
         }
-        // this.options.axes.y.drawAxis = y1Enabled;
-        // this.options.axisLabelWidth = y1Enabled ? 50 : 1;
-         this.options.axes.y.drawAxis = true;
-        // this.options.axes.y2.drawAxis = y2Enabled;
+        // y.drawaxis always to be true or it causing y2 not to be drawn
+        this.options.axes.y.drawAxis = true;
         this.options.axes.y.axisLabelWidth = y1Enabled ? 50 : 0;
+        this.options.ylabel = y1Enabled ? this.options.ylabel : '';
+        this.options.y2label = y2Enabled ? this.options.y2label : '';
         this.options.axes.y2.axisLabelWidth = y2Enabled ? 50 : 0;
     }
 

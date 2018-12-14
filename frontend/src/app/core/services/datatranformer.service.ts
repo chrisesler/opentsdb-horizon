@@ -13,10 +13,12 @@ export class DatatranformerService {
 
   // options will also be update of its labels array
   yamasToDygraph(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
-
     if (normalizedData[0].length === 1) {
       // there is no data in here but default, reset it
       normalizedData = [];
+    }
+    if ( result === undefined || Object.keys(result).length === 0 ) {
+        return normalizedData;
     }
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
 /*
@@ -224,6 +226,7 @@ export class DatatranformerService {
         for ( let k in tags ) {
             label = label + '-' + tags[k];
         }
+        label = label.length > 50 ? label.substr(0, 48) + '..' : label;
         return label;
     }
 
