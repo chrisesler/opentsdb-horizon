@@ -42,6 +42,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
     resizeHandles: {
       e: true,
       w: true,
+      s: true,
       se: true,
       sw: true
     },
