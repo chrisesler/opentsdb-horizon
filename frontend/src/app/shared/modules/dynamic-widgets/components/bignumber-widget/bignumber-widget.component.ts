@@ -107,7 +107,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                         }
                         break;
                     case 'viewEditWidgetMode':
-                        console.log('vieweditwidgetmode', message, this.widget);
+                        // console.log('vieweditwidgetmode', message, this.widget);
                         break;
                     case 'getUpdatedWidgetConfig':
                         if (this.widget.id === message.id) {
@@ -451,7 +451,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             }
             index++;
         }
-        console.log('bignumber updateQuery', qindex, this.widget.queries);
+        // console.log('bignumber updateQuery', qindex, this.widget.queries);
     }
 
 
@@ -502,7 +502,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     showError() {
-        console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
+        // console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         const offsetHeight = 60;
         dialogConf.width = '50%';

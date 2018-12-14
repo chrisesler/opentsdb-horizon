@@ -1,10 +1,11 @@
 <span class="editable-click">
   <div #container>
-    <div [hidden]="isEditView" (click)="showEditable()">{{fieldValue}}</div>
+    <div *ngIf="fieldValue === placeholder" [hidden]="isEditView" (click)="showEditable()">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+    <div *ngIf="fieldValue !== placeholder" [hidden]="isEditView" (click)="showEditable()">{{fieldValue}}</div>
 
     <form class="example-form" *ngIf="isEditView">
         <mat-form-field class="example-full-width">
-          <input matInput [formControl]="fieldFormControl" (keyup.enter)="save()">
+          <input matInput [value]="fieldValue" [formControl]="fieldFormControl" (keyup.enter)="save()">
       
           <!-- Errors -->
           <mat-error *ngIf="fieldFormControl.hasError('required')">
