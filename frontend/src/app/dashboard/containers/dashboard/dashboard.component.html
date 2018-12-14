@@ -10,7 +10,7 @@
 </div>
 <ng-template #dashboardNavbarTmpl>
     <inline-editable class="navbar-item" 
-        [fieldValue]="meta.title"
+        [fieldValue]="dbSettings.meta.title"
         [minLength]="3"
         [maxLength]="25"
         (updatedValue)="setTitle($event)">

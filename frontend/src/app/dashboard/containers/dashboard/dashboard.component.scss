@@ -7,6 +7,28 @@
         flex: 1 1 100%;
     }
 
+    .app-navbar {
+        // title
+        inline-editable {
+            padding-left: 15px;
+            input {
+                // padding-left: 0px;
+                &.mat-input-element {
+                    &.mat-form-field-autofill-control {
+                        padding-left: 0px;
+                    }
+                }
+            }
+            .mat-form-field-flex {
+                .mat-form-field-infix {
+                    width: 400px;
+                    padding-left: 0px;
+                }
+            }
+        }
+    }
+
+
     // NAVBAR PORTAL ITEMS 
     /*.nav-close-edit-view {
         .mat-raised-button {

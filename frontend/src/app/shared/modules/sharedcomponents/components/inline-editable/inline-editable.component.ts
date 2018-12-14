@@ -1,6 +1,6 @@
-import { Component, Input, EventEmitter, Output, ViewChild, Renderer2, ElementRef, HostListener, HostBinding } from '@angular/core';
+import { Component, Input, EventEmitter, Output, ViewChild, Renderer2,
+          ElementRef, HostListener, HostBinding, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'inline-editable',
@@ -20,13 +20,14 @@ export class InlineEditableComponent implements OnInit {
   isRequired: boolean = true;
   isEditView: boolean = false;
   fieldFormControl: FormControl;
+  placeholder: string = '_placeholder';
 
   constructor(private renderer: Renderer2) { }
 
   ngOnInit() {
 
     if (!this.fieldValue || this.fieldValue.trim().length === 0) {
-      this.fieldValue = 'placeholder';
+      this.fieldValue = this.placeholder;
     }
 
     this.fieldFormControl = new FormControl('', []);
