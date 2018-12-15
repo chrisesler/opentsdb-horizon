@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import * as d3 from 'd3-format';
 
 @Injectable({
   providedIn: 'root'
@@ -38,9 +39,10 @@ export class UnitConverterService {
     format( value, options ) {
         const oUnit = this.units[options.unit];
         let precision = options.precision ? options.precision : 0;
+        // default to KMB
         if ( !oUnit ) {
             precision = Number.isInteger(value) ? 0 : precision;
-            return typeof(value) === 'number' ? value.toFixed(precision) : parseFloat(value).toFixed(precision);
+            return d3.format('.' + precision + 's')(value);
         }
         const result =  value / oUnit.m ;
         precision = Number.isInteger(result) ? 0 : precision;
