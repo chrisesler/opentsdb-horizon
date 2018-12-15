@@ -5,24 +5,91 @@
     $default-padding: map-get($widgets-common-config, default-padding);
     $edit-padding: map-get($widgets-common-config, edit-padding);
 
-    $row-dim: 40px;
+    $row-size: 40px;
+
+    $filter-block-padding: 8px;
 
     .query-editor {
         display: flex;
-        min-width: 1000px;
+        flex-direction: column;
+        flex: 1;
 
-        .container {
-            flex: 1 1 100%;
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 10px;
+        .seperator {
+            width: 100%;
+            height: 1px;
+            display: inline-block;
         }
 
-        .namespace-bar.mat-toolbar {
-            height: $row-dim;
-            min-height: 40px;
-            padding: 0;
+        .option-list {
+            flex: 1;
+            justify-content: space-between;
+
+            .is-scroller {
+                padding: 0 8px;
+            }
+        }
+
+        .option-item {
+            padding: 3px 5px;
+            font-size: 10px;
+            display: flex;
+            flex-direction: row;
             align-items: stretch;
+            justify-content: stretch;
+            cursor: pointer;
+
+            .mat-icon {
+                font-size: 15px;
+                color: #3296f2;
+                width:16px;
+                height: 16px;
+            }
+
+            .option-cell {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 16px;
+            }
+            
+            .option-cell.label {
+                flex: 1;
+                margin: auto 5px;
+                justify-content: flex-start;
+            }
+
+             // modifiers
+            &.expression {
+                flex-direction: column;
+                align-items: flex-start;
+
+                .link {
+                    margin-left: 10px;
+                    cursor: pointer;
+                    color: #227aec;
+                }
+            }
+
+            &:hover {
+                background: #c5e3ff;
+            }
+
+            &.added {
+                font-weight: 500;
+            }
+
+            &.selected {
+                background: #227aec;
+                font-weight: 500;
+            }
+        }
+
+        // topbar that identifies query, has the blue box identifier
+        .namespace-bar.mat-toolbar {
+            height: $row-size;
+            min-height: $row-size;
+            padding: 0;
+            align-items: stretch; // mat-toolbar already has display: flex;
 
             .toolbar-item {
                 display: flex;
@@ -30,27 +97,26 @@
                 &:not(:first-child) {
                     padding-right: 8px;
                 }
+            }
 
-                .title {
-                    padding-left: 24px;
-                    text-transform: uppercase;
-                    font-weight: mat-font-weight(map-get($app-fontface-config, sans), display-4);
-                }
+            .title {
+                padding-left: 24px;
+                text-transform: uppercase;
+                font-weight: mat-font-weight(map-get($app-fontface-config, sans), display-4);
+            }
 
-                .namespace-value {
-                    font-weight: mat-font-weight(map-get($app-fontface-config, sans), body-2);
-                    font-size: mat-font-size(map-get($app-fontface-config, sans), subheading-2);
-                }
+            .namespace-value {
+                font-weight: mat-font-weight(map-get($app-fontface-config, sans), body-2);
+                font-size: mat-font-size(map-get($app-fontface-config, sans), subheading-2);
             }
 
             .query-index  {
                 font-weight: mat-font-weight(map-get($app-fontface-config, sans), body-2);
-                width: $row-dim;
-                height: $row-dim;
+                width: $row-size;
+                height: $row-size;
             }
 
             .action-icons {
-
                 .mat-icon-button {
                     width: 20px;
                     height: 20px;
@@ -63,87 +129,161 @@
             }
         }
 
-        .action,
-        .actions {
-            .mat-stroked-button, .mat-button {
-                font-weight: mat-font-size(map-get($app-fontface-config, sans), caption);
-                //color: #227aec;
-                line-height: 24px;
-
-                .mat-icon {
-                    font-size: 16px;
-                    width: 16px;
-                    height: 16px;
-                }
-            }
-        }
-
-        // TODO: Move color out
-        .actions {
-            border-top: 1px solid #fff;
-            text-align: center;
-            padding: 10px;
-        }
-
-        .metrics-query-container {
-            flex: 1 1 100%;
+        // wrapper for the metric control layout
+        .metric-query-controls {
             display: flex;
             flex-direction: column;
-            padding: 0 14px 14px;
+            padding: 14px;
+
+            &.is-editing {
+                flex: 1;
+            }
 
             .help-text {
                 font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
                 line-height: 28px;
+                margin-top: -12px;
             }
         }
 
-        .metric-filter {
-            .search {
-                .metric-search-input-field {
-                    width: 100%;
-                }
-            }
-        }
-
-        .metric-filters-container {
-            flex: 1;
+        // wrapper for metric-filters, tag-filters, and expression-filter-form
+        .query-filters {
             display: flex;
             flex-direction: row;
+            align-items: stretch;
+            justify-content: stretch;
+            flex: 1;
+
+            .query-filter-block:not(:last-child) {
+                margin-right: $filter-block-padding * 2;
+            }
+        }
+
+        .query-filter-block {
+
+        }
+
+        // specific query filter block
+
+        .metric-filters,
+        .tag-filters,
+        .expression-filter-form {
+            display: flex;
             align-items: flex-start;
 
-            > div:not(:last-child) {
-                margin-right: 15px;
+            &.is-active {
+                align-items: stretch;
             }
 
-            .metrics {
+            .container {
+                width: 100%;
                 display: flex;
-                flex: 1;
-                flex-direction: column;
+            }
+        }
 
-                .metric-rows,
-                .action,
-                .metric-filter {
-                    padding: 10px;
+        .metric-filters {
+            flex: 1;
+
+            .container {
+                flex-direction: column;
+            }
+        }
+
+        .tag-filters,
+        .expression-filter-form {
+            flex: 2;
+        }
+
+        .metric-filters {
+            max-width: 33%;
+
+            .metrics-selected {
+
+                .metrics-selected-header {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    padding: 0 $filter-block-padding;
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                    line-height: 24px;
                 }
 
-                // TODO: make this a flex box with spacer
-                // TODO: Move the colors out
-                .metric {
-                    padding: 5px;
-                    background: #EFF4FF;
-                    border-top: 1px solid #fff;
+                .metric-rows {
+                    padding: 0;
+                }
 
-                    .metric-item-detail{
-                        float:left;
+                .metric {
+                    display: flex;
+                    width: initial;
+                    height: initial;
+                    min-height: 24px;
+                    margin: 2px $filter-block-padding;
+                    border-radius: 4px;
+                    border: 0;
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), body-1);
+                    padding: ($filter-block-padding / 2) $filter-block-padding;
+                    
+                    .mat-list-item-content {
+                        padding: 0;
+                        flex: 1;
+                    }
+
+                    .metric-item-detail {
+                        min-width: 0;
+                        max-width: 355px;
+                        display: flex;
+                        flex-direction: column;
+                        flex: 1;
+
+                        .metric-name {
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                    }
+
+                    .flex-spacer {
+                        max-width: 8px;
+                    }
+
+                    .action-icons {
+                        float: none;
+                        display: flex;
+                        margin-left: 8px;
+
+                        .mat-icon-button {
+                            width: 16px;
+                            height: 16px;
+                            line-height: 16px;
+                        }
+        
+                        .mat-icon {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 16px;
+                            height: 16px;
+                            font-size: 12px;
+                        }
                     }
                 }
             }
 
-            .filter-result {
+            
+            
+            // when adding/editing metrics
+            .metric-search {
+                padding: $filter-block-padding;
+
+                .metric-search-input-field {
+                    width: 100%;
+                }
+            }
+
+            .metric-search-result {
                 margin-top: 5px;
                 display: flex;
                 flex:1;
-                min-height: 200px;
                 position: relative;
 
                 .mat-tab-group{
@@ -151,7 +291,7 @@
                 }
 
                 .mat-tab-header {
-                    padding: 0px;
+                    padding: 0px $filter-block-padding;
 
                     .mat-tab-label.mat-tab-label-active {
                         box-shadow: none !important;
@@ -181,82 +321,17 @@
                 }
                 
                 .mat-tab-body {
-                    border: 0 !important;   
+                    border: 0 !important;
 
                     &::after {
                         content: " ";
                         display: block;
-                        background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%); /* FF3.6-15 */
-                        background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* Chrome10-25,Safari5.1-6 */
-                        background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
                         position: absolute;
                         left: 0;
                         right: 0;
                         height: 8px;
                         bottom: 0;
                         opacity: .25;
-                    }
-
-                    
-
-                    .list {
-                        flex: 1;
-                        justify-content: space-between;
-
-                        .option{
-                            padding: 5px;
-                            font-size: 10px;
-                            display: flex;
-                            flex-direction: row;
-                            align-items: stretch;
-                            justify-content: stretch;
-
-                            .mat-icon {
-                                cursor: pointer;
-                                font-size: 15px;
-                                color: #3296f2;
-                                width:16px;
-                                height: 16px;
-                            }
-                            .option-row-item {
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                min-height: 24px;
-                            }
-                            
-                            .option-row-item.label {
-                                flex: 1;
-                                margin: auto 5px;
-                                justify-content: flex-start;
-                            }
-
-                        }
-
-                        .option.expression {
-                            flex-direction: column;
-                            align-items: flex-start;
-
-                            .link {
-                                margin-left: 10px;
-                                cursor: pointer;
-                                color: #227aec;
-                            }
-                        }
-
-                        .option:hover {
-                            background: #c5e3ff;
-                        }
-
-                        .option.added {
-                            background: #c5e3ff;
-                            border-bottom: 1px solid #000;
-                        }
-
-                        .option.selected {
-                            background: #227aec;
-                            font-weight: 500;
-                        }
                     }
                 }
 
@@ -271,399 +346,220 @@
             }
         }
 
+        .tag-filters {
 
-
-        
-        // contains the metric row details
-
-
-        .metric-filters-container {
-            
-
-            
-
-            .metrics {
-     
-                .filter {
-                    
+            .tags-selected {
+                .tags-selected-header {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    padding: 0 $filter-block-padding;
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                    line-height: 24px;
                 }
-                .filter-result {
-                    
+
+                .tag-filter-rows {
+                    padding: 0;
                 }
-                
-                
-            }
-            .filters {
-                padding: 10px;
-                display: flex;
-                flex: 2;
-                flex-direction: column;
+
                 .tag {
-                    background: #EFF4FF;
-                    border-top: 1px solid #fff;
-                    padding: 5px;
-                    .tag-item-detail{
-                        float:left;
-                    }
-                }
-                .filter {
                     display: flex;
-                    flex-direction: column;
-                    align-items: stretch;
-                    justify-content: stretch;
-                    flex-grow: 3;
-                    .tag-key-value-container {
-                        display: flex;
+                    width: initial;
+                    height: initial;
+                    min-height: 24px;
+                    margin: 2px $filter-block-padding;
+                    border-radius: 4px;
+                    border: 0;
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), body-1);
+                    padding: ($filter-block-padding / 2) $filter-block-padding;
+                    
+                    .mat-list-item-content {
+                        padding: 0;
                         flex: 1;
-                        flex-direction: row;
+                    }
 
-                        > div {
-                            width: 33.33%;
+                    .tag-filter-aggregator {
+
+                    }
+
+                    .tag-filter-detail {
+                        min-width: 0;
+                        max-width: 85%px;
+                        display: flex;
+                        flex-direction: column;
+                        flex: 1;
+
+                        > span {
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
                         }
-                        .tag-key {
-                            flex-basis: 100%;
-                            display: flex;
-                            flex-direction: column;
-                            min-height: 200px;
-                            .caption {
-                                font-size: 10px;
-                                font-weight: 300;
-                                color: grey;
-                            }
-                            .tag-key-search {
-                                .search {
-                                }
-                            }
-                            .list {
-                                flex: 1;
-                                .option {
-                                    padding: 5px;
-                                    cursor: pointer;
-                                }
-                                .option:hover {
-                                    background: #fff;
-                                }
-                                .option.active {
-                                    background: #c5e3ff;
-                                    border-bottom: 1px solid #000;
-                                }
-                                .option.selected {
-                                    background: #227aec;
-                                    font-weight: 500;
-                                }
-                            }
+                    }
+
+                    .flex-spacer {
+                        max-width: 8px;
+                    }
+
+                    .action-icons {
+                        float: none;
+                        display: flex;
+                        margin-left: 8px;
+
+                        .mat-icon-button {
+                            width: 16px;
+                            height: 16px;
+                            line-height: 16px;
                         }
-                        .tag-values {
-                            flex-basis: 100%;
+        
+                        .mat-icon {
                             display: flex;
-                            flex-direction: column;
-                            min-height: 200px;
-                            .caption {
-                                font-size: 10px;
-                                font-weight: 300;
-                                color: grey;
-                            }
-                            .tag-values-search {
-                                display: flex;
-                                flex-direction: column;
-                                .search {
-                                    margin-top: 5px;
-                                    .mat-form-field-infix{
-                                        width: 100%;
-                                    }
-                                    .mat-icon {
-                                        cursor: pointer;
-                                        padding-top: 30%;
-                                        font-size: 120%;
-                                        color: green;
-                                    }
-                                }
-                                .type {
-                                    .mat-button-toggle-label-content {
-                                        line-height: 30px;
-                                    }
-                                    
-                                }
-                            }
-                            .list {
-                                flex: 1;
-                                .option {
-                                    padding: 5px;
-                                    font-size: 10px;
-                                    display: flex;
-                                    flex-direction: row;
-                                    align-items: center;
-                                    mat-icon {
-                                        cursor: pointer;
-                                        font-size: 15px;
-                                        color: green;
-                                    }
-                                }
-                                .option:hover {
-                                    background: #fff;
-                                }
-                            }
-                        }
-                        .tag-values-selected{
-                            flex-basis: 100%;
-                            display: flex;
-                            flex-direction: column;
-                            min-height: 200px;
-                            .caption {
-                                font-size: 10px;
-                                font-weight: 300;
-                                color: grey;
-                            }
-                            .list {
-                                flex: 1;
-                                .option {
-                                    padding: 5px;
-                                    font-size: 10px;
-                                    mat-icon {
-                                        cursor: pointer;
-                                        font-size: 15px;
-                                        color: red;
-                                    }
-                                }
-                            }
+                            align-items: center;
+                            justify-content: center;
+                            width: 16px;
+                            height: 16px;
+                            font-size: 12px;
                         }
                     }
                 }
-                .filter-result {
-                    margin-top: 5px;
-                    display: flex;
-                    flex:1;
-                }
-                
             }
-            .expression-form {
-                padding: 10px;
-                display: flex;
-                flex: 2;
-                flex-direction: column;
-                .mat-form-field {
-                    padding-top: 20px;
-                    width: 100%;
-                }
-                .actions {
-                    padding: 10px;
-                    text-align: start;
-                    .mat-stroked-button, .mat-button {
-                        font-weight: 300;
-                        min-width: 80px;
-                        line-height: 25px;
-                    }
-                }
-            }
-        }
-        
 
-        /*.actions {
-            border-top: 1px solid #fff;
-            text-align: center;
-            padding: 10px;
-            .mat-stroked-button, .mat-button {
-                font-weight: 300;
-                color: #227aec;
-                min-width: 80px;
-                line-height: 25px;
-            }
-        }*/
-        
-        /*
-        .namespace span {
-            font-weight: bold;
-        }
-
-        .query{
-            background: #f0f0f0;
-
-            .mat-stroked-button {
-                font-weight: 300;
-            }
-            > div {
-                height: 100%;
+            .tag-filter-options {
+                flex: 1;
                 display: flex;
                 flex-direction: row;
+                align-items: stretch;
+                justify-content: stretch;
 
-                .metrics{
-                    width: 30%;
-                    .caption{
-                        font-size: 12px;
-                        font-weight: 300;
-                        color: grey;
-                    }
-                    .metric{
-
-                    }
-                    .metric-add-btn{
-                        margin-top : 15px;
-                    }
-                }
-                .tags {
-                    width: 70%;
+                .tag-filter-options-column {
+                    flex: 1;
                     display: flex;
                     flex-direction: column;
                     align-items: stretch;
                     justify-content: stretch;
-                    flex-grow: 3;
-                    border: 2px solid #227aec;
-                    .container {
-                        display: flex;
-                        flex: 1;
+                    max-width: 33.333333%
+                }
 
-                        > div {
-                            width: 33.33%;
-                            border: 1px solid burlywood;
+                .tag-keys {
+                    
+                }
+
+                .tag-keys-count,
+                .tag-values-count {
+                    padding: 0 $filter-block-padding;
+                }
+
+                .tag-key-search,
+                .tag-values-search,
+                .tag-values-selected-header {
+                    padding: $filter-block-padding;
+                }
+
+                .tag-key-search,
+                .tag-values-search-input {
+                    .mat-form-field {
+                        width: 100%;
+                    }
+                }
+
+                .tag-key-search-results,
+                .tag-values-search-results,
+                .tag-values-selected-list {
+                    flex: 1;
+                }
+
+                .tag-values-selected-header {
+
+                    &,
+                    strong {
+                        font-weight: mat-font-weight(map-get($app-fontface-config, sans), title);
+                    }
+                }
+
+                .tag-values-search {
+                    .tag-values-type {
+
+                        .mat-button-toggle-group {
+                            border: 0;
+                            border-radius: 0;
+                            overflow: visible;
                         }
-                        .tag-key {
-                            flex-basis: 100%;
-                            display: flex;
-                            flex-direction: column;
-                            .caption {
-                                font-size: 10px;
-                                font-weight: 300;
-                                color: grey;
-                            }
-                            .filter {
-                                .search {
-                                }
-                            }
-                            .list {
-                                flex: 1;
-                                .option {
-                                    padding: 5px;
-                                    cursor: pointer;
-                                }
-                                .option:hover {
-                                    background: #fff;
-                                }
-                                .option.added {
-                                    background: #c5e3ff;
-                                    border-bottom: 1px solid #000;
-                                }
-                                .option.selected {
-                                    background: #227aec;
-                                    font-weight: 500;
-                                }
-                            }
-                        }
-                        .tag-values {
-                            flex-basis: 100%;
-                            display: flex;
-                            flex-direction: column;
-                            .caption {
-                                font-size: 10px;
-                                font-weight: 300;
-                                color: grey;
-                            }
-                            .filter {
-                                display: flex;
-                                .search {
 
-                                }
-                                .type {
-                                    button {
+                        .mat-button-toggle {
+                            border-radius: 4px 4px 0px 0px;
 
-                                    }
-                                    button.active {
-
-                                    }
-                                }
-                            }
-                            .list {
-                                flex: 1;
-                                .option {
-                                    padding: 5px;
-                                    font-size: 10px;
-                                    display: flex;
-                                    flex-direction: row;
-                                    align-items: center;
-                                    mat-icon {
-                                        cursor: pointer;
-                                        font-size: 15px;
-                                        color: green;
-                                    }
-                                }
-                                .option:hover {
-                                    background: #fff;
-                                }
+                            &:not(:last-child) {
+                                margin-right: 5px;
                             }
                         }
-                        .tag-values-selected{
-                            flex-basis: 100%;
-                            display: flex;
-                            flex-direction: column;
-                            .caption {
-                                font-size: 10px;
-                                font-weight: 300;
-                                color: grey;
-                            }
-                            .list {
-                                flex: 1;
-                                .option {
-                                    padding: 5px;
-                                    font-size: 10px;
-                                    mat-icon {
-                                        cursor: pointer;
-                                        font-size: 15px;
-                                        color: red;
-                                    }
-                                }
-                            }
+                        .mat-button-toggle-label-content {
+                            line-height: 18px;
+                            font-size: 12px;
+                        }
+
+                        .mat-button-toggle-checked .mat-button-toggle-focus-overlay {
+                            border-bottom: solid 18px;
                         }
                     }
                 }
-            }
-            .action {
-                flex-grow: 4;
-                height: 40px;
-                background: #f0f0f0;
+
+                .tag-values-search-input {
+                    .mat-form-field .mat-form-field-flex {
+                        border-radius: 0;
+                    }
+
+                    .mat-form-field-outline,
+                    .mat-form-field-outline-thick {
+                        .mat-form-field-outline-start {
+                            border-radius: 0 0 0 5px;
+                        }
+                    }
+                }
+                
             }
         }
-        .metric-tags {
+
+        // Action Controls
+        .action-controls  {
             display: flex;
             align-items: center;
+            padding: $filter-block-padding;
 
-            // probably the 'tabs:' label
-            :first-child {
+            .mat-stroked-button,
+            .mat-button {
                 font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-            }
+                line-height: 24px;
 
-            .key {
-                margin-right: 3px;
-                font-weight: 500;
-            }
+                &:not(:last-child) {
+                    margin-right: 8px;
+                }
 
-            .value {
-                padding: 3px;
-                margin-right: 6px;
-                cursor: pointer;
-            }
-
-            .value-control {
-                margin-right: 8x;
-            }
-
-            .mat-chip-list {
-                margin-left: 10px;
-            }
-
-            .mat-basic-chip {
-                padding: 3px 6px;
-                border-radius: 3px;
-                margin-right: 4px;
-
-                // first-child should be the tag key
-                :first-child {
-                    margin-right: 4px;
+                .mat-icon {
+                    font-size: 16px;
+                    width: 16px;
+                    height: 16px;
                 }
             }
-            
         }
-        */
 
-        
+        // query edit filter actions }
+        .query-edit-actions {
+            justify-content: flex-start;
+        }
+
+        // query filter level actions
+        .query-filter-actions {
+            justify-content: center;
+        }
+
+        // action buttons to apply & cancel
+        .metric-query-actions {
+            justify-content: center;
+            margin-top: $filter-block-padding;
+
+            &:last-child {
+                padding-bottom: 0;
+            }
+        }
     }
 }
 
@@ -682,37 +578,118 @@
 
     $widgets: map-get($theme-config, widgets);
 
+    $card-background: map-get($background, card);
+    $divider: map-get($foreground, divider);
+
     $query-marker-bg: map-get($widgets, query-editor-marker);
     $query-marker-text: map-get($widgets, query-editor-marker-text);
     $query-block-bg: map-get($widgets, query-editor-block-bg);
+    $query-block-selected-border: map-get($widgets, query-editor-selected-border);
 
     .query-editor {
 
-        .container {
-            background-color: $query-block-bg;
+        .seperator,
+        .tag-values-selected-header {
+            border-bottom: 2px solid $divider;
+        }
+
+        .option-item {
+            &.added {
+                background-color: $query-block-bg;
+                box-shadow: inset 0 2px 0 $query-block-selected-border, inset 0 -2px 0 $query-block-selected-border;
+            }
+
+            &.added:first-child,
+            &.added + .option-item.added {
+                box-shadow: inset 0 -2px 0 $query-block-selected-border;
+            }
         }
 
         .namespace-bar.mat-toolbar {
-            background: none;
+            background-color: $query-block-bg;
 
-            &.is-open {
+            &.is-expanded {
                 box-shadow: inset 0 -1px 0 1px map-get($background, card);
             }
-        }
 
-        .query-index {
-            color: $query-marker-text;
-            background-color: $query-marker-bg;
-        }
-
-
-        .metric-filters-container {
-
-            .metrics,
-            .filters,
-            .expression-form {
-                background-color: map-get($background, card);
+            .query-index {
+                color: $query-marker-text;
+                background-color: $query-marker-bg;
             }
         }
+
+        .metric-query-controls {
+            background-color: $query-block-bg;
+        }
+
+        .metric-filters,
+        .tag-filters,
+        .expression-filter-form {
+            .container {
+                background: $card-background;
+            }
+        }
+
+        .metric-filters .metric,
+        .tag-filters .tag {
+            background: #EFF4FF;
+        }
+
+        .metric-filters {
+            .metric-search-result {
+                .mat-tab-body::after {
+                    background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%); /* FF3.6-15 */
+                    background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* Chrome10-25,Safari5.1-6 */
+                    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+                }
+            }
+        }
+
+        .tag-filters {
+            .tag-filter-options {
+                .tag-filter-options-column:not(:last-child) {
+                    border-right: 2px solid $divider;
+                }
+
+                .tag-values-search {
+                    .tag-values-type {
+    
+                        .mat-button-toggle {
+                            border: 1px solid rgba(map-get($primary, default), 0);
+                            border-bottom: 0;
+                            color: map-get($primary, default);
+                            background-color: rgba(map-get($primary, default), .12);
+    
+                            &.mat-button-toggle-checked {
+                                border: 1px solid rgba(map-get($primary, default), 0.60);
+                                border-bottom: 0;
+                                color: map-get($foreground, text);
+                                background-color: map-get($background, card);
+                                position: relative;
+
+                                &::after {
+                                    content: '';
+                                    position: absolute;
+                                    background-color: $card-background;
+                                    height: 3px;
+                                    left: 0;
+                                    right: 0;
+                                    top: 100%;
+                                    z-index: 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            
+        }
+
+        // action controls
+        .metric-query-actions {
+            border-top: 1px solid $card-background;
+        }
+        
     }
 }
