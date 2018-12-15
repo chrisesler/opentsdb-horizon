@@ -1,15 +1,15 @@
-<div class="landing-page-hero" *ngIf="showHero">
+<div class="landing-page-hero" *ngIf="showHero" style="flex: 1; justify-content: flex-start; padding-top: 40px">
     <h2 class="hero-title mat-title">Welcome to Yamas</h2>
-    <div class="hero-message mat-subheading-2">Lorem upsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod. Tempor incididunt ut labore et dolore magna aliqu.</div>
+    <!-- <div class="hero-message mat-subheading-2">Lorem upsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod. Tempor incididunt ut labore et dolore magna aliqu.</div> -->
     <div class="hero-buttons">
         <button mat-flat-button color="primary" (click)="createDashboard()">Create a dashboard</button>
-        <button mat-stroked-button color="primary" (click)="gotoYamasGuide()">Yamas Guide</button>
+        <!-- <button mat-stroked-button color="primary" (click)="gotoYamasGuide()">Yamas Guide</button> -->
     </div>
-    <button mat-icon-button class="hero-close-button" (click)="closeHero()">
+    <!-- <button mat-icon-button class="hero-close-button" (click)="closeHero()">
         <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
-    </button>
+    </button> -->
 </div>
-<div class="landing-page-utilities">
+<!-- <div class="landing-page-utilities">
     <mat-toolbar>
         <div class="mat-elevation-z2 flex-spacer search-utility" [formGroup]="searchFormGroup">
             <mat-form-field appearance="fill" class="search-context-form-field">
@@ -41,10 +41,10 @@
             <span>New Dashboard</span>
         </button> 
     </mat-toolbar>
-</div>
-<div class="gridster-stage has-scroller" fxFlex="1 1 100%">
+</div> -->
+<div class="gridster-stage has-scroller" style="display: none" fxFlex="1 1 100%">
     <div class="is-scroller">
-        <simple-dashboard-list fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch"></simple-dashboard-list>
+        <!-- <simple-dashboard-list fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch"></simple-dashboard-list> -->
     
         <!--<a routerLink="/d/abcd">abcd</a>
         GRIDSTER ITEMS HERE-->

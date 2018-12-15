@@ -85,7 +85,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     ) { }
 
     ngOnInit() {
-        console.log("this.widget", this.widget)
         this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'vertical');
         this.options.legend.display = this.isStackedGraph ? true : false;
 
@@ -150,7 +149,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         this.newSizeSub = this.newSize$.pipe(
             debounceTime(100)
         ).subscribe(size => {
-            this.setSize();
+            this.setSize(size);
         });
         
         new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
@@ -238,7 +237,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     // for first time and call.
-    setSize() {
+    setSize(newSize) {
 
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
@@ -255,26 +254,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     updateQuery( payload ) {
-        console.log("barchart updateQuery", payload, this.widget.queries);
         const query = payload.query;
         const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
-        /*
-        if ( qindex === -1 ) {
-            query.id = this.util.generateId(6);
-            // query.title = '';
-            query.settings =  {
-                                visual: {
-                                    visible: true
-                                }
-                            };
-            this.widget.queries.push(query);
-        } else {
-        } */
         if ( qindex !== -1 ) {
             this.widget.queries[qindex] = query;
         }
 
-        console.log("bar chart updateQuery", qindex, this.widget.queries);
     }
 
     setStackForGroup(gid) {
@@ -282,8 +267,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         const queries = gconfig.queries;
         const stacks = this.widget.settings.visual.stacks || [];
 
-        const availStacks = stacks.filter(x => !queries.find(function(a) { console.log("x=",x,'a=',a.settings.visual,"cno=",x.id === a.settings.visual.stack); return x.id === a.settings.visual.stack; } ));
-        console.log("available stacks", availStacks, "len=", availStacks.length);
+        const availStacks = stacks.filter(x => !queries.find(function(a) {  return x.id === a.settings.visual.stack; } ));
         for ( let i = 0; i < queries.length; i++ ) {
             const vSetting = queries[i].settings.visual;
             if ( !vSetting.stack ) {
@@ -396,18 +380,15 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             axis.ticks.min = oUnit ? config.min * oUnit.m : config.min;
         }
         if ( !isNaN( config.max ) && config.max ) {
-            console.log("comes here", config.max, (oUnit ? config.max * oUnit.m : config.max));
             axis.ticks.max = oUnit ? config.max * oUnit.m : config.max;
         }
         const label = config.label ? config.label.trim() : '';
         const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 2 : config.decimals;
         axis.scaleLabel = label ? { labelString: label, display: true } : {};
         axis.ticks.format = { unit: config.unit, precision: decimals, unitDisplay: config.unit ? true : false };
-        console.log("setAxes", config, axis);
     }
 
     setStackedBarVisualization(gIndex, configs) {
-        console.log("setStackedBarVisualization", gIndex, configs);
         configs.forEach( (config, i) => {
             this.widget.queries.groups[gIndex].queries[i].settings.visual = { ...this.widget.queries.groups[gIndex].queries[i].settings.visual, ...config };
         });
@@ -458,7 +439,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     setOptions() {
-        console.log(this.widget.settings.visual,"visual")
         this.type$.next(this.widget.settings.visual.type);
         this.setAxisOption();
         this.setAlertOption();
@@ -491,7 +471,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         });
         this.options.labels = labels;
         this.options = {...this.options};
-        console.log(this.widget.queries.groups);
     }
 
     setStackedStackVisuals(configs) {
@@ -501,7 +480,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.data[i].backgroundColor = config.color;
         });
         this.data = [...this.data];
-        console.log("stacks..", this.data);
     }
 
     toggleGroup(gIndex) {
@@ -558,7 +536,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     showError() {
-        console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         const offsetHeight = 60;
         dialogConf.width = '50%';

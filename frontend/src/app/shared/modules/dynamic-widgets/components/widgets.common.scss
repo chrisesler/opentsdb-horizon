@@ -59,7 +59,7 @@ $widgets-common-config: (
             display: flex;
             flex-direction: column;
             height: 100%;
-            overflow: hidden;
+            // overflow: hidden; hiding the chart tooltip
         
             .widget-title {
                 @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), subheading-2);

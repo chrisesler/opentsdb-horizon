@@ -12,9 +12,13 @@
     // }
 
     .widget-panel-content.donutchart-widget {
-
+        flex: 1;
+        display: flex;
         .widget-output {
             padding: 5px 0px;
+            width: 100%;
+            height: 100%;
+            display: flex;
         }
 
         #container {

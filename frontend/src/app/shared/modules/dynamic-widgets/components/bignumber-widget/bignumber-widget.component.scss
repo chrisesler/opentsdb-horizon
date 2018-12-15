@@ -7,12 +7,16 @@
     .widget-panel-content.bignumber-widget { 
         // reset margin top on big number because it should be edge to edge
         padding-top: 0;
-        height: 100%;
+        flex: 1;
+        display: flex;
 
         .widget-output {
             // reset padding to zero because in widget mode needs to be edge to edge
             // return padding when in edit mode (see end of mixin)
             padding: 0; 
+            width: 100%;
+            height: 100%;
+            display: flex;
         }
 
         .widget-output-container {

@@ -199,18 +199,12 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             }
 
             query.search = value;
-            // console.log('metric search', query);
 
             if ( this.edit.indexOf('metrics') !== -1 ) {
-                // console.log('metric search', query);
 
                 this.httpService.getMetricsByNamespace(query)
                                     .subscribe(res => {
                                         this.metricOptions = res;
-                                        // fqueryEditzconsole.log(this.metricSearchInput)
-                                        // console.log(this.renderer.selectRootElement('.metric-search-input'));
-                                        // this.metricSearchInput.nativeElement.focus();
-                                        // console.log('metricOptions', this.metricOptions);
                                     });
             }
         });
@@ -240,7 +234,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             if ( this.query.metrics ) {
                 query.metrics = this.query.metrics.filter(item => !item.expression).map( item => item.name);
             }
-            console.log('tag query', query);
             if ( this.edit.indexOf('filters') !== -1 ) {
                 this.httpService.getNamespaceTagKeys(query)
                                                         .pipe(
@@ -257,7 +250,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
     filterTagOptions() {
         const selected = this.query.filters.map(item => item.tagk);
         this.tagOptions = this.tagOptions.filter( tag => selected.indexOf(tag) === -1);
-        console.log('tag options', this.tagOptions);
     }
 
     setTagValueSearch() {
@@ -287,7 +279,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                 query.metrics = this.query.metrics.filter(item => !item.expression).map( item => item.name);
             }
             if ( this.selectedTag && this.tagValueTypeControl.value === 'literalor' ) {
-                // console.log('query tab value', query)
                 query.tagkey = this.selectedTag;
                 this.httpService.getTagValuesByNamespace(query)
                                 .subscribe(res => {
@@ -303,7 +294,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                             action : action,
                             payload : data
                         };
-        // console.log('________request changes_______', message);
         this.queryOutput.emit(message);
     }
 
@@ -312,7 +302,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     updateMetricSelection(metric, operation) {
-        // console.log('metric=', metric);
         metric = metric.trim();
         const index = this.getMetricIndex(metric);
         if ( index === -1  && operation === 'add') {
@@ -401,9 +390,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-
     updateTagValueSelection(v, operation) {
-        console.log('tag value=', v);
         v = v.trim();
         if ( this.selectedTagIndex === -1  && operation === 'add' ) {
             this.selectedTagIndex = this.query.filters.length;
@@ -424,20 +411,18 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             }
         }
         this.filterTagOptions();
-        console.log('updateTagValueSelection', this.query.filters);
         this.queryChanges$.next(true);
     }
 
     setTagAggregator(index, value) {
         this.query.filters[index].aggregator = value;
         if ( value !== 'unmerge' ) {
-            for ( let i = 0; i < this.query.filters.lenght; i++ ) {
+            for ( let i = 0; i < this.query.filters.length; i++ ) {
                 if ( index !== i && this.query.filters[i].aggregator !== 'unmerge' ) {
                     this.query.filters[i].aggregator = value;
                 }
             }
         }
-        // console.log('---value---', this.query.filters[0].aggregator, index, value);
         this.queryChanges$.next(true);
     }
 
@@ -524,7 +509,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.expressionForm.controls.expressionValue.setValue(expression);
         this.isEditExpression = true;
         this.metricSelectedTabIndex = 1;
-        // console.log('aliases', this.aliases);
     }
 
     toggleExpressionDetail(index) {
@@ -558,7 +542,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         const isValid =   result != null && !invalidRefs.length;
-        // console.log('isValidExpression', isValid, result != null , !invalidRefs.length)
         this.expressionForm.controls.expressionValue.setErrors( !isValid ? { 'invalid': true } : null );
         return isValid;
     }
@@ -570,10 +553,8 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         let metrics = [];
         const replace = [];
 
-        // console.log(result, 'matches');
         for (let i = 0; i < result.length; i++ ) {
             const alias = this.aliases.find(item => item.id === result[i]);
-            // console.log(result[i], alias);
             replace.push( { 'old': result[i], 'new': alias.expression } );
             const metric = { name: alias.metrics[0], refId: result[i]};
             const index = metrics.findIndex(d => d.name === alias.metrics[0] );
@@ -581,8 +562,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                 metrics.push(metric);
             }
         }
-        // metrics = this.utils.arrayUnique(metrics);
-
 
         // update the expression with new reference ids
         for ( let i = 0; i < replace.length; i++ ) {
@@ -621,14 +600,12 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
     cancel(): void {
         this.closeEditMode();
         this.query = this.queryBeforeEdit;
-        // console.log('query before edit', this.queryBeforeEdit);
         this.triggerQueryChanges();
     }
 
     // handle when clicked on apply
     apply(): any {
         this.closeEditMode();
-        // console.log('this.query', JSON.stringify(this.query));
     }
 
     ngOnDestroy() {

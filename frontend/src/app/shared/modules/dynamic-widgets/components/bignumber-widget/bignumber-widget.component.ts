@@ -30,7 +30,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     private listenSub: Subscription;
     private isDataLoaded: boolean = false;
 
-    metrics: any; // cache all the metrics that we get from tsdb
+    data: any; // cache all the metrics that we get from tsdb
     selectedMetric: any; // used for macros
     tags: any; // to display tags of currently selected metric
     bigNumber: number;
@@ -85,7 +85,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         this.setDefaultVisualization();
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            
+
             if ( message.action === 'reQueryData' ) {
                 this.refreshData();
             }
@@ -101,18 +101,19 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
                         if (message && message.payload && message.payload.rawdata) {
                             const gid = Object.keys(message.payload.rawdata)[0];
-                            this.metrics = gid !== 'error' ? message.payload.rawdata[gid].results : [];
+                            this.data = gid !== 'error' ? message.payload.rawdata[gid].results : [];
 
                             this.setBigNumber(this.widget.settings.visual.queryID);
                         }
                         break;
                     case 'viewEditWidgetMode':
-                        console.log('vieweditwidgetmode', message, this.widget);
+                        // console.log('vieweditwidgetmode', message, this.widget);
                         break;
                     case 'getUpdatedWidgetConfig':
                         if (this.widget.id === message.id) {
                             this.widget = message.payload;
                             this.setBigNumber(this.widget.settings.visual.queryID);
+                            this.refreshData();
                         }
                         break;
                 }
@@ -144,8 +145,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         ).subscribe(size => {
             this.setSize();
         });
-        
-        new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+
+        // tslint:disable-next-line:no-unused-expression
+        new ResizeSensor(this.widgetOutputElement.nativeElement, () => {
              const newSize = {
                 width: this.widgetOutputElement.nativeElement.clientWidth,
                 height: this.widgetOutputElement.nativeElement.clientHeight
@@ -157,25 +159,26 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     setSize() {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
+        // tslint:disable-next-line:max-line-length
         const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
 
         const outputSize = nativeEl.getBoundingClientRect();
         this.widgetWidth = outputSize.width;
         this.widgetHeight = outputSize.height;
-        
-        if (this.metrics) {
+
+        if (this.data) {
             this.determineFontSizePercent(this.widgetWidth, this.widgetHeight);
-        }        
+        }
     }
 
     getMetric(queryID: string): any {
         let metric = {};
         queryID = queryID.toString();
-        for ( let i = 0; this.metrics && i < this.metrics.length; i++ ) {
-            const mid = this.metrics[i].source.split(':')[1];
+        for ( let i = 0; this.data && i < this.data.length; i++ ) {
+            const mid = this.data[i].source.split(':')[1];
             const configIndex = mid.replace('m', '');
             if ( configIndex === queryID ) {
-                metric = this.metrics[i].data[0];
+                metric = this.data[i].data[0];
                 break;
             }
         }
@@ -192,7 +195,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         let currentValue: number = 0;
         let lastValue: number = 0;
 
-        if (metric && metric.NumericSummaryType) {
+        if (metric && metric.NumericSummaryType && this.widget.queries[0].metrics[queryIndex]) {
             const responseAggregators = metric.NumericSummaryType.aggregations;
             const key = Object.keys(metric.NumericSummaryType.data[0])[0];
             const responseAggregatorValues = metric.NumericSummaryType.data[0][key];
@@ -401,12 +404,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.setVisualization(message.payload.data);
                 this.refreshData(false);
                 break;
-            case 'ToggleQuery':
-                this.toggleQuery(message.payload.index);
-                break;
-            case 'DeleteQuery':
-                this.deleteQuery(message.payload.index);
-                break;
             case 'SetSelectedQuery':
                 this.setSelectedQuery(message.payload.data);
                 break;
@@ -454,7 +451,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             }
             index++;
         }
-        console.log('bignumber updateQuery', qindex, this.widget.queries);
+        // console.log('bignumber updateQuery', qindex, this.widget.queries);
     }
 
 
@@ -478,32 +475,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             }
         };
         this.refreshData();
-    }
-
-    toggleQuery(index) {
-        const qIndex = 0;
-        this.widget.queries[qIndex].metrics[index].settings.visual.visible = !this.widget.queries[qIndex].metrics[index].settings.visual.visible;
-    }
-
-    deleteQuery(index) {
-        const gIndex = 0;
-
-        let selectedQueryIndex = parseInt(this.widget.settings.visual.queryID, 10);
-        if (index === selectedQueryIndex ) { // set 0th index if deleting currently selected query
-            this.widget.settings.visual.queryID = (0).toString();
-        } else if (index < selectedQueryIndex) { // shift index by 1 if deleting before selected query
-            this.widget.settings.visual.queryID = (selectedQueryIndex - 1).toString();
-        }
-        this.widget.query.groups[gIndex].queries.splice(index, 1);
-
-        const source = 'summarizer:m' + index;
-        const metricIndex = this.metrics.findIndex( item => item.source === source );
-        if (metricIndex !== -1 ) {
-            this.metrics.splice(metricIndex, 1);
-        }
-        this.setBigNumber(this.widget.settings.visual.queryID );
-
-        // this.refreshData(false);
     }
 
     setMetaData(config) {
@@ -531,7 +502,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     showError() {
-        console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
+        // console.log('%cErrorDialog', 'background: purple; color: white;', this.error);
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         const offsetHeight = 60;
         dialogConf.width = '50%';
@@ -606,8 +577,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
         // only reindex visibility if there are metrics AND deleted metric is visible metric
         if (mindex === this.widget.settings.visual.queryID && this.widget.queries[qindex].metrics.length !== 0) {
-             this.widget.queries[0].metrics[0].settings.visual.visible = true;
-             this.widget.settings.visual.queryID = 0;
+            this.widget.queries[0].metrics[0].settings.visual.visible = true;
+            this.widget.settings.visual.queryID = 0;
         }
 
         if (this.widget.queries[qindex].metrics.length === 1) {
@@ -625,7 +596,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         if (this.listenSub) {
             this.listenSub.unsubscribe();
         }
-        // this.typeSub.unsubscribe();
     }
 
 }
