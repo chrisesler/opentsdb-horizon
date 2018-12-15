@@ -518,6 +518,18 @@
             }
         }
 
+        .expression-filter-form {
+            .container {
+                flex-direction: column;
+                padding: $filter-block-padding;
+
+                .mat-form-field {
+                    padding-top: 20px;
+                    width: 100%;
+                }
+            }
+        }
+
         // Action Controls
         .action-controls  {
             display: flex;
