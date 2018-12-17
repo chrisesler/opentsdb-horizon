@@ -56,7 +56,8 @@ $developing-theme: (
     widget-icons-background-hover: rgba(map_get($denali-brand-6, 500), .26),
     query-editor-marker: map_get($denali-brand-6, 500),
     query-editor-marker-text: #ffffff,
-    query-editor-block-bg: lighten(map-get($denali-cool-grey, A100), 15%)
+    query-editor-block-bg: lighten(map-get($denali-cool-grey, A100), 15%),
+    query-editor-selected-border: map-get($denali-cool-grey, A100)
   ),
   ks: (
     sidenav-background: map_get($mat-blue-grey, 800),

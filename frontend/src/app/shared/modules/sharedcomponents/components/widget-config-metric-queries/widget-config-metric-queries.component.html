@@ -1,6 +1,6 @@
 <!-- list of metric-items -->
 <div class="query-metrics-section">
-    <div class="query-metrics-wrap">
+    <div class="query-metrics-wrap" [ngClass]="{'is-editing-metric': queryEditMode}">
         <mat-accordion class="query-group-list mat-elevation-z0" [ngClass]="{'items-selected': selectAllToggle !== 'none'}" displayMode="flat" [multi]="true" [hideToggle]="false">
             <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [disabled]="true" [expanded]="true">
                 <mat-expansion-panel-header [collapsedHeight]="30" [expandedHeight]="30">
@@ -49,11 +49,11 @@
                         <query-editor [type]="widget.settings.component_type" [label]="'Q' + (index + 1)" [query]="query" (queryOutput)="handleQueryRequest($event)"></query-editor>
                     </div>
                 </ng-container>
-                <div class="query-metric-row" *ngIf="queryEditMode">
+                <div class="query-metric-row query-metric-row-editing" *ngIf="queryEditMode">
                     <query-editor [type]="editQuery.type" [label]="getQueryLabel(editQuery.query)" [query]="editQuery.query" [edit]="editQuery.edit" (queryOutput)="handleQueryRequest($event)"></query-editor>
                 </div>
                 <div class="query-metric-row" *ngIf="widget.queries.length && widget.queries[widget.queries.length-1].metrics.length && !queryEditMode && widget.settings.component_type === 'LinechartWidgetComponent'" style="margin-top:25p;">
-                        <button  mat-button  mat-primary color="primary"  (click)="addNewQuery()">Add Query</button>
+                    <button  mat-button  mat-primary color="primary"  (click)="addNewQuery()">Add Query</button>
                 </div>
             </mat-expansion-panel>
         </mat-accordion>
