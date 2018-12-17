@@ -64,9 +64,9 @@
                                 }">{{ shortenString(widget.settings.visual.postfix, maxLabelLength) | uppercase }}</span>
         
                             <span *ngIf="widget.settings.visual.changedIndicatorEnabled" class="change-indicator">
-                                <span *ngIf="changePct >= changeThreshold">↑ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision)) }}</span>
-                                <span *ngIf="changePct <= -1*changeThreshold">↓ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision)) }}</span>
-                                <span *ngIf="changePct > -1*changeThreshold && changePct < changeThreshold">↔</span>        
+                                <span *ngIf="changePct >= changeThreshold">↑ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision)) }} </span>
+                                <span *ngIf="changePct <= -1*changeThreshold">↓ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision)) }} </span>
+                                <span *ngIf="changePct > -1*changeThreshold && changePct < changeThreshold">↔ </span>
                             </span>
 
                             <span *ngIf="aggregators.length > 1" class="aggregator">{{ agg | uppercase }}</span>
