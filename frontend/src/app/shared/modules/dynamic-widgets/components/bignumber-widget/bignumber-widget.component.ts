@@ -99,7 +99,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                             this.error = message.payload.error;
                         } else if (message.payload && message.payload.rawdata) {
                             const gid = Object.keys(message.payload.rawdata)[0];
-                            this.data = gid !== 'error' ? message.payload.rawdata[gid].results : [];
+                            this.data = (gid !== 'error' && gid !== undefined) ? message.payload.rawdata[gid].results : [];
                             this.setBigNumber(this.widget.settings.visual.queryID);
                         } else { // no data, so get some
                             this.refreshData();
@@ -192,7 +192,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         let currentValue: number = 0;
         let lastValue: number = 0;
 
-        if (metric && metric.NumericSummaryType && this.widget.queries[0].metrics[queryIndex]) {
+        if (metric && metric.NumericSummaryType && this.widget.queries[0] && this.widget.queries[0].metrics[queryIndex]) {
             const responseAggregators = metric.NumericSummaryType.aggregations;
             const key = Object.keys(metric.NumericSummaryType.data[0])[0];
             const responseAggregatorValues = metric.NumericSummaryType.data[0][key];

@@ -39,7 +39,7 @@
                                 'medium-middle': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='middle',
                                 'medium-bottom': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='bottom',
                                 'large-size':    widget.settings.visual.unitSize=='l'
-                                }">{{ shortenString(UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) | uppercase }}</span>
+                                }">{{ shortenString(UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) }}</span>
         
                             <span class="big-number">&nbsp;{{ UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).num}}&nbsp;</span>
         
@@ -51,7 +51,7 @@
                                 'medium-middle': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='middle',
                                 'medium-bottom': widget.settings.visual.unitSize=='m' && widget.settings.visual.unitAlignment=='bottom',
                                 'large-size':    widget.settings.visual.unitSize=='l'
-                                }">{{ shortenString(UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) | uppercase }}</span>
+                                }">{{ shortenString(UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) }}</span>
                             
                             <span [ngClass]="{
                                 'small-top':     widget.settings.visual.postfixSize=='s' && widget.settings.visual.postfixAlignment=='top',
@@ -74,7 +74,7 @@
                         </div>
                     </div>
 
-                    <div class="caption">{{ shortenString(widget.settings.visual.caption, maxCaptionLength) | uppercase }}</div>
+                    <div class="caption">{{ shortenString(widget.settings.visual.caption, maxCaptionLength) }}</div>
                 </div>
             </div>
 
