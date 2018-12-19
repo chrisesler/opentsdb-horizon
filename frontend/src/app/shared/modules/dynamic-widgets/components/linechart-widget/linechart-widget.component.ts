@@ -276,11 +276,14 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         };
         this.newSize$ = new BehaviorSubject(initSize);
 
-        this.newSizeSub = this.newSize$.pipe(
+        /*this.newSizeSub = this.newSize$.pipe(
             debounceTime(100)
         ).subscribe(size => {
             this.setSize(size);
-        });
+        });*/
+        this.newSizeSub = this.newSize$.subscribe(size => {
+            this.setSize(size);
+        });        
         
         const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
              const newSize = {
