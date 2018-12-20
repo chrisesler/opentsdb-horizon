@@ -39,9 +39,9 @@
                     <mat-list-item class="metric" role="listitem" *ngFor="let metric of query.metrics">
                         <div class="metric-item-detail">
                             <div>{{ metric.name }}</div>
-                            <div *ngIf="type !== 'LinechartWidgetComponent'">Summarizer: <dropdown-aggregators
-                                    [multiple]="type === 'BignumberWidgetComponent' ? true : false" [value]="metric.settings.visual.aggregator"
-                                    (change)="setMetricSummarizer(metric.id, $event)"></dropdown-aggregators>
+                            <div>Tag aggregator: <tag-aggregator
+                                     [value]="metric.tagAggregator"
+                                    (change)="setMetricTagAggregator(metric.id, $event)"></tag-aggregator>
                             </div>
                         </div>
                         <span class="flex-spacer"></span>
@@ -133,9 +133,9 @@
                 <ng-container *ngIf="query.filters.length && edit.indexOf('filters') === -1">
                     <div class="tag" *ngFor="let filter of query.filters; let index=index">
                         <div class="tag-item-detail">
-                            <span>
-                                <tag-aggregator [value]="filter.aggregator" [exclude]="type === 'BignumberWidgetComponent'?['unmerge']:[]"
-                                    (change)="setTagAggregator(index, $event)"></tag-aggregator>
+                            <span *ngIf= "type !== 'BignumberWidgetComponent'">
+                                <tag-groupby [value]="filter.groupBy" 
+                                    (change)="setTagGroupBy(index, $event)"></tag-groupby>
                             </span>
                             <span>{{ filter.tagk }}: {{ filter.filter.join(',') }}</span>
                         </div>

@@ -265,7 +265,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                                              overrideRelativeTime: config.overrideRelativeTime,
                                              downsample: {
                                                  value: config.downsample,
-                                                 aggregator: config.aggregator,
+                                                 aggregators: config.aggregators,
                                                  customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
                                                  customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                              }

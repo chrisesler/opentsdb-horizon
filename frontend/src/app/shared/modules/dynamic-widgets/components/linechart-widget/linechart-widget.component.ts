@@ -349,7 +349,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
                                              overrideRelativeTime: config.overrideRelativeTime,
                                              downsample: {
                                                  value: config.downsample,
-                                                 aggregator: config.aggregator,
+                                                 aggregators: config.aggregators,
                                                  customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
                                                  customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                              }

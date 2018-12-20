@@ -80,8 +80,10 @@ export class DatatranformerService {
                 const [ source, mid ] = queryResults.source.split(":");
                 if ( source === 'summarizer') {
                     continue;
+                } else {
+
                 }
-                const mIndex = mid.replace("m",'');
+                const mIndex = mid.replace( /\D+/g, '')
 
                 const timeSpecification = queryResults.timeSpecification;
                 const mConfig = mConfigs[mIndex];
@@ -110,9 +112,10 @@ export class DatatranformerService {
                         }
                         const seriesIndex = options.labels.indexOf(label);
                         const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+                        const m = parseInt(timeSpecification.interval);
                         for (let k = 0; k< numPoints ; k++ ) {
                             if (!isArray(normalizedData[k])) {
-                                const time = timeSpecification.start + ( k * mSeconds[unit] );
+                                const time = timeSpecification.start + ( m * k * mSeconds[unit] );
                                 normalizedData[k] = [ new Date(time * 1000) ];
                             }
                             normalizedData[k][seriesIndex]= !isNaN(data[k]) ? data[k] : null;
@@ -195,7 +198,7 @@ export class DatatranformerService {
             const results = queryData[qid].results? queryData[qid].results : [];
             for ( let i = 0;  i < results.length; i++ ) {
                 const mid = results[i].source.split(':')[1];
-                const configIndex = mid.replace('m', '');
+                const configIndex = mid.replace( /\D+/g, '')
                 const mConfig = mConfigs[configIndex];
                 const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
                 const n = results[i].data.length;
@@ -203,15 +206,15 @@ export class DatatranformerService {
                 for ( let j = 0;  j < n; j++ ) {
                     const aggs = results[i].data[j].NumericSummaryType.aggregations;
                     const tags = results[i].data[j].tags;
-                    const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
-                    const aggData = results[i].data[j].NumericSummaryType.data[0][key];
+                    const key = Object.keys(results[i].data[j].NumericType)[0];
+                    const aggData = results[i].data[j].NumericType[key];
 
                     if ( mConfig.settings && mConfig.settings.visual.visible ) {
                         const metric = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                         const aggrIndex = aggs.indexOf(aggregator);
                         let label = this.getLableFromMetricTags(metric, tags);
                         options.labels.push(label);
-                        datasets[0].data.push(aggData[aggrIndex]);
+                        datasets[0].data.push(aggData);
                         datasets[0].backgroundColor.push(colors[j]);
                         datasets[0].tooltipData.push({ metric: metric, ...tags });
                     }
@@ -245,7 +248,7 @@ export class DatatranformerService {
 
        for ( let i = 0; i < results.length; i++ ) {
             const mid = results[i].source.split(':')[1];
-            const configIndex = mid.replace('m', '');
+            const configIndex = mid.replace( /\D+/g, '');
             const mConfig = mConfigs[configIndex];
             const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
             const n = results[i].data.length;
@@ -253,14 +256,14 @@ export class DatatranformerService {
             for ( let j = 0; j < n; j++ ) {
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
-                const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
-                const aggData = results[i].data[j].NumericSummaryType.data[0][key];
+                const key = Object.keys(results[i].data[j].NumericType)[0];
+                const aggData = results[i].data[j].NumericType[key];
                 if ( mConfig.settings && mConfig.settings.visual.visible ) {
                     const metric = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                     const aggrIndex = aggs.indexOf(aggregator);
                     const label = this.getLableFromMetricTags(metric, tags);
                     options.labels.push(label);
-                    datasets[0].data.push(aggData[aggrIndex]);
+                    datasets[0].data.push(aggData);
                     datasets[0].backgroundColor.push(colors[j]);
                     datasets[0].tooltipData.push({metric: metric, ...tags});
                 }

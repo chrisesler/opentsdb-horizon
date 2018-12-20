@@ -331,9 +331,9 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.queryChanges$.next(true);
     }
 
-    setMetricSummarizer(id, value) {
+    setMetricTagAggregator(id, value) {
         const index  = this.query.metrics.findIndex( item => item.id === id );
-        this.query.metrics[index].settings.visual.aggregator = value;
+        this.query.metrics[index].tagAggregator = value;
         this.queryChanges$.next(true);
     }
 
@@ -395,7 +395,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         if ( this.selectedTagIndex === -1  && operation === 'add' ) {
             this.selectedTagIndex = this.query.filters.length;
             const filter: any = { tagk: this.selectedTag,  filter: []};
-            filter.aggregator = this.type === 'LinechartWidgetComponent' ? 'unmerge' : 'sum';
+            filter.groupBy = this.type === 'LinechartWidgetComponent' ? true : false;
             this.query.filters[this.selectedTagIndex] = filter;
         }
 
@@ -414,15 +414,8 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.queryChanges$.next(true);
     }
 
-    setTagAggregator(index, value) {
-        this.query.filters[index].aggregator = value;
-        if ( value !== 'unmerge' ) {
-            for ( let i = 0; i < this.query.filters.length; i++ ) {
-                if ( index !== i && this.query.filters[i].aggregator !== 'unmerge' ) {
-                    this.query.filters[i].aggregator = value;
-                }
-            }
-        }
+    setTagGroupBy(index, value) {
+        this.query.filters[index].groupBy = value;
         this.queryChanges$.next(true);
     }
 

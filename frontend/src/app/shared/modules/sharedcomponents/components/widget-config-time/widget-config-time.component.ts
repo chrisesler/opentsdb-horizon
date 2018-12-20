@@ -47,7 +47,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     customTimeRangeStart: any;
     customTimeRangeEnd: any;
 
-    selectedAggregator: any = 'Avg';
+    selectedAggregators: any = ['avg'];
     timeOverTimeNumber: any = '';
     timeOverTimePeriod: any = '';
 
@@ -57,6 +57,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
 
     overrideRelativeTime: any;
     timeShift: any;
+    multipleAggregators = false;
 
     /** Form control options */
     timePresetOptions: Array<any> = [
@@ -206,21 +207,12 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
 
     ngOnInit() {
         this.createForm();
+        this.selectedAggregators = this.widget.settings.time.downsample.aggregators || this.selectedAggregators;
     }
 
     ngAfterViewInit() {
         // subscribe to value changes to check if 'custom' is checked
         // so we can enable/disable the other custom fields
-        this.selectedDownsample_Sub = this.widgetConfigTime.get('downsample').valueChanges.subscribe(function(data) {
-            console.log('SELECTED DOWNSAMPLE CHANGED', data, this);
-            if (data === 'custom') {
-                this.widgetConfigTime.controls.customDownsampleValue.enable();
-                this.widgetConfigTime.controls.customDownsampleUnit.enable();
-            } else {
-                this.widgetConfigTime.controls.customDownsampleValue.disable();
-                this.widgetConfigTime.controls.customDownsampleUnit.disable();
-            }
-        }.bind(this));
     }
 
     ngOnDestroy() {
@@ -236,31 +228,46 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
         // ?INFO: these are mapped to the form variables set at top
         const isCustomDownsample = this.widget.settings.time.downsample.value === 'custom' ? true : false;
         this.widgetConfigTime = this.fb.group({
-            aggregator:
-                new FormControl(this.widget.settings.time.downsample.aggregator || this.selectedAggregator),
-            downsample:
-                new FormControl(this.widget.settings.time.downsample.value || this.selectedDownsample),
-            customDownsampleValue:
-                new FormControl(
-                    {
-                        value: this.widget.settings.time.downsample.customValue || this.customDownsampleValue,
-                        disabled: !isCustomDownsample ? true : false
-                    },
-                    [Validators.min(1), Validators.pattern('^[0-9]+$') ]
-                ),
-            customDownsampleUnit:
-                new FormControl(
-                    {
-                        value: this.widget.settings.time.downsample.customUnit || this.customDownsampleUnit,
-                        disabled: isCustomDownsample ? false : true
-                    }
-                ),
-            overrideRelativeTime:
+            aggregators:
+                new FormControl(this.selectedAggregators),
+            multiple: new FormControl( { value: this.widget.settings.time.downsample.multiple || this.multipleAggregators } ),
+            overrideRelativeTime: 
                 new FormControl(this.widget.settings.time.overrideRelativeTime),
             shiftTime:
                 new FormControl(this.widget.settings.time.shiftTime)
         });
 
+        if ( !this.widget.settings.dataSummary ) {
+            this.widgetConfigTime.addControl('downsample',
+                new FormControl(this.widget.settings.time.downsample.value || this.selectedDownsample));
+            this.widgetConfigTime.addControl('customDownsampleValue',
+                    new FormControl(
+                        {
+                            value: this.widget.settings.time.downsample.customValue || this.customDownsampleValue,
+                            disabled: !isCustomDownsample ? true : false
+                        },
+                        [Validators.min(1), Validators.pattern('^[0-9]+$') ]
+                    )
+            );
+            this.widgetConfigTime.addControl('customDownsampleUnit',
+                    new FormControl(
+                        {
+                            value: this.widget.settings.time.downsample.customUnit || this.customDownsampleUnit,
+                            disabled: isCustomDownsample ? false : true
+                        }
+                    )
+            );
+            this.selectedDownsample_Sub = this.widgetConfigTime.get('downsample').valueChanges.subscribe(function(data) {
+                console.log('SELECTED DOWNSAMPLE CHANGED', data, this);
+                if (data === 'custom') {
+                    this.widgetConfigTime.controls.customDownsampleValue.enable();
+                    this.widgetConfigTime.controls.customDownsampleUnit.enable();
+                } else {
+                    this.widgetConfigTime.controls.customDownsampleValue.disable();
+                    this.widgetConfigTime.controls.customDownsampleUnit.disable();
+                }
+            }.bind(this));
+        }
 
         this.widgetConfigTimeSub = this.widgetConfigTime.valueChanges
                                         .pipe(
@@ -268,6 +275,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
                                             distinctUntilChanged()
                                         )
                                         .subscribe( function(data) {
+                                            this.multipleAggregators = this.widgetConfigTime.controls.multiple.value ? true: false;
                                             if ( this.widgetConfigTime.valid ) {
                                                 this.widgetChange.emit({'action': 'SetTimeConfiguration', payload: { data: data } });
                                             }
@@ -275,7 +283,10 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
     }
 
 
-
+    setAggregator(e) {
+        this.selectedAggregators = Array.isArray(e.value) ? e.value : [e.value];
+        this.widgetConfigTime.controls.aggregators.setValue(this.selectedAggregators);
+    }
 
 
     /**
