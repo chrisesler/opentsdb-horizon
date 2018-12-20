@@ -29,10 +29,57 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     @ViewChild(MatMenuTrigger) private menuTrigger: MatMenuTrigger;
 
     timeUnits: Array<string> = ['ms', 'second', 'minute', 'hour', 'day', 'year'];
-    binaryDataUnits: Array<string> = ['bits', 'bytes', 'kbytes', 'mbytes', 'gbytes'];
-    decimalDataUnits: Array<string> = ['decbits', 'decbytes', 'deckbytes', 'decmybytes', 'decgbytes'];
-    dataRateUnits: Array<string> = ['pps', 'bps', 'Bps', 'KBs', 'Kbits', 'MBs', 'Mbits', 'GBs', 'Gbits'];
-    throughputUnits: Array<string> = ['ops', 'reqps', 'rps', 'wps', 'iops', 'opm', 'rpm', 'wpm'];
+
+    binaryDataUnitsKeys: Array<string> = [ 'binbyte', 'kibibyte', 'mebibyte', 'gibibyte', 'tebibyte', 'pebibyte', 'exibyte' ];
+    binaryDataUnits: { [key:string] : string; } = {
+        'binbyte' : 'B   - byte',
+        'kibibyte': 'KiB - kibibyte (1024 B)',
+        'mebibyte': 'MiB - mebibyte (1024 KiB)',
+        'gibibyte': 'GiB - gebibyte (1024 MiB)',
+        'tebibyte': 'TiB - tebibyte (1024 GiB)',
+        'pebibyte': 'PiB - pebibyte (1024 TiB)',
+        'exibyte' : 'EiB - exibyte  (1024 PiB)'
+    }; 
+
+    decimalDataUnitsKeys: Array<string> = ['decbyte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'petabyte', 'exabyte'];
+    decimalDataUnits: { [key:string] : string; } = {
+        'decbyte' : 'B   - byte',
+        'kilobyte': 'kB - kilobyte (1000 B)',
+        'megabyte': 'MB - megabyte (1000 kB)',
+        'gigabyte': 'GB - gigabyte (1000 MB)',
+        'terabyte': 'TB - terabyte (1000 GB)',
+        'petabyte': 'PB - petabyte (1000 TB)',
+        'exabyte' : 'EB - exabyte  (1000 PB)'
+    };
+
+    binaryDataRateKeys: Array<string> = ['binbps', 'kibibps', 'mebibps', 'gibibps', 'tebibps', 'binbyte/s', 'kibibyte/s', 'mebibyte/s', 'gibibyte/s', 'tebibyte/s'];
+    binaryDataRateUnits: { [key:string] : string; } = {
+        'binbps' : 'bit/s',
+        'kibibps': 'Kibit/s (1024 bit/s)',
+        'mebibps': 'Mibit/s (1024 Kibit/s)',
+        'gibibps': 'Gibit/s (1024 Mibit/s)',
+        'tebibps': 'Tibit/s (1024 Gibit/s)',
+        'binbyte/s' : 'B/s (byte/s)',
+        'kibibyte/s': 'KiB/s (1024 B/s)',
+        'mebibyte/s': 'MiB/s (1024 KiB/s)',
+        'gibibyte/s': 'GiB/s (1024 MiB/s)',
+        'tebibyte/s': 'TiB/s (1024 GiB/s)'
+    }; 
+
+    decimalDataRateKeys: Array<string> = ['decbps', 'kbps', 'mbps', 'gbps', 'tbps', 'decbyte/s', 'kilobyte/s', 'megabyte/s', 'gigabyte/s', 'terabyte/s'];
+    decimalDataRateUnits: { [key:string] : string; } = {
+        'decbps' : 'bit/s',
+        'kbps': 'kbit/s (1000 bit/s)',
+        'mbps': 'Mbit/s (1000 kbit/s)',
+        'gbps': 'Gbit/s (1000 Mbit/s)',
+        'tbps': 'Tbit/s (1000 Gbit/s)',
+        'decbyte/s' : 'B/s (byte/s)',
+        'kilobyte/s': 'kB/s (1000 B/s)',
+        'megabyte/s': 'MB/s (1000 kB/s)',
+        'gigabyte/s': 'GB/s (1000 MB/s)',
+        'terabyte/s': 'TB/s (1000 GB/s)'
+    }; 
+
     currencyUnits: Array<string> = ['usd'];
     otherUnits: Array<string> = ['auto'];
 
@@ -66,6 +113,8 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
+
+    /*
     // Postfix
     KeyedOnPostfixInputBox(value: string) {
         this.widget.settings.visual['postfix'] = value;
@@ -82,6 +131,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         this.widget.settings.visual['postfixAlignment'] = value;
         this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
+    */
 
     // Unit
     KeyedOnUnitInputBox(value: string) {
@@ -121,8 +171,18 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     }
 
     isUnitCustom(str: string): boolean {
-        const allUnits: Array<string> =  this.timeUnits.concat(this.binaryDataUnits).concat(this.decimalDataUnits).
-            concat(this.dataRateUnits).concat(this.throughputUnits).concat(this.currencyUnits).concat(this.otherUnits);
+        let allUnits: Array<string>;
+
+        allUnits = this.timeUnits;
+        allUnits = allUnits.concat(this.binaryDataUnitsKeys);
+        allUnits = allUnits.concat(this.decimalDataUnitsKeys);
+        allUnits = allUnits.concat(this.binaryDataRateKeys);
+        allUnits = allUnits.concat(this.decimalDataRateKeys);
+        allUnits = allUnits.concat(this.currencyUnits);
+        allUnits = allUnits.concat(this.otherUnits);
+
+        // const allUnits: Array<string> =  Object.keys(this.timeUnits).concat(Object.keys(this.binaryDataUnits).concat(Objectthis.decimalDataUnits).
+        //     concat(this.dataRateUnits).concat(this.throughputUnits).concat(this.currencyUnits).concat(this.otherUnits);
         return !allUnits.includes(str);
     }
 

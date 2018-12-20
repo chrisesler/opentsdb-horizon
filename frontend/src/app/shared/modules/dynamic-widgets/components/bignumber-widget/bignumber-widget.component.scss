@@ -57,6 +57,67 @@
             flex: 1;
         }
 
+        // just a container
+        .metric-container {
+            // height: 3em;
+            // line-height: 3em;
+            display: flex;
+            justify-content: center;
+        }
+
+        .prefix, .unit, .big-number, .aggregator {
+            line-height: normal;
+            text-align: center;
+            &.top {
+                align-self: flex-start;
+                .small {
+                    padding-top: 0.4em;
+                }
+                .medium {
+                    padding-top: 0.1em;
+                }
+            }
+            &.middle {
+                align-self: center;
+            }
+            &.bottom {
+                align-self: flex-end;
+                .small {
+                    padding-bottom: 0.4em;
+                }
+                .medium {
+                    padding-bottom: 0.1em;
+                }
+            }
+        }
+
+        .prefix {
+            margin-right: 0.3em;
+        }
+
+        .left-unit {
+            margin-right: 0.1em;
+        }
+
+        .right-unit, .aggregator {
+            margin-left: 0.3em;
+        }
+
+        // modifiers
+        // used for the prefixes/suffixes
+
+        .small {
+            font-size: 1em;         // If modified, change corresponding variable setting in .ts
+        }
+
+        .medium {
+            font-size: 2em;         // If modified, change corresponding variable setting in .ts
+        }
+
+        .large {
+            font-size: 3em;         // If modified, change corresponding variable setting in .ts
+        }
+
         // Big Number wrapper
         .big-num-container {
             flex: 1;
@@ -64,13 +125,6 @@
             align-items: center;
             justify-content: center;
             white-space: nowrap;
-        }
-
-        // just a container
-        .metric-container {
-            text-align: center;
-            height: 3em;
-            line-height: 3em;
         }
 
         // the actual big number
@@ -100,46 +154,6 @@
         }
 
         
-        // modifiers
-        // used for the prefixes/suffixes
-
-        .small-top {
-            font-size: 1em;         // If modified, change corresponding variable setting in .ts
-            line-height: 1.8em;
-            vertical-align: top;
-        }
-
-        .small-middle {
-            font-size: 1em;         // If modified, change corresponding variable setting in .ts
-            line-height: 1.8em;
-            vertical-align: super;
-        }
-
-        .small-bottom {
-            font-size: 1em;         // If modified, change corresponding variable setting in .ts
-            line-height: 1.8em;
-        }
-
-        .medium-top {
-            font-size: 2em;         // If modified, change corresponding variable setting in .ts
-            line-height: 1.2em;
-            vertical-align: top;
-        }
-
-        .medium-middle {
-            font-size: 2em;         // If modified, change corresponding variable setting in .ts
-            line-height: 1.2em;
-            vertical-align: super;
-        }
-
-        .medium-bottom {
-            font-size: 2em;         // If modified, change corresponding variable setting in .ts
-            line-height: 1.2em;
-        }
-
-        .large-size {
-            font-size: 3em;         // If modified, change corresponding variable setting in .ts  
-        }
 
         // In widget mode, don't display this.
         // This is displayed only in edit mode
