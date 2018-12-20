@@ -218,7 +218,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             debounceTime(200)
         )
         .subscribe( value => {
-            const query: any = { namespace: this.query.namespace, tags: [] };
+            const query: any = { namespace: this.query.namespace, tags: [], metrics: [] };
 
             for ( let i = 0, len = this.query.filters.length; i < len; i++  ) {
                 const filter: any =  { key: this.query.filters[i].tagk };
@@ -232,7 +232,18 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
 
             // filter tags by metrics
             if ( this.query.metrics ) {
-                query.metrics = this.query.metrics.filter(item => !item.expression).map( item => item.name);
+                for ( let i = 0, len = this.query.metrics.length; i < len; i++ ) {
+                    if ( !this.query.metrics[i].expression ) {
+                        query.metrics.push(this.query.metrics[i].name);
+                    } else {
+                        const metrics = this.query.metrics[i].metrics.map(item => item.name.replace(this.query.namespace + '.',''));
+                        query.metrics = query.metrics.concat(metrics);
+                    }
+                }
+                query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
+
+
+                console.log("tag key search", query )
             }
             if ( this.edit.indexOf('filters') !== -1 ) {
                 this.httpService.getNamespaceTagKeys(query)
@@ -245,11 +256,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             }
             // this.tagSearchInput.nativeElement.focus();
         });
-    }
-
-    filterTagOptions() {
-        const selected = this.query.filters.map(item => item.tagk);
-        this.tagOptions = this.tagOptions.filter( tag => selected.indexOf(tag) === -1);
     }
 
     setTagValueSearch() {
@@ -322,6 +328,10 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             this.query.metrics.splice(index, 1);
         }
         this.queryChanges$.next(true);
+        if ( this.edit.indexOf('filters') !== -1 ) {
+            this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+            this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        }
     }
     removeMetricById(mid) {
         const index = this.query.metrics.findIndex( d => d.id === mid );
@@ -410,7 +420,10 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                 this.selectedTagIndex = -1;
             }
         }
-        this.filterTagOptions();
+        this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        if ( this.edit.indexOf('metrics') !== -1 ) {
+            this.metricSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        }
         this.queryChanges$.next(true);
     }
 
