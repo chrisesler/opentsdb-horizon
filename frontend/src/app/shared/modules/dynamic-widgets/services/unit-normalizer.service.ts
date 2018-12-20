@@ -19,79 +19,124 @@ export class UnitNormalizerService {
   public getBigNumber(val: number, unit: string, precision?: number): IBigNum {
     let bigNum: IBigNum;
     switch (unit) {
-      // Data (Binary)
+      // Ref: https://en.wikipedia.org/wiki/Kibibyte
+      // Data (Binary/IEC/1024)
       case 'bits':
         bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 0), precision, 'b');
         break;
-      case 'bytes':
+      case 'binbyte':
         bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 0), precision, 'B');
         break;
-      case 'kbytes':
+      case 'kibibyte':
         bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 1), precision, 'B');
         break;
-      case 'mbytes':
+      case 'mebibyte':
         bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 2), precision, 'B');
         break;
-      case 'gbytes':
+      case 'gibibyte':
         bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 3), precision, 'B');
         break;
+      case 'tebibyte':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 4), precision, 'B');
+        break;
+      case 'pebibyte':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 5), precision, 'B');
+        break;
+      case 'exibyte':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 6), precision, 'B');
+        break;
 
-      // Data (Decimal)
+      // Ref: https://en.wikipedia.org/wiki/Kibibyte  
+      // Data (Decimal/SI/1000)
       case 'decbits':
         bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'b');
         break;
-      case 'decbytes':
+      case 'decbyte':
         bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'B');
         break;
-      case 'deckbytes':
+      case 'kilobyte':
         bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 1), precision, 'B');
         break;
-      case 'decmbytes':
+      case 'megabyte':
         bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 2), precision, 'B');
         break;
-      case 'decgbytes':
+      case 'gigabyte':
         bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 3), precision, 'B');
         break;
+      case 'terabyte':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 4), precision, 'B');
+        break;
+      case 'petabyte':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 5), precision, 'B');
+        break;
+      case 'exabyte':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 6), precision, 'B');
+        break;
 
-      // Data Rate
-      case 'pps':
-        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'pps');
+      // Ref: https://en.wikipedia.org/wiki/Data-rate_units
+      // Data Rate (Binary/IEC/1024)
+      case 'binbps':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 0), precision, 'bit/s');
         break;
-      case 'bps':
-        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'bps');
+      case 'kibibps':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 1), precision, 'bit/s');
         break;
-      case 'Bps':
+      case 'mebibps':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 2), precision, 'bit/s');
+        break;
+      case 'gibibps':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 3), precision, 'bit/s');
+        break;
+      case 'tebibps':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 4), precision, 'bit/s');
+        break;
+      case 'binbyte/s':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 0), precision, 'B/s');
+        break;
+      case 'kibibyte/s':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 1), precision, 'B/s');
+        break;
+      case 'mebibyte/s':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 2), precision, 'B/s');
+        break;
+      case 'gibibyte/s':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 3), precision, 'B/s');
+        break;
+      case 'tebibyte/s':
+        bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 4), precision, 'B/s');
+        break;
+
+      // Ref: https://en.wikipedia.org/wiki/Data-rate_units
+      // Data Rate (Decimal/SI/1000)
+      case 'decbps':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'bit/s');
+        break;
+      case 'kbps':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 1), precision, 'bit/s');
+        break;
+      case 'mbps':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 2), precision, 'bit/s');
+        break;
+      case 'gbps':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 3), precision, 'bit/s');
+        break;
+      case 'tbps':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 4), precision, 'bit/s');
+        break;
+      case 'decbyte/s':
         bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'B/s');
         break;
-      case 'KBs':
-        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 1), precision, 'Bs');
+      case 'kilobyte/s':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 1), precision, 'B/s');
         break;
-      case 'Kbits':
-        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 1), precision, 'bps');
+      case 'megabyte/s':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 2), precision, 'B/s');
         break;
-      case 'MBs':
-        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 2), precision, 'Bs');
+      case 'gigabyte/s':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 3), precision, 'B/s');
         break;
-      case 'Mbits':
-        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 2), precision, 'bps');
-        break;
-      case 'GBs':
-        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 3), precision, 'Bs');
-        break;
-      case 'Gbits':
-        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 3), precision, 'bps');
-        break;
-
-      // Throughput
-      case 'ops':
-      case 'reqps':
-      case 'rps':
-      case 'wps':
-      case 'iops':
-      case 'opm':
-      case 'rpm':
-      case 'wpm':
-        bigNum = this.formatNumberWithDim(this.short(val), precision, unit);
+      case 'terabyte/s':
+        bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 4), precision, 'B/s');
         break;
 
       // Time
