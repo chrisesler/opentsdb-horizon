@@ -113,6 +113,8 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 
+
+    /*
     // Postfix
     KeyedOnPostfixInputBox(value: string) {
         this.widget.settings.visual['postfix'] = value;
@@ -129,6 +131,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         this.widget.settings.visual['postfixAlignment'] = value;
         this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
+    */
 
     // Unit
     KeyedOnUnitInputBox(value: string) {
