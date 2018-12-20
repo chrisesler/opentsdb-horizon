@@ -47,7 +47,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     readonly contentFillPercent: number = 0.8; // how much % content should take up widget
     readonly contentFillPercentWithNoCaption: number = 0.8; // how much % content should take up widget
 
-    //NOTE: FONT settings have been coded here for text size calculation purposes.
+    // NOTE: FONT settings have been coded here for text size calculation purposes.
     //      CHANGE ME if CSS style changes. Yes, we know this is sub-optimal.
     //      Please submit a PR if you find a better solution.
     readonly defaultFont: string = 'Ubuntu';
