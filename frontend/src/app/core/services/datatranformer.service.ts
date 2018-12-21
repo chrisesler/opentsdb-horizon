@@ -21,11 +21,9 @@ export class DatatranformerService {
         return normalizedData;
     }
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
-/*
     let dict = {};
     for (let qid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
-        const mConfigs = gConfig ? gConfig.metrics : [];
         if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
             dict[qid] = {};
             for ( let i = 0;  i < result[qid].results.length; i++ ) {
@@ -36,23 +34,34 @@ export class DatatranformerService {
 
                 }
                 if ( source === 'summarizer') {
-                    dict[qid][mid]['summarizer'] = queryResults.data;
-                    continue;
+                    dict[qid][mid]['summarizer'] = {};
+                    const n = queryResults.data.length;
+                    for ( let j = 0; j < n; j ++ ) {
+                        const tags = queryResults.data[j].tags;
+                        const hash = JSON.stringify(tags);
+                        const aggs = queryResults.data[j].NumericSummaryType.aggregations;
+                        const key = Object.keys(queryResults.data[j].NumericSummaryType.data[0])[0];
+                        const data = queryResults.data[j].NumericSummaryType.data[0][key];
+                        const aggData = {};
+                        for ( let k = 0; k < aggs.length; k++ ) {
+                            aggData[aggs[k]] = data[k];
+                        }
+                        dict[qid][mid]['summarizer'][hash] = aggData;
+                    }
+                } else {
+                    dict[qid][mid]['values'] = {}; // queryResults.data;
+                    const n = queryResults.data.length;
+                    for ( let j = 0; j < n; j ++ ) {
+                        const tags = queryResults.data[j].tags;
+                        let hash = JSON.stringify(tags);
+                        dict[qid][mid]['values'][hash] = queryResults.data[j].NumericType;
+                    }
                 }
-                else {
-                    dict[qid][mid]['values'] = queryResults.data;
-                }
-                const mIndex = mid.replace("m",'');
-                const n = queryResults.data.length;
-                for ( let j = 0; j < n; j ++ ) {
-                    const tags = queryResults.data[j].tags;
-                    let hashCode = JSON.stringify(tags);
-                    dict[qid][mid]['hashes'][hashCode] = j;
-                }
+                
             }
         }
     }
-
+    /*
     for (let qid in dict) {
         for(let mid in dict[qid]) {
             dict[qid][mid].values.sort((a,b) => {
@@ -93,8 +102,10 @@ export class DatatranformerService {
                 for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults.data[j].NumericType;
                     const tags = queryResults.data[j].tags;
+                    const hash = JSON.stringify(tags);
                     const metric = vConfig.label || queryResults.data[j].metric;
                     const numPoints = data.length;
+                    const aggData = dict[qid][mid]['summarizer'][hash];
 
                     let label = options.labels.length.toString();
                     if ( vConfig.visible ) {
@@ -107,7 +118,8 @@ export class DatatranformerService {
                                 color: colors[j],
                                 axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
                                 metric: metric,
-                                tags: tags
+                                tags: tags,
+                                aggregations: aggData
                             };
                         }
                         const seriesIndex = options.labels.indexOf(label);

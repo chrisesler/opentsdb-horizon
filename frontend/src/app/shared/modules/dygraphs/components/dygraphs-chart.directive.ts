@@ -100,13 +100,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         //this.options.plotter = multiColumnGroupPlotter;
         this._g = new Dygraph(this.element.nativeElement, this.data, this.options);
       }
-      // resize when size be changed
-      if(this._g && changes.size && changes.size.currentValue) {
-        //console.log('call resize', changes.size.currentValue); 
-        let nsize = changes.size.currentValue;    
-        this._g.resize(nsize.width, nsize.height);
-      }
-
       // if new data
       if (this._g && changes.data && changes.data.currentValue) {
         let ndata = changes.data.currentValue;
@@ -146,6 +139,13 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         this._g.destroy();
         this._g = new Dygraph(this.element.nativeElement, this.data, this.options);
       }
+        
+        // resize when size be changed
+        if(this._g && changes.size && changes.size.currentValue) {
+            //console.log('call resize', changes.size.currentValue); 
+            let nsize = changes.size.currentValue;    
+            this._g.resize(nsize.width, nsize.height);
+        }
     }
   }
 

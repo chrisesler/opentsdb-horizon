@@ -1,5 +1,5 @@
 import {
-    Component, OnInit, OnChanges, AfterViewInit, SimpleChanges, HostBinding, Input,
+    Component, OnInit, OnChanges, AfterContentInit, SimpleChanges, HostBinding, Input,
     OnDestroy, ViewChild, ElementRef
 } from '@angular/core';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
@@ -23,7 +23,7 @@ import { debounceTime } from 'rxjs/operators';
     templateUrl: './linechart-widget.component.html',
     styleUrls: []
 })
-export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
+export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContentInit, OnDestroy {
 
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.linechart-widget') private _componentClass = true;
@@ -78,12 +78,15 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     };
     data: any = [[0]];
     size: any = {};
+    newSize: any = {};
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
+    legendWidth;
+    legendHeight;
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
-    legendDisplayColumns = [];
+    legendDisplayColumns = ['series', 'name', 'min', 'max', 'avg', 'last'];
     editQueryId = null;
     constructor(
         private interCom: IntercomService,
@@ -236,14 +239,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
             this.widget.queries.push(g);
             gid = g.id;
         }
-
-        /*
-        const config = this.util.getObjectByKey(this.widget.queries, 'id', gid);
-        for ( let i = 0; i < gConfig.metrics.length; i++ ) {
-            gConfig.metrics[i].settings.visual.type = 'line';
-        }
-        config.metrics = config.queries.concat(gConfig.queries);
-        */
     }
 
     createNewGroup() {
@@ -266,7 +261,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     ngOnChanges(changes: SimpleChanges) {
     }
 
-    ngAfterViewInit() {
+    ngAfterContentInit() {
 
         ElementQueries.listen();
         ElementQueries.init();
@@ -276,10 +271,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         };
         this.newSize$ = new BehaviorSubject(initSize);
 
-        this.newSizeSub = this.newSize$.pipe(
-            debounceTime(100)
-        ).subscribe(size => {
+        this.newSizeSub = this.newSize$.subscribe(size => {
             this.setSize(size);
+            this.newSize = size;
         });
         
         const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
@@ -292,6 +286,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setSize(newSize: any) {
+        if ( !Object.keys(newSize).length ) {
+            return;
+        }
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
         //const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
@@ -303,39 +300,32 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
 
         const legendSettings = this.widget.settings.legend;
 
-        let widthModifier = 1;
-        this.legendDisplayColumns = [];
+        let widthOffset = 0;
+        let heightOffset = 0;
         if (legendSettings.display &&
-                              ( legendSettings.position === 'left' ||
-                                legendSettings.position === 'right' ) ) {
-            this.legendDisplayColumns = ['series', 'name'];
-            widthModifier = .7;
+                                    ( legendSettings.position === 'left' ||
+                                    legendSettings.position === 'right' ) ) {
+            widthOffset = 350;
         }
 
-        let heightModifier = 1;
         if ( legendSettings.display &&
-                               ( legendSettings.position === 'top' ||
-                                 legendSettings.position === 'bottom' ) ) {
-            heightModifier = .75;
+                                    ( legendSettings.position === 'top' ||
+                                    legendSettings.position === 'bottom' ) ) {
+            heightOffset = newSize.height * .25;
+            heightOffset = heightOffset <= 80 ? 80 : heightOffset;
         }
 
         if (this.editMode) {
             padding = 8; // 8px top and bottom
-            nHeight = ((newSize.height - offset) * heightModifier) - (padding * 2);
-            nWidth = (newSize.width * widthModifier) - (padding * 2);
+            nHeight = newSize.height - heightOffset - (padding * 2);
+            nWidth = newSize.width - widthOffset  - (padding * 2);
         } else {
             padding = 10; // 10px on the top
-            nHeight = (newSize.height * heightModifier) - (padding * 2);
-            nWidth = (newSize.width * widthModifier) - (padding * 2);
+            nHeight = newSize.height - heightOffset - (padding * 2);
+            nWidth = newSize.width - widthOffset  - (padding * 2);
         }
-        if ( this.legendDisplayColumns.length ) {
-            if (nWidth >= 800 ) {
-                this.legendDisplayColumns.push('min');
-            }
-            if (nWidth >= 1000 ) {
-                this.legendDisplayColumns.push('max');
-            }
-        }
+        this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
+        this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
         this.size = {width: nWidth, height: nHeight };
     }
 
@@ -521,10 +511,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     setLegend(config) {
         this.widget.settings.legend = config;
         this.setLegendDiv();
-        this.setSize({
-            width: this.widgetOutputElement.nativeElement.clientWidth,
-            height: this.widgetOutputElement.nativeElement.clientHeight
-        });
         this.options = {...this.options};
     }
 
@@ -534,19 +520,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     setLegendDiv() {
-        // NOTE: This is a weird way to do this. Do we really need 4 different divs for legen position? Just style the one.
-        const lConfig = this.widget.settings.legend;
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
-        if ( lConfig.display ) {
-            /*const position = lConfig.position[0].toUpperCase() + lConfig.position.slice(1);
-            const legendDiv = this.elRef.nativeElement.querySelector('#dygraphLegend' + position );
-            this.options.labelsDiv = lConfig.display ? legendDiv  : null;
-            this.options.legend = lConfig.display ? 'always' : 'follow';*/
-
-            //const legendDiv = this.dygraphLegend.nativeElement;
-            //this.options.labelsDiv = lConfig.display ? legendDiv  : null;
-            //this.options.legend = lConfig.display ? 'always' : 'follow';
-        }
+        this.setSize(this.newSize);
     }
 
     toggleChartSeries(index) {
@@ -559,15 +534,12 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterViewIni
         return label.length > 30 ? label.substr(0, 30) + '..' : label;
     }
     getSeriesAggregate( index, aggregate ) {
-        const sdata = [];
-        for ( let i = 0; i < this.data.length; i++ ) {
-            sdata.push( this.data[i][index]);
-        }
-        const value = this.util.getArrayAggregate( aggregate, sdata);
         const config = this.options.series[index];
+
+        const value = config.aggregations[aggregate];
         const format = config.axis === 'y' ? this.options.axes.y.tickFormat : this.options.axes.y2.tickFormat;
-        const precision = format.precision ? format.precision : 2;
-        return this.unit.format(value, { unit: format.unit, precision: precision } );
+        const precision = format && format.precision ? format.precision : 2;
+        return this.unit.format(value, { unit: format ? format.unit : '', precision: precision } );
     }
 
     requestData() {

@@ -8,7 +8,10 @@
     .widget-panel-content.linechart-widget {
         flex: 1;
         display: flex;
-
+        overflow: scroll;
+        .hide {
+            display: none;
+        }
         // Don't have padding for line-charts
         .widget-output {
             padding: 0;
@@ -39,6 +42,7 @@
                 list-style: none;
                 height: 100%;
                 overflow: scroll;
+                z-index: 0;
             }
 
             .loader{
@@ -49,7 +53,7 @@
                 width: 30px;
                 height: 30px;
                 background-image: url(/assets/denali-loader.svg);
-                background-color:#fff;
+                background-color: transparent;
             }
 
             .error{
@@ -100,28 +104,28 @@
             }
 
             &.display-legend-left,
-            &.display-legend-right {
+            &.display-legend-right,
+            &.display-legend-top,
+            &.display-legend-bottom {
                 .graph-legend {
-                    flex: 0 0 30%;
                     table {
                         flex: 1;
                     }
                     tr {
                         cursor: pointer;
                     }
-                }
-            }
-            &.display-legend-top,
-            &.display-legend-bottom {
-                .graph-legend {
-                    flex: 1;
-                    display: flex;
-                    flex-wrap: wrap;
-                    li {
-                        display: inline-flex;
-                        align-items: center;
-                        margin:2px 10px;
-                        cursor: pointer;
+                    .mat-column-series {
+                        width: 30px;
+                    }
+                    .mat-row, .mat-header-row {
+                        height: 25px;
+                    }
+                    .mat-cell, .mat-header-cell {
+                        padding: 5px;
+                        font-size: 9px;
+                    }
+                    .mat-column-min, .mat-column-max, .mat-column-avg, .mat-column-last {
+                        text-align: right;
                     }
                 }
             }
