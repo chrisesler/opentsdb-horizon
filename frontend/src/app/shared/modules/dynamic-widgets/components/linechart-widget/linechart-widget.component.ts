@@ -530,8 +530,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     }
 
     getSeriesLabel(index) {
-        const label = this.options.series[index].metric;
-        return label.length > 30 ? label.substr(0, 30) + '..' : label;
+        const label = this.dataTransformer.getLableFromMetricTags(this.options.series[index].metric, this.options.series[index].tags);
+        return label;
     }
     getSeriesAggregate( index, aggregate ) {
         const config = this.options.series[index];

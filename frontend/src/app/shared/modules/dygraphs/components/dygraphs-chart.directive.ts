@@ -62,11 +62,13 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 return;
             }
             const tags = seriesConfig[series.label].tags;
-            const metric = seriesConfig[series.label].metric;
+            const metric = tags.metric;
             html += '<p>Value: '  + series.yHTML + '</p>';
             html += '<p>' + metric + '</p>';
             for (const k in tags ) {
-                html += '<p>' + k + ': ' +  tags[k] + '</p>';
+                if ( k !== 'metric' ) {
+                    html += '<p>' + k + ': ' +  tags[k] + '</p>';
+                }
             }
         });
         return html;

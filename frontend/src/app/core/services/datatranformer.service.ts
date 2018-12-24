@@ -118,7 +118,7 @@ export class DatatranformerService {
                                 color: colors[j],
                                 axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
                                 metric: metric,
-                                tags: tags,
+                                tags: { metric: !mConfig.expression? queryResults.data[j].metric : this.getLableFromMetricTags(metric, tags), ...tags},
                                 aggregations: aggData
                             };
                         }
@@ -222,13 +222,13 @@ export class DatatranformerService {
                     const aggData = results[i].data[j].NumericType[key];
 
                     if ( mConfig.settings && mConfig.settings.visual.visible ) {
-                        const metric = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
+                        let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                         const aggrIndex = aggs.indexOf(aggregator);
-                        let label = this.getLableFromMetricTags(metric, tags);
+                        label = this.getLableFromMetricTags(label, { metric: results[i].data[j].metric, ...tags});
                         options.labels.push(label);
                         datasets[0].data.push(aggData);
                         datasets[0].backgroundColor.push(colors[j]);
-                        datasets[0].tooltipData.push({ metric: metric, ...tags });
+                        datasets[0].tooltipData.push({ metric: results[i].data[j].metric, ...tags });
                     }
                 }
             }
@@ -236,10 +236,18 @@ export class DatatranformerService {
         return [...datasets];
     }
 
-    getLableFromMetricTags(metric, tags ) {
-        let label = metric;
-        for ( let k in tags ) {
-            label = label + '-' + tags[k];
+    getLableFromMetricTags(label, tags ) {
+        const regex = /\{\{([\w-]+)\}\}/ig
+        const matches = label.match(regex);
+        if ( matches ) {
+            for ( let i = 0, len = matches.length; i < len; i++ ) {
+                const key = matches[i].replace(/\{|\}/g,'');
+                label = label.replace(matches[i], tags[key]);
+            }
+        } else {
+            for ( let k in tags ) {
+                label = label + '-' + tags[k];
+            }
         }
         label = label.length > 50 ? label.substr(0, 48) + '..' : label;
         return label;
@@ -271,13 +279,13 @@ export class DatatranformerService {
                 const key = Object.keys(results[i].data[j].NumericType)[0];
                 const aggData = results[i].data[j].NumericType[key];
                 if ( mConfig.settings && mConfig.settings.visual.visible ) {
-                    const metric = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
+                    let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                     const aggrIndex = aggs.indexOf(aggregator);
-                    const label = this.getLableFromMetricTags(metric, tags);
+                    label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
                     options.labels.push(label);
                     datasets[0].data.push(aggData);
                     datasets[0].backgroundColor.push(colors[j]);
-                    datasets[0].tooltipData.push({metric: metric, ...tags});
+                    datasets[0].tooltipData.push({metric: results[i].data[j].metric, ...tags});
                 }
             }
         }
