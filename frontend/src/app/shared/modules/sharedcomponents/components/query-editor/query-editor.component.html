@@ -1,90 +1,99 @@
-<div class="container">
-    <mat-toolbar class="namespace-bar" [ngClass]="{'is-open': query.namespace || query.metrics.length || query.filters.length}">
-        <div class="toolbar-item query-index">
-            <span>{{ label }}</span>
-        </div>
-        <div class="toolbar-item">
-            <span class="title"> Namespace </span>
-        </div>
-        <div class="toolbar-item">
-            <span class="namespace-value" *ngIf="!editNamespace" (click)="editNamespace=true;">
-                {{ query.namespace }}
-            </span>
-        </div>
-        <div class="toolbar-item">
-            <span class="value" *ngIf="editNamespace || !query.namespace.trim() ">
-                <namespace-autocomplete [value]="query.namespace" (nschange)="saveNamespace($event)" (blur)="cancelSaveNamespace($event)"></namespace-autocomplete>
-            </span>
-        </div>
-        <span class="flex-spacer"></span>
-        <div class="toolbar-item action-icons">
-            <button mat-icon-button color="primary" (click)="toggleQuery(); $event.stopPropagation();">
-                <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
-                <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
-            </button>
-            <button mat-icon-button color="primary" (click)="deleteQuery(); $event.stopPropagation();">
-                <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-            </button>
-        </div>
-    </mat-toolbar>
-    <div class="metrics-query-container" *ngIf="query.namespace || query.metrics.length || query.filters.length">
-        <div class="help-text">
-            Start by adding metric or filter and then click apply to save your query.
-        </div>
-        <div class="metric-filters-container">
-            <div class="metrics">
-                <!--<div class="label">METRICS</div>-->
-
-                <mat-list class="metric-rows" role="list" *ngIf="edit.indexOf('metrics') === -1 && query.metrics.length > 0">
-                    <mat-list-item class="metric" role="listitem" *ngFor="let metric of query.metrics">
-                        <div class="metric-item-detail">
-                            <div>{{ metric.name }}</div>
-                            <div>Tag aggregator: <tag-aggregator
-                                     [value]="metric.tagAggregator"
-                                    (change)="setMetricTagAggregator(metric.id, $event)"></tag-aggregator>
+<mat-toolbar class="namespace-bar"
+    [ngClass]="{'is-expanded': query.namespace || query.metrics.length || query.filters.length}">
+    <div class="toolbar-item query-index">
+        <span>{{ label }}</span>
+    </div>
+    <div class="toolbar-item">
+        <span class="title"> Namespace </span>
+    </div>
+    <div class="toolbar-item">
+        <span class="namespace-value" *ngIf="!editNamespace" (click)="editNamespace=true;">
+            {{ query.namespace }}
+        </span>
+    </div>
+    <div class="toolbar-item">
+        <span class="value" *ngIf="editNamespace || !query.namespace.trim() ">
+            <namespace-autocomplete [value]="query.namespace" (nschange)="saveNamespace($event)" (blur)="cancelSaveNamespace($event)"></namespace-autocomplete>
+        </span>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="toolbar-item action-icons">
+        <button mat-icon-button color="primary" (click)="toggleQuery(); $event.stopPropagation();">
+            <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
+            <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
+        </button>
+        <button mat-icon-button color="primary" (click)="deleteQuery(); $event.stopPropagation();">
+            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+        </button>
+    </div>
+</mat-toolbar>
+<div class="metric-query-controls"
+    [ngClass]="{'is-editing': edit.length > 0}"
+    *ngIf="query.namespace || query.metrics.length || query.filters.length">
+    <div class="help-text" *ngIf="query.metrics.length === 0 && query.filters.length === 0">
+        Start by adding a metric or tag filter and then click apply to save your query.
+    </div>
+    <div class="query-filters">
+        <!-- metric selector -->
+        <div class="metric-filters query-filter-block"
+            [ngClass]="{'is-active': edit.length && edit.indexOf('metrics') !== -1 }">
+            <div class="container">
+                <div class="metrics-selected" *ngIf="edit.indexOf('metrics') === -1 && query.metrics.length > 0">
+                    <div class="metrics-selected-header">
+                        <span><strong>Metrics</strong> ({{ query.metrics.length }})</span>
+                    </div>
+                    <mat-list class="metric-rows" role="list">
+                        <mat-list-item class="metric" role="listitem" *ngFor="let metric of query.metrics" [ngClass]="">
+                            <div class="metric-item-detail">
+                                <div class="metric-name">{{ metric.name }}</div>
+                                <div>Tag aggregator: <tag-aggregator
+                                    [value]="metric.tagAggregator"
+                                   (change)="setMetricTagAggregator(metric.id, $event)"></tag-aggregator>
+                                </div>
                             </div>
-                        </div>
-                        <span class="flex-spacer"></span>
-                        <div class="action-icons">
-                            <button mat-icon-button color="primary" (click)="toggleMetricVisibility(metric.id); $event.stopPropagation()">
-                                <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="metric.settings.visual.visible"></mat-icon>
-                                <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!metric.settings.visual.visible"></mat-icon>
-                            </button>
-                            <!--<button mat-icon-button color="primary" (click)="editMetric(metric.id); $event.stopPropagation()">
-                                                <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                                        </button>-->
-                            <button mat-icon-button color="primary" (click)="deleteMetric(metric.id); $event.stopPropagation()">
-                                <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                            </button>
-                        </div>
-                    </mat-list-item>
-                </mat-list>
-                <div class="action" *ngIf="!edit.length || edit.indexOf('metrics') === -1">
+                            <span class="flex-spacer"></span>
+                            <div class="action-icons">
+                                <button mat-icon-button color="primary" (click)="toggleMetricVisibility(metric.id); $event.stopPropagation()">
+                                    <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="metric.settings.visual.visible"></mat-icon>
+                                    <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!metric.settings.visual.visible"></mat-icon>
+                                </button>
+                                <!--<button mat-icon-button color="primary" (click)="editMetric(metric.id); $event.stopPropagation()">
+                                                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                            </button>-->
+                                <button mat-icon-button color="primary" (click)="deleteMetric(metric.id); $event.stopPropagation()">
+                                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                </button>
+                            </div>
+                        </mat-list-item>
+                    </mat-list>
+                </div>
+                <div class="action-controls query-edit-actions" *ngIf="!edit.length || edit.indexOf('metrics') === -1">
                     <button mat-stroked-button color="primary" (click)="requestEditMode('metrics')">
                         <mat-icon class="mat-12" fontSet="denali" fontIcon="d-add"></mat-icon>
                         <span>{{ query.metrics.length ? 'Edit': 'Add' }} Metrics</span>
                     </button>
                 </div>
-                <div class="metric-filter" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
-                    <div class="search">
-                        <mat-form-field class="metric-search-input-field" appearance="fill" color="primary" floatLabel="never">
+                <!-- if adding some metrics -->
+                <div class="metric-search" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
+                    <div>
+                        <mat-form-field class="metric-search-input-field" appearance="outline" color="primary" floatLabel="never">
                             <input matInput placeholder="Filter metrics" [formControl]="metricSearchControl" #metricSearchInput>
                         </mat-form-field>
-                        <!--<input type=text  class="metric-search-input" [formControl]="metricSearchControl">-->
                     </div>
                 </div>
-                <div class="filter-result" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
+                <div class="metric-search-result" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
                     <mat-tab-group color="primary" mat-align-tabs="start" [(selectedIndex)]="metricSelectedTabIndex">
                         <mat-tab [label]="'Available(' + metricOptions.length + ')'" [disabled]="isEditExpression">
                             <ng-template matTabContent>
-                                <div class="list has-scroller">
+                                <div class="option-list has-scroller">
                                     <div class="is-scroller">
-                                        <div class="option" *ngFor="let option of metricOptions" [ngClass]="getMetricIndex(option) !== -1 ? 'added' : ''">
-                                            <div class="option-row-item">
-                                                <mat-icon *ngIf="getMetricIndex(option) === -1" (click)="updateMetricSelection(option, 'add');">add_circle_outline</mat-icon>
-                                                <mat-icon *ngIf="getMetricIndex(option) !== -1" (click)="updateMetricSelection(option, 'remove')">remove_circle_outline</mat-icon>
+                                        <div class="option-item" *ngFor="let option of metricOptions" [ngClass]="getMetricIndex(option) !== -1 ? 'added' : ''"
+                                            (click)="(getMetricIndex(option) === -1) ? updateMetricSelection(option, 'add') : updateMetricSelection(option, 'remove');">
+                                            <div class="option-cell">
+                                                <mat-icon *ngIf="getMetricIndex(option) === -1">add_circle_outline</mat-icon>
+                                                <mat-icon *ngIf="getMetricIndex(option) !== -1">remove_circle_outline</mat-icon>
                                             </div>
-                                            <div class="option-row-item label">{{ option }}</div>
+                                            <div class="option-cell label">{{ option }}</div>
                                         </div>
                                         <div *ngIf="message.metricSearchControl.message" [ngClass]="message.metricSearchControl.type === 'error'? 'error': 'info'">
                                             {{ message['metricSearchControl']['message'] }}
@@ -95,29 +104,30 @@
                         </mat-tab>
                         <mat-tab [label]="'Selected(' + query.metrics.length + ')'">
                             <ng-template matTabContent>
-                                <div class="list has-scroller">
+                                <div class="option-list has-scroller">
                                     <div class="is-scroller" *ngIf="!isEditExpression">
-                                        <div class="option" *ngFor="let metric of query.metrics; let index=index">
-                                            <div class="option-row-item">
+                                        <div class="option-item" *ngFor="let metric of query.metrics; let index=index">
+                                            <div class="option-cell">
                                                 <mat-icon (click)="removeMetricById(metric.id);">remove_circle_outline</mat-icon>
                                             </div>
-                                            <div class="option-row-item label">{{ metric.name }}</div>
-                                            <div class="option-row-item">
+                                            <div class="option-cell label">{{ metric.name }}</div>
+                                            <div class="option-cell">
                                                 <mat-icon fontSet="denali" fontIcon="d-pencil" *ngIf="metric.expression"
                                                     (click)="showExpressionForm(metric.id);"></mat-icon>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="is-scroller" *ngIf="isEditExpression">
-                                        <div class="option expression" *ngFor="let alias of aliases; let index=index">
-                                            <div>
+                                        <div class="option-item expression" *ngFor="let alias of aliases; let index=index">
+                                            <div class="option-cell">
                                                 <span>{{ alias.id }}: </span>
                                                 <span>{{ alias.displayName }}</span>
                                                 <span class="link" *ngIf="alias.isExpression" (click)="toggleExpressionDetail(index)">{{
                                                     alias.expanded? 'Hide Detail' : 'Show Detail'}}</span>
                                             </div>
-                                            <div class="expression-detail" *ngIf="alias.expanded">{{ alias.expression
-                                                }}</div>
+                                            <div class="option-cell expression-detail" *ngIf="alias.expanded">
+                                                {{ alias.expression }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -128,100 +138,129 @@
                         [disabled]="isEditExpression">+ Add Expression </button>
                 </div>
             </div>
-            <div class="filters" *ngIf="!isEditExpression">
-                <!--<div class="label">FILTERS</div>-->
-                <ng-container *ngIf="query.filters.length && edit.indexOf('filters') === -1">
-                    <div class="tag" *ngFor="let filter of query.filters; let index=index">
-                        <div class="tag-item-detail">
-                            <span *ngIf= "type !== 'BignumberWidgetComponent'">
-                                <tag-groupby [value]="filter.groupBy" 
-                                    (change)="setTagGroupBy(index, $event)"></tag-groupby>
-                            </span>
-                            <span>{{ filter.tagk }}: {{ filter.filter.join(',') }}</span>
-                        </div>
-                        <span class="action-icons">
-                            <button mat-icon-button color="primary" (click)="deleteFilter(index); $event.stopPropagation()">
-                                <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                            </button>
-                        </span>
+        </div>
+        <!-- tag selector -->
+        <div class="tag-filters query-filter-block"
+            *ngIf="!isEditExpression"
+            [ngClass]="{'is-active': edit.length && edit.indexOf('filters') !== -1 }">
+            <div class="container" style="flex-direction: column;">
+                <!-- if there are tags selected -->
+                <div class="tags-selected" *ngIf="query.filters.length && edit.indexOf('filters') === -1">
+                    <div class="tags-selected-header">
+                        <span><strong>Tag Filters</strong> ({{ query.filters.length }})</span>
                     </div>
-
-                </ng-container>
-                <div class="action" *ngIf="!edit.length ||  edit.indexOf('filters') === -1">
+                    <mat-list class="tag-filter-rows" role="list">
+                        <mat-list-item class="tag" role="listitem" *ngFor="let filter of query.filters; let index=index">
+                            <div class="tag-filter-aggregator" *ngIf= "type !== 'BignumberWidgetComponent'">
+                                    <tag-groupby [value]="filter.groupBy" 
+                                        (change)="setTagGroupBy(index, $event)"></tag-groupby>
+                            </div>
+                            <div class="tag-filter-detail">
+                                <span>{{ filter.tagk }}: {{ filter.filter.join(',') }}</span>
+                            </div>
+                            <span class="flex-spacer"></span>
+                            <div class="action-icons">
+                                <button mat-icon-button color="primary" (click)="deleteFilter(index); $event.stopPropagation()">
+                                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                </button>
+                            </div>
+                        </mat-list-item>
+                    </mat-list>
+                </div>
+                <div class="action-controls query-edit-actions" *ngIf="!edit.length ||  edit.indexOf('filters') === -1">
                     <button mat-stroked-button color="primary" (click)="requestEditMode('filters')">
                         <mat-icon class="mat-12" fontSet="denali" fontIcon="d-add"></mat-icon>
-                        <span>{{ query.filters.length ? 'Edit': 'Add'}} Filters</span>
+                        <span>{{ query.filters.length ? 'Edit': 'Add'}} Tag Filters</span>
                     </button>
                 </div>
-                <div class="filter" *ngIf="edit.length && edit.indexOf('filters') !== -1">
-                    <div class="tag-key-value-container">
-                        <div class="tag-key">
-                            <div class="caption">TAG FILTERS</div>
-                            <div class="tag-key-search">
-                                <div class="search"><input #tagSearchInput [formControl]="tagSearchControl"></div>
-                            </div>
-                            <div class="list has-scroller">
-                                <div class="is-scroller">
-                                    <div class="list-selected" *ngIf="query.filters.length">
-                                        <div class="info">{{ query.filters.length }} tag key selected</div>
-                                        <div class="option" *ngFor="let filter of query.filters" (click)="handlerTagClick(filter.tagk)"
-                                            [ngClass]="filter.tagk === selectedTag ? 'active' : ''">
-                                            {{ filter.tagk }}
+                <!-- if adding/editing tags -->
+                <div class="tag-filter-options" *ngIf="edit.length && edit.indexOf('filters') !== -1">
+                    <div class="tag-filter-options-column tag-keys">
+                        <div class="tag-key-search">
+                            <mat-form-field class="metric-search-input-field" appearance="outline" color="primary" floatLabel="never">
+                                <input matInput placeholder="Search tag keys" [formControl]="tagSearchControl" #tagSearchInput>
+                            </mat-form-field>
+                        </div>
+                        <div class="tag-keys-count" *ngIf="tagOptions.length > 0">
+                            <span class="mat-caption">{{ tagOptions.length}} tag keys available</span>
+                        </div>
+                        <span class="seperator"></span>
+                        <div class="tag-key-search-results has-scroller">
+                            <div class="is-scroller">
+                                <div class="tag-keys-selected" *ngIf="query.filters.length">
+                                    <div class="option-item tag-key-option added" 
+                                        *ngFor="let filter of query.filters"
+                                        [ngClass]="filter.tagk === selectedTag ? 'active' : ''">
+                                        <div class="option-cell" (click)="handlerTagClick(filter.tagk)">
+                                            <mat-icon>remove_circle_outline</mat-icon>
                                         </div>
+                                        <div class="option-cell label">{{ filter.tagk }}</div>
                                     </div>
-                                    <div class="option" *ngFor="let option of tagOptions" (click)="handlerTagClick(option)"
-                                        [ngClass]="option === selectedTag ? 'active' : ''">
-                                        {{ option }}
-                                    </div>
+                                </div>
+                                <div class="option-item tag-key-option" *ngFor="let option of tagOptions" 
+                                    (click)="handlerTagClick(option)"
+                                    [ngClass]="option === selectedTag ? 'active' : ''">
+                                    <div class="option-cell label">{{ option }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="tag-values">
-                            <div class="caption">ADD TAG VALUE(S) TO THE RIGHT</div>
-                            <div class="tag-values-search">
-                                <div class="type">
-                                    <mat-button-toggle-group [formControl]="tagValueTypeControl" aria-label="Font Style">
-                                        <mat-button-toggle value="literalor" (click)="loadTagValues()">Literal</mat-button-toggle>
-                                        <mat-button-toggle value="regexp">Regexp</mat-button-toggle>
-                                    </mat-button-toggle-group>
-                                </div>
-                                <div class="search">
-                                    <mat-form-field appearance="fill" [color]="'primary'" floatLabel="never">
-                                        <input #tagValueSearchInput [formControl]="tagValueSearchControl" matInput
-                                            placeholder="" (keydown.enter)="addTagValueRegexp()">
-                                        <mat-icon matSuffix *ngIf="tagValueTypeControl.value==='regexp'" (click)="addTagValueRegexp()">add_circle_outline</mat-icon>
-                                    </mat-form-field>
-                                </div>
-
+                    </div>
+                    <div class="tag-filter-options-column tag-values">
+                        <div class="tag-values-search">
+                            <div class="tag-values-type">
+                                <mat-button-toggle-group [formControl]="tagValueTypeControl" aria-label="Font Style">
+                                    <mat-button-toggle value="literalor" (click)="loadTagValues()">Literal</mat-button-toggle>
+                                    <mat-button-toggle value="regexp">Regexp</mat-button-toggle>
+                                </mat-button-toggle-group>
                             </div>
-                            <div class="list has-scroller" *ngIf="tagValueTypeControl.value==='literalor'">
-                                <div class="is-scroller">
-                                    <div class="option" *ngFor="let option of filteredTagValues">
+                            <div class="tag-values-search-input">
+                                <mat-form-field appearance="outline" [color]="'primary'" floatLabel="never">
+                                    <input #tagValueSearchInput [formControl]="tagValueSearchControl" matInput
+                                        placeholder="" (keydown.enter)="addTagValueRegexp()">
+                                    <mat-icon matSuffix *ngIf="tagValueTypeControl.value==='regexp'" (click)="addTagValueRegexp()">add_circle_outline</mat-icon>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="tag-values-count" *ngIf="filteredTagValues && filteredTagValues.length > 0">
+                                <span class="mat-caption">{{filteredTagValues.length}} <strong>"{{selectedTag}}"</strong> tag {{filteredTagValues.length > 1 ? 'values' : 'value'}} available</span>
+                            </div>
+                        <span class="seperator"></span>
+                        <div class="tag-values-search-results has-scroller" *ngIf="tagValueTypeControl.value==='literalor'">
+                            <div class="is-scroller">
+                                <div class="option-item" *ngFor="let option of filteredTagValues" [ngClass]="{'added': query.filters[selectedTagIndex] && query.filters[selectedTagIndex].filter.indexOf(option) >= 0 }">
+                                    <div class="option-cell">
                                         <mat-icon *ngIf="getTagValueIndex(selectedTag, option) === -1" (click)="updateTagValueSelection(option, 'add');">add_circle_outline</mat-icon>
                                         <mat-icon *ngIf="getTagValueIndex(selectedTag, option) !== -1" (click)="updateTagValueSelection(option, 'remove')">remove_circle_outline</mat-icon>
-                                        <div>{{ option }}</div>
                                     </div>
-                                    <div *ngIf="message.tagValueControl.message" [ngClass]="message.tagValueControl.type === 'error'? 'error': 'info'">
-                                        {{ message['tagValueControl']['message'] }}
-                                    </div>
+                                    <div class="option-cell label">{{ option }}</div>
+                                </div>
+                                <div *ngIf="message.tagValueControl.message" [ngClass]="message.tagValueControl.type === 'error'? 'error': 'info'">
+                                    {{ message['tagValueControl']['message'] }}
                                 </div>
                             </div>
                         </div>
-                        <div class="tag-values-selected">
-                            <div class="caption">SELECTED TAG VALUES</div>
-                            <div class="list has-scroller" *ngIf="query.filters[selectedTagIndex]">
-                                <div class="is-scroller">
-                                    <div class="option" *ngFor="let option of query.filters[selectedTagIndex].filter">
+                    </div>
+                    <div class="tag-filter-options-column tag-values-selected">
+                        <div class="tag-values-selected-header">
+                            <strong>Selected tag values</strong>
+                        </div>
+                        <div class="tag-values-selected-list has-scroller" *ngIf="query.filters[selectedTagIndex]">
+                            <div class="is-scroller">
+                                <div class="option-item tag-value-option" *ngFor="let option of query.filters[selectedTagIndex].filter">
+                                    <div class="option-cell">
                                         <mat-icon (click)="updateTagValueSelection(option, 'remove')">remove_circle_outline</mat-icon>
-                                        <span> {{ option }} </span>
                                     </div>
+                                    <div class="option-cell label"> {{ option }} </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="expression-form" *ngIf="isEditExpression">
+        </div>
+        <!-- form to create expression-->
+        <div class="expression-filter-form query-filter-block is-active" *ngIf="isEditExpression">
+            <div class="container">
                 <form [formGroup]="expressionForm">
                     <mat-form-field appearance="fill">
                         <mat-label>Expression Name</mat-label>
@@ -237,7 +276,7 @@
                         Invalid Expression(Atleast one alias should be used in the expression)
                     </mat-error>
                 </form>
-                <div class="actions">
+                <div class="action-controls query-filter-actions">
                     <button mat-button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="updateExpression()">
                         {{ this.editExpressionId ? 'Update' : 'Create'}} </button>
                     <button mat-button class="mat-elevation-z0" (click)="cancelExpression()"> Cancel </button>
@@ -245,53 +284,12 @@
             </div>
         </div>
     </div>
-    <div class="actions" *ngIf="edit.length">
-        <button mat-button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="apply()"> Apply
+    <div class="action-controls metric-query-actions" *ngIf="edit.length">
+        <button mat-button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="apply()">
+            Done
         </button>
-        <button mat-button class="mat-elevation-z0" (click)="cancel()"> Cancel </button>
+        <button mat-button class="mat-elevation-z0" (click)="cancel()">
+            Cancel
+        </button>
     </div>
 </div>
-
-
-
-<!--
-    <div  class="option ng-star-inserted">
-        <div class="option-row-item">
-            <mat-icon  class="mat-icon material-icons" role="img" aria-hidden="true" style="
-                height: auto;
-                width: auto;
-                ">remove_circle_outline</mat-icon>
-        </div>
-        <div _ngcontent-c29="" class="option-row-item label"><span>untitled expression</span></div>
-        <div class="option-row-item"><mat-icon _ngcontent-c29="" class="edit mat-icon material-icons ng-star-inserted" role="img" aria-hidden="true" style="
-            width: auto;
-            height: auto;
-        ">edit</mat-icon>
-        </div>
-    </div>
-
-    <div class="option" *ngFor="let metric of query.metrics; let index=index">
-        <div class="option-row-item">
-            <mat-icon (click)="removeMetricById(metric.id);">remove_circle_outline</mat-icon>
-        </div
-        <div _ngcontent-c29="" class="option-row-item label">{{ metric.name }}</div>
-        <div class="option-row-item"><mat-icon class="edit" *ngIf="metric.expression" (click)="showExpressionForm(metric.id);">edit</mat-icon></div>
-    </div>
-.m-row-item:first-child {
-    /* margin-right: 12px; */
-}
-
-.option-row-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 24px;
-}
-
-.option-row-item.label {
-    flex: 1;
-    margin: auto 12px;
-    justify-content: flex-start;
-}
-
-    -->

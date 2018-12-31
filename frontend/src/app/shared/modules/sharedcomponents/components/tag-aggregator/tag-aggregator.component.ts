@@ -35,6 +35,10 @@ export class TagAggregatorComponent implements OnInit {
         {
             value: 'sum',
             icon: 'sum'
+        },
+        {
+            value: 'count',
+            icon: 'count'
         }
     ];
 

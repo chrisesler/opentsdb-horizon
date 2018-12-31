@@ -538,8 +538,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
 
         const value = config.aggregations[aggregate];
         const format = config.axis === 'y' ? this.options.axes.y.tickFormat : this.options.axes.y2.tickFormat;
-        const precision = format && format.precision ? format.precision : 2;
-        return this.unit.format(value, { unit: format ? format.unit : '', precision: precision } );
+        const precision = (format && format.precision) ? format.precision : 2;
+        const unit = (format && format.unit) ? format.unit : '';
+        return this.unit.format(value, { unit: unit, precision: precision } );
     }
 
     requestData() {

@@ -206,7 +206,8 @@ export class DBSettingsState {
     }
     @Action(LoadDashboardSettings)
     loadDashboardSettings(ctx: StateContext<DBSettingsModel>, { settings }: LoadDashboardSettings) {
-        const state = ctx.getState();
-        ctx.setState({...state, ...settings});
+        // just load the settings, not as new object
+        // to avoid other settings listeners to fire off.
+        ctx.setState(settings);
     }
 }

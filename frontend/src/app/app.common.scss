@@ -156,8 +156,11 @@
             
         }
 
+
+
         // if mat-form-field[appearance="fill"]
-        &.mat-form-field-appearance-fill {
+        &.mat-form-field-appearance-fill,
+        &.mat-form-field-appearance-outline {
             .mat-form-field-wrapper {
                 padding-bottom: initial;
             }
@@ -226,6 +229,20 @@
                     display: inline-flex;
                     vertical-align: initial;
                     align-items: center;
+                }
+            }
+        }
+
+        &.mat-form-field-appearance-outline {
+            .mat-form-field-outline {
+                top: 0;
+            }
+
+            .mat-form-field-outline-thick {
+                .mat-form-field-outline-end,
+                .mat-form-field-outline-gap,
+                .mat-form-field-outline-start {
+                    border-width: 1px;
                 }
             }
         }
@@ -362,6 +379,19 @@
         }
 
 
+        &.mat-form-field-appearance-outline {
+            .mat-form-field-outline,
+            .mat-form-field-outline-thick {
+                color: rgba(map-get($primary, default), 0.60);
+            }
+
+            &.mat-focused {
+                .mat-form-field-outline,
+                .mat-form-field-outline-thick {
+                    color: rgba(map-get($primary, default), 0.60);
+                }
+            }
+        }
         
     }
 }

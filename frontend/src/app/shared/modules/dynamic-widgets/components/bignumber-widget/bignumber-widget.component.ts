@@ -36,30 +36,34 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     bigNumber: number;
     changeValue: number;
     changePct: number;
-    changeThreshold: number = 0.01; // hard coding this for now, needs to be configurable
+    readonly changeThreshold: number = 0.01; // hard coding this for now, needs to be configurable
     aggregators: string[] = [];
     aggregatorValues: any[] = [];
     widgetWidth: number;
     widgetHeight: number;
 
     // Auto-scaling
-    fontSizePercent: number = 100;  // how much to scale
-    contentFillPercent: number = 0.8; // how much % content should take up widget
-    contentFillPercentWithNoCaption: number = 0.8; // how much % content should take up widget
-    defaultFont: string = 'Ubuntu';
-    defaultFontSize: number = 14;
-    captionFontSizeMultiplier: number = 1.2;
-    mediumFontSizeMultiplier: number = 2;
-    largeFontSizeMultiplier: number = 3;
-    defaultFontWeight: number = 400;
-    defaultBigNumberFontWeight: number = 600;
-    defaultCaptionFontWeight: number = 500;
-    heightOfLargeFont: number = 47;
-    heightOfSmallFont: number = 15;
-    heightOfMarginAboveCaption: number = 5;
+    fontSizePercent: number = 100;  // initial value of how much to scale
+    readonly contentFillPercent: number = 0.8; // how much % content should take up widget
+    readonly contentFillPercentWithNoCaption: number = 0.8; // how much % content should take up widget
 
-    maxCaptionLength: number = 36;
-    maxLabelLength: number = 10; // postfix, prefix, unit
+    //NOTE: FONT settings have been coded here for text size calculation purposes.
+    //      CHANGE ME if CSS style changes. Yes, we know this is sub-optimal.
+    //      Please submit a PR if you find a better solution.
+    readonly defaultFont: string = 'Ubuntu';
+    readonly defaultFontSize: number = 14;
+    readonly captionFontSizeMultiplier: number = 1.2;
+    readonly mediumFontSizeMultiplier: number = 2;
+    readonly largeFontSizeMultiplier: number = 3;
+    readonly defaultFontWeight: number = 400;
+    readonly defaultBigNumberFontWeight: number = 600;
+    readonly defaultCaptionFontWeight: number = 500;
+    readonly heightOfLargeFont: number = 47;
+    readonly heightOfSmallFont: number = 15;
+    readonly heightOfMarginAboveCaption: number = 5;
+
+    readonly maxCaptionLength: number = 36;
+    readonly maxLabelLength: number = 10; // postfix, prefix, unit
 
     editQueryId = null;
     nQueryDataLoading = 0;
@@ -95,19 +99,16 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                         this.nQueryDataLoading--;
                         this.isDataLoaded = true;
 
-                        if ( message.payload.error ) {
+                        if (message.payload && message.payload.error) {
                             this.error = message.payload.error;
-                        }
-
-                        if (message && message.payload && message.payload.rawdata) {
+                        } else if (message.payload && message.payload.rawdata) {
                             const gid = Object.keys(message.payload.rawdata)[0];
-                            this.data = gid !== 'error' ? message.payload.rawdata[gid].results : [];
-
+                            this.data = (gid !== 'error' && gid !== undefined) ? message.payload.rawdata[gid].results : [];
                             this.setBigNumber(this.widget.settings.visual.queryID);
+                        } else { // no data, so get some
+                            this.refreshData();
                         }
-                        break;
-                    case 'viewEditWidgetMode':
-                        // console.log('vieweditwidgetmode', message, this.widget);
+
                         break;
                     case 'getUpdatedWidgetConfig':
                         if (this.widget.id === message.id) {
@@ -195,7 +196,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         let currentValue: number = 0;
         let lastValue: number = 0;
 
-        if (metric && metric.NumericSummaryType && this.widget.queries[0].metrics[queryIndex]) {
+        if (metric && metric.NumericSummaryType && this.widget.queries[0] && this.widget.queries[0].metrics[queryIndex]) {
             const responseAggregators = metric.NumericSummaryType.aggregations;
             const key = Object.keys(metric.NumericType)[0];
             const responseAggregatorValues = metric.NumericType[key];
@@ -253,7 +254,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 // tslint:disable:max-line-length
                 let prefixWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.prefix, this.maxLabelLength), this.widget.settings.visual.prefixSize);
                 let unitWidth = this.getWidthOfText(this.shortenString(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).unit, this.maxLabelLength), this.widget.settings.visual.unitSize);
-                let postfixWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.postfix, this.maxLabelLength), this.widget.settings.visual.postfixSize);
+                // let postfixWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.postfix, this.maxLabelLength), this.widget.settings.visual.postfixSize);
                 let bigNumberWidth = this.getWidthOfText(' ' + this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num + ' ', 'l', this.defaultBigNumberFontWeight);
 
                 let changeIndicatorWidth = 0;
@@ -272,7 +273,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                     aggregatorWidth = this.getWidthOfText(agg);
                 }
 
-                let tmpBigNumberWithOtherLabelsWidth: number = prefixWidth + unitWidth + postfixWidth + bigNumberWidth + changeIndicatorWidth + aggregatorWidth;
+                // let tmpBigNumberWithOtherLabelsWidth: number = prefixWidth + unitWidth + postfixWidth + bigNumberWidth + changeIndicatorWidth + aggregatorWidth;
+                let tmpBigNumberWithOtherLabelsWidth: number = prefixWidth + unitWidth + bigNumberWidth + changeIndicatorWidth + aggregatorWidth;
                 let tmpCaptionWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.caption, this.maxCaptionLength), 'c', this.defaultCaptionFontWeight);
 
                 // assign if largest width
@@ -344,7 +346,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         let fullFont: string = fontWeight + ' ' + fontsize + 'px ' + this.defaultFont;
         this.context.font = fullFont;
 
-        return this.context.measureText(text.toUpperCase()).width;
+        // return this.context.measureText(text.toUpperCase()).width;
+        return this.context.measureText(text).width;
     }
 
    requestData() {
@@ -538,15 +541,15 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
     setDefaultVisualization() {
         this.widget.settings.visual.prefix = this.widget.settings.visual.prefix || '';
-        this.widget.settings.visual.postfix = this.widget.settings.visual.postfix || '';
+        // this.widget.settings.visual.postfix = this.widget.settings.visual.postfix || '';
         this.widget.settings.visual.unit = this.widget.settings.visual.unit || '';
 
         this.widget.settings.visual.prefixAlignment = this.widget.settings.visual.prefixAlignment || 'middle';
-        this.widget.settings.visual.postfixAlignment = this.widget.settings.visual.postfixAlignment || 'middle';
+        // this.widget.settings.visual.postfixAlignment = this.widget.settings.visual.postfixAlignment || 'middle';
         this.widget.settings.visual.unitAlignment = this.widget.settings.visual.unitAlignment || 'middle';
 
         this.widget.settings.visual.prefixSize = this.widget.settings.visual.prefixSize || 'm';
-        this.widget.settings.visual.postfixSize = this.widget.settings.visual.postfixSize || 'm';
+        // this.widget.settings.visual.postfixSize = this.widget.settings.visual.postfixSize || 'm';
         this.widget.settings.visual.unitSize = this.widget.settings.visual.unitSize || 'm';
 
         this.widget.settings.visual.caption = this.widget.settings.visual.caption || '';
@@ -610,9 +613,9 @@ interface IBigNumberVisual {
     prefixSize?: string;
     prefixAlignment?: string;
 
-    postfix?: string;
-    postfixSize?: string;
-    postfixAlignment?: string;
+    // postfix?: string;
+    // postfixSize?: string;
+    // postfixAlignment?: string;
 
     unit: string;
     unitSize: string;

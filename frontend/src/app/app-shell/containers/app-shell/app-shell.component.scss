@@ -72,6 +72,9 @@
     .app-shell {
         //.app-navigator {}
 
+        .app-sidenav.mat-drawer-side {
+            border-right: 0;
+        }
 
         .app-navigator-drawer {
             background-color: $sn-dark;

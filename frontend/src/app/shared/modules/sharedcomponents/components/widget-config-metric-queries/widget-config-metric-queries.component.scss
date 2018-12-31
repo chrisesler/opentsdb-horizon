@@ -191,6 +191,34 @@
                 width: 100px;
             }
         }
+
+        // WHEN EDITING A METRIC
+        .query-metrics-wrap.is-editing-metric {
+            display: flex;
+
+            .query-group-list {
+
+                &,
+                .query-group-item,
+                .mat-expansion-panel-content,
+                .mat-expansion-panel-body,
+                .query-metric-row {
+                    flex: 1;
+                }
+
+                .query-group-item,
+                .mat-expansion-panel-body,
+                .query-metric-row {
+                    display: flex;
+                }
+
+                .mat-expansion-panel-header {
+                    display: none;
+                }
+
+
+            }
+        }
     }
 }
 
