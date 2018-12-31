@@ -291,6 +291,41 @@ export class DatatranformerService {
         }
         return [...datasets];
     }
+    yamasToD3Donut(options, widget, queryData) {
+        options.data = [];
+        if ( queryData === undefined || Object.keys(queryData).length === 0) {
+            return;
+        }
+        const qid = Object.keys(queryData)[0];
+        const results = queryData[qid].results ? queryData[qid].results : [];
+
+        const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
+        const mConfigs = gConfig.metrics;
+
+       for ( let i = 0; i < results.length; i++ ) {
+            const mid = results[i].source.split(':')[1];
+            const configIndex = mid.replace( /\D+/g, '');
+            const mConfig = mConfigs[configIndex];
+            const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
+            const n = results[i].data.length;
+            const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
+            for ( let j = 0; j < n; j++ ) {
+                const aggs = results[i].data[j].NumericSummaryType.aggregations;
+                const tags = results[i].data[j].tags;
+                const key = Object.keys(results[i].data[j].NumericType)[0];
+                const aggData = results[i].data[j].NumericType[key];
+                if ( mConfig.settings && mConfig.settings.visual.visible ) {
+                    let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
+                    const aggrIndex = aggs.indexOf(aggregator);
+                    label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
+                    const o = { label: label, value: aggData, color: colors[j], tooltipData: tags};
+                    options.data.push(o);
+                }
+            }
+        }
+
+        return {...options};
+    }
 
     getStrokePattern( lineType ) {
         let pattern = [];
