@@ -50,6 +50,12 @@ export class D3PieChartDirective implements OnInit, OnChanges {
       tooltip.style("display", "none");
     };
 
+    // Computes the angle of an arc, converting from radians to degrees.
+    const angle = function(d) {
+      var a = (d.startAngle + d.endAngle) * 90 / Math.PI - 90;
+      return a > 90 ? a - 180 : a;
+    }
+
     const dataset = this.options.data;
     this.host = d3.select(this.element.nativeElement);
 
@@ -102,11 +108,15 @@ export class D3PieChartDirective implements OnInit, OnChanges {
     if ( this.options.legend.showPercentages ) {
       labels = arcs.append("text")
                       .attr("transform", function(d) {
-                          return "translate(" + arc.centroid(d) + ")";
+                          const diff = d.endAngle - d.startAngle;
+                          const rotate = diff > 0.4 ? '' : 'rotate(' + angle(d) + ')';
+                          return "translate(" + arc.centroid(d) + ")" + rotate;
                       })
-                      .attr("dy", ".35em")
+                      .attr("dy", ".30em")
                       .style("text-anchor", "middle")
-                      .text(d => d3.format(".2%")(d.value/total))
+                      .style("font-size", "0.9em")
+                      .style('opacity', (d) => d.endAngle - d.startAngle > .2 && d.data.enabled? 1 : 0)
+                      .text(d => d3.format(".1%")(d.value/total))
                       .on("mouseover", mouseover)
                       .on("mousemove", mousemove)
                       .on("mouseout", mouseout);
@@ -147,11 +157,13 @@ export class D3PieChartDirective implements OnInit, OnChanges {
         labels
           .transition() 
           .duration(0)
-          .style('opacity', (d) => d.data.enabled? 1 : 0)
+          .style('opacity', (d) => d.endAngle - d.startAngle > .2 && d.data.enabled? 1 : 0)
           .attr("transform", function(d) {
-              return "translate(" + arc.centroid(d) + ")";
+            const diff = d.endAngle - d.startAngle;
+            const rotate = diff > 0.4 ? '' : 'rotate(' + angle(d) + ')';
+            return "translate(" + arc.centroid(d) + ")" + rotate;
           })
-          .text(d => d3.format(".2%")(d.value/total));
+          .text(d => d3.format(".1%")(d.value/total));
       }
     };
 
