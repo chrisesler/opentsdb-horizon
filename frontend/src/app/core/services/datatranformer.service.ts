@@ -294,7 +294,7 @@ export class DatatranformerService {
     yamasToD3Donut(options, widget, queryData) {
         options.data = [];
         if ( queryData === undefined || Object.keys(queryData).length === 0) {
-            return;
+            return {...options};
         }
         const qid = Object.keys(queryData)[0];
         const results = queryData[qid].results ? queryData[qid].results : [];
@@ -323,6 +323,8 @@ export class DatatranformerService {
                 }
             }
         }
+        const v = 4;
+        options.data = [{label:"Category 1",value:225.65, color:'red', tooltipData: {colo:'gq1'}},{label:"Category 2",value:v, color:'blue'},{label:"Category 3",value:v, color:'yellow'},{label:"Category 4",value:v, color:'green'},{label:"Category 5",value:v, color:'brown'}];
 
         return {...options};
     }

@@ -21,10 +21,10 @@ export class D3PieChartDirective implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes.options && changes.options ||  changes.size && changes.size.currentValue ) {
       this.createChart();
-    }
+    } 
   }
   createChart() {
-    if ( ! this.size || !this.size.width ) {
+    if ( ! this.size || !this.size.width || !this.options) {
       return;
     }
     const margin = {top:5,bottom:5,left:5,right:5};
@@ -115,7 +115,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
                       .attr("dy", ".30em")
                       .style("text-anchor", "middle")
                       .style("font-size", "0.9em")
-                      .style('opacity', (d) => d.endAngle - d.startAngle > .2 && d.data.enabled? 1 : 0)
+                      .style('opacity', (d) => (d.endAngle - d.startAngle) * chartSize > 25 && d.data.enabled? 1 : 0)
                       .text(d => d3.format(".1%")(d.value/total))
                       .on("mouseover", mouseover)
                       .on("mousemove", mousemove)
@@ -157,7 +157,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
         labels
           .transition() 
           .duration(0)
-          .style('opacity', (d) => d.endAngle - d.startAngle > .2 && d.data.enabled? 1 : 0)
+          .style('opacity', (d) => (d.endAngle - d.startAngle) * chartSize > 25 && d.data.enabled? 1 : 0)
           .attr("transform", function(d) {
             const diff = d.endAngle - d.startAngle;
             const rotate = diff > 0.4 ? '' : 'rotate(' + angle(d) + ')';
@@ -180,7 +180,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
           .data(dataset)
           .enter()
           .append("rect")
-          .attr("x", 30)
+          .attr("x", 0)
           .attr("y", (d, i) => i *  legendItemHeight)
           .attr("width", 10)
           .attr("height", 10)
@@ -192,7 +192,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
           .data(dataset)
           .enter()
           .append("text")
-          .attr("x", 45)
+          .attr("x", 15)
           .attr("width", 10)
           .attr("height", 10)
           .attr("y", (d, i) => i *  legendItemHeight + 10)

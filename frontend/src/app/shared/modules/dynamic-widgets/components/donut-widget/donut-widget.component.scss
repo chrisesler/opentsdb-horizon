@@ -82,6 +82,9 @@
                 display: inline-block;
                 position: relative;
             }
+            .chart svg {
+                width: 100%;
+            }
 
             .legend {
                 display: inline-block;

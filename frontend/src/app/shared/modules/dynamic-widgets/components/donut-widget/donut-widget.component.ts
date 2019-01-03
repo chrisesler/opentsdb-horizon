@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef, AfterContentInit } from '@angular/core';
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
@@ -18,7 +18,7 @@ import { ErrorDialogComponent } from '../../../sharedcomponents/components/error
     styleUrls: ['./donut-widget.component.scss']
 })
 
-export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, AfterContentInit {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.donutchart-widget') private _componentClass = true;
 
@@ -34,13 +34,12 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     private isDataLoaded: boolean = false;
     // tslint:disable-next-line:no-inferrable-types
 
-    type = 'doughnut';
     type$: BehaviorSubject<string>;
     typeSub: Subscription;
 
 
     options: any  = {
-        type: this.type,
+        type: 'doughnut',
         legend: {
             display: true,
             position: 'right',
@@ -90,7 +89,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                         if ( message.payload.error ) {
                             this.error = message.payload.error;
                         }
-                        console.log("changes transform")
                         this.options = this.dataTransformer.yamasToD3Donut(this.options, this.widget, message.payload.rawdata);
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -111,7 +109,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
 
     }
 
-    ngAfterViewInit() {
+    ngAfterContentInit() {
         // this event will happend on resize the #widgetoutput element,
         // in  chartjs we don't need to pass the dimension to it.
         // Dimension will be picked up by parent node which is #container
@@ -124,8 +122,9 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         this.newSize$ = new BehaviorSubject(initSize);
 
         this.newSizeSub = this.newSize$.pipe(
-            debounceTime(300)
+            // debounceTime(300)
         ).subscribe(size => {
+            console.log("size", size)
             this.setSize(size);
         });
         
