@@ -23,13 +23,14 @@
             }
 
             &.color-container {
-                margin-right: 30px;
-                flex: 1 0 calc(20% - 10px);
+                margin-right: 5px;
+                // flex: 1 0 calc(20% - 10px);
+                flex: 1 0;
             }
 
-            &.options-container {
-                flex: 1 0 calc(20% - 10px);
-            }
+            // &.options-container {
+            //     flex: 1 0 calc(20% - 10px);
+            // }
         }
 
         .labels-container {
