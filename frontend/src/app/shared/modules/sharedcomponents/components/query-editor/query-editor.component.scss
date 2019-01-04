@@ -384,12 +384,17 @@
 
                     .tag-filter-detail {
                         min-width: 0;
-                        max-width: 85%px;
+                        max-width: 85%;
+                        margin-left: 6px;
                         display: flex;
-                        flex-direction: column;
+                        //flex-direction: column;
                         flex: 1;
 
-                        > span {
+                        strong {
+                            margin-right: 6px;
+                        }
+
+                        span {
                             white-space: nowrap;
                             overflow: hidden;
                             text-overflow: ellipsis;
