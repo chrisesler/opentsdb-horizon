@@ -35,6 +35,7 @@
 @import 'components/dropdown-visual-type/dropdown-visual-type.component';
 @import 'components/query-editor/query-editor.component.scss';
 @import 'components/namespace-tag-autocomplete/namespace-tag-autocomplete.component.scss';
+@import 'components/widget-config-sorting/widget-config-sorting.component.scss';
 
 // widget common FIRST
 @import 'components/widget-config.common';
@@ -85,6 +86,7 @@
     @include widget-config-time-component-base();
     @include widget-config-visual-appearance-component-base();
     @include widget-config-legend-big-number-component-base();
+    @include widget-config-sorting-component-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
@@ -121,4 +123,5 @@
     @include widget-config-time-component-theme($theme-config);
     @include widget-config-visual-appearance-component-theme($theme-config);
     @include widget-config-legend-big-number-component-theme($theme-config);
+    @include widget-config-sorting-component-theme($theme-config);
 }
