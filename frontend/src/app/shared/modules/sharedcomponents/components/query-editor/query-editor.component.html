@@ -72,6 +72,10 @@
                         <mat-icon class="mat-12" fontSet="denali" fontIcon="d-add"></mat-icon>
                         <span>{{ query.metrics.length ? 'Edit': 'Add' }} Metrics</span>
                     </button>
+                    <button mat-button color="primary" (click)="showExpressionForm()" *ngIf="query.metrics.length">
+                        <mat-icon class="mat-12" fontSet="denali" fontIcon="d-add"></mat-icon>
+                        <span>Add Expression</span>
+                    </button>
                 </div>
                 <!-- if adding some metrics -->
                 <div class="metric-search" *ngIf="edit.length && edit.indexOf('metrics') !== -1">
