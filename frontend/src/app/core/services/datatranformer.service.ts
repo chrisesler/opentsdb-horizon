@@ -323,8 +323,6 @@ export class DatatranformerService {
                 }
             }
         }
-        const v = 4;
-        options.data = [{label:"Category 1",value:225.65, color:'red', tooltipData: {colo:'gq1'}},{label:"Category 2",value:v, color:'blue'},{label:"Category 3",value:v, color:'yellow'},{label:"Category 4",value:v, color:'green'},{label:"Category 5",value:v, color:'brown'}];
 
         return {...options};
     }
