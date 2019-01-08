@@ -6,7 +6,7 @@ import { WidgetsRawdataState } from './widgets-data.state';
 import { ClientSizeState } from './clientsize.state';
 import { HttpService } from '../../core/http/http.service';
 import { DashboardService } from '../services/dashboard.service';
-import { map, catchError } from 'rxjs/operators'; 
+import { map, catchError } from 'rxjs/operators';
 
 
 export interface DBStateModel {
@@ -16,7 +16,7 @@ export interface DBStateModel {
     status: string;
     error: any;
     path: string;
-    loadedDB: any;  
+    loadedDB: any;
 }
 
 /* action */

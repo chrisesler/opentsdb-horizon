@@ -192,6 +192,16 @@
             }
         }
 
+        // WHEN NOT EDITING A METRIC (the list of queries show)
+        .query-metrics-wrap {
+            .query-group-list {
+
+                .query-metric-row {
+                    margin-bottom: 8px;
+                }
+            }
+        }
+
         // WHEN EDITING A METRIC
         .query-metrics-wrap.is-editing-metric {
             display: flex;
