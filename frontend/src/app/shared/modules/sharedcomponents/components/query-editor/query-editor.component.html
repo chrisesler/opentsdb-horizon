@@ -187,20 +187,12 @@
                         <span class="seperator"></span>
                         <div class="tag-key-search-results has-scroller">
                             <div class="is-scroller">
-                                <div class="tag-keys-selected" *ngIf="query.filters.length">
-                                    <div class="option-item tag-key-option added" 
-                                        *ngFor="let filter of query.filters"
-                                        [ngClass]="filter.tagk === selectedTag ? 'active' : ''">
-                                        <div class="option-cell" (click)="handlerTagClick(filter.tagk)">
-                                            <mat-icon>remove_circle_outline</mat-icon>
-                                        </div>
-                                        <div class="option-cell label">{{ filter.tagk }}</div>
-                                    </div>
-                                </div>
                                 <div class="option-item tag-key-option" *ngFor="let option of tagOptions" 
-                                    (click)="handlerTagClick(option)"
-                                    [ngClass]="option === selectedTag ? 'active' : ''">
-                                    <div class="option-cell label">{{ option }}</div>
+                                    [ngClass]="{'added': getTagIndex(option) !== -1, 'selected': option === selectedTag }">
+                                    <div class="option-cell" (click)="removeTagValues(option)" *ngIf="getTagIndex(option) !== -1">
+                                            <mat-icon (click)="removeTagValues(option)">remove_circle_outline</mat-icon>
+                                    </div>
+                                    <div class="option-cell label" (click)="handlerTagClick(option)">{{ option }}</div>
                                 </div>
                             </div>
                         </div>

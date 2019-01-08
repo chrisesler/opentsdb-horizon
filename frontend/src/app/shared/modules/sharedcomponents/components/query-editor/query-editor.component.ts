@@ -51,6 +51,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
     metricOptions = [];
     selectedTagIndex = -1;
     selectedTag = '';
+    loadFirstTagValues = false;
     tagValueTypeControl = new FormControl('literalor');
     metricSearchControl: FormControl;
     tagSearchControl: FormControl;
@@ -156,6 +157,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
 
         if ( types.indexOf('filters') !== -1  ) {
             this.tagSearchControl.setValue(null);
+            this.loadFirstTagValues = true;
         }
     }
 
@@ -246,7 +248,12 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                                                             // debounceTime(200),
                                                             catchError(val => of(`I caught: ${val}`)),
                                                         ).subscribe( res => {
-                                                            this.tagOptions = res;
+                                                            const options = this.query.filters.map(item => item.tagk).concat(res);
+                                                            if ( this.loadFirstTagValues && options.length ) {
+                                                                this.handlerTagClick(options[0]);
+                                                            }
+                                                            this.loadFirstTagValues = false;
+                                                            this.tagOptions = options;
                                                         });
             }
             // this.tagSearchInput.nativeElement.focus();
@@ -358,29 +365,19 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         return index;
     }
 
-    getOptionIndex(type, option) {
-        let key;
-        switch ( type ) {
-            case 'tag':
-                key = 'tagk';
-                break;
-        }
-        const index  = this.query[type].findIndex( item => item[key] === option );
-        return index;
-    }
-
     handlerTagClick( tag ) {
-        // const selected = this.query.filters.map(item => item.tagk);
-        // res = res.filter( tag => selected.indexOf(tag) === -1);
         this.selectedTag = tag;
         this.selectedTagIndex = this.getTagIndex(tag);
-        if ( this.tagValueTypeControl.value === 'literalor' ) {
-            this.loadTagValues();
-        }
+        this.tagValueTypeControl.setValue('literalor');
+        this.tagValueSearchControl.setValue(null);
     }
 
-    loadTagValues() {
-        this.tagValueSearchControl.setValue(null);
+    removeTagValues(tag) {
+        this.query.filters.splice(this.getTagIndex(tag), 1);
+        this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.metricSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.queryChanges$.next(true);
     }
 
     getTagIndex ( tag ) {
@@ -422,7 +419,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             this.query.filters[this.selectedTagIndex].filter.splice(index, 1);
             if ( !this.query.filters[this.selectedTagIndex].filter.length ) {
                 this.query.filters.splice(this.selectedTagIndex, 1);
-                this.tagOptions.unshift(this.selectedTag);
                 this.selectedTagIndex = -1;
             }
         }
