@@ -237,7 +237,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
                 new FormControl(this.widget.settings.time.shiftTime)
         });
 
-        if ( !this.widget.settings.dataSummary ) {
+        // if ( !this.widget.settings.dataSummary ) {
             this.widgetConfigTime.addControl('downsample',
                 new FormControl(this.widget.settings.time.downsample.value || this.selectedDownsample));
             this.widgetConfigTime.addControl('customDownsampleValue',
@@ -267,7 +267,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
                     this.widgetConfigTime.controls.customDownsampleUnit.disable();
                 }
             }.bind(this));
-        }
+        // }
 
         this.widgetConfigTimeSub = this.widgetConfigTime.valueChanges
                                         .pipe(
@@ -287,16 +287,6 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
         this.selectedAggregators = Array.isArray(e.value) ? e.value : [e.value];
         this.widgetConfigTime.controls.aggregators.setValue(this.selectedAggregators);
     }
-
-
-    /**
-     * Services
-     */
-
-
-    /**
-     * Events
-     */
 
     click_TimePresetChange(val: any) {
         this.selectedTimePreset = val;

@@ -76,13 +76,13 @@ export class YamasService {
         if ( hasMetricTS ) {
             
         }
-        if ( !summaryOnly ) {
+        // if ( !summaryOnly ) {
             transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
-        }
+        // }
 
         transformedQuery.serdesConfigs = [{
             id: 'JsonV3QuerySerdes',
-            filter: summaryOnly ? outputIds : outputIds.concat(['summarizer'])
+            filter: summaryOnly ? ['summarizer'] : outputIds.concat(['summarizer']) // outputIds : outputIds.concat(['summarizer'])
         }];
         console.log("tsdb query", JSON.stringify(transformedQuery))
         return transformedQuery;
@@ -227,8 +227,8 @@ export class YamasService {
             id: id ? id : 'downsample',
             type: 'downsample',
             aggregator: aggregator || 'avg',
-            interval: summary ? '0all' : dsValue,
-            runAll: summary ? true : false,
+            interval: dsValue, //summary ? '0all' : dsValue,
+            runAll: false, // summary ? true : false,
             fill: true,
             interpolatorConfigs: [
                 {

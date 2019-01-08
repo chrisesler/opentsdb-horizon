@@ -212,21 +212,21 @@ export class DatatranformerService {
                 const mid = results[i].source.split(':')[1];
                 const configIndex = mid.replace( /\D+/g, '')
                 const mConfig = mConfigs[configIndex];
-                const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
+                const aggregator = mConfig.settings.visual.aggregator[0] || 'avg';
                 const n = results[i].data.length;
                 const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
                 for ( let j = 0;  j < n; j++ ) {
                     const aggs = results[i].data[j].NumericSummaryType.aggregations;
                     const tags = results[i].data[j].tags;
-                    const key = Object.keys(results[i].data[j].NumericType)[0];
-                    const aggData = results[i].data[j].NumericType[key];
+                    const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
+                    const aggData = results[i].data[j].NumericSummaryType.data[0][key];
 
                     if ( mConfig.settings && mConfig.settings.visual.visible ) {
                         let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                         const aggrIndex = aggs.indexOf(aggregator);
                         label = this.getLableFromMetricTags(label, { metric: results[i].data[j].metric, ...tags});
                         options.labels.push(label);
-                        datasets[0].data.push(aggData);
+                        datasets[0].data.push(aggData[aggrIndex]);
                         datasets[0].backgroundColor.push(colors[j]);
                         datasets[0].tooltipData.push({ metric: results[i].data[j].metric, ...tags });
                     }
@@ -246,7 +246,9 @@ export class DatatranformerService {
             }
         } else {
             for ( let k in tags ) {
-                label = label + '-' + tags[k];
+                if ( k !== 'metric' ) {
+                    label = label + '-' + tags[k];
+                }
             }
         }
         label = label.length > 50 ? label.substr(0, 48) + '..' : label;
@@ -306,23 +308,25 @@ export class DatatranformerService {
             const mid = results[i].source.split(':')[1];
             const configIndex = mid.replace( /\D+/g, '');
             const mConfig = mConfigs[configIndex];
-            const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
+            const aggregator = mConfig.settings.visual.aggregator[0] || 'avg';
             const n = results[i].data.length;
             const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
             for ( let j = 0; j < n; j++ ) {
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
-                const key = Object.keys(results[i].data[j].NumericType)[0];
-                const aggData = results[i].data[j].NumericType[key];
+                const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
+                const aggData = results[i].data[j].NumericSummaryType.data[0][key];
                 if ( mConfig.settings && mConfig.settings.visual.visible ) {
                     let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                     const aggrIndex = aggs.indexOf(aggregator);
                     label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
-                    const o = { label: label, value: aggData, color: colors[j], tooltipData: tags};
+                    const o = { label: label, value: aggData[aggrIndex], color: colors[j], tooltipData: tags};
                     options.data.push(o);
                 }
             }
         }
+        // const v = 4;
+        // options.data = [{label:"Category 1",value:225.65, color:'red', tooltipData: {colo:'gq1'}},{label:"Category 2",value:v, color:'blue'},{label:"Category 3",value:v, color:'yellow'},{label:"Category 4",value:v, color:'green'},{label:"Category 5",value:v, color:'brown'}];
 
         return {...options};
     }

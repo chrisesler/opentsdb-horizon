@@ -198,12 +198,13 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
         if (metric && metric.NumericSummaryType && this.widget.queries[0] && this.widget.queries[0].metrics[queryIndex]) {
             const responseAggregators = metric.NumericSummaryType.aggregations;
-            const key = Object.keys(metric.NumericType)[0];
-            const responseAggregatorValues = metric.NumericType[key];
+            const key = Object.keys(metric.NumericSummaryType.data[0])[0];
+            const responseAggregatorValues = metric.NumericSummaryType.data[0][key];
             const configuredAggregators = this.widget.queries[0].metrics[queryIndex].settings.visual.aggregator || ['avg'];
 
-            this.aggregators = this.widget.settings.time.downsample.aggregators;
-            this.aggregatorValues = [metric.NumericType[key]];
+            this.aggregators = this.widget.settings.time.downsample.aggregators || ['avg'];
+            const index = responseAggregators.indexOf(this.aggregators[0]);
+            this.aggregatorValues = [responseAggregatorValues[index]]; // [metric.NumericType[key]];
             /*
             for (let agg of configuredAggregators) {
                 let index = responseAggregators.indexOf(agg);
