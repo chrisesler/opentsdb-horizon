@@ -1,5 +1,5 @@
 import {
-  Component, OnInit, Input, ViewChild, ViewEncapsulation,
+  Component, Input, ViewChild, ViewEncapsulation,
   OnChanges, SimpleChanges, ComponentFactoryResolver, Type,
   HostBinding, Output, EventEmitter
 } from '@angular/core';
@@ -17,7 +17,7 @@ import { IntercomService, IMessage } from '../../../core/services/intercom.servi
   encapsulation: ViewEncapsulation.None
 })
 // changeDetection: ChangeDetectionStrategy.OnPush
-export class DboardContentComponent implements OnInit, OnChanges {
+export class DboardContentComponent implements OnChanges {
   @HostBinding('class.app-dboard-content') private _hostClass = true;
 
   @ViewChild(WidgetViewDirective) widgetViewContainer: WidgetViewDirective;
@@ -80,15 +80,6 @@ export class DboardContentComponent implements OnInit, OnChanges {
     private interCom: IntercomService
   ) { }
 
-  ngOnInit() {
-    // setting view/edit mode based on dashboard mode
-    if (this.dashboardMode === 'edit') {
-      this.viewEditMode = true;
-    } else {
-      this.viewEditMode = false;
-    }
-  }
-
   getWidgetConfig(id) {
     return this.dbService.getWidgetConfigById(id);
   }
@@ -105,7 +96,7 @@ export class DboardContentComponent implements OnInit, OnChanges {
 
     if (changes.dashboardMode && changes.dashboardMode.currentValue === 'edit') {
       this.viewEditMode = true;
-    } else {
+    } else if ( changes.dashboardMode && changes.dashboardMode.currentValue !== 'edit') {
       this.viewEditMode = false;
       if (this.widgetViewContainer.viewContainerRef) {
         this.widgetViewContainer.viewContainerRef.clear();

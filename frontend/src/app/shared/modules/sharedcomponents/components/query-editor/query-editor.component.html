@@ -46,9 +46,9 @@
                         <mat-list-item class="metric" role="listitem" *ngFor="let metric of query.metrics" [ngClass]="">
                             <div class="metric-item-detail">
                                 <div class="metric-name">{{ metric.name }}</div>
-                                <div *ngIf="type !== 'LinechartWidgetComponent'">Summarizer: <dropdown-aggregators
-                                        [multiple]="type === 'BignumberWidgetComponent' ? true : false" [value]="metric.settings.visual.aggregator"
-                                        (change)="setMetricSummarizer(metric.id, $event)"></dropdown-aggregators>
+                                <div>Tag aggregator: <tag-aggregator
+                                    [value]="metric.tagAggregator"
+                                   (change)="setMetricTagAggregator(metric.id, $event)"></tag-aggregator>
                                 </div>
                             </div>
                             <span class="shim-spacer"></span>
@@ -155,9 +155,9 @@
                     </div>
                     <mat-list class="tag-filter-rows" role="list">
                         <mat-list-item class="tag" role="listitem" *ngFor="let filter of query.filters; let index=index">
-                            <div class="tag-filter-aggregator">
-                                <tag-aggregator [value]="filter.aggregator" [exclude]="type === 'BignumberWidgetComponent'?['unmerge']:[]"
-                                    (change)="setTagAggregator(index, $event)"></tag-aggregator>
+                            <div class="tag-filter-aggregator" *ngIf= "type !== 'BignumberWidgetComponent'">
+                                    <tag-groupby [value]="filter.groupBy" 
+                                        (change)="setTagGroupBy(index, $event)"></tag-groupby>
                             </div>
                             <div class="tag-filter-detail">
                                 <strong>{{ filter.tagk }}:</strong> <span>{{ filter.filter.join(', ') }}</span>
@@ -191,20 +191,12 @@
                         <span class="seperator"></span>
                         <div class="tag-key-search-results has-scroller">
                             <div class="is-scroller">
-                                <div class="tag-keys-selected" *ngIf="query.filters.length">
-                                    <div class="option-item tag-key-option added" 
-                                        *ngFor="let filter of query.filters"
-                                        [ngClass]="filter.tagk === selectedTag ? 'active' : ''">
-                                        <div class="option-cell" (click)="handlerTagClick(filter.tagk)">
-                                            <mat-icon>remove_circle_outline</mat-icon>
-                                        </div>
-                                        <div class="option-cell label">{{ filter.tagk }}</div>
-                                    </div>
-                                </div>
                                 <div class="option-item tag-key-option" *ngFor="let option of tagOptions" 
-                                    (click)="handlerTagClick(option)"
-                                    [ngClass]="option === selectedTag ? 'active' : ''">
-                                    <div class="option-cell label">{{ option }}</div>
+                                    [ngClass]="{'added': getTagIndex(option) !== -1, 'selected': option === selectedTag }">
+                                    <div class="option-cell" (click)="removeTagValues(option)" *ngIf="getTagIndex(option) !== -1">
+                                            <mat-icon (click)="removeTagValues(option)">remove_circle_outline</mat-icon>
+                                    </div>
+                                    <div class="option-cell label" (click)="handlerTagClick(option)">{{ option }}</div>
                                 </div>
                             </div>
                         </div>

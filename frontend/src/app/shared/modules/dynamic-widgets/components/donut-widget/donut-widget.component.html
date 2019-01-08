@@ -8,17 +8,19 @@
         </span>
     </div>
     <div class="widget-output" #widgetoutput>
-        <div id="container" [style.width]="width" [style.height]="height">
-            <canvas id="canvas" 
-                chartjs
-                [chartType]="type"
-                [data]="data"
+        <div id="container" #container [ngClass]="{
+            'display-legend-right': widget.settings.legend.display && widget.settings.legend.position=='right',
+            'display-legend-left': widget.settings.legend.display && widget.settings.legend.position=='left'}">
+            <div class="chart" 
+                D3PieChart
                 [options]="options"
-                ></canvas>
-            <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
-            <div class="error" *ngIf="error" (click)="showError()">
-                <mat-icon>error</mat-icon>
-            </div>
+                [size]="size"
+                ></div>
+            <span class="legend" [style.width]="size.legendWidth + 'px'" [style.display]="size.legendWidth>=80 ? 'inline-block':'none'" #chartLegend></span>
+        </div>
+        <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
+        <div class="error" *ngIf="error" (click)="showError()">
+            <mat-icon>error</mat-icon>
         </div>
     </div>
 </div>

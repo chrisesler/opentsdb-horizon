@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef, AfterContentInit } from '@angular/core';
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
@@ -18,7 +18,7 @@ import { ErrorDialogComponent } from '../../../sharedcomponents/components/error
     styleUrls: ['./donut-widget.component.scss']
 })
 
-export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, AfterContentInit {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.donutchart-widget') private _componentClass = true;
 
@@ -26,38 +26,32 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     @Input() widget: any;
 
     @ViewChild('widgetoutput') private widgetOutputElement: ElementRef;
+    @ViewChild('container') private container: ElementRef;
+    @ViewChild('chartLegend') private chartLegend: ElementRef;
 
     private listenSub: Subscription;
     // tslint:disable-next-line:no-inferrable-types
     private isDataLoaded: boolean = false;
     // tslint:disable-next-line:no-inferrable-types
 
-    type = 'doughnut';
     type$: BehaviorSubject<string>;
     typeSub: Subscription;
 
 
     options: any  = {
-        labels : [ ],
+        type: 'doughnut',
         legend: {
             display: true,
             position: 'right',
-            labels: {
-                padding: 20
-            }
         },
-        plugins: {
-            labels: {
-                render: 'percentage',
-                precision: 2
-            }
-        }
+        data: []
     };
-    data: any = [ { data: [] } ];
     width = '100%';
     height = '100%';
+    size: any = { width:0, height:0, legendWidth: 0 };
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
+    legendWidth=0;
     editQueryId = null;
     nQueryDataLoading = 0;
     error: any;
@@ -74,7 +68,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'doughnut');
         this.typeSub = this.type$.subscribe( type => {
             this.widget.settings.visual.type = type;
-            this.type = type === 'doughnut' ? 'doughnut' : 'pie';
+            this.options.type = type === 'doughnut' ? 'doughnut' : 'pie';
         });
 
         // subscribe to event stream
@@ -90,13 +84,12 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                         this.nQueryDataLoading--;
                         if ( !this.isDataLoaded ) {
                             this.isDataLoaded = true;
-                            this.options.labels = [];
-                            this.data = [];
+                            this.options.data = [];
                         }
                         if ( message.payload.error ) {
                             this.error = message.payload.error;
                         }
-                        this.data = this.dataTransformer.yamasToChartJS('donut', this.options, this.widget, this.data, message.payload.rawdata);
+                        this.options = this.dataTransformer.yamasToD3Donut(this.options, this.widget, message.payload.rawdata);
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.widget = message.payload;
@@ -116,7 +109,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
 
     }
 
-    ngAfterViewInit() {
+    ngAfterContentInit() {
         // this event will happend on resize the #widgetoutput element,
         // in  chartjs we don't need to pass the dimension to it.
         // Dimension will be picked up by parent node which is #container
@@ -129,9 +122,10 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         this.newSize$ = new BehaviorSubject(initSize);
 
         this.newSizeSub = this.newSize$.pipe(
-            debounceTime(100)
+            // debounceTime(300)
         ).subscribe(size => {
-            this.setSize();
+            console.log("size", size)
+            this.setSize(size);
         });
         
         new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
@@ -143,21 +137,16 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         });
     }
 
-      // this will be first called from AfterViewInit.
-      setSize() {
-
-        // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
-        // and read the size of the first element above the componentHostEl
-        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
-
-        const outputSize = nativeEl.getBoundingClientRect();
-        if (this.editMode) {
-            this.width = '100%';
-            this.height = '100%';
-        } else {
-            this.width = (outputSize.width - 30) + 'px';
-            this.height = (outputSize.height - 20) + 'px';
+    setSize(newSize) {
+        const maxRadius = Math.min(newSize.width, newSize.height);
+        let legendWidth = newSize.width - maxRadius;
+        // min legend width=100 if total width > 200
+        if ( legendWidth < 100 && newSize.width > 200 ) {
+            legendWidth = 100;
+            newSize.width = newSize.width - legendWidth;
         }
+
+        this.size = {...newSize, legendWidth: legendWidth-20};
     }
 
     requestData() {
@@ -194,6 +183,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                 break;
             case 'ChangeVisualization':
                 this.type$.next(message.payload.type);
+                this.options = {...this.options};
                 break;
             case 'SetVisualization':
                 this.setVisualization(message.payload.data);
@@ -248,11 +238,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
 
     setLegendOption() {
         this.options.legend = {...this.widget.settings.legend};
-        this.options.plugins.labels = this.options.legend.showPercentages ? {
-            render: 'percentage',
-            precision: 2,
-            fontColor: 'black'
-        } : false;
+        this.options.legendDiv = this.chartLegend.nativeElement;
     }
 
     setMetaData(config) {
@@ -265,7 +251,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                                              overrideRelativeTime: config.overrideRelativeTime,
                                              downsample: {
                                                  value: config.downsample,
-                                                 aggregator: config.aggregator,
+                                                 aggregators: config.aggregators,
                                                  customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
                                                  customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                              }

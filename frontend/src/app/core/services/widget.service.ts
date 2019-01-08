@@ -47,14 +47,21 @@ export class WidgetService {
                 break;
             case 'DonutWidgetComponent':
                 settings = {
+                    dataSummary: true,
                     legend: {
                         display: true,
                         position: 'right'
                     }
                 };
                 break;
+            case 'BarchartWidgetComponent':
+                settings = {
+                    dataSummary: true,
+                };
+                break;
             case 'BignumberWidgetComponent':
                 settings = {
+                    dataSummary: true,
                     visual: {
                         queryID: 0
                     }

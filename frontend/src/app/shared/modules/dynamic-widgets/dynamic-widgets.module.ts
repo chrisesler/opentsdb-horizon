@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 /** Other modules */
 import { MaterialModule } from '../material/material.module';
 import { DygraphsModule } from '../dygraphs/dygraphs.module';
+import { D3Module } from '../d3/d3.module'
 import { ChartjsModule } from '../chartjs/chartjs.module';
 import { SharedcomponentsModule } from '../sharedcomponents/sharedcomponents.module';
 
@@ -44,6 +45,7 @@ import { StatusWidgetComponent } from './components/status-widget/status-widget.
         MaterialModule,
         DygraphsModule,
         ChartjsModule,
+        D3Module,
         SharedcomponentsModule
     ],
     exports: [
