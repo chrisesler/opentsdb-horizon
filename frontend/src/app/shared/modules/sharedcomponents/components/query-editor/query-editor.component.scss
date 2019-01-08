@@ -226,11 +226,12 @@
                     .mat-list-item-content {
                         padding: 0;
                         flex: 1;
+                        max-width: 100%;
                     }
 
                     .metric-item-detail {
                         min-width: 0;
-                        max-width: 355px;
+                        //max-width: 355px;
                         display: flex;
                         flex-direction: column;
                         flex: 1;
@@ -242,8 +243,8 @@
                         }
                     }
 
-                    .flex-spacer {
-                        max-width: 8px;
+                    .shim-spacer {
+                        min-width: 8px;
                     }
 
                     .action-icons {
@@ -384,7 +385,7 @@
 
                     .tag-filter-detail {
                         min-width: 0;
-                        max-width: 85%;
+                        //max-width: 85%;
                         margin-left: 6px;
                         display: flex;
                         //flex-direction: column;
@@ -401,8 +402,8 @@
                         }
                     }
 
-                    .flex-spacer {
-                        max-width: 8px;
+                    .shim-spacer {
+                        min-width: 8px;
                     }
 
                     .action-icons {

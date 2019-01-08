@@ -51,7 +51,7 @@
                                         (change)="setMetricSummarizer(metric.id, $event)"></dropdown-aggregators>
                                 </div>
                             </div>
-                            <span class="flex-spacer"></span>
+                            <span class="shim-spacer"></span>
                             <div class="action-icons">
                                 <button mat-icon-button color="primary" (click)="toggleMetricVisibility(metric.id); $event.stopPropagation()">
                                     <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="metric.settings.visual.visible"></mat-icon>
@@ -160,9 +160,9 @@
                                     (change)="setTagAggregator(index, $event)"></tag-aggregator>
                             </div>
                             <div class="tag-filter-detail">
-                                <strong>{{ filter.tagk }}:</strong> <span>{{ filter.filter.join(',') }}</span>
+                                <strong>{{ filter.tagk }}:</strong> <span>{{ filter.filter.join(', ') }}</span>
                             </div>
-                            <span class="flex-spacer"></span>
+                            <span class="shim-spacer"></span>
                             <div class="action-icons">
                                 <button mat-icon-button color="primary" (click)="deleteFilter(index); $event.stopPropagation()">
                                     <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
