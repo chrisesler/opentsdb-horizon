@@ -28,6 +28,7 @@ $navbar-config: (
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin app-shell-module-core() {
+
     @include app-shell-common-base();
     // include your core mixins
     // example: @include componentName-component-core();
