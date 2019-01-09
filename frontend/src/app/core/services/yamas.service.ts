@@ -20,6 +20,7 @@ export class YamasService {
         let filterId = '';
         const outputIds = [];
         let hasMetricTS = false;
+        let groupByIds = [];
 
         // add filters
         if ( query.filters.length ) {
@@ -47,6 +48,7 @@ export class YamasService {
                     transformedQuery.executionGraph.push(this.getQueryDownSample(summaryOnly, downsample, aggregators[i], dsId, res.mids));
                     // add groupby for the expression
                     const groupbyId = q.id + '-groupby'  ;
+                    groupByIds.push(groupbyId);
                     transformedQuery.executionGraph.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator,  [dsId], groupbyId));
                     q.sources = [groupbyId];
                     transformedQuery.executionGraph.push(q);
@@ -67,6 +69,7 @@ export class YamasService {
                     transformedQuery.executionGraph.push(this.getQueryDownSample(summaryOnly, downsample, aggregators[i], dsId, [q.id]));
 
                     const groupbyId = prefix + '-groupby';
+                    groupByIds.push(groupbyId);
                     transformedQuery.executionGraph.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator,  [dsId], groupbyId));
                     outputIds.push(groupbyId);
                 }
@@ -81,7 +84,7 @@ export class YamasService {
         // }
 
         if (sorting && sorting.order && sorting.limit) {
-            transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit));
+            transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit, groupByIds));
             transformedQuery.executionGraph.push(this.getQuerySummarizer(['topn']));
         } else {
             // transformedQuery.executionGraph.push(this.getQuerySummarizer(['groupby']));
@@ -112,7 +115,7 @@ export class YamasService {
         return q;
     }
 
-    getTopN(order: string, count: number) {
+    getTopN(order: string, count: number, sources: string[]) {
 
         let _order: boolean = true;  // true is topN
         if (order.toLowerCase() === 'bottom') {
@@ -122,7 +125,7 @@ export class YamasService {
         return {
             'id': 'topn',
             'type': 'topn',
-            'sources': ['groupby'],
+            'sources': sources,
             'aggregator': 'avg',
             'top': _order,
             'count': count
