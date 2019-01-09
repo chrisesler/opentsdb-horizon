@@ -44,6 +44,11 @@
                 <widget-config-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-visual-appearance>
             </ng-template>
         </mat-tab>
+        <mat-tab label="Sorting" [disabled]="editQueryId">
+            <ng-template matTabContent>
+                <widget-config-sorting [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-sorting>
+            </ng-template>
+        </mat-tab>
         <mat-tab label="Legend" [disabled]="editQueryId">
             <ng-template matTabContent>
                 <donutchart-legend [widget]="widget" (widgetChange)="updateConfig($event);"></donutchart-legend>
