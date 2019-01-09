@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { filter } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +8,8 @@ export class YamasService {
     constructor() { }
 
     // buildQuery( time, metrics, downsample= {} , summary= false) {
-    buildQuery( time, query, downsample:any = {} , summaryOnly= false) {
+    buildQuery( time, query, downsample:any = {} , summaryOnly= false, sorting) {
+
         const transformedQuery: any = {
             start: time.start,
             end: time.end,
@@ -20,6 +20,7 @@ export class YamasService {
         let filterId = '';
         const outputIds = [];
         let hasMetricTS = false;
+        let groupByIds = [];
 
         // add filters
         if ( query.filters.length ) {
@@ -47,6 +48,7 @@ export class YamasService {
                     transformedQuery.executionGraph.push(this.getQueryDownSample(summaryOnly, downsample, aggregators[i], dsId, res.mids));
                     // add groupby for the expression
                     const groupbyId = q.id + '-groupby'  ;
+                    groupByIds.push(groupbyId);
                     transformedQuery.executionGraph.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator,  [dsId], groupbyId));
                     q.sources = [groupbyId];
                     transformedQuery.executionGraph.push(q);
@@ -67,6 +69,7 @@ export class YamasService {
                     transformedQuery.executionGraph.push(this.getQueryDownSample(summaryOnly, downsample, aggregators[i], dsId, [q.id]));
 
                     const groupbyId = prefix + '-groupby';
+                    groupByIds.push(groupbyId);
                     transformedQuery.executionGraph.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator,  [dsId], groupbyId));
                     outputIds.push(groupbyId);
                 }
@@ -74,11 +77,20 @@ export class YamasService {
         }
 
         if ( hasMetricTS ) {
-            
+
         }
         // if ( !summaryOnly ) {
-            transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
+
         // }
+
+        if (sorting && sorting.order && sorting.limit) {
+            transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit, groupByIds));
+            transformedQuery.executionGraph.push(this.getQuerySummarizer(['topn']));
+        } else {
+            // transformedQuery.executionGraph.push(this.getQuerySummarizer(['groupby']));
+            transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
+        }
+
 
         transformedQuery.serdesConfigs = [{
             id: 'JsonV3QuerySerdes',
@@ -101,6 +113,23 @@ export class YamasService {
         };
 
         return q;
+    }
+
+    getTopN(order: string, count: number, sources: string[]) {
+
+        let _order: boolean = true;  // true is topN
+        if (order.toLowerCase() === 'bottom') {
+            _order = false;
+        }
+
+        return {
+            'id': 'topn',
+            'type': 'topn',
+            'sources': sources,
+            'aggregator': 'avg',
+            'top': _order,
+            'count': count
+        };
     }
 
     getFilterQuery(query) {
@@ -214,7 +243,6 @@ export class YamasService {
             ],
             sources: sources
         };
-        console.log("----groupby-----", metricGroupBy.tagKeys, metricGroupBy.aggregator);
         return metricGroupBy;
     }
 

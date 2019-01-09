@@ -125,6 +125,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 }
             }
         });
+
+        // first time when displaying chart
+        if (!this.widget.settings.sorting) {
+            this.widget.settings.sorting = { limit: 25, order: 'top' };
+        }
+
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
         this.requestData();
@@ -204,6 +210,9 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.widget.settings.axes = { ...this.widget.settings.axes, ...message.payload.data };
                 this.setAxisOption();
                 this.options = { ...this.options };
+                break;
+            case 'SetSorting':
+                this.setSorting(message.payload);
                 break;
             case 'ChangeVisualization':
                 this.type$.next(message.payload.type);
@@ -481,6 +490,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.data[i].backgroundColor = config.color;
         });
         this.data = [...this.data];
+    }
+
+    setSorting(sConfig) {
+        this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
+        this.refreshData();
     }
 
     toggleGroup(gIndex) {
