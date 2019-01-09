@@ -89,7 +89,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
 
     ngOnInit() {
-        this.createForm();
         this.queryChanges$ = new BehaviorSubject(false);
 
         this.queryChangeSub = this.queryChanges$
@@ -103,7 +102,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                                         });
     }
 
-    createForm() {
+    initExpressionForm() {
         this.expressionForm = this.fb.group({
             expressionName:     new FormControl('untitled expression'),
             expressionValue:    new FormControl('')
@@ -126,6 +125,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     initFormControls() {
+            this.initExpressionForm();
             this.setMetricSearch();
             this.setTagSearch();
             this.setTagValueSearch();
@@ -150,9 +150,13 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     setEditMode(types) {
-        if ( types.indexOf('metrics') !== -1 ) {
+        if ( types.indexOf('metrics') !== -1  || types.indexOf('expression') !== -1 ) {
             this.metricOptions = [];
             this.metricSearchControl.setValue(null);
+            if ( types.indexOf('expression') !== -1 ) {
+                this.edit.push('metrics');
+                this.showExpressionForm();
+            }
         }
 
         if ( types.indexOf('filters') !== -1  ) {

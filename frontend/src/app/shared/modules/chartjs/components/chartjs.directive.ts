@@ -72,7 +72,7 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
             if ( self.options.scales && self.options.scales[ axis + 'Axes' ][0].ticks.format ) {
                 const tickFormat = self.options.scales[axis + 'Axes'][0].ticks.format;
                 const unit = tickFormat.unit;
-                const precision = tickFormat.precision && !Number.isInteger(item[axis + 'Label']) ? tickFormat.precision : 0;
+                const precision = tickFormat.precision ? tickFormat.precision : 0;
                 return 'Value: ' + self.uConverter.format(item[axis + 'Label'], { unit: unit, precision: precision } ) + taghtml;
             } else {
                 return 'Value: ' +  self.uConverter.format(data['datasets'][0]['data'][item['index']], { unit: '', precision: 2 }) + taghtml;
