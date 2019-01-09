@@ -275,7 +275,7 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
                                             distinctUntilChanged()
                                         )
                                         .subscribe( function(data) {
-                                            this.multipleAggregators = this.widgetConfigTime.controls.multiple.value ? true: false;
+                                            // this.multipleAggregators = this.widgetConfigTime.controls.multiple.value ? true: false;
                                             if ( this.widgetConfigTime.valid ) {
                                                 this.widgetChange.emit({'action': 'SetTimeConfiguration', payload: { data: data } });
                                             }

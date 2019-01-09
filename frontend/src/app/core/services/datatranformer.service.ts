@@ -212,7 +212,7 @@ export class DatatranformerService {
                 const mid = results[i].source.split(':')[1];
                 const configIndex = mid.replace( /\D+/g, '')
                 const mConfig = mConfigs[configIndex];
-                const aggregator = mConfig.settings.visual.aggregator[0] || 'avg';
+                const aggregator = wSettings.time.downsample.aggregators? wSettings.time.downsample.aggregators[0] : 'avg';
                 const n = results[i].data.length;
                 const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
                 for ( let j = 0;  j < n; j++ ) {
@@ -308,7 +308,7 @@ export class DatatranformerService {
             const mid = results[i].source.split(':')[1];
             const configIndex = mid.replace( /\D+/g, '');
             const mConfig = mConfigs[configIndex];
-            const aggregator = mConfig.settings.visual.aggregator[0] || 'avg';
+            const aggregator = widget.settings.time.downsample.aggregators ? widget.settings.time.downsample.aggregators[0] : 'avg';
             const n = results[i].data.length;
             const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
             for ( let j = 0; j < n; j++ ) {
