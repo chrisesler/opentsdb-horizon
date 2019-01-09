@@ -124,6 +124,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 }
             }
         });
+
+        // first time when displaying chart
+        if (!this.widget.settings.sorting) {
+            this.widget.settings.sorting = { limit: 25, order: 'top' };
+        }
+
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
         this.requestData();

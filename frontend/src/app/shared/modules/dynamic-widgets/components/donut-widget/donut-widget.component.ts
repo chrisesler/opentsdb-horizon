@@ -99,6 +99,12 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                 }
             }
         });
+
+        // first time when displaying chart
+        if (!this.widget.settings.sorting) {
+            this.widget.settings.sorting = { limit: 25, order: 'top' };
+        }
+
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
         this.setOptions();
@@ -188,6 +194,9 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
             case 'SetVisualization':
                 this.setVisualization(message.payload.data);
                 break;
+            case 'SetSorting':
+                this.setSorting(message.payload);
+                break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
@@ -259,6 +268,11 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         this.refreshData();
      }
 
+    setSorting(sConfig) {
+        this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
+        this.refreshData();
+    }
+
     refreshData(reload = true) {
         this.isDataLoaded = false;
         if ( reload ) {
@@ -287,7 +301,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries[qindex].filters.splice(findex, 1);
     }
-    
+
     showError() {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         const offsetHeight = 60;
