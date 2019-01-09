@@ -204,6 +204,9 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.setAxisOption();
                 this.options = { ...this.options };
                 break;
+            case 'SetSorting':
+                this.setSorting(message.payload);
+                break;
             case 'ChangeVisualization':
                 this.type$.next(message.payload.type);
                 break;
@@ -480,6 +483,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.data[i].backgroundColor = config.color;
         });
         this.data = [...this.data];
+    }
+
+    setSorting(sConfig) {
+        this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
+        this.refreshData();
     }
 
     toggleGroup(gIndex) {

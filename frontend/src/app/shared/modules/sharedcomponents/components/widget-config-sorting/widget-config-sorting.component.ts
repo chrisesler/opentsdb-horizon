@@ -29,9 +29,16 @@ export class WidgetConfigSortingComponent implements OnInit {
       limitInput: ['', [ Validators.min(1), Validators.max(1000), Validators.required, this.integerValidator()]],
     });
 
-    this.limitForm.setValue( {limitInput: 25});
-
-    this.order = 'top';
+    if (!this.widget.settings.sorting || !this.widget.settings.sorting.order || !this.widget.settings.sorting.limit) {
+      this.order = 'top';
+      this.limitForm.setValue( {limitInput: 25});
+      this.limit = 25;
+      this.widgetChange.emit( {action: 'SetSorting', payload: {order: this.order, limit: this.limit} } );
+    } else {
+      this.order = this.widget.settings.sorting.order;
+      this.limit = this.widget.settings.sorting.limit;
+      this.limitForm.setValue( {limitInput: this.limit});
+    }
 
   }
 
@@ -41,16 +48,23 @@ export class WidgetConfigSortingComponent implements OnInit {
   limitInputChanged() {
     if (!this.formFields.limitInput.errors) {
       this.limit = this.limitForm.value.limitInput;
+      this.widgetChange.emit( {action: 'SetSorting', payload: {order: this.order, limit: this.limit} } );
     }
   }
 
   integerValidator(): ValidatorFn {
     return (control: AbstractControl): {[key: string]: any} | null => {
-        let forbidden: boolean = true;
+        let forbidden = true;
         if (Number.isInteger(control.value)) {
             forbidden = false;
         }
         return forbidden ? {'format': {value: control.value}} : null;
     };
   }
+
+  orderChanged(event) {
+    this.order = event.value;
+    this.widgetChange.emit( {action: 'SetSorting', payload: {order: this.order, limit: this.limit} } );
+  }
+
 }

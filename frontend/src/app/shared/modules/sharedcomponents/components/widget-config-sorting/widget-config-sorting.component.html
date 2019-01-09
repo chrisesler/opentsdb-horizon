@@ -2,7 +2,7 @@
   Order
 </div>
 
-<mat-button-toggle-group name="sortOrder" [value]="order">
+<mat-button-toggle-group name="sortOrder" [value]="order" (change)="orderChanged($event)">
   <mat-button-toggle value="top">Top</mat-button-toggle>
   <mat-button-toggle value="bottom">Bottom</mat-button-toggle>
 </mat-button-toggle-group>

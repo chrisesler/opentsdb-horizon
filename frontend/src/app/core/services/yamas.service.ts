@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { filter } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +8,8 @@ export class YamasService {
     constructor() { }
 
     // buildQuery( time, metrics, downsample= {} , summary= false) {
-    buildQuery( time, query, downsample:any = {} , summaryOnly= false) {
+    buildQuery( time, query, downsample:any = {} , summaryOnly= false, sorting) {
+
         const transformedQuery: any = {
             start: time.start,
             end: time.end,
@@ -74,11 +74,20 @@ export class YamasService {
         }
 
         if ( hasMetricTS ) {
-            
+
         }
         // if ( !summaryOnly ) {
-            transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
+
         // }
+
+        if (sorting && sorting.order && sorting.limit) {
+            transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit));
+            transformedQuery.executionGraph.push(this.getQuerySummarizer(['topn']));
+        } else {
+            // transformedQuery.executionGraph.push(this.getQuerySummarizer(['groupby']));
+            transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
+        }
+
 
         transformedQuery.serdesConfigs = [{
             id: 'JsonV3QuerySerdes',
@@ -101,6 +110,23 @@ export class YamasService {
         };
 
         return q;
+    }
+
+    getTopN(order: string, count: number) {
+
+        let _order: boolean = true;  // true is topN
+        if (order.toLowerCase() === 'bottom') {
+            _order = false;
+        }
+
+        return {
+            'id': 'topn',
+            'type': 'topn',
+            'sources': ['groupby'],
+            'aggregator': 'avg',
+            'top': _order,
+            'count': count
+        };
     }
 
     getFilterQuery(query) {
@@ -214,7 +240,6 @@ export class YamasService {
             ],
             sources: sources
         };
-        console.log("----groupby-----", metricGroupBy.tagKeys, metricGroupBy.aggregator);
         return metricGroupBy;
     }
 
