@@ -508,7 +508,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.sideNavSub = this.sideNav$.subscribe( sideNav => {
             setTimeout(() => {
                 this.rerender = { 'reload': true };
-            }, 0);
+            }, 300);
         });
     }
 

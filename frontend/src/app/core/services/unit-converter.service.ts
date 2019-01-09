@@ -41,8 +41,8 @@ export class UnitConverterService {
         let precision = options.precision ? options.precision : 0;
         // default to KMB
         if ( !oUnit ) {
-            precision = Number.isInteger(value) ? 0 : precision;
-            return d3.format('.' + precision + 's')(value);
+            const prefix = d3.formatPrefix('.' + precision + 's', value);
+            return prefix(value);
         }
         const result =  value / oUnit.m ;
         precision = Number.isInteger(result) ? 0 : precision;

@@ -47,7 +47,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
     valueAxis: any = {
         ticks: {
-            beginAtZero: true
+            beginAtZero: true,
+            precision: 0
         },
         type: 'linear'
     };
@@ -375,7 +376,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                             this.widget.settings.axes.y1 : <Axis>{};
         const oUnit = this.unit.getDetails(config.unit);
         axis.type = !config.scale || config.scale === 'linear' ? 'linear' : 'logarithmic';
-        axis.ticks = {};
+        axis.ticks = { beginAtZero: true };
         if ( !isNaN( config.min ) && config.min ) {
             axis.ticks.min = oUnit ? config.min * oUnit.m : config.min;
         }
