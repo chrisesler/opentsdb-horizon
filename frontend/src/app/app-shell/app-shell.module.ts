@@ -65,10 +65,16 @@ import { DnavDashboardsComponent } from './components/dashboard-navigator/childr
     ],
     providers: [
         AppShellService,
-        DashboardNavigatorService
+        DashboardNavigatorService,
+        { provide: 'WINDOW', useFactory: getBrowserWindow } // this is used to open dashboards in new tab
     ],
     exports: [
         AppShellComponent
     ]
 })
 export class AppShellModule { }
+
+// function for WINDOW provider factory to return browser window object
+export function getBrowserWindow() {
+    return (typeof window !== 'undefined') ? window : null;
+}

@@ -186,9 +186,14 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     menuAction(action: string, event?: any) {
-        switch (action.toLowerCase()) {
-            case 'editname':
+        switch (action) {
+            case 'editName':
                 this.nameEdit = true;
+                break;
+            case 'deleteFolder':
+                this.folderAction.emit({
+                    action: 'deleteFolder'
+                });
                 break;
             default:
                 break;
