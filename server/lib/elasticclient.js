@@ -880,7 +880,7 @@ module.exports = function () {
 
         var tagFilter = { key: tagkey };
         if ( search ) {
-            tagFilter.value = search;
+            tagFilter.value = [search];
         }
         tags.unshift(tagFilter);
         queryBody.query = self.getQuery( tags, metrics );

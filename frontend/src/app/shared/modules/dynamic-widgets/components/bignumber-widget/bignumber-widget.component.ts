@@ -176,8 +176,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         let metric = {};
         queryID = queryID.toString();
         for ( let i = 0; this.data && i < this.data.length; i++ ) {
-            const mid = this.data[i].source.split(':')[1];
-            const configIndex = mid.replace('m', '');
+            const mid = this.data[i].source.split(':')[1]; // example: summarizer:m1-avg
+            const configIndex = mid.replace(/[^0-9]+/g, ''); // remove anything before and after the index
             if ( configIndex === queryID ) {
                 metric = this.data[i].data[0];
                 break;
@@ -202,16 +202,19 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             const responseAggregatorValues = metric.NumericSummaryType.data[0][key];
             const configuredAggregators = this.widget.queries[0].metrics[queryIndex].settings.visual.aggregator || ['avg'];
 
-            this.aggregators = [];
-            this.aggregatorValues = [];
+            this.aggregators = this.widget.settings.time.downsample.aggregators || ['avg'];
+            const index = responseAggregators.indexOf(this.aggregators[0]);
+            this.aggregatorValues = [responseAggregatorValues[index]]; // [metric.NumericType[key]];
+            /*
             for (let agg of configuredAggregators) {
                 let index = responseAggregators.indexOf(agg);
                 this.aggregatorValues.push(responseAggregatorValues[index]);
                 this.aggregators.push(agg);
             }
+            */
 
-            lastValue = responseAggregatorValues[responseAggregators.indexOf('first')];
-            currentValue = responseAggregatorValues[responseAggregators.indexOf('last')];
+            // lastValue = responseAggregatorValues[responseAggregators.indexOf('first')];
+            // currentValue = responseAggregatorValues[responseAggregators.indexOf('last')];
 
             // SET LOCAL VARIABLES
             this.changeValue = currentValue - lastValue;
@@ -472,7 +475,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             overrideRelativeTime: config.overrideRelativeTime,
             downsample: {
                 value: config.downsample,
-                aggregator: config.aggregator,
+                aggregators: config.aggregators,
                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
             }

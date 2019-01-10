@@ -21,11 +21,9 @@ export class DatatranformerService {
         return normalizedData;
     }
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
-/*
     let dict = {};
     for (let qid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
-        const mConfigs = gConfig ? gConfig.metrics : [];
         if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
             dict[qid] = {};
             for ( let i = 0;  i < result[qid].results.length; i++ ) {
@@ -36,23 +34,34 @@ export class DatatranformerService {
 
                 }
                 if ( source === 'summarizer') {
-                    dict[qid][mid]['summarizer'] = queryResults.data;
-                    continue;
+                    dict[qid][mid]['summarizer'] = {};
+                    const n = queryResults.data.length;
+                    for ( let j = 0; j < n; j ++ ) {
+                        const tags = queryResults.data[j].tags;
+                        const hash = JSON.stringify(tags);
+                        const aggs = queryResults.data[j].NumericSummaryType.aggregations;
+                        const key = Object.keys(queryResults.data[j].NumericSummaryType.data[0])[0];
+                        const data = queryResults.data[j].NumericSummaryType.data[0][key];
+                        const aggData = {};
+                        for ( let k = 0; k < aggs.length; k++ ) {
+                            aggData[aggs[k]] = data[k];
+                        }
+                        dict[qid][mid]['summarizer'][hash] = aggData;
+                    }
+                } else {
+                    dict[qid][mid]['values'] = {}; // queryResults.data;
+                    const n = queryResults.data.length;
+                    for ( let j = 0; j < n; j ++ ) {
+                        const tags = queryResults.data[j].tags;
+                        let hash = JSON.stringify(tags);
+                        dict[qid][mid]['values'][hash] = queryResults.data[j].NumericType;
+                    }
                 }
-                else {
-                    dict[qid][mid]['values'] = queryResults.data;
-                }
-                const mIndex = mid.replace("m",'');
-                const n = queryResults.data.length;
-                for ( let j = 0; j < n; j ++ ) {
-                    const tags = queryResults.data[j].tags;
-                    let hashCode = JSON.stringify(tags);
-                    dict[qid][mid]['hashes'][hashCode] = j;
-                }
+                
             }
         }
     }
-
+    /*
     for (let qid in dict) {
         for(let mid in dict[qid]) {
             dict[qid][mid].values.sort((a,b) => {
@@ -80,8 +89,10 @@ export class DatatranformerService {
                 const [ source, mid ] = queryResults.source.split(":");
                 if ( source === 'summarizer') {
                     continue;
+                } else {
+
                 }
-                const mIndex = mid.replace("m",'');
+                const mIndex = mid.replace( /\D+/g, '')
 
                 const timeSpecification = queryResults.timeSpecification;
                 const mConfig = mConfigs[mIndex];
@@ -91,8 +102,10 @@ export class DatatranformerService {
                 for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults.data[j].NumericType;
                     const tags = queryResults.data[j].tags;
+                    const hash = JSON.stringify(tags);
                     const metric = vConfig.label || queryResults.data[j].metric;
                     const numPoints = data.length;
+                    const aggData = dict[qid][mid]['summarizer'][hash];
 
                     let label = options.labels.length.toString();
                     if ( vConfig.visible ) {
@@ -105,14 +118,16 @@ export class DatatranformerService {
                                 color: colors[j],
                                 axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
                                 metric: metric,
-                                tags: tags
+                                tags: { metric: !mConfig.expression? queryResults.data[j].metric : this.getLableFromMetricTags(metric, tags), ...tags},
+                                aggregations: aggData
                             };
                         }
                         const seriesIndex = options.labels.indexOf(label);
                         const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+                        const m = parseInt(timeSpecification.interval);
                         for (let k = 0; k< numPoints ; k++ ) {
                             if (!isArray(normalizedData[k])) {
-                                const time = timeSpecification.start + ( k * mSeconds[unit] );
+                                const time = timeSpecification.start + ( m * k * mSeconds[unit] );
                                 normalizedData[k] = [ new Date(time * 1000) ];
                             }
                             normalizedData[k][seriesIndex]= !isNaN(data[k]) ? data[k] : null;
@@ -195,9 +210,9 @@ export class DatatranformerService {
             const results = queryData[qid].results? queryData[qid].results : [];
             for ( let i = 0;  i < results.length; i++ ) {
                 const mid = results[i].source.split(':')[1];
-                const configIndex = mid.replace('m', '');
+                const configIndex = mid.replace( /\D+/g, '')
                 const mConfig = mConfigs[configIndex];
-                const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
+                const aggregator = wSettings.time.downsample.aggregators? wSettings.time.downsample.aggregators[0] : 'avg';
                 const n = results[i].data.length;
                 const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
                 for ( let j = 0;  j < n; j++ ) {
@@ -207,13 +222,13 @@ export class DatatranformerService {
                     const aggData = results[i].data[j].NumericSummaryType.data[0][key];
 
                     if ( mConfig.settings && mConfig.settings.visual.visible ) {
-                        const metric = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
+                        let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                         const aggrIndex = aggs.indexOf(aggregator);
-                        let label = this.getLableFromMetricTags(metric, tags);
+                        label = this.getLableFromMetricTags(label, { metric: results[i].data[j].metric, ...tags});
                         options.labels.push(label);
                         datasets[0].data.push(aggData[aggrIndex]);
                         datasets[0].backgroundColor.push(colors[j]);
-                        datasets[0].tooltipData.push({ metric: metric, ...tags });
+                        datasets[0].tooltipData.push({ metric: results[i].data[j].metric, ...tags });
                     }
                 }
             }
@@ -221,10 +236,20 @@ export class DatatranformerService {
         return [...datasets];
     }
 
-    getLableFromMetricTags(metric, tags ) {
-        let label = metric;
-        for ( let k in tags ) {
-            label = label + '-' + tags[k];
+    getLableFromMetricTags(label, tags ) {
+        const regex = /\{\{([\w-]+)\}\}/ig
+        const matches = label.match(regex);
+        if ( matches ) {
+            for ( let i = 0, len = matches.length; i < len; i++ ) {
+                const key = matches[i].replace(/\{|\}/g,'');
+                label = label.replace(matches[i], tags[key]);
+            }
+        } else {
+            for ( let k in tags ) {
+                if ( k !== 'metric' ) {
+                    label = label + '-' + tags[k];
+                }
+            }
         }
         label = label.length > 50 ? label.substr(0, 48) + '..' : label;
         return label;
@@ -245,9 +270,45 @@ export class DatatranformerService {
 
        for ( let i = 0; i < results.length; i++ ) {
             const mid = results[i].source.split(':')[1];
-            const configIndex = mid.replace('m', '');
+            const configIndex = mid.replace( /\D+/g, '');
             const mConfig = mConfigs[configIndex];
             const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
+            const n = results[i].data.length;
+            const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
+            for ( let j = 0; j < n; j++ ) {
+                const aggs = results[i].data[j].NumericSummaryType.aggregations;
+                const tags = results[i].data[j].tags;
+                const key = Object.keys(results[i].data[j].NumericType)[0];
+                const aggData = results[i].data[j].NumericType[key];
+                if ( mConfig.settings && mConfig.settings.visual.visible ) {
+                    let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
+                    const aggrIndex = aggs.indexOf(aggregator);
+                    label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
+                    options.labels.push(label);
+                    datasets[0].data.push(aggData);
+                    datasets[0].backgroundColor.push(colors[j]);
+                    datasets[0].tooltipData.push({metric: results[i].data[j].metric, ...tags});
+                }
+            }
+        }
+        return [...datasets];
+    }
+    yamasToD3Donut(options, widget, queryData) {
+        options.data = [];
+        if ( queryData === undefined || Object.keys(queryData).length === 0) {
+            return {...options};
+        }
+        const qid = Object.keys(queryData)[0];
+        const results = queryData[qid].results ? queryData[qid].results : [];
+
+        const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
+        const mConfigs = gConfig.metrics;
+
+       for ( let i = 0; i < results.length; i++ ) {
+            const mid = results[i].source.split(':')[1];
+            const configIndex = mid.replace( /\D+/g, '');
+            const mConfig = mConfigs[configIndex];
+            const aggregator = widget.settings.time.downsample.aggregators ? widget.settings.time.downsample.aggregators[0] : 'avg';
             const n = results[i].data.length;
             const colors = n === 1 ? [mConfig.settings.visual.color] : this.util.getColors( mConfig.settings.visual.color , n );
             for ( let j = 0; j < n; j++ ) {
@@ -256,17 +317,18 @@ export class DatatranformerService {
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
                 if ( mConfig.settings && mConfig.settings.visual.visible ) {
-                    const metric = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
+                    let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                     const aggrIndex = aggs.indexOf(aggregator);
-                    const label = this.getLableFromMetricTags(metric, tags);
-                    options.labels.push(label);
-                    datasets[0].data.push(aggData[aggrIndex]);
-                    datasets[0].backgroundColor.push(colors[j]);
-                    datasets[0].tooltipData.push({metric: metric, ...tags});
+                    label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
+                    const o = { label: label, value: aggData[aggrIndex], color: colors[j], tooltipData: tags};
+                    options.data.push(o);
                 }
             }
         }
-        return [...datasets];
+        // const v = 4;
+        // options.data = [{label:"Category 1",value:225.65, color:'red', tooltipData: {colo:'gq1'}},{label:"Category 2",value:v, color:'blue'},{label:"Category 3",value:v, color:'yellow'},{label:"Category 4",value:v, color:'green'},{label:"Category 5",value:v, color:'brown'}];
+
+        return {...options};
     }
 
     getStrokePattern( lineType ) {

@@ -51,11 +51,11 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
     metricOptions = [];
     selectedTagIndex = -1;
     selectedTag = '';
+    loadFirstTagValues = false;
     tagValueTypeControl = new FormControl('literalor');
     metricSearchControl: FormControl;
     tagSearchControl: FormControl;
     tagValueSearchControl: FormControl;
-    addMetricEnabled = false;
     message = { 'tagControl' : { message: ''}, 'tagValueControl' : { message: '' }, 'metricSearchControl': { message : ''} };
     Object = Object;
 
@@ -89,7 +89,6 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
 
     ngOnInit() {
-        this.createForm();
         this.queryChanges$ = new BehaviorSubject(false);
 
         this.queryChangeSub = this.queryChanges$
@@ -103,7 +102,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                                         });
     }
 
-    createForm() {
+    initExpressionForm() {
         this.expressionForm = this.fb.group({
             expressionName:     new FormControl('untitled expression'),
             expressionValue:    new FormControl('')
@@ -120,12 +119,13 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             if ( this.edit.length ) {
                 this.initFormControls();
                 this.queryBeforeEdit = JSON.parse(JSON.stringify(this.query));
-                this.setEditMode();
+                this.setEditMode(this.edit);
             }
         }
     }
 
     initFormControls() {
+            this.initExpressionForm();
             this.setMetricSearch();
             this.setTagSearch();
             this.setTagValueSearch();
@@ -145,19 +145,23 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             this.requestChanges('SetQueryEditMode', { edit: [type] });
         } else {
             this.edit.push(type);
-            this.setEditMode();
+            this.setEditMode([type]);
         }
     }
 
-    setEditMode() {
-        if ( this.edit.indexOf('metrics') !== -1 || this.query.metrics.length ) {
-            this.addMetricEnabled = true;
+    setEditMode(types) {
+        if ( types.indexOf('metrics') !== -1  || types.indexOf('expression') !== -1 ) {
             this.metricOptions = [];
             this.metricSearchControl.setValue(null);
+            if ( types.indexOf('expression') !== -1 ) {
+                this.edit.push('metrics');
+                this.showExpressionForm();
+            }
         }
 
-        if ( this.edit.indexOf('filters') !== -1 || this.query.filters.length ) {
+        if ( types.indexOf('filters') !== -1  ) {
             this.tagSearchControl.setValue(null);
+            this.loadFirstTagValues = true;
         }
     }
 
@@ -218,7 +222,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             debounceTime(200)
         )
         .subscribe( value => {
-            const query: any = { namespace: this.query.namespace, tags: [] };
+            const query: any = { namespace: this.query.namespace, tags: [], metrics: [] };
 
             for ( let i = 0, len = this.query.filters.length; i < len; i++  ) {
                 const filter: any =  { key: this.query.filters[i].tagk };
@@ -232,7 +236,15 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
 
             // filter tags by metrics
             if ( this.query.metrics ) {
-                query.metrics = this.query.metrics.filter(item => !item.expression).map( item => item.name);
+                for ( let i = 0, len = this.query.metrics.length; i < len; i++ ) {
+                    if ( !this.query.metrics[i].expression ) {
+                        query.metrics.push(this.query.metrics[i].name);
+                    } else {
+                        const metrics = this.query.metrics[i].metrics.map(item => item.name.replace(this.query.namespace + '.',''));
+                        query.metrics = query.metrics.concat(metrics);
+                    }
+                }
+                query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
             }
             if ( this.edit.indexOf('filters') !== -1 ) {
                 this.httpService.getNamespaceTagKeys(query)
@@ -240,16 +252,16 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                                                             // debounceTime(200),
                                                             catchError(val => of(`I caught: ${val}`)),
                                                         ).subscribe( res => {
-                                                            this.tagOptions = res;
+                                                            const options = this.query.filters.map(item => item.tagk).concat(res);
+                                                            if ( this.loadFirstTagValues && options.length ) {
+                                                                this.handlerTagClick(options[0]);
+                                                            }
+                                                            this.loadFirstTagValues = false;
+                                                            this.tagOptions = options;
                                                         });
             }
             // this.tagSearchInput.nativeElement.focus();
         });
-    }
-
-    filterTagOptions() {
-        const selected = this.query.filters.map(item => item.tagk);
-        this.tagOptions = this.tagOptions.filter( tag => selected.indexOf(tag) === -1);
     }
 
     setTagValueSearch() {
@@ -262,11 +274,14 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             debounceTime(200)
         )
         .subscribe( value => {
-            const query: any = { namespace: this.query.namespace, tags: [] };
+            const query: any = { namespace: this.query.namespace, tags: [], metrics: [] };
 
             for ( let i = 0, len = this.query.filters.length; i < len; i++  ) {
+                if ( this.query.filters[i].tagk === this.selectedTag ) {
+                    continue;
+                }
                 const filter: any =  { key: this.query.filters[i].tagk };
-                if ( this.query.filters[i].filter.length && this.query.filters[i].tagk !== this.selectedTag ) {
+                if ( this.query.filters[i].filter.length  ) {
                     filter.value = this.query.filters[i].filter;
                 }
                 query.tags.push(filter);
@@ -276,7 +291,15 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
 
             // filter by metrics
             if ( this.query.metrics ) {
-                query.metrics = this.query.metrics.filter(item => !item.expression).map( item => item.name);
+                for ( let i = 0, len = this.query.metrics.length; i < len; i++ ) {
+                    if ( !this.query.metrics[i].expression ) {
+                        query.metrics.push(this.query.metrics[i].name);
+                    } else {
+                        const metrics = this.query.metrics[i].metrics.map(item => item.name.replace(this.query.namespace + '.',''));
+                        query.metrics = query.metrics.concat(metrics);
+                    }
+                }
+                query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
             }
             if ( this.selectedTag && this.tagValueTypeControl.value === 'literalor' ) {
                 query.tagkey = this.selectedTag;
@@ -322,18 +345,22 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             this.query.metrics.splice(index, 1);
         }
         this.queryChanges$.next(true);
+        this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
     }
     removeMetricById(mid) {
         const index = this.query.metrics.findIndex( d => d.id === mid );
         if ( index !== -1 ) {
             this.query.metrics.splice(index, 1);
+            this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+            this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         }
         this.queryChanges$.next(true);
     }
 
-    setMetricSummarizer(id, value) {
+    setMetricTagAggregator(id, value) {
         const index  = this.query.metrics.findIndex( item => item.id === id );
-        this.query.metrics[index].settings.visual.aggregator = value;
+        this.query.metrics[index].tagAggregator = value;
         this.queryChanges$.next(true);
     }
 
@@ -342,29 +369,19 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         return index;
     }
 
-    getOptionIndex(type, option) {
-        let key;
-        switch ( type ) {
-            case 'tag':
-                key = 'tagk';
-                break;
-        }
-        const index  = this.query[type].findIndex( item => item[key] === option );
-        return index;
-    }
-
     handlerTagClick( tag ) {
-        // const selected = this.query.filters.map(item => item.tagk);
-        // res = res.filter( tag => selected.indexOf(tag) === -1);
         this.selectedTag = tag;
         this.selectedTagIndex = this.getTagIndex(tag);
-        if ( this.tagValueTypeControl.value === 'literalor' ) {
-            this.loadTagValues();
-        }
+        this.tagValueTypeControl.setValue('literalor');
+        this.tagValueSearchControl.setValue(null);
     }
 
-    loadTagValues() {
-        this.tagValueSearchControl.setValue(null);
+    removeTagValues(tag) {
+        this.query.filters.splice(this.getTagIndex(tag), 1);
+        this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.metricSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.queryChanges$.next(true);
     }
 
     getTagIndex ( tag ) {
@@ -395,7 +412,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         if ( this.selectedTagIndex === -1  && operation === 'add' ) {
             this.selectedTagIndex = this.query.filters.length;
             const filter: any = { tagk: this.selectedTag,  filter: []};
-            filter.aggregator = this.type === 'LinechartWidgetComponent' ? 'unmerge' : 'sum';
+            filter.groupBy = this.type === 'LinechartWidgetComponent' ? true : true;
             this.query.filters[this.selectedTagIndex] = filter;
         }
 
@@ -406,23 +423,16 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             this.query.filters[this.selectedTagIndex].filter.splice(index, 1);
             if ( !this.query.filters[this.selectedTagIndex].filter.length ) {
                 this.query.filters.splice(this.selectedTagIndex, 1);
-                this.tagOptions.unshift(this.selectedTag);
                 this.selectedTagIndex = -1;
             }
         }
-        this.filterTagOptions();
+        this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.metricSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         this.queryChanges$.next(true);
     }
 
-    setTagAggregator(index, value) {
-        this.query.filters[index].aggregator = value;
-        if ( value !== 'unmerge' ) {
-            for ( let i = 0; i < this.query.filters.length; i++ ) {
-                if ( index !== i && this.query.filters[i].aggregator !== 'unmerge' ) {
-                    this.query.filters[i].aggregator = value;
-                }
-            }
-        }
+    setTagGroupBy(index, value) {
+        this.query.filters[index].groupBy = value;
         this.queryChanges$.next(true);
     }
 

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { filter } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +8,8 @@ export class YamasService {
     constructor() { }
 
     // buildQuery( time, metrics, downsample= {} , summary= false) {
-    buildQuery( time, query, downsample= {} , summaryOnly= false) {
+    buildQuery( time, query, downsample:any = {} , summaryOnly= false, sorting) {
+
         const transformedQuery: any = {
             start: time.start,
             end: time.end,
@@ -20,6 +20,7 @@ export class YamasService {
         let filterId = '';
         const outputIds = [];
         let hasMetricTS = false;
+        let groupByIds = [];
 
         // add filters
         if ( query.filters.length ) {
@@ -32,45 +33,70 @@ export class YamasService {
         for (let j = 0; j < query.metrics.length; j++) {
             const isExpression = query.metrics[j].expression ? true : false;
 
-            let q;
             if ( query.metrics[j].expression ) {
+                // need to create the expression query for each aggregators
+                // foreach aggregator create expression query, downsample, groupby 
                 const res = this.getExpressionQuery(query.metrics[j], j, filterId);
-                q = res.expression;
+                const aggregators = downsample.aggregators || ['avg'];
                 // add metrics for the expression
                 transformedQuery.executionGraph = transformedQuery.executionGraph.concat(res.queries);
-                // add downsample for the expression
-                const ds = this.getQueryDownSample(downsample, q.id, res.mids);
-                transformedQuery.executionGraph.push(ds);
-                // add groupby for the expression
-                const groupbyId = 'groupby-' + q.id;
-                transformedQuery.executionGraph.push(this.getQueryGroupBy(query, [ds.id], groupbyId));
-                q.sources = [groupbyId];
-                transformedQuery.executionGraph.push(q);
-                outputIds.push(q.id);
+                for ( let i = 0; i < aggregators.length; i++ ) {
+                    const q = JSON.parse(JSON.stringify(res.expression));
+                    q.id = "m" + j + '-' + aggregators[i];
+                    const dsId = q.id + '-downsample';
+                    // add downsample for the expression
+                    transformedQuery.executionGraph.push(this.getQueryDownSample(summaryOnly, downsample, aggregators[i], dsId, res.mids));
+                    // add groupby for the expression
+                    const groupbyId = q.id + '-groupby'  ;
+                    groupByIds.push(groupbyId);
+                    transformedQuery.executionGraph.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator,  [dsId], groupbyId));
+                    q.sources = [groupbyId];
+                    transformedQuery.executionGraph.push(q);
+                    outputIds.push(q.id);
+                }
             } else {
                 hasMetricTS = true;
-                q = this.getMetricQuery(query, j);
+                const q: any = this.getMetricQuery(query, j);
                 if ( filterId ) {
                     q.filterId = filterId;
                 }
                 transformedQuery.executionGraph.push(q);
-                mids.push(q.id);
-                outputIds.push('groupby');
+                const aggregators = downsample.aggregators || ['avg'];
+                for ( let i = 0; i < aggregators.length; i++ ) {
+                    const prefix = "m" + j + '-' + aggregators[i];
+                    const dsId = prefix + '-downsample';
+                    // add downsample for the expression
+                    transformedQuery.executionGraph.push(this.getQueryDownSample(summaryOnly, downsample, aggregators[i], dsId, [q.id]));
+
+                    const groupbyId = prefix + '-groupby';
+                    groupByIds.push(groupbyId);
+                    transformedQuery.executionGraph.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator,  [dsId], groupbyId));
+                    outputIds.push(groupbyId);
+                }
             }
         }
 
         if ( hasMetricTS ) {
-            const dsConfig = this.getQueryDownSample(downsample);
-            dsConfig.sources = mids;
-            transformedQuery.executionGraph.push(dsConfig);
-            transformedQuery.executionGraph.push(this.getQueryGroupBy(query, ['downsample']));
+
         }
-        transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
+        // if ( !summaryOnly ) {
+
+        // }
+
+        if (sorting && sorting.order && sorting.limit) {
+            transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit, groupByIds));
+            transformedQuery.executionGraph.push(this.getQuerySummarizer(['topn']));
+        } else {
+            // transformedQuery.executionGraph.push(this.getQuerySummarizer(['groupby']));
+            transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
+        }
+
 
         transformedQuery.serdesConfigs = [{
             id: 'JsonV3QuerySerdes',
-            filter: summaryOnly ? ['summarizer'] : outputIds.concat(['summarizer'])
+            filter: summaryOnly ? ['summarizer'] : outputIds.concat(['summarizer']) // outputIds : outputIds.concat(['summarizer'])
         }];
+        console.log("tsdb query", JSON.stringify(transformedQuery))
         return transformedQuery;
     }
 
@@ -89,6 +115,23 @@ export class YamasService {
         return q;
     }
 
+    getTopN(order: string, count: number, sources: string[]) {
+
+        let _order: boolean = true;  // true is topN
+        if (order.toLowerCase() === 'bottom') {
+            _order = false;
+        }
+
+        return {
+            'id': 'topn',
+            'type': 'topn',
+            'sources': sources,
+            'aggregator': 'avg',
+            'top': _order,
+            'count': count
+        };
+    }
+
     getFilterQuery(query) {
         const filters = query.filters ? this.transformFilters(query.filters) : [];
         const filter = {
@@ -102,12 +145,11 @@ export class YamasService {
     }
 
     getExpressionQuery(config, index, filterId) {
-        const eid = 'm' + index;
         const mids = [];
 
         const queries = [];
         for ( let i = 0; i < config.metrics.length; i++ ) {
-            const mid = 'm' + index.toString()  + (i + 1);
+            const mid = 'm' + index.toString() + (i + 1);
 
             const q: any = {
                 id: mid, // using the loop index for now, might need to generate its own id
@@ -126,7 +168,6 @@ export class YamasService {
             mids.push(mid);
         }
         const expression = {
-            id: eid,
             type: 'expression',
             expression: config.expression,
             join: {
@@ -179,16 +220,13 @@ export class YamasService {
         return chain;
     }
 
-    getQueryGroupBy(query, sources= [], id= null) {
+    getQueryGroupBy(query, tagAggregator, sources, id= null) {
         const filters = query.filters || [];
         const tagKeys = [];
-        let aggregator = 'sum';
+        let aggregator =  tagAggregator || 'sum';
         for ( let i = 0; filters && i < filters.length; i++ ) {
-            if ( filters[i].aggregator === 'unmerge' ) {
+            if ( filters[i].groupBy ) {
                 tagKeys.push(filters[i].tagk);
-            } else {
-                // set the aggregator from any non-groupby tag filter
-                aggregator = filters[i].aggregator;
             }
         }
         const metricGroupBy =  {
@@ -205,20 +243,20 @@ export class YamasService {
             ],
             sources: sources
         };
-        console.log("----groupby-----", metricGroupBy.tagKeys, metricGroupBy.aggregator);
         return metricGroupBy;
     }
 
-    getQueryDownSample(dsSetting, qid= null, sources= []) {
+    getQueryDownSample(summary, dsSetting, aggregator, id= null, sources= []) {
         let dsValue = dsSetting.value || 'auto';
         if ('custom' === dsSetting.value) {
             dsValue = dsSetting.customValue + dsSetting.customUnit;
         }
         const downsample =  {
-            id: 'downsample' + ( qid ? '-' + qid : ''),
+            id: id ? id : 'downsample',
             type: 'downsample',
-            aggregator: dsSetting.aggregator || 'avg',
-            interval: dsValue,
+            aggregator: aggregator || 'avg',
+            interval: dsValue, //summary ? '0all' : dsValue,
+            runAll: false, // summary ? true : false,
             fill: true,
             interpolatorConfigs: [
                 {
@@ -229,7 +267,7 @@ export class YamasService {
             ],
             sources: sources
         };
-        return downsample;
+        return downsample; // { downsamples: downsamples, dsIds: ids };
     }
 
     getQuerySummarizer(sources= []) {

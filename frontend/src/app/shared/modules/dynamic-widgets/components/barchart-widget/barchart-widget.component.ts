@@ -47,7 +47,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
     valueAxis: any = {
         ticks: {
-            beginAtZero: true
+            beginAtZero: true,
+            precision: 0
         },
         type: 'linear'
     };
@@ -124,6 +125,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 }
             }
         });
+
+        // first time when displaying chart
+        if (!this.widget.settings.sorting) {
+            this.widget.settings.sorting = { limit: 25, order: 'top' };
+        }
+
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
         this.requestData();
@@ -203,6 +210,9 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.widget.settings.axes = { ...this.widget.settings.axes, ...message.payload.data };
                 this.setAxisOption();
                 this.options = { ...this.options };
+                break;
+            case 'SetSorting':
+                this.setSorting(message.payload);
                 break;
             case 'ChangeVisualization':
                 this.type$.next(message.payload.type);
@@ -360,7 +370,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                                             overrideRelativeTime: config.overrideRelativeTime,
                                             downsample: {
                                                 value: config.downsample,
-                                                aggregator: config.aggregator,
+                                                aggregators: config.aggregators,
                                                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
                                                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                             }
@@ -375,7 +385,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                             this.widget.settings.axes.y1 : <Axis>{};
         const oUnit = this.unit.getDetails(config.unit);
         axis.type = !config.scale || config.scale === 'linear' ? 'linear' : 'logarithmic';
-        axis.ticks = {};
+        axis.ticks = { beginAtZero: true };
         if ( !isNaN( config.min ) && config.min ) {
             axis.ticks.min = oUnit ? config.min * oUnit.m : config.min;
         }
@@ -480,6 +490,11 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.data[i].backgroundColor = config.color;
         });
         this.data = [...this.data];
+    }
+
+    setSorting(sConfig) {
+        this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
+        this.refreshData();
     }
 
     toggleGroup(gIndex) {

@@ -21,10 +21,6 @@ export class TagAggregatorComponent implements OnInit {
 
     aggregatorOptions: Array<any> = [
         {
-            value: 'unmerge',
-            icon : 'unmerge'
-        },
-        {
             value: 'avg',
             icon : 'avg'
         },
@@ -47,7 +43,7 @@ export class TagAggregatorComponent implements OnInit {
     ];
 
     aggregatorControl: FormControl;
-    defaultAggregator = 'um';
+    defaultAggregator = 'sum';
     selectedIndex = -1;
 
     subscription: Subscription;
