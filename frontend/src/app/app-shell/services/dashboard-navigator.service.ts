@@ -146,16 +146,20 @@ export class DashboardNavigatorService {
         const params = { id };
         const apiUrl = environment.configdb2 + '/dashboard/folder';
 
-        return this.httpGet(apiUrl, params);
+        return this.httpGet(apiUrl, params).pipe(
+            catchError(this.handleError)
+        );
     }
 
     getFolderByPath(path: string) {
         this.apiLog('Get Dashboard Folder By Path');
 
-        const params = { path };
-        const apiUrl = environment.configdb2 + '/dashboard/folder';
+        // const params = { path };
+        const apiUrl = environment.configdb2 + '/dashboard' + path;
 
-        return this.httpGet(apiUrl, params);
+        return this.httpGet(apiUrl).pipe(
+            catchError(this.handleError)
+        );
     }
 
     createFolder(folder: any) {
@@ -180,25 +184,21 @@ export class DashboardNavigatorService {
         return this.httpPut(apiUrl, body);
     }
 
+    // IF TRASHFOLDER IS TRUE
     // destination path is either /user/<userid>/trash
     // or /namespace/<namespace>/trash
-    trashFolder(folderPath: string, destinationPath: string) {
-        this.apiLog('Trash Dashboard Folder');
-        // TODO: Check if destination path is a trash folder?
-        const body = {
-            sourcePath: folderPath,
-            destinationPath: destinationPath
-        };
+    // ELSE
+    // destination path is either /user/<userid>/<path>
+    // or /namespace/<namespace>/path
 
-        const apiUrl = environment.configdb2 + '/dashboard/folder/move';
-        return this.httpPut(apiUrl, body);
-    }
+    moveFolder(payload: any) {
+        this.apiLog(((payload.trashFolder) ? 'Trash' : 'Move') + ' Dashboard Folder');
 
-    moveFolder(sourcePath: string, destinationPath: string) {
-        this.apiLog('Move Dashboard Folder');
+        // ?? do we need to do something else if it is trash? maybe verify destinationPath is trash folder?
+
         const body = {
-            sourcePath,
-            destinationPath
+            sourcePath: payload.sourcePath,
+            destinationPath: payload.destinationPath
         };
 
         const apiUrl = environment.configdb2 + '/dashboard/folder/move';

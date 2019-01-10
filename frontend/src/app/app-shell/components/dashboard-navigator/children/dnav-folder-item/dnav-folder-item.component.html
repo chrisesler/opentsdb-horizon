@@ -1,6 +1,6 @@
 <ng-container *ngIf="mode === 'new' && FolderForm.controls" >
     <div class="list-item edit-form" [formGroup]="FolderForm">
-        <mat-form-field appearance="fill" floatLabel="never">
+        <mat-form-field appearance="fill" [floatLabel]="'never'">
             
             <input matInput placeholder="Enter folder Name" formControlName="fc_FolderName">
             <mat-icon matPrefix fontSet="denali" fontIcon="d-folder-add"></mat-icon>
@@ -24,7 +24,7 @@
         </span>
     </div>
     <div class="list-item edit-form" *ngIf="nameEdit" [formGroup]="FolderForm">
-        <mat-form-field appearance="fill" floatLabel="never">
+        <mat-form-field appearance="fill" [floatLabel]="'never'">
             <input matInput placeholder="Edit folder Name" formControlName="fc_FolderName">
             <mat-icon matPrefix fontSet="denali" fontIcon="d-pencil"></mat-icon>
             <button mat-icon-button matSuffix class="save-folder-name" (click)="inputSave()" >

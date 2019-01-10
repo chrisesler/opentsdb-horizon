@@ -93,9 +93,21 @@ export class DnavFoldersComponent implements OnInit {
         // tslint:disable-next-line:forin
         for ( const i in this.foldersToRemove ) {
             const folder = this.foldersToRemove[i];
-            const idx = this.folders.indexOf(folder);
+            /*const idx = this.folders.indexOf(folder);
             this.folders.splice(idx, 1);
-            delete this.foldersToRemove[i];
+            delete this.foldersToRemove[i];*/
+
+            // TODO: We need a batch remove... until then, we just do a loop
+            this.folderAction.emit({
+                action: 'deleteFolder',
+                data: {
+                    path: folder.path
+                }
+            });
+        }
+
+        if (this.foldersToRemove.length === this.folders.length) {
+            this.doneEdit();
         }
     }
 
@@ -136,6 +148,14 @@ export class DnavFoldersComponent implements OnInit {
                     data: {
                         name: event.name,
                         id: folder.id,
+                        path: folder.path
+                    }
+                });
+                break;
+            case 'deleteFolder':
+                this.folderAction.emit({
+                    action: 'deleteFolder',
+                    data: {
                         path: folder.path
                     }
                 });

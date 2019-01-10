@@ -50,4 +50,8 @@ export class DnavDashboardsComponent implements OnInit {
 
     }
 
+    dashboardItemEvent(event: any) {
+        this.dashboardAction.emit(event);
+    }
+
 }
