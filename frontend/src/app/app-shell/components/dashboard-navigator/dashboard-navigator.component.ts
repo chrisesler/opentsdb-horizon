@@ -28,7 +28,10 @@ import {
     DBNAVupdatePanels,
     DBNAVcreateFolder,
     DBNAVupdateFolder,
-    DBNAVmoveFolder
+    DBNAVmoveFolder,
+    DBNAVcreateFile,
+    DBNAVmoveFile,
+    DBNAVupdateFile
 } from '../../state';
 
 import {
@@ -316,6 +319,19 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 this.window.open('/d' + event.data.path, '_blank');
                 break;
             case 'deleteDashboard':
+                console.log('DELETE DASHBOARD[TOP]', panel, event);
+                const path = event.data.path.split('/');
+                const trashPath = path.slice(0, 3).join('/') + '/trash';
+                this.store.dispatch(
+                    new DBNAVmoveFile(
+                        {
+                            sourcePath: event.data.path,
+                            destinationPath: trashPath,
+                            trashFolder: true
+                        },
+                        this.currentPanelIndex
+                    )
+                );
                 break;
             default:
                 break;

@@ -151,6 +151,30 @@ export class DBNAVupdateFileFail {
     ) {}
 }
 
+// -- MOVE FILE -- //
+
+export class DBNAVmoveFile {
+    static readonly type = '[DashboardNavigator] Move File';
+    constructor(
+        public readonly payloadBody: any,
+        public readonly panelIndex: number
+    ) {}
+}
+export class DBNAVmoveFileSuccess {
+    static readonly type = '[DashboardNavigator] Move File [SUCCESS]';
+    constructor(
+        public readonly response: any,
+        public readonly originalPath: string,
+        public readonly panelIndex: number
+    ) {}
+}
+export class DBNAVmoveFileFail {
+    static readonly type = '[DashboardNavigator] Move File [FAIL]';
+    constructor(
+        public readonly error: any
+    ) {}
+}
+
 // -- ADD PANEL -- //
 export class DBNAVaddPanel {
     static readonly type = '[DashboardNavigator] add panel';
