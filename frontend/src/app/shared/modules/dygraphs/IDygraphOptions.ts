@@ -32,6 +32,9 @@ export interface IDygraphOptions {
     hightlightCircleSize?: number;
     strokeWidth?: number;
     strokeBorderWidth: number;
+    axisLineWidth?: number;
+    axisTickSize?: number;
+    axisLineColor?: string;
     highlightSeriesOpts?: any;
     axes?: {
         x?: DygraphOptionsAxis;
