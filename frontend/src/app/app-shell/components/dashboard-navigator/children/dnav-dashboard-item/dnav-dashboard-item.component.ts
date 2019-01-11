@@ -114,7 +114,13 @@ export class DnavDashboardItemComponent implements OnInit {
     }
 
     menuAction(action: string, event?: any) {
-        switch (action.toLowerCase()) {
+        switch (action) {
+            case 'openNewTab':
+                this.dashboardAction.emit({
+                    action: 'openDashboardNewTab',
+                    data: this.dashboard
+                });
+                break;
             default:
                 break;
         }

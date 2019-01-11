@@ -21,6 +21,6 @@
 </div>
 <mat-nav-list class="dashboard-list" *ngIf="dashboards.length > 0">
     <mat-list-item *ngFor="let dashboard of dashboards">
-        <dnav-dashboard-item [dashboard]="dashboard"></dnav-dashboard-item>
+        <dnav-dashboard-item [dashboard]="dashboard" (dashboardAction)="dashboardItemEvent($event)"></dnav-dashboard-item>
     </mat-list-item>
 </mat-nav-list>
