@@ -63,8 +63,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         xlabel: '',
         ylabel: '',
         y2label: '',
-        axisLineWidth: 0.5,
-        axisTickSize: 1, 
+        axisLineWidth: 0,
+        axisTickSize: 0, 
         axisLineColor: '#fff',
         axes: {
             y: {
