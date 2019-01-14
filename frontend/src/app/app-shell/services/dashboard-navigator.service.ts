@@ -234,8 +234,19 @@ export class DashboardNavigatorService {
         this.apiLog('Trash Dashboard File');
     }
 
-    moveFile(sourcePath: string, destinationPath: string) {
-        this.apiLog('Move Dashboard File');
+    // basically the same as moveFolder... even same endpoint?
+    moveFile(payload: any) {
+        this.apiLog(((payload.trashFolder) ? 'Trash' : 'Move') + ' Dashboard File');
+
+        // ?? do we need to do something else if it is trash? maybe verify destinationPath is trash folder?
+
+        const body = {
+            sourcePath: payload.sourcePath,
+            destinationPath: payload.destinationPath
+        };
+
+        const apiUrl = environment.configdb2 + '/dashboard/folder/move';
+        return this.httpPut(apiUrl, body);
     }
 
     /**

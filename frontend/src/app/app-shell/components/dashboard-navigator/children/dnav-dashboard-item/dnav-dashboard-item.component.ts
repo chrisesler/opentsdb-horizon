@@ -121,6 +121,12 @@ export class DnavDashboardItemComponent implements OnInit {
                     data: this.dashboard
                 });
                 break;
+            case 'deleteDashboard':
+                this.dashboardAction.emit({
+                    action: 'deleteDashboard',
+                    data: this.dashboard
+                });
+                break;
             default:
                 break;
         }
