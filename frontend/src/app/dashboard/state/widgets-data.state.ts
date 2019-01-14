@@ -53,10 +53,6 @@ export class WidgetsRawdataState {
         });
       }
 
-    @Selector() static getLastModifiedWidgetRawdata(state: RawDataModel) {
-        return {...state.data[state.lastModifiedWidget.wid], ...state.lastModifiedWidget};
-    }
-
     @Selector() static getLastModifiedWidgetRawdataByGroup (state: RawDataModel) {
         return {rawdata: state.data[state.lastModifiedWidget.wid][state.lastModifiedWidget.gid], ...state.lastModifiedWidget};
     }
