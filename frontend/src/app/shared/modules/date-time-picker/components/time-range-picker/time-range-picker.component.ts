@@ -23,6 +23,18 @@ const moment = momentNs;
 export class TimeRangePickerComponent implements OnInit {
     @HostBinding('class.dtp-time-range-picker') private _hostClass = true;
 
+    private _refresh: boolean = false;
+
+    @Input()
+    set refresh(value: boolean) {
+        if (value) {
+          this.applyClicked();
+        }
+    }
+    get refresh(): boolean {
+        return this._refresh;
+    }
+
     @Input() set startTime(time: string) {
       this.startTimeReference.date = String(time);
     }

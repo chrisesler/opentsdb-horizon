@@ -630,6 +630,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     setDateRange(e: any) {
+        this.dbTime.refresh = false;
         this.store.dispatch(new UpdateDashboardTime({ start: e.startTimeDisplay, end: e.endTimeDisplay }));
     }
 
@@ -690,6 +691,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     click_refreshDashboard() {
         // console.log('EVT: REFRESH DASHBOARD');
+        this.dbTime.refresh = true;
     }
 
     getTagValues(key: string, tplVariables: any[]): any[] {
