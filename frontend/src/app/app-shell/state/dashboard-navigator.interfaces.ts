@@ -37,6 +37,7 @@ export interface DBNAVStateModel {
     user: {
         userid: string;
         name: string;
+        memberNamespaces: any[];
     };
     resourceData: {
         personal: {},

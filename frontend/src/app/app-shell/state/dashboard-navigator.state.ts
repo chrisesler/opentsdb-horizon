@@ -46,6 +46,9 @@ import {
     DBNAVupdateFile,
     DBNAVupdateFileSuccess,
     DBNAVupdateFileFail,
+    DBNAVmoveFile,
+    DBNAVmoveFileSuccess,
+    DBNAVmoveFileFail,
     DBNAVaddPanel,
     DBNAVgetFolderResource,
     DBNAVupdatePanels
@@ -79,7 +82,8 @@ import {
     defaults: {
         user: {
             userid: '',
-            name: ''
+            name: '',
+            memberNamespaces: []
         },
         resourceData: {
             personal: {},
@@ -188,6 +192,35 @@ export class DashboardNavigatorState {
         console.groupEnd();
     }
 
+    // this is a dumb permission check
+    // if the item path is personal, and matches the user's id = GOOD
+    // if the item path is namespace, check if namespace if one of users memberNamespaces. If matches = GOOD
+    // all else will fail
+    // TODO: better permission check??
+    simplePermissionCheck(ctx: StateContext<DBNAVStateModel>, itemPath: any) {
+        const state = ctx.getState();
+        const user = {...state.user};
+        const userId = user.userid.split('.').pop();
+
+        const path = itemPath.split('/');
+        const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
+        const identifier = path[2]; // this is either user id, or namespace
+
+        if (type === 'personal' && userId === identifier) {
+            return true;
+        }
+
+        if (type === 'namespace') {
+
+            const namespaceMatch = user.memberNamespaces.findIndex(item => item.alias === identifier);
+            if (namespaceMatch >= 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**************************
      * ACTIONS
      **************************/
@@ -232,7 +265,10 @@ export class DashboardNavigatorState {
 
         this.stateSuccess('Load Navigation Resource List', response);
 
-        const user = response.user;
+        const user = {...state.user,
+            name: response.user.name,
+            userid: response.user.userid
+        };
 
         // save the raw
         const resourceData = {...state.resourceData};
@@ -310,6 +346,8 @@ export class DashboardNavigatorState {
         };
         resourceData.personal[masterPersonal[4].path] = masterPersonal[4];
 
+        let createUserTrash = false;
+
         if (response.personalFolder && response.personalFolder.subfolders) {
             // do trash first so we can pull it up to root level
             // find trash
@@ -319,14 +357,18 @@ export class DashboardNavigatorState {
 
             if (trashFilter.length > 0) {
                 const trashIndex = response.personalFolder.subfolders.indexOf(trashFilter[0]);
-                const trashFolder = response.personalFolder.subfolders.splice(trashIndex, 1);
+                const trashFolder = response.personalFolder.subfolders.splice(trashIndex, 1)[0];
                 masterPersonal[4] = trashFolder;
                 masterPersonal[4] = {...masterPersonal[4],
                     icon: 'd-trash',
-                    loaded: true,
+                    loaded: false,
+                    // synthetic: false,
                     resourceType: 'trash'
                 };
-                delete masterPersonal[4].synthetic;
+                // delete masterPersonal[4].synthetic;
+            } else {
+                // flag to create trash folder
+                createUserTrash = true;
             }
 
             // adjust my dashboards
@@ -344,6 +386,7 @@ export class DashboardNavigatorState {
                 const folder = masterPersonal[0].subfolders[i];
                 if (!folder.subfolders) { folder.subfolders = []; }
                 if (!folder.files) { folder.files = []; }
+                folder.loaded = false;
                 folder.resourceType = 'personal';
                 folder.icon = 'd-folder';
                 resourceData.personal[folder.path] = folder;
@@ -397,6 +440,7 @@ export class DashboardNavigatorState {
             for (const ns of response.memberNamespaces) {
 
                 const folder = (ns.folder) ? ns.folder : {};
+                user.memberNamespaces.push(ns.namespace);
                 const namespace = {...ns.namespace,
                     subfolders: (folder.subfolders) ? folder.subfolders : [],
                     files: (folder.files) ? folder.files : [],
@@ -431,6 +475,11 @@ export class DashboardNavigatorState {
             loaded: true,
             loading: false
         });
+
+        // create user trash folder if needed
+        if (createUserTrash) {
+            ctx.dispatch(new DBNAVcreateFolder('Trash', '/' + user.userid.replace('.', '/'), 0));
+        }
     }
 
     @Action(DBNAVloadNavResourcesFail)
@@ -478,7 +527,7 @@ export class DashboardNavigatorState {
                 })[0];
 
                 const folder = {...child,
-                    subfolders: (child.subfolders) ? child.subfolders : [],
+                    subfolders: (child.subfolders && child.subfolders !== undefined) ? child.subfolders : [],
                     files: (child.files) ? child.files : [],
                     type: (child.type) ? child.type : 'DASHBOARD',
                     icon: 'd-folder',
@@ -499,6 +548,9 @@ export class DashboardNavigatorState {
         }
 
         const newPanel = <DBNAVPanelModel>resources[resourceType][payload.path];
+        newPanel.loaded = false;
+
+        // console.log('>>> NEW PANEL <<<', newPanel);
 
         // check if one exists
         // console.log('%cCHECK', 'color: black; background-color: pink; padding: 4px 8px;', panels.indexOf(newPanel));
@@ -515,6 +567,13 @@ export class DashboardNavigatorState {
             });
 
         }
+
+        // does the panel need to be loaded? (AKA fetch subfolders/dashboards)
+        if (!newPanel.loaded) {
+            ctx.dispatch(new DBNAVloadSubfolder(newPanel.path));
+        }
+
+        // console.log('*** RESOURCES ***', resources);
 
     }
 
@@ -536,6 +595,7 @@ export class DashboardNavigatorState {
     @Action(DBNAVcreateFolder)
     createFolder(ctx: StateContext<DBNAVStateModel>, { name: name, parentPath: parentPath, panelIndex: panelIndex }: DBNAVcreateFolder) {
         this.stateLog('Create Folder', { name, parentPath, panelIndex});
+
         const folder = {
             name: name,
             parentPath: parentPath
@@ -550,7 +610,7 @@ export class DashboardNavigatorState {
     }
 
     @Action(DBNAVcreateFolderSuccess)
-    createFolderSuccess(ctx: StateContext<DBNAVStateModel>, { response: response, panelIndex: panelIndex }: DBNAVcreateFolderSuccess) {
+    createFolderSuccess(ctx: StateContext<DBNAVStateModel>, { response, panelIndex }: DBNAVcreateFolderSuccess) {
         this.stateSuccess('Create Folder Success', response);
         const state = ctx.getState();
 
@@ -558,15 +618,39 @@ export class DashboardNavigatorState {
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
         const resourceType = (type === 'namespace') ? 'namespaces' : 'personal';
 
-        const folder: DBNAVFolder = {...response,
-            responseType: type,
+        const folder = {...response,
+            resourceType: type,
             subfolders: [],
             files: [],
-            icon: 'd-folder'
+            icon: 'd-folder',
+            loaded: false
         };
 
         const panels = [...state.panels];
-        panels[panelIndex].subfolders.unshift(folder);
+
+        if (type === 'namespace' && folder.path.includes('/trash')) {
+            folder.resourceType = 'trash';
+            folder.icon = 'd-trash';
+        }
+
+        if (panelIndex === 0 && folder.path.includes('/trash')) {
+            // if panelIndex = 0, that is master panel... slightly different
+            // only case for this is if we are trying to create trash folder
+            const tFolder = {...folder,
+                icon: 'd-trash',
+                loaded: false,
+                synthetic: false,
+                resourceType: 'trash'
+            };
+            panels[panelIndex].personal[4] = tFolder;
+        } else {
+            // console.log('!!! panel !!!', panels[panelIndex]);
+            if (panels[panelIndex].subfolders === undefined) {
+                panels[panelIndex].subfolders = [folder];
+            } else {
+                panels[panelIndex].subfolders.unshift(folder);
+            }
+        }
 
         const resourceData = {...state.resourceData};
         resourceData[resourceType][folder.path] = folder;
@@ -590,20 +674,20 @@ export class DashboardNavigatorState {
     }
 
     @Action(DBNAVupdateFolder)
-    updateFolder(ctx: StateContext<DBNAVStateModel>, { id: id, updates: updates, panelIndex: panelIndex }: DBNAVupdateFolder) {
-        this.stateLog('Update Folder', { id, updates });
+    updateFolder(ctx: StateContext<DBNAVStateModel>, { id, currentPath, updates, panelIndex }: DBNAVupdateFolder) {
+        this.stateLog('Update Folder', { id, currentPath, updates });
 
         return this.navService.updateFolder(id, updates).pipe(
             map( (payload: any) => {
-                ctx.dispatch(new DBNAVupdateFolderSuccess(payload, panelIndex));
+                ctx.dispatch(new DBNAVupdateFolderSuccess(payload, currentPath, panelIndex));
             }),
             catchError( error => ctx.dispatch(new DBNAVupdateFolderFail(error)) )
         );
     }
 
-    @Action(DBNAVupdateFolder)
-    updateFolderSuccess(ctx: StateContext<DBNAVStateModel>, { response: response, panelIndex: panelIndex }: DBNAVupdateFolderSuccess) {
-        this.stateSuccess('Update Folder Success', { response, panelIndex });
+    @Action(DBNAVupdateFolderSuccess)
+    updateFolderSuccess(ctx: StateContext<DBNAVStateModel>, { response, originalPath, panelIndex }: DBNAVupdateFolderSuccess) {
+        this.stateSuccess('Update Folder Success', { response, originalPath, panelIndex });
 
         const state = ctx.getState();
         const resourceData = {...state.resourceData};
@@ -613,14 +697,129 @@ export class DashboardNavigatorState {
         const resourceType = (type === 'namespace') ? 'namespaces' : 'personal';
         // const updateName = path.
 
+        // is this a path change? This happens if they change the name of the folder
+        if (response.path !== originalPath) {
+            let pathKeys = Object.keys(resourceData[resourceType]);
+            pathKeys = pathKeys.filter( item => item.includes(originalPath));
+            for ( const pathKey of pathKeys) {
+                delete resourceData[resourceType][pathKey];
+            }
+        }
 
+        const updatedFolder = {...response,
+            resourceType: type,
+            subfolders: [],
+            files: [],
+            icon: 'd-folder',
+            loaded: false
+        };
 
+        resourceData[resourceType][response.path] = updatedFolder;
+
+        // now need to update panel item
+        const panels = [...state.panels];
+
+        const targetIndex = panels[panelIndex].subfolders.findIndex( item => item.path === originalPath);
+        panels[panelIndex].subfolders[targetIndex] = updatedFolder;
+
+        ctx.patchState({...state,
+            panels,
+            resourceData
+        });
 
     }
 
-    @Action(DBNAVupdateFolder)
+    @Action(DBNAVupdateFolderFail)
     updateFolderFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVupdateFolderFail) {
         this.stateError('Update Folder Error', error);
+        ctx.dispatch({
+            error: error
+        });
+    }
+
+    /**
+     *
+     * @param ctx
+     * @param param1
+     *
+     * payload is object
+     * {
+     *      sourcePath: string,
+     *      destinationPath: string,
+     *      trashFolder?: boolean <optional>
+     * }
+     */
+    @Action(DBNAVmoveFolder)
+    moveFolder(ctx: StateContext<DBNAVStateModel>, { payloadBody, panelIndex }: DBNAVmoveFolder) {
+        this.stateLog('Move Folder', { payloadBody });
+
+        const originalPath = payloadBody.sourcePath;
+
+        if (this.simplePermissionCheck(ctx, originalPath)) {
+            return this.navService.moveFolder(payloadBody).pipe(
+                map( (payload: any) => {
+                    ctx.dispatch(new DBNAVmoveFolderSuccess(payload, originalPath, panelIndex));
+                }),
+                catchError( error => ctx.dispatch(new DBNAVmoveFolderFail(error)) )
+            );
+        }
+
+        return ctx.dispatch(new DBNAVmoveFolderFail({message: 'Do not have permission'}));
+    }
+
+    @Action(DBNAVmoveFolderSuccess)
+    moveFolderSuccess(ctx: StateContext<DBNAVStateModel>, { response, originalPath, panelIndex }: DBNAVmoveFolderSuccess) {
+        this.stateSuccess('Move Folder Success', { response, originalPath, panelIndex });
+
+        const state = ctx.getState();
+        const resourceData = {...state.resourceData};
+        const panels = [...state.panels];
+
+        const path = response.path.split('/');
+        const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
+        const resourceType = (type === 'namespace') ? 'namespaces' : 'personal';
+
+        // TODO
+        // ?? Do we need to do something special if it was trashed?
+
+        // delete original from resourceData
+        delete resourceData[resourceType][originalPath];
+
+        // delete children who have original path
+        let pathKeys = Object.keys(resourceData[resourceType]);
+        pathKeys = pathKeys.filter( item => item.includes(originalPath));
+        for ( const pathKey of pathKeys) {
+            delete resourceData[resourceType][pathKey];
+        }
+
+        // delete from the panel
+        const subFolderIndex = panels[panelIndex].subfolders.findIndex( item => item.path === originalPath);
+        panels[panelIndex].subfolders.splice(subFolderIndex, 1);
+
+        // add new item to resource data
+        const newFolder: DBNAVFolder = {...response,
+            resourceType: type,
+            files: response.files || [],
+            subfolders: response.subfolders || [],
+            icon: 'd-folder',
+            loaded: false
+        };
+
+        resourceData[resourceType][newFolder.path] = newFolder;
+
+        // TODO
+        // ?? if new destination is already a panel, should we move it?
+        // !! might need to add it to the resourceData folder for new destination?
+
+        ctx.patchState({...state,
+            resourceData,
+            panels
+        });
+    }
+
+    @Action(DBNAVmoveFolderFail)
+    moveFolderFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVmoveFolderFail) {
+        this.stateError('Move Folder Error', error);
         ctx.dispatch({
             error: error
         });
@@ -630,31 +829,210 @@ export class DashboardNavigatorState {
     /**
      * Get a subfolder
      * @param ctx
-     * @param param1
+     * @param path
      *
      * returns Observable
      */
     @Action(DBNAVloadSubfolder)
     loadSubfolder(ctx: StateContext<DBNAVStateModel>, { path }: DBNAVloadSubfolder) {
-        console.log(
-            '%cSTATE REQUEST%cNavigation Resource List',
-            'color: white; background-color: blue; padding: 4px 8px; font-weight: bold;',
-            'color: blue; padding: 4px 8px; border: 1px solid blue;'
-        );
+        this.stateLog('Load Sub Folder', { path });
+
         ctx.patchState({ loading: true});
-        return this.navService.getDashboardResourceList().pipe(
+
+        return this.navService.getFolderByPath(path).pipe(
             map( (payload: any) => {
-                console.log('resourceList', payload);
-                ctx.dispatch(new DBNAVloadNavResourcesSuccess(payload));
+                ctx.dispatch(new DBNAVloadSubfolderSuccess(payload));
             }),
-            catchError( error => ctx.dispatch(new DBNAVloadNavResourcesFail(error)))
+            catchError( error => ctx.dispatch(new DBNAVloadSubfolderFail(error)))
         );
 
+    }
+
+    @Action(DBNAVloadSubfolderSuccess)
+    loadSubfolderSuccess(ctx: StateContext<DBNAVStateModel>, { response }: DBNAVloadSubfolderSuccess) {
+        this.stateSuccess('Load Sub Folder Success', { response });
+        // success... do something
+
+        const state = ctx.getState();
+        const resourceData = {...state.resourceData};
+        const panels = [...state.panels];
+        const panelIdx = state.currentPanelIndex;
+
+        // need to infer the resourceType from path
+        const path = response.path.split('/');
+        const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
+        const resourceType = (path[1].toLowerCase() === 'namespace') ? 'namespaces' : 'personal';
+        const topPath = path.splice(0, 3).join('/');
+
+        const subFolder = {...resourceData[resourceType][response.path],
+            files: response.files || [],
+            subfolders: response.subfolders || [],
+            loaded: false
+        };
+
+        // update the resource data for item
+        resourceData[resourceType][response.path] = subFolder;
+
+        // tslint:disable-next-line:forin
+        for (const i in subFolder.subfolders) {
+            const folder = subFolder.subfolders[i];
+            if (resourceType === 'personal' && folder.path === topPath + '/trash') {
+                subFolder.subfolders.splice(i, 1);
+            } else {
+                if (!folder.subfolders || folder.subfolders === undefined) { folder.subfolders = []; }
+                if (!folder.files || folder.files === undefined) { folder.files = []; }
+                folder.loaded = false;
+                folder.resourceType = (resourceType === 'namespaces') ? 'namespace' : 'personal';
+                folder.icon = 'd-folder';
+                resourceData[resourceType][folder.path] = folder;
+            }
+        }
+
+        let createNamespaceTrashFolder = false;
+
+        // is this a namespace folder? and does it need a trash folder?
+        if (type === 'namespace' && topPath === response.path) {
+            // check for trash folder
+            const trashIndex = subFolder.subfolders.findIndex(item => item.path === topPath + '/trash');
+            if (trashIndex === -1) {
+                createNamespaceTrashFolder = true;
+            } else {
+                subFolder.subfolders[trashIndex].resourceType = 'trash';
+                subFolder.subfolders[trashIndex].icon = 'd-trash';
+            }
+        }
+
+        panels[panelIdx].files = subFolder.files;
+        panels[panelIdx].subfolders = subFolder.subfolders;
+
+        ctx.patchState({...state,
+            panels,
+            resourceData,
+            loading: false
+        });
+
+        if (createNamespaceTrashFolder && this.simplePermissionCheck(ctx, topPath)) {
+            ctx.dispatch(new DBNAVcreateFolder('Trash', topPath, panelIdx));
+        }
+
+    }
+
+    @Action(DBNAVloadSubfolderFail)
+    loadSubfolderFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVloadSubfolderFail) {
+        this.stateError('Load Subfolder Folder Error', error);
+        ctx.dispatch({
+            error: error
+        });
     }
 
     /**************************
      * FILES
      **************************/
+
+     /**
+     *
+     * @param ctx
+     * @param param1
+     *
+     * payload is object
+     * {
+     *      sourcePath: string,
+     *      destinationPath: string,
+     *      trashFolder?: boolean <optional>
+     * }
+     */
+    @Action(DBNAVmoveFile)
+    moveFile(ctx: StateContext<DBNAVStateModel>, { payloadBody, panelIndex }: DBNAVmoveFile) {
+        this.stateLog('Move File', { payloadBody });
+
+        const originalPath = payloadBody.sourcePath;
+
+        return this.navService.moveFile(payloadBody).pipe(
+            map( (payload: any) => {
+                ctx.dispatch(new DBNAVmoveFileSuccess(payload, originalPath, panelIndex));
+            }),
+            catchError( error => ctx.dispatch(new DBNAVmoveFileFail(error)) )
+        );
+    }
+
+    @Action(DBNAVmoveFileSuccess)
+    moveFileSuccess(ctx: StateContext<DBNAVStateModel>, { response, originalPath, panelIndex }: DBNAVmoveFileSuccess) {
+        this.stateSuccess('Move File Success', { response, originalPath, panelIndex });
+
+        const state = ctx.getState();
+        const resourceData = {...state.resourceData};
+        const panels = [...state.panels];
+
+        const path = response.path.split('/');
+        const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
+        const resourceType = (type === 'namespace') ? 'namespaces' : 'personal';
+
+        // now fix old parent item in resourceData
+        let parentPath: any = originalPath.split('/');
+        const parentType = (parentPath[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
+        const parentResourceType = (parentType === 'namespace') ? 'namespaces' : 'personal';
+        parentPath.pop();
+        parentPath = parentPath.join('/');
+
+        const parentFileIndex = resourceData[parentResourceType][parentPath].files.findIndex( item => item.path === originalPath);
+        resourceData[parentResourceType][parentPath].files.splice(parentFileIndex, 1);
+
+        // now fix the panel data
+        panels[panelIndex].files.splice(parentFileIndex, 1);
+
+        // get new parent path
+        let newParentPath: any = response.path.split('/');
+        newParentPath.pop();
+        const parentIsTopLevel = newParentPath.length === 3;
+        newParentPath = newParentPath.join('/');
+
+        // if parent path is in resourceData, update it
+        if (resourceData[resourceType][newParentPath]) {
+            resourceData[resourceType][newParentPath].files.push(response);
+
+            // ?? should we sort after push?
+        }
+
+        // if parent path is in a current panel, update it
+        const newPanelIndex = panels.findIndex( item => item.path === newParentPath);
+        if (newPanelIndex >= 0) {
+            panels[newPanelIndex].files.push(response);
+        }
+
+        // might be a top level personal item, then it needs to be updated in the master panel
+        // most likely happens if it is personal trash, or top level user folder
+        if (parentIsTopLevel && type === 'personal') {
+            if (resourceData[resourceType][newParentPath].resourceType === 'trash') {
+                // if trash
+                panels[0].personal[4].files = resourceData[resourceType][newParentPath].files;
+            } else {
+                // else, must be top level user folder
+                panels[0].personal[0].files = resourceData[resourceType][newParentPath].files;
+            }
+        }
+
+        // might be a top level item of a namespace
+        if (parentIsTopLevel && type === 'namespace') {
+            const namespaceIndex = panels[0].namespaces.findIndex(item => item.path === newParentPath);
+            if (resourceData[resourceType][newParentPath]) {
+                panels[0].namespaces[namespaceIndex].files = resourceData[resourceType][newParentPath].files;
+            }
+        }
+
+        ctx.patchState({...state,
+            panels,
+            resourceData
+        });
+
+    }
+
+    @Action(DBNAVmoveFileFail)
+    moveFileFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVmoveFileFail) {
+        this.stateError('Move File Error', error);
+        ctx.dispatch({
+            error: error
+        });
+    }
 
     /**************************
      * NAMESPACES

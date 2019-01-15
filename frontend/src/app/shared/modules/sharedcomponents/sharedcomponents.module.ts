@@ -52,6 +52,7 @@ import { QueryEditorComponent } from './components/query-editor/query-editor.com
 import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
 import { TagAggregatorComponent } from './components/tag-aggregator/tag-aggregator.component';
 import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.component';
+import { WidgetConfigSortingComponent } from './components/widget-config-sorting/widget-config-sorting.component';
 
 @NgModule({
     imports: [
@@ -100,7 +101,8 @@ import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.compon
         QueryEditorComponent,
         ErrorDialogComponent,
         TagAggregatorComponent,
-        TagGroupbyComponent
+        TagGroupbyComponent,
+        WidgetConfigSortingComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -129,7 +131,8 @@ import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.compon
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
         InlineQueryEditorComponent,
-        NamespaceTagValuesComponent
+        NamespaceTagValuesComponent,
+        WidgetConfigSortingComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,

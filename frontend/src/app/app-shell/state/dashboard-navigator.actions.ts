@@ -69,6 +69,7 @@ export class DBNAVupdateFolder {
     static readonly type = '[DashboardNavigator] Update Folder';
     constructor(
         public readonly id: number,
+        public readonly currentPath: string,
         public readonly updates: any,
         public readonly panelIndex: number
     ) {}
@@ -77,6 +78,7 @@ export class DBNAVupdateFolderSuccess {
     static readonly type = '[DashboardNavigator] Update Folder [SUCCESS]';
     constructor(
         public readonly response: any,
+        public readonly originalPath: string,
         public readonly panelIndex: number
     ) {}
 }
@@ -91,12 +93,17 @@ export class DBNAVupdateFolderFail {
 
 export class DBNAVmoveFolder {
     static readonly type = '[DashboardNavigator] Move Folder';
-    constructor() {}
+    constructor(
+        public readonly payloadBody: any,
+        public readonly panelIndex: number
+    ) {}
 }
 export class DBNAVmoveFolderSuccess {
     static readonly type = '[DashboardNavigator] Move Folder [SUCCESS]';
     constructor(
-        public readonly response: any
+        public readonly response: any,
+        public readonly originalPath: string,
+        public readonly panelIndex: number
     ) {}
 }
 export class DBNAVmoveFolderFail {
@@ -139,6 +146,30 @@ export class DBNAVupdateFileSuccess {
 }
 export class DBNAVupdateFileFail {
     static readonly type = '[DashboardNavigator] Update File [FAIL]';
+    constructor(
+        public readonly error: any
+    ) {}
+}
+
+// -- MOVE FILE -- //
+
+export class DBNAVmoveFile {
+    static readonly type = '[DashboardNavigator] Move File';
+    constructor(
+        public readonly payloadBody: any,
+        public readonly panelIndex: number
+    ) {}
+}
+export class DBNAVmoveFileSuccess {
+    static readonly type = '[DashboardNavigator] Move File [SUCCESS]';
+    constructor(
+        public readonly response: any,
+        public readonly originalPath: string,
+        public readonly panelIndex: number
+    ) {}
+}
+export class DBNAVmoveFileFail {
+    static readonly type = '[DashboardNavigator] Move File [FAIL]';
     constructor(
         public readonly error: any
     ) {}

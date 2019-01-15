@@ -3,6 +3,7 @@ import {
     EventEmitter,
     HostBinding,
     Input,
+    Inject,
     OnInit,
     OnDestroy,
     Output,
@@ -26,7 +27,11 @@ import {
     DBNAVaddPanel,
     DBNAVupdatePanels,
     DBNAVcreateFolder,
-    DBNAVupdateFolder
+    DBNAVupdateFolder,
+    DBNAVmoveFolder,
+    DBNAVcreateFile,
+    DBNAVmoveFile,
+    DBNAVupdateFile
 } from '../../state';
 
 import {
@@ -34,6 +39,7 @@ import {
     Store,
     StateContext
 } from '@ngxs/store';
+
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -77,7 +83,8 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
         private http: HttpService,
         private ass: AppShellService,
         private interCom: IntercomService,
-        private router: Router
+        private router: Router,
+        @Inject('WINDOW') private window: any
     ) { }
 
     ngOnInit() {
@@ -275,7 +282,24 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 this.store.dispatch(
                     new DBNAVupdateFolder(
                         event.data.id,
+                        event.data.path,
                         event.data,
+                        this.currentPanelIndex
+                    )
+                );
+                break;
+            case 'deleteFolder':
+                // see if it is userpath, or namespace path
+                console.log('DELETE FOLDER [TOP]', panel, event);
+                const path = event.data.path.split('/');
+                const trashPath = path.slice(0, 3).join('/') + '/trash';
+                this.store.dispatch(
+                    new DBNAVmoveFolder(
+                        {
+                            sourcePath: event.data.path,
+                            destinationPath: trashPath,
+                            trashFolder: true
+                        },
                         this.currentPanelIndex
                     )
                 );
@@ -290,6 +314,24 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
         switch (event.action) {
             case 'createDashboard':
                 this.createDashboard();
+                break;
+            case 'openDashboardNewTab':
+                this.window.open('/d' + event.data.path, '_blank');
+                break;
+            case 'deleteDashboard':
+                console.log('DELETE DASHBOARD[TOP]', panel, event);
+                const path = event.data.path.split('/');
+                const trashPath = path.slice(0, 3).join('/') + '/trash';
+                this.store.dispatch(
+                    new DBNAVmoveFile(
+                        {
+                            sourcePath: event.data.path,
+                            destinationPath: trashPath,
+                            trashFolder: true
+                        },
+                        this.currentPanelIndex
+                    )
+                );
                 break;
             default:
                 break;

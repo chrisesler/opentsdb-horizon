@@ -7,7 +7,7 @@
     </div>
     <div class="edit-actions">
         <button mat-button class="remove-folders-button" (click)="removeFolders()" [disabled]="foldersToRemove.length === 0" [ngClass]="{'is-active': foldersToRemove.length > 0}">
-            <span>Remove</span>
+            <span>Move to trash</span>
         </button>
         <!--<button mat-button (click)="cancelEdit()">
             <span>Cancel</span>
@@ -45,6 +45,6 @@
         <dnav-folder-item [folder]="{ name: ''}" mode="new" [resourceType]="resourceType" (folderAction)="createFolderAction($event)"></dnav-folder-item>
     </mat-list-item>
     <mat-list-item *ngFor="let folder of folders; let i = index;" class="folder-nav-item" (click)="gotoFolder(folder)">
-        <dnav-folder-item [folder]="folder" [mode]="bulkEdit ? 'edit' : 'display'" [resourceType]="resourceType" (folderAction)="editFolderAction(folder, $event)"></dnav-folder-item>
+        <dnav-folder-item [folder]="folder" [mode]="folder.name === 'Trash' ? 'display' : bulkEdit ? 'edit' : 'display'" [resourceType]="resourceType" (folderAction)="editFolderAction(folder, $event)"></dnav-folder-item>
     </mat-list-item>
 </mat-nav-list>
