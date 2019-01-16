@@ -180,6 +180,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // handle route for dashboardModule
         this.routeSub = this.activatedRoute.url.subscribe(url => {
+            this.widgets = [];
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
@@ -372,7 +373,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.dbTime$.subscribe(t => {
             // console.log('___DBTIME___', JSON.stringify(this.dbTime), JSON.stringify(t));
-
+             this.dbTime = t;
+            // do not intercom if widgets are still loading
+            if ( !this.widgets.length ) {
+                return;
+            }
             if (this.dbTime && this.dbTime.zone !== t.zone) {
                 this.interCom.responsePut({
                     action: 'TimezoneChanged',
@@ -384,7 +389,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     payload: t
                 });
             }
-            this.dbTime = t;
         });
 
         this.dbSettings$.subscribe (settings => {
