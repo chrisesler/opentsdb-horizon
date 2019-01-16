@@ -77,7 +77,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
             }
         },
         series: {},
-        visibility: []
+        visibility: [],
+        gridLineColor: '#ccc'
     };
     data: any = [[0]];
     size: any = {};
