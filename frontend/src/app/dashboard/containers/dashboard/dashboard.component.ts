@@ -158,7 +158,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // tslint:disable-next-line:no-inferrable-types
     viewEditMode: boolean = false;
     newWidget: any; // setup new widget based on type from top bar
-    refresh: boolean = false;
 
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
@@ -687,11 +686,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     click_availableWidgetsTrigger() {
         // console.log('EVT: AVAILABLE WIDGETS TRIGGER', this.availableWidgetsMenuTrigger);
-    }
-
-    click_refreshDashboard() {
-        // console.log('EVT: REFRESH DASHBOARD');
-        this.refresh = !this.refresh;
     }
 
     getTagValues(key: string, tplVariables: any[]): any[] {

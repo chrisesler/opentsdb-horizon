@@ -37,7 +37,6 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
     private _timezone: string;
 
     @Input() xPosition: MenuPositionX = 'before';
-    @Input() refresh: boolean;
 
     @Input()
     set startTime(value: string) {
@@ -165,6 +164,10 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
     triggerAndCloseTimeRangePicker() {
         this.closeTimeRangePicker();
         this.trigger.closeMenu();
+    }
+
+    refresh() {
+        this.timeRangePicker.applyClicked();
     }
 
     updateToolTipsAndDisplayTimes() {

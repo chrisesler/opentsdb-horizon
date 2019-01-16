@@ -1,6 +1,5 @@
 import {
-    Component, OnInit, ViewChild, Input, AfterViewInit,
-    Output, EventEmitter, HostListener, ElementRef, HostBinding, ViewChildren, QueryList
+    Component, OnInit, ViewChild, Input, Output, EventEmitter, HostListener, ElementRef, HostBinding, ViewChildren, QueryList
 } from '@angular/core';
 import { Moment } from 'moment';
 import * as momentNs from 'moment';
@@ -21,18 +20,6 @@ const moment = momentNs;
 
 export class TimeRangePickerComponent implements OnInit {
     @HostBinding('class.dtp-time-range-picker') private _hostClass = true;
-
-    private _refresh: boolean = false;
-
-    @Input()
-    set refresh(value: boolean) {
-        if (this.initialized) {
-          this.applyClicked();
-        }
-    }
-    get refresh(): boolean {
-        return this._refresh;
-    }
 
     @Input() set startTime(time: string) {
       this.startTimeReference.date = String(time);
@@ -56,7 +43,6 @@ export class TimeRangePickerComponent implements OnInit {
     startTimeDisplay: string; // for ngmodel
     endTimeDisplay: string;   // for ngmodel
 
-    initialized: boolean = false;
     showApply: boolean;
     presetSelected: Preset;
     presets: Preset[] = [ // tslint:disable:max-line-length
@@ -72,7 +58,6 @@ export class TimeRangePickerComponent implements OnInit {
 
     ngOnInit() {
       this.showApply = false;
-      this.initialized = true;
     }
 
     getTimeSelected(): ISelectedTime {
@@ -167,14 +152,6 @@ export class TimeRangePickerComponent implements OnInit {
     removeSelectedPreset() {
       this.presetSelected = null;
     }
-
-    // startTimeChanged(item: Moment) {
-    //   this.startTimeSelected = item;
-    // }
-
-    // endTimeChanged(item: Moment) {
-    //   this.endTimeSelected = item;
-    // }
 
     log(item) {}
 

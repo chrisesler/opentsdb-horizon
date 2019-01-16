@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, OnDestroy,  AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, OnDestroy,  AfterViewInit } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -81,8 +81,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         private interCom: IntercomService,
         public dialog: MatDialog,
         public util: UtilsService,
-        public UN: UnitNormalizerService,
-        private cd: ChangeDetectorRef
+        public UN: UnitNormalizerService
         ) { }
 
     ngOnInit() {
@@ -92,7 +91,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
 
             if ( message.action === 'reQueryData' ) {
-                this.nQueryDataLoading = this.widget.queries.length;
                 this.refreshData();
             }
             if (message && (message.id === this.widget.id)) { // 2. Get and set the metric
@@ -355,7 +353,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
    requestData() {
         if (!this.isDataLoaded) {
-            this.cd.detectChanges();
             this.nQueryDataLoading = this.widget.queries.length;
             this.error = null;
             this.interCom.requestSend({
