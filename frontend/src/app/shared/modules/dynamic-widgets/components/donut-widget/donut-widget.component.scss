@@ -88,14 +88,13 @@
 
             .legend {
                 display: inline-block;
-                max-width: 400px;
+                min-width: 80px;
                 height: 100%;
                 overflow: auto;
             }
               
             .legend svg {
                 position: relative!important;
-                width: 100%!important;
             }
 
             .legend text {

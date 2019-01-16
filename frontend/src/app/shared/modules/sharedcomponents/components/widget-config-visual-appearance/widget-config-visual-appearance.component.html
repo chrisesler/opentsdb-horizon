@@ -97,7 +97,7 @@
             <ng-container cdkColumnDef="settings.visual.color">
                 <th mat-header-cell *matHeaderCellDef>Color</th>
                 <td mat-cell *matCellDef="let row;let index = index"  [formGroupName]="index">
-                    <color-picker  (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
+                    <color-picker enableAuto=true (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
                 </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="['settings.visual.label','settings.visual.color']"></tr>
@@ -201,7 +201,7 @@
             <ng-container matColumnDef="settings.visual.color">
                 <th mat-header-cell *matHeaderCellDef>Color</th>
                 <td mat-cell *matCellDef="let row;let index = index"  [formGroupName]="index">
-                    <color-picker  (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
+                    <color-picker  enableAuto=true (newColor)="selectColor($event, gIndex, index)" [color]="row.settings.visual.color"></color-picker>
                 </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="['settings.visual.label','settings.visual.color']"></tr>
