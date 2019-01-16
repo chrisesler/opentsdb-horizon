@@ -158,6 +158,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // tslint:disable-next-line:no-inferrable-types
     viewEditMode: boolean = false;
     newWidget: any; // setup new widget based on type from top bar
+    refresh: boolean = false;
 
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
@@ -630,7 +631,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     setDateRange(e: any) {
-        this.dbTime.refresh = false;
         this.store.dispatch(new UpdateDashboardTime({ start: e.startTimeDisplay, end: e.endTimeDisplay }));
     }
 
@@ -691,7 +691,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     click_refreshDashboard() {
         // console.log('EVT: REFRESH DASHBOARD');
-        this.dbTime.refresh = true;
+        this.refresh = !this.refresh;
     }
 
     getTagValues(key: string, tplVariables: any[]): any[] {

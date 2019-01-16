@@ -1,7 +1,6 @@
 import {
-    Component, OnInit, ViewChild, Input,
-    Output, EventEmitter, AfterContentInit,
-    HostListener, ElementRef, HostBinding, ViewChildren, QueryList
+    Component, OnInit, ViewChild, Input, AfterViewInit,
+    Output, EventEmitter, HostListener, ElementRef, HostBinding, ViewChildren, QueryList
 } from '@angular/core';
 import { Moment } from 'moment';
 import * as momentNs from 'moment';
@@ -27,7 +26,7 @@ export class TimeRangePickerComponent implements OnInit {
 
     @Input()
     set refresh(value: boolean) {
-        if (value) {
+        if (this.initialized) {
           this.applyClicked();
         }
     }
@@ -57,6 +56,7 @@ export class TimeRangePickerComponent implements OnInit {
     startTimeDisplay: string; // for ngmodel
     endTimeDisplay: string;   // for ngmodel
 
+    initialized: boolean = false;
     showApply: boolean;
     presetSelected: Preset;
     presets: Preset[] = [ // tslint:disable:max-line-length
@@ -72,6 +72,7 @@ export class TimeRangePickerComponent implements OnInit {
 
     ngOnInit() {
       this.showApply = false;
+      this.initialized = true;
     }
 
     getTimeSelected(): ISelectedTime {
