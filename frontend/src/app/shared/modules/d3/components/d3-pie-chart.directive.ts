@@ -34,6 +34,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
     radius = Math.min(width, height) / 2;
     const donutWidth = this.options.type === 'pie' ? radius : radius * 0.50;
     const legendItemHeight = 20;
+    let maxLegendItemLen = 0;
     const self = this;
 
     const mousemove = function(d){
@@ -101,6 +102,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
     dataset.forEach(function(d) {
       d.value = +d.value; 
       d.enabled = true;
+      maxLegendItemLen = maxLegendItemLen < d.label.length ? d.label.length : maxLegendItemLen;
     });
     let total = d3.sum(dataset.map( d =>  (d.enabled) ? d.value : 0 ));
                   
@@ -172,6 +174,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
     if ( this.options.legend.display ) {
       const legendg = legend
                             .append("svg")
+                            .attr("width", maxLegendItemLen * 9 )
                             .attr("height", legendItemHeight*dataset.length)
                             .append("g")
                             .attr("class", "legend");

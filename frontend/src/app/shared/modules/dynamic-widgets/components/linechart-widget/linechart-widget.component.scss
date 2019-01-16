@@ -85,8 +85,8 @@
                     display: flex;
                     .line-series{
                         display: inline-flex;
-                        width:20px;
-                        height: 3px;
+                        width:10px;
+                        height: 10px;
                         margin-right: 5px;
                     }
                   }
@@ -125,7 +125,7 @@
                         cursor: pointer;
                     }
                     .mat-column-series {
-                        width: 30px;
+                        width: 10px;
                     }
                     .mat-row, .mat-header-row {
                         height: 25px;
