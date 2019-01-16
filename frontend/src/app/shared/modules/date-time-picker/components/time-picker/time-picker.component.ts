@@ -1,16 +1,12 @@
 import {
     Component, OnInit, ViewChild, Input, Output,
-    EventEmitter, ElementRef, AfterViewChecked,
-    ChangeDetectorRef, HostListener, HostBinding
+    EventEmitter, AfterViewChecked,
+    ChangeDetectorRef, HostBinding,
 } from '@angular/core';
 import { TimeRangePickerComponent } from '../time-range-picker/time-range-picker.component';
-import * as momentNs from 'moment';
-import { Moment, unitOfTime, duration } from 'moment';
 import { TimeRangePickerOptions, ISelectedTime } from '../../models/models';
-import { MatMenu, MatMenuTrigger, MenuPositionX } from '@angular/material';
+import { MatMenuTrigger, MenuPositionX } from '@angular/material';
 import { DateUtilsService } from '../../../../../core/services/dateutils.service';
-
-const moment = momentNs;
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -168,6 +164,10 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
     triggerAndCloseTimeRangePicker() {
         this.closeTimeRangePicker();
         this.trigger.closeMenu();
+    }
+
+    refresh() {
+        this.timeRangePicker.applyClicked();
     }
 
     updateToolTipsAndDisplayTimes() {
