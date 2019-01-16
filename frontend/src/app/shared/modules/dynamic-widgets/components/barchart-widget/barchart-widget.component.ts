@@ -94,6 +94,9 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.options.scales.yAxes[0] = type === 'vertical' ? this. valueAxis : this.categoryAxis;
             this.options.scales.xAxes[0] = type === 'vertical' ? this.categoryAxis : this.valueAxis;
             this.type = type === 'vertical' ? 'bar' : 'horizontalBar';
+            // add to change gridline color
+            this.options.scales.xAxes[0].gridLines = { color: '#eeeeee' };
+            this.options.scales.yAxes[0].gridLines = { color: '#eeeeee' };
         });
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
