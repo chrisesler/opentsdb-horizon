@@ -688,10 +688,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // console.log('EVT: AVAILABLE WIDGETS TRIGGER', this.availableWidgetsMenuTrigger);
     }
 
-    click_refreshDashboard() {
-        // console.log('EVT: REFRESH DASHBOARD');
-    }
-
     getTagValues(key: string, tplVariables: any[]): any[] {
         // tslint:disable-next-line:prefer-const
         for (let tplVariable of tplVariables) {
