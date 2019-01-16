@@ -46,14 +46,6 @@
         </mat-menu>
     </span>
 
-    <!-- <color-picker (newColor)="eventTriggered($event)" [color]="'#000001'"> </color-picker> -->
-
-    <span class="navbar-item nav-refresh-icon" *ngIf="!viewEditMode">
-        <button mat-raised-button (click)="click_refreshDashboard()">
-            <mat-icon fontSet="denali" fontIcon="d-refresh"></mat-icon>
-        </button>
-    </span>
-
     <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="setDateRange($event)" [timezone]="dbTime.zone" [startTime]="dbTime.start" [endTime]="dbTime.end" [xPosition]="menuXAlignValue"></time-picker>
 
     <span class="navbar-item nav-timezone-toggle">
