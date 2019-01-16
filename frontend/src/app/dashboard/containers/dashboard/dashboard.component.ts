@@ -62,7 +62,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBSettingsState.getDashboardTags) dbTags$: Observable<any>;
     @Select(DBSettingsState.getDashboardTagValues) tagValues$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
-    @Select(WidgetsRawdataState.getLastModifiedWidgetRawdata) widgetRawData$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
 
     // temporary disable for now, will delete once we are clear
@@ -464,10 +463,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 action: 'TagValueQueryReults',
                 payload: data
             });
-        });
-
-        this.widgetRawData$.subscribe(result => {
-
         });
 
         this.widgetGroupRawData$.subscribe(result => {

@@ -52,5 +52,7 @@ export interface IDygraphOptions {
     highlightCallback?: any;
     labelsKMB?: boolean;
     visibility?: boolean[];
+    drawGrid?: boolean;
+    gridLineColor?: string;
 }
 
