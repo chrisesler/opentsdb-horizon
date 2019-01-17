@@ -131,8 +131,9 @@
                         height: 25px;
                     }
                     .mat-cell, .mat-header-cell {
-                        padding: 5px;
+                        padding: 2px;
                         font-size: 9px;
+                        border-bottom-width: 0px;
                     }
                     .mat-column-min, .mat-column-max, .mat-column-avg, .mat-column-last {
                         text-align: right;

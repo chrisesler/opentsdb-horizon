@@ -94,20 +94,21 @@ export class UtilsService {
             const b = parseInt(color.substring(5, 7), 16);
             hue = this.rgbToHsv(r, g, b)[0];
         } else {
-            hue = 1;
+            hue = 0;
         }
 
         // saturation & value/brightness ranges
-        const srange = [ 0.2, 0.9], vrange = [ 0.9, 0.2];
+        const srange = [ 0.9, 0.2], vrange = [ 0.9, 0.2];
 
         // no. of colors on light to bright (sBand) and no. of bright to dark (vBand)
-        const sBand = Math.ceil(n * 0.7 ), vBand = Math.floor(n * 0.3);
+        const sBand = Math.ceil(n * 1 ), vBand = Math.floor(n * 0);
         const sStep = (srange[1] - srange[0]) / sBand;
         const vStep = (vrange[0] - vrange[1]) / vBand;
 
         // if random color set SV to 0.8
         let s = color ? srange[0] - sStep : 1;
-        let v = color ?  vrange[0] : 0.8;
+        let v = color ?  vrange[0] : 0.9;
+        const hueOffset = 1 / (6 * Math.ceil ( n / 6 ) );
         for ( let i = 0; i < n;  i++ ) {
             if ( color ) {
                 // get the shades
@@ -118,9 +119,7 @@ export class UtilsService {
                 }
             } else {
                 // random colors
-                if ( i !== 0 ) {
-                    hue  -= ( 1 / n);
-                }
+                hue = i % 6 === 0 ? Math.floor(i/6) * hueOffset : hue + 1/6;
             }
             colors.push(this.rgbToHex(this.hsvToRGB(hue, s, v)));
         }
