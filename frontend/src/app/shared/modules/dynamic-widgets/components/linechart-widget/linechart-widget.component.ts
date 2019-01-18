@@ -130,14 +130,12 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                                 this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
                                 break;
                             case 'getUpdatedWidgetConfig':
-                                if (this.widget.id === message.id) {
-                                    this.widget = message.payload;
-                                    this.setOptions();
-                                    this.refreshData();
-                                }
+                                this.widget = message.payload;
+                                this.setOptions();
+                                this.refreshData();
                                 break;
                             }
-                        }
+                    }
                 });
                 // when the widget first loaded in dashboard, we request to get data
                 // when in edit mode first time, we request to get cached raw data.
@@ -303,13 +301,14 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         let nWidth, nHeight, padding;
 
         const legendSettings = this.widget.settings.legend;
+        const legendColumns = legendSettings.columns? legendSettings.columns.length : 0;
 
         let widthOffset = 0;
         let heightOffset = 0;
         if (legendSettings.display &&
                                     ( legendSettings.position === 'left' ||
                                     legendSettings.position === 'right' ) ) {
-            widthOffset = 350;
+            widthOffset = 260 + 40 * legendColumns;
         }
 
         if ( legendSettings.display &&
@@ -525,6 +524,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
 
     setLegendDiv() {
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
+        this.legendDisplayColumns = ['series', 'name'].concat(this.widget.settings.legend.columns || []);
         this.setSize(this.newSize);
     }
 
