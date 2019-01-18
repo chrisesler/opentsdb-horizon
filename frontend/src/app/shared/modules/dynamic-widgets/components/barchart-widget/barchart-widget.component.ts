@@ -41,7 +41,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     categoryAxis: any = {
         type: 'category',
         ticks: {
-            autoSkip: false
+            autoSkip: true
         }
     };
 

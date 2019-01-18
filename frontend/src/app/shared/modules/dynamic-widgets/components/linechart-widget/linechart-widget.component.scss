@@ -125,17 +125,19 @@
                         cursor: pointer;
                     }
                     .mat-column-series {
-                        width: 10px;
+                        width: 12px;
+                        max-width: 12px;
                     }
                     .mat-row, .mat-header-row {
-                        height: 25px;
+                        height: 10px;
+                        line-height: 12px;
                     }
                     .mat-cell, .mat-header-cell {
-                        padding: 2px;
+                        padding: 0px 2px;
                         font-size: 9px;
                         border-bottom-width: 0px;
                     }
-                    .mat-column-min, .mat-column-max, .mat-column-avg, .mat-column-last {
+                    .mat-column-min, .mat-column-max, .mat-column-avg, .mat-column-sum,  .mat-column-last {
                         text-align: right;
                     }
                 }
