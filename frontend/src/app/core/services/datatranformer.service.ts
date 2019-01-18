@@ -21,10 +21,19 @@ export class DatatranformerService {
         return normalizedData;
     }
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
+    let vMetricsLen = 0;
+    let vAutoColorMetricsLen = 0;
     let dict = {};
     for (let qid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
+        const mConfigs = gConfig ? gConfig.metrics : [];
         if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
+            
+            const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
+            const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && item.settings.visual.color === 'auto');
+
+            vMetricsLen += mvConfigs.length;
+            vAutoColorMetricsLen += mAutoConfigs.length;
             dict[qid] = {};
             for ( let i = 0;  i < result[qid].results.length; i++ ) {
                 const queryResults = result[qid].results[i];
@@ -76,8 +85,10 @@ export class DatatranformerService {
     }
 
     */
-
     ///*
+    let autoColors =  this.util.getColors( null , vAutoColorMetricsLen );
+    autoColors = vAutoColorMetricsLen > 1 ? autoColors : [autoColors];
+    let cIndex = 0;
     for (let qid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
         const mConfigs = gConfig ? gConfig.metrics : [];
@@ -98,7 +109,8 @@ export class DatatranformerService {
                 const mConfig = mConfigs[mIndex];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
                 const n = queryResults.data.length;
-                const colors = n === 1 ? [vConfig.color] : this.util.getColors( vConfig.color , n );
+                const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
+                const colors = n === 1 ? [color] :  this.util.getColors( vMetricsLen === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
                 for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults.data[j].NumericType;
                     const tags = queryResults.data[j].tags;

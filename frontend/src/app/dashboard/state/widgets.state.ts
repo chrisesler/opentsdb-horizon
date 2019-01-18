@@ -50,6 +50,8 @@ export interface WidgetModel {
             legend?: {
                 display: boolean;
                 position: string;
+                columns?: string[];
+                tags?: string[];
             };
             thresholds?: ThresholdConfig[];
     };
