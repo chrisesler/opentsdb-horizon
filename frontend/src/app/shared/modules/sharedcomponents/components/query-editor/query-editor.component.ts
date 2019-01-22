@@ -145,7 +145,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     requestEditMode(type) {
         if ( !this.edit.length) {
-            this.requestChanges('SetQueryEditMode', { edit: [type] });
+            this.requestChanges('SetQueryEditMode', { edit: type=== 'expression' ? ['expression', 'filters'] : ['metrics', 'filters']  });
         } else {
             this.edit.push(type);
             this.setEditMode([type]);
