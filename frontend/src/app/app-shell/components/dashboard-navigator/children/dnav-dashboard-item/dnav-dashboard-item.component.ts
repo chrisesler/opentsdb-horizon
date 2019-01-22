@@ -12,9 +12,10 @@ import {
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 
 import {
-    MatMenuTrigger,
-    MatInput
+    MatMenuTrigger
 } from '@angular/material';
+
+import { MiniNavigatorComponent } from '../../../mini-navigator/mini-navigator.component';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -28,7 +29,10 @@ export class DnavDashboardItemComponent implements OnInit {
     @HostBinding('class.dnav-menu-opened') private _menuOpened = false;
     @HostBinding('class.is-editing') private _isEditingHostClass = false;
 
-    @ViewChild(MatMenuTrigger) menuTrigger: MatMenuTrigger;
+    @ViewChild('dashboardMenuTrigger', {read: MatMenuTrigger}) menuTrigger: MatMenuTrigger;
+    @ViewChild('dashboardMiniNavTrigger', {read: MatMenuTrigger}) miniNavTrigger: MatMenuTrigger;
+
+    @ViewChild(MiniNavigatorComponent) miniNav: MiniNavigatorComponent;
 
     @Input() dashboard: any = {};
     @Input() resourceType: any = ''; // personal<string> | namespace<string>
@@ -109,7 +113,7 @@ export class DnavDashboardItemComponent implements OnInit {
     }
 
     menuState(state: boolean) {
-        console.log('MENU STATE', state);
+        // console.log('MENU STATE', state);
         this._menuOpened = state;
     }
 
@@ -127,6 +131,28 @@ export class DnavDashboardItemComponent implements OnInit {
                     data: this.dashboard
                 });
                 break;
+            case 'moveDashboard':
+                this.menuTrigger.closeMenu();
+                this.miniNavTrigger.openMenu();
+                break;
+            default:
+                break;
+        }
+    }
+
+    miniNavAction(event: any) {
+        // console.log('MINI NAV ACTION [TOP]', event);
+        this.miniNavTrigger.closeMenu();
+        switch (event.action) {
+            case 'move':
+                this.dashboardAction.emit({
+                    action: 'moveDashboard',
+                    destinationPath: event.payload.path
+                });
+                break;
+            case 'select':
+                // TODO
+                break;
             default:
                 break;
         }
@@ -136,7 +162,7 @@ export class DnavDashboardItemComponent implements OnInit {
     /** Host Events */
     @HostListener('click', ['$event'])
     onclick(event) {
-        console.log('HOST CLICK', event);
+        // console.log('HOST CLICK', event);
     }
 
 

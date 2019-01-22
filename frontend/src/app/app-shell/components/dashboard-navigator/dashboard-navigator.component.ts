@@ -14,11 +14,9 @@ import { Router } from '@angular/router';
 
 import { Observable, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { HttpService } from '../../../core/http/http.service';
 
 import { NavigatorPanelComponent } from '../navigator-panel/navigator-panel.component';
 
-import { AppShellService } from '../../services/app-shell.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 
 import {
@@ -80,8 +78,6 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
 
     constructor(
         private store: Store,
-        private http: HttpService,
-        private ass: AppShellService,
         private interCom: IntercomService,
         private router: Router,
         @Inject('WINDOW') private window: any
@@ -98,17 +94,17 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
         });
 
         this.stateSubs['panels'] = this.panels$.subscribe( data => {
-            console.log('NAVIGATION PANELS UPDATED', data);
+            // console.log('NAVIGATION PANELS UPDATED', data);
             self.panels = data;
         });
 
         this.stateSubs['currentPaneIndex'] = this.currentPanelIndex$.subscribe( idx => {
-            console.log('CURRENT PANEL INDEX UPDATED', idx);
+            // console.log('CURRENT PANEL INDEX UPDATED', idx);
             self.currentPanelIndex = idx;
         });
 
         this.stateSubs['panelAction'] = this.navAction$.subscribe( action => {
-            console.log('PANEL ACTION', action);
+            // console.log('PANEL ACTION', action);
             switch (action.method) {
                 case 'goNextPanel':
                     setTimeout(function() {
@@ -141,104 +137,6 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
         }
     }
 
-    /** PRIVATE */
-    /*private normalizeResourceData(data: any) {
-        const personal = [];
-        const namespaces = [];
-        for (const f of data.personal) {
-            const folder = this.normalizeResourceFolder(f, 'personal');
-            personal.push(folder);
-        }
-        for (const f of data.namespaces) {
-            const folder = this.normalizeResourceFolder(f, 'namespace');
-            namespaces.push(folder);
-        }
-        data.personal = personal;
-        data.namespaces = namespaces;
-
-        this.resourceData = <Observable<any[]>>data;
-    }*/
-
-    /*private normalizeResourceFolder(folder: any, topLevel?: string) {
-
-        if (topLevel === 'namespace') {
-            folder.icon = 'd-dashboard-tile';
-        } else if (topLevel === 'personal') {
-            switch (folder.name) {
-                case 'My Dashboard':
-                    folder.icon = 'd-dashboard-tile';
-                    break;
-                case 'Trash':
-                    folder.icon = 'd-trash';
-                    break;
-                case 'Favorites':
-                    folder.icon = 'd-star';
-                    break;
-                case 'Frequently Visited':
-                    folder.icon = 'd-duplicate';
-                    break;
-                case 'Recently Visited':
-                    folder.icon = 'd-time';
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            folder.icon = 'd-folder';
-        }
-
-        if (!folder.files) {
-            folder.files = [];
-        }
-
-        if (!folder.subfolder) {
-            folder.subfolder = [];
-        } else {
-            // tslint:disable-next-line:forin
-            for (const i in folder.subfolder) {
-                folder.subfolder[i] = this.normalizeResourceFolder(folder.subfolder[i]);
-            }
-        }
-
-        return folder;
-
-    }*
-
-    /*private generateResourceNavigation() {
-        const masterPanel = {
-            name: 'masterPanel',
-            icon: '',
-            subfolder: [],
-            namespaces: []
-        };
-
-        console.log(
-            '%cGENERATE RESOURCE NAVIGATION',
-            'color: white; background: blue; padding: 4px 8px;',
-            this.resourceData
-        );
-
-        masterPanel.subfolder = this.resourceData['personal'];
-        masterPanel.namespaces = this.resourceData['namespaces'];
-
-        this.panels.push(masterPanel);
-    }*/
-
-    private findTrashId() {
-        console.log('FIND TRASH ID');
-        /*
-        if (this.currentResourceType === 'namespace') {
-            const nsPanel = this.panels[1];
-            const nsTrash = nsPanel.subfolder.filter(item => item.name.toLowerCase() === 'trash');
-            return nsTrash[0].id;
-        } else if (this.currentResourceType === 'personal') {
-            const nsPanel = this.panels[0];
-            const nsTrash = nsPanel.subfolder.filter(item => item.name.toLowerCase() === 'trash');
-            return nsTrash[0].id;
-        }
-        return false;*/
-    }
-
     /**
      * ACTIONS
      * from child sections -- folders and dashboards
@@ -246,13 +144,13 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
     folderAction(panel, event) {
         const self = this;
 
-        console.group(
+        /*console.group(
             '%cEVENT%cfolderAction [' + event.action + ']',
             'color: white; background-color: blue; padding: 4px 8px; font-weight: bold; ',
             'color: blue; padding: 4px 8px; border: 1px solid blue;'
         );
         console.log('EVENT', event);
-        console.log('ORIGINATING PANEL', panel);
+        console.log('ORIGINATING PANEL', panel);*/
 
         switch (event.action) {
             case 'navtoPanelFolder':
@@ -290,7 +188,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 break;
             case 'deleteFolder':
                 // see if it is userpath, or namespace path
-                console.log('DELETE FOLDER [TOP]', panel, event);
+                // console.log('DELETE FOLDER [TOP]', panel, event);
                 const path = event.data.path.split('/');
                 const trashPath = path.slice(0, 3).join('/') + '/trash';
                 this.store.dispatch(
@@ -300,6 +198,14 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                             destinationPath: trashPath,
                             trashFolder: true
                         },
+                        this.currentPanelIndex
+                    )
+                );
+                break;
+            case 'moveFolder':
+                this.store.dispatch(
+                    new DBNAVmoveFolder(
+                        event.data,
                         this.currentPanelIndex
                     )
                 );
@@ -319,7 +225,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 this.window.open('/d' + event.data.path, '_blank');
                 break;
             case 'deleteDashboard':
-                console.log('DELETE DASHBOARD[TOP]', panel, event);
+                // console.log('DELETE DASHBOARD[TOP]', panel, event);
                 const path = event.data.path.split('/');
                 const trashPath = path.slice(0, 3).join('/') + '/trash';
                 this.store.dispatch(
@@ -333,6 +239,15 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                     )
                 );
                 break;
+            case 'moveDashboard':
+                console.log('MOVE DASHBOARD [TOP]', panel, event);
+                this.store.dispatch(
+                    new DBNAVmoveFile(
+                        event.data,
+                        this.currentPanelIndex
+                    )
+                );
+                break;
             default:
                 break;
         }
@@ -340,12 +255,12 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
 
     createFolder_action(data: any, parentId?: number, namespaceId?: number) {
         // create a folder in the index item
-        console.log(
+        /*console.log(
             '%cACTION%cCreate Folder',
             'color: black; background: skyblue; padding: 4px 8px; font-weight: bold;',
             'color: black; border: 1px solid skyblue; padding: 4px 8px;',
             parentId, data, this.panels[this.currentPanelIndex]
-            );
+            );*/
 
         this.store.dispatch(
             new DBNAVcreateFolder(
@@ -354,28 +269,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 this.currentPanelIndex
             )
         );
-        /*
-        const payload: any = {
-            'name': data.name
-        };
-        if (parentId) {
-            payload.parentid = parentId;
-        }
-        if (namespaceId && namespaceId > 0) {
-            payload.namespaceid = namespaceId;
-        }
 
-        this.ass.createFolder(payload).subscribe( folder => {
-            folder = this.normalizeResourceFolder(folder);
-            console.log(
-                '%cAPI%cCreate Folder Response',
-                'color: white; font-weight: bold; backround: purple; padding: 4px 8px;',
-                'color: purple; border: 1px solid purple; padding: 4px 8px;',
-                folder
-            );
-
-            this.panels[this.currentPaneIndex].subfolder.unshift(folder);
-        });*/
     }
 
     editFolder_action(data: any, parentId: number) {
@@ -433,7 +327,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
      *
      */
     navtoPanelFolder(folder: any) {
-        console.log('NAV TO PANEL [GO FORWARD]', folder);
+        // console.log('NAV TO PANEL [GO FORWARD]', folder);
         /*if (this.currentResourceType === 'master' && folder.namespaceid) {
             this.currentNamespaceId = folder.namespaceid;
             this.currentResourceType = 'namespace';
@@ -461,7 +355,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
      *
      */
     navfromPanelFolder(folder: any) {
-        console.log('NAV FROM PANEL [GO BACK]', folder);
+        // console.log('NAV FROM PANEL [GO BACK]', folder);
 
         const idx = this.panels.indexOf(folder);
         this.currentPanelIndex = this.currentPanelIndex - 1;
@@ -485,7 +379,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
      */
 
     navtoSpecificPanel(idx: number, fromIdx: number) {
-        console.log('NAV TO SPECIFIC FOLDER [GO BACK X]');
+        // console.log('NAV TO SPECIFIC FOLDER [GO BACK X]');
         // const idx = this.panels.indexOf(folder);
         /*if (idx === 0 && this.panels.length === 2) {
             this.navPanel.goBack( () => {
@@ -508,7 +402,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
 
     // go all the way back to master panel
     navtoMasterPanel() {
-        console.log('NAV TO MASTER [GO ALL THE WAY BACK]');
+        // console.log('NAV TO MASTER [GO ALL THE WAY BACK]');
         if (this.currentPanelIndex > 0) {
             this.navtoSpecificPanel(0, this.currentPanelIndex);
         }

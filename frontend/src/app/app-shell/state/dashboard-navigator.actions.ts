@@ -187,8 +187,134 @@ export class DBNAVgetFolderResource {
     constructor(public readonly path: string, public readonly type: string) {}
 }
 
+// -- LOAD A FOLDER RESOURCE -- DATA ONLY //
+export class DBNAVloadFolderResource {
+    static readonly type = '[DashboardNavigator] load folder resource';
+    constructor(
+        public readonly targetPath: string,
+        public readonly cb?: any
+    ) {}
+}
+
+export class DBNAVloadFolderResourceSuccess {
+    static readonly type = '[DashboardNavigator] load folder resource [SUCCESS]';
+    constructor(
+        public readonly response: any
+    ) {}
+}
+
+export class DBNAVloadFolderResourceFail {
+    static readonly type = '[DashboardNavigator] load folder resource [FAIL]';
+    constructor(
+        public readonly error: any
+    ) {}
+}
+
 // -- UPDATE PANELS -- //
 export class DBNAVupdatePanels {
     static readonly type = '[DashboardNavigator] update panels';
     constructor(public readonly payload: any) {}
+}
+
+//
+//
+//
+// MINI NAV ACTIONS
+//
+//
+//
+
+export class MiniNavOpenNavigator {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - open mini nav';
+    constructor(
+        public readonly targetPath: string,
+        public readonly targetType: string, // 'folder' or 'dashboard'
+        public readonly actionMode: string // 'move' or 'select'
+    ) {}
+}
+
+export class MiniNavOpenNavigatorFail {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - open mini nav [FAIL}';
+    constructor(
+        public readonly error: any
+    ) {}
+}
+
+export class MiniNavCloseNavigator {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - close mini nav';
+    constructor() {}
+}
+
+export class MiniNavLoadPanel {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - mini nav load panel';
+    constructor(
+        public readonly panelPath: string,
+        public readonly actionMode: string,
+        public readonly guid?: any
+    ) {}
+}
+
+export class MiniNavRemovePanel {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - mini nav remove panel';
+    constructor(
+        public readonly panelIndex: number,
+        public readonly guid?: any
+    ) {}
+}
+
+export class MiniNavCreateFolder {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - mini nav create folder';
+    constructor(
+        public readonly payload: string
+    ) {}
+}
+
+export class MiniNavCreateFolderSuccess {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - mini nav create folder [SUCCESS]';
+    constructor(
+        public readonly response: any
+    ) {}
+
+}
+
+export class MiniNavCreateFolderFail {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - mini nav create folder [FAIL]';
+    constructor(
+        public readonly error: any
+    ) {}
+}
+
+/*
+export class MiniNavMoveFolder {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - mini nav move folder';
+    constructor(
+        public readonly payload: any
+    ) {}
+}
+
+export class MiniNavMoveFolderSuccess {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - mini nav move folder [SUCCESS]';
+    constructor(
+        public readonly response: any
+    ) {}
+}
+
+export class MiniNavMoveFolderFail {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - mini nav move folder [SUCCESS]';
+    constructor(
+        public readonly response: any
+    ) {}
+}*/
+
+export class MiniNavMarkFolderSelected {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - mini nav mark select folder';
+    constructor(
+        public readonly panel: number, // index of the panel
+        public readonly folder: any
+    ) {}
+}
+
+export class MiniNavResetFolderSelected {
+    static readonly type = '[Dashboard Navigator - Mini Nav] - mini nav reset select folder';
+    constructor() {}
 }
