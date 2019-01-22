@@ -133,6 +133,7 @@ export class DatatranformerService {
                                 tags: { metric: !mConfig.expression? queryResults.data[j].metric : this.getLableFromMetricTags(metric, tags), ...tags},
                                 aggregations: aggData
                             };
+                            options.series[label].label = this.getLableFromMetricTags(metric, options.series[label].tags);
                         }
                         const seriesIndex = options.labels.indexOf(label);
                         const unit = timeSpecification.interval.replace(/[0-9]/g, '');
