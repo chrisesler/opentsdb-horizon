@@ -1,7 +1,5 @@
 import {
-    Component, OnInit, ViewChild, Input,
-    Output, EventEmitter, AfterContentInit,
-    HostListener, ElementRef, HostBinding, ViewChildren, QueryList
+    Component, OnInit, ViewChild, Input, Output, EventEmitter, HostListener, ElementRef, HostBinding, ViewChildren, QueryList
 } from '@angular/core';
 import { Moment } from 'moment';
 import * as momentNs from 'moment';
@@ -154,14 +152,6 @@ export class TimeRangePickerComponent implements OnInit {
     removeSelectedPreset() {
       this.presetSelected = null;
     }
-
-    // startTimeChanged(item: Moment) {
-    //   this.startTimeSelected = item;
-    // }
-
-    // endTimeChanged(item: Moment) {
-    //   this.endTimeSelected = item;
-    // }
 
     log(item) {}
 

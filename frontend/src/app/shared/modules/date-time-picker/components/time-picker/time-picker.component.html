@@ -1,3 +1,7 @@
+<button class="refresh-button" mat-raised-button (click)="refresh()">
+    <mat-icon fontSet="denali" fontIcon="d-refresh"></mat-icon>
+</button>
+
 <button mat-raised-button
     (keydown.tab)="$event.stopPropagation()"
     [ngClass]="{'menu-trigger-underline': timerangePickerMenuIsOpen}"

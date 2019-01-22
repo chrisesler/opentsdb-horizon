@@ -7,8 +7,8 @@ import { UnitConverterService } from '../../../../core/services/unit-converter.s
 import 'chartjs-plugin-labels';
 
 Chart.defaults.global.defaultFontColor = '#000000';
-Chart.defaults.global.defaultFontFamily = 'Ubuntu';
-Chart.defaults.global.defaultFontSize = 10;
+// Chart.defaults.global.defaultFontFamily = 'Monaco, monospace';
+// Chart.defaults.global.defaultFontSize = 14;
 
 
 @Directive({

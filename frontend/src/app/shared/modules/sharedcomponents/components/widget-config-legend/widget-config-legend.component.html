@@ -6,22 +6,22 @@
         </div>
     </div>
     <div class="config-control inline-controls">
-        <label class="fixed-label">Format</label>
+        <label class="fixed-label">Position</label>
         <div class="form-field-group">
-            <mat-radio-group formControlName="format">  
-                <mat-radio-button *ngFor="let option of formatOptions" [value]="option.value">{{option.label}}</mat-radio-button>  
+            <mat-radio-group formControlName="position">  
+                <mat-radio-button value="top">Top</mat-radio-button>
+                <mat-radio-button value="bottom">Bottom</mat-radio-button>
+                <mat-radio-button value="right">Right</mat-radio-button>
+                <mat-radio-button value="left">Left</mat-radio-button>
             </mat-radio-group>
         </div>
     </div>
     <div class="config-control inline-controls">
-        <label class="fixed-label">Position</label>
-        <div class="form-field-group">
-            <mat-radio-group formControlName="position">  
-                <mat-radio-button [disabled]="widgetConfigLegend.controls.format.value==='table'" value="top">Top</mat-radio-button>
-                <mat-radio-button [disabled]="widgetConfigLegend.controls.format.value==='table'" value="bottom">Bottom</mat-radio-button>
-                <mat-radio-button [disabled]="widgetConfigLegend.controls.format.value==='inline'" value="right">Right</mat-radio-button>
-                <mat-radio-button [disabled]="widgetConfigLegend.controls.format.value==='inline'" value="left">Left</mat-radio-button>
-            </mat-radio-group>
-        </div>
+            <label class="fixed-label">Columns</label>
+            <div class="form-field-group">
+                <ng-container *ngFor="let column of columns">
+                    <mat-checkbox value="{{column.value}}" [checked]="widget.settings.legend.columns.indexOf(column.value)!== -1 " (change)="setLegendColumns($event)">{{column.label}}</mat-checkbox>
+                </ng-container>
+            </div>
     </div>
 </form>

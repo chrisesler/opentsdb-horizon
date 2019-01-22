@@ -32,9 +32,11 @@
 
         .mat-toolbar,
         .mat-toolbar-row {
-            font-size: 12px;
+            font-size: 1.1em;
             height: 28px;
             min-height: 28px !important;
+            border-bottom: 1px solid #dfdfdf;
+            font-weight: 300;
         }
 
         .mat-toolbar {

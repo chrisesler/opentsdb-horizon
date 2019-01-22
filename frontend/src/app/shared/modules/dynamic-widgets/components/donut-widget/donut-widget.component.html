@@ -16,7 +16,7 @@
                 [options]="options"
                 [size]="size"
                 ></div>
-            <span class="legend" [style.width]="size.legendWidth + 'px'" [style.display]="size.legendWidth>=80 ? 'inline-block':'none'" #chartLegend></span>
+            <span class="legend" [style.maxWidth]="size.legendWidth + 'px'" [style.height]="size.height - 30 + 'px'" [style.display]="size.legendWidth>=80 ? 'inline-block':'none'" #chartLegend></span>
         </div>
         <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
         <div class="error" *ngIf="error" (click)="showError()">

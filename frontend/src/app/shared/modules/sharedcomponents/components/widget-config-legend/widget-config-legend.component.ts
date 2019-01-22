@@ -41,19 +41,48 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
         }
     ];
 
+    columns: any[] = [
+        {
+            label: 'Min',
+            value: 'min'
+        },
+        {
+            label: 'Max',
+            value: 'max'
+        },
+        {
+            label: 'Avg',
+            value: 'avg'
+        },
+        {
+            label: 'Sum',
+            value: 'sum'
+        }
+    ];
+    tags = [];
     constructor(private fb: FormBuilder) { }
 
     ngOnInit() {
+        this.widget.settings.legend.columns = this.widget.settings.legend.columns || [];
         // populate form controls
         this.createForm();
+        for (let i = 0; i < this.widget.queries.length; i++) {
+            const query = this.widget.queries[i];
+            for ( let j = 0; query.filters && j < query.filters.length; j++ ) {
+                if ( query.filters[j].groupBy ) {
+                    this.tags.push(query.filters[j].tagk);
+                }
+            }
+        }
     }
 
     createForm() {
 
         this.widgetConfigLegend = this.fb.group({
             display:   new FormControl( this.widget.settings.legend.display || false ),
-            format: new FormControl(this.widget.settings.legend.format || 'inline'),
-            position: new FormControl(this.widget.settings.legend.position || 'bottom')
+            position: new FormControl(this.widget.settings.legend.position || 'bottom'),
+            columns: new FormControl(this.widget.settings.legend.columns),
+            tags: new FormControl(this.widget.settings.legend.tags || [])
         });
 
         this.subscription = this.widgetConfigLegend.valueChanges
@@ -62,13 +91,23 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
                                                             this.widgetChange.emit( {action: 'SetLegend', payload: {data: data} } );
                                                         });
 
-        this.formatsubs = this.widgetConfigLegend.controls.format.valueChanges.subscribe( format => {
-            this.widgetConfigLegend.controls.position.setValue(format === 'table' ? 'right' : 'bottom');
-        });
+        // this.formatsubs = this.widgetConfigLegend.controls.format.valueChanges.subscribe( format => {
+            // this.widgetConfigLegend.controls.position.setValue(format === 'table' ? 'right' : 'bottom');
+        // });
+    }
+
+    setLegendColumns(e) {
+        const column = e.source.value;
+        const columns = this.widgetConfigLegend.controls.columns.value;
+        if ( e.checked ) {
+            columns.push(column);
+        } else {
+            columns.splice( columns.indexOf(column),1);
+        }
+        this.widgetConfigLegend.controls.columns.setValue(columns);
     }
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
-        this.formatsubs.unsubscribe();
     }
 }

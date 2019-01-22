@@ -63,6 +63,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         xlabel: '',
         ylabel: '',
         y2label: '',
+        axisLineWidth: 0,
+        axisTickSize: 0, 
+        axisLineColor: '#fff',
         axes: {
             y: {
                 valueRange: [null, null],
@@ -74,7 +77,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
             }
         },
         series: {},
-        visibility: []
+        visibility: [],
+        gridLineColor: '#ccc'
     };
     data: any = [[0]];
     size: any = {};
@@ -124,16 +128,15 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                                 const rawdata = message.payload.rawdata;
                                 this.setTimezone(message.payload.timezone);
                                 this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
+                                this.setSize(this.newSize);
                                 break;
                             case 'getUpdatedWidgetConfig':
-                                if (this.widget.id === message.id) {
-                                    this.widget = message.payload;
-                                    this.setOptions();
-                                    this.refreshData();
-                                }
+                                this.widget = message.payload;
+                                this.setOptions();
+                                this.refreshData();
                                 break;
                             }
-                        }
+                    }
                 });
                 // when the widget first loaded in dashboard, we request to get data
                 // when in edit mode first time, we request to get cached raw data.
@@ -299,13 +302,18 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         let nWidth, nHeight, padding;
 
         const legendSettings = this.widget.settings.legend;
+        const legendColumns = legendSettings.columns? legendSettings.columns.length : 0;
 
         let widthOffset = 0;
         let heightOffset = 0;
+        let labelLen = 0;
+        for ( let i in this.options.series ) {
+            labelLen = labelLen < this.options.series[i].label.length? this.options.series[i].label.length: labelLen ;
+        }
         if (legendSettings.display &&
                                     ( legendSettings.position === 'left' ||
                                     legendSettings.position === 'right' ) ) {
-            widthOffset = 350;
+            widthOffset = 10 + labelLen * 4.5 + 40 * legendColumns;
         }
 
         if ( legendSettings.display &&
@@ -511,6 +519,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     setLegend(config) {
         this.widget.settings.legend = config;
         this.setLegendDiv();
+        this.setSize(this.newSize);
         this.options = {...this.options};
     }
 
@@ -521,7 +530,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
 
     setLegendDiv() {
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
-        this.setSize(this.newSize);
+        this.legendDisplayColumns = ['series', 'name'].concat(this.widget.settings.legend.columns || []);
+        // this.setSize(this.newSize);
     }
 
     toggleChartSeries(index) {
@@ -537,6 +547,9 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         const config = this.options.series[index];
 
         const value = config.aggregations[aggregate];
+        if ( isNaN(value)) {
+            return '-';
+        }
         const format = config.axis === 'y' ? this.options.axes.y.tickFormat : this.options.axes.y2.tickFormat;
         const precision = (format && format.precision) ? format.precision : 2;
         const unit = (format && format.unit) ? format.unit : '';

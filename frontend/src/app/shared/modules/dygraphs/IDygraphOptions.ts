@@ -32,6 +32,9 @@ export interface IDygraphOptions {
     hightlightCircleSize?: number;
     strokeWidth?: number;
     strokeBorderWidth: number;
+    axisLineWidth?: number;
+    axisTickSize?: number;
+    axisLineColor?: string;
     highlightSeriesOpts?: any;
     axes?: {
         x?: DygraphOptionsAxis;
@@ -49,5 +52,7 @@ export interface IDygraphOptions {
     highlightCallback?: any;
     labelsKMB?: boolean;
     visibility?: boolean[];
+    drawGrid?: boolean;
+    gridLineColor?: string;
 }
 
