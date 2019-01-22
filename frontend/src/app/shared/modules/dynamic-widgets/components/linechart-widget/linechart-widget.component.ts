@@ -128,6 +128,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                                 const rawdata = message.payload.rawdata;
                                 this.setTimezone(message.payload.timezone);
                                 this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
+                                this.setSize(this.newSize);
                                 break;
                             case 'getUpdatedWidgetConfig':
                                 this.widget = message.payload;
@@ -305,10 +306,14 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
 
         let widthOffset = 0;
         let heightOffset = 0;
+        let labelLen = 0;
+        for ( let i in this.options.series ) {
+            labelLen = labelLen < this.options.series[i].label.length? this.options.series[i].label.length: labelLen ;
+        }
         if (legendSettings.display &&
                                     ( legendSettings.position === 'left' ||
                                     legendSettings.position === 'right' ) ) {
-            widthOffset = 260 + 40 * legendColumns;
+            widthOffset = 10 + labelLen * 4.5 + 40 * legendColumns;
         }
 
         if ( legendSettings.display &&
@@ -514,6 +519,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     setLegend(config) {
         this.widget.settings.legend = config;
         this.setLegendDiv();
+        this.setSize(this.newSize);
         this.options = {...this.options};
     }
 
@@ -525,7 +531,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     setLegendDiv() {
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
         this.legendDisplayColumns = ['series', 'name'].concat(this.widget.settings.legend.columns || []);
-        this.setSize(this.newSize);
+        // this.setSize(this.newSize);
     }
 
     toggleChartSeries(index) {

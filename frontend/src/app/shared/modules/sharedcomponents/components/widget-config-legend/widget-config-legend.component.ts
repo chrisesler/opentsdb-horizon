@@ -80,7 +80,6 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
 
         this.widgetConfigLegend = this.fb.group({
             display:   new FormControl( this.widget.settings.legend.display || false ),
-            format: new FormControl(this.widget.settings.legend.format || 'inline'),
             position: new FormControl(this.widget.settings.legend.position || 'bottom'),
             columns: new FormControl(this.widget.settings.legend.columns),
             tags: new FormControl(this.widget.settings.legend.tags || [])
@@ -92,9 +91,9 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
                                                             this.widgetChange.emit( {action: 'SetLegend', payload: {data: data} } );
                                                         });
 
-        this.formatsubs = this.widgetConfigLegend.controls.format.valueChanges.subscribe( format => {
-            this.widgetConfigLegend.controls.position.setValue(format === 'table' ? 'right' : 'bottom');
-        });
+        // this.formatsubs = this.widgetConfigLegend.controls.format.valueChanges.subscribe( format => {
+            // this.widgetConfigLegend.controls.position.setValue(format === 'table' ? 'right' : 'bottom');
+        // });
     }
 
     setLegendColumns(e) {
@@ -110,6 +109,5 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
-        this.formatsubs.unsubscribe();
     }
 }
