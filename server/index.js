@@ -41,6 +41,11 @@ else if (utils.getProperty('auth_mode') === 'athenz') {
     app.use(authUtil.validateAthenzCredentials());
 }
 
+app.use(function (req, res, next) {
+    // WhitelistFrameAncestors
+    res.setHeader('Content-Security-Policy', 'frame-ancestors ' + utils.getWhitelistFrameAncestors().join(' ') );
+    next();
+});
 
 // error handler
 app.use(function(err, req, res, next) {
