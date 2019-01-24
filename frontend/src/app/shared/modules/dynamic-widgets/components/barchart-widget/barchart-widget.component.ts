@@ -76,6 +76,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
+    isDataRefreshRequired = false;
 
     constructor(
         private interCom: IntercomService,
@@ -121,9 +122,9 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                         this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget, this.data, message.payload.rawdata, this.isStackedGraph);
                         break;
                     case 'getUpdatedWidgetConfig':
-                        this.widget = message.payload;
+                        this.widget = message.payload.widget;
                         this.setOptions();
-                        this.refreshData();
+                        this.refreshData(message.payload.isDataRefreshRequired);
                         break;
                 }
             }
@@ -136,7 +137,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        this.requestData();
+        this.refreshData(this.editMode ? false : true);
         this.setOptions();
     }
 
@@ -183,9 +184,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     requestCachedData() {
+        this.nQueryDataLoading = this.widget.queries.length;
+        this.error = null;
         this.interCom.requestSend({
             id: this.widget.id,
-            action: 'getWidgetCachedData'
+            action: 'getWidgetCachedData',
+            payload: this.widget
         });
     }
 
@@ -196,6 +200,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
+                this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'SetStackedBarVisualization':
                 this.setStackedBarVisualization( message.payload.gIndex, message.payload.data );
@@ -216,6 +222,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
             case 'SetSorting':
                 this.setSorting(message.payload);
+                this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'ChangeVisualization':
                 this.type$.next(message.payload.type);
@@ -224,6 +232,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
@@ -233,17 +242,20 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
+                this.refreshData(false);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
 
         }
@@ -378,7 +390,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                                                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                             }
                                         };
-        this.refreshData();
     }
 
 
@@ -497,7 +508,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
-        this.refreshData();
     }
 
     toggleGroup(gIndex) {
@@ -539,7 +549,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
         this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
             !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
-        this.refreshData(false);
     }
 
     deleteQueryMetric(qid, mid) {
@@ -580,7 +589,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
-            payload: cloneWidget
+            id: cloneWidget.id,
+            payload: { widget: cloneWidget, isDataRefreshRequired: this.isDataRefreshRequired }
         });
 
         this.closeViewEditMode();
