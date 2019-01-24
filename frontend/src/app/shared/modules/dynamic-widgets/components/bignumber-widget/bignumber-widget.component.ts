@@ -66,6 +66,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     readonly maxLabelLength: number = 10; // postfix, prefix, unit
 
     editQueryId = null;
+    isDataRefreshRequired = false;
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
@@ -112,9 +113,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                         break;
                     case 'getUpdatedWidgetConfig':
                         if (this.widget.id === message.id) {
-                            this.widget = message.payload;
+                            this.widget = message.payload.widget;
                             this.setBigNumber(this.widget.settings.visual.queryID);
-                            this.refreshData();
+                            this.refreshData(message.payload.isDataRefreshRequired);
                         }
                         break;
                 }
@@ -364,9 +365,12 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     requestCachedData() {
+        this.nQueryDataLoading = this.widget.queries.length;
+        this.error = null;
         this.interCom.requestSend({
             id: this.widget.id,
-            action: 'getWidgetCachedData'
+            action: 'getWidgetCachedData',
+            payload: this.widget
         });
     }
 
@@ -402,6 +406,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         switch ( message.action ) {
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
+                this.isDataRefreshRequired = true;
                 break;
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
@@ -417,6 +422,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
@@ -432,11 +438,13 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
         }
     }
@@ -535,7 +543,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
-            payload: cloneWidget
+            id: cloneWidget.id,
+            payload: { widget: cloneWidget, isDataRefreshRequired: this.isDataRefreshRequired }
         });
         this.closeViewEditMode();
     }
