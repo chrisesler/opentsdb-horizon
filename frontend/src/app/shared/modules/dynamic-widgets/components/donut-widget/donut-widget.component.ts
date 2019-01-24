@@ -56,6 +56,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
+    isDataRefreshRequired = false;
 
     constructor(
         private interCom: IntercomService,
@@ -92,9 +93,9 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                         this.options = this.dataTransformer.yamasToD3Donut(this.options, this.widget, message.payload.rawdata);
                         break;
                     case 'getUpdatedWidgetConfig':
-                        this.widget = message.payload;
+                        this.widget = message.payload.widget;
                         this.setOptions();
-                        this.refreshData();
+                        this.refreshData(message.payload.isDataRefreshRequired);
                         break;
                 }
             }
@@ -108,7 +109,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
         this.setOptions();
-        this.requestData();
+        this.refreshData(this.editMode ? false : true);
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -168,9 +169,12 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     }
 
     requestCachedData() {
+        this.nQueryDataLoading = this.widget.queries.length;
+        this.error = null;
         this.interCom.requestSend({
             id: this.widget.id,
-            action: 'getWidgetCachedData'
+            action: 'getWidgetCachedData',
+            payload: this.widget
         });
     }
 
@@ -181,6 +185,8 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                 break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
+                this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'SetLegend':
                 this.widget.settings.legend = message.payload.data;
@@ -193,14 +199,18 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                 break;
             case 'SetVisualization':
                 this.setVisualization(message.payload.data);
+                this.refreshData(false);
                 break;
             case 'SetSorting':
                 this.setSorting(message.payload);
+                this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
@@ -210,17 +220,20 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                 break;
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
+                this.refreshData(false);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
         }
     }
@@ -237,7 +250,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         mconfigs.forEach( (config, i) => {
             this.widget.queries[0].metrics[i].settings.visual = { ...this.widget.queries[0].metrics[i].settings.visual, ...config };
         });
-        this.refreshData(false);
     }
 
     setOptions() {
@@ -265,12 +277,10 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                                                  customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                              }
                                          };
-        this.refreshData();
      }
 
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
-        this.refreshData();
     }
 
     refreshData(reload = true) {
@@ -288,7 +298,6 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
         this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
             !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
-        this.refreshData(false);
     }
 
     deleteQueryMetric(qid, mid) {
@@ -329,7 +338,8 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
-            payload: cloneWidget
+            id: cloneWidget.id,
+            payload: { widget: cloneWidget, isDataRefreshRequired: this.isDataRefreshRequired }
         });
         this.closeViewEditMode();
     }

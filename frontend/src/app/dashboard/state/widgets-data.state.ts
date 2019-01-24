@@ -24,9 +24,19 @@ export class SetQueryDataByGroup {
     constructor(public readonly payload: any) {}
 }
 
+export class CopyWidgetData {
+    static readonly type = '[Dashboard] Copy Widget Data';
+    constructor(public wid: string, public cpid: string) {}
+}
+
 export class ClearQueryData {
     public static type = '[Rawdata] Clear Query Data';
     constructor(public readonly payload: any) {}
+}
+
+export class ClearWidgetsData {
+    public static type = '[Rawdata] Clear Widgets Data';
+    constructor() {}
 }
 
 
@@ -44,6 +54,7 @@ export class ClearQueryData {
 
 export class WidgetsRawdataState {
     queryObserver: Observable<any>;
+    subs: any = {}; 
     
     constructor(private httpService: HttpService, private actions$: Actions ) {}
 
@@ -59,17 +70,16 @@ export class WidgetsRawdataState {
 
     @Action(GetQueryDataByGroup)
     getQueryDataByGroup(ctx: StateContext<RawDataModel>, { payload }: GetQueryDataByGroup) {
-        if ( payload.isEditMode ) {
-             this.queryObserver = this.httpService.getYamasData( payload.query )
-                            .pipe(
-                                takeUntil(this.actions$.pipe(ofActionDispatched(GetQueryDataByGroup)))
-                            );
 
-        } else {
-            this.queryObserver = this.httpService.getYamasData(payload.query);
+        const qid = payload.wid + '-' + payload.gid;
+        // cancels the previous call
+        if (  this.subs[qid] ) {
+            this.subs[qid].unsubscribe();
         }
+        this.queryObserver = this.httpService.getYamasData(payload.query)
+                                    .pipe(takeUntil(this.actions$.pipe(ofActionDispatched(ClearWidgetsData))))
 
-        this.queryObserver.subscribe(
+        this.subs[qid] = this.queryObserver.subscribe(
             data => {
                 payload.data = data;
                 ctx.dispatch(new SetQueryDataByGroup(payload));
@@ -84,13 +94,27 @@ export class WidgetsRawdataState {
     @Action(SetQueryDataByGroup)
     setQueryDataByGroup(ctx: StateContext<RawDataModel>, { payload }: SetQueryDataByGroup) {
         const state = ctx.getState();
+        const qid = payload.wid + '-' + payload.gid;
         if (!state.data[payload.wid]) {
             state.data[payload.wid] = {};
         }
         state.data[payload.wid][payload.gid] = payload.data !== undefined ? payload.data : { error: payload.error };
         state.lastModifiedWidget = { wid: payload.wid, gid: payload.gid};
         ctx.setState({...state});
+        if ( this.subs[qid]) {
+            this.subs[qid].unsubscribe();
+        }
         this.queryObserver = null;
+    }
+
+    @Action(CopyWidgetData)
+    copyWidgetData(ctx: StateContext<RawDataModel>, { wid: wid, cpid: cpid }: CopyWidgetData) {
+        const state = ctx.getState();
+        const data = state.data;
+        if ( state.data[wid] ) {
+            data[cpid] = JSON.parse(JSON.stringify(state.data[wid]));
+        }
+        ctx.patchState({ data: data, lastModifiedWidget: { wid: null, gid: null } });
     }
 
     @Action(ClearQueryData)
@@ -99,5 +123,10 @@ export class WidgetsRawdataState {
         state.data[payload.wid] = {};
         state.lastModifiedWidget = { wid: payload.wid, gid: null};
         ctx.setState({...state});
+    }
+    
+    @Action(ClearWidgetsData)
+    clearWidgetsData(ctx: StateContext<RawDataModel>) {
+        ctx.setState({data: {}, lastModifiedWidget: { wid: null, gid: null } });
     }
 }
