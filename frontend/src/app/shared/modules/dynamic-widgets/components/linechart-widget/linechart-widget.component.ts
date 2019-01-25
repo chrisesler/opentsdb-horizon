@@ -92,6 +92,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
     legendDisplayColumns = ['series', 'name', 'min', 'max', 'avg', 'last'];
     editQueryId = null;
+    isDataRefreshRequired = false;
     constructor(
         private interCom: IntercomService,
         public dialog: MatDialog,
@@ -131,16 +132,16 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                                 this.setSize(this.newSize);
                                 break;
                             case 'getUpdatedWidgetConfig':
-                                this.widget = message.payload;
+                                this.widget = message.payload.widget;
                                 this.setOptions();
-                                this.refreshData();
+                                this.refreshData(message.payload.isDataRefreshRequired);
                                 break;
                             }
                     }
                 });
                 // when the widget first loaded in dashboard, we request to get data
                 // when in edit mode first time, we request to get cached raw data.
-                this.requestData();
+                this.refreshData(this.editMode ? false : true);
                 this.setOptions();
     }
     setOptions() {
@@ -156,15 +157,13 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
 
     updateConfig(message) {
         switch ( message.action ) {
-            case 'AddMetricsToGroup':
-                this.addMetricsToGroup(message.payload.data);
-                this.refreshData();
-                break;
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
                 break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
+                this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'SetVisualization':
                 this.setVisualization( message.payload.gIndex, message.payload.data );
@@ -190,6 +189,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                 this.widget.queries = [...this.widget.queries];
                 this.setOptions();
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
@@ -199,26 +199,31 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                 break;
             case 'ToggleQueryVisibility':
                 this.toggleQueryVisibility(message.id);
+                this.refreshData(false);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
+                this.refreshData(false);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
             case 'DeleteQuery':
                 this.deleteQuery(message.id);
                 this.widget = this.util.deepClone(this.widget);
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
+                this.isDataRefreshRequired = true;
                 break;
         }
     }
@@ -352,7 +357,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                                                  customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
                                              }
                                          };
-        this.refreshData();
     }
 
     setAxesOption() {
@@ -569,9 +573,12 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     }
 
     requestCachedData() {
+        this.nQueryDataLoading = this.widget.queries.length;
+        this.error = null;
         this.interCom.requestSend({
             id: this.widget.id,
-            action: 'getWidgetCachedData'
+            action: 'getWidgetCachedData',
+            payload: this.widget
         });
     }
 
@@ -588,7 +595,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries[qindex].settings.visual.visible =
             !this.widget.queries[qindex].settings.visual.visible;
-        this.refreshData(false);
     }
 
     deleteQuery(qid) {
@@ -601,7 +607,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
         this.widget.queries[qindex].metrics[mindex].settings.visual.visible =
             !this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
-        this.refreshData(false);
     }
 
     deleteQueryMetric(qid, mid) {
@@ -645,7 +650,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
-            payload: cloneWidget
+            id: cloneWidget.id,
+            payload: { widget: cloneWidget, isDataRefreshRequired: this.isDataRefreshRequired }
         });
 
         this.closeViewEditMode();
