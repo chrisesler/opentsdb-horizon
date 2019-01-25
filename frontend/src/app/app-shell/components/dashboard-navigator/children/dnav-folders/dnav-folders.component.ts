@@ -53,7 +53,7 @@ export class DnavFoldersComponent implements OnInit {
     }
 
     createFolderAction(event) {
-        console.log('EVENT', event);
+        // console.log('EVENT', event);
         switch (event.action) {
             case 'createFolder':
                 /*const newFolder = {
@@ -136,7 +136,7 @@ export class DnavFoldersComponent implements OnInit {
                     const idx = this.foldersToRemove.indexOf(folder);
                     this.foldersToRemove.splice(idx, 1);
                 }
-                console.log('FOLDERS TO REMOVE', this.foldersToRemove);
+                // console.log('FOLDERS TO REMOVE', this.foldersToRemove);
                 break;
             case 'editFolder':
                 // send this to API, after success, then push to current array
@@ -160,7 +160,20 @@ export class DnavFoldersComponent implements OnInit {
                     }
                 });
                 break;
+            case 'moveFolder':
+                this.folderAction.emit({
+                    action: 'moveFolder',
+                    data: {
+                        sourcePath: folder.path,
+                        destinationPath: event.destinationPath
+                    }
+                });
+                break;
             default:
+                this.folderAction.emit({
+                    ...event,
+                    folder
+                });
                 break;
         }
     }

@@ -50,8 +50,29 @@ export class DnavDashboardsComponent implements OnInit {
 
     }
 
-    dashboardItemEvent(event: any) {
-        this.dashboardAction.emit(event);
+    dashboardItemAction(dashboard: any, event: any) {
+
+        switch (event.action) {
+            case 'openNewTab':
+            case 'deleteDashboard':
+                this.dashboardAction.emit(event);
+                break;
+            case 'moveDashboard':
+                this.dashboardAction.emit({
+                    action: 'moveDashboard',
+                    data: {
+                        sourcePath: dashboard.path,
+                        destinationPath: event.destinationPath
+                    }
+                });
+                break;
+            default:
+                this.dashboardAction.emit({
+                    ...event,
+                    dashboard
+                });
+                break;
+        }
     }
 
 }

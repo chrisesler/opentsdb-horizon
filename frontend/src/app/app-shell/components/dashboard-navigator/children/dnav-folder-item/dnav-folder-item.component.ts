@@ -23,6 +23,8 @@ import { Observable } from 'rxjs';
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 
+import { MiniNavigatorComponent } from '../../../mini-navigator/mini-navigator.component';
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'dnav-folder-item',
@@ -35,7 +37,10 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit, OnDestroy
     @HostBinding('class.dnav-menu-opened') private _menuOpened = false;
     @HostBinding('class.is-editing') private _isEditingHostClass = false;
 
-    @ViewChild(MatMenuTrigger) menuTrigger: MatMenuTrigger;
+    @ViewChild('folderMenuTrigger', {read: MatMenuTrigger}) menuTrigger: MatMenuTrigger;
+    @ViewChild('folderMiniNavTrigger', {read: MatMenuTrigger}) miniNavTrigger: MatMenuTrigger;
+
+    @ViewChild(MiniNavigatorComponent) miniNav: MiniNavigatorComponent;
 
     listenSub: Subscription;
 
@@ -148,7 +153,7 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit, OnDestroy
             return;
         }
         if (this.mode === 'new') {
-            console.log('SAVE NEW', this.FolderForm.controls.fc_FolderName.value);
+            // console.log('SAVE NEW', this.FolderForm.controls.fc_FolderName.value);
             this.folderAction.emit({
                 action: 'createFolder',
                 name: this.FolderForm.controls.fc_FolderName.value
@@ -156,7 +161,7 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit, OnDestroy
         }
 
         if (this.mode === 'edit') {
-            console.log('SAVE EDIT', this.FolderForm.controls.fc_FolderName.value);
+            // console.log('SAVE EDIT', this.FolderForm.controls.fc_FolderName.value);
             this.nameEdit = false;
             this.folderAction.emit({
                 action: 'editFolder',
@@ -166,7 +171,7 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     checkboxChange(event) {
-        console.log('CHECKBOX CHANGE', event, this.FolderForm.controls.fc_FolderChecked.value);
+        // console.log('CHECKBOX CHANGE', event, this.FolderForm.controls.fc_FolderChecked.value);
         this.folderAction.emit({
             action: 'pendingRemoval',
             value: this.FolderForm.controls.fc_FolderChecked.value
@@ -181,7 +186,7 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     menuState(state: boolean) {
-        console.log('MENU STATE', state);
+        // console.log('MENU STATE', state);
         this._menuOpened = state;
     }
 
@@ -194,6 +199,28 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit, OnDestroy
                 this.folderAction.emit({
                     action: 'deleteFolder'
                 });
+                break;
+            case 'moveFolder':
+                this.menuTrigger.closeMenu();
+                this.miniNavTrigger.openMenu();
+                break;
+            default:
+                break;
+        }
+    }
+
+    miniNavAction(event: any) {
+        // console.log('MINI NAV ACTION [TOP]', event);
+        this.miniNavTrigger.closeMenu();
+        switch (event.action) {
+            case 'move':
+                this.folderAction.emit({
+                    action: 'moveFolder',
+                    destinationPath: event.payload.path
+                });
+                break;
+            case 'select':
+                // TODO ??
                 break;
             default:
                 break;

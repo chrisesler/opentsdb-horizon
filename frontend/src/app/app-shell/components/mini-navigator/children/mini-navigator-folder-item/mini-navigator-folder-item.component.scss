@@ -1,5 +1,5 @@
-@mixin dnav-folder-item-component-base() {
-    .dnav-folder-item {
+@mixin mini-navigator-folder-item-component-base() {
+    .mini-navigator-folder-item {
         flex: 1;
         display: flex;
         justify-content: stretch;
@@ -7,7 +7,6 @@
         height: 36px;
         font-weight: 300;
         font-size: 12px;
-        padding-left: 12px;
 
         &.is-editing {
             //margin-left: 12px;
@@ -43,10 +42,6 @@
             }
         }
 
-        .mat-checkbox {
-            margin-right: 8px;
-        }
-
         .folder-name {
             span {
                 max-width: 198px;
@@ -56,56 +51,11 @@
             }
         }
 
-        .dnav-folder-menu {
-            opacity: 0;
-            transition: opacity 200ms ease-in;
-
-            .mat-icon-button {
-                .mat-icon {
-                    justify-content: center;
-                    margin-left: -2px;
-                }
-            }
-        }
-
-        .dnav-menu-trigger {
-            width: 1px;
-
-            &.last-child {
-                margin-right: 15px;
-            }
-        }
-
-        &:hover,
-        &.dnav-menu-opened {
-            .dnav-folder-menu {
-                opacity: 1;
-            }
-        }
+        
     }
-
-    // CDK Items
- 
-    .dnav-cdk-folder-menu {
-        margin-top: -32px;
-
-        .mat-menu-item {
-            font-size: 12px;
-            font-weight: 300;
-            height: 24px;
-            line-height: 24px;
-
-            .mat-icon {
-                height: 12px;
-                width: 12px;
-                font-size: 100%; 
-            }
-        }
-    }
-
 }
 
-@mixin dnav-folder-item-component-theme($theme-config) {
+@mixin mini-navigator-folder-item-component-theme($theme-config) {
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
     $accent: map-get($theme-config, accent);
@@ -113,7 +63,6 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
-
     $status: map-get($theme-config, status);
 
     /* navbar config */
@@ -125,14 +74,12 @@
     $sn-active: map-get($navbar-config, sn-active);
 
     $navbar-text: map-get($foreground, navbar-text);
-  
-    .dnav-folder-item {
+
+    .mini-navigator-folder-item {
+        // content here
+
         .save-folder-name {
             color: map-get($status, success);
-        }
-
-        .mat-checkbox:not(.mat-checkbox-checked) .mat-checkbox-frame {
-            border-color: rgba($navbar-text,.54);
         }
 
         .list-item.edit-form {
@@ -150,28 +97,8 @@
             }
         }
 
-        &.dnav-menu-opened {
-            background: rgba(map-get($primary, default), .15);
-        }
-    }
-
-    // CDK
-
-    .dnav-cdk-folder-menu {
-        //transform: translate3d(40px, -32px, 0);
-        background-color: darken($sn-dark, 5%);
-
-        .mat-menu-item {
-            color: rgba($navbar-text,.85);
-
-
-            .mat-icon {
-                color: rgba($navbar-text,.5);
-            }
-
-            &:hover {
-                background-color: $sn-dark;
-            }
-        }
+        /*&.is-selected {
+            box-shadow: inset 1px 1px 0 map-get($primary, default), inset -1px -1px 0 map-get($primary, default);
+        }*/
     }
 }
