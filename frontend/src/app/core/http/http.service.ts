@@ -42,7 +42,10 @@ export class HttpService {
     const headers = new HttpHeaders(
       { 'Content-Type': 'application/json' });
       // '/tsdb/queryData'
-    const apiUrl = environment.tsdb_host + '/api/query/graph';
+    // simple random from 0-6 since we have 7 cname host now
+    //const apiUrl = environment.tsdb_host + '/api/query/graph';
+    const apiUrl = environment.tsdb_hosts[Math.floor(Math.random() * 6)] + '/api/query/graph';
+    console.log('apiUrl', apiUrl);
     return this.http.post(apiUrl, query, { headers, withCredentials: true });
   }
   /* post to search for metric */
