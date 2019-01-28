@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 // container
-import { AlertsComponent } from './containers/alerts/alerts.component';
+import { AlertsComponent } from './containers/alerts.component';
 
 // routes
 const routes: Routes = [

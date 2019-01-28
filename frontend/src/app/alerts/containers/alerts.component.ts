@@ -29,7 +29,7 @@ import {
     ASloadUserNamespaces,
     ASsetSelectedNamespace,
     ASsetAlertTypeFilter
-} from '../../state/alerts.state';
+} from '../state/alerts.state';
 
 @Component({
     selector: 'app-alerts',
@@ -133,8 +133,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
             self.alertTypeCounts = data;
         });
 
-        this.asAlerts$ = self.store.select(AlertsState.getAlerts('all'));
-        this.stateSubs['asAlerts'] = self.asAlerts$.subscribe( alerts => {
+        this.asAlerts$ = this.store.select(AlertsState.getAlerts('all'));
+        this.stateSubs['asAlerts'] = this.asAlerts$.subscribe( alerts => {
             console.log('ALERTS CHANGED', alerts);
             self.alerts = alerts;
             self.setTableDataSource();

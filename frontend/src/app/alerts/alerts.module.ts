@@ -18,7 +18,7 @@ import { NgxsModule } from '@ngxs/store';
 import { AlertsState } from './state';
 
 // components
-import { AlertsComponent } from './containers/alerts/alerts.component';
+import { AlertsComponent } from './containers/alerts.component';
 
 // directives
 
