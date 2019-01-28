@@ -1,4 +1,4 @@
-//* DASHBOARD MODULE LOADER */
+//* ALERTS MODULE STYLE LOADER */
 //*
 //* NOTE: Why are there two different mixins?
 //*
@@ -19,14 +19,12 @@
 @import './alerts.common';
 
 // containers
-@import './containers/alerts/alerts.component'; // nothing to style yet
+@import './containers/alerts.component'; // nothing to style yet
 
 // components
 
 
-
-// widgets
-//@import './widgets/widget.common'; // Common classes for widget components
+// Common classes for widget components
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin alerts-module-core() {
