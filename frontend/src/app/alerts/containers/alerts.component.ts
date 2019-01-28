@@ -122,26 +122,26 @@ export class AlertsComponent implements OnInit, OnDestroy {
         });
 
         this.stateSubs['asAlertTypeFilter'] = this.asAlertTypeFilter$.subscribe( data => {
-            console.log('ALERTS FILTER CHANGED', data);
+            // console.log('ALERTS FILTER CHANGED', data);
 
             self.alertTypeFilter = data;
 
         });
 
         this.stateSubs['asAlertTypeCounts'] = this.asAlertTypeCounts$.subscribe( data => {
-            console.log('ALERTS TYPE COUNTS CHANGED', data);
+            // console.log('ALERTS TYPE COUNTS CHANGED', data);
             self.alertTypeCounts = data;
         });
 
         this.asAlerts$ = this.store.select(AlertsState.getAlerts('all'));
         this.stateSubs['asAlerts'] = this.asAlerts$.subscribe( alerts => {
-            console.log('ALERTS CHANGED', alerts);
+            // console.log('ALERTS CHANGED', alerts);
             self.alerts = alerts;
             self.setTableDataSource();
         });
 
         this.stateSubs['asActionResponse'] = this.asActionResponse$.subscribe( event => {
-            console.log('************************* ACTION RESPONSE *************************', event);
+            // console.log('************************* ACTION RESPONSE *************************', event);
             if (event.guid && event.guid === this.guid) {
                 switch (event.action) {
                     case 'loadUserNamespacesSuccess':
@@ -155,7 +155,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                         }
                         self.asAlerts$ = self.store.select(AlertsState.getAlerts(self.alertTypeFilter));
                         self.stateSubs['asAlerts'] = self.asAlerts$.subscribe( alerts => {
-                            console.log('ALERTS CHANGED', alerts);
+                            // console.log('ALERTS CHANGED', alerts);
                             self.alerts = alerts;
                             self.setTableDataSource();
                         });
@@ -182,7 +182,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.alertsDataSource.paginator = this.paginator;
         this.alertsDataSource.sort = this.dataSourceSort;
 
-        console.log('DATA SOURCE', this.alertsDataSource);
+        // console.log('DATA SOURCE', this.alertsDataSource);
     }
 
     /* Utilities */
@@ -195,7 +195,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     /** events */
 
     alertTabIndexChanged(event: any) {
-        console.log('ALERT TAB INDEX CHANGED', event);
+        // console.log('ALERT TAB INDEX CHANGED', event);
         this.store.dispatch(
             new ASsetAlertTypeFilter(this.alertFilterTypes[event], {
                 guid: this.guid,
