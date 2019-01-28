@@ -1,0 +1,40 @@
+<ng-container *ngIf="menuOpen" >
+<mat-toolbar class="mini-navigator-toolbar" [ngClass]="{'is-master-panel': panelIndex === 0}">
+    <mat-toolbar-row fxLayout fxLayoutAlign="start stretch">
+        <div class="nav-item back-to-master">
+            <!-- click goes back a folder : if top level, this disappears-->
+            <button mat-icon-button (click)="goUpDirectory()">
+                <mat-icon fontSet="denali" fontIcon="d-arrowhead-left"></mat-icon>
+            </button>
+        </div>
+        <div class="nav-item panel-label">
+            <strong>{{currentPanelName}}</strong>
+        </div>
+        <span class="flex-spacer"></span>
+        <!-- click to add a folder : this is hidden in a top level folder (master pseudo folder & namespace list) -->
+        <!-- TODO: need to implement add folder from mini nav
+        <div class="nav-item add-folder" *ngIf="mode === 'move'">
+            <button mat-icon-button>
+                <mat-icon fontSet="denali" fontIcon="d-folder-add"></mat-icon>
+            </button>
+        </div>-->
+    </mat-toolbar-row>
+</mat-toolbar>
+<navigator-panel #miniNavPanel>
+    <ng-container *ngFor="let panel of panels; let i = index">
+        <ng-container *navigatorPanelItem>
+            <mini-navigator-folders
+            [folders]="(panel.subfolders) ? panel.subfolders : []" 
+            [masterPanel]="true"
+            [resourceType]="panel.resourceType"
+            (folderAction)="folderAction(panel,$event)"></mini-navigator-folders>
+        </ng-container>
+    </ng-container>
+</navigator-panel>
+<div class="mini-navigator-actions">
+    <span class="flex-spacer"></span>
+    <button mat-button color="primary" *ngIf="moveEnabled" (click)="navigatorAction('move')">MOVE {{selected.folder ? 'TO FOLDER' : 'HERE'}}</button>
+    <button mat-button color="primary" *ngIf="selectEnabled" (click)="navigatorAction('select')">SELECT {{selected.folder ? 'FOLDER' : 'HERE'}}</button>
+    <button mat-button color="primary" (click)="navigatorAction('cancel')">CANCEL</button>
+</div>
+</ng-container>

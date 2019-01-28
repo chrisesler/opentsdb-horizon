@@ -16,7 +16,7 @@ import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel } from '../../state/widgets.state';
-import { WidgetsRawdataState, GetQueryDataByGroup, SetQueryDataByGroup, ClearQueryData } from '../../state/widgets-data.state';
+import { WidgetsRawdataState, GetQueryDataByGroup, SetQueryDataByGroup, ClearQueryData, CopyWidgetData, ClearWidgetsData } from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import {
     DBSettingsState,
@@ -181,6 +181,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // handle route for dashboardModule
         this.routeSub = this.activatedRoute.url.subscribe(url => {
             this.widgets = [];
+            this.store.dispatch(new ClearWidgetsData());
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
@@ -200,15 +201,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
             switch (message.action) {
                 case 'getWidgetCachedData':
-                    // taking the cached raw data
-                    // we suffix original widget id with __EDIT__ (8 chars)
-                    const wid = message.id.substring(8, message.id.length);
                     const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(message.id));
-                    this.updateWidgetGroup(message.id, widgetCachedData);
+                    let hasQueryError = false;
+                    if ( widgetCachedData ) {
+                        for ( let qid in widgetCachedData ) {
+                            if ( !widgetCachedData[qid] || widgetCachedData[qid]['error'] !== undefined ) {
+                                hasQueryError = true;
+                            }
+                        }
+                    }
+                    // requery if cachedData has error or data not fetched yet
+                    if ( !widgetCachedData || hasQueryError ) {
+                        this.handleQueryPayload(message);
+                    } else {
+                        this.updateWidgetGroup(message.id, widgetCachedData);
+                    }
                     break;
-                case 'updateDashboardMode':
+                
+                case 'setDashboardEditMode':
+                    // copy the widget data to editing widget
+                    if ( message.id ) {
+                        this.store.dispatch(new CopyWidgetData(message.id, '__EDIT__' + message.id));
+                    }
                     // when click on view/edit mode, update db setting state of the mode
-                    this.store.dispatch(new UpdateMode(message.payload));
+                    this.store.dispatch(new UpdateMode('edit'));
                     this.cdRef.detectChanges();
                     break;
                 case 'removeWidget':
@@ -225,32 +241,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
                 case 'updateWidgetConfig':
                     let widgets = JSON.parse(JSON.stringify(this.widgets));
-                    const mIndex = widgets.findIndex(w => w.id === message.payload.id);
+                    const mIndex = widgets.findIndex(w => w.id === message.id);
 
                     if (mIndex === -1) {
                         // update position to put new on on top
-                        const newWidgetY = message.payload.gridPos.h;
+                        const newWidgetY = message.payload.widget.gridPos.h;
                         widgets = this.dbService.positionWidgetY(widgets, newWidgetY);
                         // this is the newly adding widget
                         if (widgets.length === 1 && widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
-                            widgets[0] = message.payload;
+                            widgets[0] = message.payload.widget;
                         } else {
-                            widgets.unshift(message.payload);
+                            widgets.unshift(message.payload.widget);
                         }
                         this.store.dispatch(new LoadWidgets(widgets));
                     } else {
                         // check the component type is PlaceholderWidgetComponent.
                         // If yes, it needs to be replaced with new component
                         if (widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
-                            widgets[mIndex] = message.payload;
+                            widgets[mIndex] = message.payload.widget;
                             this.store.dispatch(new LoadWidgets(widgets));
                         } else {
-                            this.store.dispatch(new UpdateWidget(message.payload));
+                            this.store.dispatch(new UpdateWidget(message.payload.widget));
                             // many way to handle this, but we should do with the way
                             // store suppose to work.
                             // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
                             this.interCom.responsePut({
-                                id: message.payload.id,
+                                id: message.id,
                                 action: 'getUpdatedWidgetConfig',
                                 payload: message.payload
                             });

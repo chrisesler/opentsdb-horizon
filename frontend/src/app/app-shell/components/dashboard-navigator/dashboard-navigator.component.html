@@ -58,23 +58,27 @@
                     <dnav-folder-item [folder]="folder"></dnav-folder-item>
                 </mat-list-item>
             </mat-nav-list>-->
+ 
             <dnav-folders
-                *ngIf="!panel.synthetic"
+                *ngIf="!panel.synthetic && panel.resourceType !== 'trash'"
                 [folders]="(panel.personal) ? panel.personal : (panel.subfolders) ? panel.subfolders : []" 
                 [masterPanel]="panel.name === 'masterPanel'"
                 [resourceType]="panel.resourceType"
                 (folderAction)="folderAction(panel,$event)"></dnav-folders>
+
             <dnav-folders
                 *ngIf="panel.resourceType === 'trash'"
                 [folders]="(panel.subfolders) ? panel.subfolders : []" 
                 [resourceType]="panel.resourceType"
                 (folderAction)="folderAction(panel,$event)"></dnav-folders>
+
             <dnav-folders 
                 *ngIf="panel.name === 'masterPanel' && panel.namespaces"
                 [folders]="panel.namespaces" 
                 [masterPanel]="panel.name === 'masterPanel'"
                 [resourceType]="'namespaces'"
                 (folderAction)="folderAction(panel,$event)"></dnav-folders>
+
             <dnav-dashboards
                 *ngIf="panel.name !== 'masterPanel'"
                 [dashboards]="panel.files"

@@ -112,7 +112,7 @@ export class DboardContentComponent implements OnChanges {
   newComponent(widget) {
     //this.viewEditMode = true;
     this.interCom.requestSend(<IMessage> {
-      action: 'updateDashboardMode',
+      action: 'setDashboardEditMode',
       payload: 'edit'
     });    
     const component: Type<any> = this.widgetService.getComponentToLoad(widget.settings.component_type);

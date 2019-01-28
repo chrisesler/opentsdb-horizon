@@ -33,6 +33,19 @@ export interface DBNAVPanelModel extends DBNAVFolder {
     icon?: string;
 }
 
+export interface MiniNavPanelModel extends DBNAVPanelModel {
+    moveEnabled: boolean;
+    selectEnabled: boolean;
+    subfolders: MiniNavFolderModel[];
+}
+
+export interface MiniNavFolderModel extends DBNAVFolder {
+    selected?: boolean;
+    noDisplay?: boolean;
+    moveEnabled?: boolean;
+    selectEnabled?: boolean;
+}
+
 export interface DBNAVStateModel {
     user: {
         userid: string;
@@ -52,4 +65,13 @@ export interface DBNAVStateModel {
     error: any;
     status: string;
     panelAction: {};
+    miniNavigator: {
+        panels: MiniNavPanelModel[],
+        panelIndex: number,
+        moveTargetPath: any,
+        selected: {
+            panel: any,
+            folder: any
+        }
+    };
 }
