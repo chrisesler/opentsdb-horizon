@@ -25,6 +25,7 @@ export class DnavFoldersComponent implements OnInit {
     @Input() masterPanel: boolean = false;
     @Input() resourceType: any = ''; // personal<string> | namespace<string>
     @Input() folders: any[] = [];
+    @Input() activeMediaQuery: string = '';
 
     @Output() folderAction: EventEmitter<any> = new EventEmitter();
 

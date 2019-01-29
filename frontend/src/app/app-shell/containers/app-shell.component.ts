@@ -80,12 +80,7 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
             // this.activeMediaQuery = change ? `'${change.mqAlias}' = (${change.mediaQuery})` : '';
             this.activeMediaQuery = change ? change.mqAlias : '';
             this.store.dispatch(new SetSideNavOpen(( change.mqAlias !== 'xs')));
-            /*if ( change.mqAlias === 'xs') {
-                this.sideNavOpen = false;
-            } else {
-                this.sideNavOpen = true;
-            }*/
-            console.log('MEDIA QUERY CHANGE', this.activeMediaQuery, this.sideNavOpen);
+            // console.log('MEDIA QUERY CHANGE', this.activeMediaQuery, this.sideNavOpen);
         });
     }
 
@@ -167,7 +162,7 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     toggleDrawerMode(event?: any) {
-        console.log('%c******** TOGGLE DRAWER MODE **********', 'color: white; background: red; padding: 20px;', event);
+        // console.log('%c******** TOGGLE DRAWER MODE **********', 'color: white; background: red; padding: 20px;', event);
         if (event && event.resetForMobile) {
             this.sidenavToggle();
             this.sideNavOpen = false;
@@ -188,15 +183,15 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     sidenavToggle() {
-        console.log('%cSIDENAV TOGGLE [TOP]', 'color: white; background: red; padding: 20px;');
+        // console.log('%cSIDENAV TOGGLE [TOP]', 'color: white; background: red; padding: 20px;');
         if (this.activeMediaQuery === 'xs') {
             if (this.drawer.opened) {
-                console.log('%cOPENED', 'color: white; background: red; padding: 20px;');
+                // console.log('%cOPENED', 'color: white; background: red; padding: 20px;');
                 this.store.dispatch(new UpdateNavigatorSideNav({mode: this.drawerMode, currentApp: ''}));
                 this.closeNavigator();
                 this.sideNav.resetActiveNav();
             } else {
-                console.log('%cNOT OPENED', ' color: white; background: red; padding: 20px;');
+                // console.log('%cNOT OPENED', ' color: white; background: red; padding: 20px;');
                 this.sideNavOpen = !this.sideNavOpen;
             }
         }
