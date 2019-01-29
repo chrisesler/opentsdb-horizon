@@ -104,6 +104,44 @@
         .end-input {
             margin-left: 5px;
         }
+
+        .time-ranges {
+            .date-picker-component {
+                &:first-child {
+                    margin-right: 5px;
+                }
+                &:last-child {
+                    margin-left: 5px;
+                }
+            }
+        }
+    }
+
+    // mobile media query
+    @include until(600px) {
+        .dtp-time-range-picker {
+            .time-ranges {
+                .date-picker-component {
+                    &:first-child,
+                    &:last-child {
+                        margin: 0;
+                    }
+                }
+            }
+
+            .dtp-action-controls {
+                .mat-button,
+                .mat-stroked-button,
+                .mat-raised-button {
+                    margin-right: 0;
+                    justify-content: space-between;
+
+                    &:last-child {
+                        margin-left: 10px;
+                    }
+                }
+            }
+        }
     }
 }
 
