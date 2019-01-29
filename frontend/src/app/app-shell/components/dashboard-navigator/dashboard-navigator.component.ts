@@ -76,6 +76,8 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
 
     intercomSub: Subscription;
 
+    @Input() activeMediaQuery: string = '';
+
     constructor(
         private store: Store,
         private interCom: IntercomService,
@@ -240,13 +242,22 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 );
                 break;
             case 'moveDashboard':
-                console.log('MOVE DASHBOARD [TOP]', panel, event);
+                // console.log('MOVE DASHBOARD [TOP]', panel, event);
                 this.store.dispatch(
                     new DBNAVmoveFile(
                         event.data,
                         this.currentPanelIndex
                     )
                 );
+                break;
+            case 'navigateTo':
+                // console.log('NAVIGATE TO [TOP]', panel, event);
+                if (this.activeMediaQuery === 'xs') {
+                    this.toggleDrawer.emit({
+                        closeNavigator: true,
+                        resetForMobile: true
+                    });
+                }
                 break;
             default:
                 break;

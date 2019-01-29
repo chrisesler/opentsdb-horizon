@@ -61,20 +61,23 @@
  
             <dnav-folders
                 *ngIf="!panel.synthetic && panel.resourceType !== 'trash'"
-                [folders]="(panel.personal) ? panel.personal : (panel.subfolders) ? panel.subfolders : []" 
+                [folders]="(panel.personal) ? panel.personal : (panel.subfolders) ? panel.subfolders : []"
+                [activeMediaQuery]="activeMediaQuery" 
                 [masterPanel]="panel.name === 'masterPanel'"
                 [resourceType]="panel.resourceType"
                 (folderAction)="folderAction(panel,$event)"></dnav-folders>
 
             <dnav-folders
                 *ngIf="panel.resourceType === 'trash'"
-                [folders]="(panel.subfolders) ? panel.subfolders : []" 
+                [folders]="(panel.subfolders) ? panel.subfolders : []"
+                [activeMediaQuery]="activeMediaQuery" 
                 [resourceType]="panel.resourceType"
                 (folderAction)="folderAction(panel,$event)"></dnav-folders>
 
             <dnav-folders 
                 *ngIf="panel.name === 'masterPanel' && panel.namespaces"
-                [folders]="panel.namespaces" 
+                [folders]="panel.namespaces"
+                [activeMediaQuery]="activeMediaQuery" 
                 [masterPanel]="panel.name === 'masterPanel'"
                 [resourceType]="'namespaces'"
                 (folderAction)="folderAction(panel,$event)"></dnav-folders>
@@ -82,6 +85,7 @@
             <dnav-dashboards
                 *ngIf="panel.name !== 'masterPanel'"
                 [dashboards]="panel.files"
+                [activeMediaQuery]="activeMediaQuery"
                 [resourceType]="panel.resourceType"
                 (dashboardAction)="dashboardAction(panel,$event)"></dnav-dashboards>
             <!--<div class="block-header dashboards-header" *ngIf="panel.name !== 'masterPanel'">

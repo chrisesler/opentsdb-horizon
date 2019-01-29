@@ -39,6 +39,15 @@
             }
         }
 
+        .mat-list .mat-list-item,
+        .mat-nav-list .mat-list-item {
+            &.no-item-message {
+                .mat-list-item-content {
+                    justify-content: center;
+                }
+            }
+        }
+
         .mat-icon {
             height: 12px;
             width: 12px;
