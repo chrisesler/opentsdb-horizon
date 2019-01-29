@@ -56,7 +56,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
     metricSearchControl: FormControl;
     tagSearchControl: FormControl;
     tagValueSearchControl: FormControl;
-    message = { 'tagControl' : { message: ''}, 'tagValueControl' : { message: '' }, 'metricSearchControl': { message : ''} };
+    message:any = { 'tagControl' : { message: ''}, 'tagValueControl' : { message: '' }, 'metricSearchControl': { message : ''} };
     Object = Object;
 
     metricSelectedTabIndex = 0;
@@ -192,24 +192,20 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             debounceTime(200)
         )
         .subscribe( value => {
-            const query: any = { namespace: this.query.namespace, tags: [] };
-
-            for ( let i = 0, len = this.query.filters.length; i < len; i++  ) {
-                const filter: any =  { key: this.query.filters[i].tagk };
-                if ( this.query.filters[i].filter ) {
-                    filter.value = this.query.filters[i].filter;
-                }
-                query.tags.push(filter);
-            }
-
-            query.search = value;
+            const query: any = { namespace: this.query.namespace, tags: this.query.filters };
+            query.search = value ? value : '';
 
             if ( this.edit.indexOf('metrics') !== -1 ) {
-
+                this.message['metricSearchControl'] = {};
                 this.httpService.getMetricsByNamespace(query)
                                     .subscribe(res => {
                                         this.metricOptions = res;
-                                    });
+                                    },
+                                    err => {
+                                        this.metricOptions = [];
+                                        this.message['metricSearchControl'] = { 'type': 'error', 'message' : err.error.error.message };
+                                    }
+                                    );
             }
         });
     }
@@ -222,17 +218,9 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             debounceTime(200)
         )
         .subscribe( value => {
-            const query: any = { namespace: this.query.namespace, tags: [], metrics: [] };
+            const query: any = { namespace: this.query.namespace, tags: this.query.filters, metrics: [] };
 
-            for ( let i = 0, len = this.query.filters.length; i < len; i++  ) {
-                const filter: any =  { key: this.query.filters[i].tagk };
-                if ( this.query.filters[i].filter ) {
-                    filter.value = this.query.filters[i].filter;
-                }
-                query.tags.push(filter);
-            }
-
-            query.search = value;
+            query.search = value ? value : '';
 
             // filter tags by metrics
             if ( this.query.metrics ) {
@@ -247,17 +235,23 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                 query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
             }
             if ( this.edit.indexOf('filters') !== -1 ) {
+                this.message['tagControl'] = {};
                 this.httpService.getNamespaceTagKeys(query)
                                                         .pipe(
                                                             // debounceTime(200),
-                                                            catchError(val => of(`I caught: ${val}`)),
                                                         ).subscribe( res => {
-                                                            const options = this.query.filters.map(item => item.tagk).concat(res);
+                                                            const selectedKeys = this.query.filters.map(item => item.tagk);
+                                                            res = res.filter(item => selectedKeys.indexOf(item.name) === -1);
+                                                            const options = selectedKeys.map(item => { return {name:item};}).concat(res);
                                                             if ( this.loadFirstTagValues && options.length ) {
-                                                                this.handlerTagClick(options[0]);
+                                                                this.handlerTagClick(options[0].name);
                                                             }
                                                             this.loadFirstTagValues = false;
                                                             this.tagOptions = options;
+                                                        },
+                                                        err => {
+                                                            this.tagOptions = [];
+                                                            this.message['tagControl'] = { 'type': 'error', 'message' : err.error.error.message };
                                                         });
             }
             // this.tagSearchInput.nativeElement.focus();
@@ -274,20 +268,9 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             debounceTime(200)
         )
         .subscribe( value => {
-            const query: any = { namespace: this.query.namespace, tags: [], metrics: [] };
+            const query: any = { namespace: this.query.namespace, tags: this.query.filters.filter( item=>item.tagk !== this.selectedTag), metrics: [] };
 
-            for ( let i = 0, len = this.query.filters.length; i < len; i++  ) {
-                if ( this.query.filters[i].tagk === this.selectedTag ) {
-                    continue;
-                }
-                const filter: any =  { key: this.query.filters[i].tagk };
-                if ( this.query.filters[i].filter.length  ) {
-                    filter.value = this.query.filters[i].filter;
-                }
-                query.tags.push(filter);
-            }
-
-            query.search = value;
+            query.search = value ? value : '';
 
             // filter by metrics
             if ( this.query.metrics ) {
@@ -303,9 +286,14 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             }
             if ( this.selectedTag && this.tagValueTypeControl.value === 'literalor' ) {
                 query.tagkey = this.selectedTag;
+                this.message['tagValueControl'] = {};
                 this.httpService.getTagValuesByNamespace(query)
                                 .subscribe(res => {
                                     this.filteredTagValues = res;
+                                },
+                                err => {
+                                    this.filteredTagValues = [];
+                                    this.message['tagValueControl'] = { 'type': 'error', 'message' : err.error.error.message };
                                 });
             }
         });

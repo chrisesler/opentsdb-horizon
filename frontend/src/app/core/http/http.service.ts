@@ -3,14 +3,14 @@ import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular
 import { Observable, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
-import { UtilsService } from '../services/utils.service';
+import { MetaService } from '../services/meta.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HttpService {
 
-  constructor(private http: HttpClient, private utilsService: UtilsService) { }
+  constructor(private http: HttpClient, private metaService: MetaService) { }
  
   getDashoard(id: string): Observable<any> {
     const apiUrl = environment.configdb + '/object/' + id;
@@ -60,9 +60,11 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json'
         });
-        return this.http.post('/search/namespaces', queryObj, { headers, withCredentials: true })
+        const apiUrl = environment.metaApi + 'search/timeseries';
+        const query = this.metaService.getQuery('NAMESPACES', queryObj);
+        return this.http.post(apiUrl, query, { headers, withCredentials: true })
           .pipe(
-            catchError(this.handleError)
+            map((res:any) => res.namespaces),
           );
     }
 
@@ -80,27 +82,36 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json'
         });
-        return this.http.post('/search/nsmetrics', queryObj, { headers, withCredentials: true })
-          .pipe(
-            catchError(this.handleError)
-          );
+        const apiUrl = environment.metaApi + 'search/timeseries';
+        const query = this.metaService.getQuery('METRICS', queryObj);
+        return this.http.post(apiUrl, query, { headers, withCredentials: true })
+                        .pipe(
+                          map((res:any) => res.metrics)
+                        );
     }
 
     getNamespaceTagKeys(queryObj: any): Observable<any> {
-        const headers = new HttpHeaders({
-          'Content-Type': 'application/json'
-        });
-        return this.http.post('/search/nstagkeys', queryObj, { headers, withCredentials: true });
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json'
+      });
+      const apiUrl = environment.metaApi + 'search/timeseries';
+      const query = this.metaService.getQuery('TAG_KEYS', queryObj);
+      return this.http.post(apiUrl, query, { headers, withCredentials: true })
+                        .pipe(
+                          map((res:any) => res.tagKeys)
+                        );
     }
 
     getTagValuesByNamespace(queryObj: any): Observable<any> {
-        const headers = new HttpHeaders({
-          'Content-Type': 'application/json'
-        });
-        return this.http.post('/search/nstagvalues', queryObj, { headers, withCredentials: true })
-          .pipe(
-            catchError(this.handleError)
-          );
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json'
+      });
+      const apiUrl = environment.metaApi + 'search/timeseries';
+      const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj);
+      return this.http.post(apiUrl, query, { headers, withCredentials: true })
+                        .pipe(
+                          map((res:any) => res.tagKeysAndValues[queryObj.tagkey].values),
+                        );
     }
 
     // results should filter the lists from already selected filters
