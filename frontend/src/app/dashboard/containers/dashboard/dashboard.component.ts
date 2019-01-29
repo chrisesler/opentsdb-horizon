@@ -16,7 +16,14 @@ import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel } from '../../state/widgets.state';
-import { WidgetsRawdataState, GetQueryDataByGroup, SetQueryDataByGroup, ClearQueryData, CopyWidgetData, ClearWidgetsData } from '../../state/widgets-data.state';
+import {
+    WidgetsRawdataState,
+    GetQueryDataByGroup,
+    SetQueryDataByGroup,
+    ClearQueryData,
+    CopyWidgetData,
+    ClearWidgetsData
+} from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import {
     DBSettingsState,
@@ -38,6 +45,8 @@ import {
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 import { Message } from '@angular/compiler/src/i18n/i18n_ast';
+
+import { MediaChange, MediaObserver } from '@angular/flex-layout';
 
 @Component({
     selector: 'app-dashboard',
@@ -67,7 +76,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // temporary disable for now, will delete once we are clear
     // @Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
-    @Select(NavigatorState.getNavigatorSideNav) sideNav$: Observable<any>;
+    // @Select(NavigatorState.getNavigatorSideNav) sideNav$: Observable<any>;
+    @Select(NavigatorState.getDrawerOpen) drawerOpen$: Observable<any>;
 
     // available widgets menu trigger
     @ViewChild('availableWidgetsMenuTrigger', { read: MatMenuTrigger }) availableWidgetsMenuTrigger: MatMenuTrigger;
@@ -149,7 +159,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dbModeSub: Subscription;
     private routeSub: Subscription;
     authSub: Subscription;
-    sideNavSub: Subscription;
+    drawerOpenSub: Subscription;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
@@ -161,6 +171,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
+
+
+    // subscription to media query change
+    mediaWatcher$: Subscription;
+    // tslint:disable-next-line:no-inferrable-types
+    activeMediaQuery: string = '';
 
     constructor(
         private store: Store,
@@ -174,8 +190,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private dateUtil: DateUtilsService,
         private dialog: MatDialog,
         private snackBar: MatSnackBar,
-        private cdRef: ChangeDetectorRef
-    ) { }
+        private cdRef: ChangeDetectorRef,
+        private mediaObserver: MediaObserver
+    ) {
+        this.mediaWatcher$ = mediaObserver.media$.subscribe((change: MediaChange) => {
+            this.activeMediaQuery = change ? change.mqAlias : '';
+        });
+    }
 
     ngOnInit() {
         // handle route for dashboardModule
@@ -186,7 +207,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
             } else {
-                let paths = [];
+                const paths = [];
                 url.forEach(segment => {
                     paths.push(segment.path);
                 });
@@ -204,7 +225,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(message.id));
                     let hasQueryError = false;
                     if ( widgetCachedData ) {
-                        for ( let qid in widgetCachedData ) {
+                        for ( const qid in widgetCachedData ) {
                             if ( !widgetCachedData[qid] || widgetCachedData[qid]['error'] !== undefined ) {
                                 hasQueryError = true;
                             }
@@ -217,7 +238,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.updateWidgetGroup(message.id, widgetCachedData);
                     }
                     break;
-                
+
                 case 'setDashboardEditMode':
                     // copy the widget data to editing widget
                     if ( message.id ) {
@@ -520,7 +541,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.sideNavSub = this.sideNav$.subscribe( sideNav => {
+        this.drawerOpenSub = this.drawerOpen$.subscribe( sideNav => {
             setTimeout(() => {
                 this.rerender = { 'reload': true };
             }, 300);
@@ -733,7 +754,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dbStatusSub.unsubscribe();
         this.dbErrorSub.unsubscribe();
         this.authSub.unsubscribe();
-        this.sideNavSub.unsubscribe();
+        this.drawerOpenSub.unsubscribe();
+        this.mediaWatcher$.unsubscribe();
         // we need to clear dashboard state
         // this.store.dispatch(new dashboardActions.ResetDashboardState);
     }
