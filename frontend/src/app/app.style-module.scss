@@ -33,6 +33,17 @@
     @include sharedcomponents-module-core();
     @include date-time-picker-module-core();
     @include color-picker-module-core();
+
+    // MOBILE Fix to disale mobile browser zooming on inputs
+    @media screen and (-webkit-min-device-pixel-ratio:0) { 
+        select,
+        select:focus,
+        textarea,
+        textarea:focus,
+        input {
+            font-size: 16px;
+        }
+    }
 }
 
 // [ STEP 3 ] - ADD MODULES'S THEME MIXINS (aka look-n-feel)
