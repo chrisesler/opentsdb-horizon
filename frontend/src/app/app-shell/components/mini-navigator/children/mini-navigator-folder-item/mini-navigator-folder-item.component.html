@@ -1,0 +1,13 @@
+<ng-container *ngIf="mode === 'display'">
+    <div class="list-item">
+        <mat-icon class="folder-icon" fontSet="denali" [fontIcon]="folder.icon || 'd-folder'"></mat-icon>
+    </div>
+    <div class="list-item folder-name flex-spacer">
+        <span>{{folder.name || 'BROKEN'}} ({{folder.selected ? 'YES' : 'NO'}})</span>
+    </div>
+    <div class="list-item goto-next-folder">
+        <button mat-icon-button (click)="gotoFolder($event)">
+            <mat-icon fontSet="denali" fontIcon="d-arrowhead-right"></mat-icon>
+        </button>
+    </div>
+</ng-container>

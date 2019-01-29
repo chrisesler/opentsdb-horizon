@@ -35,18 +35,24 @@
     <span class="dnav-menu-trigger"
     [matMenuTriggerFor]="dnavFolderItemMenu" 
     (menuOpened)="menuState(true)"
-    (menuClosed)="menuState(false)"></span>
-    <mat-menu class="dnav-cdk-folder-menu" xPosition="after" #dnavFolderItemMenu="matMenu" style="transform: translate3d(30px,-32px,0);">
+    (menuClosed)="menuState(false)"
+    #folderMenuTrigger></span>
+    <span class="dnav-menu-trigger last-child"
+    [matMenuTriggerFor]="dnavMiniNavigator" 
+    (menuOpened)="menuState(true); miniNav.menuOpen = true;"
+    (menuClosed)="menuState(false); miniNav.menuOpen = false;"
+    #folderMiniNavTrigger></span>
+    <mat-menu class="dnav-cdk-folder-menu" xPosition="after" #dnavFolderItemMenu="matMenu" style="transform-origin: top left -32px;;">
         <button mat-menu-item (click)="menuAction('editName')">
             <mat-icon fontSet="denali" fontIcon="d-external"></mat-icon>
             <span>Edit name</span>
         </button>
-        <!-- Hiding for now
-        <button mat-menu-item>
+        
+        <button mat-menu-item (click)="menuAction('moveFolder')">
             <mat-icon fontSet="denali" fontIcon="d-folder-merge"></mat-icon>
-            <span>Move to folder</span>
+            <span>Move folder</span>
         </button>
-        <button mat-menu-item>
+        <!-- Hiding for now<button mat-menu-item>
             <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
             <span>Copy</span>
         </button>-->
@@ -54,6 +60,14 @@
             <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
             <span>Move to trash</span>
         </button>
+    </mat-menu>
+    <mat-menu class="dnav-cdk-mini-navigator" xPosition="after" #dnavMiniNavigator="matMenu" style="transform: translate3d(30px, -31px, 0);">
+        <div mat-menu-item (click)="$event.stopPropagation();" [disableRipple]="true">
+            <mini-navigator mode="move" type="folder" [path]="folder.path" 
+                (navigationCancel)="miniNavTrigger.closeMenu()"
+                (directorySelected)="miniNavAction($event)"
+                #miniNav></mini-navigator>
+        </div>
     </mat-menu>
 </ng-container>
 <ng-container *ngIf="mode === 'display'">

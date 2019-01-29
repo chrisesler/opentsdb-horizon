@@ -9,10 +9,12 @@
 @import './containers/app-shell/app-shell.component';
 
 // components
+@import './components/mini-navigator/mini-navigator.component';
 @import './components/navigator-sidenav/navigator-sidenav.component';
 @import './components/app-navbar/app-navbar.component';
 @import './components/navigator-panel/navigator-panel.component';
 @import './components/dashboard-navigator/dashboard-navigator.component';
+
 
 
 $navbar-config: (
@@ -34,6 +36,7 @@ $navbar-config: (
     // example: @include componentName-component-core();
     @include app-shell-component-base();
 
+    @include mini-navigator-component-base();
     @include app-navigator-sidenav-component-base();
     @include app-navbar-component-base();
     @include navigator-panel-component-base();
@@ -48,6 +51,7 @@ $navbar-config: (
 
     @include app-shell-component-theme($theme-config);
 
+    @include mini-navigator-component-theme($theme-config);
     @include app-navigator-sidenav-component-theme($theme-config);
     @include app-navbar-component-theme($theme-config);
     @include navigator-panel-component-theme($theme-config);

@@ -1,0 +1,19 @@
+<mat-nav-list class="folder-list">
+    <mat-list-item *ngIf="editMode === 'create'">
+        <mini-navigator-folder-item [folder]="{ name: ''}" mode="new" [resourceType]="resourceType" (folderAction)="folderItemAction($event)"></mini-navigator-folder-item>
+    </mat-list-item>
+    <ng-container *ngFor="let folder of folders; let i = index;">
+        <mat-list-item 
+            class="folder-nav-item"
+            *ngIf="!folder.noDisplay"
+            [ngClass]="{'is-selected': folder.selected ? folder.selected : false}"
+            (click)="selectFolderItem(folder, $event)">
+            <mini-navigator-folder-item 
+                [folder]="folder" 
+                mode="display"
+                [resourceType]="resourceType"
+                [selected]="folder.selected ? folder.selected : false"
+                (folderAction)="folderItemAction($event)"></mini-navigator-folder-item>
+        </mat-list-item>
+    </ng-container>
+</mat-nav-list>

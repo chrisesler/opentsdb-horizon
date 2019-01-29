@@ -10,17 +10,24 @@
 <span class="dnav-menu-trigger"
     [matMenuTriggerFor]="dnavDashboardItemMenu" 
     (menuOpened)="menuState(true)"
-    (menuClosed)="menuState(false)"></span>
+    (menuClosed)="menuState(false)"
+    #dashboardMenuTrigger></span>
+<span class="dnav-menu-trigger last-child"
+    [matMenuTriggerFor]="dnavMiniNavigator" 
+    (menuOpened)="menuState(true); miniNav.menuOpen = true;"
+    (menuClosed)="menuState(false); miniNav.menuOpen = false;"
+    #dashboardMiniNavTrigger></span>
 <mat-menu class="dnav-cdk-dashboard-menu" xPosition="after" #dnavDashboardItemMenu="matMenu" style="transform: translate3d(30px,-32px,0);">
     <button mat-menu-item (click)="menuAction('openNewTab')">
         <mat-icon fontSet="denali" fontIcon="d-external"></mat-icon>
         <span>Open in new tab</span>
     </button>
-    <!-- Hiding for now
-    <button mat-menu-item>
+    
+    <button mat-menu-item (click)="menuAction('moveDashboard')">
         <mat-icon fontSet="denali" fontIcon="d-folder-merge"></mat-icon>
-        <span>Move to folder</span>
+        <span>Move Dashboard</span>
     </button>
+    <!-- Hiding for now
     <button mat-menu-item>
         <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
         <span>Copy</span>
@@ -29,4 +36,12 @@
         <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
         <span>Move to trash</span>
     </button>
+</mat-menu>
+<mat-menu class="dnav-cdk-mini-navigator" xPosition="after" #dnavMiniNavigator="matMenu" style="transform: translate3d(30px, -31px, 0);">
+    <div mat-menu-item (click)="$event.stopPropagation();" [disableRipple]="true">
+        <mini-navigator mode="move" type="dashboard" [path]="dashboard.path" 
+            (navigationCancel)="miniNavTrigger.closeMenu()"
+            (directorySelected)="miniNavAction($event)"
+            #miniNav></mini-navigator>
+    </div>
 </mat-menu>

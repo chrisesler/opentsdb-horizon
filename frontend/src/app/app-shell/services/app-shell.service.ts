@@ -21,6 +21,7 @@ export class AppShellService {
     ) {}
 
     /* to handle error  with more info */
+    // TODO : Better Error messaging
     handleError(error: HttpErrorResponse) {
         if (error.error instanceof ErrorEvent) {
             // a client-side or network error occured
