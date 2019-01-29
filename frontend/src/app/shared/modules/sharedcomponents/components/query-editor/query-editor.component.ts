@@ -203,7 +203,8 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                                     },
                                     err => {
                                         this.metricOptions = [];
-                                        this.message['metricSearchControl'] = { 'type': 'error', 'message' : err.error.error.message };
+                                        const message = err.error.error? err.error.error.message : err.message;
+                                        this.message['metricSearchControl'] = { 'type': 'error', 'message' : message };
                                     }
                                     );
             }
@@ -251,7 +252,8 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                                                         },
                                                         err => {
                                                             this.tagOptions = [];
-                                                            this.message['tagControl'] = { 'type': 'error', 'message' : err.error.error.message };
+                                                            const message = err.error.error? err.error.error.message : err.message;
+                                                            this.message['tagControl'] = { 'type': 'error', 'message' : message };
                                                         });
             }
             // this.tagSearchInput.nativeElement.focus();
@@ -293,7 +295,8 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                                 },
                                 err => {
                                     this.filteredTagValues = [];
-                                    this.message['tagValueControl'] = { 'type': 'error', 'message' : err.error.error.message };
+                                    const message = err.error.error? err.error.error.message : err.message;
+                                    this.message['tagValueControl'] = { 'type': 'error', 'message' : message };
                                 });
             }
         });
