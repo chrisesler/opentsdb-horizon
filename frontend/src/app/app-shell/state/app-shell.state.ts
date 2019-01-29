@@ -14,22 +14,22 @@ export class SetTheme {
     constructor(public theme: string) {}
 }
 
+
 /** Define State */
 @State<AppShellStateModel>({
     name: 'AppShell',
     defaults: {
         currentTheme: 'developing'
-    },
-    children: [
-        NavigatorState
-    ]
+    }
 })
 
 export class AppShellState {
+
     constructor () {}
 
     /** Selectors */
-    @Selector() static getCurrentTheme(state: AppShellStateModel) {
+    @Selector()
+    static getCurrentTheme(state: AppShellStateModel) {
         return state.currentTheme;
     }
 
@@ -39,4 +39,5 @@ export class AppShellState {
         const state = ctx.getState();
         ctx.patchState({...state, currentTheme: theme });
     }
+
 }
