@@ -91,16 +91,17 @@
                             <ng-template matTabContent>
                                 <div class="option-list has-scroller">
                                     <div class="is-scroller">
-                                        <div class="option-item" *ngFor="let option of metricOptions" [ngClass]="getMetricIndex(option) !== -1 ? 'added' : ''"
-                                            (click)="(getMetricIndex(option) === -1) ? updateMetricSelection(option, 'add') : updateMetricSelection(option, 'remove');">
+                                        <div class="option-item" *ngFor="let option of metricOptions" [ngClass]="getMetricIndex(option.name) !== -1 ? 'added' : ''"
+                                            (click)="(getMetricIndex(option.name) === -1) ? updateMetricSelection(option.name, 'add') : updateMetricSelection(option.name, 'remove');">
                                             <div class="option-cell">
-                                                <mat-icon *ngIf="getMetricIndex(option) === -1">add_circle_outline</mat-icon>
-                                                <mat-icon *ngIf="getMetricIndex(option) !== -1">remove_circle_outline</mat-icon>
+                                                <mat-icon *ngIf="getMetricIndex(option.name) === -1">add_circle_outline</mat-icon>
+                                                <mat-icon *ngIf="getMetricIndex(option.name) !== -1">remove_circle_outline</mat-icon>
                                             </div>
-                                            <div class="option-cell label">{{ option }}</div>
+                                            <div class="option-cell label">{{ option.name }}</div>
                                         </div>
                                         <div *ngIf="message.metricSearchControl.message" [ngClass]="message.metricSearchControl.type === 'error'? 'error': 'info'">
-                                            {{ message['metricSearchControl']['message'] }}
+                                            <mat-icon>error</mat-icon>
+                                            <span>{{ message['metricSearchControl']['message'] }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -192,11 +193,15 @@
                         <div class="tag-key-search-results has-scroller">
                             <div class="is-scroller">
                                 <div class="option-item tag-key-option" *ngFor="let option of tagOptions" 
-                                    [ngClass]="{'added': getTagIndex(option) !== -1, 'selected': option === selectedTag }">
-                                    <div class="option-cell" (click)="removeTagValues(option)" *ngIf="getTagIndex(option) !== -1">
-                                            <mat-icon (click)="removeTagValues(option)">remove_circle_outline</mat-icon>
+                                    [ngClass]="{'added': getTagIndex(option.name) !== -1, 'selected': option.name === selectedTag }">
+                                    <div class="option-cell" (click)="removeTagValues(option.name)" *ngIf="getTagIndex(option.name) !== -1">
+                                            <mat-icon (click)="removeTagValues(option.name)">remove_circle_outline</mat-icon>
                                     </div>
-                                    <div class="option-cell label" (click)="handlerTagClick(option)">{{ option }}</div>
+                                    <div class="option-cell label" (click)="handlerTagClick(option.name)">{{ option.name }}</div>
+                                </div>
+                                <div *ngIf="message.tagControl.message" [ngClass]="message.tagControl.type === 'error'? 'error': 'info'">
+                                    <mat-icon>error</mat-icon>
+                                    <span>{{ message['tagControl']['message'] }}</span>
                                 </div>
                             </div>
                         </div>
@@ -223,15 +228,16 @@
                         <span class="seperator"></span>
                         <div class="tag-values-search-results has-scroller" *ngIf="tagValueTypeControl.value==='literalor'">
                             <div class="is-scroller">
-                                <div class="option-item" *ngFor="let option of filteredTagValues" [ngClass]="{'added': query.filters[selectedTagIndex] && query.filters[selectedTagIndex].filter.indexOf(option) >= 0 }">
+                                <div class="option-item" *ngFor="let option of filteredTagValues" [ngClass]="{'added': query.filters[selectedTagIndex] && query.filters[selectedTagIndex].filter.indexOf(option.name) >= 0 }">
                                     <div class="option-cell">
-                                        <mat-icon *ngIf="getTagValueIndex(selectedTag, option) === -1" (click)="updateTagValueSelection(option, 'add');">add_circle_outline</mat-icon>
-                                        <mat-icon *ngIf="getTagValueIndex(selectedTag, option) !== -1" (click)="updateTagValueSelection(option, 'remove')">remove_circle_outline</mat-icon>
+                                        <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) === -1" (click)="updateTagValueSelection(option.name, 'add');">add_circle_outline</mat-icon>
+                                        <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) !== -1" (click)="updateTagValueSelection(option.name, 'remove')">remove_circle_outline</mat-icon>
                                     </div>
-                                    <div class="option-cell label">{{ option }}</div>
+                                    <div class="option-cell label">{{ option.name }}</div>
                                 </div>
                                 <div *ngIf="message.tagValueControl.message" [ngClass]="message.tagValueControl.type === 'error'? 'error': 'info'">
-                                    {{ message['tagValueControl']['message'] }}
+                                    <mat-icon>error</mat-icon>
+                                    <span>{{ message['tagValueControl']['message'] }}</span>
                                 </div>
                             </div>
                         </div>

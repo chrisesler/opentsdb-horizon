@@ -34,7 +34,7 @@ export class NamespaceAutocompleteComponent implements OnInit {
             .pipe(
                 startWith(''),
                 debounceTime(300),
-                switchMap(value => this.httpService.getNamespaces({ searchPattern: value}))
+                switchMap(value => this.httpService.getNamespaces({ search: value}))
             );
         setTimeout(() => {
             // this.nsInput.nativeElement.focus();
