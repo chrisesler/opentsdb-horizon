@@ -15,7 +15,7 @@ export class MetaService {
       "to": 1,
       "order": "ASCENDING",
       "type": type,
-      "aggregationSize": 100,
+      "aggregationSize": 1000,
       "namespace": type !== 'NAMESPACES' ? params.namespace : this.utilsService.convertPatternTSDBCompat(params.search),
       "filter": {
           "type": "Chain",
