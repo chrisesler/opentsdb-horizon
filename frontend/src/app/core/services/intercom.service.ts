@@ -15,11 +15,11 @@ export interface IMessage {
 export class IntercomService {
 
   private requestStream: Subject<IMessage>;
-  private responseStream: BehaviorSubject<IMessage>;
+  private responseStream: Subject<IMessage>;
 
   constructor() {
     this.requestStream = new Subject();
-    this.responseStream = new BehaviorSubject(null);
+    this.responseStream = new Subject();
   }
 
   // child makes request

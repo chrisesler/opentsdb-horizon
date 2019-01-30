@@ -24,6 +24,11 @@ self.getEnv = function() {
     }
 };
 
+self.getWhitelistFrameAncestors = function() {
+    var whitelist = ['*.yahoo.com', '*.yahoo.com:*/','*.ouroath.com','*.ouroath.com:*/'];
+    return whitelist;
+};
+
 self.getConfigByEnv = function (env) {
     var config = require('../config/app_config');
     return config[env];

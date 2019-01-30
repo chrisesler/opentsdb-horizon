@@ -87,7 +87,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                 });
                 // intercom to container to update state
                 this.interCom.requestSend(<IMessage> {
-                    action: 'updateDashboardMode',
+                    action: 'setDashboardEditMode',
                     payload: 'edit'
                 });
             });
@@ -106,7 +106,8 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         });
         // intercom to container to update state
         this.interCom.requestSend(<IMessage> {
-            action: 'updateDashboardMode',
+            action: 'setDashboardEditMode',
+            id: this.widget.id,
             payload: 'edit'
         });
     }

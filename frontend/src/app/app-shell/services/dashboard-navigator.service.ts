@@ -67,9 +67,9 @@ export class DashboardNavigatorService {
     }
 
     httpPut(url: string, body: any, params?: any) {
-        console.log('url', url);
-        console.log('body', body);
-        console.log('params', params || null);
+        // console.log('url', url);
+        // console.log('body', body);
+        // console.log('params', params || null);
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
