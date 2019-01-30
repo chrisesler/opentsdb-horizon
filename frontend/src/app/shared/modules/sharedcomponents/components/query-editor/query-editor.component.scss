@@ -357,6 +357,14 @@
                     padding: 0 $filter-block-padding;
                     font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
                     line-height: 24px;
+
+                    // Only match selected tags label
+                    .explicit-match {
+                        padding-left: 8px;
+                    }
+                    .mat-checkbox-inner-container {
+                        margin-right: 4px;
+                    }
                 }
 
                 .tag-filter-rows {
@@ -452,6 +460,30 @@
                 .tag-keys-count,
                 .tag-values-count {
                     padding: 0 $filter-block-padding;
+                    .available-count {
+                        margin-right: 12px;
+                    }
+
+                    // Only match selected tags label
+                    .explicit-match {
+                        font-size: 14px;
+                        .mat-checkbox-layout {
+                            height: 20px;
+                            align-items: center;
+
+                            .mat-checkbox-inner-container {
+                                width: 14px;
+                                height: 14px;
+                                margin-bottom: 4px;
+                            }
+                            .mat-checkbox-label {
+                                height: 26px;
+                            }
+                        }
+                    }
+                    .mat-checkbox-inner-container {
+                        margin-right: 4px;
+                    }
                 }
 
                 .tag-key-search,
