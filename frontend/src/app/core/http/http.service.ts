@@ -41,12 +41,9 @@ export class HttpService {
   getYamasData(query: any): Observable<any> {
     const headers = new HttpHeaders(
       { 'Content-Type': 'application/json' });
-      // '/tsdb/queryData'
-    // simple random from 0-6 since we have 7 cname host now
-    //const apiUrl = environment.tsdb_host + '/api/query/graph';
-    const apiUrl = environment.tsdb_hosts[Math.floor(Math.random() * 6)] + '/api/query/graph';
-    console.log('apiUrl', apiUrl);
-    return this.http.post(apiUrl, query, { headers, withCredentials: true });
+    // simple random from 0 to length of hosts - 1
+    const metricsUrl = environment.tsdb_hosts[Math.floor(Math.random() * (environment.tsdb_hosts.length - 1))] + '/api/query/graph';
+    return this.http.post(metricsUrl, query, { headers, withCredentials: true });
   }
   /* post to search for metric */
   searchMetrics(queryObj: any): Observable<any> {
