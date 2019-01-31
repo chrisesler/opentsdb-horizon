@@ -10,73 +10,65 @@ export class MetaService {
   constructor(private utilsService: UtilsService) { }
 
   getQuery(type, params) {
-    const query:any = {
+    params = Array.isArray(params) ? params : [params];
+    const metaQuery:any = {
       "from": 0,
       "to": 1,
       "order": "ASCENDING",
       "type": type,
       "aggregationSize": 1000,
-      "namespace": type !== 'NAMESPACES' ? params.namespace : this.utilsService.convertPatternTSDBCompat(params.search),
-      "filter": {
-          "type": "Chain",
-          "filters": []
-      }
+      "queries": [],
     };
 
-    let filter: any = {};
-    if ( type === 'TAG_KEYS_AND_VALUES') {
-      query.aggregationField =  params.tagkey;
-      filter = {
-        type: 'TagValueRegex',
-        filter: this.utilsService.convertPatternTSDBCompat(params.search),
-        tagKey: params.tagkey
-      };
-      query.filter.filters.push(filter);
-    }
-    switch( type ) {
-      // remove the host filter later. tsdb requires atleast one filter in the query
-      case 'NAMESPACES':
-        filter = {
-          'type': 'TagValueRegex',
-          'filter': '.*',
-          'tagKey': 'host'
-        };
-        query.filter.filters.push(filter);
-        break;
-      case 'METRICS':
-        filter = {
-          'type': "MetricRegex",
-          'metric': this.utilsService.convertPatternTSDBCompat(params.search)
-        };
-        query.filter.filters.push(filter);
-        break;
+    for ( let i = 0, len = params.length; i < len; i++ ) {
+      const query:any = {
+                          "filter": {
+                          "type": "Chain",
+                          "filters": []
+                      }};
+      query.namespace =  type !== 'NAMESPACES' ? params[i].namespace : this.utilsService.convertPatternTSDBCompat(params[i].search);
+      if ( type === 'TAG_KEYS_AND_VALUES') {
+        metaQuery.aggregationField =  params[i].tagkey;
+        query.filter.filters.push({
+          type: 'TagValueRegex',
+          filter: this.utilsService.convertPatternTSDBCompat(params[i].search),
+          tagKey: params[i].tagkey
+        });
+      }
+      switch( type ) {
+        case 'METRICS':
+          query.filter.filters.push({
+            'type': "MetricRegex",
+            'metric': this.utilsService.convertPatternTSDBCompat(params[i].search)
+          });
+          break;
 
-      // set the metrics filter only if its set. tsdb requires atleast one filter in the query
-      case 'TAG_KEYS':
-        filter = {
-          "type": "TagKeyRegex",
-          "filter": this.utilsService.convertPatternTSDBCompat(params.search)
-        };
-        query.filter.filters.push(filter);
-        break;
-    }
+        // set the metrics filter only if its set. tsdb requires atleast one filter in the query
+        case 'TAG_KEYS':
+            query.filter.filters.push({
+              "type": "TagKeyRegex",
+              "filter": this.utilsService.convertPatternTSDBCompat(params[i].search)
+            });
+          break;
+      }
 
-    if ( params.metrics && params.metrics.length ) {
-      filter = {
-        "type": "MetricRegex",
-        "metric": params.metrics.join('|')
-      };
-      query.filter.filters.push(filter);
-    }
+      if ( params[i].metrics && params[i].metrics.length ) {
+        query.filter.filters.push({
+          "type": "MetricRegex",
+          "metric": params[i].metrics.join('|')
+        });
+      }
 
-    for (let k = 0;  params.tags && k < params.tags.length; k++) {
-        const f = params.tags[k];
-        const values = f.filter;
-        const filter:any = values.length === 1 ? this.getFilter(f.tagk, values[0]) : this.getChainFilter(f.tagk, values);
-        query.filter.filters.push(filter);
+      for (let k = 0;  params[i].tags && k < params[i].tags.length; k++) {
+          const f = params[i].tags[k];
+          const values = f.filter;
+          const filter:any = values.length === 1 ? this.getFilter(f.tagk, values[0]) : this.getChainFilter(f.tagk, values);
+          query.filter.filters.push(filter);
+      }
+      metaQuery.queries.push(query);
     }
 
-    return query;
+    return metaQuery;
   }
 
   getFilter(key, v) {

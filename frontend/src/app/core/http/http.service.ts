@@ -9,7 +9,7 @@ import { MetaService } from '../services/meta.service';
   providedIn: 'root'
 })
 export class HttpService {
-
+  regexMetricFormat = /([^\.]*)\.([^\.]*)\.(.*)/;
   constructor(private http: HttpClient, private metaService: MetaService) { }
  
   getDashoard(id: string): Observable<any> {
@@ -64,7 +64,7 @@ export class HttpService {
         const query = this.metaService.getQuery('NAMESPACES', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
           .pipe(
-            map((res:any) => res.namespaces),
+            map((res:any) => res.results[0].namespaces),
           );
     }
 
@@ -72,11 +72,30 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json'
         });
-        return this.http.post('/search/tagkeys', queryObj, { headers, withCredentials: true })
-          .pipe(
-            map((res:any[]) => res.map(item => item.key)),
-            catchError(this.handleError)
-          );
+        const newQueryParams = {};
+        for(let i = 0, len = queryObj.metrics.length; i < len; i++ ) {
+          const res = queryObj.metrics[i].match(this.regexMetricFormat);
+          const namespace = res[1];
+          const metric = res[2] + "." + res[3];
+          if ( !newQueryParams[namespace] ) {
+            newQueryParams[namespace] = { search:'', namespace: namespace, metrics: [] };
+          }
+          newQueryParams[namespace].metrics.push(metric);
+        }
+        const apiUrl = environment.metaApi + 'search/timeseries';
+        const query = this.metaService.getQuery('TAG_KEYS', Object.values(newQueryParams));
+        return this.http.post(apiUrl, query, { headers, withCredentials: true })
+                        .pipe(
+                          map((res:any) => {
+                            
+                            let tagkeys = [];
+                            for ( let i = 0, len = res.results.length; i < len; i++ ) {
+                              const keys = res.results[i].tagKeys.filter(item => tagkeys.indexOf(item.key) === -1);
+                              tagkeys  = tagkeys.concat(keys.map(d => d.name ));
+                            }
+                            return tagkeys;
+                          })
+                        );
     }
 
     getMetricsByNamespace(queryObj: any): Observable<any> {
@@ -87,7 +106,7 @@ export class HttpService {
         const query = this.metaService.getQuery('METRICS', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
-                          map((res:any) => res.metrics)
+                          map((res:any) => res.results[0].metrics)
                         );
     }
 
@@ -99,7 +118,7 @@ export class HttpService {
       const query = this.metaService.getQuery('TAG_KEYS', queryObj);
       return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
-                          map((res:any) => res.tagKeys)
+                          map((res:any) => res.results[0].tagKeys)
                         );
     }
 
@@ -111,7 +130,7 @@ export class HttpService {
       const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj);
       return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
-                          map((res:any) => res.tagKeysAndValues[queryObj.tagkey].values),
+                          map((res:any) => res.results[0].tagKeysAndValues[queryObj.tagkey].values),
                         );
     }
 
@@ -120,7 +139,30 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json'
         });
-        return this.http.post<string[]>('/search/tagvalues', queryObj, { headers, withCredentials: true });
+        const newQueryParams = {};
+        for(let i = 0, len = queryObj.metrics.length; i < len; i++ ) {
+          const res = queryObj.metrics[i].match(this.regexMetricFormat);
+          const namespace = res[1];
+          const metric = res[2] + "." + res[3];
+          if ( !newQueryParams[namespace] ) {
+            newQueryParams[namespace] = { tagkey:queryObj.tag.key, search:queryObj.tag.value, namespace: namespace, metrics: [] };
+          }
+          newQueryParams[namespace].metrics.push(metric);
+        }
+        const apiUrl = environment.metaApi + 'search/timeseries';
+        const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', Object.values(newQueryParams));
+        return this.http.post(apiUrl, query, { headers, withCredentials: true })
+                        .pipe(
+                          map((res:any) => {
+                            
+                            let tagvalues = [];
+                            for ( let i = 0, len = res.results.length; i < len; i++ ) {
+                              const keys = res.results[i].tagKeysAndValues[queryObj.tag.key].values.filter(item => tagvalues.indexOf(item.key) === -1);
+                              tagvalues  = tagvalues.concat(keys.map(d => d.name ));
+                            }
+                            return tagvalues;
+                          })
+                        );
     }
 
     getDashboardByPath(path: string) {
