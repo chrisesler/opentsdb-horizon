@@ -74,6 +74,7 @@ export class HttpService {
         });
         return this.http.post('/search/tagkeys', queryObj, { headers, withCredentials: true })
           .pipe(
+            map((res:any[]) => res.map(item => item.key)),
             catchError(this.handleError)
           );
     }

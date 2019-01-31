@@ -38,6 +38,14 @@ export class DashboardSettingsToggleComponent implements OnInit, OnDestroy {
                         message);
                 this.displaySettingsDialog(message.payload);
             }
+
+            switch( message.action ) {
+                case 'updateDashboardTags':
+                    if (this.dashboardSettingsDialog && this.dashboardSettingsDialog.componentInstance) {
+                        this.dashboardSettingsDialog.componentInstance.dbData.dbTags = message.payload;
+                    }
+                    break;
+            }
         });
     }
 
