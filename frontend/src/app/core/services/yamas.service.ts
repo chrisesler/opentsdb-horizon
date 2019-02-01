@@ -7,8 +7,7 @@ export class YamasService {
 
     constructor() { }
 
-    // buildQuery( time, metrics, downsample= {} , summary= false) {
-    buildQuery( time, query, downsample:any = {} , summaryOnly= false, sorting) {
+    buildQuery( time, query, downsample: any = {} , summaryOnly= false, sorting) {
 
         const transformedQuery: any = {
             start: time.start,
@@ -25,9 +24,17 @@ export class YamasService {
         // add filters
         if ( query.filters.length ) {
             filterId = 'filter';
-            const filter: any = this.getFilterQuery(query);
-            filter.id = filterId;
-            transformedQuery.filters = [filter];
+            // tslint:disable-next-line:prefer-const
+            let _filter: any = this.getFilterQuery(query);
+            _filter.id = filterId;
+
+            if (query.settings.explicitTagMatch) {
+                transformedQuery.filters = [
+                    { filter : { type: 'ExplicitTags', filter: _filter.filter }, id: filterId }
+                ];
+            } else {
+                transformedQuery.filters = [_filter];
+            }
         }
 
         for (let j = 0; j < query.metrics.length; j++) {
@@ -63,7 +70,7 @@ export class YamasService {
                 transformedQuery.executionGraph.push(q);
                 const aggregators = downsample.aggregators || ['avg'];
                 for ( let i = 0; i < aggregators.length; i++ ) {
-                    const prefix = "m" + j + '-' + aggregators[i];
+                    const prefix = 'm' + j + '-' + aggregators[i];
                     const dsId = prefix + '-downsample';
                     // add downsample for the expression
                     transformedQuery.executionGraph.push(this.getQueryDownSample(summaryOnly, downsample, aggregators[i], dsId, [q.id]));
@@ -96,7 +103,7 @@ export class YamasService {
             id: 'JsonV3QuerySerdes',
             filter: summaryOnly ? ['summarizer'] : outputIds.concat(['summarizer']) // outputIds : outputIds.concat(['summarizer'])
         }];
-        console.log("tsdb query", JSON.stringify(transformedQuery))
+        console.log('tsdb query', JSON.stringify(transformedQuery));
         return transformedQuery;
     }
 
