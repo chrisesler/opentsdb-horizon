@@ -7,6 +7,8 @@ import {
     ViewChild
 } from '@angular/core';
 
+import { SelectionModel } from '@angular/cdk/collections';
+
 import {
     MatMenuTrigger,
     MatPaginator,
@@ -63,15 +65,30 @@ export class AlertsComponent implements OnInit, OnDestroy {
     alertTypeCounts: any = {};
 
 
-    // @Select(AlertsState.getAlerts('all')) asAlerts$: Observable<any[]>;
+    // this gets dynamically selected depending on the tab filter.
+    // see this.stateSubs['asActionResponse']
+    // under the case 'setAlertTypeFilterSuccess'
     asAlerts$: Observable<any[]>;
     alerts: AlertModel[] = [];
 
-    // for the table
-    // alertsDataSource = [];
+    // for the table datasource
+    alertsDataSource; // dynamically gets reassigned after new alerts state is subscribed
+    displayedColumns: string[] = [
+        'select',
+        'counts.bad',
+        'counts.warn',
+        'counts.good',
+        'counts.snoozed',
+        'sparkline',
+        'name',
+        'groupLabels',
+        'contacts',
+        'modified',
+        'actions'
+    ];
 
-    alertsDataSource;
-    displayedColumns: string[] = ['counts.bad', 'counts.warn', 'counts.good', 'counts.snoozed', 'name'];
+    // for batch selection
+    selection = new SelectionModel<AlertModel>(true, []);
 
     @Select(AlertsState.getActionResponse) asActionResponse$: Observable<any>;
 
@@ -153,6 +170,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                         if (self.stateSubs['asAlerts']) {
                             self.stateSubs['asAlerts'].unsubscribe();
                         }
+                        // dynamic store selection of alerts based on type
                         self.asAlerts$ = self.store.select(AlertsState.getAlerts(self.alertTypeFilter));
                         self.stateSubs['asAlerts'] = self.asAlerts$.subscribe( alerts => {
                             // console.log('ALERTS CHANGED', alerts);
@@ -176,6 +194,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.stateSubs['asAlerts'].unsubscribe();
         this.stateSubs['asActionResponse'].unsubscribe();
     }
+
     /** privates */
     private setTableDataSource() {
         this.alertsDataSource = new MatTableDataSource<AlertModel>(this.alerts);
@@ -190,6 +209,22 @@ export class AlertsComponent implements OnInit, OnDestroy {
         // console.log('ENSURE WIDTH', element);
         element = <ElementRef>element._elementRef;
         return `${element.nativeElement.clientWidth}px`;
+    }
+
+    /** batch selection tools */
+
+    /** Whether the number of selected elements matches the total number of rows. */
+    isAllSelected() {
+        const numSelected = this.selection.selected.length;
+        const numRows = this.alertsDataSource.data.length;
+        return numSelected === numRows;
+    }
+
+    /** Selects all rows if they are not all selected; otherwise clear selection. */
+    masterToggle() {
+        this.isAllSelected() ?
+            this.selection.clear() :
+            this.alertsDataSource.data.forEach(row => this.selection.select(row));
     }
 
     /** events */

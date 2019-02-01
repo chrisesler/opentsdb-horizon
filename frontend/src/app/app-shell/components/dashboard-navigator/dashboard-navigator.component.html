@@ -32,7 +32,7 @@
                 </ng-container>
             </mat-nav-list>
             <div class="create-dashboard" *ngIf="panel.resourceType === 'master' || panel.resourceType === 'namespaces' || panel.resourceType === 'namespace' || panel.resourceType === 'personal'">
-                <button mat-flat-button color="primary" (click)="createDashboard()">
+                <button mat-flat-button (click)="createDashboard()">
                     <mat-icon fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
                     <span>Create Dashboard</span>
                 </button>

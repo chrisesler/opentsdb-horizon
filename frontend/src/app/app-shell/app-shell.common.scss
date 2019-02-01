@@ -77,12 +77,12 @@
 
     .panel-toolbar {
         background: transparent;
-        border-bottom: 1px solid rgba(255,255,255,.07);
-        color: rgba(255,255,255,.5);
+        border-bottom: 1px solid map-get($foreground, divider);
+        color: map-get($background, navbar);
 
         &.is-master-panel {
             .header-label {
-                color: rgba(255,255,255,.85);
+                color: rgba(map-get($background, navbar),.85);
             }
         }
     }

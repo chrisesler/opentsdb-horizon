@@ -5,7 +5,7 @@
         </button>
     </mat-toolbar-row>
 </mat-toolbar>
-<mat-nav-list>
+<mat-nav-list class="side-nav-applications">
     <ng-container *ngFor="let nav of navItems">
         <a mat-list-item (click)="navigationClicked(nav)" [ngClass]="{'is-active': activeNav.section === nav.section}">
             <mat-icon fontSet="denali" [fontIcon]="nav.icon"></mat-icon>

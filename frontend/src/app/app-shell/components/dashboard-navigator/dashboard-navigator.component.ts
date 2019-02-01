@@ -323,9 +323,13 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
     }
 
     closeDrawer() {
-        this.toggleDrawer.emit({
+        const data: any = {
             closeNavigator: true
-        });
+        };
+        if (this.activeMediaQuery === 'xs') {
+            data.resetForMobile = true;
+        }
+        this.toggleDrawer.emit(data);
     }
 
     /**

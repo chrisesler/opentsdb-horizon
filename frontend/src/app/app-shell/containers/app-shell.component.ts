@@ -18,6 +18,7 @@ import { NavigatorSidenavComponent } from '../components/navigator-sidenav/navig
 
 import { IntercomService, IMessage } from '../../core/services/intercom.service';
 import {
+    AppShellState,
     NavigatorState,
     SetSideNavOpen
 } from '../state';
@@ -27,7 +28,7 @@ import {
 } from '../state/navigator.state';
 
 import { Subscription } from 'rxjs';
-import { MediaChange, MediaObserver } from '@angular/flex-layout';
+import { select } from 'd3';
 
 @Component({
     selector: 'app-shell',
@@ -49,6 +50,8 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
     @Select(NavigatorState.getSideNavMode) sidenavMode$: Observable<string>;
     @Select(NavigatorState.getDrawerOpen) drawerOpen$: Observable<boolean>;
 
+    @Select(AppShellState.getCurrentMediaQuery) mediaQuery$: Observable<string>;
+
 
     // View Children
     @ViewChild('drawer', { read: MatDrawer }) private drawer: MatDrawer;
@@ -64,27 +67,21 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
     // tslint:disable-next-line:no-inferrable-types
     sideNavOpen: boolean = true; // the skinny icon bar
 
-    // subscription to media query change
-    mediaWatcher$: Subscription;
     // tslint:disable-next-line:no-inferrable-types
     activeMediaQuery: string = '';
 
     constructor(
         private interCom: IntercomService,
-        private store: Store,
-        private mediaObserver: MediaObserver
-    ) {
-        this.store.dispatch(new SetSideNavOpen(!(mediaObserver.isActive('xs'))));
-
-        this.mediaWatcher$ = mediaObserver.media$.subscribe((change: MediaChange) => {
-            // this.activeMediaQuery = change ? `'${change.mqAlias}' = (${change.mediaQuery})` : '';
-            this.activeMediaQuery = change ? change.mqAlias : '';
-            this.store.dispatch(new SetSideNavOpen(( change.mqAlias !== 'xs')));
-            // console.log('MEDIA QUERY CHANGE', this.activeMediaQuery, this.sideNavOpen);
-        });
-    }
+        private store: Store
+    ) {}
 
     ngOnInit() {
+        this.stateSubs.currentMediaQuery = this.mediaQuery$.subscribe( currentMediaQuery => {
+            console.log('[SUB] currentMediaQuery', currentMediaQuery);
+            this.activeMediaQuery = currentMediaQuery;
+            this.store.dispatch(new SetSideNavOpen(( currentMediaQuery !== 'xs')));
+        });
+
         this.stateSubs.currentApp = this.currentApp$.subscribe( app => {
             console.log('[SUB] currentApp', app);
             this.activeNavSection = app;
@@ -105,8 +102,9 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.mediaWatcher$.unsubscribe();
+        this.stateSubs.currentEmediaQuery.unsubscribe();
         this.stateSubs.currentApp.unsubscribe();
+        this.stateSubs.sideNavOpen.unsubscribe();
     }
 
     /** PRIVATE */

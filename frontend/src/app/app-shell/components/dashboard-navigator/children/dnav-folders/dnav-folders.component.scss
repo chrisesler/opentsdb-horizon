@@ -63,6 +63,13 @@
             }
 
         }
+
+        &:first-of-type {
+            
+            .block-header.folders-header {
+                margin-top: 0;
+            }
+        }
     }
 }
 
