@@ -37,7 +37,7 @@ import {
     UpdateVariables,
     UpdateMeta
 } from '../../state/settings.state';
-import { NavigatorState } from '../../../app-shell/state/navigator.state';
+import { AppShellState, NavigatorState } from '../../../app-shell/state';
 import { MatMenuTrigger, MenuPositionX, MatSnackBar } from '@angular/material';
 import {
     SearchMetricsDialogComponent
@@ -45,8 +45,6 @@ import {
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 import { Message } from '@angular/compiler/src/i18n/i18n_ast';
-
-import { MediaChange, MediaObserver } from '@angular/flex-layout';
 
 @Component({
     selector: 'app-dashboard',
@@ -72,6 +70,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBSettingsState.getDashboardTagValues) tagValues$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
+
+    @Select(AppShellState.getCurrentMediaQuery) mediaQuery$: Observable<string>;
 
     // temporary disable for now, will delete once we are clear
     // @Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
@@ -172,9 +172,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
 
-
-    // subscription to media query change
-    mediaWatcher$: Subscription;
+    mediaQuerySub: Subscription;
     // tslint:disable-next-line:no-inferrable-types
     activeMediaQuery: string = '';
 
@@ -190,13 +188,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private dateUtil: DateUtilsService,
         private dialog: MatDialog,
         private snackBar: MatSnackBar,
-        private cdRef: ChangeDetectorRef,
-        private mediaObserver: MediaObserver
-    ) {
-        this.mediaWatcher$ = mediaObserver.media$.subscribe((change: MediaChange) => {
-            this.activeMediaQuery = change ? change.mqAlias : '';
-        });
-    }
+        private cdRef: ChangeDetectorRef
+    ) { }
 
     ngOnInit() {
         // handle route for dashboardModule
@@ -349,6 +342,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 default:
                     break;
             }
+        });
+
+        this.mediaQuerySub = this.mediaQuery$.subscribe( currentMediaQuery => {
+            this.activeMediaQuery = currentMediaQuery;
         });
 
         this.loadedRawDB$.subscribe(db => {
@@ -755,7 +752,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dbErrorSub.unsubscribe();
         this.authSub.unsubscribe();
         this.drawerOpenSub.unsubscribe();
-        this.mediaWatcher$.unsubscribe();
+        this.mediaQuerySub.unsubscribe();
         // we need to clear dashboard state
         // this.store.dispatch(new dashboardActions.ResetDashboardState);
     }

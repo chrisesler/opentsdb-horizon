@@ -47,7 +47,7 @@ COMMON STYLES FOR WDATE TIME
     // when it is in the navbar
     .navbar-item.nav-date-time-picker {
         .mat-raised-button {
-            background-color: lighten(map-get($background, navbar), 4%);
+            background-color: darken(map-get($background, navbar), 4%);
             color: map-get($foreground, navbar-text);
 
             &:hover {

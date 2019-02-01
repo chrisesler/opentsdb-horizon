@@ -252,7 +252,7 @@
     .nav-refresh-icon {
         .mat-raised-button,
         .mat-flat-button {
-            background-color: lighten(map-get($background, navbar), 4%);
+            background-color: darken(map-get($background, navbar), 4%);
             color: map-get($foreground, navbar-text);
 
             &:hover {
