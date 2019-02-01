@@ -38,9 +38,9 @@
             // inner shaddow
             // first inset is the right shadow
             // second inset is the left shadow (slightly less opacity to compensate for the sidenav shadow layering
-            box-shadow: 
+            /*box-shadow: 
                 inset -20px 0 20px -15px hsla(0,0%,0%,.55),
-                inset 20px 0 20px -15px hsla(0,0%,0%,.25) !important;
+                inset 20px 0 20px -15px hsla(0,0%,0%,.25) !important;*/
         }
 
         //.router-outlet {}
@@ -77,9 +77,9 @@
         }
 
         .app-navigator-drawer {
-            background-color: $sn-dark;
-            border-top: 1px solid $sn-seperator;
-            color: $sn-dark-text;
+            background-color: map-get($background, card);
+            border-top: 1px solid transparent;
+            color: map-get($background, navbar);
         }
     }
 }

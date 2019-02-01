@@ -13,6 +13,9 @@ export class AppNavbarComponent implements OnInit {
 
     @HostBinding('class.app-navbar') private _hostClass = true;
 
+    // tslint:disable-next-line:no-inferrable-types
+    @Input() mediaQuery: string = '';
+
     @Input() theme: string;
     @Output() themeChange = new EventEmitter<string>();
 

@@ -3,7 +3,7 @@
         <mat-icon class="folder-icon" fontSet="denali" [fontIcon]="folder.icon || 'd-folder'"></mat-icon>
     </div>
     <div class="list-item folder-name flex-spacer">
-        <span>{{folder.name || 'BROKEN'}} ({{folder.selected ? 'YES' : 'NO'}})</span>
+        <span>{{folder.name || 'BROKEN'}}</span>
     </div>
     <div class="list-item goto-next-folder">
         <button mat-icon-button (click)="gotoFolder($event)">

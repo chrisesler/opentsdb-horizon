@@ -7,7 +7,7 @@
         <mat-sidenav class="app-sidenav"
             [fixedInViewport]="true" 
             mode="side" 
-            opened
+            [opened]="sideNavOpen"
             disableClose
             #sidenav>
             <!--<mat-nav-list>
@@ -19,7 +19,7 @@
                     <span class="flex-spacer" *ngIf="nav.spacerAfter"></span>
                 </ng-container>
             </mat-nav-list>-->
-            <app-navigator-sidenav (activeNavChange)="navigationAction($event)" [drawerOpen]="drawer.opened"></app-navigator-sidenav>
+            <app-navigator-sidenav (activeNavChange)="navigationAction($event)" [activeNav]="{'section': activeNavSection}" [drawerOpen]="drawer.opened" [mediaQuery]="activeMediaQuery"></app-navigator-sidenav>
         </mat-sidenav>
         <!-- where the rest of the app gets output -->
         <mat-sidenav-content class="app-navigator-output" fxFlex="1 1 100%" fxLayout fxLayoutAlign="stretch stretch">
@@ -33,6 +33,7 @@
                     <dashboard-navigator 
                         *ngIf="activeNavSection === 'dashboard'"
                         [activeNavSection]="activeNavSection"
+                        [activeMediaQuery]="activeMediaQuery"
                         [drawerMode]="drawerMode"
                         (toggleDrawer)="toggleDrawerMode($event)"
                         ></dashboard-navigator>
@@ -111,7 +112,7 @@
                         ></test-navigator>
                 </mat-drawer>
                 <mat-drawer-content class="router-outlet" fxLayout="column" fxFlex="1 1 100%" fxFlexFill>
-                    <app-navbar fxFlex="1 1 48px" fxLayout fxLayoutAlign="stretch stretch" fxFlexFill></app-navbar>
+                    <app-navbar fxFlex="1 1 48px" [mediaQuery]="activeMediaQuery" (sidenavToggle)="sidenavToggle()" fxLayout fxLayoutAlign="stretch stretch" fxFlexFill></app-navbar>
                     <!-- THE ENTIRE APP CONTENT FLOWS THROUGH HERE -->
                     <ng-content></ng-content>
                 </mat-drawer-content>

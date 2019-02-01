@@ -4,10 +4,10 @@
         <span class="chip-count">{{dashboards.length}}</span>
     </span>
     <span class="flex-spacer"></span>
-    <button mat-icon-button (click)="createDashboard()">
+    <button mat-icon-button *ngIf="activeMediaQuery !== 'xs'" (click)="createDashboard()">
         <mat-icon fontSet="denali" fontIcon="d-dashboard-tile-add"></mat-icon>
     </button>
-    <button mat-icon-button (click)="editDashboards()" *ngIf="dashboards.length > 0" style="display: none;">
+    <button mat-icon-button (click)="editDashboards()" *ngIf="dashboards.length > 0 && activeMediaQuery !== 'xs'" style="display: none;">
         <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
     </button>
 </div>
@@ -19,7 +19,10 @@
         <span class="chip-count">{{dashboards.length}}</span>
     </span>
 </div>
-<mat-nav-list class="dashboard-list" *ngIf="dashboards.length > 0">
+<mat-nav-list class="dashboard-list">
+    <mat-list-item *ngIf="dashboards.length === 0" class="no-item-message">
+        <span class="mat-caption no-item-message">There are no dashboards.</span>
+    </mat-list-item>
     <mat-list-item *ngFor="let dashboard of dashboards">
         <dnav-dashboard-item [dashboard]="dashboard" (dashboardAction)="dashboardItemAction(dashboard, $event)"></dnav-dashboard-item>
     </mat-list-item>

@@ -30,6 +30,14 @@
             padding-bottom: 4px;
         }
     }
+
+    // mobile media query
+    @include until(600px) {
+        // cdk dropdown menu container
+        .timerange-picker-menu.mat-menu-panel {
+            width: 100vw;
+        }
+    }
 }
 
 @mixin time-picker-component-theme($theme-config) {

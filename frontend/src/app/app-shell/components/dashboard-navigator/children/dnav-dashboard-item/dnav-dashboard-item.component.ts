@@ -135,6 +135,11 @@ export class DnavDashboardItemComponent implements OnInit {
                 this.menuTrigger.closeMenu();
                 this.miniNavTrigger.openMenu();
                 break;
+            case 'navigateTo':
+                this.dashboardAction.emit({
+                    action: 'navigateTo'
+                });
+                break;
             default:
                 break;
         }
