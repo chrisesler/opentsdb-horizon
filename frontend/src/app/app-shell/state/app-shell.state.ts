@@ -210,7 +210,7 @@ export class AppShellState {
     GetUserProfileFail(ctx: StateContext<AppShellStateModel>, { error }: SSGetUserProfileFail) {
         this.stateError('Get user profile', error);
         if ( error.status === 404 ) {
-            // ctx.dispatch(new SSCreateUserProfile());
+            ctx.dispatch(new SSCreateUserProfile()); // 404 means the profile does not exist
         }
         ctx.dispatch({error: error});
     }
