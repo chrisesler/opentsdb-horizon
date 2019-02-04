@@ -20,7 +20,8 @@ import { IntercomService, IMessage } from '../../core/services/intercom.service'
 import {
     AppShellState,
     NavigatorState,
-    SetSideNavOpen
+    SetSideNavOpen,
+    SSGetUserProfile
 } from '../state';
 import {
     UpdateNavigatorSideNav,
@@ -51,6 +52,8 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
     @Select(NavigatorState.getDrawerOpen) drawerOpen$: Observable<boolean>;
 
     @Select(AppShellState.getCurrentMediaQuery) mediaQuery$: Observable<string>;
+    @Select(AppShellState.getUserProfile) userProfile$: Observable<any>;
+    userProfile: any = {};
 
 
     // View Children
@@ -80,6 +83,15 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
             console.log('[SUB] currentMediaQuery', currentMediaQuery);
             this.activeMediaQuery = currentMediaQuery;
             this.store.dispatch(new SetSideNavOpen(( currentMediaQuery !== 'xs')));
+        });
+
+        this.stateSubs.userProfile = this.userProfile$.subscribe( data => {
+            console.log('[SUB] User Profile', data);
+            this.userProfile = data;
+
+            if (!data.loaded) {
+                this.store.dispatch(new SSGetUserProfile());
+            }
         });
 
         this.stateSubs.currentApp = this.currentApp$.subscribe( app => {
