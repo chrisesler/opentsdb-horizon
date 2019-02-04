@@ -12,7 +12,7 @@ export class DashboardService {
           zone: 'local'
         },
         meta: {
-            title: 'Untitled Dashboard',
+            title: 'My Dashboard',
             description: '',
             labels: [],
             namespace: '',
@@ -36,7 +36,7 @@ export class DashboardService {
       resizable: true
     },
     settings: {
-      title: 'untitled',
+      title: 'my widget',
       component_type: 'PlaceholderWidgetComponent',
       data_source: 'yamas',
       visual: {},
