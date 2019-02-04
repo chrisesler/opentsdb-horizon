@@ -10,32 +10,27 @@
             padding: initial;
         }
 
-        .mat-card-header .mat-card-header-text {
-            display: none;
-        }
-
-        // .mat-card-header.panel-heading
         .panel-heading {
             display: inline-block;
             position: relative;
             width: 100%;
             top: 0;
             cursor: move;
-
             .panel-title {
                 display: inline-block;
                 padding: 2px;
                 margin-left: auto;
                 margin-right: auto;
+                font-size: 16px;
             }
         }
 
         .mat-toolbar,
         .mat-toolbar-row {
             font-size: 1.1em;
-            height: 28px;
-            min-height: 28px !important;
-            border-bottom: 1px solid #dfdfdf;
+            height: 18px;
+            min-height: 18px !important;
+            //border-bottom: 1px solid #dfdfdf;
             font-weight: 300;
         }
 
@@ -73,11 +68,18 @@
         .panel-body {
             // padding: 0 10px 10px;
             position: absolute;
-            top: 28px;
+            //top: 28px;
+            top: 0;
             bottom: 0;
             left: 0;
             right: 0;
             display: flex;
+            .panel-heading {
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 9;
+            }
         }
 
 
@@ -89,8 +91,8 @@
 
         .mat-menu-item {
             font-size: 12px;
-            height: 36px;
-            line-height: 36px;
+            height: 26px;
+            line-height: 26px;
 
             .mat-icon {
                 font-size: 16px;
@@ -122,9 +124,11 @@
         .mat-card {
             box-shadow: none;
             background-color: map-get($background, card);
+            
+            .panel-body .panel-heading {
 
-            .mat-card-header {
                 background-color: transparent;
+                display: none;
 
                 & {
                     @include transition(background-color 0.2s ease-in-out);
@@ -132,6 +136,7 @@
 
                 .panel-title {
                     padding: 0 10px;
+                    font-weight: 300;
                 }
 
                 .mat-toolbar {
