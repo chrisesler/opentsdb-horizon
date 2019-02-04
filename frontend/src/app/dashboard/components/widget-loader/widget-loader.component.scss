@@ -124,9 +124,9 @@
         .mat-card {
             box-shadow: none;
             background-color: map-get($background, card);
+            border: 1px solid rgba(0, 0, 0, .08);
             
             .panel-body .panel-heading {
-
                 background-color: transparent;
                 display: none;
 

@@ -16,11 +16,14 @@ export class NavigatorSidenavComponent implements OnInit {
 
     @HostBinding('class.app-navigator-sidenav') private _hostClass = true;
 
-    activeNav: any = {};
+    @Input() activeNav: any = {};
     @Output() activeNavChange: EventEmitter<any> = new EventEmitter();
 
     // tslint:disable-next-line:no-inferrable-types
     @Input() drawerOpen: boolean = false;
+
+    // tslint:disable-next-line:no-inferrable-types
+    @Input() mediaQuery: string = '';
 
     navItems: object[] = [
         { section: 'dashboard',         label: 'Dashboards',        icon: 'd-dashboard-tile' },
@@ -38,9 +41,11 @@ export class NavigatorSidenavComponent implements OnInit {
     constructor() { }
 
     ngOnInit() {
+        console.log('ACTIVE NAV INIT', this.activeNav);
     }
 
     navigationClicked(obj: any) {
+        console.log('ACTIVE NAV', this.activeNav);
 
         if (this.activeNav === obj) {
             this.activeNav = { reset: true };

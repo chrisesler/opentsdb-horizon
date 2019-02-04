@@ -13,15 +13,16 @@
         [fieldValue]="dbSettings.meta.title"
         [minLength]="3"
         [maxLength]="25"
-        (updatedValue)="setTitle($event)">
+        (updatedValue)="setTitle($event)"
+        *ngIf="activeMediaQuery !== 'xs'">
     </inline-editable>
-    <span class="navbar-item navbar-icon-item nav-dashboard-config-trigger">
+    <span class="navbar-item navbar-icon-item nav-dashboard-config-trigger" *ngIf="activeMediaQuery !== 'xs'">
         <dashboard-settings-toggle mat-button ></dashboard-settings-toggle>
     </span>
 
     <span class="flex-spacer"></span>
 
-    <span class="navbar-item nav-add-new-widget" *ngIf="!viewEditMode">
+    <span class="navbar-item nav-add-new-widget" *ngIf="activeMediaQuery !== 'xs' && !viewEditMode">
         <button mat-raised-button class="mat-elevation-z0" 
             [ngClass]="{'menu-trigger-underline': availableWidgetsMenuIsOpen}"
             [matMenuTriggerFor]="dashboardAvailableWidgetsMenu"
@@ -53,7 +54,7 @@
     </span>
 
     <!--<simple-time-picker xPosition="before"></simple-time-picker>-->
-    <span class="navbar-item nav-dashboard-actions" *ngIf="!viewEditMode">
+    <span class="navbar-item nav-dashboard-actions" *ngIf="activeMediaQuery !== 'xs' && !viewEditMode">
         <navbar-dashboard-actions-menu mat-button [id]="dbid" [dbSettingsMeta]="meta" (dashboardAction)="receiveDashboardAction($event)"></navbar-dashboard-actions-menu>
     </span>
 

@@ -19,6 +19,7 @@ import { AlertsState } from './state';
 
 // components
 import { AlertsComponent } from './containers/alerts.component';
+import { SnoozeAlertDialogComponent } from './components/snooze-alert-dialog/snooze-alert-dialog.component';
 
 // directives
 
@@ -35,7 +36,8 @@ import { AlertsComponent } from './containers/alerts.component';
         ])
     ],
     declarations: [
-        AlertsComponent
+        AlertsComponent,
+        SnoozeAlertDialogComponent
     ],
     providers: [
         AlertsService
