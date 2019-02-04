@@ -155,12 +155,16 @@ export class DBSettingsState {
 
     @Action(LoadDashboardTags)
     loadDashboardTags(ctx: StateContext<DBSettingsModel>, { metrics }: LoadDashboardTags) {
-        const query = { metrics: metrics }; // unique metric
-        return this.httpService.getTagKeys(query).pipe(
-            map( (tags: any) => {
-                ctx.dispatch(new UpdateDashboardTags(tags));
-            })
-        );
+        if (metrics.length) {
+            const query = { metrics: metrics }; // unique metric
+            return this.httpService.getTagKeys(query).pipe(
+                map( (tags: any) => {
+                    ctx.dispatch(new UpdateDashboardTags(tags));
+                })
+            );
+        } else {
+            ctx.dispatch(new UpdateDashboardTags([]));
+        }
     }
 
     @Action(LoadDashboardTagValues)

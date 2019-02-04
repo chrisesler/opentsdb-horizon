@@ -309,7 +309,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     // console.log('dashboardSaveRequest', this.dbid, payload);
                     break;
                 case 'dashboardSettingsToggleRequest':
-
                     this.interCom.responsePut({
                         id: message.id,
                         action: 'dashboardSettingsToggleResponse',
@@ -319,6 +318,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             dbTags: this.dbTags
                         }
                     });
+                    this.store.dispatch(new LoadDashboardTags(this.dbService.getMetricsFromWidgets(this.widgets)));
                     break;
                 case 'updateDashboardSettings':
                     // this.store.dispatch(new UpdateVariables(message.payload));
@@ -393,10 +393,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // console.log('--- widget subscription---', widgets, dbstate.loaded);
             if (dbstate.loaded) {
                 this.widgets = widgets;
-                const metrics = this.dbService.getMetricsFromWidgets(widgets);
-                if (metrics.length) {
-                    this.store.dispatch(new LoadDashboardTags(metrics));
-                }
             }
         });
 
@@ -490,6 +486,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dbTagsSub = this.dbTags$.subscribe(tags => {
             // console.log('__DB TAGS___', tags);
             this.dbTags = tags ? tags : [];
+            this.interCom.responsePut({
+                action: 'updateDashboardTags',
+                payload: this.dbTags
+            });
         });
 
         this.tagValuesSub = this.tagValues$.subscribe(data => {
