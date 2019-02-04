@@ -1,7 +1,7 @@
 <div class="presets" #presetsDiv>
     <h2>Preset Time Range</h2>
     <div class="preset-buttons" fxLayout="row" style="width: 100%;">
-        <div class="preset-button" fxFlex="1 1 50px" *ngFor="let preset of presets">
+        <div class="preset-button" fxFlex="1 1 50px" fxFlex.xs="1 1 20%" *ngFor="let preset of presets">
             <!-- preset buttons  -->
             <button mat-flat-button class="nav-bar-dropmenu time-picker-menu time-preset-button"
                 (focusout)="closePresets(preset)"
@@ -27,7 +27,7 @@
 
 <div class="custom-time-range" fxLayout="column">
     <h2>Custom Time Range</h2>
-    <div class="time-ranges" fxLayout="row">
+    <div class="time-ranges" fxLayout="row" fxLayout.xs="column">
         <!-- start time -->
         <datepicker2 #daytimePickerStart 
             [timezone]="timezone"
@@ -39,9 +39,7 @@
             (open)="startCalendarOpened()"
             (close)="startCalendarClosed()"
             (onEnter)="enterKeyedOnInputBox()"
-            (onFocus)="startInputFocused()"
-            style="margin-right: 5px;"
-            >
+            (onFocus)="startInputFocused()">
         </datepicker2>
 
         <!-- end time -->
@@ -55,16 +53,14 @@
             (open)="endCalendarOpened()"
             (close)="endCalendarClosed()"
             (onEnter)="enterKeyedOnInputBox()"
-            (onFocus)="endInputFocused()"
-            style="margin-left: 5px;"
-            >
+            (onFocus)="endInputFocused()">
         </datepicker2>
 
     </div>
 
-<div class="dtp-action-controls" *ngIf="showApply">
-    <button mat-raised-button class="mat-elevation-z0" color="primary" id="button-apply" (click)="applyClicked()" [disabled]="daytimePickerStart.formFields.dateInput.errors || daytimePickerEnd.formFields.dateInput.errors">Apply</button>
-    <button mat-stroked-button color="primary" id="button-cancel" (click)="cancelClicked()" >Cancel</button>
+<div class="dtp-action-controls" *ngIf="showApply" fxLayout.xs="row">
+    <button mat-raised-button class="mat-elevation-z0" color="primary" id="button-apply" (click)="applyClicked()" fxFlex.xs="1 1 100%" [disabled]="daytimePickerStart.formFields.dateInput.errors || daytimePickerEnd.formFields.dateInput.errors">Apply</button>
+    <button mat-stroked-button color="primary" id="button-cancel" (click)="cancelClicked()" fxFlex.xs="1 1 100%">Cancel</button>
 </div>
 
   <!-- <div class="time-range"><b>Time range:</b> {{startTimeSelected}} <b>to</b> {{endTimeSelected}}</div> -->

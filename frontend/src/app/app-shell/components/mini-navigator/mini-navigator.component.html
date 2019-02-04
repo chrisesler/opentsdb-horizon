@@ -33,8 +33,8 @@
 </navigator-panel>
 <div class="mini-navigator-actions">
     <span class="flex-spacer"></span>
-    <button mat-button color="primary" *ngIf="moveEnabled" (click)="navigatorAction('move')">MOVE {{selected.folder ? 'TO FOLDER' : 'HERE'}}</button>
-    <button mat-button color="primary" *ngIf="selectEnabled" (click)="navigatorAction('select')">SELECT {{selected.folder ? 'FOLDER' : 'HERE'}}</button>
-    <button mat-button color="primary" (click)="navigatorAction('cancel')">CANCEL</button>
+    <button mat-button *ngIf="moveEnabled" (click)="navigatorAction('move')">MOVE {{selected.folder ? 'TO FOLDER' : 'HERE'}}</button>
+    <button mat-button *ngIf="selectEnabled" (click)="navigatorAction('select')">SELECT {{selected.folder ? 'FOLDER' : 'HERE'}}</button>
+    <button mat-button (click)="navigatorAction('cancel')">CANCEL</button>
 </div>
 </ng-container>

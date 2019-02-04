@@ -27,33 +27,41 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
-    
+    $navbar-background: map-get($background, navbar);
+    $navbar-text: find-color-invert($navbar-background);
+    //$menu-background: if($is-dark-theme, lighten(map-get($primary, default), 5%), lighten(map-get($background, navbar), 5%) );
+    $menu-background: map-get($background, card);
+
+    $menu-background-hover: find-color-invert($menu-background);
 
     .mini-navigator-folders {
         // content here
 
         .mat-list .mat-list-item,
         .mat-nav-list .mat-list-item {
-            color: rgba(255,255,255,.65);
+            color: rgba($navbar-background,.65);
 
             .path-icon,
             .folder-icon,
-            .dashboard-icon {
+            .dashboard-icon
+            .goto-next-folder {
                 margin-right: 8px;
-                color: rgba(255,255,255,.5);
+                color: inherit;
             }
+
+            
 
             &.is-active,
             &.is-selected {
-                color: rgba(255,255,255,.85);
+                color: rgba($navbar-text,.85);
             }
 
             &.is-selected {
-                background-color: map-get($primary, default);
+                background-color: $navbar-background;
             }
 
             &:not(:last-child) {
-                border-bottom: 1px solid rgba(255,255,255,.07);
+                border-bottom: 1px solid rgba($navbar-background,.07);
             }
 
             &:first-child {

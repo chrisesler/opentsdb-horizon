@@ -36,7 +36,7 @@
 
     .navbar-timezone-toggle {
         .timezone-toggle-options.sliding-button-group {
-            background-color: lighten(map-get($background, navbar), 4%);
+            background-color: darken(map-get($background, navbar), 4%);
 
             .mat-tab-link {
                 &,

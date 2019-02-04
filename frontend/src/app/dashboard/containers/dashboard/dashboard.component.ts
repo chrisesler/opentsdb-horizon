@@ -16,7 +16,14 @@ import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel } from '../../state/widgets.state';
-import { WidgetsRawdataState, GetQueryDataByGroup, SetQueryDataByGroup, ClearQueryData, CopyWidgetData, ClearWidgetsData } from '../../state/widgets-data.state';
+import {
+    WidgetsRawdataState,
+    GetQueryDataByGroup,
+    SetQueryDataByGroup,
+    ClearQueryData,
+    CopyWidgetData,
+    ClearWidgetsData
+} from '../../state/widgets-data.state';
 import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import {
     DBSettingsState,
@@ -30,7 +37,7 @@ import {
     UpdateVariables,
     UpdateMeta
 } from '../../state/settings.state';
-import { NavigatorState } from '../../../app-shell/state/navigator.state';
+import { AppShellState, NavigatorState } from '../../../app-shell/state';
 import { MatMenuTrigger, MenuPositionX, MatSnackBar } from '@angular/material';
 import {
     SearchMetricsDialogComponent
@@ -64,10 +71,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
 
+    @Select(AppShellState.getCurrentMediaQuery) mediaQuery$: Observable<string>;
+
     // temporary disable for now, will delete once we are clear
     // @Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
-    @Select(NavigatorState.getNavigatorSideNav) sideNav$: Observable<any>;
+    // @Select(NavigatorState.getNavigatorSideNav) sideNav$: Observable<any>;
+    @Select(NavigatorState.getDrawerOpen) drawerOpen$: Observable<any>;
 
     // available widgets menu trigger
     @ViewChild('availableWidgetsMenuTrigger', { read: MatMenuTrigger }) availableWidgetsMenuTrigger: MatMenuTrigger;
@@ -149,7 +159,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dbModeSub: Subscription;
     private routeSub: Subscription;
     authSub: Subscription;
-    sideNavSub: Subscription;
+    drawerOpenSub: Subscription;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
@@ -161,6 +171,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
+
+    mediaQuerySub: Subscription;
+    // tslint:disable-next-line:no-inferrable-types
+    activeMediaQuery: string = '';
 
     constructor(
         private store: Store,
@@ -186,7 +200,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
             } else {
-                let paths = [];
+                const paths = [];
                 url.forEach(segment => {
                     paths.push(segment.path);
                 });
@@ -204,7 +218,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(message.id));
                     let hasQueryError = false;
                     if ( widgetCachedData ) {
-                        for ( let qid in widgetCachedData ) {
+                        for ( const qid in widgetCachedData ) {
                             if ( !widgetCachedData[qid] || widgetCachedData[qid]['error'] !== undefined ) {
                                 hasQueryError = true;
                             }
@@ -217,7 +231,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.updateWidgetGroup(message.id, widgetCachedData);
                     }
                     break;
-                
+
                 case 'setDashboardEditMode':
                     // copy the widget data to editing widget
                     if ( message.id ) {
@@ -328,6 +342,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 default:
                     break;
             }
+        });
+
+        this.mediaQuerySub = this.mediaQuery$.subscribe( currentMediaQuery => {
+            this.activeMediaQuery = currentMediaQuery;
         });
 
         this.loadedRawDB$.subscribe(db => {
@@ -520,7 +538,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.sideNavSub = this.sideNav$.subscribe( sideNav => {
+        this.drawerOpenSub = this.drawerOpen$.subscribe( sideNav => {
             setTimeout(() => {
                 this.rerender = { 'reload': true };
             }, 300);
@@ -733,7 +751,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dbStatusSub.unsubscribe();
         this.dbErrorSub.unsubscribe();
         this.authSub.unsubscribe();
-        this.sideNavSub.unsubscribe();
+        this.drawerOpenSub.unsubscribe();
+        this.mediaQuerySub.unsubscribe();
         // we need to clear dashboard state
         // this.store.dispatch(new dashboardActions.ResetDashboardState);
     }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -116,7 +116,35 @@ export class DashboardNavigatorService {
      */
 
     // get a specific user
-    getUser(id: string) {}
+    getUser(id?: string) {
+
+        let apiUrl = environment.configdb2 + '/user';
+        if (id) {
+            apiUrl = apiUrl + '/' + id;
+        }
+
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
+        this.apiLog(id ? 'Get Specific User' : 'Get User', {
+            id,
+            apiUrl
+        });
+
+        return this.http.get(apiUrl, {
+            headers: headers,
+            withCredentials: true,
+            observe: 'response'
+        });
+
+    }
+
+    getAllUsers() {
+        this.apiLog('Get User List');
+        const apiUrl = environment.configdb2 + '/user/list';
+        this.httpGet(apiUrl);
+    }
 
     // get my namespaces
     getUserNamespaces() {

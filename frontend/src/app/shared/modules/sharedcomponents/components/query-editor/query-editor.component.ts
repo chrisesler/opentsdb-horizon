@@ -12,12 +12,10 @@ import {
     OnDestroy,
     SimpleChanges
 } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl, AbstractControl, ValidatorFn } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { Observable, of, BehaviorSubject } from 'rxjs';
-import { map, startWith, debounceTime, switchMap, filter, catchError } from 'rxjs/operators';
+import { startWith, debounceTime, catchError } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
-
-
 import { HttpService } from '../../../../../core/http/http.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
@@ -100,6 +98,11 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                                                 this.triggerQueryChanges();
                                             }
                                         });
+
+        // TODO: find better place for this
+        if (typeof this.query.settings.explicitTagMatch === 'undefined') {
+            this.query.settings.explicitTagMatch = false;
+        }
     }
 
     initExpressionForm() {
@@ -586,6 +589,11 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             },
         };
         return expression;
+    }
+
+    toggleExplictTagMatch(e: any) {
+        this.query.settings.explicitTagMatch = e.checked;
+        this.queryChanges$.next(true);
     }
 
     cancelExpression() {
