@@ -30,7 +30,7 @@ $widgets-common-config: (
 
     .widget-panel-content {
         @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
-        padding-top: 10px;
+        padding-top: 21px;
         
         .widget-config {
             padding: 0 $default-padding;
