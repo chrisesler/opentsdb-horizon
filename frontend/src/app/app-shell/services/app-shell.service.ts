@@ -124,8 +124,8 @@ export class AppShellService {
             apiUrl
         });
 
-        return this.http.post(apiUrl, {
-            headers: headers,
+        return this.http.post(apiUrl, {}, {
+            // headers: headers,
             withCredentials: true,
             observe: 'response'
         });
