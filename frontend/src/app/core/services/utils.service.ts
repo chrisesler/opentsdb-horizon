@@ -13,6 +13,17 @@ export class UtilsService {
     return Math.random().toString(36).substring(start, len + start);
   }
 
+  convertPatternTSDBCompat(searchPattern) {
+    searchPattern = searchPattern.replace(/\s+/g, ".*");
+    if ((searchPattern).search(/^\s*\.\*/) === -1) {
+        searchPattern = '.*' + searchPattern;
+    }
+    if ((searchPattern).search(/\.\*\s*$/) === -1) {
+        searchPattern = searchPattern + '.*'
+    }
+    return searchPattern.toLowerCase();
+}
+
   modifyWidgets(dashboard: any) {
     // add extra info item behaviors
     for (let i = 0; i < dashboard.widgets.length; i++) {

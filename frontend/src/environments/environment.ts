@@ -5,9 +5,19 @@
 
 export const environment = {
   production: false,
-  // tsdb_host: 'https://tsdbr-1-bf2.yamas.ouroath.com:4443',
   tsdb_host: 'https://tsdbr-1-bf2.yamas.ouroath.com:4443',
+  tsdb_hosts: [
+    'https://metrics-a.yamas.ouroath.com:443',
+    'https://metrics-b.yamas.ouroath.com:443',
+    'https://metrics-c.yamas.ouroath.com:443',
+    'https://metrics-d.yamas.ouroath.com:443',
+    'https://metrics-e.yamas.ouroath.com:443',
+    'https://metrics-f.yamas.ouroath.com:443',
+    'https://metrics-g.yamas.ouroath.com:443',
+  ],
   // configdb: 'http://stg-horizon-service-1.yms.gq1.yahoo.com:4080/api/v1'
   configdb: 'https://stg-horizonapi.yamas.ouroath.com:4443/api/v1',
-  configdb2: 'https://stg-horizonapi.yamas.ouroath.com:4443/api/v1'
+  configdb2: 'https://stg-horizonapi.yamas.ouroath.com:4443/api/v1',
+  metaApi: 'https://tsdbr-20-gq1.yamas.ouroath.com:4443/api/'
+  // metaApi: 'https://meta.yamas.ouroath.com:443/api'
 };

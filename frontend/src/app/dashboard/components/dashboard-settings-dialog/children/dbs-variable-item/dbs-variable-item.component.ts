@@ -113,7 +113,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
                     payload: {
                         tag : {
                             key: this.tagk.value.trim(),
-                            value: 'regexp(' + payload + ')'
+                            value: payload
                         }
                     }
                 });

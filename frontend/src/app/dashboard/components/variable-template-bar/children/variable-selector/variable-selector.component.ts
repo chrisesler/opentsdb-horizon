@@ -100,7 +100,7 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
                         payload: {
                             tag : {
                                 key: this.tagk.value.trim(),
-                                value: 'regexp(' + payload + ')'
+                                value:  payload
                             }
                         }
                     });
