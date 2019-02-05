@@ -12,5 +12,5 @@ export const environment = {
   ],
   configdb: 'https://stg-horizonapi.yamas.ouroath.com:4443/api/v1',
   configdb2: 'https://stg-horizonapi.yamas.ouroath.com:4443/api/v1',
-  metaApi: 'https://meta.yamas.ouroath.com:4443/api'
+  metaApi: 'https://meta.yamas.ouroath.com:443/api'
 };
