@@ -17,6 +17,7 @@
 @import 'components/donut-widget/children/donutchart-config-metric-queries/donutchart-config-metric-queries.component';
 @import 'components/barchart-widget/children/barchart-config-metric-queries/barchart-config-metric-queries.component';
 @import 'components/bignumber-widget/children/bignumber-config-metric-queries/bignumber-config-metric-queries.component';
+@import 'components/markdown-widget/markdown-widget.component';
 
 @mixin dynamic-widgets-module-core() {
     // common
@@ -37,6 +38,7 @@
     @include barchart-config-metric-queries-component-base();
     @include bignumber-config-metric-queries-component-base();
     @include stacked-barchart-config-metric-queries-component-base();
+    @include markdown-widget-component-base();
 
 }
 
@@ -58,4 +60,5 @@
     @include barchart-config-metric-queries-component-theme($theme-config);
     @include bignumber-config-metric-queries-component-theme($theme-config);
     @include stacked-barchart-config-metric-queries-component-theme($theme-config);
+    @include markdown-widget-component-theme($theme-config);
 }

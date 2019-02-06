@@ -41,7 +41,13 @@ export class PlaceholderWidgetComponent implements OnInit {
             label: 'Donut Chart',
             type: 'DonutWidgetComponent',
             iconClass: 'widget-icon-donut-chart'
-        }/*,
+        },
+        {
+            label: 'Marked Text',
+            type: 'MarkdownWidgetComponent',
+            iconClass: ''
+        }
+        /*,
         {
             label: 'Statuses',
             type: 'WidgetStatusComponent',

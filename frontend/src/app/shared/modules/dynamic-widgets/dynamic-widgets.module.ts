@@ -6,7 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 /** Other modules */
 import { MaterialModule } from '../material/material.module';
 import { DygraphsModule } from '../dygraphs/dygraphs.module';
-import { D3Module } from '../d3/d3.module'
+import { D3Module } from '../d3/d3.module';
 import { ChartjsModule } from '../chartjs/chartjs.module';
 import { SharedcomponentsModule } from '../sharedcomponents/sharedcomponents.module';
 
@@ -36,6 +36,7 @@ import {
 } from './components/barchart-widget';
 
 import { StatusWidgetComponent } from './components/status-widget/status-widget.component';
+import { MarkdownWidgetComponent } from './components/markdown-widget/markdown-widget.component';
 
 @NgModule({
     imports: [
@@ -60,7 +61,8 @@ import { StatusWidgetComponent } from './components/status-widget/status-widget.
         StatusWidgetComponent,
         StackedBarchartVisualAppearanceComponent,
         StackedBarchartConfigMetricQueriesComponent,
-        DonutchartLegendComponent
+        DonutchartLegendComponent,
+        MarkdownWidgetComponent
     ],
     declarations: [
         PlaceholderWidgetComponent,
@@ -78,7 +80,8 @@ import { StatusWidgetComponent } from './components/status-widget/status-widget.
         BarchartConfigMetricQueriesComponent,
         BignumberConfigMetricQueriesComponent,
         StackedBarchartConfigMetricQueriesComponent,
-        DropdownStacksComponent
+        DropdownStacksComponent,
+        MarkdownWidgetComponent
     ],
     entryComponents: [
         PlaceholderWidgetComponent,
@@ -89,7 +92,8 @@ import { StatusWidgetComponent } from './components/status-widget/status-widget.
         BignumberWidgetComponent,
         BignumberVisualAppearanceComponent,
         DonutWidgetComponent,
-        StatusWidgetComponent
+        StatusWidgetComponent,
+        MarkdownWidgetComponent
     ]
 })
 export class DynamicWidgetsModule { }
