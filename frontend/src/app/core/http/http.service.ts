@@ -61,7 +61,7 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json'
         });
-        const apiUrl = environment.metaApi + 'search/timeseries';
+        const apiUrl = environment.metaApi + '/search/timeseries';
         const query = this.metaService.getQuery('NAMESPACES', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
           .pipe(
@@ -83,7 +83,7 @@ export class HttpService {
           }
           newQueryParams[namespace].metrics.push(metric);
         }
-        const apiUrl = environment.metaApi + 'search/timeseries';
+        const apiUrl = environment.metaApi + '/search/timeseries';
         const query = this.metaService.getQuery('TAG_KEYS', Object.values(newQueryParams));
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
@@ -103,7 +103,7 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json'
         });
-        const apiUrl = environment.metaApi + 'search/timeseries';
+        const apiUrl = environment.metaApi + '/search/timeseries';
         const query = this.metaService.getQuery('METRICS', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
@@ -115,7 +115,7 @@ export class HttpService {
       const headers = new HttpHeaders({
         'Content-Type': 'application/json'
       });
-      const apiUrl = environment.metaApi + 'search/timeseries';
+      const apiUrl = environment.metaApi + '/search/timeseries';
       const query = this.metaService.getQuery('TAG_KEYS', queryObj);
       return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
@@ -127,7 +127,7 @@ export class HttpService {
       const headers = new HttpHeaders({
         'Content-Type': 'application/json'
       });
-      const apiUrl = environment.metaApi + 'search/timeseries';
+      const apiUrl = environment.metaApi + '/search/timeseries';
       const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj);
       return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
@@ -150,7 +150,7 @@ export class HttpService {
           }
           newQueryParams[namespace].metrics.push(metric);
         }
-        const apiUrl = environment.metaApi + 'search/timeseries';
+        const apiUrl = environment.metaApi + '/search/timeseries';
         const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', Object.values(newQueryParams));
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
