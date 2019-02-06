@@ -42,6 +42,8 @@ import { SnoozeAlertDialogComponent } from './components/snooze-alert-dialog/sno
     providers: [
         AlertsService
     ],
-    // entryComponents: []
+    entryComponents: [
+        SnoozeAlertDialogComponent
+    ]
 })
 export class AlertsModule { }

@@ -4,7 +4,8 @@ import {
     HostBinding,
     OnDestroy,
     OnInit,
-    ViewChild
+    ViewChild,
+    TemplateRef
 } from '@angular/core';
 
 import { SelectionModel } from '@angular/cdk/collections';
@@ -13,8 +14,13 @@ import {
     MatMenuTrigger,
     MatPaginator,
     MatTableDataSource,
-    MatSort
+    MatSort,
+    MatDialog,
+    MatDialogConfig,
+    MatDialogRef,
+    DialogPosition
 } from '@angular/material';
+
 
 import { Observable, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
@@ -33,6 +39,8 @@ import {
     ASsetAlertTypeFilter
 } from '../state/alerts.state';
 
+import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
+
 @Component({
     selector: 'app-alerts',
     templateUrl: './alerts.component.html',
@@ -44,6 +52,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) dataSourceSort: MatSort;
+
+    @ViewChild('confirmDeleteDialog', {read: TemplateRef}) confirmDeleteDialogRef: TemplateRef<any>;
 
     // STATE
     private stateSubs = {};
@@ -110,8 +120,15 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     alertFilterTypes = ['all', 'alerting', 'snoozed', 'disabled'];
 
+    // SNOOZE dialog
+    snoozeAlertDialog: MatDialogRef<SnoozeAlertDialogComponent> | null;
+
+    // confirmDelete Dialog
+    confirmDeleteDialog: MatDialogRef<TemplateRef<any>> | null;
+
     constructor(
-        private store: Store
+        private store: Store,
+        private dialog: MatDialog,
     ) { }
 
     ngOnInit() {
@@ -237,6 +254,51 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 responseRequested: true
             })
         );
+    }
+
+    /** actions */
+
+    createAlert(type: string) {
+        // console.log('[CLICK] CREATE ALERT', type);
+    }
+
+    openSnoozeAlertDialog(alertObj: any) {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        dialogConf.autoFocus = false;
+        // dialogConf.width = '100%';
+        // dialogConf.maxWidth = '600px';
+        // dialogConf.height = 'auto';
+        // dialogConf.hasBackdrop = true;
+        // dialogConf.direction = 'ltr';
+        // dialogConf.backdropClass = 'snooze-alert-dialog-backdrop';
+        dialogConf.panelClass = 'snooze-alert-dialog-panel';
+        /*dialogConf.position = <DialogPosition>{
+            top: '48px',
+            bottom: '0px',
+            left: '0px',
+            right: '0px'
+        };*/
+        dialogConf.data = { alert: alertObj };
+
+        this.snoozeAlertDialog = this.dialog.open(SnoozeAlertDialogComponent, dialogConf);
+        // this.snoozeAlertDialog.updatePosition({ top: '48px' });
+        this.snoozeAlertDialog.afterClosed().subscribe((dialog_out: any) => {
+            // console.log('SNOOZE ALERT DIALOG [afterClosed]', dialog_out);
+        });
+    }
+
+    deleteAlert(alertObj: any) {
+        this.confirmDeleteDialog = this.dialog.open(this.confirmDeleteDialogRef, {data: alertObj});
+        this.confirmDeleteDialog.afterClosed().subscribe(event => {
+            // console.log('CONFIRM DELETE DIALOG [afterClosed]', event);
+            // if deleted, event will be object {deleted: true}
+            // or whatever you want it to be....
+        });
+    }
+
+    confirmAlertDelete(alertObj: any) {
+        // do some delete logic here?
+        this.confirmDeleteDialog.close({deleted: true});
     }
 
 }
