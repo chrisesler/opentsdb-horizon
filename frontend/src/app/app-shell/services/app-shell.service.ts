@@ -77,8 +77,7 @@ export class AppShellService {
             headers: headers,
             withCredentials: true,
             responseType: 'json'
-        })
-        .pipe(
+        }).pipe(
             catchError(this.handleError)
         );
     }
@@ -111,7 +110,9 @@ export class AppShellService {
             headers: headers,
             withCredentials: true,
             observe: 'response'
-        });
+        }).pipe(
+            catchError(this.handleError)
+        );
     }
 
     createUser() {
@@ -124,10 +125,12 @@ export class AppShellService {
             apiUrl
         });
 
-        return this.http.post(apiUrl, {
-            headers: headers,
+        return this.http.post(apiUrl, {}, {
+            // headers: headers,
             withCredentials: true,
             observe: 'response'
-        });
+        }).pipe(
+            catchError(this.handleError)
+        );
     }
 }
