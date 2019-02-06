@@ -77,8 +77,7 @@ export class AppShellService {
             headers: headers,
             withCredentials: true,
             responseType: 'json'
-        })
-        .pipe(
+        }).pipe(
             catchError(this.handleError)
         );
     }
@@ -111,7 +110,9 @@ export class AppShellService {
             headers: headers,
             withCredentials: true,
             observe: 'response'
-        });
+        }).pipe(
+            catchError(this.handleError)
+        );
     }
 
     createUser() {
@@ -128,6 +129,8 @@ export class AppShellService {
             // headers: headers,
             withCredentials: true,
             observe: 'response'
-        });
+        }).pipe(
+            catchError(this.handleError)
+        );
     }
 }
