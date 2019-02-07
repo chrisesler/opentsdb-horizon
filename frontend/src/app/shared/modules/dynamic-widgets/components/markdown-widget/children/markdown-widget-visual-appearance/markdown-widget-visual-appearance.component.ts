@@ -20,7 +20,7 @@ export class MarkdownWidgetVisualAppearanceComponent implements OnInit {
   colorType: string;
 
   ngOnInit() {
-    this.colorType = 'background'; // default color tab
+    this.colorType = 'text'; // default color tab
   }
 
     // Color Picker

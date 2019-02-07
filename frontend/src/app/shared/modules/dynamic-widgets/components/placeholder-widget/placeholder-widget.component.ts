@@ -43,7 +43,7 @@ export class PlaceholderWidgetComponent implements OnInit {
             iconClass: 'widget-icon-donut-chart'
         },
         {
-            label: 'Marked Text',
+            label: 'Text',
             type: 'MarkdownWidgetComponent',
             iconClass: ''
         }
