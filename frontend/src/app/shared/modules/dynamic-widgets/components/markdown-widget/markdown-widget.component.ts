@@ -20,7 +20,6 @@ export class MarkdownWidgetComponent implements OnInit {
   private listenSub: Subscription;
 
   ngOnInit() {
-
     this.setDefaults();
 
     this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {

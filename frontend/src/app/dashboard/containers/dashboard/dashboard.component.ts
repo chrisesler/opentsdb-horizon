@@ -138,9 +138,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
             iconClass: 'widget-icon-donut-chart'
         },
         {
-            label: 'Text',
+            label: 'Notes',
             type: 'MarkdownWidgetComponent',
-            iconClass: ''
+            iconClass: 'widget-icon-notes'
         }/*,
         {
             label: 'Statuses',

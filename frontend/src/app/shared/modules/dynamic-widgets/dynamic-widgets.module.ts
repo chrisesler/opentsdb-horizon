@@ -14,8 +14,6 @@ import { PlaceholderWidgetComponent } from './components/placeholder-widget/plac
 import { LinechartWidgetComponent } from './components/linechart-widget/linechart-widget.component';
 import { DeveloperWidgetComponent } from './components/developer-widget/developer-widget.component';
 import { MarkdownModule } from 'ngx-markdown';
-import { CodemirrorModule } from '@ctrl/ngx-codemirror';
-import 'codemirror/mode/markdown/markdown';
 
 import {
     BignumberWidgetComponent,
@@ -53,8 +51,7 @@ import { MarkdownWidgetVisualAppearanceComponent } from './components/markdown-w
         ChartjsModule,
         D3Module,
         SharedcomponentsModule,
-        MarkdownModule.forRoot(),
-        CodemirrorModule
+        MarkdownModule.forRoot()
     ],
     exports: [
         PlaceholderWidgetComponent,

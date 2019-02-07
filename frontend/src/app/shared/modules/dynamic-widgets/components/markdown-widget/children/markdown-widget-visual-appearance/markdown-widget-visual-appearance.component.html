@@ -1,22 +1,24 @@
-<div class="color-container column" *ngIf="widget.settings.visual">
-    <span class="mat-body-strong">Color Family</span>
-    <div class="config-control color-picker-control mat-elevation-z1">
-        <mat-button-toggle-group #colorGroup="matButtonToggleGroup" [value]="colorType" (change)="selectedColorType(colorGroup.value)">
-            <mat-button-toggle id="text" mat-button value="text">Text</mat-button-toggle>
-            <mat-button-toggle id="backgroud" mat-button value="background">Background</mat-button-toggle>
-        </mat-button-toggle-group>
+<div class="container">
+    <div class="color-container column" *ngIf="widget.settings.visual">
+        <span class="mat-body-strong">Color Family</span>
+        <div class="config-control color-picker-control mat-elevation-z1">
+            <mat-button-toggle-group #colorGroup="matButtonToggleGroup" [value]="colorType" (change)="selectedColorType(colorGroup.value)">
+                <mat-button-toggle id="text" mat-button value="text">Text</mat-button-toggle>
+                <mat-button-toggle id="backgroud" mat-button value="background">Background</mat-button-toggle>
+            </mat-button-toggle-group>
+            <div>
+                <color-picker *ngIf="colorType === 'text'" [pickerMode]="'embedded'" (newColor)="colorChanged($event)" [color]="widget.settings.visual.textColor">
+                </color-picker>
+                <color-picker *ngIf="colorType === 'background'" [pickerMode]="'embedded'" (newColor)="colorChanged($event)" [color]="widget.settings.visual.backgroundColor">
+                </color-picker>
+            </div>
+        </div>
+    </div>
+    
+    <div class="font-container column" *ngIf="widget.settings.visual">
+        <span class="mat-body-strong">Font</span>
         <div>
-            <color-picker *ngIf="colorType === 'text'" [pickerMode]="'embedded'" (newColor)="colorChanged($event)" [color]="widget.settings.visual.textColor">
-            </color-picker>
-            <color-picker *ngIf="colorType === 'background'" [pickerMode]="'embedded'" (newColor)="colorChanged($event)" [color]="widget.settings.visual.backgroundColor">
-            </color-picker>
+            <mat-slide-toggle id="font-toggle" [checked]="widget.settings.visual.font === 'monospace'" (change)="fontFamilyChanged($event.checked)">Monospace?</mat-slide-toggle>
         </div>
     </div>
 </div>
-
-<div class="font-container column" *ngIf="widget.settings.visual">
-    <span class="mat-body-strong">Font</span>
-    <mat-slide-toggle [checked]="widget.settings.visual.font === 'monospace'" (change)="fontFamilyChanged($event.checked)">Monospace?</mat-slide-toggle>
-</div>
-
-<br>
