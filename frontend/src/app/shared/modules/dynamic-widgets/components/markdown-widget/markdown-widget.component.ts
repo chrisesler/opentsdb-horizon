@@ -15,7 +15,7 @@ export class MarkdownWidgetComponent implements OnInit {
   @Input() editMode: boolean;
   @Input() widget: any;
 
-  markedText: string = 'blahh';
+  markedText: string = '[Im an inline-style link](https://www.google.com)';
   isDataRefreshRequired = false;
 
   ngOnInit() {

@@ -8,9 +8,11 @@
       </span>
   </div>
 
-  <div class="widget-output" #widgetoutput>
-      <div class="widget-container">
-          {{markedText}}
+  <div class="widget-output notCentered" #widgetoutput>
+      <div class="widget-container" [ngClass]="{'top-padding': !editMode}">
+        <span class="markdown-body">
+          <markdown [data]="markedText"></markdown>
+        </span>
       </div>
   </div>
 </div>
@@ -20,6 +22,18 @@
   <mat-tab-group class="widget-configs" selectedIndex="0" color="primary" [@.disabled]="'true'">
       <mat-tab label="Text" [disabled]="editQueryId">
           <ng-template matTabContent>
+
+            <!-- <div>
+                <ngx-codemirror 
+                [(ngModel)]="markedText" 
+                [options]="{
+                  lineNumbers: true,
+                  theme: 'material'
+                }"
+              ></ngx-codemirror>
+            </div> -->
+
+
               <mat-form-field class="inputArea">
                 <textarea matInput [value]="markedText" (keyup)="textChanged($event.target.value)"></textarea>
               </mat-form-field>

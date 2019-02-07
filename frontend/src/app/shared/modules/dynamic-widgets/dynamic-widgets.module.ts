@@ -13,6 +13,9 @@ import { SharedcomponentsModule } from '../sharedcomponents/sharedcomponents.mod
 import { PlaceholderWidgetComponent } from './components/placeholder-widget/placeholder-widget.component';
 import { LinechartWidgetComponent } from './components/linechart-widget/linechart-widget.component';
 import { DeveloperWidgetComponent } from './components/developer-widget/developer-widget.component';
+import { MarkdownModule } from 'ngx-markdown';
+import { CodemirrorModule } from '@ctrl/ngx-codemirror';
+import 'codemirror/mode/markdown/markdown';
 
 import {
     BignumberWidgetComponent,
@@ -37,6 +40,7 @@ import {
 
 import { StatusWidgetComponent } from './components/status-widget/status-widget.component';
 import { MarkdownWidgetComponent } from './components/markdown-widget/markdown-widget.component';
+import { MarkdownWidgetVisualAppearanceComponent } from './components/markdown-widget/markdown-widget-visual-appearance/markdown-widget-visual-appearance.component';
 
 @NgModule({
     imports: [
@@ -47,7 +51,9 @@ import { MarkdownWidgetComponent } from './components/markdown-widget/markdown-w
         DygraphsModule,
         ChartjsModule,
         D3Module,
-        SharedcomponentsModule
+        SharedcomponentsModule,
+        MarkdownModule.forRoot(),
+        CodemirrorModule
     ],
     exports: [
         PlaceholderWidgetComponent,
@@ -81,7 +87,8 @@ import { MarkdownWidgetComponent } from './components/markdown-widget/markdown-w
         BignumberConfigMetricQueriesComponent,
         StackedBarchartConfigMetricQueriesComponent,
         DropdownStacksComponent,
-        MarkdownWidgetComponent
+        MarkdownWidgetComponent,
+        MarkdownWidgetVisualAppearanceComponent
     ],
     entryComponents: [
         PlaceholderWidgetComponent,
