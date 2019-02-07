@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
+import { UtilsService } from '../../../core/services/utils.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
@@ -171,6 +172,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private dbService: DashboardService,
         private cdkService: CdkService,
         private queryService: QueryService,
+        private utilService: UtilsService,
         private dateUtil: DateUtilsService,
         private dialog: MatDialog,
         private snackBar: MatSnackBar,
@@ -198,6 +200,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.cdkService.setNavbarPortal(this.dashboardNavbarPortal);
 
         // ready to handle request from children of DashboardModule
+        let widgets;
         this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
             switch (message.action) {
                 case 'getWidgetCachedData':
@@ -231,6 +234,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new DeleteWidget(message.payload.widgetId));
                     this.rerender = { 'reload': true };
                     break;
+                case 'cloneWidget':
+                    widgets = JSON.parse(JSON.stringify(this.widgets));
+                    for ( let i =0 ; i < this.widgets.length; i++ ) {
+                        console.log(this.widgets[i].id, this.widgets[i].gridPos);
+                    }
+                    const cloneWidget = message.payload;
+                    cloneWidget.id = this.utilService.generateId();
+                    cloneWidget.gridPos.x = cloneWidget.gridPos.xMd = 0;
+                    cloneWidget.gridPos.y += cloneWidget.gridPos.h; 
+                    for ( let i =0 ; i < widgets.length; i++ ) {
+                        if ( widgets[i].gridPos.y >= cloneWidget.gridPos.y ) {
+                            widgets[i].gridPos.y += cloneWidget.gridPos.h;
+                        }
+                        console.log(widgets[i].id, widgets[i].gridPos);
+                    }
+                    widgets.push(cloneWidget);
+                    this.store.dispatch(new LoadWidgets(widgets));
+                    this.rerender = { 'reload': true };
+                    break;
                 case 'closeViewEditMode':
                     this.store.dispatch(new UpdateMode(message.payload));
                     this.rerender = { 'reload': true };
@@ -240,7 +262,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.handleQueryPayload(message);
                     break;
                 case 'updateWidgetConfig':
-                    let widgets = JSON.parse(JSON.stringify(this.widgets));
+                     widgets = JSON.parse(JSON.stringify(this.widgets));
                     const mIndex = widgets.findIndex(w => w.id === message.id);
 
                     if (mIndex === -1) {
