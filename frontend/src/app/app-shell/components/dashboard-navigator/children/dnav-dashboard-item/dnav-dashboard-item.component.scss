@@ -47,19 +47,47 @@
             }
         }
 
-        &:hover,
-        &.dnav-menu-opened {
+        &:hover {
             .dnav-dashboard-menu {
                 opacity: 1;
+            }
+        }
+
+        &.dnav-menu-opened {
+            position: relative;
+
+            .dnav-dashboard-menu {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            &::after {
+                content: '';
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 9px 9px 9px 0;
+                position: absolute;
+                top: 9px;
+                right: 0;
             }
         }
     }
 
     // CDK
+
+    .dnav-cdk-mini-navigator.mat-menu-panel,
+    .dnav-cdk-dashboard-menu  {
+        margin-top: -36px;
+        margin-left: 16px;
+        border-top-left-radius: 0;
+    }
+
     .dnav-cdk-dashboard-menu {
-        //transform: translate3d(40px, -32px, 0);
-        //transform: translate3d(0px,-32px,0);
-        margin-top: -32px;
+
+        .mat-menu-content:not(:empty) {
+            padding: 8px;
+        }
 
         .mat-menu-item {
             font-size: 12px;
@@ -74,6 +102,10 @@
             }
         }
     }
+
+    // CDK Items
+    
+ 
 }
 
 @mixin dnav-dashboard-item-component-theme($theme-config) {
@@ -93,34 +125,48 @@
     $sn-seperator: map-get($navbar-config, sn-seperator);
     $sn-active: map-get($navbar-config, sn-active);
 
-    $navbar-text: map-get($foreground, navbar-text);
+    $navbar-background: map-get($background, navbar);
+    $navbar-text: find-color-invert($navbar-background);
+    //$menu-background: if($is-dark-theme, lighten(map-get($primary, default), 5%), lighten(map-get($background, navbar), 5%) );
+    $menu-background: map-get($background, card);
+
+    $menu-background-hover: find-color-invert($menu-background);
 
     .dnav-dashboard-item {
         .dnav-dashboard-menu {
             .mat-icon-button {
-                background: rgba(0, 0, 0, .2);
+                background: rgba(0, 0, 0, .1);
             }
         }
 
         &.dnav-menu-opened {
-            background: rgba(map-get($primary, default), .15);
+            background: rgba($navbar-background, .05);
+            box-shadow: inset 0 1px 0 0 rgba($navbar-background, .15), inset 0 -1px 0 0 rgba($navbar-background, .15);
+
+            &::after {
+                border-color: transparent rgba($navbar-background, .15) transparent transparent;
+            }
         }
     }
 
     // CDK
     .dnav-cdk-dashboard-menu {
         //transform: translate3d(40px, -32px, 0);
-        background-color: darken($sn-dark, 5%);
+       // background-color: darken($sn-dark, 5%);
+       background-color: $menu-background;
+       border: 1px solid rgba($navbar-background, .15);
+       border-top-left-radius: 0;
 
-        .mat-menu-item {
-            color: rgba($navbar-text,.85);
+       .mat-menu-item {
+            color: rgba($navbar-background,.85);
+
 
             .mat-icon {
-                color: rgba($navbar-text,.5);
+                color: rgba($navbar-background,.5);
             }
 
             &:hover {
-                background-color: $sn-dark;
+                background-color: rgba($menu-background-hover, .08);
             }
         }
     }

@@ -39,6 +39,15 @@
             }
         }
 
+        .mat-list .mat-list-item,
+        .mat-nav-list .mat-list-item {
+            &.no-item-message {
+                .mat-list-item-content {
+                    justify-content: center;
+                }
+            }
+        }
+
         .mat-icon {
             height: 12px;
             width: 12px;
@@ -130,7 +139,7 @@
             
             .header-label {
                 text-transform: uppercase;
-                font-weight: 300;
+                font-weight: 400;
             }
         }
 
@@ -157,13 +166,13 @@
 
         // create dashboard button
         .create-dashboard {
-            padding: 0 16px;
+            padding: 4px 16px;
             margin: 8px 0;
 
             .mat-flat-button {
                 width: 100%;
-                font-size: 12px;
-                line-height: 24px;
+                font-size: 14px;
+                line-height: 36px;
             }
 
             .mat-icon {
@@ -204,16 +213,22 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
+    $text-color: map-get($background, navbar);
+    $icon-color: $text-color;
+    $divider: map-get($foreground, divider);
+
+    $navbar-background: map-get($background, navbar);
+
     .dashboard-navigator {
 
         .panel-toolbar {
             background: transparent;
-            border-bottom: 1px solid rgba(255,255,255,.07);
-            color: rgba(255,255,255,.5);
+            border-bottom: 1px solid rgba($divider,.07);
+            color: $text-color;
 
             &.is-master-panel {
                 .header-label {
-                    color: rgba(255,255,255,.85);
+                    color: rgba($text-color,.85);
                 }
             }
         }
@@ -221,49 +236,58 @@
         .navigator-panel-item,
         .mat-list .mat-list-item,
         .mat-nav-list .mat-list-item {
-            color: rgba(255,255,255,.5);
+            color: rgba($text-color,.5);
         }
 
         .mat-list .mat-list-item,
         .mat-nav-list .mat-list-item {
-            color: rgba(255,255,255,.65);
+            //color: rgba($text-color,.65);
+            color: $text-color;
 
             .path-icon,
             .folder-icon,
             .dashboard-icon {
                 margin-right: 8px;
-                color: rgba(255,255,255,.5);
+                //color: rgba($text-color,.5);
+                color: $icon-color;
             }
 
             &.is-active {
-                color: rgba(255,255,255,.85);
+                color: rgba($text-color,.85);
             }
         }
 
         .mat-nav-list:not(.path-tree) {
             .mat-list-item:not(:last-child) {
-                border-bottom: 1px solid rgba(255,255,255,.07);
+                border-bottom: 1px solid rgba($divider,.07);
             }
         }
 
         .path-tree {
-            border-bottom: 1px solid rgba(255,255,255,.07);
+            border-bottom: 1px solid rgba($divider,.07);
         }
 
         .counter {
             .chip-count {
                 color: white;
-                background-color: rgba(0, 0, 0, .25);
+                background-color: rgba($text-color, .4);
             }
         }
 
         .block-header {
-            background-color: rgba(0, 0, 0, .5);
+            background-color: rgba($text-color, .1);
 
             .counter {
                 .chip-count {
-                    background-color: rgba(255,255,255,.2);
+                    background-color: rgba($text-color,.3);
                 }
+            }
+        }
+
+        .create-dashboard {
+            .mat-flat-button {
+                background-color: $navbar-background;
+                color: find-color-invert($navbar-background);
             }
         }
     }

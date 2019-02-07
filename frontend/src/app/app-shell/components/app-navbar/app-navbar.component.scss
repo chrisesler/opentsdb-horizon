@@ -6,7 +6,7 @@
     $logo-height: map-get($navbar-config, 'logo-height');
 
     .app-navbar {
-        @include mat-elevation(2);
+        //@include mat-elevation(2);
         z-index: 2;
         position: relative;
 

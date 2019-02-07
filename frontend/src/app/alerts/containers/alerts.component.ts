@@ -4,15 +4,23 @@ import {
     HostBinding,
     OnDestroy,
     OnInit,
-    ViewChild
+    ViewChild,
+    TemplateRef
 } from '@angular/core';
+
+import { SelectionModel } from '@angular/cdk/collections';
 
 import {
     MatMenuTrigger,
     MatPaginator,
     MatTableDataSource,
-    MatSort
+    MatSort,
+    MatDialog,
+    MatDialogConfig,
+    MatDialogRef,
+    DialogPosition
 } from '@angular/material';
+
 
 import { Observable, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
@@ -31,6 +39,8 @@ import {
     ASsetAlertTypeFilter
 } from '../state/alerts.state';
 
+import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
+
 @Component({
     selector: 'app-alerts',
     templateUrl: './alerts.component.html',
@@ -42,6 +52,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) dataSourceSort: MatSort;
+
+    @ViewChild('confirmDeleteDialog', {read: TemplateRef}) confirmDeleteDialogRef: TemplateRef<any>;
 
     // STATE
     private stateSubs = {};
@@ -63,15 +75,30 @@ export class AlertsComponent implements OnInit, OnDestroy {
     alertTypeCounts: any = {};
 
 
-    // @Select(AlertsState.getAlerts('all')) asAlerts$: Observable<any[]>;
+    // this gets dynamically selected depending on the tab filter.
+    // see this.stateSubs['asActionResponse']
+    // under the case 'setAlertTypeFilterSuccess'
     asAlerts$: Observable<any[]>;
     alerts: AlertModel[] = [];
 
-    // for the table
-    // alertsDataSource = [];
+    // for the table datasource
+    alertsDataSource; // dynamically gets reassigned after new alerts state is subscribed
+    displayedColumns: string[] = [
+        'select',
+        'counts.bad',
+        'counts.warn',
+        'counts.good',
+        'counts.snoozed',
+        'sparkline',
+        'name',
+        'groupLabels',
+        'contacts',
+        'modified',
+        'actions'
+    ];
 
-    alertsDataSource;
-    displayedColumns: string[] = ['counts.bad', 'counts.warn', 'counts.good', 'counts.snoozed', 'name'];
+    // for batch selection
+    selection = new SelectionModel<AlertModel>(true, []);
 
     @Select(AlertsState.getActionResponse) asActionResponse$: Observable<any>;
 
@@ -93,8 +120,15 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     alertFilterTypes = ['all', 'alerting', 'snoozed', 'disabled'];
 
+    // SNOOZE dialog
+    snoozeAlertDialog: MatDialogRef<SnoozeAlertDialogComponent> | null;
+
+    // confirmDelete Dialog
+    confirmDeleteDialog: MatDialogRef<TemplateRef<any>> | null;
+
     constructor(
-        private store: Store
+        private store: Store,
+        private dialog: MatDialog,
     ) { }
 
     ngOnInit() {
@@ -153,6 +187,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                         if (self.stateSubs['asAlerts']) {
                             self.stateSubs['asAlerts'].unsubscribe();
                         }
+                        // dynamic store selection of alerts based on type
                         self.asAlerts$ = self.store.select(AlertsState.getAlerts(self.alertTypeFilter));
                         self.stateSubs['asAlerts'] = self.asAlerts$.subscribe( alerts => {
                             // console.log('ALERTS CHANGED', alerts);
@@ -176,6 +211,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.stateSubs['asAlerts'].unsubscribe();
         this.stateSubs['asActionResponse'].unsubscribe();
     }
+
     /** privates */
     private setTableDataSource() {
         this.alertsDataSource = new MatTableDataSource<AlertModel>(this.alerts);
@@ -192,6 +228,22 @@ export class AlertsComponent implements OnInit, OnDestroy {
         return `${element.nativeElement.clientWidth}px`;
     }
 
+    /** batch selection tools */
+
+    /** Whether the number of selected elements matches the total number of rows. */
+    isAllSelected() {
+        const numSelected = this.selection.selected.length;
+        const numRows = this.alertsDataSource.data.length;
+        return numSelected === numRows;
+    }
+
+    /** Selects all rows if they are not all selected; otherwise clear selection. */
+    masterToggle() {
+        this.isAllSelected() ?
+            this.selection.clear() :
+            this.alertsDataSource.data.forEach(row => this.selection.select(row));
+    }
+
     /** events */
 
     alertTabIndexChanged(event: any) {
@@ -202,6 +254,51 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 responseRequested: true
             })
         );
+    }
+
+    /** actions */
+
+    createAlert(type: string) {
+        // console.log('[CLICK] CREATE ALERT', type);
+    }
+
+    openSnoozeAlertDialog(alertObj: any) {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        dialogConf.autoFocus = false;
+        // dialogConf.width = '100%';
+        // dialogConf.maxWidth = '600px';
+        // dialogConf.height = 'auto';
+        // dialogConf.hasBackdrop = true;
+        // dialogConf.direction = 'ltr';
+        // dialogConf.backdropClass = 'snooze-alert-dialog-backdrop';
+        dialogConf.panelClass = 'snooze-alert-dialog-panel';
+        /*dialogConf.position = <DialogPosition>{
+            top: '48px',
+            bottom: '0px',
+            left: '0px',
+            right: '0px'
+        };*/
+        dialogConf.data = { alert: alertObj };
+
+        this.snoozeAlertDialog = this.dialog.open(SnoozeAlertDialogComponent, dialogConf);
+        // this.snoozeAlertDialog.updatePosition({ top: '48px' });
+        this.snoozeAlertDialog.afterClosed().subscribe((dialog_out: any) => {
+            // console.log('SNOOZE ALERT DIALOG [afterClosed]', dialog_out);
+        });
+    }
+
+    deleteAlert(alertObj: any) {
+        this.confirmDeleteDialog = this.dialog.open(this.confirmDeleteDialogRef, {data: alertObj});
+        this.confirmDeleteDialog.afterClosed().subscribe(event => {
+            // console.log('CONFIRM DELETE DIALOG [afterClosed]', event);
+            // if deleted, event will be object {deleted: true}
+            // or whatever you want it to be....
+        });
+    }
+
+    confirmAlertDelete(alertObj: any) {
+        // do some delete logic here?
+        this.confirmDeleteDialog.close({deleted: true});
     }
 
 }

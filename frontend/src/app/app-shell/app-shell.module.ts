@@ -8,7 +8,9 @@ import { RouterModule } from '@angular/router';
 // store
 import { NgxsModule } from '@ngxs/store';
 import {
-    NavigatorState, DashboardNavigatorState
+    AppShellState,
+    NavigatorState,
+    DashboardNavigatorState
  } from './state';
 
 
@@ -22,7 +24,7 @@ import { DashboardNavigatorService } from './services/dashboard-navigator.servic
 
 // components
 import { DashboardNavigatorComponent } from './components/dashboard-navigator/dashboard-navigator.component';
-import { AppShellComponent } from './containers/app-shell/app-shell.component';
+import { AppShellComponent } from './containers/app-shell.component';
 import { AppNavbarComponent } from './components/app-navbar/app-navbar.component';
 import { TestNavigatorComponent } from './components/test-navigator/test-navigator.component';
 import { NavigatorPanelItemDirective } from './directives/navigator-panel-item.directive';
@@ -50,6 +52,7 @@ import {
         ReactiveFormsModule,
         SharedcomponentsModule,
         NgxsModule.forFeature([
+            AppShellState,
             NavigatorState,
             DashboardNavigatorState
         ]),

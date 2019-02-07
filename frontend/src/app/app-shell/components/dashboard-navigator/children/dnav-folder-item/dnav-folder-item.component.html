@@ -15,7 +15,7 @@
 </ng-container>
 <ng-container *ngIf="mode === 'edit' && FolderForm.controls">
     <div class="list-item edit-form" *ngIf="!nameEdit" [formGroup]="FolderForm">
-        <mat-checkbox formControlName="fc_FolderChecked" (change)="checkboxChange($event)"></mat-checkbox>
+        <mat-checkbox formControlName="fc_FolderChecked" (change)="checkboxChange($event)" color="primary"></mat-checkbox>
         <div class="flex-spacer" (dblclick)="menuAction('editname')">{{folder.name}}</div>
         <span class="dnav-folder-menu">
             <button mat-icon-button (click)="clickMore($event)">

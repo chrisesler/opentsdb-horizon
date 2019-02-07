@@ -99,6 +99,19 @@
         }
     }
 
+    @include until(600px) {
+        .date-picker-component {
+            .input-field {
+                display: block;
+                
+                &,
+                .mat-form-field {
+                    width: 100%;
+                }
+            }
+        }
+    }
+
     .calendar-container {
         @include mat-elevation(5);
         display: block;
