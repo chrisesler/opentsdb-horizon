@@ -1,15 +1,53 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@angular/core';
+// import { IntercomService } from '../../../../../../core/services/intercom.service';
 @Component({
-  selector: 'app-markdown-widget-visual-appearance',
+  // tslint:disable-next-line:component-selector
+  selector: 'markdown-widget-visual-appearance',
   templateUrl: './markdown-widget-visual-appearance.component.html',
   styleUrls: ['./markdown-widget-visual-appearance.component.scss']
 })
 export class MarkdownWidgetVisualAppearanceComponent implements OnInit {
 
+  /** Inputs */
+  @Input() widget: any;
+
+  /** Outputs */
+  @Output() widgetChange = new EventEmitter;
+  @Output() selectionChanged = new EventEmitter;
+
   constructor() { }
 
+  colorType: string;
+
   ngOnInit() {
+    this.colorType = 'background'; // default color tab
   }
 
+    // Color Picker
+    selectedColorType(value: string) {
+      this.colorType = value;
+  }
+
+  colorChanged(color: any) {
+      if (color['hex']) { // make sure there is a hex
+          if (this.colorType === 'text') {
+              this.widget.settings.visual['textColor'] = color['hex'];
+              this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
+          } else { // background
+              this.widget.settings.visual['backgroundColor'] = color['hex'];
+              console.log('emitting new color', this.widget.settings.visual  );
+              this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
+          }
+      }
+  }
+
+  fontFamilyChanged(monospace: boolean) {
+
+    if (monospace) {
+      this.widget.settings.visual['font'] = 'monospace';
+    } else {
+      this.widget.settings.visual['font'] = 'default';
+    }
+    this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
+  }
 }

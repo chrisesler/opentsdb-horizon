@@ -8,16 +8,23 @@
 
         height: 100%;
 
+
         .widget-output-container {
+            height: 100%;
             .widget-output {
                 &.notCentered {
                     align-items: flex-start;
                 }
+                height: 100%;
             }
         }
 
         .top-padding {
             padding-top: 15px;
+        }
+
+        .monospace {
+            font-family: monospace;
         }
 
         .widget-output {
@@ -73,7 +80,7 @@
                     -webkit-text-size-adjust: 100%;
                     color: #24292e;
                     line-height: 1.5;
-                    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
+                    // font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
                     font-size: 16px;
                     line-height: 1.5;
                     word-wrap: break-word;
