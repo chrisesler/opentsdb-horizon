@@ -11,7 +11,7 @@
   <div class="widget-output notCentered" #widgetoutput [style.background]="widget.settings.visual.backgroundColor" [ngClass]="{'monospace': widget.settings.visual.font === 'monospace' }">
       <div class="widget-container" [ngClass]="{'top-padding': !editMode}">
         <span class="markdown-body" id="markdown-override" [style.color]="widget.settings.visual.textColor" >
-          <markdown [data]="markedText"></markdown>
+          <markdown [data]="widget.settings.visual.text"></markdown>
         </span>
       </div>
   </div>
@@ -26,7 +26,7 @@
 
             <!-- <div>
                 <ngx-codemirror 
-                [(ngModel)]="markedText" 
+                [(ngModel)]="widget.settings.visual.text" 
                 [options]="{
                   lineNumbers: true,
                   theme: 'material'
@@ -36,7 +36,7 @@
 
 
               <mat-form-field class="inputArea">
-                <textarea matInput [value]="markedText" (keyup)="textChanged($event.target.value)"></textarea>
+                <textarea matInput [value]="widget.settings.visual.text" (keyup)="textChanged($event.target.value)"></textarea>
               </mat-form-field>
           </ng-template>
       </mat-tab>
