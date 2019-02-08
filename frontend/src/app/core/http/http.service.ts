@@ -42,8 +42,8 @@ export class HttpService {
     const headers = new HttpHeaders(
       { 'Content-Type': 'application/json' });
     // simple random from 0 to length of hosts - 1
-    const metricsUrl = environment.tsdb_host + '/api/query/graph';
-    //const metricsUrl = environment.tsdb_hosts[Math.floor(Math.random() * (environment.tsdb_hosts.length - 1))] + '/api/query/graph';
+    //const metricsUrl = environment.tsdb_host + '/api/query/graph';
+    const metricsUrl = environment.tsdb_hosts[Math.floor(Math.random() * (environment.tsdb_hosts.length - 1))] + '/api/query/graph';
     return this.http.post(metricsUrl, query, { headers, withCredentials: true });
   }
   /* post to search for metric */
