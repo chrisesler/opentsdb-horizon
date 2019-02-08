@@ -4,7 +4,7 @@
     <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" 
         [newWidget]="newWidget"
         (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" 
-        [rerender]="rerender" [widgets]="widgets$ | async" 
+        [rerender]="rerender" [widgets]="widgets" 
         [dashboardMode]="dashboardMode$ | async">
     </app-dboard-content>
 </div>
