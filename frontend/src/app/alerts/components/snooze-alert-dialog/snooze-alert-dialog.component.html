@@ -1,3 +1,88 @@
-<p>
-  snooze-alert-dialog works!
-</p>
+<h2 mat-dialog-title>
+    <span class="dialog-title">Snooze Alert</span>
+    <span class="flex-spacer"></span>
+    <span>
+        <button mat-icon-button color="primary" class="close-dialog-btn" mat-dialog-close>
+            <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
+        </button>
+    </span>
+</h2>
+<mat-dialog-content [formGroup]="snoozeForm" #formDirective="ngForm">
+    <div class="form-control preset-toggles">
+        <div class="mat-label">Preset</div>
+        <mat-button-toggle-group class="mat-elevation-z0"
+            color="primary"
+            appearance="legacy" 
+            name="presets"
+            aria-label="Font Style"
+            [value]='form.preset.value'
+            (change)="presetTypeChange($event)">
+            <mat-button-toggle *ngFor="let preset of presetOptions;" [value]="preset" [checked]="form.preset.value === preset">{{preset}}</mat-button-toggle>
+        </mat-button-toggle-group>
+    </div>
+    <div class="form-control" [formGroup]="form.custom">
+        <div class="mat-label">Custom</div>
+        <div class="item-row">
+            <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                <input matInput placeholder="Start date" [formControl]="custom.startDate">
+            </mat-form-field>
+            <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                <input matInput placeholder="Start time" [formControl]="custom.startTime">
+            </mat-form-field>
+        </div>
+        <div class="item-row">
+            <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                <input matInput placeholder="End date" [formControl]="custom.endDate">
+            </mat-form-field>
+            <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                <input matInput placeholder="End time" [formControl]="custom.endTime">
+            </mat-form-field>
+        </div>
+    </div>
+    <div class="form-control">
+        <div class="mat-label">Filter by group</div>
+        <mat-form-field appearance="fill" color="primary" floatLabel="never">
+            <mat-chip-list #groupChipList>
+                <mat-chip *ngFor="let group of groupsValues; let i = index;" (removed)="removeGroupItem(i)">
+                    <span>{{group.value.name}}</span>
+                    <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
+                </mat-chip>
+                <input placeholder="New group / tag key"
+                    [formControl]="groupsValueInput"
+                    [matChipInputFor]="groupChipList"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                    (matChipInputTokenEnd)="addGroupItem($event)">
+            </mat-chip-list>
+        </mat-form-field>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="mat-label">Notification and message (optional)</div>
+    <div class="form-control">
+        <div class="mat-label">Contacts</div>
+        <mat-form-field appearance="fill" color="primary" floatLabel="never">
+            <mat-chip-list #contactChipList>
+                <mat-chip *ngFor="let contact of contactValues; let i = index;" (removed)="removeContactItem(i)">
+                    <span>{{contact.value.email}}</span>
+                    <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
+                </mat-chip>
+                <input placeholder="Enter contact"
+                    [formControl]="contactsValueInput"
+                    [matChipInputFor]="contactChipList"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                    (matChipInputTokenEnd)="addContactItem($event)">
+            </mat-chip-list>
+        </mat-form-field>
+    </div>
+    <div class="form-control">
+        <div class="mat-label">Message</div>
+        <mat-form-field floatLabel="never" appearance="fill">
+            <textarea matInput placeholder="Textarea" [formControl]="form.message"></textarea>
+        </mat-form-field>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-stroked-button color="primary" (click)="saveSnooze()">Save</button>
+    <button mat-button color="primary" mat-dialog-close>Cancel</button>
+    <span class="flex-spacer"></span>
+    <button mat-button (click)="resetForm()">Reset Form</button>
+</mat-dialog-actions>

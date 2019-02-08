@@ -136,15 +136,15 @@
                     <th mat-header-cell *matHeaderCellDef>Actions</th>
                     <td mat-cell *matCellDef="let element">
                         <button mat-icon-button color="primary">
-                            <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                            <mat-icon fontSet="denali" fontIcon="d-pencil" (click)="editAlert(element)"></mat-icon>
                         </button>
-                        <button mat-icon-button color="primary">
+                        <button mat-icon-button color="primary" (click)="toggleAlertDisabled(element)">
                             <mat-icon fontSet="denali" [fontIcon]="element.disabled ? 'd-notification' : 'd-notification-disable'"></mat-icon>
                         </button>
-                        <button mat-icon-button color="primary">
+                        <button mat-icon-button color="primary" (click)="openSnoozeAlertDialog(element)">
                             <mat-icon>snooze</mat-icon>
                         </button>
-                        <button mat-icon-button color="primary">
+                        <button mat-icon-button color="primary" (click)="deleteAlert(element)">
                             <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                         </button>
                     </td>
@@ -157,47 +157,7 @@
         <mat-paginator [pageSizeOptions]="[10, 20, 30]" showFirstLastButtons></mat-paginator>
     </div>
 </div>
-<!--
-<mat-tab-group class="alerts-main-results" 
-    animationDuration="0ms"
-    fxFlex="1 1 100%"
-    fxLayout="column"
-    [selectedIndex]="alertFilterTypes.indexOf(alertTypeFilter)"
-    (selectedIndexChange)="alertTabIndexChanged($event)">
-    <mat-tab>
-        <ng-template mat-tab-label>
-            All ({{alertTypeCounts.all || 0}})
-        </ng-template>
-        <div class="alert-result-pane all-results">
-            All Results
-        </div>
-    </mat-tab>
-    <mat-tab>
-        <ng-template mat-tab-label>
-            Alerting ({{alertTypeCounts.alerting || 0}})
-        </ng-template>
-        <div class="alert-result-pane alerting-results">
-            Alerting Results
-        </div>
-    </mat-tab>
-    <mat-tab>
-        <ng-template mat-tab-label>
-            Snoozed ({{alertTypeCounts.snoozed || 0}})
-        </ng-template>
-        <div class="alert-result-pane alerting-results">
-            Snoozed Results
-        </div>
-    </mat-tab>
-    <mat-tab>
-        <ng-template mat-tab-label>
-            Disabled ({{alertTypeCounts.disabled || 0}})
-        </ng-template>
-        <div class="alert-result-pane alerting-results">
-            Disabled Results
-        </div>
-    </mat-tab>
-</mat-tab-group>
--->
+
 
 <mat-menu #namespaceDropMenu="matMenu" class="namespace-selector-menu">
     <button mat-menu-item>Settings</button>
@@ -217,21 +177,21 @@
 
 <mat-menu #createAlertMenu="matMenu" class="create-alert-menu">
     <ng-template matMenuContent>
-        <button mat-menu-item class="alert-type-option">
+        <button mat-menu-item class="alert-type-option" (click)="createAlert('metric')">
             <div class="alert-type-detail">
                 <span class="alert-type-label" color="primary">Metric</span>
                 <span class="alert-type-desc mat-caption">Lorem ipsum dolor sit amet, consectetur adipiscing elit sedio.</span>
             </div>
         </button>
         <mat-divider></mat-divider>
-        <button mat-menu-item class="alert-type-option">
+        <button mat-menu-item class="alert-type-option" (click)="createAlert('health-check')">
             <div class="alert-type-detail">
                 <span class="alert-type-label" color="primary">Health check</span>
                 <span class="alert-type-desc mat-caption">Lorem ipsum dolor sit amet, consectetur adipiscing elit sedio.</span>
             </div>
         </button>
         <mat-divider></mat-divider>
-        <button mat-menu-item class="alert-type-option">
+        <button mat-menu-item class="alert-type-option" (click)="createAlert('host-down')">
             <div class="alert-type-detail">
                 <span class="alert-type-label" color="primary">Host down</span>
                 <span class="alert-type-desc mat-caption">Lorem ipsum dolor sit amet, consectetur adipiscing elit sedio.</span>
@@ -239,3 +199,14 @@
         </button>
     </ng-template>
 </mat-menu>
+
+<ng-template #confirmDeleteDialog let-data>
+    <h2 matDialogTitle>Delete Alert Confirmation</h2>
+    <mat-dialog-content>
+        <p><em>Are you sure you want to delete the alert <strong>"{{data.name}}"</strong></em></p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button color="primary" (click)="confirmAlertDelete(data)">Yes</button>
+        <button mat-button matDialogClose color="primary">No</button>
+    </mat-dialog-actions>
+</ng-template>

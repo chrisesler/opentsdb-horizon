@@ -22,6 +22,7 @@
 @import './containers/alerts.component'; // nothing to style yet
 
 // components
+@import  './components/snooze-alert-dialog/snooze-alert-dialog.component';
 
 
 // Common classes for widget components
@@ -37,7 +38,7 @@
     @include alerts-container-component-base(); // nothing to style yet
 
     // components
-
+    @include snooze-alert-dialog-component-base();
 
 }
 
@@ -52,5 +53,6 @@
     @include alerts-container-component-theme($theme-config); //nothing to style yet
 
     // components
+    @include snooze-alert-dialog-component-theme($theme-config);
 
 }
