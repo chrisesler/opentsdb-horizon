@@ -96,11 +96,9 @@ import { MarkdownWidgetVisualAppearanceComponent } from './components/markdown-w
         StackedBarchartWidgetComponent,
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
-        BignumberVisualAppearanceComponent,
         DonutWidgetComponent,
         StatusWidgetComponent,
-        MarkdownWidgetComponent,
-        MarkdownWidgetVisualAppearanceComponent
+        MarkdownWidgetComponent
     ]
 })
 export class DynamicWidgetsModule { }
