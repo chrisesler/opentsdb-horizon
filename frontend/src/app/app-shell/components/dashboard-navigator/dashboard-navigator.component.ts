@@ -160,6 +160,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 const newPanel = this.store.dispatch(
                     new DBNAVaddPanel({
                         path: event.path,
+                        fullPath: event.fullPath,
                         type: event.resourceType,
                         panelAction: 'goNextPanel'
                     })

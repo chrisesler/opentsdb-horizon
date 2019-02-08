@@ -21,14 +21,15 @@ export class DBNAVloadNavResourcesFail {
 export class DBNAVloadSubfolder {
     static readonly type = '[DashboardNavigator] Get Subfolder';
     constructor(
-        public readonly path: string
+        public readonly folderObj: any
     ) {}
 }
 
 export class DBNAVloadSubfolderSuccess {
     static readonly type = '[DashboardNavigator] Get Subfolder [SUCCESS]';
     constructor(
-        public readonly response: any
+        public readonly response: any,
+        public readonly topFolder?: any
     ) {}
 }
 

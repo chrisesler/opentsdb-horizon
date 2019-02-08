@@ -63,6 +63,7 @@ export class DashboardNavigatorService {
             httpOptions.params = new HttpParams(params);
         }
 
+        this.apiLog('HTTP GET', params);
         return this.http.get(url, httpOptions);
     }
 
@@ -118,7 +119,7 @@ export class DashboardNavigatorService {
     // get a specific user
     getUser(id?: string) {
 
-        let apiUrl = environment.configdb2 + '/user';
+        let apiUrl = environment.configdb + '/user';
         if (id) {
             apiUrl = apiUrl + '/' + id;
         }
@@ -142,28 +143,28 @@ export class DashboardNavigatorService {
 
     getAllUsers() {
         this.apiLog('Get User List');
-        const apiUrl = environment.configdb2 + '/user/list';
+        const apiUrl = environment.configdb + '/user/list';
         this.httpGet(apiUrl);
     }
 
     // get my namespaces
     getUserNamespaces() {
         this.apiLog('Get Namespaces I Belong to');
-        const apiUrl = environment.configdb2 + '/namespace/member';
+        const apiUrl = environment.configdb + '/namespace/member';
         return this.httpGet(apiUrl);
     }
 
     // get namespaces I follow
     getUserFollowed() {
         this.apiLog('Get Namespaces I Follow');
-        const apiUrl = environment.configdb2 + '/namespace/follower';
+        const apiUrl = environment.configdb + '/namespace/follower';
         return this.httpGet(apiUrl);
     }
 
     /** Starting folders - AKA Top Level folders and namespaces */
     getDashboardResourceList() {
         this.apiLog('Get Navigation Resource List');
-        const apiUrl = environment.configdb2 + '/dashboard/myfolders';
+        const apiUrl = environment.configdb + '/dashboard/topFolders';
         return this.httpGet(apiUrl);
     }
 
@@ -172,22 +173,61 @@ export class DashboardNavigatorService {
         this.apiLog('Get Dashboard Folder By Id');
 
         const params = { id };
-        const apiUrl = environment.configdb2 + '/dashboard/folder';
+        const apiUrl = environment.configdb + '/dashboard/folder';
 
         return this.httpGet(apiUrl, params).pipe(
             catchError(this.handleError)
         );
     }
 
-    getFolderByPath(path: string) {
-        this.apiLog('Get Dashboard Folder By Path');
+    getFolderByPath(path: string, topFolder?: any) {
 
-        // const params = { path };
-        const apiUrl = environment.configdb2 + '/dashboard' + path;
+        let params: any = {};
+        let apiUrl: string;
 
-        return this.httpGet(apiUrl).pipe(
+        if ( topFolder && topFolder.type && topFolder.value ) {
+            apiUrl = environment.configdb + '/dashboard/topFolders';
+            params = new HttpParams();
+            switch (topFolder.type) {
+                case 'user':
+                    apiUrl += '?userId=' + topFolder.value;
+                    params.set('userId', topFolder.value);
+                    break;
+                case 'namespace':
+                    apiUrl += '?namespace=' + topFolder.value;
+                    params.set('namespace', topFolder.value);
+                    break;
+                default:
+                    break;
+            }
+
+        } else {
+            apiUrl = environment.configdb + '/dashboard' + path;
+        }
+
+        this.apiLog('Get Dashboard Folder By Path', {path, topFolder, apiUrl, params});
+
+        /*return this.httpGet(apiUrl, params).pipe(
             catchError(this.handleError)
-        );
+        );*/
+
+
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
+        const httpOptions: any = {
+            headers,
+            withCredentials: true,
+            responseType: 'json'
+        };
+
+        if (params) {
+            httpOptions.params = params;
+        }
+
+        this.apiLog('HTTP GET', httpOptions);
+        return this.http.get(apiUrl, httpOptions);
     }
 
     createFolder(folder: any) {
@@ -195,7 +235,7 @@ export class DashboardNavigatorService {
         const body = folder;
         // can not have an id
         // TODO: some checking to see if an id exists... maybe they want an update instead?
-        const apiUrl = environment.configdb2 + '/dashboard/folder';
+        const apiUrl = environment.configdb + '/dashboard/folder';
 
         this.apiLog('Create Dashboard Folder', { body, apiUrl });
         return this.httpPut(apiUrl, body).pipe(
@@ -208,7 +248,7 @@ export class DashboardNavigatorService {
         const body = folder;
         body.id = id;
 
-        const apiUrl = environment.configdb2 + '/dashboard/folder';
+        const apiUrl = environment.configdb + '/dashboard/folder';
         return this.httpPut(apiUrl, body);
     }
 
@@ -229,7 +269,7 @@ export class DashboardNavigatorService {
             destinationPath: payload.destinationPath
         };
 
-        const apiUrl = environment.configdb2 + '/dashboard/folder/move';
+        const apiUrl = environment.configdb + '/dashboard/folder/move';
         return this.httpPut(apiUrl, body);
     }
 
@@ -241,7 +281,7 @@ export class DashboardNavigatorService {
         this.apiLog('Dashboard File By id');
 
         const params = { id: id.toString() };
-        const apiUrl = environment.configdb2 + '/dashboard/file';
+        const apiUrl = environment.configdb + '/dashboard/file';
 
         return this.httpGet(apiUrl, params);
     }
@@ -273,7 +313,7 @@ export class DashboardNavigatorService {
             destinationPath: payload.destinationPath
         };
 
-        const apiUrl = environment.configdb2 + '/dashboard/folder/move';
+        const apiUrl = environment.configdb + '/dashboard/folder/move';
         return this.httpPut(apiUrl, body);
     }
 

@@ -127,7 +127,7 @@ export class AppShellState {
         if (environment.production) { return; }
         if (params) {
             console.group(
-                '%cDashboardNavigatorState%c' + title,
+                '%cAppShellState%c' + title,
                 'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
                 'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
             );
@@ -135,7 +135,7 @@ export class AppShellState {
             console.groupEnd();
         } else {
             console.log(
-                '%cDashboardNavigatorState%c' + title,
+                '%cAppShellState%c' + title,
                 'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
                 'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
             );
@@ -145,7 +145,7 @@ export class AppShellState {
     stateError(title: string, error: any) {
         if (environment.production) { return; }
         console.group(
-            '%cDashboardNavigatorState [ERROR]%c' + title,
+            '%cAppShellState [ERROR]%c' + title,
             'color: white; background-color: red; padding: 4px 8px; font-weight: bold;',
             'color: red; padding: 4px 8px; border: 1px solid red;'
         );
@@ -156,7 +156,7 @@ export class AppShellState {
     stateSuccess(title: string, response: any) {
         if (environment.production) { return; }
         console.group(
-            '%cDashboardNavigatorState [SUCCESS]%c' + title,
+            '%cAppShellState [SUCCESS]%c' + title,
             'color: white; background-color: green; padding: 4px 8px; font-weight: bold;',
             'color: green; padding: 4px 8px; border: 1px solid green;',
             response

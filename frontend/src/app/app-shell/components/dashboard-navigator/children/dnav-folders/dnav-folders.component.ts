@@ -187,7 +187,8 @@ export class DnavFoldersComponent implements OnInit {
                 action: 'navtoPanelFolder',
                 resourceType: folder.resourceType,
                 // idx: folderIdx
-                path: folder.path
+                path: folder.path,
+                fullPath: folder.fullPath
             });
         }
     }

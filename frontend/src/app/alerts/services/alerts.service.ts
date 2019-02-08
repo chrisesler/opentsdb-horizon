@@ -116,9 +116,11 @@ export class AlertsService {
      */
 
     getUserNamespaces() {
-        this.apiLog('Get Namespaces I Belong to');
-        const apiUrl = environment.configdb2 + '/namespace/member';
-        return this.httpGet(apiUrl);
+        const apiUrl = environment.configdb + '/namespace/member';
+        this.apiLog('Get Namespaces I Belong to', apiUrl);
+        return this.httpGet(apiUrl).pipe(
+            catchError(this.handleError)
+          );
     }
 
     getNamespaces(queryObj: any): Observable<any> {
