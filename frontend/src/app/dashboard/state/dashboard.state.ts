@@ -185,7 +185,7 @@ export class DBState {
         ctx.patchState({...state, status: 'delete-success'  });
     }
 
-    @Action(SaveDashboardFail)
+    @Action(DeleteDashboardFail)
     deleteDashboardFail(ctx: StateContext<DBStateModel>, { error }: LoadDashboardFail) {
         const state = ctx.getState();
         ctx.patchState({...state, status: 'delete-failed', error: error });
