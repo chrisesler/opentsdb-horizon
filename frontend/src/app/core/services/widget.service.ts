@@ -6,7 +6,8 @@ import {
     StackedBarchartWidgetComponent,
     DonutWidgetComponent,
     DeveloperWidgetComponent,
-    BignumberWidgetComponent
+    BignumberWidgetComponent,
+    MarkdownWidgetComponent
 } from '../../shared/modules/dynamic-widgets/components';
 
 @Injectable({
@@ -29,6 +30,8 @@ export class WidgetService {
                 return DeveloperWidgetComponent;
             case 'BignumberWidgetComponent':
                 return BignumberWidgetComponent;
+            case 'MarkdownWidgetComponent':
+                return MarkdownWidgetComponent;
             default:
                 return PlaceholderWidgetComponent;
         }
