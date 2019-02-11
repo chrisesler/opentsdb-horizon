@@ -78,6 +78,7 @@ export class DashboardService {
         case 'DonutWidgetComponent':
         case 'DeveloperWidgetComponent':
         case 'BignumberWidgetComponent':
+        case 'MarkdownWidgetComponent':
             break;
         default:
             widget.settings.component_type = 'PlaceholderWidgetComponent';
