@@ -1,0 +1,79 @@
+@mixin markdown-visual-appearance-widget-component-base() {
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-view-padding: map-get($widgets-common-config, edit-padding);
+    $tab-width: map-get($widgets-common-config, tab-width);
+    $action-bar-height: map-get($widgets-common-config, action-bar-height);
+
+    .markdown-visual-appearance-widget { 
+        .container {
+            display: flex;
+            padding: 10px;
+        }
+
+        .color-container {
+
+            .color-picker-control {
+                width: 186px;
+            }
+            
+            .mat-button-toggle-group {
+                box-shadow: none;
+                border: none;
+
+                .mat-button-toggle-label-content {
+                    line-height: 32px;
+                }
+
+                .mat-button-toggle {
+                    height: 32px;
+
+                    button { // background button
+                        width: 108px;
+                    }
+                }
+
+                #text {
+                    width: 78px;
+                }
+
+                #text-button {
+                    width: 78px;
+                }
+            }
+
+            .card {
+                &.cp{
+                    // margin-left: 12px;
+                    background: transparent;
+                }
+            }
+        }
+
+        .font-container {
+            margin-left: 10px;
+
+            .mat-slide-toggle {
+                .mat-slide-toggle-label {
+                    .mat-slide-toggle-content {
+                        font-family: monospace;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@mixin markdown-visual-appearance-widget-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+
+    .markdown-visual-appearance-widget { 
+        // color: red;
+    }
+
+}
