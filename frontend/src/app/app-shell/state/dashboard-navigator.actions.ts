@@ -46,7 +46,7 @@ export class DBNAVcreateFolder {
     static readonly type = '[DashboardNavigator] Create Folder';
     constructor(
         public readonly name: string,
-        public readonly parentPath: string,
+        public readonly parentId: string,
         public readonly panelIndex: number
     ) {}
 }

@@ -260,13 +260,13 @@ export class DashboardNavigatorService {
     // or /namespace/<namespace>/path
 
     moveFolder(payload: any) {
-        this.apiLog(((payload.trashFolder) ? 'Trash' : 'Move') + ' Dashboard Folder');
+        this.apiLog(((payload.trashFolder) ? 'Trash' : 'Move') + ' Dashboard Folder', payload);
 
         // ?? do we need to do something else if it is trash? maybe verify destinationPath is trash folder?
 
         const body = {
-            sourcePath: payload.sourcePath,
-            destinationPath: payload.destinationPath
+            sourceId: payload.sourceId,
+            destinationId: payload.destinationId
         };
 
         const apiUrl = environment.configdb + '/dashboard/folder/move';
