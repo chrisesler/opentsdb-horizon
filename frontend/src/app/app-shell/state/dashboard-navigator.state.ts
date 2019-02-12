@@ -1103,14 +1103,41 @@ export class DashboardNavigatorState {
     moveFile(ctx: StateContext<DBNAVStateModel>, { payloadBody, panelIndex }: DBNAVmoveFile) {
         this.stateLog('Move File', { payloadBody });
 
-        const originalPath = payloadBody.sourcePath;
-        const destinationPath = payloadBody.destinationPath;
+        const originalPath = payloadBody.source.fullPath;
+        let destinationPath;
+        const sourceId = payloadBody.source.id;
+        let destinationId;
+
+        const state = ctx.getState();
+        const resourceData = {...state.resourceData};
+
+        const payload: any = { sourceId };
+
+        if (payloadBody.trashFolder === true) {
+
+            const path = payloadBody.source.fullPath.split('/');
+            const resourceType = (path[1].toLowerCase() === 'namespace') ? 'namespaces' : 'personal';
+            const trashPath = path.slice(0, 3).join('/') + '/trash';
+            destinationId = resourceData[resourceType][trashPath].id;
+            destinationPath = resourceData[resourceType][trashPath].fullPath;
+
+            payload.destinationId = destinationId;
+            payload.trashFolder = true;
+
+        // else there should be a destination object
+        } else {
+            destinationId = payloadBody.destination.id;
+            destinationPath = payloadBody.destination.fullPath;
+            payload.destinationId = destinationId;
+        }
+
+        this.stateLog('CHECKS', {originalPath, destinationPath, payload});
 
         // TODO: simple permission check
         if (this.simplePermissionCheck(ctx, originalPath) && this.simplePermissionCheck(ctx, destinationPath)) {
-            return this.navService.moveFile(payloadBody).pipe(
-                map( (payload: any) => {
-                    ctx.dispatch(new DBNAVmoveFileSuccess(payload, originalPath, panelIndex));
+            return this.navService.moveFile(payload).pipe(
+                map( (response: any) => {
+                    ctx.dispatch(new DBNAVmoveFileSuccess(response, originalPath, panelIndex));
                 }),
                 catchError( error => ctx.dispatch(new DBNAVmoveFileFail(error)) )
             );

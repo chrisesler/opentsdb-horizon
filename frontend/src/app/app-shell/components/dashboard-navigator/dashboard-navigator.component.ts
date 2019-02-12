@@ -230,13 +230,12 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 break;
             case 'deleteDashboard':
                 // console.log('DELETE DASHBOARD[TOP]', panel, event);
-                const path = event.data.path.split('/');
-                const trashPath = path.slice(0, 3).join('/') + '/trash';
+                // const path = event.data.path.split('/');
+                // const trashPath = path.slice(0, 3).join('/') + '/trash';
                 this.store.dispatch(
                     new DBNAVmoveFile(
                         {
-                            sourcePath: event.data.path,
-                            destinationPath: trashPath,
+                            source: event.data.source,
                             trashFolder: true
                         },
                         this.currentPanelIndex
@@ -244,7 +243,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 );
                 break;
             case 'moveDashboard':
-                // console.log('MOVE DASHBOARD [TOP]', panel, event);
+                console.log('MOVE DASHBOARD [TOP]', panel, event);
                 this.store.dispatch(
                     new DBNAVmoveFile(
                         event.data,
