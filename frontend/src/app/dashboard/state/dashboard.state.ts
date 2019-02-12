@@ -109,7 +109,8 @@ export class DBState {
         // id is the path
         if ( id !== '_new_' ) {
             ctx.patchState({ loading: true});
-            return this.httpService.getDashboardByPath(id).pipe(
+            //return this.httpService.getDashboardByPath(id).pipe(
+            return this.httpService.getDashboardById(id).pipe(
                 map(dashboard => {
                     ctx.dispatch(new LoadDashboardSuccess(dashboard.body));
                 }),

@@ -129,13 +129,17 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
         if (data) {
             payload.updateFirst = true;
             payload.name = data.name;
-            
-            if(data.parentPath) {
+
+            if (data.parentPath) {
                 payload.parentPath = data.parentPath;
+            }
+
+            if (data.parentId) {
+                payload.parentId = data.parentId;
             }
         }
         // now intercom to save it.
-        
+
         this.interCom.requestSend(<IMessage> {
             action: 'dashboardSaveRequest',
             payload: payload
