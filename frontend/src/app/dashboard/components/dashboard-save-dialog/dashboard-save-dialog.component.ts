@@ -70,15 +70,15 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch ( message.action ) {
                 case 'UserNamespaces':
-                    console.log('USER NAMESPACES', message.payload);
+                    // console.log('USER NAMESPACES', message.payload);
                     this.namespaceOptions = message.payload;
                     break;
                 case 'UserPersonalFolders':
-                    console.log('USER PERSONAL FOLDERS', message.payload);
+                    // console.log('USER PERSONAL FOLDERS', message.payload);
                     this.userFolders = message.payload;
                     break;
                 case 'UserNamespaceFolders':
-                    console.log('USER NAMESPACE FOLDERS', message.payload);
+                    // console.log('USER NAMESPACE FOLDERS', message.payload);
                     this.namespaceFolders = message.payload;
                     break;
             }

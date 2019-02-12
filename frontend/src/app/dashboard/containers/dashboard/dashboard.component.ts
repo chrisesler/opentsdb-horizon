@@ -203,7 +203,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.routeSub = this.activatedRoute.url.subscribe(url => {
             this.widgets = [];
             this.store.dispatch(new ClearWidgetsData());
-            console.log('DASHBOARD ROUTE SUB', url);
+            // console.log('DASHBOARD ROUTE SUB', url);
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
@@ -354,7 +354,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new LoadUserNamespaces());
                     break;
                 case 'getUserFolderData':
-                    console.log('getUserFolderData');
+                    // console.log('getUserFolderData');
                     this.store.dispatch(new LoadUserFolderData());
                     break;
                 default:
@@ -368,7 +368,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.loadedRawDB$.subscribe(db => {
             const dbstate = this.store.selectSnapshot(DBState);
-            console.log('\n\nloadedrawdb=', db, dbstate.loaded);
+            // console.log('\n\nloadedrawdb=', db, dbstate.loaded);
             if (dbstate.loaded) {
                 // need to carry new loaded dashboard id from confdb
                 this.dbid = db.id;

@@ -82,7 +82,7 @@ export class UserSettingsState {
             map((response: any) => {
 
 
-                console.log('USER FOLDER DATA RESPONSE', response);
+                // console.log('USER FOLDER DATA RESPONSE', response);
                 if (response.body.memberNamespaces) {
                     const memberNamspaces = [];
                     const namespaceFolders = [];
