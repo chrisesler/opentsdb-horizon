@@ -358,36 +358,40 @@ export class DashboardNavigatorState {
 
         // create synthetic folders
         // master
-        masterPersonal[0] = {
+        masterPersonal[0] = <DBNAVFolder>{
             id: 0,
             name: 'My Dashboards',
             path: '/' + user.userid.replace('.', '/'),
+            fullPath: '/' + user.userid.replace('.', '/'),
             subfolders: [],
             files: [],
             resourceType: 'personal',
             type: 'DASHBOARD',
             icon: 'd-dashboard-tile',
+            topLevel: { type: 'user', value: user.userid },
             synthetic: true,
             loaded: false
         };
-        resourceData.personal[masterPersonal[0].path] = masterPersonal[0];
+        resourceData.personal[masterPersonal[0].fullPath] = masterPersonal[0];
         // favorites
-        masterPersonal[1] = {
+        masterPersonal[1] = <DBNAVFolder>{
             id: 0,
             name: 'My Favorites',
             path: '/' + user.userid.replace('.', '/') + '/favorites',
+            fullPath: '/' + user.userid.replace('.', '/') + '/favorites',
             files: [],
             resourceType: 'favorites',
             icon: 'd-star',
             synthetic: true,
             loaded: false
         };
-        resourceData.personal[masterPersonal[1].path] = masterPersonal[1];
+        resourceData.personal[masterPersonal[1].fullPath] = masterPersonal[1];
         // frequently visited
-        masterPersonal[2] = {
+        masterPersonal[2] = <DBNAVFolder>{
             id: 0,
             name: 'Frequently Visited',
             path: '/' + user.userid.replace('.', '/') + '/frequently-visited',
+            fullPath: '/' + user.userid.replace('.', '/') + '/frequently-visited',
             files: [],
             resourceType: 'frequentlyVisited',
             type: 'DASHBOARD',
@@ -395,12 +399,13 @@ export class DashboardNavigatorState {
             synthetic: true,
             loaded: false
         };
-        resourceData.personal[masterPersonal[2].path] = masterPersonal[2];
+        resourceData.personal[masterPersonal[2].fullPath] = masterPersonal[2];
         // recently visited
-        masterPersonal[3] = {
+        masterPersonal[3] = <DBNAVFolder>{
             id: 0,
             name: 'Recently Visited',
             path: '/' + user.userid.replace('.', '/') + '/recently-visited',
+            fullPath: '/' + user.userid.replace('.', '/') + '/recently-visited',
             files: [],
             resourceType: 'recentlyVisited',
             type: 'DASHBOARD',
@@ -408,12 +413,13 @@ export class DashboardNavigatorState {
             synthetic: true,
             loaded: false
         };
-        resourceData.personal[masterPersonal[3].path] = masterPersonal[3];
+        resourceData.personal[masterPersonal[3].fullPath] = masterPersonal[3];
         // trash
-        masterPersonal[4] = {
+        masterPersonal[4] = <DBNAVFolder>{
             id: 0,
             name: 'Trash',
             path: '/' + user.userid.replace('.', '/') + '/trash',
+            fullPath: '/' + user.userid.replace('.', '/') + '/trash',
             subfolders: [],
             files: [],
             resourceType: 'trash',
@@ -422,34 +428,42 @@ export class DashboardNavigatorState {
             synthetic: true,
             loaded: false
         };
-        resourceData.personal[masterPersonal[4].path] = masterPersonal[4];
+        resourceData.personal[masterPersonal[4].fullPath] = masterPersonal[4];
 
         let createUserTrash = false;
 
         if (response.personalFolder && response.personalFolder.subfolders) {
             // do trash first so we can pull it up to root level
             // find trash
-            const trashFilter = response.personalFolder.subfolders.filter( folder => {
-                return folder.path === '/' + user.userid.replace('.', '/') + '/trash';
+            // tslint:disable-next-line:max-line-length
+            const trashIndex = response.personalFolder.subfolders.findIndex( folder => {
+                return folder.fullPath === '/' + user.userid.replace('.', '/') + '/trash';
             });
 
-            if (trashFilter.length > 0) {
-                const trashIndex = response.personalFolder.subfolders.indexOf(trashFilter[0]);
+            if (trashIndex >= 0) {
+                // const trashIndex = response.personalFolder.subfolders.indexOf(trashFilter[0]);
                 const trashFolder = response.personalFolder.subfolders.splice(trashIndex, 1)[0];
                 masterPersonal[4] = trashFolder;
                 masterPersonal[4] = {...masterPersonal[4],
+                    subfolders: trashFolder.subfolders || [],
+                    files: trashFolder.files || [],
                     icon: 'd-trash',
                     loaded: false,
                     // synthetic: false,
                     resourceType: 'trash'
                 };
                 // delete masterPersonal[4].synthetic;
+
+                resourceData.personal[masterPersonal[4].fullPath] = masterPersonal[4];
             } else {
                 // flag to create trash folder
                 createUserTrash = true;
             }
 
             // adjust my dashboards
+            // tslint:disable-next-line:max-line-length
+            masterPersonal[0].id = response.personalFolder.id;
+            masterPersonal[0].path = response.personalFolder.path;
             masterPersonal[0].subfolders = (response.personalFolder.subfolders) ? response.personalFolder.subfolders : [];
             masterPersonal[0].subfolders.sort(this.sortByName);
             masterPersonal[0].files = (response.personalFolder.files) ? response.personalFolder.files : [];
@@ -457,18 +471,18 @@ export class DashboardNavigatorState {
             delete masterPersonal[0].synthetic;
 
             // adjust personal root
-            resourceData.personal[masterPersonal[0].path] = masterPersonal[0];
+            resourceData.personal[masterPersonal[0].fullPath] = masterPersonal[0];
 
             // adjust folders
             // tslint:disable-next-line:forin
             for (const i in masterPersonal[0].subfolders) {
-                const folder = masterPersonal[0].subfolders[i];
+                const folder: DBNAVFolder = masterPersonal[0].subfolders[i];
                 if (!folder.subfolders) { folder.subfolders = []; }
                 if (!folder.files) { folder.files = []; }
                 folder.loaded = false;
                 folder.resourceType = 'personal';
                 folder.icon = 'd-folder';
-                resourceData.personal[folder.path] = folder;
+                resourceData.personal[folder.fullPath] = folder;
             }
         }
 
@@ -478,16 +492,21 @@ export class DashboardNavigatorState {
 
                 const folder = (ns.folder) ? ns.folder : {};
                 user.memberNamespaces.push(ns.namespace);
-                const namespace = {...ns.namespace,
+                const namespace: DBNAVFolder = {...ns.folder,
+                    name: ns.namespace.name,
+                    alias: ns.namespace.alias,
+                    namespaceId: ns.namespace.id,
                     subfolders: (folder.subfolders) ? folder.subfolders : [],
                     files: (folder.files) ? folder.files : [],
                     path: (folder.path) ? folder.path : '/namespace/' + ns.namespace.name.toLowerCase().replace(' ', '-'),
+                    fullPath: (folder.fullPath) ? folder.fullPath : '/namespace/' + ns.namespace.name.toLowerCase().replace(' ', '-'),
                     type: (folder.type) ? folder.type : 'DASHBOARD',
+                    topLevel: { type: 'namespace', value: ns.alias },
                     icon: 'd-dashboard-tile',
                     resourceType: 'namespace'
                 };
-                resourceData.namespaces[namespace.path] = namespace;
-                namespaces.push(resourceData.namespaces[namespace.path]);
+                resourceData.namespaces[namespace.fullPath] = namespace;
+                namespaces.push(resourceData.namespaces[namespace.fullPath]);
             }
         }
 
@@ -496,9 +515,10 @@ export class DashboardNavigatorState {
             id: 0,
             name: 'masterPanel',
             path: '/',
+            fullPath: '/',
             resourceType: 'master',
-            personal: <DBNAVFolder[]>masterPersonal,
-            namespaces: <DBNAVFolder[]>namespaces
+            personal: masterPersonal,
+            namespaces: namespaces
         };
 
         const panels = [...state.panels];
@@ -515,7 +535,8 @@ export class DashboardNavigatorState {
 
         // create user trash folder if needed
         if (createUserTrash) {
-            ctx.dispatch(new DBNAVcreateFolder('Trash', '/' + user.userid.replace('.', '/'), 0));
+            // ctx.dispatch(new DBNAVcreateFolder('Trash', '/' + user.userid.replace('.', '/'), 0));
+            ctx.dispatch(new DBNAVcreateFolder('Trash', response.personalFolder.id, 0));
         }
     }
 
@@ -544,12 +565,12 @@ export class DashboardNavigatorState {
         const specialType = (payload.type !== 'namespace' || payload.type !== 'personal') ? payload.type : false;
 
         // need to infer the resourceType from path
-        const path = payload.path.split('/');
+        const path = payload.fullPath.split('/');
         const resourceType = (path[1].toLowerCase() === 'namespace') ? 'namespaces' : 'personal';
 
-        if (!resources[resourceType][payload.path] || (resourceType === 'namespaces' && specialType === 'trash')) {
+        if (!resources[resourceType][payload.fullPath] || (resourceType === 'namespaces' && specialType === 'trash')) {
             // ruh roh... need to fetch it
-            let parentPath = payload.path.split('/');
+            let parentPath = payload.fullPath.split('/');
             parentPath.pop();
 
             parentPath = parentPath.join('/');
@@ -560,22 +581,22 @@ export class DashboardNavigatorState {
 
             if (!specialType) {
                 const child = parent.subfolders.filter( item => {
-                    return item.path = payload.path;
+                    return item.fullPath = payload.fullPath;
                 })[0];
 
                 const folder = {...child,
-                    subfolders: (child.subfolders && child.subfolders !== undefined) ? child.subfolders : [],
-                    files: (child.files) ? child.files : [],
+                    subfolders: (child.subfolders && child.subfolders !== undefined) ? <DBNAVFolder[]>child.subfolders : <DBNAVFolder[]>[],
+                    files: (child.files) ? <DBNAVFile[]>child.files : <DBNAVFile[]>[],
                     type: (child.type) ? child.type : 'DASHBOARD',
                     icon: 'd-folder',
                     resourceType: resourceType
                 };
 
                 folder.subfolders.sort(this.sortByName);
-                resources[resourceType][folder.path] = folder;
+                resources[resourceType][folder.fullPath] = folder;
 
             } else {
-                const folder = resources[resourceType][payload.path];
+                const folder = resources[resourceType][payload.fullPath];
                 folder.subfolders.sort(this.sortByName);
                 // now what? its special... do we need to load anything?
             }
@@ -586,7 +607,7 @@ export class DashboardNavigatorState {
 
         }
 
-        const newPanel = <DBNAVPanelModel>resources[resourceType][payload.path];
+        const newPanel = <DBNAVPanelModel>resources[resourceType][payload.fullPath];
         newPanel.loaded = false;
 
         newPanel.subfolders.sort(this.sortByName);
@@ -610,7 +631,7 @@ export class DashboardNavigatorState {
 
         // does the panel need to be loaded? (AKA fetch subfolders/dashboards)
         if (!newPanel.loaded) {
-            ctx.dispatch(new DBNAVloadSubfolder(newPanel.path));
+            ctx.dispatch(new DBNAVloadSubfolder(newPanel));
         }
 
         // console.log('*** RESOURCES ***', resources);
@@ -633,12 +654,12 @@ export class DashboardNavigatorState {
      * FOLDERS
      **************************/
     @Action(DBNAVcreateFolder)
-    createFolder(ctx: StateContext<DBNAVStateModel>, { name: name, parentPath: parentPath, panelIndex: panelIndex }: DBNAVcreateFolder) {
-        this.stateLog('Create Folder', { name, parentPath, panelIndex});
+    createFolder(ctx: StateContext<DBNAVStateModel>, { name, parentId, panelIndex }: DBNAVcreateFolder) {
+        this.stateLog('Create Folder', { name, parentId, panelIndex});
 
-        const folder = {
-            name: name,
-            parentPath: parentPath
+        const folder: any = {
+            'name': name,
+            'parentId': parentId
         };
 
         // ?? Do we need permission check?
@@ -661,8 +682,8 @@ export class DashboardNavigatorState {
 
         const folder = {...response,
             resourceType: type,
-            subfolders: [],
-            files: [],
+            subfolders: <DBNAVFolder[]>[],
+            files: <DBNAVFile[]>[],
             icon: 'd-folder',
             loaded: false
         };
@@ -734,13 +755,13 @@ export class DashboardNavigatorState {
         const state = ctx.getState();
         const resourceData = {...state.resourceData};
 
-        const path = response.path.split('/');
+        const path = response.fullPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
         const resourceType = (type === 'namespace') ? 'namespaces' : 'personal';
         // const updateName = path.
 
         // is this a path change? This happens if they change the name of the folder
-        if (response.path !== originalPath) {
+        if (response.fullPath !== originalPath) {
             let pathKeys = Object.keys(resourceData[resourceType]);
             pathKeys = pathKeys.filter( item => item.includes(originalPath));
             for ( const pathKey of pathKeys) {
@@ -750,18 +771,18 @@ export class DashboardNavigatorState {
 
         const updatedFolder = {...response,
             resourceType: type,
-            subfolders: [],
-            files: [],
+            subfolders: response.subfolders || [],
+            files: response.files || [],
             icon: 'd-folder',
             loaded: false
         };
 
-        resourceData[resourceType][response.path] = updatedFolder;
+        resourceData[resourceType][response.fullPath] = updatedFolder;
 
         // now need to update panel item
         const panels = [...state.panels];
 
-        const targetIndex = panels[panelIndex].subfolders.findIndex( item => item.path === originalPath);
+        const targetIndex = panels[panelIndex].subfolders.findIndex( item => item.fullPath === originalPath);
         panels[panelIndex].subfolders[targetIndex] = updatedFolder;
         panels[panelIndex].subfolders.sort(this.sortByName);
 
@@ -795,14 +816,42 @@ export class DashboardNavigatorState {
     moveFolder(ctx: StateContext<DBNAVStateModel>, { payloadBody, panelIndex }: DBNAVmoveFolder) {
         this.stateLog('Move Folder', { payloadBody });
 
-        const originalPath = payloadBody.sourcePath;
-        const destinationPath = payloadBody.destinationPath;
+        const originalPath = payloadBody.source.fullPath;
+        let destinationPath;
+        const sourceId = payloadBody.source.id;
+        let destinationId;
+
+        const state = ctx.getState();
+        const resourceData = {...state.resourceData};
+
+        const payload: any = { sourceId };
+
+        // if moving to trash, find out ID of WHICH trash folder we are going to
+        if (payloadBody.trashFolder === true) {
+
+            const path = payloadBody.source.fullPath.split('/');
+            const resourceType = (path[1].toLowerCase() === 'namespace') ? 'namespaces' : 'personal';
+            const trashPath = path.slice(0, 3).join('/') + '/trash';
+            destinationId = resourceData[resourceType][trashPath].id;
+            destinationPath = resourceData[resourceType][trashPath].fullPath;
+
+            payload.destinationId = destinationId;
+            payload.trashFolder = true;
+
+        // else there should be a destination object
+        } else {
+            destinationId = payloadBody.destination.id;
+            destinationPath = payloadBody.destination.fullPath;
+            payload.destinationId = destinationId;
+        }
+
+        this.stateLog('CHECKS', {originalPath, destinationPath, payload});
 
         // TODO: simple permission check
-        if (this.simplePermissionCheck(ctx, originalPath) && this.simplePermissionCheck(ctx, destinationPath)) {
-            return this.navService.moveFolder(payloadBody).pipe(
-                map( (payload: any) => {
-                    ctx.dispatch(new DBNAVmoveFolderSuccess(payload, originalPath, panelIndex));
+        if ( this.simplePermissionCheck(ctx, originalPath) && this.simplePermissionCheck(ctx, destinationPath) ) {
+            return this.navService.moveFolder(payload).pipe(
+                map( (response: any) => {
+                    ctx.dispatch(new DBNAVmoveFolderSuccess(response, originalPath, panelIndex));
                 }),
                 catchError( error => ctx.dispatch(new DBNAVmoveFolderFail(error)) )
             );
@@ -820,7 +869,7 @@ export class DashboardNavigatorState {
         const resourceData = {...state.resourceData};
         const panels = [...state.panels];
 
-        const path = response.path.split('/');
+        const path = response.fullPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
         const resourceType = (type === 'namespace') ? 'namespaces' : 'personal';
 
@@ -838,7 +887,7 @@ export class DashboardNavigatorState {
         }
 
         // delete from the panel
-        const subFolderIndex = panels[panelIndex].subfolders.findIndex( item => item.path === originalPath);
+        const subFolderIndex = panels[panelIndex].subfolders.findIndex( item => item.fullPath === originalPath);
         panels[panelIndex].subfolders.splice(subFolderIndex, 1);
 
         // add new item to resource data
@@ -851,18 +900,18 @@ export class DashboardNavigatorState {
         };
         newFolder.subfolders.sort(this.sortByName);
 
-        resourceData[resourceType][newFolder.path] = newFolder;
+        resourceData[resourceType][newFolder.fullPath] = newFolder;
 
         // TODO
         // ?? if new destination is already a panel, should we move it? YES!!!
         // !! might need to add it to the resourceData folder for new destination?
-        let parentPath = response.path.split('/');
+        let parentPath = response.fullPath.split('/');
         parentPath.pop();
         parentPath = parentPath.join('/');
 
-        const panelCheckIndex = panels.findIndex(item => item.path === parentPath);
+        const panelCheckIndex = panels.findIndex(item => item.fullPath === parentPath);
         if (panelCheckIndex >= 0) {
-            panels[panelCheckIndex].subfolders.push(resourceData[resourceType][newFolder.path]);
+            panels[panelCheckIndex].subfolders.push(resourceData[resourceType][newFolder.fullPath]);
             panels[panelCheckIndex].subfolders.sort(this.sortByName);
         }
 
@@ -889,14 +938,28 @@ export class DashboardNavigatorState {
      * returns Observable
      */
     @Action(DBNAVloadSubfolder)
-    loadSubfolder(ctx: StateContext<DBNAVStateModel>, { path }: DBNAVloadSubfolder) {
-        this.stateLog('Load Sub Folder', { path });
+    loadSubfolder(ctx: StateContext<DBNAVStateModel>, { folderObj }: DBNAVloadSubfolder) {
+        this.stateLog('Load Sub Folder', { folderObj });
+
+        const fullPath = folderObj.fullPath;
+        const path = folderObj.path;
 
         ctx.patchState({ loading: true});
 
-        return this.navService.getFolderByPath(path).pipe(
+        const pathParts = fullPath.split('/');
+        let topFolder: any = false;
+
+        if (pathParts.length === 3) {
+            const value = (pathParts[1].toLowerCase() === 'namespace') ? folderObj.alias : 'user.' + pathParts[2];
+            topFolder = {
+                type: (pathParts[1].toLowerCase() === 'namespace') ? 'namespace' : 'user',
+                value: value
+            };
+        }
+
+        return this.navService.getFolderByPath(path, topFolder).pipe(
             map( (payload: any) => {
-                ctx.dispatch(new DBNAVloadSubfolderSuccess(payload));
+                ctx.dispatch(new DBNAVloadSubfolderSuccess(payload, topFolder));
             }),
             catchError( error => ctx.dispatch(new DBNAVloadSubfolderFail(error)))
         );
@@ -904,7 +967,7 @@ export class DashboardNavigatorState {
     }
 
     @Action(DBNAVloadSubfolderSuccess)
-    loadSubfolderSuccess(ctx: StateContext<DBNAVStateModel>, { response }: DBNAVloadSubfolderSuccess) {
+    loadSubfolderSuccess(ctx: StateContext<DBNAVStateModel>, { response, topFolder }: DBNAVloadSubfolderSuccess) {
         this.stateSuccess('Load Sub Folder Success', { response });
         // success... do something
 
@@ -913,13 +976,24 @@ export class DashboardNavigatorState {
         const panels = [...state.panels];
         const panelIdx = state.currentPanelIndex;
 
+        if (topFolder && topFolder.type === 'user') {
+            // user topfolder is wierd, so we have to normalize it to what we expect it to look like;
+            const refactorResponse: any = {
+                ...response.personalFolder,
+                type: 'DASHBOARD',
+                subfolders: response.personalFolder.subfolders || [],
+                files: response.personalFolder.files || []
+            };
+            response = refactorResponse;
+        }
+
         // need to infer the resourceType from path
-        const path = response.path.split('/');
+        const path = response.fullPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
         const resourceType = (path[1].toLowerCase() === 'namespace') ? 'namespaces' : 'personal';
         const topPath = path.splice(0, 3).join('/');
 
-        const subFolder = {...resourceData[resourceType][response.path],
+        const subFolder = {...resourceData[resourceType][response.fullPath],
             files: response.files || [],
             subfolders: response.subfolders || [],
             loaded: true
@@ -927,12 +1001,12 @@ export class DashboardNavigatorState {
         subFolder.subfolders.sort(this.sortByName);
 
         // update the resource data for item
-        resourceData[resourceType][response.path] = subFolder;
+        resourceData[resourceType][response.fullPath] = subFolder;
 
         // tslint:disable-next-line:forin
         for (const i in subFolder.subfolders) {
             const folder = subFolder.subfolders[i];
-            if (resourceType === 'personal' && folder.path === topPath + '/trash') {
+            if (resourceType === 'personal' && folder.fullPath === topPath + '/trash') {
                 subFolder.subfolders.splice(i, 1);
             } else {
                 if (!folder.subfolders || folder.subfolders === undefined) { folder.subfolders = []; }
@@ -940,16 +1014,16 @@ export class DashboardNavigatorState {
                 folder.loaded = false;
                 folder.resourceType = (resourceType === 'namespaces') ? 'namespace' : 'personal';
                 folder.icon = 'd-folder';
-                resourceData[resourceType][folder.path] = folder;
+                resourceData[resourceType][folder.fullPath] = folder;
             }
         }
 
         let createNamespaceTrashFolder = false;
 
         // is this a namespace folder? and does it need a trash folder?
-        if (type === 'namespace' && topPath === response.path) {
+        if (type === 'namespace' && topPath === response.fullPath) {
             // check for trash folder
-            const trashIndex = subFolder.subfolders.findIndex(item => item.path === topPath + '/trash');
+            const trashIndex = subFolder.subfolders.findIndex(item => item.fullPath === topPath + '/trash');
             if (trashIndex === -1) {
                 createNamespaceTrashFolder = true;
             } else {
@@ -966,23 +1040,23 @@ export class DashboardNavigatorState {
         if (panelIdx === 1) {
 
             if (type === 'personal' && subFolder.resourceType === 'trash') {
-                panels[0].personal[4].files = resourceData[resourceType][response.path].files;
-                panels[0].personal[4].subfolders = resourceData[resourceType][response.path].subfolders;
+                panels[0].personal[4].files = resourceData[resourceType][response.fullPath].files;
+                panels[0].personal[4].subfolders = resourceData[resourceType][response.fullPath].subfolders;
                 panels[0].personal[4].subfolders.sort(this.sortByName);
             }
 
-            if (type === 'personal' && subFolder.path === topPath) {
-                panels[0].personal[0].files = resourceData[resourceType][response.path].files;
-                panels[0].personal[0].subfolders = resourceData[resourceType][response.path].subfolders;
+            if (type === 'personal' && subFolder.fullPath === topPath) {
+                panels[0].personal[0].files = resourceData[resourceType][response.fullPath].files;
+                panels[0].personal[0].subfolders = resourceData[resourceType][response.fullPath].subfolders;
                 panels[0].personal[0].subfolders.sort(this.sortByName);
             }
 
             if (type === 'namespace') {
-                const nsIndex = panels[0].namespaces.findIndex(item => item.path === topPath);
+                const nsIndex = panels[0].namespaces.findIndex(item => item.fullPath === topPath);
 
                 if (nsIndex >= 0) {
-                    panels[0].namespaces[nsIndex].files = resourceData[resourceType][response.path].files;
-                    panels[0].namespaces[nsIndex].subfolders = resourceData[resourceType][response.path].subfolders;
+                    panels[0].namespaces[nsIndex].files = resourceData[resourceType][response.fullPath].files;
+                    panels[0].namespaces[nsIndex].subfolders = resourceData[resourceType][response.fullPath].subfolders;
                     panels[0].namespaces[nsIndex].subfolders.sort(this.sortByName);
                 }
             }
@@ -995,7 +1069,8 @@ export class DashboardNavigatorState {
         });
 
         if (createNamespaceTrashFolder && this.simplePermissionCheck(ctx, topPath)) {
-            ctx.dispatch(new DBNAVcreateFolder('Trash', topPath, panelIdx));
+            const nsFolderId = resourceData.namespaces[topPath].id;
+            ctx.dispatch(new DBNAVcreateFolder('Trash', nsFolderId, panelIdx));
         }
 
     }
@@ -1028,14 +1103,41 @@ export class DashboardNavigatorState {
     moveFile(ctx: StateContext<DBNAVStateModel>, { payloadBody, panelIndex }: DBNAVmoveFile) {
         this.stateLog('Move File', { payloadBody });
 
-        const originalPath = payloadBody.sourcePath;
-        const destinationPath = payloadBody.destinationPath;
+        const originalPath = payloadBody.source.fullPath;
+        let destinationPath;
+        const sourceId = payloadBody.source.id;
+        let destinationId;
+
+        const state = ctx.getState();
+        const resourceData = {...state.resourceData};
+
+        const payload: any = { sourceId };
+
+        if (payloadBody.trashFolder === true) {
+
+            const path = payloadBody.source.fullPath.split('/');
+            const resourceType = (path[1].toLowerCase() === 'namespace') ? 'namespaces' : 'personal';
+            const trashPath = path.slice(0, 3).join('/') + '/trash';
+            destinationId = resourceData[resourceType][trashPath].id;
+            destinationPath = resourceData[resourceType][trashPath].fullPath;
+
+            payload.destinationId = destinationId;
+            payload.trashFolder = true;
+
+        // else there should be a destination object
+        } else {
+            destinationId = payloadBody.destination.id;
+            destinationPath = payloadBody.destination.fullPath;
+            payload.destinationId = destinationId;
+        }
+
+        this.stateLog('CHECKS', {originalPath, destinationPath, payload});
 
         // TODO: simple permission check
         if (this.simplePermissionCheck(ctx, originalPath) && this.simplePermissionCheck(ctx, destinationPath)) {
-            return this.navService.moveFile(payloadBody).pipe(
-                map( (payload: any) => {
-                    ctx.dispatch(new DBNAVmoveFileSuccess(payload, originalPath, panelIndex));
+            return this.navService.moveFile(payload).pipe(
+                map( (response: any) => {
+                    ctx.dispatch(new DBNAVmoveFileSuccess(response, originalPath, panelIndex));
                 }),
                 catchError( error => ctx.dispatch(new DBNAVmoveFileFail(error)) )
             );
@@ -1259,7 +1361,8 @@ export class DashboardNavigatorState {
             masterSubFolders[0] = {
                 id: resourceData.personal[userPath].id,
                 name: 'My Dashboards',
-                path: userPath,
+                path: resourceData.personal[userPath].path,
+                fullPath: userPath,
                 resourceType: 'personal',
                 type: 'DASHBOARD',
                 icon: 'd-dashboard-tile',
@@ -1273,6 +1376,7 @@ export class DashboardNavigatorState {
                 id: 0,
                 name: 'Namespaces',
                 path: '/namespace',
+                fullPath: '/namespace',
                 resourceType: 'namespaces',
                 type: 'DASHBOARD',
                 icon: 'd-dashboard-tile',
@@ -1286,6 +1390,7 @@ export class DashboardNavigatorState {
                 id: 0,
                 name: 'Dashboards',
                 path: '/',
+                fullPath: '/',
                 resourceType: 'master',
                 icon: 'd-dashboard-tile',
                 subfolders: [...masterSubFolders],
@@ -1303,6 +1408,7 @@ export class DashboardNavigatorState {
                     id: 0,
                     name: 'Namespaces',
                     path: '/namespace',
+                    fullPath: '/namespace',
                     resourceType: 'master',
                     icon: 'd-dashboard-tile',
                     moveEnabled: false,
@@ -1313,6 +1419,7 @@ export class DashboardNavigatorState {
                 for (const ns of user.memberNamespaces) {
                     const nsFolder = {...ns,
                         path: '/namespace/' + ns.alias,
+                        fullPath: '/namespace/' + ns.alias,
                         resourceType: 'namespace',
                         type: 'DASHBOARD',
                         icon: 'd-dashboard-tile',
@@ -1346,12 +1453,12 @@ export class DashboardNavigatorState {
                 for (const i in personalListPanel.subfolders) {
                     if (personalListPanel.subfolders[i]) {
                         const sub = personalListPanel.subfolders[i];
-                        if (sub.path.split('/').length >= 3) {
+                        if (sub.fullPath.split('/').length >= 3) {
                             sub.moveEnabled = true;
                             sub.selectEnabled = true;
                         }
                         // if move mode, check if target is in subfolders. if yes, flag it to not display
-                        if (actionMode === 'move' && sub.path === targetPath) {
+                        if (actionMode === 'move' && sub.fullPath === targetPath) {
                             sub.noDisplay = true;
                         }
                     }
@@ -1396,12 +1503,12 @@ export class DashboardNavigatorState {
                     for (const i in pathPanel.subfolders) {
                         if (pathPanel.subfolders[i]) {
                             const sub = pathPanel.subfolders[i];
-                            if (sub.path.split('/').length >= 3) {
+                            if (sub.fullPath.split('/').length >= 3) {
                                 sub.moveEnabled = true;
                                 sub.selectEnabled = true;
                             }
                             // if move mode, check if target is in subfolders. If yes, flag it to not display
-                            if (actionMode === 'move' && sub.path === targetPath) {
+                            if (actionMode === 'move' && sub.fullPath === targetPath) {
                                 sub.noDisplay = true;
                             }
                         }

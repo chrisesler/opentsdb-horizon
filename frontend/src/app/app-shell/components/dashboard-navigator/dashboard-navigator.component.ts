@@ -76,6 +76,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
 
     intercomSub: Subscription;
 
+    // tslint:disable-next-line:no-inferrable-types
     @Input() activeMediaQuery: string = '';
 
     constructor(
@@ -160,6 +161,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 const newPanel = this.store.dispatch(
                     new DBNAVaddPanel({
                         path: event.path,
+                        fullPath: event.fullPath,
                         type: event.resourceType,
                         panelAction: 'goNextPanel'
                     })
@@ -173,7 +175,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 this.store.dispatch(
                     new DBNAVcreateFolder(
                         event.data.name,
-                        this.panels[this.currentPanelIndex].path,
+                        this.panels[this.currentPanelIndex].id,
                         this.currentPanelIndex
                     )
                 );
@@ -182,7 +184,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 this.store.dispatch(
                     new DBNAVupdateFolder(
                         event.data.id,
-                        event.data.path,
+                        event.data.fullPath,
                         event.data,
                         this.currentPanelIndex
                     )
@@ -191,13 +193,12 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
             case 'deleteFolder':
                 // see if it is userpath, or namespace path
                 // console.log('DELETE FOLDER [TOP]', panel, event);
-                const path = event.data.path.split('/');
-                const trashPath = path.slice(0, 3).join('/') + '/trash';
+                // const path = event.data.path.split('/');
+                // const trashPath = path.slice(0, 3).join('/') + '/trash';
                 this.store.dispatch(
                     new DBNAVmoveFolder(
                         {
-                            sourcePath: event.data.path,
-                            destinationPath: trashPath,
+                            source: event.data.source,
                             trashFolder: true
                         },
                         this.currentPanelIndex
@@ -205,6 +206,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 );
                 break;
             case 'moveFolder':
+                console.log('MOVE FOLDER EVENT', event);
                 this.store.dispatch(
                     new DBNAVmoveFolder(
                         event.data,
@@ -228,13 +230,12 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 break;
             case 'deleteDashboard':
                 // console.log('DELETE DASHBOARD[TOP]', panel, event);
-                const path = event.data.path.split('/');
-                const trashPath = path.slice(0, 3).join('/') + '/trash';
+                // const path = event.data.path.split('/');
+                // const trashPath = path.slice(0, 3).join('/') + '/trash';
                 this.store.dispatch(
                     new DBNAVmoveFile(
                         {
-                            sourcePath: event.data.path,
-                            destinationPath: trashPath,
+                            source: event.data.source,
                             trashFolder: true
                         },
                         this.currentPanelIndex
@@ -242,7 +243,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
                 );
                 break;
             case 'moveDashboard':
-                // console.log('MOVE DASHBOARD [TOP]', panel, event);
+                console.log('MOVE DASHBOARD [TOP]', panel, event);
                 this.store.dispatch(
                     new DBNAVmoveFile(
                         event.data,

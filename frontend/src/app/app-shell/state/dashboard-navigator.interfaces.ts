@@ -2,6 +2,8 @@ export interface DBNAVFile {
     id: number;
     name: string;
     path: string;
+    fullPath: string;
+    parentPath?: string;
     createdTime?: number;
     createdBy?: string;
     updatedTime?: number;
@@ -13,6 +15,8 @@ export interface DBNAVFolder {
     id: number;
     name: string;
     path: string;
+    fullPath: string;
+    parentPath?: string;
     resourceType: string;
     alias?: string;
     files?: DBNAVFile[];
@@ -21,16 +25,17 @@ export interface DBNAVFolder {
     createdBy?: string;
     updatedTime?: number;
     updatedBy?: string;
+    topFolder?: any;
     type?: string;
     loaded?: boolean;
     synthetic?: boolean;
+    icon?: string;
 }
 
-// panel is basically a folder, but with the potential of having an icon, namespaces, or personal
+// panel is basically a folder, but with the potential of having an namespaces, or personal
 export interface DBNAVPanelModel extends DBNAVFolder {
     namespaces?: DBNAVFolder[];
     personal?: DBNAVFolder[];
-    icon?: string;
 }
 
 export interface MiniNavPanelModel extends DBNAVPanelModel {

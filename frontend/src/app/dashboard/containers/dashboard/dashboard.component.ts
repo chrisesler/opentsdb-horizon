@@ -14,7 +14,7 @@ import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
-import { LoadUserNamespaces, UserSettingsState } from '../../state/user.settings.state';
+import { LoadUserNamespaces, LoadUserFolderData, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel } from '../../state/widgets.state';
 import {
     WidgetsRawdataState,
@@ -59,6 +59,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // new state
     @Select(DBSettingsState.getDashboardSettings) dbSettings$: Observable<any>;
     @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
+    @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<string>;
+    @Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<string>;
     @Select(DBState.getDashboardPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
@@ -201,15 +203,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.routeSub = this.activatedRoute.url.subscribe(url => {
             this.widgets = [];
             this.store.dispatch(new ClearWidgetsData());
+            // console.log('DASHBOARD ROUTE SUB', url);
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
             } else {
+                /* OLD WAY TO GET BY PATH
                 const paths = [];
                 url.forEach(segment => {
                     paths.push(segment.path);
                 });
                 this.store.dispatch(new LoadDashboard(paths.join('/')));
+                */
+               this.store.dispatch(new LoadDashboard(url[0].path));
             }
         });
         // setup navbar portal
@@ -306,6 +312,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (message.payload.parentPath) {
                         payload.parentPath = message.payload.parentPath;
                     }
+                    if (message.payload.parentId) {
+                        payload.parentId = message.payload.parentId;
+                    }
                     if (this.dbid !== '_new_') {
                         payload.id = this.dbid;
                     }
@@ -343,6 +352,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'getUserNamespaces':
                     // console.log('getUserNamespaces');
                     this.store.dispatch(new LoadUserNamespaces());
+                    break;
+                case 'getUserFolderData':
+                    // console.log('getUserFolderData');
+                    this.store.dispatch(new LoadUserFolderData());
                     break;
                 default:
                     break;
@@ -524,6 +537,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.interCom.responsePut({
                 action: 'UserNamespaces',
                 payload: result
+            });
+        });
+
+        this.userPersonalFolders$.subscribe(folders => {
+            this.interCom.responsePut({
+                action: 'UserPersonalFolders',
+                payload: folders
+            });
+        });
+
+        this.userNamespaceFolders$.subscribe(folders => {
+            this.interCom.responsePut({
+                action: 'UserNamespaceFolders',
+                payload: folders
             });
         });
 
