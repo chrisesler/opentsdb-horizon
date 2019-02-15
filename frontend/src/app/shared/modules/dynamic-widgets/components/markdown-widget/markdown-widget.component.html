@@ -10,10 +10,9 @@
 
   <div class="widget-output notCentered" #widgetoutput [style.background]="widget.settings.visual.backgroundColor" [ngClass]="{'monospace': widget.settings.visual.font === 'monospace' }">
       <div class="widget-container" [ngClass]="{'top-padding': !editMode}">
-        <span *ngIf="widget.settings.visual.text || !editMode" class="markdown-body" id="markdown-override" [style.color]="widget.settings.visual.textColor" >
+        <span class="markdown-body" id="markdown-override" [style.color]="widget.settings.visual.textColor" >
           <markdown [data]="widget.settings.visual.text"></markdown>
         </span>
-        <span *ngIf="editMode && !widget.settings.visual.text" class="preview"> Preview </span>
       </div>
   </div>
 </div>
@@ -24,7 +23,7 @@
       <mat-tab label="Editor" [disabled]="editQueryId">
           <ng-template matTabContent>
               <mat-form-field class="inputArea">
-                <textarea matInput placeholder="Type here. We support Markdown." [value]="widget.settings.visual.text" (keyup)="textChanged($event.target.value)"></textarea>
+                <textarea matInput placeholder="Type here. We support Markdown." [value]="widget.settings.visual.text" (keyup)="textChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
               </mat-form-field>
               <div class="markdown-note"> <a target="_blank" href="https://www.markdownguide.org/cheat-sheet/">Markdown reference</a> </div>
           </ng-template>
