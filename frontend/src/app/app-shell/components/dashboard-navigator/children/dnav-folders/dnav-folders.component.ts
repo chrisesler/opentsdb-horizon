@@ -25,6 +25,7 @@ export class DnavFoldersComponent implements OnInit {
     @Input() masterPanel: boolean = false;
     @Input() resourceType: any = ''; // personal<string> | namespace<string>
     @Input() folders: any[] = [];
+    // tslint:disable-next-line:no-inferrable-types
     @Input() activeMediaQuery: string = '';
 
     @Output() folderAction: EventEmitter<any> = new EventEmitter();
@@ -149,7 +150,8 @@ export class DnavFoldersComponent implements OnInit {
                     data: {
                         name: event.name,
                         id: folder.id,
-                        path: folder.path
+                        path: folder.path,
+                        fullPath: folder.fullPath
                     }
                 });
                 break;
@@ -157,16 +159,17 @@ export class DnavFoldersComponent implements OnInit {
                 this.folderAction.emit({
                     action: 'deleteFolder',
                     data: {
-                        path: folder.path
+                        source: folder
                     }
                 });
                 break;
             case 'moveFolder':
+                console.log('@@@ Move Folder Event', event);
                 this.folderAction.emit({
                     action: 'moveFolder',
                     data: {
-                        sourcePath: folder.path,
-                        destinationPath: event.destinationPath
+                        source: folder,
+                        destination: event.destination
                     }
                 });
                 break;
@@ -187,7 +190,8 @@ export class DnavFoldersComponent implements OnInit {
                 action: 'navtoPanelFolder',
                 resourceType: folder.resourceType,
                 // idx: folderIdx
-                path: folder.path
+                path: folder.path,
+                fullPath: folder.fullPath
             });
         }
     }

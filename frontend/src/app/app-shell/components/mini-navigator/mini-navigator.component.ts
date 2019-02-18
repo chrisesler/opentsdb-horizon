@@ -230,17 +230,13 @@ export class MiniNavigatorComponent implements OnInit, OnDestroy {
             case 'move':
                 this.directorySelected.emit({
                     action: 'move',
-                    payload: {
-                        path: (this.selected.folder) ? this.selected.folder.path : this.panels[this.panelIndex].path
-                    }
+                    payload: (this.selected.folder) ? this.selected.folder : this.panels[this.panelIndex]
                 });
                 break;
             case 'select':
                 this.directorySelected.emit({
                     action: 'select',
-                    payload: {
-                        path: (this.selected.folder) ? this.selected.folder.path : this.panels[this.panelIndex].path
-                    }
+                    payload: (this.selected.folder) ? this.selected.folder : this.panels[this.panelIndex]
                 });
                 break;
             case 'cancel':

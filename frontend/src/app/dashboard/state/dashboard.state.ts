@@ -109,7 +109,8 @@ export class DBState {
         // id is the path
         if ( id !== '_new_' ) {
             ctx.patchState({ loading: true});
-            return this.httpService.getDashboardByPath(id).pipe(
+            //return this.httpService.getDashboardByPath(id).pipe(
+            return this.httpService.getDashboardById(id).pipe(
                 map(dashboard => {
                     ctx.dispatch(new LoadDashboardSuccess(dashboard.body));
                 }),
@@ -147,7 +148,7 @@ export class DBState {
             ctx.patchState({ status: 'save-progress', error: {} });
             return this.httpService.saveDashboard(id, payload).pipe(
                 map( (res: any) => {
-                    console.log('DASHBOARD after saved:', res);
+                    // console.log('DASHBOARD after saved:', res);
                     ctx.dispatch(new SaveDashboardSuccess(res.body));
                 }),
                 catchError( error => ctx.dispatch(new SaveDashboardFail(error)))
@@ -157,7 +158,7 @@ export class DBState {
     @Action(SaveDashboardSuccess)
     saveDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: SaveDashboardSuccess) {
         const state = ctx.getState();
-        console.log('save dashboard success', payload);
+        // console.log('save dashboard success', payload);
         ctx.patchState({...state, id: payload.id, path: payload.path, status: 'save-success' });
     }
 
@@ -181,7 +182,7 @@ export class DBState {
     @Action(DeleteDashboardSuccess)
     deleteDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: SaveDashboardSuccess) {
         const state = ctx.getState();
-        console.log('delete dashboard success', payload);
+        // console.log('delete dashboard success', payload);
         ctx.patchState({...state, status: 'delete-success'  });
     }
 

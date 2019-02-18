@@ -61,6 +61,7 @@ export class AppShellService {
                 `backend return code ${error.status}, ` +
                 `body was: ${error.error}`
             );
+            return throwError(error);
         }
         return throwError(
             'Something bad happened; please try again later.'
@@ -68,7 +69,7 @@ export class AppShellService {
     }
 
     getFolderList(folderId?: any, namespaceId?: any ) {
-        const apiUrl = environment.configdb2 + '/folder';
+        const apiUrl = environment.configdb + '/folder';
         const params = { 'recursive': 'true' };
         const headers = new HttpHeaders(this.headers);
 
@@ -83,7 +84,7 @@ export class AppShellService {
     }
 
     createFolder(folder: any) {
-        const apiUrl = environment.configdb2 + '/folder';
+        const apiUrl = environment.configdb + '/folder';
         const headers = new HttpHeaders(this.headers);
 
         return this.http.post(
@@ -97,7 +98,7 @@ export class AppShellService {
     }
 
     getUserProfile() {
-        const apiUrl = environment.configdb2 + '/user';
+        const apiUrl = environment.configdb + '/user';
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
@@ -116,7 +117,7 @@ export class AppShellService {
     }
 
     createUser() {
-        const apiUrl = environment.configdb2 + '/user';
+        const apiUrl = environment.configdb + '/user';
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });

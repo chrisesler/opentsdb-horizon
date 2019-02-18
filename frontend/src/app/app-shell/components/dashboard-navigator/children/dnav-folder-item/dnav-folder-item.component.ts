@@ -216,7 +216,7 @@ export class DnavFolderItemComponent implements OnInit, AfterViewInit, OnDestroy
             case 'move':
                 this.folderAction.emit({
                     action: 'moveFolder',
-                    destinationPath: event.payload.path
+                    destination: event.payload
                 });
                 break;
             case 'select':

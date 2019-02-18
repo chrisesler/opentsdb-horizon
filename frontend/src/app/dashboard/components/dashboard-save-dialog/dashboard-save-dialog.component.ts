@@ -28,6 +28,9 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
     namespaceOptions = [];
     filteredNamespaceOptions: Observable<any[]>;
 
+    userFolders: any[] = [];
+    namespaceFolders: any[] = [];
+
     /** Form Variables */
 
     saveForm: FormGroup;
@@ -55,14 +58,28 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
                 map(val => this.filterNamespace(val))
             );
 
-        this.interCom.requestSend(<IMessage> {
+        /*this.interCom.requestSend(<IMessage> {
             action: 'getUserNamespaces',
+            payload: {}
+        });*/
+
+        this.interCom.requestSend(<IMessage> {
+            action: 'getUserFolderData',
             payload: {}
         });
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch ( message.action ) {
                 case 'UserNamespaces':
+                    // console.log('USER NAMESPACES', message.payload);
                     this.namespaceOptions = message.payload;
+                    break;
+                case 'UserPersonalFolders':
+                    // console.log('USER PERSONAL FOLDERS', message.payload);
+                    this.userFolders = message.payload;
+                    break;
+                case 'UserNamespaceFolders':
+                    // console.log('USER NAMESPACE FOLDERS', message.payload);
+                    this.namespaceFolders = message.payload;
                     break;
             }
         });
@@ -87,7 +104,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
 
     filterNamespace(val: string): string[] {
         return this.namespaceOptions.filter(option => {
-            if(val === '') {
+            if (val === '') {
                 return option.name;
             } else {
                 return option.name.toLowerCase().includes(val.toLowerCase());
@@ -119,7 +136,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         }
         const namespace = this.namespace.value.trim();
         const errors: any = {};
-        //console.log(namespace, this.namespaceOptions.findIndex(d => namespace === d.name ));
+        // console.log(namespace, this.namespaceOptions.findIndex(d => namespace === d.name ));
         if ( namespace === '') {
             errors.required = true;
         }
@@ -127,7 +144,7 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
             errors.invalid = true;
         }
         this.namespace.setErrors(Object.keys(errors).length ? errors : null);
-        //console.log(this.namespace);
+        // console.log(this.namespace);
 
         return Object.keys(errors).length === 0 ? true : false;
     }
@@ -137,17 +154,30 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
             // form not good
         } else if ( this.isValidNamespaceSelected() ) {
             // form is good, save it
-            const data: any = { name: this.title.value}; 
+            const data: any = { name: this.title.value};
             if ( !this.isPersonal.value ) {
                 // find the alias to build parentPath not the name
                 let alias = '';
-                for (let i =0; i < this.namespaceOptions.length; i++) {
+                let id;
+                /*for (let i = 0; i < this.namespaceOptions.length; i++) {
                     if (this.namespaceOptions[i].name === this.namespace.value) {
                         alias = this.namespaceOptions[i].alias;
                         break;
                     }
+                }*/
+
+                for (const ns of this.namespaceFolders) {
+                    if (ns.name === this.namespace.value) {
+                        alias = ns.alias;
+                        id = ns.id;
+                    }
                 }
                 data.parentPath = '/namespace/' + alias;
+                data.parentId = id;
+            } else {
+                const userFolder = this.userFolders[0];
+                data.parentPath = userFolder.path;
+                data.parentId = userFolder.id;
             }
             this.dialogRef.close(data);
         }

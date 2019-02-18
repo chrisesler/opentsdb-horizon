@@ -23,6 +23,7 @@ export class DnavDashboardsComponent implements OnInit {
 
     @Input() dashboards: any[] = [];
     @Input() resourceType: any = ''; // personal<string> | namespace<string>
+    // tslint:disable-next-line:no-inferrable-types
     @Input() activeMediaQuery: string = '';
 
     @Output() dashboardAction: EventEmitter<any> = new EventEmitter();
@@ -56,15 +57,22 @@ export class DnavDashboardsComponent implements OnInit {
         switch (event.action) {
             case 'navigateTo':
             case 'openNewTab':
-            case 'deleteDashboard':
                 this.dashboardAction.emit(event);
+                break;
+            case 'deleteDashboard':
+                this.dashboardAction.emit({
+                    action: 'deleteDashboard',
+                    data: {
+                        source: dashboard
+                    }
+                });
                 break;
             case 'moveDashboard':
                 this.dashboardAction.emit({
                     action: 'moveDashboard',
                     data: {
-                        sourcePath: dashboard.path,
-                        destinationPath: event.destinationPath
+                        source: dashboard,
+                        destination: event.destination
                     }
                 });
                 break;

@@ -152,7 +152,7 @@ export class DnavDashboardItemComponent implements OnInit {
             case 'move':
                 this.dashboardAction.emit({
                     action: 'moveDashboard',
-                    destinationPath: event.payload.path
+                    destination: event.payload
                 });
                 break;
             case 'select':

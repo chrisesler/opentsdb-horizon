@@ -7,12 +7,6 @@ import { catchError, map, tap } from 'rxjs/operators';
 @Injectable()
 export class AlertsService {
 
-    get headers(): any {
-        return new HttpHeaders({
-            'Content-Type': 'application/json'
-        });
-    }
-
     constructor(
         private http: HttpClient
     ) { }
@@ -45,49 +39,6 @@ export class AlertsService {
     }
 
     /**
-     * HTTP METHOD CONSTRUCTORS
-     */
-
-    httpGet(url: string, params?: any) {
-        const headers = new HttpHeaders({
-            'Content-Type': 'application/json'
-        });
-
-        const httpOptions: any = {
-            headers,
-            withCredentials: true,
-            responseType: 'json'
-        };
-
-        if (params) {
-            httpOptions.params = new HttpParams(params);
-        }
-
-        return this.http.get(url, httpOptions);
-    }
-
-    httpPut(url: string, body: any, params?: any) {
-        // console.log('url', url);
-        // console.log('body', body);
-        // console.log('params', params || null);
-        const headers = new HttpHeaders({
-            'Content-Type': 'application/json'
-        });
-
-        const httpOptions: any = {
-            headers,
-            withCredentials: true,
-            responseType: 'json'
-        };
-
-        if (params) {
-            httpOptions.params = new HttpParams(params);
-        }
-
-        return this.http.put(url, body, httpOptions);
-    }
-
-    /**
      * Error Handler
      *
      * to handle error with more info
@@ -116,9 +67,22 @@ export class AlertsService {
      */
 
     getUserNamespaces() {
-        this.apiLog('Get Namespaces I Belong to');
-        const apiUrl = environment.configdb2 + '/namespace/member';
-        return this.httpGet(apiUrl);
+
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
+        const httpOptions: any = {
+            headers,
+            withCredentials: true,
+            responseType: 'json'
+        };    
+
+        const apiUrl = environment.configdb + '/namespace/member';
+        this.apiLog('Get Namespaces I Belong to', apiUrl);
+        return this.http.get(apiUrl, httpOptions).pipe(
+            catchError(this.handleError)
+        );
     }
 
     getNamespaces(queryObj: any): Observable<any> {

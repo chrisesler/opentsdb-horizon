@@ -63,7 +63,7 @@
     </mat-menu>
     <mat-menu class="dnav-cdk-mini-navigator" xPosition="after" #dnavMiniNavigator="matMenu" style="transform: translate3d(30px, -31px, 0);">
         <div mat-menu-item (click)="$event.stopPropagation();" [disableRipple]="true">
-            <mini-navigator mode="move" type="folder" [path]="folder.path" 
+            <mini-navigator mode="move" type="folder" [path]="folder.fullPath" 
                 (navigationCancel)="miniNavTrigger.closeMenu()"
                 (directorySelected)="miniNavAction($event)"
                 #miniNav></mini-navigator>
