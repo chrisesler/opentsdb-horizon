@@ -57,7 +57,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
 
       
       this.host = d3.select(this.element.nativeElement);
-      this.host.html("");
+      this.host.html('');
       const tooltip = this.host                               
                           .append('div')                                               
                           .attr('class', 'tooltip'); 
@@ -77,52 +77,54 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       const yAxis = d3.axisLeft(y)
                     .tickSize(0)
                     .tickFormat( (d:any) => formatter(d));
-
       const svg = this.host
                       .append("svg")
                       .attr("width", this.size.width)
                       .attr("height", this.size.height);
-      
-      // just calculate the max label length and remove
-      svg.append("text").text(formatter(max))
-                      .each(function() { yAxisWidth = this.getBBox().width; })
-                      .remove();
-      const g = svg  
-                  .append("g")
-                  .attr("transform", "translate(" + (margin.left + yAxisWidth + 3) + "," + margin.top + ")");
-      
-      // reduce the font-size when bar height is less than the fontsize
-      g.append("g")
-                  .attr("class", "y axis")
-                  .style("font-size", d => di>=1  ? '100%' : barHeight + 'px')
-                  .call(yAxis);
-      
-      const bars = g.selectAll(".bar")
-                    .data(dataset)
-                    .enter()
-                    .append("g");
-  
-      bars.append("rect")
-          .attr("class", "bar")
-          .attr("y", d => y(d.value))
-          .attr("height", barHeight)
-          .attr("x", 0)
-          .attr("width", d => x(d.value))
-          .style('stroke', (d:any) => d.color )
-          .style("fill", (d:any) => d.color)
-          .on("mouseover", mouseover)
-          .on("mousemove", mousemove)
-          .on("mouseout", mouseout);
 
-      bars.append("text")
-          .attr("class", "label")
-          .attr("y", d => di >= 1 ? y(d.value) + y.bandwidth() / 2 + 4 : y(d.value) + y.bandwidth())
-          .attr("x", 5)
-          .style("font-size", ( d, i ) => di>=1  ? '100%' : barHeight + 'px') 
-          .text( ( d, i ) => d.label )
-          .on("mouseover", mouseover)
-          .on("mousemove", mousemove)
-          .on("mouseout", mouseout);
+      // rerendering causing issue as we clear the chart container. the svg container is not available to calculate the yaxis label width
+      setTimeout( () => {
+        // calculate the max label length and remove
+        svg.append("text").text(formatter(max))
+                        .each(function() { yAxisWidth = this.getBBox().width; })
+                        .remove();
+        const g = svg  
+                    .append("g")
+                    .attr("transform", "translate(" + (margin.left + yAxisWidth + 3) + "," + margin.top + ")");
+        
+        // reduce the font-size when bar height is less than the fontsize
+        g.append("g")
+                    .attr("class", "y axis")
+                    .style("font-size", d => di>=1  ? '100%' : barHeight + 'px')
+                    .call(yAxis);
+        
+        const bars = g.selectAll(".bar")
+                      .data(dataset)
+                      .enter()
+                      .append("g");
+    
+        bars.append("rect")
+            .attr("class", "bar")
+            .attr("y", d => y(d.value))
+            .attr("height", barHeight)
+            .attr("x", 0)
+            .attr("width", d => x(d.value))
+            .style('stroke', (d:any) => d.color )
+            .style("fill", (d:any) => d.color)
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseout", mouseout);
+
+        bars.append("text")
+            .attr("class", "label")
+            .attr("y", d => di >= 1 ? y(d.value) + y.bandwidth() / 2 + 4 : y(d.value) + y.bandwidth())
+            .attr("x", 5)
+            .style("font-size", ( d, i ) => di>=1  ? '100%' : barHeight + 'px') 
+            .text( ( d, i ) => d.label )
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseout", mouseout);
+      }, 0);
     }
   }
   
