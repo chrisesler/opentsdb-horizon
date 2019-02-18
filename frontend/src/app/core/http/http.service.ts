@@ -131,7 +131,7 @@ export class HttpService {
       const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj);
       return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
-                          map((res:any) => res.results[0].tagKeysAndValues[queryObj.tagkey].values),
+                          map((res:any) => res.results[0].tagKeysAndValues[queryObj.tagkey] ? res.results[0].tagKeysAndValues[queryObj.tagkey].values: []),
                         );
     }
 

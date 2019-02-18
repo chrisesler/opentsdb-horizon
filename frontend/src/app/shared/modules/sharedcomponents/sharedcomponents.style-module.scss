@@ -34,6 +34,7 @@
 @import 'components/dropdown-unit-type/dropdown-unit-type.component';
 @import 'components/dropdown-visual-type/dropdown-visual-type.component';
 @import 'components/query-editor/query-editor.component.scss';
+@import 'components/conditional-formatter/conditional-formatter.component.scss';
 @import 'components/namespace-tag-autocomplete/namespace-tag-autocomplete.component.scss';
 @import 'components/widget-config-sorting/widget-config-sorting.component.scss';
 
@@ -73,6 +74,7 @@
     @include dropdown-visual-type-component-base();
     @include query-editor-component-base();
     @include namespace-tag-autocomplete-component-base();
+    @include conditional-formatter-component-base();
 
 
     // WIDGET CONFIG ITEMS
@@ -111,6 +113,7 @@
     @include dropdown-visual-type-component-theme($theme-config);
     @include query-editor-component-theme($theme-config);
     @include namespace-tag-autocomplete-component-theme($theme-config);
+    @include conditional-formatter-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);

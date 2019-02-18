@@ -1,0 +1,101 @@
+@mixin topn-widget-component-base() {
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-view-padding: map-get($widgets-common-config, edit-padding);
+    $tab-width: map-get($widgets-common-config, tab-width);
+    $action-bar-height: map-get($widgets-common-config, action-bar-height);
+
+    .widget-panel-content.topnchart-widget {
+        flex: 1;
+        display: flex;
+        .widget-output {
+            padding: 0px 0px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            .loader{
+                position: absolute;
+                left: 5px;
+                bottom: 5px;
+                z-index: 1;
+                width: 24px;
+                height: 24px;
+                background-image: url(/assets/denali-loader.svg);
+                background-color: transparent;
+            }
+    
+            .error{
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                z-index: 1;
+                width: 30px;
+                height: 30px;
+                color: red;
+            }
+        }
+
+        #container {
+            display:flex;
+            justify-content: center;
+
+            text {
+                font-family: 'Ubuntu';
+            }
+
+            .bar {
+                fill: #dff0ff;
+                cursor: pointer;
+            }
+            
+            .axis {
+                font-size: 13px;
+            }
+            
+            .axis path,
+            .axis line {
+                fill: none;
+                display: none;
+            }
+            
+            .label {
+                font-size: 13px;
+                cursor: pointer;
+            }
+            /* tooltip */
+            .tooltip{
+                background: #eee; 
+                box-shadow: 0 0 5px #999999;                                    
+                color: #333;                                                    
+                display: none;                                                  
+                font-size: 12px;                                                
+                padding: 5px;                                                  
+                position: absolute;                                             
+                min-width: 100px;                                                    
+                z-index: 10; 
+                top:10px;
+                left: 10px;
+		    }
+
+            .chart {
+                display: inline-block;
+                position: relative;
+            }
+            .chart svg {
+                width: 100%;
+            }
+
+        }
+    }
+}
+
+@mixin topn-widget-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+
+}
+

@@ -95,6 +95,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             case 'LinechartWidgetComponent':
             case 'BarchartWidgetComponent':
             case 'DonutWidgetComponent':
+            case 'TopnWidgetComponent':
                 query.settings = {
                                     visual: {
                                         visible: true,

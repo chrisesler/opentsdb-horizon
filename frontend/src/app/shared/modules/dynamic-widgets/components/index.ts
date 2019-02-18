@@ -5,5 +5,6 @@ export * from './linechart-widget/linechart-widget.component';
 export * from './barchart-widget';
 export * from './bignumber-widget';
 export * from './donut-widget';
+export * from './topn-widget/topn-widget.component';
 export * from './status-widget/status-widget.component';
 export * from './markdown-widget/markdown-widget.component';

@@ -54,7 +54,7 @@
                 }
 
                 .mat-row {
-                    height: 50px;
+                    height: 30px;
 
                     .mat-cell {
                         line-height: 1;
@@ -111,6 +111,7 @@
 
         .column.barchart-container,
         .column.circlechart-container,
+        .column.topnchart-container,
         .column.stackbars-container,
         .column.stacks-container {
             padding-left: 30px;
@@ -120,6 +121,9 @@
             }
 
             .mat-table {
+                .mat-header-row {
+                    height: 30px;
+                }
                 .mat-row {
                     border-bottom: 0;
 
@@ -160,6 +164,11 @@
                     }
                 }
             }
+        }
+
+        .column.topnchart-container {
+            padding-left: 0px;
+            flex: 0 0 25%;
         }
 
         .column.stackbars-container {
