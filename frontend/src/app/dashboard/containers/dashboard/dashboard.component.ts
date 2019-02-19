@@ -45,8 +45,6 @@ import {
 } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
-import { Message } from '@angular/compiler/src/i18n/i18n_ast';
-import { container } from '@angular/core/src/render3';
 
 @Component({
     selector: 'app-dashboard',
