@@ -47,10 +47,6 @@
                 cursor: pointer;
             }
             
-            .axis {
-                font-size: 13px;
-            }
-            
             .axis path,
             .axis line {
                 fill: none;
@@ -58,7 +54,7 @@
             }
             
             .label {
-                font-size: 13px;
+                // font-size: 1em;
                 cursor: pointer;
             }
             /* tooltip */
