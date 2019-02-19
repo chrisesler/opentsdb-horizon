@@ -9,7 +9,8 @@ import { Subscription } from 'rxjs/Subscription';
   styleUrls: []
 })
 export class MarkdownWidgetComponent implements OnInit {
-  @HostBinding('class.markdown-widget') private _hostClass = true;
+  @HostBinding('class.widget-panel-content') private _hostClass = true;
+  @HostBinding('class.markdown-widget') private _componentClass = true;
 
   constructor( private interCom: IntercomService) {  }
   /** Inputs */
