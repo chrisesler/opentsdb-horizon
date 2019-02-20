@@ -43,6 +43,11 @@ export class PlaceholderWidgetComponent implements OnInit {
             iconClass: 'widget-icon-donut-chart'
         },
         {
+            label: 'Top N Chart',
+            type: 'TopnWidgetComponent',
+            iconClass: 'widget-icon-topn-chart'
+        },
+        {
             label: 'Notes',
             type: 'MarkdownWidgetComponent',
             iconClass: 'widget-icon-notes'

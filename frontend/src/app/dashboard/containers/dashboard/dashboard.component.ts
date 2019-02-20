@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, ViewChild, TemplateRef, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable } from 'rxjs';
+import { UtilsService } from '../../../core/services/utils.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, LoadUserFolderData, UserSettingsState } from '../../state/user.settings.state';
@@ -44,7 +45,6 @@ import {
 } from '../../../shared/modules/sharedcomponents/components/search-metrics-dialog/search-metrics-dialog.component';
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
-import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 
 @Component({
     selector: 'app-dashboard',
@@ -140,6 +140,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             iconClass: 'widget-icon-donut-chart'
         },
         {
+            label: 'Top N Chart',
+            type: 'TopnWidgetComponent',
+            iconClass: 'widget-icon-topn-chart'
+        },
+        {
             label: 'Notes',
             type: 'MarkdownWidgetComponent',
             iconClass: 'widget-icon-notes'
@@ -182,6 +187,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     mediaQuerySub: Subscription;
     // tslint:disable-next-line:no-inferrable-types
     activeMediaQuery: string = '';
+    gridsterUnitSize:any = {};
 
     constructor(
         private store: Store,
@@ -192,12 +198,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private dbService: DashboardService,
         private cdkService: CdkService,
         private queryService: QueryService,
+        private utilService: UtilsService,
         private dateUtil: DateUtilsService,
         private dialog: MatDialog,
         private snackBar: MatSnackBar,
-        private cdRef: ChangeDetectorRef
+        private cdRef: ChangeDetectorRef,
+        private elRef: ElementRef
     ) { }
-
     ngOnInit() {
         // handle route for dashboardModule
         this.routeSub = this.activatedRoute.url.subscribe(url => {
@@ -223,6 +230,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.cdkService.setNavbarPortal(this.dashboardNavbarPortal);
 
         // ready to handle request from children of DashboardModule
+        let widgets;
         this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
             switch (message.action) {
                 case 'getWidgetCachedData':
@@ -256,6 +264,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new DeleteWidget(message.payload.widgetId));
                     this.rerender = { 'reload': true };
                     break;
+                case 'cloneWidget':
+                    widgets = this.widgets;
+                    const cloneWidget = JSON.parse(JSON.stringify(message.payload));
+                    cloneWidget.id = this.utilService.generateId();
+                    cloneWidget.gridPos.x =  cloneWidget.gridPos.x;
+                    cloneWidget.gridPos.y = cloneWidget.gridPos.y + cloneWidget.gridPos.h; 
+                    for ( let i =0 ; i < widgets.length; i++ ) {
+                        if ( widgets[i].gridPos.y >= cloneWidget.gridPos.y ) {
+                            widgets[i].gridPos.y += cloneWidget.gridPos.h;
+                        }
+                    }
+                    widgets.push(cloneWidget);
+                    this.store.dispatch(new LoadWidgets(widgets));
+                    this.rerender = { 'reload': true };
+                    const gridsterContainerEl = this.elRef.nativeElement.querySelector('.is-scroller');
+                    const cloneWidgetEndPos = (cloneWidget.gridPos.y + cloneWidget.gridPos.h) * this.gridsterUnitSize.height;
+                    const containerPos = gridsterContainerEl.getBoundingClientRect();
+                    if ( cloneWidgetEndPos > containerPos.height ) {
+                        setTimeout(()=>{
+                            gridsterContainerEl.scrollTop =    cloneWidgetEndPos - containerPos.height;
+                        }, 100);
+                    }
+                    break;
                 case 'closeViewEditMode':
                     this.store.dispatch(new UpdateMode(message.payload));
                     this.rerender = { 'reload': true };
@@ -265,7 +296,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.handleQueryPayload(message);
                     break;
                 case 'updateWidgetConfig':
-                    let widgets = JSON.parse(JSON.stringify(this.widgets));
+                     widgets = JSON.parse(JSON.stringify(this.widgets));
                     const mIndex = widgets.findIndex(w => w.id === message.id);
 
                     if (mIndex === -1) {
@@ -645,6 +676,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // this will call based on gridster reflow and size changes event
     widgetsLayoutUpdate(gridLayout: any) {
+        this.gridsterUnitSize = gridLayout.clientSize;
         if (gridLayout.clientSize) {
             this.store.dispatch(new UpdateGridsterUnitSize(gridLayout.clientSize));
         }

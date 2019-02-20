@@ -69,7 +69,6 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
             this.widget.queries.forEach((query, index) => {
                 this.dataSources[index] = query.metrics;
                 this.gForms.addControl(index, this.createFormArray(this.dataSources[index]));
-                console.log(this.gForms, "forms", this.widget.queries)
             });
         }
         // console.log(this.gForms, 'this.gforms');
@@ -110,12 +109,12 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
         switch ( this.widget.settings.component_type ) {
             case 'BarchartWidgetComponent':
             case 'DonutWidgetComponent':
+            case 'TopnWidgetComponent':
                 return new FormArray(ds.map(item => new FormGroup({
                     label : new FormControl(item.settings.visual.label),
                     color : new FormControl(item.settings.visual.color)
                 })));
             case 'LinechartWidgetComponent':
-            console.log("visula", ds)
                 return new FormArray(ds.map(item => new FormGroup({
                     type: new FormControl( item.settings.visual.type || 'line'),
                     label : new FormControl(item.settings.visual.label),
@@ -135,5 +134,10 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
     selectStackColor(color, index ) {
         this.gForms.controls['stacks']['controls'][index]['controls'].color.setValue(color.hex);
     }
+
+    setVisualConditions(conditions) {
+        this.widgetChange.emit( {'action': 'SetVisualConditions', payload: { data: conditions}});
+    }
+
 
 }

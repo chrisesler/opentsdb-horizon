@@ -124,15 +124,15 @@ export class HttpService {
     }
 
     getTagValuesByNamespace(queryObj: any): Observable<any> {
-        const headers = new HttpHeaders({
-            'Content-Type': 'application/json'
-        });
-        const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj);
-        return this.http.post(apiUrl, query, { headers, withCredentials: true })
-            .pipe(
-                map((res: any) => res.results[0].tagKeysAndValues[queryObj.tagkey].values),
-            );
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json'
+      });
+      const apiUrl = environment.metaApi + '/search/timeseries';
+      const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj);
+      return this.http.post(apiUrl, query, { headers, withCredentials: true })
+                        .pipe(
+                          map((res:any) => res.results[0].tagKeysAndValues[queryObj.tagkey] ? res.results[0].tagKeysAndValues[queryObj.tagkey].values: []),
+                        );
     }
 
     // results should filter the lists from already selected filters

@@ -354,6 +354,71 @@ export class DatatranformerService {
         return {...options};
     }
 
+    yamasToD3Bar(options, widget, queryData) {
+        options.data = [];
+        if ( queryData === undefined || Object.keys(queryData).length === 0) {
+            return {...options};
+        }
+        const qid = Object.keys(queryData)[0];
+        const results = queryData[qid].results ? queryData[qid].results : [];
+
+        const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
+        const mConfigs = gConfig.metrics;
+
+       for ( let i = 0; i < results.length; i++ ) {
+            const mid = results[i].source.split(':')[1];
+            const configIndex = mid.replace( /\D+/g, '');
+            const mConfig = mConfigs[configIndex];
+            if ( !mConfig.settings.visual.visible ) {
+                continue;
+            }
+            const aggregator = widget.settings.time.downsample.aggregators ? widget.settings.time.downsample.aggregators[0] : 'avg';
+            const n = results[i].data.length;
+            const color =  mConfig.settings.visual.color === 'auto' ? '' : mConfig.settings.visual.color;
+            for ( let j = 0; j < n; j++ ) {
+                const aggs = results[i].data[j].NumericSummaryType.aggregations;
+                const tags = results[i].data[j].tags;
+                const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
+                const aggData = results[i].data[j].NumericSummaryType.data[0][key];
+                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
+                const aggrIndex = aggs.indexOf(aggregator);
+                label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
+                const o = { label: label, value: aggData[aggrIndex], color: this.overrideColor(aggData[aggrIndex], color, widget.settings.visual.conditions), tooltipData: tags};
+                options.data.push(o);
+            }
+        }
+
+        return {...options};
+    }
+
+    overrideColor(value, color, conditions) {
+        for ( let i = 0; conditions && i < conditions.length ; i++ ) {
+            switch( conditions[i].operator ) {
+                case 'gt':
+                    if ( value > conditions[i].value ) {
+                        return conditions[i].color;
+                    }
+                    break;
+                case 'ge':
+                    if ( value >= conditions[i].value ) {
+                        return conditions[i].color;
+                    }
+                    break;
+                case 'lt':
+                    if ( value < conditions[i].value ) {
+                        return conditions[i].color;
+                    }
+                    break;
+                case 'le':
+                    if ( value <= conditions[i].value ) {
+                        return conditions[i].color;
+                    }
+                    break;
+            }
+        }
+        return color;
+    }
+
     getStrokePattern( lineType ) {
         let pattern = [];
         switch ( lineType ) {

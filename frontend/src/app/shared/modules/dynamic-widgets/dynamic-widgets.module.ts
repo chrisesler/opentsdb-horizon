@@ -40,6 +40,7 @@ import { StatusWidgetComponent } from './components/status-widget/status-widget.
 import { MarkdownWidgetComponent } from './components/markdown-widget/markdown-widget.component';
 // tslint:disable-next-line:max-line-length
 import { MarkdownWidgetVisualAppearanceComponent } from './components/markdown-widget/children/markdown-widget-visual-appearance/markdown-widget-visual-appearance.component';
+import { TopnWidgetComponent } from './components/topn-widget/topn-widget.component';
 
 @NgModule({
     imports: [
@@ -62,6 +63,7 @@ import { MarkdownWidgetVisualAppearanceComponent } from './components/markdown-w
         BignumberWidgetComponent,
         BignumberVisualAppearanceComponent,
         DonutWidgetComponent,
+        TopnWidgetComponent,
         StatusWidgetComponent,
         StackedBarchartVisualAppearanceComponent,
         StackedBarchartConfigMetricQueriesComponent,
@@ -76,6 +78,7 @@ import { MarkdownWidgetVisualAppearanceComponent } from './components/markdown-w
         BignumberWidgetComponent,
         BignumberVisualAppearanceComponent,
         DonutWidgetComponent,
+        TopnWidgetComponent,
         StatusWidgetComponent,
         BarchartWidgetComponent,
         StackedBarchartWidgetComponent,
@@ -88,6 +91,7 @@ import { MarkdownWidgetVisualAppearanceComponent } from './components/markdown-w
         DropdownStacksComponent,
         MarkdownWidgetComponent,
         MarkdownWidgetVisualAppearanceComponent,
+        TopnWidgetComponent,
     ],
     entryComponents: [
         PlaceholderWidgetComponent,
@@ -97,6 +101,7 @@ import { MarkdownWidgetVisualAppearanceComponent } from './components/markdown-w
         DeveloperWidgetComponent,
         BignumberWidgetComponent,
         DonutWidgetComponent,
+        TopnWidgetComponent,
         StatusWidgetComponent,
         MarkdownWidgetComponent
     ]

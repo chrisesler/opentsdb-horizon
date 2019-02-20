@@ -1,4 +1,4 @@
-<button mat-flat-button class="mat-elevation-z0"
+<button mat-flat-button class="mat-elevation-z0"     *ngIf="id !== '_new_'"
     [ngClass]="{'menu-trigger-underline': actionMenuIsOpen}"
     [matMenuTriggerFor]="dashboardActionMenu"
     #actionMenuTrigger>
@@ -14,10 +14,10 @@
             <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
             <span>Clone</span>
         </button>
-        <button mat-menu-item (click)="click_shareDashboard($event)">
+        <!--<button mat-menu-item (click)="click_shareDashboard($event)">
             <mat-icon fontSet="denali" fontIcon="d-share"></mat-icon>
             <span>Share</span>
-        </button>
+        </button>-->
         <button mat-menu-item (click)="click_deleteDashboard($event)">
             <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
             <span>Delete</span>
