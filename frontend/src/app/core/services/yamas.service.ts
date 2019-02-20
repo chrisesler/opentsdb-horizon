@@ -91,7 +91,7 @@ export class YamasService {
         // }
 
         if (sorting && sorting.order && sorting.limit) {
-            transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit, groupByIds));
+            transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit, outputIds));
             transformedQuery.executionGraph.push(this.getQuerySummarizer(['topn']));
         } else {
             // transformedQuery.executionGraph.push(this.getQuerySummarizer(['groupby']));

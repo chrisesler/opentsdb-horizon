@@ -552,12 +552,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             let error = null;
             let grawdata = {};
             if (result !== undefined) {
-                // if one of the query contains error, send the entire data. so that chart can rerender with success query result
                 if ( result.rawdata !== undefined && !result.rawdata.error ) {
                     grawdata[result.gid] = result.rawdata;
                 } else if ( result.rawdata !== undefined ) {
+                    grawdata[result.gid] = {};
                     error = result.rawdata.error;
-                    grawdata = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(result.wid));
                 }
                 this.updateWidgetGroup(result.wid, grawdata, error);
             }

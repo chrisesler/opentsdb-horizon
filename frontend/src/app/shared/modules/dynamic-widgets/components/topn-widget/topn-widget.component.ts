@@ -83,7 +83,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
 
         // first time when displaying chart
         if (!this.widget.settings.sorting) {
-            this.widget.settings.sorting = { limit: 25, order: 'top' };
+            this.widget.settings.sorting = { limit: 10, order: 'top' };
         }
 
         // when the widget first loaded in dashboard, we request to get data
