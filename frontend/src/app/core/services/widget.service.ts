@@ -5,6 +5,7 @@ import {
     BarchartWidgetComponent,
     StackedBarchartWidgetComponent,
     DonutWidgetComponent,
+    TopnWidgetComponent,
     DeveloperWidgetComponent,
     BignumberWidgetComponent,
     MarkdownWidgetComponent
@@ -26,6 +27,8 @@ export class WidgetService {
                 return StackedBarchartWidgetComponent;
             case 'DonutWidgetComponent':
                 return DonutWidgetComponent;
+            case 'TopnWidgetComponent':
+                return TopnWidgetComponent;
             case 'DeveloperWidgetComponent':
                 return DeveloperWidgetComponent;
             case 'BignumberWidgetComponent':
@@ -58,6 +61,7 @@ export class WidgetService {
                 };
                 break;
             case 'BarchartWidgetComponent':
+            case 'TopnWidgetComponent':
                 settings = {
                     dataSummary: true,
                 };
