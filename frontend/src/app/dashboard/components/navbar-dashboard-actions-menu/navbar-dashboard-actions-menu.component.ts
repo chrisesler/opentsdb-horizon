@@ -66,11 +66,13 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
         });
     }
 
+    /* comment out until we implement them completely
     click_shareDashboard(event: any) {
         this.dashboardAction.emit({
             action: 'share'
         });
     }
+    */
 
     click_deleteDashboard(event: any) {
         this.dashboardAction.emit({
