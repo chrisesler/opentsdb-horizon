@@ -91,16 +91,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         return false;
     }
 
-    // dashboard action menu trigger
-    /*@ViewChild('actionMenuTrigger', {read: MatMenuTrigger}) actionMenuTrigger: MatMenuTrigger;
-
-    get actionMenuIsOpen(): boolean {
-        if (this.actionMenuTrigger) {
-            return this.actionMenuTrigger.menuOpen;
-        }
-        return false;
-    }*/
-
     // portal templates
     @ViewChild('dashboardNavbarTmpl') dashboardNavbarTmpl: TemplateRef<any>;
 
@@ -208,13 +198,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
             } else {
-                /* OLD WAY TO GET BY PATH
-                const paths = [];
-                url.forEach(segment => {
-                    paths.push(segment.path);
-                });
-                this.store.dispatch(new LoadDashboard(paths.join('/')));
-                */
                this.store.dispatch(new LoadDashboard(url[0].path));
             }
         });
@@ -706,17 +689,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     setTitle(e) {
         this.store.dispatch(new UpdateDashboardTitle(e));
     }
-    /*click_cloneDashboard(event: any) {
-        console.log('EVT: CLONE DASHBOARD', event);
-    }
-
-    click_shareDashboard(event: any) {
-        console.log('EVT: SHARE DASHBOARD', event);
-    }
-
-    click_deleteDashboard(event: any) {
-        console.log('EVT: DELETE DASHBOARD', event);
-    }*/
 
     receiveDashboardAction(event: any) {
         // console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
