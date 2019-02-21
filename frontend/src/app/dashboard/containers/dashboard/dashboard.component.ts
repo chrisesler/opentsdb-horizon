@@ -334,7 +334,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
 
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
-                    // console.log('dashboardSaveRequest', this.dbid, payload);
+                    //console.log('dashboardSaveRequest', this.dbid, payload);
                     break;
                 case 'dashboardSettingsToggleRequest':
                     this.interCom.responsePut({
@@ -393,7 +393,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.dbPathSub = this.dbPath$.subscribe(path => {
-            if (path !== '_new_' && this.router.url === '/d/_new_') {
+            // we only need to check of path returned from configdb is not _new_,
+            // the router url will point to previous path of clone dashboard
+            if (path !== '_new_') {
                 this.location.replaceState('/d' + path);
             }
         });
@@ -689,6 +691,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         dialogConf.data = { mgroupId: widget.query.groups[0].id };
 
         this.searchMetricsDialog = this.dialog.open(SearchMetricsDialogComponent, dialogConf);
+
         this.searchMetricsDialog.updatePosition({ top: '48px' });
         this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
             let widgets = [...this.widgets];
