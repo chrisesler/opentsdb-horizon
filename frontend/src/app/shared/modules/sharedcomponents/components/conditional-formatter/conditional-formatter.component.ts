@@ -63,7 +63,7 @@ export class ConditionalFormatterComponent implements OnInit, OnDestroy {
   }
 
   setValue(e, index) {
-    this.conditions[index].value = Number(e.srcElement.value);
+    this.conditions[index].value = e.srcElement.value.length ? Number(e.srcElement.value) : '';
     this.conditionChanges$.next(true);
   }
 

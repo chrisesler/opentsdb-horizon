@@ -118,18 +118,19 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                     if (message && (message.id === this.widget.id)) {
                         switch (message.action) {
                             case 'updatedWidgetGroup':
-                                this.nQueryDataLoading--;
+                                this.nQueryDataLoading -= Object.keys(message.payload.rawdata).length;
                                 if ( !this.isDataLoaded ) {
                                     this.isDataLoaded = true;
                                     this.resetChart();
                                 }
                                 if ( message.payload.error ) {
                                     this.error = message.payload.error;
+                                } else {
+                                    const rawdata = message.payload.rawdata;
+                                    this.setTimezone(message.payload.timezone);
+                                    this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
+                                    this.setSize(this.newSize);
                                 }
-                                const rawdata = message.payload.rawdata;
-                                this.setTimezone(message.payload.timezone);
-                                this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
-                                this.setSize(this.newSize);
                                 break;
                             case 'getUpdatedWidgetConfig':
                                 this.widget = message.payload.widget;

@@ -13,7 +13,7 @@ export class DatatranformerService {
 
   // options will also be update of its labels array
   yamasToDygraph(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
-    if (normalizedData[0].length === 1) {
+    if ( normalizedData.length && normalizedData[0].length === 1 ) {
       // there is no data in here but default, reset it
       normalizedData = [];
     }
@@ -395,22 +395,22 @@ export class DatatranformerService {
         for ( let i = 0; conditions && i < conditions.length ; i++ ) {
             switch( conditions[i].operator ) {
                 case 'gt':
-                    if ( value > conditions[i].value ) {
+                    if ( conditions[i].value !== '' && value > conditions[i].value ) {
                         return conditions[i].color;
                     }
                     break;
                 case 'ge':
-                    if ( value >= conditions[i].value ) {
+                    if ( conditions[i].value !== '' && value >= conditions[i].value ) {
                         return conditions[i].color;
                     }
                     break;
                 case 'lt':
-                    if ( value < conditions[i].value ) {
+                    if ( conditions[i].value !== '' && value < conditions[i].value ) {
                         return conditions[i].color;
                     }
                     break;
                 case 'le':
-                    if ( value <= conditions[i].value ) {
+                    if ( conditions[i].value !== '' && value <= conditions[i].value ) {
                         return conditions[i].color;
                     }
                     break;
