@@ -40,6 +40,7 @@ import {
 } from '../state/alerts.state';
 
 import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
+import { AlertConfigurationDialogComponent } from '../components/alert-configuration-dialog/alert-configuration-dialog.component';
 
 @Component({
     selector: 'app-alerts',
@@ -122,6 +123,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     // SNOOZE dialog
     snoozeAlertDialog: MatDialogRef<SnoozeAlertDialogComponent> | null;
+
+    createAlertDialog: MatDialogRef<AlertConfigurationDialogComponent> | null;
 
     // confirmDelete Dialog
     confirmDeleteDialog: MatDialogRef<TemplateRef<any>> | null;
@@ -258,9 +261,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     /** actions */
 
-    createAlert(type: string) {
-        // console.log('[CLICK] CREATE ALERT', type);
-    }
+    
 
     openSnoozeAlertDialog(alertObj: any) {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
@@ -299,6 +300,42 @@ export class AlertsComponent implements OnInit, OnDestroy {
     confirmAlertDelete(alertObj: any) {
         // do some delete logic here?
         this.confirmDeleteDialog.close({deleted: true});
+    }
+
+    createAlert(type: string) {
+        // console.log('[CLICK] CREATE ALERT', type);
+        // do something?
+        // open dialog
+        this.openCreateAlertDialog(type);
+    }
+
+
+    /* open create alert dialog */
+    openCreateAlertDialog(alertType: any) {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        dialogConf.autoFocus = false;
+        dialogConf.width = '100%';
+        dialogConf.maxWidth = '100%';
+        dialogConf.height = '100%';
+        dialogConf.hasBackdrop = false;
+        // dialogConf.direction = 'ltr';
+        // dialogConf.backdropClass = 'snooze-alert-dialog-backdrop';
+        dialogConf.panelClass = 'alert-configuration-dialog-panel';
+        /*dialogConf.position = <DialogPosition>{
+            top: '48px',
+            bottom: '0px',
+            left: '0px',
+            right: '0px'
+        };*/
+        dialogConf.data = {
+            alertType: alertType
+        };
+
+        this.createAlertDialog = this.dialog.open(AlertConfigurationDialogComponent, dialogConf);
+        // this.snoozeAlertDialog.updatePosition({ top: '48px' });
+        this.createAlertDialog.afterClosed().subscribe((dialog_out: any) => {
+            // console.log('SNOOZE ALERT DIALOG [afterClosed]', dialog_out);
+        });
     }
 
 }
