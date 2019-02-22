@@ -114,6 +114,11 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
 
     widgetClone() {
         console.log('CLONE WIDGET CLICKED');
+        this.interCom.requestSend(<IMessage> {
+            action: 'cloneWidget',
+            id: this.widget.id,
+            payload: this.widget
+        });
     }
 
     widgetShare() {

@@ -329,7 +329,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
                                 filters: [],
                                 settings: {
                                     visual: {
-                                        visible: true,
+                                        visible: this.type === 'TopnWidgetComponent' ? false : true,
                                         color: 'auto',
                                         aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['avg'],
                                         label: ''}}
@@ -582,9 +582,9 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
             settings: {
                 visual: {
                     label: this.expressionForm.controls.expressionName.value,
-                    visible: true,
+                    visible: this.type === 'TopnWidgetComponent' ? false : true,
                     aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['avg'],
-                    color: this.utils.getColors()
+                    color: 'auto'
                 }
             },
         };

@@ -66,11 +66,13 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
         });
     }
 
+    /* comment out until we implement them completely
     click_shareDashboard(event: any) {
         this.dashboardAction.emit({
             action: 'share'
         });
     }
+    */
 
     click_deleteDashboard(event: any) {
         this.dashboardAction.emit({
@@ -78,14 +80,8 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
         });
     }
 
-    /** SAVE DASHBOARD */
-
     click_saveDashboard(event: any) {
-        console.log('%cCLICK SAVE BUTTON [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', event);
-        // save dashboard
-
         // check if first time saving
-
         // if first time saving, prompt first save dialog
         if ( this.id === '_new_') {
             this.showFirstSaveDialog();
@@ -113,8 +109,7 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
 
         // getting data passing out from dialog
         this.dashboardSaveDialog.afterClosed().subscribe((dialog_out: any) => {
-            console.log('%cSAVE DIALOG CLOSED [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', dialog_out);
-
+            //console.log('%cSAVE DIALOG CLOSED [EVENT]', 'color: #ffffff; background-color: blue; padding: 2px 4px;', dialog_out);
             // dialog_out will be empty if the dialog is cancelled
             if ( dialog_out ) {
                 this.triggerSaveAction(dialog_out);
@@ -139,7 +134,6 @@ export class NavbarDashboardActionsMenuComponent implements OnInit {
             }
         }
         // now intercom to save it.
-
         this.interCom.requestSend(<IMessage> {
             action: 'dashboardSaveRequest',
             payload: payload
