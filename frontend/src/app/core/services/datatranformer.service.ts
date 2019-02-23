@@ -372,7 +372,6 @@ export class DatatranformerService {
             if ( !mConfig.settings.visual.visible ) {
                 continue;
             }
-            console.log("config=", mConfig.settings);
             const aggregator = widget.settings.time.downsample.aggregators ? widget.settings.time.downsample.aggregators[0] : 'avg';
             const n = results[i].data.length;
             const color =  mConfig.settings.visual.color === 'auto' ? '' : mConfig.settings.visual.color;
