@@ -82,7 +82,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       setTimeout( () => {
         const fontSize = y.bandwidth()  * 0.4 + "px";
         // calculate the max label length and remove
-        svg.append("text").attr("font-size", fontSize).text(formatter(max))
+        svg.append("text").attr("class", "axisLabel").attr("font-size", fontSize).text(formatter(max))
                         .each(function() { yAxisWidth = this.getBBox().width; })
                         .remove();
         
@@ -97,9 +97,10 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         
         // reduce the font-size when bar height is less than the fontsize
         g.append("g")
-                    .attr("class", "y axis")
+                    .attr("class", "yaxis")
                     .call(yAxis)
                     .selectAll("text")
+                    .attr("class", "axisLabel")
                     .attr("font-size", fontSize)
         
         const bars = g.selectAll(".bar")
@@ -127,6 +128,10 @@ export class D3BarChartDirective implements OnInit, OnChanges {
             .attr("dy",".32em")
 	          .attr("dx","0.25em")
             .text( ( d, i ) => d.label )
+            .style('fill', (d:any) =>  { 
+              const color = d3.rgb(d.color=== 'auto' ? '#000000' : d.color);
+              return 'rgb('+ Math.floor(255- color.r) +','+ Math.floor(255- color.g) +','+ Math.floor(255-color.b) + ')' ;
+            })
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseout", mouseout);

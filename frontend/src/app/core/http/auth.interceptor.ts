@@ -52,10 +52,11 @@ export class AuthInterceptor implements HttpInterceptor {
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<any> {
         return next.handle(request).pipe(
             catchError(error => {
+                console.log("error", error)
                 // we don't want to do  authentication check on the url:/heartbeat
                 // url:/heartbeat is one that tells the failure is due to authentication
                 const url = error.url ? error.url : error.error.currentTarget.__zone_symbol__xhrURL;
-                if ( url.indexOf('/heartbeat') === -1 && error.status === 0 ) {
+                if ( url.indexOf('/heartbeat') === -1 && error.status === 403 ) {
 
                     return this.checkLoginExpiration()
                         .pipe(

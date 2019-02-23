@@ -47,8 +47,12 @@
                 cursor: pointer;
             }
             
-            .axis path,
-            .axis line {
+            .axisLabel {
+                font-weight: 500;
+            }
+
+            .yaxis path,
+            .yaxis line {
                 fill: none;
                 display: none;
             }

@@ -372,6 +372,7 @@ export class DatatranformerService {
             if ( !mConfig.settings.visual.visible ) {
                 continue;
             }
+            console.log("config=", mConfig.settings);
             const aggregator = widget.settings.time.downsample.aggregators ? widget.settings.time.downsample.aggregators[0] : 'avg';
             const n = results[i].data.length;
             const color =  mConfig.settings.visual.color === 'auto' ? '' : mConfig.settings.visual.color;
@@ -392,6 +393,7 @@ export class DatatranformerService {
     }
 
     overrideColor(value, color, conditions) {
+        value = value.toFixed(2);
         for ( let i = 0; conditions && i < conditions.length ; i++ ) {
             switch( conditions[i].operator ) {
                 case 'gt':
