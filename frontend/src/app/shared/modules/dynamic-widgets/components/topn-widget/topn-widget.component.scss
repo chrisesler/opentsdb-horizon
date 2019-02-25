@@ -48,9 +48,13 @@
             }
             
             .axisLabel {
-                font-weight: 500;
             }
 
+            .yaxis {
+                font-size: 1em;
+                font-family: ubuntu;
+                text-anchor: end;
+            }
             .yaxis path,
             .yaxis line {
                 fill: none;
@@ -58,7 +62,6 @@
             }
             
             .label {
-                // font-size: 1em;
                 cursor: pointer;
                 fill: #333;
             }
