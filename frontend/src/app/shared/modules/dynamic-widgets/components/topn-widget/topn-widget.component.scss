@@ -47,14 +47,21 @@
                 cursor: pointer;
             }
             
-            .axis path,
-            .axis line {
+            .axisLabel {
+            }
+
+            .yaxis {
+                font-size: 1em;
+                font-family: ubuntu;
+                text-anchor: end;
+            }
+            .yaxis path,
+            .yaxis line {
                 fill: none;
                 display: none;
             }
             
             .label {
-                // font-size: 1em;
                 cursor: pointer;
                 fill: #333;
             }

@@ -392,6 +392,7 @@ export class DatatranformerService {
     }
 
     overrideColor(value, color, conditions) {
+        value = value.toFixed(2);
         for ( let i = 0; conditions && i < conditions.length ; i++ ) {
             switch( conditions[i].operator ) {
                 case 'gt':
