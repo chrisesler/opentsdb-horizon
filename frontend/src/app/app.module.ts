@@ -1,7 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
@@ -26,8 +25,6 @@ import { AdhocModule } from './adhoc/adhoc.module';
 import { AuthInterceptor } from './core/http/auth.interceptor';
 import { AuthService } from './core/services/auth.service';
 import { AuthState } from './shared/state/auth.state';
-
-import { CredentialsInterceptor } from './core/http/credentials.interceptor';
 
 import { AppShellModule } from './app-shell/app-shell.module';
 
