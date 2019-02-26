@@ -130,7 +130,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             iconClass: 'widget-icon-donut-chart'
         },
         {
-            label: 'Top N Chart',
+            label: 'Top N',
             type: 'TopnWidgetComponent',
             iconClass: 'widget-icon-topn-chart'
         },

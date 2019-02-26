@@ -65,7 +65,7 @@ export class HttpService {
         const query = this.metaService.getQuery('NAMESPACES', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
-                map((res: any) => res.results[0].namespaces),
+                map((res: any) => res ? res.results[0].namespaces : []),
             );
     }
 
@@ -107,7 +107,7 @@ export class HttpService {
         const query = this.metaService.getQuery('METRICS', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
-                map((res: any) => res.results[0].metrics)
+                map((res: any) => res ? res.results[0].metrics : [])
             );
     }
 
@@ -119,7 +119,7 @@ export class HttpService {
         const query = this.metaService.getQuery('TAG_KEYS', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
-                map((res: any) => res.results[0].tagKeys)
+                map((res: any) => res ? res.results[0].tagKeys : [])
             );
     }
 
@@ -131,7 +131,7 @@ export class HttpService {
       const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj);
       return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
-                          map((res:any) => res.results[0].tagKeysAndValues[queryObj.tagkey] ? res.results[0].tagKeysAndValues[queryObj.tagkey].values: []),
+                          map((res:any) => res && res.results[0].tagKeysAndValues[queryObj.tagkey] ? res.results[0].tagKeysAndValues[queryObj.tagkey].values: []),
                         );
     }
 
@@ -157,7 +157,7 @@ export class HttpService {
                 map((res: any) => {
 
                     let tagvalues = [];
-                    for (let i = 0, len = res.results.length; i < len; i++) {
+                    for (let i = 0; res && i < res.results.length; i++) {
                         // tslint:disable-next-line:max-line-length
                         const keys = res.results[i].tagKeysAndValues[queryObj.tag.key].values.filter(item => tagvalues.indexOf(item.key) === -1);
                         tagvalues = tagvalues.concat(keys.map(d => d.name));
