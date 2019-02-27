@@ -28,7 +28,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         return;
       }
       const margin = {top:0,bottom:0,left:3,right:5};
-      let yAxisWidth = 0;
+      let yAxisWidth = 0, labelHeight = 0;
       const chartAreaHeight = this.size.height - margin.top - margin.bottom;
       
       let dataset = this.options.data;
@@ -68,8 +68,6 @@ export class D3BarChartDirective implements OnInit, OnChanges {
                   .domain(dataset.map(d => d.value));
   
       const barHeight = y.bandwidth();
-      const fontSize = 10;
-      const di = barHeight/fontSize;
       const yAxis = d3.axisLeft(y)
                     .tickSize(0)
                     .tickFormat( (d:any) => formatter(d));
@@ -80,12 +78,12 @@ export class D3BarChartDirective implements OnInit, OnChanges {
 
       // rerendering causing issue as we clear the chart container. the svg container is not available to calculate the yaxis label width
       setTimeout( () => {
-        const fontSize = y.bandwidth()  * 0.4 + "px";
         // calculate the max label length and remove
-        svg.append("text").attr("font-size", fontSize).text(formatter(max))
-                        .each(function() { yAxisWidth = this.getBBox().width; })
+        svg.append("text").attr("class", "axisLabel")
+                        .text(formatter(max))
+                        .each(function() { yAxisWidth = this.getBBox().width; labelHeight = Math.floor(this.getBBox().height); })
                         .remove();
-        
+        const fontSize = barHeight >= labelHeight ? '1em' :  barHeight*0.75 + 'px'; //y.bandwidth()  * 0.4 + "px";
         const chartAreawidth = this.size.width  - yAxisWidth - margin.left - margin.right;
         const x = d3.scaleLinear()
                     .range([0, chartAreawidth])
@@ -97,10 +95,11 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         
         // reduce the font-size when bar height is less than the fontsize
         g.append("g")
-                    .attr("class", "y axis")
+                    .attr("class", "yaxis")
                     .call(yAxis)
                     .selectAll("text")
-                    .attr("font-size", fontSize)
+                    .attr("class", "axisLabel")
+                    .attr("font-size", fontSize);
         
         const bars = g.selectAll(".bar")
                       .data(dataset)
@@ -127,6 +126,10 @@ export class D3BarChartDirective implements OnInit, OnChanges {
             .attr("dy",".32em")
 	          .attr("dx","0.25em")
             .text( ( d, i ) => d.label )
+            .style('fill', (d:any) =>  { 
+              const color = d3.rgb(d.color=== 'auto' ? '#000000' : d.color);
+              return 'rgb('+ Math.floor(255- color.r) +','+ Math.floor(255- color.g) +','+ Math.floor(255-color.b) + ')' ;
+            })
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseout", mouseout);
