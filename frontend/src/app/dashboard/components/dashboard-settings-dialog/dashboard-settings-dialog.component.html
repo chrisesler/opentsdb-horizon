@@ -11,11 +11,11 @@
 <mat-dialog-content>
     <div class="content-container">
         <mat-tab-group class="dashboard-settings" color="primary" color="primary" [@.disabled]="'true'" (selectedTabChange)="tabChangeEvent($event)">
-            <mat-tab label="Meta Data">
+            <!-- <mat-tab label="Meta Data">
                 <ng-template matTabContent>
                     <dbs-meta [dbData]="dbData" (dataModified)="settingsDataModified($event)"></dbs-meta>
                 </ng-template>
-            </mat-tab>
+            </mat-tab> -->
             <mat-tab label="Theme Variables">
                 <ng-template matTabContent>
                     <dbs-variables [dbData]="dbData" (dataModified)="settingsDataModified($event)"></dbs-variables>
