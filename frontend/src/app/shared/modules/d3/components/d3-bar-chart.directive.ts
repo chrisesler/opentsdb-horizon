@@ -32,9 +32,11 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       const chartAreaHeight = this.size.height - margin.top - margin.bottom;
       
       let dataset = this.options.data;
+      /*
       dataset = dataset.sort(function (a, b) {
         return d3.descending(a.value, b.value);
       });
+      */
       const min = dataset.length ? dataset[dataset.length-1].value : 0;
       const max = dataset.length ? dataset[0].value : 0;
       const refValue = min >=0  ? Math.pow(10, Math.floor(Math.log10(min))) : 1;
