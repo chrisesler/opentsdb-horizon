@@ -22,7 +22,7 @@ export class InlineEditableComponent implements OnInit {
   fieldFormControl: FormControl;
   placeholder: string = '_placeholder';
 
-  constructor(private renderer: Renderer2) { }
+  constructor(private renderer: Renderer2, private eRef: ElementRef) { }
 
   ngOnInit() {
 
@@ -62,10 +62,14 @@ export class InlineEditableComponent implements OnInit {
   }
 
   save() {
-    if (!this.fieldFormControl.errors) {
+    // only save if no errors, not placeholder, and a change
+    // tslint:disable-next-line:max-line-length
+    if (!this.fieldFormControl.errors && this.fieldFormControl.value !== this.placeholder && this.fieldValue !== this.fieldFormControl.value) {
       this.updatedValue.emit(this.fieldFormControl.value);
       this.fieldValue = this.fieldFormControl.value;
       this.isEditView = false;
+    } else if (!this.fieldFormControl.errors) {
+      this.resetFormField();
     }
   }
 
@@ -79,6 +83,13 @@ export class InlineEditableComponent implements OnInit {
     const x = event.keyCode;
     if (x === 27) {
       this.resetFormField();
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  clickOutsideComponent(event) {
+    if (!this.eRef.nativeElement.contains(event.target)) {
+      this.save();
     }
   }
 }
