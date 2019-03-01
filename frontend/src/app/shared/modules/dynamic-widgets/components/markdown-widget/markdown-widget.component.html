@@ -9,7 +9,7 @@
             </span>
         </div>
       
-        <div class="widget-output notCentered" #widgetoutput [style.background]="widget.settings.visual.backgroundColor" [ngClass]="{'monospace': widget.settings.visual.font === 'monospace', 'top-margin': editMode, 'top-padding': editMode }">
+        <div class="widget-output notCentered" #widgetoutput [style.background]="widget.settings.visual.backgroundColor" [ngClass]="{'monospace': widget.settings.visual.font === 'monospace', 'top-margin': editMode }">
             <div class="widget-container">
               <span class="markdown-body" id="markdown-override" [style.color]="widget.settings.visual.textColor" >
                 <markdown [data]="widget.settings.visual.text"></markdown>
