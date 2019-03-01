@@ -5,55 +5,23 @@ import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
 import { UtilsService } from '../../core/services/utils.service';
 
+import { LoggerService } from '../../core/services/logger.service';
+
 @Injectable()
 export class AppShellService {
 
-    private _uid: string;
-
-    get headers(): any {
-        return {
-            'Content-Type': 'application/json'
-        };
-    }
-
     constructor(
+        private logger: LoggerService,
         private http: HttpClient
     ) {}
 
-    apiLog(type: string, params?: any) {
-        if (params) {
-            console.group(
-                '%cAPI%c' + type,
-                'color: white; background-color: purple; padding: 4px 8px; font-weight: bold;',
-                'color: purple; padding: 4px 8px; border: 1px solid purple;'
-            );
-            console.log('%cParams', 'font-weight: bold;', params);
-            console.groupEnd();
-        } else {
-            console.log(
-                '%cAPI%c' + type,
-                'color: white; background-color: purple; padding: 4px 8px; font-weight: bold;',
-                'color: purple; padding: 4px 8px; border: 1px solid purple;'
-            );
-        }
-    }
-
-    apiError(msg: any) {
-        console.log(
-            '%cERROR%cAn error occurred',
-            'color: white; background-color: red; padding: 4px 8px; font-weight: bold;',
-            'color: red; padding: 4px 8px; border: 1px solid red;',
-            msg
-        );
-    }
-
     /* to handle error  with more info */
-    // TODO : Better Error messaging
+    // TODO : Better Error messaging?
     handleError(error: HttpErrorResponse) {
 
         if (error.error instanceof ErrorEvent) {
             // a client-side or network error occured
-            this.apiError(error.error.message);
+            this.logger.error('AppShellService :: An API error occurred', error.error.message);
         } else {
             // the backend returned unsuccessful response code
             // the response body may contain clues of what went wrong
@@ -68,42 +36,13 @@ export class AppShellService {
         );
     }
 
-    getFolderList(folderId?: any, namespaceId?: any ) {
-        const apiUrl = environment.configdb + '/folder';
-        const params = { 'recursive': 'true' };
-        const headers = new HttpHeaders(this.headers);
-
-        return this.http.get(apiUrl, {
-            params: params,
-            headers: headers,
-            withCredentials: true,
-            responseType: 'json'
-        }).pipe(
-            catchError(this.handleError)
-        );
-    }
-
-    createFolder(folder: any) {
-        const apiUrl = environment.configdb + '/folder';
-        const headers = new HttpHeaders(this.headers);
-
-        return this.http.post(
-            apiUrl,
-            folder,
-            { headers, withCredentials: true }
-        ).pipe(
-            catchError(this.handleError)
-        );
-
-    }
-
     getUserProfile() {
         const apiUrl = environment.configdb + '/user';
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
 
-        this.apiLog('Get User Profile', {
+        this.logger.api('AppShellService :: Get User Profile', {
             apiUrl
         });
 
@@ -122,7 +61,7 @@ export class AppShellService {
             'Content-Type': 'application/json'
         });
 
-        this.apiLog('Create User', {
+        this.logger.api('AppShellService :: Create User', {
             apiUrl
         });
 

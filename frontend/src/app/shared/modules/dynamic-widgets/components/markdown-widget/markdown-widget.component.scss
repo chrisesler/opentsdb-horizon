@@ -5,16 +5,13 @@
     $action-bar-height: map-get($widgets-common-config, action-bar-height);
 
     .markdown-widget { 
-      max-height: 100%;
+      height: 100%;
       max-width: 100%;
+      padding-top: 0px;
 
       // Dynamically added classes
       .top-margin {
         margin-top: 20px;
-      }
-
-      .top-padding {
-        padding-top: 15px;
       }
 
       .monospace {
@@ -66,6 +63,7 @@
           overflow: overlay;
           .widget-container {
             padding-left: 4px;
+            padding-top: 15px;
 
             .preview{
               opacity:0.5;
