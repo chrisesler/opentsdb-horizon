@@ -8,57 +8,33 @@
         .container {
             display: flex;
             padding: 10px;
+            padding-top: 15px;
+            flex-direction: row;
         }
-
-        .color-container {
-
-            .color-picker-control {
-                width: 186px;
-            }
-            
-            .mat-button-toggle-group {
-                box-shadow: none;
-                border: none;
-
-                .mat-button-toggle-label-content {
-                    line-height: 32px;
-                }
-
-                .mat-button-toggle {
-                    height: 32px;
-
-                    button { // background button
-                        width: 108px;
-                    }
-                }
-
-                #text {
-                    width: 78px;
-                }
-
-                #text-button {
-                    width: 78px;
-                }
-            }
-
-            .card {
-                &.cp{
-                    // margin-left: 12px;
-                    background: transparent;
-                }
+        
+        .monospace {
+            .mat-slide-toggle {	
+                .mat-slide-toggle-label {	
+                    .mat-slide-toggle-content {	
+                        font-family: monospace;	
+                    }	
+                }	
             }
         }
 
-        .font-container {
-            margin-left: 10px;
+        .labels {
+            text-align: right
+        }
 
-            .mat-slide-toggle {
-                .mat-slide-toggle-label {
-                    .mat-slide-toggle-content {
-                        font-family: monospace;
-                    }
-                }
-            }
+        .label {
+            height: 31px;
+            margin-bottom: 5px;
+            padding-right: 10px;
+        }
+
+        .selector {
+            height: 31px;
+            margin-bottom: 5px;
         }
     }
 }
