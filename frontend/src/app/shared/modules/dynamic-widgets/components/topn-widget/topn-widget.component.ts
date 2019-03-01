@@ -248,7 +248,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
      }
 
     setSorting(sConfig) {
-        this.widget.settings.sorting = { order: 'top', limit: sConfig.limit };
+        this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
     }
 
     refreshData(reload = true) {
