@@ -559,6 +559,9 @@ export class DashboardNavigatorState {
 
             } else {
                 const folder = resources[resourceType][payload.fullPath];
+
+                this.logger.log('FOLDER', {resourceType, fullPath: payload.fullPath, folder});
+
                 folder.subfolders.sort(this.sortByName);
                 // now what? its special... do we need to load anything?
             }
@@ -677,7 +680,7 @@ export class DashboardNavigatorState {
         }
 
         const resourceData = {...state.resourceData};
-        resourceData[resourceType][folder.path] = folder;
+        resourceData[resourceType][folder.fullPath] = folder;
 
         ctx.patchState({...state,
             panels,
