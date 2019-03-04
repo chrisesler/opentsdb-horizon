@@ -18,8 +18,7 @@ import {
     MatMenuTrigger
 } from '@angular/material';
 
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 

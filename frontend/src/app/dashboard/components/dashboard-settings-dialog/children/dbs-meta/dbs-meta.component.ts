@@ -9,9 +9,8 @@ import {
     ViewChild,
     ElementRef
 } from '@angular/core';
-import { MatInput } from '@angular/material';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 
 @Component({

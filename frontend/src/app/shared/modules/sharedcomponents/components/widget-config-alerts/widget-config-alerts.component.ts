@@ -1,7 +1,7 @@
 import { Component, OnInit, OnChanges, SimpleChanges, OnDestroy, HostBinding, Input, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
-import { debounceTime } from 'rxjs/operators/debounceTime';
+import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
     // tslint:disable-next-line:component-selector
