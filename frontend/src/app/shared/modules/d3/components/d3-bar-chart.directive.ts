@@ -33,7 +33,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       const minBarHeight = 15;
       let chartHeight = minBarHeight * dataset.length;
       let yAxisWidth = 0, labelHeight = 0;
-      chartHeight = chartHeight > this.size.height ? chartHeight  : this.size.height - 7; // -7 avoids the scrollbar
+      chartHeight = chartHeight > this.size.height || !this.size.height ? chartHeight  : this.size.height - 7; // -7 avoids the scrollbar
       const chartAreaHeight = chartHeight - margin.top - margin.bottom;
       
       /*
@@ -94,7 +94,6 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         const x = d3.scaleLinear()
                     .range([0, chartAreawidth])
                     .domain([0, d3.max(dataset, (d:any) => parseInt(d.value))]);
-        
         const g = svg  
                     .append("g")
                     .attr("transform", "translate(" + (margin.left + yAxisWidth + 3) + "," + margin.top + ")");
