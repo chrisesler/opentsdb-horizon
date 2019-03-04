@@ -3,6 +3,8 @@ import { map, catchError } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 
+import { LoggerService } from '../../core/services/logger.service';
+
 import {
     AppShellService
 } from '../services/app-shell.service';
@@ -87,6 +89,7 @@ export class AppShellState {
     mediaWatcher$: Subscription;
 
     constructor (
+        private logger: LoggerService,
         private service: AppShellService,
         private store: Store,
         private mediaObserver: MediaObserver
@@ -180,7 +183,7 @@ export class AppShellState {
 
     @Action(SSGetUserProfile)
     GetUserProfile(ctx: StateContext<AppShellStateModel>, { }: SSGetUserProfile) {
-        this.stateLog('Get user profile');
+        this.logger.state('AppShellState :: Get user profile');
         const state = ctx.getState();
         return this.service.getUserProfile().pipe(
             map( (payload: any) => {
@@ -197,7 +200,7 @@ export class AppShellState {
         const userProfile = response.body;
         userProfile.loaded = true;
 
-        this.stateSuccess('Get user profile', response);
+        this.logger.success('AppShellState :: Get user profile', response);
 
         ctx.setState({
             ...state,
@@ -208,7 +211,7 @@ export class AppShellState {
 
     @Action(SSGetUserProfileFail)
     GetUserProfileFail(ctx: StateContext<AppShellStateModel>, { error }: SSGetUserProfileFail) {
-        this.stateError('Get user profile', error);
+        this.logger.error('AppShellState :: Get user profile', error);
         if ( error.status === 404 ) {
             ctx.dispatch(new SSCreateUserProfile()); // 404 means the profile does not exist
         }
@@ -217,7 +220,7 @@ export class AppShellState {
 
     @Action(SSCreateUserProfile)
     CreateUserProfile(ctx: StateContext<AppShellStateModel>, { }: SSCreateUserProfile) {
-        this.stateLog('Create user profile');
+        this.logger.state('AppShellState :: Create user profile');
         const state = ctx.getState();
         return this.service.createUser().pipe(
             map( (payload: any) => {
@@ -234,7 +237,7 @@ export class AppShellState {
         const userProfile = response.body;
         userProfile.loaded = true;
 
-        this.stateSuccess('Create user profile', response);
+        this.logger.success('AppShellState :: Create user profile', response);
 
         ctx.setState({
             ...state,
@@ -244,7 +247,7 @@ export class AppShellState {
 
     @Action(SSCreateUserProfileFail)
     CreateUserProfileFail(ctx: StateContext<AppShellStateModel>, { error }: SSCreateUserProfileFail) {
-        this.stateError('Create user profile', error);
+        this.logger.error('AppShellState :: Create user profile', error);
         ctx.dispatch({error: error});
     }
 

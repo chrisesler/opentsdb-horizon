@@ -55,8 +55,6 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy, OnChange
         if (changes.dbSettingsVariables) {
             const data: SimpleChange = changes.dbSettingsVariables;
 
-            console.group('%cVARIABLE CHANGES', 'background-color: orange; padding: 8px; font-weight: bold;');
-            console.log('variables', data.currentValue);
             // save local version
             this.variables = data.currentValue;
             this.checkIfShouldDisplay();
@@ -72,9 +70,7 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy, OnChange
                 this.createForm();
                 // we are done updating
                 this.isUpdating = false;
-                console.log('%cDONE UPDATING', 'background-color: green; color: white; padding: 8px;', this.isUpdating);
             }
-            console.groupEnd();
         }
     }
 
@@ -92,10 +88,8 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy, OnChange
         this.initializeFormArrays();
 
         this.varFormSub = this.varForm.valueChanges.subscribe(val => {
-            console.log('%cVARIABLES BAR FORM [CHANGES]', 'background-color: chartreuse; padding: 2px 4px;', val, this.isUpdating);
 
             if (!this.isUpdating) {
-                console.log('%cIS UPDATING', 'background-color: orange; padding: 8px;');
                 this.interCom.requestSend(<IMessage> {
                     id: 'variableToolBar',
                     action: 'updateDashboardSettings',

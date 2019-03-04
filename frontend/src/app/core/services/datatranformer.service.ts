@@ -20,7 +20,7 @@ export class DatatranformerService {
     if ( result === undefined || Object.keys(result).length === 0 ) {
         return normalizedData;
     }
-    const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
+    const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
     let vMetricsLen = 0;
     let vAutoColorMetricsLen = 0;
     let dict = {};
@@ -256,7 +256,7 @@ export class DatatranformerService {
     }
 
     getLableFromMetricTags(label, tags ) {
-        const regex = /\{\{([\w-]+)\}\}/ig
+        const regex = /\{\{([\w-.:\/]+)\}\}/ig
         const matches = label.match(regex);
         if ( matches ) {
             for ( let i = 0, len = matches.length; i < len; i++ ) {

@@ -9,6 +9,8 @@ import {
 
 import { environment } from '../../../environments/environment';
 
+import { LoggerService } from '../../core/services/logger.service';
+
 import {
     map,
     tap,
@@ -139,6 +141,7 @@ import { DBState } from '../../dashboard/state/dashboard.state';
 export class DashboardNavigatorState {
 
     constructor (
+        private logger: LoggerService,
         private navService: DashboardNavigatorService,
         private store: Store
     ) {}
@@ -218,48 +221,6 @@ export class DashboardNavigatorState {
      * UTILS
      **************************/
 
-    stateLog(title: string, params?: any) {
-        if (environment.production) { return; }
-        if (params) {
-            console.group(
-                '%cDashboardNavigatorState%c' + title,
-                'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
-                'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
-            );
-            console.log('%cParams', 'font-weight: bold;', params);
-            console.groupEnd();
-        } else {
-            console.log(
-                '%cDashboardNavigatorState%c' + title,
-                'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
-                'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
-            );
-        }
-    }
-
-    stateError(title: string, error: any) {
-        if (environment.production) { return; }
-        console.group(
-            '%cDashboardNavigatorState [ERROR]%c' + title,
-            'color: white; background-color: red; padding: 4px 8px; font-weight: bold;',
-            'color: red; padding: 4px 8px; border: 1px solid red;'
-        );
-        console.log('%cErrorMsg', 'font-weight: bold;', error);
-        console.groupEnd();
-    }
-
-    stateSuccess(title: string, response: any) {
-        if (environment.production) { return; }
-        console.group(
-            '%cDashboardNavigatorState [SUCCESS]%c' + title,
-            'color: white; background-color: green; padding: 4px 8px; font-weight: bold;',
-            'color: green; padding: 4px 8px; border: 1px solid green;',
-            response
-        );
-        console.log('%cResponse', 'font-weight: bold;', response);
-        console.groupEnd();
-    }
-
     sortByName(a: any, b: any) {
         // console.log('SORT BY NAME', a, b);
         const aName = a.name.toLowerCase().trim();
@@ -311,7 +272,7 @@ export class DashboardNavigatorState {
      */
     @Action(DBNAVgetFolderResource)
     getFolderResource(ctx: StateContext<DBNAVStateModel>, { path: path, type: type }: DBNAVgetFolderResource) {
-        this.stateLog('Get Folder Resource');
+        this.logger.action('State :: Get Folder Resource');
         const state = ctx.getState();
         const resources = {...state.resourceData};
         return resources[type][path];
@@ -322,7 +283,7 @@ export class DashboardNavigatorState {
     // Top level Namespaces you are members of
     @Action(DBNAVloadNavResources)
     loadNavResources(ctx: StateContext<DBNAVStateModel>, {}: DBNAVloadNavResources) {
-        this.stateLog('Load Navigation Resource List');
+        this.logger.action('State :: Load Navigation Resource List');
         const state = ctx.getState();
         if (!state.loaded) {
             ctx.patchState({ loading: true});
@@ -341,7 +302,7 @@ export class DashboardNavigatorState {
     loadNavResourcesSuccess(ctx: StateContext<DBNAVStateModel>, { response }: DBNAVloadNavResourcesSuccess) {
         const state = ctx.getState();
 
-        this.stateSuccess('Load Navigation Resource List', response);
+        this.logger.success('State :: Load Navigation Resource List', response);
 
         const user = {...state.user,
             name: response.user.name,
@@ -542,7 +503,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVloadNavResourcesFail)
     loadNavResourcesFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVloadNavResourcesFail) {
-        this.stateError('Load Navigation Resource List', error);
+        this.logger.error('State :: Load Navigation Resource List', error);
         ctx.dispatch({
             loading: false,
             loaded: false,
@@ -556,7 +517,8 @@ export class DashboardNavigatorState {
     @Action(DBNAVaddPanel)
     addPanel(ctx: StateContext<DBNAVStateModel>, { payload }: DBNAVaddPanel) {
 
-        this.stateLog('Add Folder Panel', { payload });
+        this.logger.action('State :: Add Folder Panel', { payload });
+
         const state = ctx.getState();
         const panels = [...state.panels];
         const resources = {...state.resourceData};
@@ -597,6 +559,9 @@ export class DashboardNavigatorState {
 
             } else {
                 const folder = resources[resourceType][payload.fullPath];
+
+                this.logger.log('FOLDER', {resourceType, fullPath: payload.fullPath, folder});
+
                 folder.subfolders.sort(this.sortByName);
                 // now what? its special... do we need to load anything?
             }
@@ -655,7 +620,7 @@ export class DashboardNavigatorState {
      **************************/
     @Action(DBNAVcreateFolder)
     createFolder(ctx: StateContext<DBNAVStateModel>, { name, parentId, panelIndex }: DBNAVcreateFolder) {
-        this.stateLog('Create Folder', { name, parentId, panelIndex});
+        this.logger.action('State :: Create Folder', { name, parentId, panelIndex});
 
         const folder: any = {
             'name': name,
@@ -673,7 +638,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVcreateFolderSuccess)
     createFolderSuccess(ctx: StateContext<DBNAVStateModel>, { response, panelIndex }: DBNAVcreateFolderSuccess) {
-        this.stateSuccess('Create Folder Success', response);
+        this.logger.success('State :: Create Folder Success', response);
         const state = ctx.getState();
 
         const path = response.path.split('/');
@@ -715,7 +680,7 @@ export class DashboardNavigatorState {
         }
 
         const resourceData = {...state.resourceData};
-        resourceData[resourceType][folder.path] = folder;
+        resourceData[resourceType][folder.fullPath] = folder;
 
         ctx.patchState({...state,
             panels,
@@ -732,12 +697,12 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVcreateFolderFail)
     createFolderFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVcreateFolderFail) {
-        this.stateError('Create Folder Failure', error);
+        this.logger.error('State :: Create Folder Failure', error);
     }
 
     @Action(DBNAVupdateFolder)
     updateFolder(ctx: StateContext<DBNAVStateModel>, { id, currentPath, updates, panelIndex }: DBNAVupdateFolder) {
-        this.stateLog('Update Folder', { id, currentPath, updates });
+        this.logger.action('State :: Update Folder', { id, currentPath, updates });
 
         // ?? Do we need permission check?
         return this.navService.updateFolder(id, updates).pipe(
@@ -750,7 +715,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVupdateFolderSuccess)
     updateFolderSuccess(ctx: StateContext<DBNAVStateModel>, { response, originalPath, panelIndex }: DBNAVupdateFolderSuccess) {
-        this.stateSuccess('Update Folder Success', { response, originalPath, panelIndex });
+        this.logger.success('State :: Update Folder Success', { response, originalPath, panelIndex });
 
         const state = ctx.getState();
         const resourceData = {...state.resourceData};
@@ -795,7 +760,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVupdateFolderFail)
     updateFolderFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVupdateFolderFail) {
-        this.stateError('Update Folder Error', error);
+        this.logger.error('State :: Update Folder Error', error);
         ctx.dispatch({
             error: error
         });
@@ -814,7 +779,7 @@ export class DashboardNavigatorState {
      */
     @Action(DBNAVmoveFolder)
     moveFolder(ctx: StateContext<DBNAVStateModel>, { payloadBody, panelIndex }: DBNAVmoveFolder) {
-        this.stateLog('Move Folder', { payloadBody });
+        this.logger.action('State :: Move Folder', { payloadBody });
 
         const originalPath = payloadBody.source.fullPath;
         let destinationPath;
@@ -845,8 +810,6 @@ export class DashboardNavigatorState {
             payload.destinationId = destinationId;
         }
 
-        this.stateLog('CHECKS', {originalPath, destinationPath, payload});
-
         // TODO: simple permission check
         if ( this.simplePermissionCheck(ctx, originalPath) && this.simplePermissionCheck(ctx, destinationPath) ) {
             return this.navService.moveFolder(payload).pipe(
@@ -863,7 +826,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVmoveFolderSuccess)
     moveFolderSuccess(ctx: StateContext<DBNAVStateModel>, { response, originalPath, panelIndex }: DBNAVmoveFolderSuccess) {
-        this.stateSuccess('Move Folder Success', { response, originalPath, panelIndex });
+        this.logger.success('State :: Move Folder Success', { response, originalPath, panelIndex });
 
         const state = ctx.getState();
         const resourceData = {...state.resourceData};
@@ -923,7 +886,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVmoveFolderFail)
     moveFolderFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVmoveFolderFail) {
-        this.stateError('Move Folder Error', error);
+        this.logger.error('State :: Move Folder Error', error);
         ctx.dispatch({
             error: error
         });
@@ -939,7 +902,7 @@ export class DashboardNavigatorState {
      */
     @Action(DBNAVloadSubfolder)
     loadSubfolder(ctx: StateContext<DBNAVStateModel>, { folderObj }: DBNAVloadSubfolder) {
-        this.stateLog('Load Sub Folder', { folderObj });
+        this.logger.action('State :: Load Sub Folder', { folderObj });
 
         const fullPath = folderObj.fullPath;
         const path = folderObj.path;
@@ -968,7 +931,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVloadSubfolderSuccess)
     loadSubfolderSuccess(ctx: StateContext<DBNAVStateModel>, { response, topFolder }: DBNAVloadSubfolderSuccess) {
-        this.stateSuccess('Load Sub Folder Success', { response });
+        this.logger.success('State :: Load Sub Folder Success', { response });
         // success... do something
 
         const state = ctx.getState();
@@ -1077,7 +1040,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVloadSubfolderFail)
     loadSubfolderFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVloadSubfolderFail) {
-        this.stateError('Load Subfolder Folder Error', error);
+        this.logger.error('State :: Load Subfolder Folder Error', error);
         ctx.dispatch({
             error: error
         });
@@ -1101,7 +1064,7 @@ export class DashboardNavigatorState {
      */
     @Action(DBNAVmoveFile)
     moveFile(ctx: StateContext<DBNAVStateModel>, { payloadBody, panelIndex }: DBNAVmoveFile) {
-        this.stateLog('Move File', { payloadBody });
+        this.logger.action('State :: Move File', { payloadBody });
 
         const originalPath = payloadBody.source.fullPath;
         let destinationPath;
@@ -1131,8 +1094,6 @@ export class DashboardNavigatorState {
             payload.destinationId = destinationId;
         }
 
-        this.stateLog('CHECKS', {originalPath, destinationPath, payload});
-
         // TODO: simple permission check
         if (this.simplePermissionCheck(ctx, originalPath) && this.simplePermissionCheck(ctx, destinationPath)) {
             return this.navService.moveFile(payload).pipe(
@@ -1149,7 +1110,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVmoveFileSuccess)
     moveFileSuccess(ctx: StateContext<DBNAVStateModel>, { response, originalPath, panelIndex }: DBNAVmoveFileSuccess) {
-        this.stateSuccess('Move File Success', { response, originalPath, panelIndex });
+        this.logger.success('State :: Move File Success', { response, originalPath, panelIndex });
 
         const state = ctx.getState();
         const resourceData = {...state.resourceData};
@@ -1227,7 +1188,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVmoveFileFail)
     moveFileFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVmoveFileFail) {
-        this.stateError('Move File Error', error);
+        this.logger.error('State :: Move File Error', error);
         ctx.dispatch({
             error: error
         });
@@ -1240,7 +1201,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVloadFolderResource)
     loadFolderResource(ctx: StateContext<DBNAVStateModel>, { targetPath }: DBNAVloadFolderResource) {
-        this.stateLog('Load Folder Resource', { targetPath });
+        this.logger.action('State :: Load Folder Resource', { targetPath });
 
         ctx.patchState({ loading: true});
 
@@ -1254,7 +1215,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVloadFolderResourceSuccess)
     loadFolderResourceSucess(ctx: StateContext<DBNAVStateModel>, { response }: DBNAVloadFolderResourceSuccess) {
-        this.stateSuccess('Load Folder Resource Success', response);
+        this.logger.success('State :: Load Folder Resource Success', response);
 
         const state = ctx.getState();
         const resourceData = {...state.resourceData};
@@ -1299,7 +1260,7 @@ export class DashboardNavigatorState {
 
     @Action(DBNAVloadFolderResourceFail)
     loadFolderResourceFail(ctx: StateContext<DBNAVStateModel>, { error }: DBNAVloadFolderResourceFail) {
-        this.stateError('Load Folder Resource Error', error);
+        this.logger.error('State :: Load Folder Resource Error', error);
         ctx.dispatch({
             error: error
         });
@@ -1311,7 +1272,7 @@ export class DashboardNavigatorState {
 
     @Action(MiniNavOpenNavigator)
     MiniNavOpenNavigator(ctx: StateContext<DBNAVStateModel>, { targetPath, targetType, actionMode }: MiniNavOpenNavigator) {
-        this.stateLog('MINI NAV OPEN', { targetPath, targetType, actionMode });
+        this.logger.action('State :: MINI NAV OPEN', { targetPath, targetType, actionMode });
         const state = ctx.getState();
 
         // NOTE: upon opening the miniNavigator, it generates the paths/panels for the full targetPath based on existing resourceData.
@@ -1535,7 +1496,7 @@ export class DashboardNavigatorState {
 
     @Action(MiniNavMarkFolderSelected)
     MiniNavMarkFolderSelected(ctx: StateContext<DBNAVStateModel>, { panel, folder }: MiniNavMarkFolderSelected) {
-        this.stateLog('MINI NAV MARK FOLDER SELECTED', { panel, folder });
+        this.logger.action('State :: MINI NAV MARK FOLDER SELECTED', { panel, folder });
         const state = ctx.getState();
 
         const miniNavigator = {...state.miniNavigator};
@@ -1566,7 +1527,7 @@ export class DashboardNavigatorState {
 
     @Action(MiniNavResetFolderSelected)
     MiniNavResetFolderSelected(ctx: StateContext<DBNAVStateModel>, { }: MiniNavResetFolderSelected) {
-        this.stateLog('MINI NAV RESET FOLDER SELECTED', {});
+        this.logger.action('State :: MINI NAV RESET FOLDER SELECTED', {});
         const state = ctx.getState();
 
         const miniNavigator = {...state.miniNavigator};
@@ -1594,7 +1555,7 @@ export class DashboardNavigatorState {
 
     @Action(MiniNavCloseNavigator)
     MiniNavCloseNavigator(ctx: StateContext<DBNAVStateModel>, { }: MiniNavCloseNavigator) {
-        this.stateLog('MINI NAV CLOSE NAVIGATOR', {});
+        this.logger.action('State :: MINI NAV CLOSE NAVIGATOR', {});
         const state = ctx.getState();
 
         const miniNavigator = {...state.miniNavigator};
@@ -1617,7 +1578,7 @@ export class DashboardNavigatorState {
 
     @Action(MiniNavLoadPanel)
     MiniNavLoadPanel(ctx: StateContext<DBNAVStateModel>, { panelPath, actionMode, guid }: MiniNavLoadPanel) {
-        this.stateLog('MINI NAV LOAD PANEL', { panelPath });
+        this.logger.action('State :: MINI NAV LOAD PANEL', { panelPath });
 
         const state = ctx.getState();
         const resourceData = {...state.resourceData};
@@ -1722,7 +1683,7 @@ export class DashboardNavigatorState {
 
     @Action(MiniNavRemovePanel)
     MiniNavRemovePanel(ctx: StateContext<DBNAVStateModel>, { panelIndex, guid }: MiniNavRemovePanel) {
-        this.stateLog('MINI NAV REMOVE PANEL', { panelIndex });
+        this.logger.action('State :: MINI NAV REMOVE PANEL', { panelIndex });
         const state = ctx.getState();
         const miniNavigator = {...state.miniNavigator};
         const panels = [...miniNavigator.panels];

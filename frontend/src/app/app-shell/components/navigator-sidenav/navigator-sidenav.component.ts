@@ -40,13 +40,9 @@ export class NavigatorSidenavComponent implements OnInit {
 
     constructor() { }
 
-    ngOnInit() {
-        console.log('ACTIVE NAV INIT', this.activeNav);
-    }
+    ngOnInit() {}
 
     navigationClicked(obj: any) {
-        console.log('ACTIVE NAV', this.activeNav);
-
         if (this.activeNav === obj) {
             this.activeNav = { reset: true };
         } else {

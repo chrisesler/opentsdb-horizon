@@ -29,17 +29,14 @@ export class MarkdownWidgetVisualAppearanceComponent implements OnInit {
       this.colorType = value;
   }
 
-  colorChanged(color: any) {
-      if (color['hex']) { // make sure there is a hex
-          if (this.colorType === 'text') {
-              this.widget.settings.visual['textColor'] = color['hex'];
-              this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
-          } else { // background
-              this.widget.settings.visual['backgroundColor'] = color['hex'];
-              console.log('emitting new color', this.widget.settings.visual  );
-              this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
-          }
-      }
+  backgroundColorChanged(color: any) {
+    this.widget.settings.visual['backgroundColor'] = color['hex'];
+    this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
+  }
+
+  textColorChanged(color: any) {
+    this.widget.settings.visual['textColor'] = color['hex'];
+    this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
   }
 
   fontFamilyChanged(monospace: boolean) {
