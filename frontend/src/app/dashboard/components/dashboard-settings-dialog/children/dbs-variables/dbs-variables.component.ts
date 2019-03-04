@@ -8,7 +8,7 @@ import {
     Output
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 @Component({
     // tslint:disable-next-line:component-selector

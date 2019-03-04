@@ -1,6 +1,6 @@
 import { Component, OnInit, HostBinding, Input } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 @Component({
   // tslint:disable-next-line:component-selector

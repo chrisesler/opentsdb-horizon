@@ -1,23 +1,14 @@
 import {
-    AfterViewInit,
     Component,
     ElementRef,
     EventEmitter,
     HostBinding,
     Input,
-    OnChanges,
-    OnDestroy,
     OnInit,
-    Output,
-    ViewChild
+    Output
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
-
-import { MatInput } from '@angular/material';
-
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs';
 
 @Component({
     // tslint:disable-next-line:component-selector

@@ -8,7 +8,6 @@ import {
     Output,
     EventEmitter,
     HostBinding,
-    HostListener,
     ViewChild,
     ElementRef
 } from '@angular/core';
@@ -17,8 +16,8 @@ import { FormBuilder, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { MatAutocompleteSelectedEvent, MatChipInputEvent, MatAutocomplete, MatAutocompleteTrigger } from '@angular/material';
 
 import { Observable } from 'rxjs';
-import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
-import { Subscription } from 'rxjs/Subscription';
+import { map, startWith, debounceTime } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 

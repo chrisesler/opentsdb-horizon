@@ -4,8 +4,7 @@ import { DatatranformerService } from '../../../../../core/services/datatranform
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
 import { ElementQueries, ResizeSensor } from 'css-element-queries';
-import { Subscription } from 'rxjs/Subscription';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';

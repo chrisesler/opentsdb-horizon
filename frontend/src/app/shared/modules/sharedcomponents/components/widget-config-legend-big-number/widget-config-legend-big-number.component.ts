@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, AfterViewInit, HostBinding, Input, Output
 
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 @Component({
     // tslint:disable-next-line:component-selector
