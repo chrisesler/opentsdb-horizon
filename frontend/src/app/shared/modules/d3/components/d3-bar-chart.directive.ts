@@ -1,8 +1,6 @@
 import { Directive, ElementRef, AfterViewInit, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
 
 import * as d3 from "d3";
-import { fn } from '@angular/compiler/src/output/output_ast';
-import { container } from '@angular/core/src/render3';
 
 @Directive({
   selector: '[D3BarChart]'
