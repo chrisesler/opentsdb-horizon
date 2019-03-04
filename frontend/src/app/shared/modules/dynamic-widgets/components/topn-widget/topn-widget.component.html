@@ -9,7 +9,7 @@
     </div>
     <div class="widget-output" #widgetoutput>
         <div id="container" #container>
-            <div class="chart" 
+            <div class="chart" [style.height]="size.height + 'px'"
                 D3BarChart
                 [options]="options"
                 [size]="size"
@@ -19,6 +19,7 @@
         <div class="error" *ngIf="error" (click)="showError()">
             <mat-icon>error</mat-icon>
         </div>
+        <div class="tooltip"></div>
     </div>
 </div>
 <!-- NOTE: This needs to move to other component -->

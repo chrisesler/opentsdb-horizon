@@ -8,10 +8,9 @@ import { QueryService } from '../../../core/services/query.service';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
-import { Subscription } from 'rxjs/Subscription';
 import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { UtilsService } from '../../../core/services/utils.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
@@ -25,7 +24,7 @@ import {
     CopyWidgetData,
     ClearWidgetsData
 } from '../../state/widgets-data.state';
-import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
+import { UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import {
     DBSettingsState,
     UpdateMode,

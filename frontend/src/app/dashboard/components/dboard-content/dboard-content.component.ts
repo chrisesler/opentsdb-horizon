@@ -55,7 +55,7 @@ export class DboardContentComponent implements OnChanges {
     shrink: true,
     useCSSTransforms: true,
     responsiveView: true, // turn on adopting items sizes on window resize and enable responsiveOptions
-    responsiveDebounce: 200, // window resize debounce time
+    responsiveDebounce: 0, // window resize debounce time
     responsiveOptions: [
       {
         breakpoint: 'sm',

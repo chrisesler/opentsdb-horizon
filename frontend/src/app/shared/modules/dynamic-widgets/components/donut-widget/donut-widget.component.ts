@@ -3,9 +3,7 @@ import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDest
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
-import { Subscription } from 'rxjs/Subscription';
-import { BehaviorSubject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Subscription, BehaviorSubject } from 'rxjs';
 import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';

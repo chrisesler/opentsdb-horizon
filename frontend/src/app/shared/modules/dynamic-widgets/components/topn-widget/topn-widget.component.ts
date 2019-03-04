@@ -3,8 +3,7 @@ import { Component, OnInit, HostBinding, Input, OnDestroy, ViewChild, ElementRef
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
-import { Subscription } from 'rxjs/Subscription';
-import { BehaviorSubject } from 'rxjs';
+import { Subscription, BehaviorSubject} from 'rxjs';
 import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
@@ -107,7 +106,6 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
         this.newSizeSub = this.newSize$.pipe(
             // debounceTime(300)
         ).subscribe(size => {
-            console.log("size", size)
             this.setSize(size);
         });
         
@@ -121,7 +119,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
     }
 
     setSize(newSize) {
-        this.size = newSize;
+        this.size = { width: newSize.width, height: newSize.height - 3 };
     }
 
     requestData() {

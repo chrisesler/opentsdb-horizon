@@ -7,15 +7,12 @@ import { IntercomService, IMessage } from '../../../../../core/services/intercom
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
-
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 import { BehaviorSubject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
-
 
 @Component({
     // tslint:disable-next-line:component-selector
