@@ -106,7 +106,6 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
         this.newSizeSub = this.newSize$.pipe(
             // debounceTime(300)
         ).subscribe(size => {
-            console.log("size", size)
             this.setSize(size);
         });
         
@@ -120,7 +119,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
     }
 
     setSize(newSize) {
-        this.size = newSize;
+        this.size = { width: newSize.width, height: newSize.height - 3 };
     }
 
     requestData() {
