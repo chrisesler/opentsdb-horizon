@@ -6,13 +6,10 @@ import {
     SimpleChanges,
     SimpleChange,
     Input,
-    Output,
-    EventEmitter,
     HostBinding
 } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl, FormArray } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs';
+import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 
