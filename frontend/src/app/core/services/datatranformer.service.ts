@@ -20,7 +20,7 @@ export class DatatranformerService {
     if ( result === undefined || Object.keys(result).length === 0 ) {
         return normalizedData;
     }
-    const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 864000 };
+    const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
     let vMetricsLen = 0;
     let vAutoColorMetricsLen = 0;
     let dict = {};

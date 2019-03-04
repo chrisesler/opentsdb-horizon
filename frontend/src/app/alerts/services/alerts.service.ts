@@ -4,39 +4,15 @@ import { Observable, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
 
+import { LoggerService } from '../../core/services/logger.service';
+
 @Injectable()
 export class AlertsService {
 
     constructor(
+        private logger: LoggerService,
         private http: HttpClient
     ) { }
-
-    apiLog(type: string, params?: any) {
-        if (params) {
-            console.group(
-                '%cAPI%c' + type,
-                'color: white; background-color: purple; padding: 4px 8px; font-weight: bold;',
-                'color: purple; padding: 4px 8px; border: 1px solid purple;'
-            );
-            console.log('%cParams', 'font-weight: bold;', params);
-            console.groupEnd();
-        } else {
-            console.log(
-                '%cAPI%c' + type,
-                'color: white; background-color: purple; padding: 4px 8px; font-weight: bold;',
-                'color: purple; padding: 4px 8px; border: 1px solid purple;'
-            );
-        }
-    }
-
-    apiError(msg: any) {
-        console.log(
-            '%cERROR%cAn error occurred',
-            'color: white; background-color: red; padding: 4px 8px; font-weight: bold;',
-            'color: red; padding: 4px 8px; border: 1px solid red;',
-            msg
-        );
-    }
 
     /**
      * Error Handler
@@ -48,7 +24,7 @@ export class AlertsService {
 
         if (error.error instanceof ErrorEvent) {
             // a client-side or network error occured
-            this.apiError(error.error.message);
+            this.logger.error('AlertsService :: An API error occurred', error.error.message);
         } else {
             // the backend returned unsuccessful response code
             // the response body may contain clues of what went wrong
@@ -68,6 +44,8 @@ export class AlertsService {
 
     getUserNamespaces() {
 
+        const apiUrl = environment.configdb + '/namespace/member';
+
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
@@ -76,22 +54,27 @@ export class AlertsService {
             headers,
             withCredentials: true,
             responseType: 'json'
-        };    
+        };
 
-        const apiUrl = environment.configdb + '/namespace/member';
-        this.apiLog('Get Namespaces I Belong to', apiUrl);
+        this.logger.api('AlertsService :: Get Namespaces I Belong to', apiUrl);
+
         return this.http.get(apiUrl, httpOptions).pipe(
             catchError(this.handleError)
         );
     }
 
     getNamespaces(queryObj: any): Observable<any> {
+        const apiUrl = '/search/namespaces';
+
         const headers = new HttpHeaders({
-          'Content-Type': 'application/json'
+            'Content-Type': 'application/json'
         });
-        return this.http.post('/search/namespaces', queryObj, { headers, withCredentials: true })
-          .pipe(
-            catchError(this.handleError)
-          );
+
+        this.logger.api('AlertsService :: Get Namespaces', apiUrl);
+
+        return this.http.post(apiUrl, queryObj, { headers, withCredentials: true })
+            .pipe(
+                catchError(this.handleError)
+            );
     }
 }
