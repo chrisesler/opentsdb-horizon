@@ -1,4 +1,4 @@
-import { State , Action, Selector, StateContext} from '@ngxs/store';
+import { State , Action, Selector, StateContext, createSelector } from '@ngxs/store';
 import { UserSettingsState } from './user.settings.state';
 import { DBSettingsState } from './settings.state';
 import { WidgetsState } from './widgets.state';
@@ -104,12 +104,24 @@ export class DBState {
         return state.error;
     }
 
+    @Selector()
+    static getDashboardFriendlyPath(state: DBStateModel) {
+        // return createSelector([DBState], (state: DBStateModel) => {
+            const friendlyPath = state.id + state.loadedDB.fullPath;
+            if (friendlyPath && friendlyPath !== 'undefined') {
+                return '/' + friendlyPath;
+            } else {
+                return undefined;
+            }
+        // });
+    }
+
     @Action(LoadDashboard)
     loadDashboard(ctx: StateContext<DBStateModel>, { id }: LoadDashboard) {
         // id is the path
         if ( id !== '_new_' ) {
             ctx.patchState({ loading: true});
-            //return this.httpService.getDashboardByPath(id).pipe(
+            // return this.httpService.getDashboardByPath(id).pipe(
             return this.httpService.getDashboardById(id).pipe(
                 map(dashboard => {
                     ctx.dispatch(new LoadDashboardSuccess(dashboard.body));
@@ -159,7 +171,7 @@ export class DBState {
     saveDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: SaveDashboardSuccess) {
         const state = ctx.getState();
         // console.log('save dashboard success', payload);
-        ctx.patchState({...state, id: payload.id, path: payload.path, status: 'save-success' });
+        ctx.patchState({...state, id: payload.id, path: payload.path, loadedDB: payload, status: 'save-success' });
     }
 
     @Action(SaveDashboardFail)

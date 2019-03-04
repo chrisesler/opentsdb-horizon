@@ -46,6 +46,8 @@ import {
 import { DashboardDeleteDialogComponent } from '../../components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 
+import { LoggerService } from '../../../core/services/logger.service';
+
 @Component({
     selector: 'app-dashboard',
     templateUrl: './dashboard.component.html',
@@ -61,7 +63,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
     @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<string>;
     @Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<string>;
-    @Select(DBState.getDashboardPath) dbPath$: Observable<string>;
+    // @Select(DBState.getDashboardPath) dbPath$: Observable<string>;
+    @Select(DBState.getDashboardFriendlyPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
     @Select(DBState.getDashboardError) dbError$: Observable<any>;
@@ -177,7 +180,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     mediaQuerySub: Subscription;
     // tslint:disable-next-line:no-inferrable-types
     activeMediaQuery: string = '';
-    gridsterUnitSize:any = {};
+    gridsterUnitSize: any = {};
 
     constructor(
         private store: Store,
@@ -193,7 +196,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private dialog: MatDialog,
         private snackBar: MatSnackBar,
         private cdRef: ChangeDetectorRef,
-        private elRef: ElementRef
+        private elRef: ElementRef,
+        private logger: LoggerService
     ) { }
     ngOnInit() {
         // handle route for dashboardModule
@@ -252,8 +256,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     const cloneWidget = JSON.parse(JSON.stringify(message.payload));
                     cloneWidget.id = this.utilService.generateId();
                     cloneWidget.gridPos.x =  cloneWidget.gridPos.x;
-                    cloneWidget.gridPos.y = cloneWidget.gridPos.y + cloneWidget.gridPos.h; 
-                    for ( let i =0 ; i < widgets.length; i++ ) {
+                    cloneWidget.gridPos.y = cloneWidget.gridPos.y + cloneWidget.gridPos.h;
+                    for ( let i = 0 ; i < widgets.length; i++ ) {
                         if ( widgets[i].gridPos.y >= cloneWidget.gridPos.y ) {
                             widgets[i].gridPos.y += cloneWidget.gridPos.h;
                         }
@@ -265,7 +269,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     const cloneWidgetEndPos = (cloneWidget.gridPos.y + cloneWidget.gridPos.h) * this.gridsterUnitSize.height;
                     const containerPos = gridsterContainerEl.getBoundingClientRect();
                     if ( cloneWidgetEndPos > containerPos.height ) {
-                        setTimeout(()=>{
+                        setTimeout(() => {
                             gridsterContainerEl.scrollTop =    cloneWidgetEndPos - containerPos.height;
                         }, 100);
                     }
@@ -334,7 +338,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
 
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
-                    //console.log('dashboardSaveRequest', this.dbid, payload);
+                    console.log('dashboardSaveRequest', this.dbid, payload);
                     break;
                 case 'dashboardSettingsToggleRequest':
                     this.interCom.responsePut({
@@ -395,7 +399,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dbPathSub = this.dbPath$.subscribe(path => {
             // we only need to check of path returned from configdb is not _new_,
             // the router url will point to previous path of clone dashboard
-            if (path !== '_new_') {
+            this.logger.log('dbPathSub', { currentLocation: this.location.path(), newPath: '/d' + path, rawPath: path});
+            if (path !== '_new_' && path !== undefined) {
                 this.location.replaceState('/d' + path);
             }
         });
@@ -422,7 +427,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.widgetSub = this.widgets$.subscribe(widgets => {
+        // tslint:disable-next-line:no-shadowed-variable
+        this.widgetSub = this.widgets$.subscribe((widgets) => {
             const dbstate = this.store.selectSnapshot(DBState);
             // console.log('--- widget subscription---', widgets, dbstate.loaded);
             if (dbstate.loaded) {
@@ -535,7 +541,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.widgetGroupRawData$.subscribe(result => {
             let error = null;
-            let grawdata = {};
+            const grawdata = {};
             if (result !== undefined) {
                 if ( result.rawdata !== undefined && !result.rawdata.error ) {
                     grawdata[result.gid] = result.rawdata;
