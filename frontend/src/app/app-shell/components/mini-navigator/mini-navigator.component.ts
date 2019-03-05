@@ -250,20 +250,20 @@ export class MiniNavigatorComponent implements OnInit, OnDestroy {
     }
 
     folderAction(panel: any, event: any) {
-        // console.log('FOLDER ACTION [TOP]', panel, event);
+        console.log('FOLDER ACTION [TOP]', panel, event);
 
         switch (event.action) {
             case 'gotoFolder':
-                this.store.dispatch(new MiniNavLoadPanel(event.payload.path, this.mode, this.guid));
+                this.store.dispatch(new MiniNavLoadPanel(event.payload.fullPath, this.mode, this.guid));
                 break;
             case 'selectFolder':
                 if ((this.mode === 'move' && !event.payload.moveEnabled || (this.mode === 'select' && !event.payload.selectEnabled))) {
                     // can't select the folder, so just load it as a panel
                     // example is if they are viewing path '/namespace'
-                    this.store.dispatch(new MiniNavLoadPanel(event.payload.path, this.mode, this.guid));
+                    this.store.dispatch(new MiniNavLoadPanel(event.payload.fullPath, this.mode, this.guid));
                 } else if (event.payload.selected) {
                     // its already selected, act like a double-click and load the panel
-                    this.store.dispatch(new MiniNavLoadPanel(event.payload.path, this.mode, this.guid));
+                    this.store.dispatch(new MiniNavLoadPanel(event.payload.fullPath, this.mode, this.guid));
                     // this.store.dispatch(new MiniNavResetFolderSelected());
                 } else {
                     const panelIndex = this.panels.indexOf(panel);
