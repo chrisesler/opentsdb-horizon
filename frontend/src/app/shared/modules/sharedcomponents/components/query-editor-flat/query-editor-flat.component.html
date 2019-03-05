@@ -1,0 +1,52 @@
+<!--<mat-toolbar class="namespace-bar"
+    [ngClass]="{'is-expanded': query.namespace || query.metrics.length || query.filters.length}">
+    <div class="toolbar-item query-index">
+        <span>{{ label }}</span>
+    </div>
+    <div class="toolbar-item">
+        <span class="title"> Namespace </span>
+    </div>
+    <div class="toolbar-item">
+        <span class="namespace-value" *ngIf="!editNamespace" (click)="editNamespace=true;">
+            {{ query.namespace }}
+        </span>
+    </div>
+    <div class="toolbar-item">
+        <span class="value" *ngIf="editNamespace || !query.namespace.trim() ">
+            <namespace-autocomplete [value]="query.namespace" (nschange)="saveNamespace($event)" (blur)="cancelSaveNamespace($event)"></namespace-autocomplete>
+        </span>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="toolbar-item action-icons" *ngIf="!edit.length">
+        <button mat-icon-button color="primary" (click)="toggleQuery(); $event.stopPropagation();">
+            <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
+            <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
+        </button>
+        <button mat-icon-button color="primary" (click)="deleteQuery(); $event.stopPropagation();">
+            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+        </button>
+    </div>
+</mat-toolbar>
+-->
+<div style="padding-top: 2px; padding-bottom: 2px;">
+    {{query | json}}
+    <div *ngFor="let metric of query.metrics; let idx=index">
+        {{metric | json}}
+        <div *ngIf="!metric.expression">
+            <button mat-button mat-primary color="primary">m{{idx + 1}}</button>
+            <span>Namespace</span>
+            <span class="namespace-value" style="background: yellow;padding: 3px; border: 1px solid #eee; margin-left:2px;" *ngIf="!editNamespace && idx !== selMetricIndex && metric.namespace" (click)="doEditNamespace(idx)">
+                {{ metric.namespace }}
+            </span>
+            <span class="value" *ngIf="(editNamespace && idx === selMetricIndex) || !metric.namespace">
+                <namespace-autocomplete [value]="metric.namespace" (nschange)="saveNamespace($event, idx)" (blur)="cancelSaveNamespace()"></namespace-autocomplete>
+            </span>
+            <span>Metric <span style="background: yellow;padding: 3px; border: 1px solid #eee; margin-left:2px;">{{metric.name}}</span></span>
+            <span>Filters <span>{{query.filters['tagk'] | json}}</span></span>
+        </div>
+        <div *ngIf="metric.expression">
+            <button mat-button mat-primary color="primary">e{{idx+1}}</button>
+            <span>Expression <input style="background: #eee;padding: 3px; border: 1px solid #eee;" value="{{metric.originalExpression}}" /></span>
+        </div>
+    </div>
+</div>
