@@ -1,0 +1,82 @@
+<div class="tag-filters query-filter-block">
+            <div class="container" style="flex-direction: column;min-height: 300px;">
+
+
+                <!-- if adding/editing tags -->
+                <div class="tag-filter-options">
+                    <div class="tag-filter-options-column tag-keys">
+                        <div class="tag-key-search">
+                            <mat-form-field class="metric-search-input-field" appearance="outline" color="primary" floatLabel="never">
+                                <input matInput placeholder="Search tag keys" [formControl]="tagSearchControl" #tagSearchInput>
+                            </mat-form-field>
+                        </div>
+                        <div class="tag-key-search-results has-scroller">
+                            <div class="is-scroller">
+                                <div class="option-item tag-key-option" *ngFor="let option of tagOptions" 
+                                    [ngClass]="{'added': getTagIndex(option.name) !== -1, 'selected': option.name === selectedTag }">
+                                    <div class="option-cell" (click)="removeTagValues(option.name)" *ngIf="getTagIndex(option.name) !== -1">
+                                            <mat-icon (click)="removeTagValues(option.name)">remove_circle_outline</mat-icon>
+                                    </div>
+                                    <div class="option-cell label" (click)="handlerTagClick(option.name)">{{ option.name }}</div>
+                                </div>
+                                <div *ngIf="message.tagControl.message" [ngClass]="message.tagControl.type === 'error'? 'error': 'info'">
+                                    <mat-icon>error</mat-icon>
+                                    <span>{{ message['tagControl']['message'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tag-filter-options-column tag-values">
+                        <div class="tag-values-search">
+                            <div class="tag-values-type">
+                                <mat-button-toggle-group [formControl]="tagValueTypeControl" aria-label="Font Style">
+                                    <mat-button-toggle value="literalor">Literal</mat-button-toggle>
+                                    <mat-button-toggle value="regexp">Regexp</mat-button-toggle>
+                                </mat-button-toggle-group>
+                            </div>
+                            <div class="tag-values-search-input">
+                                <mat-form-field appearance="outline" [color]="'primary'" floatLabel="never">
+                                    <input #tagValueSearchInput [formControl]="tagValueSearchControl" matInput
+                                        placeholder="" (keydown.enter)="addTagValueRegexp()">
+                                    <mat-icon matSuffix *ngIf="tagValueTypeControl.value==='regexp'" (click)="addTagValueRegexp()">add_circle_outline</mat-icon>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="tag-values-count" *ngIf="filteredTagValues && filteredTagValues.length > 0">
+                                <span class="mat-caption">{{filteredTagValues.length}} <strong>"{{selectedTag}}"</strong> tag {{filteredTagValues.length > 1 ? 'values' : 'value'}} available</span>
+                            </div>
+                        <span class="seperator"></span>
+                        <div class="tag-values-search-results has-scroller" *ngIf="tagValueTypeControl.value==='literalor'">
+                            <div class="is-scroller">
+                                <div class="option-item" *ngFor="let option of filteredTagValues" [ngClass]="{'added': filters[selectedTagIndex] && filters[selectedTagIndex].filter.indexOf(option.name) >= 0 }">
+                                    <div class="option-cell">
+                                        <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) === -1" (click)="updateTagValueSelection(option.name, 'add');">add_circle_outline</mat-icon>
+                                        <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) !== -1" (click)="updateTagValueSelection(option.name, 'remove')">remove_circle_outline</mat-icon>
+                                    </div>
+                                    <div class="option-cell label">{{ option.name }}</div>
+                                </div>
+                                <div *ngIf="message.tagValueControl.message" [ngClass]="message.tagValueControl.type === 'error'? 'error': 'info'">
+                                    <mat-icon>error</mat-icon>
+                                    <span>{{ message['tagValueControl']['message'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tag-filter-options-column tag-values-selected">
+                        <div class="tag-values-selected-header">
+                            <strong>Selected tag values</strong>
+                        </div>
+                        <div class="tag-values-selected-list has-scroller" *ngIf="filters[selectedTagIndex]">
+                            <div class="is-scroller">
+                                <div class="option-item tag-value-option" *ngFor="let option of filters[selectedTagIndex].filter">
+                                    <div class="option-cell">
+                                        <mat-icon (click)="updateTagValueSelection(option, 'remove')">remove_circle_outline</mat-icon>
+                                    </div>
+                                    <div class="option-cell label"> {{ option }} </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+</div>
