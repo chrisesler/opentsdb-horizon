@@ -44,6 +44,12 @@
                         </span>-->
                     </mat-toolbar>
                 </mat-expansion-panel-header>
+                <div class="query-metric-row" *ngFor="let query of widget.queries; let index=index">
+                    <query-editor-flat [type]="widget.settings.component_type" [label]="'Q' + (index + 1)" [query]="query" (queryOutput)="handleQueryRequest($event)">
+                       
+                    </query-editor-flat>
+                </div>
+                <!--
                 <ng-container *ngIf="!queryEditMode">
                     <div class="query-metric-row" *ngFor="let query of widget.queries; let index=index">
                         <query-editor [type]="widget.settings.component_type" [label]="'Q' + (index + 1)" [query]="query" (queryOutput)="handleQueryRequest($event)"></query-editor>
@@ -52,6 +58,7 @@
                 <div class="query-metric-row query-metric-row-editing" *ngIf="queryEditMode">
                     <query-editor [type]="editQuery.type" [label]="getQueryLabel(editQuery.query)" [query]="editQuery.query" [edit]="editQuery.edit" (queryOutput)="handleQueryRequest($event)"></query-editor>
                 </div>
+                -->
                 <div class="query-metric-row" *ngIf="widget.queries.length && widget.queries[widget.queries.length-1].metrics.length && !queryEditMode && widget.settings.component_type === 'LinechartWidgetComponent'" style="margin-top:25p;">
                     <button  mat-button  mat-primary color="primary"  (click)="addNewQuery()">Add Query</button>
                 </div>
