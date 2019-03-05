@@ -1,7 +1,7 @@
 import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, Output, EventEmitter } from '@angular/core';
 
 import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 /*
 export interface VisualizationData {

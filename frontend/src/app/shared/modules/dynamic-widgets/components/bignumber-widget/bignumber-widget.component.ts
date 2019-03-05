@@ -2,8 +2,7 @@ import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, OnDestroy
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
-import { Subscription } from 'rxjs/Subscription';
-import { BehaviorSubject } from 'rxjs';
+import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material';

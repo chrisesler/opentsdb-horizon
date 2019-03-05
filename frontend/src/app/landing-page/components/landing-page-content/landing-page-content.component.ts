@@ -1,20 +1,7 @@
-import {
-    Component, OnInit, OnDestroy, Input, ViewChild, ViewEncapsulation,
-    ChangeDetectionStrategy, OnChanges, SimpleChanges, ComponentFactoryResolver,
-    HostBinding, Output, EventEmitter, AfterViewInit, ViewChildren, QueryList
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-
-
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-
-import { Observable } from 'rxjs';
-
-import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDraggableOptions } from 'angular2gridster';
-// import { WidgetViewDirective } from '../../directives/widgetview.directive';
-// import { WidgetComponentModel } from '../../widgets/models/widgetcomponent';
-// import { DashboardService } from '../../services/dashboard.service';
+import { Subscription } from 'rxjs';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { MatSnackBar } from '@angular/material';
 

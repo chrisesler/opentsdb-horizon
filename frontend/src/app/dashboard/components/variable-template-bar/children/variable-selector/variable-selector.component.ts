@@ -5,19 +5,16 @@ import {
     OnInit,
     OnDestroy,
     Input,
-    Output,
-    EventEmitter,
     HostBinding,
     ViewChild,
     ElementRef
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl, FormArray } from '@angular/forms';
-import { MatAutocompleteSelectedEvent, MatChipInputEvent, MatAutocomplete, MatMenu, MatMenuTrigger } from '@angular/material';
+import { MatAutocomplete, MatMenu, MatMenuTrigger } from '@angular/material';
 
-import { Observable } from 'rxjs';
-import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
-import { Subscription } from 'rxjs/Subscription';
+import { Observable, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 

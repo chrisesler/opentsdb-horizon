@@ -1,21 +1,21 @@
 import {
-    Component, Inject, OnInit, HostBinding, Input, Output, EventEmitter, OnDestroy
+    Component, Inject, OnInit, HostBinding, OnDestroy
 } from '@angular/core';
 
-import { FormBuilder, FormGroup, Validators, FormControl, AbstractControl, ValidatorFn } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 
 import {
     MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogConfig, DialogPosition
 } from '@angular/material';
 
-import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
+import { IntercomService } from '../../../../../core/services/intercom.service';
 
 import {
     SearchMetricsDialogComponent
 } from '../search-metrics-dialog/search-metrics-dialog.component';
 
 import { Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators/debounceTime';
+import { debounceTime } from 'rxjs/operators';
 
 import { HttpService } from '../../../../../core/http/http.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
