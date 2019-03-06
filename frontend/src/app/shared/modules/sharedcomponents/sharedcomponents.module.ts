@@ -55,6 +55,7 @@ import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.compon
 import { WidgetConfigSortingComponent } from './components/widget-config-sorting/widget-config-sorting.component';
 import { ConditionalFormatterComponent } from './components/conditional-formatter/conditional-formatter.component';
 import { InlineFilterEditorComponent } from './components/inline-filter-editor/inline-filter-editor.component';
+import { MetricAutocompleteComponent } from './components/metric-autocomplete/metric-autocomplete.component';
 
 @NgModule({
     imports: [
@@ -106,7 +107,8 @@ import { InlineFilterEditorComponent } from './components/inline-filter-editor/i
         TagGroupbyComponent,
         WidgetConfigSortingComponent,
         ConditionalFormatterComponent,
-        InlineFilterEditorComponent
+        InlineFilterEditorComponent,
+        MetricAutocompleteComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -138,7 +140,8 @@ import { InlineFilterEditorComponent } from './components/inline-filter-editor/i
         InlineFilterEditorComponent,
         NamespaceTagValuesComponent,
         WidgetConfigSortingComponent,
-        ConditionalFormatterComponent
+        ConditionalFormatterComponent,
+        MetricAutocompleteComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,
@@ -148,6 +151,7 @@ import { InlineFilterEditorComponent } from './components/inline-filter-editor/i
         InlineQueryEditorComponent,
         InlineFilterEditorComponent,
         NamespaceTagValuesComponent,
+        MetricAutocompleteComponent,
         ErrorDialogComponent
     ],
 })
