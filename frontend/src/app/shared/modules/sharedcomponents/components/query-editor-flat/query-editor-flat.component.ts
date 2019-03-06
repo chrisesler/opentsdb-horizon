@@ -147,6 +147,10 @@ export class QueryEditorFlatComponent implements OnInit, OnChanges, OnDestroy {
       this.selMetricIndex = index;
   }
 
+  setFilters(e) {
+      console.log('output filters', e);
+  }
+
   cancelSaveNamespace() {
       this.editNamespace = false;
       this.selMetricIndex = -1;

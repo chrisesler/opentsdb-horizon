@@ -29,9 +29,9 @@
 </mat-toolbar>
 -->
 <div style="padding-top: 2px; padding-bottom: 2px;">
-    {{query | json}}
+   
     <div *ngFor="let metric of query.metrics; let idx=index">
-        {{metric | json}}
+        
         <div *ngIf="!metric.expression">
             <button mat-button mat-primary color="primary">m{{idx + 1}}</button>
             <span>Namespace</span>
@@ -49,4 +49,5 @@
             <span>Expression <input style="background: #eee;padding: 3px; border: 1px solid #eee;" value="{{metric.originalExpression}}" /></span>
         </div>
     </div>
+    <!--<inline-filter-editor [namespace]="'UDB'" [metrics]="[]" (filterOutput)="setFilters($event)"></inline-filter-editor>-->
 </div>
