@@ -66,14 +66,14 @@
                                         <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
                                         <span>Clone</span>
                                     </button>
-                                    <button mat-menu-item (click)="widgetShare()">
+                                   <!--<button mat-menu-item (click)="widgetShare()">
                                         <mat-icon fontSet="denali" fontIcon="d-share"></mat-icon>
                                         <span>Share</span>
                                     </button>
                                     <button mat-menu-item [matMenuTriggerFor]="subMenu">
                                         <mat-icon></mat-icon>
                                         <span>Export</span>
-                                    </button>
+                                    </button>-->
                                     <span class="menu-seperator"></span>
                                 </ng-container>
                                 <button mat-menu-item (click)="widgetRemove()">
@@ -81,7 +81,7 @@
                                     <span>Remove</span>
                                 </button>
                             </mat-menu>
-                            <mat-menu #subMenu="matMenu" class="widget-submenu">
+                            <!--<mat-menu #subMenu="matMenu" class="widget-submenu">
                                 <button mat-menu-item (click)="widgetExportJSON()">
                                     <mat-icon fontSet="denali" fontIcon="d-upload"></mat-icon>
                                     <span>Export JSON</span>
@@ -90,7 +90,7 @@
                                     <mat-icon fontSet="denali" fontIcon="d-download"></mat-icon>
                                     <span>Download Image</span>
                                 </button>
-                            </mat-menu>
+                            </mat-menu>-->
                         </mat-toolbar-row>
                     </mat-toolbar>
                 </div>        

@@ -1,4 +1,4 @@
-<a routerLink="/d{{dashboard.path}}" (click)="menuAction('navigateTo')"class="dnav-dashboard-link flex-spacer">
+<a routerLink="/d/{{dashboard.id}}{{dashboard.fullPath}}" (click)="menuAction('navigateTo')"class="dnav-dashboard-link flex-spacer">
     <mat-icon class="dnav-dashboard-icon" fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
     <span class="dnav-dashboard-label">{{dashboard.name}}</span>
 </a>
@@ -39,7 +39,7 @@
 </mat-menu>
 <mat-menu class="dnav-cdk-mini-navigator" xPosition="after" #dnavMiniNavigator="matMenu" style="transform: translate3d(30px, -31px, 0);">
     <div mat-menu-item (click)="$event.stopPropagation();" [disableRipple]="true">
-        <mini-navigator mode="move" type="dashboard" [path]="dashboard.path" 
+        <mini-navigator mode="move" type="dashboard" [path]="dashboard.fullPath" 
             (navigationCancel)="miniNavTrigger.closeMenu()"
             (directorySelected)="miniNavAction($event)"
             #miniNav></mini-navigator>

@@ -8,7 +8,6 @@ import {
     OnChanges,
     SimpleChanges
 } from '@angular/core';
-
 import { Store, Select } from '@ngxs/store';
 import { Observable } from 'rxjs';
 
@@ -27,9 +26,6 @@ import {
     UpdateNavigatorSideNav,
     ResetNavigator
 } from '../state/navigator.state';
-
-import { Subscription } from 'rxjs';
-import { select } from 'd3';
 
 @Component({
     selector: 'app-shell',

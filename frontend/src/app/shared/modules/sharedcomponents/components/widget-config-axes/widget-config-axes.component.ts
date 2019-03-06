@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, AfterViewInit, HostBinding, Input, Output
 
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 
-import { Subscription } from 'rxjs/Subscription';
-import { debounceTime } from 'rxjs/operators/debounceTime';
+import { Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
 
 

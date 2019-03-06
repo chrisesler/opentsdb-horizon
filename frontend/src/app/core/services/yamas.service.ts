@@ -17,7 +17,7 @@ export class YamasService {
 
         const mids = [];
         let filterId = '';
-        const outputIds = [];
+        let outputIds = [];
         let hasMetricTS = false;
         let groupByIds = [];
 
@@ -43,24 +43,9 @@ export class YamasService {
             if ( query.metrics[j].expression ) {
                 // need to create the expression query for each aggregators
                 // foreach aggregator create expression query, downsample, groupby 
-                const res = this.getExpressionQuery(query.metrics[j], j, filterId);
-                const aggregators = downsample.aggregators || ['avg'];
-                // add metrics for the expression
+                const res = this.getExpressionQuery(query, summaryOnly, downsample, query.metrics[j], j, filterId);
                 transformedQuery.executionGraph = transformedQuery.executionGraph.concat(res.queries);
-                for ( let i = 0; i < aggregators.length; i++ ) {
-                    const q = JSON.parse(JSON.stringify(res.expression));
-                    q.id = "m" + j + '-' + aggregators[i];
-                    const dsId = q.id + '-downsample';
-                    // add downsample for the expression
-                    transformedQuery.executionGraph.push(this.getQueryDownSample(summaryOnly, downsample, aggregators[i], dsId, res.mids));
-                    // add groupby for the expression
-                    const groupbyId = q.id + '-groupby'  ;
-                    groupByIds.push(groupbyId);
-                    transformedQuery.executionGraph.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator,  [dsId], groupbyId));
-                    q.sources = [groupbyId];
-                    transformedQuery.executionGraph.push(q);
-                    outputIds.push(q.id);
-                }
+                outputIds = outputIds.concat(res.eids);
             } else {
                 hasMetricTS = true;
                 const q: any = this.getMetricQuery(query, j);
@@ -151,10 +136,11 @@ export class YamasService {
         return filter;
     }
 
-    getExpressionQuery(config, index, filterId) {
-        const mids = [];
-
+    getExpressionQuery(query, summaryOnly, downsample, config, index, filterId) {
+        const eids = [];
         const queries = [];
+        const sources = {};
+        const aggregators = downsample.aggregators || ['avg'];
         for ( let i = 0; i < config.metrics.length; i++ ) {
             const mid = 'm' + index.toString() + (i + 1);
 
@@ -172,24 +158,44 @@ export class YamasService {
                 q.filterId = filterId;
             }
             queries.push(q);
-            mids.push(mid);
+            for ( let j = 0; j < aggregators.length; j++ ) {
+                // const q = JSON.parse(JSON.stringify(res.expression));
+                const id = mid +   '-' + aggregators[j];
+                const dsId = id + '-downsample';
+                // add downsample for the expression
+                queries.push(this.getQueryDownSample(summaryOnly, downsample, aggregators[i], dsId, [mid]));
+                // add groupby for the expression
+                const groupbyId = id + '-groupby'  ;
+                //groupByIds.push(groupbyId);
+                queries.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator,  [dsId], groupbyId));
+                if ( !sources[aggregators[j]] ) {
+                    sources[aggregators[j]] = [];
+                }
+                sources[aggregators[j]].push(groupbyId);
+            }
         }
-        const expression = {
-            type: 'expression',
-            expression: config.expression,
-            join: {
-                type: 'Join',
-                joinType: 'NATURAL'
-            },
-            interpolatorConfigs: [{
-                dataType: 'numeric',
-                fillPolicy: 'NAN',
-                realFillPolicy: 'NONE'
-            }],
-            variableInterpolators: {},
-            sources: []
-        };
-        return { expression: expression, queries: queries, mids: mids };
+        for ( let j = 0; j < aggregators.length; j++ ) {
+            const eid = "m" + index;
+            const expression = {
+                id: eid,
+                type: 'expression',
+                expression: config.expression,
+                join: {
+                    type: 'Join',
+                    joinType: 'NATURAL'
+                },
+                interpolatorConfigs: [{
+                    dataType: 'numeric',
+                    fillPolicy: 'NAN',
+                    realFillPolicy: 'NONE'
+                }],
+                variableInterpolators: {},
+                sources: sources[aggregators[j]]
+            };
+            queries.push(expression);
+            eids.push(eid);
+        }
+        return { queries: queries, eids: eids };
     }
 
     transformFilters(fConfigs) {

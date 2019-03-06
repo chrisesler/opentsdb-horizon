@@ -114,7 +114,8 @@
                 <mat-drawer-content class="router-outlet" fxLayout="column" fxFlex="1 1 100%" fxFlexFill>
                     <app-navbar fxFlex="1 1 48px" [mediaQuery]="activeMediaQuery" (sidenavToggle)="sidenavToggle()" fxLayout fxLayoutAlign="stretch stretch" fxFlexFill></app-navbar>
                     <!-- THE ENTIRE APP CONTENT FLOWS THROUGH HERE -->
-                    <ng-content></ng-content>
+                    <!--<ng-content></ng-content>-->
+                    <router-outlet></router-outlet>
                 </mat-drawer-content>
             </mat-drawer-container>
         </mat-sidenav-content>

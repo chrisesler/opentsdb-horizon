@@ -17,7 +17,7 @@ export const environment = {
   ],
   // configdb: 'https://stg-horizonapi.yamas.ouroath.com:4443/api/v1',
   // QA Server for testing
-  configdb: 'https://qa-horizonapi.yamas.ouroath.com:4443/api/v1',
+  configdb: 'https://stg-config.yamas.ouroath.com:4443/api/v1',
   // metaApi: 'https://tsdbr-20-gq1.yamas.ouroath.com:4443/api'
   metaApi: 'https://meta.yamas.ouroath.com:443/api'
 };
