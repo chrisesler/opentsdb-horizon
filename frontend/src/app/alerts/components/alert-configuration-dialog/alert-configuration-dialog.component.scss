@@ -1,0 +1,161 @@
+@mixin alert-configuration-dialog-component-base() {
+
+    .alert-configuration-dialog-component {
+        display: flex;
+        flex: 1;
+        height: 100%;
+        max-height: 100%;
+
+        // top level wrapper - basically .mat-card
+        .alert-configuration-wrapper {
+            border-radius: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            height: 100%;
+            max-height: 100%;
+
+            .mat-card-header {
+                &,
+                .mat-toolbar {
+                    height: 48px;
+                }
+            }
+
+            .mat-card-header-text {
+                display: none;
+            }
+
+            .mat-card-content {
+                padding: 0;
+                flex: 1;
+                margin-bottom: 0;
+            }
+
+            .mat-card-actions {
+                padding: 0 16px;
+                max-width: 100%;
+                width: 100%;
+                height: 60px;
+                margin-left: 0;
+                margin-right: 0;
+                margin-bottom: 0;
+                display: flex;
+                align-items: center;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                .mat-button,
+                .mat-flat-button,
+                .mat-stroked-button {
+                    &:not(:last-child) {
+                        margin-right: 6px;
+                    }
+                }
+            }
+        }
+
+        // content area wrapper 
+        .mat-card-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        // preview area - graph and legend
+        .preview-wrapper {
+            padding: 8px 16px;
+            min-height: 300px;
+            display: flex;
+
+            .graph-wrapper,
+            .legend-wrapper {
+                flex: 1;
+                display: flex;
+            }
+
+            .graph-wrapper {
+                .graph-output {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+
+            .legend-wrapper {
+                margin-left: 16px;
+            }
+        }
+
+        // configuration area - config controls
+        .controls-wrapper {
+            padding: 8px 0;
+
+            
+        }
+
+        // stepper component - should be horizontal stepper
+        .alert-stepper {
+            .mat-horizontal-stepper-header-container {
+
+                .mat-stepper-horizontal-line {
+                    flex: 1 1 60px;
+                    max-width: 60px;
+                }
+            }
+        }
+    }
+
+
+
+    // CDK ITEMS
+    .alert-configuration-dialog-panel {
+        //background-color: pink;
+        
+        .mat-dialog-container {
+            display: flex;
+            padding: 0;
+            border-radius: 0;
+        }
+    }
+}
+
+@mixin alert-configuration-dialog-component-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $widget: map-get($theme-config, widgets);
+    $is-dark: map-get($theme-config, is-dark);
+
+    .alert-configuration-dialog-component {
+
+        .alert-configuration-wrapper {
+
+            .mat-card-actions {
+                border-top: 1px solid map-get($foreground, divider);
+            }
+        }
+
+        .preview-wrapper {
+            .graph-wrapper {
+                .graph-output {
+                    background: map-get($foreground, divider);
+                }
+            }
+        }
+
+        // stepper component - should be horizontal stepper
+        .alert-stepper {
+            .mat-horizontal-stepper-header-container {
+                border-bottom: 1px solid map-get($foreground, divider);
+            }
+        }
+    }
+
+}

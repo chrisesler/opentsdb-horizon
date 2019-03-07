@@ -1,0 +1,89 @@
+<mat-card class="alert-configuration-wrapper mat-elevation-z0">
+    <mat-card-header>
+        <mat-toolbar color="primary">
+            <span>
+                <button mat-icon-button mat-dialog-close>
+                    <mat-icon fontSet="denali" fontIcon="d-share-arrow-solid"></mat-icon>
+                </button>
+            </span>
+            <span class="flex-spacer"></span>
+            <span>
+                <!-- time controls -->
+            </span>
+        </mat-toolbar>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="preview-wrapper">
+            <div class="graph-wrapper">
+                <div class="graph-output">
+                    <span>[ GRAPH HERE ]</span>
+                </div>
+            </div>
+            <div class="legend-wrapper">
+                legend
+            </div>
+        </div>
+        <div class="controls-wrapper">
+            <!--<nav mat-tab-nav-bar (selectedTabChange)="configTabChange($event)" mat-align-tabs="center">
+                <div class="alert-name-detail flex-spacer" #alertNameDetail>
+                    <div class="alert-name">{{data.alertName || ''}}</div>
+                </div>
+                <a mat-tab-link (click)="configTabChange(0)" [active]="activeTabIndex === 0">1. Queries</a>
+                <a mat-tab-link (click)="configTabChange(1)" [active]="activeTabIndex === 1">2. Threshold</a>
+                <a mat-tab-link (click)="configTabChange(2)" [active]="activeTabIndex === 2">3. Notification</a>
+                <div class="flex-balancer flex-spacer" #flexBalancer></div>
+            </nav>
+            <mat-tab-group [selectedIndex]="activeTabIndex">
+                <mat-tab>
+                    <h1>queries</h1>
+                </mat-tab>
+                <mat-tab>
+                    <h1>thresholds</h1>
+                </mat-tab>
+                <mat-tab>
+                    <h1>notification</h1>
+                </mat-tab>
+            </mat-tab-group>
+            <mat-horizontal-stepper linear="true" [@.disabled]="true" class="alert-stepper" #alertStepper>
+                <ng-template matStepperIcon="edit" let-index="index">
+                    <mat-icon>check_circle</mat-icon>
+                </ng-template>
+                <ng-template matStepperIcon="done">
+                    <mat-icon>check_circle</mat-icon>
+                </ng-template>
+                <ng-template matStepperIcon="number" let-index="index">
+                    {{index + 1}}
+                </ng-template>
+                <mat-step>
+                    <ng-template matStepLabel>Queries</ng-template>
+                    <p>Queries panel</p>
+                </mat-step>
+                <mat-step>
+                    <ng-template matStepLabel>Threshold</ng-template>
+                    <p>threshold panel</p>
+                </mat-step>
+                <mat-step>
+                    <ng-template matStepLabel>Notification</ng-template>
+                    <p>notification panel</p>
+                </mat-step>
+            </mat-horizontal-stepper>-->
+            <nav mat-tab-nav-bar (selectedTabChange)="configTabChange($event)" mat-align-tabs="center">
+                <div class="alert-name-detail flex-spacer" #alertNameDetail>
+                    <div class="namespace-name">Namespace: {{data.namespace || ''}}</div>
+                    <div class="alert-name">{{data.alertName || ''}}</div>
+                </div>
+                <a mat-tab-link (click)="configTabChange(0)" [active]="activeTabIndex === 0">1. Queries</a>
+                <a mat-tab-link (click)="configTabChange(1)" [active]="activeTabIndex === 1">2. Threshold</a>
+                <a mat-tab-link (click)="configTabChange(2)" [active]="activeTabIndex === 2">3. Notification</a>
+                <div class="flex-balancer flex-spacer" #flexBalancer></div>
+            </nav>
+            <div class="alert-control-steps">
+                controls
+            </div>
+        </div>
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-flat-button color="primary">Save Alert</button>
+        <button mat-stroked-button mat-dialog-close color="primary">Cancel</button>
+    </mat-card-actions>
+</mat-card>
