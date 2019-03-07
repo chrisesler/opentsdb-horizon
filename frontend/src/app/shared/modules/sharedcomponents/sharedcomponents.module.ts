@@ -54,6 +54,7 @@ import { TagAggregatorComponent } from './components/tag-aggregator/tag-aggregat
 import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.component';
 import { WidgetConfigSortingComponent } from './components/widget-config-sorting/widget-config-sorting.component';
 import { ConditionalFormatterComponent } from './components/conditional-formatter/conditional-formatter.component';
+import { QueryEditorProtoComponent } from './components/query-editor-proto/query-editor-proto.component';
 
 @NgModule({
     imports: [
@@ -104,7 +105,8 @@ import { ConditionalFormatterComponent } from './components/conditional-formatte
         TagAggregatorComponent,
         TagGroupbyComponent,
         WidgetConfigSortingComponent,
-        ConditionalFormatterComponent
+        ConditionalFormatterComponent,
+        QueryEditorProtoComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
