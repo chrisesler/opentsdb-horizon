@@ -24,6 +24,7 @@ export class DatatranformerService {
     let vMetricsLen = 0;
     let vAutoColorMetricsLen = 0;
     let dict = {};
+    let yMax=0, y2Max = 0;
     for (let qid in result) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
         const mConfigs = gConfig ? gConfig.metrics : [];
@@ -56,6 +57,13 @@ export class DatatranformerService {
                             aggData[aggs[k]] = data[k];
                         }
                         dict[qid][mid]['summarizer'][hash] = aggData;
+                        const mIndex = mid.replace( /\D+/g, '');
+                        const mvConfig = mvConfigs[mIndex].settings.visual;
+                        if ( !mvConfig.axis || mvConfig.axis === 'y1' ) {
+                            yMax = yMax < aggData['max'] ? aggData['max'] : yMax;
+                        } else {
+                            y2Max = y2Max < aggData['max'] ? aggData['max'] : y2Max;
+                        }
                     }
                 } else {
                     dict[qid][mid]['values'] = {}; // queryResults.data;
@@ -70,6 +78,9 @@ export class DatatranformerService {
             }
         }
     }
+    options.axes.y.tickFormat.max = yMax;
+    options.axes.y2.tickFormat.max = y2Max;
+    
     /*
     for (let qid in dict) {
         for(let mid in dict[qid]) {
@@ -152,6 +163,7 @@ export class DatatranformerService {
             
         }
     }
+
     //*/    
     return [...normalizedData];
   }

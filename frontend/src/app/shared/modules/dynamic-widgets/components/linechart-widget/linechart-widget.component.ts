@@ -66,9 +66,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         axes: {
             y: {
                 valueRange: [null, null],
+                tickFormat: {}
             },
             y2: {
                 valueRange: [null, null],
+                tickFormat: {},
                 drawGrid: true,
                 independentTicks: true
             }
@@ -365,12 +367,10 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
             const chartAxisID = axisKeys[i] === 'y1' ? 'y' : axisKeys[i] === 'y2' ? 'y2' : 'x';
             const axis = this.options.axes[chartAxisID];
             if ( !isNaN( config.min ) ) {
-                const oUnit = this.unit.getDetails(config.unit);
-                axis.valueRange[0] = oUnit ? config.min * oUnit.m : config.min;
+                axis.valueRange[0] =  config.min;
             }
             if ( !isNaN( config.max ) ) {
-                const oUnit = this.unit.getDetails(config.unit);
-                axis.valueRange[1] = oUnit ? config.max * oUnit.m : config.max;
+                axis.valueRange[1] = config.max;
             }
 
             if (  axisKeys[i] === 'y1' || axisKeys[i] === 'y2' ) {
@@ -408,11 +408,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
             }
 
             const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 2 : config.decimals;
-            if ( config.unit ) {
-                axis.tickFormat = { unit: config.unit, precision: decimals, unitDisplay: true };
-            } else {
-                axis.digitsAfterDecimal = decimals;
-            }
+            const unit = config.unit ? config.unit : 'auto';
+            axis.tickFormat = { unit: unit, precision: decimals, unitDisplay: true };
         }
 
         // draw the axis if one series on the axis

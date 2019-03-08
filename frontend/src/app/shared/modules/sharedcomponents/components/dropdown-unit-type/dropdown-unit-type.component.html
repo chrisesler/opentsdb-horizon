@@ -1,51 +1,51 @@
 <mat-form-field class="has-right-items" appearance="fill" floatLabel="never">
-    <input matInput #unitBox placeholder="Enter Unit" [matMenuTriggerFor]="menu" value="{{selectedUnit}}"
-        (keyup)="KeyedOnUnitInputBox(customUnit.value)" (click)="onMenuOpen()">
-    <mat-menu #menu="matMenu">
-        <button mat-menu-item [matMenuTriggerFor]="time">Time</button>
-        <button mat-menu-item [matMenuTriggerFor]="binaryData">Data (Binary)</button>
-        <button mat-menu-item [matMenuTriggerFor]="decimalData">Data (Decimal)</button>
-        <button mat-menu-item [matMenuTriggerFor]="dataRate">Data Rate</button>
-        <button mat-menu-item [matMenuTriggerFor]="throughput">Throughput</button>
-        <button mat-menu-item [matMenuTriggerFor]="currency">Currency</button>
-        <button mat-menu-item (click)="KeyedOnUnitInputBox('auto')">Auto</button>
-        <div mat-menu-item class="custom-unit-menu-item" (click)="stopPropagation($event)">
-            <mat-form-field class="has-right-items">
-                <mat-label>Custom Unit</mat-label>
-                <input matInput class="custom-unit-input" id="custom-unit" placeholder="Enter a custom unit" (keyup)="KeyedOnUnitInputBox(customUnit.value)"
-                    (keyup.enter)="customUnitEntered()" #customUnit>
-            </mat-form-field>
-        </div>
+        <input matInput #unitBox placeholder="Select Unit" [matMenuTriggerFor]="menu" [value]="getUnitLabel(unit)"
+            (keyup)="KeyedOnUnitInputBox(unitBox.value)" readonly>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item [matMenuTriggerFor]="time">Time</button>
+            <button mat-menu-item [matMenuTriggerFor]="binaryData">Data - IEC (1024 Base)</button>
+            <button mat-menu-item [matMenuTriggerFor]="decimalData">Data - SI (1000 Base)</button>
+            <button mat-menu-item [matMenuTriggerFor]="binaryDataRate">Data Rate - IEC (1024 Base)</button>
+            <button mat-menu-item [matMenuTriggerFor]="decimalDataRate">Data Rate - SI (1000 Base)</button>
+            <button mat-menu-item [matMenuTriggerFor]="currency">Currency</button>
+            <button mat-menu-item (click)="KeyedOnUnitInputBox('auto')">Auto</button>
+            <div mat-menu-item class="custom-unit-menu-item" (click)="$event.stopPropagation();">
+                    <mat-form-field class="has-right-items">
+                        <mat-label>Custom Unit</mat-label>
+                        <input matInput #customUnit class="custom-unit-input" id="custom-unit" placeholder="Enter a custom unit" (keyup)="KeyedOnUnitInputBox(customUnit.value);"
+                            (keyup.enter)="customUnitEntered()">
+                    </mat-form-field>
+            </div>
 
-        <mat-menu #time="matMenu">
-            <button mat-menu-item *ngFor="let unit of timeUnits" (click)="KeyedOnUnitInputBox(unit)">
-                {{unit}}
-            </button>
+            <mat-menu #time="matMenu">
+                <button mat-menu-item *ngFor="let unit of timeUnits | keyvalue" (click)="KeyedOnUnitInputBox(unit.value)">
+                    {{units['timeUnits'][unit.value]}}
+                </button>
+            </mat-menu>
+            <mat-menu #binaryData="matMenu">
+                <button mat-menu-item *ngFor="let unit of binaryDataUnitsKeys" (click)="KeyedOnUnitInputBox(unit)">
+                    {{units['binaryDataUnits'][unit]}}
+                </button>
+            </mat-menu>
+            <mat-menu #decimalData="matMenu">
+                <button mat-menu-item *ngFor="let unit of decimalDataUnitsKeys" (click)="KeyedOnUnitInputBox(unit)">
+                    {{units['decimalDataUnits'][unit]}}
+                </button>
+            </mat-menu>
+            <mat-menu #binaryDataRate="matMenu">
+                <button mat-menu-item *ngFor="let unit of binaryDataRateKeys" (click)="KeyedOnUnitInputBox(unit)">
+                    {{units['binaryDataRateUnits'][unit]}}
+                </button>
+            </mat-menu>
+            <mat-menu #decimalDataRate="matMenu">
+                <button mat-menu-item *ngFor="let unit of decimalDataRateKeys" (click)="KeyedOnUnitInputBox(unit)">
+                    {{units['decimalDataRateUnits'][unit]}}
+                </button>
+            </mat-menu>
+            <mat-menu #currency="matMenu">
+                <button mat-menu-item *ngFor="let unit of currencyUnits" (click)="KeyedOnUnitInputBox(unit)">
+                    {{unit}}
+                </button>
+            </mat-menu>
         </mat-menu>
-        <mat-menu #binaryData="matMenu">
-            <button mat-menu-item *ngFor="let unit of binaryDataUnits" (click)="KeyedOnUnitInputBox(unit)">
-                {{unit}}
-            </button>
-        </mat-menu>
-        <mat-menu #decimalData="matMenu">
-            <button mat-menu-item *ngFor="let unit of decimalDataUnits" (click)="KeyedOnUnitInputBox(unit)">
-                {{unit}}
-            </button>
-        </mat-menu>
-        <mat-menu #dataRate="matMenu">
-            <button mat-menu-item *ngFor="let unit of dataRateUnits" (click)="KeyedOnUnitInputBox(unit)">
-                {{unit}}
-            </button>
-        </mat-menu>
-        <mat-menu #throughput="matMenu">
-            <button mat-menu-item *ngFor="let unit of throughputUnits" (click)="KeyedOnUnitInputBox(unit)">
-                {{unit}}
-            </button>
-        </mat-menu>
-        <mat-menu #currency="matMenu">
-            <button mat-menu-item *ngFor="let unit of currencyUnits" (click)="KeyedOnUnitInputBox(unit)">
-                {{unit}}
-            </button>
-        </mat-menu>
-    </mat-menu>
-</mat-form-field>
+    </mat-form-field>

@@ -127,6 +127,7 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
             break;
         }
 
+        /*
         this.y1UnitSub = this.widgetConfigAxes.controls['y1']['controls'].unit.valueChanges.subscribe( function(unit) {
             const oUnit = this.widget.settings.axes && this.widget.settings.axes.y1 ? this.unit.getDetails(this.widget.settings.axes.y1.unit) : null;
             const nUnit = this.unit.getDetails(unit);
@@ -142,7 +143,8 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
                 this.widgetConfigAxes.controls['y1']['controls'].max.setValue(nUnit ? max / nUnit.m : max);
             }
         }.bind(this));
-
+        */
+        /*
         if ( this.widget.settings.component_type === 'LinechartWidgetComponent' ) {
             this.y2UnitSub = this.widgetConfigAxes.controls['y2']['controls'].unit.valueChanges.subscribe( function(unit) {
                 const oUnit = this.widget.settings.axes && this.widget.settings.axes.y2 ? this.unit.getDetails(this.widget.settings.axes.y2.unit) : null;
@@ -160,17 +162,16 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
                 }
             }.bind(this));
         }
+        */
 
         this.widgetConfigAxes_Sub = this.widgetConfigAxes.valueChanges
                                         // delay is required since we convert the min & max values to the respective unit size
                                         .pipe(debounceTime(500))
                                         .subscribe(function(data) {
-                                            console.log(" axes form data changed", data);
                                             // this.xAxisEnabled_label = (data.xAxisEnabled) ? 'enabled' : 'disabled';
                                             this.y1AxisEnabled_label = (data.y1.enabled) ? 'enabled' : 'disabled';
                                             this.y2AxisEnabled_label = (data.y2 && data.y2.enabled) ? 'enabled' : 'disabled';
                                             this.widgetChange.emit( {action: 'SetAxes', payload: { data: data }} );
-                                            console.log("this.y2AxisEnabled_label", this.y2AxisEnabled_label);
                                         }.bind(this));
     }
 
@@ -204,13 +205,34 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
         });
     }
 
+    setUnit(axis, unit) {
+        /*
+        if ( this.widget.settings.axes ) {
+            const oUnit = this.widget.settings.axes && this.widget.settings.axes[axis] ? this.unit.getDetails(this.widget.settings.axes[axis].unit) : null;
+                const nUnit = this.unit.getDetails(unit);
+                let min = this.widgetConfigAxes.controls[axis]['controls'].min.value.toString().trim();
+                let max = this.widgetConfigAxes.controls[axis]['controls'].max.value.toString().trim();
+
+                if ( min !== 'auto' && min !== '' ) {
+                    min = oUnit && oUnit.m  && nUnit && nUnit.m ? ( min * oUnit.m / nUnit.m ).toFixed(2) : min;
+                    this.widgetConfigAxes.controls[axis]['controls'].min.setValue(nUnit ? min / nUnit.m : min);
+                }
+                if ( max !== 'auto' && max !== '' ) {
+                    max = oUnit && oUnit.m  && nUnit && nUnit.m ? ( max * oUnit.m / nUnit.m ).toFixed(2) : max;
+                    this.widgetConfigAxes.controls[axis]['controls'].max.setValue( max);
+                }
+        }
+        */
+        this.widgetConfigAxes.controls[axis]['controls'].unit.setValue(unit);
+    }
+
     ngOnDestroy() {
         // destroy any subscriptions
         this.widgetConfigAxes_Sub.unsubscribe();
-        this.y1UnitSub.unsubscribe();
-        if ( this.y2UnitSub ) {
-            this.y2UnitSub.unsubscribe();
-        }
+        // this.y1UnitSub.unsubscribe();
+        // if ( this.y2UnitSub ) {
+            // this.y2UnitSub.unsubscribe();
+        //}
     }
 
     /* function to attach to unit dropdown component when it gets finished
