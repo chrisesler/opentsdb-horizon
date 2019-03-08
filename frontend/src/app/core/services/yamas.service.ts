@@ -163,11 +163,11 @@ export class YamasService {
                 const id = mid +   '-' + aggregators[j];
                 const dsId = id + '-downsample';
                 // add downsample for the expression
-                queries.push(this.getQueryDownSample(summaryOnly, downsample, aggregators[i], dsId, [mid]));
+                queries.push(this.getQueryDownSample(summaryOnly, downsample, aggregators[j], dsId, [mid]));
                 // add groupby for the expression
                 const groupbyId = id + '-groupby'  ;
                 //groupByIds.push(groupbyId);
-                queries.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator,  [dsId], groupbyId));
+                queries.push(this.getQueryGroupBy(query, query.metrics[index].tagAggregator,  [dsId], groupbyId));
                 if ( !sources[aggregators[j]] ) {
                     sources[aggregators[j]] = [];
                 }
