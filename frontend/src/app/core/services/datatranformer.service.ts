@@ -58,8 +58,8 @@ export class DatatranformerService {
                         }
                         dict[qid][mid]['summarizer'][hash] = aggData;
                         const mIndex = mid.replace( /\D+/g, '');
-                        const mvConfig = mvConfigs[mIndex].settings.visual;
-                        if ( !mvConfig.axis || mvConfig.axis === 'y1' ) {
+                        const mConfig = mConfigs[mIndex].settings.visual;
+                        if ( !mConfig.axis || mConfig.axis === 'y1' ) {
                             yMax = yMax < aggData['max'] ? aggData['max'] : yMax;
                         } else {
                             y2Max = y2Max < aggData['max'] ? aggData['max'] : y2Max;
