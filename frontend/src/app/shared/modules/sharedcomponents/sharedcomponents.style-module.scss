@@ -37,6 +37,7 @@
 @import 'components/conditional-formatter/conditional-formatter.component.scss';
 @import 'components/namespace-tag-autocomplete/namespace-tag-autocomplete.component.scss';
 @import 'components/widget-config-sorting/widget-config-sorting.component.scss';
+@import 'components/query-editor-proto/query-editor-proto.component';
 
 // widget common FIRST
 @import 'components/widget-config.common';
@@ -75,6 +76,7 @@
     @include query-editor-component-base();
     @include namespace-tag-autocomplete-component-base();
     @include conditional-formatter-component-base();
+    @include query-editor-proto-component-base();
 
 
     // WIDGET CONFIG ITEMS
@@ -114,6 +116,7 @@
     @include query-editor-component-theme($theme-config);
     @include namespace-tag-autocomplete-component-theme($theme-config);
     @include conditional-formatter-component-theme($theme-config);
+    @include query-editor-proto-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);

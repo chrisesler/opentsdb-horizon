@@ -137,7 +137,8 @@ import { QueryEditorProtoComponent } from './components/query-editor-proto/query
         InlineQueryEditorComponent,
         NamespaceTagValuesComponent,
         WidgetConfigSortingComponent,
-        ConditionalFormatterComponent
+        ConditionalFormatterComponent,
+        QueryEditorProtoComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,

@@ -261,8 +261,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     /** actions */
 
-    
-
     openSnoozeAlertDialog(alertObj: any) {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.autoFocus = false;
@@ -328,7 +326,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
             right: '0px'
         };*/
         dialogConf.data = {
-            alertType: alertType
+            alertType: alertType,
+            namespace: 'UDB', // TODO: make this smart
+            alertName: 'Untitled alerty thingy' // TODO: make this smart
         };
 
         this.createAlertDialog = this.dialog.open(AlertConfigurationDialogComponent, dialogConf);

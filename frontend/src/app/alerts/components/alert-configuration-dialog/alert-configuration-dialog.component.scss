@@ -90,23 +90,57 @@
             }
         }
 
-        // configuration area - config controls
-        .controls-wrapper {
-            padding: 8px 0;
+        // config toolbar
+        .config-toolbar.mat-toolbar {
+            background: transparent;
 
-            
-        }
+            .toolbar-item {
+                display: flex;
+            }
 
-        // stepper component - should be horizontal stepper
-        .alert-stepper {
-            .mat-horizontal-stepper-header-container {
-
-                .mat-stepper-horizontal-line {
-                    flex: 1 1 60px;
-                    max-width: 60px;
+            .alert-name-detail {
+                flex-direction: column;
+                .namespace {
+                    font-size: 10px;
                 }
             }
         }
+
+        // configuration area - config controls
+        .controls-wrapper {
+            padding: 0;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+
+            .alert-control-steps {
+                padding: 8px 0 0;
+                flex: 1;
+                overflow: auto;
+            }
+
+            .step-section {
+                margin-bottom: 8px;
+
+                .step-section-label {
+                    border-top: 1px solid #E0E0E0;
+                    
+                    .step-section-label-text {
+                        display: inline-block;
+                        padding: 2px 24px 2px 8px;
+                        background-color: #E0E0E0;
+                        border-bottom-right-radius: 20px 24px;
+                    }
+                }
+
+                .step-section-content {
+                    padding: 8px;
+                }
+            }
+        }
+
+
     }
 
 
@@ -150,11 +184,9 @@
             }
         }
 
-        // stepper component - should be horizontal stepper
-        .alert-stepper {
-            .mat-horizontal-stepper-header-container {
-                border-bottom: 1px solid map-get($foreground, divider);
-            }
+        .config-toolbar.mat-toolbar {
+            background: transparent;
+            border-bottom: 1px solid map-get($foreground, divider);
         }
     }
 

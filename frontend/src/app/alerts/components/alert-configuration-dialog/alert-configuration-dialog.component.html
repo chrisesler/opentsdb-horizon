@@ -24,61 +24,39 @@
             </div>
         </div>
         <div class="controls-wrapper">
-            <!--<nav mat-tab-nav-bar (selectedTabChange)="configTabChange($event)" mat-align-tabs="center">
-                <div class="alert-name-detail flex-spacer" #alertNameDetail>
-                    <div class="alert-name">{{data.alertName || ''}}</div>
+            <mat-toolbar class="config-toolbar">
+                <div class="toolbar-item alert-name-detail">
+                    <span class="namespace">Namespace: {{data.namespace}}</span>
+                    <span class="alert-name">{{data.alertName}}</span>
                 </div>
-                <a mat-tab-link (click)="configTabChange(0)" [active]="activeTabIndex === 0">1. Queries</a>
-                <a mat-tab-link (click)="configTabChange(1)" [active]="activeTabIndex === 1">2. Threshold</a>
-                <a mat-tab-link (click)="configTabChange(2)" [active]="activeTabIndex === 2">3. Notification</a>
-                <div class="flex-balancer flex-spacer" #flexBalancer></div>
-            </nav>
-            <mat-tab-group [selectedIndex]="activeTabIndex">
-                <mat-tab>
-                    <h1>queries</h1>
-                </mat-tab>
-                <mat-tab>
-                    <h1>thresholds</h1>
-                </mat-tab>
-                <mat-tab>
-                    <h1>notification</h1>
-                </mat-tab>
-            </mat-tab-group>
-            <mat-horizontal-stepper linear="true" [@.disabled]="true" class="alert-stepper" #alertStepper>
-                <ng-template matStepperIcon="edit" let-index="index">
-                    <mat-icon>check_circle</mat-icon>
-                </ng-template>
-                <ng-template matStepperIcon="done">
-                    <mat-icon>check_circle</mat-icon>
-                </ng-template>
-                <ng-template matStepperIcon="number" let-index="index">
-                    {{index + 1}}
-                </ng-template>
-                <mat-step>
-                    <ng-template matStepLabel>Queries</ng-template>
-                    <p>Queries panel</p>
-                </mat-step>
-                <mat-step>
-                    <ng-template matStepLabel>Threshold</ng-template>
-                    <p>threshold panel</p>
-                </mat-step>
-                <mat-step>
-                    <ng-template matStepLabel>Notification</ng-template>
-                    <p>notification panel</p>
-                </mat-step>
-            </mat-horizontal-stepper>-->
-            <nav mat-tab-nav-bar (selectedTabChange)="configTabChange($event)" mat-align-tabs="center">
-                <div class="alert-name-detail flex-spacer" #alertNameDetail>
-                    <div class="namespace-name">Namespace: {{data.namespace || ''}}</div>
-                    <div class="alert-name">{{data.alertName || ''}}</div>
-                </div>
-                <a mat-tab-link (click)="configTabChange(0)" [active]="activeTabIndex === 0">1. Queries</a>
-                <a mat-tab-link (click)="configTabChange(1)" [active]="activeTabIndex === 1">2. Threshold</a>
-                <a mat-tab-link (click)="configTabChange(2)" [active]="activeTabIndex === 2">3. Notification</a>
-                <div class="flex-balancer flex-spacer" #flexBalancer></div>
-            </nav>
+            </mat-toolbar>
             <div class="alert-control-steps">
-                controls
+                <div class="step-section queries-section">
+                    <div class="step-section-label">
+                        <span class="step-section-label-text">1. Queries</span>
+                    </div>
+                    <div class="step-section-content">
+                        <!-- LOOP OF QUERY ITEMS 
+                             NOTE: this component has INPUTS... just none now while developing -->
+                        <query-editor-proto [label]="'Q1'" [query]="fakeQuery"></query-editor-proto> 
+                    </div>
+                </div>
+                <div class="step-section threshold-section">
+                    <div class="step-section-label">
+                        <span class="step-section-label-text">2. Threshold</span>
+                    </div>
+                    <div class="step-section-content">
+                        [bunch of form controls here]
+                    </div>
+                </div>
+                <div class="step-section notification-section">
+                    <div class="step-section-label">
+                        <span class="step-section-label-text">3. Notification</span>
+                    </div>
+                    <div class="step-section-content">
+                        [bunch of form controls here]
+                    </div>
+                </div>
             </div>
         </div>
     </mat-card-content>

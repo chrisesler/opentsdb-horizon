@@ -9,13 +9,12 @@ import {
     AfterViewInit
 } from '@angular/core';
 
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 
 import {
     MatDialog,
     MatDialogConfig,
     MatDialogRef,
-    DialogPosition,
     MAT_DIALOG_DATA
 } from '@angular/material';
 
@@ -36,15 +35,35 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     nameAlertDialog: MatDialogRef<NameAlertDialogComponent> | null;
 
     data: any = {
-        alertName: ''
+        namespace: 'UDB',
+        alertName: 'Untitled Alert',
+        queries: []
+    };
+
+    // TODO: remove this
+    fakeQuery: any = {
+        namespace: 'udb',
+        metrics: [
+            {
+                name: 'udb.metricThing.someMetric'
+            },
+            {
+                name: 'udb.metricThing.someMetricThing'
+            },
+            {
+                name: 'udb.metricThing.someMetricOverThere'
+            }
+        ],
+        filters: [],
+        settings: {
+            visual: {
+                visible: true
+            }
+        }
     };
 
     alertName: FormControl = new FormControl('');
 
-    @ViewChild('alertNameDetail', {read: ElementRef}) alertNameDetailRef: ElementRef;
-
-    // tslint:disable-next-line:no-inferrable-types
-    flexBalancerWidth: number = 0;
 
     subs: any = {};
 
@@ -60,19 +79,13 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         if (this.data.alertName) {
             this.alertName.setValue(this.data.alertName);
         }
-
-        this.subs.alertName = this.alertName.valueChanges.subscribe(value => {
-            console.log('alertNameChange', value);
-
-            // setTimeout(() => this.measureDetailForBalancer(), 200);
-        });
     }
 
     ngOnInit() {
         if (!this.data.alertName || this.data.alertName === '') {
             // have to use setTimeout due to some issue when opening mat-dialog from a lifecycle hook.
             // see: https://github.com/angular/material2/issues/5268
-            setTimeout(() => this.openAlertNameDialog());
+            // setTimeout(() => this.openAlertNameDialog());
         }
     }
 
@@ -85,17 +98,12 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     }
 
     /** Events */
-    configTabChange(index: any) {
+    /*configTabChange(index: any) {
         console.log('CONFIG TAB CHANGE', index);
         this.activeTabIndex = index;
-    }
+    }*/
 
     /** Privates */
-    private measureDetailForBalancer() {
-        const elRef = this.alertNameDetailRef.nativeElement.getBoundingClientRect();
-        this.flexBalancerWidth = Math.floor(elRef.width);
-        console.log('MEASURE DETAIL FOR BALANCER', elRef);
-    }
 
     private openAlertNameDialog() {
         const dialogConf: MatDialogConfig = new MatDialogConfig();

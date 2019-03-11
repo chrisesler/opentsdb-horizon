@@ -1,3 +1,59 @@
-<p>
-  query-editor-proto works!
-</p>
+<mat-toolbar class="namespace-bar"
+    [ngClass]="{'is-expanded': query.namespace || query.metrics.length || query.filters.length}">
+    <div class="toolbar-item query-index">
+        <span>{{ label }}</span>
+    </div>
+    <div class="toolbar-item">
+        <span class="title"> Namespace </span>
+    </div>
+    <div class="toolbar-item">
+        <span class="namespace-value" *ngIf="!editNamespace" (click)="editNamespace=true;">
+            {{ query.namespace }}
+        </span>
+    </div>
+    <div class="toolbar-item">
+        <span class="value" *ngIf="editNamespace || !query.namespace.trim() ">
+            <namespace-autocomplete [value]="query.namespace" (nschange)="saveNamespace($event)" (blur)="cancelSaveNamespace($event)"></namespace-autocomplete>
+        </span>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="toolbar-item action-icons" *ngIf="!edit.length">
+        <button mat-icon-button color="primary" (click)="toggleQuery(); $event.stopPropagation();">
+            <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
+            <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
+        </button>
+        <button mat-icon-button color="primary" (click)="deleteQuery(); $event.stopPropagation();">
+            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+        </button>
+    </div>
+</mat-toolbar>
+<div class="metric-wrapper">
+    <!-- CONTAINER FOR THE METRICS-->
+    <div class="metric-list-wrapper">
+        <!-- LOOP THROUGH METRICS 
+             SECOND COLUMN IS EMPTY TO BE ABLE TO TAKE THE ABSOLUTE POSITIONED COMMON TAGS BOX -->
+        <div class="metric-list-item" *ngFor="let metric of query.metrics; let i = index;">
+            <div class="metric-row-data metric-name">
+                <span>{{metric.name}}</span>
+            </div>
+            <div class="metric-row-data tag-spacer"><!--SPACER--></div>
+            <div class="metric-row-data">
+                <span>GROUP BY</span>
+            </div>
+            <div class="metric-row-data">
+                <span>ANOTHER ONE</span>
+            </div>
+            <div class="add-function" (click)="addFunction()">
+                <button mat-mini-fab color="primary">
+                    <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon> 
+                </button> 
+            </div>
+        </div>
+       
+    </div>
+    <!-- THIS IS THE TOP TO BOTTOM CONTAINER FOR THE COMMON TAGS
+         IT WILL BE POSITIONED ABSOLUTE -->
+    <div class="common-tag-wrapper">
+        some sort of common tag editor
+    </div>
+</div>
