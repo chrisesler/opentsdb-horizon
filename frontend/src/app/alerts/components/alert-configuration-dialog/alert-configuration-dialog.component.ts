@@ -44,6 +44,11 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
     nameAlertDialog: MatDialogRef<NameAlertDialogComponent> | null;
 
+    contactsFocused: boolean = false;
+    addContact: string = 'existing';
+    contacts: string = '';
+    lastContactName: string = '';
+
     data: any = {
         namespace: 'UDB',
         alertName: 'Untitled Alert',
@@ -274,6 +279,56 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 this.dialogRef.close();
             }
         });
+    }
+
+    focusFunction() {
+        this.contactsFocused = true;
+    }
+
+    focusOutFunction() {
+        this.contactsFocused = false;
+        this.addContact = 'existing';
+    }
+
+    addGroup() {
+        this.addContact = 'group';
+    }
+
+    addSlack() {
+        this.addContact = 'slack';
+    }
+
+    addOpsGenie() {
+        this.addContact = 'opsgenie';
+    }
+
+    addToContacts(contact: string) {
+
+        if (!this.contacts) {
+            this.contacts = contact;
+        } else {
+            this.contacts = this.contacts + ', ' + contact;
+        }
+    }
+
+    latestContactName(name: string) {
+        this.lastContactName = name;
+
+    }
+
+    addGroupContact() {
+        this.addToContacts(this.lastContactName);
+        this.focusOutFunction();
+    }
+
+    addOpsGenieContact() {
+        this.addToContacts(this.lastContactName);
+        this.focusOutFunction();
+    }
+
+    addSlackContact() {
+        this.addToContacts(this.lastContactName);
+        this.focusOutFunction();
     }
 
 }
