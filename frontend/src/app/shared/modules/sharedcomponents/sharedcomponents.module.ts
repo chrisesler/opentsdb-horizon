@@ -125,6 +125,7 @@ import { ConditionalFormatterComponent } from './components/conditional-formatte
         ColorPickerModule,
         InlineEditableComponent,
         DropdownLineWeightComponent,
+        DropdownUnitTypeComponent,
         NavbarUserMenuComponent,
         NavbarInfoMenuComponent,
         NavbarTimezoneToggleComponent,

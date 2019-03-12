@@ -1,6 +1,5 @@
 import { Component, OnInit, HostBinding, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material';
-import { UnitNormalizerService, IBigNum } from '../../../../services/unit-normalizer.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -88,7 +87,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     // tslint:disable-next-line:no-inferrable-types
     prefixDisabled: boolean = true;
 
-    constructor(public UN: UnitNormalizerService) { }
+    constructor() { }
 
     ngOnInit() {
         // this.selectedMetric = this.widget;
@@ -134,11 +133,11 @@ export class BignumberVisualAppearanceComponent implements OnInit {
     */
 
     // Unit
-    KeyedOnUnitInputBox(value: string) {
+    setUnit(value: string) {
         this.widget.settings.visual['unit'] = value;
-        this.widget.settings.visual['unitUndercased'] =
-            this.isStringOnlyLowercasedLetters(this.UN.getBigNumber(this.widget.settings.visual['bigNumber'],
-            this.widget.settings.visual['unit']).unit);
+        //this.widget.settings.visual['unitUndercased'] =
+        //    this.isStringOnlyLowercasedLetters(this.UN.getBigNumber(this.widget.settings.visual['bigNumber'],
+        //    this.widget.settings.visual['unit']).unit);
         this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
     }
 

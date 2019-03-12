@@ -139,5 +139,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
         this.widgetChange.emit( {'action': 'SetVisualConditions', payload: { data: conditions}});
     }
 
-
+    setUnit( value ) {
+        this.widgetChange.emit( {'action': 'SetUnit', payload: { data: value}});    
+    }
 }
