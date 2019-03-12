@@ -119,14 +119,15 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                         break;
                 }
             }        });
-
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        if (!this.editMode) {
-            this.requestData();
-        } else {
-            this.requestCachedData();
-        }
+        setTimeout(()=>{
+            if (!this.editMode) {
+                this.requestData();
+            } else {
+                this.requestCachedData();
+            }
+        },0);
     }
   ngAfterViewInit() {
     this.setBigNumber(this.widget.settings.visual.queryID);
