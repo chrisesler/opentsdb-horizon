@@ -46,8 +46,33 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
     contactsFocused: boolean = false;
     addContact: string = 'existing';
-    contacts: string = '';
+    contactsAsString: string = '';
     lastContactName: string = '';
+
+    exisitingContacts: any = [
+        {
+            name: 'prod',
+            type: 'Group',
+            isSelected: false
+        },
+        {
+            name: 'dev-team',
+            type: 'OpsGenie',
+            isSelected: false
+        },
+        {
+            name: 'yamas-devel',
+            type: 'Slack',
+            isSelected: false
+        },
+        {
+            name: 'yamas-devel@verizonmedia.com',
+            type: 'Email',
+            isSelected: false
+        }
+    ];
+
+    selectedContacts: any = [];
 
     data: any = {
         namespace: 'UDB',
@@ -290,6 +315,11 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.addContact = 'existing';
     }
 
+    viewExistingContacts() {
+        this.contactsFocused = true;
+        this.addContact = 'existing';
+    }
+
     addGroup() {
         this.addContact = 'group';
     }
@@ -302,12 +332,14 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.addContact = 'opsgenie';
     }
 
-    addToContacts(contact: string) {
+    addToContacts(contact: any) {
+        this.setContactAsSelected(contact, true);
+        this.selectedContacts.push(contact);
 
-        if (!this.contacts) {
-            this.contacts = contact;
+        if (!this.contactsAsString) {
+            this.contactsAsString = contact.name;
         } else {
-            this.contacts = this.contacts + ', ' + contact;
+            this.contactsAsString = this.contactsAsString + ', ' + contact.name;
         }
     }
 
@@ -317,18 +349,90 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     }
 
     addGroupContact() {
-        this.addToContacts(this.lastContactName);
-        this.focusOutFunction();
+        // tslint:disable-next-line:prefer-const
+        let contact: any = {};
+        contact.name = this.lastContactName;
+        contact.type = 'Group';
+        contact.isSelected = false;
+        this.addToExistingContacts(contact);
+        this.viewExistingContacts();
     }
 
     addOpsGenieContact() {
-        this.addToContacts(this.lastContactName);
-        this.focusOutFunction();
+        let contact: any = {};
+        contact.name = this.lastContactName;
+        contact.type = 'OpsGenie';
+        contact.isSelected = false;
+        this.addToExistingContacts(contact);
+        this.viewExistingContacts();
     }
 
     addSlackContact() {
-        this.addToContacts(this.lastContactName);
-        this.focusOutFunction();
+        let contact: any = {};
+        contact.name = this.lastContactName;
+        contact.type = 'Slack';
+        contact.isSelected = false;
+        this.addToExistingContacts(contact);
+        this.viewExistingContacts();
+    }
+
+    getGroupContacts(): any[] {
+        // console.log(this.getContacts('Group'));
+        return this.getContacts('Group');
+    }
+
+    getOpsGenieContacts(): any[] {
+        return this.getContacts('OpsGenie');
+    }
+
+    getEmailContacts(): any[] {
+        return this.getContacts('Email');
+    }
+
+    getSlackContacts(): any[] {
+        return this.getContacts('Slack');
+    }
+
+    getContacts(type: string): any[] {
+        // tslint:disable-next-line:prefer-const
+        let contacts = [];
+        // tslint:disable-next-line:prefer-const
+        for (let contact of this.exisitingContacts) {
+            if (contact.type === type) {
+                contacts.push(contact);
+            }
+        }
+        return contacts;
+    }
+
+    addToExistingContacts(contact: any) {
+        // contact.isSelected = false;
+        this.exisitingContacts.push(contact);
+    }
+
+    setContactAsSelected(contact: any, isSelected) {
+        for (let _contact of this.exisitingContacts) {
+            if (_contact.name === contact.name && _contact.type === contact.type) {
+                _contact.isSelected = isSelected;
+            }
+        }
+    }
+
+    onContactChange(str: string) {
+        this.contactsAsString = str;
+        const contacts: string[] = str.split(',');
+
+        for (let contact of this.exisitingContacts) {
+            contact.isSelected = false;
+        }
+
+        for (let _contact of contacts) {
+            for (let contact of this.exisitingContacts) {
+                if (_contact.trim() === contact.name ) {
+                    contact.isSelected = true;
+                }
+            }
+        }
     }
 
 }
