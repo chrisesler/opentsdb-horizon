@@ -1,0 +1,67 @@
+<mat-card class="alert-configuration-wrapper mat-elevation-z0">
+    <mat-card-header>
+        <mat-toolbar color="primary">
+            <span>
+                <button mat-icon-button mat-dialog-close>
+                    <mat-icon fontSet="denali" fontIcon="d-share-arrow-solid"></mat-icon>
+                </button>
+            </span>
+            <span class="flex-spacer"></span>
+            <span>
+                <!-- time controls -->
+            </span>
+        </mat-toolbar>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="preview-wrapper">
+            <div class="graph-wrapper">
+                <div class="graph-output">
+                    <span>[ GRAPH HERE ]</span>
+                </div>
+            </div>
+            <div class="legend-wrapper">
+                legend
+            </div>
+        </div>
+        <div class="controls-wrapper">
+            <mat-toolbar class="config-toolbar">
+                <div class="toolbar-item alert-name-detail">
+                    <span class="namespace">Namespace: {{data.namespace}}</span>
+                    <span class="alert-name">{{data.alertName}}</span>
+                </div>
+            </mat-toolbar>
+            <div class="alert-control-steps">
+                <div class="step-section queries-section">
+                    <div class="step-section-label">
+                        <span class="step-section-label-text">1. Queries</span>
+                    </div>
+                    <div class="step-section-content">
+                        <!-- LOOP OF QUERY ITEMS 
+                             NOTE: this component has INPUTS... just none now while developing -->
+                        <query-editor-proto [label]="'Q1'" [query]="fakeQuery"></query-editor-proto> 
+                    </div>
+                </div>
+                <div class="step-section threshold-section">
+                    <div class="step-section-label">
+                        <span class="step-section-label-text">2. Threshold</span>
+                    </div>
+                    <div class="step-section-content">
+                        [bunch of form controls here]
+                    </div>
+                </div>
+                <div class="step-section notification-section">
+                    <div class="step-section-label">
+                        <span class="step-section-label-text">3. Notification</span>
+                    </div>
+                    <div class="step-section-content">
+                        [bunch of form controls here]
+                    </div>
+                </div>
+            </div>
+        </div>
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-flat-button color="primary">Save Alert</button>
+        <button mat-stroked-button mat-dialog-close color="primary">Cancel</button>
+    </mat-card-actions>
+</mat-card>

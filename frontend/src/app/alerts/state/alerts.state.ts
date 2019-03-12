@@ -1,7 +1,6 @@
 import {
     State,
     StateContext,
-    Store,
     Action,
     Selector,
     createSelector
@@ -9,20 +8,15 @@ import {
 
 import {
     map,
-    tap,
-    catchError,
-    reduce
+    catchError
 } from 'rxjs/operators';
 
 import { HttpService } from '../../core/http/http.service';
 import { AlertsService } from '../services/alerts.service';
 
-import { environment } from '../../../environments/environment';
-
+import { LoggerService } from '../../core/services/logger.service';
 
 import * as moment from 'moment';
-import { Moment } from 'moment';
-
 
 export interface AlertModel {
     id: number;
@@ -122,6 +116,7 @@ export class ASsetSelectedNamespace {
 
 export class AlertsState {
     constructor(
+        private logger: LoggerService,
         private httpService: HttpService,
         private alertsService: AlertsService
     ) { }
@@ -191,48 +186,6 @@ export class AlertsState {
      * UTILS
      **************************/
 
-    stateLog(title: string, params?: any) {
-        if (environment.production) { return; }
-        if (params) {
-            console.group(
-                '%cDashboardNavigatorState%c' + title,
-                'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
-                'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
-            );
-            console.log('%cParams', 'font-weight: bold;', params);
-            console.groupEnd();
-        } else {
-            console.log(
-                '%cDashboardNavigatorState%c' + title,
-                'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
-                'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
-            );
-        }
-    }
-
-    stateError(title: string, error: any) {
-        if (environment.production) { return; }
-        console.group(
-            '%cDashboardNavigatorState [ERROR]%c' + title,
-            'color: white; background-color: red; padding: 4px 8px; font-weight: bold;',
-            'color: red; padding: 4px 8px; border: 1px solid red;'
-        );
-        console.log('%cErrorMsg', 'font-weight: bold;', error);
-        console.groupEnd();
-    }
-
-    stateSuccess(title: string, response: any) {
-        if (environment.production) { return; }
-        console.group(
-            '%cDashboardNavigatorState [SUCCESS]%c' + title,
-            'color: white; background-color: green; padding: 4px 8px; font-weight: bold;',
-            'color: green; padding: 4px 8px; border: 1px solid green;',
-            response
-        );
-        console.log('%cResponse', 'font-weight: bold;', response);
-        console.groupEnd();
-    }
-
     sortByName(a: any, b: any) {
         // console.log('SORT BY NAME', a, b);
         const aName = a.name.toLowerCase().trim();
@@ -247,7 +200,7 @@ export class AlertsState {
 
     @Action(ASloadUserNamespaces)
     getUserNamspaces(ctx: StateContext<AlertsStateModel>, { options }: ASloadUserNamespaces) {
-        this.stateLog('Load user namespaces', { options });
+        this.logger.state('AlertsState :: Load user namespaces', { options });
         const state = ctx.getState();
         if (!state.loaded.userNamespaces) {
             ctx.patchState({ loading: true });
@@ -263,7 +216,7 @@ export class AlertsState {
 
     @Action(ASloadUserNamespacesSuccess)
     loadUserNamspacesSuccess(ctx: StateContext<AlertsStateModel>, { response, options }: ASloadUserNamespacesSuccess) {
-        this.stateSuccess('Load user namespaces success', { response, options });
+        this.logger.success('AlertsState :: Load user namespaces success', { response, options });
         const state = ctx.getState();
         const loaded = { ...state.loaded };
         const actionResponse: any = {};
@@ -287,7 +240,7 @@ export class AlertsState {
 
     @Action(ASloadUserNamespacesFail)
     loadUserNamspacesFail(ctx: StateContext<AlertsStateModel>, { error, options }: ASloadUserNamespacesFail) {
-        this.stateError('Load user namespaces errors', { error, options });
+        this.logger.error('AlertsState :: Load user namespaces errors', { error, options });
         const state = ctx.getState();
 
         ctx.setState({
@@ -299,7 +252,7 @@ export class AlertsState {
 
     @Action(ASsetSelectedNamespace)
     setSelectedNamespace(ctx: StateContext<AlertsStateModel>, { selectedNamespace, options }: ASsetSelectedNamespace) {
-        this.stateError('Load user namespaces errors', { selectedNamespace, options });
+        this.logger.error('AlertsState :: Load user namespaces errors', { selectedNamespace, options });
         const state = ctx.getState();
 
         ctx.setState({
@@ -313,7 +266,7 @@ export class AlertsState {
 
     @Action(ASsetAlertTypeFilter)
     setAlertTypeFilter(ctx: StateContext<AlertsStateModel>, { alertTypeFilter, options }: ASsetAlertTypeFilter) {
-        this.stateLog('set alert type filter', { alertTypeFilter, options });
+        this.logger.state('AlertsState :: set alert type filter', { alertTypeFilter, options });
         const state = ctx.getState();
         const actionResponse: any = {};
 
@@ -332,7 +285,7 @@ export class AlertsState {
     // FAKE DATA
     @Action(ASgenerateFakeAlerts)
     generateFakeAlerts(ctx: StateContext<AlertsStateModel>, { options }: ASgenerateFakeAlerts) {
-        this.stateLog('Generate Fake Alerts', { options });
+        this.logger.state('AlertsState :: Generate Fake Alerts', { options });
         const state = ctx.getState();
         const alerts = [];
         const selectedNamespace = state.selectedNamespace || 'TestNamespace';
@@ -364,6 +317,8 @@ export class AlertsState {
             alerts
         });
     }
+
+    /** PRIVATES */
 
     private createFakeAlertEntry(name: string, namespace: string): AlertModel {
         const date = moment();

@@ -57,6 +57,7 @@ import { ConditionalFormatterComponent } from './components/conditional-formatte
 import { QueryEditorFlatComponent } from './components/query-editor-flat/query-editor-flat.component';
 import { InlineFilterEditorComponent } from './components/inline-filter-editor/inline-filter-editor.component';
 import { MetricAutocompleteComponent } from './components/metric-autocomplete/metric-autocomplete.component';
+import { QueryEditorProtoComponent } from './components/query-editor-proto/query-editor-proto.component';
 
 @NgModule({
     imports: [
@@ -110,7 +111,8 @@ import { MetricAutocompleteComponent } from './components/metric-autocomplete/me
         ConditionalFormatterComponent,
         QueryEditorFlatComponent,
         InlineFilterEditorComponent,
-        MetricAutocompleteComponent
+        MetricAutocompleteComponent,
+        QueryEditorProtoComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -144,7 +146,8 @@ import { MetricAutocompleteComponent } from './components/metric-autocomplete/me
         NamespaceTagValuesComponent,
         WidgetConfigSortingComponent,
         ConditionalFormatterComponent,
-        MetricAutocompleteComponent
+        MetricAutocompleteComponent,
+        QueryEditorProtoComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,
