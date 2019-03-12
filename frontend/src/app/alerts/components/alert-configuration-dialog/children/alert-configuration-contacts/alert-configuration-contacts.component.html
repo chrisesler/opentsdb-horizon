@@ -1,0 +1,126 @@
+<div class="contacts">
+    Contacts
+    <mat-form-field appearance="fill" class="contacts-form">
+        <mat-label>Enter Contacts</mat-label>
+        <!-- <input matInput (focus)="focusFunction()" (focusout)="focusOutFunction()"> -->
+        <input matInput (focus)="focusFunction()" [value]="contactsAsString" (input)="onContactChange($event.target.value)">
+    </mat-form-field>
+
+    <div *ngIf="contactsFocused">
+
+        <button mat-button [matMenuTriggerFor]="menu">Add</button>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="addGroup()">Group</button>
+            <button mat-menu-item (click)="addOpsGenie()">OpsGenie</button>
+            <button mat-menu-item (click)="addSlack()">Slack</button>
+        </mat-menu>
+
+        <button (click)="focusOutFunction()" mat-button>x</button>
+
+       <div *ngIf="addContact === 'existing'">
+           <div class="contacts-title">Existing Contacts </div>
+           <div>
+                Groups
+                <div class="indent">
+                    <button *ngFor="let contact of getGroupContacts()" mat-button (click)="addToContacts(contact)" [disabled]="contact.isSelected">{{contact.name}}</button>
+                </div>
+            </div>
+            <div>
+                OpsGenie
+                <div class="indent">
+                    <button *ngFor="let contact of getOpsGenieContacts()" mat-button (click)="addToContacts(contact)" [disabled]="contact.isSelected">{{contact.name}}</button>
+                </div>
+            </div>
+            <div>
+                Slack
+                <div class="indent">
+                    <button *ngFor="let contact of getSlackContacts()" mat-button (click)="addToContacts(contact)" [disabled]="contact.isSelected">{{contact.name}}</button>
+                </div>
+            </div>
+            <div>
+                Email
+                <div class="indent">
+                    <button *ngFor="let contact of getEmailContacts()" mat-button (click)="addToContacts(contact)" [disabled]="contact.isSelected">{{contact.name}}</button>
+                </div>
+            </div>
+       </div>
+
+       <div *ngIf="addContact === 'group'">
+            <div class="contacts-title">Create Group </div>
+            <div class="contacts-create-form">
+                <div class="labels">
+                    <div class="label">name</div>
+                    <div class="label">Emails</div>
+                    <div class="label">OpsGenie</div>
+                    <div class="label">Slack</div>
+                </div>
+
+                <div class="selectors">
+                    <div class="text-field selector">
+                        <input #name matInput (keyup)="latestContactName(name.value)">
+                    </div>
+                    <div class="text-field selector">
+                        <input matInput>
+                    </div>
+                    <div class="text-field selector">
+                        <input matInput>
+                    </div>
+                    <div class="text-field selector">
+                        <input matInput>
+                    </div>
+                </div>
+            </div>
+            <button mat-button (click)="addGroupContact()">save</button> 
+       </div>
+
+       <div *ngIf="addContact === 'opsgenie'">
+            <div class="contacts-title">Create OpsGenie Contact </div>
+
+            <div class="contacts-create-form">
+                <div class="labels">
+                    <div class="label">Team name</div>
+                    <div class="label">API Key</div>
+                    <div class="label">Priority</div>
+                    <div class="label">Tags</div>
+                </div>
+
+                <div class="selectors">
+                    <div class="text-field selector">
+                        <input #name matInput (keyup)="latestContactName(name.value)">
+                    </div>
+                    <div class="text-field selector">
+                        <input matInput>
+                    </div>
+                    <div class="text-field selector">
+                        <input matInput>
+                    </div>
+                    <div class="text-field selector">
+                        <input matInput>
+                    </div>
+                </div>
+            </div>
+            <button mat-button (click)="addOpsGenieContact()">save</button> 
+       </div>
+
+       <div *ngIf="addContact === 'slack'">
+            <div class="contacts-title">Create Slack Contact </div>
+            <div class="contacts-create-form">
+                <div class="labels">
+                    <div class="label">Channel name</div>
+                    <div class="label">Webhook URL</div>
+                </div>
+
+                <div class="selectors">
+                    <div class="text-field selector">
+                        <input #name matInput (keyup)="latestContactName(name.value)">
+                    </div>
+                    <div class="text-field selector">
+                        <input matInput>
+                    </div>
+                </div>
+            </div>
+            <button mat-button (click)="addSlackContact()">save</button> 
+       </div>
+
+    </div>
+</div>

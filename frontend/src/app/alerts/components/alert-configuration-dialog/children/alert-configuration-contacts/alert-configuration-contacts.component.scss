@@ -1,0 +1,69 @@
+@mixin alert-configuration-contacts-component-base() {
+
+    .alert-configuration-contacts-component {
+
+        .contacts {
+            .contacts-form {
+                width: 1000px;
+            }
+        
+            .contacts-title {
+                font-weight: 600;
+                margin-bottom: 10px;
+            }
+        
+            .indent {
+                padding-left: 5px;
+            }
+        
+            .contacts-create-form {
+                display: flex;
+                // padding: 10px;
+                // padding-top: 15px;
+                flex-direction: row;
+            }
+        
+            .text-field {
+                background:  lightblue;
+            }
+        
+            .labels {
+                text-align: right
+            }
+        
+            .label {
+                height: 31px;
+                margin-bottom: 5px;
+                padding-right: 10px;
+            }
+        
+            .selector {
+                height: 31px;
+                margin-bottom: 5px;
+            }                   
+        }
+
+    }
+
+}
+
+@mixin alert-configuration-contacts-component-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $widget: map-get($theme-config, widgets);
+    $is-dark: map-get($theme-config, is-dark);
+
+    .alert-configuration-contacts-component {
+
+    }
+
+
+
+
+}
+
+
