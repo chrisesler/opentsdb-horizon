@@ -76,8 +76,7 @@ export class WidgetsRawdataState {
         if (  this.subs[qid] ) {
             this.subs[qid].unsubscribe();
         }
-        this.queryObserver = this.httpService.getYamasData(payload.query)
-                                    .pipe(takeUntil(this.actions$.pipe(ofActionDispatched(ClearWidgetsData))))
+        this.queryObserver = this.httpService.getYamasData(payload.query);
 
         this.subs[qid] = this.queryObserver.subscribe(
             data => {
@@ -127,6 +126,9 @@ export class WidgetsRawdataState {
     
     @Action(ClearWidgetsData)
     clearWidgetsData(ctx: StateContext<RawDataModel>) {
+        for ( const k in this.subs ) {
+            this.subs[k].unsubscribe();
+        }
         ctx.setState({data: {}, lastModifiedWidget: { wid: null, gid: null } });
     }
 }

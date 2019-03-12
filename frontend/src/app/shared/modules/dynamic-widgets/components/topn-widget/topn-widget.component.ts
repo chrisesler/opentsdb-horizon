@@ -87,7 +87,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        this.refreshData(this.editMode ? false : true);
+        setTimeout(()=>this.refreshData(this.editMode ? false : true), 0);
     }
 
 
