@@ -30,7 +30,8 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
     // tslint:disable-next-line:no-inferrable-types
 
     options: any  = {
-        data: []
+        data: [],
+        format: { unit: '', precision: 2 , precisionStrict: true}
     };
     width = '100%';
     height = '100%';
@@ -70,6 +71,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
                         if ( message.payload.error ) {
                             this.error = message.payload.error;
                         }
+                        this.setOptions();
                         this.options = this.dataTransformer.yamasToD3Bar(this.options, this.widget, message.payload.rawdata);
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -87,7 +89,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        this.refreshData(this.editMode ? false : true);
+        setTimeout(()=>this.refreshData(this.editMode ? false : true), 0);
     }
 
 
@@ -118,6 +120,9 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
         });
     }
 
+    setOptions() {
+        this.options.format.unit = this.widget.settings.visual.unit;
+    }
     setSize(newSize) {
         this.size = { width: newSize.width, height: newSize.height - 3 };
     }
@@ -160,6 +165,10 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
                 break;
             case 'SetVisualConditions':
                 this.setVisualConditions(message.payload.data);
+                this.refreshData(false);
+                break;
+            case 'SetUnit':
+                this.setUnit(message.payload.data);
                 this.refreshData(false);
                 break;
             case 'SetSorting':
@@ -221,6 +230,10 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
         mconfigs.forEach( (config, i) => {
             this.widget.queries[0].metrics[i].settings.visual = { ...this.widget.queries[0].metrics[i].settings.visual, ...config };
         });
+    }
+
+    setUnit(unit) {
+        this.widget.settings.visual.unit = unit;
     }
 
     setVisualConditions( vConditions ) {

@@ -136,8 +136,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        this.refreshData(this.editMode ? false : true);
-        this.setOptions();
+        setTimeout(()=>{
+            this.refreshData(this.editMode ? false : true);
+            this.setOptions();
+        });
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -396,14 +398,13 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         const axis = this.valueAxis;
         const config = this.widget.settings.axes && this.widget.settings.axes.y1 ?
                             this.widget.settings.axes.y1 : <Axis>{};
-        const oUnit = this.unit.getDetails(config.unit);
         axis.type = !config.scale || config.scale === 'linear' ? 'linear' : 'logarithmic';
         axis.ticks = { beginAtZero: true };
         if ( !isNaN( config.min ) && config.min ) {
-            axis.ticks.min = oUnit ? config.min * oUnit.m : config.min;
+            axis.ticks.min =  config.min;
         }
         if ( !isNaN( config.max ) && config.max ) {
-            axis.ticks.max = oUnit ? config.max * oUnit.m : config.max;
+            axis.ticks.max = config.max;
         }
         const label = config.label ? config.label.trim() : '';
         const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 2 : config.decimals;

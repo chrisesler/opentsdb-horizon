@@ -23,6 +23,7 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
      * holds chart instance
      */
     chart: any;
+    max : number = 0;
 
     /**
      * default chart options
@@ -65,6 +66,7 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
             const datasetIndex = item.datasetIndex;
             const index = item.index;
             const tags = data.datasets[datasetIndex].tooltipData[index];
+            const dunit = self.uConverter.getNormalizedUnit(self.max, self.options.scales[axis + 'Axes'][0].ticks.format);
             let taghtml = '';
             for (const k in tags ) {
                 taghtml += '<p>' + k + ': ' +  tags[k] + '</p>';
@@ -73,9 +75,9 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                 const tickFormat = self.options.scales[axis + 'Axes'][0].ticks.format;
                 const unit = tickFormat.unit;
                 const precision = tickFormat.precision ? tickFormat.precision : 0;
-                return 'Value: ' + self.uConverter.format(item[axis + 'Label'], { unit: unit, precision: precision } ) + taghtml;
+                return 'Value: ' + self.uConverter.convert(item[axis + 'Label'], unit, dunit ,{ unit: unit, precision: precision } ) + taghtml;
             } else {
-                return 'Value: ' +  self.uConverter.format(data['datasets'][0]['data'][item['index']], { unit: '', precision: 2 }) + taghtml;
+                return 'Value: ' +  self.uConverter.convert(data['datasets'][0]['data'][item['index']],'',dunit, { unit: '', precision: 2 }) + taghtml;
             }
         };
         this.defaultOptions.tooltips = {
@@ -99,7 +101,8 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
                 if ( this.options.ticks && this.options.ticks.format ) {
                     const unit = this.options.ticks.format.unit;
                     const precision = this.options.ticks.format.precision ? this.options.ticks.format.precision : 0;
-                    return self.uConverter.format(value, { unit: unit, precision: precision } );
+                    const dunit = self.uConverter.getNormalizedUnit(self.max, this.options.ticks.format );
+                    return self.uConverter.convert(value, unit, dunit, { unit: unit, precision: precision } );
                 } else {
                     return value;
                 }
@@ -168,7 +171,7 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
         this._meta = {
             colors: this.colors.concat()
         };
-
+        this.max = datasets[0] && datasets[0].data ? Math.max(...datasets[0].data) : 0;
         const multiColor = (this.chartType === 'bar' || this.chartType === 'doughnut') && datasets.length === 1 ? true : false;
         datasets.forEach((dataset, i) => {
             this.setColor(dataset, multiColor ? dataset.data.length : 1 );
