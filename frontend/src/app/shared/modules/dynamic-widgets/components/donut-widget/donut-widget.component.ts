@@ -106,8 +106,10 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        this.setOptions();
-        this.refreshData(this.editMode ? false : true);
+        setTimeout(()=>{
+            this.refreshData(this.editMode ? false : true);
+            this.setOptions();
+        }, 0);
     }
 
     ngOnChanges(changes: SimpleChanges) {
