@@ -136,8 +136,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        this.refreshData(this.editMode ? false : true);
-        this.setOptions();
+        setTimeout(()=>{
+            this.refreshData(this.editMode ? false : true);
+            this.setOptions();
+        });
     }
 
     ngOnChanges(changes: SimpleChanges) {
