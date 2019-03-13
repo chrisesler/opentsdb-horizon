@@ -87,7 +87,8 @@
                 </div>
             </div>
         </div>
-        <button mat-button (click)="addContact('Group')">save</button> 
+        <button mat-button (click)="addContact('Group')">Add</button>
+        <button mat-button (click)="setPanelContent('existingContacts')">cancel</button>
     </div>
 
     <div *ngIf="panelContent === 'opsgenie'">
@@ -115,7 +116,8 @@
                 </div>
             </div>
         </div>
-        <button mat-button (click)="addContact('OpsGenie')">save</button> 
+        <button mat-button (click)="addContact('OpsGenie')">Add</button>
+        <button mat-button (click)="setPanelContent('existingContacts')">cancel</button>
     </div>
 
     <div *ngIf="panelContent === 'slack'">
@@ -135,7 +137,8 @@
                 </div>
             </div>
         </div>
-        <button mat-button (click)="addContact('Slack')">save</button> 
+        <button mat-button (click)="addContact('Slack')">Add</button>
+        <button mat-button (click)="setPanelContent('existingContacts')">cancel</button>
     </div>
 
     <div *ngIf="panelContent === 'email'">
@@ -151,7 +154,8 @@
                 </div>
             </div>
         </div>
-        <button mat-button (click)="addContact('Email')">save</button> 
+        <button mat-button (click)="addContact('Email')">Add</button>
+        <button mat-button (click)="setPanelContent('existingContacts')">cancel</button>
     </div>
 
   </div>
