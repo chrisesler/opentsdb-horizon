@@ -12,11 +12,9 @@ export class AlertConfigurationContactsComponent implements OnInit {
   @HostBinding('class.alert-configuration-contacts-component') private _hostClass = true;
   constructor() { }
 
-
   // tslint:disable:no-inferrable-types
-  contactsFocused: boolean = false;
-  addContact: string = 'existing';
-  contactsAsString: string = '';
+  megaPanelVisible: boolean = false;
+  panelContent: string = 'existingContacts';
   lastContactName: string = '';
 
   visible = true;
@@ -53,30 +51,30 @@ export class AlertConfigurationContactsComponent implements OnInit {
     this.contactRemovable = this.moreThanOneContactSelected();
   }
 
-  focusFunction() {
-    this.contactsFocused = true;
+  showMegaPanel() {
+    this.megaPanelVisible = true;
   }
 
-  collapsePanel() {
-      this.contactsFocused = false;
-      this.addContact = 'existing';
+  collapseMegaPanel() {
+    this.megaPanelVisible = false;
+    this.panelContent = 'existingContacts';
   }
 
   viewExistingContacts() {
-      this.contactsFocused = true;
-      this.addContact = 'existing';
+    this.megaPanelVisible = true;
+    this.panelContent = 'existingContacts';
   }
 
   addGroup() {
-      this.addContact = 'group';
+      this.panelContent = 'group';
   }
 
   addSlack() {
-      this.addContact = 'slack';
+      this.panelContent = 'slack';
   }
 
   addOpsGenie() {
-      this.addContact = 'opsgenie';
+      this.panelContent = 'opsgenie';
   }
 
   // TODO: remove
@@ -215,7 +213,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
     if (!this.selectedContacts.includes(id)) {
       this.selectedContacts.push(id);
     }
-    console.log('**', this.moreThanOneContactSelected());
     this.contactRemovable = this.moreThanOneContactSelected();
   }
 

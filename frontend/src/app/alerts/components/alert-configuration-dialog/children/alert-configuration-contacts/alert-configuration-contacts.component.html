@@ -1,136 +1,132 @@
-<div class="contacts">
 
-    <mat-form-field class="contact-list" (click)="focusFunction()">
-      <mat-chip-list #chipList>
+<mat-form-field class="contact-list" (click)="showMegaPanel()" floatLabel="never">
+  <mat-chip-list #chipList>
 
-        <mat-chip *ngFor="let id of selectedContacts" [selectable]="selectable"
-                [removable]="contactRemovable" (removed)="removeContactFromSelectedContacts(id)">
-          {{getContactFromId(id).name}}
-        <mat-icon matChipRemove *ngIf="contactRemovable">cancel</mat-icon>
-        </mat-chip>
+    <mat-chip *ngFor="let id of selectedContacts" [selectable]="selectable"
+      [removable]="contactRemovable" (removed)="removeContactFromSelectedContacts(id)">
+      {{getContactFromId(id).name}}
+    <mat-icon matChipRemove *ngIf="contactRemovable">cancel</mat-icon>
+    </mat-chip>
 
-        <input placeholder="Add contacts..."
-                [matChipInputFor]="chipList"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                [matChipInputAddOnBlur]="addOnBlur"
-                (matChipInputTokenEnd)="addUserInputToSelectedContacts($event)">
-      </mat-chip-list>
-    </mat-form-field>
+    <input placeholder="Add contacts..."
+            [matChipInputFor]="chipList"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            [matChipInputAddOnBlur]="addOnBlur"
+            (matChipInputTokenEnd)="addUserInputToSelectedContacts($event)">
+  </mat-chip-list>
+</mat-form-field>
 
-    <div *ngIf="contactsFocused">
-        <button mat-button [matMenuTriggerFor]="menu">Add</button>
-        <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="addGroup()">Group</button>
-            <button mat-menu-item (click)="addOpsGenie()">OpsGenie</button>
-            <button mat-menu-item (click)="addSlack()">Slack</button>
-        </mat-menu>
+<div *ngIf="megaPanelVisible" class="mega-panel">
+    <button mat-button [matMenuTriggerFor]="menu">Add</button>
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="addGroup()">Group</button>
+        <button mat-menu-item (click)="addOpsGenie()">OpsGenie</button>
+        <button mat-menu-item (click)="addSlack()">Slack</button>
+    </mat-menu>
 
-        <button (click)="collapsePanel()" mat-button>x</button>
+    <button (click)="collapseMegaPanel()" mat-button>x</button>
 
-       <div *ngIf="addContact === 'existing'">
-           <div class="contacts-title">Existing Contacts </div>
-           <div>
-                Groups
-                <div class="indent">
-                    <button *ngFor="let contact of getGroupContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
-                </div>
+    <div *ngIf="panelContent === 'existingContacts'">
+        <div class="contacts-title">Existing Contacts </div>
+        <div>
+            Groups
+            <div class="indent">
+                <button *ngFor="let contact of getGroupContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
             </div>
-            <div>
-                OpsGenie
-                <div class="indent">
-                    <button *ngFor="let contact of getOpsGenieContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
-                </div>
+        </div>
+        <div>
+            OpsGenie
+            <div class="indent">
+                <button *ngFor="let contact of getOpsGenieContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
             </div>
-            <div>
-                Slack
-                <div class="indent">
-                    <button *ngFor="let contact of getSlackContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
-                </div>
+        </div>
+        <div>
+            Slack
+            <div class="indent">
+                <button *ngFor="let contact of getSlackContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
             </div>
-            <div>
-                Email
-                <div class="indent">
-                    <button *ngFor="let contact of getEmailContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
-                </div>
+        </div>
+        <div>
+            Email
+            <div class="indent">
+                <button *ngFor="let contact of getEmailContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
             </div>
-       </div>
-
-       <div *ngIf="addContact === 'group'">
-            <div class="contacts-title">Create Group </div>
-            <div class="contacts-create-form">
-                <div class="labels">
-                    <div class="label">name</div>
-                    <div class="label">Emails</div>
-                    <div class="label">OpsGenie</div>
-                    <div class="label">Slack</div>
-                </div>
-
-                <div class="selectors">
-                    <div class="text-field selector">
-                        <input #name matInput (keyup)="latestContactName(name.value)">
-                    </div>
-                    <div class="text-field selector">
-                        <input matInput>
-                    </div>
-                    <div class="text-field selector">
-                        <input matInput>
-                    </div>
-                    <div class="text-field selector">
-                        <input matInput>
-                    </div>
-                </div>
-            </div>
-            <button mat-button (click)="addGroupContact()">save</button> 
-       </div>
-
-       <div *ngIf="addContact === 'opsgenie'">
-            <div class="contacts-title">Create OpsGenie Contact </div>
-
-            <div class="contacts-create-form">
-                <div class="labels">
-                    <div class="label">Team name</div>
-                    <div class="label">API Key</div>
-                    <div class="label">Priority</div>
-                    <div class="label">Tags</div>
-                </div>
-
-                <div class="selectors">
-                    <div class="text-field selector">
-                        <input #name matInput (keyup)="latestContactName(name.value)">
-                    </div>
-                    <div class="text-field selector">
-                        <input matInput>
-                    </div>
-                    <div class="text-field selector">
-                        <input matInput>
-                    </div>
-                    <div class="text-field selector">
-                        <input matInput>
-                    </div>
-                </div>
-            </div>
-            <button mat-button (click)="addOpsGenieContact()">save</button> 
-       </div>
-
-       <div *ngIf="addContact === 'slack'">
-            <div class="contacts-title">Create Slack Contact </div>
-            <div class="contacts-create-form">
-                <div class="labels">
-                    <div class="label">Channel name</div>
-                    <div class="label">Webhook URL</div>
-                </div>
-
-                <div class="selectors">
-                    <div class="text-field selector">
-                        <input #name matInput (keyup)="latestContactName(name.value)">
-                    </div>
-                    <div class="text-field selector">
-                        <input matInput>
-                    </div>
-                </div>
-            </div>
-            <button mat-button (click)="addSlackContact()">save</button> 
-       </div>
-
+        </div>
     </div>
-</div>
+
+    <div *ngIf="panelContent === 'group'">
+        <div class="contacts-title">Create Group </div>
+        <div class="contacts-create-form">
+            <div class="labels">
+                <div class="label">name</div>
+                <div class="label">Emails</div>
+                <div class="label">OpsGenie</div>
+                <div class="label">Slack</div>
+            </div>
+
+            <div class="selectors">
+                <div class="text-field selector">
+                    <input #name matInput (keyup)="latestContactName(name.value)">
+                </div>
+                <div class="text-field selector">
+                    <input matInput>
+                </div>
+                <div class="text-field selector">
+                    <input matInput>
+                </div>
+                <div class="text-field selector">
+                    <input matInput>
+                </div>
+            </div>
+        </div>
+        <button mat-button (click)="addGroupContact()">save</button> 
+    </div>
+
+    <div *ngIf="panelContent === 'opsgenie'">
+        <div class="contacts-title">Create OpsGenie Contact </div>
+        <div class="contacts-create-form">
+            <div class="labels">
+                <div class="label">Team name</div>
+                <div class="label">API Key</div>
+                <div class="label">Priority</div>
+                <div class="label">Tags</div>
+            </div>
+
+            <div class="selectors">
+                <div class="text-field selector">
+                    <input #name matInput (keyup)="latestContactName(name.value)">
+                </div>
+                <div class="text-field selector">
+                    <input matInput>
+                </div>
+                <div class="text-field selector">
+                    <input matInput>
+                </div>
+                <div class="text-field selector">
+                    <input matInput>
+                </div>
+            </div>
+        </div>
+        <button mat-button (click)="addOpsGenieContact()">save</button> 
+    </div>
+
+    <div *ngIf="panelContent === 'slack'">
+        <div class="contacts-title">Create Slack Contact </div>
+        <div class="contacts-create-form">
+            <div class="labels">
+                <div class="label">Channel name</div>
+                <div class="label">Webhook URL</div>
+            </div>
+
+            <div class="selectors">
+                <div class="text-field selector">
+                    <input #name matInput (keyup)="latestContactName(name.value)">
+                </div>
+                <div class="text-field selector">
+                    <input matInput>
+                </div>
+            </div>
+        </div>
+        <button mat-button (click)="addSlackContact()">save</button> 
+    </div>
+  </div>

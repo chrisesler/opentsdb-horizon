@@ -2,59 +2,64 @@
 
     .alert-configuration-contacts-component {
 
-        .contacts {
+        .contact-list {
+            width: 1000px;
 
-            .contact-list {
-                width: 1000px;
-
-                // .mat-form-field {
-                    .mat-form-field-infix {
-                        justify-content: left;
-                    }
-                // }
+            .mat-form-field-infix {
+                justify-content: left;
             }
 
-            .contacts-form {
-                width: 1000px;
+            .mat-form-field-infix {
+                border-top: 0 solid transparent !important;
             }
-        
-            .contacts-title {
-                font-weight: 600;
-                margin-bottom: 10px;
+            .mat-form-field-wrapper {
+                padding-bottom: 0 !important;
             }
-        
-            .indent {
-                padding-left: 5px;
+            .mat-form-field-underline {
+                bottom: 0 !important;
             }
-        
-            .contacts-create-form {
-                display: flex;
-                // padding: 10px;
-                // padding-top: 15px;
-                flex-direction: row;
-            }
-        
-            .text-field {
-                background:  lightblue;
-            }
-        
-            .labels {
-                text-align: right
-            }
-        
-            .label {
-                height: 31px;
-                margin-bottom: 5px;
-                padding-right: 10px;
-            }
-        
-            .selector {
-                height: 31px;
-                margin-bottom: 5px;
-            }                   
         }
 
+        .contacts-form {
+            width: 1000px;
+        }
+    
+        .contacts-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+    
+        .indent {
+            padding-left: 5px;
+        }
+    
+        .contacts-create-form {
+            display: flex;
+            // padding: 10px;
+            // padding-top: 15px;
+            flex-direction: row;
+        }
+    
+        .text-field {
+            background:  lightblue;
+        }
+    
+        .labels {
+            text-align: right
+        }
+    
+        .label {
+            height: 31px;
+            margin-bottom: 5px;
+            padding-right: 10px;
+        }
+    
+        .selector {
+            height: 31px;
+            margin-bottom: 5px;
+        }                   
     }
+
 
 }
 
