@@ -1,20 +1,12 @@
 <div class="contacts">
-    <!-- Contacts -->
-    <!-- <mat-form-field appearance="fill" class="contacts-form"> -->
-        <!-- <mat-label>Enter Contacts</mat-label> -->
-        <!-- <input matInput (focus)="focusFunction()" [value]="contactsAsString" (input)="onContactChange($event.target.value)">
-         -->
-    <!-- </mat-form-field> --
-
-    </div> -->
 
     <mat-form-field class="contact-list" (click)="focusFunction()">
       <mat-chip-list #chipList>
 
-        <mat-chip *ngFor="let contact of selectedContacts" [selectable]="selectable"
-                [removable]="removable" (removed)="removeFromSelectedContacts(contact)">
-        {{contact.name}}
-        <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        <mat-chip *ngFor="let id of selectedContacts" [selectable]="selectable"
+                [removable]="contactRemovable" (removed)="removeContactFromSelectedContacts(id)">
+          {{getContactFromId(id).name}}
+        <mat-icon matChipRemove *ngIf="contactRemovable">cancel</mat-icon>
         </mat-chip>
 
         <input placeholder="Add contacts..."
@@ -33,32 +25,32 @@
             <button mat-menu-item (click)="addSlack()">Slack</button>
         </mat-menu>
 
-        <button (click)="focusOutFunction()" mat-button>x</button>
+        <button (click)="collapsePanel()" mat-button>x</button>
 
        <div *ngIf="addContact === 'existing'">
            <div class="contacts-title">Existing Contacts </div>
            <div>
                 Groups
                 <div class="indent">
-                    <button *ngFor="let contact of getGroupContacts()" mat-button (click)="addContactToSelectedContacts(contact)" [disabled]="contact.isSelected">{{contact.name}}</button>
+                    <button *ngFor="let contact of getGroupContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
                 </div>
             </div>
             <div>
                 OpsGenie
                 <div class="indent">
-                    <button *ngFor="let contact of getOpsGenieContacts()" mat-button (click)="addContactToSelectedContacts(contact)" [disabled]="contact.isSelected">{{contact.name}}</button>
+                    <button *ngFor="let contact of getOpsGenieContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
                 </div>
             </div>
             <div>
                 Slack
                 <div class="indent">
-                    <button *ngFor="let contact of getSlackContacts()" mat-button (click)="addContactToSelectedContacts(contact)" [disabled]="contact.isSelected">{{contact.name}}</button>
+                    <button *ngFor="let contact of getSlackContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
                 </div>
             </div>
             <div>
                 Email
                 <div class="indent">
-                    <button *ngFor="let contact of getEmailContacts()" mat-button (click)="addContactToSelectedContacts(contact)" [disabled]="contact.isSelected">{{contact.name}}</button>
+                    <button *ngFor="let contact of getEmailContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
                 </div>
             </div>
        </div>
