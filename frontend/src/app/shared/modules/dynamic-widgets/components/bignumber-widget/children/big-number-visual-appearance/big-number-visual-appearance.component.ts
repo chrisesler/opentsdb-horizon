@@ -27,7 +27,7 @@ export class BignumberVisualAppearanceComponent implements OnInit {
 
     @ViewChild(MatMenuTrigger) private menuTrigger: MatMenuTrigger;
 
-    timeUnits: Array<string> = ['ms', 'second', 'minute', 'hour', 'day', 'year'];
+    timeUnits: Array<string> = ['milliseconds', 'seconds', 'minutes', 'hours', 'days', 'years'];
 
     binaryDataUnitsKeys: Array<string> = [ 'binbyte', 'kibibyte', 'mebibyte', 'gibibyte', 'tebibyte', 'pebibyte', 'exibyte' ];
     binaryDataUnits: { [key:string] : string; } = {

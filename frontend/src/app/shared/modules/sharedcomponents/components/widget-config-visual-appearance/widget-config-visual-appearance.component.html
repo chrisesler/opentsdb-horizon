@@ -228,7 +228,7 @@
                         <div class="config-control">
                             <span class="mat-label">Unit</span>
                         </div>
-                        <dropdown-unit-type [unit]="widget.settings.visual.unit" (onUnitChange)="setUnit($event)"></dropdown-unit-type>
+                        <dropdown-unit-type [unit]="widget.settings.visual.unit? widget.settings.visual.unit : 'auto'" (onUnitChange)="setUnit($event)"></dropdown-unit-type>
                     </div>
         </div> 
         <div class="column conditional-formatter">

@@ -140,22 +140,22 @@ export class UnitNormalizerService {
         break;
 
       // Time
-      case 'ms':
+      case 'milliseconds':
         bigNum = this.formatNumber(this.milliSeconds(val), precision);
         break;
-      case 'second':
+      case 'seconds':
         bigNum = this.formatNumber(this.seconds(val), precision);
         break;
-      case 'minute':
+      case 'minutes':
         bigNum = this.formatNumber(this.minutes(val), precision);
         break;
-      case 'hour':
+      case 'hours':
         bigNum = this.formatNumber(this.hours(val), precision);
         break;
-      case 'day':
+      case 'days':
         bigNum = this.formatNumber(this.days(val), precision);
         break;
-      case 'year':
+      case 'years':
         bigNum = this.formatNumber(this.years(val), precision);
         break;
 
