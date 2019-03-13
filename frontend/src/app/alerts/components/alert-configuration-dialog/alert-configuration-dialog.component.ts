@@ -62,8 +62,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         }
     };
 
-    alertName: FormControl = new FormControl('');
+    // tslint:disable-next-line:no-inferrable-types
+    selectedThresholdType: string = 'simple';
 
+    alertName: FormControl = new FormControl('');
 
     subs: any = {};
 
@@ -102,6 +104,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         console.log('CONFIG TAB CHANGE', index);
         this.activeTabIndex = index;
     }*/
+
+    changeThresholdType(thresholdType: string) {
+        this.selectedThresholdType = thresholdType;
+    }
 
     /** Privates */
 

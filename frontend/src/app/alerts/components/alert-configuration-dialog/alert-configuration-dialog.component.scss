@@ -138,6 +138,28 @@
                     padding: 8px;
                 }
             }
+
+            // form stuff
+            .form-group {
+                display: flex;
+
+                &:not(:last-child) {
+                    margin-bottom: 16px;
+                }
+                
+                .form-label {
+                    font-weight: bold;
+                    width: 150px;
+                    margin-right: 16px;
+                }
+            }
+        }
+
+        .threshold-type-toggle-options {
+            a.mat-tab-link:not(:last-of-type) {
+                margin-right: 10px;
+            }
+
         }
 
 
@@ -187,6 +209,20 @@
         .config-toolbar.mat-toolbar {
             background: transparent;
             border-bottom: 1px solid map-get($foreground, divider);
+        }
+
+        .threshold-type-toggle-options {
+
+            &.mat-tab-nav-bar {
+                a.mat-tab-link.mat-tab-label-active {
+                    color: #ffffff;
+                }
+
+                .mat-ink-bar {
+                    background-color: map-get($foreground, link);
+                }
+            }
+
         }
     }
 
