@@ -14,7 +14,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   // tslint:disable:no-inferrable-types
   megaPanelVisible: boolean = false;
-  panelContent: string = 'existingContacts';
+  panelContent: string;
   lastContactName: string = '';
 
   visible = true;
@@ -49,6 +49,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   ngOnInit() {
     this.contactRemovable = this.moreThanOneContactSelected();
+    this.setPanelContent('existingContacts');
   }
 
   showMegaPanel() {
@@ -57,24 +58,20 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   collapseMegaPanel() {
     this.megaPanelVisible = false;
-    this.panelContent = 'existingContacts';
   }
 
   viewExistingContacts() {
     this.megaPanelVisible = true;
-    this.panelContent = 'existingContacts';
+    this.setPanelContent('existingContacts');
   }
 
-  addGroup() {
-      this.panelContent = 'group';
-  }
-
-  addSlack() {
-      this.panelContent = 'slack';
-  }
-
-  addOpsGenie() {
-      this.panelContent = 'opsgenie';
+  setPanelContent(contentName: string) {
+    // TODO: harden valid names: group, opsgenie, slack, email, existingContacts
+    if (contentName.toLowerCase() === 'existingcontacts') {
+      this.panelContent = 'existingContacts';
+    } else {
+      this.panelContent = contentName.toLowerCase();
+    }
   }
 
   // TODO: remove
@@ -82,68 +79,31 @@ export class AlertConfigurationContactsComponent implements OnInit {
     this.lastContactName = name;
   }
 
-  addGroupContact() {
+  addContact(type: string) {
+    // TODO: harden valid names: Group, OpsGenie, Slack, Email
     // tslint:disable:prefer-const
     let contact: any = {};
     contact.name = this.lastContactName;
-    contact.type = 'Group';
+    contact.type = type;
     contact.id = this.exisitingContacts[this.exisitingContacts.length - 1].id + 1;  // TODO: get from server
     this.addToExistingContacts(contact);
     this.viewExistingContacts();
-  }
-
-  addOpsGenieContact() {
-    let contact: any = {};
-    contact.name = this.lastContactName;
-    contact.type = 'OpsGenie';
-    contact.id = this.exisitingContacts[this.exisitingContacts.length - 1].id + 1; // TODO: get from server
-    this.addToExistingContacts(contact);
-    this.viewExistingContacts();
-  }
-
-  addSlackContact() {
-    let contact: any = {};
-    contact.name = this.lastContactName;
-    contact.type = 'Slack';
-    contact.id = this.exisitingContacts[this.exisitingContacts.length - 1].id + 1; // TODO: get from server
-    this.addToExistingContacts(contact);
-    this.viewExistingContacts();
-  }
-
-  addEmailContact(email: string): any {
-    let contact: any = {};
-    contact.name = email;
-    contact.type = 'Email';
-    contact.id = this.exisitingContacts[this.exisitingContacts.length - 1].id + 1; // TODO: get from server
-    this.addToExistingContacts(contact);
-    return contact;
   }
 
   addToExistingContacts(contact: any) {
     this.exisitingContacts.push(contact);
 }
 
-  getGroupContacts(): any[] {
-    return this.getContacts('Group');
-  }
-
-  getOpsGenieContacts(): any[] {
-    return this.getContacts('OpsGenie');
-  }
-
-  getEmailContacts(): any[] {
-    return this.getContacts('Email');
-  }
-
-  getSlackContacts(): any[] {
-    return this.getContacts('Slack');
+  getContactsForType(type: string) {
+    // TODO: harden valid names: group, opsgenie, slack, email
+    return this.getContacts(type);
   }
 
   getContacts(type: string): any[] {
     // tslint:disable:prefer-const
     let contacts = [];
     for (let contact of this.exisitingContacts) {
-        if (contact.type === type) {
+        if (contact.type.toLowerCase() === type.toLowerCase()) {
             contacts.push(contact);
         }
     }

@@ -1,4 +1,3 @@
-
 <mat-form-field class="contact-list" (click)="showMegaPanel()" floatLabel="never">
   <mat-chip-list #chipList>
 
@@ -17,39 +16,48 @@
 </mat-form-field>
 
 <div *ngIf="megaPanelVisible" class="mega-panel">
-    <button mat-button [matMenuTriggerFor]="menu">Add</button>
-    <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="addGroup()">Group</button>
-        <button mat-menu-item (click)="addOpsGenie()">OpsGenie</button>
-        <button mat-menu-item (click)="addSlack()">Slack</button>
-    </mat-menu>
 
-    <button (click)="collapseMegaPanel()" mat-button>x</button>
+  <div class="panel-header">
+    <div class="panel-title">
+      Contacts
+    </div>
+    <div>
+      <button mat-button [matMenuTriggerFor]="menu">Create New Contact</button>
+      <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="setPanelContent('group')">Group</button>
+          <button mat-menu-item (click)="setPanelContent('email')">Email</button>
+          <button mat-menu-item (click)="setPanelContent('opsgenie')">OpsGenie</button>
+          <button mat-menu-item (click)="setPanelContent('slack')">Slack</button>
+      </mat-menu>
+      <button (click)="collapseMegaPanel()" mat-button>x</button>
+    </div>
+  </div>
 
-    <div *ngIf="panelContent === 'existingContacts'">
-        <div class="contacts-title">Existing Contacts </div>
+  <div class="panel-content">
+    <div *ngIf="panelContent === 'existingContacts'" class="existing-contacts">
+        <!-- <div class="contacts-title">Existing Contacts </div> -->
         <div>
             Groups
-            <div class="indent">
-                <button *ngFor="let contact of getGroupContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
+            <div class="contact-list-type">
+                <button *ngFor="let contact of getContactsForType('group')" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
             </div>
         </div>
         <div>
             OpsGenie
-            <div class="indent">
-                <button *ngFor="let contact of getOpsGenieContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
+            <div class="contact-list-type">
+                <button *ngFor="let contact of getContactsForType('opsgenie')" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
             </div>
         </div>
         <div>
             Slack
-            <div class="indent">
-                <button *ngFor="let contact of getSlackContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
+            <div class="contact-list-type">
+                <button *ngFor="let contact of getContactsForType('slack')" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
             </div>
         </div>
         <div>
             Email
-            <div class="indent">
-                <button *ngFor="let contact of getEmailContacts()" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
+            <div class="contact-list-type">
+                <button *ngFor="let contact of getContactsForType('email')" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
             </div>
         </div>
     </div>
@@ -79,7 +87,7 @@
                 </div>
             </div>
         </div>
-        <button mat-button (click)="addGroupContact()">save</button> 
+        <button mat-button (click)="addContact('Group')">save</button> 
     </div>
 
     <div *ngIf="panelContent === 'opsgenie'">
@@ -107,7 +115,7 @@
                 </div>
             </div>
         </div>
-        <button mat-button (click)="addOpsGenieContact()">save</button> 
+        <button mat-button (click)="addContact('OpsGenie')">save</button> 
     </div>
 
     <div *ngIf="panelContent === 'slack'">
@@ -127,6 +135,24 @@
                 </div>
             </div>
         </div>
-        <button mat-button (click)="addSlackContact()">save</button> 
+        <button mat-button (click)="addContact('Slack')">save</button> 
     </div>
+
+    <div *ngIf="panelContent === 'email'">
+        <div class="contacts-title">Create Email </div>
+        <div class="contacts-create-form">
+            <div class="labels">
+                <div class="label">Email</div>
+            </div>
+
+            <div class="selectors">
+                <div class="text-field selector">
+                    <input #name matInput (keyup)="latestContactName(name.value)">
+                </div>
+            </div>
+        </div>
+        <button mat-button (click)="addContact('Email')">save</button> 
+    </div>
+
   </div>
+</div>
