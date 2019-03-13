@@ -1,6 +1,9 @@
 import { Component, OnInit, HostBinding } from '@angular/core';
+import { MatChipInputEvent } from '@angular/material';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
 
 @Component({
+  // tslint:disable-next-line:component-selector
   selector: 'alert-configuration-contacts',
   templateUrl: './alert-configuration-contacts.component.html',
   styleUrls: ['./alert-configuration-contacts.component.scss']
@@ -10,12 +13,19 @@ export class AlertConfigurationContactsComponent implements OnInit {
   constructor() { }
 
 
+  // tslint:disable:no-inferrable-types
   contactsFocused: boolean = false;
   addContact: string = 'existing';
   contactsAsString: string = '';
   lastContactName: string = '';
-  selectedContacts: any = [];
 
+  visible = true;
+  selectable = true;
+  removable = true;
+  addOnBlur = true;
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+
+  selectedContacts: any = [];
   exisitingContacts: any = [
     {
         name: 'prod',
@@ -43,8 +53,8 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
 
-    focusFunction() {
-      this.contactsFocused = true;
+  focusFunction() {
+    this.contactsFocused = true;
   }
 
   focusOutFunction() {
@@ -69,24 +79,12 @@ export class AlertConfigurationContactsComponent implements OnInit {
       this.addContact = 'opsgenie';
   }
 
-  addToContacts(contact: any) {
-      this.setContactAsSelected(contact, true);
-      this.selectedContacts.push(contact);
-
-      if (!this.contactsAsString) {
-          this.contactsAsString = contact.name;
-      } else {
-          this.contactsAsString = this.contactsAsString + ', ' + contact.name;
-      }
-  }
-
   latestContactName(name: string) {
-      this.lastContactName = name;
-
+    this.lastContactName = name;
   }
 
   addGroupContact() {
-      // tslint:disable-next-line:prefer-const
+      // tslint:disable:prefer-const
       let contact: any = {};
       contact.name = this.lastContactName;
       contact.type = 'Group';
@@ -113,6 +111,20 @@ export class AlertConfigurationContactsComponent implements OnInit {
       this.viewExistingContacts();
   }
 
+  addEmailContact(email: string, isSelected): any {
+    let contact: any = {};
+    contact.name = email;
+    contact.type = 'Email';
+    contact.isSelected = isSelected;
+    this.addToExistingContacts(contact);
+    return contact;
+  }
+
+  addToExistingContacts(contact: any) {
+    // contact.isSelected = false;
+    this.exisitingContacts.push(contact);
+}
+
   getGroupContacts(): any[] {
       // console.log(this.getContacts('Group'));
       return this.getContacts('Group');
@@ -131,9 +143,8 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   getContacts(type: string): any[] {
-      // tslint:disable-next-line:prefer-const
+      // tslint:disable:prefer-const
       let contacts = [];
-      // tslint:disable-next-line:prefer-const
       for (let contact of this.exisitingContacts) {
           if (contact.type === type) {
               contacts.push(contact);
@@ -142,34 +153,55 @@ export class AlertConfigurationContactsComponent implements OnInit {
       return contacts;
   }
 
-  addToExistingContacts(contact: any) {
-      // contact.isSelected = false;
-      this.exisitingContacts.push(contact);
+  addContactToSelectedContacts(contact: any) {
+    this.addContactFromName(contact.name);
+  }
+
+  addContactFromName(contactName: string) {
+    let isExistingContact: boolean = false;
+
+    for (let _contact of this.exisitingContacts) {
+      if (_contact.name === contactName) {
+        _contact.isSelected = true;
+        this.selectedContacts.push(_contact);
+        isExistingContact = true;
+        break;
+      }
+    }
+
+    if (!isExistingContact) {
+      this.selectedContacts.push(this.addEmailContact(contactName, true));
+    }
+  }
+
+  addUserInputToSelectedContacts(event: MatChipInputEvent) {
+    const input = event.input;
+    const value = event.value;
+
+    if ((value || '').trim()) {
+      this.addContactFromName(value);
+    }
+
+    // Reset the input value
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  removeFromSelectedContacts(contact: any) {
+    const index = this.selectedContacts.indexOf(contact);
+    if (index >= 0) {
+      this.selectedContacts.splice(index, 1);
+    }
+    this.setContactAsSelected(contact, false);
   }
 
   setContactAsSelected(contact: any, isSelected) {
-      for (let _contact of this.exisitingContacts) {
-          if (_contact.name === contact.name && _contact.type === contact.type) {
-              _contact.isSelected = isSelected;
-          }
+    for (let _contact of this.exisitingContacts) {
+      if (_contact.name === contact.name && _contact.type === contact.type) {
+          _contact.isSelected = isSelected;
       }
-  }
-
-  onContactChange(str: string) {
-      this.contactsAsString = str;
-      const contacts: string[] = str.split(',');
-
-      for (let contact of this.exisitingContacts) {
-          contact.isSelected = false;
-      }
-
-      for (let _contact of contacts) {
-          for (let contact of this.exisitingContacts) {
-              if (_contact.trim() === contact.name ) {
-                  contact.isSelected = true;
-              }
-          }
-      }
+    }
   }
 
 }

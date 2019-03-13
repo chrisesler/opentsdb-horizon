@@ -3,6 +3,17 @@
     .alert-configuration-contacts-component {
 
         .contacts {
+
+            .contact-list {
+                width: 1000px;
+
+                // .mat-form-field {
+                    .mat-form-field-infix {
+                        justify-content: left;
+                    }
+                // }
+            }
+
             .contacts-form {
                 width: 1000px;
             }
