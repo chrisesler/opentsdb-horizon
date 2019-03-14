@@ -1,6 +1,6 @@
-import { Component, OnInit, HostBinding } from '@angular/core';
+import { Component, OnInit, HostBinding, Renderer2, ElementRef, HostListener } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material';
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -10,7 +10,7 @@ import {COMMA, ENTER} from '@angular/cdk/keycodes';
 })
 export class AlertConfigurationContactsComponent implements OnInit {
   @HostBinding('class.alert-configuration-contacts-component') private _hostClass = true;
-  constructor() { }
+  constructor(private renderer: Renderer2, private eRef: ElementRef) { }
 
   // tslint:disable:no-inferrable-types
   megaPanelVisible: boolean = false;
@@ -20,7 +20,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
   visible = true;
   selectable = true;
   addOnBlur = true;
-  contactRemovable: boolean;
+  contactRemovable = true;
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   selectedContacts: any = []; // list of id's
@@ -48,12 +48,12 @@ export class AlertConfigurationContactsComponent implements OnInit {
 ];
 
   ngOnInit() {
-    this.contactRemovable = this.moreThanOneContactSelected();
     this.setPanelContent('existingContacts');
   }
 
   showMegaPanel() {
     this.megaPanelVisible = true;
+    this.setPanelContent('existingContacts');
   }
 
   collapseMegaPanel() {
@@ -86,13 +86,29 @@ export class AlertConfigurationContactsComponent implements OnInit {
     contact.name = this.lastContactName;
     contact.type = type;
     contact.id = this.exisitingContacts[this.exisitingContacts.length - 1].id + 1;  // TODO: get from server
+
+    if (type === 'Slack') {
+      contact = this.createSlackContact(contact, contact.name);
+    } // else if Group
+    // else if OpsGenie
+    // else if Email
+
     this.addToExistingContacts(contact);
     this.viewExistingContacts();
   }
 
+  createSlackContact(contact: any, channelName: string): any {
+    if (channelName.charAt(0) !== '#') {
+      channelName = '#' + channelName;
+    }
+    contact.name = channelName;
+
+    return contact;
+  }
+
   addToExistingContacts(contact: any) {
     this.exisitingContacts.push(contact);
-}
+  }
 
   getContactsForType(type: string) {
     // TODO: harden valid names: group, opsgenie, slack, email
@@ -103,9 +119,9 @@ export class AlertConfigurationContactsComponent implements OnInit {
     // tslint:disable:prefer-const
     let contacts = [];
     for (let contact of this.exisitingContacts) {
-        if (contact.type.toLowerCase() === type.toLowerCase()) {
-            contacts.push(contact);
-        }
+      if (contact.type.toLowerCase() === type.toLowerCase()) {
+        contacts.push(contact);
+      }
     }
     return contacts;
   }
@@ -142,8 +158,11 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
   }
 
-  // OPERATIONS By Id
+  isAnyContractSelected(): boolean {
+    return (this.selectedContacts.length > 0);
+  }
 
+  // OPERATIONS By ID
   isContactSelected(id: string ): boolean {
     return this.selectedContacts.includes(id);
   }
@@ -156,24 +175,26 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
   }
 
-  moreThanOneContactSelected(): boolean {
-    return (this.selectedContacts.length > 1);
-  }
-
   removeContactFromSelectedContacts(id: string) {
     for (let i = 0; i < this.selectedContacts.length; i++) {
       if (this.selectedContacts[i] === id) {
         this.selectedContacts.splice(i, 1);
       }
     }
-    this.contactRemovable = this.moreThanOneContactSelected();
   }
 
   addContactToSelectedContacts(id: string) {
     if (!this.selectedContacts.includes(id)) {
       this.selectedContacts.push(id);
     }
-    this.contactRemovable = this.moreThanOneContactSelected();
+  }
+
+  // Listen if we should close panel
+  @HostListener('document:click', ['$event'])
+  clickOutsideComponent(event) {
+    if (!this.eRef.nativeElement.contains(event.target)) {
+      this.collapseMegaPanel();
+    }
   }
 
 }
