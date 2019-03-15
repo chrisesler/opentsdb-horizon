@@ -3,7 +3,7 @@
 
     <mat-chip *ngFor="let id of selectedContacts" [selectable]="selectable"
       [removable]="contactRemovable" (removed)="removeContactFromSelectedContacts(id)">
-      {{getContactFromId(id).name}}
+      {{getRecipientFromId(id).name}}
     <mat-icon matChipRemove *ngIf="contactRemovable">cancel</mat-icon>
     </mat-chip>
 
@@ -56,34 +56,71 @@
     </div>
 
   <div class="panel-content">
-    <!-- <div *ngIf="panelContent === 'existingContacts'" class="existing-contacts">
-        <div class="contact-list-type">
-            Groups
-            <div class="contact-list-of-buttons">
-                <button class="contact-button" *ngFor="let contact of getContactsForType('group')" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
-            </div>
-        </div>
+    <div *ngIf="viewMode === _mode.all || viewMode === _mode.edit" class="existing-contacts">
         <div class="contact-list-type">
             Slack
             <div class="contact-list-of-buttons">
-                <button class="contact-button" *ngFor="let contact of getContactsForType('slack')" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
+              <span *ngIf="viewMode === _mode.all">
+                  <button class="contact-button" *ngFor="let contact of getUnselectedRecipientsForType(_recipientType.Slack)" mat-button (click)="addRecipientToSelectedRecipients($event, contact.id)">+ {{contact.name}}</button>
+              </span>
+
+              <span *ngIf="viewMode === _mode.edit">
+                  <button class="contact-button" *ngFor="let contact of getAllRecipientsForType(_recipientType.Slack)" mat-button (click)="editRecipientMode($event, contact.id)">x {{contact.name}}</button>
+              </span>
             </div>
         </div>
         <div class="contact-list-type">
             OpsGenie
             <div class="contact-list-of-buttons">
-                <button class="contact-button" *ngFor="let contact of getContactsForType('opsgenie')" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
+              <span *ngIf="viewMode === _mode.all">
+                  <button class="contact-button" *ngFor="let contact of getUnselectedRecipientsForType(_recipientType.OpsGenie)" mat-button (click)="addRecipientToSelectedRecipients($event, contact.id)"> + {{contact.name}}</button>
+              </span>
+
+              <span *ngIf="viewMode === _mode.edit">
+                  <button class="contact-button" *ngFor="let contact of getAllRecipientsForType(_recipientType.OpsGenie)" mat-button (click)="editRecipientMode($event, contact.id)">x {{contact.name}}</button>
+              </span>
             </div>
         </div>
         <div class="contact-list-type">
             Email
             <div class="contact-list-of-buttons">
-                <button class="contact-button" *ngFor="let contact of getContactsForType('email')" mat-button (click)="addContactToSelectedContacts(contact.id)" [disabled]="isContactSelected(contact.id)">{{contact.name}}</button>
+              <span *ngIf="viewMode === _mode.all">
+                  <button class="contact-button" *ngFor="let contact of getUnselectedRecipientsForType(_recipientType.Email)" mat-button (click)="addRecipientToSelectedRecipients($event, contact.id)">+ {{contact.name}}</button>
+              </span>
+
+              <span *ngIf="viewMode === _mode.edit">
+                  <button class="contact-button" *ngFor="let contact of getAllRecipientsForType(_recipientType.Email)" mat-button (click)="editRecipientMode($event, contact.id)">x {{contact.name}}</button>
+              </span>
+            </div>
+        </div>
+        <div class="contact-list-type">
+            OC
+            <div class="contact-list-of-buttons">
+              <span *ngIf="viewMode === _mode.all">
+                  <button class="contact-button" *ngFor="let contact of getUnselectedRecipientsForType(_recipientType.OC)" mat-button (click)="addRecipientToSelectedRecipients($event, contact.id)">+ {{contact.name}}</button>
+              </span>
+
+              <span *ngIf="viewMode === _mode.edit">
+                  <button class="contact-button" *ngFor="let contact of getAllRecipientsForType(_recipientType.OC)" mat-button (click)="editRecipientMode($event, contact.id)">x {{contact.name}}</button>
+              </span>
+            </div>
+        </div>
+
+        <div class="contact-list-type">
+            HTTP
+            <div class="contact-list-of-buttons">
+              <span *ngIf="viewMode === _mode.all">
+                  <button class="contact-button" *ngFor="let contact of getUnselectedRecipientsForType(_recipientType.HTTP)" mat-button (click)="addRecipientToSelectedRecipients($event, contact.id)">+ {{contact.name}}</button>
+              </span>
+
+              <span *ngIf="viewMode === _mode.edit">
+                  <button class="contact-button" *ngFor="let contact of getAllRecipientsForType(_recipientType.HTTP)" mat-button (click)="editRecipientMode($event, contact.id)">x {{contact.name}}</button>
+              </span>
             </div>
         </div>
     </div>
 
-    <div *ngIf="panelContent === 'group'">
+    <!-- <div *ngIf="panelContent === 'group'">
         <div class="contacts-title">Create Group </div>
         <div class="contacts-create-form">
             <div class="labels">
