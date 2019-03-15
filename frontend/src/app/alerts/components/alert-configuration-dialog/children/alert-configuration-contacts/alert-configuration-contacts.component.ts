@@ -1,7 +1,7 @@
 import { Component, OnInit, HostBinding, Renderer2, ElementRef, HostListener } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { Mode, RecipientType } from './models';
+import { Mode, RecipientType, Recipient } from './models';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -15,13 +15,13 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   // tslint:disable:no-inferrable-types
   megaPanelVisible: boolean = false;
-  // panelContent: string;
   lastContactName: string = '';
 
   _mode = Mode; // for template
   _recipientType = RecipientType; // for template
   viewMode: Mode = Mode.all;
-  recipient: RecipientType;
+  recipientType: RecipientType = RecipientType.OpsGenie;
+  recipient: Recipient;
 
   visible = true;
   selectable = true;
@@ -61,6 +61,11 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   ngOnInit() { }
 
+  types(): Array<string> {
+    const keys = Object.keys(RecipientType);
+    return keys;
+}
+
   showMegaPanel() {
     this.megaPanelVisible = true;
   }
@@ -70,18 +75,49 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   setViewMode($event: Event, mode: Mode ) {
-    $event.stopPropagation();
+    if ($event) {
+      $event.stopPropagation();
+    }
     this.viewMode = mode;
   }
 
-  deleteContact($event: Event) {
+  changeRecipientType(type) {
+    console.log(type);
+    this.recipientType = type ;
+  }
+
+
+  getAllRecipientsForType(type: RecipientType) {
+    return this.getRecipients(type, false);
+  }
+
+  getUnselectedRecipientsForType(type: RecipientType) {
+    return this.getRecipients(type, true);
+  }
+
+  getRecipients(type: RecipientType, filterOutSelectedContacts): any[] {
+    // tslint:disable:prefer-const
+    let contacts = [];
+    for (let contact of this.exisitingContacts) {
+      if (filterOutSelectedContacts && contact.type === type && !this.isContactSelected(contact.id)) {
+        contacts.push(contact);
+      } else if (!filterOutSelectedContacts && contact.type === type) {
+        contacts.push(contact);
+      }
+    }
+    return contacts;
+  }
+
+  deleteContact($event: Event, contact)  {
     // TODO: delete contact
+    this.removeRecipient(contact.id);
     this.setViewMode($event, Mode.edit);
   }
 
   editRecipientMode($event, id: string) {
     this.setViewMode($event, Mode.editRecipient);
     this.recipient = this.getRecipientFromId(id);
+    this.recipientType = this.recipient.type;
   }
 
   // TODO: remove
@@ -118,7 +154,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
   createEmailContact(email: string): any {
     let contact: any = {};
     contact.name = email;
-    contact.type = 'Email';
+    contact.type = RecipientType.Email;
     contact.id = this.exisitingContacts[this.exisitingContacts.length - 1].id + 1;  // TODO: get from server
 
     this.addToExistingContacts(contact);
@@ -129,49 +165,27 @@ export class AlertConfigurationContactsComponent implements OnInit {
     this.exisitingContacts.push(contact);
   }
 
-
-  getAllRecipientsForType(type: RecipientType) {
-    return this.getRecipients(type, false);
-  }
-
-  getUnselectedRecipientsForType(type: RecipientType) {
-    return this.getRecipients(type, true);
-  }
-
-  getRecipients(type: RecipientType, filterOutSelectedContacts): any[] {
-    // tslint:disable:prefer-const
-    let contacts = [];
-    for (let contact of this.exisitingContacts) {
-      if (filterOutSelectedContacts && contact.type === type && !this.isContactSelected(contact.id)) {
-        contacts.push(contact);
-      } else if (!filterOutSelectedContacts && contact.type === type) {
-        contacts.push(contact);
-      }
-    }
-    return contacts;
-  }
-
   addContactFromName(contactName: string) {
     let isExistingContact: boolean = false;
 
-    // for (let contact of this.exisitingContacts) {
-    //   if (isExistingContact && contact.name === contactName) {
-    //     // TODO: two contacts same name, manually select
-    //   }
-    //   if (contact.name === contactName) {
-    //     this.addRecipientToSelectedContacts(contact.id);
-    //     isExistingContact = true;
-    //   }
-    // }
+    for (let contact of this.exisitingContacts) {
+      if (isExistingContact && contact.name === contactName) {
+        // TODO: two contacts same name, manually select
+      }
+      if (contact.name === contactName) {
+        this.addRecipientToSelectedRecipients(null, contact.id);
+        isExistingContact = true;
+      }
+    }
 
-    // if (!isExistingContact) {
-    //   if (this.isEmailValid(contactName)) {
-    //     let contact = this.createEmailContact(contactName);
-    //     this.addRecipientToSelectedContacts(contact.id);
-    //   } else {
-    //   // TODO: error - invalid email or no matching contacts
-    //   }
-    // }
+    if (!isExistingContact) {
+      if (this.isEmailValid(contactName)) {
+        let contact = this.createEmailContact(contactName);
+        this.addRecipientToSelectedRecipients(null, contact.id);
+      } else {
+      // TODO: error - invalid email or no matching contacts
+      }
+    }
   }
 
   addUserInputToSelectedContacts(event: MatChipInputEvent) {
@@ -219,8 +233,19 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
   }
 
+  removeRecipient(id: string) {
+    this.removeContactFromSelectedContacts(id);
+    for (let i = 0; i < this.exisitingContacts.length; i++) {
+      if (this.exisitingContacts[i].id === id) {
+        this.exisitingContacts.splice(i, 1);
+      }
+    }
+  }
+
   addRecipientToSelectedRecipients($event: Event, id: string) {
-    $event.stopPropagation();
+    if ($event) {
+      $event.stopPropagation();
+    }
     if (!this.selectedContacts.includes(id)) {
       this.selectedContacts.push(id);
     }

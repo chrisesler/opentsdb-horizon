@@ -6,9 +6,14 @@ export enum Mode {
 }
 
 export enum RecipientType {
-    OpsGenie,
-    Slack,
-    HTTP,
-    OC,
-    Email
+    OpsGenie = 'OpsGenie',
+    Slack = 'Slack',
+    HTTP = 'HTTP',
+    OC = 'OC',
+    Email = 'Email'
+}
+
+export class Recipient {
+    type: RecipientType;
+    name: string;
 }
