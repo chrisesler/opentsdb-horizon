@@ -106,6 +106,16 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return contact;
   }
 
+  createEmailContact(email: string): any {
+    let contact: any = {};
+    contact.name = email;
+    contact.type = 'Email';
+    contact.id = this.exisitingContacts[this.exisitingContacts.length - 1].id + 1;  // TODO: get from server
+
+    this.addToExistingContacts(contact);
+    return contact;
+  }
+
   addToExistingContacts(contact: any) {
     this.exisitingContacts.push(contact);
   }
@@ -140,7 +150,12 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
 
     if (!isExistingContact) {
-      // TODO: no matching contacts
+      if (this.isEmailValid(contactName)) {
+        let contact = this.createEmailContact(contactName);
+        this.addContactToSelectedContacts(contact.id);
+      } else {
+      // TODO: error - invalid email or no matching contacts
+      }
     }
   }
 
@@ -160,6 +175,12 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   isAnyContractSelected(): boolean {
     return (this.selectedContacts.length > 0);
+  }
+
+  isEmailValid(email: string): boolean {
+    // tslint:disable-next-line:max-line-length
+    let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
   }
 
   // OPERATIONS By ID
