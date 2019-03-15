@@ -1,6 +1,7 @@
 @mixin alert-configuration-contacts-component-base() {
 
     .alert-configuration-contacts-component {
+        position: relative;
 
         .contact-list {
             width: 1000px;
@@ -67,6 +68,11 @@
                             }
                         }
                     }
+                }
+
+                .panel-footer {
+                    position:absolute; 
+                    bottom:0;
                 }
             }
         }

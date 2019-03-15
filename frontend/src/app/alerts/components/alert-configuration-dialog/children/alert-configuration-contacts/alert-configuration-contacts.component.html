@@ -18,26 +18,45 @@
 <div *ngIf="megaPanelVisible" class="mega-panel">
 
   <div class="panel-header">
-    <div class="panel-title">
-      Select Recipients
+
+      <div class="panel-title">
+         <span *ngIf="viewMode === _mode.all">
+            Select Recipients
+         </span>
+  
+         <span *ngIf="viewMode === _mode.edit">
+            Edit Recipients
+         </span>
+  
+         <span *ngIf="viewMode === _mode.editRecipient">
+            Edit {{recipient.type}} Recipient
+         </span>
+  
+         <span *ngIf="viewMode === _mode.createRecipient">
+            Create Recipient
+         </span>
+      </div>
+  
+      <div class="panel-actions" *ngIf="viewMode !== _mode.createRecipient">
+  
+        <div *ngIf="viewMode === _mode.all">
+          <button (click)="setViewMode($event, _mode.createRecipient)"> Create </button>
+          <button (click)="setViewMode($event, _mode.edit)"> Edit </button>
+        </div>
+  
+        <div *ngIf="viewMode === _mode.edit">
+          <button (click)="setViewMode($event, _mode.all)"> Cancel </button>
+        </div>
+  
+        <div *ngIf="viewMode === _mode.editRecipient">
+          <button (click)="deleteContact($event)"> Delete </button>
+        </div>
+      </div>
+  
     </div>
-    <div>
-      <button mat-button [matMenuTriggerFor]="menu">Create New Recipient</button>
-      <mat-menu #menu="matMenu">
-          <button mat-menu-item (click)="setPanelContent('group')">Group</button>
-          <button mat-menu-item (click)="setPanelContent('slack')">Slack</button>
-          <button mat-menu-item (click)="setPanelContent('opsgenie')">OpsGenie</button>
-          <button mat-menu-item (click)="setPanelContent('email')">Email</button>
-          <button mat-menu-item>HTTP</button>
-          <button mat-menu-item>OC</button>
-      </mat-menu>
-      <button mat-button>Edit Recipients</button>
-      <!-- <button (click)="collapseMegaPanel()" mat-button>x</button> -->
-    </div>
-  </div>
 
   <div class="panel-content">
-    <div *ngIf="panelContent === 'existingContacts'" class="existing-contacts">
+    <!-- <div *ngIf="panelContent === 'existingContacts'" class="existing-contacts">
         <div class="contact-list-type">
             Groups
             <div class="contact-list-of-buttons">
@@ -158,7 +177,20 @@
         </div>
         <button mat-button (click)="addContact('Email')">Create</button>
         <button mat-button (click)="setPanelContent('existingContacts')">cancel</button>
-    </div>
+    </div> -->
 
+    <div class="panel-footer" *ngIf="viewMode === _mode.editRecipient || viewMode === _mode.createRecipient">
+        <div *ngIf="viewMode === _mode.editRecipient">
+          <button> Save </button>
+          <button> Test </button>
+          <button (click)="setViewMode($event, _mode.all)"> Cancel </button>
+        </div>
+  
+        <div *ngIf="viewMode === _mode.createRecipient">
+          <button> Save </button>
+          <button> Test </button>
+          <button (click)="setViewMode($event, _mode.all)"> Cancel </button>
+        </div>
+    </div>
   </div>
 </div>

@@ -1,6 +1,7 @@
 import { Component, OnInit, HostBinding, Renderer2, ElementRef, HostListener } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { Mode } from './models';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -14,8 +15,11 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   // tslint:disable:no-inferrable-types
   megaPanelVisible: boolean = false;
-  panelContent: string;
+  // panelContent: string;
   lastContactName: string = '';
+
+  _mode = Mode; // for template
+  viewMode: Mode = Mode.all;
 
   visible = true;
   selectable = true;
@@ -47,32 +51,27 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
 ];
 
-  ngOnInit() {
-    this.setPanelContent('existingContacts');
-  }
+  ngOnInit() { }
 
   showMegaPanel() {
     this.megaPanelVisible = true;
-    this.setPanelContent('existingContacts');
   }
 
   collapseMegaPanel() {
     this.megaPanelVisible = false;
   }
 
-  viewExistingContacts() {
-    this.megaPanelVisible = true;
-    this.setPanelContent('existingContacts');
+  setViewMode($event: Event, mode: Mode ) {
+    $event.stopPropagation();
+    this.viewMode = mode;
   }
 
-  setPanelContent(contentName: string) {
-    // TODO: harden valid names: group, opsgenie, slack, email, existingContacts
-    if (contentName.toLowerCase() === 'existingcontacts') {
-      this.panelContent = 'existingContacts';
-    } else {
-      this.panelContent = contentName.toLowerCase();
-    }
+  deleteContact($event: Event) {
+    // TODO: delete contact
+    this.setViewMode($event, Mode.edit);
   }
+
+
 
   // TODO: remove
   latestContactName(name: string) {
@@ -94,7 +93,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
     // else if Email
 
     this.addToExistingContacts(contact);
-    this.viewExistingContacts();
   }
 
   createSlackContact(contact: any, channelName: string): any {
