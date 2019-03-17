@@ -84,35 +84,26 @@
 
           <div *ngIf="recipientType === _recipientType.OpsGenie" class="contacts-create-form">
 
-            <!-- <div class="labels">
-                <div class="label">Team name</div>
-                <div class="label">API Key</div>
-                <div class="label">Priority</div>
-                <div class="label">Tags</div>
-            </div>
-
-            <div class="selectors">
-                <div class="text-field selector">
-                    <input #name matInput (keyup)="latestContactName(name.value)">
-                </div>
-                <div class="text-field selector">
-                    <input matInput>
-                </div>
-                <div class="text-field selector">
-                    <input matInput>
-                </div>
-                <div class="text-field selector">
-                    <input matInput>
-                </div>
-            </div> -->
-
-            <div class="form-group alert-message">
-                <div class="form-label">Alert message</div>
-                <mat-form-field appearance="fill">
-                    <mat-label></mat-label>
-                    <textarea matInput placeholder="Enter alert message"></textarea>
+            <!-- <form class="example-container" [formGroup]="recipient"> -->
+              <div>
+                <label>Team Name: </label>
+                <mat-form-field floatLabel="never" appearance="fill">
+                  <input matInput placeholder="Enter Team Name" required [value]="recipient.name" (input)="updateRecipient(recipient, 'name', $event.target.value)">
                 </mat-form-field>
-            </div>
+              </div>
+
+              <div>
+                <label>Priority: </label>
+                <mat-radio-group [value]="recipient.priority" (change)="updateRecipient(recipient, 'priority', $event.value)">
+                    <!-- formControlName="priority"  -->
+                  <mat-radio-button value="P1">P1</mat-radio-button>
+                  <mat-radio-button value="P2">P2</mat-radio-button>
+                  <mat-radio-button value="P3">P3</mat-radio-button>
+                  <mat-radio-button value="P4">P4</mat-radio-button>
+                  <mat-radio-button value="P5">P5</mat-radio-button>
+                </mat-radio-group>
+              </div>
+            <!-- </form> -->
 
           </div>
 
@@ -159,13 +150,13 @@
 
     <div class="panel-footer" *ngIf="viewMode === _mode.editRecipient || viewMode === _mode.createRecipient">
         <div *ngIf="viewMode === _mode.editRecipient">
-          <button> Save </button>
+          <button (click)="setViewMode($event, _mode.edit)"> Save </button>
           <button> Test </button>
           <button (click)="setViewMode($event, _mode.all)"> Cancel </button>
         </div>
   
         <div *ngIf="viewMode === _mode.createRecipient">
-          <button> Save </button>
+          <button (click)="saveCreatedRecipient($event)"> Save </button>
           <button> Test </button>
           <button (click)="setViewMode($event, _mode.all)"> Cancel </button>
         </div>

@@ -20,7 +20,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
   _mode = Mode; // for template
   _recipientType = RecipientType; // for template
   viewMode: Mode = Mode.all;
-  recipientType: RecipientType = RecipientType.OpsGenie;
+  recipientType: RecipientType = RecipientType.OpsGenie; // TODO: is this needed?
   recipient: Recipient;
 
   visible = true;
@@ -35,7 +35,8 @@ export class AlertConfigurationContactsComponent implements OnInit {
     {
       id: '2',
       name: 'dev-team',
-      type: RecipientType.OpsGenie
+      type: RecipientType.OpsGenie,
+      priority: 'P3'
     },
     {
       id: '3',
@@ -84,11 +85,14 @@ export class AlertConfigurationContactsComponent implements OnInit {
     if ($event) {
       $event.stopPropagation();
     }
+
+    if (mode === Mode.createRecipient) {
+      this.recipient = this.createDefaultRecipient();
+    }
     this.viewMode = mode;
   }
 
   changeRecipientType(type) {
-    console.log(type);
     this.recipientType = type ;
   }
 
@@ -136,8 +140,8 @@ export class AlertConfigurationContactsComponent implements OnInit {
     this.lastContactName = name;
   }
 
+  // TODO: remove
   addContact(type: string) {
-    // TODO: harden valid names: Group, OpsGenie, Slack, Email
     // tslint:disable:prefer-const
     let contact: any = {};
     contact.name = this.lastContactName;
@@ -151,6 +155,16 @@ export class AlertConfigurationContactsComponent implements OnInit {
     // else if Email
 
     this.addToExistingContacts(contact);
+  }
+
+  createDefaultRecipient(): Recipient {
+    // tslint:disable-next-line:prefer-const
+    let newRecipient: Recipient = {
+      id: this.exisitingContacts[this.exisitingContacts.length - 1].id + 1,  // TODO: get from server,
+      name: '',
+      type: RecipientType.OpsGenie
+    };
+    return newRecipient;
   }
 
   createSlackContact(contact: any, channelName: string): any {
@@ -260,6 +274,16 @@ export class AlertConfigurationContactsComponent implements OnInit {
     if (!this.selectedContacts.includes(id)) {
       this.selectedContacts.push(id);
     }
+  }
+
+  // Form Updates
+  updateRecipient(recipient: Recipient, field: string, updatedValue: string ) {
+    recipient[field] = updatedValue;
+  }
+
+  saveCreatedRecipient($event) {
+    this.addToExistingContacts(this.recipient);
+    this.setViewMode($event, Mode.all);
   }
 
   // Listen if we should close panel

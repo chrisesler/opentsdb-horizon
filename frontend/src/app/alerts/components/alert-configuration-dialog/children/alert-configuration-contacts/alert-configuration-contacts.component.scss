@@ -57,6 +57,7 @@
                         width: 20%;
                         padding-left: 5px;
                         margin-bottom: 5px;
+                        // overflow: scroll;
 
                         .contact-list-of-buttons {
                             display: flex;
@@ -65,6 +66,7 @@
     
                             .contact-button {
                                 width: fit-content;
+                                display: block;
                             }
                         }
                     }
@@ -91,7 +93,7 @@
     
         .contacts-create-form {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
         }
     
         .text-field {
@@ -113,7 +115,6 @@
             margin-bottom: 5px;
         }                   
     }
-
 
 }
 
