@@ -69,12 +69,15 @@
                         }
                     }
                 }
-                
-                .form {
-                    padding-top: 10px;
-                    padding-left: 10px;
-                }
 
+                .change-recipient {
+                    padding-left: 10px;
+
+                    .form {
+                        padding-top: 10px;
+                    }
+                }
+                
                 .panel-footer {
                     position:absolute; 
                     bottom:0;

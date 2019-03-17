@@ -62,9 +62,15 @@ export class AlertConfigurationContactsComponent implements OnInit {
   ngOnInit() { }
 
   types(): Array<string> {
-    const keys = Object.keys(RecipientType);
-    return keys;
-}
+    const types = Object.keys(RecipientType);
+    return types;
+  }
+
+  typesExceptEmail(): Array<string> {
+    let types = Object.keys(RecipientType);
+    types = types.filter(e => e !== RecipientType.Email);
+    return types;
+  }
 
   showMegaPanel() {
     this.megaPanelVisible = true;
@@ -108,16 +114,21 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return contacts;
   }
 
-  deleteContact($event: Event, contact)  {
+  deleteRecipient($event: Event, recipient: Recipient)  {
     // TODO: delete contact
-    this.removeRecipient(contact.id);
+    this.removeRecipient(recipient.id);
     this.setViewMode($event, Mode.edit);
   }
 
   editRecipientMode($event, id: string) {
-    this.setViewMode($event, Mode.editRecipient);
     this.recipient = this.getRecipientFromId(id);
     this.recipientType = this.recipient.type;
+
+    if (this.recipientType === RecipientType.Email) {
+      this.deleteRecipient($event, this.recipient);
+    } else {
+      this.setViewMode($event, Mode.editRecipient);
+    }
   }
 
   // TODO: remove
@@ -217,7 +228,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return this.selectedContacts.includes(id);
   }
 
-  getRecipientFromId(id: string ): any {
+  getRecipientFromId(id: string ): Recipient {
     for (let i = 0; i < this.exisitingContacts.length; i++) {
       if (this.exisitingContacts[i].id === id) {
         return this.exisitingContacts[i];

@@ -16,4 +16,5 @@ export enum RecipientType {
 export class Recipient {
     type: RecipientType;
     name: string;
+    id: string;
 }
