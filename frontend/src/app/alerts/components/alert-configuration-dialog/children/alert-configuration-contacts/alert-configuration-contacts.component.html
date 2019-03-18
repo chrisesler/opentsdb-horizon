@@ -85,15 +85,15 @@
           <div *ngIf="recipientType === _recipientType.OpsGenie" class="contacts-create-form">
             <div>
               <label>Team Name: </label>
-              <mat-form-field floatLabel="never" appearance="fill">
-                <input matInput placeholder="Enter Team Name" required [value]="recipients[_recipientType.OpsGenie].name" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'name', $event.target.value)">
+              <mat-form-field floatLabel="never" appearance="fill" [hideRequiredMarker]="false">
+                <input matInput placeholder="Enter Team Name*" required [value]="recipients[_recipientType.OpsGenie].name" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'name', $event.target.value)">
               </mat-form-field>
             </div>
 
             <div>
               <label>API Key: </label>
               <mat-form-field floatLabel="never" appearance="fill">
-                <input matInput placeholder="Enter API Key" required [value]="recipients[_recipientType.OpsGenie].apiKey" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'apiKey', $event.target.value)">
+                <input matInput placeholder="Enter API Key*" required [value]="recipients[_recipientType.OpsGenie].apiKey" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'apiKey', $event.target.value)">
               </mat-form-field>
             </div>
 
@@ -116,18 +116,75 @@
             </div>
           </div>
 
-          <div *ngIf="recipientType === _recipientType.Slack">
+          <div *ngIf="recipientType === _recipientType.Slack" class="contacts-create-form">
             <div>
               <label>Channel Name: </label>
               <mat-form-field floatLabel="never" appearance="fill">
-                <input matInput placeholder="Enter Channel Name" required [value]="recipients[_recipientType.Slack].name" (input)="updateRecipient(recipients[_recipientType.Slack], 'name', $event.target.value)">
+                <input matInput placeholder="Enter Channel Name*" required [value]="recipients[_recipientType.Slack].name" (input)="updateRecipient(recipients[_recipientType.Slack], 'name', $event.target.value)">
               </mat-form-field>
             </div>
 
             <div>
               <label>Webhook URL: </label>
               <mat-form-field floatLabel="never" appearance="fill">
-                <input matInput placeholder="Webhook URL" required [value]="recipients[_recipientType.Slack].webhook" (input)="updateRecipient(recipients[_recipientType.Slack], 'webhook', $event.target.value)">
+                <input matInput placeholder="Webhook URL*" required [value]="recipients[_recipientType.Slack].webhook" (input)="updateRecipient(recipients[_recipientType.Slack], 'webhook', $event.target.value)">
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div *ngIf="recipientType === _recipientType.OC" class="contacts-create-form">
+            <div>
+              <label>Name: </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="Enter Name*" required [value]="recipients[_recipientType.OC].name" (input)="updateRecipient(recipients[_recipientType.OC], 'name', $event.target.value)">
+              </mat-form-field>
+            </div>
+
+            <div>
+              <label>Display Count: </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="Enter Display Count*" required [value]="recipients[_recipientType.OC].displayCount" (input)="updateRecipient(recipients[_recipientType.OC], 'displayCount', $event.target.value)">
+              </mat-form-field>
+            </div>
+
+            <div>
+              <label>Context: </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="Enter Context*" required [value]="recipients[_recipientType.OC].context" (input)="updateRecipient(recipients[_recipientType.OC], 'context', $event.target.value)">
+              </mat-form-field>
+            </div>
+
+            <div>
+              <label>OpsDB Property: </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="Enter OpsDB Property*" required [value]="recipients[_recipientType.OC].opsDBProperty" (input)="updateRecipient(recipients[_recipientType.OC], 'opsDBProperty', $event.target.value)">
+              </mat-form-field>
+            </div>
+
+            <div>
+              <label>Severity: </label>
+              <mat-radio-group [value]="recipients[_recipientType.OC].severity" (change)="updateRecipient(recipients[_recipientType.OC], 'severity', $event.value)">
+                <mat-radio-button value="1">1</mat-radio-button>
+                <mat-radio-button value="2">2</mat-radio-button>
+                <mat-radio-button value="3">3</mat-radio-button>
+                <mat-radio-button value="4">4</mat-radio-button>
+                <mat-radio-button value="5">5</mat-radio-button>
+              </mat-radio-group>
+            </div>
+          </div>
+
+          <div *ngIf="recipientType === _recipientType.HTTP" class="contacts-create-form">
+            <div>
+              <label>Name: </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="Enter Name*" required [value]="recipients[_recipientType.HTTP].name" (input)="updateRecipient(recipients[_recipientType.HTTP], 'name', $event.target.value)">
+              </mat-form-field>
+            </div>
+
+            <div>
+              <label>Endpoint: </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="Enter endpoint* (e.g., https://...)" required [value]="recipients[_recipientType.HTTP].endpoint" (input)="updateRecipient(recipients[_recipientType.HTTP], 'endpoint', $event.target.value)">
               </mat-form-field>
             </div>
           </div>
@@ -136,17 +193,17 @@
     </div>
 
     <div class="panel-footer" *ngIf="viewMode === _mode.editRecipient || viewMode === _mode.createRecipient">
-        <div *ngIf="viewMode === _mode.editRecipient">
-          <button (click)="setViewMode($event, _mode.edit)"> Save </button>
-          <button> Test </button>
-          <button (click)="cancelEdit()"> Cancel </button>
-        </div>
-  
-        <div *ngIf="viewMode === _mode.createRecipient">
-          <button (click)="saveCreatedRecipient($event)"> Save </button>
-          <button> Test </button>
-          <button (click)="setViewMode($event, _mode.all)"> Cancel </button>
-        </div>
+      <div *ngIf="viewMode === _mode.editRecipient">
+        <button (click)="saveEditedRecipient($event)"> Save </button>
+        <button (click)="testRecipient($event)"> Test </button>
+        <button (click)="cancelEdit()"> Cancel </button>
+      </div>
+
+      <div *ngIf="viewMode === _mode.createRecipient">
+        <button (click)="saveCreatedRecipient($event)"> Save </button>
+        <button (click)="testRecipient($event)"> Test </button>
+        <button (click)="setViewMode($event, _mode.all)"> Cancel </button>
+      </div>
     </div>
 
   </div>

@@ -45,12 +45,17 @@ export class AlertConfigurationContactsComponent implements OnInit {
     {
       id: '5',
       name: 'OC Red',
-      type: RecipientType.OC
+      type: RecipientType.OC,
+      displayCount: '',
+      context: '',
+      opsDBProperty: '',
+      severity: '5'
     },
     {
       id: '6',
       name: 'curveball',
-      type: RecipientType.HTTP
+      type: RecipientType.HTTP,
+      endpoint: 'https://myendpoint.com/api/curveball'
     }
   ];
 
@@ -81,6 +86,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
     if (mode === Mode.createRecipient) {
       this.populateEmptyRecipients();
+      this.recipientType = RecipientType.OpsGenie;
     }
 
     if (mode === Mode.editRecipient) {
@@ -196,24 +202,31 @@ export class AlertConfigurationContactsComponent implements OnInit {
   // User Actions
 
   updateRecipient(recipient: Recipient, field: string, updatedValue: string ) {
-
     // prepend '#' for slack
     if (recipient.type === RecipientType.Slack && field.toLowerCase() === 'name' ) {
       if (updatedValue.charAt(0) !== '#') {
         updatedValue = '#' + updatedValue;
       }
     }
-
     recipient[field] = updatedValue;
   }
 
   saveCreatedRecipient($event) {
+    // todo: send to server
     this.addToExistingContacts(this.recipients[this.recipientType]);
     this.setViewMode($event, Mode.all);
   }
 
-  cancelEdit() {
+  saveEditedRecipient($event) {
+    // todo: send to server
+    this.setViewMode($event, Mode.all);
+  }
 
+  testRecipient($event) {
+    // todo: send to server
+  }
+
+  cancelEdit() {
     // reset to old contact
     for (let i = 0; i < this.exisitingRecipients.length; i++) {
       if (this.exisitingRecipients[i].id === this.tempRecipient.id) {
@@ -221,7 +234,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
         break;
       }
     }
-
     this.setViewMode(null, Mode.all);
   }
 
@@ -238,6 +250,12 @@ export class AlertConfigurationContactsComponent implements OnInit {
     emptyOpsGenieRecipient.priority = 'P5';
     emptyOpsGenieRecipient.apiKey = '';
     emptyOpsGenieRecipient.tags = '';
+    emptySlackRecipient.webhook = '';
+    emptyHTTPRecipient.endpoint = '';
+    emptyOCRecipient.displayCount = '';
+    emptyOCRecipient.context = '';
+    emptyOCRecipient.opsDBProperty = '';
+    emptyOCRecipient.severity = '1';
 
     emptyRecipients[RecipientType.OpsGenie] = emptyOpsGenieRecipient;
     emptyRecipients[RecipientType.Slack] = emptySlackRecipient;
@@ -311,5 +329,4 @@ export class AlertConfigurationContactsComponent implements OnInit {
       this.collapseMegaPanel();
     }
   }
-
 }
