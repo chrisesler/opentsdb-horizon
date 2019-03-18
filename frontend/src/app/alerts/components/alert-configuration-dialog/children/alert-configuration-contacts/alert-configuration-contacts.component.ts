@@ -96,12 +96,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
     this.viewMode = mode;
   }
 
-  deleteRecipient($event: Event, recipient: Recipient)  {
-    // TODO: delete contact
-    this.removeRecipient(recipient.id);
-    this.setViewMode($event, Mode.edit);
-  }
-
   editRecipientMode($event, id: string) {
     // tslint:disable-next-line:prefer-const
     let recipient = this.getRecipientFromId(id);
@@ -224,6 +218,12 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   testRecipient($event) {
     // todo: send to server
+  }
+
+  deleteRecipient($event: Event, recipient: Recipient)  {
+    // TODO: delete contact
+    this.removeRecipient(recipient.id);
+    this.setViewMode($event, Mode.edit);
   }
 
   cancelEdit() {

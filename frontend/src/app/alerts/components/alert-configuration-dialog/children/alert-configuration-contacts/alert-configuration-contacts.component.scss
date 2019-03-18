@@ -28,6 +28,7 @@
             height: 300px;
             min-width: 1500px;
             margin-top: 5px;
+            z-index: 1;
 
             .panel-header {
                 height: 36px;
@@ -108,7 +109,6 @@
                 }
             }
         }
-    
         // .text-field {
         //     background:  lightblue;
         // }

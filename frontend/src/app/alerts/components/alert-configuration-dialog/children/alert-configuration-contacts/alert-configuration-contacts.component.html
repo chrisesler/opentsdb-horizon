@@ -49,7 +49,7 @@
         </div>
   
         <div *ngIf="viewMode === _mode.editRecipient">
-          <button (click)="deleteContact($event, recipient)"> Delete </button>
+          <button (click)="deleteRecipient($event, recipients[recipientType])"> Delete </button>
         </div>
       </div>
   
