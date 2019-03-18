@@ -4,7 +4,7 @@
     <mat-chip *ngFor="let id of selectedRecipients" [selectable]="true"
       [removable]="true" (removed)="removeContactFromSelectedContacts(id)">
       {{getRecipientFromId(id).name}}
-    <mat-icon matChipRemove *ngIf="true">cancel</mat-icon>
+    <mat-icon matChipRemove>cancel</mat-icon>
     </mat-chip>
 
     <input placeholder="Add contacts..."
@@ -83,89 +83,63 @@
         <div class="form">
 
           <div *ngIf="recipientType === _recipientType.OpsGenie" class="contacts-create-form">
+            <div>
+              <label>Team Name: </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="Enter Team Name" required [value]="recipients[_recipientType.OpsGenie].name" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'name', $event.target.value)">
+              </mat-form-field>
+            </div>
 
-            <!-- <form class="example-container" [formGroup]="recipient"> -->
-              <div>
-                <label>Team Name: </label>
-                <mat-form-field floatLabel="never" appearance="fill">
-                  <input matInput placeholder="Enter Team Name" required [value]="recipients[_recipientType.OpsGenie].name" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'name', $event.target.value)">
-                </mat-form-field>
-              </div>
+            <div>
+              <label>API Key: </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="Enter API Key" required [value]="recipients[_recipientType.OpsGenie].apiKey" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'apiKey', $event.target.value)">
+              </mat-form-field>
+            </div>
 
-              <div>
-                <label>API Key: </label>
-                <mat-form-field floatLabel="never" appearance="fill">
-                  <input matInput placeholder="Enter API Key" required [value]="recipients[_recipientType.OpsGenie].apiKey" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'apiKey', $event.target.value)">
-                </mat-form-field>
-              </div>
+            <div>
+              <label>Priority: </label>
+              <mat-radio-group [value]="recipients[_recipientType.OpsGenie].priority" (change)="updateRecipient(recipients[_recipientType.OpsGenie], 'priority', $event.value)">
+                <mat-radio-button value="P1">P1</mat-radio-button>
+                <mat-radio-button value="P2">P2</mat-radio-button>
+                <mat-radio-button value="P3">P3</mat-radio-button>
+                <mat-radio-button value="P4">P4</mat-radio-button>
+                <mat-radio-button value="P5">P5</mat-radio-button>
+              </mat-radio-group>
+            </div>
 
-              <div>
-                <label>Priority: </label>
-                <mat-radio-group [value]="recipients[_recipientType.OpsGenie].priority" (change)="updateRecipient(recipients[_recipientType.OpsGenie], 'priority', $event.value)">
-                  <mat-radio-button value="P1">P1</mat-radio-button>
-                  <mat-radio-button value="P2">P2</mat-radio-button>
-                  <mat-radio-button value="P3">P3</mat-radio-button>
-                  <mat-radio-button value="P4">P4</mat-radio-button>
-                  <mat-radio-button value="P5">P5</mat-radio-button>
-                </mat-radio-group>
-              </div>
+            <div>
+              <label>Tags: </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="Enter one-word Tags" [value]="recipients[_recipientType.OpsGenie].tags" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'tags', $event.target.value)">
+              </mat-form-field>
+            </div>
+          </div>
 
-              <div>
-                <label>Tags: </label>
-                <mat-form-field floatLabel="never" appearance="fill">
-                  <input matInput placeholder="Enter one-word Tags" [value]="recipients[_recipientType.OpsGenie].tags" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'tags', $event.target.value)">
-                </mat-form-field>
-              </div>
-            <!-- </form> -->
+          <div *ngIf="recipientType === _recipientType.Slack">
+            <div>
+              <label>Channel Name: </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="Enter Channel Name" required [value]="recipients[_recipientType.Slack].name" (input)="updateRecipient(recipients[_recipientType.Slack], 'name', $event.target.value)">
+              </mat-form-field>
+            </div>
 
+            <div>
+              <label>Webhook URL: </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput placeholder="Webhook URL" required [value]="recipients[_recipientType.Slack].webhook" (input)="updateRecipient(recipients[_recipientType.Slack], 'webhook', $event.target.value)">
+              </mat-form-field>
+            </div>
           </div>
 
         </div>
     </div>
 
-    <!-- <div *ngIf="panelContent === 'slack'">
-        <div class="contacts-title">Create Slack Contact </div>
-        <div class="contacts-create-form">
-            <div class="labels">
-                <div class="label">Channel name (#)</div>
-                <div class="label">Webhook URL</div>
-            </div>
-
-            <div class="selectors">
-                <div class="text-field selector">
-                    <input #name matInput (keyup)="latestContactName(name.value)">
-                </div>
-                <div class="text-field selector">
-                    <input matInput>
-                </div>
-            </div>
-        </div>
-        <button mat-button (click)="addContact('Slack')">Create</button>
-        <button mat-button (click)="setPanelContent('existingContacts')">cancel</button>
-    </div>
-
-    <div *ngIf="panelContent === 'email'">
-        <div class="contacts-title">Create Email </div>
-        <div class="contacts-create-form">
-            <div class="labels">
-                <div class="label">Email</div>
-            </div>
-
-            <div class="selectors">
-                <div class="text-field selector">
-                    <input #name matInput (keyup)="latestContactName(name.value)">
-                </div>
-            </div>
-        </div>
-        <button mat-button (click)="addContact('Email')">Create</button>
-        <button mat-button (click)="setPanelContent('existingContacts')">cancel</button>
-    </div> -->
-
     <div class="panel-footer" *ngIf="viewMode === _mode.editRecipient || viewMode === _mode.createRecipient">
         <div *ngIf="viewMode === _mode.editRecipient">
           <button (click)="setViewMode($event, _mode.edit)"> Save </button>
           <button> Test </button>
-          <button (click)="setViewMode($event, _mode.all)"> Cancel </button>
+          <button (click)="cancelEdit()"> Cancel </button>
         </div>
   
         <div *ngIf="viewMode === _mode.createRecipient">
@@ -174,5 +148,6 @@
           <button (click)="setViewMode($event, _mode.all)"> Cancel </button>
         </div>
     </div>
+
   </div>
 </div>

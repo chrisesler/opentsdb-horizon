@@ -19,6 +19,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
   viewMode: Mode = Mode.all;
   recipientType: RecipientType = RecipientType.OpsGenie;
   recipients: {}; // map<RecipientType, Recipient>;
+  tempRecipient: Recipient; // for canceling
 
   selectedRecipients: any = []; // list of id's
   exisitingRecipients: any = [
@@ -33,7 +34,8 @@ export class AlertConfigurationContactsComponent implements OnInit {
     {
       id: '3',
       name: 'yamas-devel',
-      type: RecipientType.Slack
+      type: RecipientType.Slack,
+      webhook: 'http://slackwebhook.com/'
     },
     {
       id: '4',
@@ -80,6 +82,11 @@ export class AlertConfigurationContactsComponent implements OnInit {
     if (mode === Mode.createRecipient) {
       this.populateEmptyRecipients();
     }
+
+    if (mode === Mode.editRecipient) {
+      this.tempRecipient = { ...this.recipients[this.recipientType]};
+    }
+
     this.viewMode = mode;
   }
 
@@ -189,12 +196,33 @@ export class AlertConfigurationContactsComponent implements OnInit {
   // User Actions
 
   updateRecipient(recipient: Recipient, field: string, updatedValue: string ) {
+
+    // prepend '#' for slack
+    if (recipient.type === RecipientType.Slack && field.toLowerCase() === 'name' ) {
+      if (updatedValue.charAt(0) !== '#') {
+        updatedValue = '#' + updatedValue;
+      }
+    }
+
     recipient[field] = updatedValue;
   }
 
   saveCreatedRecipient($event) {
     this.addToExistingContacts(this.recipients[this.recipientType]);
     this.setViewMode($event, Mode.all);
+  }
+
+  cancelEdit() {
+
+    // reset to old contact
+    for (let i = 0; i < this.exisitingRecipients.length; i++) {
+      if (this.exisitingRecipients[i].id === this.tempRecipient.id) {
+        this.exisitingRecipients[i] = this.tempRecipient;
+        break;
+      }
+    }
+
+    this.setViewMode(null, Mode.all);
   }
 
   // Helpers
@@ -237,15 +265,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
     this.addToExistingContacts(contact);
     return contact;
   }
-
-  // createSlackContact(contact: any, channelName: string): any {
-  //   if (channelName.charAt(0) !== '#') {
-  //     channelName = '#' + channelName;
-  //   }
-  //   contact.name = channelName;
-
-  //   return contact;
-  // }
 
   types(): Array<string> {
     const types = Object.keys(RecipientType);
