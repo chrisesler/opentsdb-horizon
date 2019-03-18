@@ -12,28 +12,16 @@ import { Mode, RecipientType, Recipient } from './models';
 export class AlertConfigurationContactsComponent implements OnInit {
   @HostBinding('class.alert-configuration-contacts-component') private _hostClass = true;
   constructor(private renderer: Renderer2, private eRef: ElementRef) { }
-
   // tslint:disable:no-inferrable-types
+  // tslint:disable:prefer-const
+
   megaPanelVisible: boolean = false;
-  lastContactName: string = '';
-
-  _mode = Mode; // for template
-  _recipientType = RecipientType; // for template
-
   viewMode: Mode = Mode.all;
   recipientType: RecipientType = RecipientType.OpsGenie;
   recipients: {}; // map<RecipientType, Recipient>;
 
-  // TODO: set these directly in html
-  visible = true;
-  selectable = true;
-  addOnBlur = true;
-  contactRemovable = true;
-  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-
-  selectedContacts: any = []; // list of id's
-  exisitingContacts: any = [
-
+  selectedRecipients: any = []; // list of id's
+  exisitingRecipients: any = [
     {
       id: '2',
       name: 'dev-team',
@@ -62,7 +50,11 @@ export class AlertConfigurationContactsComponent implements OnInit {
       name: 'curveball',
       type: RecipientType.HTTP
     }
-];
+  ];
+
+  _mode = Mode; // for template
+  _recipientType = RecipientType; // for template
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   ngOnInit() {
     this.populateEmptyRecipients();
@@ -110,55 +102,14 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
   }
 
-  // TODO: remove
-  latestContactName(name: string) {
-    this.lastContactName = name;
-  }
-
-  // TODO: remove
-  addContact(type: string) {
-    // tslint:disable:prefer-const
-    let contact: any = {};
-    contact.name = this.lastContactName;
-    contact.type = type;
-    contact.id = this.exisitingContacts[this.exisitingContacts.length - 1].id + 1;  // TODO: get from server
-
-    if (type === 'Slack') {
-      contact = this.createSlackContact(contact, contact.name);
-    } // else if Group
-    // else if OpsGenie
-    // else if Email
-
-    this.addToExistingContacts(contact);
-  }
-
-  createSlackContact(contact: any, channelName: string): any {
-    if (channelName.charAt(0) !== '#') {
-      channelName = '#' + channelName;
-    }
-    contact.name = channelName;
-
-    return contact;
-  }
-
-  createEmailContact(email: string): any {
-    let contact: any = {};
-    contact.name = email;
-    contact.type = RecipientType.Email;
-    contact.id = this.exisitingContacts[this.exisitingContacts.length - 1].id + 1;  // TODO: get from server
-
-    this.addToExistingContacts(contact);
-    return contact;
-  }
-
   addToExistingContacts(contact: any) {
-    this.exisitingContacts.push(contact);
+    this.exisitingRecipients.push(contact);
   }
 
   addContactFromName(contactName: string) {
     let isExistingContact: boolean = false;
 
-    for (let contact of this.exisitingContacts) {
+    for (let contact of this.exisitingRecipients) {
       if (isExistingContact && contact.name === contactName) {
         // TODO: two contacts same name, manually select
       }
@@ -193,36 +144,35 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   isAnyContractSelected(): boolean {
-    return (this.selectedContacts.length > 0);
+    return (this.selectedRecipients.length > 0);
   }
-
 
   // OPERATIONS By ID
   isContactSelected(id: string ): boolean {
-    return this.selectedContacts.includes(id);
+    return this.selectedRecipients.includes(id);
   }
 
   getRecipientFromId(id: string ): Recipient {
-    for (let i = 0; i < this.exisitingContacts.length; i++) {
-      if (this.exisitingContacts[i].id === id) {
-        return this.exisitingContacts[i];
+    for (let i = 0; i < this.exisitingRecipients.length; i++) {
+      if (this.exisitingRecipients[i].id === id) {
+        return this.exisitingRecipients[i];
       }
     }
   }
 
   removeContactFromSelectedContacts(id: string) {
-    for (let i = 0; i < this.selectedContacts.length; i++) {
-      if (this.selectedContacts[i] === id) {
-        this.selectedContacts.splice(i, 1);
+    for (let i = 0; i < this.selectedRecipients.length; i++) {
+      if (this.selectedRecipients[i] === id) {
+        this.selectedRecipients.splice(i, 1);
       }
     }
   }
 
   removeRecipient(id: string) {
     this.removeContactFromSelectedContacts(id);
-    for (let i = 0; i < this.exisitingContacts.length; i++) {
-      if (this.exisitingContacts[i].id === id) {
-        this.exisitingContacts.splice(i, 1);
+    for (let i = 0; i < this.exisitingRecipients.length; i++) {
+      if (this.exisitingRecipients[i].id === id) {
+        this.exisitingRecipients.splice(i, 1);
       }
     }
   }
@@ -231,8 +181,8 @@ export class AlertConfigurationContactsComponent implements OnInit {
     if ($event) {
       $event.stopPropagation();
     }
-    if (!this.selectedContacts.includes(id)) {
-      this.selectedContacts.push(id);
+    if (!this.selectedRecipients.includes(id)) {
+      this.selectedRecipients.push(id);
     }
   }
 
@@ -271,12 +221,31 @@ export class AlertConfigurationContactsComponent implements OnInit {
   createDefaultRecipient(type: RecipientType ): Recipient {
     // tslint:disable-next-line:prefer-const
     let newRecipient: Recipient = {
-      id: this.exisitingContacts[this.exisitingContacts.length - 1].id + 1,  // TODO: get from server,
+      id: this.exisitingRecipients[this.exisitingRecipients.length - 1].id + 1,  // TODO: get from server,
       name: '',
       type: type,
     };
     return newRecipient;
   }
+
+  createEmailContact(email: string): any {
+    let contact: any = {};
+    contact.name = email;
+    contact.type = RecipientType.Email;
+    contact.id = this.exisitingRecipients[this.exisitingRecipients.length - 1].id + 1;  // TODO: get from server
+
+    this.addToExistingContacts(contact);
+    return contact;
+  }
+
+  // createSlackContact(contact: any, channelName: string): any {
+  //   if (channelName.charAt(0) !== '#') {
+  //     channelName = '#' + channelName;
+  //   }
+  //   contact.name = channelName;
+
+  //   return contact;
+  // }
 
   types(): Array<string> {
     const types = Object.keys(RecipientType);
@@ -306,7 +275,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
   getRecipients(type: RecipientType, filterOutSelectedContacts): Recipient[] {
     // tslint:disable:prefer-const
     let contacts = [];
-    for (let contact of this.exisitingContacts) {
+    for (let contact of this.exisitingRecipients) {
       if (filterOutSelectedContacts && contact.type === type && !this.isContactSelected(contact.id)) {
         contacts.push(contact);
       } else if (!filterOutSelectedContacts && contact.type === type) {

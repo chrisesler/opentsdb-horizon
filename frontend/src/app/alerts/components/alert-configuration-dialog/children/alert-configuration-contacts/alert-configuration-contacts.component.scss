@@ -94,26 +94,40 @@
         .contacts-create-form {
             display: flex;
             flex-direction: column;
+
+            div {
+                display: flex;
+                flex-direction: row;
+                padding-right: 5px;
+                // height: 31px;
+
+                label {
+                    text-align: right;
+                    width: 100px;
+                    padding-right: 5px;
+                    
+                }
+            }
         }
     
-        .text-field {
-            background:  lightblue;
-        }
+        // .text-field {
+        //     background:  lightblue;
+        // }
     
-        .labels {
-            text-align: right
-        }
+        // .labels {
+        //     text-align: right
+        // }
     
-        .label {
-            height: 31px;
-            margin-bottom: 5px;
-            padding-right: 10px;
-        }
+        // .label {
+        //     height: 31px;
+        //     margin-bottom: 5px;
+        //     padding-right: 10px;
+        // }
     
-        .selector {
-            height: 31px;
-            margin-bottom: 5px;
-        }                   
+        // .selector {
+        //     height: 31px;
+        //     margin-bottom: 5px;
+        // }                   
     }
 
 }

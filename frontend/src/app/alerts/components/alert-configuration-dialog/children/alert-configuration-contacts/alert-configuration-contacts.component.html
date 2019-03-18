@@ -1,16 +1,16 @@
 <mat-form-field class="contact-list" (click)="showMegaPanel()" floatLabel="never">
   <mat-chip-list #chipList>
 
-    <mat-chip *ngFor="let id of selectedContacts" [selectable]="selectable"
-      [removable]="contactRemovable" (removed)="removeContactFromSelectedContacts(id)">
+    <mat-chip *ngFor="let id of selectedRecipients" [selectable]="true"
+      [removable]="true" (removed)="removeContactFromSelectedContacts(id)">
       {{getRecipientFromId(id).name}}
-    <mat-icon matChipRemove *ngIf="contactRemovable">cancel</mat-icon>
+    <mat-icon matChipRemove *ngIf="true">cancel</mat-icon>
     </mat-chip>
 
     <input placeholder="Add contacts..."
             [matChipInputFor]="chipList"
             [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-            [matChipInputAddOnBlur]="addOnBlur"
+            [matChipInputAddOnBlur]="true"
             (matChipInputTokenEnd)="addUserInputToSelectedContacts($event)">
   </mat-chip-list>
 </mat-form-field>
@@ -93,11 +93,11 @@
               </div>
 
               <div>
-                  <label>API Key: </label>
-                  <mat-form-field floatLabel="never" appearance="fill">
-                    <input matInput placeholder="Enter API Key" required [value]="recipients[_recipientType.OpsGenie].apiKey" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'apiKey', $event.target.value)">
-                  </mat-form-field>
-                </div>
+                <label>API Key: </label>
+                <mat-form-field floatLabel="never" appearance="fill">
+                  <input matInput placeholder="Enter API Key" required [value]="recipients[_recipientType.OpsGenie].apiKey" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'apiKey', $event.target.value)">
+                </mat-form-field>
+              </div>
 
               <div>
                 <label>Priority: </label>
