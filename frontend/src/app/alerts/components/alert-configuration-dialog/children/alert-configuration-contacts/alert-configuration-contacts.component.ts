@@ -19,10 +19,12 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   _mode = Mode; // for template
   _recipientType = RecipientType; // for template
-  viewMode: Mode = Mode.all;
-  recipientType: RecipientType = RecipientType.OpsGenie; // TODO: is this needed?
-  recipient: Recipient;
 
+  viewMode: Mode = Mode.all;
+  recipientType: RecipientType = RecipientType.OpsGenie;
+  recipients: {}; // map<RecipientType, Recipient>;
+
+  // TODO: set these directly in html
   visible = true;
   selectable = true;
   addOnBlur = true;
@@ -36,7 +38,9 @@ export class AlertConfigurationContactsComponent implements OnInit {
       id: '2',
       name: 'dev-team',
       type: RecipientType.OpsGenie,
-      priority: 'P3'
+      priority: 'P4',
+      apiKey: 'xyz',
+      tags: 'User-Facing'
     },
     {
       id: '3',
@@ -60,17 +64,8 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
 ];
 
-  ngOnInit() { }
-
-  types(): Array<string> {
-    const types = Object.keys(RecipientType);
-    return types;
-  }
-
-  typesExceptEmail(): Array<string> {
-    let types = Object.keys(RecipientType);
-    types = types.filter(e => e !== RecipientType.Email);
-    return types;
+  ngOnInit() {
+    this.populateEmptyRecipients();
   }
 
   showMegaPanel() {
@@ -81,41 +76,19 @@ export class AlertConfigurationContactsComponent implements OnInit {
     this.megaPanelVisible = false;
   }
 
+  changeRecipientTypeForCreating(type) {
+    this.recipientType = type ;
+  }
+
   setViewMode($event: Event, mode: Mode ) {
     if ($event) {
       $event.stopPropagation();
     }
 
     if (mode === Mode.createRecipient) {
-      this.recipient = this.createDefaultRecipient();
+      this.populateEmptyRecipients();
     }
     this.viewMode = mode;
-  }
-
-  changeRecipientType(type) {
-    this.recipientType = type ;
-  }
-
-
-  getAllRecipientsForType(type: RecipientType) {
-    return this.getRecipients(type, false);
-  }
-
-  getUnselectedRecipientsForType(type: RecipientType) {
-    return this.getRecipients(type, true);
-  }
-
-  getRecipients(type: RecipientType, filterOutSelectedContacts): any[] {
-    // tslint:disable:prefer-const
-    let contacts = [];
-    for (let contact of this.exisitingContacts) {
-      if (filterOutSelectedContacts && contact.type === type && !this.isContactSelected(contact.id)) {
-        contacts.push(contact);
-      } else if (!filterOutSelectedContacts && contact.type === type) {
-        contacts.push(contact);
-      }
-    }
-    return contacts;
   }
 
   deleteRecipient($event: Event, recipient: Recipient)  {
@@ -125,11 +98,13 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   editRecipientMode($event, id: string) {
-    this.recipient = this.getRecipientFromId(id);
-    this.recipientType = this.recipient.type;
+    // tslint:disable-next-line:prefer-const
+    let recipient = this.getRecipientFromId(id);
+    this.recipientType = recipient.type;
+    this.recipients[this.recipientType] = recipient;
 
     if (this.recipientType === RecipientType.Email) {
-      this.deleteRecipient($event, this.recipient);
+      this.deleteRecipient($event, recipient);
     } else {
       this.setViewMode($event, Mode.editRecipient);
     }
@@ -155,16 +130,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
     // else if Email
 
     this.addToExistingContacts(contact);
-  }
-
-  createDefaultRecipient(): Recipient {
-    // tslint:disable-next-line:prefer-const
-    let newRecipient: Recipient = {
-      id: this.exisitingContacts[this.exisitingContacts.length - 1].id + 1,  // TODO: get from server,
-      name: '',
-      type: RecipientType.OpsGenie
-    };
-    return newRecipient;
   }
 
   createSlackContact(contact: any, channelName: string): any {
@@ -231,11 +196,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return (this.selectedContacts.length > 0);
   }
 
-  isEmailValid(email: string): boolean {
-    // tslint:disable-next-line:max-line-length
-    let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
-  }
 
   // OPERATIONS By ID
   isContactSelected(id: string ): boolean {
@@ -276,14 +236,84 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
   }
 
-  // Form Updates
+  // User Actions
+
   updateRecipient(recipient: Recipient, field: string, updatedValue: string ) {
     recipient[field] = updatedValue;
   }
 
   saveCreatedRecipient($event) {
-    this.addToExistingContacts(this.recipient);
+    this.addToExistingContacts(this.recipients[this.recipientType]);
     this.setViewMode($event, Mode.all);
+  }
+
+  // Helpers
+
+  populateEmptyRecipients() {
+    let emptyRecipients = {};
+    let emptyOpsGenieRecipient = this.createDefaultRecipient(RecipientType.OpsGenie);
+    let emptySlackRecipient = this.createDefaultRecipient(RecipientType.Slack);
+    let emptyHTTPRecipient = this.createDefaultRecipient(RecipientType.HTTP);
+    let emptyOCRecipient = this.createDefaultRecipient(RecipientType.OC);
+
+    // Set Defaults
+    emptyOpsGenieRecipient.priority = 'P5';
+    emptyOpsGenieRecipient.apiKey = '';
+    emptyOpsGenieRecipient.tags = '';
+
+    emptyRecipients[RecipientType.OpsGenie] = emptyOpsGenieRecipient;
+    emptyRecipients[RecipientType.Slack] = emptySlackRecipient;
+    emptyRecipients[RecipientType.HTTP] = emptyHTTPRecipient;
+    emptyRecipients[RecipientType.OC] = emptyOCRecipient;
+    this.recipients = emptyRecipients;
+  }
+
+  createDefaultRecipient(type: RecipientType ): Recipient {
+    // tslint:disable-next-line:prefer-const
+    let newRecipient: Recipient = {
+      id: this.exisitingContacts[this.exisitingContacts.length - 1].id + 1,  // TODO: get from server,
+      name: '',
+      type: type,
+    };
+    return newRecipient;
+  }
+
+  types(): Array<string> {
+    const types = Object.keys(RecipientType);
+    return types;
+  }
+
+  typesExceptEmail(): Array<string> {
+    let types = Object.keys(RecipientType);
+    types = types.filter(e => e !== RecipientType.Email);
+    return types;
+  }
+
+  isEmailValid(email: string): boolean {
+    // tslint:disable-next-line:max-line-length
+    let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  }
+
+  getAllRecipientsForType(type: RecipientType) {
+    return this.getRecipients(type, false);
+  }
+
+  getUnselectedRecipientsForType(type: RecipientType) {
+    return this.getRecipients(type, true);
+  }
+
+  getRecipients(type: RecipientType, filterOutSelectedContacts): Recipient[] {
+    // tslint:disable:prefer-const
+    let contacts = [];
+    for (let contact of this.exisitingContacts) {
+      if (filterOutSelectedContacts && contact.type === type && !this.isContactSelected(contact.id)) {
+        contacts.push(contact);
+      } else if (!filterOutSelectedContacts && contact.type === type) {
+        contacts.push(contact);
+      }
+    }
+    return contacts;
   }
 
   // Listen if we should close panel

@@ -29,7 +29,7 @@
          </span>
   
          <span *ngIf="viewMode === _mode.editRecipient">
-            Edit {{recipient.type}} Recipient
+            Edit {{type}} Recipient
          </span>
   
          <span *ngIf="viewMode === _mode.createRecipient">
@@ -75,7 +75,7 @@
     <div *ngIf="viewMode === _mode.editRecipient || viewMode === _mode.createRecipient" class="change-recipient">
 
       <mat-radio-group *ngIf="viewMode === _mode.createRecipient" class="radio-group" [value]="recipientType">
-          <mat-radio-button class="example-radio-button" *ngFor="let type of typesExceptEmail()" [value]="type" (change)="changeRecipientType($event.value)">
+          <mat-radio-button class="example-radio-button" *ngFor="let type of typesExceptEmail()" [value]="type" (change)="changeRecipientTypeForCreating($event.value)">
             {{type}}
           </mat-radio-button>
         </mat-radio-group>
@@ -88,20 +88,33 @@
               <div>
                 <label>Team Name: </label>
                 <mat-form-field floatLabel="never" appearance="fill">
-                  <input matInput placeholder="Enter Team Name" required [value]="recipient.name" (input)="updateRecipient(recipient, 'name', $event.target.value)">
+                  <input matInput placeholder="Enter Team Name" required [value]="recipients[_recipientType.OpsGenie].name" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'name', $event.target.value)">
                 </mat-form-field>
               </div>
 
               <div>
+                  <label>API Key: </label>
+                  <mat-form-field floatLabel="never" appearance="fill">
+                    <input matInput placeholder="Enter API Key" required [value]="recipients[_recipientType.OpsGenie].apiKey" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'apiKey', $event.target.value)">
+                  </mat-form-field>
+                </div>
+
+              <div>
                 <label>Priority: </label>
-                <mat-radio-group [value]="recipient.priority" (change)="updateRecipient(recipient, 'priority', $event.value)">
-                    <!-- formControlName="priority"  -->
+                <mat-radio-group [value]="recipients[_recipientType.OpsGenie].priority" (change)="updateRecipient(recipients[_recipientType.OpsGenie], 'priority', $event.value)">
                   <mat-radio-button value="P1">P1</mat-radio-button>
                   <mat-radio-button value="P2">P2</mat-radio-button>
                   <mat-radio-button value="P3">P3</mat-radio-button>
                   <mat-radio-button value="P4">P4</mat-radio-button>
                   <mat-radio-button value="P5">P5</mat-radio-button>
                 </mat-radio-group>
+              </div>
+
+              <div>
+                <label>Tags: </label>
+                <mat-form-field floatLabel="never" appearance="fill">
+                  <input matInput placeholder="Enter one-word Tags" [value]="recipients[_recipientType.OpsGenie].tags" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'tags', $event.target.value)">
+                </mat-form-field>
               </div>
             <!-- </form> -->
 
