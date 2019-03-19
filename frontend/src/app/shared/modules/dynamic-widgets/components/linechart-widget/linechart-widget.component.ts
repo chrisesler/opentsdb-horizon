@@ -180,6 +180,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                 this.widget.settings.axes = { ...this.widget.settings.axes, ...message.payload.data };
                 this.setAxesOption();
                 this.options = { ...this.options };
+                this.refreshData(false);
                 break;
             case 'SetLegend':
                 this.setLegend(message.payload.data);
