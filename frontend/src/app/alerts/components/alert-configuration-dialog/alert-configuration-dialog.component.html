@@ -3,7 +3,7 @@
         <mat-toolbar color="primary">
             <span>
                 <button mat-icon-button mat-dialog-close>
-                    <mat-icon fontSet="denali" fontIcon="d-share-arrow-solid"></mat-icon>
+                    <mat-icon fontSet="denali" fontIcon="d-share-arrow"></mat-icon>
                 </button>
             </span>
             <span class="flex-spacer"></span>
@@ -57,7 +57,99 @@
                         <span class="step-section-label-text">2. Threshold</span>
                     </div>
                     <div class="step-section-content">
-                        [bunch of form controls here]
+                        <!-- this might change to radio buttons -->
+                        <div class="form-group select-threshold-type">
+                            <div class="form-label">Select threshold type</div>
+                            <nav mat-tab-nav-bar class="threshold-type-toggle-options sliding-button-group">
+                                <a mat-tab-link
+                                    [active]="selectedThresholdType === 'simple'"
+                                    (click)="changeThresholdType('simple')">
+                                    Simple
+                                </a>
+                                <a mat-tab-link
+                                    [active]="selectedThresholdType === 'composite'"
+                                    (click)="changeThresholdType('composite')">
+                                    Composite
+                                </a>
+                                <a mat-tab-link
+                                    [active]="selectedThresholdType === 'pop'"
+                                    (click)="changeThresholdType('pop')">
+                                    Period/Period
+                                </a>
+                            </nav>
+                            
+                        </div>
+                        <div>This is a definition of simple thresholds. Lorem ipsum dolor sit amet, consectetur adipiscing elit sedio.</div>
+                        <!-- select query -->
+                        <div class="form-group select-query">
+                            <div class="form-label">Select Query</div>
+                            <mat-form-field appearance="fill">
+                                <mat-label></mat-label>
+                                <mat-select placeholder="Select" disableOptionCentering>
+                                    <mat-option value="option">Option</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="form-group sliding-window">
+                            <div class="form-label">Sliding Window</div>
+                            <!-- sentence-like form -->
+                            <div class="sentence-chain-form">
+                                <div class="sentence-item">
+                                    <span>Trigger when the metric is</span>
+                                </div>
+                                <div class="sentence-item">
+                                    <mat-form-field appearance="fill">
+                                        <mat-label></mat-label>
+                                        <mat-select placeholder="Select" disableOptionCentering>
+                                            <mat-option value="option">Option</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div class="sentence-item">
+                                    <span>the threshold</span>
+                                </div>
+                                <div class="sentence-item">
+                                    <mat-form-field appearance="fill">
+                                        <mat-label></mat-label>
+                                        <mat-select placeholder="Select" disableOptionCentering>
+                                            <mat-option value="option">Option</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div class="sentence-item">
+                                    <span>during the last</span>
+                                </div>
+                                <div class="sentence-item">
+                                    <mat-form-field appearance="fill">
+                                        <mat-label></mat-label>
+                                        <mat-select placeholder="Select" disableOptionCentering>
+                                            <mat-option value="option">Option</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group bad-threshold-setting">
+                            <div class="form-label">Bad</div>
+                            <mat-form-field appearance="fill">
+                                <mat-label></mat-label>
+                                <input matInput placeholder="Enter value">
+                            </mat-form-field>
+                        </div>
+                        <div class="form-group warning-threshold-setting">
+                            <div class="form-label">Warning</div>
+                            <mat-form-field appearance="fill">
+                                <mat-label></mat-label>
+                                <input matInput placeholder="Enter value">
+                            </mat-form-field>
+                        </div>
+                        <div class="form-group recovery-threshold-setting">
+                            <div class="form-label">Recovery</div>
+                            <mat-form-field appearance="fill">
+                                <mat-label></mat-label>
+                                <input matInput placeholder="Enter value">
+                            </mat-form-field>
+                        </div>
                     </div>
                 </div>
                 <div class="step-section notification-section">
@@ -65,7 +157,41 @@
                         <span class="step-section-label-text">3. Notification</span>
                     </div>
                     <div class="step-section-content">
-                        [bunch of form controls here]
+                        <div class="form-group alert-message">
+                            <div class="form-label">Alert recipients</div>
+                            <mat-form-field appearance="fill">
+                                <mat-label></mat-label>
+                                <input matInput placeholder="Zack is building this... go bug Zack">
+                            </mat-form-field>
+                        </div>
+                        <div class="form-group alert-message">
+                            <div class="form-label">Alert message</div>
+                            <mat-form-field appearance="fill">
+                                <mat-label></mat-label>
+                                <textarea matInput placeholder="Enter alert message"></textarea>
+                            </mat-form-field>
+                        </div>
+                        <div class="form-group alert-message">
+                            <div class="form-label">Grouping rules</div>
+                            <mat-form-field appearance="fill">
+                                <mat-label></mat-label>
+                                <input matInput placeholder="select tag keys">
+                            </mat-form-field>
+                        </div>
+                        <div class="form-group alert-message">
+                            <div class="form-label">Labels</div>
+                            <mat-form-field appearance="fill">
+                                <mat-label></mat-label>
+                                <input matInput placeholder="Enter labels">
+                            </mat-form-field>
+                        </div>
+                        <div class="form-group alert-message">
+                            <div class="form-label">Runbook ID</div>
+                            <mat-form-field appearance="fill">
+                                <mat-label></mat-label>
+                                <input matInput placeholder="Enter runbook id">
+                            </mat-form-field>
+                        </div>
                     </div>
                 </div>
             </div>
