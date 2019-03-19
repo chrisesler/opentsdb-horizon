@@ -318,7 +318,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         if (legendSettings.display &&
                                     ( legendSettings.position === 'left' ||
                                     legendSettings.position === 'right' ) ) {
-            widthOffset = 10 + labelLen * 4.5 + 40 * legendColumns;
+            widthOffset = 10 + labelLen * 4.5 + 60 * legendColumns;
         }
 
         if ( legendSettings.display &&
@@ -539,7 +539,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     }
 
     getSeriesLabel(index) {
-        const label = this.dataTransformer.getLableFromMetricTags(this.options.series[index].metric, this.options.series[index].tags);
+        const label = this.options.series[index].label; 
         return label;
     }
     getSeriesAggregate( index, aggregate ) {
@@ -550,9 +550,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
             return '-';
         }
         const format = config.axis === 'y' ? this.options.axes.y.tickFormat : this.options.axes.y2.tickFormat;
-        const precision = (format && format.precision) ? format.precision : 2;
-        const unit = (format && format.unit) ? format.unit : '';
-        return this.unit.format(value, { unit: unit, precision: precision } );
+        const dunit = this.unit.getNormalizedUnit(format.max, format);
+        return this.unit.convert(value, format.unit, dunit, format );
     }
 
     requestData() {

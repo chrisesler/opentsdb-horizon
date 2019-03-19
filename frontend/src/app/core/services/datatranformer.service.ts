@@ -273,7 +273,7 @@ export class DatatranformerService {
         if ( matches ) {
             for ( let i = 0, len = matches.length; i < len; i++ ) {
                 const key = matches[i].replace(/\{|\}/g,'');
-                label = label.replace(matches[i], tags[key]);
+                label = label.replace(matches[i], tags[key]? tags[key] : '');
             }
         } else {
             for ( let k in tags ) {
