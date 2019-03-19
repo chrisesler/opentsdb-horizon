@@ -129,6 +129,7 @@ import { MetricAutocompleteComponent } from './components/metric-autocomplete/me
         ColorPickerModule,
         InlineEditableComponent,
         DropdownLineWeightComponent,
+        DropdownUnitTypeComponent,
         NavbarUserMenuComponent,
         NavbarInfoMenuComponent,
         NavbarTimezoneToggleComponent,

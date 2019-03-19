@@ -107,7 +107,7 @@ export class DBState {
     @Selector()
     static getDashboardFriendlyPath(state: DBStateModel) {
         // return createSelector([DBState], (state: DBStateModel) => {
-            const friendlyPath = state.id + state.loadedDB.fullPath;
+            const friendlyPath = state.id + (state.loadedDB.fullPath ? state.loadedDB.fullPath : '');
             if (friendlyPath && friendlyPath !== 'undefined') {
                 return '/' + friendlyPath;
             } else {

@@ -1,4 +1,6 @@
 import { Directive, ElementRef, AfterViewInit, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
+import { UnitConverterService } from '../../../../core/services/unit-converter.service';
+
 
 import * as d3 from "d3";
 
@@ -12,7 +14,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
   
     private host;
     private svg;
-    constructor(private element: ElementRef) { }
+    constructor(private element: ElementRef, private unitService: UnitConverterService ) { }
   
     ngOnInit() {
     }
@@ -41,9 +43,10 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       */
       const min = dataset.length ? d3.min(dataset, (d:any) => Number(d.value)) : 0;
       const max = dataset.length ? d3.max(dataset, (d:any) => Number(d.value)) : 0;
-      const refValue = min >=0  ? Math.pow(10, Math.floor(Math.log10(max))) : 1;
-      const formatter = d3.formatPrefix(".2s", refValue);
-      
+      // const refValue = min >=0  ? Math.pow(10, Math.floor(Math.log10(max))) : 1;
+      // const formatter = d3.formatPrefix(".2s", refValue);
+      const unitOptions = this.options.format;
+      const dunit = this.unitService.getNormalizedUnit(max, unitOptions);
       const self = this;
       const mousemove = function(d){
         const containerPos = self.element.nativeElement.parentNode.parentNode.getBoundingClientRect();
@@ -53,7 +56,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         for (const k in d.tooltipData ) {
           taghtml += '<p>' + k + ': ' +  d.tooltipData[k] + '</p>';
         }
-        tooltip.html( d.label + '<p>Value: ' +  formatter(d.value) + '</p>' + taghtml);
+        tooltip.html( d.label + '<p>Value: ' +  self.unitService.convert(d.value, unitOptions.unit, dunit, unitOptions )   + '</p>' + taghtml);
       };
       const mouseover = function(d) { tooltip.style("display", "inline-block");}
       const mouseout = function(d){
@@ -74,7 +77,8 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       const barHeight = y.bandwidth();
       const yAxis = d3.axisLeft(y)
                     .tickSize(0)
-                    .tickFormat( (d:any) => formatter(d));
+                    .tickFormat( (d:any) => self.unitService.convert(d, unitOptions.unit, dunit, unitOptions ));
+
       const svg = this.host
                       .append("svg")
                       .attr("width", this.size.width)
@@ -84,7 +88,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       setTimeout( () => {
         // calculate the max label length and remove
         svg.append("text").attr("class", "axisLabel")
-                        .text(formatter(max))
+                        .text(self.unitService.convert(max, unitOptions.unit, dunit, unitOptions ))
                         .each(function() { yAxisWidth = this.getBBox().width; labelHeight = Math.floor(this.getBBox().height); })
                         .remove();
         const fontSize = barHeight >= labelHeight ? '1em' :  barHeight*0.75 + 'px'; //y.bandwidth()  * 0.4 + "px";

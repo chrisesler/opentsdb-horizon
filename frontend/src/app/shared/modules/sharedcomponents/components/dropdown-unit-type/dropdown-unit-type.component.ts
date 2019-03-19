@@ -14,35 +14,81 @@ import { UnitNormalizerService, IBigNum } from '../../../dynamic-widgets/service
 })
 export class DropdownUnitTypeComponent implements OnInit {
 
-    // material form field values
-    // tslint:disable-next-line:no-inferrable-types
-    @Input() appearance: string = 'fill';
-    // tslint:disable-next-line:no-inferrable-types
-    @Input() floatLabel: string = 'never';
-
     // unit input
     @Input() unit: any = '';
 
-    private _selectedUnit: any;
-    get selectedUnit() {
-        return this._selectedUnit;
-    }
-    set selectedUnit(value: any) {
-        this._selectedUnit = value;
-        this.unitUpdated.emit({selectedUnit: value});
-    }
-
-    // output
-    @Output() unitUpdated: any = new EventEmitter();
+    /** Outputs */
+    @Output() onUnitChange = new EventEmitter;
 
     // menu data
     @ViewChild(MatMenuTrigger) private menuTrigger: MatMenuTrigger;
 
-    timeUnits: Array<string> = ['ms', 'second', 'minute', 'hour', 'day', 'year'];
-    binaryDataUnits: Array<string> = ['bits', 'bytes', 'kbytes', 'mbytes', 'gbytes'];
-    decimalDataUnits: Array<string> = ['decbits', 'decbytes', 'deckbytes', 'decmybytes', 'decgbytes'];
-    dataRateUnits: Array<string> = ['pps', 'bps', 'Bps', 'KBs', 'Kbits', 'MBs', 'Mbits', 'GBs', 'Gbits'];
-    throughputUnits: Array<string> = ['ops', 'reqps', 'rps', 'wps', 'iops', 'opm', 'rpm', 'wpm'];
+    timeUnits: Array<string> = ['milliseconds', 'seconds', 'minutes', 'hours', 'days', 'years'];
+
+    binaryDataUnitsKeys: Array<string> = [ 'binbyte', 'kibibyte', 'mebibyte', 'gibibyte', 'tebibyte', 'pebibyte', 'exibyte' ];
+
+
+    decimalDataUnitsKeys: Array<string> = ['decbyte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'petabyte', 'exabyte'];
+
+    binaryDataRateKeys: Array<string> = ['binbps', 'kibibps', 'mebibps', 'gibibps', 'tebibps', 'binbyte/s', 'kibibyte/s', 'mebibyte/s', 'gibibyte/s', 'tebibyte/s'];
+
+    decimalDataRateKeys: Array<string> = ['decbps', 'kbps', 'mbps', 'gbps', 'tbps', 'decbyte/s', 'kilobyte/s', 'megabyte/s', 'gigabyte/s', 'terabyte/s'];
+    
+    units:any = {
+        timeUnits: {
+            'milliseconds': 'Milli Seconds', 
+            'seconds': 'Seconds', 
+            'minutes': 'Minutes', 
+            'hours':'Hours', 
+            'days': 'Days', 
+            'years' : 'Years'
+        },
+        decimalDataUnits: { 
+            'decbyte' : 'B   - byte',
+            'kilobyte': 'kB - kilobyte (1000 B)',
+            'megabyte': 'MB - megabyte (1000 kB)',
+            'gigabyte': 'GB - gigabyte (1000 MB)',
+            'terabyte': 'TB - terabyte (1000 GB)',
+            'petabyte': 'PB - petabyte (1000 TB)',
+            'exabyte' : 'EB - exabyte  (1000 PB)'
+        },
+
+        binaryDataRateUnits: { 
+            'binbps' : 'bit/s',
+            'kibibps': 'Kibit/s (1024 bit/s)',
+            'mebibps': 'Mibit/s (1024 Kibit/s)',
+            'gibibps': 'Gibit/s (1024 Mibit/s)',
+            'tebibps': 'Tibit/s (1024 Gibit/s)',
+            'binbyte/s' : 'B/s (byte/s)',
+            'kibibyte/s': 'KiB/s (1024 B/s)',
+            'mebibyte/s': 'MiB/s (1024 KiB/s)',
+            'gibibyte/s': 'GiB/s (1024 MiB/s)',
+            'tebibyte/s': 'TiB/s (1024 GiB/s)'
+        },
+
+        decimalDataRateUnits: {
+            'decbps' : 'bit/s',
+            'kbps': 'kbit/s (1000 bit/s)',
+            'mbps': 'Mbit/s (1000 kbit/s)',
+            'gbps': 'Gbit/s (1000 Mbit/s)',
+            'tbps': 'Tbit/s (1000 Gbit/s)',
+            'decbyte/s' : 'B/s (byte/s)',
+            'kilobyte/s': 'kB/s (1000 B/s)',
+            'megabyte/s': 'MB/s (1000 kB/s)',
+            'gigabyte/s': 'GB/s (1000 MB/s)',
+            'terabyte/s': 'TB/s (1000 GB/s)'
+        },
+        binaryDataUnits: {
+            'binbyte' : 'B   - byte',
+            'kibibyte': 'KiB - kibibyte (1024 B)',
+            'mebibyte': 'MiB - mebibyte (1024 KiB)',
+            'gibibyte': 'GiB - gebibyte (1024 MiB)',
+            'tebibyte': 'TiB - tebibyte (1024 GiB)',
+            'pebibyte': 'PiB - pebibyte (1024 TiB)',
+            'exibyte' : 'EiB - exibyte  (1024 PiB)'
+        }
+    };
+
     currencyUnits: Array<string> = ['usd'];
     otherUnits: Array<string> = ['auto'];
 
@@ -52,39 +98,22 @@ export class DropdownUnitTypeComponent implements OnInit {
     constructor(public UN: UnitNormalizerService) { }
 
     ngOnInit() {
-        this._selectedUnit = this.unit;
     }
 
     KeyedOnUnitInputBox(value: string) {
-        this.selectedUnit = value;
-    }
-
-    stopPropagation(event) {
-        event.stopPropagation();
-    }
-
-    onMenuOpen(): void {
-        const unit: string = this.selectedUnit;
-
-        if (this.isUnitCustom(unit)) {
-            (<HTMLInputElement>this.customUnit.nativeElement).value = unit;
-        } else {
-            (<HTMLInputElement>this.customUnit.nativeElement).value = '';
-        }
+        this.onUnitChange.emit( value);
     }
 
     customUnitEntered() {
-      this.menuTrigger.closeMenu();
+        this.menuTrigger.closeMenu();
     }
 
-    isUnitCustom(str: string): boolean {
-        const allUnits: Array<string> =  this.timeUnits.concat(this.binaryDataUnits).concat(this.decimalDataUnits).
-            concat(this.dataRateUnits).concat(this.throughputUnits).concat(this.currencyUnits).concat(this.otherUnits);
-        return !allUnits.includes(str);
+    getUnitLabel(unit) {
+        for ( const k in this.units ) {
+            if ( this.units[k][unit] ) {
+                return this.units[k][unit];
+            }
+        }
+        return unit;
     }
-
-    isStringOnlyLowercasedLetters(str: string): boolean {
-        return /^[a-z\s]*$/.test(str);
-    }
-
 }

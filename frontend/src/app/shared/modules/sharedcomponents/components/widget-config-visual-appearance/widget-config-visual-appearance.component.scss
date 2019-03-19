@@ -119,6 +119,7 @@
             .config-control:first-child {
                 margin-bottom: 0;
             }
+        
 
             .mat-table {
                 .mat-header-row {
@@ -163,6 +164,12 @@
                         white-space: nowrap;
                     }
                 }
+            }
+        }
+
+        .column.topnchart-container {
+            .config-control {
+                margin-top: 10px;
             }
         }
 

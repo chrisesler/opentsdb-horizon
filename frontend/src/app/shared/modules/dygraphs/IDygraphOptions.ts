@@ -6,6 +6,7 @@ export interface DygraphOptionsAxis {
         unit?: string;
         precision?: string;
         unitDisplay?: boolean;
+        max?: number;
     };
     valueRange?: number[];
     logscale?: boolean;
