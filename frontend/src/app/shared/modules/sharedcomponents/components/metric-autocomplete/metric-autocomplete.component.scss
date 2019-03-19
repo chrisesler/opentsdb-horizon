@@ -1,0 +1,332 @@
+/* WIDGET CONFIG COMPONENT */
+// TODO: Describe how this is setup & why there are two mixins (at a minimum)
+
+@mixin metric-autocomplete-component-base() {
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-padding: map-get($widgets-common-config, edit-padding);
+
+    $row-size: 40px;
+
+    $filter-block-padding: 8px;
+
+    .metric-autocomplete {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+
+        .option-list {
+            flex: 1;
+            justify-content: space-between;
+
+            .is-scroller {
+                padding: 0 8px;
+            }
+        }
+
+        .option-item {
+            padding: 3px 5px;
+            font-size: 10px;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            justify-content: stretch;
+            cursor: pointer;
+
+            .mat-icon {
+                font-size: 15px;
+                color: #3296f2;
+                width:16px;
+                height: 16px;
+            }
+
+            .option-cell {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 16px;
+            }
+            
+            .option-cell.label {
+                flex: 1;
+                margin: auto 5px;
+                justify-content: flex-start;
+            }
+
+             // modifiers
+            &.expression {
+                flex-direction: column;
+                align-items: flex-start;
+
+                .link {
+                    margin-left: 10px;
+                    cursor: pointer;
+                    color: #227aec;
+                }
+            }
+
+            &:hover {
+                background: #c5e3ff;
+            }
+
+            &.added {
+                font-weight: 500;
+            }
+
+            &.selected {
+                background: #227aec;
+                font-weight: 500;
+            }
+        }
+
+        // specific query filter block
+
+        .metric-filters{
+            display: flex;
+            align-items: flex-start;
+
+            &.is-active {
+                align-items: stretch;
+            }
+
+            .container {
+                width: 100%;
+                display: flex;
+            }
+        }
+
+        .metric-filters {
+            flex: 1;
+
+            .container {
+                flex-direction: column;
+            }
+        }
+
+        .metric-filters {
+
+            .metrics-selected {
+
+                .metrics-selected-header {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    padding: 0 $filter-block-padding;
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
+                    line-height: 24px;
+                }
+
+                .metric-rows {
+                    padding: 0;
+                }
+
+                .metric {
+                    display: flex;
+                    width: initial;
+                    height: initial;
+                    min-height: 24px;
+                    margin: 2px $filter-block-padding;
+                    border-radius: 4px;
+                    border: 0;
+                    font-size: mat-font-size(map-get($app-fontface-config, sans), body-1);
+                    padding: ($filter-block-padding / 2) $filter-block-padding;
+                    
+                    .mat-list-item-content {
+                        padding: 0;
+                        flex: 1;
+                        max-width: 100%;
+                    }
+
+                    .metric-item-detail {
+                        min-width: 0;
+                        //max-width: 355px;
+                        display: flex;
+                        flex-direction: column;
+                        flex: 1;
+
+                        .metric-name {
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                    }
+
+                    .shim-spacer {
+                        min-width: 8px;
+                    }
+
+                    .action-icons {
+                        float: none;
+                        display: flex;
+                        margin-left: 8px;
+
+                        .mat-icon-button {
+                            width: 16px;
+                            height: 16px;
+                            line-height: 16px;
+                        }
+        
+                        .mat-icon {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 16px;
+                            height: 16px;
+                            font-size: 12px;
+                        }
+                    }
+                }
+            }
+
+            
+            
+            // when adding/editing metrics
+            .metric-search {
+                padding: $filter-block-padding;
+
+                .metric-search-input-field {
+                    width: 100%;
+                }
+            }
+
+            .metric-search-result {
+                display: flex;
+                flex:1;
+                position: relative;
+
+                .mat-tab-group{
+                    flex: 1 1 100%;
+                }
+
+                .mat-tab-header {
+                    padding: 0px $filter-block-padding;
+
+                    .mat-tab-label.mat-tab-label-active {
+                        box-shadow: none !important;
+
+                        &::after {
+                            display: none;
+                        }
+                    }
+
+                    .mat-ink-bar {
+                        bottom: 0;
+                    }
+                }
+
+                .mat-tab-label-container {
+                    flex-grow: 0;
+                }
+
+                .mat-tab-label {
+                    height: 25px;
+                    font-size: 12px;
+                    font-weight: 300;
+                }
+
+                .mat-tab-label-active {
+                    font-weight: 500;
+                }
+                
+                .mat-tab-body {
+                    border: 0 !important;
+
+                    &::after {
+                        content: " ";
+                        display: block;
+                        position: absolute;
+                        left: 0;
+                        right: 0;
+                        height: 8px;
+                        bottom: 0;
+                        opacity: .25;
+                    }
+                }
+            }
+        }
+
+        
+        .error {
+            color: red;
+            font-size: 0.75em;
+            .mat-icon {
+                width: 15px;
+                height: 15px;
+                font-size: 15px;
+            }
+            span {
+                vertical-align: top;
+                line-height: 15px;
+            }
+        }
+    }
+}
+
+@mixin metric-autocomplete-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark: map-get($theme-config, is-dark);
+    $chip-bg: rgba(map-get($primary, default), .1);
+    $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
+    $alias-text: if($is-dark, rgba(255, 255, 255, .5), rgba(0, 0, 0, .5));
+
+    $widgets: map-get($theme-config, widgets);
+
+    $card-background: map-get($background, card);
+    $divider: map-get($foreground, divider);
+
+    $query-marker-bg: map-get($widgets, query-editor-marker);
+    $query-marker-text: map-get($widgets, query-editor-marker-text);
+    $query-block-bg: map-get($widgets, query-editor-block-bg);
+    $query-block-selected-border: map-get($widgets, query-editor-selected-border);
+
+    .metric-autocomplete {
+
+        .seperator,
+        .tag-values-selected-header {
+            border-bottom: 2px solid $divider;
+        }
+
+        .option-item {
+            &.added {
+                background-color: $query-block-bg;
+                box-shadow: inset 0 2px 0 $query-block-selected-border, inset 0 -2px 0 $query-block-selected-border;
+            }
+
+            &.added:first-child,
+            &.added + .option-item.added {
+                box-shadow: inset 0 -2px 0 $query-block-selected-border;
+            }
+
+            &.selected {
+                background: #c5e3ff;
+            }
+        }
+
+        .metric-filters {
+            .container {
+                background: $card-background;
+            }
+        }
+
+        .metric-filters .metric,
+        .tag-filters .tag {
+            background: #EFF4FF;
+        }
+
+        .metric-filters {
+            .metric-search-result {
+                .mat-tab-body::after {
+                    background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%); /* FF3.6-15 */
+                    background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* Chrome10-25,Safari5.1-6 */
+                    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+                }
+            }
+        }
+        
+    }
+}

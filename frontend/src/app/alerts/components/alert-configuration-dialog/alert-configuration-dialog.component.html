@@ -16,12 +16,23 @@
         <div class="preview-wrapper">
             <div class="graph-wrapper">
                 <div class="graph-output">
-                    <span>[ GRAPH HERE ]</span>
+                        <div #dygraph class="chart"
+                        dygraphsChart
+                        [chartType]="'line'"
+                        [data]="chartData"
+                        [size]="size"
+                        [options]="options">
+                    </div>
+                    <div class="dygraph-legend" #graphLegend></div>
                 </div>
+            <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
+            <div class="error" *ngIf="error" (click)="showError()">
+                <mat-icon>error</mat-icon>
             </div>
-            <div class="legend-wrapper">
+            </div>
+            <!--<div class="legend-wrapper">
                 legend
-            </div>
+            </div>-->
         </div>
         <div class="controls-wrapper">
             <mat-toolbar class="config-toolbar">
@@ -36,8 +47,9 @@
                         <span class="step-section-label-text">1. Queries</span>
                     </div>
                     <div class="step-section-content">
-                        <!-- LOOP OF QUERY ITEMS -->
-                        <query-editor-proto [label]="'Q1'" [query]="fakeQuery"></query-editor-proto> 
+                        <!-- LOOP OF QUERY ITEMS 
+                             NOTE: this component has INPUTS... just none now while developing -->
+                        <query-editor-proto [label]="'Q1'" [query]="query" (queryOutput)="updateQuery($event);"></query-editor-proto> 
                     </div>
                 </div>
                 <div class="step-section threshold-section">

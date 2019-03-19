@@ -55,6 +55,9 @@ import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.compon
 import { WidgetConfigSortingComponent } from './components/widget-config-sorting/widget-config-sorting.component';
 import { ConditionalFormatterComponent } from './components/conditional-formatter/conditional-formatter.component';
 import { QueryEditorProtoComponent } from './components/query-editor-proto/query-editor-proto.component';
+import { InlineFilterEditorComponent } from './components/inline-filter-editor/inline-filter-editor.component';
+import { MetricAutocompleteComponent } from './components/metric-autocomplete/metric-autocomplete.component';
+import { DropdownMetricTagsComponent } from './components/dropdown-metric-tags/dropdown-metric-tags.component';
 
 @NgModule({
     imports: [
@@ -106,7 +109,10 @@ import { QueryEditorProtoComponent } from './components/query-editor-proto/query
         TagGroupbyComponent,
         WidgetConfigSortingComponent,
         ConditionalFormatterComponent,
-        QueryEditorProtoComponent
+        QueryEditorProtoComponent,
+        InlineFilterEditorComponent,
+        MetricAutocompleteComponent,
+        DropdownMetricTagsComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -132,13 +138,16 @@ import { QueryEditorProtoComponent } from './components/query-editor-proto/query
         NavbarTimezoneToggleComponent,
         NavbarSearchToggleComponent,
         DropdownAggregatorsComponent,
+        DropdownMetricTagsComponent,
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
         InlineQueryEditorComponent,
+        InlineFilterEditorComponent,
         NamespaceTagValuesComponent,
         WidgetConfigSortingComponent,
         ConditionalFormatterComponent,
-        QueryEditorProtoComponent
+        QueryEditorProtoComponent,
+        MetricAutocompleteComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,
@@ -146,7 +155,9 @@ import { QueryEditorProtoComponent } from './components/query-editor-proto/query
         SearchAllDialogComponent,
         ExpressionDialogComponent,
         InlineQueryEditorComponent,
+        InlineFilterEditorComponent,
         NamespaceTagValuesComponent,
+        MetricAutocompleteComponent,
         ErrorDialogComponent
     ],
 })

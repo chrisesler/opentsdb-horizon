@@ -82,6 +82,30 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    .chart {
+                        display: flex;
+                        flex: 1;
+                    }
+                }
+                .loader{
+                    position: absolute;
+                    left: 10px;
+                    top: 50px;
+                    z-index: 1;
+                    width: 24px;
+                    height: 24px;
+                    background-image: url(/assets/denali-loader.svg);
+                    background-color: transparent;
+                }
+    
+                .error{
+                    position: absolute;
+                    left: 10px;
+                    top: 50px;
+                    z-index: 1;
+                    width: 30px;
+                    height: 30px;
+                    color: red;
                 }
             }
 
@@ -217,7 +241,7 @@
         .preview-wrapper {
             .graph-wrapper {
                 .graph-output {
-                    background: map-get($foreground, divider);
+                    // background: map-get($foreground, divider);
                 }
             }
         }
