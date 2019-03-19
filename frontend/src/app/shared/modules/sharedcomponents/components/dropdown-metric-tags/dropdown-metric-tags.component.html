@@ -1,0 +1,4 @@
+<mat-select [value]="selected && selected.length ? selected : ['all']"  multiple (selectionChange)="setTags($event)" (openedChange)="loadTags($event)">
+    <mat-option value='all'>Everything</mat-option>
+    <mat-option *ngFor="let option of tagOptions" [value]="option.name">{{ option.name }}</mat-option>
+</mat-select>

@@ -27,21 +27,26 @@
         </button>
     </div>
 </mat-toolbar>
-<div class="metric-wrapper">
+<div class="metric-wrapper" *ngIf="query.namespace || query.metrics.length || query.filters.length">
     <!-- CONTAINER FOR THE METRICS-->
     <div class="metric-list-wrapper">
         <!-- LOOP THROUGH METRICS 
              SECOND COLUMN IS EMPTY TO BE ABLE TO TAKE THE ABSOLUTE POSITIONED COMMON TAGS BOX -->
         <div class="metric-list-item" *ngFor="let metric of query.metrics; let i = index;">
             <div class="metric-row-data metric-name">
-                <span>{{metric.name}}</span>
+                <span *ngIf="editMetricIndex !== i" (click)="editMetricIndex=i;">{{metric.name}}</span>
+                <metric-autocomplete *ngIf="editMetricIndex === i" [namespace]="query.namespace" [metrics]="[metric.name]"  [filters]="query.filters" (metricOutput)="updateMetric($event, i);" (blur)="editMetricIndex=-1"></metric-autocomplete>
             </div>
-            <div class="metric-row-data tag-spacer"><!--SPACER--></div>
-            <div class="metric-row-data">
-                <span>GROUP BY</span>
+            <div class="metric-row-data tag-spacer">
             </div>
-            <div class="metric-row-data">
-                <span>ANOTHER ONE</span>
+            <div class="metric-row-data aggregator">
+                <tag-aggregator
+                    [value]="metric.tagAggregator"
+                   (change)="setMetricTagAggregator(metric.id, $event)"></tag-aggregator>
+                <span>BY</span>
+            </div>
+            <div class="metric-row-data tags">
+                <dropdown-metric-tags [namespace]="query.namespace" [metric]="metric.name" [selected]="metric.groupByTags" (change)="setMetricGroupByTags(metric.id, $event)"></dropdown-metric-tags>
             </div>
             <div class="add-function" (click)="addFunction()">
                 <button mat-mini-fab color="primary">
@@ -49,11 +54,40 @@
                 </button> 
             </div>
         </div>
+        <div class="metric-list-item" *ngIf="isAddMetricProgress || !query.metrics.length">
+            <div class="metric-row-data metric-name">
+                <metric-autocomplete style="position:absolute"  [focus]="isAddMetricProgress" [multiple]="true" [namespace]="query.namespace" [filters]="query.filters"  (metricOutput)="updateMetric($event, null);" (blur)="isAddMetricProgress=false"></metric-autocomplete>
+            </div>
+        </div>
+        <button *ngIf="!isAddMetricProgress || !query.metrics.length " (click)="isAddMetricProgress=true">Add Metrics</button>
        
     </div>
     <!-- THIS IS THE TOP TO BOTTOM CONTAINER FOR THE COMMON TAGS
          IT WILL BE POSITIONED ABSOLUTE -->
-    <div class="common-tag-wrapper">
-        some sort of common tag editor
+    <div class="common-tag-wrapper" (click)="showTagFilterMenu()">
+            <span [matMenuTriggerFor]="tagFilterMenu" #tagFilterMenuTrigger="matMenuTrigger"></span>
+            <div class="tags-selected" *ngIf="query.filters.length">
+                    <div class="tags-selected-header">
+                        <span><strong>Tag Filters</strong> ({{ query.filters.length }})</span>
+                    </div>
+                    <mat-list class="tag-filter-rows" role="list">
+                        <mat-list-item class="tag" role="listitem" *ngFor="let filter of query.filters; let index=index">
+                            <div class="tag-filter-detail">
+                                <strong>{{ filter.tagk }}:</strong> <span>{{ filter.filter.join(', ') }}</span>
+                            </div>
+                        </mat-list-item>
+                    </mat-list>
+            </div>
+            <div *ngIf="!query.filters.length">
+                <button> Add Tag filters </button>
+            </div>
     </div>
+    <mat-menu #tagFilterMenu="matMenu" class="menu-form-wrapper" yPosition="below">
+        <div class="filter" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+            <inline-filter-editor [namespace]="query.namespace" [metrics]="query.metrics" [filters]="query.filters" (filterOutput)="updateFilters($event);" ></inline-filter-editor>
+        </div>
+    </mat-menu>
+    
 </div>
+<!--                    <inline-filter-editor [namespace]="query.namespace" [metrics]="query.metrics" [filters]="query.filters" *ngIf="editTag" (filterOutput)="updateFilters($event);" (blur)="editTag = false"></inline-filter-editor>
+-->
