@@ -15,10 +15,10 @@ export class AlertConfigurationContactsComponent implements OnInit {
   // tslint:disable:no-inferrable-types
   // tslint:disable:prefer-const
 
-  namespace: string;
-  @Input() namespaceRecipients: any;
-  @Input() alertRecipients: any;
-  @Output() updatedAlertRecipients: any;
+  @Input() namespace: string;
+  // @Input() namespaceRecipients: any;
+  @Input() alertRecipients: Recipient[];
+  @Output() updatedAlertRecipients: Recipient[];
 
   megaPanelVisible: boolean = false;
   viewMode: Mode = Mode.all;
@@ -240,8 +240,17 @@ export class AlertConfigurationContactsComponent implements OnInit {
   cancelEdit() {
     // reset to old contact
     for (let i = 0; i < this.exisitingRecipients.length; i++) {
-      if (this.exisitingRecipients[i].id === this.tempRecipient.id) {
+      if (this.exisitingRecipients[i].name === this.recipients[this.recipientType].name &&
+          this.exisitingRecipients[i].type === this.recipients[this.recipientType].type) {
         this.exisitingRecipients[i] = this.tempRecipient;
+        break;
+      }
+    }
+
+    for (let i = 0; i < this.selectedRecipients.length; i++) {
+      if (this.selectedRecipients[i].name === this.recipients[this.recipientType].name &&
+          this.selectedRecipients[i].type === this.recipients[this.recipientType].type) {
+        this.selectedRecipients[i] = {name: this.tempRecipient.name, type: this.tempRecipient.type} ;
         break;
       }
     }
@@ -278,7 +287,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
   createDefaultRecipient(type: RecipientType ): Recipient {
     // tslint:disable-next-line:prefer-const
     let newRecipient: Recipient = {
-      id: this.exisitingRecipients[this.exisitingRecipients.length - 1].id + 1,  // TODO: get from server,
       name: '',
       type: type,
     };
