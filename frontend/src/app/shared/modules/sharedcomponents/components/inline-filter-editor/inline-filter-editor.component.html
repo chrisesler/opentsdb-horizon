@@ -1,13 +1,12 @@
 <div class="tag-filters query-filter-block">
-            <div class="container" style="flex-direction: column;min-height: 300px;">
-
+            <div class="container" style="flex-direction: column;min-height:300px; border: 1px solid #ccc;">
 
                 <!-- if adding/editing tags -->
                 <div class="tag-filter-options">
                     <div class="tag-filter-options-column tag-keys">
                         <div class="tag-key-search">
-                            <mat-form-field class="metric-search-input-field" appearance="outline" color="primary" floatLabel="never">
-                                <input matInput placeholder="Search tag keys" [formControl]="tagSearchControl" #tagSearchInput>
+                            <mat-form-field class="tag-search-input-field" appearance="outline" color="primary" floatLabel="never">
+                                <input matInput placeholder="Search tag keys" [formControl]="tagSearchControl" #tagSearchInput autocomplete="off">
                             </mat-form-field>
                         </div>
                         <div class="tag-key-search-results has-scroller">
@@ -37,7 +36,7 @@
                             <div class="tag-values-search-input">
                                 <mat-form-field appearance="outline" [color]="'primary'" floatLabel="never">
                                     <input #tagValueSearchInput [formControl]="tagValueSearchControl" matInput
-                                        placeholder="" (keydown.enter)="addTagValueRegexp()">
+                                        placeholder="" (keydown.enter)="addTagValueRegexp()" autocomplete="off">
                                     <mat-icon matSuffix *ngIf="tagValueTypeControl.value==='regexp'" (click)="addTagValueRegexp()">add_circle_outline</mat-icon>
                                 </mat-form-field>
                             </div>

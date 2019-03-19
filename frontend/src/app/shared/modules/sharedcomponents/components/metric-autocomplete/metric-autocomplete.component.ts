@@ -10,8 +10,9 @@ import {
   ViewChild,
   OnChanges,
   OnDestroy,
-  SimpleChanges
+  SimpleChanges, HostListener, AfterViewInit, AfterViewChecked
 } from '@angular/core';
+import { MatAutocomplete } from '@angular/material';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { startWith, debounceTime, catchError } from 'rxjs/operators';
@@ -25,190 +26,132 @@ import { UtilsService } from '../../../../../core/services/utils.service';
   styleUrls: ['./metric-autocomplete.component.scss']
 })
 
-export class MetricAutocompleteComponent implements OnInit, OnChanges, OnDestroy {
-  @HostBinding('class.query-editor') private _hostClass = true;
+export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterViewInit {
+  @HostBinding('class.metric-autocomplete') private _hostClass = true;
   @Input() namespace ='';
   @Input() filters = [];
+  @Input() multiple: boolean = false;
   @Input() metrics = [];
-  @Input() type;
-  @Input() label = '';
-  @Input() edit = [];
-  // @Input() edit = [];
-  editNamespace = false;
-  // @Input() showTag = false;
-  // @Input() namespace = '';
-  // @Input() tagsSelected: any = {};
+  @Input() focus: boolean = true;
+
   @Output() metricOutput = new EventEmitter();
+  @Output() blur = new EventEmitter();
 
   @ViewChild('metricSearchInput') metricSearchInput: ElementRef;
+  @ViewChild('metricAutoComplete') metricAutoCompleteCntrl: MatAutocomplete;
 
-  queryBeforeEdit: any;
-  tagOptions = [];
-  filteredTagOptions: Observable<any>;
-  filteredTagValues = [];
   metricOptions = [];
-  selectedTagIndex = -1;
-  selectedTag = '';
-  loadFirstTagValues = false;
-  tagValueTypeControl = new FormControl('literalor');
   metricSearchControl: FormControl;
-  tagSearchControl: FormControl;
-  tagValueSearchControl: FormControl;
-  message:any = { 'tagControl' : { message: ''}, 'tagValueControl' : { message: '' }, 'metricSearchControl': { message : ''} };
+  message:any = {  'metricSearchControl': { message : ''} };
   Object = Object;
 
   metricSelectedTabIndex = 0;
-  editExpressionId = 0;
-  isEditExpression = false;
-  aliases = [];
-   /** Form Group */
-   expressionForm: FormGroup;
 
-   // subscriptions
-   expressionForm_Sub: Subscription;
-
-  // form values
-  expressionName: string;
-  expressionValue: string;
-
-  formControlInitiated = false;
 
   queryChanges$: BehaviorSubject<boolean>;
   queryChangeSub: Subscription;
+  visible = false;
 
-  constructor(
-      private elRef: ElementRef,
-      private renderer: Renderer,
-      private httpService: HttpService,
-      private fb: FormBuilder,
-      private utils: UtilsService ) {
+    constructor(
+        private elRef: ElementRef,
+        private httpService: HttpService) {
+    }
 
-      }
+    ngOnInit() {
+        this.setMetricSearch();
+    }
 
-  ngOnInit() {
-      this.queryChanges$ = new BehaviorSubject(false);
+    ngAfterViewInit() {
+        if ( this.focus === true  ) {
+            setTimeout(()=>this.metricSearchInput.nativeElement.focus(), 100);
+        }
+    }
 
-      this.queryChangeSub = this.queryChanges$
-                                      .pipe(
-                                          debounceTime(1000)
-                                      )
-                                      .subscribe( trigger => {
-                                          if ( trigger ) {
-                                              this.triggerQueryChanges();
-                                          }
-                                      });
+    setMetricSearch() {
+        this.metricSearchControl = new FormControl(!this.multiple ? this.metrics[0] : '');
+        this.metricSearchControl.valueChanges
+        .pipe(
+            debounceTime(200)
+        )
+        .subscribe( value => {
+            const query: any = { namespace: this.namespace, tags: this.filters };
+            query.search = value ? value : '';
+                this.message['metricSearchControl'] = {};
+                this.httpService.getMetricsByNamespace(query)
+                                    .subscribe(res => {
+                                        this.metricOptions = res;
+                                    },
+                                    err => {
+                                        this.metricOptions = [];
+                                        const message = err.error.error? err.error.error.message : err.message;
+                                        this.message['metricSearchControl'] = { 'type': 'error', 'message' : message };
+                                    }
+                                    );
+        });
+    }
 
-  }
+    doMetricSearch() {
+        this.visible = true;
+        this.metricSearchControl.setValue(this.multiple ? null: this.metrics[0]);
+    }
 
-  ngOnChanges( changes: SimpleChanges) {
-      if ( changes.namespace && changes.namespace.currentValue ) {
-        this.initFormControls();
-      }
-  }
+    requestChanges() {
+        this.metricOutput.emit(this.metrics);
+    }
 
-  initFormControls() {
-          this.setMetricSearch();
-  }
+    updateMetricSelection(metric, operation) {
+        metric = metric.trim();
+        const index = this.metrics.indexOf(metric);
+        if ( index === -1  && operation === 'add') {
+            this.metrics.push(metric);
+        } else if ( index !== -1 && operation === 'remove' ) {
+            this.metrics.splice(index, 1);
+        }
+    }
+    
+    removeMetric(metric) {
+        const index = this.metrics.indexOf(metric);
+        if ( index !== -1 ) {
+            this.metrics.splice(index, 1);
+        }
+    }
 
-  setMetricSearch() {
-      this.metricSearchControl = new FormControl();
-      // need to include switchMap to cancel the previous call
-      this.metricSearchControl.valueChanges
-      .pipe(
-          startWith(''),
-          debounceTime(200)
-      )
-      .subscribe( value => {
-          const query: any = { namespace: this.namespace, tags: this.filters };
-          query.search = value ? value : '';
+    getMetricIndex(metric) {
+        return this.metrics.indexOf(metric);
+    }
 
-              this.message['metricSearchControl'] = {};
-              this.httpService.getMetricsByNamespace(query)
-                                  .subscribe(res => {
-                                      this.metricOptions = res;
-                                  },
-                                  err => {
-                                      this.metricOptions = [];
-                                      const message = err.error.error? err.error.error.message : err.message;
-                                      this.message['metricSearchControl'] = { 'type': 'error', 'message' : message };
-                                  }
-                                  );
-      });
-  }
+    @HostListener('click', ['$event'])
+    hostClickHandler(e) {
+        
+        e.stopPropagation();
+    }
 
-  requestChanges() {
-
-      this.metricOutput.emit(this.metrics);
-  }
-
-  triggerQueryChanges() {
-      this.requestChanges();
-  }
-
-  updateMetricSelection(metric, operation) {
-      metric = metric.trim();
-      const index = this.getMetricIndex(metric);
-      if ( index === -1  && operation === 'add') {
-          const id = this.utils.generateId();
-          const oMetric = {
-                              id: id,
-                              name: metric,
-                              filters: [],
-                              settings: {
-                                  visual: {
-                                      visible: this.type === 'TopnWidgetComponent' ? false : true,
-                                      color: 'auto',
-                                      aggregator: this.type === 'LinechartWidgetComponent' ? [] : ['avg'],
-                                      label: ''}}
-                          };
-          this.metrics.push(oMetric);
-      } else if ( index !== -1 && operation === 'remove' ) {
-          this.metrics.splice(index, 1);
-      }
-      this.queryChanges$.next(true);
-  }
-  removeMetricById(mid) {
-      const index = this.metrics.findIndex( d => d.id === mid );
-      if ( index !== -1 ) {
-          this.metrics.splice(index, 1);
-      }
-      this.queryChanges$.next(true);
-  }
-
-  setMetricTagAggregator(id, value) {
-      const index  = this.metrics.findIndex( item => item.id === id );
-      this.metrics[index].tagAggregator = value;
-      this.queryChanges$.next(true);
-  }
-
-  getMetricIndex(metric) {
-      const index  = this.metrics.findIndex( item => item.name === metric );
-      return index;
-  }
+    @HostListener('document:click', ['$event.target'])
+    documentClickHandler(target) {
+        if ( !this.elRef.nativeElement.contains(target) && this.visible ) {
+            if ( this.multiple ) {
+                this.requestChanges();
+            }
+            this.blur.emit();
+            this.visible = false;
+        }
+    }
 
 
+    metricACKeydown(event: any) {
+        if ( !this.metricAutoCompleteCntrl.isOpen ) {
+            this.metrics[0] = this.metricSearchControl.value;
+            this.requestChanges();
+            this.blur.emit();
+        }
+    }
 
+    metricACOptionSelected(event: any) {
+        this.metrics[0] = event.option.value;
+        this.requestChanges();
+        this.blur.emit();
+    }
 
-
-  closeEditMode() {
-      this.edit = [];
-      this.requestChanges();
-  }
-
-  // handle when clicked on cancel
-  cancel(): void {
-      this.closeEditMode();
-      // this.query = this.queryBeforeEdit;
-      this.triggerQueryChanges();
-  }
-
-  // handle when clicked on apply
-  apply(): any {
-      this.closeEditMode();
-  }
-
-  ngOnDestroy() {
-      // this.expressionForm_Sub.unsubscribe();
-      this.queryChangeSub.unsubscribe();
-  }
+    ngOnDestroy() {
+    }
 }
