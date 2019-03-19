@@ -7,11 +7,11 @@
     <mat-icon matChipRemove>cancel</mat-icon>
     </mat-chip>
 
-    <input placeholder="Add contacts..."
+    <input placeholder="Add recipients..."
             [matChipInputFor]="chipList"
             [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
             [matChipInputAddOnBlur]="true"
-            (matChipInputTokenEnd)="addUserInputToSelectedContacts($event)">
+            (matChipInputTokenEnd)="addUserInputToSelectedRecipients($event)">
   </mat-chip-list>
 </mat-form-field>
 
@@ -62,11 +62,11 @@
             {{type}}
             <div class="contact-list-of-buttons">
               <span *ngIf="viewMode === _mode.all">
-                  <button class="contact-button" *ngFor="let contact of getUnselectedRecipientsForType(type)" mat-button (click)="addRecipientToSelectedRecipients($event, contact.name, contact.type)">+ {{contact.name}}</button>
+                  <button class="contact-button" *ngFor="let recipient of getUnselectedRecipientsForType(type)" mat-button (click)="addRecipientToSelectedRecipients($event, recipient.name, recipient.type)">+ {{recipient.name}}</button>
               </span>
 
               <span *ngIf="viewMode === _mode.edit">
-                  <button class="contact-button" *ngFor="let contact of getAllRecipientsForType(type)" mat-button (click)="editRecipientMode($event, contact.name, contact.type)">x {{contact.name}}</button>
+                  <button class="contact-button" *ngFor="let recipient of getAllRecipientsForType(type)" mat-button (click)="editRecipientMode($event, recipient.name, recipient.type)">x {{recipient.name}}</button>
               </span>
             </div>
         </div>

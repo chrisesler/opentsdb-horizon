@@ -109,39 +109,39 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
   }
 
-  addToExistingContacts(contact: any) {
-    this.exisitingRecipients.push(contact);
+  addToExistingRecipients(recipient: Recipient) {
+    this.exisitingRecipients.push(recipient);
   }
 
-  addContactFromName(contactName: string) {
-    let isExistingContact: boolean = false;
+  addRecipientFromName(recipientName: string) {
+    let isExistingRecipient: boolean = false;
 
-    for (let contact of this.exisitingRecipients) {
-      if (isExistingContact && contact.name === contactName) {
+    for (let recipient of this.exisitingRecipients) {
+      if (isExistingRecipient && recipient.name === recipientName) {
         // TODO: two contacts same name, manually select
       }
-      if (contact.name === contactName) {
-        this.addRecipientToSelectedRecipients(null, contact.name, contact.type);
-        isExistingContact = true;
+      if (recipient.name === recipientName) {
+        this.addRecipientToSelectedRecipients(null, recipient.name, recipient.type);
+        isExistingRecipient = true;
       }
     }
 
-    if (!isExistingContact) {
-      if (this.isEmailValid(contactName)) {
-        let contact = this.createEmailContact(contactName);
-        this.addRecipientToSelectedRecipients(null, contact.name, contact.type);
+    if (!isExistingRecipient) {
+      if (this.isEmailValid(recipientName)) {
+        let recipient = this.createEmailRecipient(recipientName);
+        this.addRecipientToSelectedRecipients(null, recipient.name, recipient.type);
       } else {
       // TODO: error - invalid email or no matching contacts
       }
     }
   }
 
-  addUserInputToSelectedContacts(event: MatChipInputEvent) {
+  addUserInputToSelectedRecipients(event: MatChipInputEvent) {
     const input = event.input;
     const value = event.value;
 
     if ((value || '').trim()) {
-      this.addContactFromName(value);
+      this.addRecipientFromName(value);
     }
 
     // Reset the input value
@@ -218,7 +218,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   saveCreatedRecipient($event) {
     // todo: send to server
-    this.addToExistingContacts(this.recipients[this.recipientType]);
+    this.addToExistingRecipients(this.recipients[this.recipientType]);
     this.setViewMode($event, Mode.all);
   }
 
@@ -285,13 +285,13 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return newRecipient;
   }
 
-  createEmailContact(email: string): any {
-    let contact: any = {};
-    contact.name = email;
-    contact.type = RecipientType.Email;
+  createEmailRecipient(email: string): any {
+    let recipient: any = {};
+    recipient.name = email;
+    recipient.type = RecipientType.Email;
 
-    this.addToExistingContacts(contact);
-    return contact;
+    this.addToExistingRecipients(recipient);
+    return recipient;
   }
 
   types(): Array<string> {
@@ -319,17 +319,17 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return this.getRecipients(type, true);
   }
 
-  getRecipients(type: RecipientType, filterOutSelectedContacts): Recipient[] {
+  getRecipients(type: RecipientType, filterOutSelectedRecipients): Recipient[] {
     // tslint:disable:prefer-const
-    let contacts = [];
-    for (let contact of this.exisitingRecipients) {
-      if (filterOutSelectedContacts && contact.type === type && !this.isRecipientSelected(contact.name, contact.type)) {
-        contacts.push(contact);
-      } else if (!filterOutSelectedContacts && contact.type === type) {
-        contacts.push(contact);
+    let recipients = [];
+    for (let recipient of this.exisitingRecipients) {
+      if (filterOutSelectedRecipients && recipient.type === type && !this.isRecipientSelected(recipient.name, recipient.type)) {
+        recipients.push(recipient);
+      } else if (!filterOutSelectedRecipients && recipient.type === type) {
+        recipients.push(recipient);
       }
     }
-    return contacts;
+    return recipients;
   }
 
   // Listen if we should close panel
