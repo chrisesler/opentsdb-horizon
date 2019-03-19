@@ -225,7 +225,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     }
 
     ngOnDestroy() {
-        this.subs.alertName.unscubscribe();
+        // TODO: uncomment
+        // this.subs.alertName.unscubscribe();
     }
 
     ngAfterViewInit() {

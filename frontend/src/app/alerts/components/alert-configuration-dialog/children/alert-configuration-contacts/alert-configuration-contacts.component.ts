@@ -16,9 +16,8 @@ export class AlertConfigurationContactsComponent implements OnInit {
   // tslint:disable:prefer-const
 
   @Input() namespace: string;
-  // @Input() namespaceRecipients: any;
-  @Input() alertRecipients: Recipient[];
-  @Output() updatedAlertRecipients: Recipient[];
+  @Input() alertRecipients: []; // [{name, type}]
+  @Output() updatedAlertRecipients: []; // [{name, type}]
 
   megaPanelVisible: boolean = false;
   viewMode: Mode = Mode.all;
