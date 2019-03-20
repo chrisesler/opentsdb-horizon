@@ -1,8 +1,8 @@
 <mat-form-field class="contact-list" (click)="showMegaPanel()" floatLabel="never">
   <mat-chip-list #chipList>
 
-    <mat-chip *ngFor="let recipient of selectedRecipients" [selectable]="true"
-      [removable]="true" (removed)="removeRecipientFromSelectedRecipients(recipient.name, recipient.type)">
+    <mat-chip *ngFor="let recipient of alertRecipients" [selectable]="true"
+      [removable]="true" (removed)="removeRecipientFromAlertRecipients(recipient.name, recipient.type)">
       {{recipient.name}}
     <mat-icon matChipRemove>cancel</mat-icon>
     </mat-chip>
@@ -11,7 +11,7 @@
             [matChipInputFor]="chipList"
             [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
             [matChipInputAddOnBlur]="true"
-            (matChipInputTokenEnd)="addUserInputToSelectedRecipients($event)">
+            (matChipInputTokenEnd)="addUserInputToAlertRecipients($event)">
   </mat-chip-list>
 </mat-form-field>
 
@@ -62,7 +62,7 @@
             {{type}}
             <div class="contact-list-of-buttons">
               <span *ngIf="viewMode === _mode.all">
-                  <button class="contact-button" *ngFor="let recipient of getUnselectedRecipientsForType(type)" mat-button (click)="addRecipientToSelectedRecipients($event, recipient.name, recipient.type)">+ {{recipient.name}}</button>
+                  <button class="contact-button" *ngFor="let recipient of getUnselectedRecipientsForType(type)" mat-button (click)="addRecipientToAlertRecipients($event, recipient.name, recipient.type)">+ {{recipient.name}}</button>
               </span>
 
               <span *ngIf="viewMode === _mode.edit">

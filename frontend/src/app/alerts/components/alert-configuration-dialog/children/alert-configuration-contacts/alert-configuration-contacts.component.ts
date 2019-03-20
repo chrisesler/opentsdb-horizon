@@ -1,32 +1,31 @@
-import { Component, OnInit, HostBinding, Renderer2, ElementRef, HostListener, Input, Output } from '@angular/core';
+import { Component, OnInit, HostBinding, ElementRef, HostListener, Input, Output, EventEmitter } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Mode, RecipientType, Recipient } from './models';
 
 @Component({
+  // tslint:disable:no-inferrable-types
+  // tslint:disable:prefer-const
   // tslint:disable-next-line:component-selector
   selector: 'alert-configuration-contacts',
   templateUrl: './alert-configuration-contacts.component.html',
   styleUrls: ['./alert-configuration-contacts.component.scss']
 })
+
 export class AlertConfigurationContactsComponent implements OnInit {
   @HostBinding('class.alert-configuration-contacts-component') private _hostClass = true;
-  constructor(private renderer: Renderer2, private eRef: ElementRef) { }
-  // tslint:disable:no-inferrable-types
-  // tslint:disable:prefer-const
+  constructor(private eRef: ElementRef) { }
 
   @Input() namespace: string;
-  @Input() alertRecipients: []; // [{name, type}]
-  @Output() updatedAlertRecipients: []; // [{name, type}]
+  @Input() alertRecipients: any; // [{name, type}]
+  @Output() updatedAlertRecipients = new EventEmitter<any>(); // [{name, type}]
 
   megaPanelVisible: boolean = false;
   viewMode: Mode = Mode.all;
   recipientType: RecipientType = RecipientType.OpsGenie;
   recipients: {}; // map<RecipientType, Recipient>;
   tempRecipient: Recipient; // for canceling
-
-  selectedRecipients: any = []; // [{name, type}]
-  exisitingRecipients: any = [
+  namespaceRecipients: any = [
     {
       name: 'dev-team',
       type: RecipientType.OpsGenie,
@@ -57,13 +56,18 @@ export class AlertConfigurationContactsComponent implements OnInit {
       endpoint: 'https://myendpoint.com/api/curveball'
     }
   ];
-
   _mode = Mode; // for template
   _recipientType = RecipientType; // for template
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   ngOnInit() {
     this.populateEmptyRecipients();
+    if (!this.alertRecipients) {
+      this.alertRecipients = [];
+    }
+    if (!this.namespace) {
+      this.namespace = '';
+    }
   }
 
   showMegaPanel() {
@@ -108,34 +112,34 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
   }
 
-  addToExistingRecipients(recipient: Recipient) {
-    this.exisitingRecipients.push(recipient);
+  addToNamespaceRecipients(recipient: Recipient) {
+    this.namespaceRecipients.push(recipient);
   }
 
   addRecipientFromName(recipientName: string) {
-    let isExistingRecipient: boolean = false;
+    let isNamespaceRecipient: boolean = false;
 
-    for (let recipient of this.exisitingRecipients) {
-      if (isExistingRecipient && recipient.name === recipientName) {
+    for (let recipient of this.namespaceRecipients) {
+      if (isNamespaceRecipient && recipient.name === recipientName) {
         // TODO: two contacts same name, manually select
       }
       if (recipient.name === recipientName) {
-        this.addRecipientToSelectedRecipients(null, recipient.name, recipient.type);
-        isExistingRecipient = true;
+        this.addRecipientToAlertRecipients(null, recipient.name, recipient.type);
+        isNamespaceRecipient = true;
       }
     }
 
-    if (!isExistingRecipient) {
+    if (!isNamespaceRecipient) {
       if (this.isEmailValid(recipientName)) {
         let recipient = this.createEmailRecipient(recipientName);
-        this.addRecipientToSelectedRecipients(null, recipient.name, recipient.type);
+        this.addRecipientToAlertRecipients(null, recipient.name, recipient.type);
       } else {
       // TODO: error - invalid email or no matching contacts
       }
     }
   }
 
-  addUserInputToSelectedRecipients(event: MatChipInputEvent) {
+  addUserInputToAlertRecipients(event: MatChipInputEvent) {
     const input = event.input;
     const value = event.value;
 
@@ -150,9 +154,9 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   // OPERATIONS to get Recipient
-  isRecipientSelected(name: string, type: RecipientType): boolean {
-    for (let i = 0; i < this.selectedRecipients.length; i++) {
-      if (this.selectedRecipients[i].name === name && this.selectedRecipients[i].type === type) {
+  isAlertRecipient(name: string, type: RecipientType): boolean {
+    for (let i = 0; i < this.alertRecipients.length; i++) {
+      if (this.alertRecipients[i].name === name && this.alertRecipients[i].type === type) {
         return true;
       }
     }
@@ -160,43 +164,44 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   getRecipient(name: string, type: RecipientType): Recipient {
-    for (let i = 0; i < this.exisitingRecipients.length; i++) {
-      if (this.exisitingRecipients[i].name === name && this.exisitingRecipients[i].type === type) {
-        return this.exisitingRecipients[i];
+    for (let i = 0; i < this.namespaceRecipients.length; i++) {
+      if (this.namespaceRecipients[i].name === name && this.namespaceRecipients[i].type === type) {
+        return this.namespaceRecipients[i];
       }
     }
   }
 
-  removeRecipientFromSelectedRecipients(name: string, type: RecipientType) {
-    for (let i = 0; i < this.selectedRecipients.length; i++) {
-      if (this.selectedRecipients[i].name === name && this.selectedRecipients[i].type === type) {
-        this.selectedRecipients.splice(i, 1);
-        // todo: send output event
+  removeRecipientFromAlertRecipients(name: string, type: RecipientType) {
+    for (let i = 0; i < this.alertRecipients.length; i++) {
+      if (this.alertRecipients[i].name === name && this.alertRecipients[i].type === type) {
+        this.alertRecipients.splice(i, 1);
+        // // todo: send output event
+        this.updatedAlertRecipients.emit(this.alertRecipients);
       }
     }
   }
 
   removeRecipient(name: string, type: RecipientType) {
-    this.removeRecipientFromSelectedRecipients(name, type);
-    for (let i = 0; i < this.exisitingRecipients.length; i++) {
-      if (this.exisitingRecipients[i].name === name && this.exisitingRecipients[i].type === type) {
-        this.exisitingRecipients.splice(i, 1);
+    this.removeRecipientFromAlertRecipients(name, type);
+    for (let i = 0; i < this.namespaceRecipients.length; i++) {
+      if (this.namespaceRecipients[i].name === name && this.namespaceRecipients[i].type === type) {
+        this.namespaceRecipients.splice(i, 1);
         // todo: send server delete command
       }
     }
   }
 
-  addRecipientToSelectedRecipients($event: Event, name: string, type: RecipientType) {
+  addRecipientToAlertRecipients($event: Event, name: string, type: RecipientType) {
     if ($event) {
       $event.stopPropagation();
     }
-    if (!this.isRecipientSelected(name, type)) {
-      this.selectedRecipients.push({name: name, type: type});
+    if (!this.isAlertRecipient(name, type)) {
+      this.alertRecipients.push({name: name, type: type});
+      this.updatedAlertRecipients.emit(this.alertRecipients);
     }
   }
 
   // User Actions
-
   updateRecipient(recipient: Recipient, field: string, updatedValue: string ) {
     // prepend '#' for slack
     if (recipient.type === RecipientType.Slack && field === 'name' ) {
@@ -206,9 +211,9 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
 
     if (field === 'name') {
-      for (let i = 0; i < this.selectedRecipients.length; i++) {
-        if (this.selectedRecipients[i].name === recipient.name && this.selectedRecipients[i].type === recipient.type) {
-          this.selectedRecipients[i].name = updatedValue;
+      for (let i = 0; i < this.alertRecipients.length; i++) {
+        if (this.alertRecipients[i].name === recipient.name && this.alertRecipients[i].type === recipient.type) {
+          this.alertRecipients[i].name = updatedValue;
         }
       }
     }
@@ -217,7 +222,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   saveCreatedRecipient($event) {
     // todo: send to server
-    this.addToExistingRecipients(this.recipients[this.recipientType]);
+    this.addToNamespaceRecipients(this.recipients[this.recipientType]);
     this.setViewMode($event, Mode.all);
   }
 
@@ -238,18 +243,18 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   cancelEdit() {
     // reset to old contact
-    for (let i = 0; i < this.exisitingRecipients.length; i++) {
-      if (this.exisitingRecipients[i].name === this.recipients[this.recipientType].name &&
-          this.exisitingRecipients[i].type === this.recipients[this.recipientType].type) {
-        this.exisitingRecipients[i] = this.tempRecipient;
+    for (let i = 0; i < this.namespaceRecipients.length; i++) {
+      if (this.namespaceRecipients[i].name === this.recipients[this.recipientType].name &&
+          this.namespaceRecipients[i].type === this.recipients[this.recipientType].type) {
+        this.namespaceRecipients[i] = this.tempRecipient;
         break;
       }
     }
 
-    for (let i = 0; i < this.selectedRecipients.length; i++) {
-      if (this.selectedRecipients[i].name === this.recipients[this.recipientType].name &&
-          this.selectedRecipients[i].type === this.recipients[this.recipientType].type) {
-        this.selectedRecipients[i] = {name: this.tempRecipient.name, type: this.tempRecipient.type} ;
+    for (let i = 0; i < this.alertRecipients.length; i++) {
+      if (this.alertRecipients[i].name === this.recipients[this.recipientType].name &&
+          this.alertRecipients[i].type === this.recipients[this.recipientType].type) {
+        this.alertRecipients[i] = {name: this.tempRecipient.name, type: this.tempRecipient.type} ;
         break;
       }
     }
@@ -297,7 +302,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
     recipient.name = email;
     recipient.type = RecipientType.Email;
 
-    this.addToExistingRecipients(recipient);
+    this.addToNamespaceRecipients(recipient);
     return recipient;
   }
 
@@ -326,13 +331,13 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return this.getRecipients(type, true);
   }
 
-  getRecipients(type: RecipientType, filterOutSelectedRecipients): Recipient[] {
+  getRecipients(type: RecipientType, filterOutAlertRecipients): Recipient[] {
     // tslint:disable:prefer-const
     let recipients = [];
-    for (let recipient of this.exisitingRecipients) {
-      if (filterOutSelectedRecipients && recipient.type === type && !this.isRecipientSelected(recipient.name, recipient.type)) {
+    for (let recipient of this.namespaceRecipients) {
+      if (filterOutAlertRecipients && recipient.type === type && !this.isAlertRecipient(recipient.name, recipient.type)) {
         recipients.push(recipient);
-      } else if (!filterOutSelectedRecipients && recipient.type === type) {
+      } else if (!filterOutAlertRecipients && recipient.type === type) {
         recipients.push(recipient);
       }
     }
