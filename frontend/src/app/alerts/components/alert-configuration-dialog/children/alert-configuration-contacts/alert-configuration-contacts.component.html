@@ -3,7 +3,7 @@
 
     <mat-chip *ngFor="let recipient of alertRecipients" [selectable]="true"
       [removable]="true" (removed)="removeRecipientFromAlertRecipients(recipient.name, recipient.type)">
-      {{recipient.name}}
+      <span *ngIf="recipient.type === _recipientType.Slack">#</span>{{recipient.name}}
     <mat-icon matChipRemove>cancel</mat-icon>
     </mat-chip>
 
@@ -59,7 +59,7 @@
             <div class="contact-list-of-buttons">
               <span *ngIf="viewMode === _mode.all">
                   <div class="contact-button" *ngFor="let recipient of getUnselectedRecipientsForType(type)" mat-button (click)="addRecipientToAlertRecipients($event, recipient.name, recipient.type)">
-                    <span>+</span>  
+                    <mat-icon fontSet="denali" fontIcon="d-add-square"></mat-icon>
                     <span *ngIf="type === _recipientType.Slack">#</span>{{recipient.name}}
                   </div>
               </span>
@@ -67,9 +67,9 @@
               <span *ngIf="viewMode === _mode.edit">
                 <div class="contact-button" *ngFor="let recipient of getAllRecipientsForType(type)" mat-button (click)="editRecipientMode($event, recipient.name, recipient.type)">
                   <span *ngIf="type === _recipientType.Slack">#</span>{{recipient.name}}
-                  <span *ngIf="recipient.isAdmin">admin</span>
-                  <span *ngIf="!recipient.isAdmin"> e </span>
-                  <span *ngIf="!recipient.isAdmin" (click)="deleteRecipient($event, recipient)"> d </span>  
+                  <span class="admin-tag" *ngIf="recipient.isAdmin">admin</span>
+                  <mat-icon *ngIf="!recipient.isAdmin" fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                  <mat-icon *ngIf="!recipient.isAdmin" (click)="deleteRecipient($event, recipient)" fontSet="denali" fontIcon="d-trash"></mat-icon>  
                 </div>
               </span>
             </div>

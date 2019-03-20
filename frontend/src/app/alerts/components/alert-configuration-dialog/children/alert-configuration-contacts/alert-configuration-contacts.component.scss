@@ -48,6 +48,11 @@
 
             .panel-content {
                 height: calc(100% - 56px);
+
+                mat-icon {
+                    font-size: 1em;
+                }
+
                 .existing-contacts {
                     display: flex;
                     flex-direction: row;
@@ -59,6 +64,10 @@
                         padding-left: 5px;
                         margin-bottom: 5px;
                         // overflow: scroll;
+
+                        .admin-tag {
+                            font-size: 10px;
+                        }
 
                         .contact-list-of-buttons {
                             display: flex;
