@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { group } from '@angular/animations';
 
 @Injectable({
   providedIn: 'root'
@@ -25,18 +26,21 @@ export class YamasService {
         if ( query.filters.length ) {
             filterId = 'filter';
             // tslint:disable-next-line:prefer-const
+
             let _filter: any = this.getFilterQuery(query);
             _filter.id = filterId;
 
+            /*
             if (query.settings.explicitTagMatch) {
                 transformedQuery.filters = [
                     { filter : { type: 'ExplicitTags', filter: _filter.filter }, id: filterId }
                 ];
             } else {
-                transformedQuery.filters = [_filter];
+                
             }
+            */
+            transformedQuery.filters = [_filter];
         }
-
         for (let j = 0; j < query.metrics.length; j++) {
             const isExpression = query.metrics[j].expression ? true : false;
 
@@ -49,7 +53,9 @@ export class YamasService {
             } else {
                 hasMetricTS = true;
                 const q: any = this.getMetricQuery(query, j);
-                if ( filterId ) {
+                if ( query.metrics[j].groupByTags ) {
+                    q.filters = this.getFilterQuery(query, j);
+                } else if ( filterId ) {
                     q.filterId = filterId;
                 }
                 transformedQuery.executionGraph.push(q);
@@ -62,7 +68,7 @@ export class YamasService {
 
                     const groupbyId = prefix + '-groupby';
                     groupByIds.push(groupbyId);
-                    transformedQuery.executionGraph.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator,  [dsId], groupbyId));
+                    transformedQuery.executionGraph.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator, query.metrics[j].groupByTags, [dsId], groupbyId));
                     outputIds.push(groupbyId);
                 }
             }
@@ -124,16 +130,32 @@ export class YamasService {
         };
     }
 
-    getFilterQuery(query) {
+    getFilterQuery(query, index = -1) {
         const filters = query.filters ? this.transformFilters(query.filters) : [];
-        const filter = {
+        const groupByTags = query.metrics[index] ? query.metrics[index].groupByTags : [];
+        let filter:any = {
                         filter : {
                             type: 'Chain',
                             op: 'AND',
                             filters: filters
                         }
                     };
+        // add groupby tags to filters if its not there
+        for ( let i = 0;  groupByTags && i < groupByTags.length; i++ ) {
+            const index = query.filters.findIndex(d => d.tagk === groupByTags[i]);
+            if ( index === -1 ) {
+                filter.filter.filters.push( this.getFilter(groupByTags[i], 'regexp(.*)'));
+            }
+        }
+        if ( query.settings.explicitTagMatch ) {
+            filter = { filter : { type: 'ExplicitTags', filter: filter.filter } };
+        }
         return filter;
+    }
+
+    addTagGroupByFilters( filter, groupByTags ) {
+        const gFilters = [];
+        
     }
 
     getExpressionQuery(query, summaryOnly, downsample, config, index, filterId) {
@@ -167,7 +189,7 @@ export class YamasService {
                 // add groupby for the expression
                 const groupbyId = id + '-groupby'  ;
                 //groupByIds.push(groupbyId);
-                queries.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator,  [dsId], groupbyId));
+                queries.push(this.getQueryGroupBy(query, query.metrics[j].tagAggregator, query.metrics[j].groupByTags, [dsId], groupbyId));
                 if ( !sources[aggregators[j]] ) {
                     sources[aggregators[j]] = [];
                 }
@@ -233,20 +255,15 @@ export class YamasService {
         return chain;
     }
 
-    getQueryGroupBy(query, tagAggregator, sources, id= null) {
+    getQueryGroupBy(query, tagAggregator, tagKeys, sources, id= null) {
         const filters = query.filters || [];
-        const tagKeys = [];
         let aggregator =  tagAggregator || 'sum';
-        for ( let i = 0; filters && i < filters.length; i++ ) {
-            if ( filters[i].groupBy ) {
-                tagKeys.push(filters[i].tagk);
-            }
-        }
+
         const metricGroupBy =  {
             id: id ? id : 'groupby',
             type: 'groupby',
             aggregator: aggregator,
-            tagKeys: tagKeys,
+            tagKeys: tagKeys ? tagKeys : [],
             interpolatorConfigs: [
                 {
                     dataType: 'numeric',

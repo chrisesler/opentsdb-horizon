@@ -67,7 +67,7 @@ export class NamespaceAutocompleteComponent implements OnInit {
     @HostListener('document:click', ['$event.target'])
     documentClickHandler(target) {
         if ( ! target.classList.contains('mat-option-text') && this.visible ) {
-            console.log('window:click outside', this.elRef, target, this.elRef.nativeElement.contains(target));
+            // console.log('window:click outside', this.elRef, target, this.elRef.nativeElement.contains(target));
             this.blur.emit('');
         }
     }

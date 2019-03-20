@@ -67,7 +67,7 @@
         // preview area - graph and legend
         .preview-wrapper {
             padding: 8px 16px;
-            min-height: 180px;
+            height: 180px;
             display: flex;
 
             .graph-wrapper,
@@ -82,6 +82,31 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    .chart {
+                        display: flex;
+                        flex: 1;
+                    }
+                }
+
+                .loader{
+                    position: absolute;
+                    left: 10px;
+                    top: 50px;
+                    z-index: 1;
+                    width: 24px;
+                    height: 24px;
+                    background-image: url(/assets/denali-loader.svg);
+                    background-color: transparent;
+                }
+    
+                .error{
+                    position: absolute;
+                    left: 10px;
+                    top: 50px;
+                    z-index: 1;
+                    width: 30px;
+                    height: 30px;
+                    color: red;
                 }
             }
 
@@ -286,8 +311,6 @@
             }
         }
 
-        
-
         .show-advanced-threshold-toggle {
             width: 100%;
             display: flex;
@@ -344,18 +367,10 @@
                 }
             }
         }
-
-        
-
-
     }
-
-
 
     // CDK ITEMS
     .alert-configuration-dialog-panel {
-        //background-color: pink;
-        
         .mat-dialog-container {
             display: flex;
             padding: 0;
@@ -387,13 +402,13 @@
             }
         }
 
-        .preview-wrapper {
+        /*.preview-wrapper {
             .graph-wrapper {
                 .graph-output {
                     background: $divider-color;
                 }
             }
-        }
+        }*/
 
         .config-toolbar.mat-toolbar {
             background: transparent;

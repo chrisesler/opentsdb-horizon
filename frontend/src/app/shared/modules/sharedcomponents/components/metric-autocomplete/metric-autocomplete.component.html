@@ -1,0 +1,71 @@
+<div class="metric-filters query-filter-block"  *ngIf="multiple">
+            <div class="container">
+                <!-- if adding some metrics -->
+                <div class="metric-search" >
+                    <div>
+                        <mat-form-field class="metric-search-input-field" appearance="outline" color="primary" floatLabel="never">
+                            <input matInput placeholder="Filter metrics" (focus)="doMetricSearch()" [formControl]="metricSearchControl" #metricSearchInput autocomplete="off">
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="metric-search-result" *ngIf="visible">
+                        <div class="option-list has-scroller" style="min-height: 200px;" *ngIf="!multiple">
+                                <div class="is-scroller">
+                                    <div class="option-item" *ngFor="let option of metricOptions" [ngClass]="getMetricIndex(option.name) !== -1 ? 'added' : ''"
+                                        (click)="(getMetricIndex(option.name) === -1) ? updateMetricSelection(option.name, 'add') : updateMetricSelection(option.name, 'remove');">
+                                        <div class="option-cell label">{{ option.name }}</div>
+                                    </div>
+                                    <div *ngIf="message.metricSearchControl.message" [ngClass]="message.metricSearchControl.type === 'error'? 'error': 'info'">
+                                        <mat-icon>error</mat-icon>
+                                        <span>{{ message['metricSearchControl']['message'] }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                    <mat-tab-group color="primary" mat-align-tabs="start" [(selectedIndex)]="metricSelectedTabIndex">
+                        <mat-tab [label]="'Available(' + metricOptions.length + ')'">
+                            <ng-template matTabContent>
+                                <div class="option-list has-scroller" style="min-height: 200px;">
+                                    <div class="is-scroller">
+                                        <div class="option-item" *ngFor="let option of metricOptions" [ngClass]="getMetricIndex(option.name) !== -1 ? 'added' : ''"
+                                            (click)="(getMetricIndex(option.name) === -1) ? updateMetricSelection(option.name, 'add') : updateMetricSelection(option.name, 'remove');">
+                                            <div class="option-cell">
+                                                <mat-icon *ngIf="getMetricIndex(option.name) === -1">add_circle_outline</mat-icon>
+                                                <mat-icon *ngIf="getMetricIndex(option.name) !== -1">remove_circle_outline</mat-icon>
+                                            </div>
+                                            <div class="option-cell label">{{ option.name }}</div>
+                                        </div>
+                                        <div *ngIf="message.metricSearchControl.message" [ngClass]="message.metricSearchControl.type === 'error'? 'error': 'info'">
+                                            <mat-icon>error</mat-icon>
+                                            <span>{{ message['metricSearchControl']['message'] }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </mat-tab>
+                        <mat-tab [label]="'Selected(' + metrics.length + ')'">
+                            <ng-template matTabContent>
+                                <div class="option-list has-scroller" style="min-height: 200px;">
+                                    <div class="is-scroller">
+                                        <div class="option-item" *ngFor="let metric of metrics; let index=index">
+                                            <div class="option-cell">
+                                                <mat-icon (click)="removeMetric(metric);">remove_circle_outline</mat-icon>
+                                            </div>
+                                            <div class="option-cell label">{{ metric }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </mat-tab>
+                    </mat-tab-group>
+                </div>
+            </div>
+        </div>
+
+    <mat-form-field appearance="fill" [color]="'primary'" floatLabel="never" *ngIf="!multiple">
+        <input type="text" #metricSearchInput matInput placeholder="Metric" autocomplete="off" (focus)="doMetricSearch()" [formControl]="metricSearchControl" [matAutocomplete]="metricAutoComplete" (keydown.enter)="metricACKeydown($event)">
+    </mat-form-field>
+    <mat-autocomplete   #metricAutoComplete="matAutocomplete" (optionSelected)="metricACOptionSelected($event)">
+        <mat-option *ngFor="let option of metricOptions" [value]="option.name">
+            {{ option.name }}
+        </mat-option>
+    </mat-autocomplete>

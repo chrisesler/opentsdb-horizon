@@ -22,6 +22,9 @@ import { AlertsComponent } from './containers/alerts.component';
 import { SnoozeAlertDialogComponent } from './components/snooze-alert-dialog/snooze-alert-dialog.component';
 import { NameAlertDialogComponent } from './components/name-alert-dialog/name-alert-dialog.component';
 import { AlertConfigurationDialogComponent } from './components/alert-configuration-dialog/alert-configuration-dialog.component';
+import { DygraphsModule } from '../shared/modules/dygraphs/dygraphs.module';
+// tslint:disable-next-line:max-line-length
+import { AlertConfigurationContactsComponent } from './components/alert-configuration-dialog/children/alert-configuration-contacts/alert-configuration-contacts.component';
 
 // directives
 
@@ -32,6 +35,7 @@ import { AlertConfigurationDialogComponent } from './components/alert-configurat
         ReactiveFormsModule,
         MaterialModule,
         SharedcomponentsModule,
+        DygraphsModule,
         AlertsRoutingModule,
         NgxsModule.forFeature([
             AlertsState
@@ -41,7 +45,8 @@ import { AlertConfigurationDialogComponent } from './components/alert-configurat
         AlertsComponent,
         SnoozeAlertDialogComponent,
         NameAlertDialogComponent,
-        AlertConfigurationDialogComponent
+        AlertConfigurationDialogComponent,
+        AlertConfigurationContactsComponent
     ],
     providers: [
         AlertsService
