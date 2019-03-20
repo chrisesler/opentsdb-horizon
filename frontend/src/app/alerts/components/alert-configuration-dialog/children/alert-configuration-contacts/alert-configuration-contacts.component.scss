@@ -21,6 +21,27 @@
             }
         }
 
+        .recipient-type-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+
+            &::after {
+                content: '';
+                display: block;
+                width: 20px;
+                height: 20px;
+                background-repeat: no-repeat;
+                background-position: 50% 50%;
+                background-size: 100%;
+            }
+
+            &.recipient-icon-opsgenie::after {
+                // background-image: url(/frontend/src/assets/opsgenie-contact.svg);
+                background-image: url(/frontend/src/assets/widget-icon-bar-graph.png);
+            }
+        }
 
         .mega-panel {
             position: absolute;
@@ -48,6 +69,11 @@
 
             .panel-content {
                 height: calc(100% - 56px);
+
+                .mat-icon {
+                    font-size: 1em;
+                }
+
                 .existing-contacts {
                     display: flex;
                     flex-direction: row;
@@ -59,6 +85,10 @@
                         padding-left: 5px;
                         margin-bottom: 5px;
                         // overflow: scroll;
+
+                        .admin-tag {
+                            font-size: 10px;
+                        }
 
                         .contact-list-of-buttons {
                             display: flex;
