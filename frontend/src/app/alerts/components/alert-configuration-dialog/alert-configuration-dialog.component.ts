@@ -36,8 +36,6 @@ import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/c
     styleUrls: []
 })
 export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, AfterViewInit {
-
-
     @HostBinding('class.alert-configuration-dialog-component') private _hostClass = true;
 
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
@@ -227,7 +225,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     }
 
     ngOnDestroy() {
-        this.subs.alertName.unscubscribe();
+        // TODO: uncomment
+        // this.subs.alertName.unscubscribe();
     }
 
     ngAfterViewInit() {
@@ -242,6 +241,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
     changeThresholdType(thresholdType: string) {
         this.selectedThresholdType = thresholdType;
+    }
+
+    log(event) {
+        console.log(event);
     }
 
     /** Privates */

@@ -52,7 +52,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         const seriesConfig = this.user_attrs_.series;
         if (data.x == null) {
             const labelsDiv = this.user_attrs_.labelsDiv;
-            labelsDiv.style.display = 'none';
+            // labelsDiv.style.display = 'none';
             return '';
         }
 
