@@ -55,8 +55,6 @@ import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.compon
 import { WidgetConfigSortingComponent } from './components/widget-config-sorting/widget-config-sorting.component';
 import { ConditionalFormatterComponent } from './components/conditional-formatter/conditional-formatter.component';
 import { QueryEditorFlatComponent } from './components/query-editor-flat/query-editor-flat.component';
-import { InlineFilterEditorComponent } from './components/inline-filter-editor/inline-filter-editor.component';
-import { MetricAutocompleteComponent } from './components/metric-autocomplete/metric-autocomplete.component';
 import { QueryEditorProtoComponent } from './components/query-editor-proto/query-editor-proto.component';
 import { InlineFilterEditorComponent } from './components/inline-filter-editor/inline-filter-editor.component';
 import { MetricAutocompleteComponent } from './components/metric-autocomplete/metric-autocomplete.component';
