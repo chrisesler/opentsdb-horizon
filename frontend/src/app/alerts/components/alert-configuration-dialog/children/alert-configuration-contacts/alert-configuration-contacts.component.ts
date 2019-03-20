@@ -2,6 +2,7 @@ import { Component, OnInit, HostBinding, ElementRef, HostListener, Input, Output
 import { MatChipInputEvent } from '@angular/material';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Mode, RecipientType, Recipient } from './models';
+import { FormControl } from '@angular/forms';
 
 @Component({
   // tslint:disable:no-inferrable-types
@@ -64,6 +65,42 @@ export class AlertConfigurationContactsComponent implements OnInit {
   _mode = Mode; // for template
   _recipientType = RecipientType; // for template
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+
+
+  // form control
+  opsGenieName = new FormControl('');
+  opsGenieKey = new FormControl('');
+  slackName = new FormControl('');
+  slackWebhook = new FormControl('');
+  ocName = new FormControl('');
+  ocDisplayCount = new FormControl('');
+  ocContext = new FormControl('');
+  ocProperty = new FormControl('');
+  httpName = new FormControl('');
+  httpEndpoint = new FormControl('');
+
+  anyErrors(): boolean {
+    // todo - check if name is equivalent to any other within type
+
+    if (this.recipientType === RecipientType.OpsGenie) {
+      if (this.opsGenieName.errors || this.opsGenieKey.errors) {
+        return true;
+      }
+    } else if (this.recipientType === RecipientType.Slack ) {
+      if (this.slackName.errors || this.slackWebhook.errors) {
+        return true;
+      }
+    } else if (this.recipientType === RecipientType.HTTP ) {
+      if (this.httpName.errors || this.httpEndpoint.errors) {
+        return true;
+      }
+    } else if (this.recipientType === RecipientType.OC ) {
+      if (this.ocName.errors || this.ocDisplayCount.errors || this.ocContext.errors || this.ocProperty.errors) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   ngOnInit() {
     this.populateEmptyRecipients();
