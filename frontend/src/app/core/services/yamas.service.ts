@@ -182,7 +182,7 @@ export class YamasService {
                 expression: config.expression,
                 join: {
                     type: 'Join',
-                    joinType: 'NATURAL'
+                    //joinType: 'NATURAL_OUTER' // Optional.
                 },
                 interpolatorConfigs: [{
                     dataType: 'numeric',
