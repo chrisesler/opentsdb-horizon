@@ -101,6 +101,12 @@
                                 cursor: pointer;
                                 padding: 5px;
                             }
+
+                            .contact-button {
+                                &.no-highlight {
+                                    cursor: unset;
+                                }
+                            }
                         }
                     }
                 }
@@ -186,6 +192,12 @@
 
                 .contact-button:hover {
                     background-color: blanchedalmond;
+                }
+
+                .contact-button {
+                    &.no-highlight:hover {
+                        background-color: unset;
+                    }
                 }
             }
         }
