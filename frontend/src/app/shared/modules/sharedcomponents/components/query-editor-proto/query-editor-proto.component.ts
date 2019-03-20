@@ -8,6 +8,7 @@ import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MatMenuTrigger } from '@angular/material';
+import { FormControl } from '@angular/forms';
 
 
 
@@ -34,6 +35,10 @@ export class QueryEditorProtoComponent implements OnInit {
     editNamespace = false;
     editTag = false;
     isAddMetricProgress = false;
+    isAddExpressionProgress= false;
+
+    expressionControl: FormControl;
+
 
     timeAggregatorOptions: Array<any> = [
         {
@@ -61,6 +66,7 @@ export class QueryEditorProtoComponent implements OnInit {
 
     ngOnInit() {
         this.queryChanges$ = new BehaviorSubject(false);
+        this.expressionControl = new FormControl('');
 
         this.queryChangeSub = this.queryChanges$
                                         .pipe(
@@ -131,6 +137,28 @@ export class QueryEditorProtoComponent implements OnInit {
             this.queryChanges$.next(true);
         }
     }
+
+    getMetricLabel( index ) {
+        const isExpression = this.query.metrics[index].expression !== undefined;
+        let labelIndex = 0;
+        for ( let i = 0; i <= index ;  i++ ) {
+            if ( !isExpression && this.query.metrics[i].expression === undefined) {
+                labelIndex++;
+            } 
+            if ( isExpression && this.query.metrics[i].expression !== undefined) {
+                labelIndex++;
+            }
+        }
+        return isExpression ? 'e' + labelIndex : 'm' + labelIndex;
+    }
+
+    getMetricsByType(type) {
+        if ( type === 'metrics' ) {
+            return this.query.metrics.filter(d=> d.expression === undefined );
+        } else {
+            return this.query.metrics.filter(d=> d.expression !== undefined );
+        }
+    }
     addFunction() {
         // do something
     }
@@ -150,6 +178,12 @@ export class QueryEditorProtoComponent implements OnInit {
 
     triggerQueryChanges() {
         this.requestChanges('QueryChange', {'query': this.query});
+        console.log("query", this.query)
+    }
+
+    toggleExplictTagMatch(e: any) {
+        this.query.settings.explicitTagMatch = e.checked;
+        this.queryChanges$.next(true);
     }
 
     showTagFilterMenu() {
