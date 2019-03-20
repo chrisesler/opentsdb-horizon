@@ -161,7 +161,7 @@
                             <div class="form-label">Alert recipients</div>
                             <!-- <mat-form-field appearance="fill"> -->
                                 <mat-label></mat-label>
-                                <alert-configuration-contacts></alert-configuration-contacts>
+                                <alert-configuration-contacts (updatedAlertRecipients)="log($event)"></alert-configuration-contacts>
                             <!-- </mat-form-field> -->
                             
                         </div>

@@ -34,13 +34,18 @@ export class AlertConfigurationContactsComponent implements OnInit {
       tags: 'User-Facing'
     },
     {
-      name: '#yamas-devel',
+      name: 'yamas-devel',
       type: RecipientType.Slack,
       webhook: 'http://slackwebhook.com/'
     },
     {
       name: 'yamas-devel@verizonmedia.com',
       type: RecipientType.Email
+    },
+    {
+      name: 'zb@verizonmedia.com',
+      type: RecipientType.Email,
+      isAdmin: true
     },
     {
       name: 'OC Red',
@@ -106,10 +111,14 @@ export class AlertConfigurationContactsComponent implements OnInit {
     this.recipients[this.recipientType] = recipient;
 
     if (this.recipientType === RecipientType.Email) {
-      this.deleteRecipient($event, recipient);
+      // do nothing
     } else {
       this.setViewMode($event, Mode.editRecipient);
     }
+  }
+
+  emitAlertRecipients() {
+    this.updatedAlertRecipients.emit(this.alertRecipients);
   }
 
   addToNamespaceRecipients(recipient: Recipient) {
@@ -175,8 +184,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
     for (let i = 0; i < this.alertRecipients.length; i++) {
       if (this.alertRecipients[i].name === name && this.alertRecipients[i].type === type) {
         this.alertRecipients.splice(i, 1);
-        // // todo: send output event
-        this.updatedAlertRecipients.emit(this.alertRecipients);
+        this.emitAlertRecipients();
       }
     }
   }
@@ -197,18 +205,18 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
     if (!this.isAlertRecipient(name, type)) {
       this.alertRecipients.push({name: name, type: type});
-      this.updatedAlertRecipients.emit(this.alertRecipients);
+      this.emitAlertRecipients();
     }
   }
 
   // User Actions
   updateRecipient(recipient: Recipient, field: string, updatedValue: string ) {
     // prepend '#' for slack
-    if (recipient.type === RecipientType.Slack && field === 'name' ) {
-      if (updatedValue.charAt(0) !== '#') {
-        updatedValue = '#' + updatedValue;
-      }
-    }
+    // if (recipient.type === RecipientType.Slack && field === 'name' ) {
+    //   if (updatedValue.charAt(0) !== '#') {
+    //     updatedValue = '#' + updatedValue;
+    //   }
+    // }
 
     if (field === 'name') {
       for (let i = 0; i < this.alertRecipients.length; i++) {
@@ -227,8 +235,9 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   saveEditedRecipient($event) {
-    // todo: send to server
+    // todo: send recipient to server
     this.setViewMode($event, Mode.all);
+    this.emitAlertRecipients();
   }
 
   testRecipient($event) {

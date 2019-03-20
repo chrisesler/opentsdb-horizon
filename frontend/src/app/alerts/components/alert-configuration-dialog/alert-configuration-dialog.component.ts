@@ -243,6 +243,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.selectedThresholdType = thresholdType;
     }
 
+    log(event) {
+        console.log(event);
+    }
+
     /** Privates */
 
     private openAlertNameDialog() {

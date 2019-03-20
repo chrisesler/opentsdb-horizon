@@ -68,6 +68,8 @@
                             .contact-button {
                                 width: fit-content;
                                 display: block;
+                                cursor: pointer;
+                                padding: 5px;
                             }
                         }
                     }
@@ -150,6 +152,10 @@
 
                 .contact-list-type:not(:last-child) {
                     border-right: 1px solid darkgray; 
+                }
+
+                .contact-button:hover {
+                    background-color: blanchedalmond;
                 }
             }
         }
