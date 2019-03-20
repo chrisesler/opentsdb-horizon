@@ -58,11 +58,12 @@
     <div *ngIf="viewMode === _mode.all || viewMode === _mode.edit" class="existing-contacts">
 
         <div class="contact-list-type" *ngFor="let type of types()">
+            <!-- <span class="recipient-type-icon recipient-icon-{{type | lowercase}}"></span>  -->
             {{type}}
             <div class="contact-list-of-buttons">
               <span *ngIf="viewMode === _mode.all">
                   <div class="contact-button" *ngFor="let recipient of getUnselectedRecipientsForType(type)" mat-button (click)="addRecipientToAlertRecipients($event, recipient.name, recipient.type)">
-                    <mat-icon fontSet="denali" fontIcon="d-add-square"></mat-icon>
+                    <mat-icon fontSet="denali" fontIcon="d-add-circle"></mat-icon>
                     <span *ngIf="type === _recipientType.Slack">#</span>{{recipient.name}}
                   </div>
               </span>
