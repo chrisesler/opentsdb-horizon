@@ -40,10 +40,13 @@
       <div class="panel-actions" *ngIf="viewMode !== _mode.createRecipient">
   
         <div *ngIf="viewMode === _mode.all">
-          <button mat-button (click)="setViewMode($event, _mode.createRecipient)"> Create </button>
-          <button mat-button (click)="setViewMode($event, _mode.edit)"> Edit </button>
+          <button mat-button [matMenuTriggerFor]="menu" (click)="clickedCreate()" > Create new Recipient </button>
+            <mat-menu #menu="matMenu" >
+              <button *ngFor="let type of typesExceptEmail()" (click)="changeRecipientTypeForCreating($event, type)" mat-menu-item>{{type}}</button>
+            </mat-menu>
+          <button mat-button (click)="setViewMode($event, _mode.edit)"> Edit recipients </button>
         </div>
-  
+
         <div *ngIf="viewMode === _mode.edit">
           <button mat-button (click)="setViewMode($event, _mode.all)"> Done </button>
         </div>
@@ -78,14 +81,7 @@
 
     <div *ngIf="viewMode === _mode.editRecipient || viewMode === _mode.createRecipient" class="change-recipient">
 
-      <mat-radio-group *ngIf="viewMode === _mode.createRecipient" class="radio-group" [value]="recipientType">
-          <mat-radio-button class="example-radio-button" *ngFor="let type of typesExceptEmail()" [value]="type" (change)="changeRecipientTypeForCreating($event.value)">
-            {{type}}
-          </mat-radio-button>
-        </mat-radio-group>
-
         <div class="form">
-
           <div *ngIf="recipientType === _recipientType.OpsGenie" class="contacts-create-form">
             <div>
               <label>Team Name </label>
@@ -104,12 +100,11 @@
               </mat-error>
             </div>
 
-
             <div>
               <label>API Key </label>
               <mat-form-field floatLabel="never" appearance="fill">
                 <input matInput 
-                  [formControl]="opsGenieKey" 
+                  [formControl]="opsGenieApiKey" 
                   placeholder="Enter API Key*" 
                   required
                   minlength="36"
@@ -117,30 +112,12 @@
                   [value]="recipients[_recipientType.OpsGenie].apiKey" 
                   (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'apiKey', $event.target.value)">
               </mat-form-field>
-              <mat-error *ngIf="opsGenieKey.errors && (opsGenieKey.dirty || opsGenieKey.touched)">
+              <mat-error *ngIf="opsGenieApiKey.errors && (opsGenieApiKey.dirty || opsGenieApiKey.touched)">
                 OpsGenie API Key required. Length is 36 characters. 
               </mat-error>
             </div>
 
             <span>Follow steps <a href="https://git.ouroath.com/pages/monitoring/yamas_userguide_2.0/BE/opsgenie_plugin/#1-create-an-api-key-for-your-opsgenie-team" target="_blank"> one of the user-guide</a> to create an API key.</span>
-
-            <!-- <div>
-              <label>Priority </label>
-              <mat-radio-group [value]="recipients[_recipientType.OpsGenie].priority" (change)="updateRecipient(recipients[_recipientType.OpsGenie], 'priority', $event.value)">
-                <mat-radio-button value="P1">P1</mat-radio-button>
-                <mat-radio-button value="P2">P2</mat-radio-button>
-                <mat-radio-button value="P3">P3</mat-radio-button>
-                <mat-radio-button value="P4">P4</mat-radio-button>
-                <mat-radio-button value="P5">P5</mat-radio-button>
-              </mat-radio-group>
-            </div>
-
-            <div>
-              <label>Tags </label>
-              <mat-form-field floatLabel="never" appearance="fill">
-                <input matInput placeholder="Enter one-word Tags" [value]="recipients[_recipientType.OpsGenie].tags" (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'tags', $event.target.value)">
-              </mat-form-field>
-            </div> -->
           </div>
 
           <div *ngIf="recipientType === _recipientType.Slack" class="contacts-create-form">
@@ -250,17 +227,6 @@
               </mat-error>
             </div>
 
-            <div>
-              <label>Severity </label>
-              <mat-radio-group [value]="recipients[_recipientType.OC].severity" (change)="updateRecipient(recipients[_recipientType.OC], 'severity', $event.value)">
-                <mat-radio-button value="1">1</mat-radio-button>
-                <mat-radio-button value="2">2</mat-radio-button>
-                <mat-radio-button value="3">3</mat-radio-button>
-                <mat-radio-button value="4">4</mat-radio-button>
-                <mat-radio-button value="5">5</mat-radio-button>
-              </mat-radio-group>
-            </div>
-
             <span>For an example of these fields, <a href="https://git.ouroath.com/pages/monitoring/yamas_userguide_2.0/BE/be_users_guide/#alert-notification-delivery-contacts42yaml" target="_blank"> see the user-guide</a></span>
           </div>
 
@@ -307,7 +273,7 @@
       <div *ngIf="viewMode === _mode.editRecipient">
         <button mat-button [disabled]="anyErrors()" (click)="saveEditedRecipient($event)"> Save </button>
         <!-- <button (click)="testRecipient($event)"> Test </button> -->
-        <button mat-button (click)="cancelEdit()"> Cancel </button>
+        <button mat-button (click)="cancelEdit($event)"> Cancel </button>
       </div>
 
       <div *ngIf="viewMode === _mode.createRecipient">
