@@ -1,0 +1,165 @@
+@mixin alert-configuration-contacts-component-base() {
+
+    .alert-configuration-contacts-component {
+        position: relative;
+
+        .contact-list {
+            width: 1000px;
+
+            .mat-form-field-infix {
+                justify-content: left;
+            }
+
+            .mat-form-field-infix {
+                border-top: 0 solid transparent !important;
+            }
+            .mat-form-field-wrapper {
+                padding-bottom: 0 !important;
+            }
+            .mat-form-field-underline {
+                bottom: 0 !important;
+            }
+        }
+
+
+        .mega-panel {
+            position: absolute;
+            background: white;
+            height: 300px;
+            min-width: 1500px;
+            margin-top: 5px;
+            z-index: 1;
+
+            .panel-header {
+                height: 36px;
+                display: flex;
+                justify-content: space-between;
+                border-bottom: 1px solid lightgray;
+                margin-bottom: 10px;
+                margin-top: 10px;
+
+
+                .panel-title {
+                    font-size: 16px;
+                    font-weight: bold;
+                    padding-left: 10px;
+                }
+            }
+
+            .panel-content {
+                height: calc(100% - 56px);
+                .existing-contacts {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    height: 100%;
+
+                    .contact-list-type {
+                        width: 20%;
+                        padding-left: 5px;
+                        margin-bottom: 5px;
+                        // overflow: scroll;
+
+                        .contact-list-of-buttons {
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: flex-start;
+    
+                            .contact-button {
+                                width: fit-content;
+                                display: block;
+                                cursor: pointer;
+                                padding: 5px;
+                            }
+                        }
+                    }
+                }
+
+                .change-recipient {
+                    padding-left: 10px;
+
+                    .form {
+                        padding-top: 10px;
+                    }
+                }
+                
+                .panel-footer {
+                    position:absolute; 
+                    bottom:0;
+                }
+            }
+        }
+
+        .contacts-form {
+            width: 1000px;
+        }
+    
+        .contacts-create-form {
+            display: flex;
+            flex-direction: column;
+
+            div {
+                display: flex;
+                flex-direction: row;
+                padding-right: 5px;
+                // height: 31px;
+
+                label {
+                    text-align: right;
+                    width: 125px;
+                    padding-right: 5px;
+                }
+            }
+        }
+        // .text-field {
+        //     background:  lightblue;
+        // }
+    
+        // .labels {
+        //     text-align: right
+        // }
+    
+        // .label {
+        //     height: 31px;
+        //     margin-bottom: 5px;
+        //     padding-right: 10px;
+        // }
+    
+        // .selector {
+        //     height: 31px;
+        //     margin-bottom: 5px;
+        // }                   
+    }
+
+}
+
+@mixin alert-configuration-contacts-component-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $widget: map-get($theme-config, widgets);
+    $is-dark: map-get($theme-config, is-dark);
+
+    .alert-configuration-contacts-component {
+
+        .mega-panel {
+            box-shadow: 0px 0px 10px darkgray;
+
+            .panel-content {
+
+                .contact-list-type:not(:last-child) {
+                    border-right: 1px solid darkgray; 
+                }
+
+                .contact-button:hover {
+                    background-color: blanchedalmond;
+                }
+            }
+        }
+    }
+}
+
+
