@@ -32,7 +32,10 @@
     <div class="metric-list-wrapper">
         <!-- LOOP THROUGH METRICS 
              SECOND COLUMN IS EMPTY TO BE ABLE TO TAKE THE ABSOLUTE POSITIONED COMMON TAGS BOX -->
-        <div class="metric-list-item" *ngFor="let metric of query.metrics; let i = index;">
+        <div class="metric-list-item" *ngFor="let metric of getMetricsByType('metrics'); let i = index">
+            <div class="metric-row-data metric-index">
+                <span> m{{  i+1 }}</span>
+            </div>
             <div class="metric-row-data metric-name">
                 <span *ngIf="editMetricIndex !== i" (click)="editMetricIndex=i;">{{metric.name}}</span>
                 <metric-autocomplete *ngIf="editMetricIndex === i" [namespace]="query.namespace" [metrics]="[metric.name]"  [filters]="query.filters" (metricOutput)="updateMetric($event, i);" (blur)="editMetricIndex=-1"></metric-autocomplete>
@@ -59,7 +62,15 @@
                 <metric-autocomplete style="position:absolute"  [focus]="isAddMetricProgress" [multiple]="true" [namespace]="query.namespace" [filters]="query.filters"  (metricOutput)="updateMetric($event, null);" (blur)="isAddMetricProgress=false"></metric-autocomplete>
             </div>
         </div>
+        <div class="metric-list-item" *ngIf="isAddExpressionProgress && query.metrics.length">
+                <div class="metric-row-data expression">
+                    <mat-form-field class="expression-input-field" appearance="outline" color="primary" floatLabel="never">
+                        <input matInput placeholder="e.g m1 + m2"  [formControl]="expressionControl" (blur)="isAddExpressionProgress=false" autocomplete="off">
+                    </mat-form-field>
+                </div>
+            </div>
         <button *ngIf="!isAddMetricProgress || !query.metrics.length " (click)="isAddMetricProgress=true">Add Metrics</button>
+        <button *ngIf="query.metrics.length" (click)="isAddExpressionProgress=true">Add Expression</button>
        
     </div>
     <!-- THIS IS THE TOP TO BOTTOM CONTAINER FOR THE COMMON TAGS
@@ -69,6 +80,7 @@
             <div class="tags-selected" *ngIf="query.filters.length">
                     <div class="tags-selected-header">
                         <span><strong>Tag Filters</strong> ({{ query.filters.length }})</span>
+                        <span class="explicit-match"><mat-checkbox (click)="$event.stopPropagation();" [checked]="query.settings.explicitTagMatch" (change)="toggleExplictTagMatch($event)">Only match selected tag keys</mat-checkbox></span>
                     </div>
                     <mat-list class="tag-filter-rows" role="list">
                         <mat-list-item class="tag" role="listitem" *ngFor="let filter of query.filters; let index=index">

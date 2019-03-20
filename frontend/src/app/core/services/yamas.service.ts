@@ -23,7 +23,6 @@ export class YamasService {
         let groupByIds = [];
 
         // add filters
-        /*
         if ( query.filters.length ) {
             filterId = 'filter';
             // tslint:disable-next-line:prefer-const
@@ -31,15 +30,17 @@ export class YamasService {
             let _filter: any = this.getFilterQuery(query);
             _filter.id = filterId;
 
+            /*
             if (query.settings.explicitTagMatch) {
                 transformedQuery.filters = [
                     { filter : { type: 'ExplicitTags', filter: _filter.filter }, id: filterId }
                 ];
             } else {
-                transformedQuery.filters = [_filter];
+                
             }
+            */
+            transformedQuery.filters = [_filter];
         }
-        */
         for (let j = 0; j < query.metrics.length; j++) {
             const isExpression = query.metrics[j].expression ? true : false;
 
@@ -52,8 +53,10 @@ export class YamasService {
             } else {
                 hasMetricTS = true;
                 const q: any = this.getMetricQuery(query, j);
-                if ( query.filters.length || query.metrics[j].groupByTags ) {
+                if ( query.metrics[j].groupByTags ) {
                     q.filters = this.getFilterQuery(query, j);
+                } else if ( filterId ) {
+                    q.filterId = filterId;
                 }
                 transformedQuery.executionGraph.push(q);
                 const aggregators = downsample.aggregators || ['avg'];
@@ -130,15 +133,22 @@ export class YamasService {
     getFilterQuery(query, index = -1) {
         const filters = query.filters ? this.transformFilters(query.filters) : [];
         const groupByTags = query.metrics[index] ? query.metrics[index].groupByTags : [];
-        const filter:any = {
+        let filter:any = {
                         filter : {
                             type: 'Chain',
                             op: 'AND',
                             filters: filters
                         }
                     };
+        // add groupby tags to filters if its not there
         for ( let i = 0;  groupByTags && i < groupByTags.length; i++ ) {
-            filter.filter.filters.push( this.getFilter(groupByTags[i], 'regexp(.*)'));
+            const index = query.filters.findIndex(d => d.tagk === groupByTags[i]);
+            if ( index === -1 ) {
+                filter.filter.filters.push( this.getFilter(groupByTags[i], 'regexp(.*)'));
+            }
+        }
+        if ( query.settings.explicitTagMatch ) {
+            filter = { filter : { type: 'ExplicitTags', filter: filter.filter } };
         }
         return filter;
     }
