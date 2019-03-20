@@ -242,9 +242,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         };
     }
 
-
     queryData() {
-
         const widget = {
             settings: {
                 data_source: 'yamas',
