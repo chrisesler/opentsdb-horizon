@@ -90,7 +90,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         gridLineColor: '#ccc'
     };
     chartData: any = [[0]];
-    size: any = {};
+    size: any = {
+        height: 180
+    };
 
     // tslint:disable-next-line:no-inferrable-types
     showThresholdAdvanced: boolean = false; // toggle in threshold form
@@ -362,6 +364,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     recoveryNotificationChange(event: any) {
         const control = <FormControl>this.alertForm.get('threshold')['controls'].recoveryNotification;
         control.setValue(event.value);
+    }
+
+    alertRecipientsUpdate(event: any) {
+        console.log('ALERT RECIPIENT UPDATE', event);
     }
 
     /** Privates */
