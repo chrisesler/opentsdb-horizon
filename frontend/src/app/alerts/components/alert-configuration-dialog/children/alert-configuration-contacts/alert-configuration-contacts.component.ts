@@ -3,6 +3,9 @@ import { MatChipInputEvent } from '@angular/material';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Mode, RecipientType, Recipient } from './models';
 import { FormControl } from '@angular/forms';
+import { Store, Select } from '@ngxs/store';
+import { RecipientsState, LoadRecipients } from '../../../../state';
+import { Observable } from 'rxjs';
 
 @Component({
   // tslint:disable:no-inferrable-types
@@ -15,11 +18,11 @@ import { FormControl } from '@angular/forms';
 
 export class AlertConfigurationContactsComponent implements OnInit {
   @HostBinding('class.alert-configuration-contacts-component') private _hostClass = true;
-  constructor(private eRef: ElementRef) { }
+  constructor(private eRef: ElementRef, private store: Store) { }
 
   @Input() namespace: string;
-  @Input() alertRecipients: any; // [{name, type}]
-  @Output() updatedAlertRecipients = new EventEmitter<any>(); // [{name, type}]
+  @Input() alertRecipients: Array<any>; // [{name, type}]
+  @Output() updatedAlertRecipients = new EventEmitter<Array<any>>(); // [{name, type}]
 
   megaPanelVisible: boolean = false;
   viewMode: Mode = Mode.all;
@@ -76,6 +79,11 @@ export class AlertConfigurationContactsComponent implements OnInit {
   httpName = new FormControl('');
   httpEndpoint = new FormControl('');
 
+  // state control
+  private stateSubs: any = {};
+  @Select(RecipientsState.GetRecipients) _namespaceRecipients$: Observable<any>;
+  _recipients: any;
+
   anyErrors(): boolean {
     // todo - check if name is equivalent to any other within type
 
@@ -105,8 +113,18 @@ export class AlertConfigurationContactsComponent implements OnInit {
       this.alertRecipients = [];
     }
     if (!this.namespace) {
-      this.namespace = '';
+      this.namespace = 'Yamas';
     }
+
+    this.stateSubs.recipients = this._namespaceRecipients$.subscribe( data => {
+      console.log('[SUB] Namespace Recipients', data);
+      this._recipients = data;
+
+      // if (!data.loaded) {
+      // if (!data) {
+        this.store.dispatch(new LoadRecipients(this.namespace));
+      // }
+    });
   }
 
   showMegaPanel() {
