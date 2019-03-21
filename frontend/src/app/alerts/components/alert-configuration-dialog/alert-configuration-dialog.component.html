@@ -139,10 +139,15 @@
                                     <mat-form-field appearance="fill" floatLabel="never">
                                         <mat-select placeholder="Select" formControlName="windowSize" disableOptionCentering>
                                             <mat-option>-- Select Option --</mat-option>
+                                            <mat-option value="1 min">1 min</mat-option>
                                             <mat-option value="5 min">5 min</mat-option>
                                             <mat-option value="10 min">10 min</mat-option>
                                             <mat-option value="15 min">15 min</mat-option>
                                             <mat-option value="30 min">30 min</mat-option>
+                                            <mat-option value="1 hr">1 hr</mat-option>
+                                            <mat-option value="6 hr">6 hr</mat-option>
+                                            <mat-option value="12 hr">12 hr</mat-option>
+                                            <mat-option value="24 hr">24 hr</mat-option>
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
@@ -160,16 +165,9 @@
                                 <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="warningStateValue">
                             </mat-form-field>
                         </div>
-                        <!--
-                        <div class="form-group notify-on-recovery">
-                            <div class="form-label"></div>
-                            <mat-checkbox formControlName="notifyOnRecovery">Notify me on recovery</mat-checkbox>
-                        </div>-->
+
                         <div class="form-group recovery-threshold-setting">
                             <div class="form-label"><span class="indicator-square is-good"></span> <strong>Alert will recover</strong> when metric is {{recoveryStateDirection}} or equal to</div>
-                            <!--<mat-form-field appearance="fill" floatLabel="never">
-                                <input matInput placeholder="Enter value" formControlName="recoveryStateValue">
-                            </mat-form-field>-->
                             <div class="recovery-options">
                                 <div class="recovery-option">
                                     <mat-radio-button 
@@ -201,7 +199,6 @@
                                     <span>{{showThresholdAdvanced ? 'Hide' : 'Show'}} advanced options</span>
                                 </a>
                             </div>
-
                             <div class="form-group alert-nag-interval">
                                 <div class="form-label vertical-center"><strong>Nag interval</strong></div>
                                 <div class="nag-interval-item">
@@ -239,7 +236,6 @@
                                     </mat-hint>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
