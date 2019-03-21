@@ -26,9 +26,9 @@
                     <div class="dygraph-legend" #graphLegend></div>
                 </div>
             <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
-            <div class="error" *ngIf="error" (click)="showError()">
-                <mat-icon>error</mat-icon>
-            </div>
+                <div class="error" *ngIf="error" (click)="showError()">
+                    <mat-icon>error</mat-icon>
+                </div>
             </div>
             <!--<div class="legend-wrapper">
                 legend
@@ -41,57 +41,68 @@
                     <span class="alert-name">{{data.alertName}}</span>
                 </div>
             </mat-toolbar>
-            <div class="alert-control-steps">
-                <div class="step-section queries-section">
+            <div class="alert-control-steps" [formGroup]="alertForm">
+                <div class="step-section queries-section" formGroupName="queries">
                     <div class="step-section-label">
                         <span class="step-section-label-text">1. Queries</span>
                     </div>
                     <div class="step-section-content">
-                        <!-- LOOP OF QUERY ITEMS 
-                             NOTE: this component has INPUTS... just none now while developing -->
+                        <!-- LOOP OF QUERY ITEMS -->
                         <query-editor-proto [label]="'Q1'" [query]="query" (queryOutput)="updateQuery($event);"></query-editor-proto> 
+
+                        <!-- TODO: add the grouping rules control here -->
+                        <div class="form-group alert-grouping-rules">
+                            <div class="form-label vertical-center"><strong>Grouping rules</strong></div>
+                            <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                                <mat-chip-list class="filter-values-list" #groupRulesChipList>
+                                    <mat-chip
+                                        *ngFor="let val of groupRulesLabelValues['controls']; let n=index"
+                                        (removed)="removeQueryGroupRuleValue(n)">
+                                        <span>{{val.value}}</span>
+                                        <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
+                                    </mat-chip>
+                                    <input
+                                        placeholder="Enter value(s) seperated by commas"
+                                        #groupRulesLabelValueInput
+                                        [matChipInputFor]="groupRulesChipList"
+                                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                        [matChipInputAddOnBlur]="true"
+                                        (matChipInputTokenEnd)="addQueryGroupRuleValue($event)"
+                                        autocomplete="off">
+                                </mat-chip-list>
+                            </mat-form-field>
+                        </div>
                     </div>
                 </div>
-                <div class="step-section threshold-section">
+                <div class="step-section threshold-section" formGroupName="threshold">
                     <div class="step-section-label">
                         <span class="step-section-label-text">2. Threshold</span>
                     </div>
                     <div class="step-section-content">
                         <!-- this might change to radio buttons -->
                         <div class="form-group select-threshold-type">
-                            <div class="form-label">Select threshold type</div>
-                            <nav mat-tab-nav-bar class="threshold-type-toggle-options sliding-button-group">
-                                <a mat-tab-link
-                                    [active]="selectedThresholdType === 'simple'"
-                                    (click)="changeThresholdType('simple')">
-                                    Simple
-                                </a>
-                                <a mat-tab-link
-                                    [active]="selectedThresholdType === 'composite'"
-                                    (click)="changeThresholdType('composite')">
-                                    Composite
-                                </a>
-                                <a mat-tab-link
-                                    [active]="selectedThresholdType === 'pop'"
-                                    (click)="changeThresholdType('pop')">
-                                    Period/Period
-                                </a>
-                            </nav>
-                            
+                            <div class="form-label vertical-center"><strong>Select threshold type</strong></div>
+                            <div class="threshold-type-options">
+                                <mat-radio-group formControlName="type">
+                                    <mat-radio-button value="simple">Simple</mat-radio-button>
+                                    <mat-radio-button value="composite">Composite</mat-radio-button>
+                                    <mat-radio-button value="pop">Period / Period</mat-radio-button>
+                                </mat-radio-group>
+                                <mat-hint>This is a definition of {{thresholdType}} thresholds. Lorem ipsum dolor sit amet, consectetur adipiscing elit sedio.</mat-hint>
+                            </div>                                
                         </div>
-                        <div>This is a definition of simple thresholds. Lorem ipsum dolor sit amet, consectetur adipiscing elit sedio.</div>
                         <!-- select query -->
                         <div class="form-group select-query">
-                            <div class="form-label">Select Query</div>
+                            <div class="form-label vertical-center"><strong>Select Query</strong></div>
                             <mat-form-field appearance="fill">
                                 <mat-label></mat-label>
-                                <mat-select placeholder="Select" disableOptionCentering>
+                                <mat-select placeholder="Select" formControlName="query" disableOptionCentering>
                                     <mat-option value="option">Option</mat-option>
                                 </mat-select>
                             </mat-form-field>
                         </div>
-                        <div class="form-group sliding-window">
-                            <div class="form-label">Sliding Window</div>
+                        <div class="form-group sliding-window" formGroupName="slidingWindow">
+                            <div class="form-label vertical-center"><strong>Sliding Window</strong></div>
                             <!-- sentence-like form -->
                             <div class="sentence-chain-form">
                                 <div class="sentence-item">
@@ -100,8 +111,10 @@
                                 <div class="sentence-item">
                                     <mat-form-field appearance="fill">
                                         <mat-label></mat-label>
-                                        <mat-select placeholder="Select" disableOptionCentering>
-                                            <mat-option value="option">Option</mat-option>
+                                        <mat-select placeholder="Select" formControlName="direction" disableOptionCentering>
+                                            <mat-option>-- Select Option --</mat-option>
+                                            <mat-option value="above">above</mat-option>
+                                            <mat-option value="below">below</mat-option>
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
@@ -111,8 +124,11 @@
                                 <div class="sentence-item">
                                     <mat-form-field appearance="fill">
                                         <mat-label></mat-label>
-                                        <mat-select placeholder="Select" disableOptionCentering>
-                                            <mat-option value="option">Option</mat-option>
+                                        <mat-select placeholder="Select" formControlName="interval" disableOptionCentering>
+                                            <mat-option>-- Select Option --</mat-option>
+                                            <mat-option value="1">at least once</mat-option>
+                                            <mat-option value="2">at least twice</mat-option>
+                                            <mat-option value="3">at least 3 times</mat-option>
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
@@ -120,77 +136,176 @@
                                     <span>during the last</span>
                                 </div>
                                 <div class="sentence-item">
-                                    <mat-form-field appearance="fill">
-                                        <mat-label></mat-label>
-                                        <mat-select placeholder="Select" disableOptionCentering>
-                                            <mat-option value="option">Option</mat-option>
+                                    <mat-form-field appearance="fill" floatLabel="never">
+                                        <mat-select placeholder="Select" formControlName="windowSize" disableOptionCentering>
+                                            <mat-option>-- Select Option --</mat-option>
+                                            <mat-option value="5 min">5 min</mat-option>
+                                            <mat-option value="10 min">10 min</mat-option>
+                                            <mat-option value="15 min">15 min</mat-option>
+                                            <mat-option value="30 min">30 min</mat-option>
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group bad-threshold-setting">
-                            <div class="form-label">Bad</div>
-                            <mat-form-field appearance="fill">
-                                <mat-label></mat-label>
-                                <input matInput placeholder="Enter value">
+                            <div class="form-label"><span class="indicator-square is-bad"></span> <strong>Bad state</strong> when metric is {{alertStateDirection}} or equal to</div>
+                            <mat-form-field appearance="fill" floatLabel="never">
+                                <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="badStateValue">
                             </mat-form-field>
                         </div>
                         <div class="form-group warning-threshold-setting">
-                            <div class="form-label">Warning</div>
-                            <mat-form-field appearance="fill">
-                                <mat-label></mat-label>
-                                <input matInput placeholder="Enter value">
+                            <div class="form-label"><span class="indicator-square is-warning"></span> <strong>Warning state</strong> when metric is {{alertStateDirection}} or equal to</div>
+                            <mat-form-field appearance="fill" floatLabel="never">
+                                <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="warningStateValue">
                             </mat-form-field>
                         </div>
+                        <!--
+                        <div class="form-group notify-on-recovery">
+                            <div class="form-label"></div>
+                            <mat-checkbox formControlName="notifyOnRecovery">Notify me on recovery</mat-checkbox>
+                        </div>-->
                         <div class="form-group recovery-threshold-setting">
-                            <div class="form-label">Recovery</div>
-                            <mat-form-field appearance="fill">
-                                <mat-label></mat-label>
-                                <input matInput placeholder="Enter value">
-                            </mat-form-field>
+                            <div class="form-label"><span class="indicator-square is-good"></span> <strong>Alert will recover</strong> when metric is {{recoveryStateDirection}} or equal to</div>
+                            <!--<mat-form-field appearance="fill" floatLabel="never">
+                                <input matInput placeholder="Enter value" formControlName="recoveryStateValue">
+                            </mat-form-field>-->
+                            <div class="recovery-options">
+                                <div class="recovery-option">
+                                    <mat-radio-button 
+                                        name="recoveryNotification"
+                                        value="minimum"
+                                        [checked]="thresholdRecoveryNotification === 'minimum'"
+                                        (change)="recoveryNotificationChange($event)">configured threshold</mat-radio-button>
+                                    <mat-hint class="info-hint">
+                                        <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+                                        <span>Within 0.0001% of bad threshold (or warning threshold if specified).</span>
+                                    </mat-hint>
+                                </div>
+                                <div class="recovery-option">
+                                    <mat-radio-button
+                                        name="recoveryNotification"
+                                        value="specific"
+                                        [checked]="thresholdRecoveryNotification === 'specific'"
+                                        (change)="recoveryNotificationChange($event)">reaches a value</mat-radio-button>
+                                    <mat-form-field appearance="fill" floatLabel="never" style="margin-left: 16px;">
+                                        <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="recoveryStateValue">
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="show-advanced-threshold-toggle" [ngClass]="{'is-open': showThresholdAdvanced}">
+                            <div class="toggle-wrap">
+                                <a class="toggle-action" (click)="showThresholdAdvanced = !showThresholdAdvanced;">
+                                    <mat-icon fontSet="denali" [fontIcon]="showThresholdAdvanced ? 'd-arrowhead-up' : 'd-arrowhead-down'"></mat-icon>
+                                    <span>{{showThresholdAdvanced ? 'Hide' : 'Show'}} advanced options</span>
+                                </a>
+                            </div>
+
+                            <div class="form-group alert-nag-interval">
+                                <div class="form-label vertical-center"><strong>Nag interval</strong></div>
+                                <div class="nag-interval-item">
+                                    <mat-form-field appearance="fill" floatLabel="never">
+                                        <mat-select placeholder="Select" formControlName="nagInterval" disableOptionCentering>
+                                            <mat-option value="disabled">Disabled</mat-option>
+                                            <mat-option value="5 min">5 min</mat-option>
+                                            <mat-option value="10 min">10 min</mat-option>
+                                            <mat-option value="15 min">15 min</mat-option>
+                                            <mat-option value="30 min">30 min</mat-option>
+                                            <mat-option value="1 hr">1 hr</mat-option>
+                                            <mat-option value="6 hr">6 hr</mat-option>
+                                            <mat-option value="12 hr">12 hr</mat-option>
+                                            <mat-option value="24 hr">24 hr</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <mat-hint class="info-hint">
+                                        <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+                                        <span>Changing these settings is not a good idea.</span>
+                                    </mat-hint>
+                                </div>
+                            </div>
+                            <div class="form-group alert-nag-interval">
+                                <div class="form-label vertical-center"><strong>Missing data</strong></div>
+                                <div class="missing-data-item">
+                                    <mat-form-field appearance="fill" floatLabel="never">
+                                        <mat-select placeholder="Select" formControlName="missingData" disableOptionCentering>
+                                            <mat-option value="doNotNotify">Do not notify</mat-option>
+                                            <mat-option value="notify">Notify</mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <mat-hint class="info-hint">
+                                        <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+                                        <span>Changing these settings is not a good idea. <a>More information</a></span>
+                                    </mat-hint>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
-                <div class="step-section notification-section">
+                <div class="step-section notification-section" formGroupName="notification">
                     <div class="step-section-label">
                         <span class="step-section-label-text">3. Notification</span>
                     </div>
                     <div class="step-section-content">
-                        <div class="form-group alert-message">
-                            <div class="form-label">Alert recipients</div>
-                            <!-- <mat-form-field appearance="fill"> -->
-                                <mat-label></mat-label>
-                                <alert-configuration-contacts (updatedAlertRecipients)="log($event)"></alert-configuration-contacts>
-                            <!-- </mat-form-field> -->
-                            
+                        <div class="form-group alert-notify-when">
+                            <div class="form-label"><strong>Notify</strong> when state transitions from</div>
+                            <mat-selection-list class="notify-when-options" formControlName="notifyWhen">
+                                <mat-list-option value="goodToBad">Good to Bad</mat-list-option>
+                                <mat-list-option value="warnToBad">Warn to Bad</mat-list-option>
+                                <mat-list-option value="warnToGood">Warn to Good</mat-list-option>
+                                <mat-list-option value="badToGood">Bad to Good</mat-list-option>
+                                <mat-list-option value="goodToWarn">Good to Warn</mat-list-option>
+                                <mat-list-option value="badToWarn">Bad to Warn</mat-list-option>
+                            </mat-selection-list>
+                        </div>
+                        <div class="form-group alert-recipients">
+                            <div class="form-label vertical-center"><strong>Alert recipients</strong></div>
+                            <!--<mat-form-field appearance="fill" floatLabel="never">
+                                <input matInput autocomplete="off" placeholder="Zack is building this... go bug Zack">
+                            </mat-form-field>-->
+                            <alert-configuration-contacts style="width: 100%" (updatedAlertRecipients)="log($event)"></alert-configuration-contacts>
                         </div>
                         <div class="form-group alert-message">
-                            <div class="form-label">Alert message</div>
-                            <mat-form-field appearance="fill">
+                            <div class="form-label vertical-center"><strong>Alert message</strong></div>
+                            <div class="message-subject-body">
+                                <mat-form-field appearance="fill" floatLabel="never">
+                                    <input matInput autocomplete="off" formControlName="subject" placeholder="Enter a subject">
+                                </mat-form-field>
+                                <mat-form-field appearance="fill" floatLabel="never">
+                                    <textarea matInput autocomplete="off" formControlName="message" placeholder="Enter a message"></textarea>
+                                </mat-form-field>
+                            </div>   
+                        </div>
+                        <div class="form-group alert-labels">
+                            <div class="form-label vertical-center"><strong>Labels</strong></div>
+                            <!--<mat-form-field appearance="fill">
                                 <mat-label></mat-label>
-                                <textarea matInput placeholder="Enter alert message"></textarea>
+                                <input matInput formControlName="labels" placeholder="Enter labels">
+                            </mat-form-field>-->
+                            <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                                <mat-chip-list class="filter-values-list" #labelChipList>
+                                    <mat-chip
+                                        *ngFor="let val of notificationLabelValues['controls']; let n=index"
+                                        (removed)="removeNotificationLabelValue(n)">
+                                        <span>{{val.value}}</span>
+                                        <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
+                                    </mat-chip>
+                                    <input
+                                        placeholder="Enter value(s) seperated by commas"
+                                        #notificationLabelValueInput
+                                        [matChipInputFor]="labelChipList"
+                                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                        [matChipInputAddOnBlur]="true"
+                                        (matChipInputTokenEnd)="addNotificationLabelValue($event)"
+                                        autocomplete="off">
+                                </mat-chip-list>
                             </mat-form-field>
                         </div>
-                        <div class="form-group alert-message">
-                            <div class="form-label">Grouping rules</div>
-                            <mat-form-field appearance="fill">
-                                <mat-label></mat-label>
-                                <input matInput placeholder="select tag keys">
-                            </mat-form-field>
-                        </div>
-                        <div class="form-group alert-message">
-                            <div class="form-label">Labels</div>
-                            <mat-form-field appearance="fill">
-                                <mat-label></mat-label>
-                                <input matInput placeholder="Enter labels">
-                            </mat-form-field>
-                        </div>
-                        <div class="form-group alert-message">
-                            <div class="form-label">Runbook ID</div>
-                            <mat-form-field appearance="fill">
-                                <mat-label></mat-label>
-                                <input matInput placeholder="Enter runbook id">
+                        <div class="form-group alert-runbookid">
+                            <div class="form-label vertical-center"><strong>Runbook ID</strong></div>
+                            <mat-form-field appearance="fill" floatLabel="never">
+                                <input matInput autocomplete="off" formControlName="runbookId" placeholder="Enter runbook id">
                             </mat-form-field>
                         </div>
                     </div>

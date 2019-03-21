@@ -30,14 +30,12 @@ export class AlertConfigurationContactsComponent implements OnInit {
     {
       name: 'dev-team',
       type: RecipientType.OpsGenie,
-      priority: 'P4',
-      apiKey: 'xyz',
-      tags: 'User-Facing'
+      apiKey: 'abcdefghijklmnopqrstuvwzyzzzzzzzzzzz',
     },
     {
       name: 'yamas-devel',
       type: RecipientType.Slack,
-      webhook: 'http://slackwebhook.com/'
+      webhook: 'http://slackwebhook.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
     },
     {
       name: 'yamas-devel@verizonmedia.com',
@@ -51,10 +49,9 @@ export class AlertConfigurationContactsComponent implements OnInit {
     {
       name: 'OC Red',
       type: RecipientType.OC,
-      displayCount: '',
-      context: '',
-      opsDBProperty: '',
-      severity: '5'
+      displayCount: '1',
+      context: 'live',
+      opsDBProperty: 'yamas',
     },
     {
       name: 'curveball',
@@ -64,12 +61,12 @@ export class AlertConfigurationContactsComponent implements OnInit {
   ];
   _mode = Mode; // for template
   _recipientType = RecipientType; // for template
+  _clickedCreateMenu: number = 2; // needed for clicking out of menu (b/c of CDK)
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-
 
   // form control
   opsGenieName = new FormControl('');
-  opsGenieKey = new FormControl('');
+  opsGenieApiKey = new FormControl('');
   slackName = new FormControl('');
   slackWebhook = new FormControl('');
   ocName = new FormControl('');
@@ -83,7 +80,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
     // todo - check if name is equivalent to any other within type
 
     if (this.recipientType === RecipientType.OpsGenie) {
-      if (this.opsGenieName.errors || this.opsGenieKey.errors) {
+      if (this.opsGenieName.errors || this.opsGenieApiKey.errors) {
         return true;
       }
     } else if (this.recipientType === RecipientType.Slack ) {
@@ -120,8 +117,16 @@ export class AlertConfigurationContactsComponent implements OnInit {
     this.megaPanelVisible = false;
   }
 
-  changeRecipientTypeForCreating(type) {
-    this.recipientType = type ;
+  changeRecipientTypeForCreating($event, type) {
+    if (this._clickedCreateMenu > 0) {
+      this._clickedCreateMenu--;
+    }
+    this.recipientType = type;
+    this.setViewMode($event, Mode.createRecipient);
+  }
+
+  clickedCreate() {
+    this._clickedCreateMenu = 2;
   }
 
   setViewMode($event: Event, mode: Mode ) {
@@ -147,11 +152,21 @@ export class AlertConfigurationContactsComponent implements OnInit {
     this.recipientType = recipient.type;
     this.recipients[this.recipientType] = recipient;
 
-    if (this.recipientType === RecipientType.Email) {
-      // do nothing
-    } else {
+    if (this.recipientType !== RecipientType.Email) {
       this.setViewMode($event, Mode.editRecipient);
     }
+
+    // manually update validators values
+    this.opsGenieName.setValue(this.recipients[RecipientType.OpsGenie].name);
+    this.opsGenieApiKey.setValue(this.recipients[RecipientType.OpsGenie].apiKey);
+    this.slackName.setValue(this.recipients[RecipientType.Slack].name);
+    this.slackWebhook.setValue(this.recipients[RecipientType.Slack].webhook);
+    this.ocName.setValue(this.recipients[RecipientType.OC].name);
+    this.ocDisplayCount.setValue(this.recipients[RecipientType.OC].displayCount);
+    this.ocContext.setValue(this.recipients[RecipientType.OC].context);
+    this.ocProperty.setValue(this.recipients[RecipientType.OC].opsDBProperty);
+    this.httpName.setValue(this.recipients[RecipientType.HTTP].name);
+    this.httpEndpoint.setValue(this.recipients[RecipientType.HTTP].endpoint);
   }
 
   emitAlertRecipients() {
@@ -248,12 +263,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   // User Actions
   updateRecipient(recipient: Recipient, field: string, updatedValue: string ) {
-    // prepend '#' for slack
-    // if (recipient.type === RecipientType.Slack && field === 'name' ) {
-    //   if (updatedValue.charAt(0) !== '#') {
-    //     updatedValue = '#' + updatedValue;
-    //   }
-    // }
 
     if (field === 'name') {
       for (let i = 0; i < this.alertRecipients.length; i++) {
@@ -287,7 +296,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
     this.setViewMode($event, Mode.edit);
   }
 
-  cancelEdit() {
+  cancelEdit($event: Event) {
     // reset to old contact
     for (let i = 0; i < this.namespaceRecipients.length; i++) {
       if (this.namespaceRecipients[i].name === this.recipients[this.recipientType].name &&
@@ -304,7 +313,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
         break;
       }
     }
-    this.setViewMode(null, Mode.all);
+    this.setViewMode($event, Mode.all);
   }
 
   // Helpers
@@ -393,8 +402,12 @@ export class AlertConfigurationContactsComponent implements OnInit {
   // Listen if we should close panel
   @HostListener('document:click', ['$event'])
   clickOutsideComponent(event) {
-    if (!this.eRef.nativeElement.contains(event.target)) {
+    if (!this.eRef.nativeElement.contains(event.target) && !this._clickedCreateMenu) {
       this.collapseMegaPanel();
     }
+    if (this._clickedCreateMenu > 0) { // needed to exit out of menu
+      this._clickedCreateMenu--;
+    }
   }
+
 }
