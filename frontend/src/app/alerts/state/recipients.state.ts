@@ -7,50 +7,79 @@ export interface RecipientsModel {
     recipients: Array<any>;
 }
 
-export class LoadRecipients {
+export interface RecipientsStateModel {
+    loaded: boolean;
+    loading: boolean;
+    error: any;
+    recipients: RecipientsModel;
+}
+
+export class GetRecipients {
     public static type = '[Recipients] Load for Namespace';
     constructor(
         public readonly namespace: string
     ) {}
 }
 
-// export class UpdateRecipients {
-//     public static type = '[Recipients] Update for Namespace';
-//     constructor(public readonly namespace: any) { }
-// }
+export class LoadRecipients {
+    public static type = '[Recipients] Update for Namespace';
+    constructor(
+        public readonly namespace: string,
+        public readonly recipients: Array<any>
+    ) { }
+}
 
-@State<RecipientsModel>({
+@State<RecipientsStateModel>({
     name: 'Recipients',
     defaults: {
-        namespace: '',
-        recipients: []
+        recipients: {
+            namespace: '',
+            recipients: []
+        },
+        error: {},
+        loaded: false,
+        loading: false
     }
 })
 
 export class RecipientsState {
     constructor(private httpService: HttpService) { }
 
-    @Selector() static GetRecipients(state: RecipientsModel) {
-        return state;
+    @Selector() static GetRecipients(state: RecipientsStateModel) {
+        return state.recipients;
+    }
+
+    @Action(GetRecipients)
+    getRecipients(ctx: StateContext<RecipientsStateModel>, { namespace }: GetRecipients) {
+        // this.logger.state('AlertsState :: Load user namespaces', { options });
+        const state = ctx.getState();
+        console.log(namespace);
+        if (!state.loaded) {
+
+            ctx.patchState({ loading: true });
+            return this.httpService.getRecipients(namespace).pipe(
+                map((payload: any) => {
+                    // console.log('resourceList', payload);
+                    ctx.dispatch(new LoadRecipients(namespace, payload.body));
+                }),
+                // catchError(error => ctx.dispatch(new ASloadUserNamespacesFail(error, options)))
+            );
+
+        }
+        // return this.httpService.getRecipients(namespace).pipe(
+        //     map((response: any) => {
+        //         console.log(response.body);
+        //         ctx.dispatch(new UpdateRecipients(namespace, response.body));
+        //     })
+        // );
     }
 
     @Action(LoadRecipients)
-    loadRecipients(ctx: StateContext<RecipientsModel>, { namespace }: LoadRecipients) {
-
+    loadRecipients(ctx: StateContext<RecipientsStateModel>, recipients) {
+        console.log('#### NAMESPACE RECIPIENTS ####', recipients);
         const state = ctx.getState();
-        console.log(namespace);
-        return this.httpService.getRecipients(namespace).pipe(
-            map((response: any) => {
-                console.log(response.body);
-                // ctx.dispatch(new UpdateRecipients(response.body));
-            })
-        );
-    }
+        // const loaded = true;
 
-    // @Action(UpdateRecipients)
-    // UpdateRecipients(ctx: StateContext<RecipientsModel>, namespace) {
-    //     // console.log('#### NAMESPACES ####', namespaces);
-    //     const state = ctx.getState();
-    //     ctx.patchState({ ...state, namespace: namespace });
-    // }
+        ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true });
+    }
 }
