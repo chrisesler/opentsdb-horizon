@@ -67,7 +67,7 @@
         // preview area - graph and legend
         .preview-wrapper {
             padding: 8px 16px;
-            min-height: 180px;
+            height: 180px;
             display: flex;
 
             .graph-wrapper,
@@ -294,6 +294,7 @@
                 .mat-list-item-content {
                     flex-direction: row;
                     height: 32px;
+                    font-size: 14px;
 
                     .mat-list-text {
                         padding-left: 10px;

@@ -31,8 +31,6 @@ import { UtilsService } from '../../../core/services/utils.service';
 import { DatatranformerService } from '../../../core/services/datatranformer.service';
 import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/components/error-dialog/error-dialog.component';
 
-
-
 @Component({
     selector: 'app-alert-configuration-dialog',
     templateUrl: './alert-configuration-dialog.component.html',
@@ -43,16 +41,17 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
 
-    nameAlertDialog: MatDialogRef<NameAlertDialogComponent> | null;
-
+    // placeholder for expected data from dialogue initiation
     data: any = {
         namespace: 'UDB',
         alertName: 'Untitled Alert',
         queries: []
     };
 
+    // metric query?
     query: any = {};
 
+    // DYGRAPH OPTIONS
     options: IDygraphOptions = {
         labels: ['x'],
         labelsUTC: false,
@@ -91,26 +90,26 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         gridLineColor: '#ccc'
     };
     chartData: any = [[0]];
-    size: any = {};
+    size: any = {
+        height: 180
+    };
 
     // tslint:disable-next-line:no-inferrable-types
-    selectedThresholdType: string = 'simple';
-
-    alertName: FormControl = new FormControl('');
-
-    // tslint:disable-next-line:no-inferrable-types
-    showThresholdAdvanced: boolean = false;
+    showThresholdAdvanced: boolean = false; // toggle in threshold form
 
     // FORM STUFF
     readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-
+    alertName: FormControl = new FormControl('');
     alertForm: FormGroup;
-    alertFormSub: Subscription;
 
     // SUBSCRIPTIONS HOLDER
     subs: any = {};
     sub: Subscription;
     nQueryDataLoading = 0;
+
+    // DIALOGUES
+    nameAlertDialog: MatDialogRef<NameAlertDialogComponent> | null;
+
     error: any;
     errorDialog: MatDialogRef<ErrorDialogComponent> | null;
 
@@ -151,6 +150,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     ngOnDestroy() {
         // TODO: uncomment
         // this.subs.alertName.unscubscribe();
+        // this.subs.alertFormName.unsubscribe();
     }
 
     ngAfterViewInit() {
@@ -188,7 +188,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             })
         });
 
-        this.alertFormSub = this.alertForm.valueChanges.subscribe(val => {
+        this.subs.alertFormSub = <Subscription>this.alertForm.valueChanges.subscribe(val => {
             console.log('FORM CHANGE', val);
         });
 
@@ -366,8 +366,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         control.setValue(event.value);
     }
 
-    log(event) {
-        console.log(event);
+    alertRecipientsUpdate(event: any) {
+        console.log('ALERT RECIPIENT UPDATE', event);
     }
 
     /** Privates */
