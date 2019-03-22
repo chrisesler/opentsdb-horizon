@@ -4,7 +4,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Mode, RecipientType, Recipient } from './models';
 import { FormControl } from '@angular/forms';
 import { Store, Select } from '@ngxs/store';
-import { RecipientsState, GetRecipients, PostRecipient } from '../../../../state';
+import { RecipientsState, GetRecipients, PostRecipient, DeleteRecipient, UpdateRecipient } from '../../../../state';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -29,6 +29,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
   recipientType: RecipientType;
   recipients: {}; // map<RecipientType, Recipient>;
   tempRecipient: Recipient; // for canceling
+  oldName = '';
   namespaceRecipients: any = [
     // {
     //   name: 'dev-team',
@@ -176,6 +177,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
     let recipient = this.getRecipient(name, type);
     this.recipientType = recipient.type;
     this.recipients[this.recipientType] = recipient;
+    this.oldName = recipient.name;
 
     if (this.recipientType !== RecipientType.email) {
       this.setViewMode($event, Mode.editRecipient);
@@ -270,11 +272,11 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   removeRecipient(name: string, type: RecipientType) {
+    this.store.dispatch(new DeleteRecipient({namespace: this.namespace, name: name, type: type}));
     this.removeRecipientFromAlertRecipients(name, type);
     for (let i = 0; i < this.namespaceRecipients.length; i++) {
       if (this.namespaceRecipients[i].name === name && this.namespaceRecipients[i].type === type) {
         this.namespaceRecipients.splice(i, 1);
-        // todo: send server delete command
       }
     }
   }
@@ -309,7 +311,16 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   saveEditedRecipient($event) {
-    // todo: send recipient to server
+    // check if name has changed
+    let updatedRecipient: any = {};
+    updatedRecipient = {... this.recipients[this.recipientType]};
+    updatedRecipient.namespace = this.namespace;
+    if (this.recipients[this.recipientType].name !== this.oldName) {
+      updatedRecipient.name = this.oldName;
+      updatedRecipient.newName = this.recipients[this.recipientType].name;
+    }
+
+    this.store.dispatch(new UpdateRecipient(updatedRecipient));
     this.setViewMode($event, Mode.all);
     this.emitAlertRecipients();
   }
@@ -319,7 +330,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   deleteRecipient($event: Event, recipient: Recipient)  {
-    // TODO: delete contact
     this.removeRecipient(recipient.name, recipient.type);
     this.setViewMode($event, Mode.edit);
   }
@@ -399,6 +409,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return newRecipient;
   }
 
+  // to-do: remove
   createServerRecipient() {
     let serverData: any = {};
     serverData.namespace = this.namespace;
