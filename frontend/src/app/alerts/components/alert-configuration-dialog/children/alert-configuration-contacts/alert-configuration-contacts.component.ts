@@ -30,37 +30,37 @@ export class AlertConfigurationContactsComponent implements OnInit {
   recipients: {}; // map<RecipientType, Recipient>;
   tempRecipient: Recipient; // for canceling
   namespaceRecipients: any = [
-    {
-      name: 'dev-team',
-      type: RecipientType.opsgenie,
-      apiKey: 'abcdefghijklmnopqrstuvwzyzzzzzzzzzzz',
-    },
-    {
-      name: 'yamas-devel',
-      type: RecipientType.slack,
-      webhook: 'http://slackwebhook.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-    },
-    {
-      name: 'yamas-devel@verizonmedia.com',
-      type: RecipientType.email
-    },
-    {
-      name: 'zb@verizonmedia.com',
-      type: RecipientType.email,
-      isAdmin: true
-    },
-    {
-      name: 'OC Red',
-      type: RecipientType.oc,
-      displayCount: '1',
-      context: 'live',
-      opsDBProperty: 'yamas',
-    },
-    {
-      name: 'curveball',
-      type: RecipientType.http,
-      endpoint: 'https://myendpoint.com/api/curveball'
-    }
+    // {
+    //   name: 'dev-team',
+    //   type: RecipientType.opsgenie,
+    //   apiKey: 'abcdefghijklmnopqrstuvwzyzzzzzzzzzzz',
+    // },
+    // {
+    //   name: 'yamas-devel',
+    //   type: RecipientType.slack,
+    //   webhook: 'http://slackwebhook.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+    // },
+    // {
+    //   name: 'yamas-devel@verizonmedia.com',
+    //   type: RecipientType.email
+    // },
+    // {
+    //   name: 'zb@verizonmedia.com',
+    //   type: RecipientType.email,
+    //   isAdmin: true
+    // },
+    // {
+    //   name: 'OC Red',
+    //   type: RecipientType.oc,
+    //   displayCount: '1',
+    //   context: 'live',
+    //   opsDBProperty: 'yamas',
+    // },
+    // {
+    //   name: 'curveball',
+    //   type: RecipientType.http,
+    //   endpoint: 'https://myendpoint.com/api/curveball'
+    // }
   ];
 
   _mode = Mode; // for template
@@ -217,8 +217,11 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
     if (!isNamespaceRecipient) {
       if (this.isEmailValid(recipientName)) {
-        let recipient = this.createEmailRecipient(recipientName);
-        this.addRecipientToAlertRecipients(null, recipient.name, recipient.type);
+        this.recipientType = RecipientType.email;
+        this.recipients[this.recipientType].name = recipientName;
+        this.recipients[this.recipientType].email = recipientName;
+        this.saveCreatedRecipient(null);
+        this.addRecipientToAlertRecipients(null, this.recipients[this.recipientType].name, this.recipientType);
       } else {
       // TODO: error - invalid email or no matching contacts
       }
@@ -300,15 +303,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   saveCreatedRecipient($event) {
-    // create object for recipient server and send
-    let serverData: any = {};
-    serverData.namespace = this.namespace;
-    serverData.recipient = {};
-    serverData.recipient[this.recipientType] = [];
-    serverData.recipient[this.recipientType][0] = this.recipients[this.recipientType];
-    delete serverData.recipient[this.recipientType][0].type;
-    this.store.dispatch(new PostRecipient(serverData));
-
+    this.store.dispatch(new PostRecipient(this.createServerRecipient()));
     this.addToNamespaceRecipients(this.recipients[this.recipientType]);
     this.setViewMode($event, Mode.all);
   }
@@ -372,6 +367,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
     let emptySlackRecipient = this.createDefaultRecipient(RecipientType.slack);
     let emptyHTTPRecipient = this.createDefaultRecipient(RecipientType.http);
     let emptyOCRecipient = this.createDefaultRecipient(RecipientType.oc);
+    let emptyEmailRecipient = this.createDefaultRecipient(RecipientType.email);
 
     // Set Defaults
     emptyOpsGenieRecipient.priority = 'P5';
@@ -383,11 +379,14 @@ export class AlertConfigurationContactsComponent implements OnInit {
     emptyOCRecipient.context = '';
     emptyOCRecipient.opsDBProperty = '';
     emptyOCRecipient.severity = '1';
+    emptyEmailRecipient.name = '';
+    emptyEmailRecipient.email = '';
 
     emptyRecipients[RecipientType.opsgenie] = emptyOpsGenieRecipient;
     emptyRecipients[RecipientType.slack] = emptySlackRecipient;
     emptyRecipients[RecipientType.http] = emptyHTTPRecipient;
     emptyRecipients[RecipientType.oc] = emptyOCRecipient;
+    emptyRecipients[RecipientType.email] = emptyEmailRecipient;
     this.recipients = emptyRecipients;
   }
 
@@ -400,13 +399,14 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return newRecipient;
   }
 
-  createEmailRecipient(email: string): any {
-    let recipient: any = {};
-    recipient.name = email;
-    recipient.type = RecipientType.email;
-
-    this.addToNamespaceRecipients(recipient);
-    return recipient;
+  createServerRecipient() {
+    let serverData: any = {};
+    serverData.namespace = this.namespace;
+    serverData.recipient = {};
+    serverData.recipient[this.recipientType] = [];
+    serverData.recipient[this.recipientType][0] = this.recipients[this.recipientType];
+    delete serverData.recipient[this.recipientType][0].type;
+    return serverData;
   }
 
   types(): Array<string> {
