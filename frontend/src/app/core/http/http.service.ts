@@ -245,4 +245,15 @@ export class HttpService {
         // console.log('[Recipients API] getRecipients', apiUrl, httpOptions);
         return this.http.get(apiUrl, httpOptions);
     }
+
+    postRecipient(data: any) {
+        const apiUrl = environment.recipientsApi + '/namespace/' + data.namespace + '/contact';
+        const httpOptions = {
+            headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+            withCredentials: true,
+            observe: 'response' as 'response'
+        };
+        // console.log('[Recipients API] getRecipients', apiUrl, httpOptions);
+        return this.http.post(apiUrl, data.recipient, httpOptions);
+    }
 }

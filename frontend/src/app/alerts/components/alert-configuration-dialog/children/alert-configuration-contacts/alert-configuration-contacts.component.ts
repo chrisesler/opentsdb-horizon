@@ -4,7 +4,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Mode, RecipientType, Recipient } from './models';
 import { FormControl } from '@angular/forms';
 import { Store, Select } from '@ngxs/store';
-import { RecipientsState, GetRecipients } from '../../../../state';
+import { RecipientsState, GetRecipients, PostRecipient } from '../../../../state';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -26,7 +26,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   megaPanelVisible: boolean = false;
   viewMode: Mode = Mode.all;
-  recipientType: RecipientType = RecipientType.opsgenie;
+  recipientType: RecipientType;
   recipients: {}; // map<RecipientType, Recipient>;
   tempRecipient: Recipient; // for canceling
   namespaceRecipients: any = [
@@ -115,15 +115,17 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
     if (!this.namespace) {
       this.namespace = 'Yamas';
+      this.recipientType = RecipientType.opsgenie;
     }
 
     this.stateSubs.recipients = this._namespaceRecipients$.subscribe( data => {
+
       this.namespaceRecipients = [];
       // tslint:disable-next-line:forin
       for (let type in data.recipients) {
         let recipients = data.recipients[type];
         for (let _recipient of recipients) {
-          _recipient.type = type;
+          _recipient.type = type.toLowerCase();
           this.namespaceRecipients.push(_recipient);
         }
       }
@@ -160,7 +162,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
     if (mode === Mode.createRecipient) {
       this.populateEmptyRecipients();
-      this.recipientType = RecipientType.opsgenie;
     }
 
     if (mode === Mode.editRecipient) {
@@ -299,7 +300,15 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   saveCreatedRecipient($event) {
-    // todo: send to server
+    // create object for recipient server and send
+    let serverData: any = {};
+    serverData.namespace = this.namespace;
+    serverData.recipient = {};
+    serverData.recipient[this.recipientType] = [];
+    serverData.recipient[this.recipientType][0] = this.recipients[this.recipientType];
+    delete serverData.recipient[this.recipientType][0].type;
+    this.store.dispatch(new PostRecipient(serverData));
+
     this.addToNamespaceRecipients(this.recipients[this.recipientType]);
     this.setViewMode($event, Mode.all);
   }

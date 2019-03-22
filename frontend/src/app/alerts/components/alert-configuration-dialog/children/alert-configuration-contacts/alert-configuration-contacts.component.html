@@ -29,11 +29,11 @@
          </span>
   
          <span *ngIf="viewMode === _mode.editRecipient">
-            Edit {{recipientType}} Recipient
+            Edit {{typeToDisplayName(recipientType)}} Recipient
          </span>
   
          <span *ngIf="viewMode === _mode.createRecipient">
-            Create {{recipientType}} Recipient
+            Create {{typeToDisplayName(recipientType)}} Recipient
          </span>
       </div>
   
