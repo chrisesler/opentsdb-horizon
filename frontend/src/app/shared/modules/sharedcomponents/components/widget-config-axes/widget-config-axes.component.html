@@ -9,7 +9,7 @@
         </div>
         <div class="config-control unit-control" >
             <span class="mat-label">Unit</span>
-            <dropdown-unit-type [unit]="widget.settings.axes.y1 ? widget.settings.axes.y1.unit : 'auto'" (onUnitChange)="setUnit('y1', $event)"></dropdown-unit-type>
+            <dropdown-unit-type [unit]="widget.settings.axes.y1 && widget.settings.axes.y1.unit ? widget.settings.axes.y1.unit : 'auto'" (onUnitChange)="setUnit('y1', $event)"></dropdown-unit-type>
             <span class="mat-label">Scale</span>
             <mat-form-field appearance="fill">
                 <mat-select formControlName="scale">
@@ -59,7 +59,7 @@
         </div>
         <div class="config-control unit-control" >
             <span class="mat-label">Unit</span>
-            <dropdown-unit-type [unit]="widget.settings.axes.y2.unit || 'auto'" (onUnitChange)="setUnit('y2', $event)"></dropdown-unit-type>
+            <dropdown-unit-type [unit]="widget.settings.axes.y2 && widget.settings.axes.y2.unit ? widget.settings.axes.y2.unit : 'auto'" (onUnitChange)="setUnit('y2', $event)"></dropdown-unit-type>
             <span class="mat-label">Scale</span>
             <mat-form-field appearance="fill">
                 <mat-select formControlName="scale">
