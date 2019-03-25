@@ -113,9 +113,6 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
               for ( let i = 0, len = this.metrics.length; i < len; i++ ) {
                   if ( !this.metrics[i].expression ) {
                       query.metrics.push(this.metrics[i].name);
-                  } else {
-                      const metrics = this.metrics[i].metrics.map(item => item.name.replace(this.namespace + '.',''));
-                      query.metrics = query.metrics.concat(metrics);
                   }
               }
               query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
@@ -162,9 +159,6 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
               for ( let i = 0, len = this.metrics.length; i < len; i++ ) {
                   if ( !this.metrics[i].expression ) {
                       query.metrics.push(this.metrics[i].name);
-                  } else {
-                      const metrics = this.metrics[i].metrics.map(item => item.name.replace(this.namespace + '.',''));
-                      query.metrics = query.metrics.concat(metrics);
                   }
               }
               query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
