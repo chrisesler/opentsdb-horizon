@@ -206,27 +206,34 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   addRecipientFromName(recipientName: string) {
-    let isNamespaceRecipient: boolean = false;
+    let recipient = this.getRecipientIfUniqueName(recipientName);
 
-    for (let recipient of this.namespaceRecipients) {
-      if (isNamespaceRecipient && recipient.name === recipientName) {
-        // TODO: two contacts same name, manually select
-      }
-      if (recipient.name === recipientName) {
-        this.addRecipientToAlertRecipients(null, recipient.name, recipient.type);
-        isNamespaceRecipient = true;
-      }
-    }
-
-    if (!isNamespaceRecipient) {
+    if (recipient) {
+      this.addRecipientToAlertRecipients(null, recipient.name, recipient.type);
+    } else {
       if (this.isEmailValid(recipientName)) {
         this.recipientType = RecipientType.email;
         this.recipients[this.recipientType].name = recipientName;
         this.saveCreatedRecipient(null);
         this.addRecipientToAlertRecipients(null, this.recipients[this.recipientType].name, this.recipientType);
-      } else {
-      // TODO: error - invalid email or no matching contacts
       }
+    }
+  }
+
+  getRecipientIfUniqueName(recipientName: string) {
+    let _recipient;
+    let count = 0;
+
+    for (let recipient of this.namespaceRecipients) {
+      if (recipient.name === recipientName) {
+        _recipient = recipient;
+        count++;
+      }
+    }
+    if (count === 1) {
+      return _recipient;
+    } else {
+      return null;
     }
   }
 
@@ -332,19 +339,21 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   cancelEdit($event: Event) {
     // reset to old contact
-    for (let i = 0; i < this.namespaceRecipients.length; i++) {
-      if (this.namespaceRecipients[i].name === this.recipients[this.recipientType].name &&
-          this.namespaceRecipients[i].type === this.recipients[this.recipientType].type) {
-        this.namespaceRecipients[i] = this.tempRecipient;
-        break;
+    if (this.tempRecipient) {
+      for (let i = 0; i < this.namespaceRecipients.length; i++) {
+        if (this.namespaceRecipients[i].name === this.recipients[this.recipientType].name &&
+            this.namespaceRecipients[i].type === this.recipients[this.recipientType].type) {
+          this.namespaceRecipients[i] = this.tempRecipient;
+          break;
+        }
       }
-    }
 
-    for (let i = 0; i < this.alertRecipients.length; i++) {
-      if (this.alertRecipients[i].name === this.recipients[this.recipientType].name &&
-          this.alertRecipients[i].type === this.recipients[this.recipientType].type) {
-        this.alertRecipients[i] = {name: this.tempRecipient.name, type: this.tempRecipient.type} ;
-        break;
+      for (let i = 0; i < this.alertRecipients.length; i++) {
+        if (this.alertRecipients[i].name === this.recipients[this.recipientType].name &&
+            this.alertRecipients[i].type === this.recipients[this.recipientType].type) {
+          this.alertRecipients[i] = {name: this.tempRecipient.name, type: this.tempRecipient.type} ;
+          break;
+        }
       }
     }
     this.setViewMode($event, Mode.all);

@@ -69,10 +69,10 @@
               </span>
 
               <span *ngIf="viewMode === _mode.edit">
-                <div class="contact-button" [ngClass]="{'no-highlight': type === _recipientType.Email && recipient.admin}" *ngFor="let recipient of getAllRecipientsForType(type)" mat-button (click)="editRecipientMode($event, recipient.name, recipient.type)">
+                <div class="contact-button" [ngClass]="{'no-highlight': type === _recipientType.email && recipient.admin}" *ngFor="let recipient of getAllRecipientsForType(type)" mat-button (click)="editRecipientMode($event, recipient.name, recipient.type)">
                   <span *ngIf="type === _recipientType.slack">#</span>{{recipient.name}}
                   <span class="admin-tag" *ngIf="recipient.admin">admin</span>
-                  <mat-icon *ngIf="type !== _recipientType.Email" fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                  <mat-icon *ngIf="type !== _recipientType.email" fontSet="denali" fontIcon="d-pencil"></mat-icon>
                   <mat-icon *ngIf="!recipient.admin" (click)="deleteRecipient($event, recipient)" fontSet="denali" fontIcon="d-trash"></mat-icon>  
                 </div>
               </span>

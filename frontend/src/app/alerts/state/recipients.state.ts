@@ -202,6 +202,7 @@ export class RecipientsState {
     updateRecipientSuccess(ctx: StateContext<RecipientsStateModel>, recipient) {
         console.log('#### RECIPIENT UPDATE SUCCESS ####', recipient);
         const state = ctx.getState();
+        // tslint:disable-next-line:prefer-const
         let recipients = { ...state.recipients };
         ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true });
     }
