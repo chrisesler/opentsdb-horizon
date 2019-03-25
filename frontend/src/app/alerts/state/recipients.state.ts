@@ -54,6 +54,13 @@ export class PostRecipientSuccess {
     ) { }
 }
 
+export class PostRecipientFail {
+    public static type = '[Recipients] Post for Namespace [FAIL]';
+    constructor(
+        public readonly data: any
+    ) { }
+}
+
 /* PUT *********************/
 
 export class UpdateRecipient {
@@ -70,6 +77,13 @@ export class UpdateRecipientSuccess {
     ) { }
 }
 
+export class UpdateRecipientFail {
+    public static type = '[Recipients] PUT for Namespace [FAIL]';
+    constructor(
+        public readonly data: any
+    ) { }
+}
+
 /* DELETE *********************/
 export class DeleteRecipient {
     public static type = '[Recipients] Delete for Namespace';
@@ -80,6 +94,13 @@ export class DeleteRecipient {
 
 export class DeleteRecipientSuccess {
     public static type = '[Recipients] Delete for Namespace [SUCCESS]';
+    constructor(
+        public readonly data: any
+    ) { }
+}
+
+export class DeleteRecipientFail {
+    public static type = '[Recipients] Delete for Namespace [FAIL]';
     constructor(
         public readonly data: any
     ) { }
@@ -103,6 +124,10 @@ export class RecipientsState {
 
     @Selector() static GetRecipients(state: RecipientsStateModel) {
         return state.recipients;
+    }
+
+    @Selector() static GetErrors(state: RecipientsStateModel) {
+        return state.error;
     }
 
     // GET
@@ -141,7 +166,7 @@ export class RecipientsState {
             map((payload: any) => {
                 ctx.dispatch(new PostRecipientSuccess(payload.body));
             }),
-            // TODO: catchError(error => ctx.dispatch(new LoadRecipientsFail(error)))
+            catchError(error => ctx.dispatch(new PostRecipientFail(error)))
         );
     }
 
@@ -155,6 +180,13 @@ export class RecipientsState {
         ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true });
     }
 
+    @Action(PostRecipientFail)
+    postRecipientsFail(ctx: StateContext<RecipientsStateModel>, error) {
+        console.log('#### NAMESPACE RECIPIENTS FAIL ####', error);
+        const state = ctx.getState();
+        ctx.setState({ ...state, loading: false, error });
+    }
+
     // PUT
     @Action(UpdateRecipient)
     updateRecipient(ctx: StateContext<RecipientsStateModel>, { data }: UpdateRecipient) {
@@ -162,7 +194,7 @@ export class RecipientsState {
             map((payload: any) => {
                 ctx.dispatch(new UpdateRecipientSuccess(payload.body));
             }),
-            // TODO: catchError(error => ctx.dispatch(new LoadRecipientsFail(error)))
+            catchError(error => ctx.dispatch(new UpdateRecipientFail(error)))
         );
     }
 
@@ -174,6 +206,13 @@ export class RecipientsState {
         ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true });
     }
 
+    @Action(UpdateRecipientFail)
+    updateRecipientFail(ctx: StateContext<RecipientsStateModel>, error) {
+        console.log('#### RECIPIENT UPDATE FAIL ####', error);
+        const state = ctx.getState();
+        ctx.setState({ ...state, loading: false, error});
+    }
+
     // DELETE
     @Action(DeleteRecipient)
     deleteRecipient(ctx: StateContext<RecipientsStateModel>, data) {
@@ -181,7 +220,7 @@ export class RecipientsState {
             map((payload: any) => {
                 ctx.dispatch(new DeleteRecipientSuccess(payload.body));
             }),
-            // TODO: catchError(error => ctx.dispatch(new LoadRecipientsFail(error)))
+            catchError(error => ctx.dispatch(new DeleteRecipientFail(error)))
         );
     }
 
@@ -192,6 +231,13 @@ export class RecipientsState {
         let recipients = { ...state.recipients };
         recipients = this.removeRecipientFromRecipients(recipient.data, recipients);
         ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true });
+    }
+
+    @Action(DeleteRecipientFail)
+    deleteRecipientFail(ctx: StateContext<RecipientsStateModel>, error) {
+        console.log('#### RECIPIENT DELETE FAIL ####', error);
+        const state = ctx.getState();
+        ctx.setState({ ...state, loading: false, error});
     }
 
     // HELPERS

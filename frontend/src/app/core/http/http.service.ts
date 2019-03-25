@@ -253,8 +253,16 @@ export class HttpService {
             withCredentials: true,
             observe: 'response' as 'response'
         };
-        // console.log('[Recipients API] getRecipients', apiUrl, httpOptions);
-        return this.http.post(apiUrl, data.recipient, httpOptions);
+
+        // tslint:disable:prefer-const
+        let serverData: any = {};
+        serverData[data.type] = [];
+        let recipient: any = {... data};
+        delete recipient.type;
+        delete recipient.namespace;
+        serverData[data.type][0] = recipient;
+        console.log(serverData);
+        return this.http.post(apiUrl, serverData, httpOptions);
     }
 
     updateRecipient(data: any) {

@@ -110,8 +110,8 @@
                   required
                   minlength="36"
                   maxlength="36" 
-                  [value]="recipients[_recipientType.opsgenie].apiKey" 
-                  (input)="updateRecipient(recipients[_recipientType.opsgenie], 'apiKey', $event.target.value)">
+                  [value]="recipients[_recipientType.opsgenie].apikey" 
+                  (input)="updateRecipient(recipients[_recipientType.opsgenie], 'apikey', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="opsGenieApiKey.errors && (opsGenieApiKey.dirty || opsGenieApiKey.touched)">
                 OpsGenie API Key required. Length is 36 characters. 
@@ -188,8 +188,8 @@
                 matInput 
                 placeholder="Enter Display Count*" 
                 required 
-                [value]="recipients[_recipientType.oc].displayCount" 
-                (input)="updateRecipient(recipients[_recipientType.oc], 'displayCount', $event.target.value)">
+                [value]="recipients[_recipientType.oc].displaycount" 
+                (input)="updateRecipient(recipients[_recipientType.oc], 'displaycount', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="ocDisplayCount.errors && (ocDisplayCount.dirty || ocDisplayCount.touched)">
                 Display Count required.
@@ -220,8 +220,8 @@
                 [formControl]="ocProperty"
                 placeholder="Enter OpsDB Property*" 
                 required 
-                [value]="recipients[_recipientType.oc].opsDBProperty" 
-                (input)="updateRecipient(recipients[_recipientType.oc], 'opsDBProperty', $event.target.value)">
+                [value]="recipients[_recipientType.oc].opsdbproperty" 
+                (input)="updateRecipient(recipients[_recipientType.oc], 'opsdbproperty', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="ocProperty.errors && (ocProperty.dirty || ocProperty.touched)">
                 OpsDB Property required.

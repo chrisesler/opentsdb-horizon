@@ -28,7 +28,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
   viewMode: Mode = Mode.all;
   recipientType: RecipientType;
   recipients: {}; // map<RecipientType, Recipient>;
-  tempRecipient: Recipient; // for canceling
+  tempRecipient: Recipient; // for canceling or errors
   oldName = '';
   namespaceRecipients: any = [
     // {
@@ -84,6 +84,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
   // state control
   private stateSubs: any = {};
   @Select(RecipientsState.GetRecipients) _namespaceRecipients$: Observable<any>;
+  @Select(RecipientsState.GetErrors) _recipientErrors$: Observable<any>;
   // _recipients: any;
 
   anyErrors(): boolean {
@@ -120,7 +121,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
 
     this.stateSubs.recipients = this._namespaceRecipients$.subscribe( data => {
-
       this.namespaceRecipients = [];
       // tslint:disable-next-line:forin
       for (let type in data.recipients) {
@@ -133,6 +133,11 @@ export class AlertConfigurationContactsComponent implements OnInit {
       if (!data.loaded) {
         this.store.dispatch(new GetRecipients(this.namespace));
       }
+    });
+
+    this.stateSubs.errors = this._recipientErrors$.subscribe( data => {
+      // undo previous edit if there was an error
+      this.cancelEdit(null);
     });
   }
 
@@ -185,23 +190,19 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
     // manually update validators values
     this.opsGenieName.setValue(this.recipients[RecipientType.opsgenie].name);
-    this.opsGenieApiKey.setValue(this.recipients[RecipientType.opsgenie].apiKey);
+    this.opsGenieApiKey.setValue(this.recipients[RecipientType.opsgenie].apikey);
     this.slackName.setValue(this.recipients[RecipientType.slack].name);
     this.slackWebhook.setValue(this.recipients[RecipientType.slack].webhook);
     this.ocName.setValue(this.recipients[RecipientType.oc].name);
-    this.ocDisplayCount.setValue(this.recipients[RecipientType.oc].displayCount);
+    this.ocDisplayCount.setValue(this.recipients[RecipientType.oc].displaycount);
     this.ocContext.setValue(this.recipients[RecipientType.oc].context);
-    this.ocProperty.setValue(this.recipients[RecipientType.oc].opsDBProperty);
+    this.ocProperty.setValue(this.recipients[RecipientType.oc].opsdbproperty);
     this.httpName.setValue(this.recipients[RecipientType.http].name);
     this.httpEndpoint.setValue(this.recipients[RecipientType.http].endpoint);
   }
 
   emitAlertRecipients() {
     this.updatedAlertRecipients.emit(this.alertRecipients);
-  }
-
-  addToNamespaceRecipients(recipient: Recipient) {
-    this.namespaceRecipients.push(recipient);
   }
 
   addRecipientFromName(recipientName: string) {
@@ -221,7 +222,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
       if (this.isEmailValid(recipientName)) {
         this.recipientType = RecipientType.email;
         this.recipients[this.recipientType].name = recipientName;
-        this.recipients[this.recipientType].email = recipientName;
         this.saveCreatedRecipient(null);
         this.addRecipientToAlertRecipients(null, this.recipients[this.recipientType].name, this.recipientType);
       } else {
@@ -274,11 +274,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
   removeRecipient(name: string, type: RecipientType) {
     this.store.dispatch(new DeleteRecipient({namespace: this.namespace, name: name, type: type}));
     this.removeRecipientFromAlertRecipients(name, type);
-    for (let i = 0; i < this.namespaceRecipients.length; i++) {
-      if (this.namespaceRecipients[i].name === name && this.namespaceRecipients[i].type === type) {
-        this.namespaceRecipients.splice(i, 1);
-      }
-    }
   }
 
   addRecipientToAlertRecipients($event: Event, name: string, type: RecipientType) {
@@ -305,8 +300,9 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   saveCreatedRecipient($event) {
-    this.store.dispatch(new PostRecipient(this.createServerRecipient()));
-    this.addToNamespaceRecipients(this.recipients[this.recipientType]);
+    let newRecipient = {... this.recipients[this.recipientType]};
+    newRecipient.namespace = this.namespace;
+    this.store.dispatch(new PostRecipient(newRecipient));
     this.setViewMode($event, Mode.all);
   }
 
@@ -380,17 +376,13 @@ export class AlertConfigurationContactsComponent implements OnInit {
     let emptyEmailRecipient = this.createDefaultRecipient(RecipientType.email);
 
     // Set Defaults
-    emptyOpsGenieRecipient.priority = 'P5';
-    emptyOpsGenieRecipient.apiKey = '';
-    emptyOpsGenieRecipient.tags = '';
+    emptyOpsGenieRecipient.apikey = '';
     emptySlackRecipient.webhook = '';
     emptyHTTPRecipient.endpoint = '';
-    emptyOCRecipient.displayCount = '';
+    emptyOCRecipient.displaycount = '';
     emptyOCRecipient.context = '';
-    emptyOCRecipient.opsDBProperty = '';
-    emptyOCRecipient.severity = '1';
+    emptyOCRecipient.opsdbproperty = '';
     emptyEmailRecipient.name = '';
-    emptyEmailRecipient.email = '';
 
     emptyRecipients[RecipientType.opsgenie] = emptyOpsGenieRecipient;
     emptyRecipients[RecipientType.slack] = emptySlackRecipient;
@@ -407,17 +399,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
       type: type,
     };
     return newRecipient;
-  }
-
-  // to-do: remove
-  createServerRecipient() {
-    let serverData: any = {};
-    serverData.namespace = this.namespace;
-    serverData.recipient = {};
-    serverData.recipient[this.recipientType] = [];
-    serverData.recipient[this.recipientType][0] = this.recipients[this.recipientType];
-    delete serverData.recipient[this.recipientType][0].type;
-    return serverData;
   }
 
   types(): Array<string> {
