@@ -67,7 +67,7 @@
         // preview area - graph and legend
         .preview-wrapper {
             padding: 8px 16px;
-            min-height: 180px;
+            height: 180px;
             display: flex;
 
             .graph-wrapper,
@@ -87,6 +87,7 @@
                         flex: 1;
                     }
                 }
+
                 .loader{
                     position: absolute;
                     left: 10px;
@@ -166,16 +167,34 @@
             // form stuff
             .form-group {
                 display: flex;
+                align-items: flex-start;
 
                 &:not(:last-child),
                 &:not(.select-threshold-type) {
-                    margin-bottom: 16px;
+                    margin-bottom: 24px;
                 }
                 
-                .form-label {
-                    font-weight: bold;
-                    width: 150px;
+                .form-label,
+                .toggle-wrap {
+                    height: 32px;
+                    width: 180px;
                     margin-right: 16px;
+                    line-height: 1.2;
+                    text-align: right;
+                    font-size: 12px;
+
+                    &.vertical-center {
+                        display: flex;
+                        align-items: center;
+                        justify-content: flex-end;
+                    }
+
+                    .indicator-square {
+                        display: inline-block;
+                        width: 10px;
+                        height: 10px;
+                        margin-right: 6px;
+                    }
                 }
 
                 &.sliding-window {
@@ -192,6 +211,40 @@
                         }
                     }
                 }
+
+                &.alert-message {
+                    .message-subject-body {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+
+                        .mat-form-field {
+                            width: 80%;
+                            min-width: 320px;
+
+                            &:not(:last-child) {
+                                margin-bottom: 8px;
+                            }
+
+                            textarea {
+                                min-height: 100px;
+                            }
+                        }
+                    }
+                }
+
+                &.alert-grouping-rules,
+                &.alert-recipients,
+                &.alert-labels {
+                    .mat-form-field {
+                        width: 100%;
+                        max-width: 60%;
+                    }
+                }
+
+                &.alert-grouping-rules {
+                    margin-top: 24px
+                }
             }
         }
 
@@ -202,15 +255,123 @@
 
         }
 
+        .threshold-type-options {
+            display: flex;
+            flex-direction: column;
 
+            .mat-hint {
+                margin-top: 8px;
+            }
+        }
+
+        .recovery-options {
+            .recovery-option {
+                display: flex;
+                align-items: center;
+
+                &:not(:last-child) {
+                    margin-bottom: 8px;
+                }
+
+                .mat-form-field {
+                    margin-left: 16px;
+                }
+
+                .info-hint {
+                    margin-left: 8px;
+                }
+                
+            }
+        }
+
+        .notify-when-options {
+            display: flex;
+            padding-top: 0;
+
+            .mat-list-option.mat-list-option {
+                height: 32px;
+
+                .mat-list-item-content {
+                    flex-direction: row;
+                    height: 32px;
+                    font-size: 14px;
+
+                    .mat-list-text {
+                        padding-left: 10px;
+                        padding-right: 0;
+                        white-space: nowrap;
+                    }
+                }
+            }
+
+            .mat-pseudo-checkbox-checked::after {
+                top: calc(50% - 3.6px);
+                left: calc(50% - 5px);
+                width: 10px;
+                height: 5px;
+            }
+        }
+
+        .show-advanced-threshold-toggle {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+
+            a.toggle-action {
+                height: 32px;
+                display: inline-flex;
+                align-self: flex-start;
+                align-items: center;
+                font-size: 12px;
+                cursor: pointer;
+
+                .mat-icon {
+                    font-size: 18px;
+                    width: 18px;
+                    height: 18px;
+                }
+
+                .mat-icon:first-child {
+                    margin-right: 8px;
+                }
+            }
+
+            .form-group {
+                display: none;
+            }
+
+            &.is-open {
+                .form-group {
+                    display: flex;
+                }
+            }
+
+            .info-hint {
+                margin-left: 8px;
+            }
+
+        }
+
+        .info-hint {
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            font-size: 10px;
+
+            .mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+
+                &:first-child {
+                    margin-right: 6px;
+                }
+            }
+        }
     }
-
-
 
     // CDK ITEMS
     .alert-configuration-dialog-panel {
-        //background-color: pink;
-        
         .mat-dialog-container {
             display: flex;
             padding: 0;
@@ -227,28 +388,50 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $widget: map-get($theme-config, widgets);
+    $status: map-get($theme-config, status);
     $is-dark: map-get($theme-config, is-dark);
+
+    $link-color: map-get($foreground, link);
+    $divider-color: map-get($foreground, divider);
 
     .alert-configuration-dialog-component {
 
         .alert-configuration-wrapper {
 
             .mat-card-actions {
-                border-top: 1px solid map-get($foreground, divider);
+                border-top: 1px solid $divider-color;
             }
         }
 
-        .preview-wrapper {
+        /*.preview-wrapper {
             .graph-wrapper {
                 .graph-output {
-                    // background: map-get($foreground, divider);
+                    background: $divider-color;
                 }
             }
-        }
+        }*/
 
         .config-toolbar.mat-toolbar {
             background: transparent;
-            border-bottom: 1px solid map-get($foreground, divider);
+            border-bottom: 1px solid $divider-color;
+        }
+
+        .controls-wrapper {
+            .form-group {
+                .form-label {
+                    .indicator-square {
+                        &.is-bad {
+                            background-color: map-get($status, error);
+                        }
+                        &.is-warning {
+                            background-color: map-get($status, warning);
+                        }
+                        &.is-good {
+                            background-color: map-get($status, success);
+                        }
+                    }
+                }
+            }
         }
 
         .threshold-type-toggle-options {
@@ -259,10 +442,35 @@
                 }
 
                 .mat-ink-bar {
-                    background-color: map-get($foreground, link);
+                    background-color: $link-color;
                 }
             }
 
+        }
+
+        .show-advanced-threshold-toggle {
+            
+            a.toggle-action {
+                color: $link-color;
+
+                .mat-icon {
+                    color: $link-color;
+                }
+            }
+
+            .form-group:first-of-type {
+                margin-top: 16px;
+            }
+        }
+
+        .notify-when-options {
+            .mat-pseudo-checkbox {
+                color: map-get($primary, default);
+            }
+
+            .mat-pseudo-checkbox-checked {
+                background: map-get($primary, default);
+            }
         }
     }
 

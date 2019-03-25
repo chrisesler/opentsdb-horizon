@@ -1,0 +1,288 @@
+<mat-form-field class="contact-list" (click)="showMegaPanel()" floatLabel="never">
+  <mat-chip-list #chipList>
+
+    <mat-chip *ngFor="let recipient of alertRecipients" [selectable]="true"
+      [removable]="true" (removed)="removeRecipientFromAlertRecipients(recipient.name, recipient.type)">
+      <span *ngIf="recipient.type === _recipientType.Slack">#</span>{{recipient.name}}
+    <mat-icon matChipRemove>cancel</mat-icon>
+    </mat-chip>
+
+    <input placeholder="Add recipients..."
+            [matChipInputFor]="chipList"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            [matChipInputAddOnBlur]="true"
+            (matChipInputTokenEnd)="addUserInputToAlertRecipients($event)">
+  </mat-chip-list>
+</mat-form-field>
+
+<div *ngIf="megaPanelVisible" class="mega-panel">
+
+  <div class="panel-header">
+
+      <div class="panel-title">
+         <span *ngIf="viewMode === _mode.all">
+            Select Recipients
+         </span>
+  
+         <span *ngIf="viewMode === _mode.edit">
+            Edit Recipients
+         </span>
+  
+         <span *ngIf="viewMode === _mode.editRecipient">
+            Edit {{recipientType}} Recipient
+         </span>
+  
+         <span *ngIf="viewMode === _mode.createRecipient">
+            Create {{recipientType}} Recipient
+         </span>
+      </div>
+  
+      <div class="panel-actions" *ngIf="viewMode !== _mode.createRecipient">
+  
+        <div *ngIf="viewMode === _mode.all">
+          <button mat-button [matMenuTriggerFor]="menu" (click)="clickedCreate()" > Create new Recipient </button>
+            <mat-menu #menu="matMenu" >
+              <button *ngFor="let type of typesExceptEmail()" (click)="changeRecipientTypeForCreating($event, type)" mat-menu-item>{{type}}</button>
+            </mat-menu>
+          <button mat-button (click)="setViewMode($event, _mode.edit)"> Edit recipients </button>
+        </div>
+
+        <div *ngIf="viewMode === _mode.edit">
+          <button mat-button (click)="setViewMode($event, _mode.all)"> Done </button>
+        </div>
+      </div>
+  
+    </div>
+
+  <div class="panel-content">
+    <div *ngIf="viewMode === _mode.all || viewMode === _mode.edit" class="existing-contacts">
+
+        <div class="contact-list-type" *ngFor="let type of types()">
+            <!-- <span class="recipient-type-icon recipient-icon-{{type | lowercase}}"></span>  -->
+            {{type}}
+            <div class="contact-list-of-buttons">
+              <span *ngIf="viewMode === _mode.all">
+                  <div class="contact-button" *ngFor="let recipient of getUnselectedRecipientsForType(type)" mat-button (click)="addRecipientToAlertRecipients($event, recipient.name, recipient.type)">
+                    <mat-icon fontSet="denali" fontIcon="d-add-circle"></mat-icon>
+                    <span *ngIf="type === _recipientType.Slack">#</span>{{recipient.name}}
+                  </div>
+              </span>
+
+              <span *ngIf="viewMode === _mode.edit">
+                <div class="contact-button" [ngClass]="{'no-highlight': type === _recipientType.Email && recipient.isAdmin}" *ngFor="let recipient of getAllRecipientsForType(type)" mat-button (click)="editRecipientMode($event, recipient.name, recipient.type)">
+                  <span *ngIf="type === _recipientType.Slack">#</span>{{recipient.name}}
+                  <span class="admin-tag" *ngIf="recipient.isAdmin">admin</span>
+                  <mat-icon *ngIf="type !== _recipientType.Email" fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                  <mat-icon *ngIf="!recipient.isAdmin" (click)="deleteRecipient($event, recipient)" fontSet="denali" fontIcon="d-trash"></mat-icon>  
+                </div>
+              </span>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="viewMode === _mode.editRecipient || viewMode === _mode.createRecipient" class="change-recipient">
+
+        <div class="form">
+          <div *ngIf="recipientType === _recipientType.OpsGenie" class="contacts-create-form">
+            <div>
+              <label>Team Name </label>
+              <mat-form-field floatLabel="never" appearance="fill" [hideRequiredMarker]="false">
+                <input matInput  
+                  [formControl]="opsGenieName"  
+                  placeholder="Enter Team Name*" 
+                  required
+                  minlength="2"
+                  maxlength="36" 
+                  [value]="recipients[_recipientType.OpsGenie].name" 
+                  (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'name', $event.target.value)">
+              </mat-form-field>
+              <mat-error *ngIf="opsGenieName.errors && (opsGenieName.dirty || opsGenieName.touched)">
+                Team Name required. Min length is 2. Max length is 36.
+              </mat-error>
+            </div>
+
+            <div>
+              <label>API Key </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input matInput 
+                  [formControl]="opsGenieApiKey" 
+                  placeholder="Enter API Key*" 
+                  required
+                  minlength="36"
+                  maxlength="36" 
+                  [value]="recipients[_recipientType.OpsGenie].apiKey" 
+                  (input)="updateRecipient(recipients[_recipientType.OpsGenie], 'apiKey', $event.target.value)">
+              </mat-form-field>
+              <mat-error *ngIf="opsGenieApiKey.errors && (opsGenieApiKey.dirty || opsGenieApiKey.touched)">
+                OpsGenie API Key required. Length is 36 characters. 
+              </mat-error>
+            </div>
+
+            <span>Follow steps <a href="https://git.ouroath.com/pages/monitoring/yamas_userguide_2.0/BE/opsgenie_plugin/#1-create-an-api-key-for-your-opsgenie-team" target="_blank"> one of the user-guide</a> to create an API key.</span>
+          </div>
+
+          <div *ngIf="recipientType === _recipientType.Slack" class="contacts-create-form">
+            <div>
+              <label>Channel Name </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input
+                [formControl]="slackName" 
+                matInput 
+                placeholder="Enter Channel Name*" 
+                required
+                minlength="2"
+                maxlength="36"
+                [value]="recipients[_recipientType.Slack].name" 
+                (input)="updateRecipient(recipients[_recipientType.Slack], 'name', $event.target.value)">
+              </mat-form-field>
+              <mat-error *ngIf="slackName.errors && (slackName.dirty || slackName.touched)">
+                Channel name required. Min length is 2. Max length is 36.
+              </mat-error>
+            </div>
+
+            <div>
+              <label>Webhook URL </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input
+                [formControl]="slackWebhook" 
+                matInput 
+                placeholder="Webhook URL*" 
+                required
+                minlength="77"
+                maxlength="77"
+                [value]="recipients[_recipientType.Slack].webhook" 
+                (input)="updateRecipient(recipients[_recipientType.Slack], 'webhook', $event.target.value)">
+              </mat-form-field>
+              <mat-error *ngIf="slackWebhook.errors && (slackWebhook.dirty || slackWebhook.touched)">
+                Slack Webhook URL required. Length is 77 characters.
+              </mat-error>
+            </div>
+
+            <span>Follow steps <a href="https://git.ouroath.com/pages/monitoring/yamas_userguide_2.0/BE/slack_integration/#1-request-webhook-permissions-for-your-slack-app" target="_blank"> one and two of the user-guide </a> to create a webhook url.</span>
+          </div>
+
+          <div *ngIf="recipientType === _recipientType.OC" class="contacts-create-form">
+            <div>
+              <label>Name </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input
+                [formControl]="ocName"  
+                matInput 
+                placeholder="Enter Name*" 
+                required 
+                minlength="2"
+                maxlength="36"
+                [value]="recipients[_recipientType.OC].name" 
+                (input)="updateRecipient(recipients[_recipientType.OC], 'name', $event.target.value)">
+              </mat-form-field>
+              <mat-error *ngIf="ocName.errors && (ocName.dirty || ocName.touched)">
+                OC name required. Min length is 2. Max length is 36.
+              </mat-error>
+            </div>
+
+            <div>
+              <label>Display Count </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input
+                [formControl]="ocDisplayCount"
+                matInput 
+                placeholder="Enter Display Count*" 
+                required 
+                [value]="recipients[_recipientType.OC].displayCount" 
+                (input)="updateRecipient(recipients[_recipientType.OC], 'displayCount', $event.target.value)">
+              </mat-form-field>
+              <mat-error *ngIf="ocDisplayCount.errors && (ocDisplayCount.dirty || ocDisplayCount.touched)">
+                Display Count required.
+              </mat-error>
+            </div>
+
+            <div>
+              <label>Context </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input 
+                matInput
+                [formControl]="ocContext"
+                placeholder="Enter Context*" 
+                required 
+                [value]="recipients[_recipientType.OC].context" 
+                (input)="updateRecipient(recipients[_recipientType.OC], 'context', $event.target.value)">
+              </mat-form-field>
+              <mat-error  *ngIf="ocContext.errors && (ocContext.dirty || ocContext.touched)">
+                Context required.
+              </mat-error>
+            </div>
+
+            <div>
+              <label>OpsDB Property </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input 
+                matInput
+                [formControl]="ocProperty"
+                placeholder="Enter OpsDB Property*" 
+                required 
+                [value]="recipients[_recipientType.OC].opsDBProperty" 
+                (input)="updateRecipient(recipients[_recipientType.OC], 'opsDBProperty', $event.target.value)">
+              </mat-form-field>
+              <mat-error *ngIf="ocProperty.errors && (ocProperty.dirty || ocProperty.touched)">
+                OpsDB Property required.
+              </mat-error>
+            </div>
+
+            <span>For an example of these fields, <a href="https://git.ouroath.com/pages/monitoring/yamas_userguide_2.0/BE/be_users_guide/#alert-notification-delivery-contacts42yaml" target="_blank"> see the user-guide</a></span>
+          </div>
+
+          <div *ngIf="recipientType === _recipientType.HTTP" class="contacts-create-form">
+            <div>
+              <label>Name </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input
+                [formControl]="httpName"  
+                matInput 
+                placeholder="Enter Name*" 
+                required
+                minlength="2"
+                maxlength="36"
+                [value]="recipients[_recipientType.HTTP].name" 
+                (input)="updateRecipient(recipients[_recipientType.HTTP], 'name', $event.target.value)">
+              </mat-form-field>
+              <mat-error *ngIf="httpName.errors && (httpName.dirty || httpName.touched)">
+                HTTP name required. Min length is 2. Max length is 36.
+              </mat-error>
+            </div>
+
+            <div>
+              <label>Endpoint </label>
+              <mat-form-field floatLabel="never" appearance="fill">
+                <input
+                [formControl]="httpEndpoint"
+                matInput 
+                placeholder="Enter endpoint* (e.g., https://...)" 
+                required
+                maxlength="300"
+                [value]="recipients[_recipientType.HTTP].endpoint" 
+                (input)="updateRecipient(recipients[_recipientType.HTTP], 'endpoint', $event.target.value)">
+              </mat-form-field>
+              <mat-error *ngIf="httpEndpoint.errors && (httpEndpoint.dirty || httpEndpoint.touched)">
+                HTTP endpoint required. Max length is 300.
+              </mat-error>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="panel-footer" *ngIf="viewMode === _mode.editRecipient || viewMode === _mode.createRecipient">
+      <div *ngIf="viewMode === _mode.editRecipient">
+        <button mat-button [disabled]="anyErrors()" (click)="saveEditedRecipient($event)"> Save </button>
+        <!-- <button (click)="testRecipient($event)"> Test </button> -->
+        <button mat-button (click)="cancelEdit($event)"> Cancel </button>
+      </div>
+
+      <div *ngIf="viewMode === _mode.createRecipient">
+        <button mat-button [disabled]="anyErrors()" (click)="saveCreatedRecipient($event)"> Save </button>
+        <!-- <button (click)="testRecipient($event)"> Test </button> -->
+        <button mat-button (click)="setViewMode($event, _mode.all)"> Cancel </button>
+      </div>
+    </div>
+
+  </div>
+</div>
