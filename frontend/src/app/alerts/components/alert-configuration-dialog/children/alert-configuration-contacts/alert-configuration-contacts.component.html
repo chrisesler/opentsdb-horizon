@@ -42,7 +42,7 @@
         <div *ngIf="viewMode === _mode.all">
           <button mat-button [matMenuTriggerFor]="menu" (click)="clickedCreate()" > Create new Recipient </button>
             <mat-menu #menu="matMenu" >
-              <button *ngFor="let type of typesExceptEmail()" (click)="changeRecipientTypeForCreating($event, type)" mat-menu-item>{{type}}</button>
+              <button *ngFor="let type of typesExceptEmail()" (click)="changeRecipientTypeForCreating($event, type)" mat-menu-item>{{typeToDisplayName(type)}}</button>
             </mat-menu>
           <button mat-button (click)="setViewMode($event, _mode.edit)"> Edit recipients </button>
         </div>
@@ -97,7 +97,7 @@
                   (input)="updateRecipient(recipients[_recipientType.opsgenie], 'name', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="opsGenieName.errors && (opsGenieName.dirty || opsGenieName.touched)">
-                Team Name required. Min length is 2. Max length is 36.
+                Unique Team Name required. Min length is 2. Max length is 36.
               </mat-error>
             </div>
 
@@ -114,7 +114,7 @@
                   (input)="updateRecipient(recipients[_recipientType.opsgenie], 'apikey', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="opsGenieApiKey.errors && (opsGenieApiKey.dirty || opsGenieApiKey.touched)">
-                OpsGenie API Key required. Length is 36 characters. 
+                Unique OpsGenie API Key required. Length is 36 characters. 
               </mat-error>
             </div>
 
@@ -136,7 +136,7 @@
                 (input)="updateRecipient(recipients[_recipientType.slack], 'name', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="slackName.errors && (slackName.dirty || slackName.touched)">
-                Channel name required. Min length is 2. Max length is 36.
+                Unique Channel name required. Min length is 2. Max length is 36.
               </mat-error>
             </div>
 
@@ -176,7 +176,7 @@
                 (input)="updateRecipient(recipients[_recipientType.oc], 'name', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="ocName.errors && (ocName.dirty || ocName.touched)">
-                OC name required. Min length is 2. Max length is 36.
+                Unique OC name required. Min length is 2. Max length is 36.
               </mat-error>
             </div>
 

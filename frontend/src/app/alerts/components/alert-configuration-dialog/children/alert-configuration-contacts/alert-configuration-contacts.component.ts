@@ -2,7 +2,7 @@ import { Component, OnInit, HostBinding, ElementRef, HostListener, Input, Output
 import { MatChipInputEvent } from '@angular/material';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Mode, RecipientType, Recipient } from './models';
-import { FormControl } from '@angular/forms';
+import { FormControl, ValidatorFn, AbstractControl } from '@angular/forms';
 import { Store, Select } from '@ngxs/store';
 import { RecipientsState, GetRecipients, PostRecipient, DeleteRecipient, UpdateRecipient } from '../../../../state';
 import { Observable } from 'rxjs';
@@ -88,8 +88,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
   // _recipients: any;
 
   anyErrors(): boolean {
-    // todo - check if name is equivalent to any other within type
-
     if (this.recipientType === RecipientType.opsgenie) {
       if (this.opsGenieName.errors || this.opsGenieApiKey.errors) {
         return true;
@@ -133,6 +131,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
       if (!data.loaded) {
         this.store.dispatch(new GetRecipients(this.namespace));
       }
+      this.updateValidators();
     });
 
     this.stateSubs.errors = this._recipientErrors$.subscribe( data => {
@@ -217,23 +216,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
         this.saveCreatedRecipient(null);
         this.addRecipientToAlertRecipients(null, this.recipients[this.recipientType].name, this.recipientType);
       }
-    }
-  }
-
-  getRecipientIfUniqueName(recipientName: string) {
-    let _recipient;
-    let count = 0;
-
-    for (let recipient of this.namespaceRecipients) {
-      if (recipient.name === recipientName) {
-        _recipient = recipient;
-        count++;
-      }
-    }
-    if (count === 1) {
-      return _recipient;
-    } else {
-      return null;
     }
   }
 
@@ -356,6 +338,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
         }
       }
     }
+    this.updateValidators();
     this.setViewMode($event, Mode.all);
   }
 
@@ -448,6 +431,46 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return recipients;
   }
 
+  getRecipientIfUniqueName(recipientName: string) {
+    let _recipient;
+    let count = 0;
+
+    for (let recipient of this.namespaceRecipients) {
+      if (recipient.name === recipientName) {
+        _recipient = recipient;
+        count++;
+      }
+    }
+    if (count === 1) {
+      return _recipient;
+    } else {
+      return null;
+    }
+  }
+
+  forbiddenNameValidator(recipients: Array<Recipient>): ValidatorFn {
+    return (control: AbstractControl): {[key: string]: any} | null => {
+      let forbidden = false;
+      // tslint:disable-next-line:prefer-const
+      for (let recipient of recipients) {
+        if (control.value.toLowerCase() === recipient.name.toLowerCase()) {
+          forbidden = true;
+        }
+      }
+      if (control.value.toLowerCase().trim().length < 2) {
+        forbidden = true;
+      }
+      return forbidden ? {'forbiddenName': {value: control.value}} : null;
+    };
+  }
+
+  updateValidators() {
+    this.opsGenieName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.opsgenie))]);
+    this.slackName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.slack))]);
+    this.ocName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.oc))]);
+    this.httpName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.http))]);
+  }
+
   // Listen if we should close panel
   @HostListener('document:click', ['$event'])
   clickOutsideComponent(event) {
@@ -458,5 +481,4 @@ export class AlertConfigurationContactsComponent implements OnInit {
       this._clickedCreateMenu--;
     }
   }
-
 }
