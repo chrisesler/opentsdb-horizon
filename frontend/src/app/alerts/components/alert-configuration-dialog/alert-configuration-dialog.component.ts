@@ -6,10 +6,12 @@ import {
     HostBinding,
     ViewChild,
     ElementRef,
-    AfterViewInit
+    AfterContentInit
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, FormsModule, NgForm } from '@angular/forms';
+import { ElementQueries, ResizeSensor} from 'css-element-queries';
+
 
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material';
@@ -36,9 +38,10 @@ import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/c
     templateUrl: './alert-configuration-dialog.component.html',
     styleUrls: []
 })
-export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, AfterViewInit {
+export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, AfterContentInit {
     @HostBinding('class.alert-configuration-dialog-component') private _hostClass = true;
 
+    @ViewChild('graphOutput') private graphOutput: ElementRef;
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
 
     // placeholder for expected data from dialogue initiation
@@ -147,6 +150,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.reloadData();
     }
 
+    
+
 
 
     ngOnDestroy() {
@@ -155,8 +160,31 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         // this.subs.alertFormName.unsubscribe();
     }
 
-    ngAfterViewInit() {
-        // this.measureDetailForBalancer();
+    ngAfterContentInit() {
+
+        ElementQueries.listen();
+        ElementQueries.init();
+        let initSize = {
+            width: this.graphOutput.nativeElement.clientWidth,
+            height: this.graphOutput.nativeElement.clientHeight
+        };
+        // this.newSize$ = new BehaviorSubject(initSize);
+
+        /*
+        this.newSizeSub = this.newSize$.subscribe(size => {
+            this.setSize(size);
+            this.newSize = size;
+        });
+        */
+        
+        const resizeSensor = new ResizeSensor(this.graphOutput.nativeElement, () =>{
+             const newSize = {
+                width: this.graphOutput.nativeElement.clientWidth,
+                height: this.graphOutput.nativeElement.clientHeight
+            };
+            this.size = newSize;
+            // this.newSize$.next(newSize);
+        });
     }
 
     setupForm() {
