@@ -78,11 +78,13 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         axes: {
             y: {
                 valueRange: [null, null],
+                tickFormat: {}
             },
             y2: {
                 valueRange: [null, null],
                 drawGrid: true,
-                independentTicks: true
+                independentTicks: true,
+                tickFormat: {}
             }
         },
         series: {},
