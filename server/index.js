@@ -20,12 +20,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-//if (utils.getProperty('auth_mode') === 'bouncer' || utils.getEnv() === 'dev') {
-    // app.use(authUtil.validateBouncerCredentials());
- //} else if (utils.getProperty('auth_mode') === 'okta') {
-  var fs = require('fs');
-  var oktaSecret = fs.readFileSync("/Users/syed/Desktop/okta_secret.txt").toString(); //require('ysecure.node').getKey(utils.getProperty('okta_secret_key_name'));
-  // console.log(oktaSecret)
+if (utils.getProperty('auth_mode') === 'bouncer' || utils.getEnv() === 'dev') {
+    app.use(authUtil.validateBouncerCredentials());
+} else if (utils.getProperty('auth_mode') === 'okta') {
+  var oktaSecret = require('ysecure.node').getKey(utils.getProperty('okta_secret_key_name'));
   const okta     = new expressOkta.Okta({
       callbackPath: utils.getProperty('okta_callback_path') || '/oauth2/callback',
       clientID: utils.getProperty('okta_client_id') || '0oad31e56t73oaW1L0h7',
@@ -36,13 +34,12 @@ app.use(cookieParser());
       authTimeout: utils.getProperty('okta_auth_timeout'),
       prompt: utils.getProperty('okta_prompt') || 'default'
   });
-  //console.log(okta)
   app.use(okta.callback());
   app.use(authUtil.validateOktaCredentials(okta));
-//}
-// else if (utils.getProperty('auth_mode') === 'athenz') {
-//    app.use(authUtil.validateAthenzCredentials());
-//}
+}
+else if (utils.getProperty('auth_mode') === 'athenz') {
+    app.use(authUtil.validateAthenzCredentials());
+}
 
 app.use(function (req, res, next) {
     // WhitelistFrameAncestors
