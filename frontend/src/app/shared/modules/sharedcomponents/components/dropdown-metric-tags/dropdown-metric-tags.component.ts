@@ -18,6 +18,7 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
   constructor(private httpService: HttpService) { }
 
   ngOnInit() {
+    this.tagOptions = this.selected ? this.selected.map(d => { return { name: d} }) : [];
   }
 
   ngOnChanges(change: SimpleChanges) {

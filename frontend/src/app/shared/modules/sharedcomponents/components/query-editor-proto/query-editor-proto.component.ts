@@ -8,7 +8,7 @@ import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MatMenuTrigger } from '@angular/material';
-import { FormControl } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 
 
 
@@ -36,8 +36,10 @@ export class QueryEditorProtoComponent implements OnInit {
     editTag = false;
     isAddMetricProgress = false;
     isAddExpressionProgress= false;
-
+    editExpressionId = -1;
+    fg: FormGroup;
     expressionControl: FormControl;
+    expressionControls: FormGroup;
 
 
     timeAggregatorOptions: Array<any> = [
@@ -62,11 +64,11 @@ export class QueryEditorProtoComponent implements OnInit {
     queryChanges$: BehaviorSubject<boolean>;
     queryChangeSub: Subscription;
 
-    constructor(private elRef: ElementRef, private utils: UtilsService ) { }
+    constructor(private elRef: ElementRef, private utils: UtilsService, private fb: FormBuilder, ) { }
 
     ngOnInit() {
         this.queryChanges$ = new BehaviorSubject(false);
-        this.expressionControl = new FormControl('');
+        this.initFormControls();
 
         this.queryChangeSub = this.queryChanges$
                                         .pipe(
@@ -79,6 +81,14 @@ export class QueryEditorProtoComponent implements OnInit {
                                         });
     }
 
+    initFormControls() {
+        this.fg = new FormGroup({});
+        const expressions = this.getMetricsByType('expression');
+        for ( let i = 0; i < expressions.length; i++ ) {
+            this.fg.addControl(expressions[i].id, new FormControl(this.getExpressionUserInput(expressions[i].expression)));
+        }
+        this.fg.addControl( '-1', new FormControl(''));
+    }
     saveNamespace(namespace ) {
         this.query.namespace = namespace;
         this.editNamespace = false;
@@ -93,8 +103,9 @@ export class QueryEditorProtoComponent implements OnInit {
         if ( index ) {
             this.query.metrics[index].name = metrics[0];
         } else {
+            let insertIndex = this.getMetricsLength('metrics');
             for ( let i = 0; i < metrics.length; i++ ) {
-                const id = this.utils.generateId();
+                const id = this.utils.generateId(3);
                 const oMetric = {
                                     id: id,
                                     name: metrics[i],
@@ -107,9 +118,8 @@ export class QueryEditorProtoComponent implements OnInit {
                                         }
                                     },
                                     tagAggregator: 'sum',
-                                    aggregatorTags: []
                                 };
-                this.query.metrics.push(oMetric);
+                    this.query.metrics.splice( insertIndex, 0, oMetric );
             }
         }
         this.queryChanges$.next(true);
@@ -152,6 +162,11 @@ export class QueryEditorProtoComponent implements OnInit {
         return isExpression ? 'e' + labelIndex : 'm' + labelIndex;
     }
 
+    getMetricsLength(type) {
+        let res = this.getMetricsByType(type); 
+        return res.length;
+    }
+
     getMetricsByType(type) {
         if ( type === 'metrics' ) {
             return this.query.metrics.filter(d=> d.expression === undefined );
@@ -159,6 +174,122 @@ export class QueryEditorProtoComponent implements OnInit {
             return this.query.metrics.filter(d=> d.expression !== undefined );
         }
     }
+
+    editExpression(id) {
+        if ( this.fg.controls[this.editExpressionId].errors) return;
+        this.editExpressionId = id;
+        if ( id === -1 ) {
+            this.fg.controls[this.editExpressionId].setValue('');
+            this.isAddExpressionProgress = true;
+        } else {
+            const index = this.query.metrics.findIndex(d => d.id === id);
+            this.fg.controls[this.editExpressionId].setValue(this.getExpressionUserInput(this.query.metrics[index].expression));
+        }
+    }
+
+    getExpressionUserInput(expression) {
+        // replace {{<id>}} to m|e<index>
+        const re = new RegExp(/\{\{(.+?)\}\}/, "g");
+        let matches = [];
+        let userExpression = expression;
+        const aliases = this.getHashMetricIdUserAliases();
+        while(matches = re.exec(expression)) {
+            const id = matches[1];
+            const idreg = new RegExp( '{{' + id + '}}' , 'g');
+            userExpression = userExpression.replace( idreg, aliases[id]);
+        }
+        return userExpression;
+    }
+
+    updateExpression(id, e) {
+        const expression = e.srcElement.value.trim();
+        const index = this.query.metrics.findIndex(d => d.id === id );
+        if ( expression && this.isValidExpression(id, expression) ) {
+            const expConfig = this.getExpressionConfig(expression);
+            if ( index === -1 ) {
+                this.query.metrics.push(expConfig);
+                this.isAddExpressionProgress= false;
+                this.fg.addControl(expConfig.id, new FormControl(expression));
+            } else {
+                expConfig.id  = id;
+                this.query.metrics[index] = expConfig;
+                this.editExpressionId = -1;
+            }
+            
+            this.queryChanges$.next(true);
+        } else if ( !expression && index === -1 ) {
+            this.isAddExpressionProgress = false;
+        }
+    }
+
+    isValidExpression(id, expression) {
+        const result = expression.match(/((m|e)[0-9]+)/gi);
+        const invalidRefs = [];
+
+        const aliases = this.getMetricAliases();
+        for (let i = 0; result && i < result.length; i++ ) {
+            if ( !aliases[result[i]] ) {
+                invalidRefs.push( result[i] );
+            }
+        }
+
+        const isValid =   result != null && !invalidRefs.length;
+        this.fg.controls[id].setErrors( !isValid ? { 'invalid': true } : null );
+        return isValid;
+    }
+
+    /* <metric.id>: m|e<index>, e.g. { aaa: m1, bbb: m2, ccc: e1 } */
+    getHashMetricIdUserAliases() {
+        let metricIndex = 0;
+        let expressionIndex = 0;
+        const aliases = {};
+        for ( let i = 0; i < this.query.metrics.length; i++ ) {
+            const alias = this.query.metrics[i].expression === undefined ? 'm' + ++metricIndex : 'e' + ++expressionIndex;
+            aliases[this.query.metrics[i].id] = alias;
+        }
+        return aliases;
+    }
+
+    /* m|e<index>:<metric.id>, e.g. { m1: aaa, m2: bbb, e1: ccc } */
+    getMetricAliases() {
+        let metricIndex = 0;
+        let expressionIndex = 0;
+        const aliases = {};
+        for ( let i = 0; i < this.query.metrics.length; i++ ) {
+            const alias = this.query.metrics[i].expression === undefined ? 'm' + ++metricIndex : 'e' + ++expressionIndex;
+            aliases[alias] = this.query.metrics[i].id;
+        }
+        return aliases;
+    }
+
+    getExpressionConfig(expression) {
+        let transformedExp = expression;
+        let result = expression.match(/((m|e)[0-9]+)/gi);
+        result = result ? this.utils.arrayUnique(result) : result;
+        // const replace = [];
+
+        const aliases = this.getMetricAliases();
+
+        // update the expression with metric ids 
+        for (let i = 0; i < result.length; i++ ) {
+            const regex = new RegExp( result[i] , 'g');
+            transformedExp = transformedExp.replace( regex,  '{{' + aliases[result[i]] + '}}');
+        }
+
+
+        const config = {
+            id: this.utils.generateId(3),
+            expression : transformedExp,
+            originalExpression: expression,
+            settings: {
+                visual: {
+                    visible: true,
+                }
+            },
+        };
+        return config;
+    }
+
     addFunction() {
         // do something
     }
@@ -178,7 +309,6 @@ export class QueryEditorProtoComponent implements OnInit {
 
     triggerQueryChanges() {
         this.requestChanges('QueryChange', {'query': this.query});
-        console.log("query", this.query)
     }
 
     toggleExplictTagMatch(e: any) {
