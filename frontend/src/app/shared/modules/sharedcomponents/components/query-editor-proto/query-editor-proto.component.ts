@@ -177,11 +177,14 @@ export class QueryEditorProtoComponent implements OnInit {
 
     editExpression(id) {
         if ( this.fg.controls[this.editExpressionId].errors) return;
-        
-        if ( id === -1 ) {
-            this.isAddExpressionProgress = true;
-        }
         this.editExpressionId = id;
+        if ( id === -1 ) {
+            this.fg.controls[this.editExpressionId].setValue('');
+            this.isAddExpressionProgress = true;
+        } else {
+            const index = this.query.metrics.findIndex(d => d.id === id);
+            this.fg.controls[this.editExpressionId].setValue(this.getExpressionUserInput(this.query.metrics[index].expression));
+        }
     }
 
     getExpressionUserInput(expression) {
@@ -201,7 +204,7 @@ export class QueryEditorProtoComponent implements OnInit {
     updateExpression(id, e) {
         const expression = e.srcElement.value.trim();
         const index = this.query.metrics.findIndex(d => d.id === id );
-        if ( this.isValidExpression(id, expression) ) {
+        if ( expression && this.isValidExpression(id, expression) ) {
             const expConfig = this.getExpressionConfig(expression);
             if ( index === -1 ) {
                 this.query.metrics.push(expConfig);
