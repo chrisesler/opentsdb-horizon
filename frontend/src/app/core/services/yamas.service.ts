@@ -152,10 +152,28 @@ export class YamasService {
         return index;
     }
 
-    getGroupbyTagsByQId(id) {
-        const index = this.transformedQuery.executionGraph.findIndex(d => d.id === id );
-        const tags  =  this.transformedQuery.executionGraph[index].type !== 'expression' ? this.transformedQuery.executionGraph[index].tagKeys : Object.values(this.transformedQuery.executionGraph[index].join.joins);
-        return tags;
+    getGroupbyTagsByQId(index, aggregator) {
+        let groupByTags = [];
+        const expression = this.query.metrics[index].expression;
+        if (expression) {
+            // replace {{<id>}} with query source id
+            const re = new RegExp(/\{\{(.+?)\}\}/, "g");
+            let matches = [];
+            let i =0;
+            while(matches = re.exec(expression)) {
+                const id = matches[1];
+                const mindex = this.query.metrics.findIndex(d => d.id === id );
+                // const sourceId = 'm' + mindex;
+                const mTags = this.getGroupbyTagsByQId( mindex, aggregator);
+                groupByTags = i === 0 ? mTags : groupByTags.filter(v => mTags.includes(v));
+                i++;
+            }
+        } else {
+            const id =   'm' + index + '-' + aggregator + '-groupby';
+            const qindex = this.transformedQuery.executionGraph.findIndex(d => d.id === id );
+            groupByTags  =  this.transformedQuery.executionGraph[qindex].tagKeys;
+        }
+        return groupByTags;
     }
 
     getExpressionQuery(index) {
@@ -169,12 +187,10 @@ export class YamasService {
             const sources = [];
             const  expression = config.expression;
             let transformedExp = expression;
-            let groupByTags = [];
 
             // replace {{<id>}} with query source id
             const re = new RegExp(/\{\{(.+?)\}\}/, "g");
             let matches = [];
-            let i =0;
             while(matches = re.exec(expression)) {
                 const id = matches[1];
                 const idreg = new RegExp( '{{' + id + '}}' , 'g');
@@ -182,11 +198,10 @@ export class YamasService {
                 const sourceId = 'm' + index;
                 transformedExp = transformedExp.replace( idreg, sourceId);
                 sources.push(sourceId);
-                const mTags = this.getGroupbyTagsByQId( this.query.metrics[index].expression === undefined ? sourceId + '-' + aggregators[j] + '-groupby' : sourceId);
-                groupByTags = i === 0 ? mTags : groupByTags.filter(v => mTags.includes(v));
-                i++;
             }
+            
             const joinTags = {};
+            const groupByTags = this.getGroupbyTagsByQId( index,  aggregators[j]);;
             for ( let i=0; i < groupByTags.length; i++ ) {
                 const tag = groupByTags[i];
                 joinTags[tag] = tag;
@@ -209,7 +224,6 @@ export class YamasService {
                 sources: sources
             };
             eids.push(eid);
-            console.log("expression", config.expression, ",", transformedExp, econfig.join.joins);
             queries.push(econfig);
         }
         return { queries: queries, eids: eids };

@@ -72,7 +72,7 @@
                 <div class="metric-row-data metric-name">
                     <span *ngIf="editExpressionId !== metric.id" (click)="editExpression(metric.id);">{{ getExpressionUserInput(metric.expression) }}</span>
                     <mat-form-field *ngIf="editExpressionId === metric.id" class="expression-input-field" appearance="outline" color="primary" floatLabel="never">
-                        <input matInput placeholder="e.g. m1 + m2" [formControlName]="metric.id" (blur)="updateExpression(metric.id, $event)" autocomplete="off">
+                        <input matInput placeholder="e.g. m1 + m2" [formControlName]="metric.id" (blur)="updateExpression(metric.id, $event)" (keyup.enter)="updateExpression(metric.id, $event)" autocomplete="off">
                     </mat-form-field>
                     <mat-error *ngIf="fg.controls[metric.id].errors && fg.controls[metric.id].errors.invalid">
                         Invalid Expression.
@@ -85,7 +85,7 @@
         <div class="metric-list-item" *ngIf="isAddExpressionProgress && query.metrics.length">
                 <div class="metric-row-data expression">
                     <mat-form-field class="expression-input-field" appearance="outline" color="primary" floatLabel="never">
-                        <input matInput placeholder="e.g. m1 + m2"  formControlName="-1" (blur)="updateExpression(-1, $event)" autocomplete="off">
+                        <input matInput placeholder="e.g. m1 + m2"  formControlName="-1" (blur)="updateExpression(-1, $event)" (keyup.enter)="updateExpression(-1, $event)" autocomplete="off">
                     </mat-form-field>
                     <mat-error *ngIf="fg.controls['-1'].errors && fg.controls['-1'].errors.invalid">
                         Invalid Expression.
