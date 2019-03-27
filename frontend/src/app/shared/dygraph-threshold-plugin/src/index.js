@@ -32,8 +32,6 @@ var Thresholds= function() {
     this.thresholds = this.thresholds? this.thresholds : [];
 
     var ctx = e.drawingContext;
-    var canvas = e.canvas;
-    var area = g.getArea();
 
     for (var i = 0; i < this.thresholds.length; i++) {
       var threshold  = this.thresholds[i];
