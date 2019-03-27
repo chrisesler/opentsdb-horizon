@@ -100,11 +100,9 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
     httpEndpoint = new FormControl('');
 
     // state control
-    private stateSubs: Subscription;
     private nsRecipientSub: Subscription;
     private lastUpdatedRecipientSub: Subscription;
     @Select(RecipientsState.GetRecipients) _namespaceRecipients$: Observable<any>;
-    @Select(RecipientsState.GetErrors) _recipientErrors$: Observable<any>;
     @Select(RecipientsState.GetLastUpdated) _recipientLastUpdated$: Observable<any>;
 
     /** ACCESSORS */
@@ -184,25 +182,19 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
             this.updateValidators();
         });
 
-        this.stateSubs = this._recipientErrors$.subscribe(data => {
-
-        });
-
         this.lastUpdatedRecipientSub = this._recipientLastUpdated$.subscribe(data => {
             if (data && data.action) {
                 if (data.action.toLowerCase() === 'delete') {
                     this.removeRecipientFromAlertRecipients(data.recipient.name, data.recipient.type);
                 } else if (data.action.toLowerCase() === 'update') {
-                    // todo - change name in alert recipients
+                    this.modifyRecipientNameInAlertRecipients(data.recipient.name, data.recipient.newname, data.recipient.type);
                 }
             }
         });
     }
 
-    // NOTE: UPDATED
     ngOnDestroy(): void {
         this.nsRecipientSub.unsubscribe();
-        this.stateSubs.unsubscribe();
         this.lastUpdatedRecipientSub.unsubscribe();
     }
 
@@ -210,7 +202,6 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
 
     showMegaPanel() {
         // this.megaPanelVisible = true;
-        console.log('MEGA PANEL', this.megaPanelTrigger.menu, this.recipientInput);
         this.megaPanelTrigger.openMenu();
         this.recipientInput.focus();
     }
@@ -222,7 +213,6 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
 
     /** EVENTS */
     changeRecipientTypeForCreating($event, type) {
-        console.log('CHANGE RECIPIENT TYPE FOR CREATING', type, $event);
         if (this._clickedCreateMenu > 0) {
             this._clickedCreateMenu--;
         }
@@ -235,7 +225,6 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
     }
 
     setViewMode($event: Event, mode: Mode) {
-        console.log('SET VIEW MODE', $event, mode);
         if ($event) {
             $event.stopPropagation();
         }
@@ -248,6 +237,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
         if (mode === Mode.editRecipient) {
             this.tempRecipient = { ...this.recipientsFormData[this.recipientType] };
         }
+        this.updateValidators();
 
         // for hiding/showing of backdrop dimmer when in edit mode
         let backdropEl: any;
@@ -269,7 +259,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
     editRecipientMode($event, recipient: any) {
         // tslint:disable-next-line:prefer-const
         this.recipientType = recipient.type;
-        this.recipientsFormData[this.recipientType] = recipient;
+        this.recipientsFormData[this.recipientType] = {...recipient};
         this.originalName = recipient.name;
 
         if (this.recipientType !== RecipientType.email) {
@@ -287,16 +277,6 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
         this.ocProperty.setValue(this.recipientsFormData[RecipientType.oc].opsDBProperty);
         this.httpName.setValue(this.recipientsFormData[RecipientType.http].name);
         this.httpEndpoint.setValue(this.recipientsFormData[RecipientType.http].endpoint);
-    }
-
-    addRecipientToAlertRecipients($event: Event, name: string, type: RecipientType) {
-        if ($event) {
-            $event.stopPropagation();
-        }
-        if (!this.isAlertRecipient(name, type)) {
-            this.alertRecipients.push({ name: name, type: type });
-            this.emitAlertRecipients();
-        }
     }
 
     addUserInputToAlertRecipients($event: MatChipInputEvent) {
@@ -329,10 +309,8 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
         updatedRecipient.namespace = this.namespace;
         if (this.recipientsFormData[this.recipientType].name !== this.originalName) {
             updatedRecipient.name = this.originalName;
-            updatedRecipient.newName = this.recipientsFormData[this.recipientType].name;
-            // this.newName = this.recipientsFormData[this.recipientType].name;
+            updatedRecipient.newname = this.recipientsFormData[this.recipientType].name;
         }
-
         this.store.dispatch(new UpdateRecipient(updatedRecipient));
         this.setViewMode($event, Mode.all);
         this.emitAlertRecipients();
@@ -342,13 +320,11 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
         // todo: send to server
     }
 
-    // NOTE: UPDATED
     deleteRecipient($event: Event, recipient: Recipient) {
         this.removeRecipient(recipient.name, recipient.type);
         this.setViewMode($event, Mode.edit);
     }
 
-    // NOTE: UPDATED
     cancelEdit($event: Event) {
         // reset to old contact
         for (let i = 0; i < this.alertRecipients.length; i++) {
@@ -358,14 +334,12 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
                 break;
             }
         }
-        console.log(this.namespaceRecipients, this.recipientsFormData, this.tempRecipient);
         this.updateValidators();
         this.setViewMode($event, Mode.all);
     }
 
     // when contact menu is closed, need to reset some things
     contactMenuClosed($event: any) {
-        // console.log('CONTACT MENU CLOSED', $event);
         if (this.viewMode !== Mode.all) {
             this.viewMode = Mode.all;
             if (this._clickedCreateMenu > 0) { // needed to exit out of menu
@@ -385,27 +359,39 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
     }
 
     addRecipientFromName(recipientName: string) {
-        let isNamespaceRecipient: boolean = false;
+        let recipient = this.getRecipientIfUniqueName(recipientName);
 
-        for (let recipient of this.namespaceRecipients) {
-            if (isNamespaceRecipient && recipient.name === recipientName) {
-                // TODO: two contacts same name, manually select
-            }
-            if (recipient.name === recipientName) {
-                this.addRecipientToAlertRecipients(null, recipient.name, recipient.type);
-                isNamespaceRecipient = true;
-            }
-        }
-
-        if (!isNamespaceRecipient) {
-            if (this.isEmailValid(recipientName)) {
-                let recipient = this.createEmailRecipient(recipientName);
-                this.addRecipientToAlertRecipients(null, recipient.name, recipient.type);
-            } else {
-                // TODO: error - invalid email or no matching contacts
-            }
+        if (recipient) {
+          this.addRecipientToAlertRecipients(null, recipient.name, recipient.type);
+        } else {
+          if (this.isEmailValid(recipientName)) {
+            this.recipientType = RecipientType.email;
+            this.recipientsFormData[this.recipientType].name = recipientName;
+            this.saveCreatedRecipient(null);
+            this.addRecipientToAlertRecipients(null, this.recipientsFormData[this.recipientType].name, this.recipientType);
+          }
         }
     }
+
+    addRecipientToAlertRecipients($event: Event, name: string, type: RecipientType) {
+        if ($event) {
+            $event.stopPropagation();
+        }
+        if (!this.isAlertRecipient(name, type)) {
+            this.alertRecipients.push({ name: name, type: type });
+            this.emitAlertRecipients();
+        }
+    }
+
+    modifyRecipientNameInAlertRecipients(name: string, newName: string, type: RecipientType) {
+        for (let index = 0; index < this.alertRecipients.length; index++) {
+          if (this.alertRecipients[index].name === name && this.alertRecipients[index].type === type) {
+            this.alertRecipients[index].name = newName;
+            this.emitAlertRecipients();
+            break;
+          }
+        }
+      }
 
     // OPERATIONS to get Recipient
     isAlertRecipient(name: string, type: RecipientType): boolean {
@@ -425,13 +411,11 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
         }
     }
 
-    // NOTE: Updated
     removeRecipient(name: string, type: RecipientType) {
         this.store.dispatch(new DeleteRecipient({ namespace: this.namespace, name: name, type: type }));
     }
 
-    // NOTE: Updated
-    removeRecipientFromAlertRecipients(name: string, type) {
+    removeRecipientFromAlertRecipients(name: string, type: RecipientType) {
         for (let index = 0; index < this.alertRecipients.length; index++) {
             if (this.alertRecipients[index].name === name && this.alertRecipients[index].type === type) {
                 this.alertRecipients.splice(index, 1);
@@ -441,22 +425,11 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
         }
     }
 
-    // NOTE: Updated
     updateRecipient(recipient: Recipient, field: string, updatedValue: string) {
-
-        // if (field === 'name') {
-        //   for (let i = 0; i < this.alertRecipients.length; i++) {
-        //     if (this.alertRecipients[i].name === recipient.name && this.alertRecipients[i].type === recipient.type) {
-        //       this.alertRecipients[i].name = updatedValue;
-        //     }
-        //   }
-        // }
         this.recipientsFormData[this.recipientType][field] = updatedValue;
     }
 
     // Helpers
-
-    // NOTE: UPDATED
     typeToDisplayName(type: RecipientType) {
         if (type === RecipientType.opsgenie) {
             return 'OpsGenie';
@@ -608,5 +581,4 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
             this._clickedCreateMenu--;
         }
     }
-
 }

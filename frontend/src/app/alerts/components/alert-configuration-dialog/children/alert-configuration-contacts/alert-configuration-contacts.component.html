@@ -100,7 +100,7 @@
                                 <div class="form-label vertical-center">API Key</div>
                                 <mat-form-field floatLabel="never" appearance="fill" class="wide-formfield">
                                     <input matInput [formControl]="opsGenieApiKey" placeholder="Enter API Key*" required
-                                        minlength="36" maxlength="36" [value]="recipientsFormData[_recipientType.opsgenie].apiKey"
+                                        minlength="36" maxlength="36" [value]="recipientsFormData[_recipientType.opsgenie].apikey"
                                         (input)="updateRecipient(recipientsFormData[_recipientType.opsgenie], 'apiKey', $event.target.value)">
                                     <mat-error *ngIf="opsGenieApiKey.errors && (opsGenieApiKey.dirty || opsGenieApiKey.touched)">
                                         OpsGenie API Key required. Length is 36 characters.
@@ -184,8 +184,8 @@
                                 <div class="form-label vertical-center">OpsDB Property </div>
                                 <mat-form-field floatLabel="never" appearance="fill">
                                     <input matInput [formControl]="ocProperty" placeholder="Enter OpsDB Property*" required
-                                        [value]="recipientsFormData[_recipientType.oc].opsDBProperty"
-                                        (input)="updateRecipient(recipientsFormData[_recipientType.oc], 'opsDBProperty', $event.target.value)">
+                                        [value]="recipientsFormData[_recipientType.oc].opsdbproperty"
+                                        (input)="updateRecipient(recipientsFormData[_recipientType.oc], 'opsdbproperty', $event.target.value)">
                                     <mat-error *ngIf="ocProperty.errors && (ocProperty.dirty || ocProperty.touched)">
                                         OpsDB Property required.
                                     </mat-error>

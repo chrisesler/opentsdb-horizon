@@ -208,9 +208,16 @@ export class RecipientsState {
         console.log('#### RECIPIENT UPDATE SUCCESS ####', recipient);
         const state = ctx.getState();
         // tslint:disable-next-line:prefer-const
-        const recipients = {...state.recipients};
-        this.modifyRecipient(recipient.data, recipients);
-        ctx.setState({ ...state, recipients, loading: false, loaded: true });
+        let recipients = {...state.recipients};
+        recipients = this.modifyRecipient(recipient.data, recipients);
+
+        const type = Object.keys(recipient.data)[0];
+        if (recipient.data[type][0].newname) {
+            const lastUpdated = this.createLastUpdated(recipient.data, 'update');
+            ctx.setState({ ...state, recipients, loading: false, loaded: true, lastUpdated });
+        } else {
+            ctx.setState({ ...state, recipients, loading: false, loaded: true });
+        }
     }
 
     @Action(UpdateRecipientFail)
@@ -272,30 +279,33 @@ export class RecipientsState {
         return namespaceAndRecipients;
     }
 
-    createLastUpdated(recipient, action: string) {
-        const type = Object.keys(recipient)[0];
-        const _recipient = recipient[type][0];
-        _recipient.type = type;
-        return { recipient: _recipient, action: action };
-    }
-
     modifyRecipient(recipient, namespaceAndRecipients): any {
-        console.log(recipient);
         const type = Object.keys(recipient)[0];
-        console.log(recipient[type][0].name);
-        // todo: update new name
         // tslint:disable-next-line:forin
         for (let i = 0; i < namespaceAndRecipients.recipients[type].length; i++) {
             if (namespaceAndRecipients.recipients[type][i].name === recipient[type][0].name) {
+                if (recipient[type][0].newname) {
+                    namespaceAndRecipients.recipients[type][i].name = recipient[type][0].newname;
+                }
                 // tslint:disable-next-line:forin
                 for (let key in recipient[type][0] ) {
-                    if (recipient[type][0][key].toLowerCase() !== 'namespace' &&
-                        recipient[type][0][key].toLowerCase() !== 'type') {
+                    if (key.toLowerCase() !== 'namespace' &&
+                        key.toLowerCase() !== 'type' &&
+                        key.toLowerCase() !== 'name' &&
+                        key.toLowerCase() !== 'newname') {
                         namespaceAndRecipients.recipients[type][i][key] = recipient[type][0][key];
                     }
                 }
                 break;
             }
         }
+        return namespaceAndRecipients;
+    }
+
+    createLastUpdated(recipient, action: string) {
+        const type = Object.keys(recipient)[0];
+        const _recipient = recipient[type][0];
+        _recipient.type = type;
+        return { recipient: _recipient, action: action };
     }
 }
