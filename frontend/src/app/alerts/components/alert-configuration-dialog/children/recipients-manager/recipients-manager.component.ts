@@ -4,16 +4,17 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Mode, RecipientType, Recipient } from './models';
 import { FormControl, ValidatorFn, AbstractControl } from '@angular/forms';
 import { Store, Select } from '@ngxs/store';
-import { RecipientsState, GetRecipients, PostRecipient, DeleteRecipient, UpdateRecipient } from '../../../../state/recipients.state';
+// tslint:disable-next-line:max-line-length
+import { RecipientsState, GetRecipients, PostRecipient, DeleteRecipient, UpdateRecipient } from '../../../../state/recipients-management.state';
 import { Observable, Subscription } from 'rxjs';
 
 @Component({
     // tslint:disable:no-inferrable-types
     // tslint:disable:prefer-const
     // tslint:disable-next-line:component-selector
-    selector: 'alert-configuration-contacts',
-    templateUrl: './alert-configuration-contacts.component.html',
-    styleUrls: ['./alert-configuration-contacts.component.scss']
+    selector: 'recipients-manager',
+    templateUrl: './recipients-manager.component.html',
+    styleUrls: ['./recipients-manager.component.scss']
 })
 
 export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
