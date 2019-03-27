@@ -3,7 +3,9 @@
 
         <mat-chip *ngFor="let recipient of alertRecipients" [selectable]="true" [removable]="true"
             (removed)="removeRecipientFromAlertRecipients(recipient.name, recipient.type)">
-            {{type === _recipientType.slack ? '#' + recipient.name : recipient.name}}
+            <img src="/assets/{{recipient.type}}-contact.svg" class="chip-image" />
+            <!-- {{recipient.type === _recipientType.slack ? '#' + recipient.name : recipient.name}} -->
+            {{recipient.name}}
             <mat-icon matChipRemove>cancel</mat-icon>
         </mat-chip>
 
