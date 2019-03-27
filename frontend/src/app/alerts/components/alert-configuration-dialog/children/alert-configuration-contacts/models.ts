@@ -6,11 +6,11 @@ export enum Mode {
 }
 
 export enum RecipientType {
-    OpsGenie = 'OpsGenie',
-    Slack = 'Slack',
-    HTTP = 'HTTP',
-    OC = 'OC',
-    Email = 'Email'
+    opsgenie = 'opsgenie',
+    slack = 'slack',
+    http = 'http',
+    oc = 'oc',
+    email = 'email'
 }
 
 export class Recipient {
