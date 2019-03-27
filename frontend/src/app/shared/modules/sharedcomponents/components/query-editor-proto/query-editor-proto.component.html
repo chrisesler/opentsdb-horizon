@@ -52,9 +52,12 @@
                 <dropdown-metric-tags [namespace]="query.namespace" [metric]="metric.name" [selected]="metric.groupByTags" (change)="setMetricGroupByTags(metric.id, $event)"></dropdown-metric-tags>
             </div>
             <div class="add-function" (click)="addFunction()">
-                <button mat-mini-fab color="primary">
+                <button mat-mini-fab color="primary" [matMenuTriggerFor]="fMenu">
                     <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon> 
                 </button> 
+                <mat-menu #fMenu="matMenu">
+                    <div>this is the panel</div>
+                </mat-menu>
             </div>
         </div>
         <!-- ADD METRIC - STARTS -->
@@ -83,7 +86,10 @@
         </div>
         <!-- ADD EXPRESSION - STARTS -->
         <div class="metric-list-item" *ngIf="isAddExpressionProgress && query.metrics.length">
-                <div class="metric-row-data expression">
+                <div class="metric-row-data metric-index">
+                        <span>exp</span>
+                    </div>            
+                <div class="metric-row-data expression">                    
                     <mat-form-field class="expression-input-field" appearance="outline" color="primary" floatLabel="never">
                         <input matInput placeholder="e.g. m1 + m2"  formControlName="-1" (blur)="updateExpression(-1, $event)" (keyup.enter)="updateExpression(-1, $event)" autocomplete="off">
                     </mat-form-field>
