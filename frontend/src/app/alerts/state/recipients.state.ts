@@ -203,8 +203,9 @@ export class RecipientsState {
         console.log('#### RECIPIENT UPDATE SUCCESS ####', recipient);
         const state = ctx.getState();
         // tslint:disable-next-line:prefer-const
-        let recipients = { ...state.recipients };
-        ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true });
+        const recipients = {...state.recipients};
+        this.modifyRecipient(recipient.data, recipients);
+        ctx.setState({ ...state, recipients, loading: false, loaded: true });
     }
 
     @Action(UpdateRecipientFail)
@@ -263,5 +264,23 @@ export class RecipientsState {
         }
         namespaceAndRecipients.recipients[type].splice(index, 1);
         return namespaceAndRecipients;
+    }
+
+    modifyRecipient(recipient, namespaceAndRecipients): any {
+        const type = Object.keys(recipient)[0];
+        // todo: update new name
+        // tslint:disable-next-line:forin
+        for (let i = 0; i < namespaceAndRecipients.recipients[type].length; i++) {
+            if (namespaceAndRecipients.recipients[type][i].name === recipient[type][0].name) {
+                // tslint:disable-next-line:forin
+                for (let key in recipient[type][0] ) {
+                    if (recipient[type][0][key].toLowerCase() !== 'namespace' &&
+                        recipient[type][0][key].toLowerCase() !== 'type') {
+                        namespaceAndRecipients.recipients[type][i][key] = recipient[type][0][key];
+                    }
+                }
+                break;
+            }
+        }
     }
 }

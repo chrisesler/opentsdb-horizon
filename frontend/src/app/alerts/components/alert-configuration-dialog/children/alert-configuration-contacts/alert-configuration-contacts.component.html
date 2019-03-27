@@ -69,7 +69,7 @@
               </span>
 
               <span *ngIf="viewMode === _mode.edit">
-                <div class="contact-button" [ngClass]="{'no-highlight': type === _recipientType.email && recipient.admin}" *ngFor="let recipient of getAllRecipientsForType(type)" mat-button (click)="editRecipientMode($event, recipient.name, recipient.type)">
+                <div class="contact-button" [ngClass]="{'no-highlight': type === _recipientType.email && recipient.admin}" *ngFor="let recipient of getAllRecipientsForType(type)" mat-button (click)="editRecipientMode($event, recipient)">
                   <span *ngIf="type === _recipientType.slack">#</span>{{recipient.name}}
                   <span class="admin-tag" *ngIf="recipient.admin">admin</span>
                   <mat-icon *ngIf="type !== _recipientType.email" fontSet="denali" fontIcon="d-pencil"></mat-icon>
@@ -93,8 +93,8 @@
                   required
                   minlength="2"
                   maxlength="36" 
-                  [value]="recipients[_recipientType.opsgenie].name" 
-                  (input)="updateRecipient(recipients[_recipientType.opsgenie], 'name', $event.target.value)">
+                  [value]="recipientsFormData[_recipientType.opsgenie].name" 
+                  (input)="updateRecipient(recipientsFormData[_recipientType.opsgenie], 'name', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="opsGenieName.errors && (opsGenieName.dirty || opsGenieName.touched)">
                 Unique Team Name required. Min length is 2. Max length is 36.
@@ -110,11 +110,11 @@
                   required
                   minlength="36"
                   maxlength="36" 
-                  [value]="recipients[_recipientType.opsgenie].apikey" 
-                  (input)="updateRecipient(recipients[_recipientType.opsgenie], 'apikey', $event.target.value)">
+                  [value]="recipientsFormData[_recipientType.opsgenie].apikey" 
+                  (input)="updateRecipient(recipientsFormData[_recipientType.opsgenie], 'apikey', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="opsGenieApiKey.errors && (opsGenieApiKey.dirty || opsGenieApiKey.touched)">
-                Unique OpsGenie API Key required. Length is 36 characters. 
+                OpsGenie API Key required. Length is 36 characters. 
               </mat-error>
             </div>
 
@@ -132,8 +132,8 @@
                 required
                 minlength="2"
                 maxlength="36"
-                [value]="recipients[_recipientType.slack].name" 
-                (input)="updateRecipient(recipients[_recipientType.slack], 'name', $event.target.value)">
+                [value]="recipientsFormData[_recipientType.slack].name" 
+                (input)="updateRecipient(recipientsFormData[_recipientType.slack], 'name', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="slackName.errors && (slackName.dirty || slackName.touched)">
                 Unique Channel name required. Min length is 2. Max length is 36.
@@ -150,8 +150,8 @@
                 required
                 minlength="77"
                 maxlength="77"
-                [value]="recipients[_recipientType.slack].webhook" 
-                (input)="updateRecipient(recipients[_recipientType.slack], 'webhook', $event.target.value)">
+                [value]="recipientsFormData[_recipientType.slack].webhook" 
+                (input)="updateRecipient(recipientsFormData[_recipientType.slack], 'webhook', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="slackWebhook.errors && (slackWebhook.dirty || slackWebhook.touched)">
                 Slack Webhook URL required. Length is 77 characters.
@@ -172,8 +172,8 @@
                 required 
                 minlength="2"
                 maxlength="36"
-                [value]="recipients[_recipientType.oc].name" 
-                (input)="updateRecipient(recipients[_recipientType.oc], 'name', $event.target.value)">
+                [value]="recipientsFormData[_recipientType.oc].name" 
+                (input)="updateRecipient(recipientsFormData[_recipientType.oc], 'name', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="ocName.errors && (ocName.dirty || ocName.touched)">
                 Unique OC name required. Min length is 2. Max length is 36.
@@ -187,12 +187,13 @@
                 [formControl]="ocDisplayCount"
                 matInput 
                 placeholder="Enter Display Count*" 
-                required 
-                [value]="recipients[_recipientType.oc].displaycount" 
-                (input)="updateRecipient(recipients[_recipientType.oc], 'displaycount', $event.target.value)">
+                required
+                type="number"
+                [value]="recipientsFormData[_recipientType.oc].displaycount" 
+                (input)="updateRecipient(recipientsFormData[_recipientType.oc], 'displaycount', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="ocDisplayCount.errors && (ocDisplayCount.dirty || ocDisplayCount.touched)">
-                Display Count required.
+                Display Count number required.
               </mat-error>
             </div>
 
@@ -204,8 +205,8 @@
                 [formControl]="ocContext"
                 placeholder="Enter Context*" 
                 required 
-                [value]="recipients[_recipientType.oc].context" 
-                (input)="updateRecipient(recipients[_recipientType.oc], 'context', $event.target.value)">
+                [value]="recipientsFormData[_recipientType.oc].context" 
+                (input)="updateRecipient(recipientsFormData[_recipientType.oc], 'context', $event.target.value)">
               </mat-form-field>
               <mat-error  *ngIf="ocContext.errors && (ocContext.dirty || ocContext.touched)">
                 Context required.
@@ -220,8 +221,8 @@
                 [formControl]="ocProperty"
                 placeholder="Enter OpsDB Property*" 
                 required 
-                [value]="recipients[_recipientType.oc].opsdbproperty" 
-                (input)="updateRecipient(recipients[_recipientType.oc], 'opsdbproperty', $event.target.value)">
+                [value]="recipientsFormData[_recipientType.oc].opsdbproperty" 
+                (input)="updateRecipient(recipientsFormData[_recipientType.oc], 'opsdbproperty', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="ocProperty.errors && (ocProperty.dirty || ocProperty.touched)">
                 OpsDB Property required.
@@ -242,11 +243,11 @@
                 required
                 minlength="2"
                 maxlength="36"
-                [value]="recipients[_recipientType.http].name" 
-                (input)="updateRecipient(recipients[_recipientType.http], 'name', $event.target.value)">
+                [value]="recipientsFormData[_recipientType.http].name" 
+                (input)="updateRecipient(recipientsFormData[_recipientType.http], 'name', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="httpName.errors && (httpName.dirty || httpName.touched)">
-                Http name required. Min length is 2. Max length is 36.
+                Unique Http name required. Min length is 2. Max length is 36.
               </mat-error>
             </div>
 
@@ -259,8 +260,8 @@
                 placeholder="Enter endpoint* (e.g., https://...)" 
                 required
                 maxlength="300"
-                [value]="recipients[_recipientType.http].endpoint" 
-                (input)="updateRecipient(recipients[_recipientType.http], 'endpoint', $event.target.value)">
+                [value]="recipientsFormData[_recipientType.http].endpoint" 
+                (input)="updateRecipient(recipientsFormData[_recipientType.http], 'endpoint', $event.target.value)">
               </mat-form-field>
               <mat-error *ngIf="httpEndpoint.errors && (httpEndpoint.dirty || httpEndpoint.touched)">
                 Http endpoint required. Max length is 300.
