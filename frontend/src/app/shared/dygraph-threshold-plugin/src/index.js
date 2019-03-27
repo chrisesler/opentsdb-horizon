@@ -28,7 +28,6 @@ var Thresholds= function() {
   };
   Thresholds.prototype.didDrawChart = function(e) {
     var g = e.dygraph;
-
     this.thresholds = g.getOption('thresholds');
     this.thresholds = this.thresholds? this.thresholds : [];
 
@@ -49,6 +48,11 @@ var Thresholds= function() {
       ctx.lineTo(a.x + a.w, y);
       ctx.stroke();
       ctx.closePath();
+      
+      // draw value 
+      ctx.textAlign="end";
+      ctx.font = "12px Ubuntu";
+      ctx.fillText(threshold.value, a.x + a.w, y-2);
       ctx.restore();
     }
   };

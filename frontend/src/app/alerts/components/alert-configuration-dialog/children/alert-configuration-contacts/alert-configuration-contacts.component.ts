@@ -1,8 +1,11 @@
-import { Component, OnInit, HostBinding, ElementRef, HostListener, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, HostBinding, ElementRef, HostListener, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Mode, RecipientType, Recipient } from './models';
-import { FormControl } from '@angular/forms';
+import { FormControl, ValidatorFn, AbstractControl } from '@angular/forms';
+import { Store, Select } from '@ngxs/store';
+import { RecipientsState, GetRecipients, PostRecipient, DeleteRecipient, UpdateRecipient } from '../../../../state/recipients.state';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   // tslint:disable:no-inferrable-types
@@ -13,52 +16,70 @@ import { FormControl } from '@angular/forms';
   styleUrls: ['./alert-configuration-contacts.component.scss']
 })
 
-export class AlertConfigurationContactsComponent implements OnInit {
+export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
+
   @HostBinding('class.alert-configuration-contacts-component') private _hostClass = true;
-  constructor(private eRef: ElementRef) { }
+  constructor(private eRef: ElementRef, private store: Store) { }
 
   @Input() namespace: string;
-  @Input() alertRecipients: any; // [{name, type}]
-  @Output() updatedAlertRecipients = new EventEmitter<any>(); // [{name, type}]
+  @Input() alertRecipients: Array<any>; // [{name, type}]
+  @Output() updatedAlertRecipients = new EventEmitter<Array<any>>(); // [{name, type}]
 
   megaPanelVisible: boolean = false;
   viewMode: Mode = Mode.all;
-  recipientType: RecipientType = RecipientType.OpsGenie;
-  recipients: {}; // map<RecipientType, Recipient>;
+  recipientType: RecipientType; // for which form to show
+  recipientsFormData: {}; // map<RecipientType, Recipient>;
   tempRecipient: Recipient; // for canceling
-  namespaceRecipients: any = [
-    {
-      name: 'dev-team',
-      type: RecipientType.OpsGenie,
-      apiKey: 'abcdefghijklmnopqrstuvwzyzzzzzzzzzzz',
-    },
-    {
-      name: 'yamas-devel',
-      type: RecipientType.Slack,
-      webhook: 'http://slackwebhook.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-    },
-    {
-      name: 'yamas-devel@verizonmedia.com',
-      type: RecipientType.Email
-    },
-    {
-      name: 'zb@verizonmedia.com',
-      type: RecipientType.Email,
-      isAdmin: true
-    },
-    {
-      name: 'OC Red',
-      type: RecipientType.OC,
-      displayCount: '1',
-      context: 'live',
-      opsDBProperty: 'yamas',
-    },
-    {
-      name: 'curveball',
-      type: RecipientType.HTTP,
-      endpoint: 'https://myendpoint.com/api/curveball'
-    }
+  originalName = ''; // for canceling
+  namespaceRecipients: any[] = [
+    // {
+    //   name: 'dev-team',
+    //   type: RecipientType.opsgenie,
+    //   apiKey: 'abcdefghijklmnopqrstuvwzyzzzzzzzzzzz',
+    // },
+    // {
+    //   name: 'yamas-devel',
+    //   type: RecipientType.slack,
+    //   webhook: 'http://slackwebhook.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+    // },
+    // {
+    //   name: 'yamas-devel@verizonmedia.com',
+    //   type: RecipientType.email
+    // },
+    // {
+    //   name: 'zb@verizonmedia.com',
+    //   type: RecipientType.email,
+    //   isAdmin: true
+    // },
+    // {
+    //   name: 'OC Red',
+    //   type: RecipientType.oc,
+    //   displayCount: '1',
+    //   context: 'live',
+    //   opsDBProperty: 'yamas',
+    // },
+    // {
+    //   name: 'name',
+    //   type: RecipientType.http,
+    //   endpoint: 'https://myendpoint.com/api/curveball'
+    // },
+    // {
+    //   name: 'nam',
+    //   type: RecipientType.http,
+    //   endpoint: 'https://myendpoint.com/api/curveball'
+    // },
+    // {
+    //   name: 'namme',
+    //   type: RecipientType.http,
+    //   endpoint: 'https://myendpoint.com/api/curveball'
+    // },
+    // {
+    //   name: 'naa',
+    //   type: RecipientType.http,
+    //   endpoint: 'https://myendpoint.com/api/curveball'
+    // }
   ];
+
   _mode = Mode; // for template
   _recipientType = RecipientType; // for template
   _clickedCreateMenu: number = 2; // needed for clicking out of menu (b/c of CDK)
@@ -76,22 +97,39 @@ export class AlertConfigurationContactsComponent implements OnInit {
   httpName = new FormControl('');
   httpEndpoint = new FormControl('');
 
-  anyErrors(): boolean {
-    // todo - check if name is equivalent to any other within type
+  // state control
+  private stateSubs: Subscription;
+  private nsRecipientSub: Subscription;
+  private lastUpdatedRecipientSub: Subscription;
+  @Select(RecipientsState.GetRecipients) _namespaceRecipients$: Observable<any>;
+  @Select(RecipientsState.GetErrors) _recipientErrors$: Observable<any>;
+  @Select(RecipientsState.GetLastUpdated) _recipientLastUpdated$: Observable<any>;
 
-    if (this.recipientType === RecipientType.OpsGenie) {
+  // Listen if we should close panel
+  @HostListener('document:click', ['$event'])
+  clickOutsideComponent(event) {
+    if (!this.eRef.nativeElement.contains(event.target) && !this._clickedCreateMenu) {
+      this.collapseMegaPanel();
+    }
+    if (this._clickedCreateMenu > 0) { // needed to exit out of menu
+      this._clickedCreateMenu--;
+    }
+  }
+
+  anyErrors(): boolean {
+    if (this.recipientType === RecipientType.opsgenie) {
       if (this.opsGenieName.errors || this.opsGenieApiKey.errors) {
         return true;
       }
-    } else if (this.recipientType === RecipientType.Slack ) {
+    } else if (this.recipientType === RecipientType.slack ) {
       if (this.slackName.errors || this.slackWebhook.errors) {
         return true;
       }
-    } else if (this.recipientType === RecipientType.HTTP ) {
+    } else if (this.recipientType === RecipientType.http ) {
       if (this.httpName.errors || this.httpEndpoint.errors) {
         return true;
       }
-    } else if (this.recipientType === RecipientType.OC ) {
+    } else if (this.recipientType === RecipientType.oc ) {
       if (this.ocName.errors || this.ocDisplayCount.errors || this.ocContext.errors || this.ocProperty.errors) {
         return true;
       }
@@ -105,8 +143,37 @@ export class AlertConfigurationContactsComponent implements OnInit {
       this.alertRecipients = [];
     }
     if (!this.namespace) {
-      this.namespace = '';
+      this.namespace = 'Yamas';
+      this.recipientType = RecipientType.opsgenie;
     }
+    this.store.dispatch(new GetRecipients(this.namespace));
+
+    this.nsRecipientSub = this._namespaceRecipients$.subscribe(data => {
+      this.namespaceRecipients = [];
+      // tslint:disable-next-line:forin
+      for (let type in data.recipients) {
+        let recipients = data.recipients[type];
+        for (let _recipient of recipients) {
+          _recipient.type = type.toLowerCase();
+          this.namespaceRecipients.push(_recipient);
+        }
+      }
+      this.updateValidators();
+    });
+
+    this.stateSubs = this._recipientErrors$.subscribe(data => {
+
+    });
+
+    this.lastUpdatedRecipientSub = this._recipientLastUpdated$.subscribe(data => {
+      if (data && data.action) {
+        if (data.action.toLowerCase() === 'delete') {
+          this.removeRecipientFromAlertRecipients(data.recipient.name, data.recipient.type);
+        } else if (data.action.toLowerCase() === 'update') {
+          // todo - change name in alert recipients
+        }
+      }
+    });
   }
 
   showMegaPanel() {
@@ -133,69 +200,61 @@ export class AlertConfigurationContactsComponent implements OnInit {
     if ($event) {
       $event.stopPropagation();
     }
+    if (mode === Mode.all) {
+      this.populateEmptyRecipients();
+    }
 
     if (mode === Mode.createRecipient) {
       this.populateEmptyRecipients();
-      this.recipientType = RecipientType.OpsGenie;
     }
 
     if (mode === Mode.editRecipient) {
-      this.tempRecipient = { ...this.recipients[this.recipientType]};
+      this.tempRecipient = { ...this.recipientsFormData[this.recipientType]};
     }
 
+    this.updateValidators();
     this.viewMode = mode;
   }
 
-  editRecipientMode($event, name: string, type: RecipientType) {
+  editRecipientMode($event, recipient: any) {
     // tslint:disable-next-line:prefer-const
-    let recipient = this.getRecipient(name, type);
+    // let recipient = this.getRecipient(name, type);
     this.recipientType = recipient.type;
-    this.recipients[this.recipientType] = recipient;
+    this.recipientsFormData[this.recipientType] = { ...recipient };
+    this.originalName = recipient.name;
 
-    if (this.recipientType !== RecipientType.Email) {
+    if (this.recipientType !== RecipientType.email) {
       this.setViewMode($event, Mode.editRecipient);
     }
 
     // manually update validators values
-    this.opsGenieName.setValue(this.recipients[RecipientType.OpsGenie].name);
-    this.opsGenieApiKey.setValue(this.recipients[RecipientType.OpsGenie].apiKey);
-    this.slackName.setValue(this.recipients[RecipientType.Slack].name);
-    this.slackWebhook.setValue(this.recipients[RecipientType.Slack].webhook);
-    this.ocName.setValue(this.recipients[RecipientType.OC].name);
-    this.ocDisplayCount.setValue(this.recipients[RecipientType.OC].displayCount);
-    this.ocContext.setValue(this.recipients[RecipientType.OC].context);
-    this.ocProperty.setValue(this.recipients[RecipientType.OC].opsDBProperty);
-    this.httpName.setValue(this.recipients[RecipientType.HTTP].name);
-    this.httpEndpoint.setValue(this.recipients[RecipientType.HTTP].endpoint);
+    this.opsGenieName.setValue(this.recipientsFormData[RecipientType.opsgenie].name);
+    this.opsGenieApiKey.setValue(this.recipientsFormData[RecipientType.opsgenie].apikey);
+    this.slackName.setValue(this.recipientsFormData[RecipientType.slack].name);
+    this.slackWebhook.setValue(this.recipientsFormData[RecipientType.slack].webhook);
+    this.ocName.setValue(this.recipientsFormData[RecipientType.oc].name);
+    this.ocDisplayCount.setValue(this.recipientsFormData[RecipientType.oc].displaycount);
+    this.ocContext.setValue(this.recipientsFormData[RecipientType.oc].context);
+    this.ocProperty.setValue(this.recipientsFormData[RecipientType.oc].opsdbproperty);
+    this.httpName.setValue(this.recipientsFormData[RecipientType.http].name);
+    this.httpEndpoint.setValue(this.recipientsFormData[RecipientType.http].endpoint);
   }
 
   emitAlertRecipients() {
     this.updatedAlertRecipients.emit(this.alertRecipients);
   }
 
-  addToNamespaceRecipients(recipient: Recipient) {
-    this.namespaceRecipients.push(recipient);
-  }
-
   addRecipientFromName(recipientName: string) {
-    let isNamespaceRecipient: boolean = false;
+    let recipient = this.getRecipientIfUniqueName(recipientName);
 
-    for (let recipient of this.namespaceRecipients) {
-      if (isNamespaceRecipient && recipient.name === recipientName) {
-        // TODO: two contacts same name, manually select
-      }
-      if (recipient.name === recipientName) {
-        this.addRecipientToAlertRecipients(null, recipient.name, recipient.type);
-        isNamespaceRecipient = true;
-      }
-    }
-
-    if (!isNamespaceRecipient) {
+    if (recipient) {
+      this.addRecipientToAlertRecipients(null, recipient.name, recipient.type);
+    } else {
       if (this.isEmailValid(recipientName)) {
-        let recipient = this.createEmailRecipient(recipientName);
-        this.addRecipientToAlertRecipients(null, recipient.name, recipient.type);
-      } else {
-      // TODO: error - invalid email or no matching contacts
+        this.recipientType = RecipientType.email;
+        this.recipientsFormData[this.recipientType].name = recipientName;
+        this.saveCreatedRecipient(null);
+        this.addRecipientToAlertRecipients(null, this.recipientsFormData[this.recipientType].name, this.recipientType);
       }
     }
   }
@@ -232,21 +291,17 @@ export class AlertConfigurationContactsComponent implements OnInit {
     }
   }
 
-  removeRecipientFromAlertRecipients(name: string, type: RecipientType) {
-    for (let i = 0; i < this.alertRecipients.length; i++) {
-      if (this.alertRecipients[i].name === name && this.alertRecipients[i].type === type) {
-        this.alertRecipients.splice(i, 1);
-        this.emitAlertRecipients();
-      }
-    }
-  }
 
   removeRecipient(name: string, type: RecipientType) {
-    this.removeRecipientFromAlertRecipients(name, type);
-    for (let i = 0; i < this.namespaceRecipients.length; i++) {
-      if (this.namespaceRecipients[i].name === name && this.namespaceRecipients[i].type === type) {
-        this.namespaceRecipients.splice(i, 1);
-        // todo: send server delete command
+    this.store.dispatch(new DeleteRecipient({namespace: this.namespace, name: name, type: type}));
+  }
+
+  removeRecipientFromAlertRecipients(name: string, type) {
+    for (let index = 0; index < this.alertRecipients.length; index++) {
+      if (this.alertRecipients[index].name === name && this.alertRecipients[index].type === type) {
+        this.alertRecipients.splice(index, 1);
+        this.emitAlertRecipients();
+        break;
       }
     }
   }
@@ -263,25 +318,48 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   // User Actions
   updateRecipient(recipient: Recipient, field: string, updatedValue: string ) {
+    // if (field === 'name') {
+    //   for (let i = 0; i < this.alertRecipients.length; i++) {
+    //     if (this.alertRecipients[i].name === recipient.name && this.alertRecipients[i].type === recipient.type) {
+    //       this.alertRecipients[i].name = updatedValue;
+    //     }
+    //   }
+    // }
+    this.recipientsFormData[this.recipientType][field] = updatedValue;
+  }
 
-    if (field === 'name') {
-      for (let i = 0; i < this.alertRecipients.length; i++) {
-        if (this.alertRecipients[i].name === recipient.name && this.alertRecipients[i].type === recipient.type) {
-          this.alertRecipients[i].name = updatedValue;
-        }
+  cancelEdit($event: Event) {
+    for (let i = 0; i < this.alertRecipients.length; i++) {
+      if (this.alertRecipients[i].name === this.recipientsFormData[this.recipientType].name &&
+          this.alertRecipients[i].type === this.recipientsFormData[this.recipientType].type) {
+        this.alertRecipients[i] = {name: this.tempRecipient.name, type: this.tempRecipient.type} ;
+        break;
       }
     }
-    recipient[field] = updatedValue;
+    console.log(this.namespaceRecipients, this.recipientsFormData, this.tempRecipient);
+    this.updateValidators();
+    this.setViewMode($event, Mode.all);
   }
 
   saveCreatedRecipient($event) {
-    // todo: send to server
-    this.addToNamespaceRecipients(this.recipients[this.recipientType]);
+    let newRecipient = {... this.recipientsFormData[this.recipientType]};
+    newRecipient.namespace = this.namespace;
+    this.store.dispatch(new PostRecipient(newRecipient));
     this.setViewMode($event, Mode.all);
   }
 
   saveEditedRecipient($event) {
-    // todo: send recipient to server
+    // check if name has changed
+    let updatedRecipient: any = {};
+    updatedRecipient = {... this.recipientsFormData[this.recipientType]};
+    updatedRecipient.namespace = this.namespace;
+    if (this.recipientsFormData[this.recipientType].name !== this.originalName) {
+      updatedRecipient.name = this.originalName;
+      updatedRecipient.newName = this.recipientsFormData[this.recipientType].name;
+      // this.newName = this.recipientsFormData[this.recipientType].name;
+    }
+
+    this.store.dispatch(new UpdateRecipient(updatedRecipient));
     this.setViewMode($event, Mode.all);
     this.emitAlertRecipients();
   }
@@ -291,56 +369,50 @@ export class AlertConfigurationContactsComponent implements OnInit {
   }
 
   deleteRecipient($event: Event, recipient: Recipient)  {
-    // TODO: delete contact
     this.removeRecipient(recipient.name, recipient.type);
     this.setViewMode($event, Mode.edit);
   }
 
-  cancelEdit($event: Event) {
-    // reset to old contact
-    for (let i = 0; i < this.namespaceRecipients.length; i++) {
-      if (this.namespaceRecipients[i].name === this.recipients[this.recipientType].name &&
-          this.namespaceRecipients[i].type === this.recipients[this.recipientType].type) {
-        this.namespaceRecipients[i] = this.tempRecipient;
-        break;
-      }
-    }
-
-    for (let i = 0; i < this.alertRecipients.length; i++) {
-      if (this.alertRecipients[i].name === this.recipients[this.recipientType].name &&
-          this.alertRecipients[i].type === this.recipients[this.recipientType].type) {
-        this.alertRecipients[i] = {name: this.tempRecipient.name, type: this.tempRecipient.type} ;
-        break;
-      }
-    }
-    this.setViewMode($event, Mode.all);
-  }
-
   // Helpers
+
+  typeToDisplayName(type: RecipientType)  {
+    if (type === RecipientType.opsgenie) {
+      return 'OpsGenie';
+    } else if (type === RecipientType.slack) {
+      return 'Slack';
+    } else if (type === RecipientType.http) {
+      return 'HTTP';
+    } else if (type === RecipientType.oc) {
+      return 'OC';
+    } else if (type === RecipientType.email) {
+      return 'Email';
+    }
+    return '';
+  }
 
   populateEmptyRecipients() {
     let emptyRecipients = {};
-    let emptyOpsGenieRecipient = this.createDefaultRecipient(RecipientType.OpsGenie);
-    let emptySlackRecipient = this.createDefaultRecipient(RecipientType.Slack);
-    let emptyHTTPRecipient = this.createDefaultRecipient(RecipientType.HTTP);
-    let emptyOCRecipient = this.createDefaultRecipient(RecipientType.OC);
+    let emptyOpsGenieRecipient = this.createDefaultRecipient(RecipientType.opsgenie);
+    let emptySlackRecipient = this.createDefaultRecipient(RecipientType.slack);
+    let emptyHTTPRecipient = this.createDefaultRecipient(RecipientType.http);
+    let emptyOCRecipient = this.createDefaultRecipient(RecipientType.oc);
+    let emptyEmailRecipient = this.createDefaultRecipient(RecipientType.email);
 
     // Set Defaults
-    emptyOpsGenieRecipient.priority = 'P5';
-    emptyOpsGenieRecipient.apiKey = '';
-    emptyOpsGenieRecipient.tags = '';
+    emptyOpsGenieRecipient.apikey = '';
     emptySlackRecipient.webhook = '';
     emptyHTTPRecipient.endpoint = '';
-    emptyOCRecipient.displayCount = '';
+    emptyOCRecipient.displaycount = '';
     emptyOCRecipient.context = '';
-    emptyOCRecipient.opsDBProperty = '';
-    emptyOCRecipient.severity = '1';
+    emptyOCRecipient.opsdbproperty = '';
+    emptyEmailRecipient.name = '';
 
-    emptyRecipients[RecipientType.OpsGenie] = emptyOpsGenieRecipient;
-    emptyRecipients[RecipientType.Slack] = emptySlackRecipient;
-    emptyRecipients[RecipientType.HTTP] = emptyHTTPRecipient;
-    emptyRecipients[RecipientType.OC] = emptyOCRecipient;
-    this.recipients = emptyRecipients;
+    emptyRecipients[RecipientType.opsgenie] = emptyOpsGenieRecipient;
+    emptyRecipients[RecipientType.slack] = emptySlackRecipient;
+    emptyRecipients[RecipientType.http] = emptyHTTPRecipient;
+    emptyRecipients[RecipientType.oc] = emptyOCRecipient;
+    emptyRecipients[RecipientType.email] = emptyEmailRecipient;
+    this.recipientsFormData = emptyRecipients;
   }
 
   createDefaultRecipient(type: RecipientType ): Recipient {
@@ -352,15 +424,6 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return newRecipient;
   }
 
-  createEmailRecipient(email: string): any {
-    let recipient: any = {};
-    recipient.name = email;
-    recipient.type = RecipientType.Email;
-
-    this.addToNamespaceRecipients(recipient);
-    return recipient;
-  }
-
   types(): Array<string> {
     const types = Object.keys(RecipientType);
     return types;
@@ -368,7 +431,7 @@ export class AlertConfigurationContactsComponent implements OnInit {
 
   typesExceptEmail(): Array<string> {
     let types = Object.keys(RecipientType);
-    types = types.filter(e => e !== RecipientType.Email);
+    types = types.filter(e => e !== RecipientType.email);
     return types;
   }
 
@@ -399,15 +462,51 @@ export class AlertConfigurationContactsComponent implements OnInit {
     return recipients;
   }
 
-  // Listen if we should close panel
-  @HostListener('document:click', ['$event'])
-  clickOutsideComponent(event) {
-    if (!this.eRef.nativeElement.contains(event.target) && !this._clickedCreateMenu) {
-      this.collapseMegaPanel();
+  getRecipientIfUniqueName(recipientName: string) {
+    let _recipient;
+    let count = 0;
+
+    for (let recipient of this.namespaceRecipients) {
+      if (recipient.name === recipientName) {
+        _recipient = recipient;
+        count++;
+      }
     }
-    if (this._clickedCreateMenu > 0) { // needed to exit out of menu
-      this._clickedCreateMenu--;
+    if (count === 1) {
+      return _recipient;
+    } else {
+      return null;
     }
+  }
+
+  forbiddenNameValidator(recipients: Array<Recipient>, currentRecipient): ValidatorFn {
+    return (control: AbstractControl): {[key: string]: any} | null => {
+      let forbidden = false;
+      // tslint:disable-next-line:prefer-const
+      for (let recipient of recipients) {
+        if (control.value.toLowerCase() === recipient.name.toLowerCase() && recipient.name !== currentRecipient.name) {
+          forbidden = true;
+        }
+      }
+      if (control.value.toLowerCase().trim().length < 2) {
+        forbidden = true;
+      }
+      return forbidden ? {'forbiddenName': {value: control.value}} : null;
+    };
+  }
+
+  updateValidators() {
+    // tslint:disable:max-line-length
+    this.opsGenieName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.opsgenie), this.recipientsFormData[this.recipientType])]);
+    this.slackName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.slack), this.recipientsFormData[this.recipientType])]);
+    this.ocName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.oc), this.recipientsFormData[this.recipientType])]);
+    this.httpName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.http), this.recipientsFormData[this.recipientType])]);
+  }
+
+  ngOnDestroy(): void {
+    this.nsRecipientSub.unsubscribe();
+    this.stateSubs.unsubscribe();
+    this.lastUpdatedRecipientSub.unsubscribe();
   }
 
 }
