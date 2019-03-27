@@ -406,7 +406,7 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         if ( this.selectedTagIndex === -1  && operation === 'add' ) {
             this.selectedTagIndex = this.query.filters.length;
             const filter: any = { tagk: this.selectedTag,  filter: []};
-            filter.groupBy = this.type === 'LinechartWidgetComponent' ? true : true;
+            filter.groupBy = false; // this.type === 'LinechartWidgetComponent' ? true : true;
             this.query.filters[this.selectedTagIndex] = filter;
         }
 
