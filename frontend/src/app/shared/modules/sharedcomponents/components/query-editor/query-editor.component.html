@@ -220,9 +220,9 @@
                             <div class="tag-values-search-input">
                                 <mat-form-field appearance="outline" [color]="'primary'" floatLabel="never">
                                     <input #tagValueSearchInput [formControl]="tagValueSearchControl" matInput
-                                        placeholder="" (keydown.enter)="addTagValueRegexp(); addTagValueLibrange();">
-                                    <mat-icon matSuffix *ngIf="tagValueTypeControl.value==='regexp'" (click)="addTagValueRegexp()">add_circle_outline</mat-icon>
-                                    <mat-icon matSuffix *ngIf="tagValueTypeControl.value==='librange'" (click)="addTagValueLibrange()">add_circle_outline</mat-icon>
+                                        placeholder="" (keydown.enter)="addTagValueFilter">
+                                    <mat-icon matSuffix *ngIf="tagValueTypeControl.value==='regexp'" (click)="addTagValueFilter()">add_circle_outline</mat-icon>
+                                    <mat-icon matSuffix *ngIf="tagValueTypeControl.value==='librange'" (click)="addTagValueFilter()">add_circle_outline</mat-icon>
                                 </mat-form-field>
                             </div>
                         </div>
