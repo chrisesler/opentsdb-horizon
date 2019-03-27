@@ -97,6 +97,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         height: 180
     };
 
+    thresholds: any = { };
     // tslint:disable-next-line:no-inferrable-types
     showThresholdAdvanced: boolean = false; // toggle in threshold form
 
@@ -156,6 +157,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         // TODO: uncomment
         // this.subs.alertName.unscubscribe();
         // this.subs.alertFormName.unsubscribe();
+        this.subs.badStateSub.unscubscribe();
+        this.subs.warningStateSub.unscubscribe();
+        this.subs.recoveryStateSub.unscubscribe();
+        this.subs.recoveryNotificationSub.unscubscribe();
     }
 
     ngAfterContentInit() {
@@ -166,14 +171,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             width: this.graphOutput.nativeElement.clientWidth,
             height: this.graphOutput.nativeElement.clientHeight
         };
-        // this.newSize$ = new BehaviorSubject(initSize);
-
-        /*
-        this.newSizeSub = this.newSize$.subscribe(size => {
-            this.setSize(size);
-            this.newSize = size;
-        });
-        */
         
         const resizeSensor = new ResizeSensor(this.graphOutput.nativeElement, () =>{
              const newSize = {
@@ -181,7 +178,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 height: this.graphOutput.nativeElement.clientHeight
             };
             this.size = newSize;
-            // this.newSize$.next(newSize);
         });
     }
 
@@ -193,7 +189,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             }),
             threshold: this.fb.group({
                 type: 'simple',
-                query: '',
+                query: ['', Validators.required],
                 badStateValue: '',
                 warningStateValue: '',
                 recoveryNotification: 'minimum', // minimum or specific
@@ -201,11 +197,11 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 nagInterval: 'disabled',
                 missingData: 'doNotNotify',
                 slidingWindow: this.fb.group({
-                    direction: 'above',
-                    interval: 1,
+                    direction: 'below',
+                    interval: '1',
                     windowSize: '5 min'
                 })
-            }),
+            }, this.validateThresholds),
             notification: this.fb.group({
                 notifyWhen: new FormControl([]),
                 recipients: this.fb.array([]),
@@ -214,12 +210,77 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 labels: this.fb.array([]),
                 runbookId: ''
             })
-        });
+        }, );
+
 
         this.subs.alertFormSub = <Subscription>this.alertForm.valueChanges.subscribe(val => {
             console.log('FORM CHANGE', val);
         });
 
+        this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['badStateValue'].valueChanges.subscribe(val => {
+            this.setThresholds('bad', val);
+        });
+        this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['warningStateValue'].valueChanges.subscribe(val => {
+            this.setThresholds('warning', val);
+        });
+        this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['recoveryStateValue'].valueChanges.subscribe(val => {
+            this.setThresholds('recovery', val);
+        });
+        this.subs.recoveryNotificationSub = <Subscription>this.alertForm.controls['threshold']['controls']['recoveryNotification'].valueChanges.subscribe(val => {
+            this.setThresholds('recovery', val === 'specific' ? this.alertForm.controls['threshold']['controls']['recoveryStateValue'].value : '');
+        });
+    }
+
+    validateThresholds(group) {
+        const badStateCntrl = this.alertForm.controls['threshold']['controls']['badStateValue'];
+        const warningStateCntrl = this.alertForm.controls['threshold']['controls']['warningStateValue'];
+        const recoveryStateCntrl = this.alertForm.controls['threshold']['controls']['recoveryStateValue'];
+
+        const recoveryMode = this.alertForm.controls['threshold']['controls']['recoveryNotification'].value;
+        const bad = badStateCntrl.value ? badStateCntrl.value : '';
+        const warning = warningStateCntrl.value ? warningStateCntrl.value : '';
+        const recovery = recoveryStateCntrl.value ? recoveryStateCntrl.value : '';
+
+        if ( this.alertForm.touched && bad === '' && warning === '') {
+            this.alertForm['controls'].threshold.setErrors({ 'required': true });
+        }
+
+        if ( this.alertForm.touched && recoveryMode === 'specific' && recovery === '') {
+            this.alertForm.controls['threshold']['controls']['recoveryStateValue'].setErrors({ 'required': true });
+        }
+    }
+    setThresholds(type, value) {
+        let color;
+        switch ( type ) {
+            case 'bad':
+                color = '#e21717';
+                break;
+            case 'warning':
+                color = '#f0b200';
+                break;
+            case 'recovery':
+                color = '#87d812';
+                break;
+        }
+        const config = {
+            value: value,
+            scaleId: 'y',
+            borderColor: color,
+            borderWidth: 2,
+            borderDash: [4, 4]
+        };
+
+        if ( value === '' ) {
+            delete(this.thresholds[type]);
+        } else {
+            this.thresholds[type] = config;
+        }
+        this.setThresholdLines();
+    }
+
+    setThresholdLines() {
+        this.options.thresholds = Object.values(this.thresholds);
+        this.options = {...this.options};
     }
 
     get thresholdControls() {
@@ -343,6 +404,12 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.errorDialog = this.dialog.open(ErrorDialogComponent, dialogConf);
         this.errorDialog.afterClosed().subscribe((dialog_out: any) => {
         });
+    }
+
+    saveAlert() {
+        this.alertForm.markAsTouched();
+        this.validateThresholds(this.alertForm['controls'].threshold);
+        console.log(this.alertForm.valid, "alert form")
     }
 
     /** Events */
