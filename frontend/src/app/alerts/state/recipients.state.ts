@@ -12,8 +12,8 @@ export interface RecipientsStateModel {
     loading: boolean;
     error: any;
     recipients: RecipientsModel;
+    lastUpdated: any;
 }
-
 
 /* GET *********************/
 export class GetRecipients {
@@ -115,7 +115,8 @@ export class DeleteRecipientFail {
         },
         error: {},
         loaded: false,
-        loading: false
+        loading: false,
+        lastUpdated: {}
     }
 })
 
@@ -128,6 +129,10 @@ export class RecipientsState {
 
     @Selector() static GetErrors(state: RecipientsStateModel) {
         return state.error;
+    }
+
+    @Selector() static GetLastUpdated(state: RecipientsStateModel) {
+        return state.lastUpdated;
     }
 
     // GET
@@ -231,8 +236,9 @@ export class RecipientsState {
         console.log('#### RECIPIENT DELETE SUCCESS ####', recipient);
         const state = ctx.getState();
         let recipients = { ...state.recipients };
+        const lastUpdated = this.createLastUpdated(recipient.data, 'delete');
         recipients = this.removeRecipientFromRecipients(recipient.data, recipients);
-        ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true });
+        ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true, lastUpdated });
     }
 
     @Action(DeleteRecipientFail)
@@ -266,8 +272,17 @@ export class RecipientsState {
         return namespaceAndRecipients;
     }
 
-    modifyRecipient(recipient, namespaceAndRecipients): any {
+    createLastUpdated(recipient, action: string) {
         const type = Object.keys(recipient)[0];
+        const _recipient = recipient[type][0];
+        _recipient.type = type;
+        return { recipient: _recipient, action: action };
+    }
+
+    modifyRecipient(recipient, namespaceAndRecipients): any {
+        console.log(recipient);
+        const type = Object.keys(recipient)[0];
+        console.log(recipient[type][0].name);
         // todo: update new name
         // tslint:disable-next-line:forin
         for (let i = 0; i < namespaceAndRecipients.recipients[type].length; i++) {

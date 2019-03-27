@@ -27,11 +27,10 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
 
   megaPanelVisible: boolean = false;
   viewMode: Mode = Mode.all;
-  recipientType: RecipientType;
+  recipientType: RecipientType; // for which form to show
   recipientsFormData: {}; // map<RecipientType, Recipient>;
-  tempRecipient: Recipient; // for canceling or errors
-  originalName = ''; // for canceling or errors
-  newName = ''; // for canceling or errors
+  tempRecipient: Recipient; // for canceling
+  originalName = ''; // for canceling
   namespaceRecipients: any[] = [
     // {
     //   name: 'dev-team',
@@ -101,8 +100,10 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
   // state control
   private stateSubs: Subscription;
   private nsRecipientSub: Subscription;
+  private lastUpdatedRecipientSub: Subscription;
   @Select(RecipientsState.GetRecipients) _namespaceRecipients$: Observable<any>;
   @Select(RecipientsState.GetErrors) _recipientErrors$: Observable<any>;
+  @Select(RecipientsState.GetLastUpdated) _recipientLastUpdated$: Observable<any>;
 
   // Listen if we should close panel
   @HostListener('document:click', ['$event'])
@@ -162,12 +163,14 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
 
     this.stateSubs = this._recipientErrors$.subscribe(data => {
 
-      // if there is an error, try to reset alerts
-      for (let recipient of this.alertRecipients) {
-        // tslint:disable-next-line:max-line-length
-        if (this.tempRecipient && this.tempRecipient.type && recipient.name === this.newName && recipient.type === this.tempRecipient.type) {
-          recipient.name = this.originalName;
-          // this.emitAlertRecipients();
+    });
+
+    this.lastUpdatedRecipientSub = this._recipientLastUpdated$.subscribe(data => {
+      if (data && data.action) {
+        if (data.action.toLowerCase() === 'delete') {
+          this.removeRecipientFromAlertRecipients(data.recipient.name, data.recipient.type);
+        } else if (data.action.toLowerCase() === 'update') {
+          // todo - change name in alert recipients
         }
       }
     });
@@ -293,6 +296,16 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
     this.store.dispatch(new DeleteRecipient({namespace: this.namespace, name: name, type: type}));
   }
 
+  removeRecipientFromAlertRecipients(name: string, type) {
+    for (let index = 0; index < this.alertRecipients.length; index++) {
+      if (this.alertRecipients[index].name === name && this.alertRecipients[index].type === type) {
+        this.alertRecipients.splice(index, 1);
+        this.emitAlertRecipients();
+        break;
+      }
+    }
+  }
+
   addRecipientToAlertRecipients($event: Event, name: string, type: RecipientType) {
     if ($event) {
       $event.stopPropagation();
@@ -305,14 +318,13 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
 
   // User Actions
   updateRecipient(recipient: Recipient, field: string, updatedValue: string ) {
-
-    if (field === 'name') {
-      for (let i = 0; i < this.alertRecipients.length; i++) {
-        if (this.alertRecipients[i].name === recipient.name && this.alertRecipients[i].type === recipient.type) {
-          this.alertRecipients[i].name = updatedValue;
-        }
-      }
-    }
+    // if (field === 'name') {
+    //   for (let i = 0; i < this.alertRecipients.length; i++) {
+    //     if (this.alertRecipients[i].name === recipient.name && this.alertRecipients[i].type === recipient.type) {
+    //       this.alertRecipients[i].name = updatedValue;
+    //     }
+    //   }
+    // }
     this.recipientsFormData[this.recipientType][field] = updatedValue;
   }
 
@@ -344,7 +356,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
     if (this.recipientsFormData[this.recipientType].name !== this.originalName) {
       updatedRecipient.name = this.originalName;
       updatedRecipient.newName = this.recipientsFormData[this.recipientType].name;
-      this.newName = this.recipientsFormData[this.recipientType].name;
+      // this.newName = this.recipientsFormData[this.recipientType].name;
     }
 
     this.store.dispatch(new UpdateRecipient(updatedRecipient));
@@ -494,6 +506,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.nsRecipientSub.unsubscribe();
     this.stateSubs.unsubscribe();
+    this.lastUpdatedRecipientSub.unsubscribe();
   }
 
 }
