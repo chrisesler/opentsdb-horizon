@@ -214,13 +214,15 @@
                                 <mat-button-toggle-group [formControl]="tagValueTypeControl" aria-label="Font Style">
                                     <mat-button-toggle value="literalor" (click)="loadTagValues()">Literal</mat-button-toggle>
                                     <mat-button-toggle value="regexp">Regexp</mat-button-toggle>
+                                    <mat-button-toggle value="librange">Librange</mat-button-toggle>
                                 </mat-button-toggle-group>
                             </div>
                             <div class="tag-values-search-input">
                                 <mat-form-field appearance="outline" [color]="'primary'" floatLabel="never">
                                     <input #tagValueSearchInput [formControl]="tagValueSearchControl" matInput
-                                        placeholder="" (keydown.enter)="addTagValueRegexp()">
+                                        placeholder="" (keydown.enter)="addTagValueRegexp(); addTagValueLibrange();">
                                     <mat-icon matSuffix *ngIf="tagValueTypeControl.value==='regexp'" (click)="addTagValueRegexp()">add_circle_outline</mat-icon>
+                                    <mat-icon matSuffix *ngIf="tagValueTypeControl.value==='librange'" (click)="addTagValueLibrange()">add_circle_outline</mat-icon>
                                 </mat-form-field>
                             </div>
                         </div>
