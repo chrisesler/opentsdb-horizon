@@ -1,4 +1,6 @@
 <mat-card class="alert-configuration-wrapper mat-elevation-z0">
+        <form [formGroup]="alertForm" (ngSubmit)="saveAlert()">
+
     <mat-card-header>
         <mat-toolbar color="primary">
             <span>
@@ -41,7 +43,7 @@
                     <span class="alert-name">{{data.alertName}}</span>
                 </div>
             </mat-toolbar>
-            <div class="alert-control-steps" [formGroup]="alertForm">
+            <div class="alert-control-steps">
                 <div class="step-section queries-section" formGroupName="queries">
                     <div class="step-section-label">
                         <span class="step-section-label-text">1. Queries</span>
@@ -85,20 +87,23 @@
                             <div class="threshold-type-options">
                                 <mat-radio-group formControlName="type">
                                     <mat-radio-button value="simple">Simple</mat-radio-button>
-                                    <mat-radio-button value="composite">Composite</mat-radio-button>
-                                    <mat-radio-button value="pop">Period / Period</mat-radio-button>
+                                    <mat-radio-button value="composite" disabled>Composite</mat-radio-button>
+                                    <mat-radio-button value="pop" disabled>Period / Period</mat-radio-button>
                                 </mat-radio-group>
                                 <mat-hint>This is a definition of {{thresholdType}} thresholds. Lorem ipsum dolor sit amet, consectetur adipiscing elit sedio.</mat-hint>
                             </div>                                
                         </div>
                         <!-- select query -->
                         <div class="form-group select-query">
-                            <div class="form-label vertical-center"><strong>Select Query</strong></div>
+                            <div class="form-label vertical-center"><strong>Select Metric</strong></div>
                             <mat-form-field appearance="fill">
-                                <mat-label></mat-label>
-                                <mat-select placeholder="Select" formControlName="query" disableOptionCentering>
-                                    <mat-option value="option">Option</mat-option>
+                                <mat-select placeholder="Select Metric" formControlName="query" disableOptionCentering>
+                                    <mat-option>None</mat-option>
+                                    <mat-optgroup label="Q1">
+                                        <mat-option *ngFor="let metric of query.metrics" [value]="metric.id">{{ metric.name || metric.expression }}</mat-option>
+                                    </mat-optgroup>
                                 </mat-select>
+                                <mat-error *ngIf="alertForm.touched && thresholdControls.query.errors && thresholdControls.query.errors.required">Please select a metric</mat-error>
                             </mat-form-field>
                         </div>
                         <div class="form-group sliding-window" formGroupName="slidingWindow">
@@ -112,7 +117,6 @@
                                     <mat-form-field appearance="fill">
                                         <mat-label></mat-label>
                                         <mat-select placeholder="Select" formControlName="direction" disableOptionCentering>
-                                            <mat-option>-- Select Option --</mat-option>
                                             <mat-option value="above">above</mat-option>
                                             <mat-option value="below">below</mat-option>
                                         </mat-select>
@@ -125,10 +129,9 @@
                                     <mat-form-field appearance="fill">
                                         <mat-label></mat-label>
                                         <mat-select placeholder="Select" formControlName="interval" disableOptionCentering>
-                                            <mat-option>-- Select Option --</mat-option>
-                                            <mat-option value="1">at least once</mat-option>
-                                            <mat-option value="2">at least twice</mat-option>
-                                            <mat-option value="3">at least 3 times</mat-option>
+                                            <mat-option value=1>at least once</mat-option>
+                                            <mat-option value=2>at least twice</mat-option>
+                                            <mat-option value=3>at least 3 times</mat-option>
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
@@ -138,7 +141,6 @@
                                 <div class="sentence-item">
                                     <mat-form-field appearance="fill" floatLabel="never">
                                         <mat-select placeholder="Select" formControlName="windowSize" disableOptionCentering>
-                                            <mat-option>-- Select Option --</mat-option>
                                             <mat-option value="1 min">1 min</mat-option>
                                             <mat-option value="5 min">5 min</mat-option>
                                             <mat-option value="10 min">10 min</mat-option>
@@ -158,6 +160,7 @@
                             <mat-form-field appearance="fill" floatLabel="never">
                                 <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="badStateValue">
                             </mat-form-field>
+                            <mat-error *ngIf="alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required">Bad or Warning should not be empty</mat-error>
                         </div>
                         <div class="form-group warning-threshold-setting">
                             <div class="form-label"><span class="indicator-square is-warning"></span> <strong>Warning state</strong> when metric is {{alertStateDirection}} or equal to</div>
@@ -189,6 +192,7 @@
                                     <mat-form-field appearance="fill" floatLabel="never" style="margin-left: 16px;">
                                         <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="recoveryStateValue">
                                     </mat-form-field>
+                                    <mat-error *ngIf="thresholdControls.recoveryStateValue.errors && thresholdControls.recoveryStateValue.errors.required">Recovery should not be empty</mat-error>
                                 </div>
                             </div>
                         </div>
@@ -313,4 +317,5 @@
         <button mat-flat-button color="primary">Save Alert</button>
         <button mat-stroked-button mat-dialog-close color="primary">Cancel</button>
     </mat-card-actions>
+</form>
 </mat-card>
