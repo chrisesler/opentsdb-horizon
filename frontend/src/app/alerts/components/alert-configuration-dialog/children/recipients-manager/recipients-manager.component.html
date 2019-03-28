@@ -164,8 +164,8 @@
                                 <div class="form-label vertical-center">Display Count </div>
                                 <mat-form-field floatLabel="never" appearance="fill">
                                     <input [formControl]="ocDisplayCount" matInput placeholder="Enter Display Count*" required
-                                        [value]="recipientsFormData[_recipientType.oc].displayCount"
-                                        (input)="updateRecipient(recipientsFormData[_recipientType.oc], 'displayCount', $event.target.value)" type="number">
+                                        [value]="recipientsFormData[_recipientType.oc].displaycount"
+                                        (input)="updateRecipient(recipientsFormData[_recipientType.oc], 'displaycount', $event.target.value)" type="number">
                                     <mat-error *ngIf="ocDisplayCount.errors && (ocDisplayCount.dirty || ocDisplayCount.touched)">
                                         Display Count number required.
                                     </mat-error>

@@ -288,9 +288,9 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         this.slackName.setValue(this.recipientsFormData[RecipientType.slack].name);
         this.slackWebhook.setValue(this.recipientsFormData[RecipientType.slack].webhook);
         this.ocName.setValue(this.recipientsFormData[RecipientType.oc].name);
-        this.ocDisplayCount.setValue(this.recipientsFormData[RecipientType.oc].displayCount);
+        this.ocDisplayCount.setValue(this.recipientsFormData[RecipientType.oc].displaycount);
         this.ocContext.setValue(this.recipientsFormData[RecipientType.oc].context);
-        this.ocProperty.setValue(this.recipientsFormData[RecipientType.oc].opsDBProperty);
+        this.ocProperty.setValue(this.recipientsFormData[RecipientType.oc].opsdbproperty);
         this.httpName.setValue(this.recipientsFormData[RecipientType.http].name);
         this.httpEndpoint.setValue(this.recipientsFormData[RecipientType.http].endpoint);
     }
