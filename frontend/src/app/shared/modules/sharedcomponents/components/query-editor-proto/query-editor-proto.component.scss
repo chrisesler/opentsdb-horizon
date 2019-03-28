@@ -188,6 +188,23 @@
                     }
                 }
 
+                &.custom-function {
+                    align-items: stretch;
+                    justify-content: stretch;
+
+                    .function-label,
+                    .function-value,
+                    .function-remove {
+                        display: inline-flex;
+                        align-items: center;
+                    }
+
+                    .function-label {
+                        font-weight: strong;
+                        white-space: nowrap;
+                    }
+                }
+
                 &.tags {
                     width: 180px;
                 }
@@ -243,12 +260,46 @@
 
     }
 
-    .mat-menu-panel.tag-filters-menu-wrapper {
+    .tag-filters-menu-wrapper.mat-menu-panel {
         min-width: 600px;
 
         .mat-menu-content:not(:empty) {
             padding: 0px;
         }
+    }
+
+    .function-selection-cdk-menu.mat-menu-panel {
+        min-width: 300px;
+        display: flex;
+
+        .mat-menu-content:not(:empty) {
+            padding: 0px;
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .function-selection-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .function-categories,
+        .function-category-items {
+            flex: 1;
+            overflow-x: hidden;
+            overflow-y: auto;
+            max-width: 150px;
+        }
+
+
     }
 
 }
@@ -315,6 +366,22 @@
                 }
             }
         }
+
+    }
+
+    // CDK ITEMS
+    .function-selection-cdk-menu.mat-menu-panel {
+
+        .function-categories {
+            border-right: 1px solid map-get($foreground, divider);
+
+            .mat-nav-list {
+                .mat-list-item.is-active {
+                    background-color: rgba(map-get($primary, default), 0.06);
+                }
+            }
+        }
+
 
     }
 }
