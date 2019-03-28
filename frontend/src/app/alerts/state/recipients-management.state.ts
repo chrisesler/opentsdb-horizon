@@ -7,7 +7,7 @@ export interface RecipientsModel {
     recipients: Array<any>;
 }
 
-export interface RecipientsStateModel {
+export interface RecipientsManagamentStateModel {
     loaded: boolean;
     loading: boolean;
     error: any;
@@ -106,7 +106,7 @@ export class DeleteRecipientFail {
     ) { }
 }
 
-@State<RecipientsStateModel>({
+@State<RecipientsManagamentStateModel>({
     name: 'Recipients',
     defaults: {
         recipients: {
@@ -123,21 +123,21 @@ export class DeleteRecipientFail {
 export class RecipientsState {
     constructor(private httpService: HttpService) { }
 
-    @Selector() static GetRecipients(state: RecipientsStateModel) {
+    @Selector() static GetRecipients(state: RecipientsManagamentStateModel) {
         return state.recipients;
     }
 
-    @Selector() static GetErrors(state: RecipientsStateModel) {
+    @Selector() static GetErrors(state: RecipientsManagamentStateModel) {
         return state.error;
     }
 
-    @Selector() static GetLastUpdated(state: RecipientsStateModel) {
+    @Selector() static GetLastUpdated(state: RecipientsManagamentStateModel) {
         return state.lastUpdated;
     }
 
     // GET
     @Action(GetRecipients)
-    getRecipients(ctx: StateContext<RecipientsStateModel>, { namespace }: GetRecipients) {
+    getRecipients(ctx: StateContext<RecipientsManagamentStateModel>, { namespace }: GetRecipients) {
         const state = ctx.getState();
         if (!state.loaded) {
             ctx.patchState({ loading: true });
@@ -151,14 +151,14 @@ export class RecipientsState {
     }
 
     @Action(LoadRecipientsSuccess)
-    loadRecipientsSuccess(ctx: StateContext<RecipientsStateModel>, recipients) {
+    loadRecipientsSuccess(ctx: StateContext<RecipientsManagamentStateModel>, recipients) {
         console.log('#### NAMESPACE RECIPIENTS SUCCESS ####', recipients);
         const state = ctx.getState();
         ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true });
     }
 
     @Action(LoadRecipientsFail)
-    loadRecipientsFail(ctx: StateContext<RecipientsStateModel>, error) {
+    loadRecipientsFail(ctx: StateContext<RecipientsManagamentStateModel>, error) {
         console.log('#### NAMESPACE RECIPIENTS FAIL ####', error);
         const state = ctx.getState();
         ctx.setState({ ...state, loading: false, error });
@@ -166,7 +166,7 @@ export class RecipientsState {
 
     // POST
     @Action(PostRecipient)
-    postRecipient(ctx: StateContext<RecipientsStateModel>, { data }: PostRecipient) {
+    postRecipient(ctx: StateContext<RecipientsManagamentStateModel>, { data }: PostRecipient) {
         return this.httpService.postRecipient(data).pipe(
             map((payload: any) => {
                 ctx.dispatch(new PostRecipientSuccess(payload.body));
@@ -176,7 +176,7 @@ export class RecipientsState {
     }
 
     @Action(PostRecipientSuccess)
-    postRecipientSuccess(ctx: StateContext<RecipientsStateModel>, recipient) {
+    postRecipientSuccess(ctx: StateContext<RecipientsManagamentStateModel>, recipient) {
         console.log('#### RECIPIENT POST SUCCESS ####', recipient);
         const state = ctx.getState();
         let recipients = { ...state.recipients };
@@ -186,7 +186,7 @@ export class RecipientsState {
     }
 
     @Action(PostRecipientFail)
-    postRecipientsFail(ctx: StateContext<RecipientsStateModel>, error) {
+    postRecipientsFail(ctx: StateContext<RecipientsManagamentStateModel>, error) {
         console.log('#### NAMESPACE RECIPIENTS FAIL ####', error);
         const state = ctx.getState();
         ctx.setState({ ...state, loading: false, error });
@@ -194,7 +194,7 @@ export class RecipientsState {
 
     // PUT
     @Action(UpdateRecipient)
-    updateRecipient(ctx: StateContext<RecipientsStateModel>, { data }: UpdateRecipient) {
+    updateRecipient(ctx: StateContext<RecipientsManagamentStateModel>, { data }: UpdateRecipient) {
         return this.httpService.updateRecipient(data).pipe(
             map((payload: any) => {
                 ctx.dispatch(new UpdateRecipientSuccess(payload.body));
@@ -204,17 +204,24 @@ export class RecipientsState {
     }
 
     @Action(UpdateRecipientSuccess)
-    updateRecipientSuccess(ctx: StateContext<RecipientsStateModel>, recipient) {
+    updateRecipientSuccess(ctx: StateContext<RecipientsManagamentStateModel>, recipient) {
         console.log('#### RECIPIENT UPDATE SUCCESS ####', recipient);
         const state = ctx.getState();
         // tslint:disable-next-line:prefer-const
-        const recipients = {...state.recipients};
-        this.modifyRecipient(recipient.data, recipients);
-        ctx.setState({ ...state, recipients, loading: false, loaded: true });
+        let recipients = {...state.recipients};
+        recipients = this.modifyRecipient(recipient.data, recipients);
+
+        const type = Object.keys(recipient.data)[0];
+        if (recipient.data[type][0].newname) {
+            const lastUpdated = this.createLastUpdated(recipient.data, 'update');
+            ctx.setState({ ...state, recipients, loading: false, loaded: true, lastUpdated });
+        } else {
+            ctx.setState({ ...state, recipients, loading: false, loaded: true });
+        }
     }
 
     @Action(UpdateRecipientFail)
-    updateRecipientFail(ctx: StateContext<RecipientsStateModel>, error) {
+    updateRecipientFail(ctx: StateContext<RecipientsManagamentStateModel>, error) {
         console.log('#### RECIPIENT UPDATE FAIL ####', error);
         const state = ctx.getState();
         ctx.setState({ ...state, loading: false, error});
@@ -222,7 +229,7 @@ export class RecipientsState {
 
     // DELETE
     @Action(DeleteRecipient)
-    deleteRecipient(ctx: StateContext<RecipientsStateModel>, data) {
+    deleteRecipient(ctx: StateContext<RecipientsManagamentStateModel>, data) {
         return this.httpService.deleteRecipient(data.data).pipe(
             map((payload: any) => {
                 ctx.dispatch(new DeleteRecipientSuccess(payload.body));
@@ -232,7 +239,7 @@ export class RecipientsState {
     }
 
     @Action(DeleteRecipientSuccess)
-    deleteRecipientSuccess(ctx: StateContext<RecipientsStateModel>, recipient) {
+    deleteRecipientSuccess(ctx: StateContext<RecipientsManagamentStateModel>, recipient) {
         console.log('#### RECIPIENT DELETE SUCCESS ####', recipient);
         const state = ctx.getState();
         let recipients = { ...state.recipients };
@@ -242,7 +249,7 @@ export class RecipientsState {
     }
 
     @Action(DeleteRecipientFail)
-    deleteRecipientFail(ctx: StateContext<RecipientsStateModel>, error) {
+    deleteRecipientFail(ctx: StateContext<RecipientsManagamentStateModel>, error) {
         console.log('#### RECIPIENT DELETE FAIL ####', error);
         const state = ctx.getState();
         ctx.setState({ ...state, loading: false, error});
@@ -272,30 +279,33 @@ export class RecipientsState {
         return namespaceAndRecipients;
     }
 
-    createLastUpdated(recipient, action: string) {
-        const type = Object.keys(recipient)[0];
-        const _recipient = recipient[type][0];
-        _recipient.type = type;
-        return { recipient: _recipient, action: action };
-    }
-
     modifyRecipient(recipient, namespaceAndRecipients): any {
-        console.log(recipient);
         const type = Object.keys(recipient)[0];
-        console.log(recipient[type][0].name);
-        // todo: update new name
         // tslint:disable-next-line:forin
         for (let i = 0; i < namespaceAndRecipients.recipients[type].length; i++) {
             if (namespaceAndRecipients.recipients[type][i].name === recipient[type][0].name) {
+                if (recipient[type][0].newname) {
+                    namespaceAndRecipients.recipients[type][i].name = recipient[type][0].newname;
+                }
                 // tslint:disable-next-line:forin
                 for (let key in recipient[type][0] ) {
-                    if (recipient[type][0][key].toLowerCase() !== 'namespace' &&
-                        recipient[type][0][key].toLowerCase() !== 'type') {
+                    if (key.toLowerCase() !== 'namespace' &&
+                        key.toLowerCase() !== 'type' &&
+                        key.toLowerCase() !== 'name' &&
+                        key.toLowerCase() !== 'newname') {
                         namespaceAndRecipients.recipients[type][i][key] = recipient[type][0][key];
                     }
                 }
                 break;
             }
         }
+        return namespaceAndRecipients;
+    }
+
+    createLastUpdated(recipient, action: string) {
+        const type = Object.keys(recipient)[0];
+        const _recipient = recipient[type][0];
+        _recipient.type = type;
+        return { recipient: _recipient, action: action };
     }
 }

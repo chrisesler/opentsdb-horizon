@@ -97,6 +97,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         height: 180
     };
 
+    recipients = {'slack' : [{'name': 'yamas_dev'}]};
+
     thresholds: any = { };
     // tslint:disable-next-line:no-inferrable-types
     showThresholdAdvanced: boolean = false; // toggle in threshold form

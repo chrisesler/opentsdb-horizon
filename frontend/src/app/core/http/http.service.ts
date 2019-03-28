@@ -242,7 +242,6 @@ export class HttpService {
             withCredentials: true,
             observe: 'response' as 'response'
         };
-        // console.log('[Recipients API] getRecipients', apiUrl, httpOptions);
         return this.http.get(apiUrl, httpOptions);
     }
 
@@ -253,7 +252,6 @@ export class HttpService {
             withCredentials: true,
             observe: 'response' as 'response'
         };
-
         // tslint:disable:prefer-const
         let serverData: any = {};
         serverData[data.type] = [];
@@ -261,7 +259,6 @@ export class HttpService {
         delete recipient.type;
         delete recipient.namespace;
         serverData[data.type][0] = recipient;
-        console.log(serverData);
         return this.http.post(apiUrl, serverData, httpOptions);
     }
 
@@ -272,7 +269,6 @@ export class HttpService {
             withCredentials: true,
             observe: 'response' as 'response'
         };
-
         // tslint:disable:prefer-const
         let serverData: any = {};
         serverData[data.type] = [];
@@ -280,27 +276,21 @@ export class HttpService {
         delete recipient.type;
         delete recipient.namespace;
         serverData[data.type][0] = recipient;
-
-        // console.log('[Recipients API] updateRecipients', recipient);
         return this.http.put(apiUrl, serverData, httpOptions);
     }
 
     deleteRecipient(data: any) {
-        console.log(data);
         const apiUrl = environment.recipientsApi + '/namespace/' + data.namespace + '/contact/delete';
-
         // tslint:disable-next-line:prefer-const
         let httpOptions = {
             headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
             withCredentials: true,
             observe: 'response' as 'response'
         };
-
         // tslint:disable-next-line:prefer-const
         let serverData: any = {};
         serverData[data.type] = [];
         serverData[data.type][0] = { name: data.name };
-        console.log(serverData);
         return this.http.put(apiUrl, serverData, httpOptions);
     }
 }

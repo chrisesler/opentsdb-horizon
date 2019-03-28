@@ -10,7 +10,14 @@
             bottom: 0;
             left: 0;
             right: 0;
-        }                
+        }
+        
+        .mat-chip {
+            .chip-image {
+                width: 16px;
+                padding-right: 5px;
+            }
+        }
     }
 
     // CDK STUFF
