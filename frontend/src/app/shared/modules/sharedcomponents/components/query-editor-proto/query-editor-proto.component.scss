@@ -164,9 +164,7 @@
                 display: inline-flex;
                 align-items: center;
 
-                &:not(:first-child) {
-                    //padding-left: 16px;
-                }
+                //&:not(:first-child) {}
 
                 &.metric-name {
                     width: 270px;
@@ -203,6 +201,23 @@
                         font-weight: strong;
                         white-space: nowrap;
                     }
+
+                    .function-value {
+                        .mat-form-field {
+                            .mat-form-field-flex {
+                                align-items: center;
+                            }
+                            // suffix holds the information icon
+                            .mat-form-field-suffix {
+                                transition: opacity 200ms ease-in-out;
+                                opacity: .5;
+
+                                &:hover {
+                                    opacity: 1;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 &.tags {
@@ -221,6 +236,8 @@
 
             .add-function {
                 margin-left: 8px;
+                display: inline-flex;
+                align-items: center;
 
                 .mat-mini-fab {
                     @include mat-elevation(2);
