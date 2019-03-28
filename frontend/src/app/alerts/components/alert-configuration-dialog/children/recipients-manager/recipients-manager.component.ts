@@ -1,4 +1,5 @@
-import { Component, OnInit, HostBinding, ElementRef, HostListener, Input, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, HostBinding, ElementRef, HostListener,
+    Input, Output, EventEmitter, ViewChild, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { MatChipInputEvent, MatMenuTrigger, MatInput } from '@angular/material';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Mode, RecipientType, Recipient } from './models';
@@ -17,7 +18,7 @@ import { Observable, Subscription } from 'rxjs';
     styleUrls: ['./recipients-manager.component.scss']
 })
 
-export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
+export class AlertConfigurationContactsComponent implements OnInit, OnChanges, OnDestroy {
     @HostBinding('class.alert-configuration-contacts-component') private _hostClass = true;
     constructor(private eRef: ElementRef, private store: Store) { }
 
@@ -25,7 +26,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
     @ViewChild('recipientInput', { read: MatInput }) private recipientInput: MatInput;
 
     @Input() namespace: string;
-    @Input() alertRecipients: Array<any>; // [{name, type}]
+    @Input() selectedAlertRecipients: Array<any>; // [{name, type}]
     @Output() updatedAlertRecipients = new EventEmitter<any>(); // [{name, type}]
 
     megaPanelVisible: boolean = false;
@@ -34,6 +35,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
     recipientsFormData: {}; // map<RecipientType, Recipient>;
     tempRecipient: Recipient; // for canceling
     originalName = ''; // for canceling
+    alertRecipients: Array<any>; // [{name, type}]
     namespaceRecipients: any[] = [
         // {
         //   name: 'dev-team',
@@ -166,7 +168,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
         }
         if (!this.namespace) {
             this.namespace = 'Yamas';
-            this.recipientType = RecipientType.opsgenie;
+            // this.recipientType = RecipientType.opsgenie;
         }
         this.store.dispatch(new GetRecipients(this.namespace));
 
@@ -192,6 +194,19 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
                 }
             }
         });
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['selectedAlertRecipients']) {
+            this.alertRecipients = [];
+            // tslint:disable-next-line:forin
+            for (let type in this.selectedAlertRecipients) {
+                let alertRecipients = this.selectedAlertRecipients[type];
+                for (let recipient of alertRecipients) {
+                    this.alertRecipients.push({name: recipient.name, type: type});
+                }
+            }
+        }
     }
 
     ngOnDestroy(): void {
@@ -352,7 +367,16 @@ export class AlertConfigurationContactsComponent implements OnInit, OnDestroy {
     /** METHODS */
 
     emitAlertRecipients() {
-        this.updatedAlertRecipients.emit(this.alertRecipients);
+        let recipients: any = {};
+        for (let alertRecipient of this.alertRecipients) {
+            // [{name: blah, type: http}]
+            if (recipients[alertRecipient.type]) {
+                recipients[alertRecipient.type].push({...alertRecipient});
+            } else {
+                recipients[alertRecipient.type] = [{...alertRecipient}];
+            }
+        }
+        this.updatedAlertRecipients.emit(recipients);
     }
 
     addToNamespaceRecipients(recipient: Recipient) {
