@@ -61,7 +61,32 @@
                     [selected]="metric.groupByTags"
                     (change)="setMetricGroupByTags(metric.id, $event)"></dropdown-metric-tags>
             </div>
-            <div class="add-function" (click)="addFunction()">
+            <!-- CUSTOM FUNCTION DISPLAY - THIS WILL LOOP -->
+            <div class="metric-row-data custom-function">
+                <div class="function-label">
+                    <span>function label</span>
+                </div>
+                <div class="function-value">
+                    <mat-form-field appearance="fill" floatLabel="never">
+                        <input matInput placeholder="enter value">
+                        <mat-icon matSuffix
+                            matTooltip="Info about the function"
+                            fontSet="denali"
+                            fontIcon="d-information-circle"></mat-icon>
+                    </mat-form-field>
+                </div>
+                <div class="function-remove">
+                    <button mat-icon-button>
+                        <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
+                    </button>
+                </div>
+            </div>
+            <!-- ADD FUNTION ALWAYS LAST -->
+            <div class="add-function"
+                [matMenuTriggerFor]="functionSelectionMenu"
+                [matMenuTriggerData]="{metric: metric}"
+                (click)="functionMenuOpened($event, i)"
+                (menuClosed)="functionMenuClosed($event)">
                 <button mat-mini-fab color="primary">
                     <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon> 
                 </button> 
@@ -132,14 +157,41 @@
             <button mat-button color="primary" class="add-tag-filter-button"> Add Tag filters </button>
         </div>
     </div>
-    <mat-menu #tagFilterMenu="matMenu" class="tag-filters-menu-wrapper" yPosition="below">
-        <div class="filter" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
-            <inline-filter-editor [namespace]="query.namespace" [metrics]="query.metrics" [filters]="query.filters" (filterOutput)="updateFilters($event);" ></inline-filter-editor>
-        </div>
-    </mat-menu>
+    
     
 </div>
 <div class="metric-action-buttons" *ngIf="query.namespace || query.metrics.length || query.filters.length">
     <button mat-stroked-button color="primary" *ngIf="!isAddMetricProgress || !query.metrics.length " (click)="isAddMetricProgress=true">Add Metrics</button>
     <button mat-stroked-button color="primary" *ngIf="query.metrics.length" (click)="editExpression(-1)">Add Expression</button>
 </div>
+<!-- TAG FILTER MENU -->
+<mat-menu class="tag-filters-menu-wrapper" yPosition="below" #tagFilterMenu="matMenu" >
+    <div class="filter" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+        <inline-filter-editor [namespace]="query.namespace" [metrics]="query.metrics" [filters]="query.filters" (filterOutput)="updateFilters($event);" ></inline-filter-editor>
+    </div>
+</mat-menu>
+<!-- FUNCTION MENU-->
+<mat-menu class="function-selection-cdk-menu" #functionSelectionMenu="matMenu">
+    <ng-template matMenuContent let-metric="metric">
+        <div class="function-selection-wrapper" (click)="$event.stopPropagation();" style="width: 300px; height: 200px;">
+            <div class="function-categories">
+                <mat-nav-list>
+                    <a mat-list-item 
+                        [ngClass]="{'is-active': i === selectedFunctionCategoryIndex}"
+                        *ngFor="let category of fakeFunctionCategories; let i = index;"
+                        (click)="selectFunctionCategory($event, i)">
+                        <span>{{ category.label }}</span>
+                        <mat-icon fontSet="denali" fontIcon="d-arrowhead-right"></mat-icon>
+                    </a>
+                </mat-nav-list>
+            </div>
+            <div class="funtion-category-items">
+                <mat-nav-list *ngIf="selectedFunctionCategoryIndex >= 0">
+                    <a mat-list-item *ngFor="let catFunction of fakeFunctionCategories[selectedFunctionCategoryIndex].functions; let j = index;" (click)="addFunction($event, i, j)">
+                        <span>{{ catFunction.label }}</span>
+                    </a>
+                </mat-nav-list>
+            </div>
+        </div>
+    </ng-template>
+</mat-menu>
