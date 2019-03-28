@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AlertConfigurationContactsComponent } from './alert-configuration-contacts.component';
+import { AlertConfigurationContactsComponent } from './recipients-manager.component';
 
 describe('AlertConfigurationContactsComponent', () => {
   let component: AlertConfigurationContactsComponent;

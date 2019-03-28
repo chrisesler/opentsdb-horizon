@@ -24,7 +24,7 @@ import { NameAlertDialogComponent } from './components/name-alert-dialog/name-al
 import { AlertConfigurationDialogComponent } from './components/alert-configuration-dialog/alert-configuration-dialog.component';
 import { DygraphsModule } from '../shared/modules/dygraphs/dygraphs.module';
 // tslint:disable-next-line:max-line-length
-import { AlertConfigurationContactsComponent } from './components/alert-configuration-dialog/children/alert-configuration-contacts/alert-configuration-contacts.component';
+import { AlertConfigurationContactsComponent } from './components/alert-configuration-dialog/children/recipients-manager/recipients-manager.component';
 
 // directives
 
