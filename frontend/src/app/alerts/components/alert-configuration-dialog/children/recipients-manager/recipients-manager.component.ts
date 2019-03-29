@@ -284,7 +284,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
 
         // manually update validators values
         this.opsGenieName.setValue(this.recipientsFormData[RecipientType.opsgenie].name);
-        this.opsGenieApiKey.setValue(this.recipientsFormData[RecipientType.opsgenie].apiKey);
+        this.opsGenieApiKey.setValue(this.recipientsFormData[RecipientType.opsgenie].apikey);
         this.slackName.setValue(this.recipientsFormData[RecipientType.slack].name);
         this.slackWebhook.setValue(this.recipientsFormData[RecipientType.slack].webhook);
         this.ocName.setValue(this.recipientsFormData[RecipientType.oc].name);
@@ -351,7 +351,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
             }
         }
         this.updateValidators();
-        this.setViewMode($event, Mode.all);
+        this.setViewMode($event, Mode.edit);
     }
 
     // when contact menu is closed, need to reset some things
