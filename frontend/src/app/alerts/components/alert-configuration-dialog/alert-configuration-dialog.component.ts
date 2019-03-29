@@ -267,7 +267,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
                     visible: true
                 }
             }
-        }];
+        }
+    ];
+        
     }
 
     getAlertStatesArray(alerts) {
