@@ -41,6 +41,7 @@ import {
     ASsetSelectedNamespace,
     ASsetAlertTypeFilter
 } from '../state/alerts.state';
+import { AlertState } from '../state/alert.state';
 
 import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
 import { AlertConfigurationDialogComponent } from '../components/alert-configuration-dialog/alert-configuration-dialog.component';
@@ -80,6 +81,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     @Select(AlertsState.getAlertTypeCounts) asAlertTypeCounts$: Observable<any>;
     alertTypeCounts: any = {};
 
+    @Select(AlertState.getAlertDetails) alertDetail$: Observable<any>;
 
     // this gets dynamically selected depending on the tab filter.
     // see this.stateSubs['asActionResponse']
@@ -209,6 +211,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 }
             }
         });
+        this.stateSubs['alert'] = this.alertDetail$.subscribe( alert => {
+            console.log("alert details", alert);
+        });
     }
 
     ngOnDestroy() {
@@ -219,6 +224,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.stateSubs['asAlertTypeCounts'].unsubscribe();
         this.stateSubs['asAlerts'].unsubscribe();
         this.stateSubs['asActionResponse'].unsubscribe();
+        this.stateSubs['alert'].unsubscribe();
     }
 
     /** privates */
@@ -310,7 +316,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
         // console.log('[CLICK] CREATE ALERT', type);
         // do something?
         // open dialog
-        this.openCreateAlertDialog(type);
+        const data = {
+            alertType: type,
+            namespace: 'Yamas', // TODO: make this smart
+            name: 'Untitled Alert' // TODO: make this smart
+        }
+        this.openCreateAlertDialog(data);
     }
 
     getQueryData(query) {
@@ -318,7 +329,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     /* open create alert dialog */
-    openCreateAlertDialog(alertType: any) {
+    openCreateAlertDialog(data:any) {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.autoFocus = false;
         dialogConf.width = '100%';
@@ -334,19 +345,16 @@ export class AlertsComponent implements OnInit, OnDestroy {
             left: '0px',
             right: '0px'
         };*/
-        dialogConf.data = {
-            alertType: alertType,
-            namespace: 'UDB', // TODO: make this smart
-            alertName: 'Untitled alerty thingy' // TODO: make this smart
-        };
+
+       dialogConf.data = data;
 
         this.createAlertDialog = this.dialog.open(AlertConfigurationDialogComponent, dialogConf);
-        this.createAlertDialog.componentInstance.data = { action: "QueryData", data: {}};
+        // this.createAlertDialog.componentInstance.data = { action: "QueryData", data: {}};
 
         const sub = this.createAlertDialog.componentInstance.request.subscribe((message:any) => {
             switch ( message.action ) {
                 case 'SaveAlert':
-                    this.saveAlert(message.payload.data);
+                    this.saveAlert(data.namespace, message.payload.data);
                     break;
             }
         });
@@ -356,8 +364,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
         });
     }
 
-    saveAlert(payload) {
-        this.httpService.saveAlert(payload).subscribe( res => {
+    saveAlert(namespace, payload) {
+        this.httpService.saveAlert(namespace, payload).subscribe( res => {
             console.log("save alert response", res);
             this.createAlertDialog.close();
         });

@@ -172,7 +172,7 @@
 </div>
 <!-- TAG FILTER MENU -->
 <mat-menu class="tag-filters-menu-wrapper" yPosition="below" #tagFilterMenu="matMenu" >
-    <div class="filter" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+    <div class="filter" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" *ngIf="query.namespace">
         <inline-filter-editor [namespace]="query.namespace" [metrics]="query.metrics" [filters]="query.filters" (filterOutput)="updateFilters($event);" ></inline-filter-editor>
     </div>
 </mat-menu>
