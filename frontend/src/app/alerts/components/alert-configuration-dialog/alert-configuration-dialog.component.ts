@@ -108,6 +108,23 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     alertName: FormControl = new FormControl('');
     alertForm: FormGroup;
 
+    // form control options
+    ocSeverityOptions: any[] = [
+        { label: '1', value: '1' },
+        { label: '2', value: '2' },
+        { label: '3', value: '3' },
+        { label: '4', value: '4' },
+        { label: '5', value: '5' }
+    ];
+
+    opsGeniePriorityOptions: any[] = [
+        { label: 'P1', value: 'P1' },
+        { label: 'P2', value: 'P2' },
+        { label: 'P3', value: 'P3' },
+        { label: 'P4', value: 'P4' },
+        { label: 'P5', value: 'P5' }
+    ];
+
     // SUBSCRIPTIONS HOLDER
     subs: any = {};
     sub: Subscription;
@@ -210,9 +227,13 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 subject: '',
                 message: '',
                 labels: this.fb.array([]),
-                runbookId: ''
+                // OC conditional values
+                runbookId: '',
+                ocSeverity: '5',
+                // opsGenie conditional values
+                opsGeniePriority: 'P5'
             })
-        }, );
+        });
 
 
         this.subs.alertFormSub = <Subscription>this.alertForm.valueChanges.subscribe(val => {
