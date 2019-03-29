@@ -267,8 +267,10 @@
                             <!--<mat-form-field appearance="fill" floatLabel="never">
                                 <input matInput autocomplete="off" placeholder="Zack is building this... go bug Zack">
                             </mat-form-field>-->
-                            <recipients-manager (updatedAlertRecipients)="alertRecipientsUpdate($event)" [selectedAlertRecipients]="recipients"></recipients-manager>
+                            <!--<alert-configuration-contacts [alertRecipients]="notificationRecipients.value" style="width: 100%" (updatedAlertRecipients)="alertRecipientsUpdate($event)"></alert-configuration-contacts>-->
+                            <recipients-manager (updatedAlertRecipients)="alertRecipientsUpdate($event)" [selectedAlertRecipients]="notificationRecipients.value"></recipients-manager>
                         </div>
+                        
                         <div class="form-group alert-message">
                             <div class="form-label vertical-center"><strong>Alert message</strong></div>
                             <div class="message-subject-body">
@@ -280,6 +282,7 @@
                                 </mat-form-field>
                             </div>   
                         </div>
+
                         <div class="form-group alert-labels">
                             <div class="form-label vertical-center"><strong>Labels</strong></div>
                             <!--<mat-form-field appearance="fill">
