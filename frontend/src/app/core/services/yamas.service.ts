@@ -194,10 +194,11 @@ export class YamasService {
             while(matches = re.exec(expression)) {
                 const id = matches[1];
                 const idreg = new RegExp( '{{' + id + '}}' , 'g');
-                const index = this.getSourceIndexById(id);
-                const sourceId = 'm' + index;
-                transformedExp = transformedExp.replace( idreg, sourceId);
-                sources.push(sourceId);
+                const mindex = this.getSourceIndexById(id);
+                const sourceId = 'm' + mindex;
+                const gsourceId = this.query.metrics[mindex].expression === undefined ? sourceId + '-' + aggregators[j] + '-groupby' : sourceId ; 
+                transformedExp = transformedExp.replace( idreg, sourceId );
+                sources.push(gsourceId);
             }
             
             const joinTags = {};

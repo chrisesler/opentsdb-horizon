@@ -5,7 +5,8 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
-    TemplateRef
+    TemplateRef,
+    Input
 } from '@angular/core';
 
 import { SelectionModel } from '@angular/cdk/collections';
@@ -24,6 +25,8 @@ import {
 
 import { Observable, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { HttpService } from '../../core/http/http.service';
+
 
 import {
     Select,
@@ -55,6 +58,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     @ViewChild(MatSort) dataSourceSort: MatSort;
 
     @ViewChild('confirmDeleteDialog', {read: TemplateRef}) confirmDeleteDialogRef: TemplateRef<any>;
+
+    @Input() response;
 
     // STATE
     private stateSubs = {};
@@ -132,6 +137,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     constructor(
         private store: Store,
         private dialog: MatDialog,
+        private httpService: HttpService
     ) { }
 
     ngOnInit() {
@@ -307,6 +313,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.openCreateAlertDialog(type);
     }
 
+    getQueryData(query) {
+        console.log("get query data", query)
+    }
 
     /* open create alert dialog */
     openCreateAlertDialog(alertType: any) {
@@ -332,9 +341,25 @@ export class AlertsComponent implements OnInit, OnDestroy {
         };
 
         this.createAlertDialog = this.dialog.open(AlertConfigurationDialogComponent, dialogConf);
+        this.createAlertDialog.componentInstance.data = { action: "QueryData", data: {}};
+
+        const sub = this.createAlertDialog.componentInstance.request.subscribe((message:any) => {
+            switch ( message.action ) {
+                case 'SaveAlert':
+                    this.saveAlert(message.payload.data);
+                    break;
+            }
+        });
         // this.snoozeAlertDialog.updatePosition({ top: '48px' });
         this.createAlertDialog.afterClosed().subscribe((dialog_out: any) => {
             // console.log('SNOOZE ALERT DIALOG [afterClosed]', dialog_out);
+        });
+    }
+
+    saveAlert(payload) {
+        this.httpService.saveAlert(payload).subscribe( res => {
+            console.log("save alert response", res);
+            this.createAlertDialog.close();
         });
     }
 
