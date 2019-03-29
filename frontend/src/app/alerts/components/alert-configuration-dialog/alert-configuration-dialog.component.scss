@@ -5,6 +5,7 @@
         flex: 1;
         height: 100%;
         max-height: 100%;
+        overflow: hidden;
 
         // top level wrapper - basically .mat-card
         .alert-configuration-wrapper {
@@ -118,6 +119,8 @@
         // config toolbar
         .config-toolbar.mat-toolbar {
             background: transparent;
+            height: 48px;
+            line-height: 1;
 
             .toolbar-item {
                 display: flex;
@@ -410,25 +413,36 @@
     $status: map-get($theme-config, status);
     $is-dark: map-get($theme-config, is-dark);
 
+    
+
     $link-color: map-get($foreground, link);
     $divider-color: map-get($foreground, divider);
+
+    $brand-color: map-get($background, navbar);
+    $brand-color-inverse: map-get($foreground, navbar-text);
+
+    $card: map-get($background, card);
 
     .alert-configuration-dialog-component {
 
         .alert-configuration-wrapper {
+            .mat-card-content {
+                background-color: map-get($background, background);
+            }
 
             .mat-card-actions {
                 border-top: 1px solid $divider-color;
             }
         }
 
-        /*.preview-wrapper {
+        .preview-wrapper {
             .graph-wrapper {
-                .graph-output {
-                    background: $divider-color;
-                }
+                background-color: $card;
+                border: 1px solid $divider-color;
+
+                //.graph-output { }
             }
-        }*/
+        }
 
         .config-toolbar.mat-toolbar {
             background: transparent;
@@ -436,6 +450,11 @@
         }
 
         .controls-wrapper {
+            background-color: $card;
+            border-top: 1px solid $divider-color;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+
             .form-group {
                 .form-label {
                     .indicator-square {
@@ -492,5 +511,4 @@
             }
         }
     }
-
 }
