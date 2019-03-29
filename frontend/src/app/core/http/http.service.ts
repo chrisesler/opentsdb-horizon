@@ -294,11 +294,31 @@ export class HttpService {
         return this.http.put(apiUrl, serverData, httpOptions);
     }
 
-    saveAlert(data: any): Observable<any> {
+    saveAlert(namespace, data: any): Observable<any> {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
+        const apiUrl = environment.recipientsApi + '/namespace/' + namespace + '/alert';
+        if ( !data.id ) {
+            return this.http.post(apiUrl, data, { headers, withCredentials: true });
+        } else {
+            return this.http.put(apiUrl, data, { headers, withCredentials: true });
+        }
+    }
+
+    getAlertDetailsById(id: number): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.recipientsApi + '/namespace/Yamas/alert/' + id;
+        return this.http.get(apiUrl, { headers, withCredentials: true });
+    }
+
+    getAlerts(): Observable<any> {
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+          });
         const apiUrl = environment.recipientsApi + '/namespace/Yamas/alert';
-        return this.http.post(apiUrl, data, { headers, withCredentials: true });
-      }
+        return this.http.get(apiUrl, { headers, withCredentials: true });
+    }
 }
