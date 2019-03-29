@@ -253,7 +253,7 @@
                     <div class="step-section-content">
                         <div class="form-group alert-notify-when">
                             <div class="form-label"><strong>Notify</strong> when state transitions from</div>
-                            <mat-selection-list class="notify-when-options" formControlName="notifyWhen">
+                            <mat-selection-list class="notify-when-options" formControlName="transitionsToNotify">
                                 <mat-list-option value="goodToBad">Good to Bad</mat-list-option>
                                 <mat-list-option value="warnToBad">Warn to Bad</mat-list-option>
                                 <mat-list-option value="warnToGood">Warn to Good</mat-list-option>
@@ -276,7 +276,7 @@
                                     <input matInput autocomplete="off" formControlName="subject" placeholder="Enter a subject">
                                 </mat-form-field>
                                 <mat-form-field appearance="fill" floatLabel="never">
-                                    <textarea matInput autocomplete="off" formControlName="message" placeholder="Enter a message"></textarea>
+                                    <textarea matInput autocomplete="off" formControlName="body" placeholder="Enter a message"></textarea>
                                 </mat-form-field>
                             </div>   
                         </div>

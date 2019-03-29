@@ -197,7 +197,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
             height: this.graphOutput.nativeElement.clientHeight
         };
 
-        const resizeSensor = new ResizeSensor(this.graphOutput.nativeElement, () =>{
+        const resizeSensor = new ResizeSensor(this.graphOutput.nativeElement, () => {
              const newSize = {
                 width: this.graphOutput.nativeElement.clientWidth,
                 height: this.graphOutput.nativeElement.clientHeight
@@ -229,7 +229,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
                     queryIndex: data.threshold.singleMetric.queryIndex || 0 ,
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
                     // tslint:disable-next-line:max-line-length
-                    metricId: [ this.getMetricDropdownValue(data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) || '', Validators.required],
+                    metricId: [ data.threshold.singleMetric.metricId ? this.getMetricDropdownValue(data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : '', Validators.required],
                     badThreshold:  data.threshold.singleMetric.badThreshold || '',
                     warnThreshold: data.threshold.singleMetric.warnThreshold || '',
                     recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || '',
@@ -243,7 +243,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
                 transitionsToNotify: [ this.getAlertStatesArray(data.notification.transitionsToNotify || {})],
                 recipients: [ data.notification.recipients || {}],
                 subject: data.notification.subject  || '',
-                body: data.notification.subject || '',
+                body: data.notification.body || '',
                 // opsGenie conditional values
                 opsgeniePriority:  data.notification.opsgeniePriority || 'P5',
                 opsgenieTags: data.notification.opsgenieTags || '',
@@ -289,7 +289,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
                     visible: true
                 }
             }
-        }];
+        }
+    ];
+        
     }
 
     getAlertStatesArray(alerts) {
@@ -444,11 +446,11 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
             result => {
                 this.nQueryDataLoading = 0;
                 const groupData = {};
-                groupData[query.id] = result;
+                groupData[this.queries[0].id] = result;
                 const config = {
                     queries: []
                 };
-                config.queries[0] = query;
+                config.queries = this.queries;
                 this.chartData = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], groupData);
             },
             err => {
