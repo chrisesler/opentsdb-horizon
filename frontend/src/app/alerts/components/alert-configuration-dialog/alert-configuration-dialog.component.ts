@@ -101,24 +101,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         series: {},
         visibility: [],
         gridLineColor: '#ccc',
-        /*
-        thresholds:  [
-            {
-                value: 200,
-                axis: 'y',
-                lineWeight: '2px',
-                lineType: 'solid',
-                lineColor: 'red'
-            },
-            {
-                value: 500,
-                axis: 'y',
-                lineWeight: '2px',
-                lineType: 'solid',
-                lineColor: 'orange'
-            }
-        ]
-        */
     };
     chartData: any = [[0]];
     size: any = {
@@ -165,7 +147,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         if (this.data.name) {
             this.alertName.setValue(this.data.name);
         }
-        this.setupForm();
+        this.setupForm(this.data);
     }
 
     ngOnInit() {
@@ -210,13 +192,12 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
     }
 
     setupForm(data = null) {
-        if ( ! data ) {
-            data = {
+        const def = {
                 threshold : { singleMetric: {} },
                 notification: {},
                 queries: {}
-            }
-        } 
+            };
+        data = Object.assign(data, def);
         // TODO: need to check if there is something in this.data
         this.alertForm = this.fb.group({
             name: data.name || 'Untitled Alert',
@@ -231,8 +212,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
                 notifyOnMissing: data.threshold.notifyOnMissing || false, 
                 singleMetric: this.fb.group({
                     queryIndex: data.threshold.singleMetric.queryIndex || 0 ,
-                    queryType : data.threshold.singleMetric.queryIndex || 'tsdb',
-                    metricId: [ data.threshold.singleMetric.metricId || '', Validators.required],
+                    queryType : data.threshold.singleMetric.queryType || 'tsdb',
+                    metricId: [ this.getMetricDropdownValue(data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) || '', Validators.required],
                     badThreshold:  data.threshold.singleMetric.badThreshold || '',
                     warnThreshold: data.threshold.singleMetric.warnThreshold || '',
                     recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || '',
@@ -313,6 +294,11 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         if ( this.alertForm.touched && recoveryMode === 'specific' && recovery === '') {
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors({ 'required': true });
         }
+    }
+
+    getMetricDropdownValue(qindex, sourceid) {
+        const mIndex = sourceid.split('-')[0].replace( /\D+/g, '');
+        return qindex + ':' + mIndex;
     }
     setThresholds(type, value) {
         let color;
@@ -485,8 +471,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         this.validateThresholds(this.alertForm['controls'].threshold);
 
         if ( this.alertForm.valid ) {
-            console.log("validate", !this.data.id, this.data.name)
-            if ( !this.data.id && !this.data.name   ) {
+            if ( !this.data.id && this.data.name === 'Untitled Alert' ) {
                 this.openAlertNameDialog();
             } else {
                 this.saveAlert(); 
@@ -582,7 +567,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
                 this.alertForm.controls.name.setValue(this.data.name);
                 this.saveAlert();
             } else {
-                this.dialogRef.close();
+                this.nameAlertDialog.close();
             }
         });
     }

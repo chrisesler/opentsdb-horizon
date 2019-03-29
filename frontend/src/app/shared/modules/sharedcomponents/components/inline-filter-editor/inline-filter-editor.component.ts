@@ -74,13 +74,11 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
                                               this.triggerQueryChanges();
                                           }
                                       });
-
   }
 
   ngOnChanges( changes: SimpleChanges) {
-    if ( changes.namespace && changes.namespace.currentValue ) {
 
-
+    if ( changes.namespace && changes.namespace.currentValue || changes.metrics && changes.metrics.currentValue ) {
             this.initFormControls();
     }
 }
