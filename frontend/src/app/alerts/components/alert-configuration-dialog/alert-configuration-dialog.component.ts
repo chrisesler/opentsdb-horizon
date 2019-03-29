@@ -193,8 +193,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
 
     setupForm(data = null) {
         const def = {
-                threshold : { singleMetric: {metricId:'m1-avg-groupby', queryIndex:0, badThreshold:200} },
-                notification: {transitionsToNotify:{goodToBad:true}, subject:'test', body:'test body', recipients: {email: [{name: 'syed@verizonmedia.com'}]}},
+                threshold : { singleMetric: {} },
+                notification: {},
                 queries: {}
             };
         data = Object.assign(data, def);
