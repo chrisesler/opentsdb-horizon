@@ -2,11 +2,15 @@ import {
     Component,
     OnInit,
     OnDestroy,
+    OnChanges,
     Inject,
     HostBinding,
     ViewChild,
     ElementRef,
-    AfterContentInit
+    AfterContentInit, EventEmitter,
+    Output,
+
+    Input
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, FormsModule, NgForm } from '@angular/forms';
@@ -38,21 +42,27 @@ import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/c
     templateUrl: './alert-configuration-dialog.component.html',
     styleUrls: []
 })
-export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, AfterContentInit {
+
+
+export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnDestroy, AfterContentInit {
     @HostBinding('class.alert-configuration-dialog-component') private _hostClass = true;
 
     @ViewChild('graphOutput') private graphOutput: ElementRef;
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
 
+    @Input() response;
+    request = new EventEmitter();
+
+
     // placeholder for expected data from dialogue initiation
     data: any = {
         namespace: 'UDB',
-        alertName: 'Untitled Alert',
+        name: 'Untitled Alert',
         queries: []
     };
 
     // metric query?
-    query: any = {};
+    queries = [];
 
     // DYGRAPH OPTIONS
     options: IDygraphOptions = {
@@ -90,7 +100,25 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         },
         series: {},
         visibility: [],
-        gridLineColor: '#ccc'
+        gridLineColor: '#ccc',
+        /*
+        thresholds:  [
+            {
+                value: 200,
+                axis: 'y',
+                lineWeight: '2px',
+                lineType: 'solid',
+                lineColor: 'red'
+            },
+            {
+                value: 500,
+                axis: 'y',
+                lineWeight: '2px',
+                lineType: 'solid',
+                lineColor: 'orange'
+            }
+        ]
+        */
     };
     chartData: any = [[0]];
     size: any = {
@@ -134,15 +162,15 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         @Inject(MAT_DIALOG_DATA) public dialogData: any
     ) {
         this.data = dialogData;
-        if (this.data.alertName) {
-            this.alertName.setValue(this.data.alertName);
+        if (this.data.name) {
+            this.alertName.setValue(this.data.name);
         }
         this.setupForm();
     }
 
     ngOnInit() {
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
-        if (!this.data.alertName || this.data.alertName === '') {
+        if (!this.data.name || this.data.name === '') {
             // have to use setTimeout due to some issue when opening mat-dialog from a lifecycle hook.
             // see: https://github.com/angular/material2/issues/5268
             // setTimeout(() => this.openAlertNameDialog());
@@ -151,7 +179,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.reloadData();
     }
 
-    
+    ngOnChanges(changes) {
+        console.log("changes....", changes)
+    }
 
 
 
@@ -159,10 +189,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         // TODO: uncomment
         // this.subs.alertName.unscubscribe();
         // this.subs.alertFormName.unsubscribe();
-        this.subs.badStateSub.unscubscribe();
-        this.subs.warningStateSub.unscubscribe();
-        this.subs.recoveryStateSub.unscubscribe();
-        this.subs.recoveryNotificationSub.unscubscribe();
     }
 
     ngAfterContentInit() {
@@ -183,34 +209,47 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         });
     }
 
-    setupForm() {
+    setupForm(data = null) {
+        if ( ! data ) {
+            data = {
+                threshold : { singleMetric: {} },
+                notification: {},
+                queries: {}
+            }
+        } 
         // TODO: need to check if there is something in this.data
         this.alertForm = this.fb.group({
-            queries: this.fb.group({
-                groupingRules: this.fb.array([])
-            }),
+            name: data.name || 'Untitled Alert',
+            type: data.type || 'SIMPLE',
+            enabled: data.enabled || true,
+            alertGroupingRules: this.fb.array(data.alertGroupingRules || []),
+            labels: this.fb.array(data.labels || []),
             threshold: this.fb.group({
-                type: 'simple',
-                query: ['', Validators.required],
-                badStateValue: '',
-                warningStateValue: '',
-                recoveryNotification: 'minimum', // minimum or specific
-                recoveryStateValue: '', // if recoveryNotification is 'specific'
-                nagInterval: 'disabled',
-                missingData: 'doNotNotify',
-                slidingWindow: this.fb.group({
-                    direction: 'below',
-                    interval: '1',
-                    windowSize: '5 min'
-                })
+                subType: data.threshold.subType || 'singleMetric', 
+                isNagEnabled:  data.threshold.isNagEnabled || 'false', 
+                nagInterval: data.threshold.nagInterval || 0, 
+                notifyOnMissing: data.threshold.notifyOnMissing || false, 
+                singleMetric: this.fb.group({
+                    queryIndex: data.threshold.singleMetric.queryIndex || 0 ,
+                    queryType : data.threshold.singleMetric.queryIndex || 'tsdb',
+                    metricId: [ data.threshold.singleMetric.metricId || '', Validators.required],
+                    badThreshold:  data.threshold.singleMetric.badThreshold || '',
+                    warnThreshold: data.threshold.singleMetric.warnThreshold || '',
+                    recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || '',
+                    recoveryType: data.threshold.singleMetric.recoveryType || 'minimum', 
+                    slidingWindow : data.threshold.singleMetric.slidingWindow || '',
+                    comparisonOperator : data.threshold.singleMetric.comparisonOperator || 'above',
+                    timeSampler : data.threshold.singleMetric.timeSampler || 'at_least_once'
+                }),
             }, this.validateThresholds),
             notification: this.fb.group({
-                notifyWhen: new FormControl([]),
-                recipients: this.fb.array([]),
-                subject: '',
-                message: '',
-                labels: this.fb.array([]),
-                runbookId: ''
+                transitionsToNotify: [ this.getAlertStatesArray(data.notification.transitionsToNotify || {})],
+                recipients: [ data.notification.recipients || {}], 
+                subject: data.notification.subject  || '', 
+                body: data.notification.subject || '', 
+                opsgeniePriority:  data.notification.opsgeniePriority || '',
+                opsgenieTags: data.notification.opsgenieTags || '',
+                runbookId: data.notification.runbookId || '' 
             })
         }, );
 
@@ -219,26 +258,50 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             console.log('FORM CHANGE', val);
         });
 
-        this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['badStateValue'].valueChanges.subscribe(val => {
+        this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('bad', val);
         });
-        this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['warningStateValue'].valueChanges.subscribe(val => {
+        this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('warning', val);
         });
-        this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['recoveryStateValue'].valueChanges.subscribe(val => {
+        this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('recovery', val);
         });
-        this.subs.recoveryNotificationSub = <Subscription>this.alertForm.controls['threshold']['controls']['recoveryNotification'].valueChanges.subscribe(val => {
-            this.setThresholds('recovery', val === 'specific' ? this.alertForm.controls['threshold']['controls']['recoveryStateValue'].value : '');
+        this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryType'].valueChanges.subscribe(val => {
+            this.setThresholds('recovery', val === 'specific' ? this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].value : '');
         });
     }
 
-    validateThresholds(group) {
-        const badStateCntrl = this.alertForm.controls['threshold']['controls']['badStateValue'];
-        const warningStateCntrl = this.alertForm.controls['threshold']['controls']['warningStateValue'];
-        const recoveryStateCntrl = this.alertForm.controls['threshold']['controls']['recoveryStateValue'];
 
-        const recoveryMode = this.alertForm.controls['threshold']['controls']['recoveryNotification'].value;
+    setNewQuery() {
+        this.queries = [{
+            id: this.utils.generateId(),
+            namespace: '',
+            metrics: [],
+            filters: [],
+            settings: {
+                visual: {
+                    visible: true
+                }
+            }
+        }];
+    }
+
+    getAlertStatesArray(alerts) {
+        const res = [];
+        for ( let k in alerts ) {
+            if ( alerts[k] === true ) {
+                res.push(k);
+            }
+        }
+        return res;
+    }
+    validateThresholds(group) {
+        const badStateCntrl = this.thresholdSingleMetricControls['badThreshold'];
+        const warningStateCntrl = this.thresholdSingleMetricControls['warnThreshold'];
+        const recoveryStateCntrl = this.thresholdSingleMetricControls['recoveryThreshold'];
+
+        const recoveryMode = this.thresholdSingleMetricControls['recoveryType'].value;
         const bad = badStateCntrl.value ? badStateCntrl.value : '';
         const warning = warningStateCntrl.value ? warningStateCntrl.value : '';
         const recovery = recoveryStateCntrl.value ? recoveryStateCntrl.value : '';
@@ -248,7 +311,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         }
 
         if ( this.alertForm.touched && recoveryMode === 'specific' && recovery === '') {
-            this.alertForm.controls['threshold']['controls']['recoveryStateValue'].setErrors({ 'required': true });
+            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors({ 'required': true });
         }
     }
     setThresholds(type, value) {
@@ -289,28 +352,37 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         return this.alertForm['controls'].threshold['controls'];
     }
 
-    get thresholdType() {
-        return this.thresholdControls.type.value;
+    get thresholdSingleMetricControls() {
+        return this.alertForm['controls'].threshold['controls'].singleMetric['controls'];
     }
 
-    get thresholdRecoveryNotification() {
-        return this.alertForm.get('threshold').get('recoveryNotification').value;
+    
+    get thresholdType() {
+        return this.thresholdControls.subType.value;
+    }
+
+    get thresholdRecoveryType() {
+        return this.alertForm.get('threshold').get('singleMetric').get('recoveryType').value;
     }
 
     get groupRulesLabelValues() {
-        return this.alertForm['controls'].queries.get('groupingRules');
+        return this.alertForm.get('alertGroupingRules');
+    }
+
+    get notificationRecipients() {
+        return this.alertForm['controls'].notification.get('recipients');
     }
 
     get notificationLabelValues() {
-        return this.alertForm['controls'].notification.get('labels');
+        return this.alertForm.get('labels');
     }
 
     get alertStateDirection() {
-        return this.alertForm.get('threshold').get('slidingWindow').get('direction').value;
+        return this.alertForm.get('threshold').get('singleMetric').get('comparisonOperator').value;
     }
 
     get recoveryStateDirection() {
-        const valCheck = this.alertForm.get('threshold').get('slidingWindow').get('direction').value;
+        const valCheck = this.alertForm.get('threshold').get('singleMetric').get('comparisonOperator').value;
         if (valCheck === 'above') {
             return 'below';
         }
@@ -319,22 +391,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
     /** methods */
 
-    setNewQuery() {
-        this.query = {
-            id: this.utils.generateId(),
-            namespace: '',
-            metrics: [],
-            filters: [],
-            settings: {
-                visual: {
-                    visible: true
-                }
-            }
-        };
-    }
 
     queryData() {
-        const widget = {
+        const settings = {
             settings: {
                 data_source: 'yamas',
                 component_type: 'LinechartWidgetComponent'
@@ -343,13 +402,27 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const time = {
             start: '1h-ago'
         };
-        if (this.query.namespace && this.query.metrics.length) {
-            const query = this.queryService.buildQuery(widget, time, this.query);
+        if (this.queries[0].namespace && this.queries[0].metrics.length) {
+            const query = this.queryService.buildQuery( settings, time, this.queries[0]);
             this.getYamasData(query);
         } else {
             this.nQueryDataLoading = 0;
             this.chartData = [[0]];
         }
+    }
+
+    getTsdbQuery() {
+        const settings = {
+            settings: {
+                data_source: 'yamas',
+                component_type: 'LinechartWidgetComponent'
+            }
+        };
+        const time = {
+            start: '1h-ago'
+        };
+        const query = this.queryService.buildQuery( settings, time, this.queries[0]);
+        return [query];
     }
 
     // to get query for selected metrics, my rebuild to keep time sync 1h-ago
@@ -362,12 +435,11 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             result => {
                 this.nQueryDataLoading = 0;
                 const groupData = {};
-                groupData[this.query.id] = result;
+                groupData[query.id] = result;
                 const config = {
                     queries: []
                 };
-                config.queries[0] = this.query;
-                // this.chartData = this.dataTransformerService.yamasToDygraph(config, this.options, [[0]] , groupData);
+                config.queries[0] = query;
                 this.chartData = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], groupData);
             },
             err => {
@@ -380,7 +452,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     updateQuery(message) {
         switch (message.action) {
             case 'QueryChange':
-                this.query = message.payload.query;
+                // this.query = message.payload.query;
                 this.reloadData();
                 break;
         }
@@ -408,12 +480,37 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         });
     }
 
-    saveAlert() {
+    validate() {
         this.alertForm.markAsTouched();
         this.validateThresholds(this.alertForm['controls'].threshold);
-        console.log(this.alertForm.valid, "alert form")
+
+        if ( this.alertForm.valid ) {
+            console.log("validate", !this.data.id, this.data.name)
+            if ( !this.data.id && !this.data.name   ) {
+                this.openAlertNameDialog();
+            } else {
+                this.saveAlert(); 
+            }
+        }
+
     }
 
+    saveAlert() {
+        const data:any = this.utils.deepClone(this.alertForm.getRawValue());
+        data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
+        const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
+        data.threshold.singleMetric.queryIndex = qindex;
+        data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex; 
+        const transitionsToNotify = data.notification.transitionsToNotify;
+        // change the notify format : {goodToBad:true}
+        const objTransitionsToNotify = {};
+        for ( let i = 0; i < transitionsToNotify.length; i++ ) {
+            objTransitionsToNotify[transitionsToNotify[i]] = true;
+        }
+        data.notification.transitionsToNotify = objTransitionsToNotify;
+        this.request.emit({ action: 'SaveAlert', payload: { id:this.data.id, data: this.utils.deepClone([data]) }} );
+        // console.log(JSON.stringify(data), "alert form", qindex, mindex,this.queries[qindex].metrics[mindex] )
+    }
     /** Events */
 
     removeNotificationLabelValue(i: number) {
@@ -458,13 +555,14 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         }
     }
 
-    recoveryNotificationChange(event: any) {
-        const control = <FormControl>this.alertForm.get('threshold')['controls'].recoveryNotification;
+    recoveryTypeChange(event: any) {
+        const control = <FormControl>this.thresholdSingleMetricControls.recoveryType;
         control.setValue(event.value);
+        console.log("recoveryTypeChange", event.value);
     }
 
     alertRecipientsUpdate(event: any) {
-        console.log('ALERT RECIPIENT UPDATE', event);
+        this.notificationRecipients.setValue(event);
     }
 
     /** Privates */
@@ -480,8 +578,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.nameAlertDialog.afterClosed().subscribe((dialog_out: any) => {
             console.log('NAME ALERT DIALOG [afterClosed]', dialog_out);
             if (dialog_out && dialog_out.alertName) {
-                this.data.alertName = dialog_out.alertName;
-                this.alertName.setValue(this.data.alertName);
+                this.data.name = dialog_out.alertName;
+                this.alertForm.controls.name.setValue(this.data.name);
+                this.saveAlert();
             } else {
                 this.dialogRef.close();
             }

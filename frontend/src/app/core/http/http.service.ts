@@ -293,4 +293,12 @@ export class HttpService {
         serverData[data.type][0] = { name: data.name };
         return this.http.put(apiUrl, serverData, httpOptions);
     }
+
+    saveAlert(data: any): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.recipientsApi + '/namespace/Yamas/alert';
+        return this.http.post(apiUrl, data, { headers, withCredentials: true });
+      }
 }
