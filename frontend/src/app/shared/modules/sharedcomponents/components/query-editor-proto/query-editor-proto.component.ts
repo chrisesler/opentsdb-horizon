@@ -250,6 +250,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                 this.query.metrics.splice(insertIndex, 0, oMetric);
             }
         }
+        this.query.metrics = [...this.query.metrics];
         this.queryChanges$.next(true);
     }
 
