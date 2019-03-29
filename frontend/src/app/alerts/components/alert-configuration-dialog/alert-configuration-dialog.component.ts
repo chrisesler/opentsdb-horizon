@@ -215,7 +215,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
                 singleMetric: this.fb.group({
                     queryIndex: data.threshold.singleMetric.queryIndex || 0 ,
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
-                    metricId: [ this.getMetricDropdownValue(data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) || '', Validators.required],
+                    metricId: [ data.threshold.singleMetric.metricId ? this.getMetricDropdownValue(data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : '', Validators.required],
                     badThreshold:  data.threshold.singleMetric.badThreshold || '',
                     warnThreshold: data.threshold.singleMetric.warnThreshold || '',
                     recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || '',
@@ -423,11 +423,11 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
             result => {
                 this.nQueryDataLoading = 0;
                 const groupData = {};
-                groupData[query.id] = result;
+                groupData[this.queries[0].id] = result;
                 const config = {
                     queries: []
                 };
-                config.queries[0] = query;
+                config.queries = this.queries;
                 this.chartData = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], groupData);
             },
             err => {
