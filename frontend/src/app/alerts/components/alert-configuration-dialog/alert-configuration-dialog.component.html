@@ -2,14 +2,17 @@
     <mat-card-header>
         <mat-toolbar color="brand">
             <span>
-                <button mat-icon-button mat-dialog-close>
+                <button class="close-dialog" mat-icon-button mat-dialog-close>
                     <mat-icon fontSet="denali" fontIcon="d-share-arrow"></mat-icon>
                 </button>
             </span>
             <span class="flex-spacer"></span>
-            <span>
-                <!-- time controls -->
+            <!-- NEED DATA MODEL TO WIRE THESE UP
+            <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="setDateRange($event)" [timezone]="dbTime.zone" [startTime]="dbTime.start" [endTime]="dbTime.end" [xPosition]="menuXAlignValue"></time-picker>
+            <span class="navbar-item nav-timezone-toggle">
+                <navbar-timezone-toggle [timezone]="dbTime.zone" (change)="setTimezone($event);"></navbar-timezone-toggle>
             </span>
+            -->
         </mat-toolbar>
     </mat-card-header>
     <mat-card-content>
@@ -38,7 +41,12 @@
             <mat-toolbar class="config-toolbar">
                 <div class="toolbar-item alert-name-detail">
                     <span class="namespace">Namespace: {{data.namespace}}</span>
-                    <span class="alert-name">{{data.name}}</span>
+                    <div class="alert-name">
+                        <span>{{data.name}}</span>
+                        <button mat-icon-button color="primary">
+                            <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                        </button>
+                    </div>
                 </div>
             </mat-toolbar>
             <div class="alert-control-steps">

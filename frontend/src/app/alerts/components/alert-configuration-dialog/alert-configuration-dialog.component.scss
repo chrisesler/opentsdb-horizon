@@ -21,6 +21,11 @@
                 &,
                 .mat-toolbar {
                     height: 48px;
+                    padding-left: 0;
+
+                    .close-dialog {
+                        transform: scaleX(-1);
+                    }
                 }
             }
 
@@ -107,7 +112,7 @@
                     z-index: 1;
                     width: 30px;
                     height: 30px;
-                    color: red;
+                    color: red; // why is color here??
                 }
             }
 
@@ -128,8 +133,26 @@
 
             .alert-name-detail {
                 flex-direction: column;
+
                 .namespace {
                     font-size: 10px;
+                    opacity: .4;
+                }
+
+                .alert-name {
+                    .mat-icon-button {
+                        margin-left: 12px;
+                        width: 18px;
+                        height: 18px;
+                        line-height: 1;
+
+                        .mat-icon {
+                            width: 12px;
+                            height: 12px;
+                            font-size: 12px;
+                            line-height: 6px;
+                        }
+                    }
                 }
             }
         }
@@ -152,12 +175,12 @@
                 margin-bottom: 8px;
 
                 .step-section-label {
-                    border-top: 1px solid #E0E0E0;
+                    border-top: 1px solid #E0E0E0; // why is color here??
                     
                     .step-section-label-text {
                         display: inline-block;
                         padding: 2px 24px 2px 8px;
-                        background-color: #E0E0E0;
+                        background-color: #E0E0E0; // why is color here???
                         border-bottom-right-radius: 20px 24px;
                     }
                 }
@@ -413,8 +436,6 @@
     $status: map-get($theme-config, status);
     $is-dark: map-get($theme-config, is-dark);
 
-    
-
     $link-color: map-get($foreground, link);
     $divider-color: map-get($foreground, divider);
 
@@ -426,6 +447,20 @@
     .alert-configuration-dialog-component {
 
         .alert-configuration-wrapper {
+
+            .mat-card-header {
+                .mat-toolbar {
+
+                    > span {
+                        border-right: 1px solid rgba($card, 0.5);
+                    }
+
+                    .close-dialog {
+                        color: $card;
+                    }
+                }
+            }
+
             .mat-card-content {
                 background-color: map-get($background, background);
             }
@@ -467,6 +502,18 @@
                         &.is-good {
                             background-color: map-get($status, success);
                         }
+                    }
+                }
+            }
+
+            .step-section {
+                .step-section-label {
+                    border-top: 1px solid $divider-color; 
+                    
+                    .step-section-label-text {
+                        color: $brand-color;
+                        background-color: rgba($brand-color, 0.15);
+                        border-bottom-right-radius: 20px 24px;
                     }
                 }
             }
