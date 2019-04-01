@@ -83,15 +83,6 @@
                 }
             }
 
-            /*
-            .inline-filter-editor {
-                position: relative;
-                left: 300px;
-                width: 600px;
-            }
-            */
-            
-
             .tags-selected {
                 .tags-selected-header {
                     display: flex;
@@ -128,7 +119,6 @@
                         padding: 0;
                         flex: 1;
                     }
-
 
                     .tag-filter-detail {
                         min-width: 0;
@@ -274,7 +264,6 @@
                 font-size: 12px;
             }
         }
-
     }
 
     .tag-filters-menu-wrapper.mat-menu-panel {
@@ -315,10 +304,7 @@
             overflow-y: auto;
             max-width: 150px;
         }
-
-
     }
-
 }
 
 @mixin query-editor-proto-component-theme($theme-config) {
@@ -344,18 +330,21 @@
     $query-block-bg: map-get($widgets, query-editor-block-bg);
     $query-block-selected-border: map-get($widgets, query-editor-selected-border);
 
+    $brand-color: map-get($background, navbar);
+    $brand-color-inverse: map-get($foreground, navbar-text);
+
     .query-editor-proto {
 
         .namespace-bar.mat-toolbar {
-            background-color: $query-block-bg;
+            background-color: rgba(0,0,0,0.04);
 
             &.is-expanded {
                 box-shadow: inset 0 -1px 0 1px map-get($background, card);
             }
 
             .query-index {
-                color: $query-marker-text;
-                background-color: $query-marker-bg;
+                color: $brand-color-inverse;
+                background-color: $brand-color;
             }
         }
 

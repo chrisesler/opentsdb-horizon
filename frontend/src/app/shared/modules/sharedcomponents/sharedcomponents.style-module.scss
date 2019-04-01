@@ -37,6 +37,7 @@
 @import 'components/conditional-formatter/conditional-formatter.component.scss';
 @import 'components/namespace-tag-autocomplete/namespace-tag-autocomplete.component.scss';
 @import 'components/metric-autocomplete/metric-autocomplete.component.scss';
+@import 'components/dropdown-metric-tags/dropdown-metric-tags.component.scss';
 @import 'components/inline-filter-editor/inline-filter-editor.component.scss';
 @import 'components/widget-config-sorting/widget-config-sorting.component.scss';
 @import 'components/query-editor-proto/query-editor-proto.component';
@@ -78,6 +79,7 @@
     @include query-editor-component-base();
     @include namespace-tag-autocomplete-component-base();
     @include metric-autocomplete-component-base();
+    @include dropdown-metric-tags-component-base();
     @include inline-filter-editor-component-base();
     @include conditional-formatter-component-base();
     @include query-editor-proto-component-base();
@@ -120,6 +122,7 @@
     @include query-editor-component-theme($theme-config);
     @include namespace-tag-autocomplete-component-theme($theme-config);
     @include metric-autocomplete-component-theme($theme-config);
+    @include dropdown-metric-tags-component-theme($theme-config);
     @include inline-filter-editor-component-theme($theme-config);
     @include conditional-formatter-component-theme($theme-config);
     @include query-editor-proto-component-theme($theme-config);
