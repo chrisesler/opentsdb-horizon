@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostBinding } from '@angular/core';
 
 @Component({
-  selector: 'app-metric-function',
+  selector: 'metric-function',
   templateUrl: './metric-function.component.html',
-  styleUrls: ['./metric-function.component.scss']
+  styleUrls: []
 })
 export class MetricFunctionComponent implements OnInit {
-
+  @HostBinding('class.metric-function-component') private _hostClass = true;
+  
   constructor() { }
 
   ngOnInit() {
