@@ -3,7 +3,6 @@ import {
     HostBinding,
     Input,
     OnInit,
-    HostListener,
     ElementRef,
     Output,
     EventEmitter,
@@ -16,7 +15,7 @@ import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MatMenuTrigger, MatMenu } from '@angular/material';
-import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 
 
 
