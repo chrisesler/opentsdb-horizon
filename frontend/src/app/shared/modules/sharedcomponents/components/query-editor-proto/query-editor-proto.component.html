@@ -34,7 +34,16 @@
              SECOND COLUMN IS EMPTY TO BE ABLE TO TAKE THE ABSOLUTE POSITIONED COMMON TAGS BOX -->
         <div class="metric-list-item" *ngFor="let metric of getMetricsByType('metrics'); let i = index">
             <div class="metric-row-data metric-index">
-                <span> m{{ i+1 }}</span>
+                
+                <button mat-flat-button [matMenuTriggerFor]="metricActionMenu" [matMenuTriggerData]="{metric: metric}">
+                    <span class="label">
+                        <mat-icon fontSet="denali" [fontIcon]="metric.enabled ? 'd-check' : 'd-minus'" *ngIf="canDisableMetrics"></mat-icon>
+                        <span>m{{ i+1 }}</span>
+                    </span>
+                    <span class="mat-select-arrow-wrapper">
+                        <div class="mat-select-arrow"></div>
+                    </span>
+                </button>
             </div>
             <div class="metric-row-data metric-name">
                 <span *ngIf="editMetricIndex !== i" (click)="editMetricIndex=i;" matTooltip="{{metric.name}}" matTooltipPosition="right">{{metric.name}}</span>
@@ -81,21 +90,63 @@
                     </button>
                 </div>
             </div>
+            <div class="metric-row-data custom-function">
+                <div class="function-label">
+                    <span>function label</span>
+                </div>
+                <div class="function-value">
+                    <mat-form-field appearance="fill" floatLabel="never">
+                        <input matInput placeholder="enter value">
+                        <mat-icon matSuffix
+                            matTooltip="Info about the function"
+                            fontSet="denali"
+                            fontIcon="d-information-circle"></mat-icon>
+                    </mat-form-field>
+                </div>
+                <div class="function-remove">
+                    <button mat-icon-button>
+                        <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
+                    </button>
+                </div>
+            </div>
+            <div class="metric-row-data custom-function">
+                <div class="function-label">
+                    <span>function label</span>
+                </div>
+                <div class="function-value">
+                    <mat-form-field appearance="fill" floatLabel="never">
+                        <input matInput placeholder="enter value">
+                        <mat-icon matSuffix
+                            matTooltip="Info about the function"
+                            fontSet="denali"
+                            fontIcon="d-information-circle"></mat-icon>
+                    </mat-form-field>
+                </div>
+                <div class="function-remove">
+                    <button mat-icon-button>
+                        <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
+                    </button>
+                </div>
+            </div>
             <!-- ADD FUNTION ALWAYS LAST -->
             <div class="add-function"
                 [matMenuTriggerFor]="functionSelectionMenu"
                 [matMenuTriggerData]="{metric: metric}"
                 (click)="functionMenuOpened($event, i)"
                 (menuClosed)="functionMenuClosed($event)">
-                <button mat-mini-fab color="primary">
-                    <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon> 
+                <button mat-flat-button color="primary">
+                    <mat-icon svgIcon="function_icon"></mat-icon>
+                    <div class="mat-select-arrow-wrapper">
+                        <div class="mat-select-arrow"></div>
+                    </div>
                 </button> 
             </div>
+  
         </div>
         <!-- ADD METRIC - STARTS -->
         <div class="metric-list-item" *ngIf="isAddMetricProgress || !query.metrics.length">
             <div class="metric-row-data metric-name">
-                <metric-autocomplete style="position:absolute"
+                <metric-autocomplete
                     [focus]="isAddMetricProgress"
                     [multiple]="true"
                     [namespace]="query.namespace"
@@ -123,6 +174,9 @@
             </div>
             <!-- ADD EXPRESSION - STARTS -->
             <div class="metric-list-item" *ngIf="isAddExpressionProgress && query.metrics.length">
+                <div class="metric-row-data metric-index">
+                    <span> e{{ i+1 }}</span>
+                </div>
                 <div class="metric-row-data expression">
                     <mat-form-field class="expression-input-field" appearance="outline" color="primary" floatLabel="never">
                         <input matInput placeholder="e.g. m1 + m2"  formControlName="-1" (blur)="updateExpression(-1, $event)" (keyup.enter)="updateExpression(-1, $event)" autocomplete="off">
@@ -130,7 +184,6 @@
                             Invalid Expression.
                         </mat-error>
                     </mat-form-field>
-                    
                 </div>
             </div>
         </form>
@@ -157,13 +210,35 @@
             <button mat-button color="primary" class="add-tag-filter-button"> Add Tag filters </button>
         </div>
     </div>
-    
-    
 </div>
 <div class="metric-action-buttons" *ngIf="query.namespace || query.metrics.length || query.filters.length">
-    <button mat-stroked-button color="primary" *ngIf="!isAddMetricProgress || !query.metrics.length " (click)="isAddMetricProgress=true">Add Metrics</button>
-    <button mat-stroked-button color="primary" *ngIf="query.metrics.length" (click)="editExpression(-1)">Add Expression</button>
+    <button mat-button color="primary" *ngIf="!isAddMetricProgress || !query.metrics.length " (click)="isAddMetricProgress=true">
+        <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
+        <span>Metric</span>
+    </button>
+    <button mat-button color="primary" *ngIf="query.metrics.length" (click)="editExpression(-1)" [disabled]="query.metrics.length === 0">
+            <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
+            <span>Expression</span>
+    </button>
 </div>
+<!-- METRIC MENU -->
+<mat-menu class="metric-action-cdk-menu" #metricActionMenu="matMenu" hasBackdrop="true">
+    <ng-template matMenuContent let-metric="metric">
+        <!-- conditional button -->
+        <button mat-menu-item *ngIf="canDisableMetrics">
+            <mat-icon fontSet="denali" [fontIcon]="metric.enabled ? 'd-eye-close' : 'd-eye-open'"></mat-icon>
+            <span>{{metric.enabled ? 'Disable' : 'Enable'}}</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
+            <span>Clone</span>
+        </button>
+        <button mat-menu-item>
+            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+            <span>Delete</span>
+        </button>
+    </ng-template>
+</mat-menu>
 <!-- TAG FILTER MENU -->
 <mat-menu class="tag-filters-menu-wrapper" yPosition="below" #tagFilterMenu="matMenu" >
     <div class="filter" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" *ngIf="query.namespace">

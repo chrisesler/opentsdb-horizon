@@ -61,11 +61,13 @@
 
         .metric-wrapper {
             position: relative;
+            overflow: auto;
+            padding: 5px;
 
             .common-tag-wrapper {
                 position: absolute;
-                top: 0;
-                bottom: 0;
+                top: 5px;
+                bottom: 5px;
                 left: 300px;
                 width: 300px;
                 padding: 4px 8px;
@@ -141,23 +143,35 @@
             }
         }
 
+        .metric-list-wrapper {
+            display: table;
+            min-height: 32px;
+        }
+
         .metric-list-item {
-            display: flex;
-            flex-wrap: nowrap;
-            align-items: stretch;
+            display: table-row;
+            //flex-wrap: nowrap;
+            //align-items: stretch;
             min-height: 32px;
 
             .metric-row-data {
                 height: inherit;
                 padding-right: 16px;
                 min-height: 32px;
-                display: inline-flex;
-                align-items: center;
+                display: table-cell;
+                //align-items: center;
+                vertical-align: middle;
+                white-space: nowrap;
 
                 //&:not(:first-child) {}
 
+                &.metric-index {
+                    min-width: 40px;
+                }
+
                 &.metric-name {
                     width: 270px;
+                    min-width: 270px;
 
                     span {
                         max-width: 275px;
@@ -216,6 +230,7 @@
 
                 &.tag-spacer {
                     width: 300px;
+                    min-width: 300px;
                 }
 
                 // metric search input field had WAY too much padding
@@ -228,6 +243,34 @@
                 margin-left: 8px;
                 display: inline-flex;
                 align-items: center;
+
+                .mat-icon svg path {
+                    fill: currentColor;
+                }
+
+                .mat-flat-button {
+                    padding: 0;
+                    min-width: 24px;
+                    height: 24px;
+                    &,
+                    .mat-button-wrapper {
+                        line-height: 24px;
+                    }
+                    
+                    .mat-icon {
+                        width: 24px;
+                        height: 24px;
+
+                        svg {
+                            width: 90%;
+                            height: 90%;
+                        }
+                    }
+
+                    .mat-select-arrow {
+                        color: white;
+                    }
+                }
 
                 .mat-mini-fab {
                     @include mat-elevation(2);
@@ -250,21 +293,74 @@
                     }
                 }
             }
+
+            .metric-index {
+                .mat-flat-button {
+                    padding: 0;
+                    min-width: 40px;
+                    background: rgba(0,0,0,0.03);
+                    line-height: initial;
+
+                    .mat-button-wrapper {
+                        display: inline-flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: stretch;
+                        line-height: initial;
+                        padding: 2px 0 0 !important;
+                    }
+                    
+
+                    .label {
+                        flex: 1;
+                        display: flex;
+                        padding: 0 6px;
+
+                        span {
+                            flex: 1;
+                        }
+
+                        .mat-icon {
+                            width: 14px;
+                            height: 14px;
+                            font-size: 16px;
+                            margin-right: 4px;
+                        }
+                    }
+
+                    .mat-select-arrow-wrapper {
+                        padding: 4px 0;
+                        display: inline-flex;
+                        justify-content: center;
+                        border-top: 1px solid rgba(0,0,0,0.06);
+                    }
+                }
+            }
         }
 
         // add metric / add expression buttons
         .metric-action-buttons {
             display: flex;
             align-items: center;
-            margin: 5px 0;
+            padding: 5px;
 
-            .mat-stroked-button {
+            .mat-stroked-button,
+            .mat-button {
                 margin-right: 6px;
                 line-height: 24px;
                 font-size: 12px;
+
+                .mat-icon {
+                    margin-right: 5px;
+                    width: 18px;
+                    height: 18px;
+                    font-size: 18px;
+                }
             }
         }
     }
+
+    // CDK ITEMS
 
     .tag-filters-menu-wrapper.mat-menu-panel {
         min-width: 600px;
@@ -332,8 +428,11 @@
 
     $brand-color: map-get($background, navbar);
     $brand-color-inverse: map-get($foreground, navbar-text);
+    
+    $lighter-divider: rgba(0,0,0,0.04);
 
     .query-editor-proto {
+
 
         .namespace-bar.mat-toolbar {
             background-color: rgba(0,0,0,0.04);
@@ -349,6 +448,10 @@
         }
 
         .metric-wrapper {
+
+            border-left: 1px solid $lighter-divider;
+            border-right: 1px solid $lighter-divider;
+
             .common-tag-wrapper {
                 border: 1px solid $divider;
                 background: $card-background;
@@ -356,8 +459,13 @@
         }
 
         .metric-list-item {
-            &:nth-child(even) {
+            
+            /*&:nth-child(even) {
                 background-color: rgba($divider, 0.03);
+            }*/
+
+            &:not(:first-child) {
+                border-top: 1px solid $lighter-divider;
             }
 
             .metric-row-data {
@@ -368,9 +476,13 @@
                 
                 span:first-child {
                     // background: $card-background;
-                    padding: 2px 4px;
+                    //padding: 2px 4px;
                 }
             }
+        }
+
+        .metric-action-buttons {
+            border: 1px solid $lighter-divider;
         }
 
     }

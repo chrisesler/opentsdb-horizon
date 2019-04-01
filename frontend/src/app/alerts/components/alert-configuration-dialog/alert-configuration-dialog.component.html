@@ -56,30 +56,7 @@
                     </div>
                     <div class="step-section-content">
                         <!-- LOOP OF QUERY ITEMS -->
-                        <query-editor-proto [label]="'Q1'" [query]="queries[0]" (queryOutput)="updateQuery($event);"></query-editor-proto> 
-
-                        <!-- TODO: add the grouping rules control here -->
-                        <div class="form-group alert-grouping-rules">
-                            <div class="form-label vertical-center"><strong>Send one notification per</strong></div>
-                            <mat-form-field appearance="fill" color="primary" floatLabel="never">
-                                <mat-chip-list class="filter-values-list" #groupRulesChipList>
-                                    <mat-chip
-                                        *ngFor="let val of groupRulesLabelValues['controls']; let n=index"
-                                        (removed)="removeQueryGroupRuleValue(n)">
-                                        <span>{{val.value}}</span>
-                                        <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
-                                    </mat-chip>
-                                    <input
-                                        placeholder="Enter tag key(s) seperated by commas"
-                                        #groupRulesLabelValueInput
-                                        [matChipInputFor]="groupRulesChipList"
-                                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                                        [matChipInputAddOnBlur]="true"
-                                        (matChipInputTokenEnd)="addQueryGroupRuleValue($event)"
-                                        autocomplete="off">
-                                </mat-chip-list>
-                            </mat-form-field>
-                        </div>
+                        <query-editor-proto [label]="'Q1'" [query]="queries[0]" [canDisableMetrics]="false" (queryOutput)="updateQuery($event);"></query-editor-proto> 
                     </div>
                 </div>
                 <div class="step-section threshold-section" formGroupName="threshold">
@@ -267,6 +244,28 @@
                                 <mat-list-option value="badToWarn">Bad to Warn</mat-list-option>
                             </mat-selection-list>
                         </div>
+                        <!-- TODO: add the grouping rules control here -->
+                        <div class="form-group alert-grouping-rules">
+                            <div class="form-label vertical-center"><strong>Send one notification per</strong></div>
+                                <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                                    <mat-chip-list class="filter-values-list" #groupRulesChipList>
+                                        <mat-chip
+                                            *ngFor="let val of groupRulesLabelValues['controls']; let n=index"
+                                            (removed)="removeQueryGroupRuleValue(n)">
+                                            <span>{{val.value}}</span>
+                                            <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
+                                        </mat-chip>
+                                        <input
+                                            placeholder="alert"
+                                            #groupRulesLabelValueInput
+                                            [matChipInputFor]="groupRulesChipList"
+                                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                            [matChipInputAddOnBlur]="true"
+                                            (matChipInputTokenEnd)="addQueryGroupRuleValue($event)"
+                                            autocomplete="off">
+                                    </mat-chip-list>
+                                </mat-form-field>
+                            </div>
                         <div class="form-group alert-recipients">
                             <div class="form-label vertical-center"><strong>Alert recipients</strong></div>
                             <!--<mat-form-field appearance="fill" floatLabel="never">

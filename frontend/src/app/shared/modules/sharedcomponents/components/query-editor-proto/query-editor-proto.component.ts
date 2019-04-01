@@ -16,7 +16,9 @@ import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MatMenuTrigger, MatMenu } from '@angular/material';
+import { MatIconRegistry } from '@angular/material/icon';
 import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
 
 
 
@@ -34,14 +36,13 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     @Input() query: any;
     @Input() label = '';
     @Input() edit = [];
+    @Input() canDisableMetrics = true; // true for normal queries... false for alerts queries
     @Output() queryOutput = new EventEmitter;
 
     @ViewChild('tagFilterMenuTrigger', { read: MatMenuTrigger }) tagFilterMenuTrigger: MatMenuTrigger;
 
     @ViewChild('functionSelectionMenu', { read: MatMenu }) functionSelectionMenu: MatMenu;
     @ViewChildren(MatMenuTrigger) functionMenuTriggers: QueryList<MatMenuTrigger>;
-
-
 
     editNamespace = false;
     editTag = false;
@@ -188,7 +189,19 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
     ];
 
-    constructor(private elRef: ElementRef, private utils: UtilsService, private fb: FormBuilder, ) { }
+    constructor(
+        private elRef: ElementRef,
+        private utils: UtilsService,
+        private fb: FormBuilder,
+        private matIconRegistry: MatIconRegistry,
+        private domSanitizer: DomSanitizer
+    ) {
+        // add function (f(x)) icon to registry... url has to be trusted
+        matIconRegistry.addSvgIcon(
+            'function_icon',
+            domSanitizer.bypassSecurityTrustResourceUrl('assets/function-icon.svg')
+        );
+    }
 
     ngOnInit() {
         this.queryChanges$ = new BehaviorSubject(false);
