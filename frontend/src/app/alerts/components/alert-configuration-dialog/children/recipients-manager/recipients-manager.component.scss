@@ -23,8 +23,7 @@
     // CDK STUFF
     // menu wrapper
     .mega-panel-cdk-panel.mat-menu-panel {
-        width: 100%;
-        min-width: calc(100vw - 250px);
+        min-width: calc(65vw - 250px);
         max-width: calc(100% - 20px);
         height: 350px;
         display: flex;
@@ -70,10 +69,10 @@
         cursor: pointer;
 
         .mat-icon {
-            width: 18px;
-            height: 18px;
-            font-size: 18px;
-            margin-right: 8px;
+            width: 14px;
+            height: 14px;
+            font-size: 12px;
+            margin-right: 4px;
         }
 
         .mat-toolbar {
@@ -135,6 +134,7 @@
                     .mat-list {
                         .mat-list-item {
                             position: relative;
+                            height: 30px;
 
                             &.no-highlight {
                                 pointer-events: none;
@@ -145,6 +145,7 @@
                         .recipient-label {
                             display: inline-flex;
                             position: relative;
+                            line-height: 12px;
                         }
 
                         .admin-tag {
