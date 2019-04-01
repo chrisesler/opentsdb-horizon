@@ -100,7 +100,7 @@
                                             <mat-select placeholder="Select Metric" formControlName="metricId" disableOptionCentering>
                                                 <mat-option>None</mat-option>
                                                 <mat-optgroup  *ngFor="let query of queries; let qindex=index" label="Q{{qindex + 1}}">
-                                                    <mat-option *ngFor="let metric of query.metrics; let mindex = index" [value]="qindex + ':' + mindex">{{ metric.name || 'e' + mindex }}</mat-option>
+                                                    <mat-option *ngFor="let metric of query.metrics; let mindex = index" [value]="qindex + ':' + mindex">{{ metric.name || getExpressionLabel(qindex, mindex)}}</mat-option>
                                                 </mat-optgroup>
                                             </mat-select>
                                             <mat-error *ngIf="alertForm.touched && thresholdSingleMetricControls.metricId.errors && thresholdSingleMetricControls.metricId.errors.required">Please select a metric</mat-error>
@@ -210,15 +210,15 @@
                                         <div class="nag-interval-item">
                                             <mat-form-field appearance="fill" floatLabel="never">
                                                 <mat-select placeholder="Select" formControlName="nagInterval" disableOptionCentering>
-                                                    <mat-option value="disabled">Disabled</mat-option>
-                                                    <mat-option value="5 min">5 min</mat-option>
-                                                    <mat-option value="10 min">10 min</mat-option>
-                                                    <mat-option value="15 min">15 min</mat-option>
-                                                    <mat-option value="30 min">30 min</mat-option>
-                                                    <mat-option value="1 hr">1 hr</mat-option>
-                                                    <mat-option value="6 hr">6 hr</mat-option>
-                                                    <mat-option value="12 hr">12 hr</mat-option>
-                                                    <mat-option value="24 hr">24 hr</mat-option>
+                                                    <mat-option value="0">Disabled</mat-option>
+                                                    <mat-option value="300">5 min</mat-option>
+                                                    <mat-option value="600">10 min</mat-option>
+                                                    <mat-option value="900">15 min</mat-option>
+                                                    <mat-option value="1800">30 min</mat-option>
+                                                    <mat-option value="3600">1 hr</mat-option>
+                                                    <mat-option value="21600">6 hr</mat-option>
+                                                    <mat-option value="43200">12 hr</mat-option>
+                                                    <mat-option value="86400">24 hr</mat-option>
                                                 </mat-select>
                                             </mat-form-field>
                                             <mat-hint class="info-hint">
@@ -232,8 +232,8 @@
                                         <div class="missing-data-item">
                                             <mat-form-field appearance="fill" floatLabel="never">
                                                 <mat-select placeholder="Select" formControlName="notifyOnMissing" disableOptionCentering>
-                                                    <mat-option value="doNotNotify">Do not notify</mat-option>
-                                                    <mat-option value="notify">Notify</mat-option>
+                                                    <mat-option value="false">Do not notify</mat-option>
+                                                    <mat-option value="true">Notify</mat-option>
                                                 </mat-select>
                                             </mat-form-field>
                                             <mat-hint class="info-hint">

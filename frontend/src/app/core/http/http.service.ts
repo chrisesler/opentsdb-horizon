@@ -294,15 +294,16 @@ export class HttpService {
         return this.http.put(apiUrl, serverData, httpOptions);
     }
 
-    saveAlert(namespace, data: any): Observable<any> {
+    saveAlert(namespace, payload: any): Observable<any> {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
         const apiUrl = environment.recipientsApi + '/namespace/' + namespace + '/alert';
-        if ( !data.id ) {
-            return this.http.post(apiUrl, data, { headers, withCredentials: true });
+        if ( !payload.id ) {
+            return this.http.post(apiUrl, payload.data, { headers, withCredentials: true });
         } else {
-            return this.http.put(apiUrl, data, { headers, withCredentials: true });
+            payload.data[0].id = payload.id;
+            return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
         }
     }
 
@@ -310,15 +311,15 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
-        const apiUrl = environment.recipientsApi + '/namespace/Yamas/alert/' + id;
+        const apiUrl = environment.recipientsApi + '/alert/' + id;
         return this.http.get(apiUrl, { headers, withCredentials: true });
     }
 
-    getAlerts(): Observable<any> {
+    getAlerts(options): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
           });
-        const apiUrl = environment.recipientsApi + '/namespace/Yamas/alert';
+        const apiUrl = environment.recipientsApi + '/namespace/' + options.namespace + '/alert';
         return this.http.get(apiUrl, { headers, withCredentials: true });
     }
 }

@@ -95,6 +95,10 @@ export class ASsetSelectedNamespace {
     ) { }
 }
 
+export class LoadAlerts {
+    static readonly type = '[Alerts] Load Alerts';
+    constructor(public options: any) {}
+}
 
 /* state define */
 @State<AlertsStateModel>({
@@ -167,33 +171,9 @@ export class AlertsState {
         return counts;
     }
 
-    // dynamic selector
-    static getAlerts(type: string) {
-        return createSelector([AlertsState], (state: AlertsStateModel) => {
-            if (type === 'all') {
-                return state.alerts;
-            } else {
-                return state.alerts.filter(s => s[type] === true);
-            }
-        });
-    }
-
-    /* STATICS (IF ANY) */
-
-    /* PRIVATES (IF ANY) */
-
-    /**************************
-     * UTILS
-     **************************/
-
-    sortByName(a: any, b: any) {
-        // console.log('SORT BY NAME', a, b);
-        const aName = a.name.toLowerCase().trim();
-        const bName = b.name.toLowerCase().trim();
-
-        if (aName < bName) { return -1; }
-        if (aName > bName) { return 1; }
-        return 0;
+    @Selector()
+    static getAlerts(state: AlertsStateModel) {
+        return state.alerts;
     }
 
     /* ACTIONS */
@@ -282,110 +262,17 @@ export class AlertsState {
         });
     }
 
-    // FAKE DATA
-    @Action(ASgenerateFakeAlerts)
-    generateFakeAlerts(ctx: StateContext<AlertsStateModel>, { options }: ASgenerateFakeAlerts) {
-        this.logger.state('AlertsState :: Generate Fake Alerts', { options });
-        const state = ctx.getState();
-        const alerts = [];
-        const selectedNamespace = state.selectedNamespace || 'TestNamespace';
-
-        const fakeNames = [
-            'CPU 24 hours past day',
-            'CPU Monitor',
-            'HOURLY window on raw data past 4 hours',
-            '[Auto] Clock in sync with NTP',
-            'system CPU idle 1 second',
-            'my first alert',
-            'bad server check',
-            'is it alive',
-            'Horizon Will Alert Me',
-            'Wake everyone up'
-        ];
-
-        let i = 0;
-        while ( i < 10) {
-            for (const name of fakeNames) {
-                const alert = this.createFakeAlertEntry(name, selectedNamespace);
-                alerts.push(alert);
-            }
-            i++;
-        }
-
-        ctx.setState({
-            ...state,
-            alerts
-        });
-    }
-
-    /** PRIVATES */
-
-    private createFakeAlertEntry(name: string, namespace: string): AlertModel {
-        const date = moment();
-        const dateFormat = 'YYYY-MM-DD HH:ss';
-
-        const alertEntry = <AlertModel>{
-            id: this.getRandomInt(0, 100),
-            counts: {
-                bad: this.getRandomInt(10, 20),
-                warn: this.getRandomInt(10, 50),
-                good: this.getRandomInt(100, 300),
-                snoozed: this.getRandomInt(0, 20)
+    @Action(LoadAlerts)
+    loadAlerts(ctx: StateContext<AlertsStateModel>, { options }: LoadAlerts) {
+        //ctx.patchState({ loading: true});
+        return this.httpService.getAlerts(options).subscribe(
+            alerts => {
+                ctx.patchState({ alerts: alerts});
             },
-            name: name,
-            namespace: namespace,
-            groupLabels: this.generateGroupLabels(),
-            contacts: this.generateContacts(),
-            created: date.format(dateFormat),
-            modified: date.format(dateFormat),
-            snoozed: false,
-            disabled: false,
-            alerting: false
-        };
-
-        // set some random type
-        const alertTypes = ['snoozed', 'disabled', 'alerting'];
-        const randomAlertType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
-        alertEntry[randomAlertType] = true;
-
-        return alertEntry;
-    }
-
-    private generateGroupLabels(): any[] {
-        const max = this.getRandomInt(2, 6);
-        const labels = [];
-        let num = max;
-        while (num >= 0) {
-            const label = {
-                id: this.getRandomInt(0, 200),
-                name: 'label-' + num
-            };
-            labels.push(label);
-            num--;
-        }
-        return labels;
-    }
-
-    private generateContacts(): any[] {
-        const max = this.getRandomInt(2, 6);
-        const contacts = [];
-        let num = max;
-        while (num >= 0) {
-            const contact = {
-                id: this.getRandomInt(0, 200),
-                name: 'label-' + num,
-                email: 'email' + num + '@oath.com'
-            };
-            contacts.push(contact);
-            num--;
-        }
-        return contacts;
+            error => {
+            }
+        );
 
     }
 
-    private getRandomInt(min: number, max: number): number {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min)) + min;
-    }
 }

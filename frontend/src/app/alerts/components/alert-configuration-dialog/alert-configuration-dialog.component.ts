@@ -157,8 +157,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
             // see: https://github.com/angular/material2/issues/5268
             // setTimeout(() => this.openAlertNameDialog());
         }
-        this.setNewQuery();
-        this.reloadData();
     }
 
     ngOnChanges(changes) {
@@ -195,9 +193,12 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         const def = {
                 threshold : { singleMetric: {} },
                 notification: {},
-                queries: {}
+                queries: { raw: {}, tsdb:{}}
             };
-        data = Object.assign(data, def);
+        data = Object.assign(def, data);
+        this.setQuery();
+        this.reloadData();
+
         // TODO: need to check if there is something in this.data
         this.alertForm = this.fb.group({
             name: data.name || 'Untitled Alert',
@@ -207,9 +208,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
             labels: this.fb.array(data.labels || []),
             threshold: this.fb.group({
                 subType: data.threshold.subType || 'singleMetric', 
-                isNagEnabled:  data.threshold.isNagEnabled || 'false', 
-                nagInterval: data.threshold.nagInterval || 0, 
-                notifyOnMissing: data.threshold.notifyOnMissing || false, 
+                isNagEnabled:  data.threshold.nagInterval ? true : 'false', 
+                nagInterval: data.threshold.nagInterval || '0', 
+                notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false', 
                 singleMetric: this.fb.group({
                     queryIndex: data.threshold.singleMetric.queryIndex || 0 ,
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
@@ -218,13 +219,13 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
                     warnThreshold: data.threshold.singleMetric.warnThreshold || '',
                     recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || '',
                     recoveryType: data.threshold.singleMetric.recoveryType || 'minimum', 
-                    slidingWindow : data.threshold.singleMetric.slidingWindow || '',
+                    slidingWindow : data.threshold.singleMetric.slidingWindow ? data.threshold.singleMetric.slidingWindow.toString() : '300',
                     comparisonOperator : data.threshold.singleMetric.comparisonOperator || 'above',
                     timeSampler : data.threshold.singleMetric.timeSampler || 'at_least_once'
                 }),
             }, this.validateThresholds),
             notification: this.fb.group({
-                transitionsToNotify: [ this.getAlertStatesArray(data.notification.transitionsToNotify || {})],
+                transitionsToNotify: [ data.notification.transitionsToNotify || []],
                 recipients: [ data.notification.recipients || {}], 
                 subject: data.notification.subject  || '', 
                 body: data.notification.subject || '', 
@@ -254,31 +255,22 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
     }
 
 
-    setNewQuery() {
-        this.queries = [{
-            id: this.utils.generateId(),
-            namespace: '',
-            metrics: [],
-            filters: [],
-            settings: {
-                visual: {
-                    visible: true
+    setQuery() {
+        this.queries = this.data.queries && this.data.queries.raw ? this.data.queries.raw : [{
+                id: this.utils.generateId(),
+                namespace: '',
+                metrics: [],
+                filters: [],
+                settings: {
+                    visual: {
+                        visible: true
+                    }
                 }
             }
-        }
-    ];
+        ];
         
     }
 
-    getAlertStatesArray(alerts) {
-        const res = [];
-        for ( let k in alerts ) {
-            if ( alerts[k] === true ) {
-                res.push(k);
-            }
-        }
-        return res;
-    }
     validateThresholds(group) {
         const badStateCntrl = this.thresholdSingleMetricControls['badThreshold'];
         const warningStateCntrl = this.thresholdSingleMetricControls['warnThreshold'];
@@ -452,6 +444,17 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         this.queryData();
     }
 
+    getExpressionLabel(qindex, mindex) {
+        let label = 'e';
+        let eIndex = -1;
+        for ( let i =0; i <= mindex && i < this.queries[qindex].metrics.length; i++ ) {
+            if ( this.queries[qindex].metrics[i].expression ) {
+                eIndex++;
+            }
+        }
+        return label + (eIndex + 1);
+    }
+
     showError() {
         const parentPos = this.elRef.nativeElement.getBoundingClientRect();
         const dialogConf: MatDialogConfig = new MatDialogConfig();
@@ -488,13 +491,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
         data.threshold.singleMetric.queryIndex = qindex;
         data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex; 
-        const transitionsToNotify = data.notification.transitionsToNotify;
-        // change the notify format : {goodToBad:true}
-        const objTransitionsToNotify = {};
-        for ( let i = 0; i < transitionsToNotify.length; i++ ) {
-            objTransitionsToNotify[transitionsToNotify[i]] = true;
-        }
-        data.notification.transitionsToNotify = objTransitionsToNotify;
+        data.threshold.isNagEnabled = data.threshold.nagInterval ? true : false;
         this.request.emit({ action: 'SaveAlert', payload: { id:this.data.id, data: this.utils.deepClone([data]) }} );
         // console.log(JSON.stringify(data), "alert form", qindex, mindex,this.queries[qindex].metrics[mindex] )
     }
