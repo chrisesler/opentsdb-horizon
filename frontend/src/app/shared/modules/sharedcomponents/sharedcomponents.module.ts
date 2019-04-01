@@ -59,7 +59,6 @@ import { QueryEditorProtoComponent } from './components/query-editor-proto/query
 import { InlineFilterEditorComponent } from './components/inline-filter-editor/inline-filter-editor.component';
 import { MetricAutocompleteComponent } from './components/metric-autocomplete/metric-autocomplete.component';
 import { DropdownMetricTagsComponent } from './components/dropdown-metric-tags/dropdown-metric-tags.component';
-import { MetricFunctionComponent } from './components/metric-function/metric-function.component';
 
 @NgModule({
     imports: [
@@ -115,8 +114,7 @@ import { MetricFunctionComponent } from './components/metric-function/metric-fun
         QueryEditorProtoComponent,
         InlineFilterEditorComponent,
         MetricAutocompleteComponent,
-        DropdownMetricTagsComponent,
-        MetricFunctionComponent
+        DropdownMetricTagsComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -153,8 +151,7 @@ import { MetricFunctionComponent } from './components/metric-function/metric-fun
         ConditionalFormatterComponent,
         QueryEditorProtoComponent,
         MetricAutocompleteComponent,
-        DropdownMetricTagsComponent,
-        MetricFunctionComponent
+        DropdownMetricTagsComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,
