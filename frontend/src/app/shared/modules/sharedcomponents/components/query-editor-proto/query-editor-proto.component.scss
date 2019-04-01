@@ -144,12 +144,12 @@
         }
 
         .metric-list-wrapper {
-            display: table;
+            display: block;
             min-height: 32px;
         }
 
         .metric-list-item {
-            display: table-row;
+            display: inline-flex;
             //flex-wrap: nowrap;
             //align-items: stretch;
             min-height: 32px;
@@ -466,18 +466,6 @@
 
             &:not(:first-child) {
                 border-top: 1px solid $lighter-divider;
-            }
-
-            .metric-row-data {
-                /*background-image: linear-gradient($card-background, $card-background 1px, $divider 1px, $divider);
-                background-size: 100% 2px;
-                background-repeat: no-repeat;
-                background-position-y: center;*/
-                
-                span:first-child {
-                    // background: $card-background;
-                    //padding: 2px 4px;
-                }
             }
         }
 

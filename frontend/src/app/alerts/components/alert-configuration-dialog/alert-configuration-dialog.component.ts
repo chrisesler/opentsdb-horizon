@@ -107,7 +107,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         height: 180
     };
 
-    recipients = {'slack' : [{'name': 'yamas_dev'}]};
+    recipients = {'slack' : [{'name': 'yamas_dev'}], 'oc': [{'name': 'oc red'}]};
 
     thresholds: any = { };
     // tslint:disable-next-line:no-inferrable-types
