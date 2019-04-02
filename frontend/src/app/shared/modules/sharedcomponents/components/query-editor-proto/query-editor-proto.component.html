@@ -27,8 +27,9 @@
         </button>
     </div>
 </mat-toolbar>
-<div class="metric-wrapper" *ngIf="query.namespace || query.metrics.length || query.filters.length">
+<div class="metric-wrapper" [formGroup]="fg" *ngIf="query.namespace || query.metrics.length || query.filters.length">
     <!-- CONTAINER FOR THE METRICS-->
+    
     <div class="metric-list-wrapper">
         <!-- LOOP THROUGH METRICS 
              SECOND COLUMN IS EMPTY TO BE ABLE TO TAKE THE ABSOLUTE POSITIONED COMMON TAGS BOX -->
@@ -129,7 +130,7 @@
                 </div>
             </div>
             <!-- ADD FUNTION ALWAYS LAST -->
-            <div class="add-function"
+            <div class="metric-row-data add-function"
                 [matMenuTriggerFor]="functionSelectionMenu"
                 [matMenuTriggerData]="{metric: metric}"
                 (click)="functionMenuOpened($event, i)"
@@ -156,53 +157,53 @@
             </div>
         </div>
         <!-- ADD METRIC - ENDS -->
-        <form [formGroup]="fg">
-            <div class="metric-list-item" *ngFor="let metric of getMetricsByType('expression'); let i = index">
-                <div class="metric-row-data metric-index">
-                    <button mat-flat-button [matMenuTriggerFor]="metricActionMenu" [matMenuTriggerData]="{metric: metric}">
-                        <span class="label">
-                            <mat-icon fontSet="denali" [fontIcon]="metric.enabled ? 'd-check' : 'd-minus'" *ngIf="canDisableMetrics"></mat-icon>
-                            <span>e{{ i+1 }}</span>
-                        </span>
-                        <span class="mat-select-arrow-wrapper">
-                            <div class="mat-select-arrow"></div>
-                        </span>
-                    </button>
-                </div>
-                <div class="metric-row-data metric-name">
-                    <span *ngIf="editExpressionId !== metric.id" (click)="editExpression(metric.id);">{{ getExpressionUserInput(metric.expression) }}</span>
-                    <mat-form-field *ngIf="editExpressionId === metric.id" class="expression-input-field" appearance="outline" color="primary" floatLabel="never">
-                        <input matInput placeholder="e.g. m1 + m2" [formControlName]="metric.id" (blur)="updateExpression(metric.id, $event)" (keyup.enter)="updateExpression(metric.id, $event)" autocomplete="off">
-                        <mat-error *ngIf="fg.controls[metric.id].errors && fg.controls[metric.id].errors.invalid">
-                            Invalid Expression.
-                        </mat-error>
-                    </mat-form-field>
-                </div>
-                <div class="metric-row-data tag-spacer"></div>
+        
+        <div class="metric-list-item" *ngFor="let metric of getMetricsByType('expression'); let i = index">
+            <div class="metric-row-data metric-index">
+                <button mat-flat-button [matMenuTriggerFor]="metricActionMenu" [matMenuTriggerData]="{metric: metric}">
+                    <span class="label">
+                        <mat-icon fontSet="denali" [fontIcon]="metric.enabled ? 'd-check' : 'd-minus'" *ngIf="canDisableMetrics"></mat-icon>
+                        <span>e{{ i+1 }}</span>
+                    </span>
+                    <span class="mat-select-arrow-wrapper">
+                        <div class="mat-select-arrow"></div>
+                    </span>
+                </button>
             </div>
-            <!-- ADD EXPRESSION - STARTS -->
-            <div class="metric-list-item" *ngIf="isAddExpressionProgress && query.metrics.length">
-                <div class="metric-row-data metric-index">
-                    <button mat-flat-button>
-                        <span class="label">
-                            <mat-icon fontSet="denali" [fontIcon]="metric.enabled ? 'd-check' : 'd-minus'" *ngIf="canDisableMetrics"></mat-icon>
-                            <span>e{{ (getMetricsByType('expression')).length }}</span>
-                        </span>
-                        <span class="mat-select-arrow-wrapper">
-                            <div class="mat-select-arrow" style="opacity: 0"></div>
-                        </span>
-                    </button>
-                </div>
-                <div class="metric-row-data expression">
-                    <mat-form-field class="expression-input-field" appearance="outline" color="primary" floatLabel="never">
-                        <input matInput placeholder="e.g. m1 + m2"  formControlName="-1" (blur)="updateExpression(-1, $event)" (keyup.enter)="updateExpression(-1, $event)" autocomplete="off">
-                        <mat-error *ngIf="fg.controls['-1'].errors && fg.controls['-1'].errors.invalid">
-                            Invalid Expression.
-                        </mat-error>
-                    </mat-form-field>
-                </div>
+            <div class="metric-row-data metric-name">
+                <span *ngIf="editExpressionId !== metric.id" (click)="editExpression(metric.id);">{{ getExpressionUserInput(metric.expression) }}</span>
+                <mat-form-field *ngIf="editExpressionId === metric.id" class="expression-input-field" appearance="outline" color="primary" floatLabel="never">
+                    <input matInput placeholder="e.g. m1 + m2" [formControlName]="metric.id" (blur)="updateExpression(metric.id, $event)" (keyup.enter)="updateExpression(metric.id, $event)" autocomplete="off">
+                    <mat-error *ngIf="fg.controls[metric.id].errors && fg.controls[metric.id].errors.invalid">
+                        Invalid Expression.
+                    </mat-error>
+                </mat-form-field>
             </div>
-        </form>
+            <div class="metric-row-data tag-spacer"></div>
+        </div>
+        <!-- ADD EXPRESSION - STARTS -->
+        <div class="metric-list-item" *ngIf="isAddExpressionProgress && query.metrics.length">
+            <div class="metric-row-data metric-index">
+                <button mat-flat-button>
+                    <span class="label">
+                        <mat-icon fontSet="denali" [fontIcon]="metric.enabled ? 'd-check' : 'd-minus'" *ngIf="canDisableMetrics"></mat-icon>
+                        <span>exp</span>
+                    </span>
+                    <span class="mat-select-arrow-wrapper">
+                        <div class="mat-select-arrow" style="opacity: 0"></div>
+                    </span>
+                </button>
+            </div>
+            <div class="metric-row-data expression">
+                <mat-form-field class="expression-input-field" appearance="outline" color="primary" floatLabel="never">
+                    <input matInput placeholder="e.g. m1 + m2"  formControlName="-1" (blur)="updateExpression(-1, $event)" (keyup.enter)="updateExpression(-1, $event)" autocomplete="off">
+                    <mat-error *ngIf="fg.controls['-1'].errors && fg.controls['-1'].errors.invalid">
+                        Invalid Expression.
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+        
         <!-- ADD EXPRESSION - ENDS -->
     </div>
     <!-- THIS IS THE TOP TO BOTTOM CONTAINER FOR THE COMMON TAGS
