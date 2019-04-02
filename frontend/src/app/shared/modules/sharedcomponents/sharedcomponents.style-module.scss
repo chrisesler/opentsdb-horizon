@@ -42,6 +42,7 @@
 @import 'components/widget-config-sorting/widget-config-sorting.component.scss';
 @import 'components/query-editor-proto/query-editor-proto.component';
 @import 'components/metric-function/metric-function.component';
+@import 'components/tag-aggregator/tag-aggregator.component';
 
 // widget common FIRST
 @import 'components/widget-config.common';
@@ -85,6 +86,7 @@
     @include conditional-formatter-component-base();
     @include query-editor-proto-component-base();
     @include metric-function-component-base();
+    @include tag-aggregator-component-base();
 
 
     // WIDGET CONFIG ITEMS
@@ -129,6 +131,7 @@
     @include conditional-formatter-component-theme($theme-config);
     @include query-editor-proto-component-theme($theme-config);
     @include metric-function-component-theme($theme-config);
+    @include tag-aggregator-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);
