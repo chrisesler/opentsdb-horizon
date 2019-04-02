@@ -3,7 +3,6 @@ import {
     HostBinding,
     Input,
     OnInit,
-    HostListener,
     ElementRef,
     Output,
     EventEmitter,
@@ -16,7 +15,9 @@ import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MatMenuTrigger, MatMenu } from '@angular/material';
+import { MatIconRegistry } from '@angular/material/icon';
 import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
 
 
 
@@ -28,20 +29,30 @@ import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 })
 export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
-    @HostBinding('class.query-editor-proto') private _hostClass = true;
+    // tslint:disable-next-line:no-inferrable-types
+    @HostBinding('class.query-editor-proto') private _hostClass: boolean = true;
+    // tslint:disable-next-line:no-inferrable-types
+    @HostBinding('class.can-disable-metrics') private _canDisableMetrics: boolean = true;
 
     @Input() type;
     @Input() query: any;
     @Input() label = '';
     @Input() edit = [];
+
+    @Input() // true for normal queries... false for alerts queries
+    get canDisableMetrics(): boolean {
+        return this._canDisableMetrics;
+    }
+    set canDisableMetrics(value: boolean) {
+        this._canDisableMetrics = value;
+    }
+
     @Output() queryOutput = new EventEmitter;
 
     @ViewChild('tagFilterMenuTrigger', { read: MatMenuTrigger }) tagFilterMenuTrigger: MatMenuTrigger;
 
     @ViewChild('functionSelectionMenu', { read: MatMenu }) functionSelectionMenu: MatMenu;
     @ViewChildren(MatMenuTrigger) functionMenuTriggers: QueryList<MatMenuTrigger>;
-
-
 
     editNamespace = false;
     editTag = false;
@@ -82,113 +93,33 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     // FAKE DATA
     fakeFunctionCategories: any[] = [
         {
-            label: 'category 1',
+            label: 'Rate',
             functions: [
                 {
-                    label: 'function 1',
-                    functionCall: 'someFunction1'
+                    label: 'Rate of Change',
+                    functionCall: 'RateChange'
                 },
                 {
-                    label: 'function 2',
-                    functionCall: 'someFunction2'
-                },
-                {
-                    label: 'function 3',
-                    functionCall: 'someFunction3'
-                },
-                {
-                    label: 'function 4',
-                    functionCall: 'someFunction4'
-                }
-            ]
-        },
-        {
-            label: 'category 2',
-            functions: [
-                {
-                    label: 'function 5',
-                    functionCall: 'someFunction5'
-                },
-                {
-                    label: 'function 6',
-                    functionCall: 'someFunction6'
-                },
-                {
-                    label: 'function 7',
-                    functionCall: 'someFunction7'
-                },
-                {
-                    label: 'function 8',
-                    functionCall: 'someFunction8'
-                }
-            ]
-        },
-        {
-            label: 'category 3',
-            functions: [
-                {
-                    label: 'function 9',
-                    functionCall: 'someFunction9'
-                },
-                {
-                    label: 'function 10',
-                    functionCall: 'someFunction10'
-                },
-                {
-                    label: 'function 11',
-                    functionCall: 'someFunction11'
-                },
-                {
-                    label: 'function 12',
-                    functionCall: 'someFunction12'
-                }
-            ]
-        },
-        {
-            label: 'category 4',
-            functions: [
-                {
-                    label: 'function 13',
-                    functionCall: 'someFunction13'
-                },
-                {
-                    label: 'function 14',
-                    functionCall: 'someFunction14'
-                },
-                {
-                    label: 'function 15',
-                    functionCall: 'someFunction15'
-                },
-                {
-                    label: 'function 16',
-                    functionCall: 'someFunction16'
-                }
-            ]
-        },
-        {
-            label: 'category 5',
-            functions: [
-                {
-                    label: 'function 17',
-                    functionCall: 'someFunction17'
-                },
-                {
-                    label: 'function 18',
-                    functionCall: 'someFunction18'
-                },
-                {
-                    label: 'function 19',
-                    functionCall: 'someFunction19'
-                },
-                {
-                    label: 'function 20',
-                    functionCall: 'someFunction20'
+                    label: 'Counter to Rate',
+                    functionCall: 'CounterToRate'
                 }
             ]
         }
     ];
 
-    constructor(private elRef: ElementRef, private utils: UtilsService, private fb: FormBuilder, ) { }
+    constructor(
+        private elRef: ElementRef,
+        private utils: UtilsService,
+        private fb: FormBuilder,
+        private matIconRegistry: MatIconRegistry,
+        private domSanitizer: DomSanitizer
+    ) {
+        // add function (f(x)) icon to registry... url has to be trusted
+        matIconRegistry.addSvgIcon(
+            'function_icon',
+            domSanitizer.bypassSecurityTrustResourceUrl('assets/function-icon.svg')
+        );
+    }
 
     ngOnInit() {
         this.queryChanges$ = new BehaviorSubject(false);

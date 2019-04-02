@@ -61,14 +61,17 @@
 
         .metric-wrapper {
             position: relative;
+            overflow: auto;
+            padding: 5px;
 
             .common-tag-wrapper {
                 position: absolute;
-                top: 0;
-                bottom: 0;
-                left: 300px;
-                width: 300px;
-                padding: 4px 8px;
+                top: 5px;
+                bottom: 5px;
+                left: 340px;
+                max-width: 300px;
+                width: 100%;
+                padding: 4px;
 
                 .add-tag-filter-button.mat-button {
                     line-height: 24px;
@@ -141,29 +144,123 @@
             }
         }
 
-        .metric-list-item {
+        .metric-list-wrapper {
             display: flex;
-            flex-wrap: nowrap;
-            align-items: stretch;
-            min-height: 32px;
+            flex-direction: column;
+            // min-height: 32px;
+        }
+
+        .metric-list-item {
+            display: inline-flex;
+            //flex-wrap: nowrap;
+            //align-items: stretch;
+            min-height: 40px;
 
             .metric-row-data {
                 height: inherit;
-                padding-right: 16px;
+                margin-right: 8px;
                 min-height: 32px;
                 display: inline-flex;
                 align-items: center;
+                //vertical-align: middle;
+                white-space: nowrap;
 
                 //&:not(:first-child) {}
 
+                &.metric-index {
+                    min-width: 50px;
+                    width: 50px;
+
+                    .mat-flat-button {
+                        padding: 0;
+                        min-width: 50px;
+                        background: rgba(0,0,0,0.03);
+                        line-height: initial;
+                        width: 100%;
+    
+                        .mat-button-wrapper {
+                            display: inline-flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: stretch;
+                            line-height: initial;
+                            padding: 2px 0 0 !important;
+                            width: 100%;
+                        }
+                        
+                        .label {
+                            flex: 1;
+                            display: flex;
+                            padding: 0 6px;
+    
+                            span {
+                                flex: 1;
+                                font-size: 12px;
+                                padding: 2px 0;
+                            }
+    
+                            .mat-icon {
+                                width: 14px;
+                                height: 14px;
+                                font-size: 16px;
+                                margin-right: 4px;
+                            }
+                        }
+    
+                        .mat-select-arrow-wrapper {
+                            padding: 4px 0;
+                            display: inline-flex;
+                            justify-content: center;
+                            border-top: 1px solid rgba(0,0,0,0.06);
+                        }
+                    }
+                }
+
                 &.metric-name {
                     width: 270px;
+                    min-width: 270px;
 
-                    span {
-                        max-width: 275px;
-                        text-overflow: ellipsis;
-                        display: inline-block;
-                        overflow: hidden;
+                    .display-name {
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        height: 32px;
+                        cursor: pointer;
+
+                        span {
+                            flex: 1;
+                            padding-left: 2px;
+                            text-overflow: ellipsis;
+                            display: inline-block;
+                            overflow: hidden;
+                        }
+
+                        .mat-icon {
+                            width: 16px;
+                            height: 16px;
+                            font-size: 12px;
+                            line-height: 16px;
+                            margin-left: 2px;
+                            opacity: 0;
+                            transition: opacity 200ms ease-in-out;
+
+                            
+                        }
+
+                        &:hover {
+                            .mat-icon {
+                                opacity: 1;
+                            }
+                        }
+                    }
+                }
+
+                &.expression {
+                    min-width: 270px;
+                    width: 270px;
+
+                    .mat-form-field {
+                        width: 90%;
                     }
                 }
 
@@ -216,6 +313,7 @@
 
                 &.tag-spacer {
                     width: 300px;
+                    min-width: 300px;
                 }
 
                 // metric search input field had WAY too much padding
@@ -228,6 +326,34 @@
                 margin-left: 8px;
                 display: inline-flex;
                 align-items: center;
+
+                .mat-icon svg path {
+                    fill: currentColor;
+                }
+
+                .mat-flat-button {
+                    padding: 0;
+                    min-width: 24px;
+                    height: 24px;
+                    &,
+                    .mat-button-wrapper {
+                        line-height: 24px;
+                    }
+                    
+                    .mat-icon {
+                        width: 24px;
+                        height: 24px;
+
+                        svg {
+                            width: 90%;
+                            height: 90%;
+                        }
+                    }
+
+                    .mat-select-arrow {
+                        color: white;
+                    }
+                }
 
                 .mat-mini-fab {
                     @include mat-elevation(2);
@@ -256,15 +382,41 @@
         .metric-action-buttons {
             display: flex;
             align-items: center;
-            margin: 5px 0;
+            padding: 5px;
 
-            .mat-stroked-button {
+            .mat-stroked-button,
+            .mat-button {
                 margin-right: 6px;
                 line-height: 24px;
                 font-size: 12px;
+
+                .mat-icon {
+                    margin-right: 5px;
+                    width: 18px;
+                    height: 18px;
+                    font-size: 18px;
+                }
+            }
+        }
+
+        // HOST MODIFIERS
+        &.can-disable-metrics {
+            .metric-list-item {
+                .metric-row-data {
+                    &.metric-index {
+                        min-width: 60px;
+                        width: 60px;
+    
+                        .mat-flat-button {
+                            min-width: 60px;
+                        }
+                    }
+                }
             }
         }
     }
+
+    // CDK ITEMS
 
     .tag-filters-menu-wrapper.mat-menu-panel {
         min-width: 600px;
@@ -305,6 +457,20 @@
             max-width: 150px;
         }
     }
+
+    .metric-action-cdk-menu.mat-menu {
+        .mat-menu-item {
+            height: 32px;
+            line-height: 32px;
+
+            .mat-icon {
+                width: 16px;
+                height: 16px;
+                line-height: 16px;
+                font-size: 14px;
+            }
+        }
+    }
 }
 
 @mixin query-editor-proto-component-theme($theme-config) {
@@ -320,6 +486,8 @@
     $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
     $alias-text: if($is-dark, rgba(255, 255, 255, .5), rgba(0, 0, 0, .5));
 
+    $link: map-get($foreground, link);
+
     $widgets: map-get($theme-config, widgets);
 
     $card-background: map-get($background, card);
@@ -332,8 +500,11 @@
 
     $brand-color: map-get($background, navbar);
     $brand-color-inverse: map-get($foreground, navbar-text);
+    
+    $lighter-divider: rgba(0,0,0,0.04);
 
     .query-editor-proto {
+
 
         .namespace-bar.mat-toolbar {
             background-color: rgba(0,0,0,0.04);
@@ -349,6 +520,10 @@
         }
 
         .metric-wrapper {
+
+            border-left: 1px solid $lighter-divider;
+            border-right: 1px solid $lighter-divider;
+
             .common-tag-wrapper {
                 border: 1px solid $divider;
                 background: $card-background;
@@ -356,21 +531,35 @@
         }
 
         .metric-list-item {
-            &:nth-child(even) {
+            
+            /*&:nth-child(even) {
                 background-color: rgba($divider, 0.03);
+            }*/
+
+            &:not(:first-child) {
+                border-top: 1px solid $lighter-divider;
             }
 
             .metric-row-data {
-                /*background-image: linear-gradient($card-background, $card-background 1px, $divider 1px, $divider);
-                background-size: 100% 2px;
-                background-repeat: no-repeat;
-                background-position-y: center;*/
-                
-                span:first-child {
-                    // background: $card-background;
-                    padding: 2px 4px;
+
+                &.metric-name {
+                    .display-name {
+                        border: 1px solid $lighter-divider;
+
+                        .mat-icon {
+                            color: $link;
+                        }
+
+                        &:hover {
+                            background-color: rgba($link, 0.1);
+                        }
+                    }
                 }
             }
+        }
+
+        .metric-action-buttons {
+            border: 1px solid $lighter-divider;
         }
 
     }
