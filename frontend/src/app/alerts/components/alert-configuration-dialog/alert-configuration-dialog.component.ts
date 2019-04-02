@@ -107,7 +107,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         height: 180
     };
 
-    recipients = {'slack' : [{'name': 'yamas_dev'}]};
+    recipients = {'slack' : [{'name': 'yamas_dev'}], 'oc': [{'name': 'oc red'}]};
 
     thresholds: any = { };
     // tslint:disable-next-line:no-inferrable-types
@@ -117,6 +117,23 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
     readonly separatorKeysCodes: number[] = [ENTER, COMMA];
     alertName: FormControl = new FormControl('');
     alertForm: FormGroup;
+
+    // form control options
+    ocSeverityOptions: any[] = [
+        { label: '1', value: '1' },
+        { label: '2', value: '2' },
+        { label: '3', value: '3' },
+        { label: '4', value: '4' },
+        { label: '5', value: '5' }
+    ];
+
+    opsGeniePriorityOptions: any[] = [
+        { label: 'P1', value: 'P1' },
+        { label: 'P2', value: 'P2' },
+        { label: 'P3', value: 'P3' },
+        { label: 'P4', value: 'P4' },
+        { label: 'P5', value: 'P5' }
+    ];
 
     // SUBSCRIPTIONS HOLDER
     subs: any = {};
@@ -160,10 +177,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
     }
 
     ngOnChanges(changes) {
-        console.log("changes....", changes)
+        console.log('changes....', changes);
     }
-
-
 
     ngOnDestroy() {
         // TODO: uncomment
@@ -179,8 +194,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
             width: this.graphOutput.nativeElement.clientWidth,
             height: this.graphOutput.nativeElement.clientHeight
         };
-        
-        const resizeSensor = new ResizeSensor(this.graphOutput.nativeElement, () =>{
+
+        const resizeSensor = new ResizeSensor(this.graphOutput.nativeElement, () => {
              const newSize = {
                 width: this.graphOutput.nativeElement.clientWidth,
                 height: this.graphOutput.nativeElement.clientHeight
@@ -214,6 +229,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
                 singleMetric: this.fb.group({
                     queryIndex: data.threshold.singleMetric.queryIndex || 0 ,
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
+                    // tslint:disable-next-line:max-line-length
                     metricId: [ data.threshold.singleMetric.metricId ? this.getMetricDropdownValue(data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : '', Validators.required],
                     badThreshold:  data.threshold.singleMetric.badThreshold || '',
                     warnThreshold: data.threshold.singleMetric.warnThreshold || '',
@@ -230,26 +246,33 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
                 subject: data.notification.subject  || '', 
                 body: data.notification.subject || '', 
                 opsgeniePriority:  data.notification.opsgeniePriority || '',
-                opsgenieTags: data.notification.opsgenieTags || '',
-                runbookId: data.notification.runbookId || '' 
+                // opsgenieTags: data.notification.opsgenieTags || '',
+                // OC conditional values
+                runbookId: data.notification.runbookId || '',
+                ocSeverity: data.notification.ocSeverity || '5'
             })
-        }, );
+        });
 
 
         this.subs.alertFormSub = <Subscription>this.alertForm.valueChanges.subscribe(val => {
             console.log('FORM CHANGE', val);
         });
 
+        // tslint:disable-next-line:max-line-length
         this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('bad', val);
         });
+        // tslint:disable-next-line:max-line-length
         this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('warning', val);
         });
+        // tslint:disable-next-line:max-line-length
         this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('recovery', val);
         });
+        // tslint:disable-next-line:max-line-length
         this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryType'].valueChanges.subscribe(val => {
+            // tslint:disable-next-line:max-line-length
             this.setThresholds('recovery', val === 'specific' ? this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].value : '');
         });
     }
@@ -336,7 +359,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         return this.alertForm['controls'].threshold['controls'].singleMetric['controls'];
     }
 
-    
     get thresholdType() {
         return this.thresholdControls.subType.value;
     }
@@ -351,6 +373,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
 
     get notificationRecipients() {
         return this.alertForm['controls'].notification.get('recipients');
+    }
+
+    get notificationRecipientsValue() {
+        return this.alertForm['controls'].notification.get('recipients').value;
     }
 
     get notificationLabelValues() {
@@ -471,27 +497,48 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         });
     }
 
+    setAlertName(name) {
+        this.alertForm.get('name').setValue(name);
+    }
+
     validate() {
         this.alertForm.markAsTouched();
         this.validateThresholds(this.alertForm['controls'].threshold);
 
+        if ( !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
+            this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
+        }
+
+        if ( Object.keys(this.notificationRecipientsValue).length === 0 ) {
+            this.notificationRecipients.setErrors({ 'required': true });
+        }
+        if ( this.alertForm['controls'].notification.get('subject').value.trim() === '' ) {
+            this.alertForm['controls'].notification.get('subject').setErrors({ 'required': true });
+        }
+
+        if ( this.alertForm['controls'].notification.get('body').value.trim() === '' ) {
+            this.alertForm['controls'].notification.get('body').setErrors({ 'required': true });
+        }
+ 
         if ( this.alertForm.valid ) {
             if ( !this.data.id && this.data.name === 'Untitled Alert' ) {
                 this.openAlertNameDialog();
             } else {
-                this.saveAlert(); 
+                this.saveAlert();
             }
         }
 
     }
 
     saveAlert() {
-        const data:any = this.utils.deepClone(this.alertForm.getRawValue());
+        const data: any = this.utils.deepClone(this.alertForm.getRawValue());
         data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
         const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
         data.threshold.singleMetric.queryIndex = qindex;
         data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex; 
         data.threshold.isNagEnabled = data.threshold.nagInterval ? true : false;
+
+
         this.request.emit({ action: 'SaveAlert', payload: { id:this.data.id, data: this.utils.deepClone([data]) }} );
         // console.log(JSON.stringify(data), "alert form", qindex, mindex,this.queries[qindex].metrics[mindex] )
     }
@@ -542,11 +589,20 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
     recoveryTypeChange(event: any) {
         const control = <FormControl>this.thresholdSingleMetricControls.recoveryType;
         control.setValue(event.value);
-        console.log("recoveryTypeChange", event.value);
+        console.log('recoveryTypeChange', event.value);
     }
 
     alertRecipientsUpdate(event: any) {
+        if ( this.notificationRecipients.value.oc &&  !event.oc) {
+            this.alertForm['controls'].notification.get('runbookId').setValue('');
+            this.alertForm['controls'].notification.get('ocSeverity').setValue('');
+        }
+
+        if ( this.notificationRecipients.value.opsgenie && !event.opsgenie) {
+            this.alertForm['controls'].notification.get('opsgeniePriority').setValue('');
+        }
         this.notificationRecipients.setValue(event);
+
     }
 
     /** Privates */

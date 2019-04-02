@@ -28,6 +28,14 @@
             padding: 0px;
         }
 
+        .first-run-progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 200px;
+            height: 32px;
+        }
+
         .metric-search-result {
             overflow-x: hidden;
             overflow-y: auto;

@@ -26,8 +26,8 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
     @ViewChild('recipientInput', { read: MatInput }) private recipientInput: MatInput;
 
     @Input() namespace: string;
-    @Input() selectedAlertRecipients: Array<any>; // [{name, type}]
-    @Output() updatedAlertRecipients = new EventEmitter<any>(); // [{name, type}]
+    @Input() selectedAlertRecipients: any; // ex: {'slack' : [{'name': 'yamas_dev'}]}
+    @Output() updatedAlertRecipients = new EventEmitter<any>(); // ex: {'slack' : [{'name': 'yamas_dev'}]}
 
     megaPanelVisible: boolean = false;
     viewMode: Mode = Mode.all;
@@ -42,47 +42,6 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         //   type: RecipientType.opsgenie,
         //   apiKey: 'abcdefghijklmnopqrstuvwzyzzzzzzzzzzz',
         // },
-        // {
-        //   name: 'yamas-devel',
-        //   type: RecipientType.slack,
-        //   webhook: 'http://slackwebhook.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-        // },
-        // {
-        //   name: 'yamas-devel@verizonmedia.com',
-        //   type: RecipientType.email
-        // },
-        // {
-        //   name: 'zb@verizonmedia.com',
-        //   type: RecipientType.email,
-        //   isAdmin: true
-        // },
-        // {
-        //   name: 'OC Red',
-        //   type: RecipientType.oc,
-        //   displayCount: '1',
-        //   context: 'live',
-        //   opsDBProperty: 'yamas',
-        // },
-        // {
-        //   name: 'name',
-        //   type: RecipientType.http,
-        //   endpoint: 'https://myendpoint.com/api/curveball'
-        // },
-        // {
-        //   name: 'nam',
-        //   type: RecipientType.http,
-        //   endpoint: 'https://myendpoint.com/api/curveball'
-        // },
-        // {
-        //   name: 'namme',
-        //   type: RecipientType.http,
-        //   endpoint: 'https://myendpoint.com/api/curveball'
-        // },
-        // {
-        //   name: 'naa',
-        //   type: RecipientType.http,
-        //   endpoint: 'https://myendpoint.com/api/curveball'
-        // }
     ];
 
     _mode = Mode; // for template
@@ -135,18 +94,14 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         switch (this.viewMode) {
             case this._mode.edit:
                 return 'Edit Recipients';
-                break;
             case this._mode.editRecipient:
                 return 'Edit ' + this.typeToDisplayName(this.recipientType) + ' Recipient';
-                break;
             case this._mode.createRecipient:
                 return 'Create new ' + this.typeToDisplayName(this.recipientType) + ' Recipient';
             default:
                 return 'Select Recipients';
-                break;
         }
     }
-
 
     get types(): Array<string> {
         const types = Object.keys(RecipientType);
@@ -177,9 +132,11 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
             // tslint:disable-next-line:forin
             for (let type in data.recipients) {
                 let recipients = data.recipients[type];
-                for (let _recipient of recipients) {
-                    _recipient.type = type.toLowerCase();
-                    this.namespaceRecipients.push(_recipient);
+                if (recipients) {
+                    for (let _recipient of recipients) {
+                        _recipient.type = type.toLowerCase();
+                        this.namespaceRecipients.push(_recipient);
+                    }
                 }
             }
             this.updateValidators();
@@ -284,7 +241,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
 
         // manually update validators values
         this.opsGenieName.setValue(this.recipientsFormData[RecipientType.opsgenie].name);
-        this.opsGenieApiKey.setValue(this.recipientsFormData[RecipientType.opsgenie].apiKey);
+        this.opsGenieApiKey.setValue(this.recipientsFormData[RecipientType.opsgenie].apikey);
         this.slackName.setValue(this.recipientsFormData[RecipientType.slack].name);
         this.slackWebhook.setValue(this.recipientsFormData[RecipientType.slack].webhook);
         this.ocName.setValue(this.recipientsFormData[RecipientType.oc].name);
@@ -351,7 +308,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
             }
         }
         this.updateValidators();
-        this.setViewMode($event, Mode.all);
+        this.setViewMode($event, Mode.edit);
     }
 
     // when contact menu is closed, need to reset some things
@@ -370,10 +327,12 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         let recipients: any = {};
         for (let alertRecipient of this.alertRecipients) {
             // [{name: blah, type: http}]
+            let simplifiedAlertRecipient = {...alertRecipient};
+            delete simplifiedAlertRecipient['type'];
             if (recipients[alertRecipient.type]) {
-                recipients[alertRecipient.type].push({...alertRecipient});
+                recipients[alertRecipient.type].push(simplifiedAlertRecipient);
             } else {
-                recipients[alertRecipient.type] = [{...alertRecipient}];
+                recipients[alertRecipient.type] = [simplifiedAlertRecipient];
             }
         }
         this.updatedAlertRecipients.emit(recipients);

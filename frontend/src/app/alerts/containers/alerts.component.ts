@@ -40,7 +40,8 @@ import {
     ASloadUserNamespaces,
     ASsetSelectedNamespace,
     ASsetAlertTypeFilter,
-    LoadAlerts
+    LoadAlerts,
+    DeleteAlerts
 } from '../state/alerts.state';
 import { AlertState } from '../state/alert.state';
 
@@ -94,15 +95,15 @@ export class AlertsComponent implements OnInit, OnDestroy {
     alertsDataSource; // dynamically gets reassigned after new alerts state is subscribed
     displayedColumns: string[] = [
         'select',
+        'name',
+        'alertGroupingRules',
+        'contacts',
+        'modified',
         'counts.bad',
         'counts.warn',
         'counts.good',
         'counts.snoozed',
         'sparkline',
-        'name',
-        'groupLabels',
-        'contacts',
-        'modified',
         'actions'
     ];
 
@@ -326,9 +327,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
     deleteAlert(alertObj: any) {
         this.confirmDeleteDialog = this.dialog.open(this.confirmDeleteDialogRef, {data: alertObj});
         this.confirmDeleteDialog.afterClosed().subscribe(event => {
-            // console.log('CONFIRM DELETE DIALOG [afterClosed]', event);
-            // if deleted, event will be object {deleted: true}
-            // or whatever you want it to be....
+            console.log('CONFIRM DELETE DIALOG [afterClosed]', event);
+            if ( event.deleted ) {
+                this.store.dispatch(new DeleteAlerts(this.selectedNamespace, { data:[ alertObj.id ] }))
+            }
         });
     }
 

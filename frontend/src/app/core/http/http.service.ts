@@ -322,4 +322,13 @@ export class HttpService {
         const apiUrl = environment.recipientsApi + '/namespace/' + options.namespace + '/alert';
         return this.http.get(apiUrl, { headers, withCredentials: true });
     }
+
+    deleteAlerts(namespace, payload): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.recipientsApi + '/namespace/' + namespace + '/alert/delete';
+        console.log("deleteA;lert", namespace, payload);
+        return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
+    }
 }

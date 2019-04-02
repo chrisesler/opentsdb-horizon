@@ -100,6 +100,11 @@ export class LoadAlerts {
     constructor(public options: any) {}
 }
 
+export class DeleteAlerts {
+    static readonly type = '[Alerts] Delete Alerts';
+    constructor(public namespace: string, public payload: any) {}
+}
+
 /* state define */
 @State<AlertsStateModel>({
     name: 'Alerts',
@@ -268,6 +273,19 @@ export class AlertsState {
         return this.httpService.getAlerts(options).subscribe(
             alerts => {
                 ctx.patchState({ alerts: alerts});
+            },
+            error => {
+            }
+        );
+
+    }
+
+    @Action(DeleteAlerts)
+    deleteAlerts(ctx: StateContext<AlertsStateModel>, { namespace, payload:payload }: DeleteAlerts) {
+        //ctx.patchState({ loading: true});
+        return this.httpService.deleteAlerts(namespace, payload).subscribe(
+            res => {
+                // ctx.patchState({ alerts: alerts});
             },
             error => {
             }
