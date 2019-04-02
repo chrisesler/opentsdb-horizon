@@ -3,7 +3,6 @@ import {
     HostBinding,
     Input,
     OnInit,
-    HostListener,
     ElementRef,
     Output,
     EventEmitter,
@@ -94,107 +93,15 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     // FAKE DATA
     fakeFunctionCategories: any[] = [
         {
-            label: 'category 1',
+            label: 'Rate',
             functions: [
                 {
-                    label: 'function 1',
-                    functionCall: 'someFunction1'
+                    label: 'Rate of Change',
+                    functionCall: 'RateChange'
                 },
                 {
-                    label: 'function 2',
-                    functionCall: 'someFunction2'
-                },
-                {
-                    label: 'function 3',
-                    functionCall: 'someFunction3'
-                },
-                {
-                    label: 'function 4',
-                    functionCall: 'someFunction4'
-                }
-            ]
-        },
-        {
-            label: 'category 2',
-            functions: [
-                {
-                    label: 'function 5',
-                    functionCall: 'someFunction5'
-                },
-                {
-                    label: 'function 6',
-                    functionCall: 'someFunction6'
-                },
-                {
-                    label: 'function 7',
-                    functionCall: 'someFunction7'
-                },
-                {
-                    label: 'function 8',
-                    functionCall: 'someFunction8'
-                }
-            ]
-        },
-        {
-            label: 'category 3',
-            functions: [
-                {
-                    label: 'function 9',
-                    functionCall: 'someFunction9'
-                },
-                {
-                    label: 'function 10',
-                    functionCall: 'someFunction10'
-                },
-                {
-                    label: 'function 11',
-                    functionCall: 'someFunction11'
-                },
-                {
-                    label: 'function 12',
-                    functionCall: 'someFunction12'
-                }
-            ]
-        },
-        {
-            label: 'category 4',
-            functions: [
-                {
-                    label: 'function 13',
-                    functionCall: 'someFunction13'
-                },
-                {
-                    label: 'function 14',
-                    functionCall: 'someFunction14'
-                },
-                {
-                    label: 'function 15',
-                    functionCall: 'someFunction15'
-                },
-                {
-                    label: 'function 16',
-                    functionCall: 'someFunction16'
-                }
-            ]
-        },
-        {
-            label: 'category 5',
-            functions: [
-                {
-                    label: 'function 17',
-                    functionCall: 'someFunction17'
-                },
-                {
-                    label: 'function 18',
-                    functionCall: 'someFunction18'
-                },
-                {
-                    label: 'function 19',
-                    functionCall: 'someFunction19'
-                },
-                {
-                    label: 'function 20',
-                    functionCall: 'someFunction20'
+                    label: 'Counter to Rate',
+                    functionCall: 'CounterToRate'
                 }
             ]
         }
