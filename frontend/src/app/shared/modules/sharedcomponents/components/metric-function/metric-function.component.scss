@@ -30,6 +30,7 @@
                 .mat-input-element {
                     padding: 0 4px;
                     align-self: stretch;
+                    min-width: 30px;
                 }
             }
 
@@ -58,10 +59,6 @@
                 padding: 0 4px;
             }
         }  
-
-        .readonlyMode {
-            background: yellow;
-        }
     }
 }
 @mixin metric-function-component-theme($theme-config) {

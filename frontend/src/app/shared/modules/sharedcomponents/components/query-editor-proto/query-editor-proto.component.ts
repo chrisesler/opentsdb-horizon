@@ -97,7 +97,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             functions: [
                 {
                     label: 'Rate of Change',
-                    fxCall: 'RateChange'
+                    fxCall: 'RateOfChange'
                 },
                 {
                     label: 'Counter to Rate',
@@ -204,7 +204,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     functionDelete(funcId: string, metricIdx: number) {
         const fxIndex = this.query.metrics[metricIdx].functions.findIndex(fx => fx.id === funcId);
         if (fxIndex !== -1) {
-            this.query.metrics[metricIdx].functions.slice(fxIndex,1);
+            this.query.metrics[metricIdx].functions.splice(fxIndex,1);
         }
     }
 
