@@ -77,7 +77,9 @@
             </div>
             <!-- CUSTOM FUNCTION DISPLAY - THIS WILL LOOP -->
             <div class="metric-row-data custom-function">
-                <metric-function></metric-function>
+                <div *ngFor="let fx of metric.functions">
+                    <metric-function [fx]="fx" (fxOut)="functionUpdate($event, i)" (fxDel)="functionDelete($event, i)"></metric-function>
+                </div>
                 <!--
                 <div class="function-label">
                     <span>function label</span>
@@ -239,7 +241,7 @@
                 <mat-nav-list>
                     <a mat-list-item 
                         [ngClass]="{'is-active': i === selectedFunctionCategoryIndex}"
-                        *ngFor="let category of fakeFunctionCategories; let i = index;"
+                        *ngFor="let category of functionCategories; let i = index;"
                         (click)="selectFunctionCategory($event, i)">
                         <span>{{ category.label }}</span>
                         <mat-icon fontSet="denali" fontIcon="d-arrowhead-right"></mat-icon>
@@ -248,7 +250,7 @@
             </div>
             <div class="funtion-category-items">
                 <mat-nav-list *ngIf="selectedFunctionCategoryIndex >= 0">
-                    <a mat-list-item *ngFor="let catFunction of fakeFunctionCategories[selectedFunctionCategoryIndex].functions; let j = index;" (click)="addFunction($event, i, j)">
+                    <a mat-list-item *ngFor="let catFunction of functionCategories[selectedFunctionCategoryIndex].functions; let j = index;" (click)="addFunction(catFunction, metric.id)">
                         <span>{{ catFunction.label }}</span>
                     </a>
                 </mat-nav-list>

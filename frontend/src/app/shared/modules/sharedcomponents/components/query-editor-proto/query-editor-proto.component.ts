@@ -97,11 +97,11 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             functions: [
                 {
                     label: 'Rate of Change',
-                    functionCall: 'RateChange'
+                    fxCall: 'RateChange'
                 },
                 {
                     label: 'Counter to Rate',
-                    functionCall: 'CounterToRate'
+                    fxCall: 'CounterToRate'
                 }
             ]
         }
@@ -177,6 +177,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                         }
                     },
                     tagAggregator: 'sum',
+                    functions: []
                 };
                 this.query.metrics.splice(insertIndex, 0, oMetric);
             }
@@ -190,6 +191,23 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.queryChanges$.next(true);
     }
 
+    functionUpdate(func: any, metricIdx: number) {
+        this.query.metrics[metricIdx].functions = this.query.metrics[metricIdx].functions || [];
+        const fxIndex = this.query.metrics[metricIdx].functions.findIndex(fx => fx.id === func.id);
+        if (fxIndex !== -1) {
+            this.query.metrics[metricIdx].functions[fxIndex] = func;
+        } else {
+            this.query.metrics[metricIdx].functions.push(func);
+        }
+    }
+
+    functionDelete(funcId: string, metricIdx: number) {
+        const fxIndex = this.query.metrics[metricIdx].functions.findIndex(fx => fx.id === funcId);
+        if (fxIndex !== -1) {
+            this.query.metrics[metricIdx].functions.slice(fxIndex,1);
+        }
+    }
+
     setMetricTagAggregator(id, value) {
         const index = this.query.metrics.findIndex(item => item.id === id);
         if (index !== -1) {
@@ -197,8 +215,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             this.queryChanges$.next(true);
         }
     }
-
-
 
     setMetricGroupByTags(id, tags) {
         const index = this.query.metrics.findIndex(item => item.id === id);
@@ -367,11 +383,14 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.selectedFunctionCategoryIndex = catIdx;
     }
 
-    addFunction($event, catIdx, funcIdx) {
-        console.log('MENU', this.functionSelectionMenu);
-        // do something
-
-        // close menu
+    addFunction(func: any, metricId: string) {
+        const newFx = {
+            id: this.utils.generateId(3),
+            fxCall: func.fxCall,
+            val: ''
+        };
+        const metricIdx = this.query.metrics.findIndex(d => d.id === metricId ) ;
+        this.query.metrics[metricIdx].functions.push(newFx);
         // tslint:disable-next-line:max-line-length
         const trigger: MatMenuTrigger = <MatMenuTrigger>this.functionMenuTriggers.find((el, i) => i === this.selectedFunctionCategoryIndex);
         if (trigger) {
