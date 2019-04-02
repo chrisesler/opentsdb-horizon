@@ -62,18 +62,18 @@
             </div>
             <div class="metric-row-data tag-spacer">
             </div>
-            <div class="metric-row-data aggregator">
-                <tag-aggregator
-                    [value]="metric.tagAggregator"
-                   (change)="setMetricTagAggregator(metric.id, $event)"></tag-aggregator>
-                <span>BY</span>
-            </div>
-            <div class="metric-row-data tags">
-                <dropdown-metric-tags
-                    [namespace]="query.namespace"
-                    [metric]="metric.name"
-                    [selected]="metric.groupByTags"
-                    (change)="setMetricGroupByTags(metric.id, $event)"></dropdown-metric-tags>
+            <div class="metric-row-data tag-aggregator">
+                <div class="tag-aggregator-wrapper">
+                    <tag-aggregator
+                        [value]="metric.tagAggregator"
+                    (change)="setMetricTagAggregator(metric.id, $event)"></tag-aggregator>
+                    <span class="by-spacer">By</span>
+                    <dropdown-metric-tags
+                        [namespace]="query.namespace"
+                        [metric]="metric.name"
+                        [selected]="metric.groupByTags"
+                        (change)="setMetricGroupByTags(metric.id, $event)"></dropdown-metric-tags>
+                </div>
             </div>
             <!-- CUSTOM FUNCTION DISPLAY - THIS WILL LOOP -->
             <div class="metric-row-data custom-function">
@@ -96,45 +96,7 @@
                         <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
                     </button>
                 </div>
-            -->
-            </div>
-            <div class="metric-row-data custom-function">
-                <div class="function-label">
-                    <span>function label</span>
-                </div>
-                <div class="function-value">
-                    <mat-form-field appearance="fill" floatLabel="never">
-                        <input matInput placeholder="enter value">
-                        <mat-icon matSuffix
-                            matTooltip="Info about the function"
-                            fontSet="denali"
-                            fontIcon="d-information-circle"></mat-icon>
-                    </mat-form-field>
-                </div>
-                <div class="function-remove">
-                    <button mat-icon-button>
-                        <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
-                    </button>
-                </div>
-            </div>
-            <div class="metric-row-data custom-function">
-                <div class="function-label">
-                    <span>function label</span>
-                </div>
-                <div class="function-value">
-                    <mat-form-field appearance="fill" floatLabel="never">
-                        <input matInput placeholder="enter value">
-                        <mat-icon matSuffix
-                            matTooltip="Info about the function"
-                            fontSet="denali"
-                            fontIcon="d-information-circle"></mat-icon>
-                    </mat-form-field>
-                </div>
-                <div class="function-remove">
-                    <button mat-icon-button>
-                        <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
-                    </button>
-                </div>
+                -->
             </div>
             <!-- ADD FUNTION ALWAYS LAST -->
             <div class="metric-row-data add-function"
