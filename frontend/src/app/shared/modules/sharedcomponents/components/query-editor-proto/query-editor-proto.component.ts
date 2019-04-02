@@ -199,6 +199,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         } else {
             this.query.metrics[metricIdx].functions.push(func);
         }
+        console.log('this query', this.query);
     }
 
     functionDelete(funcId: string, metricIdx: number) {
@@ -206,6 +207,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         if (fxIndex !== -1) {
             this.query.metrics[metricIdx].functions.splice(fxIndex,1);
         }
+        console.log('this query', this.query);
     }
 
     setMetricTagAggregator(id, value) {
