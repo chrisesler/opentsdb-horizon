@@ -373,7 +373,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
         // close menu
         // tslint:disable-next-line:max-line-length
-        const trigger: MatMenuTrigger = <MatMenuTrigger>this.functionMenuTriggers.find((el, i) => i === this.selectedFunctionCategoryIndex);
+        const trigger: MatMenuTrigger = <MatMenuTrigger>this.functionMenuTriggers.find((el, i) => i === this.currentFunctionMenuTriggerIdx);
         if (trigger) {
             trigger.closeMenu();
         }

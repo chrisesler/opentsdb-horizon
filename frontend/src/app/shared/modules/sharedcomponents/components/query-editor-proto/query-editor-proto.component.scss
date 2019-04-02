@@ -216,7 +216,8 @@
                     }
                 }
 
-                &.metric-name {
+                &.metric-name,
+                &.expression {
                     width: 270px;
                     min-width: 270px;
 
@@ -253,16 +254,22 @@
                             }
                         }
                     }
+
+                    .mat-form-field {
+                        width: 100%;
+                    }
                 }
 
-                &.expression {
+                &.metric-name.is-adding {
+                    width: 328px
+                }
+
+                /*&.expression {
                     min-width: 270px;
                     width: 270px;
 
-                    .mat-form-field {
-                        width: 90%;
-                    }
-                }
+                    
+                }*/
 
                 &.aggregator {
                     button {
@@ -291,7 +298,19 @@
                 }
 
                 &.custom-function {
-                    align-items: stretch;
+
+                    .custom-function-wrapper {
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        height: 32px;
+
+                        .metric-function-component {
+                            align-self: stretch;
+                        }
+                    }
+
+                    /*align-items: stretch;
                     justify-content: stretch;
 
                     .function-label,
@@ -321,7 +340,7 @@
                                 }
                             }
                         }
-                    }
+                    }*/
                 }
 
                 &.tags {
@@ -575,6 +594,16 @@
 
                 &.tag-aggregator {
                     .tag-aggregator-wrapper {
+                        border: 1px solid $lighter-divider;
+
+                        &:hover {
+                            background-color: rgba($link, 0.1);
+                        }
+                    }
+                }
+
+                &.custom-function {
+                    .custom-function-wrapper {
                         border: 1px solid $lighter-divider;
 
                         &:hover {

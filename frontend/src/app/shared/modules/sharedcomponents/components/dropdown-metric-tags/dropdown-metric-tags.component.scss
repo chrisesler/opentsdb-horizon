@@ -17,7 +17,8 @@
                 position: relative;
                 z-index: 1;
                 padding: 0 16px;
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
             }
 
             .menu-trigger {
@@ -54,6 +55,13 @@
                         margin-right: 8px;
                     }
                 }*/
+
+                .mat-pseudo-checkbox-checked::after {
+                    top: calc(50% - 3.6px);
+                    left: calc(50% - 5px);
+                    width: 10px;
+                    height: 5px;
+                }
             }
         }
     }
