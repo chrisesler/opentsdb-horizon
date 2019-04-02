@@ -109,7 +109,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         height: 180
     };
 
-    recipients = {'slack' : [{'name': 'yamas_dev'}]};
+    recipients = {'slack' : [{'name': 'yamas_dev'}], 'oc': [{'name': 'oc red'}]};
 
     thresholds: any = { };
     // tslint:disable-next-line:no-inferrable-types
@@ -176,8 +176,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
             // see: https://github.com/angular/material2/issues/5268
             // setTimeout(() => this.openAlertNameDialog());
         }
-        this.setNewQuery();
-        this.reloadData();
     }
 
     ngOnChanges(changes) {
@@ -212,9 +210,12 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         const def = {
                 threshold : { singleMetric: {} },
                 notification: {},
-                queries: {}
+                queries: { raw: {}, tsdb:{}}
             };
-        data = Object.assign(data, def);
+        data = Object.assign(def, data);
+        this.setQuery();
+        this.reloadData();
+
         // TODO: need to check if there is something in this.data
         this.alertForm = this.fb.group({
             name: data.name || 'Untitled Alert',
@@ -223,10 +224,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
             alertGroupingRules: this.fb.array(data.alertGroupingRules || []),
             labels: this.fb.array(data.labels || []),
             threshold: this.fb.group({
-                subType: data.threshold.subType || 'singleMetric',
-                isNagEnabled:  data.threshold.isNagEnabled || 'false',
-                nagInterval: data.threshold.nagInterval || 0,
-                notifyOnMissing: data.threshold.notifyOnMissing || false,
+                subType: data.threshold.subType || 'singleMetric', 
+                isNagEnabled:  data.threshold.nagInterval ? true : 'false', 
+                nagInterval: data.threshold.nagInterval || '0', 
+                notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false', 
                 singleMetric: this.fb.group({
                     queryIndex: data.threshold.singleMetric.queryIndex || 0 ,
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
@@ -235,20 +236,19 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
                     badThreshold:  data.threshold.singleMetric.badThreshold || '',
                     warnThreshold: data.threshold.singleMetric.warnThreshold || '',
                     recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || '',
-                    recoveryType: data.threshold.singleMetric.recoveryType || 'minimum',
-                    slidingWindow : data.threshold.singleMetric.slidingWindow || '',
+                    recoveryType: data.threshold.singleMetric.recoveryType || 'minimum', 
+                    slidingWindow : data.threshold.singleMetric.slidingWindow ? data.threshold.singleMetric.slidingWindow.toString() : '300',
                     comparisonOperator : data.threshold.singleMetric.comparisonOperator || 'above',
                     timeSampler : data.threshold.singleMetric.timeSampler || 'at_least_once'
                 }),
             }, this.validateThresholds),
             notification: this.fb.group({
-                transitionsToNotify: [ this.getAlertStatesArray(data.notification.transitionsToNotify || {})],
-                recipients: [ data.notification.recipients || {}],
-                subject: data.notification.subject  || '',
-                body: data.notification.body || '',
-                // opsGenie conditional values
-                opsgeniePriority:  data.notification.opsgeniePriority || 'P5',
-                opsgenieTags: data.notification.opsgenieTags || '',
+                transitionsToNotify: [ data.notification.transitionsToNotify || []],
+                recipients: [ data.notification.recipients || {}], 
+                subject: data.notification.subject  || '', 
+                body: data.notification.subject || '', 
+                opsgeniePriority:  data.notification.opsgeniePriority || '',
+                // opsgenieTags: data.notification.opsgenieTags || '',
                 // OC conditional values
                 runbookId: data.notification.runbookId || '',
                 ocSeverity: data.notification.ocSeverity || '5'
@@ -280,31 +280,22 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
     }
 
 
-    setNewQuery() {
-        this.queries = [{
-            id: this.utils.generateId(),
-            namespace: '',
-            metrics: [],
-            filters: [],
-            settings: {
-                visual: {
-                    visible: true
+    setQuery() {
+        this.queries = this.data.queries && this.data.queries.raw ? this.data.queries.raw : [{
+                id: this.utils.generateId(),
+                namespace: '',
+                metrics: [],
+                filters: [],
+                settings: {
+                    visual: {
+                        visible: true
+                    }
                 }
             }
-        }
-    ];
+        ];
         
     }
 
-    getAlertStatesArray(alerts) {
-        const res = [];
-        for ( let k in alerts ) {
-            if ( alerts[k] === true ) {
-                res.push(k);
-            }
-        }
-        return res;
-    }
     validateThresholds(group) {
         const badStateCntrl = this.thresholdSingleMetricControls['badThreshold'];
         const warningStateCntrl = this.thresholdSingleMetricControls['warnThreshold'];
@@ -384,6 +375,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
 
     get notificationRecipients() {
         return this.alertForm['controls'].notification.get('recipients');
+    }
+
+    get notificationRecipientsValue() {
+        return this.alertForm['controls'].notification.get('recipients').value;
     }
 
     get notificationLabelValues() {
@@ -477,6 +472,17 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         this.queryData();
     }
 
+    getExpressionLabel(qindex, mindex) {
+        let label = 'e';
+        let eIndex = -1;
+        for ( let i =0; i <= mindex && i < this.queries[qindex].metrics.length; i++ ) {
+            if ( this.queries[qindex].metrics[i].expression ) {
+                eIndex++;
+            }
+        }
+        return label + (eIndex + 1);
+    }
+
     showError() {
         const parentPos = this.elRef.nativeElement.getBoundingClientRect();
         const dialogConf: MatDialogConfig = new MatDialogConfig();
@@ -493,10 +499,29 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         });
     }
 
+    setAlertName(name) {
+        this.alertForm.get('name').setValue(name);
+    }
+
     validate() {
         this.alertForm.markAsTouched();
         this.validateThresholds(this.alertForm['controls'].threshold);
 
+        if ( !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
+            this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
+        }
+
+        if ( Object.keys(this.notificationRecipientsValue).length === 0 ) {
+            this.notificationRecipients.setErrors({ 'required': true });
+        }
+        if ( this.alertForm['controls'].notification.get('subject').value.trim() === '' ) {
+            this.alertForm['controls'].notification.get('subject').setErrors({ 'required': true });
+        }
+
+        if ( this.alertForm['controls'].notification.get('body').value.trim() === '' ) {
+            this.alertForm['controls'].notification.get('body').setErrors({ 'required': true });
+        }
+ 
         if ( this.alertForm.valid ) {
             if ( !this.data.id && this.data.name === 'Untitled Alert' ) {
                 this.openAlertNameDialog();
@@ -512,16 +537,11 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
         const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
         data.threshold.singleMetric.queryIndex = qindex;
-        // tslint:disable-next-line:max-line-length
-        data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex;
-        const transitionsToNotify = data.notification.transitionsToNotify;
-        // change the notify format : {goodToBad:true}
-        const objTransitionsToNotify = {};
-        for ( let i = 0; i < transitionsToNotify.length; i++ ) {
-            objTransitionsToNotify[transitionsToNotify[i]] = true;
-        }
-        data.notification.transitionsToNotify = objTransitionsToNotify;
-        this.request.emit({ action: 'SaveAlert', payload: { id: this.data.id, data: this.utils.deepClone([data]) }} );
+        data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex; 
+        data.threshold.isNagEnabled = data.threshold.nagInterval ? true : false;
+
+
+        this.request.emit({ action: 'SaveAlert', payload: { id:this.data.id, data: this.utils.deepClone([data]) }} );
         // console.log(JSON.stringify(data), "alert form", qindex, mindex,this.queries[qindex].metrics[mindex] )
     }
     /** Events */
@@ -575,7 +595,16 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
     }
 
     alertRecipientsUpdate(event: any) {
+        if ( this.notificationRecipients.value.oc &&  !event.oc) {
+            this.alertForm['controls'].notification.get('runbookId').setValue('');
+            this.alertForm['controls'].notification.get('ocSeverity').setValue('');
+        }
+
+        if ( this.notificationRecipients.value.opsgenie && !event.opsgenie) {
+            this.alertForm['controls'].notification.get('opsgeniePriority').setValue('');
+        }
         this.notificationRecipients.setValue(event);
+
     }
 
     /** Privates */

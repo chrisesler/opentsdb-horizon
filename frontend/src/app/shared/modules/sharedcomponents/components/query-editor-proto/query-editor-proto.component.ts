@@ -3,7 +3,6 @@ import {
     HostBinding,
     Input,
     OnInit,
-    HostListener,
     ElementRef,
     Output,
     EventEmitter,
@@ -16,7 +15,9 @@ import { UtilsService } from '../../../../../core/services/utils.service';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MatMenuTrigger, MatMenu } from '@angular/material';
+import { MatIconRegistry } from '@angular/material/icon';
 import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
 
 
 
@@ -28,20 +29,30 @@ import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 })
 export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
-    @HostBinding('class.query-editor-proto') private _hostClass = true;
+    // tslint:disable-next-line:no-inferrable-types
+    @HostBinding('class.query-editor-proto') private _hostClass: boolean = true;
+    // tslint:disable-next-line:no-inferrable-types
+    @HostBinding('class.can-disable-metrics') private _canDisableMetrics: boolean = true;
 
     @Input() type;
     @Input() query: any;
     @Input() label = '';
     @Input() edit = [];
+
+    @Input() // true for normal queries... false for alerts queries
+    get canDisableMetrics(): boolean {
+        return this._canDisableMetrics;
+    }
+    set canDisableMetrics(value: boolean) {
+        this._canDisableMetrics = value;
+    }
+
     @Output() queryOutput = new EventEmitter;
 
     @ViewChild('tagFilterMenuTrigger', { read: MatMenuTrigger }) tagFilterMenuTrigger: MatMenuTrigger;
 
     @ViewChild('functionSelectionMenu', { read: MatMenu }) functionSelectionMenu: MatMenu;
     @ViewChildren(MatMenuTrigger) functionMenuTriggers: QueryList<MatMenuTrigger>;
-
-
 
     editNamespace = false;
     editTag = false;
@@ -79,33 +90,36 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     selectedFunctionCategoryIndex: any = -1; // -1 for none selected, otherwise index
     currentFunctionMenuTriggerIdx: number;
 
-    // FAKE DATA
-    fakeFunctionCategories: any[] = [
+    // store metric fx temporary here
+    functionCategories: any[] = [
         {
             label: 'Rate',
             functions: [
                 {
                     label: 'Rate of Change',
-                    functionCall: 'rateChange'
+                    fxCall: 'RateOfChange'
                 },
                 {
                     label: 'Counter to Rate',
-                    functionCall: 'counterRate'
-                }
-            ]
-        },
-        {
-            label: 'other func',
-            functions: [
-                {
-                    label: 'abc',
-                    functionCall: 'someFunction5'
+                    fxCall: 'CounterToRate'
                 }
             ]
         }
     ];
 
-    constructor(private elRef: ElementRef, private utils: UtilsService, private fb: FormBuilder, ) { }
+    constructor(
+        private elRef: ElementRef,
+        private utils: UtilsService,
+        private fb: FormBuilder,
+        private matIconRegistry: MatIconRegistry,
+        private domSanitizer: DomSanitizer
+    ) {
+        // add function (f(x)) icon to registry... url has to be trusted
+        matIconRegistry.addSvgIcon(
+            'function_icon',
+            domSanitizer.bypassSecurityTrustResourceUrl('assets/function-icon.svg')
+        );
+    }
 
     ngOnInit() {
         this.queryChanges$ = new BehaviorSubject(false);
@@ -163,6 +177,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                         }
                     },
                     tagAggregator: 'sum',
+                    functions: []
                 };
                 this.query.metrics.splice(insertIndex, 0, oMetric);
             }
@@ -176,6 +191,25 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.queryChanges$.next(true);
     }
 
+    functionUpdate(func: any, metricIdx: number) {
+        this.query.metrics[metricIdx].functions = this.query.metrics[metricIdx].functions || [];
+        const fxIndex = this.query.metrics[metricIdx].functions.findIndex(fx => fx.id === func.id);
+        if (fxIndex !== -1) {
+            this.query.metrics[metricIdx].functions[fxIndex] = func;
+        } else {
+            this.query.metrics[metricIdx].functions.push(func);
+        }
+        console.log('this query', this.query);
+    }
+
+    functionDelete(funcId: string, metricIdx: number) {
+        const fxIndex = this.query.metrics[metricIdx].functions.findIndex(fx => fx.id === funcId);
+        if (fxIndex !== -1) {
+            this.query.metrics[metricIdx].functions.splice(fxIndex,1);
+        }
+        console.log('this query', this.query);
+    }
+
     setMetricTagAggregator(id, value) {
         const index = this.query.metrics.findIndex(item => item.id === id);
         if (index !== -1) {
@@ -183,8 +217,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             this.queryChanges$.next(true);
         }
     }
-
-
 
     setMetricGroupByTags(id, tags) {
         const index = this.query.metrics.findIndex(item => item.id === id);
@@ -353,13 +385,16 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.selectedFunctionCategoryIndex = catIdx;
     }
 
-    addFunction($event, catIdx, funcIdx) {
-        console.log('MENU', this.functionSelectionMenu);
-        // do something
-
-        // close menu
+    addFunction(func: any, metricId: string) {
+        const newFx = {
+            id: this.utils.generateId(3),
+            fxCall: func.fxCall,
+            val: ''
+        };
+        const metricIdx = this.query.metrics.findIndex(d => d.id === metricId ) ;
+        this.query.metrics[metricIdx].functions.push(newFx);
         // tslint:disable-next-line:max-line-length
-        const trigger: MatMenuTrigger = <MatMenuTrigger>this.functionMenuTriggers.find((el, i) => i === this.selectedFunctionCategoryIndex);
+        const trigger: MatMenuTrigger = <MatMenuTrigger>this.functionMenuTriggers.find((el, i) => i === this.currentFunctionMenuTriggerIdx);
         if (trigger) {
             trigger.closeMenu();
         }
@@ -389,6 +424,40 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     showTagFilterMenu() {
         this.tagFilterMenuTrigger.openMenu();
+    }
+
+    toggleMetric(id) {
+        const index = this.query.metrics.findIndex(d => d.id === id ) ;
+        this.query.metrics[index].settings.visual.visible = !this.query.metrics[index].settings.visual.visible;
+        this.queryChanges$.next(true);
+    }
+
+    cloneMetric(oMetric) {
+        const nMetric = this.utils.deepClone(oMetric);
+        nMetric.id = this.utils.generateId(3);
+        const insertIndex = this.query.metrics.findIndex(d => d.id === oMetric.id ) + 1;
+        this.query.metrics.splice(insertIndex, 0, nMetric);
+        this.queryChanges$.next(true);
+    }
+
+    deleteMetric(id) {
+        const index = this.query.metrics.findIndex(d => d.id === id ) ;
+        this.query.metrics.splice(index, 1);
+        this.queryChanges$.next(true);
+    }
+
+    canDeleteMetric(id) {
+        const index = this.query.metrics.findIndex(d => d.id === id ) ;
+        const metrics = this.query.metrics;
+        let canDelete = true;
+        for ( let i = 0; i < metrics.length; i++ ) {
+            const expression = metrics[i].expression;
+            if ( expression && i !== index  &&  expression.indexOf('{{' + id + '}}') !== -1 ) {
+                canDelete = false;
+                break;
+            }
+        }
+        return canDelete;
     }
 
 }

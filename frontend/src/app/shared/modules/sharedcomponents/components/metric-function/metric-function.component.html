@@ -1,0 +1,7 @@
+<mat-form-field appearance="standard" floatLabel="never" style="width: 200px !important;">
+  <div matPrefix>{{fx.fxCall}}</div>
+  <input matInput [formControl]="inputVal" (keyup.enter)="saveInput()" (click)="editInput()" [readonly]="!isEdit" 
+    [ngClass]="{'readonlyMode': !isEdit}" (blur)="saveInput()" autocomplete="off">
+  <mat-icon matSuffix fontSet="denali" fontIcon="d-close" (click)="delFx(fx.id)"></mat-icon>
+  <!--<mat-hint *ngIf="isEdit">number(s|m|h|d)</mat-hint>-->
+</mat-form-field>

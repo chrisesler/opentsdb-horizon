@@ -1,6 +1,69 @@
 @mixin dropdown-metric-tags-component-base() {
     .dropdown-metric-tags {
         width: 100%;
+
+        .mat-button {
+            position: relative;
+            padding: 0;
+            display: inline-flex;
+            line-height: 32px;
+
+            .mat-button-wrapper {
+                display: inline-flex;
+                flex: 1;
+            }
+
+            .button-label {
+                position: relative;
+                z-index: 1;
+                padding: 0 16px;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .menu-trigger {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 0;
+            }
+        }
+    }
+
+    // cdk items
+    .tag-options-cdk-menu.mat-menu-panel {
+        min-width: initial;
+
+        .mat-menu-content {
+            padding: 0;
+
+            .mat-selection-list {
+                padding-top: 0;
+            }
+
+            .mat-list-option {
+                height: 32px;
+                line-height: 32px;
+                font-size: 14px;
+
+                /*.mat-list-item-content-reverse {
+                    flex-direction: row;
+
+                    .mat-pseudo-checkbox {
+                        margin-right: 8px;
+                    }
+                }*/
+
+                .mat-pseudo-checkbox-checked::after {
+                    top: calc(50% - 3.6px);
+                    left: calc(50% - 5px);
+                    width: 10px;
+                    height: 5px;
+                }
+            }
+        }
     }
 }
 
@@ -27,5 +90,10 @@
     $query-block-bg: map-get($widgets, query-editor-block-bg);
     $query-block-selected-border: map-get($widgets, query-editor-selected-border);
 
-    // .dropdown-metric-tags { }
+    .dropdown-metric-tags {
+
+        .mat-button {
+            color: map-get($foreground, link);
+        }
+    }
 }

@@ -54,7 +54,7 @@ export class MetaService {
 
       if ( params[i].metrics && params[i].metrics.length ) {
         query.filter.filters.push({
-          "type": "MetricRegex",
+          "type": "MetricLiteral",
           "metric": params[i].metrics.join('|')
         });
       }
