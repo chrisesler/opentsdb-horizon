@@ -90,8 +90,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     selectedFunctionCategoryIndex: any = -1; // -1 for none selected, otherwise index
     currentFunctionMenuTriggerIdx: number;
 
-    // FAKE DATA
-    fakeFunctionCategories: any[] = [
+    // store metric fx temporary here
+    functionCategories: any[] = [
         {
             label: 'Rate',
             functions: [

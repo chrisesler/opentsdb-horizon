@@ -1,7 +1,9 @@
-<mat-form-field appearance="outline">
+<mat-form-field appearance="outline" >
   <!--<mat-label>Outline form field</mat-label>-->
   <div matPrefix>CounterToRate</div>
-  <input matInput placeholder="number s|m|h, true|false">
+  <input matInput [formControl]="inputVal" (keyup.enter)="saveInput()" (click)="editInput()" [readonly]="!isEdit" 
+    [ngClass]="{'readonlyMode': !isEdit}">
   <mat-icon matSuffix fontSet="denali" fontIcon="d-close-circle"></mat-icon>
   <!--<mat-hint>Hint</mat-hint>-->
 </mat-form-field>
+<!--<span *ngIf="!isEdit" style="background: yellow;" (click)="editInput()">{{function.val}}</span>-->

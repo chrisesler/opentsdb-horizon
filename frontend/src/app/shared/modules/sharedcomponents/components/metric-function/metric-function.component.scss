@@ -10,6 +10,10 @@
             background: #eee;
             line-height: 29px;
         }  
+
+        .readonlyMode {
+            background: yellow;
+        }
     }
 }
 @mixin metric-function-component-theme($theme-config) {
