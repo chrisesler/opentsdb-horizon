@@ -392,7 +392,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const metricIdx = this.query.metrics.findIndex(d => d.id === metricId ) ;
         this.query.metrics[metricIdx].functions.push(newFx);
         // tslint:disable-next-line:max-line-length
-        const trigger: MatMenuTrigger = <MatMenuTrigger>this.functionMenuTriggers.find((el, i) => i === this.selectedFunctionCategoryIndex);
+        const trigger: MatMenuTrigger = <MatMenuTrigger>this.functionMenuTriggers.find((el, i) => i === this.currentFunctionMenuTriggerIdx);
         if (trigger) {
             trigger.closeMenu();
         }
@@ -422,6 +422,40 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     showTagFilterMenu() {
         this.tagFilterMenuTrigger.openMenu();
+    }
+
+    toggleMetric(id) {
+        const index = this.query.metrics.findIndex(d => d.id === id ) ;
+        this.query.metrics[index].settings.visual.visible = !this.query.metrics[index].settings.visual.visible;
+        this.queryChanges$.next(true);
+    }
+
+    cloneMetric(oMetric) {
+        const nMetric = this.utils.deepClone(oMetric);
+        nMetric.id = this.utils.generateId(3);
+        const insertIndex = this.query.metrics.findIndex(d => d.id === oMetric.id ) + 1;
+        this.query.metrics.splice(insertIndex, 0, nMetric);
+        this.queryChanges$.next(true);
+    }
+
+    deleteMetric(id) {
+        const index = this.query.metrics.findIndex(d => d.id === id ) ;
+        this.query.metrics.splice(index, 1);
+        this.queryChanges$.next(true);
+    }
+
+    canDeleteMetric(id) {
+        const index = this.query.metrics.findIndex(d => d.id === id ) ;
+        const metrics = this.query.metrics;
+        let canDelete = true;
+        for ( let i = 0; i < metrics.length; i++ ) {
+            const expression = metrics[i].expression;
+            if ( expression && i !== index  &&  expression.indexOf('{{' + id + '}}') !== -1 ) {
+                canDelete = false;
+                break;
+            }
+        }
+        return canDelete;
     }
 
 }

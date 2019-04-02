@@ -1,4 +1,4 @@
-<mat-form-field appearance="outline" >
+<mat-form-field appearance="standard" floatLabel="never">
   <div matPrefix>{{fx.fxCall}}</div>
   <input matInput [formControl]="inputVal" (keyup.enter)="saveInput()" (click)="editInput()" [readonly]="!isEdit" 
     [ngClass]="{'readonlyMode': !isEdit}" (blur)="saveInput()">

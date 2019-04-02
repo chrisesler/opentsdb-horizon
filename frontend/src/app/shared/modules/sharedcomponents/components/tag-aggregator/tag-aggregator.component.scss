@@ -5,6 +5,16 @@
 
         .mat-button {
             line-height: 32px;
+
+            .mat-button-wrapper {
+                display: flex;
+
+                .mat-select-arrow-wrapper {
+                    display: flex;
+                    align-items: center;
+                }
+            }
+
         }
     }
 
