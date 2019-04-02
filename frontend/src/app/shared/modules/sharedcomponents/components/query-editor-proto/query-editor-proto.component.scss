@@ -68,9 +68,10 @@
                 position: absolute;
                 top: 5px;
                 bottom: 5px;
-                left: 300px;
-                width: 300px;
-                padding: 4px 8px;
+                left: 340px;
+                max-width: 300px;
+                width: 100%;
+                padding: 4px;
 
                 .add-tag-filter-button.mat-button {
                     line-height: 24px;
@@ -157,7 +158,7 @@
 
             .metric-row-data {
                 height: inherit;
-                padding-right: 16px;
+                margin-right: 8px;
                 min-height: 32px;
                 display: inline-flex;
                 align-items: center;
@@ -169,17 +170,88 @@
                 &.metric-index {
                     min-width: 50px;
                     width: 50px;
+
+                    .mat-flat-button {
+                        padding: 0;
+                        min-width: 50px;
+                        background: rgba(0,0,0,0.03);
+                        line-height: initial;
+                        width: 100%;
+    
+                        .mat-button-wrapper {
+                            display: inline-flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: stretch;
+                            line-height: initial;
+                            padding: 2px 0 0 !important;
+                            width: 100%;
+                        }
+                        
+                        .label {
+                            flex: 1;
+                            display: flex;
+                            padding: 0 6px;
+    
+                            span {
+                                flex: 1;
+                                font-size: 12px;
+                                padding: 2px 0;
+                            }
+    
+                            .mat-icon {
+                                width: 14px;
+                                height: 14px;
+                                font-size: 16px;
+                                margin-right: 4px;
+                            }
+                        }
+    
+                        .mat-select-arrow-wrapper {
+                            padding: 4px 0;
+                            display: inline-flex;
+                            justify-content: center;
+                            border-top: 1px solid rgba(0,0,0,0.06);
+                        }
+                    }
                 }
 
                 &.metric-name {
                     width: 270px;
                     min-width: 270px;
 
-                    span {
-                        max-width: 275px;
-                        text-overflow: ellipsis;
-                        display: inline-block;
-                        overflow: hidden;
+                    .display-name {
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        height: 32px;
+                        cursor: pointer;
+
+                        span {
+                            flex: 1;
+                            padding-left: 2px;
+                            text-overflow: ellipsis;
+                            display: inline-block;
+                            overflow: hidden;
+                        }
+
+                        .mat-icon {
+                            width: 16px;
+                            height: 16px;
+                            font-size: 12px;
+                            line-height: 16px;
+                            margin-left: 2px;
+                            opacity: 0;
+                            transition: opacity 200ms ease-in-out;
+
+                            
+                        }
+
+                        &:hover {
+                            .mat-icon {
+                                opacity: 1;
+                            }
+                        }
                     }
                 }
 
@@ -304,49 +376,6 @@
                     }
                 }
             }
-
-            .metric-index {
-                .mat-flat-button {
-                    padding: 0;
-                    min-width: 40px;
-                    background: rgba(0,0,0,0.03);
-                    line-height: initial;
-
-                    .mat-button-wrapper {
-                        display: inline-flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        align-items: stretch;
-                        line-height: initial;
-                        padding: 2px 0 0 !important;
-                    }
-                    
-
-                    .label {
-                        flex: 1;
-                        display: flex;
-                        padding: 0 6px;
-
-                        span {
-                            flex: 1;
-                        }
-
-                        .mat-icon {
-                            width: 14px;
-                            height: 14px;
-                            font-size: 16px;
-                            margin-right: 4px;
-                        }
-                    }
-
-                    .mat-select-arrow-wrapper {
-                        padding: 4px 0;
-                        display: inline-flex;
-                        justify-content: center;
-                        border-top: 1px solid rgba(0,0,0,0.06);
-                    }
-                }
-            }
         }
 
         // add metric / add expression buttons
@@ -366,6 +395,22 @@
                     width: 18px;
                     height: 18px;
                     font-size: 18px;
+                }
+            }
+        }
+
+        // HOST MODIFIERS
+        &.can-disable-metrics {
+            .metric-list-item {
+                .metric-row-data {
+                    &.metric-index {
+                        min-width: 60px;
+                        width: 60px;
+    
+                        .mat-flat-button {
+                            min-width: 60px;
+                        }
+                    }
                 }
             }
         }
@@ -412,6 +457,20 @@
             max-width: 150px;
         }
     }
+
+    .metric-action-cdk-menu.mat-menu {
+        .mat-menu-item {
+            height: 32px;
+            line-height: 32px;
+
+            .mat-icon {
+                width: 16px;
+                height: 16px;
+                line-height: 16px;
+                font-size: 14px;
+            }
+        }
+    }
 }
 
 @mixin query-editor-proto-component-theme($theme-config) {
@@ -426,6 +485,8 @@
     $chip-bg: rgba(map-get($primary, default), .1);
     $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
     $alias-text: if($is-dark, rgba(255, 255, 255, .5), rgba(0, 0, 0, .5));
+
+    $link: map-get($foreground, link);
 
     $widgets: map-get($theme-config, widgets);
 
@@ -477,6 +538,23 @@
 
             &:not(:first-child) {
                 border-top: 1px solid $lighter-divider;
+            }
+
+            .metric-row-data {
+
+                &.metric-name {
+                    .display-name {
+                        border: 1px solid $lighter-divider;
+
+                        .mat-icon {
+                            color: $link;
+                        }
+
+                        &:hover {
+                            background-color: rgba($link, 0.1);
+                        }
+                    }
+                }
             }
         }
 

@@ -40,6 +40,7 @@
                     <span class="label">
                         <mat-icon fontSet="denali" [fontIcon]="metric.enabled ? 'd-check' : 'd-minus'" *ngIf="canDisableMetrics"></mat-icon>
                         <span>m{{ i+1 }}</span>
+                        <!--<span>m00</span>-->
                     </span>
                     <span class="mat-select-arrow-wrapper">
                         <div class="mat-select-arrow"></div>
@@ -47,7 +48,10 @@
                 </button>
             </div>
             <div class="metric-row-data metric-name">
-                <span *ngIf="editMetricIndex !== i" (click)="editMetricIndex=i;" matTooltip="{{metric.name}}" matTooltipPosition="right">{{metric.name}}</span>
+                <div class="display-name" *ngIf="editMetricIndex !== i" (click)="editMetricIndex=i;" matTooltip="{{metric.name}}" matTooltipPosition="right">
+                    <span>{{metric.name}}</span>
+                    <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                </div>
                 <metric-autocomplete 
                     *ngIf="editMetricIndex === i"
                     [namespace]="query.namespace"

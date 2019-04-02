@@ -30,13 +30,24 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
-    @HostBinding('class.query-editor-proto') private _hostClass = true;
+    // tslint:disable-next-line:no-inferrable-types
+    @HostBinding('class.query-editor-proto') private _hostClass: boolean = true;
+    // tslint:disable-next-line:no-inferrable-types
+    @HostBinding('class.can-disable-metrics') private _canDisableMetrics: boolean = true;
 
     @Input() type;
     @Input() query: any;
     @Input() label = '';
     @Input() edit = [];
-    @Input() canDisableMetrics = true; // true for normal queries... false for alerts queries
+
+    @Input() // true for normal queries... false for alerts queries
+    get canDisableMetrics(): boolean {
+        return this._canDisableMetrics;
+    }
+    set canDisableMetrics(value: boolean) {
+        this._canDisableMetrics = value;
+    }
+
     @Output() queryOutput = new EventEmitter;
 
     @ViewChild('tagFilterMenuTrigger', { read: MatMenuTrigger }) tagFilterMenuTrigger: MatMenuTrigger;
