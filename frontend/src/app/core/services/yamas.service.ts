@@ -182,7 +182,7 @@ export class YamasService {
                 expression: config.expression,
                 join: {
                     type: 'Join',
-                    joinType: 'NATURAL'
+                    //joinType: 'NATURAL_OUTER' // Optional.
                 },
                 interpolatorConfigs: [{
                     dataType: 'numeric',
@@ -210,17 +210,25 @@ export class YamasService {
     }
 
     getFilter(key, v) {
-        const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex'};
+        const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex', 'librange': 'TagValueLibrange'};
         const regexp = v.match(/regexp\((.*)\)/);
-        v = regexp ? regexp[1] : v;
-        const type = regexp  ? 'regexp' : 'literalor';
+        var filtertype = 'literalor';
+        if (regexp) {
+            filtertype = 'regexp';
+            v = regexp[1];
+        } else if (v.match(/librange\((.*)\)/)) {
+            const librange = v.match(/librange\((.*)\)/);
+            filtertype = 'librange';
+            v = librange[1];
+        }
         const filter = {
-            type: filterTypes[type],
+            type: filterTypes[filtertype],
             filter: v,
             tagKey: key
         };
         return filter;
     }
+
     getChainFilter(key, values) {
         const chain = {
                         'type': 'Chain',

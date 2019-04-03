@@ -392,21 +392,25 @@ export class QueryEditorComponent implements OnInit, OnChanges, OnDestroy {
         return tagValueIndex;
     }
 
-    addTagValueRegexp() {
+    addTagValueFilter() {
         let v = this.tagValueSearchControl.value.trim();
         if ( this.tagValueTypeControl.value === 'regexp' && v ) {
             v = 'regexp(' + v + ')';
             this.updateTagValueSelection(v, 'add');
             this.tagValueSearchControl.setValue(null);
+        } else if ( this.tagValueTypeControl.value === 'librange' && v ) {
+            v = 'librange(' + v + ')';
+            this.updateTagValueSelection(v, 'add');
+            this.tagValueSearchControl.setValue(null);
         }
     }
-
+    
     updateTagValueSelection(v, operation) {
         v = v.trim();
         if ( this.selectedTagIndex === -1  && operation === 'add' ) {
             this.selectedTagIndex = this.query.filters.length;
             const filter: any = { tagk: this.selectedTag,  filter: []};
-            filter.groupBy = this.type === 'LinechartWidgetComponent' ? true : true;
+            filter.groupBy = false; // this.type === 'LinechartWidgetComponent' ? true : true;
             this.query.filters[this.selectedTagIndex] = filter;
         }
 
