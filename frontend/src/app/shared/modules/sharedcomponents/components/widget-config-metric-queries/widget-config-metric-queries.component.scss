@@ -135,6 +135,9 @@
             // group metric row wrapper - contains checkbox, then metric item details
 
             // mat-expansion-panel inside the accordion (.mat-accordion.query-group-list)
+            .mat-expansion-panel {
+                overflow: visible;
+            }
             .mat-expansion-panel.query-group-item {
                 margin-bottom: 2px;
 

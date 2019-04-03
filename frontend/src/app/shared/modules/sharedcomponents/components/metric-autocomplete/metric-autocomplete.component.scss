@@ -1,7 +1,7 @@
 /* WIDGET CONFIG COMPONENT */
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
-@mixin query-editor-component-base() {
+@mixin metric-autocomplete-component-base() {
     $default-padding: map-get($widgets-common-config, default-padding);
     $edit-padding: map-get($widgets-common-config, edit-padding);
 
@@ -9,626 +9,65 @@
 
     $filter-block-padding: 8px;
 
-    .query-editor {
+    .metric-autocomplete {
         display: flex;
         flex-direction: column;
         flex: 1;
-
-        .seperator {
-            width: 100%;
-            height: 1px;
-            display: inline-block;
-        }
-
-        .option-list {
-            flex: 1;
-            justify-content: space-between;
-
-            .is-scroller {
-                padding: 0 8px;
-            }
-        }
-
-        .option-item {
-            padding: 3px 5px;
-            font-size: 10px;
-            display: flex;
-            flex-direction: row;
-            align-items: stretch;
-            justify-content: stretch;
-            cursor: pointer;
-
-            .mat-icon {
-                font-size: 15px;
-                color: #3296f2;
-                width:16px;
-                height: 16px;
-            }
-
-            .option-cell {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                min-height: 16px;
-            }
-            
-            .option-cell.label {
-                flex: 1;
-                margin: auto 5px;
-                justify-content: flex-start;
-            }
-
-             // modifiers
-            &.expression {
-                flex-direction: column;
-                align-items: flex-start;
-
-                .link {
-                    margin-left: 10px;
-                    cursor: pointer;
-                    color: #227aec;
-                }
-            }
-
-            &:hover {
-                background: #c5e3ff;
-            }
-
-            &.added {
-                font-weight: 500;
-            }
-
-            &.selected {
-                background: #227aec;
-                font-weight: 500;
-            }
-        }
-
-        // topbar that identifies query, has the blue box identifier
-        .namespace-bar.mat-toolbar {
-            height: $row-size;
-            min-height: $row-size;
-            padding: 0;
-            align-items: stretch; // mat-toolbar already has display: flex;
-
-            .toolbar-item {
-                display: flex;
-                
-                &:not(:first-child) {
-                    padding-right: 8px;
-                }
-            }
-
-            .title {
-                padding-left: 24px;
-                text-transform: uppercase;
-                font-weight: mat-font-weight(map-get($app-fontface-config, sans), display-4);
-            }
-
-            .namespace-value {
-                font-weight: mat-font-weight(map-get($app-fontface-config, sans), body-2);
-                font-size: mat-font-size(map-get($app-fontface-config, sans), subheading-2);
-            }
-
-            .query-index  {
-                font-weight: mat-font-weight(map-get($app-fontface-config, sans), body-2);
-                width: $row-size;
-                height: $row-size;
-            }
-
-            .action-icons {
-                .mat-icon-button {
-                    width: 20px;
-                    height: 20px;
-                    line-height: 20px;
-                }
-
-                .mat-icon {
-                    font-size: 16px;
-                }
-            }
-        }
-
-        // wrapper for the metric control layout
-        .metric-query-controls {
-            display: flex;
-            flex-direction: column;
-            padding: 14px;
-
-            &.is-editing {
-                flex: 1;
-            }
-
-            .help-text {
-                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-                line-height: 28px;
-                margin-top: -12px;
-            }
-        }
-
-        // wrapper for metric-filters, tag-filters, and expression-filter-form
-        .query-filters {
-            display: flex;
-            flex-direction: row;
-            align-items: stretch;
-            justify-content: stretch;
-            flex: 1;
-
-            .query-filter-block:not(:last-child) {
-                margin-right: $filter-block-padding * 2;
-            }
-        }
-
-        .query-filter-block {
-
-        }
-
-        // specific query filter block
-
-        .metric-filters,
-        .tag-filters,
-        .expression-filter-form {
-            display: flex;
-            align-items: flex-start;
-
-            &.is-active {
-                align-items: stretch;
-            }
-
-            .container {
-                width: 100%;
-                display: flex;
-            }
-        }
-
-        .metric-filters {
-            flex: 1;
-
-            .container {
-                flex-direction: column;
-            }
-        }
-
-        .tag-filters,
-        .expression-filter-form {
-            flex: 2;
-        }
-
-        .metric-filters {
-            max-width: 33%;
-
-            .metrics-selected {
-
-                .metrics-selected-header {
-                    display: flex;
-                    justify-content: flex-start;
-                    align-items: center;
-                    padding: 0 $filter-block-padding;
-                    font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-                    line-height: 24px;
-                }
-
-                .metric-rows {
-                    padding: 0;
-                }
-
-                .metric {
-                    display: flex;
-                    width: initial;
-                    height: initial;
-                    min-height: 24px;
-                    margin: 2px $filter-block-padding;
-                    border-radius: 4px;
-                    border: 0;
-                    font-size: mat-font-size(map-get($app-fontface-config, sans), body-1);
-                    padding: ($filter-block-padding / 2) $filter-block-padding;
-                    
-                    .mat-list-item-content {
-                        padding: 0;
-                        flex: 1;
-                        max-width: 100%;
-                    }
-
-                    .metric-item-detail {
-                        min-width: 0;
-                        //max-width: 355px;
-                        display: flex;
-                        flex-direction: column;
-                        flex: 1;
-
-                        .metric-name {
-                            white-space: nowrap;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                        }
-                    }
-
-                    .shim-spacer {
-                        min-width: 8px;
-                    }
-
-                    .action-icons {
-                        float: none;
-                        display: flex;
-                        margin-left: 8px;
-
-                        .mat-icon-button {
-                            width: 16px;
-                            height: 16px;
-                            line-height: 16px;
-                        }
+        z-index: 2;
+        width: inherit;
         
-                        .mat-icon {
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            width: 16px;
-                            height: 16px;
-                            font-size: 12px;
-                        }
-                    }
-                }
-            }
+    }
 
-            
-            
-            // when adding/editing metrics
-            .metric-search {
-                padding: $filter-block-padding;
+    // CDK ITEMS - panel for "multiple" autocomplete
+    .metric-autocomplete-cdk-panel.mat-menu-panel {
+        max-width: 400px;
+        min-width: 100%;
+        min-height: 50px;
 
-                .metric-search-input-field {
-                    width: 100%;
-                }
-            }
-
-            .metric-search-result {
-                margin-top: 5px;
-                display: flex;
-                flex:1;
-                position: relative;
-
-                .mat-tab-group{
-                    flex: 1 1 100%;
-                }
-
-                .mat-tab-header {
-                    padding: 0px $filter-block-padding;
-
-                    .mat-tab-label.mat-tab-label-active {
-                        box-shadow: none !important;
-
-                        &::after {
-                            display: none;
-                        }
-                    }
-
-                    .mat-ink-bar {
-                        bottom: 0;
-                    }
-                }
-
-                .mat-tab-label-container {
-                    flex-grow: 0;
-                }
-
-                .mat-tab-label {
-                    height: 25px;
-                    font-size: 12px;
-                    font-weight: 300;
-                }
-
-                .mat-tab-label-active {
-                    font-weight: 500;
-                }
-                
-                .mat-tab-body {
-                    border: 0 !important;
-
-                    &::after {
-                        content: " ";
-                        display: block;
-                        position: absolute;
-                        left: 0;
-                        right: 0;
-                        height: 8px;
-                        bottom: 0;
-                        opacity: .25;
-                    }
-                }
-
-                .add-expression {
-                    position: absolute;
-                    top: 0px;
-                    right: 0px;
-                    line-height: 20px;
-                    font-weight: 300;
-                    font-size: 12px;
-                }
-            }
+        .mat-menu-content:not(:empty) {
+            padding: 0px;
         }
 
-        .tag-filters {
-
-            .tags-selected {
-                .tags-selected-header {
-                    display: flex;
-                    justify-content: flex-start;
-                    align-items: center;
-                    padding: 0 $filter-block-padding;
-                    font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-                    line-height: 24px;
-
-                    // Only match selected tags label
-                    .explicit-match {
-                        padding-left: 8px;
-                    }
-                    .mat-checkbox-inner-container {
-                        margin-right: 4px;
-                    }
-                }
-
-                .tag-filter-rows {
-                    padding: 0;
-                }
-
-                .tag {
-                    display: flex;
-                    width: initial;
-                    height: initial;
-                    min-height: 24px;
-                    margin: 2px $filter-block-padding;
-                    border-radius: 4px;
-                    border: 0;
-                    font-size: mat-font-size(map-get($app-fontface-config, sans), body-1);
-                    padding: ($filter-block-padding / 2) $filter-block-padding;
-                    
-                    .mat-list-item-content {
-                        padding: 0;
-                        flex: 1;
-                    }
-
-                    .tag-filter-aggregator {
-
-                    }
-
-                    .tag-filter-detail {
-                        min-width: 0;
-                        //max-width: 85%;
-                        margin-left: 6px;
-                        display: flex;
-                        //flex-direction: column;
-                        flex: 1;
-
-                        strong {
-                            margin-right: 6px;
-                        }
-
-                        span {
-                            white-space: nowrap;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                        }
-                    }
-
-                    .shim-spacer {
-                        min-width: 8px;
-                    }
-
-                    .action-icons {
-                        float: none;
-                        display: flex;
-                        margin-left: 8px;
-
-                        .mat-icon-button {
-                            width: 16px;
-                            height: 16px;
-                            line-height: 16px;
-                        }
-        
-                        .mat-icon {
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            width: 16px;
-                            height: 16px;
-                            font-size: 12px;
-                        }
-                    }
-                }
-            }
-
-            .tag-filter-options {
-                flex: 1;
-                display: flex;
-                flex-direction: row;
-                align-items: stretch;
-                justify-content: stretch;
-
-                .tag-filter-options-column {
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: stretch;
-                    justify-content: stretch;
-                    max-width: 33.333333%
-                }
-
-                .tag-keys {
-                    
-                }
-
-                .tag-keys-count,
-                .tag-values-count {
-                    padding: 0 $filter-block-padding;
-                    .available-count {
-                        margin-right: 12px;
-                    }
-
-                    // Only match selected tags label
-                    .explicit-match {
-                        font-size: 14px;
-                        .mat-checkbox-layout {
-                            height: 20px;
-                            align-items: center;
-
-                            .mat-checkbox-inner-container {
-                                width: 14px;
-                                height: 14px;
-                                margin-bottom: 4px;
-                            }
-                            .mat-checkbox-label {
-                                height: 26px;
-                            }
-                        }
-                    }
-                    .mat-checkbox-inner-container {
-                        margin-right: 4px;
-                    }
-                }
-
-                .tag-key-search,
-                .tag-values-search,
-                .tag-values-selected-header {
-                    padding: $filter-block-padding;
-                }
-
-                .tag-key-search,
-                .tag-values-search-input {
-                    .mat-form-field {
-                        width: 100%;
-                    }
-                }
-
-                .tag-key-search-results,
-                .tag-values-search-results,
-                .tag-values-selected-list {
-                    flex: 1;
-                }
-
-                .tag-values-selected-header {
-
-                    &,
-                    strong {
-                        font-weight: mat-font-weight(map-get($app-fontface-config, sans), title);
-                    }
-                }
-
-                .tag-values-search {
-                    .tag-values-type {
-
-                        .mat-button-toggle-group {
-                            border: 0;
-                            border-radius: 0;
-                            overflow: visible;
-                        }
-
-                        .mat-button-toggle {
-                            border-radius: 4px 4px 0px 0px;
-
-                            &:not(:last-child) {
-                                margin-right: 5px;
-                            }
-                        }
-                        .mat-button-toggle-label-content {
-                            line-height: 18px;
-                            font-size: 12px;
-                        }
-
-                        .mat-button-toggle-checked .mat-button-toggle-focus-overlay {
-                            border-bottom: solid 18px;
-                        }
-                    }
-                }
-
-                .tag-values-search-input {
-                    .mat-form-field .mat-form-field-flex {
-                        border-radius: 0;
-                    }
-
-                    .mat-form-field-outline,
-                    .mat-form-field-outline-thick {
-                        .mat-form-field-outline-start {
-                            border-radius: 0 0 0 5px;
-                        }
-                    }
-                }
-                
-            }
-        }
-
-        .expression-filter-form {
-            .container {
-                flex-direction: column;
-                padding: $filter-block-padding;
-
-                .mat-form-field {
-                    padding-top: 20px;
-                    width: 100%;
-                }
-            }
-        }
-
-        // Action Controls
-        .action-controls  {
+        .first-run-progress {
             display: flex;
             align-items: center;
-            padding: $filter-block-padding;
+            justify-content: center;
+            width: 200px;
+            height: 32px;
+        }
 
-            .mat-stroked-button,
-            .mat-button {
-                font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
-                line-height: 24px;
+        .metric-search-result {
+            overflow-x: hidden;
+            overflow-y: auto;
+            max-height: 300px;
 
-                &:not(:last-child) {
-                    margin-right: 8px;
+            .mat-list.mat-list-base {
+                padding-top: 0;
+
+                .mat-list-item {
+                    height: 24px;
                 }
 
-                .mat-icon {
-                    font-size: 16px;
-                    width: 16px;
-                    height: 16px;
+                .mat-list-item-content {
+                    font-size: 14px;
+
+                    .mat-icon {
+                        width: 18px;
+                        height: 18px;
+                        line-height: 18px;
+                        font-size: 18px;
+                    }
+
+                    .mat-icon:first-of-type {
+                        margin-right: 6px
+                    }
                 }
-            }
-        }
-
-        // query edit filter actions }
-        .query-edit-actions {
-            justify-content: flex-start;
-        }
-
-        // query filter level actions
-        .query-filter-actions {
-            justify-content: center;
-        }
-
-        // action buttons to apply & cancel
-        .metric-query-actions {
-            justify-content: center;
-            margin-top: $filter-block-padding;
-
-            &:last-child {
-                padding-bottom: 0;
-            }
-        }
-
-        
-        .error {
-            color: red;
-            font-size: 0.75em;
-            .mat-icon {
-                width: 15px;
-                height: 15px;
-                font-size: 15px;
-            }
-            span {
-                vertical-align: top;
-                line-height: 15px;
             }
         }
     }
 }
 
-@mixin query-editor-component-theme($theme-config) {
+@mixin metric-autocomplete-component-theme($theme-config) {
 
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
@@ -636,6 +75,7 @@
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $status: map-get($theme-config, status);
     $is-dark: map-get($theme-config, is-dark);
     $chip-bg: rgba(map-get($primary, default), .1);
     $alias-bg: if($is-dark, rgba(255, 255, 255, .2), rgba(0, 0, 0, .2));
@@ -651,114 +91,38 @@
     $query-block-bg: map-get($widgets, query-editor-block-bg);
     $query-block-selected-border: map-get($widgets, query-editor-selected-border);
 
-    .query-editor {
+    .metric-autocomplete {
 
-        .seperator,
-        .tag-values-selected-header {
-            border-bottom: 2px solid $divider;
-        }
+        
+        
+    }
 
-        .option-item {
-            &.added {
-                background-color: $query-block-bg;
-                box-shadow: inset 0 2px 0 $query-block-selected-border, inset 0 -2px 0 $query-block-selected-border;
-            }
+    // CDK ITEMS - panel for "multiple" autocomplete
 
-            &.added:first-child,
-            &.added + .option-item.added {
-                box-shadow: inset 0 -2px 0 $query-block-selected-border;
-            }
+    .metric-autocomplete-cdk-panel.mat-menu-panel {
+        
+        .metric-search-result {
 
-            &.selected {
-                background: #c5e3ff;
-            }
-        }
+            .mat-list.mat-list-base {
 
-        .namespace-bar.mat-toolbar {
-            background-color: $query-block-bg;
+                
 
-            &.is-expanded {
-                box-shadow: inset 0 -1px 0 1px map-get($background, card);
-            }
-
-            .query-index {
-                color: $query-marker-text;
-                background-color: $query-marker-bg;
-            }
-        }
-
-        .metric-query-controls {
-            background-color: $query-block-bg;
-        }
-
-        .metric-filters,
-        .tag-filters,
-        .expression-filter-form {
-            .container {
-                background: $card-background;
-            }
-        }
-
-        .metric-filters .metric,
-        .tag-filters .tag {
-            background: #EFF4FF;
-        }
-
-        .metric-filters {
-            .metric-search-result {
-                .mat-tab-body::after {
-                    background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%); /* FF3.6-15 */
-                    background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* Chrome10-25,Safari5.1-6 */
-                    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-                }
-            }
-        }
-
-        .tag-filters {
-            .tag-filter-options {
-                .tag-filter-options-column:not(:last-child) {
-                    border-right: 2px solid $divider;
+                .mat-list-item-content {
+                    .mat-icon {
+                        color: map-get($foreground, link);
+                    }
                 }
 
-                .tag-values-search {
-                    .tag-values-type {
-    
-                        .mat-button-toggle {
-                            border: 1px solid rgba(map-get($primary, default), 0);
-                            border-bottom: 0;
-                            color: map-get($primary, default);
-                            background-color: rgba(map-get($primary, default), .12);
-    
-                            &.mat-button-toggle-checked {
-                                border: 1px solid rgba(map-get($primary, default), 0.60);
-                                border-bottom: 0;
-                                color: map-get($foreground, text);
-                                background-color: map-get($background, card);
-                                position: relative;
+                .mat-list-item {
+                    &.is-selected {
+                        background-color: rgba(map-get($foreground, link), .08);
 
-                                &::after {
-                                    content: '';
-                                    position: absolute;
-                                    background-color: $card-background;
-                                    height: 3px;
-                                    left: 0;
-                                    right: 0;
-                                    top: 100%;
-                                    z-index: 1;
-                                }
-                            }
+                        .mat-icon {
+                            color: map-get($status, error);
                         }
                     }
                 }
             }
-
-            
         }
-
-        // action controls
-        .metric-query-actions {
-            border-top: 1px solid $card-background;
-        }
-        
     }
 }

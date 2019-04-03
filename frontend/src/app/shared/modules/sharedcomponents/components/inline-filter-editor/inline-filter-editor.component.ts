@@ -10,7 +10,7 @@ import {
   ViewChild,
   OnChanges,
   OnDestroy,
-  SimpleChanges
+  SimpleChanges, HostListener
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { Observable, of, BehaviorSubject } from 'rxjs';
@@ -28,59 +28,31 @@ import { UtilsService } from '../../../../../core/services/utils.service';
 
 
 export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy {
-  @HostBinding('class.query-editor') private _hostClass = true;
+  @HostBinding('class.inline-filter-editor') private _hostClass = true;
   @Input() namespace;
   @Input() metrics = [];
   @Input() filters = [];
-  @Input() query: any = {   metrics: [] , filters: [], settings: {visual: {visible: true}}};
-  @Input() label = '';
-  @Input() edit = [];
-  @Input() type;
-  // @Input() edit = [];
-  editNamespace = false;
-  // @Input() showTag = false;
-  // @Input() namespace = '';
-  // @Input() tagsSelected: any = {};
+
   @Output() filterOutput = new EventEmitter();
+  @Output() blur = new EventEmitter();
 
   @ViewChild('tagValueSearchInput') tagValueSearchInput: ElementRef;
   @ViewChild('tagSearchInput') tagSearchInput: ElementRef;
-  @ViewChild('metricSearchInput') metricSearchInput: ElementRef;
 
   queryBeforeEdit: any;
   tagOptions = [];
-  filteredTagOptions: Observable<any>;
   filteredTagValues = [];
-  metricOptions = [];
   selectedTagIndex = -1;
   selectedTag = '';
   loadFirstTagValues = false;
   tagValueTypeControl = new FormControl('literalor');
-  metricSearchControl: FormControl;
   tagSearchControl: FormControl;
   tagValueSearchControl: FormControl;
-  message:any = { 'tagControl' : { message: ''}, 'tagValueControl' : { message: '' }, 'metricSearchControl': { message : ''} };
-  Object = Object;
-
-  metricSelectedTabIndex = 0;
-  editExpressionId = 0;
-  isEditExpression = false;
-  aliases = [];
-   /** Form Group */
-   expressionForm: FormGroup;
-
-   // subscriptions
-   expressionForm_Sub: Subscription;
-
-  // form values
-  expressionName: string;
-  expressionValue: string;
-
-  formControlInitiated = false;
-
+  message:any = { 'tagControl' : { message: ''}, 'tagValueControl' : { message: '' }};
   queryChanges$: BehaviorSubject<boolean>;
   queryChangeSub: Subscription;
 
+  visible = false;
   constructor(
       private elRef: ElementRef,
       private renderer: Renderer,
@@ -102,13 +74,11 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
                                               this.triggerQueryChanges();
                                           }
                                       });
-
   }
 
   ngOnChanges( changes: SimpleChanges) {
-    if ( changes.namespace && changes.namespace.currentValue ) {
 
-
+    if ( changes.namespace && changes.namespace.currentValue || changes.metrics && changes.metrics.currentValue ) {
             this.initFormControls();
     }
 }
@@ -120,7 +90,7 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
 
 
   deleteFilter(index) {
-      this.requestChanges('DeleteQueryFilter', { findex: index });
+      this.requestChanges();
   }
 
 
@@ -141,9 +111,6 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
               for ( let i = 0, len = this.metrics.length; i < len; i++ ) {
                   if ( !this.metrics[i].expression ) {
                       query.metrics.push(this.metrics[i].name);
-                  } else {
-                      const metrics = this.metrics[i].metrics.map(item => item.name.replace(this.namespace + '.',''));
-                      query.metrics = query.metrics.concat(metrics);
                   }
               }
               query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
@@ -190,9 +157,6 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
               for ( let i = 0, len = this.metrics.length; i < len; i++ ) {
                   if ( !this.metrics[i].expression ) {
                       query.metrics.push(this.metrics[i].name);
-                  } else {
-                      const metrics = this.metrics[i].metrics.map(item => item.name.replace(this.namespace + '.',''));
-                      query.metrics = query.metrics.concat(metrics);
                   }
               }
               query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
@@ -213,18 +177,13 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
       });
   }
 
-  requestChanges(action, data= {}) {
+  requestChanges() {
       this.filterOutput.emit(this.filters);
   }
 
   triggerQueryChanges() {
-      this.requestChanges('QueryChange', {'query': this.query});
+      this.requestChanges();
   }
-
-
-
-
-
 
   handlerTagClick( tag ) {
       this.selectedTag = tag;
@@ -268,7 +227,7 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
       if ( this.selectedTagIndex === -1  && operation === 'add' ) {
           this.selectedTagIndex = this.filters.length;
           const filter: any = { tagk: this.selectedTag,  filter: []};
-          filter.groupBy = this.type === 'LinechartWidgetComponent' ? true : true;
+          filter.groupBy = false;
           this.filters[this.selectedTagIndex] = filter;
       }
 
@@ -297,26 +256,24 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
   }
 
 
-  closeEditMode() {
-      this.edit = [];
-      this.requestChanges('CloseQueryEditMode');
-  }
-
-  // handle when clicked on cancel
-  cancel(): void {
-      this.closeEditMode();
-      this.query = this.queryBeforeEdit;
-      this.triggerQueryChanges();
-  }
-
-  // handle when clicked on apply
-  apply(): any {
-      this.closeEditMode();
-  }
-
   ngOnDestroy() {
-      // this.expressionForm_Sub.unsubscribe();
       this.queryChangeSub.unsubscribe();
   }
+
+  @HostListener('click', ['$event'])
+    hostClickHandler(e) {
+        e.stopPropagation();
+    }
+
+    @HostListener('document:click', ['$event.target'])
+    documentClickHandler(target) {
+        if ( !this.elRef.nativeElement.contains(target) && this.visible ) {
+            this.blur.emit();
+            this.visible = false;
+
+        } else if ( ! this.visible ) {
+            this.visible = true;
+        }
+    }
 }
 

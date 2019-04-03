@@ -54,8 +54,12 @@ import { TagAggregatorComponent } from './components/tag-aggregator/tag-aggregat
 import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.component';
 import { WidgetConfigSortingComponent } from './components/widget-config-sorting/widget-config-sorting.component';
 import { ConditionalFormatterComponent } from './components/conditional-formatter/conditional-formatter.component';
+import { QueryEditorFlatComponent } from './components/query-editor-flat/query-editor-flat.component';
+import { QueryEditorProtoComponent } from './components/query-editor-proto/query-editor-proto.component';
 import { InlineFilterEditorComponent } from './components/inline-filter-editor/inline-filter-editor.component';
 import { MetricAutocompleteComponent } from './components/metric-autocomplete/metric-autocomplete.component';
+import { DropdownMetricTagsComponent } from './components/dropdown-metric-tags/dropdown-metric-tags.component';
+import { MetricFunctionComponent } from './components/metric-function/metric-function.component';
 
 @NgModule({
     imports: [
@@ -107,8 +111,12 @@ import { MetricAutocompleteComponent } from './components/metric-autocomplete/me
         TagGroupbyComponent,
         WidgetConfigSortingComponent,
         ConditionalFormatterComponent,
+        QueryEditorFlatComponent, 
+        QueryEditorProtoComponent,
         InlineFilterEditorComponent,
-        MetricAutocompleteComponent
+        MetricAutocompleteComponent,
+        DropdownMetricTagsComponent,
+        MetricFunctionComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -135,6 +143,7 @@ import { MetricAutocompleteComponent } from './components/metric-autocomplete/me
         NavbarTimezoneToggleComponent,
         NavbarSearchToggleComponent,
         DropdownAggregatorsComponent,
+        DropdownMetricTagsComponent,
         GenericMessageBarComponent,
         SimpleDashboardListComponent,
         InlineQueryEditorComponent,
@@ -142,7 +151,10 @@ import { MetricAutocompleteComponent } from './components/metric-autocomplete/me
         NamespaceTagValuesComponent,
         WidgetConfigSortingComponent,
         ConditionalFormatterComponent,
-        MetricAutocompleteComponent
+        QueryEditorProtoComponent,
+        MetricAutocompleteComponent,
+        DropdownMetricTagsComponent,
+        MetricFunctionComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,

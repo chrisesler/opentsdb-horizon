@@ -15,11 +15,16 @@ import { AlertsService } from './services/alerts.service';
 
 // store
 import { NgxsModule } from '@ngxs/store';
-import { AlertsState } from './state';
+import { AlertsState, RecipientsState } from './state';
 
 // components
 import { AlertsComponent } from './containers/alerts.component';
 import { SnoozeAlertDialogComponent } from './components/snooze-alert-dialog/snooze-alert-dialog.component';
+import { NameAlertDialogComponent } from './components/name-alert-dialog/name-alert-dialog.component';
+import { AlertConfigurationDialogComponent } from './components/alert-configuration-dialog/alert-configuration-dialog.component';
+import { DygraphsModule } from '../shared/modules/dygraphs/dygraphs.module';
+// tslint:disable-next-line:max-line-length
+import { AlertConfigurationContactsComponent } from './components/alert-configuration-dialog/children/recipients-manager/recipients-manager.component';
 
 // directives
 
@@ -30,20 +35,27 @@ import { SnoozeAlertDialogComponent } from './components/snooze-alert-dialog/sno
         ReactiveFormsModule,
         MaterialModule,
         SharedcomponentsModule,
+        DygraphsModule,
         AlertsRoutingModule,
         NgxsModule.forFeature([
-            AlertsState
+            AlertsState,
+            RecipientsState
         ])
     ],
     declarations: [
         AlertsComponent,
-        SnoozeAlertDialogComponent
+        SnoozeAlertDialogComponent,
+        NameAlertDialogComponent,
+        AlertConfigurationDialogComponent,
+        AlertConfigurationContactsComponent
     ],
     providers: [
         AlertsService
     ],
     entryComponents: [
-        SnoozeAlertDialogComponent
+        SnoozeAlertDialogComponent,
+        AlertConfigurationDialogComponent,
+        NameAlertDialogComponent
     ]
 })
 export class AlertsModule { }

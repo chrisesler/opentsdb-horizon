@@ -61,7 +61,7 @@ app.use(function(err, req, res, next) {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // for now, we need to get the better regex and re-organize the api url
-app.get(/^\/(d|main|alerts)(.*)/, function (req, res) {
+app.get(/^\/(d|main|a)(.*)/, function (req, res) {
     console.log('CALL ME >>>>> index.html');
     res.sendFile(path.join(__dirname + '/public/index.html'));
 });
