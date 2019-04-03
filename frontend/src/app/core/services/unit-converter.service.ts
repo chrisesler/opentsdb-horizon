@@ -56,12 +56,14 @@ export class UnitConverterService {
             // 'currency
             { 'key': 'usd', 'unit': '$', type: 'currency', position: 'right'},
             // 'time'
-            { 'key': 'milliseconds',  index:0, 'type': 'time', 'unit': 'ms' },
-            { 'key': 'seconds',  index:1, 'type': 'time', 'unit': 'sec' },
-            { 'key': 'minutes', index:2, 'type': 'time', 'unit': 'min' },
-            {  'key': 'hours', index:3, 'type': 'time', 'unit': 'hr' },
-            { 'key': 'days', index:4, 'type': 'time', 'unit': 'day'},
-            { 'key': 'years', index:5, 'type': 'time', 'unit': 'year'}
+            { 'key': 'nanoseconds',  index:0, 'type': 'time', 'unit': 'ns' },
+            { 'key': 'microseconds',  index:1, 'type': 'time', 'unit': 'μs' },
+            { 'key': 'milliseconds',  index:2, 'type': 'time', 'unit': 'ms' },
+            { 'key': 'seconds',  index:3, 'type': 'time', 'unit': 'sec' },
+            { 'key': 'minutes', index:4, 'type': 'time', 'unit': 'min' },
+            { 'key': 'hours', index:5, 'type': 'time', 'unit': 'hr' },
+            { 'key': 'days', index:6, 'type': 'time', 'unit': 'day'},
+            { 'key': 'years', index:7, 'type': 'time', 'unit': 'year'}
     ];
     constructor() { }
 
@@ -93,16 +95,33 @@ export class UnitConverterService {
         let destUnit = sUnit.key;
 
         if ( sUnit.type === 'time' ) {
-            const timeUnits:any[] = this.units.filter( (d:any)=> d.type === 'time' );
-            for ( let i = sUnit.index; i < timeUnits.length; i++ ) {
-                // asSeconds,asMinutes,asHours, asDays, asWeeks, asMonths:, asYears
-                const dstMethodName =  'as' + timeUnits[i].key[0].toUpperCase() + timeUnits[i].key.substr(1);;
-                let newValue = moment.duration(value, sUnit.key)[dstMethodName]();
-                if ( parseInt(newValue) === 0 ) {
-                    break;
-                } else {
-                    destUnit = timeUnits[i].key;
-                }
+            switch (sUnit.key) {
+                case 'nanoseconds':
+                    if (value / 1000 > 1) {
+                        value = value / 1000;
+                        sUnit = this.getDetails('microseconds');
+                    } else {
+                        break;
+                    }
+                case 'microseconds':
+                    if (value / 1000 > 1) {
+                        value = value / 1000;
+                        sUnit = this.getDetails('milliseconds');
+                    } else {
+                        break;
+                    }
+                default: 
+                    const timeUnits: any[] = this.units.filter((d: any) => d.type === 'time');
+                    for (let i = sUnit.index; i < timeUnits.length; i++) {
+                        // asSeconds,asMinutes,asHours, asDays, asWeeks, asMonths:, asYears
+                        const dstMethodName = 'as' + timeUnits[i].key[0].toUpperCase() + timeUnits[i].key.substr(1);;
+                        let newValue = moment.duration(value, sUnit.key)[dstMethodName]();
+                        if (parseInt(newValue) === 0) {
+                            break;
+                        } else {
+                            destUnit = timeUnits[i].key;
+                        }
+                    }
             }
         } else {
             const base = sUnit.b;
@@ -117,11 +136,11 @@ export class UnitConverterService {
         return destUnit;
     }
 
-    convert(value, srcUnit, destUnit, options) {
-        let sUnit = this.getDetails(srcUnit);
+    convert(value, srcUnitKey, destUnitKey, options) {
+        let sUnit = this.getDetails(srcUnitKey);
         sUnit = !sUnit || options.unit === 'usd' ? this.getDefaultUnit(value): sUnit;
         
-        let dUnit = this.getDetails(destUnit);
+        let dUnit = this.getDetails(destUnitKey);
         dUnit = !dUnit ? sUnit: dUnit;
 
         let precision = options.precision ? options.precision : 0;
@@ -129,14 +148,37 @@ export class UnitConverterService {
         const postfix =  options.unit && this.isCustomUnit(options.unit) ? options.unit : ''; // unknown units will be added as postfix
 
         let result=value;
-        if ( dUnit && dUnit.type === 'time' ) {
-            const dstMethodName =  'as' + dUnit.key[0].toUpperCase() + dUnit.key.substr(1);;
-            result = moment.duration(value, srcUnit)[dstMethodName]();
-        } else if( dUnit ) {
-            result =  value / dUnit.b ** (dUnit.power - sUnit.power);
+
+        // noop in case src and dest units are the same
+        if (srcUnitKey !== destUnitKey) {
+            if ( dUnit && dUnit.type === 'time' ) {
+                switch(srcUnitKey) {
+                    case 'nanoseconds':
+                        if (destUnitKey.key === 'microseconds') {
+                            result = value / 1000;
+                            break;
+                        }
+                        value = value / 1000;
+                        srcUnitKey = 'microseconds'; // cascade to microseconds
+                    case 'microseconds':
+                        if (destUnitKey.key === 'milliseconds') {
+                            result = value / 1000;
+                            break;
+                        }
+                        value = value / 1000;
+                        srcUnitKey = 'milliseconds'; // cascade to milliseconds
+                    default:
+                        const dstMethodName = 'as' + dUnit.key[0].toUpperCase() + dUnit.key.substr(1);;
+                        result = moment.duration(value, srcUnitKey)[dstMethodName]();
+                }
+            } else if( dUnit ) {
+                result =  value / dUnit.b ** (dUnit.power - sUnit.power);
+            }
         }
+
         precision = Number.isInteger(result) && !options.precisionStrict ? 0 : precision;
-        return prefix + result.toFixed(precision) + ( dUnit ? dUnit.unit: '') +  postfix;
+
+        return prefix + result.toFixed(precision) + ' ' + ( dUnit ? dUnit.unit: '') +  postfix;
     }
 
     getDefaultUnit(value, bigUnit=false) {
@@ -151,8 +193,8 @@ export class UnitConverterService {
         return oUnit;
     }
 
-    getDetails(unit) {
-        const matches:any[] = this.units.filter( (d:any)=> d.key === unit );
+    getDetails(key) {
+        const matches:any[] = this.units.filter( (d:any)=> d.key === key );
         const oUnit = matches ? matches[0] : null;
         if ( oUnit && (oUnit.b || oUnit.type === 'time') ) {
             if ( oUnit.type === 'time' ) {
