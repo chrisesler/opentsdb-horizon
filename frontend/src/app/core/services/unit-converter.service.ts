@@ -97,19 +97,17 @@ export class UnitConverterService {
         if ( sUnit.type === 'time' ) {
             switch (sUnit.key) {
                 case 'nanoseconds':
-                    if (value / 1000 > 1) {
-                        value = value / 1000;
-                        sUnit = this.getDetails('microseconds');
-                    } else {
+                    if (value / 1000 < 1) {
                         break;
                     }
+                    value = value / 1000;
+                    sUnit = this.getDetails('microseconds');
                 case 'microseconds':
-                    if (value / 1000 > 1) {
-                        value = value / 1000;
-                        sUnit = this.getDetails('milliseconds');
-                    } else {
+                    if (value / 1000 < 1) {
                         break;
                     }
+                    value = value / 1000;
+                    sUnit = this.getDetails('milliseconds');
                 default: 
                     const timeUnits: any[] = this.units.filter((d: any) => d.type === 'time');
                     for (let i = sUnit.index; i < timeUnits.length; i++) {
