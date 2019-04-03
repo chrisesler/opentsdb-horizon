@@ -52,10 +52,10 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         digitsAfterDecimal: 2,
         stackedGraph: this.isStackedGraph,
         strokeWidth: 1,
-        strokeBorderWidth: this.isStackedGraph ? null : 1,
+        strokeBorderWidth: this.isStackedGraph ? null : 0,
         highlightSeriesOpts: {
-            strokeWidth: 3,
-            highlightCircleSize: 7
+            strokeWidth: 2,
+            highlightCircleSize: 5
         },
         xlabel: '',
         ylabel: '',
