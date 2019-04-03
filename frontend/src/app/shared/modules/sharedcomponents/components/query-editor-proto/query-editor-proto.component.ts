@@ -392,6 +392,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             val: ''
         };
         const metricIdx = this.query.metrics.findIndex(d => d.id === metricId ) ;
+        this.query.metrics[metricIdx].functions = this.query.metrics[metricIdx].functions || [];
         this.query.metrics[metricIdx].functions.push(newFx);
         // tslint:disable-next-line:max-line-length
         const trigger: MatMenuTrigger = <MatMenuTrigger>this.functionMenuTriggers.find((el, i) => i === this.currentFunctionMenuTriggerIdx);
