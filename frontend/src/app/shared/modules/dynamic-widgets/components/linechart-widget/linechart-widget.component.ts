@@ -10,7 +10,7 @@ import { UnitConverterService } from '../../../../../core/services/unit-converte
 import { Subscription } from 'rxjs';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
-import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 import { BehaviorSubject } from 'rxjs';
 

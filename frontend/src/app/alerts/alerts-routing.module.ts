@@ -6,7 +6,7 @@ import { AlertsComponent } from './containers/alerts.component';
 
 // routes
 const routes: Routes = [
-    // { path: '', redirectTo: '/main', pathMatch: 'full' },
+    //{ path: '', redirectTo: '/main', pathMatch: 'full' },
     { path: '**', component: AlertsComponent }
 ];
 

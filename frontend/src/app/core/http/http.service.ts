@@ -234,4 +234,101 @@ export class HttpService {
         console.log('[API] getUserFolderData', apiUrl, httpOptions);
         return this.http.get(apiUrl, httpOptions);
     }
+
+    getRecipients(namespace: string) {
+        const apiUrl = environment.recipientsApi + '/namespace/' + namespace + '/contact';
+        const httpOptions = {
+            headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+            withCredentials: true,
+            observe: 'response' as 'response'
+        };
+        return this.http.get(apiUrl, httpOptions);
+    }
+
+    postRecipient(data: any) {
+        const apiUrl = environment.recipientsApi + '/namespace/' + data.namespace + '/contact';
+        const httpOptions = {
+            headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+            withCredentials: true,
+            observe: 'response' as 'response'
+        };
+        // tslint:disable:prefer-const
+        let serverData: any = {};
+        serverData[data.type] = [];
+        let recipient: any = {... data};
+        delete recipient.type;
+        delete recipient.namespace;
+        serverData[data.type][0] = recipient;
+        return this.http.post(apiUrl, serverData, httpOptions);
+    }
+
+    updateRecipient(data: any) {
+        const apiUrl = environment.recipientsApi + '/namespace/' + data.namespace + '/contact';
+        const httpOptions = {
+            headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+            withCredentials: true,
+            observe: 'response' as 'response'
+        };
+        // tslint:disable:prefer-const
+        let serverData: any = {};
+        serverData[data.type] = [];
+        let recipient: any = {... data};
+        delete recipient.type;
+        delete recipient.namespace;
+        serverData[data.type][0] = recipient;
+        return this.http.put(apiUrl, serverData, httpOptions);
+    }
+
+    deleteRecipient(data: any) {
+        const apiUrl = environment.recipientsApi + '/namespace/' + data.namespace + '/contact/delete';
+        // tslint:disable-next-line:prefer-const
+        let httpOptions = {
+            headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+            withCredentials: true,
+            observe: 'response' as 'response'
+        };
+        // tslint:disable-next-line:prefer-const
+        let serverData: any = {};
+        serverData[data.type] = [];
+        serverData[data.type][0] = { name: data.name };
+        return this.http.put(apiUrl, serverData, httpOptions);
+    }
+
+    saveAlert(namespace, payload: any): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.recipientsApi + '/namespace/' + namespace + '/alert';
+        if ( !payload.id ) {
+            return this.http.post(apiUrl, payload.data, { headers, withCredentials: true });
+        } else {
+            payload.data[0].id = payload.id;
+            return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
+        }
+    }
+
+    getAlertDetailsById(id: number): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.recipientsApi + '/alert/' + id;
+        return this.http.get(apiUrl, { headers, withCredentials: true });
+    }
+
+    getAlerts(options): Observable<any> {
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+          });
+        const apiUrl = environment.recipientsApi + '/namespace/' + options.namespace + '/alert';
+        return this.http.get(apiUrl, { headers, withCredentials: true });
+    }
+
+    deleteAlerts(namespace, payload): Observable<any> {
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.recipientsApi + '/namespace/' + namespace + '/alert/delete';
+        console.log("deleteA;lert", namespace, payload);
+        return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
+    }
 }

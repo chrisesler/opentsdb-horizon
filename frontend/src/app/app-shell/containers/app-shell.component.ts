@@ -8,6 +8,7 @@ import {
     OnChanges,
     SimpleChanges
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { Store, Select } from '@ngxs/store';
 import { Observable } from 'rxjs';
 
@@ -71,7 +72,8 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
 
     constructor(
         private interCom: IntercomService,
-        private store: Store
+        private store: Store,
+        private router: Router
     ) {}
 
     ngOnInit() {
@@ -135,9 +137,14 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
             this.activeNavSection = event.section;
 
             switch (this.activeNavSection) {
+                case 'alerts':
+                    if (this.drawer.opened) {
+                        this.closeNavigator();
+                    }
+                    this.router.navigate(['a']);
+                    break;
                 case 'dashboard':
                 case 'metric-explorer':
-                case 'alerts':
                 case 'status':
                 case 'annotations':
                 case 'admin':

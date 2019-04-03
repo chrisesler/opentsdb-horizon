@@ -1,0 +1,63 @@
+<ng-template [ngIf]="multiple" [ngIfElse]="noMultiples">
+    <mat-form-field 
+        class="metric-search-input-field"
+        appearance="outline"
+        color="primary"
+        floatLabel="never"
+        [matMenuTriggerFor]="metricAutocompletePanel"
+        (menuOpened)="multipleMenuOpened()"
+        (menuClosed)="multipleMenuClosed()">
+        <input matInput
+            autocomplete="off" 
+            placeholder="Filter metrics"
+            [formControl]="metricSearchControl"
+            (focus)="doMetricSearch()"
+            #metricSearchInput>
+    </mat-form-field>
+    <mat-menu 
+        class="metric-autocomplete-cdk-panel"
+        yPosition="below"
+        [hasBackdrop]="false"
+        [overlapTrigger]="false"
+        #metricAutocompletePanel="matMenu">
+
+        <div class="metric-search-result" (click)="$event.stopPropagation();">
+            <div class="first-run-progress" *ngIf="firstRun">
+                <mat-spinner color="primary" diameter="20"></mat-spinner>
+            </div>
+            <mat-action-list>
+                <button mat-list-item
+                    *ngFor="let option of metricOptions"
+                    [ngClass]="{'is-selected': getMetricIndex(option.name) !== -1 }"
+                    (click)="(getMetricIndex(option.name) === -1) ? updateMetricSelection(option.name, 'add') : updateMetricSelection(option.name, 'remove');">
+                    <mat-icon fontSet="denali" [fontIcon]="getMetricIndex(option.name) === -1 ? 'd-add-circle' : 'd-minus-circle'"></mat-icon>
+                    <span class="label">{{option.name}}</span>
+                </button>
+                <div mat-list-item *ngIf="message.metricSearchControl.message"
+                    [ngClass]="message.metricSearchControl.type === 'error'? 'error': 'info'">
+                    <mat-icon>error</mat-icon>
+                    <span>{{ message['metricSearchControl']['message'] }}</span>
+                </div>
+            </mat-action-list>
+        </div>
+    </mat-menu>
+</ng-template>
+
+<ng-template #noMultiples>
+    <mat-form-field appearance="fill" [color]="'primary'" floatLabel="never" *ngIf="!multiple">
+        <input matInput
+            type="text" 
+            placeholder="Metric"
+            autocomplete="off" 
+            [formControl]="metricSearchControl"
+            [matAutocomplete]="metricAutoComplete"
+            (focus)="doMetricSearch()"
+            (keydown.enter)="metricACKeydown($event)"
+            #metricSearchInput>
+    </mat-form-field>
+    <mat-autocomplete #metricAutoComplete="matAutocomplete" (optionSelected)="metricACOptionSelected($event)">
+        <mat-option *ngFor="let option of metricOptions" [value]="option.name">
+            {{ option.name }}
+        </mat-option>
+    </mat-autocomplete>
+</ng-template>

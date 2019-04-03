@@ -75,7 +75,9 @@ export class VariableTemplateBarComponent implements OnInit, OnDestroy, OnChange
     }
 
     ngOnDestroy() {
-        this.varFormSub.unsubscribe();
+        if(this.varFormSub) {
+            this.varFormSub.unsubscribe();
+        }
     }
 
 
