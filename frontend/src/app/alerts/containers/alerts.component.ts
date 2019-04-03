@@ -242,12 +242,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.stateSubs['asLoaded'].unsubscribe();
-        this.stateSubs['asSelectedNamespace'].unsubscribe();
+        //this.stateSubs['asSelectedNamespace'].unsubscribe();
         this.stateSubs['asUserNamespaces'].unsubscribe();
-        this.stateSubs['asAlertTypeFilter'].unsubscribe();
-        this.stateSubs['asAlertTypeCounts'].unsubscribe();
+        //this.stateSubs['asAlertTypeFilter'].unsubscribe();
+        //this.stateSubs['asAlertTypeCounts'].unsubscribe();
         this.stateSubs['asAlerts'].unsubscribe();
-        this.stateSubs['asActionResponse'].unsubscribe();
+        //this.stateSubs['asActionResponse'].unsubscribe();
         this.stateSubs['alert'].unsubscribe();
     }
 
