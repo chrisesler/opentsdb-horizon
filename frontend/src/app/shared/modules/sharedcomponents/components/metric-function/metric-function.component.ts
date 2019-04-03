@@ -9,11 +9,12 @@ import { FormControl } from '@angular/forms';
 export class MetricFunctionComponent implements OnInit {
 
   @HostBinding('class.metric-function-component') private _hostClass = true;
+
   @Input() fx: any; // { id: '123', fxCall: 'CounterToRate', val: 'enter val'};
   @Output() fxOut = new EventEmitter;
   @Output() fxDel = new EventEmitter;
   inputVal: FormControl;
-  isEdit: boolean;
+  isEdit: boolean = false;
   constructor() { }
 
   ngOnInit() {
