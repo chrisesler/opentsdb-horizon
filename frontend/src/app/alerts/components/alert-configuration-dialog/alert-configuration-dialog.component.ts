@@ -139,7 +139,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
 
     // SUBSCRIPTIONS HOLDER
     subs: any = {};
-    sub: Subscription;
     nQueryDataLoading = 0;
 
     // DIALOGUES
@@ -256,9 +255,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         });
 
 
-        this.subs.alertFormSub = <Subscription>this.alertForm.valueChanges.subscribe(val => {
-            console.log('FORM CHANGE', val);
-        });
+        //this.subs.alertFormSub = <Subscription>this.alertForm.valueChanges.subscribe(val => {
+        //    console.log('FORM CHANGE', val);
+        //});
 
         // tslint:disable-next-line:max-line-length
         this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges.subscribe(val => {
