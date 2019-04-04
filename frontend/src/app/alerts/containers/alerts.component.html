@@ -137,8 +137,8 @@
                         <button mat-icon-button color="primary">
                             <mat-icon fontSet="denali" fontIcon="d-pencil" (click)="editAlert(element.id)"></mat-icon>
                         </button>
-                        <button mat-icon-button color="primary" (click)="toggleAlertDisabled(element)">
-                            <mat-icon fontSet="denali" [fontIcon]="element.disabled ? 'd-notification' : 'd-notification-disable'"></mat-icon>
+                        <button mat-icon-button color="primary" (click)="toggleAlert(element)">
+                            <mat-icon fontSet="denali" [fontIcon]="element.enabled ? 'd-notification-disable' : 'd-notification'"></mat-icon>
                         </button>
                         <!--<button mat-icon-button color="primary" (click)="openSnoozeAlertDialog(element)">
                             <mat-icon>snooze</mat-icon>
@@ -162,8 +162,12 @@
     <button mat-menu-item *ngFor="let namespace of userNamespaces" (click)="loadAlerts(namespace.name);">{{namespace.name}}</button>
     <!--<button mat-menu-item>Settings</button>-->
     <mat-divider></mat-divider>
-    <button mat-menu-item>View More</button>
+    <button mat-menu-item [matMenuTriggerFor]="namespaceMenu">View More</button>
     <span class="menu-shim" style="display: block; height: 1px;" [ngStyle]="{'width':ensureMenuWidth(namespaceDropMenuTrigger)}"></span>
+</mat-menu>
+
+<mat-menu #namespaceMenu="matMenu">
+    <button mat-menu-item *ngFor="let namespace of namespaces" (click)="loadAlerts(namespace.name);">{{namespace.name}}</button>
 </mat-menu>
 
 <mat-menu #contactsMenu="matMenu" class="alert-contacts-menu">

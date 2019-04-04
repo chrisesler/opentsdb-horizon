@@ -158,8 +158,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.editNamespace = false;
     }
 
-    updateMetric(metrics, index) {
-        if (index) {
+    updateMetric(metrics, id) {
+        const index = this.query.metrics.findIndex(item => item.id === id);
+        if ( index !== -1 ) {
             this.query.metrics[index].name = metrics[0];
         } else {
             let insertIndex = this.getMetricsLength('metrics');
