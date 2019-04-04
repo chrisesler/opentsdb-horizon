@@ -2,14 +2,12 @@ import {
     Component,
     OnInit,
     OnDestroy,
-    OnChanges,
     Inject,
     HostBinding,
     ViewChild,
     ElementRef,
     AfterContentInit, EventEmitter,
     Output,
-
     Input
 } from '@angular/core';
 
@@ -44,7 +42,7 @@ import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/c
 })
 
 
-export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnDestroy, AfterContentInit {
+export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, AfterContentInit {
     @HostBinding('class.alert-configuration-dialog-component') private _hostClass = true;
 
     @ViewChild('graphOutput') private graphOutput: ElementRef;
@@ -178,14 +176,11 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         }
     }
 
-    ngOnChanges(changes) {
-        console.log('changes....', changes);
-    }
-
     ngOnDestroy() {
-        // TODO: uncomment
-        // this.subs.alertName.unscubscribe();
-        // this.subs.alertFormName.unsubscribe();
+        this.subs.badStateSub.unsubscribe();
+        this.subs.warningStateSub.unsubscribe();
+        this.subs.recoveryStateSub.unsubscribe();
+        this.subs.recoveryTypeSub.unsubscribe();
     }
 
     ngAfterContentInit() {
@@ -220,7 +215,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         this.alertForm = this.fb.group({
             name: data.name || 'Untitled Alert',
             type: data.type || 'SIMPLE',
-            enabled: data.enabled || true,
+            enabled: data.enabled === undefined ? true : data.enabled,
             alertGroupingRules: this.fb.array(data.alertGroupingRules || []),
             labels: this.fb.array(data.labels || []),
             threshold: this.fb.group({
@@ -255,10 +250,15 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
             })
         });
 
+        this.setThresholds('bad', data.threshold.singleMetric.badThreshold || '');
+        this.setThresholds('warning', data.threshold.singleMetric.warnThreshold || '');
+        this.setThresholds('recovery', data.threshold.singleMetric.recoveryType === 'specific' ? data.threshold.singleMetric.recoveryThreshold : '');
 
+        /*
         this.subs.alertFormSub = <Subscription>this.alertForm.valueChanges.subscribe(val => {
             console.log('FORM CHANGE', val);
         });
+        */
 
         // tslint:disable-next-line:max-line-length
         this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges.subscribe(val => {
@@ -273,7 +273,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
             this.setThresholds('recovery', val);
         });
         // tslint:disable-next-line:max-line-length
-        this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryType'].valueChanges.subscribe(val => {
+        this.subs.recoveryTypeSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryType'].valueChanges.subscribe(val => {
             // tslint:disable-next-line:max-line-length
             this.setThresholds('recovery', val === 'specific' ? this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].value : '');
         });
@@ -319,6 +319,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         const mIndex = sourceid.split('-')[0].replace( /\D+/g, '');
         return qindex + ':' + mIndex;
     }
+
     setThresholds(type, value) {
         let color;
         switch ( type ) {
@@ -534,6 +535,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
 
     saveAlert() {
         const data: any = this.utils.deepClone(this.alertForm.getRawValue());
+        data.id = this.data.id;
         data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
         const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
         data.threshold.singleMetric.queryIndex = qindex;
@@ -541,7 +543,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         data.threshold.isNagEnabled = data.threshold.nagInterval ? true : false;
 
 
-        this.request.emit({ action: 'SaveAlert', payload: { id:this.data.id, data: this.utils.deepClone([data]) }} );
+        this.request.emit({ action: 'SaveAlert', payload: { data: this.utils.deepClone([data]) }} );
         // console.log(JSON.stringify(data), "alert form", qindex, mindex,this.queries[qindex].metrics[mindex] )
     }
     /** Events */

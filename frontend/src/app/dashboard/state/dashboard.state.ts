@@ -25,6 +25,11 @@ export class LoadDashboard {
     constructor(public id: string) {}
 }
 
+export class MigrateAndLoadDashboard {
+    static readonly type = '[Dashboard] Migrate and Load Dashboard';
+    constructor(public id: string, public payload: any) {}
+}
+
 export class LoadDashboardSuccess {
     static readonly type = '[Dashboard] Load Dashboard Success';
     constructor(public readonly payload: any) {}
@@ -123,8 +128,14 @@ export class DBState {
             ctx.patchState({ loading: true});
             // return this.httpService.getDashboardByPath(id).pipe(
             return this.httpService.getDashboardById(id).pipe(
-                map(dashboard => {
-                    ctx.dispatch(new LoadDashboardSuccess(dashboard.body));
+                map(res => {
+                    const dashboard:any = res.body;
+
+                    if ( dashboard.content.version && dashboard.content.version === this.dbService.version ) {
+                        ctx.dispatch(new LoadDashboardSuccess(dashboard));
+                    } else {
+                        ctx.dispatch(new MigrateAndLoadDashboard(id, dashboard));
+                    }
                 }),
                 catchError( error => ctx.dispatch(new LoadDashboardFail(error)))
             );
@@ -137,6 +148,17 @@ export class DBState {
             };
             ctx.dispatch(new LoadDashboardSuccess(payload));
         }
+    }
+
+    @Action(MigrateAndLoadDashboard)
+    migrateAndLoadDashboard(ctx: StateContext<DBStateModel>, { id: id, payload: payload }: MigrateAndLoadDashboard) {
+            payload = this.dbService.convert(payload);
+            return this.httpService.saveDashboard(id, payload).pipe(
+                map( (res: any) => {
+                    ctx.dispatch(new LoadDashboardSuccess(payload));
+                }),
+                catchError( error => ctx.dispatch(new LoadDashboardFail(error)))
+            );
     }
 
     @Action(LoadDashboardSuccess)
