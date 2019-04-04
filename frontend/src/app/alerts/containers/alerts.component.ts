@@ -19,13 +19,15 @@ import {
     MatDialog,
     MatDialogConfig,
     MatDialogRef,
-    DialogPosition
+    DialogPosition,
+    MatSnackBar
 } from '@angular/material';
 
 
 import { Observable, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { HttpService } from '../../core/http/http.service';
+
 
 
 import {
@@ -145,7 +147,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     constructor(
         private store: Store,
         private dialog: MatDialog,
-        private httpService: HttpService
+        private httpService: HttpService,
+        private snackBar: MatSnackBar
     ) { }
 
     ngOnInit() {
@@ -187,10 +190,30 @@ export class AlertsComponent implements OnInit, OnDestroy {
         });
 
         this.stateSubs['status'] = this.status$.subscribe( status => {
+            let message = '';
             switch( status ) {
-                case 'save-success': 
+                case 'add-success': 
+                case 'update-success':
+                    message = 'Alert has been ' + (status === 'add-success' ? 'created' : 'updated') + '.';
                     this.createAlertDialog.close();
                     break;
+                case 'enable-success':
+                    message = 'Alert has been enabled.';
+                    break;
+                case 'disable-success':
+                    message = 'Alert has been disabled.';
+                    break;
+                case 'delete-success':
+                    message = 'Alert has been deleted.';
+                    break;
+            }
+            if ( message !== '') {
+                this.snackBar.open(message, '', {
+                    horizontalPosition: 'center',
+                    verticalPosition: 'top',
+                    duration: 5000,
+                    panelClass: 'info'
+                });
             }
         });
 
@@ -403,14 +426,5 @@ export class AlertsComponent implements OnInit, OnDestroy {
             // console.log('SNOOZE ALERT DIALOG [afterClosed]', dialog_out);
         });
     }
-
-    /*
-    saveAlert(namespace, payload) {
-        this.httpService.saveAlert(namespace, payload).subscribe( res => {
-            console.log("save alert response", res);
-            this.createAlertDialog.close();
-        });
-    }
-    */
 
 }

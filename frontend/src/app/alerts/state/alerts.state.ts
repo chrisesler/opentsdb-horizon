@@ -302,7 +302,7 @@ export class AlertsState {
         ctx.patchState({ actionStatus: 'save-progress'});
         return this.httpService.saveAlert(namespace, payload).subscribe(
             alerts => {
-                ctx.patchState({ actionStatus: 'save-success'});
+                ctx.patchState({ actionStatus: payload.data[0].id ? 'update-success' : 'add-success'});
                 ctx.dispatch(new LoadAlerts({namespace: namespace}));
             },
             error => {
@@ -314,9 +314,10 @@ export class AlertsState {
 
     @Action(DeleteAlerts)
     deleteAlerts(ctx: StateContext<AlertsStateModel>, { namespace, payload:payload }: DeleteAlerts) {
-        //ctx.patchState({ loading: true});
+        ctx.patchState({ actionStatus: 'delete-progress'});
         return this.httpService.deleteAlerts(namespace, payload).subscribe(
             res => {
+                ctx.patchState({ actionStatus: 'delete-success'});
                 ctx.dispatch(new LoadAlerts({namespace: namespace}));
             },
             error => {
@@ -327,9 +328,10 @@ export class AlertsState {
 
     @Action(ToggleAlerts)
     toggleAlerts(ctx: StateContext<AlertsStateModel>, { namespace, payload:payload }: DeleteAlerts) {
-        //ctx.patchState({ loading: true});
+        ctx.patchState({ actionStatus: 'toggle-progress'});
         return this.httpService.saveAlert(namespace, payload).subscribe(
             res => {
+                ctx.patchState({ actionStatus: payload.data[0].enabled ? 'enable-success' : 'disable-success'});
                 ctx.dispatch(new LoadAlerts({namespace: namespace}));
             },
             error => {

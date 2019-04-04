@@ -177,9 +177,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     }
 
     ngOnDestroy() {
-        // TODO: uncomment
-        // this.subs.alertName.unscubscribe();
-        // this.subs.alertFormName.unsubscribe();
+        this.subs.badStateSub.unsubscribe();
+        this.subs.warningStateSub.unsubscribe();
+        this.subs.recoveryStateSub.unsubscribe();
+        this.subs.recoveryTypeSub.unsubscribe();
     }
 
     ngAfterContentInit() {
@@ -214,7 +215,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.alertForm = this.fb.group({
             name: data.name || 'Untitled Alert',
             type: data.type || 'SIMPLE',
-            enabled: data.enabled || true,
+            enabled: data.enabled === undefined ? true : data.enabled,
             alertGroupingRules: this.fb.array(data.alertGroupingRules || []),
             labels: this.fb.array(data.labels || []),
             threshold: this.fb.group({
@@ -249,10 +250,15 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             })
         });
 
+        this.setThresholds('bad', data.threshold.singleMetric.badThreshold || '');
+        this.setThresholds('warning', data.threshold.singleMetric.warnThreshold || '');
+        this.setThresholds('recovery', data.threshold.singleMetric.recoveryType === 'specific' ? data.threshold.singleMetric.recoveryThreshold : '');
 
+        /*
         this.subs.alertFormSub = <Subscription>this.alertForm.valueChanges.subscribe(val => {
             console.log('FORM CHANGE', val);
         });
+        */
 
         // tslint:disable-next-line:max-line-length
         this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges.subscribe(val => {
@@ -267,7 +273,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             this.setThresholds('recovery', val);
         });
         // tslint:disable-next-line:max-line-length
-        this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryType'].valueChanges.subscribe(val => {
+        this.subs.recoveryTypeSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryType'].valueChanges.subscribe(val => {
             // tslint:disable-next-line:max-line-length
             this.setThresholds('recovery', val === 'specific' ? this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].value : '');
         });
@@ -313,6 +319,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const mIndex = sourceid.split('-')[0].replace( /\D+/g, '');
         return qindex + ':' + mIndex;
     }
+
     setThresholds(type, value) {
         let color;
         switch ( type ) {
