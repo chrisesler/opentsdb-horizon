@@ -49,9 +49,16 @@ export class YamasService {
                 this.transformedQuery.executionGraph.push(q);
                 const aggregator = downsample.aggregator;
                 const prefix = 'm' + j + '-' + aggregator;
-                const dsId = prefix + '-downsample';
+                let dsId = prefix + '-downsample';
                 // add downsample for the expression
                 this.transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, aggregator, dsId, [q.id]));
+
+                // add function definition
+                const res = this.getFunctionQueries(j, dsId);
+                if ( res.queries.length ) {
+                    this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
+                    dsId = res.queries[res.queries.length-1].id;
+                }
 
                 const groupbyId = prefix + '-groupby';
                 groupByIds.push(groupbyId);
@@ -175,6 +182,29 @@ export class YamasService {
         return groupByTags;
     }
 
+    getFunctionQueries(index, ds) {
+        const queries = [];
+        const funs = this.query.metrics[index].functions;
+        for ( let i =0; i < funs.length; i++ ) {
+            const id = "m" + index + '-rate-' + i;
+            const fxCall = funs[i].fxCall;
+            switch ( fxCall ) {
+                case 'RateOfChange':
+                case 'CounterToRate':
+                    const q = {
+                            "id": id ,
+                            "type": "rate",
+                            "interval": funs[i].val,
+                            "counter": fxCall === 'RateOfChange' ? false : true,
+                            "sources": [ds]
+                        };
+                    queries.push(q);
+                    ds = id;
+                break;
+            }
+        }
+        return { queries: queries };
+    }
     getExpressionQuery(index) {
         const config = this.query.metrics[index];
         const eids = [];
