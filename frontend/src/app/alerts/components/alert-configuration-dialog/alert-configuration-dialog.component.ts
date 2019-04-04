@@ -139,6 +139,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
 
     // SUBSCRIPTIONS HOLDER
     subs: any = {};
+    sub: Subscription;
     nQueryDataLoading = 0;
 
     // DIALOGUES
