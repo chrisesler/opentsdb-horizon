@@ -57,7 +57,7 @@
                     [namespace]="query.namespace"
                     [metrics]="[metric.name]"
                     [filters]="query.filters" 
-                    (metricOutput)="updateMetric($event, i);"
+                    (metricOutput)="updateMetric($event, metric.id);"
                     (blur)="editMetricIndex=-1"></metric-autocomplete>
             </div>
             <div class="metric-row-data tag-spacer">

@@ -2,14 +2,12 @@ import {
     Component,
     OnInit,
     OnDestroy,
-    OnChanges,
     Inject,
     HostBinding,
     ViewChild,
     ElementRef,
     AfterContentInit, EventEmitter,
     Output,
-
     Input
 } from '@angular/core';
 
@@ -44,7 +42,7 @@ import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/c
 })
 
 
-export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnDestroy, AfterContentInit {
+export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, AfterContentInit {
     @HostBinding('class.alert-configuration-dialog-component') private _hostClass = true;
 
     @ViewChild('graphOutput') private graphOutput: ElementRef;
@@ -176,10 +174,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
             // see: https://github.com/angular/material2/issues/5268
             // setTimeout(() => this.openAlertNameDialog());
         }
-    }
-
-    ngOnChanges(changes) {
-        console.log('changes....', changes);
     }
 
     ngOnDestroy() {
@@ -534,6 +528,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
 
     saveAlert() {
         const data: any = this.utils.deepClone(this.alertForm.getRawValue());
+        data.id = this.data.id;
         data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
         const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
         data.threshold.singleMetric.queryIndex = qindex;
@@ -541,7 +536,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnChanges, OnD
         data.threshold.isNagEnabled = data.threshold.nagInterval ? true : false;
 
 
-        this.request.emit({ action: 'SaveAlert', payload: { id:this.data.id, data: this.utils.deepClone([data]) }} );
+        this.request.emit({ action: 'SaveAlert', payload: { data: this.utils.deepClone([data]) }} );
         // console.log(JSON.stringify(data), "alert form", qindex, mindex,this.queries[qindex].metrics[mindex] )
     }
     /** Events */

@@ -66,6 +66,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
 
     /** ANGULAR INTERFACE METHODS */
     ngOnInit() {
+        console.log("metric autocomplete", this.metrics)
         this.setMetricSearch();
     }
 
@@ -73,7 +74,9 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
         if (this.focus === true) {
             setTimeout(() => {
                 this.metricSearchInput.nativeElement.focus();
-                this.trigger.openMenu();
+                if ( this.multiple ) {
+                    this.trigger.openMenu();
+                }
             }, 100);
         }
     }
@@ -84,9 +87,10 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     /** METHODS */
 
     setMetricSearch() {
-        this.metricSearchControl = new FormControl(!this.multiple ? this.metrics[0] : '');
+        this.metricSearchControl = new FormControl('');
         this.metricSearchControl.valueChanges
             .pipe(
+                startWith(''),
                 debounceTime(200)
             )
             .subscribe(value => {
@@ -108,11 +112,13 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
 
     doMetricSearch() {
         this.visible = true;
-        this.metricSearchControl.setValue(this.multiple ? null : this.metrics[0]);
+        this.metricSearchControl.setValue(this.multiple ? null : this.metrics[0], {emitEvent: false});
     }
 
     requestChanges() {
-        this.metricOutput.emit(this.metrics);
+        if ( this.metrics.length ) {
+            this.metricOutput.emit(this.metrics);
+        }
     }
 
     updateMetricSelection(metric, operation) {

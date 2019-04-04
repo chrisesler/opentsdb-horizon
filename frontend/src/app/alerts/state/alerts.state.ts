@@ -44,6 +44,7 @@ export interface AlertsStateModel {
     loaded: any;
     error: any;
     actionResponse: any;
+    actionStatus: string;
     alerts: AlertModel[];
     alertTypeFilter: string;
 }
@@ -100,8 +101,18 @@ export class LoadAlerts {
     constructor(public options: any) {}
 }
 
+export class SaveAlerts {
+    static readonly type = '[Alerts] Save Alerts';
+    constructor(public namespace: string, public payload: any) {}
+}
+
 export class DeleteAlerts {
     static readonly type = '[Alerts] Delete Alerts';
+    constructor(public namespace: string, public payload: any) {}
+}
+
+export class ToggleAlerts {
+    static readonly type = '[Alerts] Toggle Alerts';
     constructor(public namespace: string, public payload: any) {}
 }
 
@@ -119,6 +130,7 @@ export class DeleteAlerts {
         error: {},
         actionResponse: {},
         alerts: [],
+        actionStatus: '',
         alertTypeFilter: 'all' // all, alerting, snoozed, disabled
     }
 })
@@ -179,6 +191,11 @@ export class AlertsState {
     @Selector()
     static getAlerts(state: AlertsStateModel) {
         return state.alerts;
+    }
+
+    @Selector()
+    static getActionStatus(state: AlertsStateModel) {
+        return state.actionStatus;
     }
 
     /* ACTIONS */
@@ -280,12 +297,40 @@ export class AlertsState {
 
     }
 
+    @Action(SaveAlerts)
+    saveAlerts(ctx: StateContext<AlertsStateModel>, { namespace, payload }: SaveAlerts) {
+        ctx.patchState({ actionStatus: 'save-progress'});
+        return this.httpService.saveAlert(namespace, payload).subscribe(
+            alerts => {
+                ctx.patchState({ actionStatus: 'save-success'});
+                ctx.dispatch(new LoadAlerts({namespace: namespace}));
+            },
+            error => {
+            }
+        );
+
+    }
+
+
     @Action(DeleteAlerts)
     deleteAlerts(ctx: StateContext<AlertsStateModel>, { namespace, payload:payload }: DeleteAlerts) {
         //ctx.patchState({ loading: true});
         return this.httpService.deleteAlerts(namespace, payload).subscribe(
             res => {
-                // ctx.patchState({ alerts: alerts});
+                ctx.dispatch(new LoadAlerts({namespace: namespace}));
+            },
+            error => {
+            }
+        );
+
+    }
+
+    @Action(ToggleAlerts)
+    toggleAlerts(ctx: StateContext<AlertsStateModel>, { namespace, payload:payload }: DeleteAlerts) {
+        //ctx.patchState({ loading: true});
+        return this.httpService.saveAlert(namespace, payload).subscribe(
+            res => {
+                ctx.dispatch(new LoadAlerts({namespace: namespace}));
             },
             error => {
             }

@@ -41,9 +41,11 @@ import {
     ASsetSelectedNamespace,
     ASsetAlertTypeFilter,
     LoadAlerts,
-    DeleteAlerts
+    DeleteAlerts,
+    ToggleAlerts,
+    SaveAlerts
 } from '../state/alerts.state';
-import { AlertState } from '../state/alert.state';
+import { AlertState, SaveAlert } from '../state/alert.state';
 
 import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
 import { AlertConfigurationDialogComponent } from '../components/alert-configuration-dialog/alert-configuration-dialog.component';
@@ -90,6 +92,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     // under the case 'setAlertTypeFilterSuccess'
     @Select(AlertsState.getAlerts) asAlerts$: Observable<any[]>;
     alerts: AlertModel[] = [];
+
+    @Select(AlertsState.getActionStatus) status$: Observable<string>;
 
     // for the table datasource
     alertsDataSource; // dynamically gets reassigned after new alerts state is subscribed
@@ -179,8 +183,15 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.stateSubs['asAlerts'] = this.asAlerts$.subscribe( alerts => {
             this.alerts = alerts;
-            console.log("alerts= ", alerts);
             this.setTableDataSource();
+        });
+
+        this.stateSubs['status'] = this.status$.subscribe( status => {
+            switch( status ) {
+                case 'save-success': 
+                    this.createAlertDialog.close();
+                    break;
+            }
         });
 
         /*
@@ -247,6 +258,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         //this.stateSubs['asAlertTypeFilter'].unsubscribe();
         //this.stateSubs['asAlertTypeCounts'].unsubscribe();
         this.stateSubs['asAlerts'].unsubscribe();
+        this.stateSubs['status'].unsubscribe();
         //this.stateSubs['asActionResponse'].unsubscribe();
         this.stateSubs['alert'].unsubscribe();
     }
@@ -324,6 +336,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
     */
 
+    toggleAlert(alertObj: any) {
+        this.store.dispatch(new ToggleAlerts(this.selectedNamespace, { data: [ { id: alertObj.id, enabled: !alertObj.enabled } ]}));
+    }
+
     deleteAlert(alertObj: any) {
         this.confirmDeleteDialog = this.dialog.open(this.confirmDeleteDialogRef, {data: alertObj});
         this.confirmDeleteDialog.afterClosed().subscribe(event => {
@@ -378,7 +394,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         const sub = this.createAlertDialog.componentInstance.request.subscribe((message:any) => {
             switch ( message.action ) {
                 case 'SaveAlert':
-                    this.saveAlert(data.namespace, message.payload);
+                    this.store.dispatch(new SaveAlerts(data.namespace, message.payload));
                     break;
             }
         });
@@ -388,11 +404,13 @@ export class AlertsComponent implements OnInit, OnDestroy {
         });
     }
 
+    /*
     saveAlert(namespace, payload) {
         this.httpService.saveAlert(namespace, payload).subscribe( res => {
             console.log("save alert response", res);
             this.createAlertDialog.close();
         });
     }
+    */
 
 }
