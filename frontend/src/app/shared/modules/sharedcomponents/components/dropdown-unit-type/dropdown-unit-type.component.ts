@@ -23,7 +23,7 @@ export class DropdownUnitTypeComponent implements OnInit {
     // menu data
     @ViewChild(MatMenuTrigger) private menuTrigger: MatMenuTrigger;
 
-    timeUnits: Array<string> = ['milliseconds', 'seconds', 'minutes', 'hours', 'days', 'years'];
+    timeUnits: Array<string> = ['nanoseconds', 'microseconds', 'milliseconds', 'seconds', 'minutes', 'hours', 'days', 'years'];
 
     binaryDataUnitsKeys: Array<string> = [ 'binbyte', 'kibibyte', 'mebibyte', 'gibibyte', 'tebibyte', 'pebibyte', 'exibyte' ];
 
@@ -36,7 +36,9 @@ export class DropdownUnitTypeComponent implements OnInit {
     
     units:any = {
         timeUnits: {
-            'milliseconds': 'Milli Seconds', 
+            'nanoseconds': 'Nanoseconds', 
+            'microseconds': 'Microseconds', 
+            'milliseconds': 'Milliseconds', 
             'seconds': 'Seconds', 
             'minutes': 'Minutes', 
             'hours':'Hours', 
