@@ -140,6 +140,12 @@ export class UnitNormalizerService {
         break;
 
       // Time
+      case 'nanoseconds':
+        bigNum = this.formatNumber(this.nanoSeconds(val), precision);
+        break;
+      case 'microseconds':
+        bigNum = this.formatNumber(this.microSeconds(val), precision);
+        break;
       case 'milliseconds':
         bigNum = this.formatNumber(this.milliSeconds(val), precision);
         break;
@@ -251,6 +257,14 @@ export class UnitNormalizerService {
   }
 
   // TIME Scales
+  nanoSeconds(val: number): INumberUnit {
+    return (this.intLength(val) > 3) ? this.microSeconds(val / 1000) : { num: val, unit: 'ns'};
+  }
+
+  microSeconds(val: number): INumberUnit {
+    return (this.intLength(val) > 3) ? this.milliSeconds(val / 1000) : { num: val, unit: 'μs'};
+  }
+
   milliSeconds(val: number): INumberUnit {
     return (this.intLength(val) > 3) ? this.seconds(val / 1000) : { num: val, unit: 'ms'};
   }

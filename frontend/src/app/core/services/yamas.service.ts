@@ -28,6 +28,7 @@ export class YamasService {
         let outputIds = [];
         let groupByIds = [];
 
+        this.downsample.aggregator = this.downsample.aggregators ? this.downsample.aggregators[0] : 'avg';
 
         for (let j = 0; j < query.metrics.length; j++) {
             const isExpression = query.metrics[j].expression ? true : false;
@@ -46,18 +47,16 @@ export class YamasService {
                     q.filterId = filterId;
                 }
                 this.transformedQuery.executionGraph.push(q);
-                const aggregators = downsample.aggregators || ['avg'];
-                for ( let i = 0; i < aggregators.length; i++ ) {
-                    const prefix = 'm' + j + '-' + aggregators[i];
-                    const dsId = prefix + '-downsample';
-                    // add downsample for the expression
-                    this.transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, aggregators[i], dsId, [q.id]));
+                const aggregator = downsample.aggregator;
+                const prefix = 'm' + j + '-' + aggregator;
+                const dsId = prefix + '-downsample';
+                // add downsample for the expression
+                this.transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, aggregator, dsId, [q.id]));
 
-                    const groupbyId = prefix + '-groupby';
-                    groupByIds.push(groupbyId);
-                    this.transformedQuery.executionGraph.push(this.getQueryGroupBy(query.metrics[j].tagAggregator, query.metrics[j].groupByTags, [dsId], groupbyId));
-                    outputIds.push(groupbyId);
-                }
+                const groupbyId = prefix + '-groupby';
+                groupByIds.push(groupbyId);
+                this.transformedQuery.executionGraph.push(this.getQueryGroupBy(query.metrics[j].tagAggregator, query.metrics[j].groupByTags, [dsId], groupbyId));
+                outputIds.push(groupbyId);
             }
         }
 
@@ -111,7 +110,7 @@ export class YamasService {
             'id': 'topn',
             'type': 'topn',
             'sources': sources,
-            'aggregator': 'avg',
+            'aggregator': this.downsample.aggregator,
             'top': _order,
             'count': count
         };
@@ -180,7 +179,7 @@ export class YamasService {
         const config = this.query.metrics[index];
         const eids = [];
         const queries = [];
-        const aggregators = this.downsample.aggregators || ['avg'];
+        const aggregators = this.downsample.aggregator;
         const eid = "m" + index;
 
         for ( let j = 0; j < aggregators.length; j++ ) {
