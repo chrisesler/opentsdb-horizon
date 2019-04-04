@@ -170,7 +170,7 @@ export class YamasService {
         } else {
             const id =   'm' + index + '-' + aggregator + '-groupby';
             const qindex = this.transformedQuery.executionGraph.findIndex(d => d.id === id );
-            groupByTags  =  this.transformedQuery.executionGraph[qindex].tagKeys;
+            groupByTags  =  this.transformedQuery.executionGraph[qindex].tagKeys ?  this.transformedQuery.executionGraph[qindex].tagKeys : [];
         }
         return groupByTags;
     }
