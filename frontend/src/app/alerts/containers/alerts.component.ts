@@ -19,13 +19,15 @@ import {
     MatDialog,
     MatDialogConfig,
     MatDialogRef,
-    DialogPosition
+    DialogPosition,
+    MatSnackBar
 } from '@angular/material';
 
 
 import { Observable, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { HttpService } from '../../core/http/http.service';
+
 
 
 import {
@@ -41,9 +43,11 @@ import {
     ASsetSelectedNamespace,
     ASsetAlertTypeFilter,
     LoadAlerts,
-    DeleteAlerts
+    DeleteAlerts,
+    ToggleAlerts,
+    SaveAlerts
 } from '../state/alerts.state';
-import { AlertState } from '../state/alert.state';
+import { AlertState, SaveAlert } from '../state/alert.state';
 
 import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
 import { AlertConfigurationDialogComponent } from '../components/alert-configuration-dialog/alert-configuration-dialog.component';
@@ -90,6 +94,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     // under the case 'setAlertTypeFilterSuccess'
     @Select(AlertsState.getAlerts) asAlerts$: Observable<any[]>;
     alerts: AlertModel[] = [];
+
+    @Select(AlertsState.getActionStatus) status$: Observable<string>;
 
     // for the table datasource
     alertsDataSource; // dynamically gets reassigned after new alerts state is subscribed
@@ -141,7 +147,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     constructor(
         private store: Store,
         private dialog: MatDialog,
-        private httpService: HttpService
+        private httpService: HttpService,
+        private snackBar: MatSnackBar
     ) { }
 
     ngOnInit() {
@@ -179,8 +186,35 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.stateSubs['asAlerts'] = this.asAlerts$.subscribe( alerts => {
             this.alerts = alerts;
-            console.log("alerts= ", alerts);
             this.setTableDataSource();
+        });
+
+        this.stateSubs['status'] = this.status$.subscribe( status => {
+            let message = '';
+            switch( status ) {
+                case 'add-success': 
+                case 'update-success':
+                    message = 'Alert has been ' + (status === 'add-success' ? 'created' : 'updated') + '.';
+                    this.createAlertDialog.close();
+                    break;
+                case 'enable-success':
+                    message = 'Alert has been enabled.';
+                    break;
+                case 'disable-success':
+                    message = 'Alert has been disabled.';
+                    break;
+                case 'delete-success':
+                    message = 'Alert has been deleted.';
+                    break;
+            }
+            if ( message !== '') {
+                this.snackBar.open(message, '', {
+                    horizontalPosition: 'center',
+                    verticalPosition: 'top',
+                    duration: 5000,
+                    panelClass: 'info'
+                });
+            }
         });
 
         /*
@@ -247,6 +281,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         //this.stateSubs['asAlertTypeFilter'].unsubscribe();
         //this.stateSubs['asAlertTypeCounts'].unsubscribe();
         this.stateSubs['asAlerts'].unsubscribe();
+        this.stateSubs['status'].unsubscribe();
         //this.stateSubs['asActionResponse'].unsubscribe();
         this.stateSubs['alert'].unsubscribe();
     }
@@ -324,6 +359,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
     */
 
+    toggleAlert(alertObj: any) {
+        this.store.dispatch(new ToggleAlerts(this.selectedNamespace, { data: [ { id: alertObj.id, enabled: !alertObj.enabled } ]}));
+    }
+
     deleteAlert(alertObj: any) {
         this.confirmDeleteDialog = this.dialog.open(this.confirmDeleteDialogRef, {data: alertObj});
         this.confirmDeleteDialog.afterClosed().subscribe(event => {
@@ -378,20 +417,13 @@ export class AlertsComponent implements OnInit, OnDestroy {
         const sub = this.createAlertDialog.componentInstance.request.subscribe((message:any) => {
             switch ( message.action ) {
                 case 'SaveAlert':
-                    this.saveAlert(data.namespace, message.payload);
+                    this.store.dispatch(new SaveAlerts(data.namespace, message.payload));
                     break;
             }
         });
         // this.snoozeAlertDialog.updatePosition({ top: '48px' });
         this.createAlertDialog.afterClosed().subscribe((dialog_out: any) => {
             // console.log('SNOOZE ALERT DIALOG [afterClosed]', dialog_out);
-        });
-    }
-
-    saveAlert(namespace, payload) {
-        this.httpService.saveAlert(namespace, payload).subscribe( res => {
-            console.log("save alert response", res);
-            this.createAlertDialog.close();
         });
     }
 

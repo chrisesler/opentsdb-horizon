@@ -158,8 +158,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.editNamespace = false;
     }
 
-    updateMetric(metrics, index) {
-        if (index) {
+    updateMetric(metrics, id) {
+        const index = this.query.metrics.findIndex(item => item.id === id);
+        if ( index !== -1 ) {
             this.query.metrics[index].name = metrics[0];
         } else {
             let insertIndex = this.getMetricsLength('metrics');
@@ -199,7 +200,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         } else {
             this.query.metrics[metricIdx].functions.push(func);
         }
-        console.log('this query', this.query);
+        this.queryChanges$.next(true);
     }
 
     functionDelete(funcId: string, metricIdx: number) {
@@ -207,7 +208,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         if (fxIndex !== -1) {
             this.query.metrics[metricIdx].functions.splice(fxIndex,1);
         }
-        console.log('this query', this.query);
+        this.queryChanges$.next(true);
     }
 
     setMetricTagAggregator(id, value) {
@@ -399,6 +400,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         if (trigger) {
             trigger.closeMenu();
         }
+        this.queryChanges$.next(true);
     }
 
     showMetricAC() {

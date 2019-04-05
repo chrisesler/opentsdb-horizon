@@ -299,10 +299,10 @@ export class HttpService {
           'Content-Type': 'application/json',
         });
         const apiUrl = environment.recipientsApi + '/namespace/' + namespace + '/alert';
-        if ( !payload.id ) {
+        if ( !payload.data[0].id  ) {
             return this.http.post(apiUrl, payload.data, { headers, withCredentials: true });
         } else {
-            payload.data[0].id = payload.id;
+            // payload.data[0].id = payload.id;
             return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
         }
     }

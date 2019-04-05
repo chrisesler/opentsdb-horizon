@@ -4,6 +4,8 @@ import { UtilsService } from '../../core/services/utils.service';
 @Injectable()
 export class DashboardService {
 
+  version = 1;
+
   private dashboardProto: any = {
     settings: {
         time: {
@@ -138,6 +140,7 @@ export class DashboardService {
 
   getStorableFormatFromDBState(dbstate) {
     const dashboard = {
+      version: this.version,
       settings: dbstate.Settings,
       widgets: dbstate.Widgets
     };
@@ -157,5 +160,45 @@ export class DashboardService {
       pWidgets[i].gridPos.y = pWidgets[i].gridPos.yMd;
     }
     */
+  }
+
+  convert(dashboard) {
+    if ( !dashboard.content.version ) {
+      dashboard.version = 1;
+      const widgets = dashboard.content.widgets;
+      for ( let i = 0; i < widgets.length; i++ ) {
+        const queries = widgets[i].queries;
+        for ( let j = 0; j < queries.length; j++ ) {
+          const metrics = queries[j].metrics;
+          const filters = queries[j].filters;
+          const groupByTags = [];
+          for ( let k = 0; k < filters.length; k++ ) {
+            if (filters[k].groupBy === true ) {
+              groupByTags.push(filters[k].tagk);
+            }
+          }
+          for ( let k = 0; k < metrics.length; k++ ) {
+            // metrics
+            if ( metrics[k].expression === undefined && !metrics[k].groupByTags ) {
+              metrics[k].tagAggregator = metrics[k].tagAggregator || 'sum';
+              metrics[k].groupByTags = groupByTags;
+            }
+            if ( metrics[k].expression && metrics[k].metrics) {
+              metrics[k].expression = metrics[k].originalExpression;
+              const emetrics = metrics[k].metrics;
+              for ( let m = 0; m < emetrics.length; m++ ) {
+                const pos = emetrics[m].name.indexOf('.') + 1;
+                emetrics[m].metric = emetrics[m].name.substr(pos);
+                const metric = metrics.find(d=> d.expression === undefined && d.name === emetrics[m].metric);
+                emetrics[m].newId = metric ? metric.id : null;
+                const reg = new RegExp(emetrics[m].refId, 'g');
+                metrics[k].expression = metrics[k].expression.replace(reg, '{{' + emetrics[m].newId + '}}' );
+              }
+            }
+          }
+        }
+      }
+    }
+    return dashboard;
   }
 }

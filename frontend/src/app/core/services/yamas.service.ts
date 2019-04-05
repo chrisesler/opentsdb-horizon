@@ -34,9 +34,9 @@ export class YamasService {
             const isExpression = query.metrics[j].expression ? true : false;
 
             if ( query.metrics[j].expression ) {
-                const res = this.getExpressionQuery(j);
-                this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
-                outputIds = outputIds.concat(res.eids);
+                const q = this.getExpressionQuery(j);
+                this.transformedQuery.executionGraph.push(q);
+                outputIds.push(q.id);
             } else {
                 const q: any = this.getMetricQuery(j);
                 if ( query.metrics[j].groupByTags && !this.checkTagsExistInFilter(query.metrics[j].groupByTags) ) {
@@ -49,9 +49,16 @@ export class YamasService {
                 this.transformedQuery.executionGraph.push(q);
                 const aggregator = downsample.aggregator;
                 const prefix = 'm' + j + '-' + aggregator;
-                const dsId = prefix + '-downsample';
+                let dsId = prefix + '-downsample';
                 // add downsample for the expression
                 this.transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, aggregator, dsId, [q.id]));
+
+                // add function definition
+                const res = this.getFunctionQueries(j, dsId);
+                if ( res.queries.length ) {
+                    this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
+                    dsId = res.queries[res.queries.length-1].id;
+                }
 
                 const groupbyId = prefix + '-groupby';
                 groupByIds.push(groupbyId);
@@ -170,63 +177,82 @@ export class YamasService {
         } else {
             const id =   'm' + index + '-' + aggregator + '-groupby';
             const qindex = this.transformedQuery.executionGraph.findIndex(d => d.id === id );
-            groupByTags  =  this.transformedQuery.executionGraph[qindex].tagKeys;
+            if (qindex > -1) {
+                groupByTags  =  this.transformedQuery.executionGraph[qindex].tagKeys || [];
+            }
         }
         return groupByTags;
     }
 
+    getFunctionQueries(index, ds) {
+        const queries = [];
+        const funs = this.query.metrics[index].functions || [];
+        for ( let i =0; i < funs.length; i++ ) {
+            const id = "m" + index + '-rate-' + i;
+            const fxCall = funs[i].fxCall;
+            switch ( fxCall ) {
+                case 'RateOfChange':
+                case 'CounterToRate':
+                    const q = {
+                            "id": id ,
+                            "type": "rate",
+                            "interval": funs[i].val,
+                            "counter": fxCall === 'RateOfChange' ? false : true,
+                            "sources": [ds]
+                        };
+                    queries.push(q);
+                    ds = id;
+                break;
+            }
+        }
+        return { queries: queries };
+    }
     getExpressionQuery(index) {
         const config = this.query.metrics[index];
-        const eids = [];
-        const queries = [];
-        const aggregators = this.downsample.aggregator;
+        const aggregator = this.downsample.aggregator;
         const eid = "m" + index;
 
-        for ( let j = 0; j < aggregators.length; j++ ) {
-            const sources = [];
-            const  expression = config.expression;
-            let transformedExp = expression;
+        const sources = [];
+        const  expression = config.expression;
+        let transformedExp = expression;
 
-            // replace {{<id>}} with query source id
-            const re = new RegExp(/\{\{(.+?)\}\}/, "g");
-            let matches = [];
-            while(matches = re.exec(expression)) {
-                const id = matches[1];
-                const idreg = new RegExp( '{{' + id + '}}' , 'g');
-                const mindex = this.getSourceIndexById(id);
-                const sourceId = 'm' + mindex;
-                const gsourceId = this.query.metrics[mindex].expression === undefined ? sourceId + '-' + aggregators[j] + '-groupby' : sourceId ; 
-                transformedExp = transformedExp.replace( idreg, sourceId );
-                sources.push(gsourceId);
-            }
-            
-            const joinTags = {};
-            const groupByTags = this.getGroupbyTagsByQId( index,  aggregators[j]);;
-            for ( let i=0; i < groupByTags.length; i++ ) {
-                const tag = groupByTags[i];
-                joinTags[tag] = tag;
-            }
-            const econfig = {
-                id: eid,
-                type: 'expression',
-                expression: transformedExp,
-                join: {
-                    type: 'Join',
-                    joinType: groupByTags.length ? 'INNER' : 'NATURAL_OUTER', 
-                    joins: joinTags
-                },
-                interpolatorConfigs: [{
-                    dataType: 'numeric',
-                    fillPolicy: 'NAN',
-                    realFillPolicy: 'NONE'
-                }],
-                variableInterpolators: {},
-                sources: sources
-            };
-            eids.push(eid);
-            queries.push(econfig);
+        // replace {{<id>}} with query source id
+        const re = new RegExp(/\{\{(.+?)\}\}/, "g");
+        let matches = [];
+        while(matches = re.exec(expression)) {
+            const id = matches[1];
+            const idreg = new RegExp( '{{' + id + '}}' , 'g');
+            const mindex = this.getSourceIndexById(id);
+            const sourceId = 'm' + mindex;
+            const gsourceId = this.query.metrics[mindex].expression === undefined ? sourceId + '-' + aggregator + '-groupby' : sourceId ; 
+            transformedExp = transformedExp.replace( idreg, sourceId );
+            sources.push(gsourceId);
         }
-        return { queries: queries, eids: eids };
+        
+        const joinTags = {};
+        const groupByTags = this.getGroupbyTagsByQId( index,  aggregator);;
+        for ( let i=0; i < groupByTags.length; i++ ) {
+            const tag = groupByTags[i];
+            joinTags[tag] = tag;
+        }
+        const econfig = {
+            id: eid,
+            type: 'expression',
+            expression: transformedExp,
+            join: {
+                type: 'Join',
+                joinType: groupByTags.length ? 'INNER' : 'NATURAL_OUTER', 
+                joins: joinTags
+            },
+            interpolatorConfigs: [{
+                dataType: 'numeric',
+                fillPolicy: 'NAN',
+                realFillPolicy: 'NONE'
+            }],
+            variableInterpolators: {},
+            sources: sources
+        };
+        return econfig;
     }
 
     transformFilters(fConfigs) {
