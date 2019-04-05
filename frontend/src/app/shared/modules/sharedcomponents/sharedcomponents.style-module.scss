@@ -43,6 +43,7 @@
 @import 'components/query-editor-proto/query-editor-proto.component';
 @import 'components/metric-function/metric-function.component';
 @import 'components/tag-aggregator/tag-aggregator.component';
+@import 'components/namespace-autocomplete/namespace-autocomplete.component';
 
 // widget common FIRST
 @import 'components/widget-config.common';
@@ -87,6 +88,7 @@
     @include query-editor-proto-component-base();
     @include metric-function-component-base();
     @include tag-aggregator-component-base();
+    @include namespace-autocomplete-component-base();
 
 
     // WIDGET CONFIG ITEMS
@@ -132,6 +134,7 @@
     @include query-editor-proto-component-theme($theme-config);
     @include metric-function-component-theme($theme-config);
     @include tag-aggregator-component-theme($theme-config);
+    @include namespace-autocomplete-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);

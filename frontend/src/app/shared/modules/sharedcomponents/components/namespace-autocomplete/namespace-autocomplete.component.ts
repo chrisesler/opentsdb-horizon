@@ -1,4 +1,15 @@
-import { Component, OnInit, Input, Output, EventEmitter, AfterContentInit, ViewChild, ElementRef, HostListener } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    Input,
+    Output,
+    EventEmitter,
+    AfterContentInit,
+    ViewChild,
+    ElementRef,
+    HostBinding,
+    HostListener
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
@@ -6,12 +17,15 @@ import { MatAutocomplete } from '@angular/material';
 import { HttpService } from '../../../../../core/http/http.service';
 
 @Component({
-  selector: 'namespace-autocomplete',
-  templateUrl: './namespace-autocomplete.component.html',
-  styleUrls: ['./namespace-autocomplete.component.scss']
+    // tslint:disable-next-line:component-selector
+    selector: 'namespace-autocomplete',
+    templateUrl: './namespace-autocomplete.component.html',
+    styleUrls: []
 })
 
 export class NamespaceAutocompleteComponent implements OnInit {
+
+    @HostBinding('class.namespace-autocomplete-component') private _hostClass = true;
 
     @Input() value = '';
     @Output() nschange = new EventEmitter();
@@ -26,7 +40,7 @@ export class NamespaceAutocompleteComponent implements OnInit {
 
 
 
-    constructor( private httpService: HttpService, private elRef: ElementRef ) { }
+    constructor(private httpService: HttpService, private elRef: ElementRef) { }
 
     ngOnInit() {
         this.namespaceControl = new FormControl(this.value);
@@ -34,7 +48,7 @@ export class NamespaceAutocompleteComponent implements OnInit {
             .pipe(
                 startWith(''),
                 debounceTime(300),
-                switchMap(value => this.httpService.getNamespaces({ search: value}))
+                switchMap(value => this.httpService.getNamespaces({ search: value }))
             );
         setTimeout(() => {
             // this.nsInput.nativeElement.focus();
@@ -44,10 +58,10 @@ export class NamespaceAutocompleteComponent implements OnInit {
 
 
     namespaceKeydown(event: any) {
-        if ( !this.nsAutoCompleteCntrl.isOpen ) {
+        if (!this.nsAutoCompleteCntrl.isOpen) {
             this.selectedNamespace = this.namespaceControl.value;
-            console.log("selectedns", this.selectedNamespace, event);
-            this.nschange.emit( this.selectedNamespace );
+            console.log('selectedns', this.selectedNamespace, event);
+            this.nschange.emit(this.selectedNamespace);
         }
     }
 
@@ -56,7 +70,7 @@ export class NamespaceAutocompleteComponent implements OnInit {
      */
     namespaceOptionSelected(event: any) {
         this.selectedNamespace = event.option.value;
-        this.nschange.emit( this.selectedNamespace );
+        this.nschange.emit(this.selectedNamespace);
     }
 
     @HostListener('click', ['$event'])
@@ -66,7 +80,7 @@ export class NamespaceAutocompleteComponent implements OnInit {
 
     @HostListener('document:click', ['$event.target'])
     documentClickHandler(target) {
-        if ( ! target.classList.contains('mat-option-text') && this.visible ) {
+        if (!target.classList.contains('mat-option-text') && this.visible) {
             // console.log('window:click outside', this.elRef, target, this.elRef.nativeElement.contains(target));
             this.blur.emit('');
         }
