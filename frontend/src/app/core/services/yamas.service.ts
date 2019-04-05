@@ -34,9 +34,9 @@ export class YamasService {
             const isExpression = query.metrics[j].expression ? true : false;
 
             if ( query.metrics[j].expression ) {
-                const res = this.getExpressionQuery(j);
-                this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
-                outputIds = outputIds.concat(res.eids);
+                const q = this.getExpressionQuery(j);
+                this.transformedQuery.executionGraph.push(q);
+                outputIds.push(q.id);
             } else {
                 const q: any = this.getMetricQuery(j);
                 if ( query.metrics[j].groupByTags && !this.checkTagsExistInFilter(query.metrics[j].groupByTags) ) {
@@ -209,56 +209,50 @@ export class YamasService {
     }
     getExpressionQuery(index) {
         const config = this.query.metrics[index];
-        const eids = [];
-        const queries = [];
-        const aggregators = this.downsample.aggregator;
+        const aggregator = this.downsample.aggregator;
         const eid = "m" + index;
 
-        for ( let j = 0; j < aggregators.length; j++ ) {
-            const sources = [];
-            const  expression = config.expression;
-            let transformedExp = expression;
+        const sources = [];
+        const  expression = config.expression;
+        let transformedExp = expression;
 
-            // replace {{<id>}} with query source id
-            const re = new RegExp(/\{\{(.+?)\}\}/, "g");
-            let matches = [];
-            while(matches = re.exec(expression)) {
-                const id = matches[1];
-                const idreg = new RegExp( '{{' + id + '}}' , 'g');
-                const mindex = this.getSourceIndexById(id);
-                const sourceId = 'm' + mindex;
-                const gsourceId = this.query.metrics[mindex].expression === undefined ? sourceId + '-' + aggregators[j] + '-groupby' : sourceId ; 
-                transformedExp = transformedExp.replace( idreg, sourceId );
-                sources.push(gsourceId);
-            }
-            
-            const joinTags = {};
-            const groupByTags = this.getGroupbyTagsByQId( index,  aggregators[j]);;
-            for ( let i=0; i < groupByTags.length; i++ ) {
-                const tag = groupByTags[i];
-                joinTags[tag] = tag;
-            }
-            const econfig = {
-                id: eid,
-                type: 'expression',
-                expression: transformedExp,
-                join: {
-                    type: 'Join',
-                    joinType: groupByTags.length ? 'INNER' : 'NATURAL_OUTER', 
-                    joins: joinTags
-                },
-                interpolatorConfigs: [{
-                    dataType: 'numeric',
-                    fillPolicy: 'NAN',
-                    realFillPolicy: 'NONE'
-                }],
-                variableInterpolators: {},
-                sources: sources
-            };
-            eids.push(eid);
-            queries.push(econfig);
+        // replace {{<id>}} with query source id
+        const re = new RegExp(/\{\{(.+?)\}\}/, "g");
+        let matches = [];
+        while(matches = re.exec(expression)) {
+            const id = matches[1];
+            const idreg = new RegExp( '{{' + id + '}}' , 'g');
+            const mindex = this.getSourceIndexById(id);
+            const sourceId = 'm' + mindex;
+            const gsourceId = this.query.metrics[mindex].expression === undefined ? sourceId + '-' + aggregator + '-groupby' : sourceId ; 
+            transformedExp = transformedExp.replace( idreg, sourceId );
+            sources.push(gsourceId);
         }
-        return { queries: queries, eids: eids };
+        
+        const joinTags = {};
+        const groupByTags = this.getGroupbyTagsByQId( index,  aggregator);;
+        for ( let i=0; i < groupByTags.length; i++ ) {
+            const tag = groupByTags[i];
+            joinTags[tag] = tag;
+        }
+        const econfig = {
+            id: eid,
+            type: 'expression',
+            expression: transformedExp,
+            join: {
+                type: 'Join',
+                joinType: groupByTags.length ? 'INNER' : 'NATURAL_OUTER', 
+                joins: joinTags
+            },
+            interpolatorConfigs: [{
+                dataType: 'numeric',
+                fillPolicy: 'NAN',
+                realFillPolicy: 'NONE'
+            }],
+            variableInterpolators: {},
+            sources: sources
+        };
+        return econfig;
     }
 
     transformFilters(fConfigs) {
