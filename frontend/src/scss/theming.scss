@@ -2,6 +2,9 @@
  * YAMAS - HORIZON THEMING
  */
 
+
+$base-font-size: 10px;
+
 // IMPORT MATERIAL THEMING SUPPORT 
 @import '~@angular/material/theming';
 
@@ -73,6 +76,8 @@ $app-available-themes: (
         display: none;
     }
 }
+
+@include setBaseFontSize($base-font-size);
 
 // RENDER MATERIAL CORE (structure)
 @include mat-core(map-get($app-fontface-config, sans));

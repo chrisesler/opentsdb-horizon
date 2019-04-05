@@ -4,7 +4,7 @@
  */
 @mixin app-common-base() {
 
-    html,
+    // html,
     body {
         @include mat-typography-level-to-styles(map-get($app-fontface-config, sans), body-1);
     }
