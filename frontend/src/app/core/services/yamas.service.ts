@@ -177,14 +177,16 @@ export class YamasService {
         } else {
             const id =   'm' + index + '-' + aggregator + '-groupby';
             const qindex = this.transformedQuery.executionGraph.findIndex(d => d.id === id );
-            groupByTags  =  this.transformedQuery.executionGraph[qindex].tagKeys;
+            if (qindex > -1) {
+                groupByTags  =  this.transformedQuery.executionGraph[qindex].tagKeys || [];
+            }
         }
         return groupByTags;
     }
 
     getFunctionQueries(index, ds) {
         const queries = [];
-        const funs = this.query.metrics[index].functions;
+        const funs = this.query.metrics[index].functions || [];
         for ( let i =0; i < funs.length; i++ ) {
             const id = "m" + index + '-rate-' + i;
             const fxCall = funs[i].fxCall;

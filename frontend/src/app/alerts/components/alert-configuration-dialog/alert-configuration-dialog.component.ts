@@ -254,11 +254,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.setThresholds('warning', data.threshold.singleMetric.warnThreshold || '');
         this.setThresholds('recovery', data.threshold.singleMetric.recoveryType === 'specific' ? data.threshold.singleMetric.recoveryThreshold : '');
 
-        /*
-        this.subs.alertFormSub = <Subscription>this.alertForm.valueChanges.subscribe(val => {
-            console.log('FORM CHANGE', val);
-        });
-        */
+        //this.subs.alertFormSub = <Subscription>this.alertForm.valueChanges.subscribe(val => {
+        //    console.log('FORM CHANGE', val);
+        //});
 
         // tslint:disable-next-line:max-line-length
         this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges.subscribe(val => {
