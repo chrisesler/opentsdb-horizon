@@ -6,9 +6,10 @@ import {
     OnInit,
     ViewChild,
     TemplateRef,
-    Input
+    Input,
+    ChangeDetectorRef
 } from '@angular/core';
-
+import { ActivatedRoute, Router } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 
 import {
@@ -28,12 +29,8 @@ import { Observable, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { HttpService } from '../../core/http/http.service';
 
+import { Select, Store } from '@ngxs/store';
 
-
-import {
-    Select,
-    Store
-} from '@ngxs/store';
 
 import {
     AlertsState,
@@ -144,16 +141,35 @@ export class AlertsComponent implements OnInit, OnDestroy {
     // confirmDelete Dialog
     confirmDeleteDialog: MatDialogRef<TemplateRef<any>> | null;
 
+    private routeSub: Subscription;
+
     constructor(
         private store: Store,
         private dialog: MatDialog,
         private httpService: HttpService,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private  activatedRoute: ActivatedRoute,
+        private router: Router,
+        private cdRef: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
 
         const self = this;
+
+          // handle route for dashboardModule
+          this.routeSub = this.activatedRoute.url.subscribe(url => {
+            console.log('current path', url);
+            if (url.length === 2 && url[1].path === '_new_') {
+                this.selectedNamespace = url[0].path;
+                this.createAlert('metric', this.selectedNamespace);
+            } else if (url.length > 2) {
+                // load alert to edit
+                this.httpService.getAlertDetailsById(url[0].path).subscribe(data=>{
+                    this.openCreateAlertDialog(data);
+                });                
+            }
+        });    
 
         this.stateSubs['asLoaded'] = this.asLoaded$.subscribe( data => {
             self.stateLoaded = data;
@@ -216,52 +232,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 });
             }
         });
-
-        /*
-        this.stateSubs['asAlertTypeFilter'] = this.asAlertTypeFilter$.subscribe( data => {
-            // console.log('ALERTS FILTER CHANGED', data);
-
-            self.alertTypeFilter = data;
-
-        });
-
-        this.stateSubs['asAlertTypeCounts'] = this.asAlertTypeCounts$.subscribe( data => {
-            // console.log('ALERTS TYPE COUNTS CHANGED', data);
-            self.alertTypeCounts = data;
-        });
-
-        // this.asAlerts$ = this.store.select(AlertsState.getAlerts('all'));
-        this.stateSubs['asAlerts'] = this.asAlerts$.subscribe( alerts => {
-            // console.log('ALERTS CHANGED', alerts);
-            self.alerts = alerts;
-            self.setTableDataSource();
-        });
-
-        this.stateSubs['asActionResponse'] = this.asActionResponse$.subscribe( event => {
-            // console.log('************************* ACTION RESPONSE *************************', event);
-            if (event.guid && event.guid === this.guid) {
-                switch (event.action) {
-                    case 'loadUserNamespacesSuccess':
-                        
-                        break;
-                    case 'setAlertTypeFilterSuccess':
-                        if (self.stateSubs['asAlerts']) {
-                            self.stateSubs['asAlerts'].unsubscribe();
-                        }
-                        // dynamic store selection of alerts based on type
-                        // self.asAlerts$ = self.store.select(AlertsState.getAlerts(self.alertTypeFilter));
-                        self.stateSubs['asAlerts'] = self.asAlerts$.subscribe( alerts => {
-                            // console.log('ALERTS CHANGED', alerts);
-                            self.alerts = alerts;
-                            self.setTableDataSource();
-                        });
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-        */
         this.stateSubs['alert'] = this.alertDetail$.subscribe( alert => {
             console.log("alert details", alert);
         });
@@ -284,6 +254,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.stateSubs['status'].unsubscribe();
         //this.stateSubs['asActionResponse'].unsubscribe();
         this.stateSubs['alert'].unsubscribe();
+        this.routeSub.unsubscribe();
     }
 
     /** privates */
@@ -378,24 +349,23 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.confirmDeleteDialog.close({deleted: true});
     }
 
-    editAlert(id) {
-        this.httpService.getAlertDetailsById(id).subscribe(data=>{
+    editAlert(element: any) {
+        this.router.navigate(['a', element.id, element.namespace, element.name]);
+        this.httpService.getAlertDetailsById(element.id).subscribe(data=>{
             console.log("edit laert", data);
             this.openCreateAlertDialog(data);
         });
     }
 
-    createAlert(type: string) {
+    createAlert(type: string, namespace: string) {
+        this.cdRef.detectChanges();
         const data = {
             alertType: type,
-            namespace: this.selectedNamespace, 
+            namespace: namespace, 
             name: 'Untitled Alert' 
         }
         this.openCreateAlertDialog(data);
-    }
-
-    getQueryData(query) {
-        console.log("get query data", query)
+        this.router.navigate(['a', namespace, '_new_']);
     }
 
     /* open create alert dialog */
@@ -418,12 +388,14 @@ export class AlertsComponent implements OnInit, OnDestroy {
             switch ( message.action ) {
                 case 'SaveAlert':
                     this.store.dispatch(new SaveAlerts(data.namespace, message.payload));
+                    this.router.navigate(['a']);
                     break;
             }
         });
         // this.snoozeAlertDialog.updatePosition({ top: '48px' });
         this.createAlertDialog.afterClosed().subscribe((dialog_out: any) => {
-            // console.log('SNOOZE ALERT DIALOG [afterClosed]', dialog_out);
+            // this is when dialog is closed to return to summary page
+            this.router.navigate(['a']);
         });
     }
 
