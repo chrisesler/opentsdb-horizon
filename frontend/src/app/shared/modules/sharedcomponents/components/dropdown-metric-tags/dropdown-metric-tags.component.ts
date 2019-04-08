@@ -26,8 +26,9 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     @ViewChild(MatMenuTrigger) private trigger: MatMenuTrigger;
 
     @Input() namespace: string;
-    @Input() metric: string;
+    @Input() metric: any;
     @Input() selected: any[] = ['all'];
+    @Input() all: boolean = true;
     @Output() change: EventEmitter<any> = new EventEmitter();
 
     tagOptions: any[] = [];
@@ -40,32 +41,36 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(change: SimpleChanges) {
-        console.log('metric tags', change);
         if (change.selected && change.selected.currentValue) {
             this.selected = [...change.selected.currentValue]; // dropdown selection reflects when new reference is created
         }
     }
 
     loadTags(load) {
-        const query: any = { namespace: this.namespace, metrics: [this.metric], filters: [] };
+        const query: any = { namespace: this.namespace, metrics: Array.isArray(this.metric) ? this.metric : [this.metric] , filters: [] };
         query.search = '';
-        const that = this;
-        if (load) {
+        if (load ) {
+            if ( !this.namespace || !this.metric ) {
+                this.tagOptions = [];
+                this.triggerMenu();
+                return;
+            }
             this.httpService.getNamespaceTagKeys(query).subscribe(res => {
-                console.log('RESPONSE', res);
                 this.tagOptions = res;
-                console.log('tags', this.tagOptions);
-                setTimeout(function() {
-                    that.trigger.openMenu();
-                }, 100);
+                this.triggerMenu();
             },
             err => {
                 this.tagOptions = [];
-                setTimeout(function() {
-                    that.trigger.openMenu();
-                }, 100);
+                this.triggerMenu();
             });
         }
+    }
+
+    triggerMenu() {
+        const self = this;
+        setTimeout(function() {
+            self.trigger.openMenu();
+        }, 100);
     }
 
     // maybe get rid of this now?
@@ -84,7 +89,6 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     }
 
     onTagSelection(event, selected) {
-        console.log('event', event, selected);
         let value;
         if (event.option.value === 'all' && event.option.selected) {
             value = [];

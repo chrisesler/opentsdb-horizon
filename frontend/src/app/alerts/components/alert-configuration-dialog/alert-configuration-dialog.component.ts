@@ -34,6 +34,7 @@ import { HttpService } from '../../../core/http/http.service';
 import { UtilsService } from '../../../core/services/utils.service';
 import { DatatranformerService } from '../../../core/services/datatranformer.service';
 import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/components/error-dialog/error-dialog.component';
+import { min } from 'rxjs/operators';
 
 @Component({
     selector: 'app-alert-configuration-dialog',
@@ -139,6 +140,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     subs: any = {};
     sub: Subscription;
     nQueryDataLoading = 0;
+    showDetail = false;
 
     // DIALOGUES
     nameAlertDialog: MatDialogRef<NameAlertDialogComponent> | null;
@@ -181,6 +183,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.subs.warningStateSub.unsubscribe();
         this.subs.recoveryStateSub.unsubscribe();
         this.subs.recoveryTypeSub.unsubscribe();
+        this.subs.metricIdSub.unsubscribe();
     }
 
     ngAfterContentInit() {
@@ -208,15 +211,16 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 queries: { raw: {}, tsdb:{}}
             };
         data = Object.assign(def, data);
+        this.showDetail = data.id ? true : false;
         this.setQuery();
         this.reloadData();
 
         // TODO: need to check if there is something in this.data
         this.alertForm = this.fb.group({
             name: data.name || 'Untitled Alert',
-            type: data.type || 'SIMPLE',
+            type: data.type || 'simple',
             enabled: data.enabled === undefined ? true : data.enabled,
-            alertGroupingRules: this.fb.array(data.alertGroupingRules || []),
+            alertGroupingRules: [ data.alertGroupingRules || []],
             labels: this.fb.array(data.labels || []),
             threshold: this.fb.group({
                 subType: data.threshold.subType || 'singleMetric', 
@@ -224,7 +228,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 nagInterval: data.threshold.nagInterval || '0', 
                 notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false', 
                 singleMetric: this.fb.group({
-                    queryIndex: data.threshold.singleMetric.queryIndex || 0 ,
+                    queryIndex: data.threshold.singleMetric.queryIndex || -1 ,
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
                     // tslint:disable-next-line:max-line-length
                     metricId: [ data.threshold.singleMetric.metricId ? this.getMetricDropdownValue(data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : '', Validators.required],
@@ -274,6 +278,17 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.subs.recoveryTypeSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryType'].valueChanges.subscribe(val => {
             // tslint:disable-next-line:max-line-length
             this.setThresholds('recovery', val === 'specific' ? this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].value : '');
+        });
+
+        this.subs.metricIdSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['metricId'].valueChanges.subscribe(val => {
+            const [qindex, mindex] = val.split(':');
+            const gValues = this.alertForm.get('alertGroupingRules').value;
+            if ( qindex && mindex && gValues ) {
+                let tags = this.getGroupbyTags(qindex, mindex);
+                tags = tags.filter(v => gValues.includes(v));
+                console.log("metric selection changes", tags, JSON.stringify(gValues));
+                this.alertForm.get('alertGroupingRules').setValue(tags);   
+            }
         });
     }
 
@@ -350,6 +365,62 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     setThresholdLines() {
         this.options.thresholds = Object.values(this.thresholds);
         this.options = {...this.options};
+    }
+
+    getSelectedMetricQueryIndex() {
+        const [qindex, mindex] = this.alertForm.get('threshold').get('singleMetric').get('metricId').value.split(':');
+        return qindex;
+    }
+
+    getSelectedMetric() {
+        const [qindex, mindex] = this.alertForm.get('threshold').get('singleMetric').get('metricId').value.split(':');
+        if ( qindex && mindex  && this.queries[qindex].metrics.length) {
+            if ( this.queries[qindex].metrics[mindex].expression === undefined ) {
+                return this.queries[qindex].metrics[mindex].name;
+            } else {
+                return this.getExpressionMetrics(qindex, mindex);
+            }
+        }
+        return '';
+    }
+
+    getGroupbyTags(qindex, mindex) {
+        let groupByTags = [];
+        const expression = this.queries[qindex].metrics[mindex].expression;
+        if (expression) {
+            // replace {{<id>}} with query source id
+            const re = new RegExp(/\{\{(.+?)\}\}/, "g");
+            let matches = [];
+            let i =0;
+            while(matches = re.exec(expression)) {
+                const id = matches[1];
+                const mindex = this.queries[qindex].metrics.findIndex(d => d.id === id );
+                const mTags = this.getGroupbyTags(qindex, mindex);
+                groupByTags = i === 0 ? mTags : groupByTags.filter(v => mTags.includes(v));
+                i++;
+            }
+        } else {
+                groupByTags  =  this.queries[qindex].metrics[mindex].groupByTags || [];
+        }
+        return groupByTags;
+    }
+
+    getExpressionMetrics(qindex, mindex) {
+        let metrics = [];
+        const expression = this.queries[qindex].metrics[mindex].expression;
+        if (expression) {
+            // extract the {{id}} from the expression
+            const re = new RegExp(/\{\{(.+?)\}\}/, "g");
+            let matches = [];
+            while(matches = re.exec(expression)) {
+                const id = matches[1];
+                const mindex = this.queries[qindex].metrics.findIndex(d => d.id === id );
+                metrics = metrics.concat(this.getExpressionMetrics( qindex, mindex));
+            }
+        } else {
+            metrics = [ this.queries[qindex].metrics[mindex].name ];
+        }
+        return metrics;
     }
 
     get thresholdControls() {
@@ -459,7 +530,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     updateQuery(message) {
         switch (message.action) {
             case 'QueryChange':
-                // this.query = message.payload.query;
+                // show threshold & notification section when metric is added first time
+                this.showDetail = this.showDetail === false ? this.queries[0].metrics.length!==0 : this.showDetail;
                 this.reloadData();
                 break;
         }
@@ -567,6 +639,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         }
     }
 
+    /*
     removeQueryGroupRuleValue(i: number) {
         const control = <FormArray>this.groupRulesLabelValues;
         control.removeAt(i);
@@ -586,6 +659,11 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         if (input) {
             input.value = '';
         }
+    }
+    */
+
+    setQueryGroupRules(arr) {
+        this.groupRulesLabelValues.setValue(arr);
     }
 
     recoveryTypeChange(event: any) {
