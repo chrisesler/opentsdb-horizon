@@ -611,11 +611,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         data.threshold.singleMetric.queryIndex = qindex;
         data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex; 
         data.threshold.isNagEnabled = data.threshold.nagInterval ? true : false;
-
-
         this.request.emit({ action: 'SaveAlert', payload: { data: this.utils.deepClone([data]) }} );
         // console.log(JSON.stringify(data), "alert form", qindex, mindex,this.queries[qindex].metrics[mindex] )
     }
+
     /** Events */
 
     removeNotificationLabelValue(i: number) {
