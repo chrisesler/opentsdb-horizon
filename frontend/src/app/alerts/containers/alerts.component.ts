@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
-
+import { Location } from '@angular/common';
 import {
     MatMenuTrigger,
     MatPaginator,
@@ -150,7 +150,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
         private snackBar: MatSnackBar,
         private  activatedRoute: ActivatedRoute,
         private router: Router,
-        private cdRef: ChangeDetectorRef
+        private cdRef: ChangeDetectorRef,
+        private location: Location
     ) { }
 
     ngOnInit() {
@@ -159,7 +160,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
           // handle route for dashboardModule
           this.routeSub = this.activatedRoute.url.subscribe(url => {
-            console.log('current path', url);
+            //console.log('current path', url);
             if (url.length === 2 && url[1].path === '_new_') {
                 this.selectedNamespace = url[0].path;
                 this.createAlert('metric', this.selectedNamespace);
@@ -191,7 +192,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.stateSubs['asUserNamespaces'] = this.asUserNamespaces$.subscribe( data => {
             self.userNamespaces = data;
-            console.log("user naemspaces=", data);
+            //console.log("user naemspaces=", data);
             if ( data.length ) {
                 this.loadAlerts(data[0].name);
             } else {
@@ -233,7 +234,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
             }
         });
         this.stateSubs['alert'] = this.alertDetail$.subscribe( alert => {
-            console.log("alert details", alert);
+            //console.log("alert details", alert);
         });
     }
 
@@ -337,7 +338,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     deleteAlert(alertObj: any) {
         this.confirmDeleteDialog = this.dialog.open(this.confirmDeleteDialogRef, {data: alertObj});
         this.confirmDeleteDialog.afterClosed().subscribe(event => {
-            console.log('CONFIRM DELETE DIALOG [afterClosed]', event);
+            //console.log('CONFIRM DELETE DIALOG [afterClosed]', event);
             if ( event.deleted ) {
                 this.store.dispatch(new DeleteAlerts(this.selectedNamespace, { data:[ alertObj.id ] }))
             }
@@ -350,22 +351,20 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     editAlert(element: any) {
-        this.router.navigate(['a', element.id, element.namespace, element.name]);
+        this.location.go('a/'+element.id+'/'+element.naemspaces+'/'+element.name);
         this.httpService.getAlertDetailsById(element.id).subscribe(data=>{
-            console.log("edit laert", data);
             this.openCreateAlertDialog(data);
         });
     }
 
     createAlert(type: string, namespace: string) {
-        this.cdRef.detectChanges();
         const data = {
             alertType: type,
             namespace: namespace, 
             name: 'Untitled Alert' 
         }
         this.openCreateAlertDialog(data);
-        this.router.navigate(['a', namespace, '_new_']);
+        this.location.go('a/'+namespace+'/_new_');
     }
 
     /* open create alert dialog */
@@ -395,7 +394,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         // this.snoozeAlertDialog.updatePosition({ top: '48px' });
         this.createAlertDialog.afterClosed().subscribe((dialog_out: any) => {
             // this is when dialog is closed to return to summary page
-            this.router.navigate(['a']);
+            this.location.go('a');
         });
     }
 
