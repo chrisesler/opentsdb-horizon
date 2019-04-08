@@ -214,7 +214,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         // TODO: need to check if there is something in this.data
         this.alertForm = this.fb.group({
             name: data.name || 'Untitled Alert',
-            type: data.type || 'SIMPLE',
+            type: data.type || 'simple',
             enabled: data.enabled === undefined ? true : data.enabled,
             alertGroupingRules: this.fb.array(data.alertGroupingRules || []),
             labels: this.fb.array(data.labels || []),
