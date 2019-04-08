@@ -351,9 +351,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     editAlert(element: any) {
-        this.location.go('a/'+element.id+'/'+element.naemspaces+'/'+element.slug);
+        this.location.go('a/'+element.id+'/'+element.namespace+'/'+element.slug);
         this.httpService.getAlertDetailsById(element.id).subscribe(data=>{
-            this.openCreateAlertDialog(data);
+            this.openCreateAlertDialog({...data, namespace:element.namespace});
         });
     }
 
