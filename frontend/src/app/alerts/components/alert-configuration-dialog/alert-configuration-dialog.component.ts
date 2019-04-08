@@ -214,7 +214,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         // TODO: need to check if there is something in this.data
         this.alertForm = this.fb.group({
             name: data.name || 'Untitled Alert',
-            type: data.type || 'SIMPLE',
+            type: data.type || 'simple',
             enabled: data.enabled === undefined ? true : data.enabled,
             alertGroupingRules: this.fb.array(data.alertGroupingRules || []),
             labels: this.fb.array(data.labels || []),
@@ -539,11 +539,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         data.threshold.singleMetric.queryIndex = qindex;
         data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex; 
         data.threshold.isNagEnabled = data.threshold.nagInterval ? true : false;
-
-
         this.request.emit({ action: 'SaveAlert', payload: { data: this.utils.deepClone([data]) }} );
         // console.log(JSON.stringify(data), "alert form", qindex, mindex,this.queries[qindex].metrics[mindex] )
     }
+
     /** Events */
 
     removeNotificationLabelValue(i: number) {

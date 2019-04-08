@@ -135,7 +135,7 @@
                     <th mat-header-cell *matHeaderCellDef>Actions</th>
                     <td mat-cell *matCellDef="let element">
                         <button mat-icon-button color="primary">
-                            <mat-icon fontSet="denali" fontIcon="d-pencil" (click)="editAlert(element.id)"></mat-icon>
+                            <mat-icon fontSet="denali" fontIcon="d-pencil" (click)="editAlert(element)"></mat-icon>
                         </button>
                         <button mat-icon-button color="primary" (click)="toggleAlert(element)">
                             <mat-icon fontSet="denali" [fontIcon]="element.enabled ? 'd-notification-disable' : 'd-notification'"></mat-icon>
@@ -181,7 +181,7 @@
 
 <mat-menu #createAlertMenu="matMenu" class="create-alert-menu">
     <ng-template matMenuContent>
-        <button mat-menu-item class="alert-type-option" (click)="createAlert('metric')">
+        <button mat-menu-item class="alert-type-option" (click)="createAlert('metric', selectedNamespace)">
             <div class="alert-type-detail">
                 <span class="alert-type-label" color="primary">Metric</span>
                 <span class="alert-type-desc mat-caption">Alert on a single metric or expression</span>
