@@ -106,7 +106,7 @@ export class AlertState {
     @Action(GetAlertDetailsById)
     getAlertDetailsById(ctx: StateContext<AlertStateModel>, { id: id }: GetAlertDetailsById) {
         const state = ctx.getState();
-        this.httpService.getAlertDetailsById(id).subscribe(
+        this.httpService.getAlertDetailsById(id.toString()).subscribe(
             data => {
                 ctx.setState(data);
             },

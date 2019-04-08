@@ -160,7 +160,10 @@ export class YamasService {
 
     getGroupbyTagsByQId(index, aggregator) {
         let groupByTags = [];
-        const expression = this.query.metrics[index].expression;
+        let expression = undefined;
+        if (this.query.metrics[index] && this.query.metrics[index].expression) {
+            expression = this.query.metrics[index].expression;
+        }
         if (expression) {
             // replace {{<id>}} with query source id
             const re = new RegExp(/\{\{(.+?)\}\}/, "g");
@@ -224,7 +227,11 @@ export class YamasService {
             const idreg = new RegExp( '{{' + id + '}}' , 'g');
             const mindex = this.getSourceIndexById(id);
             const sourceId = 'm' + mindex;
-            const gsourceId = this.query.metrics[mindex].expression === undefined ? sourceId + '-' + aggregator + '-groupby' : sourceId ; 
+            console.log('dsddsd', mindex, index);
+            let gsourceId = sourceId;
+            if (mindex > -1) {
+                gsourceId = this.query.metrics[mindex].expression === undefined ? sourceId + '-' + aggregator + '-groupby' : sourceId ; 
+            } 
             transformedExp = transformedExp.replace( idreg, sourceId );
             sources.push(gsourceId);
         }
