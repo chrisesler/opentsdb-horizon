@@ -55,7 +55,7 @@
                 </div>
             </mat-toolbar>
             <div class="alert-control-steps">
-                <div class="step-section queries-section">
+                <div class="step-section queries-section is-visible">
                     <div class="step-section-label">
                         <span class="step-section-label-text">1. Queries</span>
                     </div>
@@ -64,7 +64,7 @@
                         <query-editor-proto [label]="'Q1'" [query]="queries[0]" [canDisableMetrics]="false" (queryOutput)="updateQuery($event);"></query-editor-proto> 
                     </div>
                 </div>
-                <div class="step-section threshold-section" formGroupName="threshold">
+                <div class="step-section threshold-section" formGroupName="threshold" [ngClass]="{'is-visible': queries && queries[0] && queries[0].metrics.length > 0}">
                         <div class="step-section-label">
                             <span class="step-section-label-text">2. Threshold</span>
                         </div>
@@ -236,7 +236,7 @@
                             </div>
                         </div>
                 </div>
-                <div class="step-section notification-section" formGroupName="notification">
+                <div class="step-section notification-section" formGroupName="notification" [ngClass]="{'is-visible': queries && queries[0] && queries[0].metrics.length > 0}">
                     <div class="step-section-label">
                         <span class="step-section-label-text">3. Notification</span>
                     </div>
