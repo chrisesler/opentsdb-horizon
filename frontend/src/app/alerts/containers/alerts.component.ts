@@ -175,13 +175,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.stateSubs['asUserNamespaces'] = this.asUserNamespaces$.subscribe( data => {
             self.userNamespaces = data;
-            console.log("user naemspaces=", data);
+            console.log('user naemspaces=', data);
             if ( data.length ) {
                 this.loadAlerts(data[0].name);
             } else {
                 this.alerts = [];
             }
-            
         });
 
         this.stateSubs['asAlerts'] = this.asAlerts$.subscribe( alerts => {
@@ -191,8 +190,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.stateSubs['status'] = this.status$.subscribe( status => {
             let message = '';
-            switch( status ) {
-                case 'add-success': 
+            switch ( status ) {
+                case 'add-success':
                 case 'update-success':
                     message = 'Alert has been ' + (status === 'add-success' ? 'created' : 'updated') + '.';
                     this.createAlertDialog.close();
@@ -242,7 +241,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
             if (event.guid && event.guid === this.guid) {
                 switch (event.action) {
                     case 'loadUserNamespacesSuccess':
-                        
+
                         break;
                     case 'setAlertTypeFilterSuccess':
                         if (self.stateSubs['asAlerts']) {
@@ -263,7 +262,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         });
         */
         this.stateSubs['alert'] = this.alertDetail$.subscribe( alert => {
-            console.log("alert details", alert);
+            console.log('alert details', alert);
         });
     }
 
@@ -276,13 +275,13 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.stateSubs['asLoaded'].unsubscribe();
-        //this.stateSubs['asSelectedNamespace'].unsubscribe();
+        // this.stateSubs['asSelectedNamespace'].unsubscribe();
         this.stateSubs['asUserNamespaces'].unsubscribe();
-        //this.stateSubs['asAlertTypeFilter'].unsubscribe();
-        //this.stateSubs['asAlertTypeCounts'].unsubscribe();
+        // this.stateSubs['asAlertTypeFilter'].unsubscribe();
+        // this.stateSubs['asAlertTypeCounts'].unsubscribe();
         this.stateSubs['asAlerts'].unsubscribe();
         this.stateSubs['status'].unsubscribe();
-        //this.stateSubs['asActionResponse'].unsubscribe();
+        // this.stateSubs['asActionResponse'].unsubscribe();
         this.stateSubs['alert'].unsubscribe();
     }
 
@@ -368,7 +367,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.confirmDeleteDialog.afterClosed().subscribe(event => {
             console.log('CONFIRM DELETE DIALOG [afterClosed]', event);
             if ( event.deleted ) {
-                this.store.dispatch(new DeleteAlerts(this.selectedNamespace, { data:[ alertObj.id ] }))
+                this.store.dispatch(new DeleteAlerts(this.selectedNamespace, { data: [ alertObj.id ] }));
             }
         });
     }
@@ -379,8 +378,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     editAlert(id) {
-        this.httpService.getAlertDetailsById(id).subscribe(data=>{
-            console.log("edit laert", data);
+        this.httpService.getAlertDetailsById(id).subscribe(data => {
+            console.log('edit laert', data);
             this.openCreateAlertDialog(data);
         });
     }
@@ -388,18 +387,18 @@ export class AlertsComponent implements OnInit, OnDestroy {
     createAlert(type: string) {
         const data = {
             alertType: type,
-            namespace: this.selectedNamespace, 
-            name: 'Untitled Alert' 
-        }
+            namespace: this.selectedNamespace,
+            name: 'Untitled Alert'
+        };
         this.openCreateAlertDialog(data);
     }
 
     getQueryData(query) {
-        console.log("get query data", query)
+        console.log('get query data', query);
     }
 
     /* open create alert dialog */
-    openCreateAlertDialog(data:any) {
+    openCreateAlertDialog(data: any) {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.autoFocus = false;
         dialogConf.width = '100%';
@@ -414,7 +413,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.createAlertDialog = this.dialog.open(AlertConfigurationDialogComponent, dialogConf);
         // this.createAlertDialog.componentInstance.data = { action: "QueryData", data: {}};
 
-        const sub = this.createAlertDialog.componentInstance.request.subscribe((message:any) => {
+        const sub = this.createAlertDialog.componentInstance.request.subscribe((message: any) => {
             switch ( message.action ) {
                 case 'SaveAlert':
                     this.store.dispatch(new SaveAlerts(data.namespace, message.payload));
