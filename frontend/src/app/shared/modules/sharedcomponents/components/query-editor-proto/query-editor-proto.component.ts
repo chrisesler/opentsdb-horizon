@@ -192,21 +192,25 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.queryChanges$.next(true);
     }
 
-    functionUpdate(func: any, metricIdx: number) {
-        this.query.metrics[metricIdx].functions = this.query.metrics[metricIdx].functions || [];
-        const fxIndex = this.query.metrics[metricIdx].functions.findIndex(fx => fx.id === func.id);
+    functionUpdate(event: any) {
+        // event have metricId and fx
+        const mIndex = this.query.metrics.findIndex(m => m.id === event.metricId);
+        this.query.metrics[mIndex].functions = this.query.metrics[mIndex].functions || [];
+        const fxIndex = this.query.metrics[mIndex].functions.findIndex(fx => fx.id === event.fx.id);
         if (fxIndex !== -1) {
-            this.query.metrics[metricIdx].functions[fxIndex] = func;
+            this.query.metrics[mIndex].functions[fxIndex] = event.fx;
         } else {
-            this.query.metrics[metricIdx].functions.push(func);
+            this.query.metrics[mIndex].functions.push(event.fx);
         }
         this.queryChanges$.next(true);
     }
 
-    functionDelete(funcId: string, metricIdx: number) {
-        const fxIndex = this.query.metrics[metricIdx].functions.findIndex(fx => fx.id === funcId);
+    functionDelete(event: any) {
+        // event have metricId and funcId
+        const mIndex = this.query.metrics.findIndex(m => m.id === event.metricId);
+        const fxIndex = this.query.metrics[mIndex].functions.findIndex(fx => fx.id === event.funcId);
         if (fxIndex !== -1) {
-            this.query.metrics[metricIdx].functions.splice(fxIndex,1);
+            this.query.metrics[mIndex].functions.splice(fxIndex,1);
         }
         this.queryChanges$.next(true);
     }
