@@ -11,6 +11,7 @@ export class MetricFunctionComponent implements OnInit {
   @HostBinding('class.metric-function-component') private _hostClass = true;
 
   @Input() fx: any; // { id: '123', fxCall: 'CounterToRate', val: 'enter val'};
+  @Input() metricId: string; // metric that contains these functions
   @Output() fxOut = new EventEmitter;
   @Output() fxDel = new EventEmitter;
   inputVal: FormControl;
@@ -31,7 +32,7 @@ export class MetricFunctionComponent implements OnInit {
   saveInput() {
     this.fx.val = this.inputVal.value;
     this.isEdit = false;
-    this.fxOut.emit(this.fx);
+    this.fxOut.emit({metricId: this.metricId, fx: this.fx});
   }
 
   editInput() {
@@ -40,6 +41,6 @@ export class MetricFunctionComponent implements OnInit {
   }
 
   delFx(funcId: string) {
-   this.fxDel.emit(funcId);
+   this.fxDel.emit({metricId: this.metricId, funcId});
   }
 }
