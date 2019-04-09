@@ -50,14 +50,14 @@ export interface AlertsStateModel {
 }
 
 /* actions */
-export class ASloadUserNamespaces {
+export class LoadUserNamespaces {
     static readonly type = '[Alerts] Load User namespaces';
     constructor(
         public readonly options?: any
     ) { }
 }
 
-export class ASloadUserNamespacesSuccess {
+export class LoadUserNamespacesSuccess {
     static readonly type = '[Alerts] Load User namespaces [SUCCESS]';
     constructor(
         public readonly response: any,
@@ -65,35 +65,16 @@ export class ASloadUserNamespacesSuccess {
     ) { }
 }
 
-export class ASloadUserNamespacesFail {
+export class LoadUserNamespacesFail {
     static readonly type = '[Alerts] Load User namespaces [FAIL]';
     constructor(
         public readonly error: any,
         public readonly options?: any
     ) { }
 }
-
-export class ASgenerateFakeAlerts {
-    static readonly type = '[Alerts] generate fake alerts';
-    constructor(
-        public readonly options?: any
-    ) { }
-}
-
-export class ASsetAlertTypeFilter {
-    static readonly type = '[Alerts] set alert type filter';
-    constructor(
-        public readonly alertTypeFilter: any,
-        public readonly options?: any
-    ) { }
-}
-
-export class ASsetSelectedNamespace {
-    static readonly type = '[Alerts] set selected namespace';
-    constructor(
-        public readonly selectedNamespace: any,
-        public readonly options?: any
-    ) { }
+export class SetNamespace {
+    static readonly type = '[Alerts] Set Namespace';
+    constructor(public namespace: string) {}
 }
 
 export class LoadAlerts {
@@ -121,7 +102,7 @@ export class ToggleAlerts {
     name: 'Alerts',
     defaults: {
         userNamespaces: [],
-        selectedNamespace: false,
+        selectedNamespace: '',
         loading: false,
         loaded: {
             userNamespaces: false,
@@ -174,21 +155,6 @@ export class AlertsState {
     }
 
     @Selector()
-    static getAlertTypeFilter(state: AlertsStateModel) {
-        return state.alertTypeFilter;
-    }
-
-    @Selector()
-    static getAlertTypeCounts(state: AlertsStateModel): any {
-        const counts: any = {};
-        counts.all = state.alerts.length;
-        counts.alerting = state.alerts.filter(s => s.alerting === true).length;
-        counts.snoozed = state.alerts.filter(s => s.snoozed === true).length;
-        counts.disabled = state.alerts.filter(s => s.disabled === true).length;
-        return counts;
-    }
-
-    @Selector()
     static getAlerts(state: AlertsStateModel) {
         return state.alerts;
     }
@@ -200,8 +166,8 @@ export class AlertsState {
 
     /* ACTIONS */
 
-    @Action(ASloadUserNamespaces)
-    getUserNamspaces(ctx: StateContext<AlertsStateModel>, { options }: ASloadUserNamespaces) {
+    @Action(LoadUserNamespaces)
+    getUserNamspaces(ctx: StateContext<AlertsStateModel>, { options }: LoadUserNamespaces) {
         this.logger.state('AlertsState :: Load user namespaces', { options });
         const state = ctx.getState();
         if (!state.loaded.userNamespaces) {
@@ -209,15 +175,15 @@ export class AlertsState {
             return this.alertsService.getUserNamespaces().pipe(
                 map((payload: any) => {
                     // console.log('resourceList', payload);
-                    ctx.dispatch(new ASloadUserNamespacesSuccess(payload, options));
+                    ctx.dispatch(new LoadUserNamespacesSuccess(payload, options));
                 }),
-                catchError(error => ctx.dispatch(new ASloadUserNamespacesFail(error, options)))
+                catchError(error => ctx.dispatch(new LoadUserNamespacesFail(error, options)))
             );
         }
     }
 
-    @Action(ASloadUserNamespacesSuccess)
-    loadUserNamspacesSuccess(ctx: StateContext<AlertsStateModel>, { response, options }: ASloadUserNamespacesSuccess) {
+    @Action(LoadUserNamespacesSuccess)
+    loadUserNamspacesSuccess(ctx: StateContext<AlertsStateModel>, { response, options }: LoadUserNamespacesSuccess) {
         this.logger.success('AlertsState :: Load user namespaces success', { response, options });
         const state = ctx.getState();
         const loaded = { ...state.loaded };
@@ -234,14 +200,13 @@ export class AlertsState {
             ...state,
             actionResponse,
             userNamespaces: response,
-            selectedNamespace: response[0] || false,
             loading: false,
             loaded
         });
     }
 
-    @Action(ASloadUserNamespacesFail)
-    loadUserNamspacesFail(ctx: StateContext<AlertsStateModel>, { error, options }: ASloadUserNamespacesFail) {
+    @Action(LoadUserNamespacesFail)
+    loadUserNamspacesFail(ctx: StateContext<AlertsStateModel>, { error, options }: LoadUserNamespacesFail) {
         this.logger.error('AlertsState :: Load user namespaces errors', { error, options });
         const state = ctx.getState();
 
@@ -252,36 +217,9 @@ export class AlertsState {
         });
     }
 
-    @Action(ASsetSelectedNamespace)
-    setSelectedNamespace(ctx: StateContext<AlertsStateModel>, { selectedNamespace, options }: ASsetSelectedNamespace) {
-        this.logger.error('AlertsState :: Load user namespaces errors', { selectedNamespace, options });
-        const state = ctx.getState();
-
-        ctx.setState({
-            ...state,
-            selectedNamespace
-        });
-
-        // get new alert data
-        ctx.dispatch(new ASgenerateFakeAlerts(options)); // change this to real data fetcher
-    }
-
-    @Action(ASsetAlertTypeFilter)
-    setAlertTypeFilter(ctx: StateContext<AlertsStateModel>, { alertTypeFilter, options }: ASsetAlertTypeFilter) {
-        this.logger.state('AlertsState :: set alert type filter', { alertTypeFilter, options });
-        const state = ctx.getState();
-        const actionResponse: any = {};
-
-        if (options && options.responseRequested && options.guid) {
-            actionResponse.action = 'setAlertTypeFilterSuccess';
-            actionResponse.guid = options.guid;
-        }
-
-        ctx.setState({
-            ...state,
-            actionResponse,
-            alertTypeFilter
-        });
+    @Action(SetNamespace)
+    SetNamespace(ctx: StateContext<AlertsStateModel>, { namespace }: SetNamespace) {
+        ctx.patchState({ selectedNamespace: namespace});
     }
 
     @Action(LoadAlerts)

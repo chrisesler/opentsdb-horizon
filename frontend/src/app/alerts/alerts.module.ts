@@ -15,7 +15,7 @@ import { AlertsService } from './services/alerts.service';
 
 // store
 import { NgxsModule } from '@ngxs/store';
-import { AlertsState, RecipientsState } from './state';
+import { AlertState, AlertsState, RecipientsState } from './state';
 
 // components
 import { AlertsComponent } from './containers/alerts.component';
@@ -38,6 +38,7 @@ import { AlertConfigurationContactsComponent } from './components/alert-configur
         DygraphsModule,
         AlertsRoutingModule,
         NgxsModule.forFeature([
+            AlertState,
             AlertsState,
             RecipientsState
         ])
