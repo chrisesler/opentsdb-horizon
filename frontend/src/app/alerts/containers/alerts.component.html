@@ -1,28 +1,34 @@
-<div class="alerts-main-controls" fxFlex="1 1 80px" fxFlex.xs="1 1 190px" fxLayoutAlign="stretch stretch" fxLayout="row" fxLayout.xs="column">
+<div class="alerts-main-controls" fxFlex="1 1 60px" fxFlex.xs="1 1 190px" fxLayoutAlign="stretch stretch" fxLayout="row" fxLayout.xs="column">
     <div class="control-item namespace-selector">
-        <span class="mat-caption">Namespace:</span>
-        <button mat-stroked-button [matMenuTriggerFor]="namespaceDropMenu" #namespaceDropMenuTrigger>
+        <button mat-button 
+            [matMenuTriggerFor]="namespaceDropMenu"
+            [ngClass]="{'menu-open': namespaceDropMenuOpen}"
+            (menuOpened)="setNamespaceMenuOpened(true)"
+            (menuClosed)="setNamespaceMenuOpened(false)"
+            #namespaceDropMenuTrigger>
+            <span class="control-label">Namespace:</span>
             <span class="selected-namespace">{{ selectedNamespace ? selectedNamespace : 'NAMESPACE' }}</span>
             <mat-icon fontSet="denali" fontIcon="d-arrowhead-down"></mat-icon>
         </button>
     </div>
     <div class="control-item alert-filter-input">
-        <mat-form-field appearance="outline" floatLabel="never">
+        <mat-form-field appearance="fill" floatLabel="never">
             <input matInput placeholder="Filter alerts" autocomplete="off">
             <mat-icon matSuffix fontSet="denali" fontIcon="d-search"></mat-icon>
         </mat-form-field>
     </div>
-    <span class="flex-spacer"></span>
+    
     <div class="control-item create-alert-control">
         <button mat-flat-button color="primary" [matMenuTriggerFor]="createAlertMenu">Create alert</button>
     </div>
+    <span class="flex-spacer"></span>
 </div>
 
 <div class="alert-results" fxFlex="1 1 100%" fxLayout="column">
     <div class="alert-results-wrapper">
         <div class="alert-results-body">
-            <mat-toolbar class="batch-controls-toolbar">
-                <!--<div class="toolbar-item batch-select-control">
+            <!--<mat-toolbar class="batch-controls-toolbar">
+                <div class="toolbar-item batch-select-control">
                     <mat-checkbox (change)="$event ? masterToggle() : null"
                         [checked]="selection.hasValue() && isAllSelected()"
                         [indeterminate]="selection.hasValue() && !isAllSelected()"
@@ -46,8 +52,8 @@
                         <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                         <span>Delete</span>
                     </button>
-                </div>-->
-            </mat-toolbar>
+                </div>
+            </mat-toolbar>-->
             <table class="alerts-result-table" mat-table [dataSource]="alertsDataSource" matSort>
                 <ng-container matColumnDef="select">
                     <th mat-header-cell *matHeaderCellDef>
@@ -68,7 +74,27 @@
 
                 <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Alert Name </th>
-                    <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+                    <td mat-cell *matCellDef="let element">
+                        <span class="alert-name">{{element.name}}</span>
+                        <div class="edit-actions-wrapper">
+                            <button mat-button color="primary" (click)="editAlert(element)">
+                                <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                                <span>edit</span>
+                            </button>
+                            <button mat-button color="primary" (click)="cloneAlert(element)">
+                                <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
+                                <span>Clone</span>
+                            </button>
+                            <button mat-button color="primary" (click)="toggleAlert(element)">
+                                <mat-icon fontSet="denali" [fontIcon]="element.enabled ? 'd-notification-disable' : 'd-notification'"></mat-icon>
+                                <span>{{element.enabled ? 'Disable' : 'Enable'}}</span>
+                            </button>
+                            <button mat-button color="primary" (click)="deleteAlert(element)">
+                                <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </td>
                 </ng-container>
 
                 <ng-container matColumnDef="alertGroupingRules">
@@ -93,38 +119,49 @@
 
                 <ng-container matColumnDef="modified">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Modified</th>
-                    <td mat-cell *matCellDef="let element"> {{element.modified}} </td>
+                    <td mat-cell *matCellDef="let element"> {{formatAlertTimeModified(element)}} </td>
                 </ng-container>
                 <ng-container matColumnDef="counts.bad">
-                    <th mat-header-cell *matHeaderCellDef>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
                         <span class="header-chip is-error">Bad</span>
                     </th>
                     <td mat-cell *matCellDef="let element"> <!--{{element.counts.bad > 0 ? element.counts.bad : '-'}}--> </td>
                 </ng-container>
             
                 <ng-container matColumnDef="counts.warn">
-                    <th mat-header-cell *matHeaderCellDef>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
                         <span class="header-chip is-warning">Warn</span>
                     </th>
                     <td mat-cell *matCellDef="let element"> <!--{{element.counts.warn > 0 ? element.counts.warn : '-'}} --></td>
                 </ng-container>
             
                 <ng-container matColumnDef="counts.good">
-                    <th mat-header-cell *matHeaderCellDef>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
                         <span class="header-chip is-good">Good</span>
                     </th>
                     <td mat-cell *matCellDef="let element"> <!--{{element.counts.good > 0 ? element.counts.good : '-'}} --></td>
                 </ng-container>
             
                 <ng-container matColumnDef="counts.snoozed">
-                    <th mat-header-cell *matHeaderCellDef>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
                         <span class="header-chip is-snoozed">Snoozed</span>
                     </th>
                     <td mat-cell *matCellDef="let element"> <!--{{element.counts.snoozed > 0 ? element.counts.snoozed : '-'}}--> </td>
                 </ng-container>
 
                 <ng-container matColumnDef="sparkline">
-                    <th mat-header-cell *matHeaderCellDef></th>
+                    <th mat-header-cell [ngClass]="{'menu-open': sparklineMenuOpen}" *matHeaderCellDef>
+                        <span>Past</span>
+                        <button mat-button 
+                            class="sparkline-display-menu-trigger"
+                            color="primary"
+                            [matMenuTriggerFor]="sparklineDisplayMenu"
+                            (menuOpened)="setSparklineMenuOpened(true)"
+                            (menuClosed)="setSparklineMenuOpened(false)"
+                            #sparklineDisplayDropMenuTrigger>
+                            <span>{{sparklineDisplay.label}}</span>
+                        </button>
+                    </th>
                     <td mat-cell *matCellDef="let element"> 
                         <span class="sparkline-wrapper">[sparkline]</span>
                     </td>
@@ -158,11 +195,11 @@
 </div>
 
 
-<mat-menu #namespaceDropMenu="matMenu" class="namespace-selector-menu">
+<mat-menu #namespaceDropMenu="matMenu" class="namespace-selector-cdk-menu">
     <button mat-menu-item *ngFor="let namespace of userNamespaces" (click)="loadAlerts(namespace.name);">{{namespace.name}}</button>
     <!--<button mat-menu-item>Settings</button>-->
     <mat-divider></mat-divider>
-    <button mat-menu-item [matMenuTriggerFor]="namespaceMenu">View More</button>
+    <button mat-menu-item (click)="showAllNamespacesInMenu($event)">View More</button>
     <span class="menu-shim" style="display: block; height: 1px;" [ngStyle]="{'width':ensureMenuWidth(namespaceDropMenuTrigger)}"></span>
 </mat-menu>
 
@@ -201,6 +238,17 @@
                 <span class="alert-type-desc mat-caption">Lorem ipsum dolor sit amet, consectetur adipiscing elit sedio.</span>
             </div>
         </button>-->
+    </ng-template>
+</mat-menu>
+
+<mat-menu class="sparkline-display-cdk-menu" #sparklineDisplayMenu="matMenu">
+    <ng-template matMenuContent>
+        <button mat-menu-item
+            class="sparkline-display-option"
+            *ngFor="let option of sparklineDisplayMenuOptions"
+            (click)="selectSparklineDisplayOption(option)">
+            <span>{{option.label}}</span>
+        </button>
     </ng-template>
 </mat-menu>
 

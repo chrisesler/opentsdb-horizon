@@ -31,7 +31,6 @@ import { HttpService } from '../../core/http/http.service';
 
 import { Select, Store } from '@ngxs/store';
 
-
 import {
     AlertsState,
     AlertModel,
@@ -48,6 +47,9 @@ import { AlertState, SaveAlert } from '../state/alert.state';
 
 import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
 import { AlertConfigurationDialogComponent } from '../components/alert-configuration-dialog/alert-configuration-dialog.component';
+
+import * as _moment from 'moment';
+const moment = _moment;
 
 @Component({
     selector: 'app-alerts',
@@ -106,8 +108,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         'counts.warn',
         'counts.good',
         'counts.snoozed',
-        'sparkline',
-        'actions'
+        'sparkline'
     ];
 
     // for batch selection
@@ -143,6 +144,39 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     private routeSub: Subscription;
 
+    // tslint:disable-next-line:no-inferrable-types
+    sparklineMenuOpen: boolean = false;
+    sparklineDisplay: any = { label: '', value: ''};
+    sparklineDisplayMenuOptions: any[] = [
+        {
+            label: '1 HR',
+            value: '1HR'
+        },
+        {
+            label: '2 HR',
+            value: '2HR'
+        },
+        {
+            label: '3 HR',
+            value: '3HR'
+        },
+        {
+            label: '6 HR',
+            value: '6HR'
+        },
+        {
+            label: '12 HR',
+            value: '12HR'
+        },
+        {
+            label: '24 HR',
+            value: '24HR'
+        }
+    ];
+
+    // tslint:disable-next-line:no-inferrable-types
+    namespaceDropMenuOpen: boolean = false;
+
     constructor(
         private store: Store,
         private dialog: MatDialog,
@@ -152,7 +186,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
         private router: Router,
         private cdRef: ChangeDetectorRef,
         private location: Location
-    ) { }
+    ) {
+        this.sparklineDisplay = this.sparklineDisplayMenuOptions[0];
+    }
 
     ngOnInit() {
 
@@ -160,17 +196,17 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
           // handle route for dashboardModule
           this.routeSub = this.activatedRoute.url.subscribe(url => {
-            //console.log('current path', url);
+            // console.log('current path', url);
             if (url.length === 2 && url[1].path === '_new_') {
                 this.selectedNamespace = url[0].path;
                 this.createAlert('metric', this.selectedNamespace);
             } else if (url.length > 2) {
                 // load alert to edit
-                this.httpService.getAlertDetailsById(url[0].path).subscribe(data=>{
+                this.httpService.getAlertDetailsById(url[0].path).subscribe(data => {
                     this.openCreateAlertDialog(data);
-                });                
+                });
             }
-        });    
+        });
 
         this.stateSubs['asLoaded'] = this.asLoaded$.subscribe( data => {
             self.stateLoaded = data;
@@ -192,13 +228,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.stateSubs['asUserNamespaces'] = this.asUserNamespaces$.subscribe( data => {
             self.userNamespaces = data;
-            //console.log("user naemspaces=", data);
+            // console.log('user naemspaces=', data);
             if ( data.length ) {
                 this.loadAlerts(data[0].name);
             } else {
                 this.alerts = [];
             }
-            
         });
 
         this.stateSubs['asAlerts'] = this.asAlerts$.subscribe( alerts => {
@@ -208,8 +243,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.stateSubs['status'] = this.status$.subscribe( status => {
             let message = '';
-            switch( status ) {
-                case 'add-success': 
+            switch ( status ) {
+                case 'add-success':
                 case 'update-success':
                     message = 'Alert has been ' + (status === 'add-success' ? 'created' : 'updated') + '.';
                     this.createAlertDialog.close();
@@ -234,7 +269,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
             }
         });
         this.stateSubs['alert'] = this.alertDetail$.subscribe( alert => {
-            //console.log("alert details", alert);
+            // console.log("alert details", alert);
         });
     }
 
@@ -247,13 +282,13 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.stateSubs['asLoaded'].unsubscribe();
-        //this.stateSubs['asSelectedNamespace'].unsubscribe();
+        // this.stateSubs['asSelectedNamespace'].unsubscribe();
         this.stateSubs['asUserNamespaces'].unsubscribe();
-        //this.stateSubs['asAlertTypeFilter'].unsubscribe();
-        //this.stateSubs['asAlertTypeCounts'].unsubscribe();
+        // this.stateSubs['asAlertTypeFilter'].unsubscribe();
+        // this.stateSubs['asAlertTypeCounts'].unsubscribe();
         this.stateSubs['asAlerts'].unsubscribe();
         this.stateSubs['status'].unsubscribe();
-        //this.stateSubs['asActionResponse'].unsubscribe();
+        // this.stateSubs['asActionResponse'].unsubscribe();
         this.stateSubs['alert'].unsubscribe();
         this.routeSub.unsubscribe();
     }
@@ -338,9 +373,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
     deleteAlert(alertObj: any) {
         this.confirmDeleteDialog = this.dialog.open(this.confirmDeleteDialogRef, {data: alertObj});
         this.confirmDeleteDialog.afterClosed().subscribe(event => {
-            //console.log('CONFIRM DELETE DIALOG [afterClosed]', event);
+            // console.log('CONFIRM DELETE DIALOG [afterClosed]', event);
             if ( event.deleted ) {
-                this.store.dispatch(new DeleteAlerts(this.selectedNamespace, { data:[ alertObj.id ] }))
+                this.store.dispatch(new DeleteAlerts(this.selectedNamespace, { data: [ alertObj.id ] }));
             }
         });
     }
@@ -351,24 +386,29 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     editAlert(element: any) {
-        this.location.go('a/'+element.id+'/'+element.namespace+'/'+element.slug);
-        this.httpService.getAlertDetailsById(element.id).subscribe(data=>{
-            this.openCreateAlertDialog({...data, namespace:element.namespace});
+        this.location.go('a/' + element.id + '/' + element.namespace + '/' + element.slug);
+        this.httpService.getAlertDetailsById(element.id).subscribe(data => {
+            this.openCreateAlertDialog({...data, namespace: element.namespace});
         });
+    }
+
+    cloneAlert(element: any) {
+        console.log('CLONE ALERT', element);
+        // clone it
     }
 
     createAlert(type: string, namespace: string) {
         const data = {
             alertType: type,
-            namespace: namespace, 
-            name: 'Untitled Alert' 
-        }
+            namespace: namespace,
+            name: 'Untitled Alert'
+        };
         this.openCreateAlertDialog(data);
-        this.location.go('a/'+namespace+'/_new_');
+        this.location.go('a/' + namespace + '/_new_');
     }
 
     /* open create alert dialog */
-    openCreateAlertDialog(data:any) {
+    openCreateAlertDialog(data: any) {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.autoFocus = false;
         dialogConf.width = '100%';
@@ -383,7 +423,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.createAlertDialog = this.dialog.open(AlertConfigurationDialogComponent, dialogConf);
         // this.createAlertDialog.componentInstance.data = { action: "QueryData", data: {}};
 
-        const sub = this.createAlertDialog.componentInstance.request.subscribe((message:any) => {
+        const sub = this.createAlertDialog.componentInstance.request.subscribe((message: any) => {
             switch ( message.action ) {
                 case 'SaveAlert':
                     this.store.dispatch(new SaveAlerts(data.namespace, message.payload));
@@ -396,6 +436,29 @@ export class AlertsComponent implements OnInit, OnDestroy {
             // this is when dialog is closed to return to summary page
             this.location.go('a');
         });
+    }
+
+    selectSparklineDisplayOption(option: any) {
+        this.sparklineDisplay = option;
+    }
+
+    setNamespaceMenuOpened(opened: boolean) {
+        this.namespaceDropMenuOpen = opened;
+    }
+
+    showAllNamespacesInMenu($event: any) {
+        $event.stopPropagation();
+        // set some flag
+        // then change values of menu
+    }
+
+    setSparklineMenuOpened(opened: boolean) {
+        this.sparklineMenuOpen = opened;
+    }
+
+    formatAlertTimeModified(element: any) {
+        const time = moment(element.updatedTime);
+        return time.format('YYYY-MM-DD HH:mm');
     }
 
 }
