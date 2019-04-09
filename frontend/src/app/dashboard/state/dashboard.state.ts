@@ -130,7 +130,6 @@ export class DBState {
             return this.httpService.getDashboardById(id).pipe(
                 map(res => {
                     const dashboard:any = res.body;
-
                     if ( dashboard.content.version && dashboard.content.version === this.dbService.version ) {
                         ctx.dispatch(new LoadDashboardSuccess(dashboard));
                     } else {

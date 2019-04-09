@@ -34,16 +34,14 @@ import { Select, Store } from '@ngxs/store';
 import {
     AlertsState,
     AlertModel,
-    ASgenerateFakeAlerts,
-    ASloadUserNamespaces,
-    ASsetSelectedNamespace,
-    ASsetAlertTypeFilter,
+    LoadUserNamespaces,
     LoadAlerts,
     DeleteAlerts,
     ToggleAlerts,
-    SaveAlerts
+    SaveAlerts,
+    SetNamespace
 } from '../state/alerts.state';
-import { AlertState, SaveAlert } from '../state/alert.state';
+import { AlertState, GetAlertDetailsById } from '../state/alert.state';
 
 import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
 import { AlertConfigurationDialogComponent } from '../components/alert-configuration-dialog/alert-configuration-dialog.component';
@@ -75,28 +73,22 @@ export class AlertsComponent implements OnInit, OnDestroy {
     // STATE
     private stateSubs = {};
 
-    @Select(AlertsState.getLoaded) asLoaded$: Observable<any>;
+    @Select(AlertsState.getLoaded) loaded$: Observable<any>;
     stateLoaded: any = {};
 
-    @Select(AlertsState.getSelectedNamespace) asSelectedNamespace$: Observable<any>;
+    @Select(AlertsState.getSelectedNamespace) selectedNamespace$: Observable<any>;
     // tslint:disable-next-line:no-inferrable-types
     selectedNamespace: string = '';
 
-    @Select(AlertsState.getUserNamespaces) asUserNamespaces$: Observable<any[]>;
+    @Select(AlertsState.getUserNamespaces) userNamespaces$: Observable<any[]>;
     userNamespaces: any[] = [];
-
-    @Select(AlertsState.getAlertTypeFilter) asAlertTypeFilter$: Observable<string>;
-    alertTypeFilter: any = false;
-
-    @Select(AlertsState.getAlertTypeCounts) asAlertTypeCounts$: Observable<any>;
-    alertTypeCounts: any = {};
 
     @Select(AlertState.getAlertDetails) alertDetail$: Observable<any>;
 
     // this gets dynamically selected depending on the tab filter.
     // see this.stateSubs['asActionResponse']
     // under the case 'setAlertTypeFilterSuccess'
-    @Select(AlertsState.getAlerts) asAlerts$: Observable<any[]>;
+    @Select(AlertsState.getAlerts) alerts$: Observable<any[]>;
     alerts: AlertModel[] = [];
 
     @Select(AlertsState.getActionStatus) status$: Observable<string>;
@@ -212,25 +204,11 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         const self = this;
 
-          // handle route for dashboardModule
-          this.routeSub = this.activatedRoute.url.subscribe(url => {
-            // console.log('current path', url);
-            if (url.length === 2 && url[1].path === '_new_') {
-                this.selectedNamespace = url[0].path;
-                this.createAlert('metric', this.selectedNamespace);
-            } else if (url.length > 2) {
-                // load alert to edit
-                this.httpService.getAlertDetailsById(url[0].path).subscribe(data => {
-                    this.openCreateAlertDialog(data);
-                });
-            }
-        });
-
-        this.stateSubs['asLoaded'] = this.asLoaded$.subscribe( data => {
+        this.stateSubs['loaded'] = this.loaded$.subscribe( data => {
             self.stateLoaded = data;
             if (!self.stateLoaded.userNamespaces) {
                 self.store.dispatch(
-                    new ASloadUserNamespaces({
+                    new LoadUserNamespaces({
                         guid: this.guid,
                         responseRequested: true
                     })
@@ -238,23 +216,23 @@ export class AlertsComponent implements OnInit, OnDestroy {
             }
         });
 
-        /*
-        this.stateSubs['asSelectedNamespace'] = this.asSelectedNamespace$.subscribe( data => {
-            self.selectedNamespace = data;
-        });
-        */
-
-        this.stateSubs['asUserNamespaces'] = this.asUserNamespaces$.subscribe( data => {
-            self.userNamespaces = data;
-            // console.log('user naemspaces=', data);
-            if ( data.length ) {
-                this.loadAlerts(data[0].name);
+        this.stateSubs['selectedNamespace'] = this.selectedNamespace$.subscribe( data => {
+            this.selectedNamespace = data;
+            if ( this.selectedNamespace ) {
+                this.store.dispatch(new LoadAlerts({namespace: this.selectedNamespace}));
             } else {
                 this.alerts = [];
             }
         });
 
-        this.stateSubs['asAlerts'] = this.asAlerts$.subscribe( alerts => {
+        this.stateSubs['userNamespaces'] = this.userNamespaces$.subscribe( data => {
+            this.userNamespaces = data;
+            if ( !this.selectedNamespace && data.length ) {
+                this.store.dispatch(new SetNamespace(data[0].name));
+            }
+        });
+
+        this.stateSubs['alerts'] = this.alerts$.subscribe( alerts => {
             this.alerts = alerts;
             this.setTableDataSource();
         });
@@ -286,27 +264,40 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 });
             }
         });
-        this.stateSubs['alert'] = this.alertDetail$.subscribe( alert => {
-            // console.log("alert details", alert);
+
+        // edit alert
+        this.stateSubs['alert'] = this.alertDetail$.subscribe( data => {
+            const alertState = this.store.selectSnapshot(AlertState);
+            if ( alertState.loaded ) {
+                this.openAlertDialog(data);
+            }
         });
+
+        // handle route for dashboardModule
+        this.routeSub = this.activatedRoute.url.subscribe(url => {
+            if (url.length === 1 ) {
+                this.store.dispatch(new SetNamespace(url[0].path));
+            } else if (url.length === 2 && url[1].path === '_new_') {
+                this.store.dispatch(new SetNamespace(url[0].path));
+                // settimeout avoids angular expression check error
+                setTimeout(()=>this.createAlert('metric'));
+            } else if (url.length > 2) {
+                // load alert to edit
+                this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path)));
+            }
+        }); 
     }
 
     loadAlerts(namespace) {
-        this.selectedNamespace = namespace;
-        this.store.dispatch(
-            new LoadAlerts({namespace: namespace})
-        );
+        this.store.dispatch(new SetNamespace(namespace));
     }
 
     ngOnDestroy() {
-        this.stateSubs['asLoaded'].unsubscribe();
-        // this.stateSubs['asSelectedNamespace'].unsubscribe();
-        this.stateSubs['asUserNamespaces'].unsubscribe();
-        // this.stateSubs['asAlertTypeFilter'].unsubscribe();
-        // this.stateSubs['asAlertTypeCounts'].unsubscribe();
-        this.stateSubs['asAlerts'].unsubscribe();
+        this.stateSubs['loaded'].unsubscribe();
+        this.stateSubs['selectedNamespace'].unsubscribe();
+        this.stateSubs['userNamespaces'].unsubscribe();
+        this.stateSubs['alerts'].unsubscribe();
         this.stateSubs['status'].unsubscribe();
-        // this.stateSubs['asActionResponse'].unsubscribe();
         this.stateSubs['alert'].unsubscribe();
         this.routeSub.unsubscribe();
     }
@@ -341,18 +332,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.isAllSelected() ?
             this.selection.clear() :
             this.alertsDataSource.data.forEach(row => this.selection.select(row));
-    }
-
-    /** events */
-
-    alertTabIndexChanged(event: any) {
-        // console.log('ALERT TAB INDEX CHANGED', event);
-        this.store.dispatch(
-            new ASsetAlertTypeFilter(this.alertFilterTypes[event], {
-                guid: this.guid,
-                responseRequested: true
-            })
-        );
     }
 
     /** actions */
@@ -398,6 +377,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.store.dispatch(new ToggleAlerts(this.selectedNamespace, { data: [ { id: alertObj.id, enabled: !alertObj.enabled } ]}));
     }
 
+    confirmAlertDelete(alertObj: any) {
+        this.confirmDeleteDialog.close({deleted: true});
+    }
+
     deleteAlert(alertObj: any) {
         this.confirmDeleteDialog = this.dialog.open(this.confirmDeleteDialogRef, {data: alertObj});
         this.confirmDeleteDialog.afterClosed().subscribe(event => {
@@ -408,35 +391,22 @@ export class AlertsComponent implements OnInit, OnDestroy {
         });
     }
 
-    confirmAlertDelete(alertObj: any) {
-        // do some delete logic here?
-        this.confirmDeleteDialog.close({deleted: true});
-    }
-
     editAlert(element: any) {
-        this.location.go('a/' + element.id + '/' + element.namespace + '/' + element.slug);
-        this.httpService.getAlertDetailsById(element.id).subscribe(data => {
-            this.openCreateAlertDialog({...data, namespace: element.namespace});
-        });
+        this.location.go('a/'+element.id+'/'+element.namespace+'/'+element.slug);
+        this.store.dispatch(new GetAlertDetailsById(element.id));
     }
 
-    cloneAlert(element: any) {
-        console.log('CLONE ALERT', element);
-        // clone it
-    }
-
-    createAlert(type: string, namespace: string) {
+    createAlert(type: string) {
         const data = {
             alertType: type,
-            namespace: namespace,
-            name: 'Untitled Alert'
-        };
-        this.openCreateAlertDialog(data);
-        this.location.go('a/' + namespace + '/_new_');
+            namespace: this.selectedNamespace, 
+            name: 'Untitled Alert' 
+        }
+        this.openAlertDialog(data);
+        this.location.go('a/' + this.selectedNamespace + '/_new_');
     }
 
-    /* open create alert dialog */
-    openCreateAlertDialog(data: any) {
+    openAlertDialog(data:any) {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.autoFocus = false;
         dialogConf.width = '100%';

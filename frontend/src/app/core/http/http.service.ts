@@ -307,7 +307,7 @@ export class HttpService {
         }
     }
 
-    getAlertDetailsById(id: string): Observable<any> {
+    getAlertDetailsById(id: number): Observable<any> {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
