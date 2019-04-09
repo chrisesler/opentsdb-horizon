@@ -31,7 +31,6 @@ import { HttpService } from '../../core/http/http.service';
 
 import { Select, Store } from '@ngxs/store';
 
-
 import {
     AlertsState,
     AlertModel,
@@ -48,6 +47,14 @@ import { AlertState, SaveAlert } from '../state/alert.state';
 
 import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
 import { AlertConfigurationDialogComponent } from '../components/alert-configuration-dialog/alert-configuration-dialog.component';
+
+import * as _moment from 'moment';
+// tslint:disable-next-line:no-duplicate-imports
+// import {default as _rollupMoment} from 'moment';
+
+// const moment = _rollupMoment || _moment;
+
+const moment = _moment;
 
 @Component({
     selector: 'app-alerts',
@@ -106,8 +113,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         'counts.warn',
         'counts.good',
         'counts.snoozed',
-        'sparkline',
-        'actions'
+        'sparkline'
     ];
 
     // for batch selection
@@ -143,6 +149,39 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     private routeSub: Subscription;
 
+    // tslint:disable-next-line:no-inferrable-types
+    sparklineMenuOpen: boolean = false;
+    sparklineDisplay: any = { label: '', value: ''};
+    sparklineDisplayMenuOptions: any[] = [
+        {
+            label: '1 HR',
+            value: '1HR'
+        },
+        {
+            label: '2 HR',
+            value: '2HR'
+        },
+        {
+            label: '3 HR',
+            value: '3HR'
+        },
+        {
+            label: '6 HR',
+            value: '6HR'
+        },
+        {
+            label: '12 HR',
+            value: '12HR'
+        },
+        {
+            label: '24 HR',
+            value: '24HR'
+        }
+    ];
+
+    // tslint:disable-next-line:no-inferrable-types
+    namespaceDropMenuOpen: boolean = false;
+
     constructor(
         private store: Store,
         private dialog: MatDialog,
@@ -152,7 +191,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
         private router: Router,
         private cdRef: ChangeDetectorRef,
         private location: Location
-    ) { }
+    ) {
+        this.sparklineDisplay = this.sparklineDisplayMenuOptions[0];
+    }
 
     ngOnInit() {
 
@@ -350,10 +391,16 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     editAlert(element: any) {
+        console.log('EDIT ALERT', element);
         this.location.go('a/' + element.id + '/' + element.naemspaces + '/' + element.name);
         this.httpService.getAlertDetailsById(element.id).subscribe(data => {
             this.openCreateAlertDialog(data);
         });
+    }
+
+    cloneAlert(element: any) {
+        console.log('CLONE ALERT', element);
+        // clone it
     }
 
     createAlert(type: string, namespace: string) {
@@ -395,6 +442,29 @@ export class AlertsComponent implements OnInit, OnDestroy {
             // this is when dialog is closed to return to summary page
             this.location.go('a');
         });
+    }
+
+    selectSparklineDisplayOption(option: any) {
+        this.sparklineDisplay = option;
+    }
+
+    setNamespaceMenuOpened(opened: boolean) {
+        this.namespaceDropMenuOpen = opened;
+    }
+
+    showAllNamespacesInMenu($event: any) {
+        $event.stopPropagation();
+        // set some flag
+        // then change values of menu
+    }
+
+    setSparklineMenuOpened(opened: boolean) {
+        this.sparklineMenuOpen = opened;
+    }
+
+    formatAlertTimeModified(element: any) {
+        const time = moment(element.updatedTime);
+        return time.format('YYYY-MM-DD HH:mm');
     }
 
 }

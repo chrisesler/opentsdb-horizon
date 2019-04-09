@@ -2,11 +2,15 @@
 
     $status-labels: ('bad', 'warn', 'good', 'snoozed');
 
+    $header-chip-size: 8px;
+
     .alerts-container-component {
         display: flex;
         flex-direction: column;
         flex: 1;
 
+        // top leve controls (namespace selector, filter, create alert button)
+        // NOTE: menus are CDK items, so they are at bottom of mixin
         .alerts-main-controls {
             padding: 8px 32px;
 
@@ -14,7 +18,7 @@
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                align-items: flex-start;
+                align-items: center;
 
                 &:not(:last-child) {
                     margin-right: 16px;
@@ -23,15 +27,9 @@
             }
 
             .namespace-selector {
-                justify-content: flex-start;
                 min-width: 250px;
 
-                > .mat-caption {
-                    height: 24px;
-                    line-height: 24px;
-                }
-
-                .mat-stroked-button {
+                .mat-button {
                     width: 100%;
                     display: inline-flex;
 
@@ -39,14 +37,32 @@
                         display: flex;
                         flex: 1;
                         align-items: center;
+
+                        .control-label {
+                            margin-right: 8px;
+                            font-weight: 400;
+                        }
+    
+                        .selected-namespace {
+                            flex: 1;
+                            margin-right: 8px;
+                            text-align: left;
+                        }
+
+                        .mat-icon {
+                            @include sizeDenaliIcon(18px);
+                        }
                     }
 
-                    .selected-namespace {
-                        flex: 1;
-                        margin-right: 8px;
-                        text-align: left;
+                    &:hover .mat-button-focus-overlay {
+                        opacity: 0;
                     }
 
+                    &:hover,
+                    &.menu-open {
+                        border-bottom-left-radius: 0;
+                        border-bottom-right-radius: 0;
+                    }
                 }
             }
 
@@ -55,30 +71,31 @@
                 max-width: 600px;
 
                 .mat-form-field {
-                    margin-top: 22px;
                     width: 100%;
+                    line-height: 1.45;
+
+                    .mat-form-field-flex {
+                        align-items: center;
+                    }
+
+                    .mat-form-field-suffix {
+                        margin-right: 8px;
+
+                        .mat-icon {
+                            @include sizeDenaliIcon(18px);
+                        }
+                    }
                 }
             }
         }
+
+        // NOTE: do we need this anymore?
         .alert-results-tabs {
             margin: 0 16px;
             user-select: none;
         }
 
-        /*.alerts-main-results.mat-tab-group {
-            padding: 0;
-
-            .mat-tab-header {
-                margin: 0 16px;
-                user-select: none;
-            }
-
-            .mat-tab-body-wrapper {
-                flex: 1;
-                padding: 8px 16px;
-                overflow-y: auto;
-            }
-        }*/
+        // alert results
         .alert-results {
             .alert-results-wrapper {
                 display: flex;
@@ -93,7 +110,7 @@
                     flex-direction: column;
                     overflow-y: auto;
                     max-width: 100%;
-
+                    padding-top: 16px;
                 }
 
                 .mat-paginator {
@@ -102,9 +119,8 @@
             }
         }
 
-        
-
         // chips
+        /* OLD
         .header-chip {
             border-radius: 4px;
             padding: 4px;
@@ -112,6 +128,24 @@
             width: 100%;
             display: block;
             text-align: center;
+        }*/
+
+        .header-chip {
+            padding: 4px;
+            font-weight: normal;
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            &::before {
+                content: '';
+                width: $header-chip-size;
+                height: $header-chip-size;
+                border-radius: $header-chip-size / 2;
+                display: inline-block;
+                margin-right: 6px;
+            }
         }
 
         .group-label-chip {
@@ -175,12 +209,12 @@
                 padding-right: 8px;
             }
 
-            td.mat-cell:first-of-type,
+            /*td.mat-cell:first-of-type,
             td.mat-footer-cell:first-of-type,
             th.mat-header-cell:first-of-type {
                 padding-left: 8px;
                 padding-right: 0;
-            }
+            }*/
 
             td.mat-cell:last-of-type,
             td.mat-footer-cell:last-of-type,
@@ -230,12 +264,19 @@
             }
 
             .cdk-column-sparkline {
+                text-align: right;
+
                 .sparkline-wrapper {
                     width: 100px;
                     background: #eee;
                     display: block;
                     padding: 4px;
                     text-align: center;
+                }
+                
+                .sparkline-display-menu-trigger.mat-button {
+                    min-width: initial;
+                    padding: 0 6px;
                 }
             }
 
@@ -257,12 +298,59 @@
                     line-height: 18px;
                 }
             }
+
+            .cdk-column-name {
+                position: relative;
+
+                span.alert-name {
+                    line-height: 48px;
+                }
+
+                .edit-actions-wrapper {
+                    position: absolute;
+                    bottom: 0;
+                    left: 2px;
+                    pointer-events: none;
+                    opacity: 0;
+                    transition: opacity 200ms ease-in-out;
+
+                    .mat-button {
+                        font-size: 8px;
+                        font-weight: 400;
+                        text-transform: uppercase;
+                        padding: 2px;
+                        min-width: initial;
+                        line-height: 10px;
+        
+                        .mat-icon {
+                            @include sizeDenaliIcon(10px)
+                        }
+
+                        span {
+                            display: inline-block;
+                            margin-top: 2px;
+                            margin-left: 2px;
+                        }
+                    }
+                }
+            }
+
+            tr.mat-row:hover {
+                .cdk-column-name {
+                    .edit-actions-wrapper {
+                        pointer-events: initial;
+                        opacity: 1;
+                    }
+                }
+            }
         }
+
+        
 
     }
 
-    // CDK ITEMS {
-    .alert-contacts-menu {
+    // CDK OVERLAY ITEMS (these are at document root level)
+    .alert-contacts-menu.mat-menu-panel {
         margin-left: calc(-50% + 32px);
 
         .mat-menu-item {
@@ -277,7 +365,7 @@
         }
     }
 
-    .create-alert-menu {
+    .create-alert-menu.mat-menu-panel {
 
         .mat-menu-content {
             padding-left: 8px;
@@ -303,6 +391,30 @@
             line-height: initial;
         }
     }
+
+    .namespace-selector-cdk-menu.mat-menu-panel {
+        .mat-menu-item {
+            height: 24px;
+            line-height: 24px;
+        }
+
+        .mat-divider {
+            margin: 8px 0;
+        }
+    }
+
+    .sparkline-display-cdk-menu.mat-menu-panel {
+        max-width: initial; // 100px is width of the sparkline column
+        min-width: initial;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+
+        .mat-menu-item {
+            height: 24px;
+            line-height: 24px;
+            text-align: right;
+        }
+    }
 }
 
 @mixin alerts-container-component-theme($theme-config) {
@@ -326,9 +438,44 @@
 
         .alerts-main-controls {
             box-shadow: inset 0 -1px 0 0 $border-color;
+
+            .namespace-selector {
+                min-width: 250px;
+
+                .mat-button {
+                    background-color: rgba(map-get($primary, default), 0.08);
+
+                    .control-label {
+                        color: map-get($foreground, disabled);
+                    }
+
+                    .mat-icon {
+                        color: map-get($foreground, link);
+                    }
+
+                    &:hover {
+                        box-shadow: inset 0 -2px 0 0 rgba(map-get($primary, default), .3);
+                    }
+
+                    &.menu-open {
+                        box-shadow: inset 0 -2px 0 0 map-get($primary, default);
+                    }
+                }
+            }
+
+            .alert-filter-input {
+                .mat-form-field {
+                    .mat-form-field-suffix {
+                        .mat-icon {
+                            color: map-get($foreground, link);
+                        }
+                    }
+                }
+            }
         }
 
         //chips
+        /* OLD
         .header-chip {
             color: $header-chip-text;
 
@@ -346,6 +493,23 @@
 
             &.is-snoozed {
                 background-color: map-get($foreground, disabled-button);
+            }
+        }*/
+        .header-chip {
+            &.is-error::before {
+                background-color: map-get($status, error);
+            }
+
+            &.is-warning::before {
+                background-color: map-get($status, warning);
+            }
+
+            &.is-good::before {
+                background-color: map-get($status, success);
+            }
+
+            &.is-snoozed::before {
+                background-color: map-get($denali-purple, 500);
             }
         }
 
@@ -395,6 +559,27 @@
                 }*/
             }
 
+            .cdk-column-sparkline {
+                &.menu-open {
+                    position: relative;
+
+                    .mat-button {
+                        color: #ffffff;
+                        background-color: map-get($primary, default);
+                        border-bottom-left-radius: 0;
+                        border-bottom-right-radius: 0;
+                    }
+                }
+            }
+
+            .cdk-column-name {
+                .edit-actions-wrapper {
+                    .mat-button {
+                        color: map-get($foreground, link);
+                    }
+                }
+            }
+
             // disabled state
             .mat-row.is-disabled {
                 background-color: rgba(map-get($foreground, divider), .05);
@@ -419,6 +604,8 @@
             }
 
         }
+
+        
     }
 
     // CDK ITEMS {
@@ -444,5 +631,9 @@
         .alert-type-label {
             color: map-get($foreground, link);
         }
+    }
+
+    .sparkline-display-cdk-menu.mat-menu-panel {
+        border-top: 2px solid map-get($primary, default);
     }
 }

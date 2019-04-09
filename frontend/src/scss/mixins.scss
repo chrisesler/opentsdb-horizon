@@ -394,6 +394,13 @@
     }
 }
 
+@mixin sizeDenaliIcon($size: 24px) {
+    width: $size;
+    height: $size;
+    line-height: $size;
+    font-size: $size;
+}
+
 // * for debugging sass maps
 @mixin debug-map($map) {
     @at-root {
