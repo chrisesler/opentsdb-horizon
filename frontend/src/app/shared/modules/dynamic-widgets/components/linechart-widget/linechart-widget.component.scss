@@ -34,6 +34,9 @@
                 width: 300px;
                 position: absolute;
                 border-radius: 5px;
+                font-size: 12px;
+                font-family: Monaco, monospace;
+                // font-family: Helvetica Neue, Helvetica;
             }
 
             .dygraph-label, .dygraph-axis-label {
@@ -54,6 +57,9 @@
                 height: 100%;
                 overflow: scroll;
                 z-index: 0;
+                .mat-table {
+                    font-family: Monaco, monospace;
+                }
             }
 
             .loader{
