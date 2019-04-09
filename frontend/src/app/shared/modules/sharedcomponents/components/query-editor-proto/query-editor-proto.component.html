@@ -137,7 +137,7 @@
             <div class="metric-row-data metric-index">
                 <button mat-flat-button [matMenuTriggerFor]="metricActionMenu" [matMenuTriggerData]="{metric: metric}">
                     <span class="label">
-                        <mat-icon fontSet="denali" [fontIcon]="metric.enabled ? 'd-check' : 'd-minus'" *ngIf="canDisableMetrics"></mat-icon>
+                        <mat-icon fontSet="denali" [fontIcon]="metric.settings.visual.visible ? 'd-check' : 'd-minus'" *ngIf="canDisableMetrics"></mat-icon>
                         <span>e{{ i+1 }}</span>
                     </span>
                     <span class="mat-select-arrow-wrapper">
