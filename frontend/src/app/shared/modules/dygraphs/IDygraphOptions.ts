@@ -31,6 +31,7 @@ export interface IDygraphOptions {
     logscale?: boolean;
     stackedGraph: boolean;
     hightlightCircleSize?: number;
+    highlightSeriesBackgroundAlpha?: number,
     strokeWidth?: number;
     strokeBorderWidth: number;
     axisLineWidth?: number;

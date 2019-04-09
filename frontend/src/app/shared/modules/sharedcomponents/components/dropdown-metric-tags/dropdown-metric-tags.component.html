@@ -6,7 +6,7 @@
 -->
 <button mat-button (click)="loadTags(true)">
     <div class="button-label">
-        <div>{{ selected ? (selected.length > 0 && selected.indexOf('all') === -1) ? selected.join(', ') : 'Everything' : 'Everything' }}</div>
+        <div>{{   ( selected && selected.length > 0 && selected.indexOf('all') === -1) ? selected.join(', ') : (all ? 'Everything' : 'Select Tags') }}</div>
         <div class="mat-select-arrow-wrapper">
             <div class="mat-select-arrow"></div>
         </div>
@@ -17,7 +17,7 @@
 
     <div class="tag-options-wrapper" (click)="$event.stopPropagation()">
         <mat-selection-list #tagOptionsList (selectionChange)="onTagSelection($event, tagOptionsList.selectedOptions.selected)">
-            <mat-list-option checkboxPosition="before" value='all' [selected]="optionIsSelected('all')">Everything</mat-list-option>
+            <mat-list-option checkboxPosition="before" value='all' [selected]="optionIsSelected('all')" *ngIf="all">Everything</mat-list-option>
             <mat-list-option *ngFor="let option of tagOptions" checkboxPosition="before" [value]="option.name" [selected]="optionIsSelected(option.name)">
                 {{option.name}}
             </mat-list-option>

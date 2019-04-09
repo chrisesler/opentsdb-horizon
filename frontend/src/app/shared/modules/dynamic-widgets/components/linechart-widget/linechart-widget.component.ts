@@ -28,6 +28,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     @Input() editMode: boolean;
     @Input() widget: WidgetModel;
 
+    @ViewChild('widgetOutputContainer') private widgetOutputContainer: ElementRef;
+    @ViewChild('widgetTitle') private widgetTitle: ElementRef;
     @ViewChild('widgetoutput') private widgetOutputElement: ElementRef;
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
     @ViewChild('dygraph') private dygraph: ElementRef;
@@ -52,10 +54,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         digitsAfterDecimal: 2,
         stackedGraph: this.isStackedGraph,
         strokeWidth: 1,
-        strokeBorderWidth: this.isStackedGraph ? null : 0,
+        strokeBorderWidth: this.isStackedGraph ? 0 : 0,
+        highlightSeriesBackgroundAlpha: 0.5,
         highlightSeriesOpts: {
             strokeWidth: 2,
-            highlightCircleSize: 5
+            highlightCircleSize: 3
         },
         xlabel: '',
         ylabel: '',
@@ -128,7 +131,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                                     const rawdata = message.payload.rawdata;
                                     this.setTimezone(message.payload.timezone);
                                     this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
-                                    this.setSize(this.newSize);
+                                    this.setSize();
                                 }
                                 break;
                             case 'getUpdatedWidgetConfig':
@@ -268,6 +271,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        // console.log(this.widget);
     }
 
     ngAfterContentInit() {
@@ -281,7 +285,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         this.newSize$ = new BehaviorSubject(initSize);
 
         this.newSizeSub = this.newSize$.subscribe(size => {
-            this.setSize(size);
+            this.setSize();
             this.newSize = size;
         });
         
@@ -294,16 +298,14 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         });
     }
 
-    setSize(newSize: any) {
-        if ( !Object.keys(newSize).length ) {
-            return;
-        }
+    setSize() {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
-        //const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
+        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement.parentElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
 
-        //const outputSize = nativeEl.getBoundingClientRect();
+        const outputSize = nativeEl.getBoundingClientRect();
         const offset = this.editMode ? 100 : 0;
+        let newSize = outputSize;
 
         let nWidth, nHeight, padding;
 
@@ -319,7 +321,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         if (legendSettings.display &&
                                     ( legendSettings.position === 'left' ||
                                     legendSettings.position === 'right' ) ) {
-            widthOffset = 10 + labelLen * 4.5 + 60 * legendColumns;
+            widthOffset = 10 + labelLen * 6.5 + 60 * legendColumns;
         }
 
         if ( legendSettings.display &&
@@ -330,9 +332,13 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         }
 
         if (this.editMode) {
+            let titleSize = {width: 0, height: 0};
+            if (this.widgetTitle) {
+                titleSize = this.widgetTitle.nativeElement.getBoundingClientRect();
+            }
             padding = 8; // 8px top and bottom
-            nHeight = newSize.height - heightOffset - (padding * 2);
-            nWidth = newSize.width - widthOffset  - (padding * 2);
+            nHeight = newSize.height - heightOffset - titleSize.height - (padding * 2);
+            nWidth = newSize.width - widthOffset  - (padding * 2) - 30;
         } else {
             padding = 10; // 10px on the top
             nHeight = newSize.height - heightOffset - (padding * 2);
@@ -519,7 +525,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     setLegend(config) {
         this.widget.settings.legend = config;
         this.setLegendDiv();
-        this.setSize(this.newSize);
+        this.setSize();
         this.options = {...this.options};
     }
 
@@ -531,7 +537,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     setLegendDiv() {
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
         this.legendDisplayColumns = ['series', 'name'].concat(this.widget.settings.legend.columns || []);
-        // this.setSize(this.newSize);
     }
 
     toggleChartSeries(index) {

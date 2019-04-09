@@ -49,11 +49,6 @@ import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/sn
 import { AlertConfigurationDialogComponent } from '../components/alert-configuration-dialog/alert-configuration-dialog.component';
 
 import * as _moment from 'moment';
-// tslint:disable-next-line:no-duplicate-imports
-// import {default as _rollupMoment} from 'moment';
-
-// const moment = _rollupMoment || _moment;
-
 const moment = _moment;
 
 @Component({
@@ -391,10 +386,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     editAlert(element: any) {
-        console.log('EDIT ALERT', element);
-        this.location.go('a/' + element.id + '/' + element.naemspaces + '/' + element.name);
+        this.location.go('a/' + element.id + '/' + element.namespace + '/' + element.slug);
         this.httpService.getAlertDetailsById(element.id).subscribe(data => {
-            this.openCreateAlertDialog(data);
+            this.openCreateAlertDialog({...data, namespace: element.namespace});
         });
     }
 
