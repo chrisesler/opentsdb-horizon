@@ -17,7 +17,7 @@
         </span>
     </div>
     <span class="flex-spacer"></span>
-    <div class="toolbar-item action-icons" *ngIf="!edit.length">
+    <div class="toolbar-item action-icons" *ngIf="!edit.length && canDisableMetrics">
         <button mat-icon-button color="primary" (click)="toggleQuery(); $event.stopPropagation();">
             <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
             <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
