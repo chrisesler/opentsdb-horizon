@@ -152,12 +152,16 @@ export class DBState {
     @Action(MigrateAndLoadDashboard)
     migrateAndLoadDashboard(ctx: StateContext<DBStateModel>, { id: id, payload: payload }: MigrateAndLoadDashboard) {
             payload = this.dbService.convert(payload);
-            return this.httpService.saveDashboard(id, payload).pipe(
+            ctx.dispatch(new LoadDashboardSuccess(payload));
+            // we dont want to save after conversion but return the conversion version
+            // since user might have no permission to save
+            /*return this.httpService.saveDashboard(id, payload).pipe(
                 map( (res: any) => {
                     ctx.dispatch(new LoadDashboardSuccess(payload));
                 }),
                 catchError( error => ctx.dispatch(new LoadDashboardFail(error)))
             );
+            */
     }
 
     @Action(LoadDashboardSuccess)
