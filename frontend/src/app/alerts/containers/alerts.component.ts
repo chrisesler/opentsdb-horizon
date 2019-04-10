@@ -51,7 +51,10 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { RecipientType } from '../components/alert-configuration-dialog/children/recipients-manager/models';
 
+import { CdkService } from '../../core/services/cdk.service';
+
 import * as _moment from 'moment';
+import { TemplatePortal } from '@angular/cdk/portal';
 const moment = _moment;
 
 @Component({
@@ -174,6 +177,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
     // tslint:disable-next-line:no-inferrable-types
     namespaceDropMenuOpen: boolean = false;
 
+    // portal templates
+    @ViewChild('alertspageNavbarTmpl') alertspageNavbarTmpl: TemplateRef<any>;
+
+    // portal placeholders
+    alertspageNavbarPortal: TemplatePortal;
+
     constructor(
         private store: Store,
         private dialog: MatDialog,
@@ -184,7 +193,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
         private cdRef: ChangeDetectorRef,
         private location: Location,
         private matIconRegistry: MatIconRegistry,
-        private domSanitizer: DomSanitizer
+        private domSanitizer: DomSanitizer,
+        private cdkService: CdkService
     ) {
         this.sparklineDisplay = this.sparklineDisplayMenuOptions[0];
 
@@ -201,6 +211,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+
+        // setup navbar portal
+        this.alertspageNavbarPortal = new TemplatePortal(this.alertspageNavbarTmpl, undefined, {});
+        this.cdkService.setNavbarPortal(this.alertspageNavbarPortal);
 
         const self = this;
 
