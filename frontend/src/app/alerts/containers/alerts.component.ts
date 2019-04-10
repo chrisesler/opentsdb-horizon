@@ -280,12 +280,13 @@ export class AlertsComponent implements OnInit, OnDestroy {
             } else if (url.length === 2 && url[1].path === '_new_') {
                 this.store.dispatch(new SetNamespace(url[0].path));
                 // settimeout avoids angular expression check error
-                setTimeout(()=>this.createAlert('metric'));
+                setTimeout(() => this.createAlert('metric'));
             } else if (url.length > 2) {
                 // load alert to edit
+                // tslint:disable-next-line:radix
                 this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path)));
             }
-        }); 
+        });
     }
 
     loadAlerts(namespace) {
@@ -392,21 +393,21 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     editAlert(element: any) {
-        this.location.go('a/'+element.id+'/'+element.namespace+'/'+element.slug);
+        this.location.go('a/' + element.id + '/' + element.namespace + '/' + element.slug);
         this.store.dispatch(new GetAlertDetailsById(element.id));
     }
 
     createAlert(type: string) {
         const data = {
             alertType: type,
-            namespace: this.selectedNamespace, 
-            name: 'Untitled Alert' 
-        }
+            namespace: this.selectedNamespace,
+            name: 'Untitled Alert'
+        };
         this.openAlertDialog(data);
         this.location.go('a/' + this.selectedNamespace + '/_new_');
     }
 
-    openAlertDialog(data:any) {
+    openAlertDialog(data: any) {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.autoFocus = false;
         dialogConf.width = '100%';
@@ -476,6 +477,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
             return 'Email';
         }
         return '';
+    }
+
+    contactMenuEsc($event: any) {
+        console.log('contactMenuEsc', $event);
     }
 
 }
