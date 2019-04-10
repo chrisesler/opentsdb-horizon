@@ -46,6 +46,11 @@ import { AlertState, GetAlertDetailsById } from '../state/alert.state';
 import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
 import { AlertConfigurationDialogComponent } from '../components/alert-configuration-dialog/alert-configuration-dialog.component';
 
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+
+import { RecipientType } from '../components/alert-configuration-dialog/children/recipients-manager/models';
+
 import * as _moment from 'moment';
 const moment = _moment;
 
@@ -100,7 +105,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         'counts.warn',
         'counts.good',
         'counts.snoozed',
-        'sparkline'
+        // 'sparkline' // hidden for now
     ];
 
     // for batch selection
@@ -177,9 +182,22 @@ export class AlertsComponent implements OnInit, OnDestroy {
         private  activatedRoute: ActivatedRoute,
         private router: Router,
         private cdRef: ChangeDetectorRef,
-        private location: Location
+        private location: Location,
+        private matIconRegistry: MatIconRegistry,
+        private domSanitizer: DomSanitizer
     ) {
         this.sparklineDisplay = this.sparklineDisplayMenuOptions[0];
+
+        // icons
+        const svgIcons = ['email', 'http', 'oc', 'opsgenie', 'slack'];
+
+        // add icons to registry... url has to be trusted
+        for (const type of svgIcons) {
+            matIconRegistry.addSvgIcon(
+                type + '_contact',
+                domSanitizer.bypassSecurityTrustResourceUrl('assets/' + type + '-contact.svg')
+            );
+        }
     }
 
     ngOnInit() {
@@ -262,12 +280,13 @@ export class AlertsComponent implements OnInit, OnDestroy {
             } else if (url.length === 2 && url[1].path === '_new_') {
                 this.store.dispatch(new SetNamespace(url[0].path));
                 // settimeout avoids angular expression check error
-                setTimeout(()=>this.createAlert('metric'));
+                setTimeout(() => this.createAlert('metric'));
             } else if (url.length > 2) {
                 // load alert to edit
+                // tslint:disable-next-line:radix
                 this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path)));
             }
-        }); 
+        });
     }
 
     loadAlerts(namespace) {
@@ -345,6 +364,16 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
     */
 
+    bulkDisableAlerts() {
+        console.log('BULK DISABLE ALERTS');
+        // BULK DISABLE
+    }
+
+    bulkDeleteAlerts() {
+        console.log('BULK DELETE ALERTS');
+        // BULK DELETE
+    }
+
     toggleAlert(alertObj: any) {
         this.store.dispatch(new ToggleAlerts(this.selectedNamespace, { data: [ { id: alertObj.id, enabled: !alertObj.enabled } ]}));
     }
@@ -364,21 +393,21 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     editAlert(element: any) {
-        this.location.go('a/'+element.id+'/'+element.namespace+'/'+element.slug);
+        this.location.go('a/' + element.id + '/' + element.namespace + '/' + element.slug);
         this.store.dispatch(new GetAlertDetailsById(element.id));
     }
 
     createAlert(type: string) {
         const data = {
             alertType: type,
-            namespace: this.selectedNamespace, 
-            name: 'Untitled Alert' 
-        }
+            namespace: this.selectedNamespace,
+            name: 'Untitled Alert'
+        };
         this.openAlertDialog(data);
         this.location.go('a/' + this.selectedNamespace + '/_new_');
     }
 
-    openAlertDialog(data:any) {
+    openAlertDialog(data: any) {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.autoFocus = false;
         dialogConf.width = '100%';
@@ -429,6 +458,29 @@ export class AlertsComponent implements OnInit, OnDestroy {
     formatAlertTimeModified(element: any) {
         const time = moment(element.updatedTime);
         return time.format('YYYY-MM-DD HH:mm');
+    }
+
+    getRecipientKeys(element: any) {
+        return Object.keys(element.recipients);
+    }
+
+    typeToDisplayName(type: string) {
+        if (type === RecipientType.opsgenie) {
+            return 'OpsGenie';
+        } else if (type === RecipientType.slack) {
+            return 'Slack';
+        } else if (type === RecipientType.http) {
+            return 'HTTP';
+        } else if (type === RecipientType.oc) {
+            return 'OC';
+        } else if (type === RecipientType.email) {
+            return 'Email';
+        }
+        return '';
+    }
+
+    contactMenuEsc($event: any) {
+        console.log('contactMenuEsc', $event);
     }
 
 }
