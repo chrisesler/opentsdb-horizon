@@ -15,8 +15,6 @@ import { AppRoutingModule } from './app-routing.module';
 // store
 import { NgxsModule } from '@ngxs/store';
 import { NgxsLoggerPluginModule, NgxsLoggerPlugin } from '@ngxs/logger-plugin';
-import { NgxsRouterPluginModule } from '@ngxs/router-plugin';
-import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 // import { AppState } from './store/app.state';
 // our
 import { AdminModule } from './admin/admin.module';
@@ -40,9 +38,7 @@ import { AppShellModule } from './app-shell/app-shell.module';
     // ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     AppRoutingModule,
     NgxsModule.forRoot([AuthState]),
-    //NgxsRouterPluginModule.forRoot(),
     NgxsLoggerPluginModule.forRoot(),
-    //NgxsReduxDevtoolsPluginModule.forRoot({ disabled: environment.production }),
     AdminModule,
     AdhocModule,
     AppShellModule,
