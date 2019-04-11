@@ -2,21 +2,16 @@ import {
     State,
     StateContext,
     Action,
-    Selector,
-    createSelector
+    Selector
 } from '@ngxs/store';
 
-import {
-    map,
-    catchError
-} from 'rxjs/operators';
 
 import { HttpService } from '../../core/http/http.service';
 import { AlertsService } from '../services/alerts.service';
+import { forkJoin } from 'rxjs';
 
 import { LoggerService } from '../../core/services/logger.service';
 
-import * as moment from 'moment';
 
 export interface AlertModel {
     id: number;
@@ -38,40 +33,28 @@ export interface AlertModel {
 }
 
 export interface AlertsStateModel {
-    userNamespaces: any[];
+    userNamespaces: [];
+    allNamespaces: [];
     selectedNamespace: any;
     loading: boolean;
     loaded: any;
     error: any;
+    saveError: any;
     actionResponse: any;
     actionStatus: string;
     alerts: AlertModel[];
     alertTypeFilter: string;
+    editItem: any;
 }
 
 /* actions */
-export class LoadUserNamespaces {
-    static readonly type = '[Alerts] Load User namespaces';
+export class LoadNamespaces {
+    static readonly type = '[Alerts] Load namespaces';
     constructor(
         public readonly options?: any
     ) { }
 }
 
-export class LoadUserNamespacesSuccess {
-    static readonly type = '[Alerts] Load User namespaces [SUCCESS]';
-    constructor(
-        public readonly response: any,
-        public readonly options?: any
-    ) { }
-}
-
-export class LoadUserNamespacesFail {
-    static readonly type = '[Alerts] Load User namespaces [FAIL]';
-    constructor(
-        public readonly error: any,
-        public readonly options?: any
-    ) { }
-}
 export class SetNamespace {
     static readonly type = '[Alerts] Set Namespace';
     constructor(public namespace: string) {}
@@ -97,11 +80,17 @@ export class ToggleAlerts {
     constructor(public namespace: string, public payload: any) {}
 }
 
+export class CheckWriteAccess {
+    static readonly type = "[Alerts] Check write Access";
+    constructor(public payload: any) {}
+}
+
 /* state define */
 @State<AlertsStateModel>({
     name: 'Alerts',
     defaults: {
         userNamespaces: [],
+        allNamespaces: [],
         selectedNamespace: '',
         loading: false,
         loaded: {
@@ -109,10 +98,12 @@ export class ToggleAlerts {
             allNamespaces: false
         },
         error: {},
+        saveError: {}, // handles dialog create/update error
         actionResponse: {},
         alerts: [],
         actionStatus: '',
-        alertTypeFilter: 'all' // all, alerting, snoozed, disabled
+        alertTypeFilter: 'all', // all, alerting, snoozed, disabled
+        editItem: {}
     }
 })
 
@@ -127,6 +118,11 @@ export class AlertsState {
     @Selector()
     static getUserNamespaces(state: AlertsStateModel) {
         return state.userNamespaces;
+    }
+
+    @Selector()
+    static getAllNamespaces(state: AlertsStateModel) {
+        return state.allNamespaces;
     }
 
     @Selector()
@@ -145,8 +141,18 @@ export class AlertsState {
     }
 
     @Selector()
+    static getEditItem(state: AlertsStateModel) {
+        return state.editItem;
+    }
+
+    @Selector()
     static getError(state: AlertsStateModel) {
         return state.error;
+    }
+
+    @Selector()
+    static getSaveError(state: AlertsStateModel) {
+        return state.saveError;
     }
 
     @Selector()
@@ -166,55 +172,28 @@ export class AlertsState {
 
     /* ACTIONS */
 
-    @Action(LoadUserNamespaces)
-    getUserNamspaces(ctx: StateContext<AlertsStateModel>, { options }: LoadUserNamespaces) {
-        this.logger.state('AlertsState :: Load user namespaces', { options });
+    @Action(LoadNamespaces)
+    loadNamespaces(ctx: StateContext<AlertsStateModel>, { options }: LoadNamespaces) {
+        this.logger.state('AlertsState :: Load namespaces', { options });
         const state = ctx.getState();
-        if (!state.loaded.userNamespaces) {
-            ctx.patchState({ loading: true });
-            return this.alertsService.getUserNamespaces().pipe(
-                map((payload: any) => {
-                    // console.log('resourceList', payload);
-                    ctx.dispatch(new LoadUserNamespacesSuccess(payload, options));
-                }),
-                catchError(error => ctx.dispatch(new LoadUserNamespacesFail(error, options)))
+       if (!state.loaded.userNamespaces) {
+        ctx.patchState({ loading: true, error: {} });
+            const req1 = this.alertsService.getUserNamespaces();
+            const req2 = this.alertsService.getNamespaces();
+
+            return forkJoin([req1,  req2]).subscribe((res:any[])=> {
+                ctx.patchState({
+                    userNamespaces: res[0],
+                    allNamespaces: res[1],
+                    loading: false,
+                    loaded: { userNamespaces: true, allNamespaces: true}
+                });
+                },
+                error=> {
+                    ctx.patchState({ error: error });
+                }
             );
         }
-    }
-
-    @Action(LoadUserNamespacesSuccess)
-    loadUserNamspacesSuccess(ctx: StateContext<AlertsStateModel>, { response, options }: LoadUserNamespacesSuccess) {
-        this.logger.success('AlertsState :: Load user namespaces success', { response, options });
-        const state = ctx.getState();
-        const loaded = { ...state.loaded };
-        const actionResponse: any = {};
-        loaded.userNamespaces = true;
-
-
-        if (options && options.responseRequested && options.guid) {
-            actionResponse.action = 'loadUserNamespacesSuccess';
-            actionResponse.guid = options.guid;
-        }
-
-        ctx.setState({
-            ...state,
-            actionResponse,
-            userNamespaces: response,
-            loading: false,
-            loaded
-        });
-    }
-
-    @Action(LoadUserNamespacesFail)
-    loadUserNamspacesFail(ctx: StateContext<AlertsStateModel>, { error, options }: LoadUserNamespacesFail) {
-        this.logger.error('AlertsState :: Load user namespaces errors', { error, options });
-        const state = ctx.getState();
-
-        ctx.setState({
-            ...state,
-            loading: false,
-            error
-        });
     }
 
     @Action(SetNamespace)
@@ -222,14 +201,27 @@ export class AlertsState {
         ctx.patchState({ selectedNamespace: namespace});
     }
 
+    @Action(CheckWriteAccess)
+    checkWriteAccess(ctx: StateContext<AlertsStateModel>, { payload }: CheckWriteAccess) {
+        const state = ctx.getState();
+        const userNamespaces = state.userNamespaces;
+        // ctx.patchState( { editItem: {}, error: {} } );
+        if ( userNamespaces.find( (d:any) => d.name === payload.namespace )) {
+            ctx.patchState( { editItem: payload } );
+        } else {
+            ctx.patchState( { error: { message: "You don't have permission to " + ( payload.id === '_new_' ? 'create new' : 'edit the' )+ ' alert.' } } ); 
+        }
+    }
+
     @Action(LoadAlerts)
     loadAlerts(ctx: StateContext<AlertsStateModel>, { options }: LoadAlerts) {
-        //ctx.patchState({ loading: true});
+        ctx.patchState({ actionStatus: 'save-progress', error: {}});
         return this.httpService.getAlerts(options).subscribe(
             alerts => {
                 ctx.patchState({ alerts: alerts});
             },
             error => {
+                ctx.patchState({ error: error });
             }
         );
 
@@ -237,13 +229,14 @@ export class AlertsState {
 
     @Action(SaveAlerts)
     saveAlerts(ctx: StateContext<AlertsStateModel>, { namespace, payload }: SaveAlerts) {
-        ctx.patchState({ actionStatus: 'save-progress'});
+        ctx.patchState({ actionStatus: 'save-progress', saveError: {}});
         return this.httpService.saveAlert(namespace, payload).subscribe(
-            alerts => {
+            res => {
                 ctx.patchState({ actionStatus: payload.data[0].id ? 'update-success' : 'add-success'});
                 ctx.dispatch(new LoadAlerts({namespace: namespace}));
             },
             error => {
+                ctx.patchState({ actionStatus: payload.data[0].id ? 'update-failed' : 'add-failed', saveError: error });
             }
         );
 
@@ -252,13 +245,14 @@ export class AlertsState {
 
     @Action(DeleteAlerts)
     deleteAlerts(ctx: StateContext<AlertsStateModel>, { namespace, payload:payload }: DeleteAlerts) {
-        ctx.patchState({ actionStatus: 'delete-progress'});
+        ctx.patchState({ actionStatus: 'delete-progress', error: {}});
         return this.httpService.deleteAlerts(namespace, payload).subscribe(
             res => {
                 ctx.patchState({ actionStatus: 'delete-success'});
                 ctx.dispatch(new LoadAlerts({namespace: namespace}));
             },
             error => {
+                ctx.patchState({ error: error });
             }
         );
 
@@ -266,13 +260,14 @@ export class AlertsState {
 
     @Action(ToggleAlerts)
     toggleAlerts(ctx: StateContext<AlertsStateModel>, { namespace, payload:payload }: DeleteAlerts) {
-        ctx.patchState({ actionStatus: 'toggle-progress'});
+        ctx.patchState({ actionStatus: 'toggle-progress', error: {}});
         return this.httpService.saveAlert(namespace, payload).subscribe(
             res => {
                 ctx.patchState({ actionStatus: payload.data[0].enabled ? 'enable-success' : 'disable-success'});
                 ctx.dispatch(new LoadAlerts({namespace: namespace}));
             },
             error => {
+                ctx.patchState({ error: error });
             }
         );
 

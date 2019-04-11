@@ -55,6 +55,7 @@
                 </div>
             </mat-toolbar>
             <div class="alert-control-steps">
+                <div class="error" *ngIf="data.error"> {{ data.error.message }} </div>
                 <div class="step-section queries-section is-visible">
                     <div class="step-section-label">
                         <span class="step-section-label-text">1. Queries</span>
