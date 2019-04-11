@@ -266,7 +266,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
         });
 
         this.stateSubs['alerts'] = this.alerts$.pipe(skip(1)).subscribe( alerts => {
-            console.log("alerts", alerts)
             this.stateLoaded.alerts = true;
             this.alerts = alerts;
             this.setTableDataSource();
@@ -302,7 +301,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
         });
 
         this.stateSubs['editItem'] = this.editItem$.pipe(filter(data=>Object.keys(data).length!==0), distinctUntilChanged()).subscribe(data => {
-            console.log("comes editItem", (data))
             if ( data.id === '_new_' ) {
                 const o = {
                     alertType: 'metric',
