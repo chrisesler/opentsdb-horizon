@@ -293,6 +293,9 @@ export class ColorPickerComponent implements OnInit {
 
     // ex: "20,50,70"
     isRgbValid(rgb: string): boolean {
+        if (!rgb) {
+            rgb = '';
+        }
         let values: string[] = rgb.split(',');
         let isValid: boolean = true;
 
