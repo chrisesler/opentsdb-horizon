@@ -364,7 +364,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
                 case 'getTagValues':
                     const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
-                    this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag, message.payload.filters));
+                    this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag));
                     break;
                 case 'getUserNamespaces':
                     // console.log('getUserNamespaces');
