@@ -102,9 +102,9 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
             .pipe(debounceTime(300))
             .subscribe(val => {
                 this.expectingIntercomData = true;
-                let payload = '.*';
+                let inputVal = '.*';
                 if (val.trim().length > 0) {
-                    payload += val + '.*';
+                    inputVal += val + '.*';
                 }
                 this.interCom.requestSend(<IMessage>{
                     action: 'getTagValues',
@@ -112,7 +112,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
                     payload: {
                         tag : {
                             key: this.tagk.value.trim(),
-                            value: payload
+                            value: inputVal
                         }
                     }
                 });
