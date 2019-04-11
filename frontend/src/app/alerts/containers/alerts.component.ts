@@ -25,8 +25,8 @@ import {
 } from '@angular/material';
 
 
-import { Observable, Subscription } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, Subscription, Subject } from 'rxjs';
+import {  delayWhen, filter, skip, distinctUntilChanged } from 'rxjs/operators';
 import { HttpService } from '../../core/http/http.service';
 
 import { Select, Store } from '@ngxs/store';
@@ -34,7 +34,8 @@ import { Select, Store } from '@ngxs/store';
 import {
     AlertsState,
     AlertModel,
-    LoadUserNamespaces,
+    LoadNamespaces,
+    CheckWriteAccess,
     LoadAlerts,
     DeleteAlerts,
     ToggleAlerts,
@@ -75,8 +76,13 @@ export class AlertsComponent implements OnInit, OnDestroy {
     // tslint:disable-next-line:no-inferrable-types
     selectedNamespace: string = '';
 
+    hasNamespaceWriteAcess: boolean = false;
+
     @Select(AlertsState.getUserNamespaces) userNamespaces$: Observable<any[]>;
     userNamespaces: any[] = [];
+
+    @Select(AlertsState.getAllNamespaces) allNamespaces$: Observable<any[]>;
+    allNamespaces: any[] = [];
 
     @Select(AlertState.getAlertDetails) alertDetail$: Observable<any>;
 
@@ -107,6 +113,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
     selection = new SelectionModel<AlertModel>(true, []);
 
     @Select(AlertsState.getActionResponse) asActionResponse$: Observable<any>;
+    @Select(AlertsState.getEditItem) editItem$: Observable<any>;
+    @Select(AlertsState.getError) error$: Observable<any>;
+    @Select(AlertsState.getSaveError) saveError$: Observable<any>;
 
 
     private _guid: any = false;
@@ -168,6 +177,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     // tslint:disable-next-line:no-inferrable-types
     namespaceDropMenuOpen: boolean = false;
+    configLoaded$  = new Subject();
+
+    error:any ;
 
     constructor(
         private store: Store,
@@ -190,7 +202,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
             self.stateLoaded = data;
             if (!self.stateLoaded.userNamespaces) {
                 self.store.dispatch(
-                    new LoadUserNamespaces({
+                    new LoadNamespaces({
                         guid: this.guid,
                         responseRequested: true
                     })
@@ -201,20 +213,29 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.stateSubs['selectedNamespace'] = this.selectedNamespace$.subscribe( data => {
             this.selectedNamespace = data;
             if ( this.selectedNamespace ) {
+                this.hasNamespaceWriteAcess = this.userNamespaces.find(d=>d.name === this.selectedNamespace ) ? true : false;
                 this.store.dispatch(new LoadAlerts({namespace: this.selectedNamespace}));
             } else {
+                this.hasNamespaceWriteAcess = false;
                 this.alerts = [];
             }
         });
 
+        this.stateSubs['allNamespaces'] = this.allNamespaces$.subscribe( data => {
+            this.allNamespaces = data;
+        });
+
         this.stateSubs['userNamespaces'] = this.userNamespaces$.subscribe( data => {
-            this.userNamespaces = data;
-            if ( !this.selectedNamespace && data.length ) {
-                this.store.dispatch(new SetNamespace(data[0].name));
+             this.userNamespaces = data;
+            if ( self.stateLoaded.userNamespaces ) {
+                this.configLoaded$.next(true);
+                this.configLoaded$.complete();
             }
         });
 
-        this.stateSubs['alerts'] = this.alerts$.subscribe( alerts => {
+        this.stateSubs['alerts'] = this.alerts$.pipe(skip(1)).subscribe( alerts => {
+            console.log("alerts", alerts)
+            this.stateLoaded.alerts = true;
             this.alerts = alerts;
             this.setTableDataSource();
         });
@@ -226,6 +247,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 case 'update-success':
                     message = 'Alert has been ' + (status === 'add-success' ? 'created' : 'updated') + '.';
                     this.createAlertDialog.close();
+                    this.router.navigate(['a']);
                     break;
                 case 'enable-success':
                     message = 'Alert has been enabled.';
@@ -247,40 +269,71 @@ export class AlertsComponent implements OnInit, OnDestroy {
             }
         });
 
-        // edit alert
-        this.stateSubs['alert'] = this.alertDetail$.subscribe( data => {
-            const alertState = this.store.selectSnapshot(AlertState);
-            if ( alertState.loaded ) {
+        this.stateSubs['editItem'] = this.editItem$.pipe(filter(data=>Object.keys(data).length!==0), distinctUntilChanged()).subscribe(data => {
+            console.log("comes editItem", (data))
+            if ( data.id === '_new_' ) {
+                const o = {
+                    alertType: 'metric',
+                    namespace: data.namespace, 
+                    name: 'Untitled Alert' 
+                }
+                this.openAlertDialog(o);
+            } else {
+                // set the namespace if the user comes directly from edit url
+                if ( !this.selectedNamespace ) {
+                    this.setNamespace(data.namespace)
+                }
                 this.openAlertDialog(data);
             }
         });
 
-        // handle route for dashboardModule
-        this.routeSub = this.activatedRoute.url.subscribe(url => {
-            if (url.length === 1 ) {
-                this.store.dispatch(new SetNamespace(url[0].path));
-            } else if (url.length === 2 && url[1].path === '_new_') {
-                this.store.dispatch(new SetNamespace(url[0].path));
-                // settimeout avoids angular expression check error
-                setTimeout(()=>this.createAlert('metric'));
-            } else if (url.length > 2) {
-                // load alert to edit
-                this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path)));
+        this.stateSubs['error'] = this.error$.subscribe(error => {
+            this.error = error;
+        });
+
+        this.stateSubs['saveError'] = this.saveError$.subscribe(error => {
+            if (this.createAlertDialog ) {
+                this.createAlertDialog.componentInstance.data.error = error;
             }
-        }); 
+        });
+        
+
+        // handle route for alerts
+        this.routeSub = this.activatedRoute.url.pipe(delayWhen(()=>this.configLoaded$)).subscribe(url => {
+            if (url.length === 1 ) {
+                this.setNamespace(url[0].path);
+            } else if (url.length === 2 && url[1].path === '_new_' ) {
+                this.setNamespace(url[0].path);
+                this.store.dispatch(new CheckWriteAccess( { namespace: url[0].path, id: '_new_' } ));
+            } else if (url.length > 2) {
+                // load alert the alert
+                this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path)));
+            } else if ( this.userNamespaces.length || this.allNamespaces.length ) {
+                this.setNamespace( this.userNamespaces.length ? this.userNamespaces[0].name : this.allNamespaces[0].name)
+            }
+        });
+
+        // check the edit access. skips the first time with default value
+        this.stateSubs['alert'] = this.alertDetail$.pipe(skip(1)).subscribe( data => {
+            this.store.dispatch(new CheckWriteAccess( data ));
+        });
+
+    }
+
+    setNamespace( namespace ) {
+        if ( this.selectedNamespace !== namespace ) {
+            this.store.dispatch(new SetNamespace(namespace));
+        }
     }
 
     loadAlerts(namespace) {
-        this.store.dispatch(new SetNamespace(namespace));
+        this.setNamespace(namespace);
     }
 
     ngOnDestroy() {
-        this.stateSubs['loaded'].unsubscribe();
-        this.stateSubs['selectedNamespace'].unsubscribe();
-        this.stateSubs['userNamespaces'].unsubscribe();
-        this.stateSubs['alerts'].unsubscribe();
-        this.stateSubs['status'].unsubscribe();
-        this.stateSubs['alert'].unsubscribe();
+        for ( const k in this.stateSubs ) {
+            this.stateSubs[k].unsubscribe();
+        }
         this.routeSub.unsubscribe();
     }
 
@@ -371,9 +424,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
     createAlert(type: string) {
         const data = {
             alertType: type,
-            namespace: this.selectedNamespace, 
-            name: 'Untitled Alert' 
-        }
+            namespace: this.selectedNamespace,
+            name: 'Untitled Alert'
+        };
         this.openAlertDialog(data);
         this.location.go('a/' + this.selectedNamespace + '/_new_');
     }
@@ -391,13 +444,11 @@ export class AlertsComponent implements OnInit, OnDestroy {
         dialogConf.data = data;
 
         this.createAlertDialog = this.dialog.open(AlertConfigurationDialogComponent, dialogConf);
-        // this.createAlertDialog.componentInstance.data = { action: "QueryData", data: {}};
 
         const sub = this.createAlertDialog.componentInstance.request.subscribe((message: any) => {
             switch ( message.action ) {
                 case 'SaveAlert':
                     this.store.dispatch(new SaveAlerts(data.namespace, message.payload));
-                    this.router.navigate(['a']);
                     break;
             }
         });
@@ -417,7 +468,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     showAllNamespacesInMenu($event: any) {
-        $event.stopPropagation();
+        // $event.stopPropagation();
         // set some flag
         // then change values of menu
     }

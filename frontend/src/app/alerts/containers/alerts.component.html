@@ -18,12 +18,14 @@
         </mat-form-field>
     </div>
     
-    <div class="control-item create-alert-control">
+    <div class="control-item create-alert-control" *ngIf="hasNamespaceWriteAcess">
         <button mat-flat-button color="primary" [matMenuTriggerFor]="createAlertMenu">Create alert</button>
     </div>
     <span class="flex-spacer"></span>
 </div>
-
+<div *ngIf="error" class="error"> 
+    {{ error.message }}
+</div>
 <div class="alert-results" fxFlex="1 1 100%" fxLayout="column">
     <div class="alert-results-wrapper">
         <div class="alert-results-body">
@@ -189,6 +191,7 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'is-disabled': row.disabled}"></tr>
             </table>
+            <div class="message" *ngIf="stateLoaded.alerts && alerts.length === 0">No alerts found</div>
         </div>
         <mat-paginator [pageSizeOptions]="[10, 20, 30]" showFirstLastButtons></mat-paginator>
     </div>
@@ -199,12 +202,12 @@
     <button mat-menu-item *ngFor="let namespace of userNamespaces" (click)="loadAlerts(namespace.name);">{{namespace.name}}</button>
     <!--<button mat-menu-item>Settings</button>-->
     <mat-divider></mat-divider>
-    <button mat-menu-item (click)="showAllNamespacesInMenu($event)">View More</button>
+    <button mat-menu-item [matMenuTriggerFor]="namespaceMenu" >View More</button>
     <span class="menu-shim" style="display: block; height: 1px;" [ngStyle]="{'width':ensureMenuWidth(namespaceDropMenuTrigger)}"></span>
 </mat-menu>
 
 <mat-menu #namespaceMenu="matMenu">
-    <button mat-menu-item *ngFor="let namespace of namespaces" (click)="loadAlerts(namespace.name);">{{namespace.name}}</button>
+    <button mat-menu-item *ngFor="let namespace of allNamespaces" (click)="loadAlerts(namespace.name);">{{namespace.name}}</button>
 </mat-menu>
 
 <mat-menu #contactsMenu="matMenu" class="alert-contacts-menu">
@@ -218,7 +221,7 @@
 
 <mat-menu #createAlertMenu="matMenu" class="create-alert-menu">
     <ng-template matMenuContent>
-        <button mat-menu-item class="alert-type-option" (click)="createAlert('metric', selectedNamespace)">
+        <button mat-menu-item class="alert-type-option" (click)="createAlert('metric')">
             <div class="alert-type-detail">
                 <span class="alert-type-label" color="primary">Metric</span>
                 <span class="alert-type-desc mat-caption">Alert on a single metric or expression</span>

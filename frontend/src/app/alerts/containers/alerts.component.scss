@@ -111,6 +111,12 @@
                     overflow-y: auto;
                     max-width: 100%;
                     padding-top: 16px;
+                    .message {
+                        font-weight: 500; 
+                        height: 30px; 
+                        text-align:center; 
+                        padding: 4px;
+                    }
                 }
 
                 .mat-paginator {
@@ -182,6 +188,13 @@
                     line-height: 18px;
                 }
             }
+        }
+
+        .error {
+            color:red; 
+            height: 30px; 
+            text-align:center; 
+            padding: 2px; 
         }
 
         .alerts-result-table.mat-table {

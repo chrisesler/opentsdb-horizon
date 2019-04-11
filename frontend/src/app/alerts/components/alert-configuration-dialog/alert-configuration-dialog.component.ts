@@ -224,7 +224,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             labels: this.fb.array(data.labels || []),
             threshold: this.fb.group({
                 subType: data.threshold.subType || 'singleMetric', 
-                isNagEnabled:  data.threshold.nagInterval ? true : 'false', 
                 nagInterval: data.threshold.nagInterval || '0', 
                 notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false', 
                 singleMetric: this.fb.group({
@@ -610,7 +609,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
         data.threshold.singleMetric.queryIndex = qindex;
         data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex; 
-        data.threshold.isNagEnabled = data.threshold.nagInterval ? true : false;
+        data.threshold.isNagEnabled = data.threshold.nagInterval!== "0" ? true : false;
         this.request.emit({ action: 'SaveAlert', payload: { data: this.utils.deepClone([data]) }} );
         // console.log(JSON.stringify(data), "alert form", qindex, mindex,this.queries[qindex].metrics[mindex] )
     }

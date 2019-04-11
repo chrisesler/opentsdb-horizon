@@ -63,18 +63,23 @@ export class AlertsService {
         );
     }
 
-    getNamespaces(queryObj: any): Observable<any> {
-        const apiUrl = '/search/namespaces';
+    getNamespaces(): Observable<any> {
+        const apiUrl = environment.configdb + '/namespace';
 
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
 
-        this.logger.api('AlertsService :: Get Namespaces', apiUrl);
+        const httpOptions: any = {
+            headers,
+            withCredentials: true,
+            responseType: 'json'
+        };
 
-        return this.http.post(apiUrl, queryObj, { headers, withCredentials: true })
-            .pipe(
-                catchError(this.handleError)
-            );
+        this.logger.api('AlertsService :: Get All Namespaces', apiUrl);
+
+        return this.http.get(apiUrl, httpOptions).pipe(
+            catchError(this.handleError)
+        );
     }
 }
