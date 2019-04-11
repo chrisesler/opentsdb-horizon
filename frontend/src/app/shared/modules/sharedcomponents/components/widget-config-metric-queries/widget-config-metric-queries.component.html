@@ -47,7 +47,7 @@
                 
                 <div class="query-metric-row" *ngFor="let query of widget.queries; let index=index">
                     <!--<query-editor-flat [type]="widget.settings.component_type" [label]="'Q' + (index + 1)" [query]="query" (queryOutput)="handleQueryRequest($event)"></query-editor-flat>-->
-                    <query-editor-proto  [label]="'Q' + (index + 1)" [query]="query" [canDisableMetrics]="widget.queries.length > 1" (queryOutput)="handleQueryRequest($event);"></query-editor-proto>
+                    <query-editor-proto  [label]="'Q' + (index + 1)" [query]="query" (queryOutput)="handleQueryRequest($event);"></query-editor-proto>
                 </div>
                 <!--
                 <ng-container *ngIf="!queryEditMode">

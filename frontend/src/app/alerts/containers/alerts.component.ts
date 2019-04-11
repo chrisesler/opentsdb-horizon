@@ -47,7 +47,15 @@ import { AlertState, GetAlertDetailsById } from '../state/alert.state';
 import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
 import { AlertConfigurationDialogComponent } from '../components/alert-configuration-dialog/alert-configuration-dialog.component';
 
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+
+import { RecipientType } from '../components/alert-configuration-dialog/children/recipients-manager/models';
+
+import { CdkService } from '../../core/services/cdk.service';
+
 import * as _moment from 'moment';
+import { TemplatePortal } from '@angular/cdk/portal';
 const moment = _moment;
 
 @Component({
@@ -106,7 +114,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         'counts.warn',
         'counts.good',
         'counts.snoozed',
-        'sparkline'
+        // 'sparkline' // hidden for now
     ];
 
     // for batch selection
@@ -181,6 +189,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     error:any ;
 
+    // portal templates
+    @ViewChild('alertspageNavbarTmpl') alertspageNavbarTmpl: TemplateRef<any>;
+
+    // portal placeholders
+    alertspageNavbarPortal: TemplatePortal;
+
     constructor(
         private store: Store,
         private dialog: MatDialog,
@@ -189,12 +203,30 @@ export class AlertsComponent implements OnInit, OnDestroy {
         private  activatedRoute: ActivatedRoute,
         private router: Router,
         private cdRef: ChangeDetectorRef,
-        private location: Location
+        private location: Location,
+        private matIconRegistry: MatIconRegistry,
+        private domSanitizer: DomSanitizer,
+        private cdkService: CdkService
     ) {
         this.sparklineDisplay = this.sparklineDisplayMenuOptions[0];
+
+        // icons
+        const svgIcons = ['email', 'http', 'oc', 'opsgenie', 'slack'];
+
+        // add icons to registry... url has to be trusted
+        for (const type of svgIcons) {
+            matIconRegistry.addSvgIcon(
+                type + '_contact',
+                domSanitizer.bypassSecurityTrustResourceUrl('assets/' + type + '-contact.svg')
+            );
+        }
     }
 
     ngOnInit() {
+
+        // setup navbar portal
+        this.alertspageNavbarPortal = new TemplatePortal(this.alertspageNavbarTmpl, undefined, {});
+        this.cdkService.setNavbarPortal(this.alertspageNavbarPortal);
 
         const self = this;
 
@@ -398,6 +430,16 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
     */
 
+    bulkDisableAlerts() {
+        console.log('BULK DISABLE ALERTS');
+        // BULK DISABLE
+    }
+
+    bulkDeleteAlerts() {
+        console.log('BULK DELETE ALERTS');
+        // BULK DELETE
+    }
+
     toggleAlert(alertObj: any) {
         this.store.dispatch(new ToggleAlerts(this.selectedNamespace, { data: [ { id: alertObj.id, enabled: !alertObj.enabled } ]}));
     }
@@ -417,7 +459,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     editAlert(element: any) {
-        this.location.go('a/'+element.id+'/'+element.namespace+'/'+element.slug);
+        this.location.go('a/' + element.id + '/' + element.namespace + '/' + element.slug);
         this.store.dispatch(new GetAlertDetailsById(element.id));
     }
 
@@ -431,7 +473,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.location.go('a/' + this.selectedNamespace + '/_new_');
     }
 
-    openAlertDialog(data:any) {
+    openAlertDialog(data: any) {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.autoFocus = false;
         dialogConf.width = '100%';
@@ -480,6 +522,29 @@ export class AlertsComponent implements OnInit, OnDestroy {
     formatAlertTimeModified(element: any) {
         const time = moment(element.updatedTime);
         return time.format('YYYY-MM-DD HH:mm');
+    }
+
+    getRecipientKeys(element: any) {
+        return Object.keys(element.recipients);
+    }
+
+    typeToDisplayName(type: string) {
+        if (type === RecipientType.opsgenie) {
+            return 'OpsGenie';
+        } else if (type === RecipientType.slack) {
+            return 'Slack';
+        } else if (type === RecipientType.http) {
+            return 'HTTP';
+        } else if (type === RecipientType.oc) {
+            return 'OC';
+        } else if (type === RecipientType.email) {
+            return 'Email';
+        }
+        return '';
+    }
+
+    contactMenuEsc($event: any) {
+        console.log('contactMenuEsc', $event);
     }
 
 }

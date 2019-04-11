@@ -276,6 +276,18 @@
                 width: 1%;
             }
 
+            .cdk-column-counts-bad,
+            .cdk-column-counts-warn,
+            .cdk-column-counts-good,
+            .cdk-column-counts-snoozed {
+                text-align: right;
+
+                // need to pad it a bit with margin to offset the sort arrow, and line it up with header text
+                .count-amount {
+                    margin-right: 24px;
+                }
+            }
+
             .cdk-column-sparkline {
                 text-align: right;
 
@@ -295,6 +307,24 @@
 
             .cdk-column-contacts {
                 width: 100px;
+                text-align: center;
+                padding-left: 16px;
+                padding-right: 16px;
+
+                .contact-icon-strip {
+                    display: inline-flex;
+                    padding: 4px 4px 6px;
+                    cursor: pointer;
+
+                    .mat-icon {
+                        width: 12px;
+                        height: 12px;
+
+                        &:not(:last-child) {
+                            margin-right: 4px;
+                        }
+                    }
+                }
             }
 
             .cdk-column-modified {
@@ -336,7 +366,7 @@
                         line-height: 10px;
         
                         .mat-icon {
-                            @include sizeDenaliIcon(10px)
+                            @include sizeDenaliIcon(10px);
                         }
 
                         span {
@@ -344,6 +374,21 @@
                             margin-top: 2px;
                             margin-left: 2px;
                         }
+                    }
+                }
+            }
+
+            .bulk-actions-wrapper {
+                margin-left: -8px;
+
+                .mat-button {
+                    font-size: 12px;
+                    font-weight: 400;
+                    padding: 0 8px;
+
+                    .mat-icon {
+                        @include sizeDenaliIcon(14px);
+                        margin-right: 6px;
                     }
                 }
             }
@@ -356,6 +401,14 @@
                     }
                 }
             }
+
+            // if batch editing
+            tr.mat-header-row.is-batch-editing {
+                .mat-header-cell:nth-child(n+3) {
+                    pointer-events: none;
+                    opacity: 0;
+                }
+            }
         }
 
         
@@ -365,6 +418,58 @@
     // CDK OVERLAY ITEMS (these are at document root level)
     .alert-contacts-menu.mat-menu-panel {
         margin-left: calc(-50% + 32px);
+        min-width: initial;
+        max-width: initial;
+
+        .mat-menu-content {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .mat-menu-item {
+            height: initial;
+            padding: 0;
+        }
+
+        .contacts-wrapper {
+            display: flex;
+
+            .contact-list-type {
+                // width: 150px;
+                min-width: 150px;
+                display: flex;
+                flex-direction: column;
+
+                .contact-list-type-descriptor {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    height: 32px;
+                    padding: 0 16px;
+
+                    .mat-icon {
+                        height: 18px;
+                        width: 18px;
+                        margin-right: 6px;
+                    }
+                }
+
+                .contact-list-type-wrapper {
+                    .mat-list {
+                        .mat-list-item {
+                            position: relative;
+                            height: 30px;
+                        }
+
+                        .recipient-label {
+                            display: inline-flex;
+                            position: relative;
+                            line-height: 12px;
+                        }
+                    }
+                }
+            }
+        }
 
         .mat-menu-item {
             font-size: 12px;
@@ -445,6 +550,9 @@
     $header-chip-text: #ffffff;
 
     $border-color: map-get($foreground, dividers);
+
+    $brand-color: map-get($background, navbar);
+    $brand-color-inverse: map-get($foreground, navbar-text);
 
     .alerts-container-component {
         background-color: map-get($background, card);
@@ -527,7 +635,9 @@
         }
 
         .group-label-chip {
-            border: 1px solid map-get($foreground, disabled-button);
+            border: 1px solid rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.08);
+            color: rgba(0,0,0,0.5);
         }
 
         .alert-results {
@@ -593,12 +703,19 @@
                 }
             }
 
+            .cdk-column-contacts {
+                .contact-icon-strip {
+                    background-color: rgba($brand-color, .15);
+                    color: $brand-color;
+                }
+            }
+
             // disabled state
             .mat-row.is-disabled {
                 background-color: rgba(map-get($foreground, divider), .05);
                 
                 .group-label-chip {
-                    border: 1px solid rgba(map-get($foreground, divider), .25);
+                    opacity: .6
                 }
 
                 .mat-cell {
@@ -614,6 +731,13 @@
                         background-color: rgba(map-get($foreground, divider), .25);
                     }
                 }
+
+                .cdk-column-contacts {
+                    .contact-icon-strip {
+                        background-color: transparent;
+                        color: rgba(map-get($foreground, divider), .25);
+                    }
+                }
             }
 
         }
@@ -627,13 +751,14 @@
         border: 1px solid map-get($foreground, divider);
     }
 
-    .alert-contacts-menu {
+    .alert-contacts-menu.mat-menu-panel {
         border: 1px solid map-get($foreground, divider);
 
-        .mat-menu-item {
-            &,
-            .mat-icon {
-                color: map-get($foreground, link);
+        .contacts-wrapper {
+            .contact-list-type {
+                &:not(:last-child) {
+                    border-right: 1px solid map-get($foreground, divider);
+                }
             }
         }
     }

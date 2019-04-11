@@ -12,5 +12,5 @@ export const environment = {
   ],
   configdb: 'https://config.yamas.ouroath.com:443/api/v1',
   metaApi: 'https://meta.yamas.ouroath.com:443/api',
-  recipientsApi: 'https://qa-config.yamas.ouroath.com:4443/api/v1'
+  recipientsApi: 'https://config.yamas.ouroath.com:443/api/v1'
 };

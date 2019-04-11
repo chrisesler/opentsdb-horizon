@@ -78,7 +78,7 @@
             <!-- CUSTOM FUNCTION DISPLAY - THIS WILL LOOP -->
             <div class="metric-row-data custom-function" *ngFor="let fx of metric.functions">
                 <div class="custom-function-wrapper">
-                    <metric-function [fx]="fx" (fxOut)="functionUpdate($event, i)" (fxDel)="functionDelete($event, i)"></metric-function>
+                    <metric-function [metricId]="metric.id" [fx]="fx" (fxOut)="functionUpdate($event)" (fxDel)="functionDelete($event)"></metric-function>
                 </div>
             </div>
             <!--
@@ -164,7 +164,7 @@
             <div class="metric-row-data metric-index">
                 <button mat-flat-button>
                     <span class="label">
-                        <mat-icon fontSet="denali" [fontIcon]="metric.enabled ? 'd-check' : 'd-minus'" *ngIf="canDisableMetrics"></mat-icon>
+                        <mat-icon fontSet="denali" fontIcon="d-check" *ngIf="canDisableMetrics"></mat-icon>
                         <span>exp</span>
                     </span>
                     <span class="mat-select-arrow-wrapper">
