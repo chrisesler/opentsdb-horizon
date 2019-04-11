@@ -8,12 +8,12 @@
         </div>
         <div class="flex-spacer"></div>
         <div class="toolbar-item">
-            <mat-slide-toggle [checked]="disabled" (change)="masterToggleChange($event)">
-                <span class="mat-caption">Disable all templates</span>
+            <mat-slide-toggle [checked]="enabled.value" (change)="masterToggleChange($event)">
+                <span class="mat-caption">Enable all template variables</span>
             </mat-slide-toggle>
         </div>
     </mat-toolbar>
-    <div class="template-variable-list" formArrayName="tplVariables" [ngClass]="{'is-disabled': disabled}">
+    <div class="template-variable-list" formArrayName="tplVariables" [ngClass]="{'is-disabled': !enabled.value}">
         <ng-container *ngFor="let tpl of tplVariables['controls']; let i=index">
             <dbs-variable-item [formGroup]="tpl" [formGroupName]="i" [dbTagKeys]="dbData.dbTags" [selectedKeys]="selectedKeys" (remove)="removeTemplateVariable(i)"></dbs-variable-item>
         </ng-container>

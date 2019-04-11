@@ -119,15 +119,8 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
         control.removeAt(i);
     }
 
-    /** ALL templates enable/disable toggle */
-
-    // pivoting the enabled value for the toggle. easier to maintain
-    get disabled(): boolean {
-        return !this.enabled.value;
-    }
-
     masterToggleChange(event: any) {
-        //console.log('%cMASTER TOGGLE CHANGE [EVENT]', 'color: white; background-color: blue; padding: 2px 4px;', event);
-        this.enabled.setValue(!event.checked, { emitEvent: true });
+        // set value to form and force to notify up
+        this.enabled.setValue(event.checked, { emitEvent: true });
     }
 }
