@@ -228,12 +228,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.alertspageNavbarPortal = new TemplatePortal(this.alertspageNavbarTmpl, undefined, {});
         this.cdkService.setNavbarPortal(this.alertspageNavbarPortal);
 
-        const self = this;
-
         this.stateSubs['loaded'] = this.loaded$.subscribe( data => {
-            self.stateLoaded = data;
-            if (!self.stateLoaded.userNamespaces) {
-                self.store.dispatch(
+            this.stateLoaded = data;
+            if (!this.stateLoaded.userNamespaces) {
+                this.store.dispatch(
                     new LoadNamespaces({
                         guid: this.guid,
                         responseRequested: true
@@ -332,9 +330,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.routeSub = this.activatedRoute.url.pipe(delayWhen(()=>this.configLoaded$)).subscribe(url => {
             if (url.length === 1 ) {
                 this.setNamespace(url[0].path);
-            } else if (url.length === 2 && url[1].path === '_new_' ) {
+            } else if (url.length === 2 && url[1].path === '_new_') {
                 this.setNamespace(url[0].path);
-                this.store.dispatch(new CheckWriteAccess( { namespace: url[0].path, id: '_new_' } ));
+                this.store.dispatch(new CheckWriteAccess({ namespace: url[0].path, id: '_new_'}));
             } else if (url.length > 2) {
                 // load alert the alert
                 this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path)));
