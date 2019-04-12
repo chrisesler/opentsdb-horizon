@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl, FormArray } from '@angular/forms';
-import { MatAutocomplete, MatMenu, MatMenuTrigger } from '@angular/material';
+import { MatAutocomplete, MatMenu, MatMenuTrigger, MatAutocompleteTrigger } from '@angular/material';
 
 import { Observable, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -44,8 +44,9 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
     filterValueInput: FormControl = new FormControl('');
     filterValueInputSub: Subscription;
 
-    filteredValueOptions: Observable<string[]>;
+    filteredValueOptions: string[];
 
+    @ViewChild('filterValueInputEl', { read: MatAutocompleteTrigger }) valueTrigger: MatAutocompleteTrigger; 
     @ViewChild('filterValueInputEl') filterValueInputEl: ElementRef<HTMLInputElement>;
     @ViewChild('filterValueAuto') valueAutocomplete: MatAutocomplete;
 
@@ -59,31 +60,19 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        console.group('%cVARIABLE SELECTOR', 'color: white; background: black; padding: 2px 4px;');
+            //console.group('%cVARIABLE SELECTOR', 'color: white; background: black; padding: 2px 4px;');
             const keys = Object.keys(this.formGroup['controls']);
-            for (const key of keys) {
+            /* for (const key of keys) {
                 console.log('%c' + key + ':', 'font-weight: bold;', this.formGroup['controls'][key].value);
-            }
-            console.log('%cformGroup', 'font-weight: bold;', this.formGroup);
-        console.groupEnd();
-
-        /*this.filteredValueOptions = this.filterValueInput.valueChanges
-            .pipe(
-                startWith(''),
-                debounceTime(300),
-                map(val => this.filterValueOptions(val)) // autosuggest options shuld come from somewhere else. Currently fake data
-            );*/
-
-
-        // NOTE: come back to this and implement rxJS switchmap
+            }*/
         this.filterValueInputSub = this.filterValueInput.valueChanges
             .pipe(debounceTime(300))
             .subscribe(val => {
                 if (this.allowedValues.value.length > 0) {
-                    // NOTE: Need to come back and check allowed values for REGEXP items
                     this.filteredValueOptions = this.allowedValues.value.filter(option => {
                         return option.toLowerCase().includes(val.toLowerCase());
                     });
+                    this.filterDownFilterOptions(this.filter.value);
                 } else {
                     // console.log('*** ', val);
                     this.expectingIntercomData = true;
@@ -106,21 +95,25 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
 
         // listen to intercom
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            if (message.action === 'TagValueQueryReults' && this.expectingIntercomData) {
-                console.log('%cTAG VALUES ResponseGet [InterCom]',
-                        'color: white; background-color: darkmagenta; padding: 2px 4px;',
-                        message);
+            if (message.action === 'TagValueQueryResults' && this.expectingIntercomData) {
+                //console.log('%cTAG VALUES ResponseGet [InterCom]',
+                //        'color: white; background-color: darkmagenta; padding: 2px 4px;',
+                //        message);
                 this.expectingIntercomData = false;
                 this.filteredValueOptions = message.payload;
+                this.filterDownFilterOptions(this.filter.value);
             }
         });
     }
 
     ngOnDestroy() {
+        this.filterValueInputSub.unsubscribe();
+        this.listenSub.unsubscribe();
     }
 
     onInputFocus(e: any) {
-        console.log('input focus', e);
+        this.valueTrigger._onChange('');
+        this.valueTrigger.openPanel();
     }
 
     /** FORM ACCESSORS */
@@ -128,7 +121,6 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
     get alias() { return this.formGroup.get('alias'); }
     get allowedValues() { return this.formGroup.get('allowedValues'); }
     get filter() { return this.formGroup.get('filter'); }
-
     get chipValues() { return this.filter['controls']; }
 
     // helpers
@@ -147,10 +139,16 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
     /** AUTO COMPLETE FUNCTIONS */
 
     selectFilterValueOption(event: any) {
-        //
         this.createSelectedValue(event.option.value);
         this.filterValueInputEl.nativeElement.value = '';
         this.filterValueInput.setValue('');
+
+    }
+    // exclude selected value of this filteredValueOptions
+    filterDownFilterOptions(vals: string[]) {
+        this.filteredValueOptions = this.filteredValueOptions.filter(item => {
+            return !this.filter.value.includes(item);
+        });
     }
 
     // remove a filter value option
@@ -181,24 +179,15 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
 
     /** menu trigger events */
     toggleValueMenuOpen() {
-        console.log('TOGGLE VALUE MENU OPEN', this.valueMenuTrigger.menuOpen);
+        //console.log('TOGGLE VALUE MENU OPEN', this.valueMenuTrigger.menuOpen);
         this.valueMenuOpen = this.valueMenuTrigger.menuOpen;
     }
 
 
     /** PRIVATE FUNCTIONS */
     private createSelectedValue(val: string) {
+        // should not add this val if they are in the list already
         const control = <FormArray>this.filter;
         control.push(new FormControl(val));
     }
-
-    private filterValueOptions(val: string) {
-        console.log('FILTER VALUE OPTIONS', val, this.allowedValues.value);
-
-        // TODO: Need to add a way to do a global value search if there are no allowed values or wildcard value
-        return this.allowedValues.value.filter(option => {
-            return option.toLowerCase().includes(val.toLowerCase());
-        });
-    }
-
 }
