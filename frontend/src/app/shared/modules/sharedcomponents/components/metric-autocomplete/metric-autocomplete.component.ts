@@ -54,6 +54,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     queryChanges$: BehaviorSubject<boolean>;
     queryChangeSub: Subscription;
     visible = false;
+    reset = false;
 
     // tslint:disable-next-line:no-inferrable-types
     firstRun: boolean = true;
@@ -74,9 +75,6 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
         if (this.focus === true) {
             setTimeout(() => {
                 this.metricSearchInput.nativeElement.focus();
-                if ( this.multiple ) {
-                    this.trigger.openMenu();
-                }
             }, 100);
         }
     }
@@ -87,22 +85,27 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     /** METHODS */
 
     setMetricSearch() {
-        this.metricSearchControl = new FormControl('');
+        this.metricSearchControl = new FormControl(this.multiple ? '' : this.metrics[0]);
         this.metricSearchControl.valueChanges
             .pipe(
                 startWith(''),
-                debounceTime(200)
+                debounceTime(500)
             )
             .subscribe(value => {
                 const query: any = { namespace: this.namespace, tags: this.filters };
                 query.search = value ? value : '';
                 this.message['metricSearchControl'] = {};
+                this.firstRun = true;
                 this.httpService.getMetricsByNamespace(query)
                     .subscribe(res => {
                         this.firstRun = false;
                         this.metricOptions = res;
+                        if ( this.metricOptions.length === 0 ) {
+                            this.message['metricSearchControl'] = { 'type': 'info', 'message': 'No data found' };
+                        }
                     },
                         err => {
+                            this.firstRun = false;
                             this.metricOptions = [];
                             const message = err.error.error ? err.error.error.message : err.message;
                             this.message['metricSearchControl'] = { 'type': 'error', 'message': message };
@@ -111,8 +114,13 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     }
 
     doMetricSearch() {
+        console.log("comes here...", this.trigger.menuOpen)
         this.visible = true;
-        this.metricSearchControl.setValue(this.multiple ? null : this.metrics[0], {emitEvent: false});
+        this.reset = true;
+        if ( this.multiple && !this.trigger.menuOpen ) {
+            this.trigger.openMenu();
+        }
+        this.metricSearchControl.updateValueAndValidity({emitEvent: false});
     }
 
     requestChanges() {
@@ -154,6 +162,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
         if (!this.elRef.nativeElement.contains(target) && this.visible) {
             if (this.multiple) {
                 this.requestChanges();
+                this.trigger.closeMenu();
             }
             this.blur.emit();
             this.visible = false;
@@ -182,13 +191,13 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     multipleMenuClosed() {
         window.removeEventListener('scroll', this.scrollDetect);
         this.scrollDetect = undefined;
-        this.firstRun = true;
     }
 
     scrollDetect_event(event) {
         const srcEl = event.srcElement;
-        if (!srcEl.classList.contains('metric-search-result')) {
-            this.trigger.closeMenu();
+
+        if (!srcEl.classList.contains('metric-search-result') && !this.elRef.nativeElement.contains(srcEl)) {
+            // this.trigger.closeMenu();
         }
     }
 

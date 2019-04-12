@@ -381,7 +381,7 @@ export class DatatranformerService {
             const mid = results[i].source.split(':')[1];
             const configIndex = mid.replace( /\D+/g, '');
             const mConfig = mConfigs[configIndex];
-            if ( !mConfig.settings.visual.visible ) {
+            if ( !mConfig || !mConfig.settings.visual.visible ) {
                 continue;
             }
             const aggregator = widget.settings.time.downsample.aggregators ? widget.settings.time.downsample.aggregators[0] : 'avg';

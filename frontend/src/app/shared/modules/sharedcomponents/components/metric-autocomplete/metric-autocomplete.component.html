@@ -4,9 +4,7 @@
         appearance="outline"
         color="primary"
         floatLabel="never"
-        [matMenuTriggerFor]="metricAutocompletePanel"
-        (menuOpened)="multipleMenuOpened()"
-        (menuClosed)="multipleMenuClosed()">
+        >
         <input matInput
             autocomplete="off" 
             placeholder="Filter metrics"
@@ -14,6 +12,9 @@
             (focus)="doMetricSearch()"
             #metricSearchInput>
     </mat-form-field>
+    <span [matMenuTriggerFor]="metricAutocompletePanel"
+    (menuOpened)="multipleMenuOpened()"
+    (menuClosed)="multipleMenuClosed()"></span>
     <mat-menu 
         class="metric-autocomplete-cdk-panel"
         yPosition="below"
@@ -22,23 +23,37 @@
         #metricAutocompletePanel="matMenu">
 
         <div class="metric-search-result" (click)="$event.stopPropagation();">
-            <div class="first-run-progress" *ngIf="firstRun">
-                <mat-spinner color="primary" diameter="20"></mat-spinner>
-            </div>
-            <mat-action-list>
-                <button mat-list-item
-                    *ngFor="let option of metricOptions"
-                    [ngClass]="{'is-selected': getMetricIndex(option.name) !== -1 }"
-                    (click)="(getMetricIndex(option.name) === -1) ? updateMetricSelection(option.name, 'add') : updateMetricSelection(option.name, 'remove');">
-                    <mat-icon fontSet="denali" [fontIcon]="getMetricIndex(option.name) === -1 ? 'd-add-circle' : 'd-minus-circle'"></mat-icon>
-                    <span class="label">{{option.name}}</span>
-                </button>
-                <div mat-list-item *ngIf="message.metricSearchControl.message"
-                    [ngClass]="message.metricSearchControl.type === 'error'? 'error': 'info'">
-                    <mat-icon>error</mat-icon>
-                    <span>{{ message['metricSearchControl']['message'] }}</span>
+            <div class="list">
+                <div class="list-all" >
+                    <div class="first-run-progress" *ngIf="firstRun">
+                            <mat-spinner color="primary" diameter="20"></mat-spinner>
+                    </div>
+                    <mat-action-list>
+                        <button mat-list-item
+                            *ngFor="let option of metricOptions"
+                            [ngClass]="{'is-selected': getMetricIndex(option.name) !== -1 }"
+                            (click)="(getMetricIndex(option.name) === -1) ? updateMetricSelection(option.name, 'add') : updateMetricSelection(option.name, 'remove');">
+                            <mat-icon fontSet="denali" [fontIcon]="getMetricIndex(option.name) === -1 ? 'd-add-circle' : 'd-minus-circle'"></mat-icon>
+                            <span class="label">{{option.name}}</span>
+                        </button>
+                        <div mat-list-item *ngIf="message.metricSearchControl.message"
+                            [ngClass]="message.metricSearchControl.type === 'error'? 'error': 'info'">
+                            <mat-icon *ngIf="message.metricSearchControl.type === 'error'">error</mat-icon>
+                            <span>{{ message['metricSearchControl']['message'] }}</span>
+                        </div>
+                    </mat-action-list>
                 </div>
-            </mat-action-list>
+                <div class="list-selected">
+                        <mat-action-list>
+                                <button mat-list-item 
+                                    *ngFor="let metric of metrics"
+                                    (click)="updateMetricSelection(metric, 'remove');">
+                                    <mat-icon fontSet="denali" fontIcon="d-minus-circle"></mat-icon>
+                                    <span class="label">{{metric}}</span>
+                                </button>
+                            </mat-action-list>
+                </div>
+            </div>
         </div>
     </mat-menu>
 </ng-template>
