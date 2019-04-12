@@ -50,7 +50,7 @@ export class LoadDashboardTags {
 
 export class LoadDashboardTagValues {
     public static type = '[Dashboard] Load Dashboard Tag Values';
-    constructor(public readonly metrics: any, public readonly tag: any, public readonly filters: any ) {}
+    constructor(public readonly metrics: any, public readonly tag: any ) {}
 }
 
 export class UpdateDashboardTags {
@@ -168,8 +168,8 @@ export class DBSettingsState {
     }
 
     @Action(LoadDashboardTagValues)
-    LoadDashboardTagValues(ctx: StateContext<DBSettingsModel>, { metrics: metrics, tag: tag, filters: filters }: LoadDashboardTagValues) {
-        const query = { metrics: metrics , tag: tag, filters: filters }; // unique metric
+    LoadDashboardTagValues(ctx: StateContext<DBSettingsModel>, { metrics: metrics, tag: tag }: LoadDashboardTagValues) {
+        const query = { metrics: metrics , tag: tag }; // unique metric
         return this.httpService.getTagValues(query).pipe(
             map( (values: any) => {
                 ctx.dispatch(new UpdateDashboardTagValues(values));

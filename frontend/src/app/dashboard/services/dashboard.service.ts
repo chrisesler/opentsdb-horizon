@@ -21,7 +21,7 @@ export class DashboardService {
             isPersonal: false,
         },
         variables: {
-            enabled: false,
+            enabled: true,
             tplVariables: []
         }
     },
