@@ -9,7 +9,7 @@
         <div class="flex-spacer"></div>
         <div class="toolbar-item">
             <mat-slide-toggle [checked]="enabled.value" (change)="masterToggleChange($event)">
-                <span class="mat-caption">Enable all template variables</span>
+                <span class="mat-caption">{{enabled.value ? 'Enable ' : 'Disable '}}all template variables</span>
             </mat-slide-toggle>
         </div>
     </mat-toolbar>
