@@ -54,7 +54,6 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     queryChanges$: BehaviorSubject<boolean>;
     queryChangeSub: Subscription;
     visible = false;
-    reset = false;
 
     // tslint:disable-next-line:no-inferrable-types
     firstRun: boolean = true;
@@ -114,9 +113,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     }
 
     doMetricSearch() {
-        console.log("comes here...", this.trigger.menuOpen)
         this.visible = true;
-        this.reset = true;
         if ( this.multiple && !this.trigger.menuOpen ) {
             this.trigger.openMenu();
         }
