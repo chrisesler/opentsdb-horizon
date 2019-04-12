@@ -224,7 +224,7 @@ export class YamasService {
         let matches = [];
         while(matches = re.exec(expression)) {
             const id = matches[1];
-            const idreg = new RegExp( '{{' + id + '}}' , 'g');
+            const idreg = new RegExp( '\\{\\{' + id + '\\}\\}' , 'g');
             const mindex = this.getSourceIndexById(id);
             const sourceId = 'm' + mindex;
             console.log('dsddsd', mindex, index);
