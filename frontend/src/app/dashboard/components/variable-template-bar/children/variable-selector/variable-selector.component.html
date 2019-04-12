@@ -34,7 +34,8 @@
                     #filterValueInputEl
                     [formControl]="filterValueInput"
                     [matAutocomplete]="filterValueAuto"
-                    [matChipInputFor]="chipList">
+                    [matChipInputFor]="chipList"
+                    (focus)="onInputFocus($event)">
             </mat-chip-list>
             <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event)">
                 <mat-option *ngFor="let option of filteredValueOptions" [value]="option">

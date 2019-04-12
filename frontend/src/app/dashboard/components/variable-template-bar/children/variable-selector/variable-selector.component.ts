@@ -119,6 +119,10 @@ export class VariableSelectorComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
     }
 
+    onInputFocus(e: any) {
+        console.log('input focus', e);
+    }
+
     /** FORM ACCESSORS */
     get tagk() { return this.formGroup.get('tagk'); }
     get alias() { return this.formGroup.get('alias'); }
