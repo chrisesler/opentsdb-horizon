@@ -352,8 +352,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new LoadDashboardTags(this.dbService.getMetricsFromWidgets(this.widgets)));
                     break;
                 case 'updateDashboardSettings':
-                    // this.store.dispatch(new UpdateVariables(message.payload));
-                    // this.store.dispatch(new UpdateMeta(message.payload));
                     if (message.payload.meta) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
@@ -470,7 +468,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
 
         this.variables$.subscribe(t => {
-            // console.log('variables$.subscribe [event]', t);
+            console.log('variables$.subscribe [event]', t, this.variables);
             if (this.variables) {
                 if (this.variables.enabled && t.enabled) { // was enabled, still enabled
                     // diff whether selected values changed
@@ -533,7 +531,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.tagValuesSub = this.tagValues$.subscribe(data => {
             this.interCom.responsePut({
-                action: 'TagValueQueryReults',
+                action: 'TagValueQueryResults',
                 payload: data
             });
         });
