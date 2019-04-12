@@ -106,7 +106,7 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
             alias: (data.alias) ? data.alias : '',
             allowedValues: (data.allowedValues) ? this.fb.array(data.allowedValues) : this.fb.array([]),
             filter: (data.filter) ? this.fb.array(data.filter) : this.fb.array([]),
-            enabled: (data.enabled) ? data.enabled : true,
+            enabled: data.enabled,
             type: (data.type) ? data.type : 'literalor'
         };
 
