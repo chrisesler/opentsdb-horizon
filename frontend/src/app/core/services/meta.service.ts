@@ -26,6 +26,7 @@ export class MetaService {
                           "type": "Chain",
                           "filters": []
                       }};
+      query.id = params[i].id || 'id-' + i;
       query.namespace =  type !== 'NAMESPACES' ? params[i].namespace : this.utilsService.convertPatternTSDBCompat(params[i].search);
       if ( type === 'TAG_KEYS_AND_VALUES') {
         metaQuery.aggregationField =  params[i].tagkey;

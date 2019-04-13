@@ -111,6 +111,34 @@ export class HttpService {
             );
     }
 
+    getTagKeysForQueries(widgets) {
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+        const newQuries = [];
+        let hasMetric = false;
+        for (let i = 0, len = widgets.length; i < len; i++) {
+            const queries = widgets[i].queries;
+            for (let j = 0;  j < queries.length; j++) {
+                const q = { id: widgets[i].id + ':' + queries[j].id, search: '', namespace: queries[i].namespace, metrics: [] };
+                for (let k = 0;  k < queries[j].metrics.length; k++) {
+                    if ( queries[i].metrics[j].expression === undefined ) {
+                        q.metrics.push(queries[j].metrics[k].name);
+                        hasMetric = true;
+                    }
+                }
+                newQuries.push(q);
+            }
+        }
+        if ( hasMetric ) {
+            const query = this.metaService.getQuery('TAG_KEYS', newQuries);
+            const apiUrl = environment.metaApi + '/search/timeseries';
+            return this.http.post(apiUrl, query, { headers, withCredentials: true });
+        } else {
+            return of({"results":[]});
+        }
+            
+    }
     getNamespaceTagKeys(queryObj: any): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'

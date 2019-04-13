@@ -127,12 +127,17 @@ export class DashboardService {
     query.metrics = query.metrics.filter(item => item.settings.visual.visible === true);
     return query;
   }
-  overrideQueryFilters(query, filters) {
+  overrideQueryFilters(query, filters, tags=[]) {
     for (let i = 0; i < filters.length; i++) {
+      let tagExists = false;
       for (let j = 0; query.filters && j < query.filters.length; j++) {
         if (filters[i].tagk === query.filters[j].tagk) {
           query.filters[j].filter = filters[i].filter;
+          tagExists = true;
         }
+      }
+      if ( !tagExists && tags.indexOf(filters[i].tagk)!== -1 ) {
+        query.filters.push( { tagk: filters[i].tagk ,  filter: filters[i].filter} );
       }
     }
     return query;
