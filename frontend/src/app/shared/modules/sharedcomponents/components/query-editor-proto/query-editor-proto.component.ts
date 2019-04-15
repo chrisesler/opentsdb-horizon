@@ -339,8 +339,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         let userExpression = expression;
         const aliases = this.getHashMetricIdUserAliases();
         while (matches = re.exec(expression)) {
-            const id = matches[1];
-            const idreg = new RegExp('{{' + id + '}}', 'g');
+            const id = ''+ matches[1];
+            const idreg = new RegExp('\\{\\{' + id + '\\}\\}', 'g');
             userExpression = userExpression.replace(idreg, aliases[id]);
         }
         return userExpression;

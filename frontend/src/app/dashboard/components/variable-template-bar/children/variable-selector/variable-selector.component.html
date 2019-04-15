@@ -20,21 +20,13 @@
                     <span>{{val.value}}</span>
                     <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
                 </mat-chip>
-                <!--<input
+                <input
                     placeholder="Search tag value"
                     #filterValueInputEl
                     [formControl]="filterValueInput"
                     [matAutocomplete]="filterValueAuto"
                     [matChipInputFor]="chipList"
-                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                    [matChipInputAddOnBlur]="addOnBlur"
-                    (matChipInputTokenEnd)="addValue($event)">-->
-                    <input
-                    placeholder="Search tag value"
-                    #filterValueInputEl
-                    [formControl]="filterValueInput"
-                    [matAutocomplete]="filterValueAuto"
-                    [matChipInputFor]="chipList">
+                    (focus)="onInputFocus($event)">
             </mat-chip-list>
             <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event)">
                 <mat-option *ngFor="let option of filteredValueOptions" [value]="option">

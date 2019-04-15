@@ -20,12 +20,18 @@
 
     // CDK ITEMS - panel for "multiple" autocomplete
     .metric-autocomplete-cdk-panel.mat-menu-panel {
-        max-width: 400px;
-        min-width: 100%;
+        //max-width: 400px;
+        max-width: initial;
+        min-width: initial;
+        width: 100%;
         min-height: 50px;
 
         .mat-menu-content:not(:empty) {
             padding: 0px;
+        }
+
+        .mat-menu-content {
+            display: flex;
         }
 
         .first-run-progress {
@@ -37,9 +43,22 @@
         }
 
         .metric-search-result {
-            overflow-x: hidden;
-            overflow-y: auto;
+            display: flex;
+            overflow: hidden;
             max-height: 300px;
+            width:100%;
+
+            .list {
+                width: 100%;
+                display: flex;
+                max-height: 100%;
+            }
+
+            .list-all,
+            .list-selected {
+                height: 100%;
+                overflow: auto;
+            }
 
             .mat-list.mat-list-base {
                 padding-top: 0;
@@ -52,10 +71,7 @@
                     font-size: 14px;
 
                     .mat-icon {
-                        width: 18px;
-                        height: 18px;
-                        line-height: 18px;
-                        font-size: 18px;
+                        @include sizeDenaliIcon(10px);
                     }
 
                     .mat-icon:first-of-type {
@@ -102,6 +118,10 @@
     .metric-autocomplete-cdk-panel.mat-menu-panel {
         
         .metric-search-result {
+
+            .list-all {
+                border-right: 1px solid map-get($foreground, divider);
+            }
 
             .mat-list.mat-list-base {
 

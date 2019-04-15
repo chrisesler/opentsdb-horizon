@@ -50,8 +50,8 @@
             <button mat-button (click)="removeItem()">
                 <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
             </button>
-            <mat-slide-toggle [formControl]="enabled">
-                <span class="mat-caption" [ngClass]="{'is-enabled': formGroup['controls'].enabled.value === true}">Enabled</span>
+            <mat-slide-toggle [formControl]="enabled" [checked]="enabled.value">
+                <span class="mat-caption" [ngClass]="{'is-enabled': enabled.value }">{{enabled.value ? 'Enabled' : 'Disabled'}}</span>
             </mat-slide-toggle>
         </div>
     </div>

@@ -155,12 +155,13 @@ export class HttpService {
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {
-
+                    console.log('the res', res);
                     let tagvalues = [];
                     for (let i = 0; res && i < res.results.length; i++) {
-                        // tslint:disable-next-line:max-line-length
-                        const keys = res.results[i].tagKeysAndValues[queryObj.tag.key].values.filter(item => tagvalues.indexOf(item.key) === -1);
-                        tagvalues = tagvalues.concat(keys.map(d => d.name));
+                        if (Object.keys(res.results[i].tagKeysAndValues).length > 0 && res.results[i].tagKeysAndValues[queryObj.tag.key]) {
+                            const keys = res.results[i].tagKeysAndValues[queryObj.tag.key].values.filter(item => tagvalues.indexOf(item.key) === -1);
+                            tagvalues = tagvalues.concat(keys.map(d => d.name));
+                        }
                     }
                     return tagvalues;
                 })

@@ -69,10 +69,11 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
     ngOnInit() {
         //console.group('%cDBS VARIABLE ITEM', 'color: white; background: black; padding: 2px 4px;');
             const keys = Object.keys(this.formGroup['controls']);
-            for (const key of keys) {
-                //console.log('%c' + key + ':', 'font-weight: bold;', this.formGroup['controls'][key].value);
+            /* for (const key of keys) {
+                console.log('%c' + key + ':', 'font-weight: bold;', this.formGroup['controls'][key].value);
             }
-            //console.log('%cformGroup', 'font-weight: bold;', this.formGroup);
+            console.log('%cformGroup', 'font-weight: bold;', this.formGroup);
+            */
         //console.groupEnd();
 
         // preset whether the item is disabled or not
@@ -102,9 +103,9 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
             .pipe(debounceTime(300))
             .subscribe(val => {
                 this.expectingIntercomData = true;
-                let payload = '.*';
+                let inputVal = '.*';
                 if (val.trim().length > 0) {
-                    payload += val + '.*';
+                    inputVal += val + '.*';
                 }
                 this.interCom.requestSend(<IMessage>{
                     action: 'getTagValues',
@@ -112,7 +113,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
                     payload: {
                         tag : {
                             key: this.tagk.value.trim(),
-                            value: payload
+                            value: inputVal
                         }
                     }
                 });
@@ -120,7 +121,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
 
         // listen to intercom
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            if (message.action === 'TagValueQueryReults' && this.expectingIntercomData) {
+            if (message.action === 'TagValueQueryResults' && this.expectingIntercomData) {
                 this.expectingIntercomData = false;
                 this.filteredValueOptions = message.payload.filter(val => {
                     return !this.allowedValues.value.includes(val.toLowerCase());
