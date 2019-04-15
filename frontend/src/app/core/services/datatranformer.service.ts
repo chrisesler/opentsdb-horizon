@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IDygraphOptions } from '../../shared/modules/dygraphs/IDygraphOptions';
-import multiColumnGroupPlotter from '../../shared/dygraphs/plotters';
+import barChartPlotter from '../../shared/dygraphs/plotters';
 import { isArray } from 'util';
 import { UtilsService } from './utils.service';
 import { group } from '@angular/animations';
@@ -146,8 +146,7 @@ export class DatatranformerService {
                                 aggregations: aggData
                             };
                             if ( vConfig.type === 'bar') {
-                                options.series[label].plotter = multiColumnGroupPlotter; 
-                                options.series[label].stackedGraph = true;
+                                options.series[label].plotter = barChartPlotter;
                             }
                             options.series[label].label = this.getLableFromMetricTags(metric, options.series[label].tags);
                         }
