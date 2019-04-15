@@ -1,2 +1,2 @@
-multiColumnGroupPlotter = require('./multicolumngroup.js');
-module.exports = multiColumnGroupPlotter;
+barChartPlotter = require('./barchart.js');
+module.exports = barChartPlotter;
