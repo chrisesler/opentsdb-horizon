@@ -26,12 +26,12 @@ export class DropdownVisualTypeComponent implements OnInit, OnDestroy, ControlVa
             label: 'Line',
             value: 'line',
             icon: 'd-chart-line'
-        }/*,
+        },
         {
             label: 'Bar',
             value: 'bar',
             icon: 'd-chart-bar-vertical'
-        }*/
+        }
     ];
 
     visualTypeControl: FormControl;
