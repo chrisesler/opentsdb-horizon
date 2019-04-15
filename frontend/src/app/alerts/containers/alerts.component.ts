@@ -257,7 +257,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.stateSubs['userNamespaces'] = this.userNamespaces$.subscribe( data => {
              this.userNamespaces = data;
-            if ( self.stateLoaded.userNamespaces ) {
+            if ( this.stateLoaded.userNamespaces ) {
                 this.configLoaded$.next(true);
                 this.configLoaded$.complete();
             }
