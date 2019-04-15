@@ -36,7 +36,7 @@
                         </td>
                         <td class="mat-cell mat-column-metric" [formGroupName]="index" >
                             <mat-form-field appearance="fill">
-                                <input matInput formControlName="label" [placeholder]="metric.name">
+                                <input matInput formControlName="label" [placeholder]="metric.name || metric.originalExpression">
                             </mat-form-field>
                         </td>
                         <td class="mat-cell mat-column-mode" [formGroupName]="index"> 
