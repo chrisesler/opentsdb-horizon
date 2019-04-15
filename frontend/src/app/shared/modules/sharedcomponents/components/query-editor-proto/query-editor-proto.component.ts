@@ -51,6 +51,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     // tslint:disable-next-line:no-inferrable-types
     @HostBinding('class.can-disable-metrics') private _canDisableMetrics: boolean = true;
 
+    @ViewChild('addExpressionInput') addExpressionInput: ElementRef;
+
     @Input() type;
     @Input() query: any;
     @Input() label = '';
@@ -339,7 +341,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         let userExpression = expression;
         const aliases = this.getHashMetricIdUserAliases();
         while (matches = re.exec(expression)) {
-            const id = ''+ matches[1];
+            const id = '' + matches[1];
             const idreg = new RegExp('\\{\\{' + id + '\\}\\}', 'g');
             userExpression = userExpression.replace(idreg, aliases[id]);
         }
@@ -503,18 +505,22 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.queryChanges$.next(true);
     }
 
-    cloneMetric(oMetric) {
+    cloneMetric(id) {
+        const index = this.query.metrics.findIndex(d => d.id === id );
+        const oMetric = this.query.metrics[index];
         const nMetric = this.utils.deepClone(oMetric);
         nMetric.id = this.utils.generateId(3);
         const insertIndex = this.query.metrics.findIndex(d => d.id === oMetric.id ) + 1;
         this.query.metrics.splice(insertIndex, 0, nMetric);
         this.queryChanges$.next(true);
+        this.initMetricDataSource();
     }
 
     deleteMetric(id) {
         const index = this.query.metrics.findIndex(d => d.id === id ) ;
         this.query.metrics.splice(index, 1);
         this.queryChanges$.next(true);
+        this.initMetricDataSource();
     }
 
     canDeleteMetric(id) {
@@ -540,6 +546,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         if (type === 'expression') {
             this.isAddMetricProgress = false;
             this.isAddExpressionProgress = !this.isAddExpressionProgress;
+            setTimeout(() => {
+                this.addExpressionInput.nativeElement.focus();
+            }, 100);
         }
     }
 
