@@ -19,13 +19,30 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 
+import { MatTableDataSource } from '@angular/material';
+
+import {
+    animate,
+    state,
+    style,
+    transition,
+    trigger
+} from '@angular/animations';
 
 
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'query-editor-proto',
     templateUrl: './query-editor-proto.component.html',
-    styleUrls: []
+    styleUrls: [],
+    animations: [
+        trigger( 'addQueryItem', [
+            state('collapsed', style({ height: '0px', minHeight: '0px', visibility: 'hidden'})),
+            state('expanded', style({ height: '48px', minHeight: '48px', visibility: 'visible'})),
+            transition('collapsed => expanded', animate('225ms ease-in-out')),
+            transition('expanded => collapsed', animate('225ms ease-in-out'))
+        ])
+    ]
 })
 export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
@@ -59,10 +76,10 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     isAddMetricProgress = false;
     isAddExpressionProgress = false;
     editExpressionId = -1;
+    editMetricId = -1;
     fg: FormGroup;
     expressionControl: FormControl;
     expressionControls: FormGroup;
-
 
     timeAggregatorOptions: Array<any> = [
         {
@@ -107,6 +124,17 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
     ];
 
+    // MAT-TABLE DEFAULT COLUMNS
+    metricTableDisplayColumns: string[] = [
+        'metric-index',
+        'name',
+        'modifiers'
+    ];
+
+    // MAT-TABLE DATA SOURCE
+    metricTableDataSource = new MatTableDataSource<any[]>([]);
+
+
     constructor(
         private elRef: ElementRef,
         private utils: UtilsService,
@@ -119,16 +147,19 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             'function_icon',
             domSanitizer.bypassSecurityTrustResourceUrl('assets/function-icon.svg')
         );
+
     }
 
     ngOnInit() {
         this.queryChanges$ = new BehaviorSubject(false);
         this.initFormControls();
+        this.initMetricDataSource();
 
         this.queryChangeSub = this.queryChanges$
             .pipe(
                 debounceTime(1000)
             )
+            // tslint:disable-next-line:no-shadowed-variable
             .subscribe(trigger => {
                 if (trigger) {
                     this.triggerQueryChanges();
@@ -138,6 +169,32 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.queryChangeSub.unsubscribe();
+    }
+
+    // helper function to format the table datasource into a structure
+    // that allows the table to work more or less like it did before
+    initMetricDataSource() {
+
+        // extract metrics only, then format with pre-constructed label, a type, and reference to the metric data
+        const metrics = [];
+        this.getMetricsByType('metrics').forEach((metric, i) => {
+            metrics.push({ indexLabel: 'm' + (i + 1), type: 'metric', metric });
+        });
+
+        // placeholder row for Add Metric form
+        metrics.push({addMetric: true});
+
+        // extract expressions only, then format with pre-constructed label, a type, and reference to the expression data
+        const expressions = [];
+        this.getMetricsByType('expression').forEach((metric, i) => {
+            expressions.push({ indexLabel: 'e' + (i + 1), type: 'expression', metric });
+        });
+
+        // placeholder row for Add Expression form
+        expressions.push({addExpression: true});
+
+        // merge the arrays and create datasource
+        this.metricTableDataSource = new MatTableDataSource(metrics.concat(expressions));
     }
 
     initFormControls() {
@@ -163,8 +220,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         if ( index !== -1 ) {
             this.query.metrics[index].name = metrics[0];
         } else {
-            let insertIndex = this.getMetricsLength('metrics');
+            const insertIndex = this.getMetricsLength('metrics');
             for (let i = 0; i < metrics.length; i++) {
+                // tslint:disable-next-line:no-shadowed-variable
                 const id = this.utils.generateId(3);
                 const oMetric = {
                     id: id,
@@ -182,8 +240,11 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                 };
                 this.query.metrics.splice(insertIndex, 0, oMetric);
             }
+            // update data source
+            this.initMetricDataSource();
         }
         this.query.metrics = [...this.query.metrics];
+
         this.queryChanges$.next(true);
     }
 
@@ -210,7 +271,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const mIndex = this.query.metrics.findIndex(m => m.id === event.metricId);
         const fxIndex = this.query.metrics[mIndex].functions.findIndex(fx => fx.id === event.funcId);
         if (fxIndex !== -1) {
-            this.query.metrics[mIndex].functions.splice(fxIndex,1);
+            this.query.metrics[mIndex].functions.splice(fxIndex, 1);
         }
         this.queryChanges$.next(true);
     }
@@ -246,7 +307,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     getMetricsLength(type) {
-        let res = this.getMetricsByType(type);
+        const res = this.getMetricsByType(type);
         return res.length;
     }
 
@@ -259,11 +320,12 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     editExpression(id) {
-        if (this.fg.controls[this.editExpressionId].errors) return;
+        if (this.fg.controls[this.editExpressionId].errors) { return; }
         this.editExpressionId = id;
         if (id === -1) {
             this.fg.controls[this.editExpressionId].setValue('');
-            this.isAddExpressionProgress = true;
+            // this.isAddExpressionProgress = true;
+            this.addQueryItemProgress('expression');
         } else {
             const index = this.query.metrics.findIndex(d => d.id === id);
             this.fg.controls[this.editExpressionId].setValue(this.getExpressionUserInput(this.query.metrics[index].expression));
@@ -272,7 +334,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     getExpressionUserInput(expression) {
         // replace {{<id>}} to m|e<index>
-        const re = new RegExp(/\{\{(.+?)\}\}/, "g");
+        const re = new RegExp(/\{\{(.+?)\}\}/, 'g');
         let matches = [];
         let userExpression = expression;
         const aliases = this.getHashMetricIdUserAliases();
@@ -293,6 +355,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                 this.query.metrics.push(expConfig);
                 this.isAddExpressionProgress = false;
                 this.fg.addControl(expConfig.id, new FormControl(expression));
+                this.initMetricDataSource();
             } else {
                 expConfig.id = id;
                 this.query.metrics[index] = expConfig;
@@ -353,7 +416,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
         const aliases = this.getMetricAliases();
 
-        // update the expression with metric ids 
+        // update the expression with metric ids
         for (let i = 0; i < result.length; i++) {
             const regex = new RegExp(result[i], 'g');
             transformedExp = transformedExp.replace(regex, '{{' + aliases[result[i]] + '}}');
@@ -375,13 +438,13 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     functionMenuOpened($event, idx) {
         // maybe need this?
-        console.log('MENU OPENED', $event, idx);
-        console.log('TRIGGERS', this.functionMenuTriggers);
+        // console.log('MENU OPENED', $event, idx);
+        // console.log('TRIGGERS', this.functionMenuTriggers);
         this.currentFunctionMenuTriggerIdx = idx;
     }
 
     functionMenuClosed($event) {
-        console.log('MENU CLOSED', $event);
+        // console.log('MENU CLOSED', $event);
         this.selectedFunctionCategoryIndex = -1;
         this.currentFunctionMenuTriggerIdx = null;
     }
@@ -400,6 +463,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.query.metrics[metricIdx].functions = this.query.metrics[metricIdx].functions || [];
         this.query.metrics[metricIdx].functions.push(newFx);
         // tslint:disable-next-line:max-line-length
+        // tslint:disable-next-line:no-shadowed-variable
         const trigger: MatMenuTrigger = <MatMenuTrigger>this.functionMenuTriggers.find((el, i) => i === this.currentFunctionMenuTriggerIdx);
         if (trigger) {
             trigger.closeMenu();
@@ -466,5 +530,21 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
         return canDelete;
     }
+
+    addQueryItemProgress(type: string) {
+        // console.log('ADD QUERY ITEM PROGRESS', type);
+        if (type === 'metric') {
+            this.isAddExpressionProgress = false;
+            this.isAddMetricProgress = !this.isAddMetricProgress;
+        }
+        if (type === 'expression') {
+            this.isAddMetricProgress = false;
+            this.isAddExpressionProgress = !this.isAddExpressionProgress;
+        }
+    }
+
+    // datasource table stuff - predicate helpers to determine if add metric/expression rows should show
+    checkAddMetricRow = (i: number, data: object) => data.hasOwnProperty('addMetric');
+    checkAddExpressionRow = (i: number, data: object) => data.hasOwnProperty('addExpression');
 
 }
