@@ -397,6 +397,22 @@
                         }
                     }
                 }
+
+                tr.mat-row.add-query-item {
+                    .metric-row-data {
+                        margin-bottom: 0;
+                    }
+                }
+
+                // modifiers
+                tr.mat-row.add-query-item.is-hidden {
+                    td.mat-cell,
+                    td.mat-footer-cell,
+                    th.mat-header-cell {
+                        padding: 0;
+                        border-bottom-width: 0;
+                    }
+                }
             }
 
         }

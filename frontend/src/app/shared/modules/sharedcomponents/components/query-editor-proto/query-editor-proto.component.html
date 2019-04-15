@@ -226,12 +226,14 @@
             <tr mat-row
                 *matRowDef="let row; columns: ['add-metric']; when: checkAddMetricRow"
                 class="add-query-item"
+                [ngClass]="{'is-hidden': !isAddMetricProgress}"
                 [@addQueryItem]="isAddMetricProgress ? 'expanded' : 'collapsed'"
                 style="overflow: hidden"></tr>
             <!-- SPECIAL ROW - add expression -->
             <tr mat-row
                 *matRowDef="let row; columns: ['add-expression']; when: checkAddExpressionRow"
                 class="add-query-item"
+                [ngClass]="{'is-hidden': !isAddExpressionProgress}"
                 [@addQueryItem]="isAddExpressionProgress ? 'expanded' : 'collapsed'"
                 style="overflow: hidden"></tr>
 

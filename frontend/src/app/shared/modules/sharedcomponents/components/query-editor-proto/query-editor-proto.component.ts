@@ -38,7 +38,7 @@ import {
     animations: [
         trigger( 'addQueryItem', [
             state('collapsed', style({ height: '0px', minHeight: '0px', visibility: 'hidden'})),
-            state('expanded', style({ height: '48px', minHeight: '48px', visibility: 'visible'})),
+            state('expanded', style({ height: '*', minHeight: '48px', visibility: 'visible'})),
             transition('collapsed => expanded', animate('225ms ease-in-out')),
             transition('expanded => collapsed', animate('225ms ease-in-out'))
         ])
