@@ -204,7 +204,7 @@
                         </div>
                         <div class="metric-row-data expression is-adding" *ngIf="isAddExpressionProgress">
                             <mat-form-field class="expression-input-field" appearance="outline" color="primary" floatLabel="never" >
-                                <input matInput placeholder="e.g. m1 + m2"  formControlName="-1" (blur)="updateExpression(-1, $event)" (keyup.enter)="updateExpression(-1, $event)" autocomplete="off">
+                                <input matInput placeholder="e.g. m1 + m2"  formControlName="-1" (blur)="updateExpression(-1, $event)" (keyup.enter)="updateExpression(-1, $event)" autocomplete="off" #addExpressionInput>
                                 <mat-error *ngIf="fg.controls['-1'].errors && fg.controls['-1'].errors.invalid">
                                     Invalid Expression.
                                 </mat-error>
@@ -261,7 +261,7 @@
             <mat-icon fontSet="denali" [fontIcon]="metric.settings.visual.visible ? 'd-eye-close' : 'd-eye-open'"></mat-icon>
             <span>{{metric.settings.visual.visible ? 'Disable' : 'Enable'}}</span>
         </button>
-        <button mat-menu-item (click)="cloneMetric(metric)">
+        <button mat-menu-item (click)="cloneMetric(metric.id)">
             <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
             <span>Clone</span>
         </button>
