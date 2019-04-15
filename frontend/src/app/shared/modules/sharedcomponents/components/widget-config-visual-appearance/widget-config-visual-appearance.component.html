@@ -46,10 +46,14 @@
                             <color-picker (newColor)="selectColor($event, gIndex, index)" [color]="metric.settings.visual.color" [enableAuto]="'true'"></color-picker>
                         </td>
                         <td class="mat-cell mat-column-line-weight" [formGroupName]="index">
-                            <dropdown-line-weight formControlName="lineWeight"></dropdown-line-weight>
+                            <div *ngIf="metric.settings.visual.type ==='line'">
+                                <dropdown-line-weight formControlName="lineWeight"></dropdown-line-weight>
+                            </div>
                         </td>
                         <td class="mat-cell mat-column-line-type" [formGroupName]="index">
-                            <dropdown-line-type formControlName="lineType"></dropdown-line-type>
+                            <div *ngIf="metric.settings.visual.type ==='line'">
+                                <dropdown-line-type formControlName="lineType"></dropdown-line-type>
+                            </div>
                         </td>
                         <td class="mat-cell mat-column-axes" colspan="2" [formGroupName]="index">
                             <mat-radio-group  formControlName="axis">
