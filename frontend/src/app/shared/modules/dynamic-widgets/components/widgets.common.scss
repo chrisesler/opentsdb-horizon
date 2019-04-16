@@ -203,7 +203,8 @@ $widgets-common-config: (
             }
 
             .widget-output {
-                height: 350px;
+                height: 250px;
+                max-height: 250px;
                 //padding: $default-padding 0;
                 border-radius: $output-radius;
                 display: flex;
