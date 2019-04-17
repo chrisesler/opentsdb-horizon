@@ -66,7 +66,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
 
     /** ANGULAR INTERFACE METHODS */
     ngOnInit() {
-        console.log("metric autocomplete", this.metrics)
+        // console.log('metric autocomplete', this.metrics);
         this.setMetricSearch();
     }
 
@@ -164,6 +164,13 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
             this.blur.emit();
             this.visible = false;
         }
+    }
+
+    clickMultipleDone() {
+        this.requestChanges();
+        this.trigger.closeMenu();
+        this.blur.emit();
+        this.visible = false;
     }
 
     metricACKeydown(event: any) {

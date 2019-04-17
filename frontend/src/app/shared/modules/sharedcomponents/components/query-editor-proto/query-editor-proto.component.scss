@@ -643,7 +643,8 @@
 
         .metric-row-data {
 
-            &.metric-name {
+            &.metric-name,
+            &.expression {
                 .display-name {
                     border: 1px solid $lighter-divider;
 

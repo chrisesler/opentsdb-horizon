@@ -52,6 +52,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     @HostBinding('class.can-disable-metrics') private _canDisableMetrics: boolean = true;
 
     @ViewChild('addExpressionInput') addExpressionInput: ElementRef;
+    @ViewChild('editExpressionInput') editExpressionInput: ElementRef;
 
     @Input() type;
     @Input() query: any;
@@ -331,6 +332,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         } else {
             const index = this.query.metrics.findIndex(d => d.id === id);
             this.fg.controls[this.editExpressionId].setValue(this.getExpressionUserInput(this.query.metrics[index].expression));
+            setTimeout(() => {
+                this.editExpressionInput.nativeElement.focus();
+            }, 100);
         }
     }
 
@@ -357,7 +361,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                 this.query.metrics.push(expConfig);
                 this.isAddExpressionProgress = false;
                 this.fg.addControl(expConfig.id, new FormControl(expression));
-                this.initMetricDataSource();
             } else {
                 expConfig.id = id;
                 this.query.metrics[index] = expConfig;
@@ -365,6 +368,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             }
 
             this.queryChanges$.next(true);
+            this.initMetricDataSource();
         } else if (!expression && index === -1) {
             this.isAddExpressionProgress = false;
         }
