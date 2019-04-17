@@ -112,7 +112,7 @@
                                 <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
                             </div>
                             <mat-form-field *ngIf="editExpressionId === data.metric.id" class="expression-input-field" appearance="fill" color="primary" floatLabel="never">
-                                <input matInput placeholder="e.g. m1 + m2" [formControlName]="data.metric.id" (blur)="updateExpression(data.metric.id, $event)" (keyup.enter)="updateExpression(data.metric.id, $event)" autocomplete="off">
+                                <input matInput placeholder="e.g. m1 + m2" [formControlName]="data.metric.id" (blur)="updateExpression(data.metric.id, $event)" (keyup.enter)="updateExpression(data.metric.id, $event)" autocomplete="off" #editExpressionInput>
                                 <mat-error *ngIf="fg.controls[data.metric.id].errors && fg.controls[data.metric.id].errors.invalid">
                                     Invalid Expression.
                                 </mat-error>
