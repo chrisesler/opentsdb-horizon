@@ -42,15 +42,22 @@
                         </div>
                     </mat-action-list>
                 </div>
-                <div class="list-selected">
-                        <mat-action-list>
-                                <button mat-list-item 
-                                    *ngFor="let metric of metrics"
-                                    (click)="updateMetricSelection(metric, 'remove');">
-                                    <mat-icon fontSet="denali" fontIcon="d-minus-circle"></mat-icon>
-                                    <span class="label">{{metric}}</span>
-                                </button>
-                            </mat-action-list>
+                <div class="list-selected" *ngIf="metrics.length > 0">
+                    <div class="selected-header">
+                        <strong>Selected</strong>
+                        <button mat-flat-button color="primary" (click)="clickMultipleDone()">
+                            <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
+                            <span>Done</span>
+                        </button>
+                    </div>
+                    <mat-action-list>
+                        <button mat-list-item 
+                            *ngFor="let metric of metrics"
+                            (click)="updateMetricSelection(metric, 'remove');">
+                            <mat-icon fontSet="denali" fontIcon="d-minus-circle"></mat-icon>
+                            <span class="label">{{metric}}</span>
+                        </button>
+                    </mat-action-list>
                 </div>
             </div>
         </div>
