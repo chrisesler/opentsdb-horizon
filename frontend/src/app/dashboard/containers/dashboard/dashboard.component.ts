@@ -636,7 +636,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     // query = this.dbService.filterMetrics(query);
                     let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
                     // get only enabled filters
-                    overrideFilters = overrideFilters.filter(d => d.enabled);
+                    overrideFilters = overrideFilters.filter(d => (d.enabled && d.filter.length > 0));
                     query = overrideFilters.length ? this.dbService.overrideQueryFilters(query, overrideFilters) : query;
                     query = this.queryService.buildQuery(payload, dt, query);
                     // console.log('the group query-2', query, JSON.stringify(query));

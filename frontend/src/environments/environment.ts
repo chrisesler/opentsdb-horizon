@@ -15,10 +15,6 @@ export const environment = {
     'https://metrics-f.yamas.ouroath.com:443',
     'https://metrics-g.yamas.ouroath.com:443',
   ],
-  // configdb: 'https://stg-horizonapi.yamas.ouroath.com:4443/api/v1',
-  // QA Server for testing
   configdb: 'https://stg-config.yamas.ouroath.com:4443/api/v1',
-  // metaApi: 'https://tsdbr-20-gq1.yamas.ouroath.com:4443/api'
   metaApi: 'https://meta.yamas.ouroath.com:443/api',
-  recipientsApi: 'https://qa-config.yamas.ouroath.com:4443/api/v1'
 };
