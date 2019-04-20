@@ -1,6 +1,7 @@
 <div fxLayout="column" fxFlexFill>
     <!-- need to figure out how to toggle on/off depending on whether there is template variables -->
-    <variable-template-bar *ngIf="!viewEditMode" [dbSettingsVariables]="variables" ></variable-template-bar>
+    <!--<variable-template-bar *ngIf="!viewEditMode" [dbSettingsVariables]="variables" ></variable-template-bar>-->
+    <template-variable-panel *ngIf="variables.tplVariables.length > 0 || variablePanelMode === 'edit'" [mode]="variablePanelMode" [variables]="variables"></template-variable-panel>
     <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" 
         [newWidget]="newWidget"
         (widgetsLayoutUpdate)="widgetsLayoutUpdate($event)" 
@@ -16,8 +17,16 @@
         (updatedValue)="setTitle($event)"
         *ngIf="activeMediaQuery !== 'xs'">
     </inline-editable>
+    <!--
     <span class="navbar-item navbar-icon-item nav-dashboard-config-trigger" *ngIf="activeMediaQuery !== 'xs'">
         <dashboard-settings-toggle mat-button ></dashboard-settings-toggle>
+    </span>
+    -->
+    <span class="navbar-item nav-dashboard-template-var-trigger" *ngIf="variables.tplVariables.length === 0">
+        <button mat-raised-button class="mat-elevation-z0" (click)="variablePanelMode = 'edit'">
+            <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
+            <span>Add Variable Template</span>
+        </button>
     </span>
 
     <span class="flex-spacer"></span>

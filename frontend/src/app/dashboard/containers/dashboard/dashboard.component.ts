@@ -101,6 +101,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     menuXAlignValue: MenuPositionX = 'before';
 
+    // variablePanelMode
+    variablePanelMode = 'list';
+
+
     // Available Widget Types
     /**
      *  NOTE: at some point we might want to think about adding this to some config setup

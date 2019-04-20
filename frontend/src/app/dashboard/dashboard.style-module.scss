@@ -31,6 +31,7 @@
 @import './components/config-tags-list/config-tags-list.component';
 @import './components/dboard-content/dboard-content.component';
 @import './components/widget-loader/widget-loader.component';
+@import './components/template-variable-panel/template-variable-panel.component';
 
 
 // widgets
@@ -56,6 +57,7 @@
     @include config-tags-list-component-base();
     @include dboard-content-component-base();
     @include widget-loader-component-base();
+    @include template-variable-panel-component-base();
 
 }
 
@@ -79,5 +81,6 @@
     @include config-tags-list-component-theme($theme-config);
     @include dboard-content-component-theme($theme-config);
     @include widget-loader-component-theme($theme-config);
+    @include template-variable-panel-component-theme($theme-config);
 
 }
