@@ -1,7 +1,7 @@
 import { State, StateContext, Action, Selector, createSelector } from '@ngxs/store';
 import { WidgetsConfigState } from './widgets-config.state';
 import { WidgetsRawdataState } from './widgets-data.state';
-
+import { UtilsService } from '../../core/services/utils.service';
 // we might need to define data model for each group and inner metric obj
 // to put strict on object
 
@@ -94,8 +94,10 @@ export class DeleteWidget {
 
 export class WidgetsState {
 
+    constructor(private utils: UtilsService) {}
+
     @Selector() static getWigets(state: WidgetModel[]) {
-        return [...state];
+        return state;
     }
 
     // a dynamic selector to return a selected widget by id
@@ -105,7 +107,7 @@ export class WidgetsState {
         });
     }
 
-    // update statte with the loading dashboard
+    // update state with the loading dashboard
     @Action(LoadWidgets)
     loadWidgets(ctx: StateContext<WidgetModel[]>, { payload }: LoadWidgets) {
         ctx.setState(payload);
@@ -113,7 +115,8 @@ export class WidgetsState {
 
     @Action(UpdateGridPos)
     updateGridPos(ctx: StateContext<WidgetModel[]>, { gridpos }: UpdateGridPos) {
-        const state = ctx.getState();
+        const curState = ctx.getState();
+        const state = this.utils.deepClone(curState);
         for (let i = 0; i < state.length; i++) {
             state[i].gridPos = {...state[i].gridPos, ...gridpos[state[i].id]};
         }
@@ -123,23 +126,25 @@ export class WidgetsState {
     // updating a widget config after editing it
     @Action(UpdateWidget)
     updateWidget(ctx: StateContext<WidgetModel[]>, { widget }: UpdateWidget) {
-        const state = ctx.getState();
+        const curState = ctx.getState();
+        const state = this.utils.deepClone(curState);
         for (let i = 0; i < state.length; i++) {
             if (state[i].id === widget.id) {
                 state[i] = widget;
                 break;
             }
         }
-        ctx.setState([...state]);
+        ctx.setState(state);
     }
 
     @Action(DeleteWidget)
     deleteWidget(ctx: StateContext<WidgetModel[]>, { wid }: DeleteWidget) {
-        const state = ctx.getState();
+        const curState = ctx.getState();
+        const state = this.utils.deepClone(curState);
         const index = state.findIndex( d => d.id === wid );
         if ( index !== -1 ) {
             state.splice(index, 1);
-            ctx.setState([...state]);
+            ctx.setState(state);
         }
     }
 }
