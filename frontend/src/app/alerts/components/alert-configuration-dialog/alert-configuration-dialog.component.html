@@ -152,13 +152,14 @@
                                             <mat-form-field appearance="fill" floatLabel="never">
                                                 <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="badThreshold">
                                             </mat-form-field>
-                                            <mat-error *ngIf="alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required">Bad or Warning should not be empty</mat-error>
+                                            <mat-error *ngIf="alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required">Bad or Warning state should not be empty</mat-error>
                                     </div>
                                     <div class="form-group warning-threshold-setting" formGroupName="singleMetric">
                                             <div class="form-label"><span class="indicator-square is-warning"></span> <strong>Warning state</strong> when metric is {{alertStateDirection}} or equal to</div>
                                             <mat-form-field appearance="fill" floatLabel="never">
                                                 <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="warnThreshold">
                                             </mat-form-field>
+                                            <mat-error *ngIf="thresholdSingleMetricControls['warnThreshold'].errors && thresholdSingleMetricControls['warnThreshold'].errors.invalid">Warning state value should be {{ alertStateDirection=== 'above' ? 'less' : 'greater'}} than the Bad state value</mat-error>
                                         </div>
                                     
 
@@ -186,6 +187,8 @@
                                                     <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="recoveryThreshold">
                                                 </mat-form-field>
                                                 <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.required">Recovery should not be empty</mat-error>
+                                                <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.invalid">Recovery state value should be {{ alertStateDirection=== 'above' ? 'less' : 'greater'}} than the {{ thresholdSingleMetricControls.warnThreshold.value == '' ? 'Warning' : 'Bad' }} state value{{thresholdSingleMetricControls.warnThreshold.value}}</mat-error>
+
                                             </div>
                                         </div>
                                     </div>
@@ -254,7 +257,7 @@
                                 <mat-list-option value="goodToWarn">Good to Warn</mat-list-option>
                                 <mat-list-option value="badToWarn">Bad to Warn</mat-list-option>
                             </mat-selection-list>
-                            <mat-error *ngIf="notificationRecipients.errors && notificationRecipients.errors.required">Please select the state transitions</mat-error>
+                            <mat-error *ngIf="alertForm.get('notification').get('transitionsToNotify').errors && alertForm.get('notification').get('transitionsToNotify').errors.required">Please select the state transitions</mat-error>
                         </div>
                         <!-- TODO: add the grouping rules control here -->
                         <div class="form-group alert-grouping-rules">

@@ -103,6 +103,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         visibility: [],
         gridLineColor: '#ccc',
     };
+    queryData:any = {};
     chartData: any = [[0]];
     size: any = {
         height: 180
@@ -230,7 +231,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                     queryIndex: data.threshold.singleMetric.queryIndex || -1 ,
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
                     // tslint:disable-next-line:max-line-length
-                    metricId: [ data.threshold.singleMetric.metricId ? this.getMetricDropdownValue(data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : '', Validators.required],
+                    metricId: [ data.threshold.singleMetric.metricId ? this.getMetricDropdownValue(data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : ''],
                     badThreshold:  data.threshold.singleMetric.badThreshold || '',
                     warnThreshold: data.threshold.singleMetric.warnThreshold || '',
                     recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || '',
@@ -261,13 +262,20 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         //    console.log('FORM CHANGE', val);
         //});
 
+        this.subs.comparisionSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['comparisonOperator'].valueChanges.subscribe(val => {
+            this.thresholdSingleMetricControls['warnThreshold'].setErrors({ 'required': false });
+            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors({ 'required': false });
+        });
         // tslint:disable-next-line:max-line-length
         this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('bad', val);
+            this.thresholdSingleMetricControls['warnThreshold'].setErrors({ 'required': false });
+            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors({ 'required': false });
         });
         // tslint:disable-next-line:max-line-length
         this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('warning', val);
+            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors({ 'required': false });
         });
         // tslint:disable-next-line:max-line-length
         this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].valueChanges.subscribe(val => {
@@ -280,14 +288,16 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         });
 
         this.subs.metricIdSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['metricId'].valueChanges.subscribe(val => {
-            const [qindex, mindex] = val.split(':');
+            const [qindex, mindex] = val ? val.split(':') : [null, null];
             const gValues = this.alertForm.get('alertGroupingRules').value;
             if ( qindex && mindex && gValues ) {
                 let tags = this.getGroupbyTags(qindex, mindex);
                 tags = tags.filter(v => gValues.includes(v));
-                console.log("metric selection changes", tags, JSON.stringify(gValues));
                 this.alertForm.get('alertGroupingRules').setValue(tags);   
+            } else {
+                this.alertForm.get('alertGroupingRules').setValue([]);
             }
+            this.refreshChart();
         });
     }
 
@@ -317,13 +327,35 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const bad = badStateCntrl.value ? badStateCntrl.value : '';
         const warning = warningStateCntrl.value ? warningStateCntrl.value : '';
         const recovery = recoveryStateCntrl.value ? recoveryStateCntrl.value : '';
+        const operator = this.alertStateDirection;
 
         if ( this.alertForm.touched && bad === '' && warning === '') {
             this.alertForm['controls'].threshold.setErrors({ 'required': true });
         }
 
+        // validate the warning value
+        if ( this.alertForm.touched && bad !== '' && warning !== '' ) {
+            if ( operator === 'above' && warning >= bad ) {
+                warningStateCntrl.setErrors({ 'invalid': true }); 
+            }
+            if ( operator === 'below' && warning <= bad ) {
+                warningStateCntrl.setErrors({ 'invalid': true });
+            }
+        }
+
         if ( this.alertForm.touched && recoveryMode === 'specific' && recovery === '') {
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors({ 'required': true });
+        }
+
+        // validate the recovery value
+        const badOrWarning = warning !== '' ? warning : bad;
+        if ( recoveryMode === 'specific' && this.alertForm.touched && badOrWarning !== '' && recovery !== '' ) {
+            if ( operator === 'above' && recovery >= badOrWarning ) {
+                recoveryStateCntrl.setErrors({ 'invalid': true }); 
+            }
+            if ( operator === 'below' && recovery <= badOrWarning ) {
+                recoveryStateCntrl.setErrors({ 'invalid': true });
+            }
         }
     }
 
@@ -367,12 +399,14 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     }
 
     getSelectedMetricQueryIndex() {
-        const [qindex, mindex] = this.alertForm.get('threshold').get('singleMetric').get('metricId').value.split(':');
+        const v = this.alertForm.get('threshold').get('singleMetric').get('metricId').value;
+        const [qindex, mindex] = v ? v.split(':') : [null, null];
         return qindex;
     }
 
     getSelectedMetric() {
-        const [qindex, mindex] = this.alertForm.get('threshold').get('singleMetric').get('metricId').value.split(':');
+        const v = this.alertForm.get('threshold').get('singleMetric').get('metricId').value;
+        const [qindex, mindex] = v ? v.split(':') : [null, null];
         if ( qindex && mindex  && this.queries[qindex].metrics.length) {
             if ( this.queries[qindex].metrics[mindex].expression === undefined ) {
                 return this.queries[qindex].metrics[mindex].name;
@@ -469,7 +503,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     /** methods */
 
 
-    queryData() {
+    getData() {
         const settings = {
             settings: {
                 data_source: 'yamas',
@@ -511,19 +545,32 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.sub = queryObserver.subscribe(
             result => {
                 this.nQueryDataLoading = 0;
-                const groupData = {};
-                groupData[this.queries[0].id] = result;
-                const config = {
-                    queries: []
-                };
-                config.queries = this.queries;
-                this.chartData = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], groupData);
+                this.queryData[this.queries[0].id] = result;
+                this.refreshChart();
             },
             err => {
                 this.nQueryDataLoading = 0;
                 this.error = err;
             }
         );
+    }
+
+    refreshChart() {
+        const config = {
+            queries: []
+        };
+        const v = this.thresholdSingleMetricControls.metricId.value;
+        const [qIndex, mIndex] = v ? v.split(':') : [null, null];
+        const queries = this.utils.deepClone(this.queries);
+        if ( qIndex && mIndex && queries.length ) {
+            for ( let i = 0; i < queries.length; i++ ) {
+                for ( let j = 0; j < queries[i].metrics.length; j++ ) {
+                    queries[i].metrics[j].settings.visual.visible = qIndex == i && mIndex == j ? true : false;
+                }
+            }
+        }
+        config.queries = queries;
+        this.chartData = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], this.queryData);
     }
 
     updateQuery(message) {
@@ -539,7 +586,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     reloadData() {
         this.error = '';
         this.nQueryDataLoading = 1;
-        this.queryData();
+        this.getData();
     }
 
     getExpressionLabel(qindex, mindex) {
@@ -576,6 +623,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     validate() {
         this.alertForm.markAsTouched();
         this.validateThresholds(this.alertForm['controls'].threshold);
+
+        if ( !this.thresholdSingleMetricControls.metricId.value ) {
+            this.thresholdSingleMetricControls.metricId.setErrors({ 'required': true });
+        }
 
         if ( !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
             this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
