@@ -93,10 +93,6 @@ export class DBState {
         return state.id;
     }
 
-    @Selector() static getDashboardPath(state: DBStateModel) {
-        return state.path;
-    }
-
     @Selector() static getLoadedDB(state: DBStateModel) {
         return state.loadedDB;
     }
@@ -111,14 +107,12 @@ export class DBState {
 
     @Selector()
     static getDashboardFriendlyPath(state: DBStateModel) {
-        // return createSelector([DBState], (state: DBStateModel) => {
-            const friendlyPath = state.id + (state.loadedDB.fullPath ? state.loadedDB.fullPath : '');
-            if (friendlyPath && friendlyPath !== 'undefined') {
-                return '/' + friendlyPath;
-            } else {
-                return undefined;
-            }
-        // });
+        const friendlyPath = state.id + (state.loadedDB.fullPath ? state.loadedDB.fullPath : '');
+        if (friendlyPath && friendlyPath !== 'undefined') {
+            return '/' + friendlyPath;
+        } else {
+            return undefined;
+        }
     }
 
     @Action(LoadDashboard)
@@ -126,10 +120,9 @@ export class DBState {
         // id is the path
         if ( id !== '_new_' ) {
             ctx.patchState({ loading: true});
-            // return this.httpService.getDashboardByPath(id).pipe(
             return this.httpService.getDashboardById(id).pipe(
                 map(res => {
-                    const dashboard:any = res.body;
+                    const dashboard: any = res.body;
                     if ( dashboard.content.version && dashboard.content.version === this.dbService.version ) {
                         ctx.dispatch(new LoadDashboardSuccess(dashboard));
                     } else {
@@ -166,13 +159,7 @@ export class DBState {
 
     @Action(LoadDashboardSuccess)
     loadDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: LoadDashboardSuccess) {
-        const state = ctx.getState();
-        ctx.setState({...state,
-            id: payload.id,
-            loaded: true,
-            loading: false,
-            loadedDB: payload
-        });
+       ctx.patchState({id: payload.id, loaded: true, loading: false, loadedDB: payload});
     }
 
     @Action(LoadDashboardFail)
