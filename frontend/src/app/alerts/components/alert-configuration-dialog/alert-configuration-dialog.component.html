@@ -28,7 +28,7 @@
                     </div>
                     <div class="dygraph-legend" #graphLegend></div>
                 </div>
-            <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
+                <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
                 <div class="error" *ngIf="error" (click)="showError()">
                     <mat-icon>error</mat-icon>
                 </div>
@@ -187,7 +187,7 @@
                                                     <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="recoveryThreshold">
                                                 </mat-form-field>
                                                 <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.required">Recovery should not be empty</mat-error>
-                                                <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.invalid">Recovery state value should be {{ alertStateDirection=== 'above' ? 'less' : 'greater'}} than the {{ thresholdSingleMetricControls.warnThreshold.value == '' ? 'Warning' : 'Bad' }} state value{{thresholdSingleMetricControls.warnThreshold.value}}</mat-error>
+                                                <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.invalid">Recovery state value should be {{ alertStateDirection=== 'above' ? 'less' : 'greater'}} than the {{ thresholdSingleMetricControls.warnThreshold.value !== '' ? 'Warning' : 'Bad' }} state value</mat-error>
 
                                             </div>
                                         </div>

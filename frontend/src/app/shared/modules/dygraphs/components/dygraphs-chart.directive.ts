@@ -4,7 +4,7 @@ import { IDygraphOptions } from '../IDygraphOptions';
 import Dygraph from 'dygraphs';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
 import ThresholdsPlugin from '../../../dygraph-threshold-plugin/src/index';
-import multiColumnGroupPlotter from '../../../dygraphs/plotters';
+import barChartPlotter from '../../../dygraphs/plotters';
 
 
 @Directive({
@@ -100,7 +100,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         if ( this.options.labelsDiv) {
             this.options.highlightCallback = mouseover;
         }
-        //this.options.plotter = multiColumnGroupPlotter;
+        //this.options.plotter = barChartPlotter;
         this._g = new Dygraph(this.element.nativeElement, this.data, this.options);
       }
       // if new data

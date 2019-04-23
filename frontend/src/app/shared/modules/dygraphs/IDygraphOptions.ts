@@ -56,5 +56,6 @@ export interface IDygraphOptions {
     visibility?: boolean[];
     drawGrid?: boolean;
     gridLineColor?: string;
+    plotter?: any[];
 }
 

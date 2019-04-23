@@ -24,7 +24,7 @@ export class MetricFunctionComponent implements OnInit {
     // for now set the default value to rate function
     // we can set default value by fx type later
     if (this.fx.val === '') {
-      this.fx.val = '1m';
+      this.fx.val = '1s';
     }
     this.inputVal = new FormControl(this.fx.val);
   }

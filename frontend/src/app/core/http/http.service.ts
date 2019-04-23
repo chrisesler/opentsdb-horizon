@@ -265,7 +265,7 @@ export class HttpService {
     }
 
     getRecipients(namespace: string) {
-        const apiUrl = environment.recipientsApi + '/namespace/' + namespace + '/contact';
+        const apiUrl = environment.configdb + '/namespace/' + namespace + '/contact';
         const httpOptions = {
             headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
             withCredentials: true,
@@ -275,7 +275,7 @@ export class HttpService {
     }
 
     postRecipient(data: any) {
-        const apiUrl = environment.recipientsApi + '/namespace/' + data.namespace + '/contact';
+        const apiUrl = environment.configdb + '/namespace/' + data.namespace + '/contact';
         const httpOptions = {
             headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
             withCredentials: true,
@@ -292,7 +292,7 @@ export class HttpService {
     }
 
     updateRecipient(data: any) {
-        const apiUrl = environment.recipientsApi + '/namespace/' + data.namespace + '/contact';
+        const apiUrl = environment.configdb + '/namespace/' + data.namespace + '/contact';
         const httpOptions = {
             headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
             withCredentials: true,
@@ -309,7 +309,7 @@ export class HttpService {
     }
 
     deleteRecipient(data: any) {
-        const apiUrl = environment.recipientsApi + '/namespace/' + data.namespace + '/contact/delete';
+        const apiUrl = environment.configdb + '/namespace/' + data.namespace + '/contact/delete';
         // tslint:disable-next-line:prefer-const
         let httpOptions = {
             headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -327,7 +327,7 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
-        const apiUrl = environment.recipientsApi + '/namespace/' + namespace + '/alert';
+        const apiUrl = environment.configdb + '/namespace/' + namespace + '/alert';
         if ( !payload.data[0].id  ) {
             return this.http.post(apiUrl, payload.data, { headers, withCredentials: true });
         } else {
@@ -340,7 +340,7 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
-        const apiUrl = environment.recipientsApi + '/alert/' + id;
+        const apiUrl = environment.configdb + '/alert/' + id;
         return this.http.get(apiUrl, { headers, withCredentials: true });
     }
 
@@ -348,7 +348,7 @@ export class HttpService {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
           });
-        const apiUrl = environment.recipientsApi + '/namespace/' + options.namespace + '/alert';
+        const apiUrl = environment.configdb + '/namespace/' + options.namespace + '/alert';
         return this.http.get(apiUrl, { headers, withCredentials: true });
     }
 
@@ -356,7 +356,7 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
-        const apiUrl = environment.recipientsApi + '/namespace/' + namespace + '/alert/delete';
+        const apiUrl = environment.configdb + '/namespace/' + namespace + '/alert/delete';
         console.log("deleteA;lert", namespace, payload);
         return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
     }
