@@ -62,7 +62,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
     @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<string>;
     @Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<string>;
-    // @Select(DBState.getDashboardPath) dbPath$: Observable<string>;
     @Select(DBState.getDashboardFriendlyPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
@@ -74,13 +73,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBSettingsState.getDashboardTagValues) tagValues$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
-
     @Select(AppShellState.getCurrentMediaQuery) mediaQuery$: Observable<string>;
-
     // temporary disable for now, will delete once we are clear
     // @Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
-    // @Select(NavigatorState.getNavigatorSideNav) sideNav$: Observable<any>;
     @Select(NavigatorState.getDrawerOpen) drawerOpen$: Observable<any>;
 
     // available widgets menu trigger
@@ -101,10 +97,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     menuXAlignValue: MenuPositionX = 'before';
 
-    // Available Widget Types
-    /**
-     *  NOTE: at some point we might want to think about adding this to some config setup
-     * */
+    // Available Widget Types for adding new widget menu
     availableWidgetTypes: Array<object> = [
         {
             label: 'Bar Graph',
@@ -153,33 +146,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
     meta: any;
     variables: any;
     dbTags: any;
-    dbPathSub: Subscription;
-    listenSub: Subscription;
-    widgetSub: Subscription;
-    dbTagsSub: Subscription;
-    tagValuesSub: Subscription;
-    dbStatusSub: Subscription;
-    dbErrorSub: Subscription;
-    dbModeSub: Subscription;
-    private routeSub: Subscription;
-    authSub: Subscription;
-    drawerOpenSub: Subscription;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
     widgets: any[] = [];
     userNamespaces: any = [];
-    // tslint:disable-next-line:no-inferrable-types
-    viewEditMode: boolean = false;
+    viewEditMode = false;
     newWidget: any; // setup new widget based on type from top bar
-
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
     dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
-
-    mediaQuerySub: Subscription;
-    // tslint:disable-next-line:no-inferrable-types
-    activeMediaQuery: string = '';
+    activeMediaQuery = '';
     gridsterUnitSize: any = {};
+    private subscription: Subscription = new Subscription();
 
     constructor(
         private store: Store,
@@ -200,24 +178,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ) { }
     ngOnInit() {
         // handle route for dashboardModule
-        this.routeSub = this.activatedRoute.url.subscribe(url => {
+        this.subscription.add(this.activatedRoute.url.subscribe(url => {
             this.widgets = [];
             this.store.dispatch(new ClearWidgetsData());
-            // console.log('DASHBOARD ROUTE SUB', url);
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
             } else {
                this.store.dispatch(new LoadDashboard(url[0].path));
             }
-        });
+        }));
         // setup navbar portal
         this.dashboardNavbarPortal = new TemplatePortal(this.dashboardNavbarTmpl, undefined, {});
         this.cdkService.setNavbarPortal(this.dashboardNavbarPortal);
 
         // ready to handle request from children of DashboardModule
         let widgets;
-        this.listenSub = this.interCom.requestListen().subscribe((message: IMessage) => {
+        this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
             switch (message.action) {
                 case 'getWidgetCachedData':
                     const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(message.id));
@@ -269,7 +246,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     const containerPos = gridsterContainerEl.getBoundingClientRect();
                     if ( cloneWidgetEndPos > containerPos.height ) {
                         setTimeout(() => {
-                            gridsterContainerEl.scrollTop =    cloneWidgetEndPos - containerPos.height;
+                            gridsterContainerEl.scrollTop =  cloneWidgetEndPos - containerPos.height;
                         }, 100);
                     }
                     break;
@@ -282,26 +259,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.handleQueryPayload(message);
                     break;
                 case 'updateWidgetConfig':
-                     widgets = JSON.parse(JSON.stringify(this.widgets));
-                    const mIndex = widgets.findIndex(w => w.id === message.id);
-
+                    const mIndex = this.widgets.findIndex(w => w.id === message.id);
                     if (mIndex === -1) {
                         // update position to put new on on top
                         const newWidgetY = message.payload.widget.gridPos.h;
-                        widgets = this.dbService.positionWidgetY(widgets, newWidgetY);
+                        this.widgets = this.dbService.positionWidgetY(this.widgets, newWidgetY);
                         // this is the newly adding widget
-                        if (widgets.length === 1 && widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
-                            widgets[0] = message.payload.widget;
+                        if (this.widgets.length === 1 && this.widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
+                            this.widgets[0] = message.payload.widget;
                         } else {
-                            widgets.unshift(message.payload.widget);
+                            this.widgets.unshift(message.payload.widget);
                         }
-                        this.store.dispatch(new LoadWidgets(widgets));
+                        this.store.dispatch(new LoadWidgets(this.widgets));
                     } else {
                         // check the component type is PlaceholderWidgetComponent.
                         // If yes, it needs to be replaced with new component
-                        if (widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
-                            widgets[mIndex] = message.payload.widget;
-                            this.store.dispatch(new LoadWidgets(widgets));
+                        if (this.widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
+                            this.widgets[mIndex] = message.payload.widget;
+                            this.store.dispatch(new LoadWidgets(this.widgets));
                         } else {
                             this.store.dispatch(new UpdateWidget(message.payload.widget));
                             // many way to handle this, but we should do with the way
@@ -310,7 +285,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             this.interCom.responsePut({
                                 id: message.id,
                                 action: 'getUpdatedWidgetConfig',
-                                payload: message.payload
+                                payload: this.utilService.deepClone(message.payload)
                             });
                         }
                     }
@@ -375,13 +350,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 default:
                     break;
             }
-        });
+        }));
 
-        this.mediaQuerySub = this.mediaQuery$.subscribe( currentMediaQuery => {
+        this.subscription.add(this.mediaQuery$.subscribe( currentMediaQuery => {
             this.activeMediaQuery = currentMediaQuery;
-        });
+        }));
 
-        this.loadedRawDB$.subscribe(db => {
+        this.subscription.add(this.loadedRawDB$.subscribe(db => {
             const dbstate = this.store.selectSnapshot(DBState);
             // console.log('\n\nloadedrawdb=', db, dbstate.loaded);
             if (dbstate.loaded) {
@@ -391,18 +366,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 // update WidgetsState
                 this.store.dispatch(new LoadWidgets(db.content.widgets));
             }
-        });
+        }));
 
-        this.dbPathSub = this.dbPath$.subscribe(path => {
+        this.subscription.add(this.dbPath$.subscribe(path => {
             // we only need to check of path returned from configdb is not _new_,
             // the router url will point to previous path of clone dashboard
-            this.logger.log('dbPathSub', { currentLocation: this.location.path(), newPath: '/d' + path, rawPath: path});
+            // this.logger.log('dbPathSub', { currentLocation: this.location.path(), newPath: '/d' + path, rawPath: path});
             if (path !== '_new_' && path !== undefined) {
                 this.location.replaceState('/d' + path);
             }
-        });
+        }));
 
-        this.dbStatusSub = this.dbStatus$.subscribe(status => {
+        this.subscription.add(this.dbStatus$.subscribe(status => {
             switch (status) {
                 case 'save-success':
                     this.snackBar.open('Dashboard has been saved.', '', {
@@ -416,31 +391,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.router.navigate(['/home'], { queryParams: { 'db-delete': true } });
                     break;
             }
-        });
+        }));
 
-        this.dbErrorSub = this.dbError$.subscribe(error => {
+        this.subscription.add(this.dbError$.subscribe(error => {
             if (Object.keys(error).length > 0) {
                 console.error(error);
             }
-        });
+        }));
 
-        // tslint:disable-next-line:no-shadowed-variable
-        this.widgetSub = this.widgets$.subscribe((widgets) => {
+        // tslint:disable-next-line: no-shadowed-variable
+        this.subscription.add(this.widgets$.subscribe((widgets) => {
             const dbstate = this.store.selectSnapshot(DBState);
-            // console.log('--- widget subscription---', widgets, dbstate.loaded);
             if (dbstate.loaded) {
-                this.widgets = widgets;
+                this.widgets = this.utilService.deepClone(widgets);
             }
-        });
+        }));
 
-        this.dbModeSub = this.dashboardMode$.subscribe(mode => {
-            // console.log('mode changed', mode);
+        this.subscription.add(this.dashboardMode$.subscribe(mode => {
             this.viewEditMode = mode === 'edit' || mode === 'view' ? true : false;
-        });
+        }));
 
-        this.dbTime$.subscribe(t => {
-            // console.log('___DBTIME___', JSON.stringify(this.dbTime), JSON.stringify(t));
-             this.dbTime = t;
+        this.subscription.add(this.dbTime$.subscribe(t => {
+             this.dbTime = this.utilService.deepClone(t);
             // do not intercom if widgets are still loading
             if ( !this.widgets.length ) {
                 return;
@@ -456,18 +428,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     payload: t
                 });
             }
-        });
+        }));
 
-        this.dbSettings$.subscribe (settings => {
-            this.dbSettings = settings;
-        });
+        this.subscription.add(this.dbSettings$.subscribe (settings => {
+            this.dbSettings = this.utilService.deepClone(settings);
+        }));
 
-        this.meta$.subscribe(t => {
-            // console.log('___META___', JSON.stringify(this.meta), JSON.stringify(t));
-            this.meta = t;
-        });
+        this.subscription.add(this.meta$.subscribe(t => {
+            this.meta = this.utilService.deepClone(t);
+        }));
 
-        this.variables$.subscribe(t => {
+        this.subscription.add(this.variables$.subscribe(t => {
             console.log('variables$.subscribe [event]', t, this.variables);
             if (this.variables) {
                 if (this.variables.enabled && t.enabled) { // was enabled, still enabled
@@ -518,25 +489,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
             // set new variables, but do not query new data
             this.variables = t;
-        });
+        }));
 
-        this.dbTagsSub = this.dbTags$.subscribe(tags => {
+        this.subscription.add(this.dbTags$.subscribe(tags => {
             // console.log('__DB TAGS___', tags);
-            this.dbTags = tags ? tags : [];
+            this.dbTags = tags ? this.utilService.deepClone(tags) : [];
             this.interCom.responsePut({
                 action: 'updateDashboardTags',
                 payload: this.dbTags
             });
-        });
+        }));
 
-        this.tagValuesSub = this.tagValues$.subscribe(data => {
+        this.subscription.add(this.tagValues$.subscribe(data => {
             this.interCom.responsePut({
                 action: 'TagValueQueryResults',
                 payload: data
             });
-        });
+        }));
 
-        this.widgetGroupRawData$.subscribe(result => {
+        this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
+            console.log('widgetgroupraw data return', result);
             let error = null;
             const grawdata = {};
             if (result !== undefined) {
@@ -548,29 +520,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
                 this.updateWidgetGroup(result.wid, grawdata, error);
             }
-        });
+        }));
 
-        this.userNamespaces$.subscribe(result => {
+        this.subscription.add(this.userNamespaces$.subscribe(result => {
             this.userNamespaces = result;
             this.interCom.responsePut({
                 action: 'UserNamespaces',
                 payload: result
             });
-        });
+        }));
 
-        this.userPersonalFolders$.subscribe(folders => {
+        this.subscription.add(this.userPersonalFolders$.subscribe(folders => {
             this.interCom.responsePut({
                 action: 'UserPersonalFolders',
                 payload: folders
             });
-        });
+        }));
 
-        this.userNamespaceFolders$.subscribe(folders => {
+        this.subscription.add(this.userNamespaceFolders$.subscribe(folders => {
             this.interCom.responsePut({
                 action: 'UserNamespaceFolders',
                 payload: folders
             });
-        });
+        }));
 
         // all widgets should update their own size
         // this code is disable for now since we use ResizeSensor to handle this.
@@ -581,18 +553,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
         }); */
 
-        this.authSub = this.auth$.subscribe(auth => {
+        this.subscription.add(this.auth$.subscribe(auth => {
             // console.log('auth$ calling', auth);
             if (auth === 'invalid') {
                 // console.log('open auth dialog');
             }
-        });
+        }));
 
-        this.drawerOpenSub = this.drawerOpen$.subscribe( sideNav => {
+        // this needs to handle better, since will cause rerender again when first loaded
+        this.subscription.add(this.drawerOpen$.subscribe( sideNav => {
             setTimeout(() => {
-                this.rerender = { 'reload': true };
+                // this.rerender = { 'reload': true };
             }, 300);
-        });
+        }));
     }
 
     requeryData(payload) {
@@ -604,15 +577,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     // to passing raw data to widget
-    updateWidgetGroup(wid, rawdata, error= null) {
+    updateWidgetGroup(wid, rawdata, error = null) {
         this.interCom.responsePut({
             id: wid,
             action: 'updatedWidgetGroup',
             payload: {
-                        rawdata: rawdata,
-                        error: error,
-                        timezone: this.dbTime.zone
-                    }
+                rawdata: rawdata,
+                error: error,
+                timezone: this.dbTime.zone
+            }
         });
     }
 
@@ -631,6 +604,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     gid: groupid,
                     isEditMode: this.viewEditMode
                 };
+                // this is not enough, need to optimize but
+                // redo it anyway with whole widget query
                 if (query.namespace && query.metrics.length) {
                     // filter only visible metrics
                     // query = this.dbService.filterMetrics(query);
@@ -639,7 +614,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     overrideFilters = overrideFilters.filter(d => (d.enabled && d.filter.length > 0));
                     query = overrideFilters.length ? this.dbService.overrideQueryFilters(query, overrideFilters) : query;
                     query = this.queryService.buildQuery(payload, dt, query);
-                    // console.log('the group query-2', query, JSON.stringify(query));
+                    console.log('query builder:', query);
                     gquery.query = query;
                     // now dispatch request
                     this.store.dispatch(new GetQueryDataByGroup(gquery));
@@ -677,7 +652,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.newWidget = this.dbService.getWidgetPrototype(selectedWidget.type);
     }
 
-    openTimeSeriesMetricDialog(widget) {
+    openTimeSeriesMetricDialog(widget: any) {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.width = '100%';
         dialogConf.maxWidth = '100%';
@@ -719,11 +694,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.store.dispatch(new UpdateDashboardTime({ start: e.startTimeDisplay, end: e.endTimeDisplay }));
     }
 
-    setTimezone(e) {
+    setTimezone(e: any) {
         this.store.dispatch(new UpdateDashboardTimeZone(e));
     }
 
-    setTitle(e) {
+    setTitle(e: any) {
         this.store.dispatch(new UpdateDashboardTitle(e));
     }
 
@@ -764,8 +739,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     getTagValues(key: string, tplVariables: any[]): any[] {
-        // tslint:disable-next-line:prefer-const
-        for (let tplVariable of tplVariables) {
+        for (const tplVariable of tplVariables) {
             if (tplVariable.tagk === key && tplVariable.enabled) {
                 return tplVariable.filter;
             }
@@ -782,19 +756,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.listenSub.unsubscribe();
-        this.routeSub.unsubscribe();
-        this.widgetSub.unsubscribe();
-        this.dbTagsSub.unsubscribe();
-        this.tagValuesSub.unsubscribe();
-        this.dbPathSub.unsubscribe();
-        this.dbModeSub.unsubscribe();
-        this.dbStatusSub.unsubscribe();
-        this.dbErrorSub.unsubscribe();
-        this.authSub.unsubscribe();
-        this.drawerOpenSub.unsubscribe();
-        this.mediaQuerySub.unsubscribe();
-        // we need to clear dashboard state
-        // this.store.dispatch(new dashboardActions.ResetDashboardState);
+        this.subscription.unsubscribe();
     }
 }
