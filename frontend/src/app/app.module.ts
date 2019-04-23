@@ -37,7 +37,7 @@ import { AppShellModule } from './app-shell/app-shell.module';
     MaterialModule,
     // ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
     AppRoutingModule,
-    NgxsModule.forRoot([AuthState]),
+    NgxsModule.forRoot([AuthState], { developmentMode: !environment.production }),
     NgxsLoggerPluginModule.forRoot(),
     AdminModule,
     AdhocModule,
