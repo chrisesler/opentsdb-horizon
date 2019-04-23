@@ -306,11 +306,14 @@ export class DashboardNavigatorState {
 
         const user = {...state.user,
             name: response.user.name,
-            userid: response.user.userid
+            userid: response.user.userid,
+            memberNamespaces: []
         };
 
         // save the raw
-        const resourceData = {...state.resourceData};
+        // const resourceData = {...state.resourceData};
+        // const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+        const resourceData = {...state.resourceData, personal: {}, namespaces: {}};
         const namespaces = [];
         const masterPersonal = [];
 
@@ -572,7 +575,9 @@ export class DashboardNavigatorState {
 
         }
 
-        const newPanel = <DBNAVPanelModel>resources[resourceType][payload.fullPath];
+        // const newPanel = <DBNAVPanelModel>resources[resourceType][payload.fullPath];
+        // const newPanel = {...resources[resourceType][payload.fullPath]};
+        const newPanel = JSON.parse(JSON.stringify(resources[resourceType][payload.fullPath]));
         newPanel.loaded = false;
 
         newPanel.subfolders.sort(this.sortByName);
@@ -935,8 +940,10 @@ export class DashboardNavigatorState {
         // success... do something
 
         const state = ctx.getState();
-        const resourceData = {...state.resourceData};
-        const panels = [...state.panels];
+        // const resourceData = {...state.resourceData};
+        const resourceData = {...state.resourceData, personal: {}, namespaces: {}};
+        // const panels = [...state.panels];
+        const panels = JSON.parse(JSON.stringify(state.panels));
         const panelIdx = state.currentPanelIndex;
 
         if (topFolder && topFolder.type === 'user') {
