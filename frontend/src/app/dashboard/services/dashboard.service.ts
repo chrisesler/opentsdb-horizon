@@ -65,10 +65,6 @@ export class DashboardService {
     this.widgetsConfig = {...conf};
   }
 
-  getWidgetConfigById(id) {
-    return this.updateWidgetsDimension[id];
-  }
-
   getWidgetPrototype(type= ''): any {
     const widget: any = JSON.parse(JSON.stringify(this.widgetPrototype));
     widget.id = this.utils.generateId();
@@ -91,8 +87,7 @@ export class DashboardService {
 
   getDashboardPrototype(): any {
     const dashboard: any = Object.assign({}, this.dashboardProto);
-    const widget: any = JSON.parse(JSON.stringify(this.getWidgetPrototype())); 
-    //widget.gridPos.w = 6;
+    const widget: any = JSON.parse(JSON.stringify(this.getWidgetPrototype()));
     dashboard.widgets.push(widget);
     return dashboard;
   }
@@ -145,21 +140,6 @@ export class DashboardService {
       widgets: dbstate.Widgets
     };
     return dashboard;
-  }
-  updateWidgetsDimension(width, height, pWidgets) {
-    /*
-    for (let i = 0; i < pWidgets.length; i++) {
-      const clientSize = {
-        'width': width * pWidgets[i].gridPos.w,
-        'height': height * pWidgets[i].gridPos.h
-      };
-      pWidgets[i].clientSize = clientSize;
-      // also update position from xMd and yMd
-      // since x,y not updated when resize, grad
-      pWidgets[i].gridPos.x = pWidgets[i].gridPos.xMd;
-      pWidgets[i].gridPos.y = pWidgets[i].gridPos.yMd;
-    }
-    */
   }
 
   convert(dashboard) {
