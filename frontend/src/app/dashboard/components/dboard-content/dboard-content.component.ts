@@ -1,7 +1,7 @@
 import {
   Component, Input, ViewChild, ViewEncapsulation,
   OnChanges, SimpleChanges, ComponentFactoryResolver, Type,
-  HostBinding, Output, EventEmitter
+  HostBinding, Output, EventEmitter, ChangeDetectionStrategy
 } from '@angular/core';
 import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDraggableOptions } from 'angular2gridster';
 import { WidgetViewDirective } from '../../directives/widgetview.directive';
@@ -14,9 +14,9 @@ import { IntercomService, IMessage } from '../../../core/services/intercom.servi
   selector: 'app-dboard-content',
   templateUrl: './dboard-content.component.html',
   styleUrls: ['./dboard-content.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-// changeDetection: ChangeDetectionStrategy.OnPush
 export class DboardContentComponent implements OnChanges {
   @HostBinding('class.app-dboard-content') private _hostClass = true;
 
@@ -29,14 +29,13 @@ export class DboardContentComponent implements OnChanges {
   @Input() rerender: any;
   @Input() dashboardMode: string;
 
-  // tslint:disable-next-line:no-inferrable-types
-  viewEditMode: boolean = false;
+  viewEditMode = false;
 
   gridsterOptions: IGridsterOptions = {
     // core configuration is default one - for smallest view. It has hidden minWidth: 0.
     lanes: 1, // amount of lanes (cells) in the grid
     direction: 'vertical', // floating top - vertical, left - horizontal
-    floating: true, // no gravity floating
+    floating: true, // gravity floating
     dragAndDrop: true, // enable/disable drag and drop for all items in grid
     resizable: true, // enable/disable resizing by drag and drop for all items in grid
     resizeHandles: {
@@ -80,20 +79,16 @@ export class DboardContentComponent implements OnChanges {
     private interCom: IntercomService
   ) { }
 
-  getWidgetConfig(id) {
-    return this.dbService.getWidgetConfigById(id);
-  }
-
   trackByWidget(index: number, widget: any) {
     return widget.id;
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log('changes dashbiard', changes);
     // need to reload grister view to update the UI
     if (changes.rerender && changes.rerender.currentValue.reload) {
-      this.gridster.reload();
+       this.gridster.reload();
     }
-
     if (changes.dashboardMode && changes.dashboardMode.currentValue === 'edit') {
       this.viewEditMode = true;
     } else if ( changes.dashboardMode && changes.dashboardMode.currentValue !== 'edit') {
@@ -106,15 +101,13 @@ export class DboardContentComponent implements OnChanges {
     if ( changes.newWidget && changes.newWidget.currentValue ) {
       this.newComponent(changes.newWidget.currentValue);
     }
-
   }
 
-  newComponent(widget) {
-    //this.viewEditMode = true;
+  newComponent(widget: any) {
     this.interCom.requestSend(<IMessage> {
       action: 'setDashboardEditMode',
       payload: 'edit'
-    });    
+    });
     const component: Type<any> = this.widgetService.getComponentToLoad(widget.settings.component_type);
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(component);
     widget.settings = { ...widget.settings, ...this.widgetService.getWidgetDefaultSettings(widget.settings.component_type)};
@@ -123,18 +116,15 @@ export class DboardContentComponent implements OnChanges {
 
   // to load selected component factory to edit
   editComponent(comp: any) {
-    // console.log('component to edit:', comp);
     // get the view container
     const viewContainerRef = this.widgetViewContainer.viewContainerRef;
     viewContainerRef.clear();
     // create component using existing widget factory
     const component = viewContainerRef.createComponent(comp.compFactory);
     // we posfix __EDIT__ to original widget id
-    // tslint:disable-next-line:prefer-const
-    let editWidget = JSON.parse(JSON.stringify(comp.widget));
+    const editWidget = JSON.parse(JSON.stringify(comp.widget));
     editWidget.id = '__EDIT__' + comp.widget.id;
     // assign @input widget
-    console.log('new widget to edit', editWidget);
     (<WidgetComponentModel>component.instance).widget = editWidget;
     (<WidgetComponentModel>component.instance).editMode =  true; // let it know it is in edit mode so it shows the config controls
   }
@@ -158,10 +148,7 @@ export class DboardContentComponent implements OnChanges {
   // this event will start first and set values of cellWidth and cellHeight
   // then update the this.widgets reference
   gridsterFlow(event: any) {
-    // console.log('gridsterFlow is calling and viewEditMode', this.viewEditMode);
     if (this.viewEditMode) { return; }
-    // console.log('reflow', event, event.gridsterComponent.gridster.cellHeight);
-
     const width = event.gridsterComponent.gridster.cellWidth;
     const height = event.gridsterComponent.gridster.cellHeight;
     this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height));
@@ -171,6 +158,7 @@ export class DboardContentComponent implements OnChanges {
   // we call the function update all since we don't know which one for now.
   // the width and height unit might change but not the cell width and height.
   gridEventEnd(event: any) {
+    console.log('grideventend happending');
     // console.log('drag-resize event', event);
     // console.log('gridEventEnd is calling and viewEditMode', this.viewEditMode);
     if (this.viewEditMode) { return; }
