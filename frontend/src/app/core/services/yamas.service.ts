@@ -272,7 +272,27 @@ export class YamasService {
         return filters;
     }
 
-    getFilter(key, values) {
+    getFilter(key, v) {
+        const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex', 'librange': 'TagValueLibrange'};
+        const regexp = v.match(/regexp\((.*)\)/);
+        var filtertype = 'literalor';
+        if (regexp) {
+            filtertype = 'regexp';
+            v = regexp[1];
+        } else if (v.match(/librange\((.*)\)/)) {
+            const librange = v.match(/librange\((.*)\)/);
+            filtertype = 'librange';
+            v = librange[1];
+        }
+        const filter = {
+            type: filterTypes[filtertype],
+            filter: v,
+            tagKey: key
+        };
+        return filter;
+    }
+    
+    getOrFilters(key, values) {
         const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex', 'librange': 'TagValueLibrange'};
         const filters = [];
         const literals = [];
@@ -317,7 +337,7 @@ export class YamasService {
                         'op': 'OR',
                         'filters': []
                     };
-        chain.filters = this.getFilter(key, values);
+        chain.filters = this.getOrFilters(key, values);
         return chain;
     }
 
