@@ -264,19 +264,19 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         //});
 
         this.subs.comparisionSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['comparisonOperator'].valueChanges.subscribe(val => {
-            this.thresholdSingleMetricControls['warnThreshold'].setErrors({ 'required': false });
-            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors({ 'required': false });
+            this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
+            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
         });
         // tslint:disable-next-line:max-line-length
         this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('bad', val);
-            this.thresholdSingleMetricControls['warnThreshold'].setErrors({ 'required': false });
-            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors({ 'required': false });
+            this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
+            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
         });
         // tslint:disable-next-line:max-line-length
         this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('warning', val);
-            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors({ 'required': false });
+            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
         });
         // tslint:disable-next-line:max-line-length
         this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].valueChanges.subscribe(val => {
@@ -285,6 +285,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         // tslint:disable-next-line:max-line-length
         this.subs.recoveryTypeSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryType'].valueChanges.subscribe(val => {
             // tslint:disable-next-line:max-line-length
+            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
             this.setThresholds('recovery', val === 'specific' ? this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].value : '');
         });
 
@@ -324,7 +325,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const warningStateCntrl = this.thresholdSingleMetricControls['warnThreshold'];
         const recoveryStateCntrl = this.thresholdSingleMetricControls['recoveryThreshold'];
 
-        const recoveryMode = this.thresholdSingleMetricControls['recoveryType'].value;
+        const recoveryMode = this.thresholdRecoveryType;
         const bad = badStateCntrl.value ? badStateCntrl.value : '';
         const warning = warningStateCntrl.value ? warningStateCntrl.value : '';
         const recovery = recoveryStateCntrl.value ? recoveryStateCntrl.value : '';
@@ -343,7 +344,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 warningStateCntrl.setErrors({ 'invalid': true });
             }
         }
-
         if ( this.alertForm.touched && recoveryMode === 'specific' && recovery === '') {
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors({ 'required': true });
         }
@@ -643,7 +643,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         if ( this.alertForm['controls'].notification.get('body').value.trim() === '' ) {
             this.alertForm['controls'].notification.get('body').setErrors({ 'required': true });
         }
- 
         if ( this.alertForm.valid ) {
             if ( !this.data.id && this.data.name === 'Untitled Alert' ) {
                 this.openAlertNameDialog();
