@@ -272,35 +272,52 @@ export class YamasService {
         return filters;
     }
 
-    getFilter(key, v) {
+    getFilter(key, values) {
         const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex', 'librange': 'TagValueLibrange'};
-        const regexp = v.match(/regexp\((.*)\)/);
-        var filtertype = 'literalor';
-        if (regexp) {
-            filtertype = 'regexp';
-            v = regexp[1];
-        } else if (v.match(/librange\((.*)\)/)) {
-            const librange = v.match(/librange\((.*)\)/);
-            filtertype = 'librange';
-            v = librange[1];
+        const filters = [];
+        const literals = [];
+        for ( let i = 0, len = values.length; i < len; i++ ) {
+            let v = values[i];
+            const regexp = v.match(/regexp\((.*)\)/);
+            var filtertype = 'literalor';
+            if (regexp) {
+                filtertype = 'regexp';
+                v = regexp[1];
+            } else if (v.match(/librange\((.*)\)/)) {
+                const librange = v.match(/librange\((.*)\)/);
+                filtertype = 'librange';
+                v = librange[1];
+            } else {
+                literals.push(v);
+            }
+            if ( filtertype !== 'literalor' ) {
+                const filter = {
+                    type: filterTypes[filtertype],
+                    filter: v,
+                    tagKey: key
+                };
+                filters.push(filter);
+            }
         }
-        const filter = {
-            type: filterTypes[filtertype],
-            filter: v,
-            tagKey: key
-        };
-        return filter;
+        
+        if ( literals.length ) {
+            const filter = {
+                type: 'TagValueLiteralOr',
+                filter: literals.join('|'),
+                tagKey: key
+            };
+            filters.push(filter);
+        }
+        return filters;
     }
 
     getChainFilter(key, values) {
-        const chain = {
+        const chain:any = {
                         'type': 'Chain',
                         'op': 'OR',
                         'filters': []
                     };
-        for ( let i = 0, len = values.length; i < len; i++ ) {
-            chain.filters.push(this.getFilter(key, values[i]));
-        }
+        chain.filters = this.getFilter(key, values);
         return chain;
     }
 

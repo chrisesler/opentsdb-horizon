@@ -391,7 +391,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const dbstate = this.store.selectSnapshot(DBState);
             // console.log('\n\nloadedrawdb=', db, dbstate.loaded);
             if (dbstate.loaded) {
-                this.widgetTagLoaded = false;
+                // this.widgetTagLoaded = false;
                 // need to carry new loaded dashboard id from confdb
                 this.dbid = db.id;
                 this.store.dispatch(new LoadDashboardSettings(db.content.settings));
@@ -437,9 +437,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // console.log('--- widget subscription---', widgets, dbstate.loaded);
             if (dbstate.loaded) {
                 this.widgets = widgets;
+                /*
                 if (  !this.widgetTagLoaded ) {
                     this.setDashboardTagKeys();
                 }
+                */
             }
         });
 
@@ -626,11 +628,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
+    /*
     setDashboardTagKeys() {
         this.httpService.getTagKeysForQueries(this.widgets).subscribe( (res:any)=>{
             this.wdTags = {};
-            for ( let i = 0; i < res.results.length; i++ ) {
-                const [wid, qid ] =  res.results[i].id.split(":"); 
+            for ( let i = 0; res && i < res.results.length; i++ ) {
+                const [wid, qid ] =  res.results[i].id ? res.results[i].id.split(":") : [null, null]; 
+                if ( !wid ) continue;
                 const keys = res.results[i].tagKeys.map(d => d.name);
                 if ( !this.wdTags[wid] ) {
                     this.wdTags[wid] = {};
@@ -653,14 +657,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         } else {
           return of(true);
         }
-      }
+    }
+    */
 
     // dispatch payload query by group
     handleQueryPayload(message: any) {
         let groupid = '';
         const payload = message.payload;
         const dt = this.getDashboardDateRange();
-        this.checkWidgetTagsLoaded().subscribe(loaded => {
+        // this.checkWidgetTagsLoaded().subscribe(loaded => {
             if ( payload.queries.length ) {
                 // sending each group to get data.
                 for (let i = 0; i < payload.queries.length; i++) {
@@ -691,7 +696,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             } else {
                 this.store.dispatch(new ClearQueryData({ wid: message.id }));
             }
-        });
+        // });
     }
 
     getDashboardDateRange() {

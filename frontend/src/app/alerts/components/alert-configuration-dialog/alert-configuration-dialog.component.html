@@ -76,11 +76,11 @@
                                 <div class="form-label vertical-center"><strong>Select threshold type</strong></div>
                                 <div class="threshold-type-options">
                                     <mat-radio-group formControlName="subType">
-                                        <mat-radio-button value="singleMetric">Simple</mat-radio-button>
+                                        <mat-radio-button value="singleMetric">Single</mat-radio-button>
                                         <mat-radio-button value="composite" disabled>Composite</mat-radio-button>
                                         <mat-radio-button value="periodOverPeriod" disabled>Period / Period</mat-radio-button>
                                     </mat-radio-group>
-                                    <mat-hint>This is a definition of {{thresholdType}} thresholds. Lorem ipsum dolor sit amet, consectetur adipiscing elit sedio.</mat-hint>
+                                    <mat-hint>One metric with one or more static thresholds.</mat-hint>
                                 </div>                                
                             </div>
 
@@ -219,7 +219,7 @@
                                             </mat-form-field>
                                             <mat-hint class="info-hint">
                                                     <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
-                                                    <span>Changing these settings is not a good idea. <a>More information</a></span>
+                                                    <span>How often an alert is fired when state persists.</span>
                                             </mat-hint>
                                         </div>
                                 </div>
@@ -234,10 +234,17 @@
                                             </mat-form-field>
                                             <mat-hint class="info-hint">
                                                 <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
-                                                <span>Changing these settings is not a good idea. <a>More information</a></span>
+                                                <span>Receive separate notification if there is no data.</span>
                                             </mat-hint>
                                         </div>
-                                    </div>
+                                </div>
+                                <div class="form-group delay-evaluation">
+                                    <div class="form-label vertical-center"><strong>Delay evaluation by</strong></div>
+                                    <mat-form-field appearance="fill" floatLabel="never">
+                                        <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="delayEvaluation">
+                                    </mat-form-field>
+                                    <mat-hint class="info-hint">seconds</mat-hint>
+                                </div>
                             </div>
                         </div>
                 </div>

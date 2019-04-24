@@ -227,6 +227,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 subType: data.threshold.subType || 'singleMetric', 
                 nagInterval: data.threshold.nagInterval || '0', 
                 notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false', 
+                delayEvaluation: data.threshold.delayEvaluation || 0,
                 singleMetric: this.fb.group({
                     queryIndex: data.threshold.singleMetric.queryIndex || -1 ,
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
@@ -245,7 +246,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 transitionsToNotify: [ data.notification.transitionsToNotify || []],
                 recipients: [ data.notification.recipients || {}], 
                 subject: data.notification.subject  || '', 
-                body: data.notification.subject || '', 
+                body: data.notification.body || '', 
                 opsgeniePriority:  data.notification.opsgeniePriority || '',
                 // opsgenieTags: data.notification.opsgenieTags || '',
                 // OC conditional values

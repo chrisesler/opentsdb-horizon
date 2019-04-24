@@ -120,9 +120,9 @@ export class HttpService {
         for (let i = 0, len = widgets.length; i < len; i++) {
             const queries = widgets[i].queries;
             for (let j = 0;  j < queries.length; j++) {
-                const q = { id: widgets[i].id + ':' + queries[j].id, search: '', namespace: queries[i].namespace, metrics: [] };
+                const q = { id: widgets[i].id + ':' + queries[j].id, search: '', namespace: queries[j].namespace, metrics: [] };
                 for (let k = 0;  k < queries[j].metrics.length; k++) {
-                    if ( queries[i].metrics[j].expression === undefined ) {
+                    if ( queries[j].metrics[k].expression === undefined ) {
                         q.metrics.push(queries[j].metrics[k].name);
                         hasMetric = true;
                     }
