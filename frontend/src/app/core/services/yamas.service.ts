@@ -36,7 +36,14 @@ export class YamasService {
             if ( query.metrics[j].expression ) {
                 const q = this.getExpressionQuery(j);
                 this.transformedQuery.executionGraph.push(q);
-                outputIds.push(q.id);
+                let dsId = q.id;
+                // add function definition
+                const res = this.getFunctionQueries(j, dsId);
+                if ( res.queries.length ) {
+                    this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
+                    dsId = res.queries[res.queries.length-1].id;
+                }
+                outputIds.push(dsId);
             } else {
                 const q: any = this.getMetricQuery(j);
                 if ( query.metrics[j].groupByTags && !this.checkTagsExistInFilter(query.metrics[j].groupByTags) ) {
@@ -158,35 +165,6 @@ export class YamasService {
         return index;
     }
 
-    getGroupbyTagsByQId(index, aggregator) {
-        let groupByTags = [];
-        let expression = undefined;
-        if (this.query.metrics[index] && this.query.metrics[index].expression) {
-            expression = this.query.metrics[index].expression;
-        }
-        if (expression) {
-            // replace {{<id>}} with query source id
-            const re = new RegExp(/\{\{(.+?)\}\}/, "g");
-            let matches = [];
-            let i =0;
-            while(matches = re.exec(expression)) {
-                const id = matches[1];
-                const mindex = this.query.metrics.findIndex(d => d.id === id );
-                // const sourceId = 'm' + mindex;
-                const mTags = this.getGroupbyTagsByQId( mindex, aggregator);
-                groupByTags = i === 0 ? mTags : groupByTags.filter(v => mTags.includes(v));
-                i++;
-            }
-        } else {
-            const id =   'm' + index + '-' + aggregator + '-groupby';
-            const qindex = this.transformedQuery.executionGraph.findIndex(d => d.id === id );
-            if (qindex > -1) {
-                groupByTags  =  this.transformedQuery.executionGraph[qindex].tagKeys || [];
-            }
-        }
-        return groupByTags;
-    }
-
     getFunctionQueries(index, ds) {
         const queries = [];
         const funs = this.query.metrics[index].functions || [];
@@ -236,7 +214,7 @@ export class YamasService {
         }
         
         const joinTags = {};
-        const groupByTags = this.getGroupbyTagsByQId( index,  aggregator);;
+        const groupByTags = config.groupByTags || [];
         for ( let i=0; i < groupByTags.length; i++ ) {
             const tag = groupByTags[i];
             joinTags[tag] = tag;
