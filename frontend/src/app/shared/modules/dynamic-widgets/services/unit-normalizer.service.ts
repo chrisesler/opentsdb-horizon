@@ -46,7 +46,7 @@ export class UnitNormalizerService {
         bigNum = this.formatNumberWithSuffixToAppend(this.binarySI(val, 6), precision, 'B');
         break;
 
-      // Ref: https://en.wikipedia.org/wiki/Kibibyte  
+      // Ref: https://en.wikipedia.org/wiki/Kibibyte
       // Data (Decimal/SI/1000)
       case 'decbits':
         bigNum = this.formatNumberWithSuffixToAppend(this.decimalSI(val, 0), precision, 'b');
@@ -179,6 +179,11 @@ export class UnitNormalizerService {
         bigNum = this.formatNumber(this.short(val), precision);
         break;
 
+      // Do NOT normalize, but do decimals
+      case 'raw':
+        bigNum = {num: parseFloat(val.toFixed(precision)).toString(), unit: null, unitPos: Position.right, changeIndicatorHasUnit: false};
+        break;
+
       // Unrecognized unit defaults to 'short' + dim
       default:
         bigNum = bigNum = this.formatNumberWithDim(this.short(val), precision, unit);
@@ -191,7 +196,7 @@ export class UnitNormalizerService {
 
   // Used for 'short' (auto) and time
   formatNumber(numUnit: INumberUnit, precision: number): IBigNum {
-    if (numUnit.num) {
+    if (parseInt(numUnit.num.toString(), 10) !== NaN) {
       const _bigNum: string = this.formatBigNumber(numUnit.num, precision);
       return {num: _bigNum, unit: numUnit.unit, unitPos: Position.right, changeIndicatorHasUnit: true};
     } else {
@@ -201,7 +206,7 @@ export class UnitNormalizerService {
 
   // Used for throughput, currency, custom units
   formatNumberWithDim(numUnit: INumberUnit, precision: number, dim: string): IBigNum {
-    if (numUnit.num) {
+    if (parseInt(numUnit.num.toString(), 10) !== NaN) {
       const _bigNum: string = this.formatBigNumber(numUnit.num, precision);
       return {num: _bigNum + numUnit.unit, unit: dim, unitPos: Position.right, changeIndicatorHasUnit: false};
     } else {
@@ -211,7 +216,7 @@ export class UnitNormalizerService {
 
   // Used for data, data rate
   formatNumberWithSuffixToAppend(numUnit: INumberUnit, precision: number, suffix: string): IBigNum {
-    if (numUnit.num) {
+    if (parseInt(numUnit.num.toString(), 10) !== NaN) {
       const _bigNum: string = this.formatBigNumber(numUnit.num, precision);
       return {num: _bigNum, unit: numUnit.unit + suffix, unitPos: Position.right, changeIndicatorHasUnit: true};
     } else {
