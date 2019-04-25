@@ -1,4 +1,5 @@
 import { State, StateContext, Action, Selector, createSelector } from '@ngxs/store';
+import { append, patch, removeItem, updateItem } from '@ngxs/store/operators';
 import { WidgetsConfigState } from './widgets-config.state';
 import { WidgetsRawdataState } from './widgets-data.state';
 import { UtilsService } from '../../core/services/utils.service';
@@ -69,7 +70,8 @@ export interface WidgetModel {
 export interface WidgetsModel {
     widgets: WidgetModel[];
     lastUpdated: {
-        wid: string;
+        id: string,
+        widget: any;
         needRefresh: boolean;
     };
 }
@@ -87,7 +89,7 @@ export class UpdateGridPos {
 
 export class UpdateWidget {
     public static type = '[Widget] Update Widget';
-    constructor(public readonly widget: any) {}
+    constructor(public readonly payload: any) {}
 }
 
 export class DeleteWidget {
@@ -100,12 +102,14 @@ export class AddWidget {
     constructor(public readonly widget: any) {}
 }
 
+
 @State<WidgetsModel>({
     name: 'Widgets',
     defaults: {
         widgets: [],
         lastUpdated: {
-            wid: '',
+            id: '',
+            widget: {},
             needRefresh: true
         }
     }
@@ -117,6 +121,10 @@ export class WidgetsState {
 
     @Selector() static getWigets(state: WidgetsModel) {
         return state.widgets;
+    }
+
+    @Selector() static lastUpdated(state: WidgetsModel) {
+        return state.lastUpdated;
     }
 
     // a dynamic selector to return a selected widget by id
@@ -133,27 +141,30 @@ export class WidgetsState {
     }
 
     @Action(UpdateGridPos)
-    updateGridPos(ctx: StateContext<WidgetModel[]>, { gridpos }: UpdateGridPos) {
+    updateGridPos(ctx: StateContext<WidgetsModel>, { gridpos }: UpdateGridPos) {
         const curState = ctx.getState();
         const state = this.utils.deepClone(curState);
-        for (let i = 0; i < state.length; i++) {
-            state[i].gridPos = {...state[i].gridPos, ...gridpos[state[i].id]};
+        for (let i = 0; i < state.widgets.length; i++) {
+            // state[i].gridPos = {...state[i].gridPos, ...gridpos[state[i].id]};
+            state.widgets[i].gridPos = {...state.widgets[i].gridPos, ...gridpos[state.widgets[i].id] };
         }
-        ctx.setState(state);
+        ctx.patchState({ widgets: state.widgets });
     }
 
     // updating a widget config after editing it
+    // only editing widget needs to update
     @Action(UpdateWidget)
-    updateWidget(ctx: StateContext<WidgetModel[]>, { widget }: UpdateWidget) {
-        const curState = ctx.getState();
-        const state = this.utils.deepClone(curState);
-        for (let i = 0; i < state.length; i++) {
-            if (state[i].id === widget.id) {
-                state[i] = widget;
-                break;
-            }
-        }
-        ctx.setState(state);
+    updateWidget({ setState }: StateContext<WidgetsModel>, { payload }: UpdateWidget) {
+        setState(
+            patch<WidgetsModel>({
+                widgets: updateItem<WidgetModel>(widget => widget.id === payload.id, payload.widget),
+                lastUpdated: {
+                    id: payload.id,
+                    widget: payload.widget,
+                    needRefresh: payload.needRequery
+                }
+            })
+        );
     }
 
     @Action(AddWidget)
