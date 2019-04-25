@@ -89,10 +89,6 @@ export class DeleteDashboardFail {
 export class DBState {
     constructor( private httpService: HttpService, private dbService: DashboardService ) {}
 
-    @Selector() static getDashboardId(state: DBStateModel) {
-        return state.id;
-    }
-
     @Selector() static getLoadedDB(state: DBStateModel) {
         return state.loadedDB;
     }
@@ -113,6 +109,11 @@ export class DBState {
         } else {
             return undefined;
         }
+    }
+
+    @Selector()
+    static getDashboardPath(state: DBStateModel) {
+        return state.path;
     }
 
     @Action(LoadDashboard)
@@ -159,7 +160,7 @@ export class DBState {
 
     @Action(LoadDashboardSuccess)
     loadDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: LoadDashboardSuccess) {
-       ctx.patchState({id: payload.id, loaded: true, loading: false, loadedDB: payload});
+        ctx.patchState({id: payload.id, loaded: true, loading: false, path: '/' + payload.id + payload.fullPath, loadedDB: payload});
     }
 
     @Action(LoadDashboardFail)
@@ -182,8 +183,8 @@ export class DBState {
     @Action(SaveDashboardSuccess)
     saveDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: SaveDashboardSuccess) {
         const state = ctx.getState();
-        // console.log('save dashboard success', payload);
-        ctx.patchState({...state, id: payload.id, path: payload.path, loadedDB: payload, status: 'save-success' });
+        // we dont need to upload loadedDB here, do that will cause its state updated.
+        ctx.patchState({...state, id: payload.id, path: '/' + payload.id + payload.fullPath, status: 'save-success' });
     }
 
     @Action(SaveDashboardFail)
