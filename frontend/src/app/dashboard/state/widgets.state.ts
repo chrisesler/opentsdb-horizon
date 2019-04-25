@@ -66,6 +66,14 @@ export interface WidgetModel {
     queries: any[];
 }
 
+export interface WidgetsModel {
+    widgets: WidgetModel[];
+    lastUpdated: {
+        wid: string;
+        needRefresh: boolean;
+    };
+}
+
 // actions
 export class LoadWidgets {
     public static type = '[Widget] Load Widgets';
@@ -87,17 +95,28 @@ export class DeleteWidget {
     constructor(public readonly wid: string) {}
 }
 
-@State<WidgetModel[]>({
+export class AddWidget {
+    public static type = '[Widget] Add Widget';
+    constructor(public readonly widget: any) {}
+}
+
+@State<WidgetsModel>({
     name: 'Widgets',
-    defaults: []
+    defaults: {
+        widgets: [],
+        lastUpdated: {
+            wid: '',
+            needRefresh: true
+        }
+    }
 })
 
 export class WidgetsState {
 
     constructor(private utils: UtilsService) {}
 
-    @Selector() static getWigets(state: WidgetModel[]) {
-        return state;
+    @Selector() static getWigets(state: WidgetsModel) {
+        return state.widgets;
     }
 
     // a dynamic selector to return a selected widget by id
@@ -109,8 +128,8 @@ export class WidgetsState {
 
     // update state with the loading dashboard
     @Action(LoadWidgets)
-    loadWidgets(ctx: StateContext<WidgetModel[]>, { payload }: LoadWidgets) {
-        ctx.setState(payload);
+    loadWidgets(ctx: StateContext<WidgetsModel>, { payload }: LoadWidgets) {
+        ctx.patchState({widgets: payload});
     }
 
     @Action(UpdateGridPos)
@@ -135,6 +154,13 @@ export class WidgetsState {
             }
         }
         ctx.setState(state);
+    }
+
+    @Action(AddWidget)
+    AddWidget(ctx: StateContext<WidgetsModel>, { widget }: AddWidget) {
+        const curState = ctx.getState();
+        curState.widgets.push(widget);
+        ctx.setState(curState);
     }
 
     @Action(DeleteWidget)
