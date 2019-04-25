@@ -9,6 +9,7 @@
             <button mat-menu-item [matMenuTriggerFor]="decimalDataRate">Data Rate - SI (1000 Base)</button>
             <button mat-menu-item [matMenuTriggerFor]="currency">Currency</button>
             <button mat-menu-item (click)="KeyedOnUnitInputBox('auto')">Auto</button>
+            <button mat-menu-item (click)="KeyedOnUnitInputBox('raw')">Raw</button>
             <div mat-menu-item class="custom-unit-menu-item" (click)="$event.stopPropagation();">
                     <mat-form-field class="has-right-items">
                         <mat-label>Custom Unit</mat-label>
