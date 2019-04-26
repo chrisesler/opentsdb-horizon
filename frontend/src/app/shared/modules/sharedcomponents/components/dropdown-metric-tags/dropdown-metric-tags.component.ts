@@ -50,9 +50,12 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     loadTags(load) {
         const query: any = { namespace: this.namespace, metrics: Array.isArray(this.metric) ? this.metric : [this.metric] , filters: [] };
         query.search = '';
-        if (load ) {
+        if ( this.tags ) {
+            this.tagOptions = this.tags.length ? this.tags.map(d=>  { return { name: d } } ) : [];
+            this.triggerMenu();
+        } else if (load ) {
             if ( !this.namespace || !this.metric ) {
-                this.tagOptions = this.tags && this.tags.length ? this.tags.map(d=>  { return { name: d } } ) : [];
+                this.tagOptions = [];
                 this.triggerMenu();
                 return;
             }
