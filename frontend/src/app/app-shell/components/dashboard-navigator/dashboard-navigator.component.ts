@@ -18,6 +18,7 @@ import { map, catchError } from 'rxjs/operators';
 import { NavigatorPanelComponent } from '../navigator-panel/navigator-panel.component';
 
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+import { UtilsService } from '../../../core/services/utils.service';
 
 import {
     DashboardNavigatorState,
@@ -83,6 +84,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
         private store: Store,
         private interCom: IntercomService,
         private router: Router,
+        private utils: UtilsService,
         @Inject('WINDOW') private window: any
     ) { }
 
@@ -98,7 +100,8 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
 
         this.stateSubs['panels'] = this.panels$.subscribe( data => {
             // console.log('NAVIGATION PANELS UPDATED', data);
-            self.panels = data;
+            // self.panels = data;
+            self.panels = this.utils.deepClone(data);
         });
 
         this.stateSubs['currentPaneIndex'] = this.currentPanelIndex$.subscribe( idx => {
