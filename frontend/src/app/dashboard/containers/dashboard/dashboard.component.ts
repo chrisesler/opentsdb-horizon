@@ -16,7 +16,7 @@ import { UtilsService } from '../../../core/services/utils.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
 import { LoadUserNamespaces, LoadUserFolderData, UserSettingsState } from '../../state/user.settings.state';
-import { WidgetsState, LoadWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel } from '../../state/widgets.state';
+import { WidgetsState, UpdateWidgets, UpdateGridPos, UpdateWidget, DeleteWidget, WidgetModel } from '../../state/widgets.state';
 import {
     WidgetsRawdataState,
     GetQueryDataByGroup,
@@ -248,7 +248,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     console.log('this widgets aftger clone', this.widgets);
                     // update the state with new widgets
                     // const copyWidgets = this.utilService.deepClone(this.widgets);
-                    this.store.dispatch(new LoadWidgets(this.widgets));
+                    this.store.dispatch(new UpdateWidgets(this.widgets));
                     this.rerender = { 'reload': true };
                     const gridsterContainerEl = this.elRef.nativeElement.querySelector('.is-scroller');
                     const cloneWidgetEndPos = (cloneWidget.gridPos.y + cloneWidget.gridPos.h) * this.gridsterUnitSize.height;
@@ -270,25 +270,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'updateWidgetConfig':
                     const mIndex = this.widgets.findIndex(w => w.id === message.id);
                     if (mIndex === -1) {
-                        /*
                         // update position to put new on on top
                         const newWidgetY = message.payload.widget.gridPos.h;
                         this.widgets = this.dbService.positionWidgetY(this.widgets, newWidgetY);
+                        // change name to fist metric if name is not change
+                        if (message.payload.widget.settings.title === 'my widget') {
+                            message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
+                        }
                         // this is the newly adding widget
                         if (this.widgets.length === 1 && this.widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
                             this.widgets[0] = message.payload.widget;
                         } else {
                             this.widgets.unshift(message.payload.widget);
                         }
-                        this.store.dispatch(new LoadWidgets(this.widgets));
-                        */
+                        this.store.dispatch(new UpdateWidgets(this.widgets));
 
                     } else {
                         // check the component type is PlaceholderWidgetComponent.
                         // If yes, it needs to be replaced with new component
                         if (this.widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
                             this.widgets[mIndex] = message.payload.widget;
-                            this.store.dispatch(new LoadWidgets(this.widgets));
+                            // change name to fist metric if name is not change
+                            if (message.payload.widget.settings.title === 'my widget') {
+                                message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
+                            }
+                            this.store.dispatch(new UpdateWidgets(this.widgets));
                         } else {
                             // editing an existing widget
                             this.store.dispatch(new UpdateWidget({
@@ -382,7 +388,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.dbid = db.id;
                 this.store.dispatch(new LoadDashboardSettings(db.content.settings));
                 // update WidgetsState
-                this.store.dispatch(new LoadWidgets(db.content.widgets));
+                this.store.dispatch(new UpdateWidgets(db.content.widgets));
             }
         }));
 
@@ -696,7 +702,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             widget.query.groups[0].queries = group.queries;
             widgets = this.dbService.positionWidgetY(widgets, widget.gridPos.h);
             widgets.unshift(widget);
-            this.store.dispatch(new LoadWidgets(widgets));
+            this.store.dispatch(new UpdateWidgets(widgets));
             this.rerender = { 'reload': true };
         });
     }
