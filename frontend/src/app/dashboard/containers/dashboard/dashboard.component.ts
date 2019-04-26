@@ -11,6 +11,7 @@ import { IntercomService, IMessage } from '../../../core/services/intercom.servi
 import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
 import { Observable, Subscription } from 'rxjs';
+import { skip } from 'rxjs/operators';
 import { UtilsService } from '../../../core/services/utils.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
@@ -62,7 +63,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
     @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<string>;
     @Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<string>;
-    @Select(DBState.getDashboardFriendlyPath) dbPath$: Observable<string>;
+    // @Select(DBState.getDashboardFriendlyPath) dbPath$: Observable<string>;
+    @Select(DBState.getDashboardPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
     @Select(DBState.getDashboardError) dbError$: Observable<any>;
@@ -72,7 +74,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBSettingsState.getDashboardTags) dbTags$: Observable<any>;
     @Select(DBSettingsState.getDashboardTagValues) tagValues$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
-    @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
+    @Select(WidgetsState.lastUpdated) lastUpdated$: Observable<any>
+        ; @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
     @Select(AppShellState.getCurrentMediaQuery) mediaQuery$: Observable<string>;
     // temporary disable for now, will delete once we are clear
     // @Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
@@ -157,6 +160,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dashboardDeleteDialog: MatDialogRef<DashboardDeleteDialogComponent> | null;
     activeMediaQuery = '';
     gridsterUnitSize: any = {};
+    lastWidgetUpdated: any;
     private subscription: Subscription = new Subscription();
 
     constructor(
@@ -185,7 +189,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.dbid = '_new_';
                 this.store.dispatch(new LoadDashboard(this.dbid));
             } else {
-               this.store.dispatch(new LoadDashboard(url[0].path));
+                this.store.dispatch(new LoadDashboard(url[0].path));
             }
         }));
         // setup navbar portal
@@ -193,21 +197,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.cdkService.setNavbarPortal(this.dashboardNavbarPortal);
 
         // ready to handle request from children of DashboardModule
-        let widgets;
+        // let widgets;
         this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
             switch (message.action) {
                 case 'getWidgetCachedData':
                     const widgetCachedData = this.store.selectSnapshot(WidgetsRawdataState.getWidgetRawdataByID(message.id));
                     let hasQueryError = false;
-                    if ( widgetCachedData ) {
-                        for ( const qid in widgetCachedData ) {
-                            if ( !widgetCachedData[qid] || widgetCachedData[qid]['error'] !== undefined ) {
+                    if (widgetCachedData) {
+                        for (const qid in widgetCachedData) {
+                            if (!widgetCachedData[qid] || widgetCachedData[qid]['error'] !== undefined) {
                                 hasQueryError = true;
                             }
                         }
                     }
                     // requery if cachedData has error or data not fetched yet
-                    if ( !widgetCachedData || hasQueryError ) {
+                    if (!widgetCachedData || hasQueryError) {
                         this.handleQueryPayload(message);
                     } else {
                         this.updateWidgetGroup(message.id, widgetCachedData);
@@ -216,37 +220,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
                 case 'setDashboardEditMode':
                     // copy the widget data to editing widget
-                    if ( message.id ) {
+                    if (message.id) {
                         this.store.dispatch(new CopyWidgetData(message.id, '__EDIT__' + message.id));
                     }
                     // when click on view/edit mode, update db setting state of the mode
-                    this.store.dispatch(new UpdateMode('edit'));
-                    this.cdRef.detectChanges();
+                    // need to setTimeout for next tick to change the mode
+                    setTimeout(() => {
+                        this.store.dispatch(new UpdateMode('edit'));
+                    });
                     break;
                 case 'removeWidget':
                     this.store.dispatch(new DeleteWidget(message.payload.widgetId));
                     this.rerender = { 'reload': true };
                     break;
                 case 'cloneWidget':
-                    widgets = this.widgets;
+                    // widgets = this.widgets;
                     const cloneWidget = JSON.parse(JSON.stringify(message.payload));
                     cloneWidget.id = this.utilService.generateId();
-                    cloneWidget.gridPos.x =  cloneWidget.gridPos.x;
+                    cloneWidget.gridPos.x = cloneWidget.gridPos.x;
                     cloneWidget.gridPos.y = cloneWidget.gridPos.y + cloneWidget.gridPos.h;
-                    for ( let i = 0 ; i < widgets.length; i++ ) {
-                        if ( widgets[i].gridPos.y >= cloneWidget.gridPos.y ) {
-                            widgets[i].gridPos.y += cloneWidget.gridPos.h;
+                    for (let i = 0; i < this.widgets.length; i++) {
+                        if (this.widgets[i].gridPos.y >= cloneWidget.gridPos.y) {
+                            this.widgets[i].gridPos.y += cloneWidget.gridPos.h;
                         }
                     }
-                    widgets.push(cloneWidget);
-                    this.store.dispatch(new LoadWidgets(widgets));
+                    this.widgets.push(cloneWidget);
+                    console.log('this widgets aftger clone', this.widgets);
+                    // update the state with new widgets
+                    // const copyWidgets = this.utilService.deepClone(this.widgets);
+                    this.store.dispatch(new LoadWidgets(this.widgets));
                     this.rerender = { 'reload': true };
                     const gridsterContainerEl = this.elRef.nativeElement.querySelector('.is-scroller');
                     const cloneWidgetEndPos = (cloneWidget.gridPos.y + cloneWidget.gridPos.h) * this.gridsterUnitSize.height;
                     const containerPos = gridsterContainerEl.getBoundingClientRect();
-                    if ( cloneWidgetEndPos > containerPos.height ) {
+                    if (cloneWidgetEndPos > containerPos.height) {
                         setTimeout(() => {
-                            gridsterContainerEl.scrollTop =  cloneWidgetEndPos - containerPos.height;
+                            gridsterContainerEl.scrollTop = cloneWidgetEndPos - containerPos.height;
                         }, 100);
                     }
                     break;
@@ -261,6 +270,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'updateWidgetConfig':
                     const mIndex = this.widgets.findIndex(w => w.id === message.id);
                     if (mIndex === -1) {
+                        /*
                         // update position to put new on on top
                         const newWidgetY = message.payload.widget.gridPos.h;
                         this.widgets = this.dbService.positionWidgetY(this.widgets, newWidgetY);
@@ -271,6 +281,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             this.widgets.unshift(message.payload.widget);
                         }
                         this.store.dispatch(new LoadWidgets(this.widgets));
+                        */
+
                     } else {
                         // check the component type is PlaceholderWidgetComponent.
                         // If yes, it needs to be replaced with new component
@@ -278,15 +290,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             this.widgets[mIndex] = message.payload.widget;
                             this.store.dispatch(new LoadWidgets(this.widgets));
                         } else {
-                            this.store.dispatch(new UpdateWidget(message.payload.widget));
-                            // many way to handle this, but we should do with the way
-                            // store suppose to work.
-                            // const updatedWidget = this.store.selectSnapshot(WidgetsState.getUpdatedWidget(message.payload.id));
-                            this.interCom.responsePut({
+                            // editing an existing widget
+                            this.store.dispatch(new UpdateWidget({
                                 id: message.id,
-                                action: 'getUpdatedWidgetConfig',
-                                payload: this.utilService.deepClone(message.payload)
-                            });
+                                needRequery: message.payload.needRequery,
+                                widget: message.payload.widget
+                            }));
                         }
                     }
                     break;
@@ -352,13 +361,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }));
 
-        this.subscription.add(this.mediaQuery$.subscribe( currentMediaQuery => {
+        // only this widget need to update config, and flag to requery or not
+        this.subscription.add(this.lastUpdated$.subscribe(lastUpdated => {
+            this.interCom.responsePut({
+                id: lastUpdated.id,
+                action: 'getUpdatedWidgetConfig',
+                payload: lastUpdated
+            });
+        }));
+
+        this.subscription.add(this.mediaQuery$.subscribe(currentMediaQuery => {
             this.activeMediaQuery = currentMediaQuery;
         }));
 
         this.subscription.add(this.loadedRawDB$.subscribe(db => {
             const dbstate = this.store.selectSnapshot(DBState);
-            // console.log('\n\nloadedrawdb=', db, dbstate.loaded);
+            console.log('\n\nloadedrawdb=', db, dbstate.loaded);
             if (dbstate.loaded) {
                 // need to carry new loaded dashboard id from confdb
                 this.dbid = db.id;
@@ -402,6 +420,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // tslint:disable-next-line: no-shadowed-variable
         this.subscription.add(this.widgets$.subscribe((widgets) => {
             const dbstate = this.store.selectSnapshot(DBState);
+            console.log('widget$ is calling', dbstate.loaded);
             if (dbstate.loaded) {
                 this.widgets = this.utilService.deepClone(widgets);
             }
@@ -412,9 +431,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.dbTime$.subscribe(t => {
-             this.dbTime = this.utilService.deepClone(t);
+            this.dbTime = this.utilService.deepClone(t);
             // do not intercom if widgets are still loading
-            if ( !this.widgets.length ) {
+            if (!this.widgets.length) {
                 return;
             }
             if (this.dbTime && this.dbTime.zone !== t.zone) {
@@ -430,7 +449,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }));
 
-        this.subscription.add(this.dbSettings$.subscribe (settings => {
+        this.subscription.add(this.dbSettings$.subscribe(settings => {
             this.dbSettings = this.utilService.deepClone(settings);
         }));
 
@@ -512,9 +531,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
             let error = null;
             const grawdata = {};
             if (result !== undefined) {
-                if ( result.rawdata !== undefined && !result.rawdata.error ) {
+                if (result.rawdata !== undefined && !result.rawdata.error) {
                     grawdata[result.gid] = result.rawdata;
-                } else if ( result.rawdata !== undefined ) {
+                } else if (result.rawdata !== undefined) {
                     grawdata[result.gid] = {};
                     error = result.rawdata.error;
                 }
@@ -560,10 +579,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }));
 
-        // this needs to handle better, since will cause rerender again when first loaded
-        this.subscription.add(this.drawerOpen$.subscribe( sideNav => {
+        // skip the first time this drawer loaded
+        this.subscription.add(this.drawerOpen$.pipe(skip(1)).subscribe(sideNav => {
             setTimeout(() => {
-                // this.rerender = { 'reload': true };
+                this.rerender = { 'reload': true };
             }, 300);
         }));
     }
@@ -594,7 +613,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let groupid = '';
         const payload = message.payload;
         const dt = this.getDashboardDateRange();
-        if ( payload.queries.length ) {
+        if (payload.queries.length) {
             // sending each group to get data.
             for (let i = 0; i < payload.queries.length; i++) {
                 let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
@@ -638,6 +657,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // this will call based on gridster reflow and size changes event
     widgetsLayoutUpdate(gridLayout: any) {
+        console.log('the gridlayout', gridLayout);
         this.gridsterUnitSize = gridLayout.clientSize;
         if (gridLayout.clientSize) {
             this.store.dispatch(new UpdateGridsterUnitSize(gridLayout.clientSize));
