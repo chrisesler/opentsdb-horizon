@@ -284,7 +284,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             this.widgets.unshift(message.payload.widget);
                         }
                         this.store.dispatch(new UpdateWidgets(this.widgets));
-
                     } else {
                         // check the component type is PlaceholderWidgetComponent.
                         // If yes, it needs to be replaced with new component
