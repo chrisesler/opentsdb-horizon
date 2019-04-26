@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, OnDestroy,  AfterViewInit } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, ViewChild, ElementRef, OnDestroy,  AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { UnitNormalizerService, IBigNum } from '../../services/unit-normalizer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -81,7 +81,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         private interCom: IntercomService,
         public dialog: MatDialog,
         public util: UtilsService,
-        public UN: UnitNormalizerService
+        public UN: UnitNormalizerService,
+        private cdRef: ChangeDetectorRef
         ) { }
 
     ngOnInit() {
@@ -108,7 +109,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                         } else { // no data, so get some
                             this.refreshData();
                         }
-
+                        this.cdRef.detectChanges();
                         break;
                     case 'getUpdatedWidgetConfig':
                         if (this.widget.id === message.id) {
