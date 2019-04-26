@@ -1,5 +1,5 @@
-import { Component, OnInit, HostBinding, Input, OnDestroy, ViewChild, ElementRef, AfterContentInit } from '@angular/core';
-
+import { Component, OnInit, HostBinding, Input,
+    OnDestroy, ViewChild, ElementRef, AfterContentInit, ChangeDetectorRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -49,13 +49,14 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
         private interCom: IntercomService,
         private dataTransformer: DatatranformerService,
         public dialog: MatDialog,
-        private util: UtilsService
+        private util: UtilsService,
+        private cdRef: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            switch( message.action ) {
+            switch ( message.action ) {
                 case 'reQueryData':
                     this.refreshData();
                     break;
@@ -73,6 +74,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
                         }
                         this.setOptions();
                         this.options = this.dataTransformer.yamasToD3Bar(this.options, this.widget, message.payload.rawdata);
+                        this.cdRef.detectChanges();
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.widget = message.payload.widget;
@@ -89,7 +91,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        setTimeout(()=>this.refreshData(this.editMode ? false : true), 0);
+        setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
     }
 
 
