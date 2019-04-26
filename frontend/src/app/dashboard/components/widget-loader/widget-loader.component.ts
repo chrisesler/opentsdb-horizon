@@ -1,7 +1,7 @@
 import {
     Type, Component, OnInit, Input, Output, ViewChild,
     ComponentFactoryResolver, EventEmitter,
-    OnChanges, SimpleChanges, HostBinding, ViewContainerRef
+    OnChanges, SimpleChanges, HostBinding, ChangeDetectionStrategy
 } from '@angular/core';
 import { WidgetService } from '../../../core/services/widget.service';
 import { WidgetDirective } from '../../directives/widget.directive';
@@ -15,7 +15,8 @@ import { WidgetDeleteDialogComponent } from '../widget-delete-dialog/widget-dele
 @Component({
     selector: 'app-widget-loader',
     templateUrl: './widget-loader.component.html',
-    styleUrls: ['./widget-loader.component.scss']
+    styleUrls: ['./widget-loader.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WidgetLoaderComponent implements OnInit, OnChanges {
     @HostBinding('class.widget-loader') private hostClass = true;
@@ -38,17 +39,12 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         ) { }
 
     ngOnInit() {
-        // console.log('WIDGET', this.widget);
         this.loadComponent();
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        // mainly to load new dynamic widget from selecting type in PlaceholderWidget
         if (changes.widget) {
-                    console.log('widget loader changes', changes);
-
-            // console.log(JSON.stringify(changes.widget.currentValue));
-            // console.log(JSON.stringify(changes.widget.previousValue));
-
             if ( changes.widget.previousValue !== undefined && changes.widget.currentValue ) {
                 const oldConfig = changes.widget.previousValue;
                 const newConfig = changes.widget.currentValue;
@@ -60,7 +56,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     }
 
     loadComponent() {
-        console.log('component creating', this.widget.id, this.widget.settings.component_type);
+        // console.log('component creating', this.widget.id, this.widget.settings.component_type);
         let componentName = '__notfound__';
         if (this.widget.settings.component_type) {
             componentName = this.widget.settings.component_type;
@@ -69,8 +65,6 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         this.componentFactory = this.componentFactoryResolver.resolveComponentFactory(componentToLoad);
         this.viewContainerRef = this.widgetContainer.viewContainerRef;
         this.viewContainerRef.clear();
-        // const componentRef = viewContainerRef.createComponent(componentFactory);
-        // (<WidgetComponent>componentRef.instance).config = this.widgetconf;
         this._component = this.viewContainerRef.createComponent(this.componentFactory);
 
         if ( componentName === 'PlaceholderWidgetComponent' ) {
@@ -86,7 +80,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                     'widget': widget
                 });
                 // intercom to container to update state
-                this.interCom.requestSend(<IMessage> {
+               this.interCom.requestSend(<IMessage> {
                     action: 'setDashboardEditMode',
                     payload: 'edit'
                 });
@@ -113,7 +107,6 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     }
 
     widgetClone() {
-        console.log('CLONE WIDGET CLICKED');
         this.interCom.requestSend(<IMessage> {
             action: 'cloneWidget',
             id: this.widget.id,
@@ -147,7 +140,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         dialogConf.data = {};
         this.widgetDeleteDialog = this.dialog.open(WidgetDeleteDialogComponent, dialogConf);
         this.widgetDeleteDialog.afterClosed().subscribe((dialog_out: any) => {
-            console.log("delete widget confirm", dialog_out);
+            // console.log('delete widget confirm', dialog_out);
             if ( dialog_out && dialog_out.delete  ) {
                 this.interCom.requestSend(<IMessage> {
                     action: 'removeWidget',
