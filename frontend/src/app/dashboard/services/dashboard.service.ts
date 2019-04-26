@@ -137,7 +137,7 @@ export class DashboardService {
     const dashboard = {
       version: this.version,
       settings: dbstate.Settings,
-      widgets: dbstate.Widgets
+      widgets: dbstate.Widgets.widgets
     };
     return dashboard;
   }
