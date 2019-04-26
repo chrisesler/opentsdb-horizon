@@ -279,14 +279,15 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             this.setThresholds('recovery', val === 'specific' ? this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].value : '');
         });
 
-        this.subs.metricIdSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['metricId'].valueChanges.subscribe(val => {
+        this.subs.metricIdSub = this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['metricId'].valueChanges
+            .subscribe(val => {
             const [qindex, mindex] = val.split(':');
             const gValues = this.alertForm.get('alertGroupingRules').value;
             if ( qindex && mindex && gValues ) {
                 let tags = this.getGroupbyTags(qindex, mindex);
                 tags = tags.filter(v => gValues.includes(v));
-                console.log("metric selection changes", tags, JSON.stringify(gValues));
-                this.alertForm.get('alertGroupingRules').setValue(tags);   
+                // console.log("metric selection changes", tags, JSON.stringify(gValues));
+                this.alertForm.get('alertGroupingRules').setValue(tags);
             }
         });
     }
@@ -305,7 +306,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 }
             }
         ];
-        
     }
 
     validateThresholds(group) {
@@ -667,7 +667,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     recoveryTypeChange(event: any) {
         const control = <FormControl>this.thresholdSingleMetricControls.recoveryType;
         control.setValue(event.value);
-        console.log('recoveryTypeChange', event.value);
+        // console.log('recoveryTypeChange', event.value);
     }
 
     alertRecipientsUpdate(event: any) {
@@ -694,7 +694,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.nameAlertDialog = this.dialog.open(NameAlertDialogComponent, dialogConf);
 
         this.nameAlertDialog.afterClosed().subscribe((dialog_out: any) => {
-            console.log('NAME ALERT DIALOG [afterClosed]', dialog_out);
+            // console.log('NAME ALERT DIALOG [afterClosed]', dialog_out);
             if (dialog_out && dialog_out.alertName) {
                 this.data.name = dialog_out.alertName;
                 this.alertForm.controls.name.setValue(this.data.name);
