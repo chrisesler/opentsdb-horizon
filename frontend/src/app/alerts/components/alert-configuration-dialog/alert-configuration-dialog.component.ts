@@ -396,6 +396,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
     setThresholdLines() {
         this.options.thresholds = Object.values(this.thresholds);
+        this.setChartYMax();
         this.options = {...this.options};
     }
 
@@ -563,7 +564,20 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             }
         }
         config.queries = queries;
-        this.chartData = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], this.queryData);
+        const data = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], this.queryData);
+        this.setChartYMax();
+        this.chartData = data;
+    }
+
+    setChartYMax() {
+        // check the y max value 
+        const bad = this.thresholdSingleMetricControls['badThreshold'].value;
+        const warning = this.thresholdSingleMetricControls['warnThreshold'].value;
+        const recovery = this.thresholdSingleMetricControls['recoveryThreshold'].value;
+        const max = Math.max(bad, warning, recovery);
+        if ( max && max > this.options.axes.y.tickFormat.max ) {
+            this.options.axes.y.valueRange[1] = max +  max * 0.1 ;
+        }
     }
 
     updateQuery(message) {

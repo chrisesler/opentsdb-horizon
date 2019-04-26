@@ -531,9 +531,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     toggleMetric(id) {
-        const index = this.query.metrics.findIndex(d => d.id === id ) ;
-        this.query.metrics[index].settings.visual.visible = !this.query.metrics[index].settings.visual.visible;
-        this.queryChanges$.next(true);
+        this.requestChanges('ToggleQueryMetricVisibility', { mid : id} );
     }
 
     cloneMetric(id) {
@@ -548,9 +546,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     deleteMetric(id) {
-        const index = this.query.metrics.findIndex(d => d.id === id ) ;
-        this.query.metrics.splice(index, 1);
-        this.queryChanges$.next(true);
+        this.requestChanges('DeleteQueryMetric', { mid : id} );
         this.initMetricDataSource();
     }
 
