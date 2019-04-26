@@ -274,6 +274,7 @@
                                         [namespace]="getSelectedMetricQueryIndex() ? queries[getSelectedMetricQueryIndex()].namespace : '' "
                                         [metric]="getSelectedMetric()"
                                         [selected]="alertForm.get('alertGroupingRules').value"
+                                        [tags]="getSelectedMetricTags()"
                                         [all]="false"
                                         (change)="setQueryGroupRules($event)"></dropdown-metric-tags>
                                 </div>

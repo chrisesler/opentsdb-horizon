@@ -295,6 +295,32 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
     }
 
+    getGroupByTags(id) {
+        const index = this.query.metrics.findIndex(d => d.id === id );
+        let groupByTags = [];
+        let expression = undefined;
+        if (this.query.metrics[index] && this.query.metrics[index].expression) {
+            expression = this.query.metrics[index].expression;
+        }
+        if (expression) {
+            // replace {{<id>}} with query source id
+            const re = new RegExp(/\{\{(.+?)\}\}/, "g");
+            let matches = [];
+            let i =0;
+            while(matches = re.exec(expression)) {
+                const id = matches[1];
+                const mTags = this.getGroupByTags( id );
+                groupByTags = i === 0 ? mTags : groupByTags.filter(v => mTags.includes(v));
+                i++;
+            }
+        } else {
+            if ( index > -1) {
+                groupByTags  =  this.query.metrics[index].groupByTags || [];
+            }
+        }
+        return groupByTags;
+    }
+
     getMetricLabel(index) {
         const isExpression = this.query.metrics[index].expression !== undefined;
         let labelIndex = 0;
@@ -354,19 +380,20 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     updateExpression(id, e) {
         const expression = e.srcElement.value.trim();
-        const index = this.query.metrics.findIndex(d => d.id === id);
+        let index = this.query.metrics.findIndex(d => d.id === id);
         if (expression && this.isValidExpression(id, expression)) {
             const expConfig = this.getExpressionConfig(expression);
             if (index === -1) {
                 this.query.metrics.push(expConfig);
                 this.isAddExpressionProgress = false;
                 this.fg.addControl(expConfig.id, new FormControl(expression));
+                index = this.query.metrics.length - 1;
             } else {
                 expConfig.id = id;
                 this.query.metrics[index] = expConfig;
                 this.editExpressionId = -1;
             }
-
+            this.query.metrics[index].groupByTags = this.getGroupByTags(expConfig.id);
             this.queryChanges$.next(true);
             this.initMetricDataSource();
         } else if (!expression && index === -1) {
@@ -504,9 +531,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     toggleMetric(id) {
-        const index = this.query.metrics.findIndex(d => d.id === id ) ;
-        this.query.metrics[index].settings.visual.visible = !this.query.metrics[index].settings.visual.visible;
-        this.queryChanges$.next(true);
+        this.requestChanges('ToggleQueryMetricVisibility', { mid : id} );
     }
 
     cloneMetric(id) {
@@ -521,9 +546,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     deleteMetric(id) {
-        const index = this.query.metrics.findIndex(d => d.id === id ) ;
-        this.query.metrics.splice(index, 1);
-        this.queryChanges$.next(true);
+        this.requestChanges('DeleteQueryMetric', { mid : id} );
         this.initMetricDataSource();
     }
 

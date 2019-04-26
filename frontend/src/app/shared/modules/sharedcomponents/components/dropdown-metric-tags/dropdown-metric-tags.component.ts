@@ -28,6 +28,7 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     @Input() namespace: string;
     @Input() metric: any;
     @Input() selected: any[] = ['all'];
+    @Input() tags: any = null;
     @Input() all: boolean = true;
     @Output() change: EventEmitter<any> = new EventEmitter();
 
@@ -49,7 +50,10 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     loadTags(load) {
         const query: any = { namespace: this.namespace, metrics: Array.isArray(this.metric) ? this.metric : [this.metric] , filters: [] };
         query.search = '';
-        if (load ) {
+        if ( this.tags ) {
+            this.tagOptions = this.tags.length ? this.tags.map(d=>  { return { name: d } } ) : [];
+            this.triggerMenu();
+        } else if (load ) {
             if ( !this.namespace || !this.metric ) {
                 this.tagOptions = [];
                 this.triggerMenu();
