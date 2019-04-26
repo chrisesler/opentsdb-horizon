@@ -1,7 +1,5 @@
 import { State, StateContext, Action, Selector, createSelector } from '@ngxs/store';
 import { append, patch, removeItem, updateItem } from '@ngxs/store/operators';
-import { WidgetsConfigState } from './widgets-config.state';
-import { WidgetsRawdataState } from './widgets-data.state';
 import { UtilsService } from '../../core/services/utils.service';
 // we might need to define data model for each group and inner metric obj
 // to put strict on object
@@ -77,8 +75,8 @@ export interface WidgetsModel {
 }
 
 // actions
-export class LoadWidgets {
-    public static type = '[Widget] Load Widgets';
+export class UpdateWidgets {
+    public static type = '[Widget] Update Widgets';
     constructor(public readonly payload: WidgetModel[]) {}
 }
 
@@ -88,7 +86,7 @@ export class UpdateGridPos {
 }
 
 export class UpdateWidget {
-    public static type = '[Widget] Update Widget';
+    public static type = '[Widget] Update a Widget';
     constructor(public readonly payload: any) {}
 }
 
@@ -96,12 +94,6 @@ export class DeleteWidget {
     public static type = '[Widget] Delete Widget';
     constructor(public readonly wid: string) {}
 }
-
-export class AddWidget {
-    public static type = '[Widget] Add Widget';
-    constructor(public readonly widget: any) {}
-}
-
 
 @State<WidgetsModel>({
     name: 'Widgets',
@@ -135,8 +127,8 @@ export class WidgetsState {
     }
 
     // update state with the loading dashboard
-    @Action(LoadWidgets)
-    loadWidgets(ctx: StateContext<WidgetsModel>, { payload }: LoadWidgets) {
+    @Action(UpdateWidgets)
+    updateWidgets(ctx: StateContext<WidgetsModel>, { payload }: UpdateWidgets) {
         ctx.patchState({widgets: payload});
     }
 
@@ -165,13 +157,6 @@ export class WidgetsState {
                 }
             })
         );
-    }
-
-    @Action(AddWidget)
-    AddWidget(ctx: StateContext<WidgetsModel>, { widget }: AddWidget) {
-        const curState = ctx.getState();
-        curState.widgets.push(widget);
-        ctx.setState(curState);
     }
 
     @Action(DeleteWidget)
