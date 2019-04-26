@@ -1,6 +1,6 @@
 import {
     Component, OnInit, OnChanges, AfterContentInit, SimpleChanges, HostBinding, Input,
-    OnDestroy, ViewChild, ElementRef
+    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef
 } from '@angular/core';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
@@ -35,11 +35,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     @ViewChild('dygraph') private dygraph: ElementRef;
 
     private listenSub: Subscription;
-    // tslint:disable-next-line:no-inferrable-types
-    private isDataLoaded: boolean = false;
-    // tslint:disable-next-line:no-inferrable-types
-    private isStackedGraph: boolean = false;
-    // properties to pass to dygraph chart directive
+    private isDataLoaded = false;
+    private isStackedGraph = false;
     chartType = 'line';
 
     options: IDygraphOptions = {
@@ -64,7 +61,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         ylabel: '',
         y2label: '',
         axisLineWidth: 0,
-        axisTickSize: 0, 
+        axisTickSize: 0,
         axisLineColor: '#fff',
         axes: {
             y: {
@@ -82,20 +79,21 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         visibility: [],
         gridLineColor: '#ccc'
     };
-    data: any = [[0]];
+    data: any = { ts: [[0]] };
     size: any = {};
     newSize: any = {};
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
     legendWidth;
     legendHeight;
-    nQueryDataLoading = 0;
+    nQueryDataLoading: number;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
     legendDisplayColumns = ['series', 'name', 'min', 'max', 'avg', 'last'];
     editQueryId = null;
-    isDataRefreshRequired = false;
+    needRequery = false;
     constructor(
+        private cdRef: ChangeDetectorRef,
         private interCom: IntercomService,
         public dialog: MatDialog,
         private dataTransformer: DatatranformerService,
@@ -105,47 +103,51 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     ) { }
 
     ngOnInit() {
-                // subscribe to event stream
-                this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-                    switch ( message.action ) {
-                        case 'reQueryData':
-                            this.refreshData();
-                            break;
-                        case 'TimezoneChanged':
-                            this.setTimezone(message.payload.zone);
-                            this.options = {...this.options};
-                            break;
-                    }
+        // subscribe to event stream
+        this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+            switch (message.action) {
+                case 'reQueryData':
+                    this.refreshData();
+                    break;
+                case 'TimezoneChanged':
+                    this.setTimezone(message.payload.zone);
+                    this.options = { ...this.options };
+                    break;
+            }
 
-                    if (message && (message.id === this.widget.id)) {
-                        switch (message.action) {
-                            case 'updatedWidgetGroup':
-                                this.nQueryDataLoading -= Object.keys(message.payload.rawdata).length;
-                                if ( !this.isDataLoaded ) {
-                                    this.isDataLoaded = true;
-                                    this.resetChart();
-                                }
-                                if ( message.payload.error ) {
-                                    this.error = message.payload.error;
-                                } else {
-                                    const rawdata = message.payload.rawdata;
-                                    this.setTimezone(message.payload.timezone);
-                                    this.data = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data, rawdata);
-                                    this.setSize();
-                                }
-                                break;
-                            case 'getUpdatedWidgetConfig':
-                                this.widget = message.payload.widget;
-                                this.setOptions();
-                                this.refreshData(message.payload.isDataRefreshRequired);
-                                break;
-                            }
-                    }
-                });
-                // when the widget first loaded in dashboard, we request to get data
-                // when in edit mode first time, we request to get cached raw data.
-                setTimeout(()=>this.refreshData(this.editMode ? false : true),0);
-                this.setOptions();
+            if (message && (message.id === this.widget.id)) {
+                switch (message.action) {
+                    case 'updatedWidgetGroup':
+                        this.nQueryDataLoading -= Object.keys(message.payload.rawdata).length;
+                        if (!this.isDataLoaded) {
+                            this.isDataLoaded = true;
+                            this.resetChart();
+                        }
+                        if (message.payload.error) {
+                            this.error = message.payload.error;
+                        } else {
+                            const rawdata = message.payload.rawdata;
+                            this.setTimezone(message.payload.timezone);
+                            this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
+                            this.data = { ...this.data };
+                            setTimeout(() => {
+                                this.setSize();
+                                this.cdRef.detectChanges();
+                            }, 200);
+                        }
+                        break;
+                    case 'getUpdatedWidgetConfig':
+                        this.widget = message.payload.widget;
+                        this.setOptions();
+                        this.refreshData(message.payload.needRefresh);
+                        break;
+                }
+            }
+        });
+        // when the widget first loaded in dashboard, we request to get data
+        // when in edit mode first time, we request to get cached raw data.
+        setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
+        this.setOptions();
     }
     setOptions() {
         this.setLegendDiv();
@@ -155,10 +157,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
 
     resetChart() {
         this.options = {...this.options, labels: ['x']};
-        this.data = [[0]];
+        this.data = { ts: [[0]] };
     }
 
     updateConfig(message) {
+        console.log('update config when thing change:', message);
         switch ( message.action ) {
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
@@ -166,7 +169,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true; // set flag to requery if apply to dashboard
                 break;
             case 'SetVisualization':
                 this.setVisualization( message.payload.gIndex, message.payload.data );
@@ -193,7 +196,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                 this.widget.queries = [...this.widget.queries];
                 this.setOptions();
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
@@ -215,19 +218,19 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                 this.deleteQuery(message.id);
                 this.widget = this.util.deepClone(this.widget);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
         }
     }
@@ -271,14 +274,14 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        // console.log(this.widget);
+        // console.log("widget on changes", changes)
     }
 
     ngAfterContentInit() {
 
         ElementQueries.listen();
         ElementQueries.init();
-        let initSize = {
+        const initSize = {
             width: this.widgetOutputElement.nativeElement.clientWidth,
             height: this.widgetOutputElement.nativeElement.clientHeight
         };
@@ -288,7 +291,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
             this.setSize();
             this.newSize = size;
         });
-        
         const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
              const newSize = {
                 width: this.widgetOutputElement.nativeElement.clientWidth,
@@ -301,7 +303,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     setSize() {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
-        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement.parentElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
+        const nativeEl = (this.editMode) ?
+            this.widgetOutputElement.nativeElement.parentElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
 
         const outputSize = nativeEl.getBoundingClientRect();
         const offset = this.editMode ? 100 : 0;
@@ -355,15 +358,15 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
 
     setTimeConfiguration(config) {
         this.widget.settings.time = {
-                                             shiftTime: config.shiftTime,
-                                             overrideRelativeTime: config.overrideRelativeTime,
-                                             downsample: {
-                                                 value: config.downsample,
-                                                 aggregators: config.aggregators,
-                                                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                                                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
-                                             }
-                                         };
+            shiftTime: config.shiftTime,
+            overrideRelativeTime: config.overrideRelativeTime,
+            downsample: {
+                value: config.downsample,
+                aggregators: config.aggregators,
+                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
+                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+            }
+        };
     }
 
     setAxesOption() {
@@ -371,6 +374,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         const thresholds = this.widget.settings.thresholds || {};
         for (let i = 0; i < axisKeys.length; i++ ) {
             const config = this.widget.settings.axes[axisKeys[i]];
+ //           if (Object.keys(config).length > 0) {
             const chartAxisID = axisKeys[i] === 'y1' ? 'y' : axisKeys[i] === 'y2' ? 'y2' : 'x';
             const axis = this.options.axes[chartAxisID];
             if ( !isNaN( config.min ) ) {
@@ -397,19 +401,21 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                         this.options.series[k].axis = 'y';
                     }
                 }
-                const queries = this.widget.queries;
-                for ( let m = 0; m < queries.length; m++ ) {
-                    const metrics = queries[m].metrics;
-                    for ( let n = 0; n < metrics.length; n++ ) {
-                        metrics[n].settings.visual.axis = 'y1';
+                const wqueries = this.widget.queries;
+                for ( let m = 0; m < wqueries.length; m++ ) {
+                    const wmetrics = wqueries[m].metrics;
+                    for ( let n = 0; n < wmetrics.length; n++ ) {
+                        // wmetrics[n].settings.visual.axis = 'y1';
                     }
                 }
             }
 
             // change threshold axis y2=>y1
             if ( axisKeys[i] === 'y2' && !config.enabled  && Object.keys(thresholds).length ) {
-                for ( let i in thresholds ) {
-                    thresholds[i].axis = 'y1';
+                for ( const key in thresholds ) {
+                    if (thresholds.hasOwnProperty(key)) {
+                        thresholds[key].axis = 'y1';
+                    }
                 }
                 this.setAlertOption();
             }
@@ -417,6 +423,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
             const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 2 : config.decimals;
             const unit = config.unit ? config.unit : 'auto';
             axis.tickFormat = { unit: unit, precision: decimals, unitDisplay: true };
+            //}
         }
 
         // draw the axis if one series on the axis
@@ -583,6 +590,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     }
 
     refreshData(reload = true) {
+        // widget without any metric should not make any query
+        // need to take care case from having metric to none
+        if (this.widget.queries[0].metrics.length === 0) {
+            return;
+        }
         this.isDataLoaded = false;
         if ( reload ) {
             this.requestData();
@@ -646,15 +658,14 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
 
     // apply config from editing
     applyConfig() {
+        this.closeViewEditMode();
         const cloneWidget = JSON.parse(JSON.stringify(this.widget));
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
             id: cloneWidget.id,
-            payload: { widget: cloneWidget, isDataRefreshRequired: this.isDataRefreshRequired }
+            payload: { widget: cloneWidget, needRequery: this.needRequery }
         });
-
-        this.closeViewEditMode();
     }
 
     ngOnDestroy() {
