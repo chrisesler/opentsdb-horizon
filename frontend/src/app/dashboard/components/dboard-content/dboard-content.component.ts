@@ -140,6 +140,7 @@ export class DboardContentComponent implements OnChanges {
     }
 
     if (this.gridster && this.gridster.isReady) {
+      console.log('the gridster is ready.......');
       this.gridster.setOption('widthHeightRatio', ratio).reload();
     }
 
@@ -148,7 +149,6 @@ export class DboardContentComponent implements OnChanges {
   // this event will start first and set values of cellWidth and cellHeight
   // then update the this.widgets reference
   gridsterFlow(event: any) {
-    console.log('GRID OVERFLOW CALLING');
     if (this.viewEditMode) { return; }
     const width = event.gridsterComponent.gridster.cellWidth;
     const height = event.gridsterComponent.gridster.cellHeight;
@@ -159,16 +159,12 @@ export class DboardContentComponent implements OnChanges {
   // we call the function update all since we don't know which one for now.
   // the width and height unit might change but not the cell width and height.
   gridEventEnd(event: any) {
-    console.log('GRID END CALLING', event);
-    // console.log('drag-resize event', event);
-    // console.log('gridEventEnd is calling and viewEditMode', this.viewEditMode);
     if (this.viewEditMode) { return; }
-    // console.log(event, event.item.$element.getBoundingClientRect());
-    if (event.action === 'resize' || event.action === 'drag') {
-      const width = event.item.itemComponent.gridster.cellWidth;
-      const height = event.item.itemComponent.gridster.cellHeight;
-      this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height));
-    }
+      if (event.action === 'resize' || event.action === 'drag') {
+        const width = event.item.itemComponent.gridster.cellWidth;
+        const height = event.item.itemComponent.gridster.cellHeight;
+        this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height));
+      }
   }
 
   // helper
@@ -184,10 +180,10 @@ export class DboardContentComponent implements OnChanges {
     for (let i = 0; i < this.widgets.length; i++) {
       const w = this.widgets[i];
       gridLayout.wgridPos[w.id] = {
-        x: w.gridPos.xMd, // using responsive size
-        y: w.gridPos.yMd,
-        // x: w.gridPos.x,
-        // y: w.gridPos.y,
+        xMd: w.gridPos.xMd, // using responsive size
+        yMd: w.gridPos.yMd,
+        x: w.gridPos.x,
+        y: w.gridPos.y,
         w: w.gridPos.w,
         h: w.gridPos.h
       };
