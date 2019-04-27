@@ -137,7 +137,6 @@ export class WidgetsState {
         const curState = ctx.getState();
         const state = this.utils.deepClone(curState);
         for (let i = 0; i < state.widgets.length; i++) {
-            // state[i].gridPos = {...state[i].gridPos, ...gridpos[state[i].id]};
             state.widgets[i].gridPos = {...state.widgets[i].gridPos, ...gridpos[state.widgets[i].id] };
         }
         ctx.patchState({ widgets: state.widgets });
