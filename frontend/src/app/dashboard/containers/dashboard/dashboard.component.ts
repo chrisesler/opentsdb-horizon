@@ -25,7 +25,7 @@ import {
     CopyWidgetData,
     ClearWidgetsData
 } from '../../state/widgets-data.state';
-import { UpdateGridsterUnitSize } from '../../state/clientsize.state';
+import { ClientSizeState, UpdateGridsterUnitSize } from '../../state/clientsize.state';
 import {
     DBSettingsState,
     UpdateMode,
@@ -64,7 +64,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<string>;
     @Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<string>;
     // @Select(DBState.getDashboardFriendlyPath) dbPath$: Observable<string>;
-    @Select(DBState.getDashboardPath) dbPath$: Observable<string>;
+    @Select(DBState.getDashboardFriendlyPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
     @Select(DBState.getDashboardError) dbError$: Observable<any>;
@@ -74,11 +74,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBSettingsState.getDashboardTags) dbTags$: Observable<any>;
     @Select(DBSettingsState.getDashboardTagValues) tagValues$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
-    @Select(WidgetsState.lastUpdated) lastUpdated$: Observable<any>
-        ; @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
+    @Select(WidgetsState.lastUpdated) lastUpdated$: Observable<any>;
+    @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
     @Select(AppShellState.getCurrentMediaQuery) mediaQuery$: Observable<string>;
-    // temporary disable for now, will delete once we are clear
-    // @Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
+    @Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
     @Select(NavigatorState.getDrawerOpen) drawerOpen$: Observable<any>;
 
@@ -274,8 +273,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         const newWidgetY = message.payload.widget.gridPos.h;
                         this.widgets = this.dbService.positionWidgetY(this.widgets, newWidgetY);
                         // change name to fist metric if name is not change
-                        if (message.payload.widget.settings.title === 'my widget') {
-                            message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
+                        if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent') {
+                            if (message.payload.widget.settings.title === 'my widget') {
+                                message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
+                            }
                         }
                         // this is the newly adding widget
                         if (this.widgets.length === 1 && this.widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
@@ -290,8 +291,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         if (this.widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
                             this.widgets[mIndex] = message.payload.widget;
                             // change name to fist metric if name is not change
-                            if (message.payload.widget.settings.title === 'my widget') {
-                                message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
+                            if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent') {
+                                if (message.payload.widget.settings.title === 'my widget') {
+                                    message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
+                                }
                             }
                             this.store.dispatch(new UpdateWidgets(this.widgets));
                         } else {
@@ -569,13 +572,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         // all widgets should update their own size
-        // this code is disable for now since we use ResizeSensor to handle this.
-        /* this.gridsterUnitSize$.subscribe(unitSize => {
+        this.subscription.add(this.gridsterUnitSize$.subscribe(unitSize => {
             this.interCom.responsePut({
                 action: 'resizeWidget',
                 payload: unitSize
             });
-        }); */
+        }));
 
         this.subscription.add(this.auth$.subscribe(auth => {
             // console.log('auth$ calling', auth);
