@@ -1,4 +1,5 @@
-import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef, AfterContentInit } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, ChangeDetectorRef,
+    Input, OnDestroy, ViewChild, ElementRef, AfterContentInit } from '@angular/core';
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
@@ -46,7 +47,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     };
     width = '100%';
     height = '100%';
-    size: any = { width:0, height:0, legendWidth: 0 };
+    size: any = { width: 0, height: 0, legendWidth: 0 };
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
     legendWidth=0;
@@ -60,7 +61,8 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         private interCom: IntercomService,
         private dataTransformer: DatatranformerService,
         public dialog: MatDialog,
-        private util: UtilsService
+        private util: UtilsService,
+        private cdRef: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
@@ -89,6 +91,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                             this.error = message.payload.error;
                         }
                         this.options = this.dataTransformer.yamasToD3Donut(this.options, this.widget, message.payload.rawdata);
+                        this.cdRef.detectChanges();
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.widget = message.payload.widget;
