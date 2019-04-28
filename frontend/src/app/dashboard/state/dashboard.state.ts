@@ -124,6 +124,8 @@ export class DBState {
             return this.httpService.getDashboardById(id).pipe(
                 map(res => {
                     const dashboard: any = res.body;
+                    // update grister info
+                    this.dbService.addGridterInfo(dashboard.content.widgets);
                     if ( dashboard.content.version && dashboard.content.version === this.dbService.version ) {
                         ctx.dispatch(new LoadDashboardSuccess(dashboard));
                     } else {
