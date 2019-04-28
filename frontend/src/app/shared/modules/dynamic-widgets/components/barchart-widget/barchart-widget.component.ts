@@ -1,4 +1,5 @@
-import { Component, OnInit, OnChanges, AfterViewInit, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnChanges, AfterViewInit, ChangeDetectorRef,
+    SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -82,7 +83,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         private dataTransformer: DatatranformerService,
         public dialog: MatDialog,
         private util: UtilsService,
-        private unit: UnitConverterService
+        private unit: UnitConverterService,
+        private cdRef: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
@@ -90,6 +92,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         this.options.legend.display = this.isStackedGraph ? true : false;
 
         this.typeSub = this.type$.subscribe( type => {
+
             this.widget.settings.visual.type = type;
             this.options.scales.yAxes[0] = type === 'vertical' ? this. valueAxis : this.categoryAxis;
             this.options.scales.xAxes[0] = type === 'vertical' ? this.categoryAxis : this.valueAxis;
@@ -118,7 +121,9 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                         if ( message.payload.error ) {
                             this.error = message.payload.error;
                         }
-                        this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget, this.data, message.payload.rawdata, this.isStackedGraph);
+                        this.data = this.dataTransformer
+                            .yamasToChartJS(this.type, this.options, this.widget, this.data, message.payload.rawdata, this.isStackedGraph);
+                        this.cdRef.detectChanges();
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.widget = message.payload.widget;
