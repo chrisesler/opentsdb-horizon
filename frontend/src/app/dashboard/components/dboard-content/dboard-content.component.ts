@@ -60,6 +60,7 @@ export class DboardContentComponent implements OnChanges {
       {
         breakpoint: 'sm',
         lanes: 1,
+        widthHeightRatio: 10
       },
       {
         breakpoint: 'md',
@@ -131,19 +132,7 @@ export class DboardContentComponent implements OnChanges {
 
   // change ratio when breakpoint hits
   breakpointChange(event: IGridsterOptions) {
-    if (this.viewEditMode) { return; }
-    // console.log('hit the break!!!');
-
-    let ratio = 2;
-    if (event.lanes === 1) {
-      ratio = 8;
-    }
-
-    if (this.gridster && this.gridster.isReady) {
-      console.log('the gridster is ready.......');
-      this.gridster.setOption('widthHeightRatio', ratio).reload();
-    }
-
+    // no need foe now
   }
 
   // this event will start first and set values of cellWidth and cellHeight
@@ -161,6 +150,7 @@ export class DboardContentComponent implements OnChanges {
   gridEventEnd(event: any) {
     if (this.viewEditMode) { return; }
       if (event.action === 'resize' || event.action === 'drag') {
+        console.log('resize-drag', event);
         const width = event.item.itemComponent.gridster.cellWidth;
         const height = event.item.itemComponent.gridster.cellHeight;
         this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height));
@@ -169,6 +159,7 @@ export class DboardContentComponent implements OnChanges {
 
   // helper
   getWigetPosition(width: number, height: number): any {
+    console.log('this widgets', this.widgets);
     const gridLayout = {
       clientSize: {
         width: width,
@@ -180,12 +171,15 @@ export class DboardContentComponent implements OnChanges {
     for (let i = 0; i < this.widgets.length; i++) {
       const w = this.widgets[i];
       gridLayout.wgridPos[w.id] = {
+
         xMd: w.gridPos.xMd, // using responsive size
         yMd: w.gridPos.yMd,
-        x: w.gridPos.x,
-        y: w.gridPos.y,
-        w: w.gridPos.w,
-        h: w.gridPos.h
+        wMd: w.gridPos.wMd,
+        hMd: w.gridPos.hMd,
+        x: w.gridPos.xMd,
+        y: w.gridPos.yMd,
+        w: w.gridPos.wMd,
+        h: w.gridPos.hMd
       };
     }
     return gridLayout;
