@@ -111,11 +111,6 @@ export class DBState {
         }
     }
 
-    @Selector()
-    static getDashboardPath(state: DBStateModel) {
-        return state.path;
-    }
-
     @Action(LoadDashboard)
     loadDashboard(ctx: StateContext<DBStateModel>, { id }: LoadDashboard) {
         // id is the path
