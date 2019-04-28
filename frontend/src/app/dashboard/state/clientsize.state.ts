@@ -22,7 +22,7 @@ export class UpdateGridsterUnitSize {
 export class ClientSizeState {
 
     @Selector() static getUpdatedGridsterUnitSize(state: GridsterUnitSizeModel) {
-        return {...state};
+        return state;
     }
 
     @Action(UpdateGridsterUnitSize)
