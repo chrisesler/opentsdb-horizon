@@ -49,7 +49,10 @@ export class InlineEditableComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes.fieldValue.currentValue) {
       this.fieldValue = changes.fieldValue.currentValue;
-      this.fieldFormControl.setValue(this.fieldValue);
+      // when dashboard load, this one is undefined
+      if (this.fieldFormControl) {
+        this.fieldFormControl.setValue(this.fieldValue);
+      }
     }
   }
 
