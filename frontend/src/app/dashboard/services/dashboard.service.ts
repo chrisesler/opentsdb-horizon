@@ -33,9 +33,10 @@ export class DashboardService {
     gridPos: {
       x: 0, y: 0,
       h: 5, w: 12,
-      xMd: 0, yMd: 0,
-      dragAndDrop: true,
-      resizable: true
+      // xMd: 0, yMd: 0,
+      // wMd: 5, hMd: 12,
+      // dragAndDrop: true,
+      // resizable: true
     },
     settings: {
       title: 'my widget',
@@ -97,7 +98,7 @@ export class DashboardService {
   positionWidgetY(widgets: any, y) {
     const modWidgets = widgets;
     for (let i = 0; i < modWidgets.length; i++) {
-      modWidgets[i].gridPos.y = modWidgets[i].gridPos.y + y; 
+      modWidgets[i].gridPos.y = modWidgets[i].gridPos.y + y;
       modWidgets[i].gridPos.yMd = modWidgets[i].gridPos.yMd + y;
     }
     return modWidgets;
@@ -133,11 +134,36 @@ export class DashboardService {
     return query;
   }
 
+  addGridterInfo(widgets: any[]) {
+    for (let i = 0; i < widgets.length; i++) {
+      const w = widgets[i];
+      const gpos = widgets[i].gridPos;
+      const gridResp = {
+        xMd: gpos.x,
+        yMd: gpos.y,
+        wMd: gpos.w,
+        hMd: gpos.h,
+        dragAndDrop: true,
+        resizable: true
+      };
+      widgets[i].gridPos = {...widgets[i].gridPos, ...gridResp};
+    }
+  }
+
   getStorableFormatFromDBState(dbstate) {
+    const widgets = this.utils.deepClone(dbstate.Widgets.widgets);
+    for (let i = 0; i < widgets.length; i++) {
+      delete widgets[i].gridPos.xMd;
+      delete widgets[i].gridPos.yMd;
+      delete widgets[i].gridPos.wMd;
+      delete widgets[i].gridPos.hMd;
+      delete widgets[i].gridPos.dragAndDrop;
+      delete widgets[i].gridPos.resizable;
+    }
     const dashboard = {
       version: this.version,
       settings: dbstate.Settings,
-      widgets: dbstate.Widgets.widgets
+      widgets: widgets
     };
     return dashboard;
   }
@@ -170,7 +196,7 @@ export class DashboardService {
               for ( let m = 0; m < emetrics.length; m++ ) {
                 const pos = emetrics[m].name.indexOf('.') + 1;
                 emetrics[m].metric = emetrics[m].name.substr(pos);
-                const metric = metrics.find(d=> d.expression === undefined && d.name === emetrics[m].metric);
+                const metric = metrics.find(d => d.expression === undefined && d.name === emetrics[m].metric);
                 if ( !metric ) {
                   const oMetric = {
                     id: this.utils.generateId(3),
@@ -191,7 +217,7 @@ export class DashboardService {
               for ( let m = 0; m < emetrics.length; m++ ) {
                 const pos = emetrics[m].name.indexOf('.') + 1;
                 emetrics[m].metric = emetrics[m].name.substr(pos);
-                const metric = metrics.find(d=> d.expression === undefined && d.name === emetrics[m].metric);
+                const metric = metrics.find(d => d.expression === undefined && d.name === emetrics[m].metric);
                 emetrics[m].newId = metric ? metric.id : null;
                 const reg = new RegExp(emetrics[m].refId, 'g');
                 metrics[k].expression = metrics[k].expression.replace(reg, '{{' + emetrics[m].newId + '}}' );
@@ -204,3 +230,4 @@ export class DashboardService {
     return dashboard;
   }
 }
+
