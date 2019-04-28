@@ -33,10 +33,10 @@ export class DashboardService {
     gridPos: {
       x: 0, y: 0,
       h: 5, w: 12,
-      // xMd: 0, yMd: 0,
-      // wMd: 5, hMd: 12,
-      // dragAndDrop: true,
-      // resizable: true
+      xMd: 0, yMd: 0,
+      wMd: 12, hMd: 5,
+      dragAndDrop: true,
+      resizable: true
     },
     settings: {
       title: 'my widget',
