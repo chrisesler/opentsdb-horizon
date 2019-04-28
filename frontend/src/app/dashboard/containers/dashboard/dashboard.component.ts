@@ -77,7 +77,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(WidgetsState.lastUpdated) lastUpdated$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
     @Select(AppShellState.getCurrentMediaQuery) mediaQuery$: Observable<string>;
-    @Select(ClientSizeState.getUpdatedGridsterUnitSize) gridsterUnitSize$: Observable<any>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
     @Select(NavigatorState.getDrawerOpen) drawerOpen$: Observable<any>;
 
@@ -571,14 +570,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
         }));
 
-        // all widgets should update their own size
-        this.subscription.add(this.gridsterUnitSize$.subscribe(unitSize => {
-            this.interCom.responsePut({
-                action: 'resizeWidget',
-                payload: unitSize
-            });
-        }));
-
         this.subscription.add(this.auth$.subscribe(auth => {
             // console.log('auth$ calling', auth);
             if (auth === 'invalid') {
@@ -604,13 +595,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // to passing raw data to widget
     updateWidgetGroup(wid, rawdata, error = null) {
+        const clientSize = this.store.selectSnapshot(ClientSizeState);
         this.interCom.responsePut({
             id: wid,
             action: 'updatedWidgetGroup',
             payload: {
                 rawdata: rawdata,
                 error: error,
-                timezone: this.dbTime.zone
+                timezone: this.dbTime.zone,
+                gridSize: clientSize
             }
         });
     }
