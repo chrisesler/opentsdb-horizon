@@ -61,7 +61,9 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
 
     constructor(
         private elRef: ElementRef,
-        private httpService: HttpService) {
+        private httpService: HttpService,
+        private utils: UtilsService
+    ) {
     }
 
     /** ANGULAR INTERFACE METHODS */
@@ -79,6 +81,10 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     }
 
     ngOnDestroy() {
+    }
+
+    get metricSearchControlValue() {
+        return this.metricSearchControl.value;
     }
 
     /** METHODS */
@@ -145,6 +151,27 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
 
     getMetricIndex(metric) {
         return this.metrics.indexOf(metric);
+    }
+
+    calculateEditWidthStyle() {
+        const text = this.metricSearchControlValue;
+        const fontSize = 14;
+        const fontFace = 'Ubuntu';
+        const paddingOffset = 32; // 8px padding on left and right + 16px icon ((8*2) + 16)
+
+        // calculate width using service
+        const textWidth = this.utils.calculateTextWidth(text, fontSize, fontFace);
+
+        let styles = {
+            width: '100%'
+        };
+
+        // if the measured text is larger than 175 px, then set width + padding offset
+        if (textWidth > 175) {
+            styles.width = (textWidth + paddingOffset) + 'px';
+        }
+
+        return styles;
     }
 
     /** EVENTS */
