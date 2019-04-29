@@ -64,6 +64,10 @@ export interface WidgetModel {
         yMd?: number;
         wMd?: number;
         hMd?: number;
+        xSm?: number;
+        ySm?: number;
+        wSm?: number;
+        hSm?: number
     };
     queries: any[];
 }
