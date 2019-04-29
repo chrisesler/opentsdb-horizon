@@ -476,6 +476,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         dialogConf.maxWidth = '100%';
         dialogConf.height = '100%';
         dialogConf.hasBackdrop = false;
+        dialogConf.disableClose = true;
         // dialogConf.direction = 'ltr';
         // dialogConf.backdropClass = 'snooze-alert-dialog-backdrop';
         dialogConf.panelClass = 'alert-configuration-dialog-panel';

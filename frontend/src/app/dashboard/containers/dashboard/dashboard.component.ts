@@ -10,8 +10,8 @@ import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { Store, Select } from '@ngxs/store';
 import { AuthState } from '../../../shared/state/auth.state';
-import { Observable, Subscription } from 'rxjs';
 import { skip } from 'rxjs/operators';
+import { Observable, Subscription, of, Subject } from 'rxjs';
 import { UtilsService } from '../../../core/services/utils.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../state/dashboard.state';
@@ -47,6 +47,8 @@ import { DashboardDeleteDialogComponent } from '../../components/dashboard-delet
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 
 import { LoggerService } from '../../../core/services/logger.service';
+import { HttpService } from '../../../core/http/http.service';
+
 
 @Component({
     selector: 'app-dashboard',
@@ -160,6 +162,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     gridsterUnitSize: any = {};
     lastWidgetUpdated: any;
     private subscription: Subscription = new Subscription();
+    wdTags: any = {};
+    widgetTagLoaded$ = new Subject();
+    widgetTagLoaded = false;
 
     constructor(
         private store: Store,
@@ -176,7 +181,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private snackBar: MatSnackBar,
         private cdRef: ChangeDetectorRef,
         private elRef: ElementRef,
-        private logger: LoggerService
+        private logger: LoggerService,
+        private httpService: HttpService
     ) { }
     ngOnInit() {
         // handle route for dashboardModule
@@ -385,6 +391,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const dbstate = this.store.selectSnapshot(DBState);
             console.log('\n\nloadedrawdb=', db, dbstate.loaded);
             if (dbstate.loaded) {
+                // this.widgetTagLoaded = false;
                 // need to carry new loaded dashboard id from confdb
                 this.dbid = db.id;
                 this.store.dispatch(new LoadDashboardSettings(db.content.settings));
@@ -608,43 +615,77 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
+    /*
+    setDashboardTagKeys() {
+        this.httpService.getTagKeysForQueries(this.widgets).subscribe( (res:any)=>{
+            this.wdTags = {};
+            for ( let i = 0; res && i < res.results.length; i++ ) {
+                const [wid, qid ] =  res.results[i].id ? res.results[i].id.split(":") : [null, null]; 
+                if ( !wid ) continue;
+                const keys = res.results[i].tagKeys.map(d => d.name);
+                if ( !this.wdTags[wid] ) {
+                    this.wdTags[wid] = {};
+                }
+                this.wdTags[wid][qid] = keys;
+            }
+            this.widgetTagLoaded = true;
+            this.widgetTagLoaded$.next(true);
+            
+        },
+        error=>{
+            this.widgetTagLoaded = true;
+            this.widgetTagLoaded$.next(true);
+
+        }); 
+    }
+    checkWidgetTagsLoaded(): Observable<any> {
+        if ( !this.widgetTagLoaded ) {
+          return this.widgetTagLoaded$;
+        } else {
+          return of(true);
+        }
+    }
+    */
+
     // dispatch payload query by group
     handleQueryPayload(message: any) {
         let groupid = '';
         const payload = message.payload;
         const dt = this.getDashboardDateRange();
-        if (payload.queries.length) {
-            // sending each group to get data.
-            for (let i = 0; i < payload.queries.length; i++) {
-                let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
-                groupid = query.id;
-                const gquery: any = {
-                    wid: message.id,
-                    gid: groupid,
-                    isEditMode: this.viewEditMode
-                };
-                // this is not enough, need to optimize but
-                // redo it anyway with whole widget query
-                if (query.namespace && query.metrics.length) {
-                    // filter only visible metrics
-                    // query = this.dbService.filterMetrics(query);
-                    let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
-                    // get only enabled filters
-                    overrideFilters = overrideFilters.filter(d => (d.enabled && d.filter.length > 0));
-                    query = overrideFilters.length ? this.dbService.overrideQueryFilters(query, overrideFilters) : query;
-                    query = this.queryService.buildQuery(payload, dt, query);
-                    console.log('query builder:', query);
-                    gquery.query = query;
-                    // now dispatch request
-                    this.store.dispatch(new GetQueryDataByGroup(gquery));
-                } else {
-                    gquery.data = {};
-                    this.store.dispatch(new SetQueryDataByGroup(gquery));
+        // this.checkWidgetTagsLoaded().subscribe(loaded => {
+            if ( payload.queries.length ) {
+                // sending each group to get data.
+                for (let i = 0; i < payload.queries.length; i++) {
+                    let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
+                    groupid = query.id;
+                    const gquery: any = {
+                        wid: message.id,
+                        gid: groupid,
+                        isEditMode: this.viewEditMode
+                    };
+                    if (query.namespace && query.metrics.length) {
+                        // filter only visible metrics
+                        // query = this.dbService.filterMetrics(query);
+                        let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
+                        // get only enabled filters
+                        overrideFilters = overrideFilters.filter(d => d.enabled);
+                        query = overrideFilters.length ?
+                            this.dbService.overrideQueryFilters(query, overrideFilters, this.wdTags[message.id] ?
+                                this.wdTags[message.id][groupid] : []) : query;
+                        query = this.queryService.buildQuery(payload, dt, query);
+                        // console.log('the group query-2', query, JSON.stringify(query));
+                        gquery.query = query;
+                        // now dispatch request
+                        this.store.dispatch(new GetQueryDataByGroup(gquery));
+                    } else {
+                        gquery.data = {};
+                        this.store.dispatch(new SetQueryDataByGroup(gquery));
+                    }
                 }
+            } else {
+                this.store.dispatch(new ClearQueryData({ wid: message.id }));
             }
-        } else {
-            this.store.dispatch(new ClearQueryData({ wid: message.id }));
-        }
+        // });
     }
 
     getDashboardDateRange() {

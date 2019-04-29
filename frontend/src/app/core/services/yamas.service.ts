@@ -36,7 +36,14 @@ export class YamasService {
             if ( query.metrics[j].expression ) {
                 const q = this.getExpressionQuery(j);
                 this.transformedQuery.executionGraph.push(q);
-                outputIds.push(q.id);
+                let dsId = q.id;
+                // add function definition
+                const res = this.getFunctionQueries(j, dsId);
+                if ( res.queries.length ) {
+                    this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
+                    dsId = res.queries[res.queries.length-1].id;
+                }
+                outputIds.push(dsId);
             } else {
                 const q: any = this.getMetricQuery(j);
                 if ( query.metrics[j].groupByTags && !this.checkTagsExistInFilter(query.metrics[j].groupByTags) ) {
@@ -158,35 +165,6 @@ export class YamasService {
         return index;
     }
 
-    getGroupbyTagsByQId(index, aggregator) {
-        let groupByTags = [];
-        let expression;
-        if (this.query.metrics[index] && this.query.metrics[index].expression) {
-            expression = this.query.metrics[index].expression;
-        }
-        if (expression) {
-            // replace {{<id>}} with query source id
-            const re = new RegExp(/\{\{(.+?)\}\}/, "g");
-            let matches = [];
-            let i = 0;
-            while(matches = re.exec(expression)) {
-                const id = matches[1];
-                const mindex = this.query.metrics.findIndex(d => d.id === id );
-                // const sourceId = 'm' + mindex;
-                const mTags = this.getGroupbyTagsByQId( mindex, aggregator);
-                groupByTags = i === 0 ? mTags : groupByTags.filter(v => mTags.includes(v));
-                i++;
-            }
-        } else {
-            const id =   'm' + index + '-' + aggregator + '-groupby';
-            const qindex = this.transformedQuery.executionGraph.findIndex(d => d.id === id );
-            if (qindex > -1) {
-                groupByTags  =  this.transformedQuery.executionGraph[qindex].tagKeys || [];
-            }
-        }
-        return groupByTags;
-    }
-
     getFunctionQueries(index, ds) {
         const queries = [];
         const funs = this.query.metrics[index].functions || [];
@@ -198,7 +176,7 @@ export class YamasService {
                 case 'CounterToRate':
                     const q = {
                             'id': id ,
-                            'type': "rate",
+                            'type': 'rate',
                             'interval': funs[i].val,
                             'counter': fxCall === 'RateOfChange' ? false : true,
                             'sources': [ds]
@@ -235,7 +213,7 @@ export class YamasService {
             sources.push(gsourceId);
         }
         const joinTags = {};
-        const groupByTags = this.getGroupbyTagsByQId( index,  aggregator);
+        const groupByTags = config.groupByTags || [];
         for ( let i = 0; i < groupByTags.length; i++ ) {
             const tag = groupByTags[i];
             joinTags[tag] = tag;
@@ -246,7 +224,7 @@ export class YamasService {
             expression: transformedExp,
             join: {
                 type: 'Join',
-                joinType: groupByTags.length ? 'INNER' : 'NATURAL_OUTER', 
+                joinType: groupByTags.length ? 'INNER' : 'NATURAL_OUTER',
                 joins: joinTags
             },
             interpolatorConfigs: [{
@@ -295,16 +273,53 @@ export class YamasService {
         };
         return filter;
     }
+    
+    getOrFilters(key, values) {
+        const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex', 'librange': 'TagValueLibrange'};
+        const filters = [];
+        const literals = [];
+        for ( let i = 0, len = values.length; i < len; i++ ) {
+            let v = values[i];
+            const regexp = v.match(/regexp\((.*)\)/);
+            var filtertype = 'literalor';
+            if (regexp) {
+                filtertype = 'regexp';
+                v = regexp[1];
+            } else if (v.match(/librange\((.*)\)/)) {
+                const librange = v.match(/librange\((.*)\)/);
+                filtertype = 'librange';
+                v = librange[1];
+            } else {
+                literals.push(v);
+            }
+            if ( filtertype !== 'literalor' ) {
+                const filter = {
+                    type: filterTypes[filtertype],
+                    filter: v,
+                    tagKey: key
+                };
+                filters.push(filter);
+            }
+        }
+        
+        if ( literals.length ) {
+            const filter = {
+                type: 'TagValueLiteralOr',
+                filter: literals.join('|'),
+                tagKey: key
+            };
+            filters.push(filter);
+        }
+        return filters;
+    }
 
     getChainFilter(key, values) {
-        const chain = {
+        const chain:any = {
                         'type': 'Chain',
                         'op': 'OR',
                         'filters': []
                     };
-        for ( let i = 0, len = values.length; i < len; i++ ) {
-            chain.filters.push(this.getFilter(key, values[i]));
-        }
+        chain.filters = this.getOrFilters(key, values);
         return chain;
     }
 
