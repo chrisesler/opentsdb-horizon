@@ -65,7 +65,7 @@
 </ng-template>
 
 <ng-template #noMultiples>
-    <mat-form-field appearance="fill" [color]="'primary'" floatLabel="never" *ngIf="!multiple">
+    <mat-form-field appearance="fill" [color]="'primary'" floatLabel="never" *ngIf="!multiple" [ngStyle]="calculateEditWidthStyle()">
         <input matInput
             type="text" 
             placeholder="Metric"

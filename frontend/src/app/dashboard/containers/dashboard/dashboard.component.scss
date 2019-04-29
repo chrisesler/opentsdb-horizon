@@ -52,7 +52,8 @@
 
     .nav-add-new-widget,
     .nav-dashboard-actions,
-    .nav-refresh-icon {
+    .nav-refresh-icon,
+    .nav-dashboard-template-var-trigger {
         .mat-raised-button,
         .mat-flat-button {
             line-height: 24px;
@@ -75,7 +76,8 @@
         }
     }
 
-    .nav-add-new-widget {
+    .nav-add-new-widget,
+    .nav-dashboard-template-var-trigger {
         .mat-raised-button,
         .mat-flat-button {
             padding-left: 6px;
@@ -256,7 +258,8 @@
 
     .nav-add-new-widget,
     .nav-dashboard-actions,
-    .nav-refresh-icon {
+    .nav-refresh-icon,
+    .nav-dashboard-template-var-trigger {
         .mat-raised-button,
         .mat-flat-button {
             background-color: darken(map-get($background, navbar), 4%);
