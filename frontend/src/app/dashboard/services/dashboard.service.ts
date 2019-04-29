@@ -35,8 +35,8 @@ export class DashboardService {
       h: 5, w: 12,
       xMd: 0, yMd: 0,
       wMd: 12, hMd: 5,
-      dragAndDrop: true,
-      resizable: true
+      xSm: 0, ySm: 0,
+      wSm: 1, hSm: 1
     },
     settings: {
       title: 'my widget',
@@ -143,8 +143,10 @@ export class DashboardService {
         yMd: gpos.y,
         wMd: gpos.w,
         hMd: gpos.h,
-        dragAndDrop: true,
-        resizable: true
+        xSm: gpos.x,
+        ySm: gpos.y,
+        wSm: 1,
+        hSm: 1
       };
       widgets[i].gridPos = {...widgets[i].gridPos, ...gridResp};
     }
@@ -157,8 +159,10 @@ export class DashboardService {
       delete widgets[i].gridPos.yMd;
       delete widgets[i].gridPos.wMd;
       delete widgets[i].gridPos.hMd;
-      delete widgets[i].gridPos.dragAndDrop;
-      delete widgets[i].gridPos.resizable;
+      delete widgets[i].gridPos.xSm;
+      delete widgets[i].gridPos.ySm;
+      delete widgets[i].gridPos.wSm;
+      delete widgets[i].gridPos.hSm;
     }
     const dashboard = {
       version: this.version,
