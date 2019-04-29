@@ -61,7 +61,8 @@ export class DboardContentComponent implements OnChanges {
         breakpoint: 'sm',
         lanes: 1,
         minWidth: 100,
-        widthHeightRatio: 10,
+        widthHeightRatio: 2,
+        resizable: false
       },
       {
         breakpoint: 'md',
@@ -135,7 +136,6 @@ export class DboardContentComponent implements OnChanges {
   // change ratio when breakpoint hits
   // may need to add not resizable and draggable at sm size.
   breakpointChange(event: IGridsterOptions) {
-    console.log('windows breaking', event, this.gridster);
     if (event.lanes === 1) {
       this.winSize = 'sm';
     } else {
@@ -146,17 +146,15 @@ export class DboardContentComponent implements OnChanges {
   // this event will start first and set values of cellWidth and cellHeight
   // then update the this.widgets reference
   gridsterFlow(event: any) {
-
     if (this.viewEditMode) { return; }
     const width = event.gridsterComponent.gridster.cellWidth;
     const height = event.gridsterComponent.gridster.cellHeight;
-    // ignore the first time that grister render
-    if (!event.isInit) {
+    // if (!event.isInit) {
       this.interCom.responsePut({
         action: 'WindowResize',
         payload: { width, height, winSize: this.winSize }
       });
-    }
+    // }
     this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height, this.winSize));
   }
 
@@ -182,7 +180,11 @@ export class DboardContentComponent implements OnChanges {
             wMd: gItem.wMd,
             hMd: gItem.hMd,
             w: gItem.wMd,
-            h: gItem.hMd
+            h: gItem.hMd,
+            xSm: gItem.xSm,
+            ySm: gItem.ySm,
+            wSm: gItem.wSm,
+            hSm: gItem.hSm
           };
           this.interCom.responsePut({
             id: gItem.elementRef.nativeElement.id,
@@ -212,6 +214,10 @@ export class DboardContentComponent implements OnChanges {
         yMd: w.gridPos.yMd,
         wMd: w.gridPos.wMd,
         hMd: w.gridPos.hMd,
+        xSm: w.gridPos.xSm,
+        ySm: w.gridPos.ySm,
+        wSm: w.gridPos.wSm,
+        hSm: w.gridPos.hSm,
         x: w.gridPos.xMd,
         y: w.gridPos.yMd,
         w: w.gridPos.wMd,
