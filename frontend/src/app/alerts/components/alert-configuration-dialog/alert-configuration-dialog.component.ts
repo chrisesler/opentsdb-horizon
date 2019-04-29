@@ -233,9 +233,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
                     // tslint:disable-next-line:max-line-length
                     metricId: [ data.threshold.singleMetric.metricId ? this.getMetricDropdownValue(data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : ''],
-                    badThreshold:  data.threshold.singleMetric.badThreshold || '',
-                    warnThreshold: data.threshold.singleMetric.warnThreshold || '',
-                    recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || '',
+                    badThreshold:  data.threshold.singleMetric.badThreshold || null,
+                    warnThreshold: data.threshold.singleMetric.warnThreshold || null,
+                    recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || null,
                     recoveryType: data.threshold.singleMetric.recoveryType || 'minimum', 
                     slidingWindow : data.threshold.singleMetric.slidingWindow ? data.threshold.singleMetric.slidingWindow.toString() : '300',
                     comparisonOperator : data.threshold.singleMetric.comparisonOperator || 'above',
@@ -268,14 +268,24 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
         });
         // tslint:disable-next-line:max-line-length
-        this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges.subscribe(val => {
-            this.setThresholds('bad', val);
+        this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges.subscribe(bad => {
+            this.setThresholds('bad', bad);
+            if ( bad === null ) {
+                const possibleTransitions =  ['goodToBad', 'badToGood', 'warnToBad', 'badToWarn'];
+                const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
+                this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !possibleTransitions.includes(d) ));
+            }
             this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
         });
         // tslint:disable-next-line:max-line-length
-        this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].valueChanges.subscribe(val => {
-            this.setThresholds('warning', val);
+        this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].valueChanges.subscribe(warn => {
+            this.setThresholds('warning', warn);
+            if ( warn === null ) {
+                const excludeTransitions = ['warnToBad', 'badToWarn', 'warnToGood', 'goodToWarn'];
+                const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
+                this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !excludeTransitions.includes(d) ));
+            }
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
         });
         // tslint:disable-next-line:max-line-length
@@ -386,11 +396,12 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             borderDash: [4, 4]
         };
 
-        if ( value === '' ) {
+        if ( value === null || value === '' ) {
             delete(this.thresholds[type]);
         } else {
             this.thresholds[type] = config;
         }
+        console.log("thresholds", type, value, JSON.stringify(this.thresholds))
         this.setThresholdLines();
     }
 
