@@ -3,6 +3,7 @@ import { State, StateContext, Selector, Action } from '@ngxs/store';
 export interface GridsterUnitSizeModel {
     width: number;
     height: number;
+    winSize: string;
 }
 
 // action
@@ -15,7 +16,8 @@ export class UpdateGridsterUnitSize {
     name: 'ClientSize',
     defaults: {
         width: 120,
-        height: 80
+        height: 80,
+        winSize: 'md'
     }
 })
 
