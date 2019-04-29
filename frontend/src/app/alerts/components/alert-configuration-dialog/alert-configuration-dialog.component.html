@@ -257,12 +257,12 @@
                         <div class="form-group alert-notify-when">
                             <div class="form-label"><strong>Notify</strong> when state transitions from</div>
                             <mat-selection-list class="notify-when-options" formControlName="transitionsToNotify">
-                                <mat-list-option value="goodToBad">Good to Bad</mat-list-option>
-                                <mat-list-option value="warnToBad">Warn to Bad</mat-list-option>
-                                <mat-list-option value="warnToGood">Warn to Good</mat-list-option>
-                                <mat-list-option value="badToGood">Bad to Good</mat-list-option>
-                                <mat-list-option value="goodToWarn">Good to Warn</mat-list-option>
-                                <mat-list-option value="badToWarn">Bad to Warn</mat-list-option>
+                                <mat-list-option value="goodToBad" [disabled]="thresholdSingleMetricControls.badThreshold.value === null">Good to Bad</mat-list-option>
+                                <mat-list-option value="warnToBad" [disabled]="thresholdSingleMetricControls.badThreshold.value===null || thresholdSingleMetricControls.warnThreshold.value===null">Warn to Bad</mat-list-option>
+                                <mat-list-option value="warnToGood" [disabled]="thresholdSingleMetricControls.warnThreshold.value===null">Warn to Good</mat-list-option>
+                                <mat-list-option value="badToGood" [disabled]="thresholdSingleMetricControls.badThreshold.value===null">Bad to Good</mat-list-option>
+                                <mat-list-option value="goodToWarn" [disabled]="thresholdSingleMetricControls.warnThreshold.value===null">Good to Warn</mat-list-option>
+                                <mat-list-option value="badToWarn" [disabled]="thresholdSingleMetricControls.badThreshold.value===null || thresholdSingleMetricControls.warnThreshold.value===null">Bad to Warn</mat-list-option>
                             </mat-selection-list>
                             <mat-error *ngIf="alertForm.get('notification').get('transitionsToNotify').errors && alertForm.get('notification').get('transitionsToNotify').errors.required">Please select the state transitions</mat-error>
                         </div>
