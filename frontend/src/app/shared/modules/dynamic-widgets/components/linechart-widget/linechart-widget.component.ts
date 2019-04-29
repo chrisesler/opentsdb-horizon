@@ -1,8 +1,7 @@
 import {
-    Component, OnInit, OnChanges, AfterContentInit, SimpleChanges, HostBinding, Input,
+    Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input,
     OnDestroy, ViewChild, ElementRef, ChangeDetectorRef
 } from '@angular/core';
-import { ElementQueries, ResizeSensor} from 'css-element-queries';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -20,7 +19,7 @@ import { BehaviorSubject } from 'rxjs';
     templateUrl: './linechart-widget.component.html',
     styleUrls: []
 })
-export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContentInit, OnDestroy {
+export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.linechart-widget') private _componentClass = true;
@@ -80,7 +79,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         gridLineColor: '#ccc'
     };
     data: any = { ts: [[0]] };
-    size: any = {};
+    size: any = { width: 120, height: 60};
     newSize: any = {};
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
@@ -113,10 +112,22 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                     this.setTimezone(message.payload.zone);
                     this.options = { ...this.options };
                     break;
+                case 'WindowResize':
+                    const width = message.payload.winSize === 'md' ?
+                        this.widget.gridPos.wMd * message.payload.width : message.payload.width;
+                    const height = message.payload.winSize === 'md' ?
+                        this.widget.gridPos.hMd * message.payload.height : message.payload.height;
+                    const widgetSize = { width, height};
+                    this.setGraphSize(widgetSize);
+                    break;
             }
 
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
+                    case 'updateWidgetSize':
+                        this.widget.gridPos = {...this.widget.gridPos, ...message.payload.gridLayout };
+                        this.setGraphSize(this.computeWidgetSize(message.payload.size));
+                        break;
                     case 'updatedWidgetGroup':
                         this.nQueryDataLoading -= Object.keys(message.payload.rawdata).length;
                         if (!this.isDataLoaded) {
@@ -126,14 +137,17 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
                         if (message.payload.error) {
                             this.error = message.payload.error;
                         } else {
+                            const width = message.payload.gridSize.winSize === 'md' ?
+                                this.widget.gridPos.wMd * message.payload.gridSize.width : message.payload.width;
+                            const height = message.payload.gridSize.winSize === 'md' ?
+                                this.widget.gridPos.hMd * message.payload.gridSize.height : message.payload.height;
+                            const widgetSize = { width, height};
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
-                            setTimeout(() => {
-                                this.setSize();
-                                this.cdRef.detectChanges();
-                            }, 200);
+                            this.setGraphSize(widgetSize);
+                            this.cdRef.detectChanges();
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -277,27 +291,59 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
         // console.log("widget on changes", changes)
     }
 
-    ngAfterContentInit() {
-
-        ElementQueries.listen();
-        ElementQueries.init();
-        const initSize = {
-            width: this.widgetOutputElement.nativeElement.clientWidth,
-            height: this.widgetOutputElement.nativeElement.clientHeight
+    computeWidgetSize(gridUnitSize: any) {
+        return {
+            width: gridUnitSize.width * this.widget.gridPos.wMd,
+            height: gridUnitSize.height * this.widget.gridPos.hMd
         };
-        this.newSize$ = new BehaviorSubject(initSize);
+    }
 
-        this.newSizeSub = this.newSize$.subscribe(size => {
-            this.setSize();
-            this.newSize = size;
-        });
-        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
-             const newSize = {
-                width: this.widgetOutputElement.nativeElement.clientWidth,
-                height: this.widgetOutputElement.nativeElement.clientHeight
-            };
-            this.newSize$.next(newSize);
-        });
+    setGraphSize(newSize: any) {
+        let nWidth: number, nHeight: number, padding: number;
+        const legendSettings = this.widget.settings.legend;
+        const legendColumns = legendSettings.columns ? legendSettings.columns.length : 0;
+        let widthOffset = 0;
+        let heightOffset = 0;
+        let labelLen = 0;
+        if (this.editMode) {
+            const nativeEl = this.widgetOutputElement.nativeElement.parentElement;
+            newSize = nativeEl.getBoundingClientRect();
+        }
+
+        for ( const i in this.options.series ) {
+            if (this.options.series.hasOwnProperty(i)) {
+                labelLen = labelLen < this.options.series[i].label.length ? this.options.series[i].label.length : labelLen ;
+            }
+        }
+        if (legendSettings.display &&
+                                    ( legendSettings.position === 'left' ||
+                                    legendSettings.position === 'right' ) ) {
+            widthOffset = 10 + labelLen * 6.5 + 60 * legendColumns;
+        }
+
+        if ( legendSettings.display &&
+                                    ( legendSettings.position === 'top' ||
+                                    legendSettings.position === 'bottom' ) ) {
+            heightOffset = newSize.height * .25;
+            heightOffset = heightOffset <= 80 ? 80 : heightOffset;
+        }
+
+        if (this.editMode) {
+            let titleSize = {width: 0, height: 0};
+            if (this.widgetTitle) {
+                titleSize = this.widgetTitle.nativeElement.getBoundingClientRect();
+            }
+            padding = 8; // 8px top and bottom
+            nHeight = newSize.height - heightOffset - titleSize.height - (padding * 2);
+            nWidth = newSize.width - widthOffset  - (padding * 2) - 30;
+        } else {
+            padding = 14; // 10px on the top
+            nHeight = newSize.height - heightOffset - (padding * 2);
+            nWidth = newSize.width - widthOffset  - (padding * 2);
+        }
+        this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
+        this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
+        this.size = {width: nWidth, height: nHeight };
     }
 
     setSize() {
@@ -532,7 +578,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
     setLegend(config) {
         this.widget.settings.legend = config;
         this.setLegendDiv();
-        this.setSize();
+        // this.setSize();
         this.options = {...this.options};
     }
 
@@ -670,7 +716,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, AfterContent
 
     ngOnDestroy() {
         this.listenSub.unsubscribe();
-        this.newSizeSub.unsubscribe();
     }
 
 }
