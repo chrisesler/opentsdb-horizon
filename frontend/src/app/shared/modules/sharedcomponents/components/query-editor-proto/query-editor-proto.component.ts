@@ -534,6 +534,14 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.requestChanges('ToggleQueryMetricVisibility', { mid : id} );
     }
 
+    toggleQuery() {
+        this.requestChanges('ToggleQueryVisibility');
+    }
+
+    deleteQuery() {
+        this.requestChanges('DeleteQuery');
+    }
+
     cloneMetric(id) {
         const index = this.query.metrics.findIndex(d => d.id === id );
         const oMetric = this.query.metrics[index];
