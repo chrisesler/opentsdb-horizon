@@ -131,7 +131,7 @@ export class DashboardService {
     for (let i = 0; i < filters.length; i++) {
       let tagExists = false;
       for (let j = 0; query.filters && j < query.filters.length; j++) {
-        if (filters[i].tagk === query.filters[j].tagk) {
+        if (filters[i].tagk === query.filters[j].tagk && filters[i].filter && filters[i].filter.length) {
           query.filters[j].filter = filters[i].filter;
           tagExists = true;
         }
