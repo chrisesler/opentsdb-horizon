@@ -113,20 +113,20 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                     this.options = { ...this.options };
                     break;
                 case 'WindowResize':
-                    const width = message.payload.winSize === 'md' ?
-                        this.widget.gridPos.wMd * message.payload.width : message.payload.width;
-                    const height = message.payload.winSize === 'md' ?
-                        this.widget.gridPos.hMd * message.payload.height : message.payload.height;
-                    const widgetSize = { width, height};
-                    this.setGraphSize(widgetSize);
+                    this.setGraphSize(this.computeWidgetSize(message.payload));
                     break;
             }
 
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updateWidgetSize':
+                        // apply change to this widget
                         this.widget.gridPos = {...this.widget.gridPos, ...message.payload.gridLayout };
-                        this.setGraphSize(this.computeWidgetSize(message.payload.size));
+                        const newSize = {
+                            width: message.payload.size.width * this.widget.gridPos.wMd,
+                            height: message.payload.size.height * this.widget.gridPos.hMd
+                        };
+                        this.setGraphSize(newSize);
                         break;
                     case 'updatedWidgetGroup':
                         this.nQueryDataLoading -= Object.keys(message.payload.rawdata).length;
@@ -137,16 +137,11 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                         if (message.payload.error) {
                             this.error = message.payload.error;
                         } else {
-                            const width = message.payload.gridSize.winSize === 'md' ?
-                                this.widget.gridPos.wMd * message.payload.gridSize.width : message.payload.width;
-                            const height = message.payload.gridSize.winSize === 'md' ?
-                                this.widget.gridPos.hMd * message.payload.gridSize.height : message.payload.height;
-                            const widgetSize = { width, height};
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
-                            this.setGraphSize(widgetSize);
+                            this.setGraphSize(this.computeWidgetSize(message.payload.gridSize));
                             this.cdRef.detectChanges();
                         }
                         break;
@@ -291,10 +286,13 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         // console.log("widget on changes", changes)
     }
 
-    computeWidgetSize(gridUnitSize: any) {
+    computeWidgetSize(gridSize: any) {
+
         return {
-            width: gridUnitSize.width * this.widget.gridPos.wMd,
-            height: gridUnitSize.height * this.widget.gridPos.hMd
+            width: gridSize.winSize === 'md' ?
+                    this.widget.gridPos.wMd * gridSize.width : gridSize.width,
+            height: gridSize.winSize === 'md' ?
+                    this.widget.gridPos.hMd * gridSize.height : gridSize.height
         };
     }
 
