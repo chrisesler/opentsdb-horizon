@@ -12,14 +12,12 @@
 
             <ngx-gridster-item #itemComp class="gridster-item" id="{{widget.id}}"
                 *ngFor="let widget of widgets; let idx = index; trackBy: trackByWidget"
-                [dragAndDrop]="widget.gridPos.dragAndDrop"
-                [resizable]="widget.gridPos.resizable"
                 [(x)]="widget.gridPos.x"
                 [(y)]="widget.gridPos.y"
-                [(xMd)]="widget.gridPos.xMd"
-                [(yMd)]="widget.gridPos.yMd"
-                [(wMd)]="widget.gridPos.wMd"
-                [(hMd)]="widget.gridPos.hMd"
+                [(xMd)]="widget.gridPos.xMd" [(xSm)]="widget.gridPos.xSm"
+                [(yMd)]="widget.gridPos.yMd" [(ySm)]="widget.gridPos.ySm"
+                [(wMd)]="widget.gridPos.wMd" [wSm]="widget.gridPos.wSm"
+                [(hMd)]="widget.gridPos.hMd" [hSm]="widget.gridPos.hSm"
                 [(w)]="widget.gridPos.w"
                 [(h)]="widget.gridPos.h"
                 (end)="gridEventEnd($event)">
