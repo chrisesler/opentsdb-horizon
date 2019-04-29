@@ -194,5 +194,18 @@ export class UtilsService {
 
     deepClone(obj) {
         return JSON.parse(JSON.stringify(obj));
-    } 
+    }
+
+    // utility to measure a string's rendered width
+    calculateTextWidth(text, fontSize, fontFace) {
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        context.font = fontSize + 'px ' + fontFace;
+
+        const textWidth = context.measureText(text).width;
+        canvas.remove();
+
+        return textWidth;
+    }
 }
