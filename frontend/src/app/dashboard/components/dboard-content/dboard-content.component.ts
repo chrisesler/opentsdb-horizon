@@ -1,7 +1,7 @@
 import {
   Component, Input, ViewChild, ViewEncapsulation,
   OnChanges, SimpleChanges, ComponentFactoryResolver, Type,
-  HostBinding, Output, EventEmitter, ChangeDetectionStrategy
+  HostBinding, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef
 } from '@angular/core';
 import { GridsterComponent, GridsterItemComponent, IGridsterOptions, IGridsterDraggableOptions } from 'angular2gridster';
 import { WidgetViewDirective } from '../../directives/widgetview.directive';
@@ -30,10 +30,10 @@ export class DboardContentComponent implements OnChanges {
   @Input() dashboardMode: string;
 
   viewEditMode = false;
-
+  winSize = 'md'; // flag to check if window size change to sm
   gridsterOptions: IGridsterOptions = {
     // core configuration is default one - for smallest view. It has hidden minWidth: 0.
-    lanes: 1, // amount of lanes (cells) in the grid
+    lanes: 12, // amount of lanes (cells) in the grid
     direction: 'vertical', // floating top - vertical, left - horizontal
     floating: true, // gravity floating
     dragAndDrop: true, // enable/disable drag and drop for all items in grid
@@ -54,13 +54,14 @@ export class DboardContentComponent implements OnChanges {
     shrink: true,
     useCSSTransforms: true,
     responsiveView: true, // turn on adopting items sizes on window resize and enable responsiveOptions
-    responsiveDebounce: 0, // window resize debounce time
+    responsiveDebounce: 100, // window resize debounce time
     responsiveSizes: true,
     responsiveOptions: [
       {
         breakpoint: 'sm',
         lanes: 1,
-        widthHeightRatio: 10
+        minWidth: 100,
+        widthHeightRatio: 10,
       },
       {
         breakpoint: 'md',
@@ -78,7 +79,8 @@ export class DboardContentComponent implements OnChanges {
     private dbService: DashboardService,
     private widgetService: WidgetService,
     private componentFactoryResolver: ComponentFactoryResolver,
-    private interCom: IntercomService
+    private interCom: IntercomService,
+    private cdRef: ChangeDetectorRef
   ) { }
 
   trackByWidget(index: number, widget: any) {
@@ -131,17 +133,31 @@ export class DboardContentComponent implements OnChanges {
   }
 
   // change ratio when breakpoint hits
+  // may need to add not resizable and draggable at sm size.
   breakpointChange(event: IGridsterOptions) {
-    // no need foe now
+    console.log('windows breaking', event, this.gridster);
+    if (event.lanes === 1) {
+      this.winSize = 'sm';
+    } else {
+      this.winSize = 'md';
+    }
   }
 
   // this event will start first and set values of cellWidth and cellHeight
   // then update the this.widgets reference
   gridsterFlow(event: any) {
+
     if (this.viewEditMode) { return; }
     const width = event.gridsterComponent.gridster.cellWidth;
     const height = event.gridsterComponent.gridster.cellHeight;
-    this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height));
+    // ignore the first time that grister render
+    if (!event.isInit) {
+      this.interCom.responsePut({
+        action: 'WindowResize',
+        payload: { width, height, winSize: this.winSize }
+      });
+    }
+    this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height, this.winSize));
   }
 
   // this event happened when item is dragged or resize
@@ -150,20 +166,40 @@ export class DboardContentComponent implements OnChanges {
   gridEventEnd(event: any) {
     if (this.viewEditMode) { return; }
       if (event.action === 'resize' || event.action === 'drag') {
-        console.log('resize-drag', event);
         const width = event.item.itemComponent.gridster.cellWidth;
         const height = event.item.itemComponent.gridster.cellHeight;
-        this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height));
+        this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height, this.winSize));
+        if (event.action === 'resize' && this.winSize === 'md') {
+          // only deal with resize to care about new size
+          const gItem = event.item.itemComponent;
+          // with our set up for responsive, only md needed.
+          const size = { width, height };
+          const gridLayout = {
+            xMd: gItem.xMd,
+            yMd: gItem.yMd,
+            x: gItem.xMd,
+            y: gItem.yMd,
+            wMd: gItem.wMd,
+            hMd: gItem.hMd,
+            w: gItem.wMd,
+            h: gItem.hMd
+          };
+          this.interCom.responsePut({
+            id: gItem.elementRef.nativeElement.id,
+            action: 'updateWidgetSize',
+            payload: { size, gridLayout }
+          });
+        }
       }
   }
 
   // helper
-  getWigetPosition(width: number, height: number): any {
-    console.log('this widgets', this.widgets);
+  getWigetPosition(width: number, height: number, winSize: string): any {
     const gridLayout = {
       clientSize: {
         width: width,
-        height: height
+        height: height,
+        winSize: winSize
       },
       wgridPos: {}
     };
