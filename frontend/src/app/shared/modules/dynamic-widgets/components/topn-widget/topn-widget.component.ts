@@ -1,5 +1,5 @@
 import { Component, OnInit, HostBinding, Input,
-    OnDestroy, ViewChild, ElementRef, AfterContentInit, ChangeDetectorRef } from '@angular/core';
+    OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -7,6 +7,7 @@ import { Subscription, BehaviorSubject} from 'rxjs';
 import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-topn-widget',
@@ -14,7 +15,7 @@ import { ErrorDialogComponent } from '../../../sharedcomponents/components/error
   styleUrls: ['./topn-widget.component.scss']
 })
 
-export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit {
+export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.topnchart-widget') private _componentClass = true;
 
@@ -35,10 +36,10 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
     };
     width = '100%';
     height = '100%';
-    size: any = { width:0, height:0 };
+    size: any = { width: 0, height: 0 };
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
-    legendWidth=0;
+    legendWidth = 0;
     editQueryId = null;
     nQueryDataLoading = 0;
     error: any;
@@ -94,26 +95,22 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
         setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
     }
 
-
-    ngAfterContentInit() {
+    ngAfterViewInit() {
         // this event will happend on resize the #widgetoutput element,
         // in  chartjs we don't need to pass the dimension to it.
         // Dimension will be picked up by parent node which is #container
         ElementQueries.listen();
         ElementQueries.init();
-        let initSize = {
+        const initSize = {
             width: this.widgetOutputElement.nativeElement.clientWidth,
             height: this.widgetOutputElement.nativeElement.clientHeight
         };
         this.newSize$ = new BehaviorSubject(initSize);
 
-        this.newSizeSub = this.newSize$.pipe(
-            // debounceTime(300)
-        ).subscribe(size => {
+        this.newSizeSub = this.newSize$.subscribe(size => {
             this.setSize(size);
         });
-        
-        new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () => {
              const newSize = {
                 width: this.widgetOutputElement.nativeElement.clientWidth,
                 height: this.widgetOutputElement.nativeElement.clientHeight
@@ -127,6 +124,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
     }
     setSize(newSize) {
         this.size = { width: newSize.width, height: newSize.height - 3 };
+        this.cdRef.detectChanges();
     }
 
     requestData() {
@@ -217,7 +215,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
             this.widget.queries[qindex] = query;
         }
         let visible = 0;
-        for (let metric of this.widget.queries[0].metrics) {
+        for (const metric of this.widget.queries[0].metrics) {
             if ( metric.settings.visual.visible ) {
                 visible++;
             }
@@ -249,16 +247,16 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
 
     setTimeConfiguration(config) {
         this.widget.settings.time = {
-                                             shiftTime: config.shiftTime,
-                                             overrideRelativeTime: config.overrideRelativeTime,
-                                             downsample: {
-                                                 value: config.downsample,
-                                                 aggregators: config.aggregators,
-                                                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                                                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
-                                             }
-                                         };
-     }
+            shiftTime: config.shiftTime,
+            overrideRelativeTime: config.overrideRelativeTime,
+            downsample: {
+                value: config.downsample,
+                aggregators: config.aggregators,
+                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
+                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+            }
+        };
+    }
 
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
@@ -275,7 +273,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
 
     toggleQueryMetricVisibility(qid, mid) {
         const mindex = this.widget.queries[0].metrics.findIndex(d => d.id === mid);
-        for (let metric of this.widget.queries[0].metrics) {
+        for (const metric of this.widget.queries[0].metrics) {
             metric.settings.visual.visible = false;
         }
         this.widget.queries[0].metrics[mindex].settings.visual.visible = true;
@@ -330,9 +328,8 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
     }
 
     ngOnDestroy() {
-        if (this.listenSub) {
-            this.listenSub.unsubscribe();
-        }
+        this.listenSub.unsubscribe();
+        this.newSizeSub.unsubscribe();
     }
 }
 
