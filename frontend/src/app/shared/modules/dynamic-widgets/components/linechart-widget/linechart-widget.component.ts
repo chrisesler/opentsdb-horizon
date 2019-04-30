@@ -129,7 +129,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             this.setTimezone(message.payload.timezone);
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
-                            this.setSize();
+                            setTimeout(() => {
+                                this.setSize();
+                            });
                         }
                         break;
                     case 'getUpdatedWidgetConfig':

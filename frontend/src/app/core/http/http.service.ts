@@ -9,6 +9,13 @@ import { MetaService } from '../services/meta.service';
     providedIn: 'root'
 })
 export class HttpService {
+
+    override_host = {
+        tsdb_host: '',
+        meta_host: '',
+        cfgdb_host: ''
+    };
+
     regexMetricFormat = /([^\.]*)\.([^\.]*)\.(.*)/;
     constructor(private http: HttpClient, private metaService: MetaService) { }
 
