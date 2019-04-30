@@ -100,7 +100,7 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit {
 
     openTimeSeriesMetricDialog() {
         const mgroupId = this.widget.query.groups.length ? this.widget.query.groups[0].id : 'new';
-        console.log('%cMGROUP', 'background: purple; color: white;', mgroupId);
+        // console.log('%cMGROUP', 'background: purple; color: white;', mgroupId);
         // do something
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.width = '100%';
@@ -126,7 +126,7 @@ export class DonutchartConfigMetricQueriesComponent implements OnInit {
         this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
             this.modGroup = dialog_out.mgroup;
             this.widgetChange.emit({action: 'AddMetricsToGroup', payload: { data: this.modGroup }});
-            console.log('return dialog', dialog_out );
+            // console.log('return dialog', dialog_out );
         });
     }
 

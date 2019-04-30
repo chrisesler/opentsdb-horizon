@@ -424,12 +424,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
     */
 
     bulkDisableAlerts() {
-        console.log('BULK DISABLE ALERTS');
+        // console.log('BULK DISABLE ALERTS');
         // BULK DISABLE
     }
 
     bulkDeleteAlerts() {
-        console.log('BULK DELETE ALERTS');
+        // console.log('BULK DELETE ALERTS');
         // BULK DELETE
     }
 

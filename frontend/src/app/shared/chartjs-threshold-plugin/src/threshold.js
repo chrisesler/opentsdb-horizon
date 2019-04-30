@@ -26,7 +26,7 @@ module.exports = function(Chart) {
 		newCanvas.style.zIndex = 1;
 		setCursor(newCanvas, "pointer");
         chart.options.threshold = chartHelpers.configMerge(Chart.Threshold.defaults, chart.options.threshold || {} );
-        console.log(chart.options.threshold, "instance options..")
+        // console.log(chart.options.threshold, "instance options..")
 		chart.threshold={
 				elements:{},
                 overlayCanvas:newCanvas,
@@ -119,7 +119,7 @@ module.exports = function(Chart) {
 	}
 
 	function fireEvent(chart) {
-        console.log("send events..", chart.threshold.elements);
+        // console.log("send events..", chart.threshold.elements);
 		var evt = new CustomEvent("onThresholdSet", {"detail":chart.threshold.elements});
 		chart.ctx.canvas.dispatchEvent(evt);	
 	}
@@ -135,10 +135,10 @@ module.exports = function(Chart) {
 			/* handler to delete the selected threshold line */
             chart.threshold._winKeyDownEventHandler = function(e) {
 				if (chart.threshold.selection && e.keyCode == 8 ) {
-                    console.log(chart, "coimes ......", chart.threshold.selection, chart.threshold.elements);
+                    // console.log(chart, "coimes ......", chart.threshold.selection, chart.threshold.elements);
 					delete chart.threshold.elements[chart.threshold.selection.id];
                     clearSelection(chart);
-                    console.log(chart.threshold.elements)
+                    // console.log(chart.threshold.elements)
 					draw(chart);
 				}				
 			};
@@ -146,7 +146,7 @@ module.exports = function(Chart) {
 			/* 	handler to draw threshold line or 
 				selects/unselects the line if the line is there in the area */
               chart.threshold._mouseDownEventHandler = function(e) {
-                console.log("mouse down..")
+                // console.log("mouse down..")
 			    var mx = e.offsetX;
 			    var my = e.offsetY;
 			    for (var i in chart.threshold.elements ) {
@@ -172,7 +172,7 @@ module.exports = function(Chart) {
                         fireEvent(chart);
                         
                     }
-                    console.log(chart.threshold.elements, "added..");
+                    // console.log(chart.threshold.elements, "added..");
 					draw(chart);
 			    }
   			};

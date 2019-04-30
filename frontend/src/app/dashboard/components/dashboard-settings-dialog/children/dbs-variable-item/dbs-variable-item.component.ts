@@ -74,7 +74,7 @@ export class DbsVariableItemComponent implements OnInit, OnDestroy {
             }
             console.log('%cformGroup', 'font-weight: bold;', this.formGroup);
             */
-        //console.groupEnd();
+        // console.groupEnd();
 
         // preset whether the item is disabled or not
         this._itemDisabled = !(this.formGroup.get('enabled').value);

@@ -250,7 +250,7 @@ export class MiniNavigatorComponent implements OnInit, OnDestroy {
     }
 
     folderAction(panel: any, event: any) {
-        console.log('FOLDER ACTION [TOP]', panel, event);
+        // console.log('FOLDER ACTION [TOP]', panel, event);
 
         switch (event.action) {
             case 'gotoFolder':

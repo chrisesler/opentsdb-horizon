@@ -94,7 +94,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     if (!changes) {
       return;
     } else {
-      console.log('dygraph changes', new Date().getMilliseconds(), changes);
       // if not then create it
       if (!this._g && this.data) {
         this.options.plugins = [ ThresholdsPlugin ];

@@ -134,7 +134,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
         this.newSizeSub = this.newSize$.pipe(
             // debounceTime(300)
         ).subscribe(size => {
-            console.log("size", size)
+            // console.log("size", size)
             this.setSize(size);
         });
         

@@ -183,7 +183,7 @@ export class HttpService {
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {
-                    console.log('the res', res);
+                    // console.log('the res', res);
                     let tagvalues = [];
                     for (let i = 0; res && i < res.results.length; i++) {
                         if (Object.keys(res.results[i].tagKeysAndValues).length > 0 && res.results[i].tagKeysAndValues[queryObj.tag.key]) {

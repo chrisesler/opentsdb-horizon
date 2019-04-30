@@ -59,11 +59,11 @@ export class NamespaceAutocompleteComponent implements OnInit {
 
     namespaceKeydown(event: any) {
 
-        console.log('NAMESPACE KEYDOWN.ENTER', event, this.filteredNamespaceOptions);
+        // console.log('NAMESPACE KEYDOWN.ENTER', event, this.filteredNamespaceOptions);
 
         // if (!this.nsAutoCompleteCntrl.isOpen) {
         this.selectedNamespace = this.namespaceControl.value;
-        console.log('selectedns', this.selectedNamespace, event);
+        // console.log('selectedns', this.selectedNamespace, event);
 
         // check if the namespace is valid
 

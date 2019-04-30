@@ -240,7 +240,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
 
     setVisualConditions( vConditions ) {
         this.widget.settings.visual.conditions = vConditions;
-        console.log("setVisualConditions", this.widget.settings.visual);
+        // console.log("setVisualConditions", this.widget.settings.visual);
     }
 
     setMetaData(config) {

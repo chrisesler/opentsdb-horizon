@@ -36,7 +36,7 @@ export class StackedBarchartVisualAppearanceComponent implements OnInit {
         this.displayControl = new FormControl(this.widget.query.settings.visual.type || 'vertical');
 
         this.displayControl.valueChanges.subscribe( d => {
-            console.log('display changed', d );
+            // console.log('display changed', d );
             this.widgetChange.emit( {'action': 'ChangeVisualization', payload: { type: d }});
         });
 
@@ -57,12 +57,12 @@ export class StackedBarchartVisualAppearanceComponent implements OnInit {
                                                     )
                                 );
         this.gForms.get('bars').valueChanges.subscribe(data => {
-            console.log(data, 'bars..');
+            // console.log(data, 'bars..');
             this.widgetChange.emit( {'action': 'SetStackedBarBarVisuals', payload: { data: data }});
         });
 
         this.gForms.get('stacks').valueChanges.subscribe(data => {
-            console.log(data, 'stacks..');
+            // console.log(data, 'stacks..');
             this.widgetChange.emit( {'action': 'SetStackedBarStackVisuals', payload: { data: data }});
         });
     }
