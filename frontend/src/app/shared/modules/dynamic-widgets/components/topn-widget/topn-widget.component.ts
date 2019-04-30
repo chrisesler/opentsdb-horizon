@@ -136,6 +136,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 action: 'getQueryData',
                 payload: this.widget
             });
+            this.cdRef.detectChanges();
         }
     }
 

@@ -386,7 +386,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.interCom.responsePut({
                 id: lastUpdated.id,
                 action: 'getUpdatedWidgetConfig',
-                payload: lastUpdated
+                payload: this.utilService.deepClone(lastUpdated)
             });
         }));
 

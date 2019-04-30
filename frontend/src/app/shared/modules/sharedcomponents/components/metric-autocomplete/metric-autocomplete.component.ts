@@ -10,7 +10,7 @@ import {
     ViewChild,
     OnChanges,
     OnDestroy,
-    SimpleChanges, HostListener, AfterViewInit, AfterViewChecked
+    SimpleChanges, HostListener, AfterViewInit, AfterViewChecked, ChangeDetectorRef
 } from '@angular/core';
 import { MatAutocomplete, MatMenuTrigger } from '@angular/material';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
@@ -62,7 +62,8 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     constructor(
         private elRef: ElementRef,
         private httpService: HttpService,
-        private utils: UtilsService
+        private utils: UtilsService,
+        private cdRef: ChangeDetectorRef
     ) {
     }
 
@@ -101,6 +102,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
                 query.search = value ? value : '';
                 this.message['metricSearchControl'] = {};
                 this.firstRun = true;
+                this.cdRef.detectChanges();
                 this.httpService.getMetricsByNamespace(query)
                     .subscribe(res => {
                         this.firstRun = false;
@@ -108,12 +110,14 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
                         if ( this.metricOptions.length === 0 ) {
                             this.message['metricSearchControl'] = { 'type': 'info', 'message': 'No data found' };
                         }
+                        this.cdRef.detectChanges();
                     },
                         err => {
                             this.firstRun = false;
                             this.metricOptions = [];
                             const message = err.error.error ? err.error.error.message : err.message;
                             this.message['metricSearchControl'] = { 'type': 'error', 'message': message };
+                            this.cdRef.detectChanges();
                         });
             });
     }

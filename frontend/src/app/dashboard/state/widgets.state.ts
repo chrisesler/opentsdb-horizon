@@ -163,13 +163,13 @@ export class WidgetsState {
     }
 
     @Action(DeleteWidget)
-    deleteWidget(ctx: StateContext<WidgetModel[]>, { wid }: DeleteWidget) {
+    deleteWidget(ctx: StateContext<WidgetsModel>, { wid }: DeleteWidget) {
         const curState = ctx.getState();
         const state = this.utils.deepClone(curState);
-        const index = state.findIndex( d => d.id === wid );
+        const index = state.widgets.findIndex( d => d.id === wid );
         if ( index !== -1 ) {
-            state.splice(index, 1);
-            ctx.setState(state);
+            state.widgets.splice(index, 1);
+            ctx.patchState({ widgets: state.widgets });
         }
     }
 }

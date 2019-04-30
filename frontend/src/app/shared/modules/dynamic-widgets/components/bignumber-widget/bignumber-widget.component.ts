@@ -362,6 +362,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 action: 'getQueryData',
                 payload: this.widget
             });
+            this.cdRef.detectChanges();
         }
     }
 

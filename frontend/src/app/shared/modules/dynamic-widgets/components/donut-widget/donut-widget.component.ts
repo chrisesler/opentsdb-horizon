@@ -61,8 +61,6 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     ) { }
 
     ngOnInit() {
-        this.widget = JSON.parse(JSON.stringify(this.widget));
-        console.log('donut', this.widget);
         this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'doughnut');
         this.typeSub = this.type$.subscribe( type => {
             this.widget.settings.visual.type = type;
@@ -158,6 +156,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 action: 'getQueryData',
                 payload: this.widget
             });
+            this.cdRef.detectChanges();
         }
     }
 
@@ -327,7 +326,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     applyConfig() {
-        const cloneWidget = { ...this.widget };
+        const cloneWidget = this.util.deepClone(this.widget);
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
