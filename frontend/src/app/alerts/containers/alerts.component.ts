@@ -227,7 +227,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.cdkService.setNavbarPortal(this.alertspageNavbarPortal);
 
         this.subscription.add(this.loaded$.subscribe( data => {
-            this.stateLoaded = data;
+            this.stateLoaded = JSON.parse(JSON.stringify(data));
             if (!this.stateLoaded.userNamespaces) {
                 this.store.dispatch(
                     new LoadNamespaces({
@@ -263,7 +263,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.alerts$.pipe(skip(1)).subscribe( alerts => {
             this.stateLoaded.alerts = true;
-            this.alerts = alerts;
+            this.alerts = JSON.parse(JSON.stringify(alerts));
             this.setTableDataSource();
         }));
 
@@ -298,7 +298,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.editItem$.pipe(filter(data => Object.keys(data).length !== 0), distinctUntilChanged())
         .subscribe(data => {
-            if ( data.id === '_new_' ) {
+            const _data = JSON.parse(JSON.stringify(data));
+            if ( _data.id === '_new_' ) {
                 const o = {
                     alertType: 'metric',
                     namespace: data.namespace,
@@ -308,9 +309,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
             } else {
                 // set the namespace if the user comes directly from edit url
                 if ( !this.selectedNamespace ) {
-                    this.setNamespace(data.namespace);
+                    this.setNamespace(_data.namespace);
                 }
-                this.openAlertDialog(data);
+                this.openAlertDialog(_data);
             }
         }));
 
