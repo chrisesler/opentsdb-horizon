@@ -1,9 +1,6 @@
 import { State, StateContext, Action, Selector, createSelector } from '@ngxs/store';
 import { append, patch, removeItem, updateItem } from '@ngxs/store/operators';
 import { UtilsService } from '../../core/services/utils.service';
-import { RandomNumberGenerationSource } from 'd3';
-// we might need to define data model for each group and inner metric obj
-// to put strict on object
 
 export interface Axis {
     type: string;
