@@ -1,0 +1,78 @@
+<ng-template [ngIf]="mode === 'list'" [ngIfElse]="variableEditView">
+    <div class="variable-list-wrapper">
+        <span>LIST VIEW</span>
+    </div>
+</ng-template>
+
+<ng-template #variableEditView>
+    <div class="variable-edit-controls" [formGroup]="editForm" >
+        <span>EDIT VIEW</span>
+        <div class="edit-control-list" formArrayName="tplVariables">
+    
+            <ng-container *ngFor="let tpl of tplVariables['controls']; let i=index">
+                <div class="variable-item" [formGroupName]="i">
+                    <div class="settings-control alias-control">
+                        <div class="mat-label">Tag Key Alias</div>
+                        <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                            <input matInput placeholder="Enter alias (optional)" formControlName="alias">
+                        </mat-form-field>
+                    </div>
+                    <div class="settings-control tag-key-control">
+                        <div class="mat-label">Tag Key</div>
+                        <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                            <input matInput placeholder="Enter tag key" formControlName="tagk" [matAutocomplete]="filterKeyAuto">
+                            <mat-autocomplete #filterKeyAuto="matAutocomplete" (optionSelected)="selectFilterKeyOption($event)">
+                                <mat-option *ngFor="let option of filteredKeyOptions | async" [value]="option">
+                                    {{option}}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                    
+                    <div class="settings-control values-control">
+                        <div class="mat-label">Allowed Tag Values</div>
+                        <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                            <mat-chip-list class="filter-values-list" #chipList>
+                                <mat-chip
+                                    *ngFor="let val of chipValues; let n=index"
+                                    (removed)="removeValue(n)">
+                                    <span>{{val.value}}</span>
+                                    <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
+                                </mat-chip>
+                                    <input
+                                    placeholder="Enter value(s) seperated by commas"
+                                    #filterValueInput
+                                    [formControl]="allowedValuesInput"
+                                    [matAutocomplete]="filterValueAuto"
+                                    [matChipInputFor]="chipList"
+                                    (focus)="onValueInputFocus()">
+                            </mat-chip-list>
+                            <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event)">
+                                <mat-option *ngFor="let option of filteredValueOptions" [value]="option">
+                                {{option}}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                    <div class="settings-control actions-control">
+                        <div class="mat-label">Actions</div>
+                        <div class="actions">
+                            <button mat-button (click)="removeTemplateVariable(i)">
+                                <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+        <div class="edit-actions">
+            <button mat-flat-button class="add-template-button" color="primary" (click)="addVariableTemplate()">
+                <mat-icon fontSet="denali" fontIcon="d-add-circle"></mat-icon>
+                <span>New Variable Template</span>
+            </button>
+            <button mat-stroked-button color="primary" class="editing-done-button" (click)="variabletemplateEditDone()">
+                <span>Done</span>
+            </button>
+        </div>
+    </div>
+</ng-template>

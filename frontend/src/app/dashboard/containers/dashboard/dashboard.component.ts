@@ -100,7 +100,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     menuXAlignValue: MenuPositionX = 'before';
 
-    // Available Widget Types for adding new widget menu
+    // variablePanelMode
+    variablePanelMode = 'list';
+
+
+    // Available Widget Types
+    /**
+     *  NOTE: at some point we might want to think about adding this to some config setup
+     * */
     availableWidgetTypes: Array<object> = [
         {
             label: 'Bar Graph',
