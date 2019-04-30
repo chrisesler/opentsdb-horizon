@@ -1,6 +1,6 @@
 import {
-    Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input,
-    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef
+    Component, OnInit, HostBinding, Input,
+    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit
 } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
@@ -12,6 +12,7 @@ import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 import { BehaviorSubject } from 'rxjs';
+import { ElementQueries, ResizeSensor} from 'css-element-queries';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -19,7 +20,7 @@ import { BehaviorSubject } from 'rxjs';
     templateUrl: './linechart-widget.component.html',
     styleUrls: []
 })
-export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
+export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.linechart-widget') private _componentClass = true;
@@ -80,7 +81,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     };
     data: any = { ts: [[0]] };
     size: any = { width: 120, height: 60};
-    newSize: any = {};
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
     legendWidth;
@@ -112,22 +112,10 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                     this.setTimezone(message.payload.zone);
                     this.options = { ...this.options };
                     break;
-                case 'WindowResize':
-                    this.setGraphSize(this.computeWidgetSize(message.payload));
-                    break;
             }
 
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
-                    case 'updateWidgetSize':
-                        // apply change to this widget
-                        this.widget.gridPos = {...this.widget.gridPos, ...message.payload.gridLayout };
-                        const newSize = {
-                            width: message.payload.size.width * this.widget.gridPos.wMd,
-                            height: message.payload.size.height * this.widget.gridPos.hMd
-                        };
-                        this.setGraphSize(newSize);
-                        break;
                     case 'updatedWidgetGroup':
                         this.nQueryDataLoading -= Object.keys(message.payload.rawdata).length;
                         if (!this.isDataLoaded) {
@@ -141,8 +129,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
                             this.setTimezone(message.payload.timezone);
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
-                            this.setGraphSize(this.computeWidgetSize(message.payload.gridSize));
-                            this.cdRef.detectChanges();
+                            this.setSize();
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -170,7 +157,6 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     updateConfig(message) {
-        console.log('update config when thing change:', message);
         switch ( message.action ) {
             case 'SetMetaData':
                 this.setMetaData(message.payload.data);
@@ -268,102 +254,62 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
     createNewGroup() {
         const gid = this.util.generateId(6);
         const g = {
-                    id: gid,
-                    metrics: [],
-                    settings: {
-                        tempUI: {
-                            selected: false
-                        },
-                        visual: {
-                            visible: true
-                        }
-                    }
-                };
+            id: gid,
+            metrics: [],
+            settings: {
+                tempUI: {
+                    selected: false
+                },
+                visual: {
+                    visible: true
+                }
+            }
+        };
         return g;
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        // console.log("widget on changes", changes)
-    }
-
-    computeWidgetSize(gridSize: any) {
-
-        return {
-            width: gridSize.winSize === 'md' ?
-                    this.widget.gridPos.wMd * gridSize.width : gridSize.width,
-            height: gridSize.winSize === 'md' ?
-                    this.widget.gridPos.hMd * gridSize.height : gridSize.height
+    ngAfterViewInit() {
+        ElementQueries.listen();
+        ElementQueries.init();
+        const initSize = {
+            width: this.widgetOutputElement.nativeElement.clientWidth,
+            height: this.widgetOutputElement.nativeElement.clientHeight
         };
-    }
+        this.newSize$ = new BehaviorSubject(initSize);
 
-    setGraphSize(newSize: any) {
-        let nWidth: number, nHeight: number, padding: number;
-        const legendSettings = this.widget.settings.legend;
-        const legendColumns = legendSettings.columns ? legendSettings.columns.length : 0;
-        let widthOffset = 0;
-        let heightOffset = 0;
-        let labelLen = 0;
-        if (this.editMode) {
-            const nativeEl = this.widgetOutputElement.nativeElement.parentElement;
-            newSize = nativeEl.getBoundingClientRect();
-        }
-
-        for ( const i in this.options.series ) {
-            if (this.options.series.hasOwnProperty(i)) {
-                labelLen = labelLen < this.options.series[i].label.length ? this.options.series[i].label.length : labelLen ;
-            }
-        }
-        if (legendSettings.display &&
-                                    ( legendSettings.position === 'left' ||
-                                    legendSettings.position === 'right' ) ) {
-            widthOffset = 10 + labelLen * 6.5 + 60 * legendColumns;
-        }
-
-        if ( legendSettings.display &&
-                                    ( legendSettings.position === 'top' ||
-                                    legendSettings.position === 'bottom' ) ) {
-            heightOffset = newSize.height * .25;
-            heightOffset = heightOffset <= 80 ? 80 : heightOffset;
-        }
-
-        if (this.editMode) {
-            let titleSize = {width: 0, height: 0};
-            if (this.widgetTitle) {
-                titleSize = this.widgetTitle.nativeElement.getBoundingClientRect();
-            }
-            padding = 8; // 8px top and bottom
-            nHeight = newSize.height - heightOffset - titleSize.height - (padding * 2);
-            nWidth = newSize.width - widthOffset  - (padding * 2) - 30;
-        } else {
-            padding = 14; // 10px on the top
-            nHeight = newSize.height - heightOffset - (padding * 2);
-            nWidth = newSize.width - widthOffset  - (padding * 2);
-        }
-        this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
-        this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
-        this.size = {width: nWidth, height: nHeight };
+        this.newSizeSub = this.newSize$.subscribe(size => {
+            this.setSize();
+            // this.newSize = size;
+        });
+        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () => {
+             const newSize = {
+                width: this.widgetOutputElement.nativeElement.clientWidth,
+                height: this.widgetOutputElement.nativeElement.clientHeight
+            };
+            this.newSize$.next(newSize);
+        });
     }
 
     setSize() {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
-        const nativeEl = (this.editMode) ?
+         const nativeEl = (this.editMode) ?
             this.widgetOutputElement.nativeElement.parentElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
 
-        const outputSize = nativeEl.getBoundingClientRect();
-        const offset = this.editMode ? 100 : 0;
-        let newSize = outputSize;
-
+         const newSize = nativeEl.getBoundingClientRect();
+        // let newSize = outputSize;
         let nWidth, nHeight, padding;
 
         const legendSettings = this.widget.settings.legend;
-        const legendColumns = legendSettings.columns? legendSettings.columns.length : 0;
+        const legendColumns = legendSettings.columns ? legendSettings.columns.length : 0;
 
         let widthOffset = 0;
         let heightOffset = 0;
         let labelLen = 0;
-        for ( let i in this.options.series ) {
-            labelLen = labelLen < this.options.series[i].label.length? this.options.series[i].label.length: labelLen ;
+        for ( const i in this.options.series ) {
+            if (this.options.series.hasOwnProperty(i)) {
+            labelLen = labelLen < this.options.series[i].label.length ? this.options.series[i].label.length: labelLen ;
+            }
         }
         if (legendSettings.display &&
                                     ( legendSettings.position === 'left' ||
@@ -394,6 +340,8 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
         this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
         this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
         this.size = {width: nWidth, height: nHeight };
+        // after size it set, tell Angular to check changes
+        this.cdRef.detectChanges();
     }
 
     setTimezone(timezone) {
@@ -494,14 +442,16 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     updateAlertValue(nConfig) {
         const thresholds = this.widget.settings.thresholds || {};
-        for ( let k in nConfig ) {
-            const oConfig = this.widget.settings.axes ? this.widget.settings.axes[k] : <Axis>{};
-            const oUnit = this.unit.getDetails(oConfig.unit);
-            const nUnit = this.unit.getDetails(nConfig[k].unit);
-            for ( let i in thresholds ) {
-                if ( thresholds[i].axis === k) {
-                    thresholds[i].value = oUnit ? thresholds[i].value * oUnit.m : thresholds[i].value;
-                    thresholds[i].value = nUnit ? thresholds[i].value / nUnit.m : thresholds[i].value;
+        for ( const k in nConfig ) {
+            if (nConfig.hasOwnProperty(k)) {
+                const oConfig = this.widget.settings.axes ? this.widget.settings.axes[k] : <Axis>{};
+                const oUnit = this.unit.getDetails(oConfig.unit);
+                const nUnit = this.unit.getDetails(nConfig[k].unit);
+                for (const i in thresholds) {
+                    if (thresholds[i].axis === k) {
+                        thresholds[i].value = oUnit ? thresholds[i].value * oUnit.m : thresholds[i].value;
+                        thresholds[i].value = nUnit ? thresholds[i].value / nUnit.m : thresholds[i].value;
+                    }
                 }
             }
         }
@@ -714,6 +664,7 @@ export class LinechartWidgetComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnDestroy() {
         this.listenSub.unsubscribe();
+        this.newSizeSub.unsubscribe();
     }
 
 }
