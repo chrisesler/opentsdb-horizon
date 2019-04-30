@@ -157,7 +157,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         // Dimension will be picked up by parent node which is #container
         ElementQueries.listen();
         ElementQueries.init();
-        let initSize = {
+        const initSize = {
             width: this.widgetOutputElement.nativeElement.clientWidth,
             height: this.widgetOutputElement.nativeElement.clientHeight
         };
@@ -168,8 +168,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         ).subscribe(size => {
             this.setSize(size);
         });
-        
-        new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
              const newSize = {
                 width: this.widgetOutputElement.nativeElement.clientWidth,
                 height: this.widgetOutputElement.nativeElement.clientHeight
@@ -269,10 +268,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
     // for first time and call.
     setSize(newSize) {
-
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
-        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
+        const nativeEl = (this.editMode) ?
+            this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
 
         const outputSize = nativeEl.getBoundingClientRect();
         if (this.editMode) {
@@ -282,6 +281,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.width = (outputSize.width - 30) + 'px';
             this.height = (outputSize.height - 20) + 'px';
         }
+        this.cdRef.detectChanges();
     }
 
     updateQuery( payload ) {
