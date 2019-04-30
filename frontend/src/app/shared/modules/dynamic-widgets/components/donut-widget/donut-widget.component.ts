@@ -1,5 +1,5 @@
-import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, ChangeDetectorRef,
-    Input, OnDestroy, ViewChild, ElementRef, AfterContentInit } from '@angular/core';
+import { Component, OnInit, HostBinding, ChangeDetectorRef,
+    Input, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
@@ -17,7 +17,7 @@ import { ErrorDialogComponent } from '../../../sharedcomponents/components/error
     styleUrls: ['./donut-widget.component.scss']
 })
 
-export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, AfterContentInit {
+export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.donutchart-widget') private _componentClass = true;
 
@@ -29,14 +29,9 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     @ViewChild('chartLegend') private chartLegend: ElementRef;
 
     private listenSub: Subscription;
-    // tslint:disable-next-line:no-inferrable-types
-    private isDataLoaded: boolean = false;
-    // tslint:disable-next-line:no-inferrable-types
-
+    private isDataLoaded = false;
     type$: BehaviorSubject<string>;
     typeSub: Subscription;
-
-
     options: any  = {
         type: 'doughnut',
         legend: {
@@ -50,7 +45,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     size: any = { width: 0, height: 0, legendWidth: 0 };
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
-    legendWidth=0;
+    legendWidth = 0;
     editQueryId = null;
     nQueryDataLoading = 0;
     error: any;
@@ -66,6 +61,8 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     ) { }
 
     ngOnInit() {
+        this.widget = JSON.parse(JSON.stringify(this.widget));
+        console.log('donut', this.widget);
         this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'doughnut');
         this.typeSub = this.type$.subscribe( type => {
             this.widget.settings.visual.type = type;
@@ -74,7 +71,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
 
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            switch( message.action ) {
+            switch ( message.action ) {
                 case 'reQueryData':
                     this.refreshData();
                     break;
@@ -109,36 +106,28 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        setTimeout(()=>{
+        setTimeout(() => {
             this.refreshData(this.editMode ? false : true);
             this.setOptions();
-        }, 0);
+        });
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-
-    }
-
-    ngAfterContentInit() {
+    ngAfterViewInit() {
         // this event will happend on resize the #widgetoutput element,
         // in  chartjs we don't need to pass the dimension to it.
         // Dimension will be picked up by parent node which is #container
         ElementQueries.listen();
         ElementQueries.init();
-        let initSize = {
+        const initSize = {
             width: this.widgetOutputElement.nativeElement.clientWidth,
             height: this.widgetOutputElement.nativeElement.clientHeight
         };
         this.newSize$ = new BehaviorSubject(initSize);
 
-        this.newSizeSub = this.newSize$.pipe(
-            // debounceTime(300)
-        ).subscribe(size => {
-            // console.log("size", size)
+        this.newSizeSub = this.newSize$.subscribe(size => {
             this.setSize(size);
         });
-        
-        new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
              const newSize = {
                 width: this.widgetOutputElement.nativeElement.clientWidth,
                 height: this.widgetOutputElement.nativeElement.clientHeight
@@ -156,7 +145,8 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
             newSize.width = newSize.width - legendWidth;
         }
 
-        this.size = {...newSize, legendWidth: legendWidth-20};
+        this.size = {...newSize, legendWidth: legendWidth - 20};
+        this.cdRef.detectChanges();
     }
 
     requestData() {
@@ -271,16 +261,16 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
 
     setTimeConfiguration(config) {
         this.widget.settings.time = {
-                                             shiftTime: config.shiftTime,
-                                             overrideRelativeTime: config.overrideRelativeTime,
-                                             downsample: {
-                                                 value: config.downsample,
-                                                 aggregators: config.aggregators,
-                                                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                                                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
-                                             }
-                                         };
-     }
+            shiftTime: config.shiftTime,
+            overrideRelativeTime: config.overrideRelativeTime,
+            downsample: {
+                value: config.downsample,
+                aggregators: config.aggregators,
+                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
+                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+            }
+        };
+    }
 
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
@@ -348,9 +338,8 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     }
 
     ngOnDestroy() {
-        if (this.listenSub) {
-            this.listenSub.unsubscribe();
-        }
+        this.listenSub.unsubscribe();
         this.typeSub.unsubscribe();
+        this.newSizeSub.unsubscribe();
     }
 }
