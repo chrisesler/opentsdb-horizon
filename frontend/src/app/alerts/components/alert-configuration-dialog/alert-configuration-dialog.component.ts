@@ -103,8 +103,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         visibility: [],
         gridLineColor: '#ccc',
     };
-    queryData:any = {};
-    chartData: any = [[0]];
+    queryData: any = {};
+    chartData = { ts: [[0]] };
     size: any = {
         height: 180
     };
@@ -522,7 +522,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             this.getYamasData(query);
         } else {
             this.nQueryDataLoading = 0;
-            this.chartData = [[0]];
+            this.chartData = { ts: [[0]] };
         }
     }
 
@@ -576,7 +576,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         config.queries = queries;
         const data = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], this.queryData);
         this.setChartYMax();
-        this.chartData = data;
+        this.chartData = { ts: data };
     }
 
     setChartYMax() {
