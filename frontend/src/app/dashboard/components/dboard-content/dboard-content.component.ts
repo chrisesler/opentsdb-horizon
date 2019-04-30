@@ -54,7 +54,7 @@ export class DboardContentComponent implements OnChanges {
     shrink: true,
     useCSSTransforms: true,
     responsiveView: true, // turn on adopting items sizes on window resize and enable responsiveOptions
-    responsiveDebounce: 100, // window resize debounce time
+    responsiveDebounce: 50, // window resize debounce time
     responsiveSizes: true,
     responsiveOptions: [
       {
@@ -149,25 +149,25 @@ export class DboardContentComponent implements OnChanges {
     if (this.viewEditMode) { return; }
     const width = event.gridsterComponent.gridster.cellWidth;
     const height = event.gridsterComponent.gridster.cellHeight;
-    // if (!event.isInit) {
-      this.interCom.responsePut({
+    // comment out for now using ResizeSensor
+    /* if (!event.isInit) {
+       this.interCom.responsePut({
         action: 'WindowResize',
         payload: { width, height, winSize: this.winSize }
       });
-    // }
+    } */
     this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height, this.winSize));
   }
 
-  // this event happened when item is dragged or resize
-  // we call the function update all since we don't know which one for now.
-  // the width and height unit might change but not the cell width and height.
+  // this event happened when item is dragged or resize end
   gridEventEnd(event: any) {
     if (this.viewEditMode) { return; }
       if (event.action === 'resize' || event.action === 'drag') {
         const width = event.item.itemComponent.gridster.cellWidth;
         const height = event.item.itemComponent.gridster.cellHeight;
         this.widgetsLayoutUpdate.emit(this.getWigetPosition(width, height, this.winSize));
-        if (event.action === 'resize' && this.winSize === 'md') {
+        // comment out for now to use ResizeSensor
+        /* if (event.action === 'resize' && this.winSize === 'md') {
           // only deal with resize to care about new size
           const gItem = event.item.itemComponent;
           // with our set up for responsive, only md needed.
@@ -191,7 +191,7 @@ export class DboardContentComponent implements OnChanges {
             action: 'updateWidgetSize',
             payload: { size, gridLayout }
           });
-        }
+        } */
       }
   }
 
