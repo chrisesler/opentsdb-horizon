@@ -207,7 +207,6 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.needRequery = true;
                 break;
         }
-        console.log("message", message, this.needRequery)
     }
 
     updateQuery( payload ) {

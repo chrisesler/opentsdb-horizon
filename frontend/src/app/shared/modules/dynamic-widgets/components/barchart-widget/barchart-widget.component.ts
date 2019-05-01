@@ -110,7 +110,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                     break;
             }
             if (message && (message.id === this.widget.id)) {
-                console.log("dectect message", message, this.widget.id)
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                         this.nQueryDataLoading--;
