@@ -441,7 +441,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // tslint:disable-next-line: no-shadowed-variable
         this.subscription.add(this.widgets$.subscribe((widgets) => {
             const dbstate = this.store.selectSnapshot(DBState);
-            console.log('widget$ is calling', dbstate.loaded);
             if (dbstate.loaded) {
                 this.widgets = this.utilService.deepClone(widgets);
             }
@@ -548,7 +547,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
-            console.log('widgetgroupraw data return', result);
             let error = null;
             const grawdata = {};
             if (result !== undefined) {
@@ -705,7 +703,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // this will call based on gridster reflow and size changes event
     widgetsLayoutUpdate(gridLayout: any) {
-        console.log('the gridlayout', gridLayout);
         this.gridsterUnitSize = gridLayout.clientSize;
         if (gridLayout.clientSize) {
             this.store.dispatch(new UpdateGridsterUnitSize(gridLayout.clientSize));
