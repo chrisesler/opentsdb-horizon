@@ -54,6 +54,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     queryChanges$: BehaviorSubject<boolean>;
     queryChangeSub: Subscription;
     visible = false;
+    isDestroying = false;
 
     // tslint:disable-next-line:no-inferrable-types
     firstRun: boolean = true;
@@ -82,6 +83,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     }
 
     ngOnDestroy() {
+        this.isDestroying = true;
     }
 
     get metricSearchControlValue() {
@@ -102,7 +104,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
                 query.search = value ? value : '';
                 this.message['metricSearchControl'] = {};
                 this.firstRun = true;
-                this.cdRef.detectChanges();
+                this.detectChanges();
                 this.httpService.getMetricsByNamespace(query)
                     .subscribe(res => {
                         this.firstRun = false;
@@ -110,16 +112,22 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
                         if ( this.metricOptions.length === 0 ) {
                             this.message['metricSearchControl'] = { 'type': 'info', 'message': 'No data found' };
                         }
-                        this.cdRef.detectChanges();
+                        this.detectChanges();
                     },
                         err => {
                             this.firstRun = false;
                             this.metricOptions = [];
                             const message = err.error.error ? err.error.error.message : err.message;
                             this.message['metricSearchControl'] = { 'type': 'error', 'message': message };
-                            this.cdRef.detectChanges();
+                            this.detectChanges();
                         });
             });
+    }
+
+    detectChanges() {
+        if ( ! this.isDestroying ) {
+            this.cdRef.detectChanges();
+        }
     }
 
     doMetricSearch() {
