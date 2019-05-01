@@ -87,8 +87,8 @@ export class DashboardService {
   }
 
   getDashboardPrototype(): any {
-    const dashboard: any = Object.assign({}, this.dashboardProto);
-    const widget: any = JSON.parse(JSON.stringify(this.getWidgetPrototype()));
+    const dashboard: any = this.utils.deepClone(this.dashboardProto);
+    const widget: any = this.utils.deepClone(this.getWidgetPrototype());
     dashboard.widgets.push(widget);
     return dashboard;
   }

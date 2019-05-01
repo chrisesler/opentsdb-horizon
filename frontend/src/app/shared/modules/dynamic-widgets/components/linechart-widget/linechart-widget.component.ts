@@ -587,11 +587,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     refreshData(reload = true) {
-        // widget without any metric should not make any query
-        // need to take care case from having metric to none
-        if (this.widget.queries[0].metrics.length === 0) {
-            return;
-        }
         this.isDataLoaded = false;
         if ( reload ) {
             this.requestData();
