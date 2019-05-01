@@ -572,6 +572,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 action: 'getQueryData',
                 payload: this.widget,
             });
+            this.cdRef.detectChanges();
         }
     }
 

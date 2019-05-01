@@ -185,6 +185,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 action: 'getQueryData',
                 payload: this.widget
             });
+            this.cdRef.detectChanges();
         }
     }
 
@@ -590,7 +591,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     applyConfig() {
-        const cloneWidget = { ...this.widget };
+        const cloneWidget = this.util.deepClone(this.widget);
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
