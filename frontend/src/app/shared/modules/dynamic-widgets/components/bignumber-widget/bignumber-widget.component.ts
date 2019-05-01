@@ -297,12 +297,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
     determineFontSizePercent(width: number, height: number) {
 
-        if (this.editMode) {
-            if (this.aggregators.length > 4) {
-                this.fontSizePercent = 75;
-            } else {
-                this.fontSizePercent = 100;
-            }
+        if (this.editMode || !width || !height) {
+            this.fontSizePercent = 100;
             return;
         }
 
