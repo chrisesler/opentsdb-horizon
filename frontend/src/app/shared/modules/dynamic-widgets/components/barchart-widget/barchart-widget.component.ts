@@ -77,6 +77,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
     needRequery = false;
+    isDestroying = false;
 
     constructor(
         private interCom: IntercomService,
@@ -109,7 +110,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                     break;
             }
             if (message && (message.id === this.widget.id)) {
-
+                console.log("dectect message", message, this.widget.id)
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                         this.nQueryDataLoading--;
@@ -123,7 +124,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                         }
                         this.data = this.dataTransformer
                             .yamasToChartJS(this.type, this.options, this.widget, this.data, message.payload.rawdata, this.isStackedGraph);
-                        this.cdRef.detectChanges();
+                        this.detectChanges();
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.widget = message.payload.widget;
@@ -185,7 +186,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 action: 'getQueryData',
                 payload: this.widget
             });
-            this.cdRef.detectChanges();
+            this.detectChanges();
         }
     }
 
@@ -282,7 +283,13 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.width = (outputSize.width - 30) + 'px';
             this.height = (outputSize.height - 20) + 'px';
         }
-        this.cdRef.detectChanges();
+        this.detectChanges();
+    }
+
+    detectChanges() {
+        if ( ! this.isDestroying ) {
+            this.cdRef.detectChanges();
+        }
     }
 
     updateQuery( payload ) {
@@ -603,6 +610,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     ngOnDestroy() {
+        this.isDestroying = true;
         if (this.listenSub) {
             this.listenSub.unsubscribe();
         }
