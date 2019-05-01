@@ -76,7 +76,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
-    isDataRefreshRequired = false;
+    needRequery = false;
 
     constructor(
         private interCom: IntercomService,
@@ -128,7 +128,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                     case 'getUpdatedWidgetConfig':
                         this.widget = message.payload.widget;
                         this.setOptions();
-                        this.refreshData(message.payload.isDataRefreshRequired);
+                        this.refreshData(message.payload.needRefresh);
                         break;
                 }
             }
@@ -207,7 +207,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'SetStackedBarVisualization':
                 this.setStackedBarVisualization( message.payload.gIndex, message.payload.data );
@@ -229,7 +229,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             case 'SetSorting':
                 this.setSorting(message.payload);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'ChangeVisualization':
                 this.type$.next(message.payload.type);
@@ -238,7 +238,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
@@ -255,13 +255,13 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
 
         }
@@ -596,7 +596,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
             id: cloneWidget.id,
-            payload: { widget: cloneWidget, isDataRefreshRequired: this.isDataRefreshRequired }
+            payload: { widget: cloneWidget, needRequery: this.needRequery }
         });
 
         this.closeViewEditMode();
