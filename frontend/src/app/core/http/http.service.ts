@@ -9,6 +9,13 @@ import { MetaService } from '../services/meta.service';
     providedIn: 'root'
 })
 export class HttpService {
+
+    override_host = {
+        tsdb_host: '',
+        meta_host: '',
+        cfgdb_host: ''
+    };
+
     regexMetricFormat = /([^\.]*)\.([^\.]*)\.(.*)/;
     constructor(private http: HttpClient, private metaService: MetaService) { }
 
@@ -183,11 +190,12 @@ export class HttpService {
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {
-                    console.log('the res', res);
+                    // console.log('the res', res);
                     let tagvalues = [];
                     for (let i = 0; res && i < res.results.length; i++) {
                         if (Object.keys(res.results[i].tagKeysAndValues).length > 0 && res.results[i].tagKeysAndValues[queryObj.tag.key]) {
-                            const keys = res.results[i].tagKeysAndValues[queryObj.tag.key].values.filter(item => tagvalues.indexOf(item.key) === -1);
+                            const keys = res.results[i].tagKeysAndValues[queryObj.tag.key].values
+                                .filter(item => tagvalues.indexOf(item.key) === -1);
                             tagvalues = tagvalues.concat(keys.map(d => d.name));
                         }
                     }
@@ -357,7 +365,7 @@ export class HttpService {
           'Content-Type': 'application/json',
         });
         const apiUrl = environment.configdb + '/namespace/' + namespace + '/alert/delete';
-        console.log("deleteA;lert", namespace, payload);
+        // console.log("deleteA;lert", namespace, payload);
         return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
     }
 }

@@ -35,39 +35,39 @@ export class NamespaceTagAutocompleteComponent implements OnInit {
         this.tagControl = new FormControl();
         // need to include switchMap to cancel the previous call
         this.tagControl.valueChanges
-        .pipe(
-            startWith(''),
-            debounceTime(200)
-        )
-        .subscribe( value => {
-            const query: any = { namespace: this.namespace, tags: [] };
+            .pipe(
+                startWith(''),
+                debounceTime(200)
+            )
+            .subscribe(value => {
+                const query: any = { namespace: this.namespace, tags: [] };
 
-            for ( const k in this.tagsSelected ) {
-                if ( k !== 'metric' && this.tagsSelected[k].length ) {
-                    query.tags.push({key: k,  value: this.tagsSelected[k]});
+                for (const k in this.tagsSelected) {
+                    if (k !== 'metric' && this.tagsSelected[k].length) {
+                        query.tags.push({ key: k, value: this.tagsSelected[k] });
+                    }
                 }
-            }
 
-            query.search = value;
+                query.search = value;
 
-            // filter tags by metrics
-            if ( this.tagsSelected && this.tagsSelected.metric ) {
-                console.log("tagsSelected", this.tagsSelected, Array.isArray(this.tagsSelected.metric));
-                query.metrics = Array.isArray(this.tagsSelected.metric) ? this.tagsSelected.metric : [ this.tagsSelected.metric ];
-            }
-            console.log("tag query", query);
-            this.httpService.getNamespaceTagKeys(query)
-                                                        .pipe(
-                                                            // debounceTime(200),
-                                                            catchError(val => of(`I caught: ${val}`)),
-                                                        ).subscribe( res => {
-                                                            console.log("comsd ", res);
-                                                            const tagkeysSelected = Object.keys(this.tagsSelected);
-                                                            res = res.filter( tag => tagkeysSelected.indexOf(tag) === -1);
-                                                            this.filteredTagOptions = of(res);
-                                                        });
-            this.tagInput.nativeElement.focus();
-        });
+                // filter tags by metrics
+                if (this.tagsSelected && this.tagsSelected.metric) {
+                    // console.log("tagsSelected", this.tagsSelected, Array.isArray(this.tagsSelected.metric));
+                    query.metrics = Array.isArray(this.tagsSelected.metric) ? this.tagsSelected.metric : [this.tagsSelected.metric];
+                }
+                // console.log("tag query", query);
+                this.httpService.getNamespaceTagKeys(query)
+                    .pipe(
+                        // debounceTime(200),
+                        catchError(val => of(`I caught: ${val}`)),
+                    ).subscribe(res => {
+                        // console.log("comsd ", res);
+                        const tagkeysSelected = Object.keys(this.tagsSelected);
+                        res = res.filter(tag => tagkeysSelected.indexOf(tag) === -1);
+                        this.filteredTagOptions = of(res);
+                    });
+                this.tagInput.nativeElement.focus();
+            });
 
     }
 

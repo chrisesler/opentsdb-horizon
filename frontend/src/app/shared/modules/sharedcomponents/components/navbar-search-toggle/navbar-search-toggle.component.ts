@@ -34,7 +34,7 @@ export class NavbarSearchToggleComponent implements OnInit {
 
     toggleSearchMode() {
         // search mode initiation of modal
-        console.log('EVT: toggleSearchMode');
+        // console.log('EVT: toggleSearchMode');
         this.openSearchAllDialog();
     }
 
@@ -59,7 +59,7 @@ export class NavbarSearchToggleComponent implements OnInit {
 
         // getting data passing out from dialog
         this.searchAllDialog.afterClosed().subscribe((dialog_out: any) => {
-            console.log('return', dialog_out);
+            // console.log('return', dialog_out);
         });
     }
 

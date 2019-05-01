@@ -41,7 +41,7 @@ export class DonutchartLegendComponent implements OnInit {
     constructor(private fb: FormBuilder) { }
 
     ngOnInit() {
-        console.log(this.widget.settings.legend, 'settings....');
+        // console.log(this.widget.settings.legend, 'settings....');
         this.gForm = new FormGroup({
             display : new FormControl(this.widget.settings.legend.display || false),
             position: new FormControl(this.widget.settings.legend.position ||  'right'),

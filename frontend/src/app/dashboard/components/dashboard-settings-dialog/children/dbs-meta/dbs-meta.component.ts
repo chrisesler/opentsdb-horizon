@@ -51,7 +51,7 @@ export class DbsMetaComponent implements OnInit, OnDestroy {
         });
 
         this.metaFormSub = this.metaForm.valueChanges.subscribe(val => {
-            console.log('%cMETA FORM [CHANGES]', 'background-color: skyblue; padding: 2px 4px;', val);
+            // console.log('%cMETA FORM [CHANGES]', 'background-color: skyblue; padding: 2px 4px;', val);
             this.dataModified.emit({
                 type: 'meta',
                 data: val
@@ -79,7 +79,7 @@ export class DbsMetaComponent implements OnInit, OnDestroy {
             control.push(this.fb.group(item));
         }
 
-        console.log('%cMETA CONTROLS', 'background-color: skyblue; padding: 2px 4px;', this.metaForm);
+        // console.log('%cMETA CONTROLS', 'background-color: skyblue; padding: 2px 4px;', this.metaForm);
     }
 
 
@@ -87,7 +87,7 @@ export class DbsMetaComponent implements OnInit, OnDestroy {
      * Click event for the 'plus' sign in the label input
      */
     addNewLabel(e: any) {
-        console.log('ADD NEW LABEL', e);
+        // console.log('ADD NEW LABEL', e);
         const labelValue = this.newLabelInput.nativeElement.value;
         this.addDbLabel(labelValue);
         this.newLabelInput.nativeElement.value = '';

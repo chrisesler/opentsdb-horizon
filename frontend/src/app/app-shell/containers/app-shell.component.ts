@@ -52,23 +52,14 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
     @Select(AppShellState.getUserProfile) userProfile$: Observable<any>;
     userProfile: any = {};
 
-
     // View Children
     @ViewChild('drawer', { read: MatDrawer }) private drawer: MatDrawer;
-
     @ViewChild(NavigatorSidenavComponent) private sideNav: NavigatorSidenavComponent;
 
-    // tslint:disable-next-line:no-inferrable-types
-    activeNavSection: string = '';
-
-    // tslint:disable-next-line:no-inferrable-types
-    drawerMode: string = 'side'; // over | side;
-
-    // tslint:disable-next-line:no-inferrable-types
-    sideNavOpen: boolean = true; // the skinny icon bar
-
-    // tslint:disable-next-line:no-inferrable-types
-    activeMediaQuery: string = '';
+    activeNavSection = '';
+    drawerMode = 'side'; // over | side;
+    sideNavOpen = true; // the skinny icon bar
+    activeMediaQuery = '';
 
     constructor(
         private interCom: IntercomService,
@@ -78,13 +69,13 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit() {
         this.stateSubs.currentMediaQuery = this.mediaQuery$.subscribe( currentMediaQuery => {
-            console.log('[SUB] currentMediaQuery', currentMediaQuery);
+            // console.log('[SUB] currentMediaQuery', currentMediaQuery);
             this.activeMediaQuery = currentMediaQuery;
             this.store.dispatch(new SetSideNavOpen(( currentMediaQuery !== 'xs')));
         });
 
         this.stateSubs.userProfile = this.userProfile$.subscribe( data => {
-            console.log('[SUB] User Profile', data);
+            // console.log('[SUB] User Profile', data);
             this.userProfile = data;
 
             if (!data.loaded) {
@@ -93,22 +84,22 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         this.stateSubs.currentApp = this.currentApp$.subscribe( app => {
-            console.log('[SUB] currentApp', app);
+            // console.log('[SUB] currentApp', app);
             this.activeNavSection = app;
         });
 
         this.stateSubs.sideNavOpen = this.sideNavOpen$.subscribe( isOpen => {
-            console.log('[SUB] sidenavopen', isOpen);
+            // console.log('[SUB] sidenavopen', isOpen);
             this.sideNavOpen = isOpen;
         });
     }
 
     ngOnChanges(changes: SimpleChanges) {
         // when then path is changes
-        if (changes.fullUrlPath && changes.fullUrlPath.currentValue) {
+        // if (changes.fullUrlPath && changes.fullUrlPath.currentValue) {
             // now do whatever with this full path
-            console.log('new url path', changes.fullUrlPath.currentValue);
-        }
+            // console.log('new url path', changes.fullUrlPath.currentValue);
+        // }
     }
 
     ngOnDestroy() {
