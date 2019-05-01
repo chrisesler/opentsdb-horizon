@@ -274,7 +274,7 @@ export class DashboardNavigatorState {
     getFolderResource(ctx: StateContext<DBNAVStateModel>, { path: path, type: type }: DBNAVgetFolderResource) {
         this.logger.action('State :: Get Folder Resource');
         const state = ctx.getState();
-        const resources = {...state.resourceData};
+        const resources = JSON.parse(JSON.stringify(state.resourceData));
         return resources[type][path];
     }
 
@@ -311,9 +311,7 @@ export class DashboardNavigatorState {
         };
 
         // save the raw
-        // const resourceData = {...state.resourceData};
-        // const resourceData = JSON.parse(JSON.stringify(state.resourceData));
-        const resourceData = {...state.resourceData, personal: {}, namespaces: {}};
+        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
         const namespaces = [];
         const masterPersonal = [];
 
@@ -396,7 +394,7 @@ export class DashboardNavigatorState {
 
         let createUserTrash = false;
 
-        if (response.personalFolder && response.personalFolder.subfolders) {
+        if (response.personalFolder && response.personalFolder.subfolders.length > 0) {
             // do trash first so we can pull it up to root level
             // find trash
             // tslint:disable-next-line:max-line-length
@@ -404,7 +402,7 @@ export class DashboardNavigatorState {
                 return folder.fullPath === '/' + user.userid.replace('.', '/') + '/trash';
             });
 
-            if (trashIndex >= 0) {
+            if (trashIndex > -1) {
                 // const trashIndex = response.personalFolder.subfolders.indexOf(trashFilter[0]);
                 const trashFolder = response.personalFolder.subfolders.splice(trashIndex, 1)[0];
                 masterPersonal[4] = trashFolder;
@@ -425,7 +423,6 @@ export class DashboardNavigatorState {
             }
 
             // adjust my dashboards
-            // tslint:disable-next-line:max-line-length
             masterPersonal[0].id = response.personalFolder.id;
             masterPersonal[0].path = response.personalFolder.path;
             masterPersonal[0].subfolders = (response.personalFolder.subfolders) ? response.personalFolder.subfolders : [];
@@ -453,7 +450,6 @@ export class DashboardNavigatorState {
         // format namespaces
         if (response.memberNamespaces && response.memberNamespaces.length > 0) {
             for (const ns of response.memberNamespaces) {
-
                 const folder = (ns.folder) ? ns.folder : {};
                 user.memberNamespaces.push(ns.namespace);
                 const namespace: DBNAVFolder = {...ns.folder,
@@ -485,7 +481,7 @@ export class DashboardNavigatorState {
             namespaces: namespaces
         };
 
-        const panels = [...state.panels];
+        const panels = JSON.parse(JSON.stringify(state.panels));
         panels.push(masterPanel);
 
         // update state
@@ -523,8 +519,8 @@ export class DashboardNavigatorState {
         this.logger.action('State :: Add Folder Panel', { payload });
 
         const state = ctx.getState();
-        const panels = [...state.panels];
-        const resources = {...state.resourceData};
+        const panels = JSON.parse(JSON.stringify(state.panels));
+        const resources = JSON.parse(JSON.stringify(state.resourceData));
         const currentPanelIndex = state.currentPanelIndex;
 
         const specialType = (payload.type !== 'namespace' || payload.type !== 'personal') ? payload.type : false;
@@ -611,6 +607,7 @@ export class DashboardNavigatorState {
     // update the panels
     @Action(DBNAVupdatePanels)
     updatePanels(ctx: StateContext<DBNAVStateModel>, { payload }: DBNAVupdatePanels) {
+        console.log('back to panel', payload);
         const state = ctx.getState();
         const idx = (payload.panels.length - 1);
         ctx.patchState({...state,
@@ -658,7 +655,7 @@ export class DashboardNavigatorState {
             loaded: false
         };
 
-        const panels = [...state.panels];
+        const panels = JSON.parse(JSON.stringify(state.panels));
 
         if (type === 'namespace' && folder.path.includes('/trash')) {
             folder.resourceType = 'trash';
@@ -684,7 +681,7 @@ export class DashboardNavigatorState {
             }
         }
 
-        const resourceData = {...state.resourceData};
+        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
         resourceData[resourceType][folder.fullPath] = folder;
 
         ctx.patchState({...state,
@@ -723,7 +720,7 @@ export class DashboardNavigatorState {
         this.logger.success('State :: Update Folder Success', { response, originalPath, panelIndex });
 
         const state = ctx.getState();
-        const resourceData = {...state.resourceData};
+        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
 
         const path = response.fullPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
@@ -750,7 +747,7 @@ export class DashboardNavigatorState {
         resourceData[resourceType][response.fullPath] = updatedFolder;
 
         // now need to update panel item
-        const panels = [...state.panels];
+        const panels = JSON.parse(JSON.stringify(state.panels));
 
         const targetIndex = panels[panelIndex].subfolders.findIndex( item => item.fullPath === originalPath);
         panels[panelIndex].subfolders[targetIndex] = updatedFolder;
@@ -792,7 +789,7 @@ export class DashboardNavigatorState {
         let destinationId;
 
         const state = ctx.getState();
-        const resourceData = {...state.resourceData};
+        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
 
         const payload: any = { sourceId };
 
@@ -834,8 +831,8 @@ export class DashboardNavigatorState {
         this.logger.success('State :: Move Folder Success', { response, originalPath, panelIndex });
 
         const state = ctx.getState();
-        const resourceData = {...state.resourceData};
-        const panels = [...state.panels];
+        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+        const panels = JSON.parse(JSON.stringify(state.panels));
 
         const path = response.fullPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
@@ -941,7 +938,7 @@ export class DashboardNavigatorState {
 
         const state = ctx.getState();
         // const resourceData = {...state.resourceData};
-        const resourceData = {...state.resourceData, personal: {}, namespaces: {}};
+        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
         // const panels = [...state.panels];
         const panels = JSON.parse(JSON.stringify(state.panels));
         const panelIdx = state.currentPanelIndex;
@@ -1079,7 +1076,7 @@ export class DashboardNavigatorState {
         let destinationId;
 
         const state = ctx.getState();
-        const resourceData = {...state.resourceData};
+        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
 
         const payload: any = { sourceId };
 
@@ -1120,8 +1117,9 @@ export class DashboardNavigatorState {
         this.logger.success('State :: Move File Success', { response, originalPath, panelIndex });
 
         const state = ctx.getState();
-        const resourceData = {...state.resourceData};
-        const panels = [...state.panels];
+        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+        const panels = JSON.parse(JSON.stringify(state.panels));
+
 
         const path = response.fullPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
@@ -1236,7 +1234,8 @@ export class DashboardNavigatorState {
         this.logger.success('State :: Load Folder Resource Success', response);
 
         const state = ctx.getState();
-        const resourceData = {...state.resourceData};
+        // const resourceData = {...state.resourceData};
+        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
 
         const path = response.fullPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
@@ -1313,10 +1312,9 @@ export class DashboardNavigatorState {
             // TODO: check for this case once starting to work on 'select' case
 
             // console.log('state loaded');
-
-            const miniNavigator = {...state.miniNavigator};
-            let panels = [...miniNavigator.panels];
-            const selected = {...miniNavigator.selected};
+            const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+            let panels = miniNavigator.panels;
+            const selected = miniNavigator.selected;
 
             selected.panel = false;
             selected.folder = false;
@@ -1326,7 +1324,7 @@ export class DashboardNavigatorState {
             const user = {...state.user};
             const userPath = '/' + user.userid.replace('.', '/');
 
-            const resourceData = {...state.resourceData};
+            const resourceData = JSON.parse(JSON.stringify(state.resourceData));
 
             const path = targetPath.split('/');
             const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
@@ -1517,10 +1515,9 @@ export class DashboardNavigatorState {
         this.logger.action('State :: MINI NAV MARK FOLDER SELECTED', { panel, folder });
         const state = ctx.getState();
 
-        const miniNavigator = {...state.miniNavigator};
-        const selected = {...miniNavigator.selected};
-
-        const panels = [...miniNavigator.panels];
+        const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+        const selected = miniNavigator.selected;
+        const panels = miniNavigator.panels;
 
         // reset old selected
         if (selected.panel && selected.folder && panels[selected.panel]) {
@@ -1530,11 +1527,11 @@ export class DashboardNavigatorState {
 
         // update to new selected folder
         const newFolderIndex = panels[panel].subfolders.indexOf(folder);
-        panels[panel].subfolders[newFolderIndex].selected = true;
-
-        selected.panel = panel;
-        selected.folder = panels[panel].subfolders[newFolderIndex];
-
+        if (newFolderIndex > -1) {
+            panels[panel].subfolders[newFolderIndex].selected = true;
+            selected.panel = panel;
+            selected.folder = panels[panel].subfolders[newFolderIndex];
+        }
         miniNavigator.selected = selected;
 
         ctx.patchState({
@@ -1548,10 +1545,9 @@ export class DashboardNavigatorState {
         this.logger.action('State :: MINI NAV RESET FOLDER SELECTED', {});
         const state = ctx.getState();
 
-        const miniNavigator = {...state.miniNavigator};
-        const selected = {...miniNavigator.selected};
-
-        const panels = [...miniNavigator.panels];
+        const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+        const selected = miniNavigator.selected;
+        const panels = miniNavigator.panels;
 
         if (selected.panel && selected.folder && panels[selected.panel]) {
             const folderIndex = panels[selected.panel].subfolders.indexOf(selected.folder);
@@ -1576,8 +1572,8 @@ export class DashboardNavigatorState {
         this.logger.action('State :: MINI NAV CLOSE NAVIGATOR', {});
         const state = ctx.getState();
 
-        const miniNavigator = {...state.miniNavigator};
-        const selected = {...miniNavigator.selected};
+        const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+        const selected = miniNavigator.selected;
 
         // Reset MiniNavigator
         miniNavigator.panelIndex = 0;
@@ -1599,7 +1595,7 @@ export class DashboardNavigatorState {
         this.logger.action('State :: MINI NAV LOAD PANEL', { panelPath });
 
         const state = ctx.getState();
-        const resourceData = {...state.resourceData};
+        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
 
         const path = panelPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
@@ -1620,8 +1616,8 @@ export class DashboardNavigatorState {
 
         } else {
 
-            const miniNavigator = {...state.miniNavigator};
-            const panels = [...miniNavigator.panels];
+            const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+            const panels = miniNavigator.panels;
             let panelIndex = miniNavigator.panelIndex;
             const moveTargetPath = miniNavigator.moveTargetPath;
 
@@ -1705,8 +1701,8 @@ export class DashboardNavigatorState {
     MiniNavRemovePanel(ctx: StateContext<DBNAVStateModel>, { panelIndex, guid }: MiniNavRemovePanel) {
         this.logger.action('State :: MINI NAV REMOVE PANEL', { panelIndex });
         const state = ctx.getState();
-        const miniNavigator = {...state.miniNavigator};
-        const panels = [...miniNavigator.panels];
+        const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+        const panels = miniNavigator.panels;
         let pIndex = miniNavigator.panelIndex;
 
         panels.splice(panelIndex, 1);
