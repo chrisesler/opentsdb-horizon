@@ -10,6 +10,7 @@ import {
 import { environment } from '../../../environments/environment';
 
 import { LoggerService } from '../../core/services/logger.service';
+import { UtilsService } from '../../core/services/utils.service';
 
 import {
     map,
@@ -143,7 +144,8 @@ export class DashboardNavigatorState {
     constructor (
         private logger: LoggerService,
         private navService: DashboardNavigatorService,
-        private store: Store
+        private store: Store,
+        private util: UtilsService
     ) {}
 
     /**************************
@@ -274,7 +276,7 @@ export class DashboardNavigatorState {
     getFolderResource(ctx: StateContext<DBNAVStateModel>, { path: path, type: type }: DBNAVgetFolderResource) {
         this.logger.action('State :: Get Folder Resource');
         const state = ctx.getState();
-        const resources = JSON.parse(JSON.stringify(state.resourceData));
+        const resources = this.util.deepClone(state.resourceData);
         return resources[type][path];
     }
 
@@ -311,7 +313,7 @@ export class DashboardNavigatorState {
         };
 
         // save the raw
-        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+        const resourceData = this.util.deepClone(state.resourceData);
         const namespaces = [];
         const masterPersonal = [];
 
@@ -481,7 +483,7 @@ export class DashboardNavigatorState {
             namespaces: namespaces
         };
 
-        const panels = JSON.parse(JSON.stringify(state.panels));
+        const panels = this.util.deepClone(state.panels);
         panels.push(masterPanel);
 
         // update state
@@ -519,8 +521,8 @@ export class DashboardNavigatorState {
         this.logger.action('State :: Add Folder Panel', { payload });
 
         const state = ctx.getState();
-        const panels = JSON.parse(JSON.stringify(state.panels));
-        const resources = JSON.parse(JSON.stringify(state.resourceData));
+        const panels = this.util.deepClone(state.panels);
+        const resources = this.util.deepClone(state.resourceData);
         const currentPanelIndex = state.currentPanelIndex;
 
         const specialType = (payload.type !== 'namespace' || payload.type !== 'personal') ? payload.type : false;
@@ -573,7 +575,7 @@ export class DashboardNavigatorState {
 
         // const newPanel = <DBNAVPanelModel>resources[resourceType][payload.fullPath];
         // const newPanel = {...resources[resourceType][payload.fullPath]};
-        const newPanel = JSON.parse(JSON.stringify(resources[resourceType][payload.fullPath]));
+        const newPanel = this.util.deepClone(resources[resourceType][payload.fullPath]);
         newPanel.loaded = false;
 
         newPanel.subfolders.sort(this.sortByName);
@@ -655,7 +657,7 @@ export class DashboardNavigatorState {
             loaded: false
         };
 
-        const panels = JSON.parse(JSON.stringify(state.panels));
+        const panels = this.util.deepClone(state.panels);
 
         if (type === 'namespace' && folder.path.includes('/trash')) {
             folder.resourceType = 'trash';
@@ -681,7 +683,7 @@ export class DashboardNavigatorState {
             }
         }
 
-        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+        const resourceData = this.util.deepClone(state.resourceData);
         resourceData[resourceType][folder.fullPath] = folder;
 
         ctx.patchState({...state,
@@ -720,7 +722,7 @@ export class DashboardNavigatorState {
         this.logger.success('State :: Update Folder Success', { response, originalPath, panelIndex });
 
         const state = ctx.getState();
-        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+        const resourceData = this.util.deepClone(state.resourceData);
 
         const path = response.fullPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
@@ -747,7 +749,7 @@ export class DashboardNavigatorState {
         resourceData[resourceType][response.fullPath] = updatedFolder;
 
         // now need to update panel item
-        const panels = JSON.parse(JSON.stringify(state.panels));
+        const panels = this.util.deepClone(state.panels);
 
         const targetIndex = panels[panelIndex].subfolders.findIndex( item => item.fullPath === originalPath);
         panels[panelIndex].subfolders[targetIndex] = updatedFolder;
@@ -789,7 +791,7 @@ export class DashboardNavigatorState {
         let destinationId;
 
         const state = ctx.getState();
-        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+        const resourceData = this.util.deepClone(state.resourceData);
 
         const payload: any = { sourceId };
 
@@ -831,8 +833,8 @@ export class DashboardNavigatorState {
         this.logger.success('State :: Move Folder Success', { response, originalPath, panelIndex });
 
         const state = ctx.getState();
-        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
-        const panels = JSON.parse(JSON.stringify(state.panels));
+        const resourceData = this.util.deepClone(state.resourceData);
+        const panels = this.util.deepClone(state.panels);
 
         const path = response.fullPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
@@ -938,9 +940,9 @@ export class DashboardNavigatorState {
 
         const state = ctx.getState();
         // const resourceData = {...state.resourceData};
-        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+        const resourceData = this.util.deepClone(state.resourceData);
         // const panels = [...state.panels];
-        const panels = JSON.parse(JSON.stringify(state.panels));
+        const panels = this.util.deepClone(state.panels);
         const panelIdx = state.currentPanelIndex;
 
         if (topFolder && topFolder.type === 'user') {
@@ -1076,7 +1078,7 @@ export class DashboardNavigatorState {
         let destinationId;
 
         const state = ctx.getState();
-        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+        const resourceData = this.util.deepClone(state.resourceData);
 
         const payload: any = { sourceId };
 
@@ -1117,8 +1119,8 @@ export class DashboardNavigatorState {
         this.logger.success('State :: Move File Success', { response, originalPath, panelIndex });
 
         const state = ctx.getState();
-        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
-        const panels = JSON.parse(JSON.stringify(state.panels));
+        const resourceData = this.util.deepClone(state.resourceData);
+        const panels = this.util.deepClone(state.panels);
 
 
         const path = response.fullPath.split('/');
@@ -1235,7 +1237,7 @@ export class DashboardNavigatorState {
 
         const state = ctx.getState();
         // const resourceData = {...state.resourceData};
-        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+        const resourceData = this.util.deepClone(state.resourceData);
 
         const path = response.fullPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
@@ -1312,7 +1314,7 @@ export class DashboardNavigatorState {
             // TODO: check for this case once starting to work on 'select' case
 
             // console.log('state loaded');
-            const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+            const miniNavigator = this.util.deepClone(state.miniNavigator);
             let panels = miniNavigator.panels;
             const selected = miniNavigator.selected;
 
@@ -1324,7 +1326,7 @@ export class DashboardNavigatorState {
             const user = {...state.user};
             const userPath = '/' + user.userid.replace('.', '/');
 
-            const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+            const resourceData = this.util.deepClone(state.resourceData);
 
             const path = targetPath.split('/');
             const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
@@ -1416,7 +1418,7 @@ export class DashboardNavigatorState {
             if (type === 'personal') {
 
                 // need a unique clone, in order to not taint the resourceData
-                const personalClone = JSON.parse(JSON.stringify(state.resourceData.personal[userPath]));
+                const personalClone = this.util.deepClone(state.resourceData.personal[userPath]);
                 // console.log('personal path [' + actionMode + ']', personalClone);
 
                 const personalListPanel: MiniNavPanelModel = {...personalClone,
@@ -1465,7 +1467,7 @@ export class DashboardNavigatorState {
                     // console.log('[[[ PATH PART ]]]', pathPart, resourceData[resourceType][pathPart]);
 
                     // need a unique clone, in order to not taint the resourceData
-                    const pathClone = JSON.parse(JSON.stringify(resourceData[resourceType][pathPart]));
+                    const pathClone = this.util.deepClone(resourceData[resourceType][pathPart]);
 
                     const pathPanel: MiniNavPanelModel = {
                         ...pathClone,
@@ -1515,7 +1517,7 @@ export class DashboardNavigatorState {
         this.logger.action('State :: MINI NAV MARK FOLDER SELECTED', { panel, folder });
         const state = ctx.getState();
 
-        const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+        const miniNavigator = this.util.deepClone(state.miniNavigator);
         const selected = miniNavigator.selected;
         const panels = miniNavigator.panels;
 
@@ -1545,7 +1547,7 @@ export class DashboardNavigatorState {
         this.logger.action('State :: MINI NAV RESET FOLDER SELECTED', {});
         const state = ctx.getState();
 
-        const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+        const miniNavigator = this.util.deepClone(state.miniNavigator);
         const selected = miniNavigator.selected;
         const panels = miniNavigator.panels;
 
@@ -1572,7 +1574,7 @@ export class DashboardNavigatorState {
         this.logger.action('State :: MINI NAV CLOSE NAVIGATOR', {});
         const state = ctx.getState();
 
-        const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+        const miniNavigator = this.util.deepClone(state.miniNavigator);
         const selected = miniNavigator.selected;
 
         // Reset MiniNavigator
@@ -1595,7 +1597,7 @@ export class DashboardNavigatorState {
         this.logger.action('State :: MINI NAV LOAD PANEL', { panelPath });
 
         const state = ctx.getState();
-        const resourceData = JSON.parse(JSON.stringify(state.resourceData));
+        const resourceData = this.util.deepClone(state.resourceData);
 
         const path = panelPath.split('/');
         const type = (path[1].toLowerCase() === 'namespace') ? 'namespace' : 'personal';
@@ -1616,7 +1618,7 @@ export class DashboardNavigatorState {
 
         } else {
 
-            const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+            const miniNavigator = this.util.deepClone(state.miniNavigator);
             const panels = miniNavigator.panels;
             let panelIndex = miniNavigator.panelIndex;
             const moveTargetPath = miniNavigator.moveTargetPath;
@@ -1653,7 +1655,7 @@ export class DashboardNavigatorState {
                     pathPanel.subfolders.push(nsFolder);
                 }
             } else {
-                const pathClone = JSON.parse(JSON.stringify(resourceData[resourceType][panelPath]));
+                const pathClone = this.util.deepClone(resourceData[resourceType][panelPath]);
                 pathPanel = <MiniNavPanelModel>{
                     ...pathClone,
                     icon: 'd-folder',
@@ -1701,7 +1703,7 @@ export class DashboardNavigatorState {
     MiniNavRemovePanel(ctx: StateContext<DBNAVStateModel>, { panelIndex, guid }: MiniNavRemovePanel) {
         this.logger.action('State :: MINI NAV REMOVE PANEL', { panelIndex });
         const state = ctx.getState();
-        const miniNavigator = JSON.parse(JSON.stringify(state.miniNavigator));
+        const miniNavigator = this.util.deepClone(state.miniNavigator);
         const panels = miniNavigator.panels;
         let pIndex = miniNavigator.panelIndex;
 
