@@ -478,7 +478,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.variables$.subscribe(t => {
-            console.log('variables$.subscribe [event]', t, this.variables);
+            // console.log('variables$.subscribe [event]', t, this.variables);
+            t = this.utilService.deepClone(t);
             if (this.variables) {
                 if (this.variables.enabled && t.enabled) { // was enabled, still enabled
                     // diff whether selected values changed
@@ -635,7 +636,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
             this.widgetTagLoaded = true;
             this.widgetTagLoaded$.next(true);
-            
         },
         error=>{
             this.widgetTagLoaded = true;
