@@ -18,6 +18,7 @@ import { map, catchError } from 'rxjs/operators';
 import { NavigatorPanelComponent } from '../navigator-panel/navigator-panel.component';
 
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+import { UtilsService } from '../../../core/services/utils.service';
 
 import {
     DashboardNavigatorState,
@@ -83,6 +84,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
         private store: Store,
         private interCom: IntercomService,
         private router: Router,
+        private utils: UtilsService,
         @Inject('WINDOW') private window: any
     ) { }
 
@@ -98,7 +100,8 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
 
         this.stateSubs['panels'] = this.panels$.subscribe( data => {
             // console.log('NAVIGATION PANELS UPDATED', data);
-            self.panels = data;
+            // this.panels = data;
+            this.panels = this.utils.deepClone(data);
         });
 
         this.stateSubs['currentPaneIndex'] = this.currentPanelIndex$.subscribe( idx => {
@@ -157,7 +160,7 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
 
         switch (event.action) {
             case 'navtoPanelFolder':
-
+                console.log('go to folder', event);
                 const newPanel = this.store.dispatch(
                     new DBNAVaddPanel({
                         path: event.path,
@@ -403,12 +406,13 @@ export class DashboardNavigatorComponent implements OnInit, OnDestroy {
             });
         } else {*/
             this.currentPanelIndex = idx;
-            this.panels.splice((idx + 1), (fromIdx - idx) - 1);
+            const _panels = JSON.parse(JSON.stringify(this.panels));
+            _panels.splice((idx + 1), (fromIdx - idx) - 1);
             this.navPanel.shiftTo(idx, idx + 1, () => {
-                this.panels.splice(idx + 1);
+                _panels.splice(idx + 1);
                 this.store.dispatch(
                     new DBNAVupdatePanels({
-                        panels: this.panels,
+                        panels: _panels,
                         currentPanelIndex: this.currentPanelIndex
                     })
                 );

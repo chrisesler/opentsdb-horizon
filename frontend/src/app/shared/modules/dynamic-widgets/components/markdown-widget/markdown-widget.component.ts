@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, OnDestroy } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { Subscription } from 'rxjs';
 
@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './markdown-widget.component.html',
   styleUrls: []
 })
-export class MarkdownWidgetComponent implements OnInit {
+export class MarkdownWidgetComponent implements OnInit, OnDestroy {
   @HostBinding('class.widget-panel-content') private _hostClass = true;
   @HostBinding('class.markdown-widget') private _componentClass = true;
 
@@ -24,19 +24,18 @@ export class MarkdownWidgetComponent implements OnInit {
     this.setDefaults();
 
     this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-      if ( message.action === 'reQueryData' ) {
-          // this.refreshData();
-      }
       if (message && (message.id === this.widget.id)) {
         switch (message.action) {
           case 'getUpdatedWidgetConfig': // called when switching to presentation view
-            if (this.widget.id === message.id) {
                 this.widget = message.payload.widget;
-            }
             break;
         }
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.listenSub.unsubscribe();
   }
 
   setDefaults() {

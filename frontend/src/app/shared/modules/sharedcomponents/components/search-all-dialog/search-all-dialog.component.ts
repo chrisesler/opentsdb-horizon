@@ -22,7 +22,7 @@ export class SearchAllDialogComponent implements OnInit, OnDestroy {
         for (const filter of this.fakeFilters) {
             count = count + filter.count;
         }
-        console.log('FILTER COUNT', count);
+        // console.log('FILTER COUNT', count);
         return count;
     }
 
@@ -347,9 +347,9 @@ export class SearchAllDialogComponent implements OnInit, OnDestroy {
     }
 
     onChange(event: any) {
-        console.log('ON CHANGE EVENT', event);
+        // console.log('ON CHANGE EVENT', event);
         const vals = this.filterFormGroup.get('currentFilters').value;
-        console.log('OPTIONS SELECTED', vals);
+        // console.log('OPTIONS SELECTED', vals);
     }
 
 }

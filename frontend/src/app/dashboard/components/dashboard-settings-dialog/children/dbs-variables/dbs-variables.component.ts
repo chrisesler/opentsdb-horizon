@@ -45,8 +45,7 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
         });
 
         this.varFormSub = this.varForm.valueChanges.subscribe(val => {
-            //console.log('%cVARIABLES FORM [CHANGES]', 'background-color: skyblue; padding: 2px 4px;', val);
-
+            // console.log('%cVARIABLES FORM [CHANGES]', 'background-color: skyblue; padding: 2px 4px;', val);
             // need to remove unused variables (ones without keys)
             const pending = val;
             const pendingKeys = [];
@@ -106,7 +105,7 @@ export class DbsVariablesComponent implements OnInit, OnDestroy {
             alias: (data.alias) ? data.alias : '',
             allowedValues: (data.allowedValues) ? this.fb.array(data.allowedValues) : this.fb.array([]),
             filter: (data.filter) ? this.fb.array(data.filter) : this.fb.array([]),
-            enabled: data.enabled,
+            enabled: (data.enabled) ? data.enabled : true,
             type: (data.type) ? data.type : 'literalor'
         };
 

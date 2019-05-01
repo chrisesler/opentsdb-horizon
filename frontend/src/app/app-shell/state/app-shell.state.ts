@@ -129,36 +129,37 @@ export class AppShellState {
     stateLog(title: string, params?: any) {
         if (environment.production) { return; }
         if (params) {
-            console.group(
+           /* console.group(
                 '%cAppShellState%c' + title,
                 'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
                 'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
             );
             console.log('%cParams', 'font-weight: bold;', params);
-            console.groupEnd();
+            console.groupEnd(); */
         } else {
-            console.log(
+            /* console.log(
                 '%cAppShellState%c' + title,
                 'color: white; background-color: DarkTurquoise ; padding: 4px 8px; font-weight: bold;',
                 'color: DarkTurquoise ; padding: 4px 8px; border: 1px solid DarkTurquoise ;'
-            );
+            ); */
         }
     }
 
     stateError(title: string, error: any) {
         if (environment.production) { return; }
-        console.group(
+        /* console.group(
             '%cAppShellState [ERROR]%c' + title,
             'color: white; background-color: red; padding: 4px 8px; font-weight: bold;',
             'color: red; padding: 4px 8px; border: 1px solid red;'
         );
         console.log('%cErrorMsg', 'font-weight: bold;', error);
         console.groupEnd();
+        */
     }
 
     stateSuccess(title: string, response: any) {
         if (environment.production) { return; }
-        console.group(
+        /* console.group(
             '%cAppShellState [SUCCESS]%c' + title,
             'color: white; background-color: green; padding: 4px 8px; font-weight: bold;',
             'color: green; padding: 4px 8px; border: 1px solid green;',
@@ -166,6 +167,7 @@ export class AppShellState {
         );
         console.log('%cResponse', 'font-weight: bold;', response);
         console.groupEnd();
+        */
     }
 
     /** Actions */

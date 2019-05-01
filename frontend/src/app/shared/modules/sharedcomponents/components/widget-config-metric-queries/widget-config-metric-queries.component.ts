@@ -111,10 +111,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                     };
         }
         query.id = this.util.generateId(3);
-        // this.newQueryId = query.id;
-        // this.widget.queries.push(query);
-        // this.showNewQueryEditor = false;
-        // console.log("addNewQuery:::namepsace...", namespace, this.widget);
         return query;
     }
 
@@ -127,22 +123,20 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     ngOnChanges(changes: SimpleChanges) {
         // when editing mode is loaded, we need to temporary adding default UI state
         // to editing widget
-        console.log("widget config changed", changes.widget.currentValue);
         if ( changes.widget.currentValue ) {
-            console.log("widget config changed", changes.widget.currentValue);
             if ( !changes.widget.currentValue.queries.length ) {
                 this.addNewQuery();
             }
         }
     }
 
-    handleQueryRequest(message) {
+    handleQueryRequest(message: any) {
+        console.log('handle query request message', message);
         switch ( message.action ) {
             case 'SetQueryEditMode':
                 this.queryEditMode = true;
-                console.log(JSON.stringify(this.widget), "queires...")
-                const queires = this.widget.queries.filter( query => query.id === message.id );
-                this.editQuery = { query: queires[0], edit: message.payload.edit, type: this.widget.settings.component_type };
+                const queries = this.widget.queries.filter( query => query.id === message.id );
+                this.editQuery = { query: queries[0], edit: message.payload.edit, type: this.widget.settings.component_type };
                 this.widgetChange.emit({ action: 'SetQueryEditMode', payload: { id: message.id }});
                 break;
             case 'CloseQueryEditMode':
@@ -167,13 +161,12 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                 break;
             case 'QueryChange':
                 this.updateQuery(message.payload.query);
-                console.log("widget-queries:::this.widget", this.widget.queries);
                 break;
         }
     }
 
     updateQuery(query) {
-        console.log("widget-query :: updateQuery, query, gid", query);
+        console.log('widget-query :: updateQuery, query, gid', query);
         const payload = { action: 'UpdateQuery', payload: { query: query } };
         this.newQueryId = '';
         this.widgetChange.emit(payload);

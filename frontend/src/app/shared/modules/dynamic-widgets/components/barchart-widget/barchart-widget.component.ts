@@ -1,4 +1,5 @@
-import { Component, OnInit, OnChanges, AfterViewInit, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnChanges, AfterViewInit, ChangeDetectorRef,
+    SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -75,14 +76,16 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
-    isDataRefreshRequired = false;
+    needRequery = false;
+    isDestroying = false;
 
     constructor(
         private interCom: IntercomService,
         private dataTransformer: DatatranformerService,
         public dialog: MatDialog,
         private util: UtilsService,
-        private unit: UnitConverterService
+        private unit: UnitConverterService,
+        private cdRef: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
@@ -90,6 +93,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         this.options.legend.display = this.isStackedGraph ? true : false;
 
         this.typeSub = this.type$.subscribe( type => {
+
             this.widget.settings.visual.type = type;
             this.options.scales.yAxes[0] = type === 'vertical' ? this. valueAxis : this.categoryAxis;
             this.options.scales.xAxes[0] = type === 'vertical' ? this.categoryAxis : this.valueAxis;
@@ -106,7 +110,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                     break;
             }
             if (message && (message.id === this.widget.id)) {
-
                 switch (message.action) {
                     case 'updatedWidgetGroup':
                         this.nQueryDataLoading--;
@@ -118,12 +121,14 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                         if ( message.payload.error ) {
                             this.error = message.payload.error;
                         }
-                        this.data = this.dataTransformer.yamasToChartJS(this.type, this.options, this.widget, this.data, message.payload.rawdata, this.isStackedGraph);
+                        this.data = this.dataTransformer
+                            .yamasToChartJS(this.type, this.options, this.widget, this.data, message.payload.rawdata, this.isStackedGraph);
+                        this.detectChanges();
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.widget = message.payload.widget;
                         this.setOptions();
-                        this.refreshData(message.payload.isDataRefreshRequired);
+                        this.refreshData(message.payload.needRefresh);
                         break;
                 }
             }
@@ -152,7 +157,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         // Dimension will be picked up by parent node which is #container
         ElementQueries.listen();
         ElementQueries.init();
-        let initSize = {
+        const initSize = {
             width: this.widgetOutputElement.nativeElement.clientWidth,
             height: this.widgetOutputElement.nativeElement.clientHeight
         };
@@ -163,8 +168,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         ).subscribe(size => {
             this.setSize(size);
         });
-        
-        new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
              const newSize = {
                 width: this.widgetOutputElement.nativeElement.clientWidth,
                 height: this.widgetOutputElement.nativeElement.clientHeight
@@ -181,6 +185,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 action: 'getQueryData',
                 payload: this.widget
             });
+            this.detectChanges();
         }
     }
 
@@ -202,7 +207,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'SetStackedBarVisualization':
                 this.setStackedBarVisualization( message.payload.gIndex, message.payload.data );
@@ -224,7 +229,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             case 'SetSorting':
                 this.setSorting(message.payload);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'ChangeVisualization':
                 this.type$.next(message.payload.type);
@@ -233,7 +238,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
@@ -250,13 +255,13 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
 
         }
@@ -264,10 +269,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
     // for first time and call.
     setSize(newSize) {
-
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
-        const nativeEl = (this.editMode) ? this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
+        const nativeEl = (this.editMode) ?
+            this.widgetOutputElement.nativeElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
 
         const outputSize = nativeEl.getBoundingClientRect();
         if (this.editMode) {
@@ -276,6 +281,13 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         } else {
             this.width = (outputSize.width - 30) + 'px';
             this.height = (outputSize.height - 20) + 'px';
+        }
+        this.detectChanges();
+    }
+
+    detectChanges() {
+        if ( ! this.isDestroying ) {
+            this.cdRef.detectChanges();
         }
     }
 
@@ -585,18 +597,19 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     applyConfig() {
-        const cloneWidget = { ...this.widget };
+        const cloneWidget = this.util.deepClone(this.widget);
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
             id: cloneWidget.id,
-            payload: { widget: cloneWidget, isDataRefreshRequired: this.isDataRefreshRequired }
+            payload: { widget: cloneWidget, needRequery: this.needRequery }
         });
 
         this.closeViewEditMode();
     }
 
     ngOnDestroy() {
+        this.isDestroying = true;
         if (this.listenSub) {
             this.listenSub.unsubscribe();
         }

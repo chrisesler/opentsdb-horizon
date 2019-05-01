@@ -129,9 +129,10 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
 
         this.nsRecipientSub = this._namespaceRecipients$.subscribe(data => {
             this.namespaceRecipients = [];
+            const _data = JSON.parse(JSON.stringify(data));
             // tslint:disable-next-line:forin
-            for (let type in data.recipients) {
-                let recipients = data.recipients[type];
+            for (let type in _data.recipients) {
+                let recipients = _data.recipients[type];
                 if (recipients) {
                     for (let _recipient of recipients) {
                         _recipient.type = type.toLowerCase();

@@ -1,5 +1,5 @@
-import { Component, OnInit, HostBinding, Input, OnDestroy, ViewChild, ElementRef, AfterContentInit } from '@angular/core';
-
+import { Component, OnInit, HostBinding, Input,
+    OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
@@ -7,6 +7,7 @@ import { Subscription, BehaviorSubject} from 'rxjs';
 import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-topn-widget',
@@ -14,7 +15,7 @@ import { ErrorDialogComponent } from '../../../sharedcomponents/components/error
   styleUrls: ['./topn-widget.component.scss']
 })
 
-export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit {
+export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.topnchart-widget') private _componentClass = true;
 
@@ -35,27 +36,28 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
     };
     width = '100%';
     height = '100%';
-    size: any = { width:0, height:0 };
+    size: any = { width: 0, height: 0 };
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
-    legendWidth=0;
+    legendWidth = 0;
     editQueryId = null;
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
-    isDataRefreshRequired = false;
+    needRequery = false;
 
     constructor(
         private interCom: IntercomService,
         private dataTransformer: DatatranformerService,
         public dialog: MatDialog,
-        private util: UtilsService
+        private util: UtilsService,
+        private cdRef: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            switch( message.action ) {
+            switch ( message.action ) {
                 case 'reQueryData':
                     this.refreshData();
                     break;
@@ -73,10 +75,11 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
                         }
                         this.setOptions();
                         this.options = this.dataTransformer.yamasToD3Bar(this.options, this.widget, message.payload.rawdata);
+                        this.cdRef.detectChanges();
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.widget = message.payload.widget;
-                        this.refreshData(message.payload.isDataRefreshRequired);
+                        this.refreshData(message.payload.needRefresh);
                         break;
                 }
             }
@@ -89,29 +92,25 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        setTimeout(()=>this.refreshData(this.editMode ? false : true), 0);
+        setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
     }
 
-
-    ngAfterContentInit() {
+    ngAfterViewInit() {
         // this event will happend on resize the #widgetoutput element,
         // in  chartjs we don't need to pass the dimension to it.
         // Dimension will be picked up by parent node which is #container
         ElementQueries.listen();
         ElementQueries.init();
-        let initSize = {
+        const initSize = {
             width: this.widgetOutputElement.nativeElement.clientWidth,
             height: this.widgetOutputElement.nativeElement.clientHeight
         };
         this.newSize$ = new BehaviorSubject(initSize);
 
-        this.newSizeSub = this.newSize$.pipe(
-            // debounceTime(300)
-        ).subscribe(size => {
+        this.newSizeSub = this.newSize$.subscribe(size => {
             this.setSize(size);
         });
-        
-        new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () => {
              const newSize = {
                 width: this.widgetOutputElement.nativeElement.clientWidth,
                 height: this.widgetOutputElement.nativeElement.clientHeight
@@ -125,6 +124,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
     }
     setSize(newSize) {
         this.size = { width: newSize.width, height: newSize.height - 3 };
+        this.cdRef.detectChanges();
     }
 
     requestData() {
@@ -136,6 +136,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
                 action: 'getQueryData',
                 payload: this.widget
             });
+            this.cdRef.detectChanges();
         }
     }
 
@@ -157,7 +158,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'SetVisualization':
                 this.setVisualization(message.payload.data);
@@ -174,13 +175,13 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
             case 'SetSorting':
                 this.setSorting(message.payload);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
@@ -197,13 +198,13 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
         }
     }
@@ -215,7 +216,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
             this.widget.queries[qindex] = query;
         }
         let visible = 0;
-        for (let metric of this.widget.queries[0].metrics) {
+        for (const metric of this.widget.queries[0].metrics) {
             if ( metric.settings.visual.visible ) {
                 visible++;
             }
@@ -238,7 +239,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
 
     setVisualConditions( vConditions ) {
         this.widget.settings.visual.conditions = vConditions;
-        console.log("setVisualConditions", this.widget.settings.visual);
+        // console.log("setVisualConditions", this.widget.settings.visual);
     }
 
     setMetaData(config) {
@@ -247,16 +248,16 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
 
     setTimeConfiguration(config) {
         this.widget.settings.time = {
-                                             shiftTime: config.shiftTime,
-                                             overrideRelativeTime: config.overrideRelativeTime,
-                                             downsample: {
-                                                 value: config.downsample,
-                                                 aggregators: config.aggregators,
-                                                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                                                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
-                                             }
-                                         };
-     }
+            shiftTime: config.shiftTime,
+            overrideRelativeTime: config.overrideRelativeTime,
+            downsample: {
+                value: config.downsample,
+                aggregators: config.aggregators,
+                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
+                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+            }
+        };
+    }
 
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
@@ -273,7 +274,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
 
     toggleQueryMetricVisibility(qid, mid) {
         const mindex = this.widget.queries[0].metrics.findIndex(d => d.id === mid);
-        for (let metric of this.widget.queries[0].metrics) {
+        for (const metric of this.widget.queries[0].metrics) {
             metric.settings.visual.visible = false;
         }
         this.widget.queries[0].metrics[mindex].settings.visual.visible = true;
@@ -322,15 +323,14 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterContentInit 
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
             id: cloneWidget.id,
-            payload: { widget: cloneWidget, isDataRefreshRequired: this.isDataRefreshRequired }
+            payload: { widget: cloneWidget, needRequery: this.needRequery }
         });
         this.closeViewEditMode();
     }
 
     ngOnDestroy() {
-        if (this.listenSub) {
-            this.listenSub.unsubscribe();
-        }
+        this.listenSub.unsubscribe();
+        this.newSizeSub.unsubscribe();
     }
 }
 

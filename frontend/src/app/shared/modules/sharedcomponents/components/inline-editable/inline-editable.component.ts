@@ -1,14 +1,16 @@
 import { Component, Input, EventEmitter, Output, ViewChild, Renderer2,
-          ElementRef, HostListener, HostBinding, OnInit } from '@angular/core';
+          ElementRef, HostListener, HostBinding, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 
 @Component({
+// tslint:disable-next-line: component-selector
   selector: 'inline-editable',
   templateUrl: './inline-editable.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: []
 })
 
-export class InlineEditableComponent implements OnInit {
+export class InlineEditableComponent implements OnInit, OnChanges {
   @HostBinding('class.inline-editable') private _hostClass = true;
 
   @Input() fieldValue: string;
@@ -17,10 +19,10 @@ export class InlineEditableComponent implements OnInit {
   @Output() updatedValue: EventEmitter<any> = new EventEmitter();
   @ViewChild('container') container: ElementRef;
 
-  isRequired: boolean = true;
-  isEditView: boolean = false;
+  isRequired = true;
+  isEditView = false;
   fieldFormControl: FormControl;
-  placeholder: string = '_placeholder';
+  placeholder = '_placeholder';
 
   constructor(private renderer: Renderer2, private eRef: ElementRef) { }
 
@@ -32,7 +34,7 @@ export class InlineEditableComponent implements OnInit {
 
     this.fieldFormControl = new FormControl('', []);
     this.fieldFormControl.setValue(this.fieldValue);
-    let validators: any[] = new Array;
+    const validators: any[] = new Array;
     validators.push(Validators.required, this.noWhitespaceValidator);
 
     if (this.minLength) {
@@ -42,6 +44,16 @@ export class InlineEditableComponent implements OnInit {
       validators.push(Validators.maxLength(this.maxLength));
     }
     this.fieldFormControl.setValidators(validators);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.fieldValue.currentValue) {
+      this.fieldValue = changes.fieldValue.currentValue;
+      // when dashboard load, this one is undefined
+      if (this.fieldFormControl) {
+        this.fieldFormControl.setValue(this.fieldValue);
+      }
+    }
   }
 
   noWhitespaceValidator(control: FormControl) {
@@ -80,16 +92,17 @@ export class InlineEditableComponent implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   closeEditIfEscapePressed(event: KeyboardEvent) {
-    const x = event.keyCode;
-    if (x === 27) {
+    if (event.key === 'Escape') {
       this.resetFormField();
     }
   }
 
   @HostListener('document:click', ['$event'])
   clickOutsideComponent(event) {
-    if (!this.eRef.nativeElement.contains(event.target)) {
-      this.save();
+    if (this.isEditView) {
+      if (!this.eRef.nativeElement.contains(event.target)) {
+        this.save();
+      }
     }
   }
 }

@@ -103,8 +103,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         visibility: [],
         gridLineColor: '#ccc',
     };
-    queryData:any = {};
-    chartData: any = [[0]];
+    queryData: any = {};
+    chartData = { ts: [[0]] };
     size: any = {
         height: 180
     };
@@ -305,7 +305,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             if ( qindex && mindex && gValues.length ) {
                 let tags = this.getMetricGroupByTags(qindex, mindex);
                 tags = tags.filter(v => gValues.includes(v));
-                this.alertForm.get('alertGroupingRules').setValue(tags);   
+                this.alertForm.get('alertGroupingRules').setValue(tags);
             } else {
                 this.alertForm.get('alertGroupingRules').setValue([]);
             }
@@ -327,7 +327,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 }
             }
         ];
-        
     }
 
     validateThresholds(group) {
@@ -523,7 +522,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             this.getYamasData(query);
         } else {
             this.nQueryDataLoading = 0;
-            this.chartData = [[0]];
+            this.chartData = { ts: [[0]] };
         }
     }
 
@@ -577,7 +576,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         config.queries = queries;
         const data = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], this.queryData);
         this.setChartYMax();
-        this.chartData = data;
+        this.chartData = { ts: data };
     }
 
     setChartYMax() {
@@ -735,7 +734,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     recoveryTypeChange(event: any) {
         const control = <FormControl>this.thresholdSingleMetricControls.recoveryType;
         control.setValue(event.value);
-        console.log('recoveryTypeChange', event.value);
+        // console.log('recoveryTypeChange', event.value);
     }
 
     alertRecipientsUpdate(event: any) {
@@ -762,7 +761,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.nameAlertDialog = this.dialog.open(NameAlertDialogComponent, dialogConf);
 
         this.nameAlertDialog.afterClosed().subscribe((dialog_out: any) => {
-            console.log('NAME ALERT DIALOG [afterClosed]', dialog_out);
+            // console.log('NAME ALERT DIALOG [afterClosed]', dialog_out);
             if (dialog_out && dialog_out.alertName) {
                 this.data.name = dialog_out.alertName;
                 this.alertForm.controls.name.setValue(this.data.name);

@@ -1,4 +1,5 @@
-import { Component, OnInit, OnChanges, SimpleChanges, HostBinding, Input, OnDestroy, ViewChild, ElementRef, AfterContentInit } from '@angular/core';
+import { Component, OnInit, HostBinding, ChangeDetectorRef,
+    Input, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
@@ -16,7 +17,7 @@ import { ErrorDialogComponent } from '../../../sharedcomponents/components/error
     styleUrls: ['./donut-widget.component.scss']
 })
 
-export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, AfterContentInit {
+export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.donutchart-widget') private _componentClass = true;
 
@@ -28,14 +29,9 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     @ViewChild('chartLegend') private chartLegend: ElementRef;
 
     private listenSub: Subscription;
-    // tslint:disable-next-line:no-inferrable-types
-    private isDataLoaded: boolean = false;
-    // tslint:disable-next-line:no-inferrable-types
-
+    private isDataLoaded = false;
     type$: BehaviorSubject<string>;
     typeSub: Subscription;
-
-
     options: any  = {
         type: 'doughnut',
         legend: {
@@ -46,21 +42,22 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     };
     width = '100%';
     height = '100%';
-    size: any = { width:0, height:0, legendWidth: 0 };
+    size: any = { width: 0, height: 0, legendWidth: 0 };
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
-    legendWidth=0;
+    legendWidth = 0;
     editQueryId = null;
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
-    isDataRefreshRequired = false;
+    needRequery = false;
 
     constructor(
         private interCom: IntercomService,
         private dataTransformer: DatatranformerService,
         public dialog: MatDialog,
-        private util: UtilsService
+        private util: UtilsService,
+        private cdRef: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
@@ -72,7 +69,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
 
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            switch( message.action ) {
+            switch ( message.action ) {
                 case 'reQueryData':
                     this.refreshData();
                     break;
@@ -89,11 +86,12 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                             this.error = message.payload.error;
                         }
                         this.options = this.dataTransformer.yamasToD3Donut(this.options, this.widget, message.payload.rawdata);
+                        this.cdRef.detectChanges();
                         break;
                     case 'getUpdatedWidgetConfig':
                         this.widget = message.payload.widget;
                         this.setOptions();
-                        this.refreshData(message.payload.isDataRefreshRequired);
+                        this.refreshData(message.payload.needRefresh);
                         break;
                 }
             }
@@ -106,36 +104,28 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        setTimeout(()=>{
+        setTimeout(() => {
             this.refreshData(this.editMode ? false : true);
             this.setOptions();
-        }, 0);
+        });
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-
-    }
-
-    ngAfterContentInit() {
+    ngAfterViewInit() {
         // this event will happend on resize the #widgetoutput element,
         // in  chartjs we don't need to pass the dimension to it.
         // Dimension will be picked up by parent node which is #container
         ElementQueries.listen();
         ElementQueries.init();
-        let initSize = {
+        const initSize = {
             width: this.widgetOutputElement.nativeElement.clientWidth,
             height: this.widgetOutputElement.nativeElement.clientHeight
         };
         this.newSize$ = new BehaviorSubject(initSize);
 
-        this.newSizeSub = this.newSize$.pipe(
-            // debounceTime(300)
-        ).subscribe(size => {
-            console.log("size", size)
+        this.newSizeSub = this.newSize$.subscribe(size => {
             this.setSize(size);
         });
-        
-        new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
+        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () =>{
              const newSize = {
                 width: this.widgetOutputElement.nativeElement.clientWidth,
                 height: this.widgetOutputElement.nativeElement.clientHeight
@@ -153,7 +143,8 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
             newSize.width = newSize.width - legendWidth;
         }
 
-        this.size = {...newSize, legendWidth: legendWidth-20};
+        this.size = {...newSize, legendWidth: legendWidth - 20};
+        this.cdRef.detectChanges();
     }
 
     requestData() {
@@ -165,6 +156,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                 action: 'getQueryData',
                 payload: this.widget
             });
+            this.cdRef.detectChanges();
         }
     }
 
@@ -186,7 +178,7 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'SetLegend':
                 this.widget.settings.legend = message.payload.data;
@@ -204,13 +196,13 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
             case 'SetSorting':
                 this.setSorting(message.payload);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
@@ -227,13 +219,13 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                this.isDataRefreshRequired = true;
+                this.needRequery = true;
                 break;
         }
     }
@@ -268,16 +260,16 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
 
     setTimeConfiguration(config) {
         this.widget.settings.time = {
-                                             shiftTime: config.shiftTime,
-                                             overrideRelativeTime: config.overrideRelativeTime,
-                                             downsample: {
-                                                 value: config.downsample,
-                                                 aggregators: config.aggregators,
-                                                 customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
-                                                 customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
-                                             }
-                                         };
-     }
+            shiftTime: config.shiftTime,
+            overrideRelativeTime: config.overrideRelativeTime,
+            downsample: {
+                value: config.downsample,
+                aggregators: config.aggregators,
+                customValue: config.downsample !== 'custom' ? '' : config.customDownsampleValue,
+                customUnit: config.downsample !== 'custom' ? '' : config.customDownsampleUnit
+            }
+        };
+    }
 
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
@@ -334,20 +326,19 @@ export class DonutWidgetComponent implements OnInit, OnChanges, OnDestroy, After
     }
 
     applyConfig() {
-        const cloneWidget = { ...this.widget };
+        const cloneWidget = this.util.deepClone(this.widget);
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
             id: cloneWidget.id,
-            payload: { widget: cloneWidget, isDataRefreshRequired: this.isDataRefreshRequired }
+            payload: { widget: cloneWidget, needRequery: this.needRequery }
         });
         this.closeViewEditMode();
     }
 
     ngOnDestroy() {
-        if (this.listenSub) {
-            this.listenSub.unsubscribe();
-        }
+        this.listenSub.unsubscribe();
         this.typeSub.unsubscribe();
+        this.newSizeSub.unsubscribe();
     }
 }

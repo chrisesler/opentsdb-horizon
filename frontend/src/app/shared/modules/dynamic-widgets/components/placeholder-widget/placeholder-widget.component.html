@@ -4,7 +4,7 @@
       <div class="widget-types">
           <button mat-raised-button class="widget-type-selector mat-elevation-z0"  
           *ngFor="let wtype of availableWidgetTypes"
-          (click)="selectWidgetType(wtype, $event)">
+          (click)="selectWidgetType(wtype)">
               <span class="widget-type-icon {{ wtype.iconClass }}"></span>
               <span class="widget-type-label">{{ wtype.label }}</span>
           </button>
