@@ -16,6 +16,7 @@ export class DropdownUnitTypeComponent implements OnInit {
 
     // unit input
     @Input() unit: any = '';
+    @Input() blackListedUnits: string[];
 
     /** Outputs */
     @Output() onUnitChange = new EventEmitter;
@@ -27,25 +28,24 @@ export class DropdownUnitTypeComponent implements OnInit {
 
     binaryDataUnitsKeys: Array<string> = [ 'binbyte', 'kibibyte', 'mebibyte', 'gibibyte', 'tebibyte', 'pebibyte', 'exibyte' ];
 
-
     decimalDataUnitsKeys: Array<string> = ['decbyte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'petabyte', 'exabyte'];
 
     binaryDataRateKeys: Array<string> = ['binbps', 'kibibps', 'mebibps', 'gibibps', 'tebibps', 'binbyte/s', 'kibibyte/s', 'mebibyte/s', 'gibibyte/s', 'tebibyte/s'];
 
     decimalDataRateKeys: Array<string> = ['decbps', 'kbps', 'mbps', 'gbps', 'tbps', 'decbyte/s', 'kilobyte/s', 'megabyte/s', 'gigabyte/s', 'terabyte/s'];
-    
-    units:any = {
+
+    units: any = {
         timeUnits: {
-            'nanoseconds': 'Nanoseconds', 
-            'microseconds': 'Microseconds', 
-            'milliseconds': 'Milliseconds', 
-            'seconds': 'Seconds', 
-            'minutes': 'Minutes', 
-            'hours':'Hours', 
-            'days': 'Days', 
+            'nanoseconds': 'Nanoseconds',
+            'microseconds': 'Microseconds',
+            'milliseconds': 'Milliseconds',
+            'seconds': 'Seconds',
+            'minutes': 'Minutes',
+            'hours': 'Hours',
+            'days': 'Days',
             'years' : 'Years'
         },
-        decimalDataUnits: { 
+        decimalDataUnits: {
             'decbyte' : 'B   - byte',
             'kilobyte': 'kB - kilobyte (1000 B)',
             'megabyte': 'MB - megabyte (1000 kB)',
@@ -55,7 +55,7 @@ export class DropdownUnitTypeComponent implements OnInit {
             'exabyte' : 'EB - exabyte  (1000 PB)'
         },
 
-        binaryDataRateUnits: { 
+        binaryDataRateUnits: {
             'binbps' : 'bit/s',
             'kibibps': 'Kibit/s (1024 bit/s)',
             'mebibps': 'Mibit/s (1024 Kibit/s)',
@@ -100,6 +100,9 @@ export class DropdownUnitTypeComponent implements OnInit {
     constructor(public UN: UnitNormalizerService) { }
 
     ngOnInit() {
+        if (!this.blackListedUnits) {
+            this.blackListedUnits = [];
+        }
     }
 
     KeyedOnUnitInputBox(value: string) {
@@ -117,5 +120,14 @@ export class DropdownUnitTypeComponent implements OnInit {
             }
         }
         return unit;
+    }
+
+    isUnitBlackedList(unit: string) {
+        for (let _unit of this.blackListedUnits) {
+            if (_unit.toLowerCase() === unit.toLowerCase()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
