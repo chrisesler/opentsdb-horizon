@@ -213,10 +213,44 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     }
 
     metricACKeydown(event: any) {
-        if (!this.metricAutoCompleteCntrl.isOpen) {
+        /*if (!this.metricAutoCompleteCntrl.isOpen) {
             this.metrics[0] = this.metricSearchControl.value;
             this.requestChanges();
             this.blur.emit();
+        }*/
+
+        const textVal = this.metricSearchControl.value;
+
+        // check if value is valid metric option
+        console.log('OPTIONS', this.metricOptions);
+        const checkIdx = this.metricOptions.findIndex(item => textVal.toLowerCase() === item.name.toLowerCase());
+
+        if (checkIdx >= 0) {
+            // set value to the option value (since typed version could be different case)
+            this.metrics[0] = this.metricOptions[checkIdx].name;
+            // emit change
+            this.requestChanges();
+            this.blur.emit();
+        }
+
+    }
+
+    metricMultipleACKeydown(event: any) {
+        console.log('METRICS', this.metrics);
+
+        const textVal = this.metricSearchControl.value;
+
+        // check if valid option
+        const validIdx = this.metricOptions.findIndex(item => textVal.toLowerCase() === item.name.toLowerCase());
+
+        // if valid option, AND it hasn't been selected yet
+        if (validIdx >= 0 && this.getMetricIndex(textVal) === -1) {
+            // set value to the option value (since typed version could be different case)
+            this.updateMetricSelection(this.metricOptions[validIdx].name, 'add');
+        }
+
+        if (this.metrics.length > 0) {
+            this.clickMultipleDone();
         }
     }
 
