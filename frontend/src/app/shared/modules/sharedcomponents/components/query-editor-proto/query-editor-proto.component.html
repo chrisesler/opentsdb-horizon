@@ -17,12 +17,12 @@
         </span>
     </div>
     <span class="flex-spacer"></span>
-    <div class="toolbar-item action-icons" *ngIf="query.metrics.length && canDisableMetrics">
-        <button mat-icon-button color="primary" (click)="toggleQuery(); $event.stopPropagation();">
+    <div class="toolbar-item action-icons" *ngIf="query.metrics.length">
+        <button mat-icon-button color="primary" *ngIf="options.toggleQuery" (click)="toggleQuery(); $event.stopPropagation();">
             <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
             <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
         </button>
-        <button mat-icon-button color="primary" (click)="deleteQuery(); $event.stopPropagation();">
+        <button mat-icon-button color="primary" *ngIf="options.deleteQuery" (click)="confirmQueryDelete(label); $event.stopPropagation();">
             <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
         </button>
     </div>
@@ -65,7 +65,7 @@
                     <div class="metric-row-data metric-index">
                         <button mat-flat-button [matMenuTriggerFor]="metricActionMenu" [matMenuTriggerData]="{metric: data.metric}">
                             <span class="label">
-                                <mat-icon fontSet="denali" [fontIcon]="data.metric.settings.visual.visible ? 'd-check' : 'd-minus'" *ngIf="canDisableMetrics"></mat-icon>
+                                <mat-icon fontSet="denali" [fontIcon]="data.metric.settings.visual.visible ? 'd-check' : 'd-minus'" *ngIf="options.toggleMetric"></mat-icon>
                                 <span>{{ data.indexLabel}}</span>
                                 <!--<span>m00</span>-->
                             </span>
@@ -258,7 +258,7 @@
 <mat-menu class="metric-action-cdk-menu" #metricActionMenu="matMenu" hasBackdrop="true">
     <ng-template matMenuContent let-metric="metric">
         <!-- conditional button -->
-        <button mat-menu-item *ngIf="canDisableMetrics" (click)="toggleMetric(metric.id)">
+        <button mat-menu-item *ngIf="options.toggleMetric" (click)="toggleMetric(metric.id)">
             <mat-icon fontSet="denali" [fontIcon]="metric.settings.visual.visible ? 'd-eye-close' : 'd-eye-open'"></mat-icon>
             <span>{{metric.settings.visual.visible ? 'Disable' : 'Enable'}}</span>
         </button>
@@ -303,3 +303,14 @@
         </div>
     </ng-template>
 </mat-menu>
+
+<ng-template #confirmDeleteDialog let-data>
+    <h2 matDialogTitle>Delete Query Confirmation</h2>
+    <mat-dialog-content>
+        <p><em>Are you sure you want to delete the query <strong>"{{data.label}}"</strong>?</em></p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button color="primary" (click)="deleteQuery()">Yes</button>
+        <button mat-button matDialogClose color="primary">No</button>
+    </mat-dialog-actions>
+</ng-template>

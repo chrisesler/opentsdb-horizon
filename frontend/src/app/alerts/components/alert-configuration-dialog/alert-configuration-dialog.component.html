@@ -62,7 +62,7 @@
                     </div>
                     <div class="step-section-content">
                         <!-- LOOP OF QUERY ITEMS -->
-                        <query-editor-proto [label]="'Q1'" [query]="queries[0]" [canDisableMetrics]="false" (queryOutput)="updateQuery($event);"></query-editor-proto> 
+                        <query-editor-proto [label]="'Q1'" [query]="queries[0]" [options]="{toggleMetric: false}" (queryOutput)="updateQuery($event);"></query-editor-proto> 
                     </div>
                 </div>
                 <div class="step-section threshold-section" formGroupName="threshold" [ngClass]="{'is-visible': queries && queries[0] && queries[0].metrics.length > 0}">
