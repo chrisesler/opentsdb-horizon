@@ -222,7 +222,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
         const textVal = this.metricSearchControl.value;
 
         // check if value is valid metric option
-        console.log('OPTIONS', this.metricOptions);
+        // console.log('OPTIONS', this.metricOptions);
         const checkIdx = this.metricOptions.findIndex(item => textVal.toLowerCase() === item.name.toLowerCase());
 
         if (checkIdx >= 0) {
@@ -236,7 +236,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     }
 
     metricMultipleACKeydown(event: any) {
-        console.log('METRICS', this.metrics);
+        // console.log('METRICS', this.metrics);
 
         const textVal = this.metricSearchControl.value;
 
