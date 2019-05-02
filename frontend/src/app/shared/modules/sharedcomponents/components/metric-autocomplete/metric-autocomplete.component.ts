@@ -10,7 +10,7 @@ import {
     ViewChild,
     OnChanges,
     OnDestroy,
-    SimpleChanges, HostListener, AfterViewInit, AfterViewChecked
+    SimpleChanges, HostListener, AfterViewInit, AfterViewChecked, ChangeDetectorRef
 } from '@angular/core';
 import { MatAutocomplete, MatMenuTrigger } from '@angular/material';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
@@ -54,6 +54,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     queryChanges$: BehaviorSubject<boolean>;
     queryChangeSub: Subscription;
     visible = false;
+    isDestroying = false;
 
     // tslint:disable-next-line:no-inferrable-types
     firstRun: boolean = true;
@@ -61,7 +62,10 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
 
     constructor(
         private elRef: ElementRef,
-        private httpService: HttpService) {
+        private httpService: HttpService,
+        private utils: UtilsService,
+        private cdRef: ChangeDetectorRef
+    ) {
     }
 
     /** ANGULAR INTERFACE METHODS */
@@ -79,6 +83,11 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     }
 
     ngOnDestroy() {
+        this.isDestroying = true;
+    }
+
+    get metricSearchControlValue() {
+        return this.metricSearchControl.value;
     }
 
     /** METHODS */
@@ -95,6 +104,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
                 query.search = value ? value : '';
                 this.message['metricSearchControl'] = {};
                 this.firstRun = true;
+                this.detectChanges();
                 this.httpService.getMetricsByNamespace(query)
                     .subscribe(res => {
                         this.firstRun = false;
@@ -102,14 +112,22 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
                         if ( this.metricOptions.length === 0 ) {
                             this.message['metricSearchControl'] = { 'type': 'info', 'message': 'No data found' };
                         }
+                        this.detectChanges();
                     },
                         err => {
                             this.firstRun = false;
                             this.metricOptions = [];
                             const message = err.error.error ? err.error.error.message : err.message;
                             this.message['metricSearchControl'] = { 'type': 'error', 'message': message };
+                            this.detectChanges();
                         });
             });
+    }
+
+    detectChanges() {
+        if ( ! this.isDestroying ) {
+            this.cdRef.detectChanges();
+        }
     }
 
     doMetricSearch() {
@@ -145,6 +163,27 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
 
     getMetricIndex(metric) {
         return this.metrics.indexOf(metric);
+    }
+
+    calculateEditWidthStyle() {
+        const text = this.metricSearchControlValue;
+        const fontSize = 14;
+        const fontFace = 'Ubuntu';
+        const paddingOffset = 32; // 8px padding on left and right + 16px icon ((8*2) + 16)
+
+        // calculate width using service
+        const textWidth = this.utils.calculateTextWidth(text, fontSize, fontFace);
+
+        let styles = {
+            width: '100%'
+        };
+
+        // if the measured text is larger than 175 px, then set width + padding offset
+        if (textWidth > 175) {
+            styles.width = (textWidth + paddingOffset) + 'px';
+        }
+
+        return styles;
     }
 
     /** EVENTS */

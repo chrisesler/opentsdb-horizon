@@ -74,7 +74,7 @@ export class DropdownAggregatorsComponent implements OnInit, OnDestroy, ControlV
             this.value = this.defaultAggregator;
             this.propagateChange(this.value);
         }
-        console.log("summarizer", this.value);
+        // console.log("summarizer", this.value);
         this.value = this.multiple ? this.value : this.value.join();
         this.aggregatorControl = new FormControl( this.value );
         /*

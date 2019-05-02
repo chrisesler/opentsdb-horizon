@@ -82,10 +82,10 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges {
         if ( changes.value  && this.tagControl ) {
             this.tagValues = changes.value.currentValue;
             this.tagControl.setValue(null);
-            console.log("on change tagValues=", this.tagValues);
+            // console.log("on change tagValues=", this.tagValues);
         }
         if ( changes.tagsSelected  && this.tagControl ) {
-            console.log(" tag value on changes" , changes.tagsSelected);
+            // console.log(" tag value on changes" , changes.tagsSelected);
         }
     }
 
@@ -106,7 +106,7 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges {
             input.value = '';
           }
 
-          console.log("tagvalues=>", this.tagValues);
+          // console.log("tagvalues=>", this.tagValues);
           this.tagControl.setValue(null);
         }
     }
@@ -116,7 +116,7 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges {
         if (index >= 0) {
           this.tagValues.splice(index, 1);
         }
-        console.log("revmoe item", this.tagValues);
+        // console.log("revmoe item", this.tagValues);
         this.trigger.closePanel();
     }
 
@@ -147,7 +147,7 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges {
     @HostListener('document:click', ['$event.target'])
     documentClickHandler(target) {
         if ( ! target.classList.contains('mat-option-text')) {
-            console.log('window:click outside', this.elRef, target);
+            // console.log('window:click outside', this.elRef, target);
             this.sendTagValues();
         }
     }
@@ -155,7 +155,7 @@ export class NamespaceTagValuesComponent implements OnInit, OnChanges {
     @HostListener('document:keydown', ['$event'])
     keydown(e: KeyboardEvent) {
       if ( e.keyCode === TAB ) {
-        console.log('keydown: tab', e);
+        // console.log('keydown: tab', e);
         this.sendTagValues();
       }
     }

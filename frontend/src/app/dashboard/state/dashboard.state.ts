@@ -89,14 +89,6 @@ export class DeleteDashboardFail {
 export class DBState {
     constructor( private httpService: HttpService, private dbService: DashboardService ) {}
 
-    @Selector() static getDashboardId(state: DBStateModel) {
-        return state.id;
-    }
-
-    @Selector() static getDashboardPath(state: DBStateModel) {
-        return state.path;
-    }
-
     @Selector() static getLoadedDB(state: DBStateModel) {
         return state.loadedDB;
     }
@@ -111,14 +103,12 @@ export class DBState {
 
     @Selector()
     static getDashboardFriendlyPath(state: DBStateModel) {
-        // return createSelector([DBState], (state: DBStateModel) => {
-            const friendlyPath = state.id + (state.loadedDB.fullPath ? state.loadedDB.fullPath : '');
-            if (friendlyPath && friendlyPath !== 'undefined') {
-                return '/' + friendlyPath;
-            } else {
-                return undefined;
-            }
-        // });
+        const friendlyPath = state.id + (state.loadedDB.fullPath ? state.loadedDB.fullPath : '');
+        if (friendlyPath && friendlyPath !== 'undefined') {
+            return '/' + friendlyPath;
+        } else {
+            return undefined;
+        }
     }
 
     @Action(LoadDashboard)
@@ -126,10 +116,11 @@ export class DBState {
         // id is the path
         if ( id !== '_new_' ) {
             ctx.patchState({ loading: true});
-            // return this.httpService.getDashboardByPath(id).pipe(
             return this.httpService.getDashboardById(id).pipe(
                 map(res => {
-                    const dashboard:any = res.body;
+                    const dashboard: any = res.body;
+                    // update grister info
+                    this.dbService.addGridterInfo(dashboard.content.widgets);
                     if ( dashboard.content.version && dashboard.content.version === this.dbService.version ) {
                         ctx.dispatch(new LoadDashboardSuccess(dashboard));
                     } else {
@@ -166,13 +157,7 @@ export class DBState {
 
     @Action(LoadDashboardSuccess)
     loadDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: LoadDashboardSuccess) {
-        const state = ctx.getState();
-        ctx.setState({...state,
-            id: payload.id,
-            loaded: true,
-            loading: false,
-            loadedDB: payload
-        });
+        ctx.patchState({id: payload.id, loaded: true, loading: false, path: '/' + payload.id + payload.fullPath, loadedDB: payload});
     }
 
     @Action(LoadDashboardFail)
@@ -195,8 +180,8 @@ export class DBState {
     @Action(SaveDashboardSuccess)
     saveDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: SaveDashboardSuccess) {
         const state = ctx.getState();
-        // console.log('save dashboard success', payload);
-        ctx.patchState({...state, id: payload.id, path: payload.path, loadedDB: payload, status: 'save-success' });
+        // we dont need to upload loadedDB here, do that will cause its state updated.
+        ctx.patchState({...state, id: payload.id, path: '/' + payload.id + payload.fullPath, status: 'save-success' });
     }
 
     @Action(SaveDashboardFail)

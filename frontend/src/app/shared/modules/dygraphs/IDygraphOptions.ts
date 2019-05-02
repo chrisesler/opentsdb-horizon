@@ -18,6 +18,7 @@ export interface DygraphOptionsAxis {
 }
 
 export interface IDygraphOptions {
+    title?: string;
     width?: number;
     height?: number;
     labels?: any;

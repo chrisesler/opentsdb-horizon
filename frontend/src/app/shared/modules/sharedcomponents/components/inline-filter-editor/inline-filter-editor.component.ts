@@ -10,7 +10,7 @@ import {
   ViewChild,
   OnChanges,
   OnDestroy,
-  SimpleChanges, HostListener
+  SimpleChanges, HostListener, ChangeDetectorRef
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { Observable, of, BehaviorSubject } from 'rxjs';
@@ -58,7 +58,8 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
       private renderer: Renderer,
       private httpService: HttpService,
       private fb: FormBuilder,
-      private utils: UtilsService ) {
+      private utils: UtilsService,
+      private cdRef: ChangeDetectorRef ) {
 
       }
 
@@ -167,11 +168,13 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
               this.httpService.getTagValuesByNamespace(query)
                               .subscribe(res => {
                                   this.filteredTagValues = res;
+                                  this.cdRef.detectChanges();
                               },
                               err => {
                                   this.filteredTagValues = [];
                                   const message = err.error.error? err.error.error.message : err.message;
                                   this.message['tagValueControl'] = { 'type': 'error', 'message' : message };
+                                  this.cdRef.detectChanges();
                               });
           }
       });

@@ -164,7 +164,7 @@ export class DnavFoldersComponent implements OnInit {
                 });
                 break;
             case 'moveFolder':
-                console.log('@@@ Move Folder Event', event);
+                // console.log('@@@ Move Folder Event', event);
                 this.folderAction.emit({
                     action: 'moveFolder',
                     data: {

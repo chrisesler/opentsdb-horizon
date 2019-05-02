@@ -115,7 +115,7 @@ export class ExpressionDialogComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.createForm();
-        console.log('%cDIALOG DATA', 'background: lime; color: white;', this.dialog_data);
+        // console.log('%cDIALOG DATA', 'background: lime; color: white;', this.dialog_data);
         for ( let index = 1,  i = 0; i < this.dialog_data.queries.length; i++ ) {
             // only metrics for now
             if ( this.dialog_data.queries[i].metric ) {
@@ -167,7 +167,7 @@ export class ExpressionDialogComponent implements OnInit, OnDestroy {
         }
 
         const isValid =  keys.length && result != null && !invalidRefs.length;
-        console.log("isValidExpression", isValid, keys.length , result != null , !invalidRefs.length)
+        // console.log("isValidExpression", isValid, keys.length , result != null , !invalidRefs.length)
         this.metricExpressionForm.controls.expressionValue.setErrors( !isValid ? { 'invalid': true } : null );
         return isValid;
     }
@@ -215,20 +215,20 @@ export class ExpressionDialogComponent implements OnInit, OnDestroy {
 
     queryData() {
 
-            const widget = {
-                                settings: {
-                                    data_source: 'yamas',
-                                    component_type: 'LinechartWidgetComponent'
-                                }
-                        };
-            const time = {
-                start: '1h-ago'
-            };
-            const expression = this.getExpressionConfig();
-            const metrics = [expression];
-            const query = this.queryService.buildQuery(widget, time, metrics);
-            console.log(JSON.stringify(query))
-            this.getYamasData(query, metrics);
+        const widget = {
+            settings: {
+                data_source: 'yamas',
+                component_type: 'LinechartWidgetComponent'
+            }
+        };
+        const time = {
+            start: '1h-ago'
+        };
+        const expression = this.getExpressionConfig();
+        const metrics = [expression];
+        const query = this.queryService.buildQuery(widget, time, metrics);
+        //console.log(JSON.stringify(query))
+        this.getYamasData(query, metrics);
     }
 
     // to get query for selected metrics, my rebuild to keep time sync 1h-ago
@@ -238,13 +238,13 @@ export class ExpressionDialogComponent implements OnInit, OnDestroy {
                 const groupData = {};
                 groupData[this.group.id] = result;
                 const config = {
-                                    query: {
-                                        groups: []
-                                    }
-                                };
+                    query: {
+                        groups: []
+                    }
+                };
                 this.group.queries = metrics;
                 config.query.groups[0] = this.group;
-                this.data = this.dataTransformerService.yamasToDygraph(config, this.options, [[0]] , groupData);
+                this.data = this.dataTransformerService.yamasToDygraph(config, this.options, [[0]], groupData);
             },
             err => {
                 console.log('error', err);

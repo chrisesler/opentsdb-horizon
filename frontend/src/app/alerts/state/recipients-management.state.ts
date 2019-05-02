@@ -152,14 +152,14 @@ export class RecipientsState {
 
     @Action(LoadRecipientsSuccess)
     loadRecipientsSuccess(ctx: StateContext<RecipientsManagamentStateModel>, recipients) {
-        console.log('#### NAMESPACE RECIPIENTS SUCCESS ####', recipients);
+        // console.log('#### NAMESPACE RECIPIENTS SUCCESS ####', recipients);
         const state = ctx.getState();
         ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true });
     }
 
     @Action(LoadRecipientsFail)
     loadRecipientsFail(ctx: StateContext<RecipientsManagamentStateModel>, error) {
-        console.log('#### NAMESPACE RECIPIENTS FAIL ####', error);
+        // console.log('#### NAMESPACE RECIPIENTS FAIL ####', error);
         const state = ctx.getState();
         ctx.setState({ ...state, loading: false, error });
     }
@@ -177,7 +177,7 @@ export class RecipientsState {
 
     @Action(PostRecipientSuccess)
     postRecipientSuccess(ctx: StateContext<RecipientsManagamentStateModel>, recipient) {
-        console.log('#### RECIPIENT POST SUCCESS ####', recipient);
+        // console.log('#### RECIPIENT POST SUCCESS ####', recipient);
         const state = ctx.getState();
         let recipients = { ...state.recipients };
         recipients = this.appendRecipientToRecipients(recipient.data, recipients);
@@ -187,7 +187,7 @@ export class RecipientsState {
 
     @Action(PostRecipientFail)
     postRecipientsFail(ctx: StateContext<RecipientsManagamentStateModel>, error) {
-        console.log('#### NAMESPACE RECIPIENTS FAIL ####', error);
+        // console.log('#### NAMESPACE RECIPIENTS FAIL ####', error);
         const state = ctx.getState();
         ctx.setState({ ...state, loading: false, error });
     }
@@ -205,7 +205,7 @@ export class RecipientsState {
 
     @Action(UpdateRecipientSuccess)
     updateRecipientSuccess(ctx: StateContext<RecipientsManagamentStateModel>, recipient) {
-        console.log('#### RECIPIENT UPDATE SUCCESS ####', recipient);
+        // console.log('#### RECIPIENT UPDATE SUCCESS ####', recipient);
         const state = ctx.getState();
         // tslint:disable-next-line:prefer-const
         let recipients = {...state.recipients};
@@ -222,7 +222,7 @@ export class RecipientsState {
 
     @Action(UpdateRecipientFail)
     updateRecipientFail(ctx: StateContext<RecipientsManagamentStateModel>, error) {
-        console.log('#### RECIPIENT UPDATE FAIL ####', error);
+        // console.log('#### RECIPIENT UPDATE FAIL ####', error);
         const state = ctx.getState();
         ctx.setState({ ...state, loading: false, error});
     }
@@ -240,7 +240,7 @@ export class RecipientsState {
 
     @Action(DeleteRecipientSuccess)
     deleteRecipientSuccess(ctx: StateContext<RecipientsManagamentStateModel>, recipient) {
-        console.log('#### RECIPIENT DELETE SUCCESS ####', recipient);
+        // console.log('#### RECIPIENT DELETE SUCCESS ####', recipient);
         const state = ctx.getState();
         let recipients = { ...state.recipients };
         const lastUpdated = this.createLastUpdated(recipient.data, 'delete');
@@ -250,7 +250,7 @@ export class RecipientsState {
 
     @Action(DeleteRecipientFail)
     deleteRecipientFail(ctx: StateContext<RecipientsManagamentStateModel>, error) {
-        console.log('#### RECIPIENT DELETE FAIL ####', error);
+        // console.log('#### RECIPIENT DELETE FAIL ####', error);
         const state = ctx.getState();
         ctx.setState({ ...state, loading: false, error});
     }

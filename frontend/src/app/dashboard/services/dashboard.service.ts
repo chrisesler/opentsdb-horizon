@@ -34,8 +34,9 @@ export class DashboardService {
       x: 0, y: 0,
       h: 5, w: 12,
       xMd: 0, yMd: 0,
-      dragAndDrop: true,
-      resizable: true
+      wMd: 12, hMd: 5,
+      xSm: 0, ySm: 0,
+      wSm: 1, hSm: 1
     },
     settings: {
       title: 'my widget',
@@ -65,10 +66,6 @@ export class DashboardService {
     this.widgetsConfig = {...conf};
   }
 
-  getWidgetConfigById(id) {
-    return this.updateWidgetsDimension[id];
-  }
-
   getWidgetPrototype(type= ''): any {
     const widget: any = JSON.parse(JSON.stringify(this.widgetPrototype));
     widget.id = this.utils.generateId();
@@ -90,9 +87,8 @@ export class DashboardService {
   }
 
   getDashboardPrototype(): any {
-    const dashboard: any = Object.assign({}, this.dashboardProto);
-    const widget: any = JSON.parse(JSON.stringify(this.getWidgetPrototype())); 
-    //widget.gridPos.w = 6;
+    const dashboard: any = this.utils.deepClone(this.dashboardProto);
+    const widget: any = this.utils.deepClone(this.getWidgetPrototype());
     dashboard.widgets.push(widget);
     return dashboard;
   }
@@ -102,7 +98,7 @@ export class DashboardService {
   positionWidgetY(widgets: any, y) {
     const modWidgets = widgets;
     for (let i = 0; i < modWidgets.length; i++) {
-      modWidgets[i].gridPos.y = modWidgets[i].gridPos.y + y; 
+      modWidgets[i].gridPos.y = modWidgets[i].gridPos.y + y;
       modWidgets[i].gridPos.yMd = modWidgets[i].gridPos.yMd + y;
     }
     return modWidgets;
@@ -143,28 +139,42 @@ export class DashboardService {
     return query;
   }
 
+  addGridterInfo(widgets: any[]) {
+    for (let i = 0; i < widgets.length; i++) {
+      const w = widgets[i];
+      const gpos = widgets[i].gridPos;
+      const gridResp = {
+        xMd: gpos.x,
+        yMd: gpos.y,
+        wMd: gpos.w,
+        hMd: gpos.h,
+        xSm: gpos.x,
+        ySm: gpos.y,
+        wSm: 1,
+        hSm: 1
+      };
+      widgets[i].gridPos = {...widgets[i].gridPos, ...gridResp};
+    }
+  }
+
   getStorableFormatFromDBState(dbstate) {
+    const widgets = this.utils.deepClone(dbstate.Widgets.widgets);
+    for (let i = 0; i < widgets.length; i++) {
+      delete widgets[i].gridPos.xMd;
+      delete widgets[i].gridPos.yMd;
+      delete widgets[i].gridPos.wMd;
+      delete widgets[i].gridPos.hMd;
+      delete widgets[i].gridPos.xSm;
+      delete widgets[i].gridPos.ySm;
+      delete widgets[i].gridPos.wSm;
+      delete widgets[i].gridPos.hSm;
+    }
     const dashboard = {
       version: this.version,
       settings: dbstate.Settings,
-      widgets: dbstate.Widgets
+      widgets: widgets
     };
     return dashboard;
-  }
-  updateWidgetsDimension(width, height, pWidgets) {
-    /*
-    for (let i = 0; i < pWidgets.length; i++) {
-      const clientSize = {
-        'width': width * pWidgets[i].gridPos.w,
-        'height': height * pWidgets[i].gridPos.h
-      };
-      pWidgets[i].clientSize = clientSize;
-      // also update position from xMd and yMd
-      // since x,y not updated when resize, grad
-      pWidgets[i].gridPos.x = pWidgets[i].gridPos.xMd;
-      pWidgets[i].gridPos.y = pWidgets[i].gridPos.yMd;
-    }
-    */
   }
 
   convert(dashboard) {
@@ -195,7 +205,7 @@ export class DashboardService {
               for ( let m = 0; m < emetrics.length; m++ ) {
                 const pos = emetrics[m].name.indexOf('.') + 1;
                 emetrics[m].metric = emetrics[m].name.substr(pos);
-                const metric = metrics.find(d=> d.expression === undefined && d.name === emetrics[m].metric);
+                const metric = metrics.find(d => d.expression === undefined && d.name === emetrics[m].metric);
                 if ( !metric ) {
                   const oMetric = {
                     id: this.utils.generateId(3),
@@ -216,7 +226,7 @@ export class DashboardService {
               for ( let m = 0; m < emetrics.length; m++ ) {
                 const pos = emetrics[m].name.indexOf('.') + 1;
                 emetrics[m].metric = emetrics[m].name.substr(pos);
-                const metric = metrics.find(d=> d.expression === undefined && d.name === emetrics[m].metric);
+                const metric = metrics.find(d => d.expression === undefined && d.name === emetrics[m].metric);
                 emetrics[m].newId = metric ? metric.id : null;
                 const reg = new RegExp(emetrics[m].refId, 'g');
                 metrics[k].expression = metrics[k].expression.replace(reg, '{{' + emetrics[m].newId + '}}' );
@@ -229,3 +239,4 @@ export class DashboardService {
     return dashboard;
   }
 }
+

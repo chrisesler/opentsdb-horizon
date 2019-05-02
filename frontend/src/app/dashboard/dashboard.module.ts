@@ -43,6 +43,7 @@ import { NavbarDashboardActionsMenuComponent } from './components/navbar-dashboa
 import { DashboardSaveDialogComponent } from './components/dashboard-save-dialog/dashboard-save-dialog.component';
 import { DashboardDeleteDialogComponent } from './components/dashboard-delete-dialog/dashboard-delete-dialog.component';
 import { WidgetDeleteDialogComponent } from './components/widget-delete-dialog/widget-delete-dialog.component';
+import { TemplateVariablePanelComponent } from './components/template-variable-panel/template-variable-panel.component';
 
 @NgModule({
     imports: [
@@ -82,7 +83,8 @@ import { WidgetDeleteDialogComponent } from './components/widget-delete-dialog/w
         DashboardDeleteDialogComponent,
         VariableSelectorComponent,
         DbsVariableItemComponent,
-        WidgetDeleteDialogComponent
+        WidgetDeleteDialogComponent,
+        TemplateVariablePanelComponent
     ],
     providers: [
         DashboardService
