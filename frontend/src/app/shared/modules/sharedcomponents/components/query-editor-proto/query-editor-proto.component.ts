@@ -8,6 +8,7 @@ import {
     EventEmitter,
     ViewChild,
     ViewChildren,
+    TemplateRef,
     QueryList,
     OnDestroy
 } from '@angular/core';
@@ -19,7 +20,7 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { MatTableDataSource } from '@angular/material';
+import { MatTableDataSource, MatDialogRef, MatDialog } from '@angular/material';
 
 import {
     animate,
@@ -49,23 +50,16 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     // tslint:disable-next-line:no-inferrable-types
     @HostBinding('class.query-editor-proto') private _hostClass: boolean = true;
     // tslint:disable-next-line:no-inferrable-types
-    @HostBinding('class.can-disable-metrics') private _canDisableMetrics: boolean = true;
 
     @ViewChild('addExpressionInput') addExpressionInput: ElementRef;
     @ViewChild('editExpressionInput') editExpressionInput: ElementRef;
+    @ViewChild('confirmDeleteDialog', {read: TemplateRef}) confirmDeleteDialogRef: TemplateRef<any>;
+
 
     @Input() type;
     @Input() query: any;
     @Input() label = '';
-    @Input() edit = [];
-
-    @Input() // true for normal queries... false for alerts queries
-    get canDisableMetrics(): boolean {
-        return this._canDisableMetrics;
-    }
-    set canDisableMetrics(value: boolean) {
-        this._canDisableMetrics = value;
-    }
+    @Input() options: any = {};
 
     @Output() queryOutput = new EventEmitter;
 
@@ -73,6 +67,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     @ViewChild('functionSelectionMenu', { read: MatMenu }) functionSelectionMenu: MatMenu;
     @ViewChildren(MatMenuTrigger) functionMenuTriggers: QueryList<MatMenuTrigger>;
+
+    // confirmDelete Dialog
+    confirmDeleteDialog: MatDialogRef<TemplateRef<any>> | null;
 
     editNamespace = false;
     editTag = false;
@@ -143,7 +140,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         private utils: UtilsService,
         private fb: FormBuilder,
         private matIconRegistry: MatIconRegistry,
-        private domSanitizer: DomSanitizer
+        private domSanitizer: DomSanitizer,
+        private dialog: MatDialog
     ) {
         // add function (f(x)) icon to registry... url has to be trusted
         matIconRegistry.addSvgIcon(
@@ -154,6 +152,12 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        const defaultOptions = {
+                                    'deleteQuery': true,
+                                    'toggleQuery': true,
+                                    'deleteMetric': true,
+                                    'toggleMetric': true };
+        this.options = Object.assign( defaultOptions, this.options );
         this.queryChanges$ = new BehaviorSubject(false);
         this.initFormControls();
         this.initMetricDataSource();
@@ -539,7 +543,17 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     deleteQuery() {
-        this.requestChanges('DeleteQuery');
+        this.confirmDeleteDialog.close({deleted: true});
+    }
+
+
+    confirmQueryDelete(label) {
+        this.confirmDeleteDialog = this.dialog.open(this.confirmDeleteDialogRef, {data: { label: label}});
+        this.confirmDeleteDialog.afterClosed().subscribe(event => {
+            if ( event.deleted ) {
+                this.requestChanges('DeleteQuery');
+            }
+        });
     }
 
     cloneMetric(id) {
