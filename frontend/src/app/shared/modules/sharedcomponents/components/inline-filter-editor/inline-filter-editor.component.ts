@@ -269,8 +269,12 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
 
   ngOnDestroy() {
       this.queryChangeSub.unsubscribe();
-      this.tagKeySub.unsubscribe();
-      this.tagValueSub.unsubscribe();
+      if ( this.tagKeySub ) {
+        this.tagKeySub.unsubscribe();
+      }
+      if ( this.tagValueSub ) {
+        this.tagValueSub.unsubscribe();
+      }
   }
 
   @HostListener('click', ['$event'])
