@@ -51,6 +51,8 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
   message:any = { 'tagControl' : { message: ''}, 'tagValueControl' : { message: '' }};
   queryChanges$: BehaviorSubject<boolean>;
   queryChangeSub: Subscription;
+  tagKeySub: Subscription;
+  tagValueSub: Subscription;
 
   visible = false;
   constructor(
@@ -116,11 +118,12 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
               }
               query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
           }
-              this.message['tagControl'] = {};
-              this.httpService.getNamespaceTagKeys(query)
-                                                      .pipe(
-                                                          // debounceTime(200),
-                                                      ).subscribe( res => {
+            this.message['tagControl'] = {};
+            if (  this.tagKeySub ) {
+                this.tagKeySub.unsubscribe();
+            }
+            this.tagKeySub = this.httpService.getNamespaceTagKeys(query)
+                                                      .subscribe( res => {
                                                           const selectedKeys = this.filters.map(item => item.tagk);
                                                           res = res.filter(item => selectedKeys.indexOf(item.name) === -1);
                                                           const options = selectedKeys.map(item => { return {name:item};}).concat(res);
@@ -129,11 +132,13 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
                                                           }
                                                           this.loadFirstTagValues = false;
                                                           this.tagOptions = options;
+                                                          this.cdRef.detectChanges();
                                                       },
                                                       err => {
                                                           this.tagOptions = [];
                                                           const message = err.error.error? err.error.error.message : err.message;
                                                           this.message['tagControl'] = { 'type': 'error', 'message' : message };
+                                                          this.cdRef.detectChanges();
                                                       });
           // this.tagSearchInput.nativeElement.focus();
       });
@@ -165,17 +170,20 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
           if ( this.selectedTag && this.tagValueTypeControl.value === 'literalor' ) {
               query.tagkey = this.selectedTag;
               this.message['tagValueControl'] = {};
-              this.httpService.getTagValuesByNamespace(query)
-                              .subscribe(res => {
-                                  this.filteredTagValues = res;
-                                  this.cdRef.detectChanges();
-                              },
-                              err => {
-                                  this.filteredTagValues = [];
-                                  const message = err.error.error? err.error.error.message : err.message;
-                                  this.message['tagValueControl'] = { 'type': 'error', 'message' : message };
-                                  this.cdRef.detectChanges();
-                              });
+            if (  this.tagValueSub ) {
+                this.tagValueSub.unsubscribe();
+            }
+            this.tagValueSub = this.httpService.getTagValuesByNamespace(query)
+                                                .subscribe(res => {
+                                                    this.filteredTagValues = res;
+                                                    this.cdRef.detectChanges();
+                                                },
+                                                err => {
+                                                    this.filteredTagValues = [];
+                                                    const message = err.error.error? err.error.error.message : err.message;
+                                                    this.message['tagValueControl'] = { 'type': 'error', 'message' : message };
+                                                    this.cdRef.detectChanges();
+                                                });
           }
       });
   }
@@ -261,6 +269,8 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
 
   ngOnDestroy() {
       this.queryChangeSub.unsubscribe();
+      this.tagKeySub.unsubscribe();
+      this.tagValueSub.unsubscribe();
   }
 
   @HostListener('click', ['$event'])
