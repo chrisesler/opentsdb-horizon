@@ -519,7 +519,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     getRecipientKeys(element: any) {
-        return Object.keys(element.recipients);
+        // extract keys
+        const objKeys = Object.keys(element.recipients);
+        // need to filter out junk entries
+        const validKeys = objKeys.filter( val => RecipientType[val] !== undefined );
+        // return values
+        return validKeys;
     }
 
     typeToDisplayName(type: string) {
