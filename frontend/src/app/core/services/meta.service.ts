@@ -54,10 +54,12 @@ export class MetaService {
       }
 
       if ( params[i].metrics && params[i].metrics.length ) {
-        query.filter.filters.push({
-          "type": "MetricLiteral",
-          "metric": params[i].metrics.join('|')
-        });
+        for ( let j = 0; j < params[i].metrics.length; j++ ) {
+          query.filter.filters.push({
+            'type': 'MetricLiteral',
+            'metric': params[i].metrics[j]
+          });
+        }
       }
 
       for (let k = 0;  params[i].tags && k < params[i].tags.length; k++) {
