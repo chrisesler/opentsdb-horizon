@@ -131,7 +131,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     }
 
     handleQueryRequest(message: any) {
-        console.log('handle query request message', message);
         switch ( message.action ) {
             case 'SetQueryEditMode':
                 this.queryEditMode = true;
@@ -149,6 +148,9 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                 break;
             case 'ToggleQueryMetricVisibility':
                 this.widgetChange.emit({ id: message.id, action: 'ToggleQueryMetricVisibility', payload: {  mid: message.payload.mid }});
+                break;
+            case 'CloneQuery':
+                this.widgetChange.emit({ id: message.id, action: 'CloneQuery' });
                 break;
             case 'DeleteQuery':
                 this.widgetChange.emit({ id: message.id, action: 'DeleteQuery' });

@@ -211,6 +211,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.refreshData(false);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
+            case 'CloneQuery':
+                this.cloneQuery(message.id);
+                this.widget = this.util.deepClone(this.widget);
+                this.refreshData();
+                this.needRequery = true;
+                break;
             case 'DeleteQuery':
                 this.deleteQuery(message.id);
                 this.widget = this.util.deepClone(this.widget);
@@ -599,6 +605,15 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries[qindex].settings.visual.visible =
             !this.widget.queries[qindex].settings.visual.visible;
+    }
+
+    cloneQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        if ( qindex !== -1 ) {
+            const query = this.util.deepClone(this.widget.queries[qindex]);
+            query.id = this.util.generateId(3, this.widget.queries.map(d => d.id));
+            this.widget.queries.splice(qindex + 1, 0, query);
+        }
     }
 
     deleteQuery(qid) {
