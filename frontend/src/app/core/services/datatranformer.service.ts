@@ -24,13 +24,13 @@ export class DatatranformerService {
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
     let vMetricsLen = 0;
     let vAutoColorMetricsLen = 0;
-    let dict = {};
-    let yMax=0, y2Max = 0;
-    for (let qid in result) {
-        const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
+    const dict = {};
+    let yMax = 0, y2Max = 0;
+    for (const qid in result) {
+        if (result.hasOwnProperty(qid)) {
+        const gConfig = widget ? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
         const mConfigs = gConfig ? gConfig.metrics : [];
         if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
-            
             const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
             const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && item.settings.visual.color === 'auto');
 
@@ -82,32 +82,18 @@ export class DatatranformerService {
             }
         }
     }
+}
     options.axes.y.tickFormat.max = yMax;
     options.axes.y2.tickFormat.max = y2Max;
-    
-    /*
-    for (let qid in dict) {
-        for(let mid in dict[qid]) {
-            dict[qid][mid].values.sort((a,b) => {
-                let a_hash = JSON.stringify(a.tags);
-                let b_hash = JSON.stringify(b.tags);
-                let a_index = dict[qid][mid]['hashes'][a_hash];
-                let b_index = dict[qid][mid]['hashes'][b_hash];
-                return dict[qid][mid]['summarizer'][a_index]['NumericSummaryType']['aggregations'][2] 
-                     > dict[qid][mid]['summarizer'][b_index]['NumericSummaryType']['aggregations'][2];
-            });
-        }
-    }
 
-    */
-    ///*
     let autoColors =  this.util.getColors( null , vAutoColorMetricsLen );
     autoColors = vAutoColorMetricsLen > 1 ? autoColors : [autoColors];
     let cIndex = 0;
-    for (let qid in result) {
+    for (const qid in result) {
+        if (result.hasOwnProperty(qid)) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
         const mConfigs = gConfig ? gConfig.metrics : [];
-        let summary = [];
+        const summary = [];
         if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
             // sometimes opentsdb returns empty results
             for ( let i = 0;  i < result[qid].results.length; i++ ) {
@@ -125,7 +111,8 @@ export class DatatranformerService {
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
                 const n = queryResults.data.length;
                 const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
-                const colors = n === 1 ? [color] :  this.util.getColors( vMetricsLen === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
+                const colors = n === 1 ? 
+                    [color] :  this.util.getColors( vMetricsLen === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
                 for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults.data[j].NumericType;
                     const tags = queryResults.data[j].tags;
@@ -139,12 +126,13 @@ export class DatatranformerService {
                         options.visibility.push(true);
                         if ( options.series ) {
                             options.series[label] = {
-                                strokeWidth: vConfig.lineWeight? parseFloat(vConfig.lineWeight): 1,
+                                strokeWidth: vConfig.lineWeight ? parseFloat(vConfig.lineWeight) : 1,
                                 strokePattern: this.getStrokePattern(vConfig.lineType),
                                 color: colors[j],
                                 axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
                                 metric: metric,
-                                tags: { metric: !mConfig.expression? queryResults.data[j].metric : this.getLableFromMetricTags(metric, tags), ...tags},
+                                tags: { metric: !mConfig.expression ?
+                                        queryResults.data[j].metric : this.getLableFromMetricTags(metric, tags), ...tags},
                                 aggregations: aggData
                             };
                             if ( vConfig.type === 'bar') {
@@ -154,23 +142,22 @@ export class DatatranformerService {
                         }
                         const seriesIndex = options.labels.indexOf(label);
                         const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+
+                        // tslint:disable-next-line: radix
                         const m = parseInt(timeSpecification.interval);
-                        for (let k = 0; k< numPoints ; k++ ) {
-                            if (!isArray(normalizedData[k])) {
+                        for (let k = 0; k < numPoints ; k++ ) {
+                            if (!Array.isArray(normalizedData[k])) {
                                 const time = timeSpecification.start + ( m * k * mSeconds[unit] );
                                 normalizedData[k] = [ new Date(time * 1000) ];
                             }
-                            normalizedData[k][seriesIndex]= !isNaN(data[k]) ? data[k] : null;
+                            normalizedData[k][seriesIndex] = !isNaN(data[k]) ? data[k] : null;
                         }
                     }
                 }
             }
-            
-            
         }
     }
-
-    //*/    
+    }
     return [...normalizedData];
   }
 

@@ -90,7 +90,7 @@ export class BignumberConfigMetricQueriesComponent  implements OnInit, OnDestroy
 
     openTimeSeriesMetricDialog() {
         const mgroupId = this.widget.query.groups.length ? this.widget.query.groups[0].id : 'new';
-        console.log('%cMGROUP', 'background: purple; color: white;', mgroupId);
+        // console.log('%cMGROUP', 'background: purple; color: white;', mgroupId);
         // do something
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.width = '100%';

@@ -8,7 +8,9 @@ import barChartPlotter from '../../../dygraphs/plotters';
 
 
 @Directive({
-  selector: '[dygraphsChart]'
+// tslint:disable-next-line: directive-selector
+  selector: '[dygraphsChart]',
+
 })
 export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
@@ -92,20 +94,19 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     if (!changes) {
       return;
     } else {
-      // console.log('changes', new Date().getMilliseconds(), changes);
       // if not then create it
-      if(!this._g && this.data) {
+      if (!this._g && this.data) {
         this.options.plugins = [ ThresholdsPlugin ];
         this.options.legendFormatter = legendFormatter;
         if ( this.options.labelsDiv) {
             this.options.highlightCallback = mouseover;
         }
-        //this.options.plotter = barChartPlotter;
-        this._g = new Dygraph(this.element.nativeElement, this.data, this.options);
+        // this.options.plotter = barChartPlotter;
+        this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
       }
       // if new data
       if (this._g && changes.data && changes.data.currentValue) {
-        let ndata = changes.data.currentValue;
+        const ndata = changes.data.currentValue;
         if ( this.options.axes ) {
             for ( const k of Object.keys(this.options.axes) ) {
                 const axis = this.options.axes[k];
@@ -118,9 +119,8 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                         }
             }
         }
-
         this._g.destroy();
-        this._g = new Dygraph(this.element.nativeElement, ndata, this.options);
+        this._g = new Dygraph(this.element.nativeElement, ndata.ts, this.options);
       }
 
       if ( this._g && changes.options && changes.options.currentValue ) {
@@ -140,13 +140,11 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         }
         // destroy only when y2 axis enabled
         this._g.destroy();
-        this._g = new Dygraph(this.element.nativeElement, this.data, this.options);
+        this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
       }
-        
         // resize when size be changed
-        if(this._g && changes.size && changes.size.currentValue) {
-            //console.log('call resize', changes.size.currentValue); 
-            let nsize = changes.size.currentValue;    
+        if (this._g && changes.size && changes.size.currentValue) {
+            const nsize = changes.size.currentValue;
             this._g.resize(nsize.width, nsize.height);
         }
     }
@@ -155,5 +153,4 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy() {
 
   }
-
 }

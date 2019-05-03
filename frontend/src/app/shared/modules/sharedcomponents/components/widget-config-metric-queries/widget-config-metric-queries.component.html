@@ -46,19 +46,8 @@
                 </mat-expansion-panel-header>
                 
                 <div class="query-metric-row" *ngFor="let query of widget.queries; let index=index">
-                    <!--<query-editor-flat [type]="widget.settings.component_type" [label]="'Q' + (index + 1)" [query]="query" (queryOutput)="handleQueryRequest($event)"></query-editor-flat>-->
-                    <query-editor-proto  [label]="'Q' + (index + 1)" [query]="query" (queryOutput)="handleQueryRequest($event);"></query-editor-proto>
+                    <query-editor-proto  [label]="'Q' + (index + 1)" [query]="query" [options]="{toggleQuery: widget.settings.component_type === 'LinechartWidgetComponent', deleteQuery: widget.settings.component_type === 'LinechartWidgetComponent' }" (queryOutput)="handleQueryRequest($event);"></query-editor-proto>
                 </div>
-                <!--
-                <ng-container *ngIf="!queryEditMode">
-                    <div class="query-metric-row" *ngFor="let query of widget.queries; let index=index">
-                        <query-editor [type]="widget.settings.component_type" [label]="'Q' + (index + 1)" [query]="query" (queryOutput)="handleQueryRequest($event)"></query-editor>
-                    </div>
-                </ng-container>
-                <div class="query-metric-row query-metric-row-editing" *ngIf="queryEditMode">
-                    <query-editor [type]="editQuery.type" [label]="getQueryLabel(editQuery.query)" [query]="editQuery.query" [edit]="editQuery.edit" (queryOutput)="handleQueryRequest($event)"></query-editor>
-                </div>
-                -->
                 <div class="query-metric-row" *ngIf="widget.queries.length && widget.queries[widget.queries.length-1].metrics.length && !queryEditMode && widget.settings.component_type === 'LinechartWidgetComponent'" style="margin-top:25p;">
                     <button  mat-button  mat-primary color="primary"  (click)="addNewQuery()">Add Query</button>
                 </div>
@@ -66,18 +55,3 @@
         </mat-accordion>
     </div>
 </div>
-<!--
-                                    <inline-query-editor [namespace]="query.namespace" [showTag]="query.id === newQueryId " [query]="query"  (queryOutput)="updateQuery($event, group.id)"></inline-query-editor>   
-
-                                    <span class="expression" *ngIf="query.expression">
-                                        <span class="expression-collapse">
-                                            <button mat-icon-button [disableRipple]="true" (click)="toggleExpressionCollapsed(query, group, $event)">
-                                                <mat-icon fontSet="denali" *ngIf="query.settings.expanded" fontIcon="d-arrowhead-down" class="arrow-down"></mat-icon>
-                                                <mat-icon fontSet="denali" *ngIf="!query.settings.expanded" fontIcon="d-arrowhead-right" class="arrow-right"></mat-icon>
-                                            </button>
-                                        </span>
-                                        <span class="expression-detail">
-                                            {{ query.settings.visual.label }} {{ query.expression }}
-                                        </span>
-                                    </span>
--->

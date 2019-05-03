@@ -51,7 +51,7 @@ export class ConfigTagsListComponent implements OnInit {
         const input = event.input;
         const value = event.value.trim();
 
-        console.log('CONFIG TAG ADD', input, value);
+        // console.log('CONFIG TAG ADD', input, value);
 
         // Add our tag
         if (value && value.indexOf(':')) {
@@ -67,7 +67,7 @@ export class ConfigTagsListComponent implements OnInit {
     }
 
     remove(tag: any): void {
-        console.log('CONFIG TAG REMOVE', tag);
+        // console.log('CONFIG TAG REMOVE', tag);
         const index = this.tags.indexOf(tag);
 
         if (index >= 0) {
@@ -76,7 +76,7 @@ export class ConfigTagsListComponent implements OnInit {
     }
 
     filter(name: string) {
-        console.log('CONFIG TAG FILTER', name);
+        // console.log('CONFIG TAG FILTER', name);
         if (name.indexOf(':') > -1) {
             name = name.split(':')[0];
         }
@@ -85,7 +85,7 @@ export class ConfigTagsListComponent implements OnInit {
     }
 
     selected(event: MatAutocompleteSelectedEvent): void {
-        console.log('CONFIG TAG SELECTED', event);
+        // console.log('CONFIG TAG SELECTED', event);
         this.tags.push(event.option.value);
         this.tagInput.nativeElement.value = '';
     }

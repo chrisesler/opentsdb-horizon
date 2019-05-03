@@ -14,7 +14,7 @@ export class YamasService {
     buildQuery( time, query, downsample: any = {} , summaryOnly= false, sorting) {
 
         this.query = query;
-        this.downsample = downsample;
+        this.downsample = {...downsample};
         this.time = time;
         this.transformedQuery = {
             start: time.start,
@@ -24,9 +24,9 @@ export class YamasService {
 
         const mids = [];
         let hasCommonFilter = false;
-        let filterId = query.filters.length ? 'filter' : '';
-        let outputIds = [];
-        let groupByIds = [];
+        const filterId = query.filters.length ? 'filter' : '';
+        const outputIds = [];
+        const groupByIds = [];
 
         this.downsample.aggregator = this.downsample.aggregators ? this.downsample.aggregators[0] : 'avg';
 
@@ -69,14 +69,15 @@ export class YamasService {
 
                 const groupbyId = prefix + '-groupby';
                 groupByIds.push(groupbyId);
-                this.transformedQuery.executionGraph.push(this.getQueryGroupBy(query.metrics[j].tagAggregator, query.metrics[j].groupByTags, [dsId], groupbyId));
+                this.transformedQuery.executionGraph
+                    .push(this.getQueryGroupBy(query.metrics[j].tagAggregator, query.metrics[j].groupByTags, [dsId], groupbyId));
                 outputIds.push(groupbyId);
             }
         }
 
         // add common filters
         if ( query.filters.length && hasCommonFilter) {
-            let _filter: any = this.getFilterQuery();
+            const _filter: any = this.getFilterQuery();
             _filter.id = filterId;
             this.transformedQuery.filters = [_filter];
         }
@@ -115,7 +116,7 @@ export class YamasService {
 
     getTopN(order: string, count: number, sources: string[]) {
 
-        let _order: boolean = true;  // true is topN
+        let _order = true;  // true is topN
         if (order.toLowerCase() === 'bottom') {
             _order = false;
         }
@@ -155,7 +156,6 @@ export class YamasService {
 
     addTagGroupByFilters( filter, groupByTags ) {
         const gFilters = [];
-        
     }
 
     getSourceIndexById(id) {
@@ -168,18 +168,18 @@ export class YamasService {
     getFunctionQueries(index, ds) {
         const queries = [];
         const funs = this.query.metrics[index].functions || [];
-        for ( let i =0; i < funs.length; i++ ) {
-            const id = "m" + index + '-rate-' + i;
+        for ( let i = 0; i < funs.length; i++ ) {
+            const id = 'm' + index + '-rate-' + i;
             const fxCall = funs[i].fxCall;
             switch ( fxCall ) {
                 case 'RateOfChange':
                 case 'CounterToRate':
                     const q = {
-                            "id": id ,
-                            "type": "rate",
-                            "interval": funs[i].val,
-                            "counter": fxCall === 'RateOfChange' ? false : true,
-                            "sources": [ds]
+                            'id': id ,
+                            'type': 'rate',
+                            'interval': funs[i].val,
+                            'counter': fxCall === 'RateOfChange' ? false : true,
+                            'sources': [ds]
                         };
                     queries.push(q);
                     ds = id;
@@ -191,31 +191,30 @@ export class YamasService {
     getExpressionQuery(index) {
         const config = this.query.metrics[index];
         const aggregator = this.downsample.aggregator;
-        const eid = "m" + index;
+        const eid = 'm' + index;
 
         const sources = [];
         const  expression = config.expression;
         let transformedExp = expression;
 
         // replace {{<id>}} with query source id
-        const re = new RegExp(/\{\{(.+?)\}\}/, "g");
+        const re = new RegExp(/\{\{(.+?)\}\}/, 'g');
         let matches = [];
-        while(matches = re.exec(expression)) {
+        while (matches = re.exec(expression)) {
             const id = matches[1];
             const idreg = new RegExp( '\\{\\{' + id + '\\}\\}' , 'g');
             const mindex = this.getSourceIndexById(id);
             const sourceId = 'm' + mindex;
             let gsourceId = sourceId;
             if (mindex > -1) {
-                gsourceId = this.query.metrics[mindex].expression === undefined ? sourceId + '-' + aggregator + '-groupby' : sourceId ; 
-            } 
+                gsourceId = this.query.metrics[mindex].expression === undefined ? sourceId + '-' + aggregator + '-groupby' : sourceId ;
+            }
             transformedExp = transformedExp.replace( idreg, sourceId );
             sources.push(gsourceId);
         }
-        
         const joinTags = {};
         const groupByTags = config.groupByTags || [];
-        for ( let i=0; i < groupByTags.length; i++ ) {
+        for ( let i = 0; i < groupByTags.length; i++ ) {
             const tag = groupByTags[i];
             joinTags[tag] = tag;
         }
@@ -225,7 +224,7 @@ export class YamasService {
             expression: transformedExp,
             join: {
                 type: 'Join',
-                joinType: groupByTags.length ? 'INNER' : 'NATURAL_OUTER', 
+                joinType: groupByTags.length ? 'INNER' : 'NATURAL_OUTER',
                 joins: joinTags
             },
             interpolatorConfigs: [{
@@ -251,9 +250,14 @@ export class YamasService {
     }
 
     getFilter(key, v) {
-        const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex', 'librange': 'TagValueLibrange'};
+        const filterTypes = {
+            'literalor': 'TagValueLiteralOr',
+            'wildcard': 'TagValueWildCard',
+            'regexp': 'TagValueRegex',
+            'librange': 'TagValueLibrange'
+        };
         const regexp = v.match(/regexp\((.*)\)/);
-        var filtertype = 'literalor';
+        let filtertype = 'literalor';
         if (regexp) {
             filtertype = 'regexp';
             v = regexp[1];
@@ -320,7 +324,7 @@ export class YamasService {
     }
 
     getQueryGroupBy(tagAggregator, tagKeys, sources, id= null) {
-        let aggregator =  tagAggregator || 'sum';
+        const aggregator =  tagAggregator || 'sum';
 
         const metricGroupBy =  {
             id: id ? id : 'groupby',
@@ -348,7 +352,7 @@ export class YamasService {
             id: id ? id : 'downsample',
             type: 'downsample',
             aggregator: aggregator || 'avg',
-            interval: dsValue, //summary ? '0all' : dsValue,
+            interval: dsValue, // summary ? '0all' : dsValue,
             runAll: false, // summary ? true : false,
             fill: true,
             interpolatorConfigs: [

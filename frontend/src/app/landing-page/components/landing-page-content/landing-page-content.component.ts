@@ -103,7 +103,7 @@ export class LandingPageContentComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.createSearchForm();
         this.routeQueryParamsSub = this.route.queryParams.subscribe(params => {
-            console.log("comes in router params....", params)
+            // console.log("comes in router params....", params)
             if (params['db-delete']) {
                 this.snackBar.open('Dashboard has been deleted.', '', {
                     horizontalPosition: 'center',

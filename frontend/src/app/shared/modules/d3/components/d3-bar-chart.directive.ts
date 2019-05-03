@@ -35,12 +35,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       let yAxisWidth = 0, labelHeight = 0;
       chartHeight = chartHeight > this.size.height || !this.size.height ? chartHeight  : this.size.height - 7; // -7 avoids the scrollbar
       const chartAreaHeight = chartHeight - margin.top - margin.bottom;
-      
-      /*
-      dataset = dataset.sort(function (a, b) {
-        return d3.descending(a.value, b.value);
-      });
-      */
+
       const min = dataset.length ? d3.min(dataset, (d:any) => Number(d.value)) : 0;
       const max = dataset.length ? d3.max(dataset, (d:any) => Number(d.value)) : 0;
       // const refValue = min >=0  ? Math.pow(10, Math.floor(Math.log10(max))) : 1;
@@ -63,21 +58,20 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         tooltip.style("display", "none");
       };
 
-      
       this.host = d3.select(this.element.nativeElement);
       this.host.html('');
       const tooltip = d3.select(this.element.nativeElement.parentNode.parentNode).select('.tooltip');
-  
+
 
       const y = d3.scaleBand()
                   .rangeRound([0, chartAreaHeight])
                   .paddingInner(0.1)
-                  .domain(dataset.map(d => d.value));
-  
+                  .domain(dataset.map((d, i) => i));
+
       const barHeight = y.bandwidth();
       const yAxis = d3.axisLeft(y)
                     .tickSize(0)
-                    .tickFormat( (d:any) => self.unitService.convert(d, unitOptions.unit, dunit, unitOptions ));
+                    .tickFormat( (d, i) => self.unitService.convert(dataset[i].value, unitOptions.unit, dunit, unitOptions ));
 
       const svg = this.host
                       .append("svg")
@@ -99,7 +93,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         const g = svg  
                     .append("g")
                     .attr("transform", "translate(" + (margin.left + yAxisWidth + 3) + "," + margin.top + ")");
-        
+
         // reduce the font-size when bar height is less than the fontsize
         g.append("g")
                     .attr("class", "yaxis")
@@ -107,7 +101,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
                     .selectAll("text")
                     .attr("class", "axisLabel")
                     .attr("font-size", fontSize);
-        
+
         const bars = g.selectAll(".bar")
                       .data(dataset)
                       .enter()
@@ -115,7 +109,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
 
         bars.append("rect")
             .attr("class", "bar")
-            .attr("y", d => y(d.value))
+            .attr("y", (d,i) => y(i))
             .attr("height", barHeight)
             .attr("x", 0)
             .attr("width", d => x(d.value))
@@ -127,11 +121,11 @@ export class D3BarChartDirective implements OnInit, OnChanges {
 
         bars.append("text")
             .attr("class", "label")
-            .attr("y",  d => y(d.value) + y.bandwidth()/2 )
+            .attr("y",  (d,i) => y(i) + y.bandwidth()/2 )
             .attr("x", 0)
             .attr("font-size", fontSize)
             .attr("dy",".32em")
-	          .attr("dx","0.25em")
+            .attr("dx","0.25em")
             .text( ( d, i ) => d.label )
             .style('fill', (d:any) =>  { 
               const color = d3.rgb(d.color=== 'auto' ? '#000000' : d.color);
@@ -140,7 +134,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseout", mouseout);
-      }, 0);
+      }, 100);
     }
   }
   

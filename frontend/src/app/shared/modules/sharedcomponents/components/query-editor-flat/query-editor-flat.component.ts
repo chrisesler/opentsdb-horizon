@@ -138,7 +138,7 @@ export class QueryEditorFlatComponent implements OnInit, OnChanges, OnDestroy {
       this.query.metrics[index].namespace = namespace;
       this.editNamespace = false;
       this.selMetricIndex = -1;
-      //this.triggerQueryChanges();
+      // this.triggerQueryChanges();
 
   }
 

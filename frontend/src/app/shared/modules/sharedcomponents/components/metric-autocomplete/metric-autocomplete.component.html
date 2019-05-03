@@ -9,6 +9,7 @@
             placeholder="Filter metrics"
             [formControl]="metricSearchControl"
             (focus)="doMetricSearch()"
+            (keydown.enter)="metricMultipleACKeydown($event)"
             #metricSearchInput>
     </mat-form-field>
     <span [matMenuTriggerFor]="metricAutocompletePanel"
