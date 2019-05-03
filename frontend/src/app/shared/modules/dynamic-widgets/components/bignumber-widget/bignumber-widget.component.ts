@@ -132,6 +132,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         }, 0);
     }
   ngAfterViewInit() {
+    this.setSize();
     this.setBigNumber(this.widget.settings.visual.queryID);
         // this event will happend on resize the #widgetoutput element,
         // in bar chart we don't need to pass the dimension to it.
@@ -159,6 +160,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             this.newSize$.next(newSize);
         });
     }
+
     // for first time and call.
     setSize() {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
@@ -298,7 +300,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
     determineFontSizePercent(width: number, height: number) {
 
-        if (this.editMode || !width || !height) {
+        if (this.editMode) {
             this.fontSizePercent = 100;
             return;
         }
@@ -315,6 +317,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         let fontSizePercent: number = Math.min(percentHeight, percentWidth);
 
         this.fontSizePercent = fontSizePercent + 0.1 * Math.random(); // random so we always redraw
+        this.cdRef.detectChanges();
     }
 
     getWidthOfText(text: string, size?: string, weight?: number): number {
