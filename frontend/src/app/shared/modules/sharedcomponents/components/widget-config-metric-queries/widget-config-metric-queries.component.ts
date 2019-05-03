@@ -32,7 +32,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
     /** Inputs */
     @Input() widget: any;
- 
+    @Input() options: any;
     /** Outputs */
     @Output() widgetChange = new EventEmitter;
 
@@ -81,6 +81,13 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         if ( !this.widget.queries.length ) {
             // this.addNewQuery();
             // this.queryEditMode = true;
+        }
+
+        if (!this.options) {
+            this.options = {};
+            if (!this.options.disableGroupBy) {
+                this.options.disableGroupBy = false;
+            }
         }
     }
 

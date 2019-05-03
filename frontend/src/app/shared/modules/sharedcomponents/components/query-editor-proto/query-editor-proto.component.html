@@ -140,7 +140,8 @@
                                 [metric]="data.metric.name"
                                 [selected]="data.metric.groupByTags"
                                 [tags] = " data.type === 'expression' ? getGroupByTags(data.metric.id) : null"
-                                (change)="setMetricGroupByTags(data.metric.id, $event)"></dropdown-metric-tags>
+                                (change)="setMetricGroupByTags(data.metric.id, $event)"
+                                [disableGroupBy]="options.disableGroupBy"></dropdown-metric-tags>
                         </div>
                     </div>
                     <!-- custom function loop -->

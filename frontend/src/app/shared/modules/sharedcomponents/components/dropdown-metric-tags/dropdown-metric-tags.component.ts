@@ -30,6 +30,7 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     @Input() selected: any[] = ['all'];
     @Input() tags: any = null;
     @Input() all: boolean = true;
+    @Input() disableGroupBy: boolean;
     @Output() change: EventEmitter<any> = new EventEmitter();
 
     tagOptions: any[] = [];
