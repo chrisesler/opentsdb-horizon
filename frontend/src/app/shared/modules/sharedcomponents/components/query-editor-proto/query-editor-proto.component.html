@@ -135,6 +135,7 @@
                                 [value]="data.metric.tagAggregator"
                             (change)="setMetricTagAggregator(data.metric.id, $event)"></tag-aggregator>
                             <span class="by-spacer">{{ data.type === 'expression' ? 'JOIN ON' : 'By' }}</span>
+                    
                             <dropdown-metric-tags
                                 [namespace]="query.namespace"
                                 [metric]="data.metric.name"
@@ -142,6 +143,24 @@
                                 [tags] = " data.type === 'expression' ? getGroupByTags(data.metric.id) : null"
                                 (change)="setMetricGroupByTags(data.metric.id, $event)"
                                 [disableGroupBy]="options.disableGroupBy"></dropdown-metric-tags>
+                        </div>
+                    </div>
+
+                    <!-- take selector -->
+                    <div class="metric-row-data take-selector">
+                        <div class="take-selector-wrapper">
+                            <span>Take </span>
+                            <button mat-button [matMenuTriggerFor]="takeMenu">
+                                <span>{{ takeOption | titlecase }}</span>
+                                <span class="mat-select-arrow-wrapper">
+                                    <span class="mat-select-arrow"></span>
+                                </span>
+                            </button>
+                            <mat-menu class="tag-aggregator-cdk-menu" #takeMenu="matMenu" yPosition="below">
+                                <button mat-menu-item *ngFor="let option of takeOptions"
+                                    (click)="selectTakeOption(option.value)">{{option.value | titlecase}}
+                                </button>
+                            </mat-menu>
                         </div>
                     </div>
                     <!-- custom function loop -->

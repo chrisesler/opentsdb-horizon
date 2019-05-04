@@ -60,6 +60,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     @Input() query: any;
     @Input() label = '';
     @Input() options: any = {};
+    // todo add enableTake to options, including html
 
     @Output() queryOutput = new EventEmitter;
 
@@ -80,6 +81,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     fg: FormGroup;
     expressionControl: FormControl;
     expressionControls: FormGroup;
+    // todo - move
+    takeOption = 'avg';
 
     timeAggregatorOptions: Array<any> = [
         {
@@ -98,6 +101,38 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             label: 'Avg',
             value: 'avg'
         }
+    ];
+
+    // todo - get rid of label
+    takeOptions: Array<any> = [
+        {
+            label: 'Avg',
+            value: 'avg'
+        },
+        {
+            label: 'Last',
+            value: 'last'
+        },
+        {
+            label: 'First',
+            value: 'first'
+        },
+        {
+            label: 'Sum',
+            value: 'sum'
+        },
+        {
+            label: 'Min',
+            value: 'min'
+        },
+        {
+            label: 'Max',
+            value: 'max'
+        },
+        {
+            label: 'Count',
+            value: 'count'
+        },
     ];
 
     queryChanges$: BehaviorSubject<boolean>;
@@ -507,6 +542,10 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             trigger.closeMenu();
         }
         this.queryChanges$.next(true);
+    }
+
+    selectTakeOption(takeOption: string) {
+        this.takeOption = takeOption;
     }
 
     showMetricAC() {

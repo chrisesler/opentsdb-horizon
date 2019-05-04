@@ -329,6 +329,31 @@
                         }
                     }
 
+                    &.take-selector {
+                        .take-selector-wrapper {
+                            // line-height: 32px;
+                            // align-items: stretch;
+                            width: 100%;
+                            display: flex;
+                            align-items: center;
+                            height: 32px;
+                            padding-left: 5px;
+                    
+                            .mat-button {
+                                line-height: 32px;
+                    
+                                .mat-button-wrapper {
+                                    display: flex;
+                    
+                                    .mat-select-arrow-wrapper {
+                                        display: flex;
+                                        align-items: center;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     &.custom-function {
                         .custom-function-wrapper {
                             width: 100%;
@@ -660,6 +685,21 @@
 
             &.tag-aggregator {
                 .tag-aggregator-wrapper {
+                    border: 1px solid $lighter-divider;
+
+                    &:hover {
+                        background-color: rgba($link, 0.1);
+                    }
+                }
+            }
+
+            &.take-selector {
+
+                .mat-button {
+                    color: map-get($foreground, link);
+                }
+
+                .take-selector-wrapper {
                     border: 1px solid $lighter-divider;
 
                     &:hover {
