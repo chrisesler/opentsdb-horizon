@@ -88,6 +88,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
     ngOnInit() {
 
+        this.disableAnyGroupBys();
+        console.log('**', this.widget);
+
         this.setDefaultVisualization();
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
@@ -563,6 +566,17 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         this.widget.settings.visual.textColor = this.widget.settings.visual.textColor || '#FFFFFF';
         this.widget.settings.visual.sparkLineEnabled = this.widget.settings.visual.sparkLineEnabled || false;
         this.widget.settings.visual.changedIndicatorEnabled = this.widget.settings.visual.changedIndicatorEnabled || false;
+    }
+
+    disableAnyGroupBys() {
+        // this is in-case anyone previously set group-by for big number
+        if (this.widget && this.widget.queries[0] && this.widget.queries[0].metrics) {
+            for (let metric of this.widget.queries[0].metrics) {
+                if (metric.groupByTags.length) {
+                    metric.groupByTags = [];
+                }
+            }
+        }
     }
 
     toggleQueryMetricVisibility(qid, mid) {
