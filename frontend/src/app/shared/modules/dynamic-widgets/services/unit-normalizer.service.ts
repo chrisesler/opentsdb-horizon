@@ -19,7 +19,7 @@ export class UnitNormalizerService {
   public getBigNumber(val: number, unit: string, precision?: number): IBigNum {
     let bigNum: IBigNum;
 
-    if (!val || typeof val !== 'number' || parseInt(val.toString(), 10) === NaN) {
+    if (val === null || typeof val !== 'number' || parseInt(val.toString(), 10) === NaN) {
       return  {num: '', unit: '', unitPos: Position.right, changeIndicatorHasUnit: false};
     }
 
