@@ -331,13 +331,15 @@
 
                     &.summarizer-selector {
                         .summarizer-selector-wrapper {
-                            // line-height: 32px;
-                            // align-items: stretch;
                             width: 100%;
                             display: flex;
                             align-items: center;
                             height: 32px;
-                            padding-left: 5px;
+                            
+                            .summarizer-title{
+                                padding-left: 5px;
+                                padding-right: 5px;
+                            }
                     
                             .mat-button {
                                 line-height: 32px;

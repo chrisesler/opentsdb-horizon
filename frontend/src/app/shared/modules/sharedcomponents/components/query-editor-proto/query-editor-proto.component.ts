@@ -228,12 +228,10 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     // helper function to format the table datasource into a structure
     // that allows the table to work more or less like it did before
     initMetricDataSource() {
-        console.log('inside init metric data source');
 
         // extract metrics only, then format with pre-constructed label, a type, and reference to the metric data
         const metrics = [];
         this.getMetricsByType('metrics').forEach((metric, i) => {
-            console.log(metric, i);
             metrics.push({ indexLabel: 'm' + (i + 1), type: 'metric', metric });
         });
 

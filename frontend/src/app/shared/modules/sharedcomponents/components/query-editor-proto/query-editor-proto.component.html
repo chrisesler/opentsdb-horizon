@@ -149,7 +149,7 @@
                     <!-- summarizer selector -->
                     <div class="metric-row-data summarizer-selector" *ngIf="options.enableSummarizer && data.type === 'metric'">
                         <div class="summarizer-selector-wrapper">
-                            <span>Take the </span>
+                            <span class="summarizer-title">Take the </span>
                             <button mat-button [matMenuTriggerFor]="summarizerMenu">
                                 <span>{{ data.metric.summarizerValue | titlecase }}</span>
                                 <span class="mat-select-arrow-wrapper">

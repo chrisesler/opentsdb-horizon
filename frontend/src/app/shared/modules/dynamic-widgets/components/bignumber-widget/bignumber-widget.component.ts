@@ -205,14 +205,14 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             const key = Object.keys(metric.NumericSummaryType.data[0])[0];
             const responseAggregatorValues = metric.NumericSummaryType.data[0][key];
             // tslint:disable-next-line:max-line-length
-            this.aggregatorValues = [responseAggregatorValues[responseAggregators.indexOf(this.widget.queries[0].metrics[queryIndex].summarizerValue)]];
-
-            // lastValue = responseAggregatorValues[responseAggregators.indexOf('first')];
-            // currentValue = responseAggregatorValues[responseAggregators.indexOf('last')];
+            this.aggregatorValues = [responseAggregatorValues[responseAggregators.indexOf(this.widget.queries[0].metrics[queryIndex].summarizerValue)]] || ['avg'];
 
             // SET LOCAL VARIABLES
+            // lastValue = responseAggregatorValues[responseAggregators.indexOf('first')];
+            // currentValue = responseAggregatorValues[responseAggregators.indexOf('last')];
             // this.changeValue = currentValue - lastValue;
             // this.changePct = (this.changeValue / lastValue) * 100;
+
             this.selectedMetric = metric;
 
             // get array of 'tags'
