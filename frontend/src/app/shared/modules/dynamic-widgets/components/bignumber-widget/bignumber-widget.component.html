@@ -110,7 +110,7 @@
         <mat-tab label="Queries" class="test">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent>
-                <widget-config-metric-queries [options]="{disableGroupBy: true, enableTake: true}" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
+                <widget-config-metric-queries [options]="{enableGroupBy: false, enableSummarizer: true, toggleQuery: false, deleteQuery: false}" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
             </ng-template>
         </mat-tab>
         <mat-tab label="Time Configuration" [disabled]="editQueryId">

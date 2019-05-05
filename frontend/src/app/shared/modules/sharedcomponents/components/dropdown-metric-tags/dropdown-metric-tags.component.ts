@@ -30,7 +30,7 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     @Input() selected: any[] = ['all'];
     @Input() tags: any = null;
     @Input() all: boolean = true;
-    @Input() disableGroupBy: boolean;
+    @Input() enableGroupBy: boolean;
     @Output() change: EventEmitter<any> = new EventEmitter();
 
     tagOptions: any[] = [];
@@ -40,6 +40,9 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     ngOnInit() {
         // tslint:disable-next-line:arrow-return-shorthand
         this.tagOptions = this.selected ? this.selected.map(d => { return { name: d }; }) : [];
+        if (this.enableGroupBy === null || this.enableGroupBy === undefined) {
+            this.enableGroupBy = true;
+        }
     }
 
     ngOnChanges(change: SimpleChanges) {

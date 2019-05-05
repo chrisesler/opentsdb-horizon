@@ -329,8 +329,8 @@
                         }
                     }
 
-                    &.take-selector {
-                        .take-selector-wrapper {
+                    &.summarizer-selector {
+                        .summarizer-selector-wrapper {
                             // line-height: 32px;
                             // align-items: stretch;
                             width: 100%;
@@ -693,13 +693,13 @@
                 }
             }
 
-            &.take-selector {
+            &.summarizer-selector {
 
                 .mat-button {
                     color: map-get($foreground, link);
                 }
 
-                .take-selector-wrapper {
+                .summarizer-selector-wrapper {
                     border: 1px solid $lighter-divider;
 
                     &:hover {

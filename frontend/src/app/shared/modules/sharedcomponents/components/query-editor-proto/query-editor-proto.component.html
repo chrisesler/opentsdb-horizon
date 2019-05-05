@@ -142,23 +142,23 @@
                                 [selected]="data.metric.groupByTags"
                                 [tags] = " data.type === 'expression' ? getGroupByTags(data.metric.id) : null"
                                 (change)="setMetricGroupByTags(data.metric.id, $event)"
-                                [disableGroupBy]="options.disableGroupBy"></dropdown-metric-tags>
+                                [enableGroupBy]="options.enableGroupBy"></dropdown-metric-tags>
                         </div>
                     </div>
 
-                    <!-- take selector -->
-                    <div class="metric-row-data take-selector" *ngIf="options.enableTake">
-                        <div class="take-selector-wrapper">
+                    <!-- summarizer selector -->
+                    <div class="metric-row-data summarizer-selector" *ngIf="options.enableSummarizer">
+                        <div class="summarizer-selector-wrapper">
                             <span>Take the </span>
-                            <button mat-button [matMenuTriggerFor]="takeMenu">
+                            <button mat-button [matMenuTriggerFor]="summarizerMenu">
                                 <span>{{ data.metric.summarizerValue | titlecase }}</span>
                                 <span class="mat-select-arrow-wrapper">
                                     <span class="mat-select-arrow"></span>
                                 </span>
                             </button>
-                            <mat-menu class="tag-aggregator-cdk-menu" #takeMenu="matMenu" yPosition="below">
-                                <button mat-menu-item *ngFor="let option of takeOptions"
-                                    (click)="selectTakeOption(data.metric.id, option.value)">{{option.value | titlecase}}
+                            <mat-menu class="tag-aggregator-cdk-menu" #summarizerMenu="matMenu" yPosition="below">
+                                <button mat-menu-item *ngFor="let option of summarizerOptions"
+                                    (click)="setSummarizerValue(data.metric.id, option)">{{option | titlecase}}
                                 </button>
                             </mat-menu>
                         </div>

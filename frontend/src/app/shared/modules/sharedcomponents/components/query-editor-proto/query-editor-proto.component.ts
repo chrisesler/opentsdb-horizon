@@ -30,6 +30,14 @@ import {
     trigger
 } from '@angular/animations';
 
+interface IQueryEditorOptions {
+    deleteQuery?: boolean;
+    toggleQuery?: boolean;
+    deleteMetric?: boolean;
+    toggleMetric?: boolean;
+    enableGroupBy?: boolean;
+    enableSummarizer?: boolean;
+}
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -45,6 +53,7 @@ import {
         ])
     ]
 })
+
 export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     // tslint:disable-next-line:no-inferrable-types
@@ -59,7 +68,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     @Input() type;
     @Input() query: any;
     @Input() label = '';
-    @Input() options: any = {}; // {disableGroupBy, enableTake}
+    @Input() options: IQueryEditorOptions;
 
     @Output() queryOutput = new EventEmitter;
 
@@ -100,38 +109,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
     ];
 
-    // todo - get rid of label
-    takeOptions: Array<any> = [
-        {
-            label: 'Avg',
-            value: 'avg'
-        },
-        {
-            label: 'Last',
-            value: 'last'
-        },
-        {
-            label: 'First',
-            value: 'first'
-        },
-        {
-            label: 'Sum',
-            value: 'sum'
-        },
-        {
-            label: 'Min',
-            value: 'min'
-        },
-        {
-            label: 'Max',
-            value: 'max'
-        },
-        {
-            label: 'Count',
-            value: 'count'
-        },
-    ];
-
+    summarizerOptions: Array<string> = ['avg', 'last', 'first', 'sum', 'min', 'max', 'count'];
     queryChanges$: BehaviorSubject<boolean>;
     queryChangeSub: Subscription;
 
@@ -184,6 +162,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+<<<<<<< d65c88fa7ec448b95ac1bb3d9b49ef4f73d37409
         const defaultOptions = {
                                     'deleteQuery': true,
                                     'cloneQuery': true,
@@ -192,9 +171,13 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                                     'toggleMetric': true };
         this.options = Object.assign( defaultOptions, this.options );
         this.queryChanges$ = new BehaviorSubject(false);
+=======
+        this.initOptions();
+>>>>>>> refactor
         this.initFormControls();
         this.initMetricDataSource();
         this.initSummarizerValue();
+        this.queryChanges$ = new BehaviorSubject(false);
 
         this.queryChangeSub = this.queryChanges$
             .pipe(
@@ -211,6 +194,35 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.queryChangeSub.unsubscribe();
+    }
+
+    initOptions() {
+        if (!this.options) {
+            this.options = {};
+        }
+
+        if (this.isEmpty(this.options.deleteQuery)) {
+            this.options.deleteQuery = true;
+        }
+        if (this.isEmpty(this.options.toggleQuery)) {
+            this.options.toggleQuery = true;
+        }
+        if (this.isEmpty(this.options.deleteMetric)) {
+            this.options.deleteMetric = true;
+        }
+        if (this.isEmpty(this.options.toggleMetric)) {
+            this.options.toggleMetric = true;
+        }
+        if (this.isEmpty(this.options.enableGroupBy)) {
+            this.options.enableGroupBy = true;
+        }
+        if (this.isEmpty(this.options.enableSummarizer)) {
+            this.options.enableSummarizer = false;
+        }
+    }
+
+    isEmpty(value) {
+        return (value === null || value === undefined);
     }
 
     // helper function to format the table datasource into a structure
@@ -249,7 +261,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     initSummarizerValue() {
-        if (this.options.enableTake) {
+        if (this.options.enableSummarizer) {
             for (let metric of this.query.metrics) {
                 if (!metric.summarizerValue) {
                     metric.summarizerValue = 'avg';
@@ -554,10 +566,10 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.queryChanges$.next(true);
     }
 
-    selectTakeOption(id, takeOption: string) {
+    setSummarizerValue(id, summarizerValue: string) {
         const index = this.query.metrics.findIndex(item => item.id === id);
         if (index !== -1) {
-            this.query.metrics[index].summarizerValue = takeOption;
+            this.query.metrics[index].summarizerValue = summarizerValue;
             // todo - do not trigger full requery
             this.queryChanges$.next(true);
         }

@@ -20,6 +20,13 @@ import { InlineQueryEditorComponent } from '../inline-query-editor/inline-query-
 import { Subscription } from 'rxjs';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
+interface IMetricQueriesConfigOptions {
+    enableGroupBy?: boolean;
+    enableSummarizer?: boolean;
+    deleteQuery?: boolean;
+    toggleQuery?: boolean;
+}
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'widget-config-metric-queries',
@@ -32,7 +39,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
     /** Inputs */
     @Input() widget: any;
-    @Input() options: any;
+    @Input() options: IMetricQueriesConfigOptions;
     /** Outputs */
     @Output() widgetChange = new EventEmitter;
 
@@ -83,12 +90,30 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             // this.queryEditMode = true;
         }
 
+       this.initOptions();
+    }
+
+    initOptions() {
         if (!this.options) {
             this.options = {};
-            if (!this.options.disableGroupBy) {
-                this.options.disableGroupBy = false;
-            }
         }
+
+        if (this.isEmpty(this.options.deleteQuery)) {
+            this.options.deleteQuery = true;
+        }
+        if (this.isEmpty(this.options.toggleQuery)) {
+            this.options.toggleQuery = true;
+        }
+        if (this.isEmpty(this.options.enableGroupBy)) {
+            this.options.enableGroupBy = true;
+        }
+        if (this.isEmpty(this.options.enableSummarizer)) {
+            this.options.enableSummarizer = false;
+        }
+    }
+
+    isEmpty(value) {
+        return (value === null || value === undefined);
     }
 
     addNewQuery() {
