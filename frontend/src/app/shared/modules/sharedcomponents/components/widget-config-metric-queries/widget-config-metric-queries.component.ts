@@ -21,6 +21,7 @@ import { Subscription } from 'rxjs';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
 interface IMetricQueriesConfigOptions {
+    enableMultipleQueries?: boolean;
     enableGroupBy?: boolean;
     enableSummarizer?: boolean;
     deleteQuery?: boolean;
@@ -97,7 +98,9 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         if (!this.options) {
             this.options = {};
         }
-
+        if (this.isEmpty(this.options.enableMultipleQueries)) {
+            this.options.enableMultipleQueries = false;
+        }
         if (this.isEmpty(this.options.deleteQuery)) {
             this.options.deleteQuery = true;
         }

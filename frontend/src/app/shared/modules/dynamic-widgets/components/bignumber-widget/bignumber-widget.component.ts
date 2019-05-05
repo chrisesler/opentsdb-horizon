@@ -88,9 +88,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
     ngOnInit() {
 
-        this.disableAnyGroupBys();
-        console.log('**', this.widget);
-
+        this.disableAnyRemainingGroupBys();
         this.setDefaultVisualization();
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
@@ -557,7 +555,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         this.widget.settings.visual.changedIndicatorEnabled = this.widget.settings.visual.changedIndicatorEnabled || false;
     }
 
-    disableAnyGroupBys() {
+    disableAnyRemainingGroupBys() {
         // this is in-case anyone previously set group-by for big number
         if (this.widget && this.widget.queries[0] && this.widget.queries[0].metrics) {
             for (let metric of this.widget.queries[0].metrics) {

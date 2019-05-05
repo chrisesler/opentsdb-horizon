@@ -304,8 +304,11 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                     },
                     tagAggregator: 'sum',
                     functions: [],
-                    summarizerValue: 'avg'
+                    summarizerValue: ''
                 };
+                if (this.options.enableSummarizer) {
+                    oMetric.summarizerValue = 'avg';
+                }
                 this.query.metrics.splice(insertIndex, 0, oMetric);
             }
             // update data source
