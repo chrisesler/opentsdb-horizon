@@ -147,18 +147,18 @@
                     </div>
 
                     <!-- take selector -->
-                    <div class="metric-row-data take-selector">
+                    <div class="metric-row-data take-selector" *ngIf="options.enableTake">
                         <div class="take-selector-wrapper">
-                            <span>Take </span>
+                            <span>Take the </span>
                             <button mat-button [matMenuTriggerFor]="takeMenu">
-                                <span>{{ takeOption | titlecase }}</span>
+                                <span>{{ data.metric.summarizerValue | titlecase }}</span>
                                 <span class="mat-select-arrow-wrapper">
                                     <span class="mat-select-arrow"></span>
                                 </span>
                             </button>
                             <mat-menu class="tag-aggregator-cdk-menu" #takeMenu="matMenu" yPosition="below">
                                 <button mat-menu-item *ngFor="let option of takeOptions"
-                                    (click)="selectTakeOption(option.value)">{{option.value | titlecase}}
+                                    (click)="selectTakeOption(data.metric.id, option.value)">{{option.value | titlecase}}
                                 </button>
                             </mat-menu>
                         </div>

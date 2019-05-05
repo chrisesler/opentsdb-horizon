@@ -59,8 +59,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     @Input() type;
     @Input() query: any;
     @Input() label = '';
-    @Input() options: any = {};
-    // todo add enableTake to options, including html
+    @Input() options: any = {}; // {disableGroupBy, enableTake}
 
     @Output() queryOutput = new EventEmitter;
 
@@ -81,8 +80,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     fg: FormGroup;
     expressionControl: FormControl;
     expressionControls: FormGroup;
-    // todo - move
-    takeOption = 'avg';
 
     timeAggregatorOptions: Array<any> = [
         {
@@ -197,6 +194,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.queryChanges$ = new BehaviorSubject(false);
         this.initFormControls();
         this.initMetricDataSource();
+        this.initSummarizerValue();
 
         this.queryChangeSub = this.queryChanges$
             .pipe(
@@ -208,6 +206,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                     this.triggerQueryChanges();
                 }
             });
+        console.log(this.query);
     }
 
     ngOnDestroy() {
@@ -248,6 +247,17 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
         this.fg.addControl('-1', new FormControl(''));
     }
+
+    initSummarizerValue() {
+        if (this.options.enableTake) {
+            for (let metric of this.query.metrics) {
+                if (!metric.summarizerValue) {
+                    metric.summarizerValue = 'avg';
+                }
+            }
+        }
+    }
+
     saveNamespace(namespace) {
         this.query.namespace = namespace;
         this.editNamespace = false;
@@ -544,8 +554,13 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.queryChanges$.next(true);
     }
 
-    selectTakeOption(takeOption: string) {
-        this.takeOption = takeOption;
+    selectTakeOption(id, takeOption: string) {
+        const index = this.query.metrics.findIndex(item => item.id === id);
+        if (index !== -1) {
+            this.query.metrics[index].summarizerValue = takeOption;
+            // todo - do not trigger full requery
+            this.queryChanges$.next(true);
+        }
     }
 
     showMetricAC() {

@@ -201,32 +201,20 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     setBigNumber(queryId: string) {
         let metric = this.getMetric(queryId);
         let queryIndex = parseInt(queryId, 10);
-        let currentValue: number = 0;
-        let lastValue: number = 0;
 
         if (metric && metric.NumericSummaryType && this.widget.queries[0] && this.widget.queries[0].metrics[queryIndex]) {
             const responseAggregators = metric.NumericSummaryType.aggregations;
             const key = Object.keys(metric.NumericSummaryType.data[0])[0];
             const responseAggregatorValues = metric.NumericSummaryType.data[0][key];
-            const configuredAggregators = this.widget.queries[0].metrics[queryIndex].settings.visual.aggregator || ['avg'];
-
-            this.aggregators = this.widget.settings.time.downsample.aggregators || ['avg'];
-            const index = responseAggregators.indexOf(this.aggregators[0]);
-            this.aggregatorValues = [responseAggregatorValues[index]]; // [metric.NumericType[key]];
-            /*
-            for (let agg of configuredAggregators) {
-                let index = responseAggregators.indexOf(agg);
-                this.aggregatorValues.push(responseAggregatorValues[index]);
-                this.aggregators.push(agg);
-            }
-            */
+            // tslint:disable-next-line:max-line-length
+            this.aggregatorValues = [responseAggregatorValues[responseAggregators.indexOf(this.widget.queries[0].metrics[queryIndex].summarizerValue)]];
 
             // lastValue = responseAggregatorValues[responseAggregators.indexOf('first')];
             // currentValue = responseAggregatorValues[responseAggregators.indexOf('last')];
 
             // SET LOCAL VARIABLES
-            this.changeValue = currentValue - lastValue;
-            this.changePct = (this.changeValue / lastValue) * 100;
+            // this.changeValue = currentValue - lastValue;
+            // this.changePct = (this.changeValue / lastValue) * 100;
             this.selectedMetric = metric;
 
             // get array of 'tags'
@@ -235,6 +223,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             } else {
                 this.tags = null;
             }
+            this.cdRef.detectChanges();
 
         } else {
             this.selectedMetric = {};
