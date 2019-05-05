@@ -222,6 +222,7 @@ export class DatatranformerService {
         }
 
         // set dataset values
+        // tslint:disable-next-line:forin
         for (let qid in queryData ) {
             const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
             const mConfigs = gConfig ? gConfig.metrics : [];
@@ -238,7 +239,6 @@ export class DatatranformerService {
                 if ( !mConfig.settings.visual.visible ) {
                     continue;
                 }
-                const aggregator = wSettings.time.downsample.aggregators? wSettings.time.downsample.aggregators[0] : 'avg';
                 const n = results[i].data.length;
                 const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
                 const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
@@ -248,7 +248,7 @@ export class DatatranformerService {
                     const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                     const aggData = results[i].data[j].NumericSummaryType.data[0][key];
                     let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
-                    const aggrIndex = aggs.indexOf(aggregator);
+                    const aggrIndex = aggs.indexOf(widget.queries[0].metrics[i].summarizerValue);
                     label = this.getLableFromMetricTags(label, { metric: results[i].data[j].metric, ...tags});
                     options.labels.push(label);
                     datasets[0].data.push(aggData[aggrIndex]);
@@ -339,7 +339,7 @@ export class DatatranformerService {
             if ( !mConfig.settings.visual.visible ) {
                 continue;
             }
-            const aggregator = widget.settings.time.downsample.aggregators ? widget.settings.time.downsample.aggregators[0] : 'avg';
+
             const n = results[i].data.length;
             const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
             const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
@@ -349,7 +349,7 @@ export class DatatranformerService {
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
                 let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
-                const aggrIndex = aggs.indexOf(aggregator);
+                const aggrIndex = aggs.indexOf(widget.queries[0].metrics[i].summarizerValue);
                 label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
                 const o = { label: label, value: aggData[aggrIndex], color: colors[j], tooltipData: tags};
                 options.data.push(o);
@@ -377,6 +377,7 @@ export class DatatranformerService {
             if ( !mConfig || !mConfig.settings.visual.visible ) {
                 continue;
             }
+            // todo - remove line below. kept for overrideColor
             const aggregator = widget.settings.time.downsample.aggregators ? widget.settings.time.downsample.aggregators[0] : 'avg';
             const n = results[i].data.length;
             const color =  mConfig.settings.visual.color === 'auto' ? '' : mConfig.settings.visual.color;
@@ -388,7 +389,8 @@ export class DatatranformerService {
                 let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                 const aggrIndex = aggs.indexOf(aggregator);
                 label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
-                const o = { label: label, value: aggData[aggrIndex], color: this.overrideColor(aggData[aggrIndex], color, widget.settings.visual.conditions), tooltipData: tags};
+                // tslint:disable-next-line:max-line-length
+                const o = { label: label, value: aggData[aggs.indexOf(widget.queries[0].metrics[i].summarizerValue)], color: this.overrideColor(aggData[aggrIndex], color, widget.settings.visual.conditions), tooltipData: tags};
                 options.data.push(o);
             }
         }
