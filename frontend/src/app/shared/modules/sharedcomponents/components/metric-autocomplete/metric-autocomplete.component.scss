@@ -25,6 +25,7 @@
         min-width: initial;
         width: 100%;
         min-height: 50px;
+        overflow: hidden;
 
         .mat-menu-content:not(:empty) {
             padding: 0px;

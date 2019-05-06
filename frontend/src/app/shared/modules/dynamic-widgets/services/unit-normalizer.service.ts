@@ -18,6 +18,11 @@ export class UnitNormalizerService {
   // Main Method
   public getBigNumber(val: number, unit: string, precision?: number): IBigNum {
     let bigNum: IBigNum;
+
+    if (val === null || typeof val !== 'number' || parseInt(val.toString(), 10) === NaN) {
+      return  {num: '', unit: '', unitPos: Position.right, changeIndicatorHasUnit: false};
+    }
+
     switch (unit) {
       // Ref: https://en.wikipedia.org/wiki/Kibibyte
       // Data (Binary/IEC/1024)
