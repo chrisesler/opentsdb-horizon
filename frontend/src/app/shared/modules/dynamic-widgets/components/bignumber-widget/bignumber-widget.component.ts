@@ -40,6 +40,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     aggregatorValues: any[] = [];
     widgetWidth: number;
     widgetHeight: number;
+    noDataText: string = 'No Data';
 
     // Auto-scaling
     fontSizePercent: number = 100;  // initial value of how much to scale
@@ -122,15 +123,16 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             }        });
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        setTimeout(()=>{
+        setTimeout(() => {
             if (!this.editMode) {
                 this.requestData();
             } else {
                 this.requestCachedData();
             }
-        },0);
+        }, 0);
     }
   ngAfterViewInit() {
+    this.setSize();
     this.setBigNumber(this.widget.settings.visual.queryID);
         // this event will happend on resize the #widgetoutput element,
         // in bar chart we don't need to pass the dimension to it.
@@ -158,6 +160,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             this.newSize$.next(newSize);
         });
     }
+
     // for first time and call.
     setSize() {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
@@ -189,7 +192,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     isNumber(value: string | number): boolean {
-        return !isNaN(Number(value.toString()));
+        return value ? parseInt(value.toString(), 10) !== NaN : false;
     }
 
     setBigNumber(queryId: string) {
@@ -230,8 +233,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.tags = null;
             }
 
-            this.determineFontSizePercent(this.widgetWidth, this.widgetHeight);
-
         } else {
             this.selectedMetric = {};
             this.selectedMetric.metric = '';
@@ -242,6 +243,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             this.aggregatorValues = [];
             this.tags = null;
         }
+        this.determineFontSizePercent(this.widgetWidth, this.widgetHeight);
     }
 
     // Auto Scaling
@@ -251,64 +253,55 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         let captionLabelWidth: number = 0;
         let i: number = 0;
 
-        for (let agg of this.aggregators) {
-            if (this.isNumber(this.aggregatorValues[i])) {
+        // tslint:disable:max-line-length
+        let prefixWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.prefix, this.maxLabelLength), this.widget.settings.visual.prefixSize);
+        let unitWidth = this.getWidthOfText(this.shortenString(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).unit, this.maxLabelLength), this.widget.settings.visual.unitSize);
 
-                // tslint:disable:max-line-length
-                let prefixWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.prefix, this.maxLabelLength), this.widget.settings.visual.prefixSize);
-                let unitWidth = this.getWidthOfText(this.shortenString(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).unit, this.maxLabelLength), this.widget.settings.visual.unitSize);
-                // let postfixWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.postfix, this.maxLabelLength), this.widget.settings.visual.postfixSize);
-                let bigNumberWidth = this.getWidthOfText(' ' + this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num + ' ', 'l', this.defaultBigNumberFontWeight);
+        let bigNumberWidth;
 
-                let changeIndicatorWidth = 0;
-                if (this.widget.settings.visual.changedIndicatorEnabled) {
-                    if (this.changePct >= this.changeThreshold) {
-                        changeIndicatorWidth = this.getWidthOfText( '↑ ' + this.bigNumToChangeIndicatorValue(this.UN.getBigNumber(this.changeValue, this.widget.settings.visual.unit, this.widget.settings.visual.precision)));
-                    } else if (this.changePct <= -1 * this.changeThreshold) {
-                        changeIndicatorWidth = this.getWidthOfText( '↓ ' + this.bigNumToChangeIndicatorValue(this.UN.getBigNumber(this.changeValue, this.widget.settings.visual.unit, this.widget.settings.visual.precision)));
-                    } else {
-                        changeIndicatorWidth = this.getWidthOfText('↔');
-                    }
-                }
-
-                let aggregatorWidth = 0;
-                if (this.aggregators.length > 1) {
-                    aggregatorWidth = this.getWidthOfText(agg);
-                }
-
-                // let tmpBigNumberWithOtherLabelsWidth: number = prefixWidth + unitWidth + postfixWidth + bigNumberWidth + changeIndicatorWidth + aggregatorWidth;
-                let tmpBigNumberWithOtherLabelsWidth: number = prefixWidth + unitWidth + bigNumberWidth + changeIndicatorWidth + aggregatorWidth;
-                let tmpCaptionWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.caption, this.maxCaptionLength), 'c', this.defaultCaptionFontWeight);
-
-                // assign if largest width
-                if (tmpBigNumberWithOtherLabelsWidth >  bigNumberWithOtherLabelsWidth) {
-                    bigNumberWithOtherLabelsWidth = tmpBigNumberWithOtherLabelsWidth;
-                }
-
-                if (tmpCaptionWidth > captionLabelWidth ) {
-                    captionLabelWidth = tmpCaptionWidth;
-                }
-            }
-            i++;
+        if (this.isNumber(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num)) {
+            bigNumberWidth = this.getWidthOfText(' ' + this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num + ' ', 'l', this.defaultBigNumberFontWeight);
+        } else {
+            bigNumberWidth = this.getWidthOfText(' ' + this.noDataText + ' ', 'l', this.defaultBigNumberFontWeight);
         }
+
+        let changeIndicatorWidth = 0;
+        if (this.widget.settings.visual.changedIndicatorEnabled) {
+            if (this.changePct >= this.changeThreshold) {
+                changeIndicatorWidth = this.getWidthOfText( '↑ ' + this.bigNumToChangeIndicatorValue(this.UN.getBigNumber(this.changeValue, this.widget.settings.visual.unit, this.widget.settings.visual.precision)));
+            } else if (this.changePct <= -1 * this.changeThreshold) {
+                changeIndicatorWidth = this.getWidthOfText( '↓ ' + this.bigNumToChangeIndicatorValue(this.UN.getBigNumber(this.changeValue, this.widget.settings.visual.unit, this.widget.settings.visual.precision)));
+            } else {
+                changeIndicatorWidth = this.getWidthOfText('↔');
+            }
+        }
+
+        let tmpBigNumberWithOtherLabelsWidth: number = prefixWidth + unitWidth + bigNumberWidth + changeIndicatorWidth;
+        let tmpCaptionWidth = this.getWidthOfText(this.shortenString(this.widget.settings.visual.caption, this.maxCaptionLength), 'c', this.defaultCaptionFontWeight);
+
+        // assign if largest width
+        if (tmpBigNumberWithOtherLabelsWidth >  bigNumberWithOtherLabelsWidth) {
+            bigNumberWithOtherLabelsWidth = tmpBigNumberWithOtherLabelsWidth;
+        }
+
+        if (tmpCaptionWidth > captionLabelWidth ) {
+            captionLabelWidth = tmpCaptionWidth;
+        }
+
         return Math.max(bigNumberWithOtherLabelsWidth, captionLabelWidth);
     }
 
 
     determineHeightofBigNumber(): number {
         return this.widget.settings.visual['caption'].trim() ?
-            this.heightOfLargeFont * this.aggregators.length + this.heightOfSmallFont + this.heightOfMarginAboveCaption :
-            this.heightOfLargeFont * this.aggregators.length;
+            this.heightOfLargeFont + this.heightOfSmallFont + this.heightOfMarginAboveCaption :
+            this.heightOfLargeFont;
     }
 
     determineFontSizePercent(width: number, height: number) {
 
         if (this.editMode) {
-            if (this.aggregators.length > 4) {
-                this.fontSizePercent = 75;
-            } else {
-                this.fontSizePercent = 100;
-            }
+            this.fontSizePercent = 100;
             return;
         }
 
@@ -324,6 +317,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         let fontSizePercent: number = Math.min(percentHeight, percentWidth);
 
         this.fontSizePercent = fontSizePercent + 0.1 * Math.random(); // random so we always redraw
+        this.cdRef.detectChanges();
     }
 
     getWidthOfText(text: string, size?: string, weight?: number): number {
@@ -467,7 +461,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             }
             index++;
         }
-        // console.log('bignumber updateQuery', qindex, this.widget.queries);
     }
 
 
@@ -624,10 +617,6 @@ interface IBigNumberVisual {
     prefix?: string;
     prefixSize?: string;
     prefixAlignment?: string;
-
-    // postfix?: string;
-    // postfixSize?: string;
-    // postfixAlignment?: string;
 
     unit: string;
     unitSize: string;

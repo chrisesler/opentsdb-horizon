@@ -16,73 +16,70 @@
                 [style.background]="widget.settings.visual.backgroundColor"
                 [style.color]="widget.settings.visual.textColor"
                 [style.font-size]="fontSizePercent + '%'"
-                [ngClass]= "{'edit-flex' : editMode}">                
+                [ngClass]= "{'edit-flex' : editMode}">
     
                 <div class="content-container">
-                    <div *ngFor="let agg of aggregators; let i = index;">
-                        <div *ngIf="isNumber(aggregatorValues[i])" class="metric-container">
-                            <div *ngIf="widget.settings.visual.prefix"
-                                class='prefix' [ngClass]="{
-                                    'top':     widget.settings.visual.prefixAlignment=='top',
-                                    'middle':  widget.settings.visual.prefixAlignment=='middle',
-                                    'bottom':  widget.settings.visual.prefixAlignment=='bottom'
-                                }">
-                                <div [ngClass]="{
-                                    'small':    widget.settings.visual.prefixSize=='s',
-                                    'medium':   widget.settings.visual.prefixSize=='m',
-                                    'large':    widget.settings.visual.prefixSize=='l'
-                                    }">{{ shortenString(widget.settings.visual.prefix, maxLabelLength) | uppercase }}</div>
-                            </div>
-                            
-                            <div *ngIf="UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 0" 
-                                 class='left-unit unit' [ngClass]="{
-                                    'top':     widget.settings.visual.unitAlignment=='top',
-                                    'middle':  widget.settings.visual.unitAlignment=='middle',
-                                    'bottom':  widget.settings.visual.unitAlignment=='bottom'
-                                }">
-                                <div [ngClass]="{
-                                    'small':   widget.settings.visual.unitSize=='s',
-                                    'medium':  widget.settings.visual.unitSize=='m',
-                                    'large':   widget.settings.visual.unitSize=='l'
-                                    }">{{ shortenString(UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) }}</div>
-                            </div>
-        
-                            <div class="big-number">{{ UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).num}}</div>
-        
-                            <div *ngIf="UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 1" 
-                                 class='right-unit unit' [ngClass]="{
-                                    'top':     widget.settings.visual.unitAlignment=='top',
-                                    'middle':  widget.settings.visual.unitAlignment=='middle',
-                                    'bottom':  widget.settings.visual.unitAlignment=='bottom'
+                    <div class="metric-container">
+                        <div *ngIf="widget.settings.visual.prefix"
+                            class='prefix' [ngClass]="{
+                                'top':     widget.settings.visual.prefixAlignment=='top',
+                                'middle':  widget.settings.visual.prefixAlignment=='middle',
+                                'bottom':  widget.settings.visual.prefixAlignment=='bottom'
                             }">
-                                <div [ngClass]="{
-                                    'small':   widget.settings.visual.unitSize=='s',
-                                    'medium':  widget.settings.visual.unitSize=='m',
-                                    'large':   widget.settings.visual.unitSize=='l'
-                                }">{{ shortenString(UN.getBigNumber(aggregatorValues[i], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) }}</div>
-                            </div>
-                            <!--
-                            <span *ngIf="widget.settings.visual.changedIndicatorEnabled" class="change-indicator">
-                                <span *ngIf="changePct >= changeThreshold">↑ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision)) }} </span>
-                                <span *ngIf="changePct <= -1*changeThreshold">↓ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision)) }} </span>
-                                <span *ngIf="changePct > -1*changeThreshold && changePct < changeThreshold">↔ </span>
-                            </span>
-                            -->
-                            <div *ngIf="aggregators.length > 1" class="aggregator" [ngClass]="{
-                                    'top':     widget.settings.visual.unitAlignment=='top',
-                                    'middle':  widget.settings.visual.unitAlignment=='middle',
-                                    'bottom':  widget.settings.visual.unitAlignment=='bottom'
-                                }">
-                                <div [ngClass]="{
-                                    'small':   widget.settings.visual.unitSize=='s',
-                                    'medium':  widget.settings.visual.unitSize=='m',
-                                    'large':   widget.settings.visual.unitSize=='l'
-                                }">{{ agg | uppercase }}</div>
-                            </div>
-
+                            <div [ngClass]="{
+                                'small':    widget.settings.visual.prefixSize=='s',
+                                'medium':   widget.settings.visual.prefixSize=='m',
+                                'large':    widget.settings.visual.prefixSize=='l'
+                                }">{{ shortenString(widget.settings.visual.prefix, maxLabelLength) | uppercase }}</div>
+                        </div>
+                        
+                        <div *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 0" 
+                                class='left-unit unit' [ngClass]="{
+                                'top':     widget.settings.visual.unitAlignment=='top',
+                                'middle':  widget.settings.visual.unitAlignment=='middle',
+                                'bottom':  widget.settings.visual.unitAlignment=='bottom'
+                            }">
+                            <div [ngClass]="{
+                                'small':   widget.settings.visual.unitSize=='s',
+                                'medium':  widget.settings.visual.unitSize=='m',
+                                'large':   widget.settings.visual.unitSize=='l'
+                                }">{{ shortenString(UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) }}</div>
+                        </div>
+    
+                        <div class="big-number" *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num !== ''">{{UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num}}</div>
+                        <div class="big-number" *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num === ''">{{noDataText}}</div>
+    
+                        <div *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 1" 
+                                class='right-unit unit' [ngClass]="{
+                                'top':     widget.settings.visual.unitAlignment=='top',
+                                'middle':  widget.settings.visual.unitAlignment=='middle',
+                                'bottom':  widget.settings.visual.unitAlignment=='bottom'
+                        }">
+                            <div [ngClass]="{
+                                'small':   widget.settings.visual.unitSize=='s',
+                                'medium':  widget.settings.visual.unitSize=='m',
+                                'large':   widget.settings.visual.unitSize=='l'
+                            }">{{ shortenString(UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) }}</div>
+                        </div>
+                        <!--
+                        <span *ngIf="widget.settings.visual.changedIndicatorEnabled" class="change-indicator">
+                            <span *ngIf="changePct >= changeThreshold">↑ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision)) }} </span>
+                            <span *ngIf="changePct <= -1*changeThreshold">↓ {{ bigNumToChangeIndicatorValue(UN.getBigNumber(changeValue, widget.settings.visual.unit, widget.settings.visual.precision)) }} </span>
+                            <span *ngIf="changePct > -1*changeThreshold && changePct < changeThreshold">↔ </span>
+                        </span>
+                        -->
+                        <div *ngIf="aggregators.length > 1" class="aggregator" [ngClass]="{
+                                'top':     widget.settings.visual.unitAlignment=='top',
+                                'middle':  widget.settings.visual.unitAlignment=='middle',
+                                'bottom':  widget.settings.visual.unitAlignment=='bottom'
+                            }">
+                            <div [ngClass]="{
+                                'small':   widget.settings.visual.unitSize=='s',
+                                'medium':  widget.settings.visual.unitSize=='m',
+                                'large':   widget.settings.visual.unitSize=='l'
+                            }">{{ agg | uppercase }}</div>
                         </div>
                     </div>
-
                     <div class="caption">{{ shortenString(widget.settings.visual.caption, maxCaptionLength) }}</div>
                 </div>
             </div>

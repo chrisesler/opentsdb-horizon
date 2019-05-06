@@ -59,17 +59,21 @@ export class NamespaceAutocompleteComponent implements OnInit {
 
     namespaceKeydown(event: any) {
 
-        // console.log('NAMESPACE KEYDOWN.ENTER', event, this.filteredNamespaceOptions);
+        const textVal = this.namespaceControl.value;
 
-        // if (!this.nsAutoCompleteCntrl.isOpen) {
-        this.selectedNamespace = this.namespaceControl.value;
-        // console.log('selectedns', this.selectedNamespace, event);
+        // check if the namespace is valid option
+        this.filteredNamespaceOptions.forEach(options => {
 
-        // check if the namespace is valid
+            // find index in options
+            const checkIdx = options.findIndex(item => textVal.toLowerCase() === item.toLowerCase());
 
-        // emit change
-        this.nschange.emit(this.selectedNamespace);
-        // }
+            if (checkIdx >= 0) {
+                // set value to the option value (since typed version could be different case)
+                this.selectedNamespace = options[checkIdx];
+                // emit change
+                this.nschange.emit(this.selectedNamespace);
+            }
+        });
     }
 
     /**
