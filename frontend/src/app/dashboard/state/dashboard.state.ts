@@ -6,6 +6,7 @@ import { WidgetsRawdataState } from './widgets-data.state';
 import { ClientSizeState } from './clientsize.state';
 import { HttpService } from '../../core/http/http.service';
 import { DashboardService } from '../services/dashboard.service';
+import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
 import { map, catchError } from 'rxjs/operators';
 
 
@@ -87,7 +88,9 @@ export class DeleteDashboardFail {
 })
 
 export class DBState {
-    constructor( private httpService: HttpService, private dbService: DashboardService ) {}
+    constructor( private httpService: HttpService,
+        private dbService: DashboardService,
+        private dbConverterService: DashboardConverterService ) {}
 
     @Selector() static getLoadedDB(state: DBStateModel) {
         return state.loadedDB;
@@ -119,12 +122,12 @@ export class DBState {
             return this.httpService.getDashboardById(id).pipe(
                 map(res => {
                     const dashboard: any = res.body;
-                    // update grister info
+                    // update grister info for UI only
                     this.dbService.addGridterInfo(dashboard.content.widgets);
-                    if ( dashboard.content.version && dashboard.content.version === this.dbService.version ) {
+                    if (dashboard.content.version && dashboard.content.version === this.dbConverterService.currentVersion) {
                         ctx.dispatch(new LoadDashboardSuccess(dashboard));
                     } else {
-                        ctx.dispatch(new MigrateAndLoadDashboard(id, dashboard));
+                            ctx.dispatch(new MigrateAndLoadDashboard(id, dashboard));
                     }
                 }),
                 catchError( error => ctx.dispatch(new LoadDashboardFail(error)))
@@ -142,7 +145,7 @@ export class DBState {
 
     @Action(MigrateAndLoadDashboard)
     migrateAndLoadDashboard(ctx: StateContext<DBStateModel>, { id: id, payload: payload }: MigrateAndLoadDashboard) {
-            payload = this.dbService.convert(payload);
+            payload = this.dbConverterService.convert(payload);
             ctx.dispatch(new LoadDashboardSuccess(payload));
             // we dont want to save after conversion but return the conversion version
             // since user might have no permission to save
