@@ -154,6 +154,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     ngOnInit() {
         const defaultOptions = {
                                     'deleteQuery': true,
+                                    'cloneQuery': true,
                                     'toggleQuery': true,
                                     'deleteMetric': true,
                                     'toggleMetric': true };
@@ -540,6 +541,10 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     toggleQuery() {
         this.requestChanges('ToggleQueryVisibility');
+    }
+
+    cloneQuery() {
+        this.requestChanges('CloneQuery');
     }
 
     deleteQuery() {

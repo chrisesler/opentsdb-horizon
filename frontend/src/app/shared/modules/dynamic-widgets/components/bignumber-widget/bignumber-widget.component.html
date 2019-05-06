@@ -46,9 +46,8 @@
                                 }">{{ shortenString(UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).unit, maxLabelLength) }}</div>
                         </div>
     
-                        <div class="big-number" *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num">{{ UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num}}</div>
-                        <div class="big-number" *ngIf="!UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num">{{noDataText}}</div>
-                        <!-- <div class="big-number">1</div> -->
+                        <div class="big-number" *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num !== ''">{{UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num}}</div>
+                        <div class="big-number" *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).num === ''">{{noDataText}}</div>
     
                         <div *ngIf="UN.getBigNumber(aggregatorValues[0], widget.settings.visual.unit, widget.settings.visual.precision).unitPos === 1" 
                                 class='right-unit unit' [ngClass]="{

@@ -22,6 +22,9 @@
             <mat-icon fontSet="denali" fontIcon="d-eye-open" *ngIf="query.settings.visual.visible"></mat-icon>
             <mat-icon fontSet="denali" fontIcon="d-eye-close" *ngIf="!query.settings.visual.visible"></mat-icon>
         </button>
+        <button mat-icon-button color="primary" *ngIf="options.cloneQuery" (click)="cloneQuery(); $event.stopPropagation();">
+            <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
+        </button>
         <button mat-icon-button color="primary" *ngIf="options.deleteQuery" (click)="confirmQueryDelete(label); $event.stopPropagation();">
             <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
         </button>
