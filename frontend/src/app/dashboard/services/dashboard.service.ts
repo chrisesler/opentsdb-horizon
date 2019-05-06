@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from '../../core/services/utils.service';
+import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
 
 @Injectable()
 export class DashboardService {
@@ -59,7 +60,7 @@ export class DashboardService {
 
   private widgetsConfig = {};
 
-  constructor(private utils: UtilsService) { }
+  constructor(private utils: UtilsService, private dbConverterService: DashboardConverterService) { }
 
 
   setWigetsConfig(conf) {
@@ -170,73 +171,11 @@ export class DashboardService {
       delete widgets[i].gridPos.hSm;
     }
     const dashboard = {
-      version: this.version,
+      version: this.dbConverterService.getDBCurrentVersion(),
       settings: dbstate.Settings,
       widgets: widgets
     };
     return dashboard;
   }
 
-  convert(dashboard) {
-    if ( !dashboard.content.version || dashboard.content.version < this.version ) {
-      dashboard.version = 2;
-      const widgets = dashboard.content.widgets;
-      for ( let i = 0; i < widgets.length; i++ ) {
-        const queries = widgets[i].queries;
-        for ( let j = 0; j < queries.length; j++ ) {
-          const metrics = queries[j].metrics;
-          const filters = queries[j].filters;
-          const groupByTags = [];
-          for ( let k = 0; k < filters.length; k++ ) {
-            if (filters[k].groupBy === true ) {
-              groupByTags.push(filters[k].tagk);
-            }
-          }
-          for ( let k = 0; k < metrics.length; k++ ) {
-            // metrics
-            if ( metrics[k].expression === undefined && !metrics[k].groupByTags ) {
-              metrics[k].tagAggregator = metrics[k].tagAggregator || 'sum';
-              metrics[k].groupByTags = groupByTags;
-            }
-            if ( metrics[k].expression && metrics[k].metrics) {
-              metrics[k].expression = metrics[k].originalExpression;
-              const emetrics = metrics[k].metrics;
-              // add missing metric to the metric list
-              for ( let m = 0; m < emetrics.length; m++ ) {
-                const pos = emetrics[m].name.indexOf('.') + 1;
-                emetrics[m].metric = emetrics[m].name.substr(pos);
-                const metric = metrics.find(d => d.expression === undefined && d.name === emetrics[m].metric);
-                if ( !metric ) {
-                  const oMetric = {
-                    id: this.utils.generateId(3),
-                    name: emetrics[m].metric,
-                    settings: {
-                        visual: {
-                            visible: false,
-                            color: 'auto',
-                            label: ''
-                        }
-                    },
-                    tagAggregator: 'sum',
-                    functions: []
-                  };
-                  metrics.push(oMetric);
-                }
-              }
-              for ( let m = 0; m < emetrics.length; m++ ) {
-                const pos = emetrics[m].name.indexOf('.') + 1;
-                emetrics[m].metric = emetrics[m].name.substr(pos);
-                const metric = metrics.find(d => d.expression === undefined && d.name === emetrics[m].metric);
-                emetrics[m].newId = metric ? metric.id : null;
-                const reg = new RegExp(emetrics[m].refId, 'g');
-                metrics[k].expression = metrics[k].expression.replace(reg, '{{' + emetrics[m].newId + '}}' );
-              }
-            }
-          }
-        }
-      }
-    }
-    return dashboard;
-  }
 }
-
