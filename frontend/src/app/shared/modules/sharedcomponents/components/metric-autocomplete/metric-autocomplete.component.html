@@ -66,7 +66,7 @@
 </ng-template>
 
 <ng-template #noMultiples>
-    <mat-form-field appearance="fill" [color]="'primary'" floatLabel="never" *ngIf="!multiple" [ngStyle]="calculateEditWidthStyle()">
+    <mat-form-field appearance="fill" [color]="'primary'" floatLabel="never" *ngIf="!multiple" [ngStyle]="calculateEditWidthStyle()" #metricSearchFormField>
         <input matInput
             type="text" 
             placeholder="Metric"
@@ -77,7 +77,7 @@
             (keydown.enter)="metricACKeydown($event)"
             #metricSearchInput>
     </mat-form-field>
-    <mat-autocomplete #metricAutoComplete="matAutocomplete" (optionSelected)="metricACOptionSelected($event)">
+    <mat-autocomplete #metricAutoComplete="matAutocomplete" (optionSelected)="metricACOptionSelected($event)" [panelWidth]="autocompleteWidth$ | async">
         <mat-option *ngFor="let option of metricOptions" [value]="option.name">
             {{ option.name }}
         </mat-option>
