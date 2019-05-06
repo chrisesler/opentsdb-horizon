@@ -95,28 +95,13 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     }
 
     initOptions() {
-        if (!this.options) {
-            this.options = {};
-        }
-        if (this.isEmpty(this.options.enableMultipleQueries)) {
-            this.options.enableMultipleQueries = false;
-        }
-        if (this.isEmpty(this.options.deleteQuery)) {
-            this.options.deleteQuery = true;
-        }
-        if (this.isEmpty(this.options.toggleQuery)) {
-            this.options.toggleQuery = true;
-        }
-        if (this.isEmpty(this.options.enableGroupBy)) {
-            this.options.enableGroupBy = true;
-        }
-        if (this.isEmpty(this.options.enableSummarizer)) {
-            this.options.enableSummarizer = false;
-        }
-    }
-
-    isEmpty(value) {
-        return (value === null || value === undefined);
+        const defaultOptions = {
+            'deleteQuery': true,
+            'toggleQuery': true,
+            'enableGroupBy': true,
+            'enableSummarizer': false,
+            'enableMultipleQueries': false };
+        this.options = Object.assign(defaultOptions, this.options);
     }
 
     addNewQuery() {

@@ -244,13 +244,13 @@ export class DatatranformerService {
                 const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
                 const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
                 for ( let j = 0;  j < n; j++ ) {
-                    const summarizerValue = widget.queries[0].metrics[i].summarizerValue ? widget.queries[0].metrics[i].summarizerValue : 'avg';
+                    const summarizer = widget.queries[0].metrics[i].summarizer ? widget.queries[0].metrics[i].summarizer : 'avg';
                     const aggs = results[i].data[j].NumericSummaryType.aggregations;
                     const tags = results[i].data[j].tags;
                     const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                     const aggData = results[i].data[j].NumericSummaryType.data[0][key];
                     let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
-                    const aggrIndex = aggs.indexOf(summarizerValue);
+                    const aggrIndex = aggs.indexOf(summarizer);
                     label = this.getLableFromMetricTags(label, { metric: results[i].data[j].metric, ...tags});
                     options.labels.push(label);
                     datasets[0].data.push(aggData[aggrIndex]);
@@ -346,13 +346,13 @@ export class DatatranformerService {
             const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
             const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
             for ( let j = 0; j < n; j++ ) {
-                const summarizerValue = widget.queries[0].metrics[i].summarizerValue ? widget.queries[0].metrics[i].summarizerValue : 'avg';
+                const summarizer = widget.queries[0].metrics[i].summarizer ? widget.queries[0].metrics[i].summarizer : 'avg';
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
                 let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
-                const aggrIndex = aggs.indexOf(summarizerValue);
+                const aggrIndex = aggs.indexOf(summarizer);
                 label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
                 const o = { label: label, value: aggData[aggrIndex], color: colors[j], tooltipData: tags};
                 options.data.push(o);
@@ -384,11 +384,11 @@ export class DatatranformerService {
             const n = results[i].data.length;
             const color =  mConfig.settings.visual.color === 'auto' ? '' : mConfig.settings.visual.color;
             for ( let j = 0; j < n; j++ ) {
-                const summarizerValue = widget.queries[0].metrics[i].summarizerValue ? widget.queries[0].metrics[i].summarizerValue : 'avg';
+                const summarizer = widget.queries[0].metrics[i].summarizer ? widget.queries[0].metrics[i].summarizer : 'avg';
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
-                const aggrIndex = aggs.indexOf(summarizerValue);
+                const aggrIndex = aggs.indexOf(summarizer);
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
                 let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
                 label = this.getLableFromMetricTags(label, { metric: results[i].data[j].metric, ...tags});

@@ -205,7 +205,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             const key = Object.keys(metric.NumericSummaryType.data[0])[0];
             const responseAggregatorValues = metric.NumericSummaryType.data[0][key];
             // tslint:disable-next-line:max-line-length
-            this.aggregatorValues = [responseAggregatorValues[responseAggregators.indexOf(this.widget.queries[0].metrics[queryIndex].summarizerValue)]] || ['avg'];
+            let summarizer = this.widget.queries[0].metrics[queryIndex].summarizer ? this.widget.queries[0].metrics[queryIndex].summarizer : 'avg';
+            this.aggregatorValues = [responseAggregatorValues[responseAggregators.indexOf(summarizer)]];
 
             // SET LOCAL VARIABLES
             // lastValue = responseAggregatorValues[responseAggregators.indexOf('first')];
@@ -559,7 +560,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         // this is in-case anyone previously set group-by for big number
         if (this.widget && this.widget.queries[0] && this.widget.queries[0].metrics) {
             for (let metric of this.widget.queries[0].metrics) {
-                if (metric.groupByTags.length) {
+                if (metric.groupByTags && metric.groupByTags.length) {
                     metric.groupByTags = [];
                 }
             }

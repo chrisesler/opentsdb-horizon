@@ -17,7 +17,7 @@ import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MatMenuTrigger, MatMenu } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
-import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { MatTableDataSource, MatDialogRef, MatDialog } from '@angular/material';
@@ -197,33 +197,16 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     initOptions() {
-        if (!this.options) {
-            this.options = {};
-        }
-
-        if (this.isEmpty(this.options.deleteQuery)) {
-            this.options.deleteQuery = true;
-        }
-        if (this.isEmpty(this.options.toggleQuery)) {
-            this.options.toggleQuery = true;
-        }
-        if (this.isEmpty(this.options.deleteMetric)) {
-            this.options.deleteMetric = true;
-        }
-        if (this.isEmpty(this.options.toggleMetric)) {
-            this.options.toggleMetric = true;
-        }
-        if (this.isEmpty(this.options.enableGroupBy)) {
-            this.options.enableGroupBy = true;
-        }
-        if (this.isEmpty(this.options.enableSummarizer)) {
-            this.options.enableSummarizer = false;
-        }
+        const defaultOptions = {
+            'deleteQuery': true,
+            'toggleQuery': true,
+            'deleteMetric': true,
+            'toggleMetric': true,
+            'enableGroupBy': true,
+            'enableSummarizer': false };
+        this.options = Object.assign(defaultOptions, this.options);
     }
 
-    isEmpty(value) {
-        return (value === null || value === undefined);
-    }
 
     // helper function to format the table datasource into a structure
     // that allows the table to work more or less like it did before
@@ -263,8 +246,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     initSummarizerValue() {
         if (this.options.enableSummarizer) {
             for (let metric of this.query.metrics) {
-                if (!metric.summarizerValue) {
-                    metric.summarizerValue = 'avg';
+                if (!metric.summarizer) {
+                    metric.summarizer = 'avg';
                 }
             }
         }
@@ -302,10 +285,10 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                     },
                     tagAggregator: 'sum',
                     functions: [],
-                    summarizerValue: ''
+                    summarizer: ''
                 };
                 if (this.options.enableSummarizer) {
-                    oMetric.summarizerValue = 'avg';
+                    oMetric.summarizer = 'avg';
                 }
                 this.query.metrics.splice(insertIndex, 0, oMetric);
             }
@@ -570,10 +553,10 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.queryChanges$.next(true);
     }
 
-    setSummarizerValue(id, summarizerValue: string) {
+    setSummarizerValue(id, summarizer: string) {
         const index = this.query.metrics.findIndex(item => item.id === id);
         if (index !== -1) {
-            this.query.metrics[index].summarizerValue = summarizerValue;
+            this.query.metrics[index].summarizer = summarizer;
             // todo - do not trigger full requery
             this.queryChanges$.next(true);
         }
