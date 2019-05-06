@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
+import { MAT_SLIDE_TOGGLE_DEFAULT_OPTIONS } from '@angular/material';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class DashboardConverterService {
   convert(dashboard: any) {
     for (let i = dashboard.content.version + 1; i <= this.currentVersion; i++) {
       if (this['toDBVersion' + i] instanceof Function) {
-        this['toDBVersion' + i](dashboard);
+        dashboard = this['toDBVersion' + i](dashboard);
       }
     }
     return dashboard;
@@ -84,11 +85,27 @@ export class DashboardConverterService {
     }
     return dashboard;
   }
-  // update dashboard to version 3
+  // update dashboard to version 3, we move tplVariables to top and remove
+  // enable things
   toDBVersion3(dashboard: any) {
-
+    dashboard.content.version = 3;
+    const tplVariables = [...dashboard.content.settings.variables.tplVariables];
+    for (let i = 0; i < tplVariables.length; i++) {
+        const varObj: any = tplVariables[i];
+        // remove this property
+        if (varObj.hasOwnProperty('enabled')) {
+          delete varObj.enabled;
+        }
+        // take first value only if many
+        if (varObj.filter.lenght > 1) {
+          varObj.filter = [...varObj.filter[0]];
+        }
+    }
+    // delete the old one
+    delete dashboard.content.settings.variables;
+    dashboard.content.settings.tplVariables = tplVariables;
+    console.log('dashboard after ver 3', dashboard);
     return dashboard;
   }
-
 
 }
