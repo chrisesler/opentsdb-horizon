@@ -33,7 +33,7 @@ import {
 interface IQueryEditorOptions {
     deleteQuery?: boolean;
     toggleQuery?: boolean;
-    deleteMetric?: boolean;
+    cloneQuery?: boolean;
     toggleMetric?: boolean;
     enableGroupBy?: boolean;
     enableSummarizer?: boolean;
@@ -162,18 +162,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-<<<<<<< d65c88fa7ec448b95ac1bb3d9b49ef4f73d37409
-        const defaultOptions = {
-                                    'deleteQuery': true,
-                                    'cloneQuery': true,
-                                    'toggleQuery': true,
-                                    'deleteMetric': true,
-                                    'toggleMetric': true };
-        this.options = Object.assign( defaultOptions, this.options );
-        this.queryChanges$ = new BehaviorSubject(false);
-=======
         this.initOptions();
->>>>>>> refactor
         this.initFormControls();
         this.initMetricDataSource();
         this.initSummarizerValue();
@@ -189,7 +178,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                     this.triggerQueryChanges();
                 }
             });
-        console.log(this.query);
     }
 
     ngOnDestroy() {
@@ -198,9 +186,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     initOptions() {
         const defaultOptions = {
-            'deleteQuery': true,
-            'toggleQuery': true,
-            'deleteMetric': true,
+            'deleteQuery': false,
+            'toggleQuery': false,
+            'cloneQuery': false,
             'toggleMetric': true,
             'enableGroupBy': true,
             'enableSummarizer': false };
