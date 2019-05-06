@@ -251,11 +251,27 @@
         }
     }
 
-    .mat-option {
-        height: 1.5em !important;
-        line-height: 1.5em !important;
-        font-size: 0.8em;
+    .mat-list-base {
+        .mat-option {
+            /*height: 1.5em !important;
+            line-height: 1.5em !important;
+            font-size: 0.8em;
+            */
+            height: 24px;
+            line-height: 24px;
+            font-size: 16px; 
+        }
     }
+
+    .mat-autocomplete-panel {
+        .mat-option {
+            height: 24px;
+            line-height: 24px;
+            font-size: 16px; 
+        }
+    }
+
+    
 
     .mat-radio-group {
         .mat-radio-button:not(:last-child) {

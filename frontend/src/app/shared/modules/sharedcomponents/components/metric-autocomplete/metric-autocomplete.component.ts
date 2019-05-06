@@ -42,6 +42,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
 
     @ViewChild('metricSearchInput') metricSearchInput: ElementRef;
     @ViewChild('metricAutoComplete') metricAutoCompleteCntrl: MatAutocomplete;
+    @ViewChild('metricSearchFormField', {read: ElementRef}) metricSearchFormField: ElementRef;
     @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
 
     metricOptions = [];
@@ -60,6 +61,11 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     firstRun: boolean = true;
     scrollDetect: any;
 
+
+    autocompleteWidth$: BehaviorSubject<number> = new BehaviorSubject<number>(700);
+    autocompleteWidth: number;
+    autocompleteDefaultWidth: number;
+
     constructor(
         private elRef: ElementRef,
         private httpService: HttpService,
@@ -77,6 +83,11 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
     ngAfterViewInit() {
         if (this.focus === true) {
             setTimeout(() => {
+                if (!this.multiple) {
+                    console.log(this.metricSearchFormField);
+                    this.autocompleteDefaultWidth = this.metricSearchFormField.nativeElement.getBoundingClientRect().width;
+                    this.autocompleteWidth = this.autocompleteDefaultWidth;
+                }
                 this.metricSearchInput.nativeElement.focus();
             }, 100);
         }
@@ -90,6 +101,34 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
         return this.metricSearchControl.value;
     }
 
+    /** UTILS  */
+
+    findLongestWordInArray(array) {
+        if (array.length === 0) {
+            return '';
+        }
+        const longest = array.reduce(function(a, b) {
+            return (a.name.length > b.name.length) ? a : b;
+        });
+        return longest;
+    }
+
+    calculateAutoCompleteWidth(arr: any) {
+        const longestOption = this.findLongestWordInArray(arr);
+        // 32 is for option left/right padding
+        const renderedWidth = this.utils.calculateTextWidth(<string>longestOption.name, '17', 'Ubuntu');
+
+        //console.log('LONGEST OPTION', longestOption, renderedWidth);
+        if (renderedWidth > this.autocompleteDefaultWidth) {
+            this.autocompleteWidth = renderedWidth + 32;
+        } else {
+            this.autocompleteWidth = this.autocompleteDefaultWidth;
+        }
+        this.autocompleteWidth$.next(this.autocompleteWidth);
+        
+        //console.log('AC WIDTH', this.autocompleteWidth, this.autocompleteDefaultWidth);
+    }
+
     /** METHODS */
 
     setMetricSearch() {
@@ -97,22 +136,29 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
         this.metricSearchControl.valueChanges
             .pipe(
                 startWith(''),
-                debounceTime(500)
+                debounceTime(200)
             )
             .subscribe(value => {
+                //console.log('IT DID SOMETHING **');
                 const query: any = { namespace: this.namespace, tags: this.filters };
                 query.search = value ? value : '';
                 this.message['metricSearchControl'] = {};
                 this.firstRun = true;
-                this.detectChanges();
+                // this.detectChanges();
                 this.httpService.getMetricsByNamespace(query)
                     .subscribe(res => {
                         this.firstRun = false;
                         this.metricOptions = res;
+
+
                         if ( this.metricOptions.length === 0 ) {
                             this.message['metricSearchControl'] = { 'type': 'info', 'message': 'No data found' };
                         }
-                        this.detectChanges();
+                        setTimeout(() => {
+                            this.calculateAutoCompleteWidth(this.metricOptions);
+                            this.detectChanges();
+                        });
+
                     },
                         err => {
                             this.firstRun = false;
@@ -126,6 +172,7 @@ export class MetricAutocompleteComponent implements OnInit, OnDestroy, AfterView
 
     detectChanges() {
         if ( ! this.isDestroying ) {
+            //console.log('DETECT CHANGE!!');
             this.cdRef.detectChanges();
         }
     }
