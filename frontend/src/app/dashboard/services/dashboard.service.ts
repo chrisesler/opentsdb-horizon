@@ -21,10 +21,7 @@ export class DashboardService {
             namespace: '',
             isPersonal: false,
         },
-        variables: {
-            enabled: true,
-            tplVariables: []
-        }
+        tplVariables: []
     },
     widgets: [
     ]
