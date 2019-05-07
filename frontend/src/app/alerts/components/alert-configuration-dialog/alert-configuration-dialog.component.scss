@@ -350,8 +350,9 @@
         .notify-when-options {
             display: flex;
             padding-top: 0;
+            outline: 0;
 
-            .mat-list-option.mat-list-option {
+            .mat-list-item.mat-list-option {
                 height: 32px;
 
                 .mat-list-item-content {
@@ -364,6 +365,14 @@
                         padding-right: 0;
                         white-space: nowrap;
                     }
+                }
+
+                &.mat-list-item-disabled {
+                    filter: grayscale(100%);
+                    opacity: .3;
+                    outline: none;
+                    pointer-events: none;
+                    background-color: transparent;
                 }
             }
 
