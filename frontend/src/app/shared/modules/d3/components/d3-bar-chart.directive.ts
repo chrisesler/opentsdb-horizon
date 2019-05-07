@@ -11,18 +11,18 @@ export class D3BarChartDirective implements OnInit, OnChanges {
 
     @Input() options;
     @Input() size: any;
-  
+
     private host;
     private svg;
     constructor(private element: ElementRef, private unitService: UnitConverterService ) { }
-  
+
     ngOnInit() {
     }
-  
+
     ngOnChanges(changes: SimpleChanges) {
       if (changes.options && changes.options ||  changes.size && changes.size.currentValue ) {
         this.createChart();
-      } 
+      }
     }
     createChart() {
       if ( ! this.size || !this.size.width || !this.options ) {
@@ -59,7 +59,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
       };
 
       this.host = d3.select(this.element.nativeElement);
-      this.host.html('');
+      // this.host.html('');
       const tooltip = d3.select(this.element.nativeElement.parentNode.parentNode).select('.tooltip');
 
 
@@ -73,13 +73,22 @@ export class D3BarChartDirective implements OnInit, OnChanges {
                     .tickSize(0)
                     .tickFormat( (d, i) => self.unitService.convert(dataset[i].value, unitOptions.unit, dunit, unitOptions ));
 
-      const svg = this.host
-                      .append("svg")
-                      .attr("width", this.size.width)
-                      .attr("height", chartHeight);
+
+      let svg = this.host.select('svg');
+
+      if ( svg.empty() ) {
+        svg = this.host
+                      .append('svg');
+      }
+
+      svg
+        .style('width', ( this.size.width - margin.left - margin.right) + 'px')
+        .style('height', chartHeight + 'px');
+
 
       // rerendering causing issue as we clear the chart container. the svg container is not available to calculate the yaxis label width
       setTimeout( () => {
+        svg.selectAll('*').remove();
         // calculate the max label length and remove
         svg.append("text").attr("class", "axisLabel")
                         .text(self.unitService.convert(max, unitOptions.unit, dunit, unitOptions ))
@@ -90,9 +99,8 @@ export class D3BarChartDirective implements OnInit, OnChanges {
         const x = d3.scaleLinear()
                     .range([0, chartAreawidth])
                     .domain([0, d3.max(dataset, (d:any) => parseInt(d.value))]);
-        const g = svg  
-                    .append("g")
-                    .attr("transform", "translate(" + (margin.left + yAxisWidth + 3) + "," + margin.top + ")");
+
+        const g = svg.append('g').attr("transform", "translate(" + (margin.left + yAxisWidth + 3) + "," + margin.top + ")");
 
         // reduce the font-size when bar height is less than the fontsize
         g.append("g")
@@ -134,6 +142,8 @@ export class D3BarChartDirective implements OnInit, OnChanges {
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseout", mouseout);
+
+          bars.exit().remove();
       }, 100);
     }
   }
