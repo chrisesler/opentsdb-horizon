@@ -1,7 +1,16 @@
 @mixin template-variable-panel-component-base() {
 
     $vtb-height: 44px;
-
+    table {
+        width: 100%;
+        margin: 5px;
+    }
+    td {
+        padding: 4px;
+    }
+    th {
+        padding-left: 8px;
+    }
     .template-variable-panel-component {
         display: flex;
         width: 100%;
@@ -17,12 +26,7 @@
             flex: 1;
             width: 100%;
             max-width: 100%;
-            padding: 8px 16px;
-
-
-            .edit-control-list {
-
-            }
+            padding: 8px 6px;
 
             .edit-actions {
 
@@ -44,12 +48,12 @@
             .variable-item {
                 display: flex;
                 margin-right: 10px;
-                margin-bottom: 8px;
+                margin-bottom: 2px;
             }
 
             .settings-control {
                 margin-bottom: 0;
-                padding: 10px;
+                padding: 0 10px;
                 transition: background-color 500ms ease-in-out;
     
                 &:first-child {
@@ -58,10 +62,6 @@
     
                 &:last-child {
                     padding-right: 20px;
-                }
-    
-                &.values-control {
-                    //flex: 1;
                 }
     
                 &.actions-control {
@@ -109,8 +109,8 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
-    $bg-color: lighten(map-get($background, navbar), 5%);
-    $navbar-text: map-get($foreground, navbar-text);
+    $bg-color: lighten(map-get($background, navbar), 100%);
+    $navbar-text: map-get($foreground, foreground);
 
     $border-color: map-get($background, background);
     
@@ -130,7 +130,7 @@
         .variable-edit-controls {
             
             .variable-item {
-                border: 2px solid $border-color;
+                // border: 2px solid $border-color;
             }
 
             .settings-control {

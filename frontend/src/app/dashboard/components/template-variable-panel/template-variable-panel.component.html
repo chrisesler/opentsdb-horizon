@@ -1,24 +1,112 @@
-<ng-template [ngIf]="mode === 'list'" [ngIfElse]="variableEditView">
+<ng-template [ngIf]="mode === 'view'" [ngIfElse]="variableEditView">
     <div class="variable-list-wrapper">
-        <span>LIST VIEW</span>
+        <span *ngIf="tplVariables.length === 0" (click)="doEdit()">Config this</span>
+        <div *ngIf="tplVariables.length > 0">
+            list variables here
+        </div>
     </div>
 </ng-template>
 
 <ng-template #variableEditView>
+    <form [formGroup]="editForm">
+        <table formArrayName="formTplVariables">
+            <thead>
+                <tr>
+                    <th>Tag</th>
+                    <th>Alias</th>
+                    <th>Value</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let tpl of formTplVariables['controls']; let i=index" [formGroupName]="i">
+                    <td>
+                        <div class="settings-control tag-key-control">
+                            <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                                <input matInput placeholder="Enter tag key" formControlName="tagk"
+                                    [matAutocomplete]="filterKeyAuto">
+                                <mat-autocomplete #filterKeyAuto="matAutocomplete"
+                                    (optionSelected)="selectFilterKeyOption($event)">
+                                    <mat-option *ngFor="let option of filteredKeyOptions | async" [value]="option">
+                                        {{option}}
+                                    </mat-option>
+                                </mat-autocomplete>
+                            </mat-form-field>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="settings-control alias-control">
+                            <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                                <input matInput placeholder="Enter alias" formControlName="alias">
+                            </mat-form-field>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="settings-control values-control">
+                            <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                                <input matInput placeholder="select a value" formControlName="filter"
+                                    [matAutocomplete]="filterKeyAuto">
+                                <mat-autocomplete #filterValueAuto="matAutocomplete"
+                                    (optionSelected)="selectFilterValueOption($event)">
+                                    <mat-option *ngFor="let option of filteredValueOptions" [value]="option">
+                                        {{option}}
+                                    </mat-option>
+                                </mat-autocomplete>
+                            </mat-form-field>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="settings-control actions-control">
+                            <div class="actions">
+                                <button mat-button (click)="removeTemplateVariable(i)">
+                                    <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="variable-edit-controls">
+        <div class="edit-actions">
+            <button mat-flat-button class="add-template-button" color="primary" (click)="addVariableTemplate()">
+                <mat-icon fontSet="denali" fontIcon="d-add-circle"></mat-icon>
+                <span>New Variable Template</span>
+            </button>
+            <button mat-stroked-button color="primary" class="editing-done-button" (click)="variabletemplateEditDone()">
+                <span (click)="doList()">Done</span>
+            </button>
+        </div>
+        </div>
+    </form>
+    <!--
     <div class="variable-edit-controls" [formGroup]="editForm" >
-        <span>EDIT VIEW</span>
-        <div class="edit-control-list" formArrayName="tplVariables">
-    
-            <ng-container *ngFor="let tpl of tplVariables['controls']; let i=index">
+        <div class="edit-control-list" formArrayName="formTplVariables">
+
+            <div class="variable-item">
+                <div class="settings-control alias-control">
+                    <div class="mat-label">Tag Key Alias</div>
+                </div>
+                <div class="settings-control tag-key-control">
+                    <div class="mat-label">Tag Key</div>
+                </div>              
+                <div class="settings-control values-control">
+                    <div class="mat-label">Value</div>
+                </div>
+                <div class="settings-control actions-control">
+                    <div class="mat-label">&nbsp</div>
+                </div>
+            </div>    
+
+            <ng-container *ngFor="let tpl of formTplVariables['controls']; let i=index">
                 <div class="variable-item" [formGroupName]="i">
                     <div class="settings-control alias-control">
-                        <div class="mat-label">Tag Key Alias</div>
                         <mat-form-field appearance="fill" color="primary" floatLabel="never">
-                            <input matInput placeholder="Enter alias (optional)" formControlName="alias">
+                            <input matInput placeholder="Enter alias" formControlName="alias">
                         </mat-form-field>
                     </div>
                     <div class="settings-control tag-key-control">
-                        <div class="mat-label">Tag Key</div>
                         <mat-form-field appearance="fill" color="primary" floatLabel="never">
                             <input matInput placeholder="Enter tag key" formControlName="tagk" [matAutocomplete]="filterKeyAuto">
                             <mat-autocomplete #filterKeyAuto="matAutocomplete" (optionSelected)="selectFilterKeyOption($event)">
@@ -30,7 +118,6 @@
                     </div>
                     
                     <div class="settings-control values-control">
-                        <div class="mat-label">Allowed Tag Values</div>
                         <mat-form-field appearance="fill" color="primary" floatLabel="never">
                             <mat-chip-list class="filter-values-list" #chipList>
                                 <mat-chip
@@ -40,7 +127,7 @@
                                     <mat-icon matChipRemove fontSet="denali" fontIcon="d-close"></mat-icon>
                                 </mat-chip>
                                     <input
-                                    placeholder="Enter value(s) seperated by commas"
+                                    placeholder="select value"
                                     #filterValueInput
                                     [formControl]="allowedValuesInput"
                                     [matAutocomplete]="filterValueAuto"
@@ -55,7 +142,6 @@
                         </mat-form-field>
                     </div>
                     <div class="settings-control actions-control">
-                        <div class="mat-label">Actions</div>
                         <div class="actions">
                             <button mat-button (click)="removeTemplateVariable(i)">
                                 <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
@@ -71,8 +157,9 @@
                 <span>New Variable Template</span>
             </button>
             <button mat-stroked-button color="primary" class="editing-done-button" (click)="variabletemplateEditDone()">
-                <span>Done</span>
+                <span (click)="doList()">Done</span>
             </button>
         </div>
     </div>
+-->
 </ng-template>
