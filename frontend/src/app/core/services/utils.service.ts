@@ -215,8 +215,8 @@ export class UtilsService {
     }
     // human sort
     sortAlphaNum (a, b) {
-      const aa = a.split(/(\d+)/);
-      const bb = b.split(/(\d+)/);
+      const aa = a.toLowerCase().split(/(\d+)/);
+      const bb = b.toLowerCase().split(/(\d+)/);
       for (let x = 0; x < Math.max(aa.length, bb.length); x++) {
           if (aa[x] !== undefined && bb[x] !== undefined && aa[x] !== bb[x]) {
               const cmp1 = (isNaN(parseInt(aa[x], 10))) ? aa[x] : parseInt(aa[x], 10);
