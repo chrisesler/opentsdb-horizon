@@ -13,14 +13,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Location } from '@angular/common';
 import {
-    MatMenuTrigger,
     MatPaginator,
     MatTableDataSource,
     MatSort,
     MatDialog,
-    MatDialogConfig,
     MatDialogRef,
-    DialogPosition,
     MatSnackBar
 } from '@angular/material';
 
@@ -144,7 +141,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
     // SNOOZE dialog
     snoozeAlertDialog: MatDialogRef<SnoozeAlertDialogComponent> | null;
 
-    createAlertDialog: MatDialogRef<AlertConfigurationDialogComponent> | null;
+    @ViewChild(AlertConfigurationDialogComponent) createAlertDialog: AlertConfigurationDialogComponent;
+    editMode = false;
+    configurationEditData: any = {};
 
     // confirmDelete Dialog
     confirmDeleteDialog: MatDialogRef<TemplateRef<any>> | null;
@@ -241,7 +240,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.subscription.add(this.selectedNamespace$.subscribe( data => {
             this.selectedNamespace = data;
             if ( this.selectedNamespace ) {
-                this.hasNamespaceWriteAcess = this.userNamespaces.find(d=>d.name === this.selectedNamespace ) ? true : false;
+                this.hasNamespaceWriteAcess = this.userNamespaces.find(d => d.name === this.selectedNamespace ) ? true : false;
                 this.store.dispatch(new LoadAlerts({namespace: this.selectedNamespace}));
             } else {
                 this.hasNamespaceWriteAcess = false;
@@ -273,7 +272,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 case 'add-success':
                 case 'update-success':
                     message = 'Alert has been ' + (status === 'add-success' ? 'created' : 'updated') + '.';
-                    this.createAlertDialog.close();
+                    this.editMode = false;
                     this.router.navigate(['a']);
                     break;
                 case 'enable-success':
@@ -321,7 +320,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.saveError$.subscribe(error => {
             if (this.createAlertDialog ) {
-                this.createAlertDialog.componentInstance.data.error = error;
+                this.createAlertDialog.data.error = error;
             }
         }));
 
@@ -367,13 +366,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.alertsDataSource = new MatTableDataSource<AlertModel>(this.alerts);
         this.alertsDataSource.paginator = this.paginator;
         this.alertsDataSource.sort = this.dataSourceSort;
-
-        // console.log('DATA SOURCE', this.alertsDataSource);
     }
 
     /* Utilities */
     ensureMenuWidth(element: any) {
-        // console.log('ENSURE WIDTH', element);
         element = <ElementRef>element._elementRef;
         return `${element.nativeElement.clientWidth}px`;
     }
@@ -467,32 +463,24 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     openAlertDialog(data: any) {
-        const dialogConf: MatDialogConfig = new MatDialogConfig();
-        dialogConf.autoFocus = false;
-        dialogConf.width = '100%';
-        dialogConf.maxWidth = '100%';
-        dialogConf.height = '100%';
-        dialogConf.hasBackdrop = false;
-        dialogConf.disableClose = true;
-        // dialogConf.direction = 'ltr';
-        // dialogConf.backdropClass = 'snooze-alert-dialog-backdrop';
-        dialogConf.panelClass = 'alert-configuration-dialog-panel';
-        dialogConf.data = data;
 
-        this.createAlertDialog = this.dialog.open(AlertConfigurationDialogComponent, dialogConf);
+        this.configurationEditData = data;
+        this.editMode = true;
 
-        const sub = this.createAlertDialog.componentInstance.request.subscribe((message: any) => {
-            switch ( message.action ) {
-                case 'SaveAlert':
-                    this.store.dispatch(new SaveAlerts(data.namespace, message.payload));
-                    break;
-            }
-        });
-        // this.snoozeAlertDialog.updatePosition({ top: '48px' });
-        this.createAlertDialog.afterClosed().subscribe((dialog_out: any) => {
-            // this is when dialog is closed to return to summary page
-            this.location.go('a');
-        });
+    }
+
+    configurationEdit_Request(message: any) {
+        switch ( message.action ) {
+            case 'SaveAlert':
+                this.store.dispatch(new SaveAlerts(message.namespace, message.payload));
+                break;
+        }
+    }
+
+    configurationEdit_AfterClosed($event: any) {
+        // this is when dialog is closed to return to summary page
+        this.location.go('a');
+        this.editMode = false;
     }
 
     selectSparklineDisplayOption(option: any) {
@@ -543,7 +531,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     contactMenuEsc($event: any) {
-        console.log('contactMenuEsc', $event);
+        // console.log('contactMenuEsc', $event);
     }
 
 }

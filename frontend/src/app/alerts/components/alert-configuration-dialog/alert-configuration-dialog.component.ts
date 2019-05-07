@@ -37,7 +37,8 @@ import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/c
 import { min } from 'rxjs/operators';
 
 @Component({
-    selector: 'app-alert-configuration-dialog',
+// tslint:disable-next-line: component-selector
+    selector: 'alert-configuration-dialog',
     templateUrl: './alert-configuration-dialog.component.html',
     styleUrls: []
 })
@@ -50,11 +51,13 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
 
     @Input() response;
-    request = new EventEmitter();
+    @Output() request = new EventEmitter();
+
+    @Output() afterClosed: EventEmitter<any> = new EventEmitter<any>();
 
 
     // placeholder for expected data from dialogue initiation
-    data: any = {
+    @Input() data: any = {
         namespace: 'UDB',
         name: 'Untitled Alert',
         queries: []
@@ -160,14 +163,13 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         private utils: UtilsService,
         private elRef: ElementRef,
         public dialog: MatDialog,
-        public dialogRef: MatDialogRef<AlertConfigurationDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public dialogData: any
+        // public dialogRef: MatDialogRef<AlertConfigurationDialogComponent>,
+        // @Inject(MAT_DIALOG_DATA) public dialogData: any
     ) {
-        this.data = dialogData;
+        // this.data = dialogData;
         if (this.data.name) {
             this.alertName.setValue(this.data.name);
         }
-        this.setupForm(this.data);
     }
 
     ngOnInit() {
@@ -177,6 +179,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             // see: https://github.com/angular/material2/issues/5268
             // setTimeout(() => this.openAlertNameDialog());
         }
+        this.setupForm(this.data);
     }
 
     ngOnDestroy() {
@@ -191,10 +194,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
         ElementQueries.listen();
         ElementQueries.init();
-        let initSize = {
-            width: this.graphOutput.nativeElement.clientWidth,
-            height: this.graphOutput.nativeElement.clientHeight
-        };
 
         const resizeSensor = new ResizeSensor(this.graphOutput.nativeElement, () => {
              const newSize = {
@@ -209,7 +208,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const def = {
                 threshold : { singleMetric: {} },
                 notification: {},
-                queries: { raw: {}, tsdb:{}}
+                queries: { raw: {}, tsdb: {}}
             };
         data = Object.assign(def, data);
         this.showDetail = data.id ? true : false;
@@ -224,9 +223,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             alertGroupingRules: [ data.alertGroupingRules || []],
             labels: this.fb.array(data.labels || []),
             threshold: this.fb.group({
-                subType: data.threshold.subType || 'singleMetric', 
-                nagInterval: data.threshold.nagInterval || '0', 
-                notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false', 
+                subType: data.threshold.subType || 'singleMetric',
+                nagInterval: data.threshold.nagInterval || '0',
+                notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false',
                 delayEvaluation: data.threshold.delayEvaluation || 0,
                 singleMetric: this.fb.group({
                     queryIndex: data.threshold.singleMetric.queryIndex || -1 ,
@@ -236,7 +235,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                     badThreshold:  data.threshold.singleMetric.badThreshold || null,
                     warnThreshold: data.threshold.singleMetric.warnThreshold || null,
                     recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || null,
-                    recoveryType: data.threshold.singleMetric.recoveryType || 'minimum', 
+                    recoveryType: data.threshold.singleMetric.recoveryType || 'minimum',
                     slidingWindow : data.threshold.singleMetric.slidingWindow ? data.threshold.singleMetric.slidingWindow.toString() : '300',
                     comparisonOperator : data.threshold.singleMetric.comparisonOperator || 'above',
                     timeSampler : data.threshold.singleMetric.timeSampler || 'at_least_once'
@@ -244,9 +243,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             }, this.validateThresholds),
             notification: this.fb.group({
                 transitionsToNotify: [ data.notification.transitionsToNotify || []],
-                recipients: [ data.notification.recipients || {}], 
-                subject: data.notification.subject  || '', 
-                body: data.notification.body || '', 
+                recipients: [ data.notification.recipients || {}],
+                subject: data.notification.subject  || '',
+                body: data.notification.body || '',
                 opsgeniePriority:  data.notification.opsgeniePriority || '',
                 // opsgenieTags: data.notification.opsgenieTags || '',
                 // OC conditional values
@@ -677,8 +676,12 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         data.threshold.singleMetric.queryIndex = qindex;
         data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex; 
         data.threshold.isNagEnabled = data.threshold.nagInterval!== "0" ? true : false;
-        this.request.emit({ action: 'SaveAlert', payload: { data: this.utils.deepClone([data]) }} );
+        this.request.emit({ action: 'SaveAlert', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
         // console.log(JSON.stringify(data), "alert form", qindex, mindex,this.queries[qindex].metrics[mindex] )
+    }
+
+    cancelEdit() {
+        this.afterClosed.emit();
     }
 
     /** Events */
