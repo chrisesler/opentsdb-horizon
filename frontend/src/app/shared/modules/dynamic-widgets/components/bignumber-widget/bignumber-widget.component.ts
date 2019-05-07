@@ -421,6 +421,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
+            case 'SummarizerChange':
+                this.setBigNumber(this.widget.settings.visual.queryID);
+                break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);

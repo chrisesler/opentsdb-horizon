@@ -545,8 +545,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const index = this.query.metrics.findIndex(item => item.id === id);
         if (index !== -1) {
             this.query.metrics[index].summarizer = summarizer;
-            // todo - do not trigger full requery
-            this.queryChanges$.next(true);
+            this.requestChanges('SummarizerChange', { summarizer });
         }
     }
 

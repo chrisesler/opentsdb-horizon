@@ -181,6 +181,9 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             case 'QueryChange':
                 this.updateQuery(message.payload.query);
                 break;
+            case 'SummarizerChange':
+                this.widgetChange.emit({ id: message.id, action: 'SummarizerChange', payload:  { summarizer: message.payload.summarizer }});
+                break;
         }
     }
 
