@@ -17,10 +17,8 @@ export interface DBSettingsModel {
         description: string;
         labels: Array<any>; // [{label: ''}]
     };
-    variables: {
-        enabled: boolean, // if all variables are enabled
-        tplVariables: Array<object>; // [{ tagk: '', alias: '', allowedValues: [], filter: [], enabled: true, type: ''}]
-    };
+    // [{ tagk: '', alias: '', allowedValues: [], filter: [], enabled: true, type: ''}]
+    tplVariables: Array<object>;
 }
 
 export class UpdateMode {
@@ -94,10 +92,7 @@ export class UpdateMeta {
             description: '',
             labels: []
         },
-        variables: {
-            enabled: true,
-            tplVariables: []
-        }
+        tplVariables: []
     }
 })
 
@@ -120,8 +115,8 @@ export class DBSettingsState {
         return state.meta;
     }
 
-    @Selector() static getVariables(state: DBSettingsModel) {
-        return state.variables;
+    @Selector() static getTplVariables(state: DBSettingsModel) {
+        return state.tplVariables;
     }
 
     @Selector() static getDashboardTags(state: DBSettingsModel) {
@@ -200,7 +195,7 @@ export class DBSettingsState {
     @Action(UpdateVariables)
     updateVariables(ctx: StateContext<DBSettingsModel>, { variables }: UpdateVariables) {
         const state = ctx.getState();
-        ctx.patchState({...state, variables: variables});
+        ctx.patchState({...state, tplVariables: [...variables]});
     }
 
     @Action(UpdateMeta)
