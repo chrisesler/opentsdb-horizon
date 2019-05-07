@@ -451,15 +451,6 @@
             align-items: center;
         }
     }
-
-    // CDK ITEMS
-    .alert-configuration-dialog-panel {
-        .mat-dialog-container {
-            display: flex;
-            padding: 0;
-            border-radius: 0;
-        }
-    }
 }
 
 @mixin alert-configuration-dialog-component-theme($theme-config) {
