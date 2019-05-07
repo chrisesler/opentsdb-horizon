@@ -17,7 +17,7 @@ import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MatMenuTrigger, MatMenu } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
-import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { MatTableDataSource, MatDialogRef, MatDialog } from '@angular/material';
@@ -30,6 +30,14 @@ import {
     trigger
 } from '@angular/animations';
 
+interface IQueryEditorOptions {
+    deleteQuery?: boolean;
+    toggleQuery?: boolean;
+    cloneQuery?: boolean;
+    toggleMetric?: boolean;
+    enableGroupBy?: boolean;
+    enableSummarizer?: boolean;
+}
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -45,6 +53,7 @@ import {
         ])
     ]
 })
+
 export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     // tslint:disable-next-line:no-inferrable-types
@@ -59,7 +68,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     @Input() type;
     @Input() query: any;
     @Input() label = '';
-    @Input() options: any = {};
+    @Input() options: IQueryEditorOptions;
 
     @Output() queryOutput = new EventEmitter;
 
@@ -100,6 +109,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
     ];
 
+    summarizerOptions: Array<string> = ['avg', 'last', 'first', 'sum', 'min', 'max', 'count'];
     queryChanges$: BehaviorSubject<boolean>;
     queryChangeSub: Subscription;
 
@@ -152,16 +162,11 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        const defaultOptions = {
-                                    'deleteQuery': true,
-                                    'cloneQuery': true,
-                                    'toggleQuery': true,
-                                    'deleteMetric': true,
-                                    'toggleMetric': true };
-        this.options = Object.assign( defaultOptions, this.options );
-        this.queryChanges$ = new BehaviorSubject(false);
+        this.initOptions();
         this.initFormControls();
         this.initMetricDataSource();
+        this.initSummarizerValue();
+        this.queryChanges$ = new BehaviorSubject(false);
 
         this.queryChangeSub = this.queryChanges$
             .pipe(
@@ -178,6 +183,18 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.queryChangeSub.unsubscribe();
     }
+
+    initOptions() {
+        const defaultOptions = {
+            'deleteQuery': false,
+            'toggleQuery': false,
+            'cloneQuery': false,
+            'toggleMetric': true,
+            'enableGroupBy': true,
+            'enableSummarizer': false };
+        this.options = Object.assign(defaultOptions, this.options);
+    }
+
 
     // helper function to format the table datasource into a structure
     // that allows the table to work more or less like it did before
@@ -213,6 +230,17 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
         this.fg.addControl('-1', new FormControl(''));
     }
+
+    initSummarizerValue() {
+        if (this.options.enableSummarizer) {
+            for (let metric of this.query.metrics) {
+                if (!metric.summarizer) {
+                    metric.summarizer = 'avg';
+                }
+            }
+        }
+    }
+
     saveNamespace(namespace) {
         this.query.namespace = namespace;
         this.editNamespace = false;
@@ -244,8 +272,12 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                         }
                     },
                     tagAggregator: 'sum',
-                    functions: []
+                    functions: [],
+                    summarizer: ''
                 };
+                if (this.options.enableSummarizer) {
+                    oMetric.summarizer = 'avg';
+                }
                 this.query.metrics.splice(insertIndex, 0, oMetric);
             }
             // update data source
@@ -507,6 +539,14 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             trigger.closeMenu();
         }
         this.queryChanges$.next(true);
+    }
+
+    setSummarizerValue(id, summarizer: string) {
+        const index = this.query.metrics.findIndex(item => item.id === id);
+        if (index !== -1) {
+            this.query.metrics[index].summarizer = summarizer;
+            this.requestChanges('SummarizerChange', { summarizer });
+        }
     }
 
     showMetricAC() {
