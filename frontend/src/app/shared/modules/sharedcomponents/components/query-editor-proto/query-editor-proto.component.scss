@@ -329,6 +329,33 @@
                         }
                     }
 
+                    &.summarizer-selector {
+                        .summarizer-selector-wrapper {
+                            width: 100%;
+                            display: flex;
+                            align-items: center;
+                            height: 32px;
+                            
+                            .summarizer-title{
+                                padding-left: 5px;
+                                padding-right: 5px;
+                            }
+                    
+                            .mat-button {
+                                line-height: 32px;
+                    
+                                .mat-button-wrapper {
+                                    display: flex;
+                    
+                                    .mat-select-arrow-wrapper {
+                                        display: flex;
+                                        align-items: center;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     &.custom-function {
                         .custom-function-wrapper {
                             width: 100%;
@@ -660,6 +687,21 @@
 
             &.tag-aggregator {
                 .tag-aggregator-wrapper {
+                    border: 1px solid $lighter-divider;
+
+                    &:hover {
+                        background-color: rgba($link, 0.1);
+                    }
+                }
+            }
+
+            &.summarizer-selector {
+
+                .mat-button {
+                    color: map-get($foreground, link);
+                }
+
+                .summarizer-selector-wrapper {
                     border: 1px solid $lighter-divider;
 
                     &:hover {

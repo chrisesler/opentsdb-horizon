@@ -4,7 +4,7 @@
     <mat-option *ngFor="let option of tagOptions" [value]="option.name">{{ option.name }}</mat-option>
 </mat-select>
 -->
-<button mat-button (click)="loadTags(true)">
+<button mat-button (click)="loadTags(true)" [disabled]="!enableGroupBy">
     <div class="button-label">
         <div>{{   ( selected && selected.length > 0 && selected.indexOf('all') === -1) ? selected.join(', ') : (all ? 'Everything' : 'Select Tags') }}</div>
         <div class="mat-select-arrow-wrapper">
