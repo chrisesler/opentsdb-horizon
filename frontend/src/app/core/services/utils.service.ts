@@ -213,4 +213,21 @@ export class UtilsService {
 
         return textWidth;
     }
+    // human sort
+    sortAlphaNum (a, b) {
+      const aa = a.split(/(\d+)/);
+      const bb = b.split(/(\d+)/);
+      for (let x = 0; x < Math.max(aa.length, bb.length); x++) {
+          if (aa[x] !== undefined && bb[x] !== undefined && aa[x] !== bb[x]) {
+              const cmp1 = (isNaN(parseInt(aa[x], 10))) ? aa[x] : parseInt(aa[x], 10);
+              const cmp2 = (isNaN(parseInt(bb[x], 10))) ? bb[x] : parseInt(bb[x], 10);
+              if (cmp1 === undefined || cmp2 === undefined) {
+                  return aa.length - bb.length;
+              } else {
+                  return (cmp1 < cmp2) ? -1 : 1;
+              }
+          }
+      }
+      return 0;
+};
 }
