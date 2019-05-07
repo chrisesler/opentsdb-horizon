@@ -135,12 +135,32 @@
                                 [value]="data.metric.tagAggregator"
                             (change)="setMetricTagAggregator(data.metric.id, $event)"></tag-aggregator>
                             <span class="by-spacer">{{ data.type === 'expression' ? 'JOIN ON' : 'By' }}</span>
+                    
                             <dropdown-metric-tags
                                 [namespace]="query.namespace"
                                 [metric]="data.metric.name"
                                 [selected]="data.metric.groupByTags"
                                 [tags] = " data.type === 'expression' ? getGroupByTags(data.metric.id) : null"
-                                (change)="setMetricGroupByTags(data.metric.id, $event)"></dropdown-metric-tags>
+                                (change)="setMetricGroupByTags(data.metric.id, $event)"
+                                [enableGroupBy]="options.enableGroupBy"></dropdown-metric-tags>
+                        </div>
+                    </div>
+
+                    <!-- summarizer selector -->
+                    <div class="metric-row-data summarizer-selector" *ngIf="options.enableSummarizer && data.type === 'metric'">
+                        <div class="summarizer-selector-wrapper">
+                            <span class="summarizer-title">Take the </span>
+                            <button mat-button [matMenuTriggerFor]="summarizerMenu">
+                                <span>{{ data.metric.summarizer | titlecase }}</span>
+                                <span class="mat-select-arrow-wrapper">
+                                    <span class="mat-select-arrow"></span>
+                                </span>
+                            </button>
+                            <mat-menu class="tag-aggregator-cdk-menu" #summarizerMenu="matMenu" yPosition="below">
+                                <button mat-menu-item *ngFor="let option of summarizerOptions"
+                                    (click)="setSummarizerValue(data.metric.id, option)">{{option | titlecase}}
+                                </button>
+                            </mat-menu>
                         </div>
                     </div>
                     <!-- custom function loop -->
