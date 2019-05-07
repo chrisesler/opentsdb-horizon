@@ -20,6 +20,13 @@ import { InlineQueryEditorComponent } from '../inline-query-editor/inline-query-
 import { Subscription } from 'rxjs';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
+interface IMetricQueriesConfigOptions {
+    enableMultipleQueries?: boolean;
+    enableGroupBy?: boolean;
+    enableSummarizer?: boolean;
+    // toggleMetric?: boolean;  // future use
+}
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'widget-config-metric-queries',
@@ -32,7 +39,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
     /** Inputs */
     @Input() widget: any;
- 
+    @Input() options: IMetricQueriesConfigOptions;
     /** Outputs */
     @Output() widgetChange = new EventEmitter;
 
@@ -82,6 +89,16 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             // this.addNewQuery();
             // this.queryEditMode = true;
         }
+
+       this.initOptions();
+    }
+
+    initOptions() {
+        const defaultOptions = {
+            'enableGroupBy': true,
+            'enableSummarizer': false,
+            'enableMultipleQueries': false };
+        this.options = Object.assign(defaultOptions, this.options);
     }
 
     addNewQuery() {
@@ -163,6 +180,9 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                 break;
             case 'QueryChange':
                 this.updateQuery(message.payload.query);
+                break;
+            case 'SummarizerChange':
+                this.widgetChange.emit({ id: message.id, action: 'SummarizerChange', payload:  { summarizer: message.payload.summarizer }});
                 break;
         }
     }
