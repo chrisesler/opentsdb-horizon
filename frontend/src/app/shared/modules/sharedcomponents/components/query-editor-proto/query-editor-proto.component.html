@@ -281,7 +281,7 @@
 <mat-menu class="metric-action-cdk-menu" #metricActionMenu="matMenu" hasBackdrop="true">
     <ng-template matMenuContent let-metric="metric">
         <!-- conditional button -->
-        <button mat-menu-item *ngIf="options.toggleMetric" (click)="toggleMetric(metric.id)">
+        <button mat-menu-item *ngIf="options.toggleMetric" [disabled]="!options.enableMultiMetricSelection && metric.settings.visual.visible" (click)="toggleMetric(metric.id)">
             <mat-icon fontSet="denali" [fontIcon]="metric.settings.visual.visible ? 'd-eye-close' : 'd-eye-open'"></mat-icon>
             <span>{{metric.settings.visual.visible ? 'Disable' : 'Enable'}}</span>
         </button>
