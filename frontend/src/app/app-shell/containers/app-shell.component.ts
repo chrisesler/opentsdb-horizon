@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store, Select } from '@ngxs/store';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { MatDrawer } from '@angular/material';
 
@@ -40,8 +40,7 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
     @Input() fullUrlPath: string;
 
     // new state
-
-    private stateSubs: any = {};
+    private subscription: Subscription = new Subscription();
 
     @Select(NavigatorState.getCurrentApp) currentApp$: Observable<string>;
     @Select(NavigatorState.getSideNavOpen) sideNavOpen$: Observable<boolean>;
@@ -61,6 +60,21 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
     sideNavOpen = true; // the skinny icon bar
     activeMediaQuery = '';
 
+    // global error Message bar
+    messageBarVisible = false;
+    messageBarData: any = {
+        type: 'error',
+        message: 'Info'
+    };
+
+    messageBarIconMap: any = {
+        info: 'd-information-circle',
+        error: 'd-stop-warning-solid',
+        success: 'd-check-circle',
+        warning: 'd-warning-solid'
+    }
+
+
     constructor(
         private interCom: IntercomService,
         private store: Store,
@@ -68,30 +82,48 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.stateSubs.currentMediaQuery = this.mediaQuery$.subscribe( currentMediaQuery => {
+        this.subscription.add(this.mediaQuery$.subscribe( currentMediaQuery => {
             // console.log('[SUB] currentMediaQuery', currentMediaQuery);
             this.activeMediaQuery = currentMediaQuery;
             this.store.dispatch(new SetSideNavOpen(( currentMediaQuery !== 'xs')));
-        });
+        }));
 
-        this.stateSubs.userProfile = this.userProfile$.subscribe( data => {
+        this.subscription.add(this.userProfile$.subscribe( data => {
             // console.log('[SUB] User Profile', data);
             this.userProfile = data;
 
             if (!data.loaded) {
                 this.store.dispatch(new SSGetUserProfile());
             }
-        });
+        }));
 
-        this.stateSubs.currentApp = this.currentApp$.subscribe( app => {
+        this.subscription.add(this.currentApp$.subscribe( app => {
             // console.log('[SUB] currentApp', app);
             this.activeNavSection = app;
-        });
+        }));
 
-        this.stateSubs.sideNavOpen = this.sideNavOpen$.subscribe( isOpen => {
+        this.subscription.add(this.sideNavOpen$.subscribe( isOpen => {
             // console.log('[SUB] sidenavopen', isOpen);
             this.sideNavOpen = isOpen;
-        });
+        }));
+
+        this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
+            console.log('**** INTERCOM ****', message);
+            switch (message.action) {
+                case 'systemMessage':
+                    this.messageBarData = message.payload;
+                    this.messageBarVisible = true;
+                    break;
+                case 'systemMessageReset':
+                    if (this.messageBarVisible) {
+                        this.messageBarData = {};
+                        this.messageBarVisible = false;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }));
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -103,15 +135,17 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.stateSubs.currentEmediaQuery.unsubscribe();
-        this.stateSubs.currentApp.unsubscribe();
-        this.stateSubs.sideNavOpen.unsubscribe();
+        this.subscription.unsubscribe();
     }
 
     /** PRIVATE */
 
 
     /** BEHAVIORS */
+
+    closeMessageBar() {
+        this.messageBarVisible = false;
+    }
 
     drawerClosedStart() {
         // console.log('DRAWER IS CLOSING');
