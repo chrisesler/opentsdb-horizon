@@ -29,7 +29,7 @@
         <mat-tab label="Queries">
             <!-- ng-template is to lazy-load tab content (see: https://material.angular.io/components/tabs/overview#lazy-loading ) -->
             <ng-template matTabContent>
-                <widget-config-metric-queries [options]="{enableSummarizer: false}" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
+                <widget-config-metric-queries [options]="{enableSummarizer: false, enableMultiMetricSelection: false}" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-metric-queries>
             </ng-template>
         </mat-tab>
         <mat-tab label="Time Configuration" [disabled]="editQueryId">

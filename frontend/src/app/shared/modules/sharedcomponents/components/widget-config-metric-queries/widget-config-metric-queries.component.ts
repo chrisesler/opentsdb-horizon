@@ -24,6 +24,7 @@ interface IMetricQueriesConfigOptions {
     enableMultipleQueries?: boolean;
     enableGroupBy?: boolean;
     enableSummarizer?: boolean;
+    enableMultiMetricSelection?: boolean;
     // toggleMetric?: boolean;  // future use
 }
 
@@ -97,7 +98,8 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         const defaultOptions = {
             'enableGroupBy': true,
             'enableSummarizer': false,
-            'enableMultipleQueries': false };
+            'enableMultipleQueries': false,
+            'enableMultiMetricSelection': true };
         this.options = Object.assign(defaultOptions, this.options);
     }
 
