@@ -37,6 +37,7 @@ interface IQueryEditorOptions {
     toggleMetric?: boolean;
     enableGroupBy?: boolean;
     enableSummarizer?: boolean;
+    enableMultiMetricSelection?: boolean;
 }
 
 @Component({
@@ -68,7 +69,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     @Input() type;
     @Input() query: any;
     @Input() label = '';
-    @Input() options;
+    @Input() options: IQueryEditorOptions;
 
     @Output() queryOutput = new EventEmitter;
 
