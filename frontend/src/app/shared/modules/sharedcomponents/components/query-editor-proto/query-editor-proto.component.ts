@@ -68,7 +68,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     @Input() type;
     @Input() query: any;
     @Input() label = '';
-    @Input() options: IQueryEditorOptions;
+    @Input() options;
 
     @Output() queryOutput = new EventEmitter;
 
@@ -191,8 +191,10 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             'cloneQuery': false,
             'toggleMetric': true,
             'enableGroupBy': true,
-            'enableSummarizer': false };
-        this.options = Object.assign(defaultOptions, this.options);
+            'enableSummarizer': false,
+            'enableMultiMetricSelection': true
+         };
+        this.options = { ...defaultOptions, ...this.options};
     }
 
 
@@ -266,7 +268,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                     filters: [],
                     settings: {
                         visual: {
-                            visible: true,
+                            visible: this.options.enableMultiMetricSelection,
                             color: 'auto',
                             label: ''
                         }

@@ -196,7 +196,6 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
                 this.needRequery = true;
                 break;

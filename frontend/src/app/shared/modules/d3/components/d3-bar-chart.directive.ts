@@ -144,7 +144,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
             .on("mouseout", mouseout);
 
           bars.exit().remove();
-      }, 100);
+      }, 200);
     }
   }
   
