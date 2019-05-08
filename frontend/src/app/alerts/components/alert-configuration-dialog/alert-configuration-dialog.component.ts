@@ -35,6 +35,7 @@ import { UtilsService } from '../../../core/services/utils.service';
 import { DatatranformerService } from '../../../core/services/datatranformer.service';
 import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/components/error-dialog/error-dialog.component';
 import { min } from 'rxjs/operators';
+import { IntercomService } from '../../../core/services/intercom.service';
 
 @Component({
 // tslint:disable-next-line: component-selector
@@ -163,6 +164,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         private utils: UtilsService,
         private elRef: ElementRef,
         public dialog: MatDialog,
+        private interCom: IntercomService
         // public dialogRef: MatDialogRef<AlertConfigurationDialogComponent>,
         // @Inject(MAT_DIALOG_DATA) public dialogData: any
     ) {
@@ -658,12 +660,28 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         if ( this.alertForm['controls'].notification.get('body').value.trim() === '' ) {
             this.alertForm['controls'].notification.get('body').setErrors({ 'required': true });
         }
+
         if ( this.alertForm.valid ) {
+            this.interCom.requestSend({
+                action: 'systemMessageReset',
+                payload: {}
+            });
+
             if ( !this.data.id && this.data.name === 'Untitled Alert' ) {
                 this.openAlertNameDialog();
             } else {
                 this.saveAlert();
             }
+
+
+        } else {
+            this.interCom.requestSend({
+                action: 'systemMessage',
+                payload: {
+                    type: 'error',
+                    message: 'Your form has errors. Please review your form, and try again.'
+                }
+            });
         }
 
     }

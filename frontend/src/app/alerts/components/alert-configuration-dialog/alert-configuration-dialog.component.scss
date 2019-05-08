@@ -219,6 +219,7 @@
                 .toggle-wrap {
                     height: 32px;
                     width: 180px;
+                    min-width: 180px;
                     margin-right: 16px;
                     line-height: 1.2;
                     text-align: right;
@@ -280,6 +281,18 @@
                     .mat-form-field {
                         width: 100%;
                         max-width: 60%;
+                    }
+                }
+
+                .form-control-wrap {
+                    width: 100%;
+                    max-width: 60%;
+                    display: flex;
+                    flex-direction: column;
+
+                    &.auto-width {
+                        width: initial;
+                        max-width: initial;
                     }
                 }
 
