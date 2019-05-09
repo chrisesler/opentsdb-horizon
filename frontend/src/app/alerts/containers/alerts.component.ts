@@ -53,6 +53,7 @@ import { CdkService } from '../../core/services/cdk.service';
 
 import * as _moment from 'moment';
 import { TemplatePortal } from '@angular/cdk/portal';
+import { IntercomService } from '../../core/services/intercom.service';
 const moment = _moment;
 
 @Component({
@@ -203,7 +204,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
         private location: Location,
         private matIconRegistry: MatIconRegistry,
         private domSanitizer: DomSanitizer,
-        private cdkService: CdkService
+        private cdkService: CdkService,
+        private interCom: IntercomService
     ) {
         this.sparklineDisplay = this.sparklineDisplayMenuOptions[0];
 
@@ -316,6 +318,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.error$.subscribe(error => {
             this.error = error;
+            // maybe intercom error for messaging bar?
         }));
 
         this.subscription.add(this.saveError$.subscribe(error => {
@@ -534,4 +537,15 @@ export class AlertsComponent implements OnInit, OnDestroy {
         // console.log('contactMenuEsc', $event);
     }
 
+    /* TESTING MESSAGING BAR
+    testMessageBar() {
+        console.log('TEST MESSAGE BAR');
+        this.interCom.requestSend({
+            action: 'systemMessage',
+            payload: {
+                type: 'warning',
+                message: 'This is a test warning message'
+            }
+        });
+    }*/
 }
