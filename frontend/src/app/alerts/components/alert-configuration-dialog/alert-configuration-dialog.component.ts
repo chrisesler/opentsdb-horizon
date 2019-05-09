@@ -662,8 +662,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         }
 
         if ( this.alertForm.valid ) {
+            // clear system message bar
             this.interCom.requestSend({
-                action: 'systemMessageReset',
+                action: 'clearSystemMessage',
                 payload: {}
             });
 
@@ -675,6 +676,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
 
         } else {
+            // set system message bar
             this.interCom.requestSend({
                 action: 'systemMessage',
                 payload: {

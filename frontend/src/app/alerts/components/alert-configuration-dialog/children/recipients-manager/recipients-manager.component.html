@@ -1,4 +1,4 @@
-<mat-form-field class="contact-list" appearance="fill" (click)="showMegaPanel()" floatLabel="never" >
+<mat-form-field class="contact-list" appearance="fill" (click)="showMegaPanel()" floatLabel="never" [ngClass]="{'mat-form-field-invalid': formHasError}">
     <mat-chip-list #chipList>
 
         <mat-chip *ngFor="let recipient of alertRecipients" [selectable]="true" [removable]="true"

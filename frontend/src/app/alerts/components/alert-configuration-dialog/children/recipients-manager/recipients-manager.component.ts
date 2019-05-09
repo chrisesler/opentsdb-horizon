@@ -27,6 +27,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
 
     @Input() namespace: string;
     @Input() selectedAlertRecipients: any; // ex: {'slack' : [{'name': 'yamas_dev'}]}
+    @Input() formHasError: true;
     @Output() updatedAlertRecipients = new EventEmitter<any>(); // ex: {'slack' : [{'name': 'yamas_dev'}]}
 
     megaPanelVisible: boolean = false;
