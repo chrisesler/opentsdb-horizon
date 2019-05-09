@@ -110,11 +110,13 @@ export class AppShellComponent implements OnInit, OnChanges, OnDestroy {
         this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
             console.log('**** INTERCOM ****', message);
             switch (message.action) {
+                // sets system message and type
                 case 'systemMessage':
                     this.messageBarData = message.payload;
                     this.messageBarVisible = true;
                     break;
-                case 'systemMessageReset':
+                // clears and resets system message
+                case 'clearSystemMessage':
                     if (this.messageBarVisible) {
                         this.messageBarData = {};
                         this.messageBarVisible = false;
