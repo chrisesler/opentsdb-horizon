@@ -19,12 +19,12 @@ export class UtilsService {
   }
 
   convertPatternTSDBCompat(searchPattern) {
-    searchPattern = searchPattern.replace(/\s+/g, ".*");
+    searchPattern = searchPattern.replace(/\s+/g, '.*');
     if ((searchPattern).search(/^\s*\.\*/) === -1) {
         searchPattern = '.*' + searchPattern;
     }
     if ((searchPattern).search(/\.\*\s*$/) === -1) {
-        searchPattern = searchPattern + '.*'
+        searchPattern = searchPattern + '.*';
     }
     return searchPattern.toLowerCase();
 }
@@ -33,11 +33,11 @@ export class UtilsService {
     // add extra info item behaviors
     for (let i = 0; i < dashboard.widgets.length; i++) {
       const wd: any = dashboard.widgets[i];
-      //wd.id = this.utils.generateId(); // we set it manually to test
+      // wd.id = this.utils.generateId(); // we set it manually to test
       const mod = { 'xMd': wd.gridPos.x, 'yMd': wd.gridPos.y, 'dragAndDrop': true, 'resizable': true };
       wd.gridPos = { ...wd.gridPos, ...mod };
     }
-    //return dashboard;
+    // return dashboard;
   }
 
   // searches an array of objects for a specify key value and
@@ -55,8 +55,7 @@ export class UtilsService {
     const regExp = /{{([^}}]+)}}/g; // get chars between {{}}
     const matches = inputString.match(regExp);
     if (matches) {
-      let tagValues = new Array<string>();
-      let captureGroupToValueMap = {};
+      const captureGroupToValueMap = {};
       for (let i = 0; i < matches.length; i++) {
         const captureGroup = matches[i];
         const captureGroupSplit = captureGroup.split('.');
@@ -84,7 +83,6 @@ export class UtilsService {
     }
     return inputString;
   }
-
 
   getArrayAggregate( aggregate, arr ) {
     switch ( aggregate.toLowerCase() ) {
@@ -229,5 +227,5 @@ export class UtilsService {
           }
       }
       return 0;
-};
+  }
 }
