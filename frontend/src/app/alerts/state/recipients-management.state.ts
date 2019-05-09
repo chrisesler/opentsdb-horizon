@@ -8,7 +8,6 @@ export interface RecipientsModel {
 }
 
 export interface RecipientsManagamentStateModel {
-    loaded: boolean;
     loading: boolean;
     error: any;
     recipients: RecipientsModel;
@@ -114,7 +113,6 @@ export class DeleteRecipientFail {
             recipients: []
         },
         error: {},
-        loaded: false,
         loading: false,
         lastUpdated: {}
     }
@@ -139,22 +137,20 @@ export class RecipientsState {
     @Action(GetRecipients)
     getRecipients(ctx: StateContext<RecipientsManagamentStateModel>, { namespace }: GetRecipients) {
         const state = ctx.getState();
-        if (!state.loaded) {
-            ctx.patchState({ loading: true });
-            return this.httpService.getRecipients(namespace).pipe(
-                map((payload: any) => {
-                    ctx.dispatch(new LoadRecipientsSuccess(namespace, payload.body));
-                }),
-                catchError(error => ctx.dispatch(new LoadRecipientsFail(error)))
-            );
-        }
+        ctx.patchState({ loading: true });
+        return this.httpService.getRecipients(namespace).pipe(
+            map((payload: any) => {
+                ctx.dispatch(new LoadRecipientsSuccess(namespace, payload.body));
+            }),
+            catchError(error => ctx.dispatch(new LoadRecipientsFail(error)))
+        );
     }
 
     @Action(LoadRecipientsSuccess)
     loadRecipientsSuccess(ctx: StateContext<RecipientsManagamentStateModel>, recipients) {
         // console.log('#### NAMESPACE RECIPIENTS SUCCESS ####', recipients);
         const state = ctx.getState();
-        ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true });
+        ctx.setState({ ...state, recipients: recipients, loading: false, });
     }
 
     @Action(LoadRecipientsFail)
@@ -181,8 +177,7 @@ export class RecipientsState {
         const state = ctx.getState();
         let recipients = { ...state.recipients };
         recipients = this.appendRecipientToRecipients(recipient.data, recipients);
-
-        ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true });
+        ctx.setState({ ...state, recipients: recipients, loading: false, });
     }
 
     @Action(PostRecipientFail)
@@ -214,9 +209,9 @@ export class RecipientsState {
         const type = Object.keys(recipient.data)[0];
         if (recipient.data[type][0].newname) {
             const lastUpdated = this.createLastUpdated(recipient.data, 'update');
-            ctx.setState({ ...state, recipients, loading: false, loaded: true, lastUpdated });
+            ctx.setState({ ...state, recipients, loading: false, lastUpdated });
         } else {
-            ctx.setState({ ...state, recipients, loading: false, loaded: true });
+            ctx.setState({ ...state, recipients, loading: false, });
         }
     }
 
@@ -245,7 +240,7 @@ export class RecipientsState {
         let recipients = { ...state.recipients };
         const lastUpdated = this.createLastUpdated(recipient.data, 'delete');
         recipients = this.removeRecipientFromRecipients(recipient.data, recipients);
-        ctx.setState({ ...state, recipients: recipients, loading: false, loaded: true, lastUpdated });
+        ctx.setState({ ...state, recipients: recipients, loading: false, lastUpdated });
     }
 
     @Action(DeleteRecipientFail)
@@ -258,34 +253,37 @@ export class RecipientsState {
     // HELPERS
     appendRecipientToRecipients(recipient, namespaceAndRecipients): any {
         const type = Object.keys(recipient)[0];
-        if (!namespaceAndRecipients.recipients[type])  {
-            namespaceAndRecipients.recipients[type] = [];
+        const _namespaceAndRecipients = JSON.parse(JSON.stringify(namespaceAndRecipients));
+        if (!_namespaceAndRecipients.recipients[type])  {
+            _namespaceAndRecipients.recipients[type] = [];
         }
-        namespaceAndRecipients.recipients[type].push(recipient[type][0]);
-        return namespaceAndRecipients;
+        _namespaceAndRecipients.recipients[type].push(recipient[type][0]);
+        return _namespaceAndRecipients;
     }
 
     removeRecipientFromRecipients(recipient, namespaceAndRecipients): any {
         const type = Object.keys(recipient)[0];
         let index = 0;
+        const _namespaceAndRecipients = JSON.parse(JSON.stringify(namespaceAndRecipients));
         // tslint:disable-next-line:forin
-        for (let i = 0; i < namespaceAndRecipients.recipients[type].length; i++) {
-            if (namespaceAndRecipients.recipients[type][i].name === recipient[type][0].name) {
+        for (let i = 0; i < _namespaceAndRecipients.recipients[type].length; i++) {
+            if (_namespaceAndRecipients.recipients[type][i].name === recipient[type][0].name) {
                 index = i;
                 break;
             }
         }
-        namespaceAndRecipients.recipients[type].splice(index, 1);
-        return namespaceAndRecipients;
+        _namespaceAndRecipients.recipients[type].splice(index, 1);
+        return _namespaceAndRecipients;
     }
 
     modifyRecipient(recipient, namespaceAndRecipients): any {
         const type = Object.keys(recipient)[0];
+        const _namespaceAndRecipients = JSON.parse(JSON.stringify(namespaceAndRecipients));
         // tslint:disable-next-line:forin
-        for (let i = 0; i < namespaceAndRecipients.recipients[type].length; i++) {
-            if (namespaceAndRecipients.recipients[type][i].name === recipient[type][0].name) {
+        for (let i = 0; i < _namespaceAndRecipients.recipients[type].length; i++) {
+            if (_namespaceAndRecipients.recipients[type][i].name === recipient[type][0].name) {
                 if (recipient[type][0].newname) {
-                    namespaceAndRecipients.recipients[type][i].name = recipient[type][0].newname;
+                    _namespaceAndRecipients.recipients[type][i].name = recipient[type][0].newname;
                 }
                 // tslint:disable-next-line:forin
                 for (let key in recipient[type][0] ) {
@@ -293,13 +291,13 @@ export class RecipientsState {
                         key.toLowerCase() !== 'type' &&
                         key.toLowerCase() !== 'name' &&
                         key.toLowerCase() !== 'newname') {
-                        namespaceAndRecipients.recipients[type][i][key] = recipient[type][0][key];
+                            _namespaceAndRecipients.recipients[type][i][key] = recipient[type][0][key];
                     }
                 }
                 break;
             }
         }
-        return namespaceAndRecipients;
+        return _namespaceAndRecipients;
     }
 
     createLastUpdated(recipient, action: string) {
