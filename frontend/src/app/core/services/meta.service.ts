@@ -9,22 +9,23 @@ export class MetaService {
 
   constructor(private utilsService: UtilsService) { }
 
-  getQuery(type, params) {
+  // andOp : and operator for metrics or not
+  getQuery(type, params, andOp = true) {
     params = Array.isArray(params) ? params : [params];
     const metaQuery:any = {
-      "from": 0,
-      "to": 1,
-      "order": "ASCENDING",
-      "type": type,
-      "aggregationSize": 1000,
-      "queries": [],
+      'from': 0,
+      'to': 1,
+      'order': 'ASCENDING',
+      'type': type,
+      'aggregationSize': 1000,
+      'queries': [],
     };
 
     for ( let i = 0, len = params.length; i < len; i++ ) {
-      const query:any = {
-                          "filter": {
-                          "type": "Chain",
-                          "filters": []
+      const query: any = {
+                          'filter': {
+                          'type': 'Chain',
+                          'filters': []
                       }};
       query.id = params[i].id || 'id-' + i;
       query.namespace =  type !== 'NAMESPACES' ? params[i].namespace : this.utilsService.convertPatternTSDBCompat(params[i].search);
@@ -39,7 +40,7 @@ export class MetaService {
       switch( type ) {
         case 'METRICS':
           query.filter.filters.push({
-            'type': "MetricRegex",
+            'type': 'MetricRegex',
             'metric': this.utilsService.convertPatternTSDBCompat(params[i].search)
           });
           break;
@@ -47,17 +48,24 @@ export class MetaService {
         // set the metrics filter only if its set. tsdb requires atleast one filter in the query
         case 'TAG_KEYS':
             query.filter.filters.push({
-              "type": "TagKeyRegex",
-              "filter": this.utilsService.convertPatternTSDBCompat(params[i].search)
+              'type': 'TagKeyRegex',
+              'filter': this.utilsService.convertPatternTSDBCompat(params[i].search)
             });
           break;
       }
 
-      if ( params[i].metrics && params[i].metrics.length ) {
-        for ( let j = 0; j < params[i].metrics.length; j++ ) {
+      if (params[i].metrics && params[i].metrics.length) {
+        if (andOp) {
+          for (let j = 0; j < params[i].metrics.length; j++) {
+            query.filter.filters.push({
+              'type': 'MetricLiteral',
+              'metric': params[i].metrics[j]
+            });
+          }
+        } else {
           query.filter.filters.push({
             'type': 'MetricLiteral',
-            'metric': params[i].metrics[j]
+            'metric': params[i].metrics.join('|')
           });
         }
       }
