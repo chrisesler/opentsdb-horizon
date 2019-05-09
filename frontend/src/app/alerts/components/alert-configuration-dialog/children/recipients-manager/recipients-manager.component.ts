@@ -123,10 +123,8 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
             this.alertRecipients = [];
         }
         if (!this.namespace) {
-            this.namespace = 'Yamas';
-            // this.recipientType = RecipientType.opsgenie;
+            this.namespace = '';
         }
-        this.store.dispatch(new GetRecipients(this.namespace));
 
         this.nsRecipientSub = this._namespaceRecipients$.subscribe(data => {
             this.namespaceRecipients = [];
@@ -156,6 +154,10 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
     }
 
     ngOnChanges(changes: SimpleChanges): void {
+        if (changes.namespace && changes.namespace.currentValue) {
+            this.store.dispatch(new GetRecipients(this.namespace));
+        }
+
         if (changes['selectedAlertRecipients']) {
             this.alertRecipients = [];
             // tslint:disable-next-line:forin
