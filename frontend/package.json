@@ -47,7 +47,7 @@
     "chartjs-plugin-labels": "^1.0.1",
     "codelyzer": "^4.5.0",
     "core-js": "^2.6.0",
-    "css-element-queries": "^1.1.1",
+    "css-element-queries": "1.1.1",
     "d3": "^5.7.0",
     "date-fns": "^1.29.0",
     "dygraphs": "^2.1.0",
