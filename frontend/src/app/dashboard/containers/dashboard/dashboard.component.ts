@@ -65,14 +65,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
     @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<string>;
     @Select(UserSettingsState.GetNamespaceFolders) userNamespaceFolders$: Observable<string>;
-    // @Select(DBState.getDashboardFriendlyPath) dbPath$: Observable<string>;
     @Select(DBState.getDashboardFriendlyPath) dbPath$: Observable<string>;
     @Select(DBState.getLoadedDB) loadedRawDB$: Observable<any>;
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
     @Select(DBState.getDashboardError) dbError$: Observable<any>;
     @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
     @Select(DBSettingsState.getMeta) meta$: Observable<any>;
-    @Select(DBSettingsState.getVariables) variables$: Observable<any>;
+    @Select(DBSettingsState.getTplVariables) tplVariables$: Observable<any>;
     @Select(DBSettingsState.getDashboardTags) dbTags$: Observable<any>;
     @Select(DBSettingsState.getDashboardTagValues) tagValues$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
@@ -99,10 +98,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dashboardNavbarPortal: TemplatePortal;
 
     menuXAlignValue: MenuPositionX = 'before';
-
-    // variablePanelMode
-    variablePanelMode = 'list';
-
 
     // Available Widget Types
     /**
@@ -154,12 +149,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dbSettings: any;
     dbTime: any;
     meta: any;
-    variables: any;
+    // variables: any;
     dbTags: any;
     dbid: string; // passing dashboard id
     wid: string; // passing widget id
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
     widgets: any[] = [];
+    tplVariables: any[] = [];
+    variablePanelMode = 'view';
     userNamespaces: any = [];
     viewEditMode = false;
     newWidget: any; // setup new widget based on type from top bar
@@ -170,6 +167,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     lastWidgetUpdated: any;
     private subscription: Subscription = new Subscription();
     wdTags: any = {};
+    dashboardTags: string[] = [];
     widgetTagLoaded$ = new Subject();
     widgetTagLoaded = false;
 
@@ -343,7 +341,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
                     console.log('dashboardSaveRequest', this.dbid, payload);
                     break;
-                case 'dashboardSettingsToggleRequest':
+                /* case 'dashboardSettingsToggleRequest':
                     this.interCom.responsePut({
                         id: message.id,
                         action: 'dashboardSettingsToggleResponse',
@@ -354,7 +352,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         }
                     });
                     this.store.dispatch(new LoadDashboardTags(this.dbService.getMetricsFromWidgets(this.widgets)));
-                    break;
+                    break; */
                 case 'updateDashboardSettings':
                     if (message.payload.meta) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
@@ -365,6 +363,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
                     break;
                 case 'getTagValues':
+                    console.log('this calling', message);
                     const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
                     this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag));
                     break;
@@ -396,14 +395,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.loadedRawDB$.subscribe(db => {
             const dbstate = this.store.selectSnapshot(DBState);
-            console.log('\n\nloadedrawdb=', db, dbstate.loaded);
             if (dbstate.loaded) {
                 // this.widgetTagLoaded = false;
                 // need to carry new loaded dashboard id from confdb
                 this.dbid = db.id;
-                this.store.dispatch(new LoadDashboardSettings(db.content.settings));
-                // update WidgetsState
-                this.store.dispatch(new UpdateWidgets(db.content.widgets));
+                this.store.dispatch(new LoadDashboardSettings(db.content.settings)).subscribe(() => {
+                    // update WidgetsState after settings state sucessfully loaded
+                    this.store.dispatch(new UpdateWidgets(db.content.widgets));
+                });
             }
         }));
 
@@ -443,6 +442,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const dbstate = this.store.selectSnapshot(DBState);
             if (dbstate.loaded) {
                 this.widgets = this.utilService.deepClone(widgets);
+                this.getDashboardTagKeys();
             }
         }));
 
@@ -477,9 +477,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.meta = this.utilService.deepClone(t);
         }));
 
+        this.subscription.add(this.tplVariables$.subscribe(tvars => {
+            this.tplVariables = this.utilService.deepClone(tvars);
+        }));
+        /*
         this.subscription.add(this.variables$.subscribe(t => {
             // console.log('variables$.subscribe [event]', t, this.variables);
             t = this.utilService.deepClone(t);
+
             if (this.variables) {
                 if (this.variables.enabled && t.enabled) { // was enabled, still enabled
                     // diff whether selected values changed
@@ -530,7 +535,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // set new variables, but do not query new data
             this.variables = t;
         }));
-
+        */
         this.subscription.add(this.dbTags$.subscribe(tags => {
             // console.log('__DB TAGS___', tags);
             this.dbTags = tags ? this.utilService.deepClone(tags) : [];
@@ -598,13 +603,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
     }
 
-    requeryData(payload) {
+    /* requeryData(payload) {
         this.variables = payload;
         this.interCom.responsePut({
             action: 'reQueryData',
             payload: payload
         });
-    }
+    } */
 
     // to passing raw data to widget
     updateWidgetGroup(wid, rawdata, error = null) {
@@ -621,27 +626,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
-    /*
-    setDashboardTagKeys() {
-        this.httpService.getTagKeysForQueries(this.widgets).subscribe( (res:any)=>{
+    getDashboardTagKeys() {
+        this.httpService.getTagKeysForQueries(this.widgets).subscribe( (res: any ) => {
+            console.log('getdashboardtag res', res);
             this.wdTags = {};
+            this.dashboardTags = [];
             for ( let i = 0; res && i < res.results.length; i++ ) {
                 const [wid, qid ] =  res.results[i].id ? res.results[i].id.split(":") : [null, null]; 
-                if ( !wid ) continue;
+                if ( !wid ) { continue; }
                 const keys = res.results[i].tagKeys.map(d => d.name);
                 if ( !this.wdTags[wid] ) {
                     this.wdTags[wid] = {};
                 }
                 this.wdTags[wid][qid] = keys;
+                this.dashboardTags = [...this.dashboardTags,
+                    ...keys.filter(k => this.dashboardTags.indexOf(k) < 0)];
             }
-            this.widgetTagLoaded = true;
-            this.widgetTagLoaded$.next(true);
+            this.dashboardTags.sort(this.utilService.sortAlphaNum);
+            console.log('dashboard tag', this.wdTags, this.dashboardTags);
+            // this.widgetTagLoaded = true;
+            // this.widgetTagLoaded$.next(true);
         },
-        error=>{
+        error => {
             this.widgetTagLoaded = true;
             this.widgetTagLoaded$.next(true);
 
-        }); 
+        });
     }
     checkWidgetTagsLoaded(): Observable<any> {
         if ( !this.widgetTagLoaded ) {
@@ -650,7 +660,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           return of(true);
         }
     }
-    */
 
     // dispatch payload query by group
     handleQueryPayload(message: any) {
@@ -671,12 +680,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (query.namespace && query.metrics.length) {
                         // filter only visible metrics
                         // query = this.dbService.filterMetrics(query);
-                        let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
+                        // let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
                         // get only enabled filters
-                        overrideFilters = overrideFilters.filter(d => d.enabled);
-                        query = overrideFilters.length ?
-                            this.dbService.overrideQueryFilters(query, overrideFilters, this.wdTags[message.id] ?
-                                this.wdTags[message.id][groupid] : []) : query;
+                        // overrideFilters = overrideFilters.filter(d => d.enabled);
+                        // query = overrideFilters.length ?
+                        //    this.dbService.overrideQueryFilters(query, overrideFilters, this.wdTags[message.id] ?
+                        //       this.wdTags[message.id][groupid] : []) : query;
                         query = this.queryService.buildQuery(payload, dt, query);
                         // console.log('the group query-2', query, JSON.stringify(query));
                         gquery.query = query;
@@ -803,7 +812,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // console.log('EVT: AVAILABLE WIDGETS TRIGGER', this.availableWidgetsMenuTrigger);
     }
 
-    getTagValues(key: string, tplVariables: any[]): any[] {
+    /* getTagValues(key: string, tplVariables: any[]): any[] {
         for (const tplVariable of tplVariables) {
             if (tplVariable.tagk === key && tplVariable.enabled) {
                 return tplVariable.filter;
@@ -811,7 +820,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
         return;
     }
-
+    */
     arrayToString(array: any[]): string {
         if (array) {
             return array.sort().toString();
