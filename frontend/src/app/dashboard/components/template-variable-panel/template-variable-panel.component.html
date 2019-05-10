@@ -8,25 +8,33 @@
 </ng-template>
 
 <ng-template #variableEditView>
-    <form [formGroup]="editForm">
+    <div [formGroup]="editForm">
         <table formArrayName="formTplVariables">
             <thead>
                 <tr>
-                    <th>Tag</th>
                     <th>Alias</th>
+                    <th>Tag</th>
                     <th>Value</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let tpl of formTplVariables['controls']; let i=index" [formGroupName]="i">
+                <tr *ngFor="let tpl of formTplVariables.controls; let i=index" [formGroupName]="i">
+                    <td>
+                        <div class="settings-control alias-control">
+                            <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 100px;">
+                                <input matInput placeholder="" formControlName="alias" (blur)="whatthe(tpl)" (focus)="onInputFocus('alias', i)">
+                            </mat-form-field>
+                        </div>
+                    </td>
                     <td>
                         <div class="settings-control tag-key-control">
                             <mat-form-field appearance="fill" color="primary" floatLabel="never">
-                                <input matInput placeholder="Enter tag key" formControlName="tagk"
-                                    [matAutocomplete]="filterKeyAuto">
+                                <input matInput placeholder="" formControlName="tagk"
+                                    [matAutocomplete]="filterKeyAuto" (focus)="onInputFocus('tagk', i)"
+                                    (blur)="onInputBlur('tagk', i)">
                                 <mat-autocomplete #filterKeyAuto="matAutocomplete"
-                                    (optionSelected)="selectFilterKeyOption($event)">
+                                    (optionSelected)="selectFilterKeyOption($event, i)">
                                     <mat-option *ngFor="let option of filteredKeyOptions | async" [value]="option">
                                         {{option}}
                                     </mat-option>
@@ -35,19 +43,11 @@
                         </div>
                     </td>
                     <td>
-                        <div class="settings-control alias-control">
-                            <mat-form-field appearance="fill" color="primary" floatLabel="never">
-                                <input matInput placeholder="Enter alias" formControlName="alias">
-                            </mat-form-field>
-                        </div>
-                    </td>
-                    <td>
                         <div class="settings-control values-control">
-                            <mat-form-field appearance="fill" color="primary" floatLabel="never">
-                                <input matInput placeholder="select a value" formControlName="filter"
-                                    [matAutocomplete]="filterKeyAuto">
-                                <mat-autocomplete #filterValueAuto="matAutocomplete"
-                                    (optionSelected)="selectFilterValueOption($event)">
+                            <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 300px;">
+                                <input matInput placeholder="select a value (optional)" formControlName="filter"
+                                    (focus)="onInputFocus('filter', i)" [matAutocomplete]="filterValueAuto">
+                                <mat-autocomplete #filterValueAuto="matAutocomplete">
                                     <mat-option *ngFor="let option of filteredValueOptions" [value]="option">
                                         {{option}}
                                     </mat-option>
@@ -55,12 +55,23 @@
                             </mat-form-field>
                         </div>
                     </td>
-                    <td>
+                    <td style="white-space:nowrap; vertical-align:top;">
                         <div class="settings-control actions-control">
                             <div class="actions">
                                 <button mat-button (click)="removeTemplateVariable(i)">
                                     <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                                 </button>
+                                    <span class="actionslist" *ngIf="tpl.valid">
+                                        <span>0/0</span>
+                                        <span>Apply to all</span>
+                                        <span>Remove from all</span>
+                                    </span>
+                                <span *ngIf="tpl.get('alias').hasError('unique'); else requiredMesg">
+                                    Alias must be unique.
+                                </span>
+                                <ng-template #requiredMesg>
+                                    <span *ngIf="tpl.invalid">Alias and Tag are required.</span>
+                                </ng-template>
                             </div>
                         </div>
                     </td>
@@ -70,16 +81,17 @@
 
         <div class="variable-edit-controls">
         <div class="edit-actions">
-            <button mat-flat-button class="add-template-button" color="primary" (click)="addVariableTemplate()">
+            <button mat-flat-button [disabled]="formTplVariables.invalid" class="add-template-button" color="primary" (click)="addVariableTemplate()">
                 <mat-icon fontSet="denali" fontIcon="d-add-circle"></mat-icon>
-                <span>New Variable Template</span>
+                <span>New Alias</span>
             </button>
-            <button mat-stroked-button color="primary" class="editing-done-button" (click)="variabletemplateEditDone()">
-                <span (click)="doList()">Done</span>
+            <button mat-stroked-button color="primary" [disabled]="formTplVariables.invalid"
+                class="editing-done-button" (click)="done(formTplVariables)">
+                <span>Done</span>
             </button>
         </div>
         </div>
-    </form>
+    </div>
     <!--
     <div class="variable-edit-controls" [formGroup]="editForm" >
         <div class="edit-control-list" formArrayName="formTplVariables">
