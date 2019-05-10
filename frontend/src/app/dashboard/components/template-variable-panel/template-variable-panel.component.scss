@@ -11,6 +11,12 @@
     th {
         padding-left: 8px;
     }
+    span.actionslist {
+        span {
+            display: inline;
+            margin-right: 10px;
+        }
+    }
     .template-variable-panel-component {
         display: flex;
         width: 100%;
@@ -109,7 +115,7 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
-    $bg-color: lighten(map-get($background, navbar), 100%);
+    $bg-color: lighten(map-get($background, navbar), 80%);
     $navbar-text: map-get($foreground, foreground);
 
     $border-color: map-get($background, background);
