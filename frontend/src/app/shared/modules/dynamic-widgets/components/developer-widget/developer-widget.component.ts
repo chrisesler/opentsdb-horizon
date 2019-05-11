@@ -94,7 +94,7 @@ export class DeveloperWidgetComponent implements OnInit {
      closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
             action: 'closeViewEditMode',
-            payload: true
+            payload: 'dashboard'
         });
     }
 

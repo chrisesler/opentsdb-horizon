@@ -321,7 +321,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     closeViewEditMode() {
         this.interCom.requestSend(<IMessage>{
             action: 'closeViewEditMode',
-            payload: true
+            payload: 'dashboard'
         });
     }
 
