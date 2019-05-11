@@ -31,8 +31,6 @@ import {
     UpdateMode,
     UpdateDashboardTime,
     LoadDashboardSettings,
-    LoadDashboardTags,
-    LoadDashboardTagValues,
     UpdateDashboardTimeZone,
     UpdateDashboardTitle,
     UpdateVariables,
@@ -60,7 +58,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @HostBinding('class.app-dashboard') private hostClass = true;
 
     @Select(AuthState.getAuth) auth$: Observable<string>;
-    // new state
     @Select(DBSettingsState.getDashboardSettings) dbSettings$: Observable<any>;
     @Select(UserSettingsState.GetUserNamespaces) userNamespaces$: Observable<string>;
     @Select(UserSettingsState.GetPersonalFolders) userPersonalFolders$: Observable<string>;
@@ -72,8 +69,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
     @Select(DBSettingsState.getMeta) meta$: Observable<any>;
     @Select(DBSettingsState.getTplVariables) tplVariables$: Observable<any>;
-    @Select(DBSettingsState.getDashboardTags) dbTags$: Observable<any>;
-    @Select(DBSettingsState.getDashboardTagValues) tagValues$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
     @Select(WidgetsState.lastUpdated) lastUpdated$: Observable<any>;
     @Select(WidgetsRawdataState.getLastModifiedWidgetRawdataByGroup) widgetGroupRawData$: Observable<any>;
@@ -341,18 +336,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
                     console.log('dashboardSaveRequest', this.dbid, payload);
                     break;
-                /* case 'dashboardSettingsToggleRequest':
-                    this.interCom.responsePut({
-                        id: message.id,
-                        action: 'dashboardSettingsToggleResponse',
-                        payload: {
-                            meta: this.meta,
-                            variables: this.variables,
-                            dbTags: this.dbTags
-                        }
-                    });
-                    this.store.dispatch(new LoadDashboardTags(this.dbService.getMetricsFromWidgets(this.widgets)));
-                    break; */
+                case 'getDashboardTags':
+                    this.getDashboardTagKeys();
+                    break;
                 case 'updateDashboardSettings':
                     if (message.payload.meta) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
@@ -362,10 +348,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.store.dispatch(new UpdateVariables(message.payload.variables));
                     }
                     break;
-                case 'getTagValues':
-                    console.log('this calling', message);
-                    const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
-                    this.store.dispatch(new LoadDashboardTagValues(metrics, message.payload.tag));
+                case 'getTagValues': // tag template variables call
+                    this.getDashboardTagValues(message.payload.tag);
                     break;
                 case 'getUserNamespaces':
                     // console.log('getUserNamespaces');
@@ -442,12 +426,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const dbstate = this.store.selectSnapshot(DBState);
             if (dbstate.loaded) {
                 this.widgets = this.utilService.deepClone(widgets);
-                this.getDashboardTagKeys();
             }
         }));
 
         this.subscription.add(this.dashboardMode$.subscribe(mode => {
-            this.viewEditMode = mode === 'edit' || mode === 'view' ? true : false;
+            this.viewEditMode = mode === 'dashboard' ? false : true;
         }));
 
         this.subscription.add(this.dbTime$.subscribe(t => {
@@ -472,7 +455,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.dbSettings$.subscribe(settings => {
             this.dbSettings = this.utilService.deepClone(settings);
         }));
-
+        /* 
         this.subscription.add(this.meta$.subscribe(t => {
             this.meta = this.utilService.deepClone(t);
         }));
@@ -480,78 +463,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.tplVariables$.subscribe(tvars => {
             this.tplVariables = this.utilService.deepClone(tvars);
         }));
-        /*
-        this.subscription.add(this.variables$.subscribe(t => {
-            // console.log('variables$.subscribe [event]', t, this.variables);
-            t = this.utilService.deepClone(t);
-
-            if (this.variables) {
-                if (this.variables.enabled && t.enabled) { // was enabled, still enabled
-                    // diff whether selected values changed
-                    // tslint:disable-next-line:prefer-const
-                    for (let tag of t.tplVariables) {
-                        const tagKey = tag.tagk;
-                        if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
-                            this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
-                            this.requeryData(t);
-                            return;
-                        }
-                    }
-                    // tslint:disable-next-line:prefer-const
-                    for (let tag of this.variables.tplVariables) {
-                        const tagKey = tag.tagk;
-                        if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !==
-                            this.arrayToString(this.getTagValues(tagKey, this.variables.tplVariables))) {
-                            this.requeryData(t);
-                            return;
-                        }
-                    }
-                } else if (this.variables.enabled && !t.enabled) { // was enabled, now disabled
-                    // tslint:disable-next-line:prefer-const
-                    for (let tag of this.variables.tplVariables) {
-                        const tagKey = tag.tagk;
-                        if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !== '') {
-                            this.requeryData(t);
-                            return;
-                        }
-                    }
-                } else if (!this.variables.enabled && t.enabled) { // was disabled, now enabled
-                    // tslint:disable-next-line:prefer-const
-                    for (let tag of t.tplVariables) {
-                        const tagKey = tag.tagk;
-                        if (this.arrayToString(this.getTagValues(tagKey, t.tplVariables)) !== '') {
-                            this.requeryData(t);
-                            return;
-                        }
-                    }
-                } else { // was disabled, still disabled
-                    // do nothing
-                }
-            } else { // this.variables has never been set
-                this.requeryData(t);
-                return;
-            }
-
-            // set new variables, but do not query new data
-            this.variables = t;
-        }));
         */
-        this.subscription.add(this.dbTags$.subscribe(tags => {
-            // console.log('__DB TAGS___', tags);
-            this.dbTags = tags ? this.utilService.deepClone(tags) : [];
-            this.interCom.responsePut({
-                action: 'updateDashboardTags',
-                payload: this.dbTags
-            });
-        }));
-
-        this.subscription.add(this.tagValues$.subscribe(data => {
-            this.interCom.responsePut({
-                action: 'TagValueQueryResults',
-                payload: data
-            });
-        }));
-
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
             let error = null;
             const grawdata = {};
@@ -623,6 +535,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 timezone: this.dbTime.zone,
                 gridSize: clientSize
             }
+        });
+    }
+
+    getDashboardTagValues(tag: any) {
+        const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
+        const query = { metrics, tag }; // unique metrics
+        return this.httpService.getTagValues(query).subscribe(values => {
+            this.interCom.responsePut({
+                action: 'dashboardTagValues',
+                payload: values
+            });
         });
     }
 
@@ -755,15 +678,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
-    onDateChange(date: any) {
-        // console.log(date);
-    }
-
-    // save dashboard name
-    saveDashboardName(event: any) {
-        // console.log('dashboard name save', event);
-    }
-
     setDateRange(e: any) {
         this.store.dispatch(new UpdateDashboardTime({ start: e.startTimeDisplay, end: e.endTimeDisplay }));
     }
@@ -808,19 +722,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
-    click_availableWidgetsTrigger() {
-        // console.log('EVT: AVAILABLE WIDGETS TRIGGER', this.availableWidgetsMenuTrigger);
-    }
-
-    /* getTagValues(key: string, tplVariables: any[]): any[] {
-        for (const tplVariable of tplVariables) {
-            if (tplVariable.tagk === key && tplVariable.enabled) {
-                return tplVariable.filter;
-            }
-        }
-        return;
-    }
-    */
     arrayToString(array: any[]): string {
         if (array) {
             return array.sort().toString();
