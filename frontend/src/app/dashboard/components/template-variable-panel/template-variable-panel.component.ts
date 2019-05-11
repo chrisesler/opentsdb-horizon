@@ -33,17 +33,17 @@ export class TemplateVariablePanelComponent implements OnInit {
     listenSub: Subscription;
     filteredKeyOptions: Observable<string[]>; // options for key autosuggest
     filteredValueOptions: Observable<string[]>; // options for value autosuggest
+    fileredValues: string[];
     selectedTagk = '';
 
     constructor (private fb: FormBuilder, private interCom: IntercomService ) { }
 
     ngOnInit() {
-        if (this.mode === 'edit') {
-            this.initEditFormGroup();
-        }
+
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            if (message.action === 'TagValueQueryResults') {
+            if (message.action === 'dashboardTagValues') {
                 this.filteredValueOptions = message.payload;
+                this.fileredValues = message.payload;
             }
         });
     }
@@ -51,27 +51,48 @@ export class TemplateVariablePanelComponent implements OnInit {
     doEdit() {
         this.mode = 'edit';
         this.initEditFormGroup();
-        // here we will request for getting dashboard tag
+        this.interCom.requestSend({
+            action: 'getDashboardTags',
+        });
+    }
+    initEditFormGroup() {
+        this.editForm = this.fb.group({
+            formTplVariables: this.fb.array([])
+        });
+        this.initializeTplVariables(this.tplVariables);
+        // we sub to form status changes
+        /*this.editForm.statusChanges.subscribe(status => {
+            console.log('form status ', status);
+        });*/
+    }
+    get formTplVariables() { return this.editForm.get('formTplVariables') as FormArray; }
+
+    initializeTplVariables(values: any) {
+        if (values.length === 0) {
+            // add an empty one if there are no values
+            this.addVariableTemplate();
+        } else {
+            for (const item of values) {
+                this.addVariableTemplate(item);
+            }
+        }
     }
 
-    done(formTplVariables: any) {
-        const sublist = [];
-        for (let i = 0; i < formTplVariables.controls.length; i++) {
-            console.log(formTplVariables.controls[i].value);
-            sublist.push(formTplVariables.controls[i].value);
-        }
-        console.log('sublist', sublist);
-        if (sublist.length > 0) {
-            this.interCom.requestSend(<IMessage> {
-                id: 'variableToolBar',
-                action: 'updateDashboardSettings',
-                payload: {
-                    variables: sublist
-                }
-            });
-        }
-        // this.mode = 'view';
+    addVariableTemplate(data?: any) {
+        data = (data) ? data : {};
+        const varData = {
+            tagk: new FormControl((data.tagk) ? data.tagk : '', [Validators.required]),
+            alias: new FormControl((data.alias) ? data.alias : '', [Validators.required]),
+            filter: new FormControl((data.filter) ? data.filter : '', [])
+        };
+        const control = <FormArray>this.editForm.controls['formTplVariables'];
+        control.push(this.fb.group(varData));
     }
+
+    checkValidity(index: number) {
+        return (<FormArray>this.formTplVariables).controls[index].valid;
+    }
+
     whatthe(tpl: any) {
         console.log('SSJSJSJ', tpl);
     }
@@ -79,7 +100,9 @@ export class TemplateVariablePanelComponent implements OnInit {
         const selControl = this.getSelectedControl(index);
         const startVal = selControl['controls'][cname].value;
         // have to call this when value not change yet
-        this.validateAlias(startVal, index , selControl);
+        // this.validateAlias(startVal, index , selControl);
+        // clear previous filters values incase take sometime to populate new one
+        this.filteredValueOptions = null;
         this.filteredKeyOptions = selControl['controls'][cname].valueChanges
            .pipe (
                 startWith(''),
@@ -138,56 +161,55 @@ export class TemplateVariablePanelComponent implements OnInit {
     onInputBlur(cname: string, index: number) {
         const selControl = this.getSelectedControl(index);
         const val = selControl['controls'][cname].value;
-        this.selectedTagk = val;
-        // for tagk and filter, if not value on list then reset value
-        if (this.dbTagKeys.indexOf(val) === -1) {
+        // when user type in and click select and if value is not valid, reset
+        if (cname === 'tagk' && this.dbTagKeys.indexOf(val) === -1) {
+            selControl['controls'][cname].setValue('');
+        } else {
+            this.selectedTagk = val;
+        }
+        if (cname === 'filter' && this.fileredValues.indexOf(val) === -1) {
             selControl['controls'][cname].setValue('');
         }
+        // for alias, if it's valid, update the state
     }
 
-    selectFilterKeyOption(event: any, index: number) {
+    // update state if it's is valid
+    selectTagKeyOption(event: any, index: number) {
         const selControl = this.getSelectedControl(index);
         if (event.option.value !== this.selectedTagk) {
             selControl['controls']['filter'].setValue('');
         }
     }
-    initEditFormGroup() {
-        this.editForm = this.fb.group({
-            formTplVariables: this.fb.array([])
-        });
-        this.initializeTplVariables(this.tplVariables);
-    }
+    // update state if it's is valid
+    selectFilterValueOption(event: any, index: number) {
 
-    // form control accessors (come after form has been setup)
-    get formTplVariables() { return this.editForm.get('formTplVariables'); }
-
-    initializeTplVariables(values: any) {
-
-        if (values.length === 0) {
-            // add an empty one if there are no values
-            this.addVariableTemplate();
-        } else {
-            // this.selectedKeys = [];
-            for (const item of values) {
-                // this.selectedKeys.push(item.tagk);
-                this.addVariableTemplate(item);
-            }
-        }
-    }
-
-    addVariableTemplate(data?: any) {
-        data = (data) ? data : {};
-        const varData = {
-            tagk: new FormControl((data.tagk) ? data.tagk : '', [Validators.required]),
-            alias: new FormControl((data.alias) ? data.alias : '', [Validators.required]),
-            filter: new FormControl((data.filter) ? data.filter : '', [])
-        };
-        const control = <FormArray>this.editForm.controls['formTplVariables'];
-        control.push(this.fb.group(varData));
     }
 
     removeTemplateVariable(i: number) {
         const control = <FormArray>this.editForm.controls['formTplVariables'];
         control.removeAt(i);
+    }
+    done() {
+        // just as close the panel to list mode
+        this.mode = 'view';
+    }
+
+    done1(formTplVariables: any) {
+        const sublist = [];
+        for (let i = 0; i < formTplVariables.controls.length; i++) {
+            console.log(formTplVariables.controls[i].value);
+            sublist.push(formTplVariables.controls[i].value);
+        }
+        console.log('sublist', sublist);
+        if (sublist.length > 0) {
+            this.interCom.requestSend(<IMessage> {
+                id: 'variableToolBar',
+                action: 'updateDashboardSettings',
+                payload: {
+                    variables: sublist
+                }
+            });
+        }
+        // this.mode = 'view';
     }
 }
