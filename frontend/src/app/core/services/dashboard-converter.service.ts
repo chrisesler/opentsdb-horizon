@@ -103,11 +103,16 @@ export class DashboardConverterService {
     }
     // dashboard mode was set wrong to true in some dashboards
     dashboard.content.settings.mode = 'dashboard';
+    // clean up tags and lastQueriedTagValues
+    if (dashboard.content.settings.tags) {
+      delete dashboard.content.settings.tags;
+    }
+    if (dashboard.content.settings.lastQueriedTagValues) {
+      delete dashboard.content.settings.lastQueriedTagValues;
+    }
     // delete the old one
     delete dashboard.content.settings.variables;
     dashboard.content.settings.tplVariables = tplVariables;
-    console.log('dashboard after ver 3', dashboard);
     return dashboard;
   }
-
 }
