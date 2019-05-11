@@ -101,6 +101,8 @@ export class DashboardConverterService {
           varObj.filter = [...varObj.filter[0]];
         }
     }
+    // dashboard mode was set wrong to true in some dashboards
+    dashboard.content.settings.mode = 'dashboard';
     // delete the old one
     delete dashboard.content.settings.variables;
     dashboard.content.settings.tplVariables = tplVariables;
