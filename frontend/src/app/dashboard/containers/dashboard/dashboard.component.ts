@@ -161,8 +161,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     gridsterUnitSize: any = {};
     lastWidgetUpdated: any;
     private subscription: Subscription = new Subscription();
-    wdTags: any = {};
-    dashboardTags: string[] = [];
+    rawDbTags: any = {
+        dashboardTags: []
+    };
     widgetTagLoaded$ = new Subject();
     widgetTagLoaded = false;
 
@@ -555,28 +556,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     getDashboardTagKeys() {
         this.httpService.getTagKeysForQueries(this.widgets).subscribe( (res: any ) => {
             console.log('getdashboardtag res', res);
-            this.wdTags = {};
-            this.dashboardTags = [];
+            this.rawDbTags = { dashboardTags: []};
             for ( let i = 0; res && i < res.results.length; i++ ) {
                 const [wid, qid ] =  res.results[i].id ? res.results[i].id.split(":") : [null, null]; 
                 if ( !wid ) { continue; }
                 const keys = res.results[i].tagKeys.map(d => d.name);
-                if ( !this.wdTags[wid] ) {
-                    this.wdTags[wid] = {};
+                if ( !this.rawDbTags[wid] ) {
+                    this.rawDbTags[wid] = {};
                 }
-                this.wdTags[wid][qid] = keys;
-                this.dashboardTags = [...this.dashboardTags,
-                    ...keys.filter(k => this.dashboardTags.indexOf(k) < 0)];
+                this.rawDbTags[wid][qid] = keys;
+                this.rawDbTags.dashboardTags = [...this.rawDbTags.dashboardTags,
+                    ...keys.filter(k => this.rawDbTags.dashboardTags.indexOf(k) < 0)];
             }
-            this.dashboardTags.sort(this.utilService.sortAlphaNum);
-            console.log('dashboard tag', this.wdTags, this.dashboardTags);
-            // this.widgetTagLoaded = true;
-            // this.widgetTagLoaded$.next(true);
-        },
-        error => {
-            this.widgetTagLoaded = true;
-            this.widgetTagLoaded$.next(true);
-
+            this.rawDbTags.dashboardTags.sort(this.utilService.sortAlphaNum);
+            console.log('dashboard tag', this.rawDbTags);
         });
     }
     checkWidgetTagsLoaded(): Observable<any> {

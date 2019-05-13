@@ -25,7 +25,7 @@ export class TemplateVariablePanelComponent implements OnInit {
     @Input() tplVariables: any;
     @Input() mode: string;
     @Output() variableChanges: EventEmitter<any> = new EventEmitter<any>();
-    @Input() dbTagKeys: string[] = []; // all available tags from dashboard
+    @Input() dbTagKeys: any; // all available tags and widget tags from dashboard
 
     editForm: FormGroup;
     editFormSub: Subscription;
@@ -124,7 +124,7 @@ export class TemplateVariablePanelComponent implements OnInit {
     private _filter(val: string, flag: string, selControl: any, index: number): string[] {
         const filterVal = val.toLowerCase();
         if (flag === 'tagk') {
-            return this.dbTagKeys.filter(key => key.toLowerCase().includes(filterVal));
+            return this.dbTagKeys.dashboardTags.filter(key => key.toLowerCase().includes(filterVal));
         } else if (flag === 'filter') {
             let payload = '.*';
             if (val.trim().length > 0) {
@@ -174,7 +174,7 @@ export class TemplateVariablePanelComponent implements OnInit {
         const selControl = this.getSelectedControl(index);
         const val = selControl['controls'][cname].value;
         // when user type in and click select and if value is not valid, reset
-        if (cname === 'tagk' && this.dbTagKeys.indexOf(val) === -1) {
+        if (cname === 'tagk' && this.dbTagKeys.dashboardTags.indexOf(val) === -1) {
             selControl['controls'][cname].setValue('');
             selControl['controls']['filter'].setValue('');
         } else {
@@ -226,6 +226,8 @@ export class TemplateVariablePanelComponent implements OnInit {
                     variables: sublist
                 }
             });
+            // update to see how many queries can be applied to this tagkey
+
         }
     }
 }
