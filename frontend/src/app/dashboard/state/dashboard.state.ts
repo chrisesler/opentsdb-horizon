@@ -12,6 +12,7 @@ import { map, catchError } from 'rxjs/operators';
 
 export interface DBStateModel {
     id: string;
+    version: number;
     loading: boolean;
     loaded: boolean;
     status: string;
@@ -77,6 +78,7 @@ export class DeleteDashboardFail {
     name: 'Dashboard',
     defaults: {
         id: '',
+        version: 0,
         loading: false,
         loaded: false,
         error: {},
@@ -160,7 +162,8 @@ export class DBState {
 
     @Action(LoadDashboardSuccess)
     loadDashboardSuccess(ctx: StateContext<DBStateModel>, { payload }: LoadDashboardSuccess) {
-        ctx.patchState({id: payload.id, loaded: true, loading: false, path: '/' + payload.id + payload.fullPath, loadedDB: payload});
+        ctx.patchState({id: payload.id, version: payload.content.version,
+                        loaded: true, loading: false, path: '/' + payload.id + payload.fullPath, loadedDB: payload});
     }
 
     @Action(LoadDashboardFail)
