@@ -2,7 +2,15 @@
     <div class="variable-list-wrapper">
         <span *ngIf="tplVariables.length === 0" (click)="doEdit()">Config this</span>
         <div *ngIf="tplVariables.length > 0">
-            list variables here
+            <ul class="varlist">
+                <li  *ngFor="let variable of tplVariables; let i = index;">
+                <span>${{variable.alias}}</span>
+                <mat-form-field>
+                    <input matInput value="{{variable.filter}}">
+                </mat-form-field>
+                </li>
+                <li><span (click)="doEdit()">Edit</span></li>
+            </ul>
         </div>
     </div>
 </ng-template>
@@ -14,7 +22,7 @@
                 <tr>
                     <th>Alias</th>
                     <th>Tag</th>
-                    <th>Value</th>
+                    <th>Default value</th>
                     <th></th>
                 </tr>
             </thead>
@@ -23,7 +31,7 @@
                     <td>
                         <div class="settings-control alias-control">
                             <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 100px;">
-                                <input matInput placeholder="" formControlName="alias" (blur)="whatthe(tpl)" (focus)="onInputFocus('alias', i)">
+                                <input matInput placeholder="" formControlName="alias" (blur)="onInputBlur('alias', i)" (focus)="onInputFocus('alias', i)">
                             </mat-form-field>
                         </div>
                     </td>
@@ -33,8 +41,7 @@
                                 <input matInput placeholder="" formControlName="tagk"
                                     [matAutocomplete]="filterKeyAuto" (focus)="onInputFocus('tagk', i)"
                                     (blur)="onInputBlur('tagk', i)">
-                                <mat-autocomplete #filterKeyAuto="matAutocomplete"
-                                    (optionSelected)="selectFilterKeyOption($event, i)">
+                                <mat-autocomplete #filterKeyAuto="matAutocomplete" (optionSelected)="selectTagKeyOption($event, i)">
                                     <mat-option *ngFor="let option of filteredKeyOptions | async" [value]="option">
                                         {{option}}
                                     </mat-option>
@@ -45,9 +52,9 @@
                     <td>
                         <div class="settings-control values-control">
                             <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 300px;">
-                                <input matInput placeholder="select a value (optional)" formControlName="filter"
-                                    (focus)="onInputFocus('filter', i)" [matAutocomplete]="filterValueAuto">
-                                <mat-autocomplete #filterValueAuto="matAutocomplete">
+                                <input matInput placeholder="set a value (optional)" formControlName="filter"
+                                    (focus)="onInputFocus('filter', i)" (blur)="onInputBlur('filter', i)" [matAutocomplete]="filterValueAuto">
+                                <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event, i)">
                                     <mat-option *ngFor="let option of filteredValueOptions" [value]="option">
                                         {{option}}
                                     </mat-option>
@@ -85,10 +92,11 @@
                 <mat-icon fontSet="denali" fontIcon="d-add-circle"></mat-icon>
                 <span>New Alias</span>
             </button>
-            <button mat-stroked-button color="primary" [disabled]="formTplVariables.invalid"
-                class="editing-done-button" (click)="done(formTplVariables)">
+            <button mat-stroked-button color="primary" [disabled]="disableDone"
+                class="editing-done-button" (click)="done()">
                 <span>Done</span>
             </button>
+            <span>form valid: {{formTplVariables.valid}}</span>
         </div>
         </div>
     </div>

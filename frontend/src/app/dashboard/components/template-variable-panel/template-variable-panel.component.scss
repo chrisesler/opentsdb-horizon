@@ -17,6 +17,15 @@
             margin-right: 10px;
         }
     }
+    ul.varlist {
+        li {
+             display: inline;
+            list-style-type: none;
+            padding-right: 10px;
+        }
+    }
+
+
     .template-variable-panel-component {
         display: flex;
         width: 100%;
