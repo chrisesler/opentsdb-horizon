@@ -339,14 +339,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'getDashboardTags':
                     this.getDashboardTagKeys();
                     break;
+                case 'updateTemplateVariables':
+                    this.store.dispatch(new UpdateVariables(message.payload.variables));
+                    break;
                 case 'updateDashboardSettings':
                     if (message.payload.meta) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
-                    if (message.payload.variables) {
+                    /* if (message.payload.variables) {
                         // console.log('updateVariables: ', message.payload.variables);
                         this.store.dispatch(new UpdateVariables(message.payload.variables));
-                    }
+                    }*/
                     break;
                 case 'getTagValues': // tag template variables call
                     this.getDashboardTagValues(message.payload.tag);
@@ -459,11 +462,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.meta$.subscribe(t => {
             this.meta = this.utilService.deepClone(t);
         }));
-
+        */
         this.subscription.add(this.tplVariables$.subscribe(tvars => {
             this.tplVariables = this.utilService.deepClone(tvars);
+            console.log('new template variabels', this.tplVariables);
         }));
-        */
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
             let error = null;
             const grawdata = {};
