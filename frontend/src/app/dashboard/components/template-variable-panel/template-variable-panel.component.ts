@@ -12,7 +12,6 @@ import { Observable, Subscription } from 'rxjs';
 import { map, startWith, debounceTime, skip } from 'rxjs/operators';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 
-
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'template-variable-panel',
@@ -204,9 +203,14 @@ export class TemplateVariablePanelComponent implements OnInit {
         this.updateState(selControl);
     }
 
-    removeTemplateVariable(i: number) {
+    removeTemplateVariable(index: number) {
         const control = <FormArray>this.editForm.controls['formTplVariables'];
-        control.removeAt(i);
+        const removedItem = control.at(index);
+        control.removeAt(index);
+        if (removedItem.valid) {
+            this.updateState(removedItem);
+        }
+
     }
     done() {
         // just as close the panel to list mode
@@ -217,7 +221,6 @@ export class TemplateVariablePanelComponent implements OnInit {
         if (selControl.valid) {
             const sublist = [];
             for (let i = 0; i < this.formTplVariables.controls.length; i++) {
-                console.log('this is is valid:', this.formTplVariables.controls[i].valid);
                 if (this.formTplVariables.controls[i].valid) {
                     sublist.push(this.formTplVariables.controls[i].value);
                 }
