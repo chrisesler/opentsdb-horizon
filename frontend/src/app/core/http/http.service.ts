@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
 import { MetaService } from '../services/meta.service';
@@ -92,6 +92,7 @@ export class HttpService {
         }
         const apiUrl = environment.metaApi + '/search/timeseries';
         const query = this.metaService.getQuery('TAG_KEYS', Object.values(newQueryParams));
+        console.log('tag query for query', query);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {
@@ -106,6 +107,7 @@ export class HttpService {
             );
     }
 
+
     getMetricsByNamespace(queryObj: any): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
@@ -118,11 +120,11 @@ export class HttpService {
             );
     }
 
-    getTagKeysForQueries(widgets) {
+    getTagKeysForQueries(widgets): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
-        const newQuries = [];
+        const newQueries = [];
         let hasMetric = false;
         for (let i = 0, len = widgets.length; i < len; i++) {
             const queries = widgets[i].queries;
@@ -134,17 +136,17 @@ export class HttpService {
                         hasMetric = true;
                     }
                 }
-                newQuries.push(q);
+                newQueries.push(q);
             }
         }
         if ( hasMetric ) {
-            const query = this.metaService.getQuery('TAG_KEYS', newQuries);
+            const query = this.metaService.getQuery('TAG_KEYS', newQueries);
+            console.log('the query', query);
             const apiUrl = environment.metaApi + '/search/timeseries';
             return this.http.post(apiUrl, query, { headers, withCredentials: true });
         } else {
-            return of({"results":[]});
+            return of({ 'results': [] });
         }
-            
     }
     getNamespaceTagKeys(queryObj: any): Observable<any> {
         const headers = new HttpHeaders({
@@ -163,10 +165,11 @@ export class HttpService {
         'Content-Type': 'application/json'
       });
       const apiUrl = environment.metaApi + '/search/timeseries';
-      const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj);
+      const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj, false);
       return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
-                          map((res:any) => res && res.results[0].tagKeysAndValues[queryObj.tagkey] ? res.results[0].tagKeysAndValues[queryObj.tagkey].values: []),
+                          map((res: any) => res && res.results[0].tagKeysAndValues[queryObj.tagkey] ?
+                            res.results[0].tagKeysAndValues[queryObj.tagkey].values : []),
                         );
     }
 
@@ -186,7 +189,8 @@ export class HttpService {
             newQueryParams[namespace].metrics.push(metric);
         }
         const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', Object.values(newQueryParams));
+        const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', Object.values(newQueryParams), false);
+        // console.log('the query for tag values', query);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {
