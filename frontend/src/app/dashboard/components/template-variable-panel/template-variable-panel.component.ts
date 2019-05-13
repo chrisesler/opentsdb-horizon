@@ -51,7 +51,6 @@ export class TemplateVariablePanelComponent implements OnInit {
     doEdit() {
         this.mode = 'edit';
         this.initEditFormGroup();
-        console.log('this tplVariables', this.tplVariables);
         this.interCom.requestSend({
             action: 'getDashboardTags',
         });
@@ -63,7 +62,6 @@ export class TemplateVariablePanelComponent implements OnInit {
         this.initializeTplVariables(this.tplVariables);
         // we sub to form status changes
         this.editForm.statusChanges.subscribe(status => {
-            console.log(' call this status', this.formTplVariables.controls.length, status);
             this.disableDone = status === 'VALID' ? false : true;
             const len = this.formTplVariables.controls.length;
             if (status === 'INVALID') {
@@ -77,7 +75,6 @@ export class TemplateVariablePanelComponent implements OnInit {
                 }
                 // if all pass then check the last item, since we allow it can be all empty
                 const lastItem = this.formTplVariables.controls[len - 1];
-                console.log('this last item', lastItem);
                 if (lastItem && lastItem['controls']['alias'].value === '' && lastItem['controls']['tagk'].value === '') {
                     this.disableDone = false;
                 }
@@ -87,7 +84,6 @@ export class TemplateVariablePanelComponent implements OnInit {
     get formTplVariables() { return this.editForm.get('formTplVariables') as FormArray; }
 
     initializeTplVariables(values: any) {
-        console.log('values tplVariables', values);
         if (values.length === 0) {
             // add an empty one if there are no values
             this.addVariableTemplate();
@@ -112,8 +108,7 @@ export class TemplateVariablePanelComponent implements OnInit {
     onInputFocus(cname: string, index: number) {
         const selControl = this.getSelectedControl(index);
         const startVal = selControl['controls'][cname].value;
-        // have to call this when value not change yet
-        // this.validateAlias(startVal, index , selControl);
+        console.log('start value', startVal);
         // clear previous filters values incase take sometime to populate new one
         this.filteredValueOptions = null;
         this.filteredKeyOptions = selControl['controls'][cname].valueChanges
@@ -127,10 +122,8 @@ export class TemplateVariablePanelComponent implements OnInit {
         return control.at(index);
     }
     private _filter(val: string, flag: string, selControl: any, index: number): string[] {
-        // console.log('call here', this.dbTagKeys, val, flag, selControl);
         const filterVal = val.toLowerCase();
         if (flag === 'tagk') {
-            // console.log('doing filter', filterVal);
             return this.dbTagKeys.filter(key => key.toLowerCase().includes(filterVal));
         } else if (flag === 'filter') {
             let payload = '.*';
@@ -155,20 +148,23 @@ export class TemplateVariablePanelComponent implements OnInit {
         }
     }
     private validateAlias(val: string, index: number, selControl: any) {
-        // const selControl = this.getSelectedControl(index);
-        // check uniuq of alias
-        const tplFormGroups = this.editForm.controls['formTplVariables']['controls'];
-        if (tplFormGroups.length > 1 || val.trim() === '') {
-            for (let i = 0; i < tplFormGroups.length; i++) {
-                if (i === index) { continue; }
-                const rowControl = tplFormGroups[i]['controls'];
-                // console.log('val:', val, 'row:' + rowControl['alias'].value);
-                if (val.trim() !== '' && val === rowControl['alias'].value) {
-                    tplFormGroups[index].controls['alias'].setErrors({ 'unique': true });
-                    tplFormGroups[i].controls['alias'].setErrors({ 'unique': true });
-                } else {
-                    tplFormGroups[i]['controls']['alias'].setErrors(null);
-                    this.updateState(selControl);
+        if (val.trim() !== '') { // if no change to value
+            const tplFormGroups = this.editForm.controls['formTplVariables']['controls'];
+            if (tplFormGroups.length > 0) {
+                for (let i = 0; i < tplFormGroups.length; i++) {
+                    if (i === index) {
+                        // value is changed of its own
+                        this.updateState(selControl);
+                        continue;
+                    }
+                    const rowControl = tplFormGroups[i]['controls'];
+                    if (val === rowControl['alias'].value) {
+                        tplFormGroups[index].controls['alias'].setErrors({ 'unique': true });
+                        tplFormGroups[i].controls['alias'].setErrors({ 'unique': true });
+                    } else {
+                        tplFormGroups[i]['controls']['alias'].setErrors(null);
+                        this.updateState(selControl);
+                    }
                 }
             }
         }
@@ -210,7 +206,6 @@ export class TemplateVariablePanelComponent implements OnInit {
         if (removedItem.valid) {
             this.updateState(removedItem);
         }
-
     }
     done() {
         // just as close the panel to list mode
@@ -225,15 +220,12 @@ export class TemplateVariablePanelComponent implements OnInit {
                     sublist.push(this.formTplVariables.controls[i].value);
                 }
             }
-            console.log('sublist', sublist);
-            if (sublist.length > 0) {
-                this.interCom.requestSend({
-                    action: 'updateTemplateVariables',
-                    payload: {
-                        variables: sublist
-                    }
-                });
-            }
+            this.interCom.requestSend({
+                action: 'updateTemplateVariables',
+                payload: {
+                    variables: sublist
+                }
+            });
         }
     }
 }
