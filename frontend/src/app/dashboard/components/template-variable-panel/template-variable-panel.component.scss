@@ -1,29 +1,7 @@
 @mixin template-variable-panel-component-base() {
 
     $vtb-height: 44px;
-    table {
-        width: 100%;
-        margin: 5px;
-    }
-    td {
-        padding: 4px;
-    }
-    th {
-        padding-left: 8px;
-    }
-    span.actionslist {
-        span {
-            display: inline;
-            margin-right: 10px;
-        }
-    }
-    ul.varlist {
-        li {
-             display: inline;
-            list-style-type: none;
-            padding-right: 10px;
-        }
-    }
+    
 
     .isDisabled {
         color: currentColor;
@@ -37,13 +15,126 @@
         width: 100%;
         max-width: 100%;
 
+        /* Table overrides */
+        table {
+            width: 100%;
+            margin: 5px;
+        }
+    
+        td {
+            padding: 4px;
+        }
+    
+        th {
+            padding-left: 8px;
+        }
+    
+        /*span.actionslist {
+            span {
+                display: inline;
+                margin-right: 10px;
+            }
+        }*/
+        
+        ul.varlist {
+            li {
+                 display: inline;
+                list-style-type: none;
+                padding-right: 10px;
+            }
+        }
+
+        /* wrapper for variables - NOT in edit mode */
         .variable-list-wrapper {
             flex: 1;
             width: 100%;
             max-width: 100%;
         }
 
+        .variable-list-wrapper,
+        .variable-edit-wrapper {
+            padding: 4px 12px;
+        }
+
+        /* form fields for list-view */
+        .dashboard-template-variable.mat-form-field {
+
+            .mat-form-field-prefix {
+                align-self: stretch;
+                display: flex;
+                align-items: center;
+                padding: 0 4px;
+            }
+        }
+
+        /* Some button overrides */
+        .configure-variables-button,
+        .edit-variables-button,
+        .delete-variable-button,
+        .apply-to-all-button,
+        .remove-from-all-button {
+            line-height: 24px;
+        }
+
+        .configure-variables-button,
+        .edit-variables-button {
+            .mat-icon {
+                @include sizeDenaliIcon(12px);
+                margin-right: 4px;
+            }
+        }
+
+        /* Edit Controls - this list of edit controls */
         .variable-edit-controls {
+
+            .settings-control {
+                margin-bottom: 0;
+                //padding: 0 10px;
+                transition: background-color 500ms ease-in-out;
+    
+                &.actions-control {
+                    .mat-label {
+                        text-transform: uppercase;
+                    }
+    
+                    .mat-button {
+                        min-width: 36px;
+                        padding: 0;
+                        margin-right: 8px;
+                    }
+    
+                    .mat-icon-button {
+                        .mat-icon {
+                            @include sizeDenaliIcon(14px);
+                        }
+                    }
+
+                    .affected-count {
+                        margin-right: 12px;
+                    }
+
+                    .apply-to-all-button,
+                    .remove-from-all-button {
+                        padding: 0 4px;
+                        margin-right: 8px;
+                    }
+                }
+            }
+
+            .filter-values-list {
+                .mat-chip-list-wrapper {
+                    .mat-standard-chip {
+                        margin: 0 4px;
+                        padding: 3px 3px 3px 9px;
+                        line-height: 14px;
+                        font-size: 12px;
+                    }
+                }
+            }
+        }
+
+        /* in edit mode - these are the buttons at bottom */
+        .variable-action-controls {
             flex: 1;
             width: 100%;
             max-width: 100%;
@@ -62,56 +153,6 @@
                     .mat-icon {
                         @include sizeDenaliIcon(14px);
                         margin-right: 6px;
-                    }
-                }
-            }
-
-            .variable-item {
-                display: flex;
-                margin-right: 10px;
-                margin-bottom: 2px;
-            }
-
-            .settings-control {
-                margin-bottom: 0;
-                padding: 0 10px;
-                transition: background-color 500ms ease-in-out;
-    
-                &:first-child {
-                    padding-left: 20px;
-                }
-    
-                &:last-child {
-                    padding-right: 20px;
-                }
-    
-                &.actions-control {
-                    .mat-label {
-                        text-transform: uppercase;
-                    }
-    
-                    .mat-button {
-                        min-width: 36px;
-                        padding: 0;
-                        margin-right: 8px;
-                    }
-    
-                    .mat-icon {
-                        width: 18px;
-                        height: 18px;
-                        font-size: 100%;
-                        transform: translateY(-2px);
-                    }
-                }
-            }
-
-            .filter-values-list {
-                .mat-chip-list-wrapper {
-                    .mat-standard-chip {
-                        margin: 0 4px;
-                        padding: 3px 3px 3px 9px;
-                        line-height: 14px;
-                        font-size: 12px;
                     }
                 }
             }
@@ -136,35 +177,39 @@
     $border-color: map-get($background, background);
     
     .template-variable-panel-component {
-        background-color: $bg-color;
+        background-color: map-get($background, card);
         color: $navbar-text;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 
         &.is-edit-mode {
             background-color: map-get($background, card);
             color: map-get($foreground, text);
         }
 
+        /* list-view controls */
+
         .variable-list-wrapper {
 
         }
 
+        /* form fields for list-view */
+        .dashboard-template-variable.mat-form-field {
+            .mat-form-field-prefix {
+                background: rgba(map-get($primary, default), .1);
+            }
+        }
+
+        /* Edit View controls */
         .variable-edit-controls {
-            
-            .variable-item {
-                // border: 2px solid $border-color;
-            }
 
-            .settings-control {
-                background-color: rgba($border-color, 0);
-            }
-
+            /* not using chips for the time being
             .filter-values-list {
                 .mat-chip-list-wrapper {
                     .mat-standard-chip {
                         background-color: rgba(map-get($primary, default), .1);
                     }
                 }
-            }
+            }*/
         }
     }
 

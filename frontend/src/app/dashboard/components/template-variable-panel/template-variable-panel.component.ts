@@ -11,6 +11,7 @@ import { FormBuilder, FormGroup, FormControl, FormArray, Validators, AbstractCon
 import { Observable, Subscription } from 'rxjs';
 import { map, startWith, debounceTime, skip } from 'rxjs/operators';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
+import { UtilsService } from '../../../core/services/utils.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -36,7 +37,7 @@ export class TemplateVariablePanelComponent implements OnInit {
     prevSelectedTagk = '';
     disableDone = false;
 
-    constructor (private fb: FormBuilder, private interCom: IntercomService ) { }
+    constructor (private fb: FormBuilder, private interCom: IntercomService, private utils: UtilsService ) { }
 
     ngOnInit() {
 
@@ -246,5 +247,14 @@ export class TemplateVariablePanelComponent implements OnInit {
             // update to see how many queries can be applied to this tagkey
             // this.canApplyCount(selControl['controls']['tagk'].value);
         }
+    }
+
+    calculateVariableDisplayWidth(item: any) {
+        const fontFace = 'Ubuntu';
+        const fontSize = 14;
+        const prefixWidth = this.utils.calculateTextWidth(item.alias, fontSize, fontFace);
+        const inputWidth = this.utils.calculateTextWidth(item.filter, fontSize, fontFace);
+        // 34 is padding and such
+        return (prefixWidth + inputWidth + 34) + 'px';
     }
 }
