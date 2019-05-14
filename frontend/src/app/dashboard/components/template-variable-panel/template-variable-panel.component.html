@@ -1,22 +1,31 @@
 <ng-template [ngIf]="mode === 'view'" [ngIfElse]="variableEditView">
     <div class="variable-list-wrapper">
-        <span *ngIf="tplVariables.length === 0" (click)="doEdit()">Config this</span>
+        <button mat-button color="primary" class="configure-variables-button" *ngIf="tplVariables.length === 0" (click)="doEdit()">
+            <mat-icon fontSet="denali" fontIcon="d-setting"></mat-icon>
+            <span>Configure dashboard variables</span>
+        </button>
         <div *ngIf="tplVariables.length > 0">
             <ul class="varlist">
-                <li  *ngFor="let variable of tplVariables; let i = index;">
-                <span>${{variable.alias}}</span>
-                <mat-form-field>
-                    <input matInput value="{{variable.filter}}">
-                </mat-form-field>
+                <li *ngFor="let variable of tplVariables; let i = index;">
+                    <!-- still need to figure out way to dynamically change width when editing the input value -->
+                    <mat-form-field appearance="fill" color="primary" floatLabel="never" class="dashboard-template-variable" [ngStyle]="{width: calculateVariableDisplayWidth(variable)}">
+                        <input matInput value="{{variable.filter}}">
+                        <span matPrefix>${{variable.alias}}</span>
+                    </mat-form-field>
                 </li>
-                <li><span (click)="doEdit()">Edit</span></li>
+                <li>
+                    <button mat-button color="primary" class="edit-variables-button" (click)="doEdit()">
+                        <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                        <span>Edit</span>
+                    </button>
+                </li>
             </ul>
         </div>
     </div>
 </ng-template>
 
 <ng-template #variableEditView>
-    <div [formGroup]="editForm">
+    <div [formGroup]="editForm" class="variable-edit-wrapper">
         <table formArrayName="formTplVariables">
             <thead>
                 <tr>
@@ -27,11 +36,11 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let tpl of formTplVariables.controls; let i=index" [formGroupName]="i">
+                <tr *ngFor="let tpl of formTplVariables.controls; let i=index" [formGroupName]="i" class="variable-edit-controls">
                     <td>
                         <div class="settings-control alias-control">
                             <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 100px;">
-                                <input matInput placeholder="" formControlName="alias" (blur)="onInputBlur('alias', i)" (focus)="onInputFocus('alias', i)">
+                                <input matInput placeholder="" formControlName="alias" (blur)="onInputBlur('alias', i)" (focus)="onInputFocus('alias', i)" autocomplete="off">
                             </mat-form-field>
                         </div>
                     </td>
@@ -65,14 +74,18 @@
                     <td style="white-space:nowrap; vertical-align:top;">
                         <div class="settings-control actions-control">
                             <div class="actions">
-                                <button mat-button (click)="removeTemplateVariable(i)">
+                                <button mat-icon-button class="delete-variable-button" (click)="removeTemplateVariable(i)">
                                     <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                                 </button>
-                                    <span class="actionslist" *ngIf="tpl.valid">
-                                        <span>0/0</span>
+                                <span class="actionslist" *ngIf="tpl.valid">
+                                    <span class="affected-count">0/0</span>
+                                    <button mat-button color="primary" class="apply-to-all-button">
                                         <span>Apply to all</span>
+                                    </button>
+                                    <button mat-button color="primary" class="remove-from-all-button">
                                         <span>Remove from all</span>
-                                    </span>
+                                    </button>
+                                </span>
                                 <span *ngIf="tpl.get('alias').hasError('unique'); else requiredMesg">
                                     Alias must be unique.
                                 </span>
@@ -86,18 +99,18 @@
             </tbody>
         </table>
 
-        <div class="variable-edit-controls">
-        <div class="edit-actions">
-            <button mat-flat-button [disabled]="formTplVariables.invalid" class="add-template-button" color="primary" (click)="addVariableTemplate()">
-                <mat-icon fontSet="denali" fontIcon="d-add-circle"></mat-icon>
-                <span>New Alias</span>
-            </button>
-            <button mat-stroked-button color="primary" [disabled]="disableDone"
-                class="editing-done-button" (click)="done()">
-                <span>Done</span>
-            </button>
-            <span>form valid: {{formTplVariables.valid}}</span>
-        </div>
+        <div class="variable-action-controls">
+            <div class="edit-actions">
+                <button mat-flat-button [disabled]="formTplVariables.invalid" class="add-template-button" color="primary" (click)="addVariableTemplate()">
+                    <mat-icon fontSet="denali" fontIcon="d-add-circle"></mat-icon>
+                    <span>New Alias</span>
+                </button>
+                <button mat-stroked-button color="primary" [disabled]="disableDone"
+                    class="editing-done-button" (click)="done()">
+                    <span>Done</span>
+                </button>
+                <span>form valid: {{formTplVariables.valid}}</span>
+            </div>
         </div>
     </div>
     <!--
