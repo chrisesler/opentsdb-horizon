@@ -95,11 +95,12 @@ export class TemplateVariablePanelComponent implements OnInit {
     }
 
     addVariableTemplate(data?: any) {
-        data = (data) ? data : {};
+        data = (data) ? data : { applied: 0};
         const varData = {
             tagk: new FormControl((data.tagk) ? data.tagk : '', [Validators.required]),
             alias: new FormControl((data.alias) ? data.alias : '', [Validators.required]),
-            filter: new FormControl((data.filter) ? data.filter : '', [])
+            filter: new FormControl((data.filter) ? data.filter : '', []),
+            applied: new FormControl(data.applied ? data.applied : 0)
         };
         const control = <FormArray>this.editForm.controls['formTplVariables'];
         control.push(this.fb.group(varData));
@@ -124,7 +125,7 @@ export class TemplateVariablePanelComponent implements OnInit {
     private _filter(val: string, flag: string, selControl: any, index: number): string[] {
         const filterVal = val.toLowerCase();
         if (flag === 'tagk') {
-            return this.dbTagKeys.dashboardTags.filter(key => key.toLowerCase().includes(filterVal));
+            return this.dbTagKeys.tags.filter(key => key.toLowerCase().includes(filterVal));
         } else if (flag === 'filter') {
             let payload = '.*';
             if (val.trim().length > 0) {
@@ -174,7 +175,7 @@ export class TemplateVariablePanelComponent implements OnInit {
         const selControl = this.getSelectedControl(index);
         const val = selControl['controls'][cname].value;
         // when user type in and click select and if value is not valid, reset
-        if (cname === 'tagk' && this.dbTagKeys.dashboardTags.indexOf(val) === -1) {
+        if (cname === 'tagk' && this.dbTagKeys.tags.indexOf(val) === -1) {
             selControl['controls'][cname].setValue('');
             selControl['controls']['filter'].setValue('');
         } else {
@@ -212,6 +213,22 @@ export class TemplateVariablePanelComponent implements OnInit {
         this.mode = 'view';
     }
 
+    canApplyCount(tag: string) {
+        this.updateTagCount(this.dbTagKeys, tag);
+    }
+    updateTagCount(dbTagKeys: any, tag: string) {
+        /* let count = 0;
+        for (const q in dbTagKeys.rawDbTags) {
+            if (dbTagKeys.rawDbTags.hasOwnProperty(q)) {
+                for (let i = 0; i < Object.keys(dbTagKeys.rawDbTags[q]).length; i++) {
+                    if (dbTagKeys.rawDbTags[q][i].indexOf(tag) > -1) {
+                        count++;
+                    }
+                }
+            }
+        } */
+    }
+
     updateState(selControl: AbstractControl) {
         if (selControl.valid) {
             const sublist = [];
@@ -227,7 +244,7 @@ export class TemplateVariablePanelComponent implements OnInit {
                 }
             });
             // update to see how many queries can be applied to this tagkey
-
+            // this.canApplyCount(selControl['controls']['tagk'].value);
         }
     }
 }

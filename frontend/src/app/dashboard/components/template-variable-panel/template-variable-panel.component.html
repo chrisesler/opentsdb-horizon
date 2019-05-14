@@ -69,9 +69,9 @@
                                     <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                                 </button>
                                     <span class="actionslist" *ngIf="tpl.valid">
-                                        <span>0/0</span>
-                                        <span>Apply to all</span>
-                                        <span>Remove from all</span>
+                                        <span>{{tpl.get('applied').value}}/{{dbTagKeys.totalQueries}}</span>
+                                        <button mat-button color="primary">Apply to all</button>
+                                        <button mat-button [disabled]="tpl.get('applied').value === 0" color="primary">Remove from all</button>
                                     </span>
                                 <span *ngIf="tpl.get('alias').hasError('unique'); else requiredMesg">
                                     Alias must be unique.

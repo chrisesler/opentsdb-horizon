@@ -6,7 +6,7 @@ import {
   Output,
   EventEmitter,
   ElementRef,
-  Renderer,
+  Renderer2,
   ViewChild,
   OnChanges,
   OnDestroy,
@@ -57,7 +57,7 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
   visible = false;
   constructor(
       private elRef: ElementRef,
-      private renderer: Renderer,
+      private renderer: Renderer2,
       private httpService: HttpService,
       private fb: FormBuilder,
       private utils: UtilsService,
@@ -65,128 +65,132 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
 
       }
 
-  ngOnInit() {
-      this.queryChanges$ = new BehaviorSubject(false);
+    ngOnInit() {
+        this.queryChanges$ = new BehaviorSubject(false);
 
-      this.queryChangeSub = this.queryChanges$
-                                      .pipe(
-                                          debounceTime(1000)
-                                      )
-                                      .subscribe( trigger => {
-                                          if ( trigger ) {
-                                              this.triggerQueryChanges();
-                                          }
-                                      });
-  }
-
-  ngOnChanges( changes: SimpleChanges) {
-
-    if ( changes.namespace && changes.namespace.currentValue || changes.metrics && changes.metrics.currentValue ) {
-            this.initFormControls();
+        this.queryChangeSub = this.queryChanges$
+            .pipe(
+                debounceTime(1000)
+            )
+            .subscribe(trigger => {
+                if (trigger) {
+                    this.triggerQueryChanges();
+                }
+            });
     }
-}
 
-  initFormControls() {
-          this.setTagSearch();
-          this.setTagValueSearch();
-  }
+    ngOnChanges(changes: SimpleChanges) {
+
+        if (changes.namespace && changes.namespace.currentValue || changes.metrics && changes.metrics.currentValue) {
+            this.initFormControls();
+        }
+    }
+
+    initFormControls() {
+        this.setTagSearch();
+        this.setTagValueSearch();
+    }
 
 
-  deleteFilter(index) {
-      this.requestChanges();
-  }
+    deleteFilter(index) {
+        this.requestChanges();
+    }
 
 
-  setTagSearch() {
-      this.tagSearchControl = new FormControl('');
-      this.tagSearchControl.valueChanges
-      .pipe(
-          startWith(''),
-          debounceTime(200)
-      )
-      .subscribe( value => {
-          const query: any = { namespace: this.namespace, tags: this.filters, metrics: [] };
+    setTagSearch() {
+        this.tagSearchControl = new FormControl('');
+        this.tagSearchControl.valueChanges
+            .pipe(
+                startWith(''),
+                debounceTime(200)
+            )
+            .subscribe(value => {
+                const query: any = { namespace: this.namespace, tags: this.filters, metrics: [] };
 
-          query.search = value ? value : '';
+                query.search = value ? value : '';
 
-          // filter tags by metrics
-          if ( this.metrics ) {
-              for ( let i = 0, len = this.metrics.length; i < len; i++ ) {
-                  if ( !this.metrics[i].expression ) {
-                      query.metrics.push(this.metrics[i].name);
-                  }
-              }
-              query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
-          }
-            this.message['tagControl'] = {};
-            if (  this.tagKeySub ) {
-                this.tagKeySub.unsubscribe();
-            }
-            this.tagKeySub = this.httpService.getNamespaceTagKeys(query)
-                                                      .subscribe( res => {
-                                                          const selectedKeys = this.filters.map(item => item.tagk);
-                                                          res = res.filter(item => selectedKeys.indexOf(item.name) === -1);
-                                                          const options = selectedKeys.map(item => { return {name:item};}).concat(res);
-                                                          if ( this.loadFirstTagValues && options.length ) {
-                                                              this.handlerTagClick(options[0].name);
-                                                          }
-                                                          this.loadFirstTagValues = false;
-                                                          this.tagOptions = options;
-                                                          this.cdRef.detectChanges();
-                                                      },
-                                                      err => {
-                                                          this.tagOptions = [];
-                                                          const message = err.error.error? err.error.error.message : err.message;
-                                                          this.message['tagControl'] = { 'type': 'error', 'message' : message };
-                                                          this.cdRef.detectChanges();
-                                                      });
-          // this.tagSearchInput.nativeElement.focus();
-      });
-  }
+                // filter tags by metrics
+                if (this.metrics) {
+                    for (let i = 0, len = this.metrics.length; i < len; i++) {
+                        if (!this.metrics[i].expression) {
+                            query.metrics.push(this.metrics[i].name);
+                        }
+                    }
+                    query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
+                }
+                this.message['tagControl'] = {};
+                if (this.tagKeySub) {
+                    this.tagKeySub.unsubscribe();
+                }
+                this.tagKeySub = this.httpService.getNamespaceTagKeys(query)
+                    .subscribe(res => {
+                        const selectedKeys = this.filters.map(item => item.tagk);
+                        res = res.filter(item => selectedKeys.indexOf(item.name) === -1);
+                        const options = selectedKeys.map(item => { return { name: item }; }).concat(res);
+                        if (this.loadFirstTagValues && options.length) {
+                            this.handlerTagClick(options[0].name);
+                        }
+                        this.loadFirstTagValues = false;
+                        this.tagOptions = options;
+                        console.log('');
+                        this.cdRef.detectChanges();
+                    },
+                        err => {
+                            this.tagOptions = [];
+                            const message = err.error.error ? err.error.error.message : err.message;
+                            this.message['tagControl'] = { 'type': 'error', 'message': message };
+                            this.cdRef.detectChanges();
+                        });
+                // this.tagSearchInput.nativeElement.focus();
+            });
+    }
 
-  setTagValueSearch() {
-      this.tagValueSearchControl = new FormControl('');
+    setTagValueSearch() {
+        this.tagValueSearchControl = new FormControl('');
 
-      // need to include switchMap to cancel the previous call
-      this.tagValueSearchControl.valueChanges
-      .pipe(
-          startWith(''),
-          debounceTime(200)
-      )
-      .subscribe( value => {
-          const query: any = { namespace: this.namespace, tags: this.filters.filter( item=>item.tagk !== this.selectedTag), metrics: [] };
+        // need to include switchMap to cancel the previous call
+        this.tagValueSearchControl.valueChanges
+            .pipe(
+                startWith(''),
+                debounceTime(200)
+            )
+            .subscribe(value => {
+                const query: any = {
+                    namespace: this.namespace,
+                    tags: this.filters.filter(item => item.tagk !== this.selectedTag), metrics: []
+                };
 
-          query.search = value ? value : '';
+                query.search = value ? value : '';
 
-          // filter by metrics
-          if ( this.metrics ) {
-              for ( let i = 0, len = this.metrics.length; i < len; i++ ) {
-                  if ( !this.metrics[i].expression ) {
-                      query.metrics.push(this.metrics[i].name);
-                  }
-              }
-              query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
-          }
-          if ( this.selectedTag && this.tagValueTypeControl.value === 'literalor' ) {
-              query.tagkey = this.selectedTag;
-              this.message['tagValueControl'] = {};
-            if (  this.tagValueSub ) {
-                this.tagValueSub.unsubscribe();
-            }
-            this.tagValueSub = this.httpService.getTagValuesByNamespace(query)
-                                                .subscribe(res => {
-                                                    this.filteredTagValues = res;
-                                                    this.cdRef.detectChanges();
-                                                },
-                                                err => {
-                                                    this.filteredTagValues = [];
-                                                    const message = err.error.error? err.error.error.message : err.message;
-                                                    this.message['tagValueControl'] = { 'type': 'error', 'message' : message };
-                                                    this.cdRef.detectChanges();
-                                                });
-          }
-      });
-  }
+                // filter by metrics
+                if (this.metrics) {
+                    for (let i = 0, len = this.metrics.length; i < len; i++) {
+                        if (!this.metrics[i].expression) {
+                            query.metrics.push(this.metrics[i].name);
+                        }
+                    }
+                    query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
+                }
+                if (this.selectedTag && this.tagValueTypeControl.value === 'literalor') {
+                    query.tagkey = this.selectedTag;
+                    this.message['tagValueControl'] = {};
+                    if (this.tagValueSub) {
+                        this.tagValueSub.unsubscribe();
+                    }
+                    this.tagValueSub = this.httpService.getTagValuesByNamespace(query)
+                        .subscribe(res => {
+                            this.filteredTagValues = res;
+                            this.cdRef.detectChanges();
+                        },
+                            err => {
+                                this.filteredTagValues = [];
+                                const message = err.error.error ? err.error.error.message : err.message;
+                                this.message['tagValueControl'] = { 'type': 'error', 'message': message };
+                                this.cdRef.detectChanges();
+                            });
+                }
+            });
+    }
 
   requestChanges() {
       this.filterOutput.emit(this.filters);
