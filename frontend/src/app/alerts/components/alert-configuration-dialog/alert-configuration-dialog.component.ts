@@ -59,7 +59,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
     // placeholder for expected data from dialogue initiation
     @Input() data: any = {
-        namespace: 'UDB',
+        namespace: '',
         name: 'Untitled Alert',
         queries: []
     };
