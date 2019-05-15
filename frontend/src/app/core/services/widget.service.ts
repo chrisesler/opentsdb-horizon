@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
     PlaceholderWidgetComponent,
     LinechartWidgetComponent,
+    HeatmapWidgetComponent,
     BarchartWidgetComponent,
     StackedBarchartWidgetComponent,
     DonutWidgetComponent,
@@ -21,6 +22,8 @@ export class WidgetService {
         switch (name) {
             case 'LinechartWidgetComponent':
                 return LinechartWidgetComponent;
+            case 'HeatmapWidgetComponent':
+                return HeatmapWidgetComponent;
             case 'BarchartWidgetComponent':
                 return BarchartWidgetComponent;
             case 'StackedBarchartWidgetComponent':

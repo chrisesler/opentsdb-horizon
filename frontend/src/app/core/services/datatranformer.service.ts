@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { IDygraphOptions } from '../../shared/modules/dygraphs/IDygraphOptions';
-import barChartPlotter from '../../shared/dygraphs/plotters';
-import { isArray } from 'util';
+import { barChartPlotter, heatmapPlotter } from '../../shared/dygraphs/plotters';
 import { UtilsService } from './utils.service';
-import { group } from '@angular/animations';
+import * as d3 from 'd3';
 
 @Injectable({
   providedIn: 'root'
@@ -162,6 +161,129 @@ export class DatatranformerService {
     return [...normalizedData];
   }
 
+  yamasToHeatmap(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
+
+    normalizedData = [];
+    options.series = {};
+    const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
+
+    options.plotter = heatmapPlotter;
+    let cIndex = 0;
+    let min = Infinity, max = -Infinity;
+    // find min and max from the series. used in yaxis range
+    for (const qid in result) {
+        if (result.hasOwnProperty(qid)) {
+            const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
+            const mConfigs = gConfig ? gConfig.metrics : [];
+
+            if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
+                // sometimes opentsdb returns empty results
+                for ( let i = 0;  i < result[qid].results.length; i++ ) {
+                    const queryResults = result[qid].results[i];
+                    const [ source, mid ] = queryResults.source.split(":");
+                    if ( source === 'summarizer') {
+                        continue;
+                    }
+                    const mIndex = mid.replace( /\D+/g, '')
+
+                    const mConfig = mConfigs[mIndex];
+                    const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
+                    const n = queryResults.data.length;
+                    for ( let j = 0; j < n; j ++ ) {
+                        const data = queryResults.data[j].NumericType;
+                        const numPoints = data.length;
+                        if ( vConfig.visible ) {
+                            for (let k = 0; k < numPoints ; k++ ) {
+                                if (!isNaN(data[k]) && data[k] < min) {
+                                    min = data[k];
+                                }
+                                if (!isNaN(data[k]) && data[k] > max) {
+                                    max = data[k];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    options.axes.y.valueRange = [Math.floor(min), Math.ceil(max)];
+    options.labels = ['x'].concat( Array.from( Array(options.heatmap.buckets), (x, index) => (index + 1).toString()));
+    options.heatmap.x = [];
+
+    const y = d3.scaleLinear()
+                .domain([min, max])
+                .range([1, 30]);
+
+    for (const qid in result) {
+        if (result.hasOwnProperty(qid)) {
+        const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
+        const mConfigs = gConfig ? gConfig.metrics : [];
+        const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && item.settings.visual.color === 'auto');
+        const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
+        const vMetricsLen = mvConfigs.length;
+        const vAutoColorMetricsLen = mAutoConfigs.length;
+            let autoColors =  this.util.getColors( null , vAutoColorMetricsLen );
+            autoColors = vAutoColorMetricsLen > 1 ? autoColors : [autoColors];
+
+            if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
+            // sometimes opentsdb returns empty results
+            for ( let i = 0;  i < result[qid].results.length; i++ ) {
+                const queryResults = result[qid].results[i];
+                const [ source, mid ] = queryResults.source.split(":");
+                const mIndex = mid.replace( /\D+/g, '')
+                const mConfig = mConfigs[mIndex];
+                const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
+                if ( source === 'summarizer' || !vConfig.visible) {
+                    continue;
+                }
+
+                const timeSpecification = queryResults.timeSpecification;
+                const n = queryResults.data.length;
+                const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++] : mConfig.settings.visual.color;
+                options.heatmap.nseries = n;
+                options.heatmap.color = color;
+                let np = 0;
+
+                for ( let j = 0; j < n; j ++ ) {
+                    const data = queryResults.data[j].NumericType;
+                    const tags = queryResults.data[j].tags;
+                    const numPoints = data.length;
+                        let metric = vConfig.label || queryResults.data[j].metric;
+                        metric = this.getLableFromMetricTags(metric, tags);
+                        const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+                        const m = parseInt(timeSpecification.interval, 10);
+                        for (let k = 0; k < numPoints ; k++ ) {
+                            const time = (timeSpecification.start + ( m * k * mSeconds[unit] )) * 1000;
+                            if (!Array.isArray(normalizedData[k])) {
+                                normalizedData[k] = Array( options.heatmap.buckets + 1 ).fill(null);
+                                normalizedData[k][0] = new Date(time);
+                                options.heatmap.x.push(time);
+                            }
+                                if ( !isNaN(data[k]) ) {
+                                    const bucket = Math.ceil(y(data[k]));
+                                    //if ( np < 5 ) {
+                                        normalizedData[k][bucket] += 1;
+                                        np++;
+                                    //}
+                                    if (!options.series[bucket]) {
+                                        options.series[bucket] = {};
+                                    }
+                                    if (!options.series[bucket][time]) {
+                                        options.series[bucket][time] = [];
+                                    }
+                                    options.series[bucket][time].push({label: metric, v: data[k]});
+                                }
+                        }
+                }
+            }
+        }
+    }
+    }
+    return [...normalizedData];
+  }
+
     yamasToChartJS( chartType, options, widget, data, queryData, stacked = false ) {
         switch ( chartType ) {
             case 'bar':
@@ -262,7 +384,7 @@ export class DatatranformerService {
         return [...datasets];
     }
 
-    getLableFromMetricTags(label, tags ) {
+    getLableFromMetricTags(label, tags, len= 50 ) {
         const regex = /\{\{([\w-.:\/]+)\}\}/ig
         const matches = label.match(regex);
         if ( matches ) {
@@ -277,7 +399,7 @@ export class DatatranformerService {
                 }
             }
         }
-        label = label.length > 50 ? label.substr(0, 48) + '..' : label;
+        label = label.length > len ? label.substr(0, len - 2) + '..' : label;
         return label;
     }
 

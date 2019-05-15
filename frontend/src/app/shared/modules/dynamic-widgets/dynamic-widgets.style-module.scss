@@ -7,6 +7,7 @@
 @import 'components/developer-widget/developer-widget.component';
 @import 'components/donut-widget/donut-widget.component';
 @import 'components/linechart-widget/linechart-widget.component';
+@import 'components/heatmap-widget/heatmap-widget.component';
 @import 'components/barchart-widget/barchart-widget.component';
 @import 'components/topn-widget/topn-widget.component';
 @import 'components/placeholder-widget/placeholder-widget.component';
@@ -30,6 +31,7 @@
     @include big-number-visual-appearance-component-base();
     @include donut-widget-component-base();
     @include linechart-widget-component-base();
+    @include heatmap-widget-component-base();
     @include barchart-widget-component-base();
     @include topn-widget-component-base();
     @include status-widget-component-base();
@@ -55,6 +57,7 @@
     @include big-number-visual-appearance-component-theme($theme-config);
     @include donut-widget-component-theme($theme-config);
     @include linechart-widget-component-theme($theme-config);
+    @include heatmap-widget-component-theme($theme-config);
     @include barchart-widget-component-theme($theme-config);
     @include topn-widget-component-theme($theme-config);
     @include status-widget-component-theme($theme-config);
