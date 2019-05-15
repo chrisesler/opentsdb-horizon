@@ -472,18 +472,18 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     }
 
-    configurationEdit_Request(message: any) {
+    configurationEdit_change(message: any) {
         switch ( message.action ) {
             case 'SaveAlert':
+                // lets save this thing
                 this.store.dispatch(new SaveAlerts(message.namespace, message.payload));
                 break;
+            default:
+                // this is when dialog is closed to return to summary page
+                this.location.go('a');
+                this.editMode = false;
+                break;
         }
-    }
-
-    configurationEdit_AfterClosed($event: any) {
-        // this is when dialog is closed to return to summary page
-        this.location.go('a');
-        this.editMode = false;
     }
 
     selectSparklineDisplayOption(option: any) {

@@ -34,7 +34,7 @@ import { HttpService } from '../../../core/http/http.service';
 import { UtilsService } from '../../../core/services/utils.service';
 import { DatatranformerService } from '../../../core/services/datatranformer.service';
 import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/components/error-dialog/error-dialog.component';
-import { min } from 'rxjs/operators';
+import { min, pairwise, startWith } from 'rxjs/operators';
 import { IntercomService } from '../../../core/services/intercom.service';
 
 @Component({
@@ -52,10 +52,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
 
     @Input() response;
-    @Output() request = new EventEmitter();
 
-    @Output() afterClosed: EventEmitter<any> = new EventEmitter<any>();
-
+    @Output() configChange = new EventEmitter();
 
     // placeholder for expected data from dialogue initiation
     @Input() data: any = {
@@ -218,6 +216,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.reloadData();
 
         // TODO: need to check if there is something in this.data
+
         this.alertForm = this.fb.group({
             name: data.name || 'Untitled Alert',
             type: data.type || 'simple',
@@ -256,6 +255,12 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             })
         });
 
+        // need to 'set' values to start the value watching from the start
+        // Ideally you create the fromgroup first, then set values to get correct valueChange events
+        // This is to fix the issue of there not being a first change event
+        this.alertForm['controls'].threshold['controls'].singleMetric.get('badThreshold').setValue(data.threshold.singleMetric.badThreshold || null, { emitEvent: true });
+        this.alertForm['controls'].threshold['controls'].singleMetric.get('warnThreshold').setValue(data.threshold.singleMetric.warnThreshold || null, { emitEvent: true });
+
         this.setThresholds('bad', data.threshold.singleMetric.badThreshold || '');
         this.setThresholds('warning', data.threshold.singleMetric.warnThreshold || '');
         this.setThresholds('recovery', data.threshold.singleMetric.recoveryType === 'specific' ? data.threshold.singleMetric.recoveryThreshold : '');
@@ -269,26 +274,52 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
         });
         // tslint:disable-next-line:max-line-length
-        this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges.subscribe(bad => {
-            this.setThresholds('bad', bad);
-            if ( bad === null ) {
+        this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges
+            .pipe(
+                startWith(this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].value),
+                pairwise()
+            ).subscribe(([prev, bad]: [any, any]) => {
+                console.log('BAD THRESHOLD', prev, bad);
+                this.setThresholds('bad', bad);
                 const possibleTransitions =  ['goodToBad', 'badToGood', 'warnToBad', 'badToWarn'];
                 const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
-                this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !possibleTransitions.includes(d) ));
-            }
-            this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
-            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
-        });
+                if ( bad === null ) {
+                    // remove possible transitions (if any were selected)
+                    this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !possibleTransitions.includes(d) ));
+                } else if (prev === null && bad !== null) {
+                    // if it was previously empty/null, then turn on the default transitions
+                    this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.concat(possibleTransitions));
+
+                }
+                this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
+                this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
+                console.log('BAD STATE THRESHOLD CHECK', prev, bad, this.alertForm.getRawValue() );
+            });
         // tslint:disable-next-line:max-line-length
-        this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].valueChanges.subscribe(warn => {
-            this.setThresholds('warning', warn);
-            if ( warn === null ) {
-                const excludeTransitions = ['warnToBad', 'badToWarn', 'warnToGood', 'goodToWarn'];
+        this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].valueChanges
+            .pipe(
+                startWith(this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].value),
+                pairwise()
+            ).subscribe(([prev, warn]: [any, any]) => {
+                this.setThresholds('warning', warn);
+                const possibleTransitions = ['warnToBad', 'badToWarn', 'warnToGood', 'goodToWarn'];
                 const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
-                this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !excludeTransitions.includes(d) ));
-            }
-            this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
-        });
+                if ( warn === null ) {
+                    // remove possible transitions (if any were selected)
+                    this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !possibleTransitions.includes(d)));
+                } else if (prev === null && warn !== null){
+                    // if it was previously empty/null, then turn on the default transitions
+                    this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.concat(possibleTransitions));
+                }
+                this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
+            });
+
+        // tslint:disable-next-line: max-line-length
+        /* this.subs.notifythresholds = <Subscription>this.alertForm.controls['notification']['controls']['transitionsToNotify'].valueChanges.pipe(pairwise()).subscribe(([prev, next]: [any, any]) => {
+            console.log('NOTIFY THRESHOLDS', prev, next, this.alertForm.getRawValue());
+        }); */
+
+
         // tslint:disable-next-line:max-line-length
         this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('recovery', val);
@@ -696,12 +727,13 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         data.threshold.singleMetric.queryIndex = qindex;
         data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex; 
         data.threshold.isNagEnabled = data.threshold.nagInterval!== "0" ? true : false;
-        this.request.emit({ action: 'SaveAlert', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
-        // console.log(JSON.stringify(data), "alert form", qindex, mindex,this.queries[qindex].metrics[mindex] )
+        // emit to save the alert
+        this.configChange.emit({ action: 'SaveAlert', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
     }
 
     cancelEdit() {
-        this.afterClosed.emit();
+        // emit with no event
+        this.configChange.emit();
     }
 
     /** Events */
