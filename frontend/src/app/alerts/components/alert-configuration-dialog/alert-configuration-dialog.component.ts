@@ -279,7 +279,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 startWith(this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].value),
                 pairwise()
             ).subscribe(([prev, bad]: [any, any]) => {
-                console.log('BAD THRESHOLD', prev, bad);
                 this.setThresholds('bad', bad);
                 let possibleTransitions =  ['goodToBad', 'badToGood', 'warnToBad', 'badToWarn'];
                 const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
@@ -296,8 +295,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 }
                 this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
                 this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
-                console.log('BAD STATE THRESHOLD CHECK', prev, bad, this.alertForm.getRawValue() );
             });
+
         // tslint:disable-next-line:max-line-length
         this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].valueChanges
             .pipe(
