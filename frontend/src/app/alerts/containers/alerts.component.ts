@@ -478,6 +478,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 // lets save this thing
                 this.store.dispatch(new SaveAlerts(message.namespace, message.payload));
                 break;
+            case 'CancelEdit':
             default:
                 // this is when dialog is closed to return to summary page
                 this.location.go('a');

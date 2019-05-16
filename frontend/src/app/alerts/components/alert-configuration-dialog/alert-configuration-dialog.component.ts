@@ -281,12 +281,15 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             ).subscribe(([prev, bad]: [any, any]) => {
                 console.log('BAD THRESHOLD', prev, bad);
                 this.setThresholds('bad', bad);
-                const possibleTransitions =  ['goodToBad', 'badToGood', 'warnToBad', 'badToWarn'];
+                let possibleTransitions =  ['goodToBad', 'badToGood', 'warnToBad', 'badToWarn'];
                 const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
                 if ( bad === null ) {
                     // remove possible transitions (if any were selected)
                     this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !possibleTransitions.includes(d) ));
                 } else if (prev === null && bad !== null) {
+                    if (this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].value === null) {
+                        possibleTransitions = possibleTransitions.filter(d => !d.toLowerCase().includes('warn'));
+                    }
                     // if it was previously empty/null, then turn on the default transitions
                     this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.concat(possibleTransitions));
 
@@ -302,12 +305,15 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 pairwise()
             ).subscribe(([prev, warn]: [any, any]) => {
                 this.setThresholds('warning', warn);
-                const possibleTransitions = ['warnToBad', 'badToWarn', 'warnToGood', 'goodToWarn'];
+                let possibleTransitions = ['warnToBad', 'badToWarn', 'warnToGood', 'goodToWarn'];
                 const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
                 if ( warn === null ) {
                     // remove possible transitions (if any were selected)
                     this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !possibleTransitions.includes(d)));
-                } else if (prev === null && warn !== null){
+                } else if (prev === null && warn !== null) {
+                    if (this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].value === null) {
+                        possibleTransitions = possibleTransitions.filter(d => !d.toLowerCase().includes('bad'));
+                    }
                     // if it was previously empty/null, then turn on the default transitions
                     this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.concat(possibleTransitions));
                 }
@@ -733,7 +739,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
     cancelEdit() {
         // emit with no event
-        this.configChange.emit();
+        this.configChange.emit({
+            action: 'CancelEdit'
+        });
     }
 
     /** Events */
