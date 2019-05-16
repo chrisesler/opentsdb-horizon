@@ -63,5 +63,6 @@ export interface IDygraphOptions {
     pointSize?: number;
     highlightCircleSize?: number;
     xAxisHeight?: number;
+    xRangePad?: number;
 }
 

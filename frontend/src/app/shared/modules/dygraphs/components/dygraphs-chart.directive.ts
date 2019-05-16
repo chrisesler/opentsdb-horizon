@@ -80,7 +80,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     const _self = this;
     const tickFormatter = function(value, gran, opts) {
             const format = opts('tickFormat');
-            const dunit = _self.uConverter.getNormalizedUnit(format.max, format);
+            const dunit = _self.uConverter.getNormalizedUnit(value, format);
             return _self.uConverter.convert(value, format.unit, dunit, format );
     };
     const valueFormatter = function(value, opts) {
@@ -161,7 +161,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     const cy = Dygraph.pageY(event) - graphPos.y;
 
                     if (prevHighlightArea) {
-                        ctx.clearRect(prevHighlightArea.x - 1, prevHighlightArea.y - 1,  prevHighlightArea.w + 2, prevHighlightArea.h + 2);
+                        g.clearSelection();
                     }
 
                     const bucket = g.user_attrs_.heatmap.buckets  - (cy - cy % height) / height;
@@ -173,13 +173,14 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                         labelsDiv.style.display = 'none';
                     }
 
-                    if ( cx >= plotArea.x  && cy <= plotArea.h && !hasData ) { 
-                        //&& (!prevHighlightArea || !(cy >= prevHighlightArea.y  && cy <=prevHighlightArea.y + height  && cx > prevHighlightArea.x && cx <= prevHighlightArea.x + width) ) ) {
+                    if ( cx >= plotArea.x  && cy <= plotArea.h   ) { 
                         const x = cx2 - width / 2;
                         const y = cy - cy % height;
-                        ctx.fillStyle = '#cccccc';
-                        ctx.strokeWidth = 1;
+                        ctx.fillStyle = !hasData ? '#dddddd' : g.user_attrs_.heatmap.color;
                         ctx.fillRect(x, y, width, height);
+                        ctx.strokeStyle = 'red';
+                        ctx.strokeWidth = 1;
+                        ctx.rect(x, 0, width, plotArea.h);
                         ctx.stroke();
                         g._prevBucketHighlightBucket = {x: x, y: y, w: width, h: height};
                     }

@@ -79,7 +79,8 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
       pointSize: 0,
       heatmap: {
           buckets: 30,
-          nseries: 0
+          nseries: 0,
+          x: []
       },
       xAxisHeight: 12
   };
@@ -122,7 +123,6 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
                       if (!this.isDataLoaded) {
                           this.isDataLoaded = true;
                           this.resetChart();
-                          console.log("comes here...1", this.data);
                       }
                       if (message.payload.error) {
                           this.error = message.payload.error;
@@ -130,10 +130,8 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
                           const rawdata = message.payload.rawdata;
                           this.setTimezone(message.payload.timezone);
                           this.data.ts = this.dataTransformer.yamasToHeatmap(this.widget, this.options, this.data.ts, rawdata);
-                          this.options = {...this.options};
                           this.data = { ...this.data };
-                          this.setSize();
-                          console.log("comes here...2", this.options);
+                          setTimeout(() => this.setSize());
                       }
                       break;
                   case 'getUpdatedWidgetConfig':
@@ -337,7 +335,6 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
        const newSize = nativeEl.getBoundingClientRect();
       // let newSize = outputSize;
       let nWidth, nHeight, padding;
-      const buckets = 30;
 
 
       const widthOffset = 0;
@@ -359,7 +356,8 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
       }
 
       const xAxisMinHeight = 15;
-      this.options.xAxisHeight = xAxisMinHeight  + (nHeight - xAxisMinHeight)  % buckets;
+      this.options.xAxisHeight = xAxisMinHeight  + (nHeight - xAxisMinHeight)  % this.options.heatmap.buckets;
+      this.options.xRangePad = this.options.heatmap.x.length ? nWidth / (this.options.heatmap.x.length * 2) : 0;
       this.size = {width: nWidth, height: nHeight };
       this.cdRef.detectChanges();
   }

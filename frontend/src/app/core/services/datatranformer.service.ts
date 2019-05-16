@@ -212,10 +212,9 @@ export class DatatranformerService {
     options.labels = ['x'].concat( Array.from( Array(options.heatmap.buckets), (x, index) => (index + 1).toString()));
     options.heatmap.x = [];
 
-    const y = d3.scaleLinear()
+    const y = d3.scaleQuantize()
                 .domain([min, max])
-                .range([1, 30]);
-
+                .range(Array.from( Array(options.heatmap.buckets), (x, index) => (index + 1)));
     for (const qid in result) {
         if (result.hasOwnProperty(qid)) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
@@ -244,7 +243,6 @@ export class DatatranformerService {
                 const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++] : mConfig.settings.visual.color;
                 options.heatmap.nseries = n;
                 options.heatmap.color = color;
-                let np = 0;
 
                 for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults.data[j].NumericType;
@@ -262,11 +260,8 @@ export class DatatranformerService {
                                 options.heatmap.x.push(time);
                             }
                                 if ( !isNaN(data[k]) ) {
-                                    const bucket = Math.ceil(y(data[k]));
-                                    //if ( np < 5 ) {
+                                    const bucket = y(data[k]);
                                         normalizedData[k][bucket] += 1;
-                                        np++;
-                                    //}
                                     if (!options.series[bucket]) {
                                         options.series[bucket] = {};
                                     }
