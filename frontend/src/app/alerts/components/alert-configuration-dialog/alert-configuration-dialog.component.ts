@@ -287,12 +287,12 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                     // remove possible transitions (if any were selected)
                     this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !possibleTransitions.includes(d) ));
                 } else if (prev === null && bad !== null) {
+                    // In case warn threshold is empty, do not check warn/bad combos
                     if (this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].value === null) {
                         possibleTransitions = possibleTransitions.filter(d => !d.toLowerCase().includes('warn'));
                     }
                     // if it was previously empty/null, then turn on the default transitions
                     this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.concat(possibleTransitions));
-
                 }
                 this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
                 this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
@@ -311,6 +311,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                     // remove possible transitions (if any were selected)
                     this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !possibleTransitions.includes(d)));
                 } else if (prev === null && warn !== null) {
+                    // In case bad threshold is empty, do not check warn/bad combos
                     if (this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].value === null) {
                         possibleTransitions = possibleTransitions.filter(d => !d.toLowerCase().includes('bad'));
                     }
