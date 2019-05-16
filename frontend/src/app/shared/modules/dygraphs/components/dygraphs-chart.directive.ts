@@ -86,7 +86,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     const valueFormatter = function(value, opts) {
         const format = opts('tickFormat');
         const precision = format.precision ? format.precision : 2;
-        const dunit = _self.uConverter.getNormalizedUnit(format.max, format);
+        const dunit = _self.uConverter.getNormalizedUnit(value, format);
         return _self.uConverter.convert(value, format.unit, dunit, { unit: format.unit, precision: precision } );
     };
 
