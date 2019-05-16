@@ -6,13 +6,14 @@ var heatmapPlotter = function (e) {
   var allSeriesPoints = e.allSeriesPoints;
   var points = e.points;
   var plotArea = e.plotArea;
-  var bucketHeight =  plotArea.h / 30 ;
   var config = e.dygraph.user_attrs_.heatmap;
+  var bucketHeight =  plotArea.h / config.buckets ;
+  
 
 
   const y = d3.scaleLinear()
                 .domain(e.axis.valueRange)
-                .range([0, 30]);
+                .range([0, config.buckets]);
 
   const opacity = d3.scaleLinear()
                       .domain([config.nseries, 1])
@@ -40,6 +41,7 @@ var heatmapPlotter = function (e) {
         const a = point.yval === config.nseries ? 1: opacity(point.yval);
         ctx.fillStyle = 'rgba(' + r + ',' +  g + ',' + b + ',' + a +')';
         ctx.fillRect( point.canvasx - width/2, e.dygraph.toDomYCoord(y.invert(parseInt(point.name))),width, bucketHeight);
+
         //ctx.stroke();
       }
     }
