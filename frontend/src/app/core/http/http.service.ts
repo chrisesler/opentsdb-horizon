@@ -163,7 +163,7 @@ export class HttpService {
         'Content-Type': 'application/json'
       });
       const apiUrl = environment.metaApi + '/search/timeseries';
-      const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj);
+      const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj, false);
       return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
                           map((res:any) => res && res.results[0].tagKeysAndValues[queryObj.tagkey] ? res.results[0].tagKeysAndValues[queryObj.tagkey].values: []),
@@ -186,7 +186,7 @@ export class HttpService {
             newQueryParams[namespace].metrics.push(metric);
         }
         const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', Object.values(newQueryParams));
+        const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', Object.values(newQueryParams), false);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {
