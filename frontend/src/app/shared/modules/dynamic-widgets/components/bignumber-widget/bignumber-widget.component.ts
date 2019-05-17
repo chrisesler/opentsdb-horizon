@@ -41,6 +41,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     widgetWidth: number;
     widgetHeight: number;
     noDataText: string = 'No Data';
+    backgroundColor: string;
+    textColor: string;
 
     // Auto-scaling
     fontSizePercent: number = 100;  // initial value of how much to scale
@@ -193,7 +195,11 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     isNumber(value: string | number): boolean {
-        return value ? parseInt(value.toString(), 10) !== NaN : false;
+        if (value === 0) {
+            return true;
+        } else {
+            return value ? parseInt(value.toString(), 10) !== NaN : false;
+        }
     }
 
     setBigNumber(queryId: string) {
@@ -235,6 +241,34 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             this.tags = null;
         }
         this.determineFontSizePercent(this.widgetWidth, this.widgetHeight);
+        this.determineTextAndBackgroundColors();
+    }
+
+    determineTextAndBackgroundColors() {
+        this.textColor = this.widget.settings.visual.textColor;
+        this.backgroundColor = this.widget.settings.visual.backgroundColor;
+        if (this.isNumber(this.aggregatorValues[0]) && this.widget.settings.visual.conditions) {
+            let rawValue = this.aggregatorValues[0];
+            for (let condition of this.widget.settings.visual.conditions) {
+                if (this.isNumber(condition.value) && this.conditionApplies(rawValue, condition)) {
+                    this.backgroundColor = condition.color;
+                }
+            }
+        }
+    }
+
+    conditionApplies(rawValue, condition): boolean {
+        let applicable = false;
+        if (condition.operator.toLowerCase() === 'gt') {
+            applicable = rawValue > condition.value;
+        } else if (condition.operator.toLowerCase() === 'ge') {
+            applicable = rawValue >= condition.value;
+        } else if (condition.operator.toLowerCase() === 'lt') {
+            applicable = rawValue < condition.value;
+        } else if (condition.operator.toLowerCase() === 'le') {
+            applicable = rawValue <= condition.value;
+        }
+        return applicable;
     }
 
     // Auto Scaling
@@ -460,10 +494,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
     setVisualization( vconfigs ) {
         this.widget.settings.visual = { ...vconfigs};
-        // mconfigs.forEach( (config, i) => {
-        //     // tslint:disable-next-line:max-line-length
-        //     this.widget.query.groups[0].queries[i].settings.visual = { ...this.widget.query.groups[0].queries[i].settings.visual, ...config };
-        // });
+        this.determineTextAndBackgroundColors();
     }
 
     setTimeConfiguration(config) {
@@ -540,15 +571,10 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
     setDefaultVisualization() {
         this.widget.settings.visual.prefix = this.widget.settings.visual.prefix || '';
-        // this.widget.settings.visual.postfix = this.widget.settings.visual.postfix || '';
         this.widget.settings.visual.unit = this.widget.settings.visual.unit || '';
-
         this.widget.settings.visual.prefixAlignment = this.widget.settings.visual.prefixAlignment || 'middle';
-        // this.widget.settings.visual.postfixAlignment = this.widget.settings.visual.postfixAlignment || 'middle';
         this.widget.settings.visual.unitAlignment = this.widget.settings.visual.unitAlignment || 'middle';
-
         this.widget.settings.visual.prefixSize = this.widget.settings.visual.prefixSize || 'm';
-        // this.widget.settings.visual.postfixSize = this.widget.settings.visual.postfixSize || 'm';
         this.widget.settings.visual.unitSize = this.widget.settings.visual.unitSize || 'm';
 
         this.widget.settings.visual.caption = this.widget.settings.visual.caption || '';
@@ -557,6 +583,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         this.widget.settings.visual.textColor = this.widget.settings.visual.textColor || '#FFFFFF';
         this.widget.settings.visual.sparkLineEnabled = this.widget.settings.visual.sparkLineEnabled || false;
         this.widget.settings.visual.changedIndicatorEnabled = this.widget.settings.visual.changedIndicatorEnabled || false;
+
+        this.textColor = this.widget.settings.visual.textColor;
+        this.backgroundColor = this.widget.settings.visual.backgroundColor;
     }
 
     disableAnyRemainingGroupBys() {
