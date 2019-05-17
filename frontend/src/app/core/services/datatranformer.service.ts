@@ -276,6 +276,18 @@ export class DatatranformerService {
         }
     }
     }
+
+    // ranking
+    const bucketValues = [];
+    for ( let i = 0; i < normalizedData.length; i++ ) {
+        for ( let j = 1; j < normalizedData[i].length; j++ ) {
+            if ( normalizedData[i][j] !== null && !bucketValues.includes(normalizedData[i][j]) ) {
+                bucketValues.push(normalizedData[i][j]);
+            }
+        }
+    }
+    bucketValues.sort((a, b) => a - b);
+    options.heatmap.bucketValues = bucketValues;
     return [...normalizedData];
   }
 

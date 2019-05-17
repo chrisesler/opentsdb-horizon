@@ -7,7 +7,13 @@ var heatmapPlotter = function (e) {
   var points = e.points;
   var plotArea = e.plotArea;
   var config = e.dygraph.user_attrs_.heatmap;
-  var bucketHeight =  plotArea.h / config.buckets ;
+  var bucketHeight =  plotArea.h / config.buckets;
+
+  // bucket value : rank { bucket value : index, ..}
+  var rank = {};
+  for ( var i = 0; i < config.bucketValues.length; i++ ) {
+    rank[config.bucketValues[i]] = i;
+  }
   
 
 
@@ -16,8 +22,8 @@ var heatmapPlotter = function (e) {
                 .range([0, config.buckets]);
 
   const opacity = d3.scaleLinear()
-                      .domain([config.nseries, 1])
-                      .range([1,0.1]);
+                      .domain([0, config.bucketValues.length-1])
+                      .range([0.1, 1]);
   const color = config.color || '#000000';
   const r = parseInt(color.substring(1, 3), 16);
   const g = parseInt(color.substring(3, 5), 16);
@@ -38,7 +44,7 @@ var heatmapPlotter = function (e) {
       var point = allSeriesPoints[i][j];
       if ( !isNaN(point.y) ) {
         //ctx.strokeWidth = 1;
-        const a = point.yval === config.nseries ? 1: opacity(point.yval);
+        const a = point.yval === config.nseries ? 1: opacity(rank[point.yval]);
         ctx.fillStyle = 'rgba(' + r + ',' +  g + ',' + b + ',' + a +')';
         ctx.fillRect( point.canvasx - width/2, e.dygraph.toDomYCoord(y.invert(parseInt(point.name))),width, bucketHeight);
 

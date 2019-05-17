@@ -34,19 +34,19 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     const self = this;
     const mouseover = function(event, x, pts, row) {
         const labelsDiv = this.user_attrs_.labelsDiv;
-        let xOffset = 10;
-        let yOffset = 10;
+        labelsDiv.style.display = 'block';
+        let xOffset = 0;
+        let yOffset = 0;
         const labelDivWidth = labelsDiv.clientWidth;
         const labelDivHeight = labelsDiv.clientHeight;
-        if (event.offsetX > (window.innerWidth - (1.2 * labelDivWidth))) {
+        if (event.clientX > (window.innerWidth - (labelDivWidth + 10))) {
             xOffset = - (labelDivWidth + 10);
         }
-        if (event.offsetY > (window.innerHeight - (1.2 * labelDivHeight))){
-            yOffset = - (labelDivHeight + 10);
+        if (event.clientY > (window.innerHeight - (labelDivHeight + 30))) {
+            yOffset = - (labelDivHeight + 40);
         }
         labelsDiv.style.left = (event.offsetX  + xOffset ) + 'px';
         labelsDiv.style.top = (event.offsetY   + yOffset)  + 'px';
-        labelsDiv.style.display = 'block';
     };
 
     const legendFormatter = function(data) {
@@ -91,23 +91,12 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     };
 
     const setHeatmapLegend = function(event, g, x, bucket) {
+
         const labelsDiv = g.user_attrs_.labelsDiv;
         const options = g.user_attrs_;
         const tooltipData = options.series[bucket] && options.series[bucket][x] ? options.series[bucket][x] : [];
-
-        let xOffset = 10;
-        let yOffset = 10;
-        const labelDivWidth = labelsDiv.clientWidth;
-        const labelDivHeight = labelsDiv.clientHeight;
-        if (event.offsetX > (window.innerWidth - (1.2 * labelDivWidth))) {
-            xOffset = - (labelDivWidth + 10);
-        }
-        if (event.offsetY > (window.innerHeight - (1.2 * labelDivHeight))){
-            yOffset = - (labelDivHeight + 10);
-        }
-        labelsDiv.style.left = (event.offsetX  + xOffset ) + 'px';
-        labelsDiv.style.top = (event.offsetY   + yOffset)  + 'px';
-        labelsDiv.style.display = 'block';
+        const format = options.axes.y.tickFormat;
+        const precision = format.precision ? format.precision : 2;
 
         let html  =  '';
         html = options.labelsUTC ? moment(x).utc().format('YYYY/MM/DD HH:mm') : moment(x).format('YYYY/MM/DD HH:mm');
@@ -115,11 +104,28 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         tooltipData.sort((a, b) => b.v - a.v);
         const n = tooltipData.length < 5 ? tooltipData.length : 5;
         for ( let i = 0; i < n; i++ ) {
-                html += '<tr><td>' + tooltipData[i].v.toFixed(3) + '</td><td>' + tooltipData[i].label + '</td></tr>';
+                const dunit = _self.uConverter.getNormalizedUnit(tooltipData[i].v, format);
+                const val = _self.uConverter.convert(tooltipData[i].v, format.unit, dunit, { unit: format.unit, precision: precision } );
+
+                html += '<tr><td>' + val + '</td><td>' + tooltipData[i].label + '</td></tr>';
         }
         html += '</table>';
         labelsDiv.innerHTML =  html;
-    }
+
+        let xOffset = 0;
+        let yOffset = 0;
+        labelsDiv.style.display = 'block';
+        const labelDivWidth = labelsDiv.clientWidth;
+        const labelDivHeight = labelsDiv.clientHeight;
+        if (event.clientX > (window.innerWidth - (labelDivWidth + 10))) {
+            xOffset = - (labelDivWidth + 10);
+        }
+        if (event.clientY > (window.innerHeight - (labelDivHeight + 30))) {
+            yOffset = - (labelDivHeight + 40);
+        }
+        labelsDiv.style.left = (event.offsetX  + xOffset ) + 'px';
+        labelsDiv.style.top = (event.offsetY   + yOffset)  + 'px';
+    };
 
 
 
