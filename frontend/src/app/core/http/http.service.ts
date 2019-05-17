@@ -190,7 +190,6 @@ export class HttpService {
         }
         const apiUrl = environment.metaApi + '/search/timeseries';
         const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', Object.values(newQueryParams), false);
-        // console.log('the query for tag values', query);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {

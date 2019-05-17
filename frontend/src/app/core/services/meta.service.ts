@@ -9,10 +9,9 @@ export class MetaService {
 
   constructor(private utilsService: UtilsService) { }
 
-  // andOp : and operator for metrics or not
   getQuery(type, params, andOp = true) {
     params = Array.isArray(params) ? params : [params];
-    const metaQuery:any = {
+    const metaQuery: any = {
       'from': 0,
       'to': 1,
       'order': 'ASCENDING',
