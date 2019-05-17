@@ -93,10 +93,6 @@ export class DBSettingsState {
         return state.tplVariables;
     }
 
-    /* @Selector() static getDashboardTags(state: DBSettingsModel) {
-        return state.tags;
-    } */
-
     @Action(UpdateMode)
     updateMode(ctx: StateContext<DBSettingsModel>, { mode }: UpdateMode) {
         const state = ctx.getState();
