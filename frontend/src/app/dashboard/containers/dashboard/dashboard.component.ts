@@ -166,8 +166,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         totalQueries: 0,
         tags: []
     };
-    widgetTagLoaded$ = new Subject();
-    widgetTagLoaded = false;
+    isDbTagsLoaded = false;
 
     constructor(
         private store: Store,
@@ -340,10 +339,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     console.log('dashboardSaveRequest', this.dbid, payload);
                     break;
                 case 'getDashboardTags':
-                    this.getDashboardTagKeys();
+                    if (!this.isDbTagsLoaded) {
+                        this.getDashboardTagKeys();
+                    }
                     break;
                 case 'updateTemplateVariables':
                     this.store.dispatch(new UpdateVariables(message.payload.variables));
+                    break;
+                case 'ApplyVarToAllQueries':
+                    this.doApplyVariables(message.payload);
+                    break;
+                case 'RemoveVarFromAllQueries':
                     break;
                 case 'updateDashboardSettings':
                     if (message.payload.meta) {
@@ -432,6 +438,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const dbstate = this.store.selectSnapshot(DBState);
             if (dbstate.loaded) {
                 this.widgets = this.utilService.deepClone(widgets);
+                if (this.tplVariables.length > 0) {
+                    this.getDashboardTagKeys();
+                }
             }
         }));
 
@@ -468,7 +477,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         */
         this.subscription.add(this.tplVariables$.subscribe(tvars => {
             this.tplVariables = this.utilService.deepClone(tvars);
-            console.log('new template variabels', this.tplVariables);
         }));
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
             let error = null;
@@ -529,6 +537,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     } */
 
+    doApplyVariables(vartag: any) {
+        for (const wid in this.dashboardTags.rawDbTags) {
+            if (this.dashboardTags.rawDbTags.hasOwnProperty(wid)) {
+                for (const qid in this.dashboardTags.rawDbTags[wid]) {
+                    if (qid.indexOf(vartag.tagk)) {
+
+                        // they have it push down to widget
+                    }
+                }
+            }
+        }
+    }
+
     // to passing raw data to widget
     updateWidgetGroup(wid, rawdata, error = null) {
         const clientSize = this.store.selectSnapshot(ClientSizeState);
@@ -545,6 +566,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     getDashboardTagValues(tag: any) {
+        console.log('get dasjbaord tag vaue', tag);
         const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
         const query = { metrics, tag }; // unique metrics
         return this.httpService.getTagValues(query).subscribe(values => {
@@ -556,33 +578,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     getDashboardTagKeys() {
-        this.httpService.getTagKeysForQueries(this.widgets).subscribe( (res: any ) => {
+        this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
             console.log('getdashboardtag res', res);
-            this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: []};
-            for ( let i = 0; res && i < res.results.length; i++ ) {
-                const [wid, qid ] =  res.results[i].id ? res.results[i].id.split(':') : [null, null];
-                if ( !wid ) { continue; }
+            this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
+            for (let i = 0; res && i < res.results.length; i++) {
+                const [wid, qid] = res.results[i].id ? res.results[i].id.split(':') : [null, null];
+                if (!wid) { continue; }
                 const keys = res.results[i].tagKeys.map(d => d.name);
-                if ( !this.dashboardTags.rawDbTags[wid] ) {
+                if (!this.dashboardTags.rawDbTags[wid]) {
                     this.dashboardTags.rawDbTags[wid] = {};
                 }
                 this.dashboardTags.rawDbTags[wid][qid] = keys;
                 this.dashboardTags.totalQueries++;
                 this.dashboardTags.tags = [...this.dashboardTags.tags,
-                    ...keys.filter(k => this.dashboardTags.tags.indexOf(k) < 0)];
+                ...keys.filter(k => this.dashboardTags.tags.indexOf(k) < 0)];
             }
             this.dashboardTags.tags.sort(this.utilService.sortAlphaNum);
-            console.log('dashboard tag', this.dashboardTags);
+            this.isDbTagsLoaded = true;
+        },
+        error => {
+            this.isDbTagsLoaded = false;
         });
     }
-    checkWidgetTagsLoaded(): Observable<any> {
-        if ( !this.widgetTagLoaded ) {
-          return this.widgetTagLoaded$;
-        } else {
-          return of(true);
-        }
-    }
-
     // dispatch payload query by group
     handleQueryPayload(message: any) {
         let groupid = '';
@@ -608,6 +625,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         // query = overrideFilters.length ?
                         //    this.dbService.overrideQueryFilters(query, overrideFilters, this.wdTags[message.id] ?
                         //       this.wdTags[message.id][groupid] : []) : query;
+
+                        // here we need to resolve template variables to override or insert
+                        console.log('template varianle', this.tplVariables, message);
+                        if (this.tplVariables.length && query.filters.length) {
+                            // check tpl variables are applied to this query
+                            query = this.dbService.updateQueryByVariables(query, this.tplVariables);
+                        }
+                        console.log('var query', query);
                         query = this.queryService.buildQuery(payload, dt, query);
                         // console.log('the group query-2', query, JSON.stringify(query));
                         gquery.query = query;
