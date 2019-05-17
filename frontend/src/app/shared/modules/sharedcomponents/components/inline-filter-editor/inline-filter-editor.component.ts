@@ -1,71 +1,71 @@
 import {
-  Component,
-  OnInit,
-  HostBinding,
-  Input,
-  Output,
-  EventEmitter,
-  ElementRef,
-  Renderer2,
-  ViewChild,
-  OnChanges,
-  OnDestroy,
-  SimpleChanges, HostListener, ChangeDetectorRef
+    Component,
+    OnInit,
+    HostBinding,
+    Input,
+    Output,
+    EventEmitter,
+    ElementRef,
+    ViewChild,
+    OnDestroy,
+    HostListener, ChangeDetectorRef
 } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { FormControl } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
 import { startWith, debounceTime, catchError } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { HttpService } from '../../../../../core/http/http.service';
-import { UtilsService } from '../../../../../core/services/utils.service';
+import { Store } from '@ngxs/store';
+import { DBSettingsState } from '../../../../../dashboard/state/settings.state';
 
 @Component({
-  selector: 'inline-filter-editor',
-  templateUrl: './inline-filter-editor.component.html',
-  styleUrls: ['./inline-filter-editor.component.scss']
+    // tslint:disable-next-line: component-selector
+    selector: 'inline-filter-editor',
+    templateUrl: './inline-filter-editor.component.html',
+    styleUrls: ['./inline-filter-editor.component.scss']
 })
+export class InlineFilterEditorComponent implements OnInit, OnDestroy {
+    @HostBinding('class.inline-filter-editor') private _hostClass = true;
 
+    @Input() query: any;
+    @Output() filterOutput = new EventEmitter();
+    @ViewChild('tagValueSearchInput') tagValueSearchInput: ElementRef;
+    @ViewChild('tagSearchInput') tagSearchInput: ElementRef;
 
+    namespace: string;
+    filters: any[];
+    metrics: any[];
+    queryBeforeEdit: any;
+    tagOptions = [];
+    filteredTagValues = [];
+    selectedTagIndex = -1;
+    selectedTag = '';
+    loadFirstTagValues = false;
+    tagValueTypeControl = new FormControl('literalor');
+    tagSearchControl: FormControl;
+    tagValueSearchControl: FormControl;
+    message: any = { 'tagControl': { message: '' }, 'tagValueControl': { message: '' } };
+    queryChanges$: BehaviorSubject<boolean>;
+    queryChangeSub: Subscription;
+    tagKeySub: Subscription;
+    tagValueSub: Subscription;
+    dbVariables: any[];
+    visible = false;
+    constructor(
+        private elRef: ElementRef,
+        private httpService: HttpService,
+        private store: Store,
+        private cdRef: ChangeDetectorRef) {
 
-export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy {
-  @HostBinding('class.inline-filter-editor') private _hostClass = true;
-  @Input() namespace;
-  @Input() metrics = [];
-  @Input() filters = [];
-
-  @Output() filterOutput = new EventEmitter();
-  @Output() blur = new EventEmitter();
-
-  @ViewChild('tagValueSearchInput') tagValueSearchInput: ElementRef;
-  @ViewChild('tagSearchInput') tagSearchInput: ElementRef;
-
-  queryBeforeEdit: any;
-  tagOptions = [];
-  filteredTagValues = [];
-  selectedTagIndex = -1;
-  selectedTag = '';
-  loadFirstTagValues = false;
-  tagValueTypeControl = new FormControl('literalor');
-  tagSearchControl: FormControl;
-  tagValueSearchControl: FormControl;
-  message:any = { 'tagControl' : { message: ''}, 'tagValueControl' : { message: '' }};
-  queryChanges$: BehaviorSubject<boolean>;
-  queryChangeSub: Subscription;
-  tagKeySub: Subscription;
-  tagValueSub: Subscription;
-
-  visible = false;
-  constructor(
-      private elRef: ElementRef,
-      private renderer: Renderer2,
-      private httpService: HttpService,
-      private fb: FormBuilder,
-      private utils: UtilsService,
-      private cdRef: ChangeDetectorRef ) {
-
-      }
+    }
 
     ngOnInit() {
+        console.log('inline init');
+        this.dbVariables = this.store.selectSnapshot(DBSettingsState.getTplVariables);
+        console.log('this query', this.query);
+        this.namespace = this.query.namespace;
+        this.metrics = this.query.metrics;
+        this.filters = this.query.filters;
         this.queryChanges$ = new BehaviorSubject(false);
 
         this.queryChangeSub = this.queryChanges$
@@ -77,13 +77,7 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
                     this.triggerQueryChanges();
                 }
             });
-    }
-
-    ngOnChanges(changes: SimpleChanges) {
-
-        if (changes.namespace && changes.namespace.currentValue || changes.metrics && changes.metrics.currentValue) {
-            this.initFormControls();
-        }
+        this.initFormControls();
     }
 
     initFormControls() {
@@ -91,11 +85,9 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
         this.setTagValueSearch();
     }
 
-
     deleteFilter(index) {
         this.requestChanges();
     }
-
 
     setTagSearch() {
         this.tagSearchControl = new FormControl('');
@@ -106,7 +98,8 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
             )
             .subscribe(value => {
                 const query: any = { namespace: this.namespace, tags: this.filters, metrics: [] };
-
+                // make sure filters should not include any template variables to search
+                query.tags = query.tags.filter(f => f.tagk.charAt(0) !== '$');
                 query.search = value ? value : '';
 
                 // filter tags by metrics
@@ -116,7 +109,7 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
                             query.metrics.push(this.metrics[i].name);
                         }
                     }
-                    query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
+                    query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) === i);
                 }
                 this.message['tagControl'] = {};
                 if (this.tagKeySub) {
@@ -124,15 +117,20 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
                 }
                 this.tagKeySub = this.httpService.getNamespaceTagKeys(query)
                     .subscribe(res => {
+                        for (const dbvar of this.dbVariables) {
+                            const ret = res.filter(option => option.name === dbvar.tagk);
+                            if (ret.length === 1) {
+                                res.unshift({ name: '$' + dbvar.alias });
+                            }
+                        }
                         const selectedKeys = this.filters.map(item => item.tagk);
                         res = res.filter(item => selectedKeys.indexOf(item.name) === -1);
-                        const options = selectedKeys.map(item => { return { name: item }; }).concat(res);
+                        const options = selectedKeys.map(item => ({ 'name': item })).concat(res);
                         if (this.loadFirstTagValues && options.length) {
                             this.handlerTagClick(options[0].name);
                         }
                         this.loadFirstTagValues = false;
                         this.tagOptions = options;
-                        console.log('');
                         this.cdRef.detectChanges();
                     },
                         err => {
@@ -141,7 +139,6 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
                             this.message['tagControl'] = { 'type': 'error', 'message': message };
                             this.cdRef.detectChanges();
                         });
-                // this.tagSearchInput.nativeElement.focus();
             });
     }
 
@@ -155,11 +152,14 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
                 debounceTime(200)
             )
             .subscribe(value => {
+                const a = this.filters.filter(item => {
+                    return item.tagk !== this.selectedTag && item.tagk.charAt(0) !== '$';
+                });
                 const query: any = {
                     namespace: this.namespace,
-                    tags: this.filters.filter(item => item.tagk !== this.selectedTag), metrics: []
+                    tags: this.filters.filter(item => item.tagk !== this.selectedTag && item.tagk.charAt(0) !== '$'),
+                    metrics: []
                 };
-
                 query.search = value ? value : '';
 
                 // filter by metrics
@@ -169,7 +169,7 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
                             query.metrics.push(this.metrics[i].name);
                         }
                     }
-                    query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) == i);
+                    query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) === i);
                 }
                 if (this.selectedTag && this.tagValueTypeControl.value === 'literalor') {
                     query.tagkey = this.selectedTag;
@@ -177,6 +177,7 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
                     if (this.tagValueSub) {
                         this.tagValueSub.unsubscribe();
                     }
+                    console.log('query', query);
                     this.tagValueSub = this.httpService.getTagValuesByNamespace(query)
                         .subscribe(res => {
                             this.filteredTagValues = res;
@@ -192,109 +193,122 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
             });
     }
 
-  requestChanges() {
-      this.filterOutput.emit(this.filters);
-  }
+    requestChanges() {
+        this.filterOutput.emit(this.filters);
+    }
 
-  triggerQueryChanges() {
-      this.requestChanges();
-  }
+    triggerQueryChanges() {
+        this.requestChanges();
+    }
 
-  handlerTagClick( tag ) {
-      this.selectedTag = tag;
-      this.selectedTagIndex = this.getTagIndex(tag);
-      this.tagValueTypeControl.setValue('literalor');
-      this.tagValueSearchControl.setValue(null);
-  }
+    handlerTagClick(tag) {
+        this.selectedTag = tag;
+        this.selectedTagIndex = this.getTagIndex(tag);
+        if (tag.charAt(0) === '$') {
+            if (this.selectedTagIndex === -1) {
+                this.filters.push({
+                    tagk: tag
+                });
+            } else {
+                this.filters.splice(this.selectedTagIndex, 1);
+                this.selectedTagIndex = -1;
+            }
+            console.log('this filters', this.filters);
+            this.queryChanges$.next(true);
+        } else {
+            this.tagValueTypeControl.setValue('literalor');
+            this.tagValueSearchControl.setValue(null);
+        }
+    }
 
-  removeTagValues(tag) {
-      this.filters.splice(this.getTagIndex(tag), 1);
-      this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
-      this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
-      this.queryChanges$.next(true);
-  }
+    removeTagValues(tag) {
+        if (tag.charAt(0) === '$') {
+            this.handlerTagClick(tag);
+        } else {
+            this.filters.splice(this.getTagIndex(tag), 1);
+            this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+            this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+            this.queryChanges$.next(true);
+        }
+    }
 
-  getTagIndex ( tag ) {
-      const tagIndex = this.filters.findIndex( item => item.tagk === tag );
-      return tagIndex;
-  }
+    getTagIndex(tag) {
+        const tagIndex = this.filters.findIndex(item => item.tagk === tag);
+        return tagIndex;
+    }
 
-  getTagValueIndex ( tag, v ) {
-      const tagIndex = this.getTagIndex(tag);
-      let tagValueIndex = -1;
-      if ( tagIndex !== -1 ) {
-          tagValueIndex = this.filters[tagIndex].filter.indexOf(v);
-      }
-      return tagValueIndex;
-  }
+    getTagValueIndex(tag, v) {
+        const tagIndex = this.getTagIndex(tag);
+        let tagValueIndex = -1;
+        if (tagIndex !== -1) {
+            tagValueIndex = this.filters[tagIndex].filter.indexOf(v);
+        }
+        return tagValueIndex;
+    }
 
-  addTagValueRegexp() {
-      let v = this.tagValueSearchControl.value.trim();
-      if ( this.tagValueTypeControl.value === 'regexp' && v ) {
-          v = 'regexp(' + v + ')';
-          this.updateTagValueSelection(v, 'add');
-          this.tagValueSearchControl.setValue(null);
-      }
-  }
+    addTagValueRegexp() {
+        let v = this.tagValueSearchControl.value.trim();
+        if (this.tagValueTypeControl.value === 'regexp' && v) {
+            v = 'regexp(' + v + ')';
+            this.updateTagValueSelection(v, 'add');
+            this.tagValueSearchControl.setValue(null);
+        }
+    }
 
-  updateTagValueSelection(v, operation) {
-      v = v.trim();
-      if ( this.selectedTagIndex === -1  && operation === 'add' ) {
-          this.selectedTagIndex = this.filters.length;
-          const filter: any = { tagk: this.selectedTag,  filter: []};
-          filter.groupBy = false;
-          this.filters[this.selectedTagIndex] = filter;
-      }
+    updateTagValueSelection(v, operation) {
+        v = v.trim();
+        if (this.selectedTagIndex === -1 && operation === 'add') {
+            this.selectedTagIndex = this.filters.length;
+            const filter: any = { tagk: this.selectedTag, filter: [] };
+            filter.groupBy = false;
+            this.filters[this.selectedTagIndex] = filter;
+        }
 
-      if (  operation === 'add') {
-          this.filters[this.selectedTagIndex].filter.push(v);
-      } else if ( this.selectedTagIndex !== -1 && operation === 'remove' ) {
-          const index = this.filters[this.selectedTagIndex].filter.indexOf(v);
-          this.filters[this.selectedTagIndex].filter.splice(index, 1);
-          if ( !this.filters[this.selectedTagIndex].filter.length ) {
-              this.filters.splice(this.selectedTagIndex, 1);
-              this.selectedTagIndex = -1;
-          }
-      }
-      this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
-      this.queryChanges$.next(true);
-  }
+        if (operation === 'add') {
+            this.filters[this.selectedTagIndex].filter.push(v);
+        } else if (this.selectedTagIndex !== -1 && operation === 'remove') {
+            const index = this.filters[this.selectedTagIndex].filter.indexOf(v);
+            this.filters[this.selectedTagIndex].filter.splice(index, 1);
+            if (!this.filters[this.selectedTagIndex].filter.length) {
+                this.filters.splice(this.selectedTagIndex, 1);
+                this.selectedTagIndex = -1;
+            }
+        }
+        this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.queryChanges$.next(true);
+    }
 
-
-
-  isInfilteredKeys(key) {
-      const keys = [];
-      for ( let i = 0, len = this.filters.length; i < len; i++  ) {
-          keys.push(this.filters[i].tagk );
-      }
-      return keys.indexOf(key);
-  }
+    isInfilteredKeys(key) {
+        const keys = [];
+        for (let i = 0, len = this.filters.length; i < len; i++) {
+            keys.push(this.filters[i].tagk);
+        }
+        return keys.indexOf(key);
+    }
 
 
-  ngOnDestroy() {
-      this.queryChangeSub.unsubscribe();
-      if ( this.tagKeySub ) {
-        this.tagKeySub.unsubscribe();
-      }
-      if ( this.tagValueSub ) {
-        this.tagValueSub.unsubscribe();
-      }
-  }
+    ngOnDestroy() {
+        this.queryChangeSub.unsubscribe();
+        if (this.tagKeySub) {
+            this.tagKeySub.unsubscribe();
+        }
+        if (this.tagValueSub) {
+            this.tagValueSub.unsubscribe();
+        }
+    }
 
-  @HostListener('click', ['$event'])
+    @HostListener('click', ['$event'])
     hostClickHandler(e) {
         e.stopPropagation();
     }
 
     @HostListener('document:click', ['$event.target'])
     documentClickHandler(target) {
-        if ( !this.elRef.nativeElement.contains(target) && this.visible ) {
-            this.blur.emit();
+        if (!this.elRef.nativeElement.contains(target) && this.visible) {
             this.visible = false;
 
-        } else if ( ! this.visible ) {
+        } else if (!this.visible) {
             this.visible = true;
         }
     }
 }
-
