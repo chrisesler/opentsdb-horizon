@@ -4,12 +4,13 @@ import {
     HostBinding,
     EventEmitter,
     Input,
-    Output
+    Output,
+    OnChanges,
+    SimpleChanges
 } from '@angular/core';
-
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
-import { map, startWith, debounceTime, skip } from 'rxjs/operators';
+import { map, startWith, debounceTime, skip, distinctUntilChanged } from 'rxjs/operators';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { UtilsService } from '../../../core/services/utils.service';
 
@@ -19,17 +20,17 @@ import { UtilsService } from '../../../core/services/utils.service';
     templateUrl: './template-variable-panel.component.html',
     styleUrls: []
 })
-export class TemplateVariablePanelComponent implements OnInit {
+export class TemplateVariablePanelComponent implements OnInit, OnChanges {
 
     @HostBinding('class.template-variable-panel-component') private _hostClass = true;
 
-    @Input() tplVariables: any;
+    @Input() tplVariables: any[];
     @Input() mode: string;
     @Output() variableChanges: EventEmitter<any> = new EventEmitter<any>();
     @Input() dbTagKeys: any; // all available tags and widget tags from dashboard
 
     editForm: FormGroup;
-    editFormSub: Subscription;
+    listForm: FormGroup;
     listenSub: Subscription;
     filteredKeyOptions: Observable<string[]>; // options for key autosuggest
     filteredValueOptions: Observable<string[]>; // options for value autosuggest
@@ -49,6 +50,28 @@ export class TemplateVariablePanelComponent implements OnInit {
         });
     }
 
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes.tplVariables) {
+            this.initListFormGroup();
+        }
+    }
+
+    applyToAll(index: number) {
+        const selControl = this.getSelectedControl(index);
+        this.interCom.requestSend({
+            action: 'ApplyVarToAllQueries',
+            payload: selControl.value
+        });
+    }
+
+    removeFromAll(index: number) {
+        const selControl = this.getSelectedControl(index);
+        this.interCom.requestSend({
+            action: 'RemoveVarFromAllQueries',
+            payload: selControl.value
+        });
+    }
+
     doEdit() {
         this.mode = 'edit';
         this.initEditFormGroup();
@@ -56,6 +79,22 @@ export class TemplateVariablePanelComponent implements OnInit {
             action: 'getDashboardTags',
         });
     }
+    initListFormGroup() {
+        this.listForm = this.fb.group({
+            listVariables: this.fb.array([])
+        });
+        for (const data of this.tplVariables) {
+            const vardata = {
+                tagk: new FormControl((data.tagk) ? data.tagk : '', []),
+                alias: new FormControl((data.alias) ? data.alias : '', []),
+                filter: new FormControl((data.filter) ? data.filter : '', []),
+                applied: new FormControl(data.applied ? data.applied : 0)
+            };
+            const control = <FormArray>this.listForm.controls['listVariables'];
+            control.push(this.fb.group(vardata));
+        }
+    }
+
     initEditFormGroup() {
         this.editForm = this.fb.group({
             formTplVariables: this.fb.array([])
@@ -82,6 +121,7 @@ export class TemplateVariablePanelComponent implements OnInit {
             }
         });
     }
+    get listVariables() { return this.listForm.get('listVariables') as FormArray; }
     get formTplVariables() { return this.editForm.get('formTplVariables') as FormArray; }
 
     initializeTplVariables(values: any) {
@@ -107,20 +147,41 @@ export class TemplateVariablePanelComponent implements OnInit {
         control.push(this.fb.group(varData));
     }
 
+    onVariableFocus(index: number) {
+        const control = <FormArray>this.listForm.controls['listVariables'];
+        const selControl = control.at(index);
+        this.filteredValueOptions = null;
+        selControl['controls'].filter.valueChanges.pipe(
+            startWith(''),
+            debounceTime(100),
+            map(val => this._filter(val.toString(), 'filter', selControl, index))
+        ).subscribe();
+    }
+
+    onVariableBlur(index: number) {
+        const control = <FormArray>this.listForm.controls['listVariables'];
+        const selControl = control.at(index);
+        const val = selControl['controls'].filter.value;
+        if (val  && this.fileredValues.indexOf(val) === -1) {
+            selControl['controls'].filter.setValue('');
+        }
+    }
+
     onInputFocus(cname: string, index: number) {
         const selControl = this.getSelectedControl(index);
         const startVal = selControl['controls'][cname].value;
-        console.log('start value', startVal);
         // clear previous filters values incase take sometime to populate new one
         this.filteredValueOptions = null;
         this.filteredKeyOptions = selControl['controls'][cname].valueChanges
            .pipe (
                 startWith(''),
                 debounceTime(100),
-                map(val => this._filter(val.toString(), cname, selControl, index)));
+                distinctUntilChanged(),
+                map(val => this._filter(val.toString(), cname, selControl, index))
+            );
     }
-    private getSelectedControl(index: number) {
-        const control = <FormArray>this.editForm.controls['formTplVariables'];
+    private getSelectedControl(index: number, formArrayName = 'formTplVariables') {
+        const control = <FormArray>this.editForm.controls[formArrayName];
         return control.at(index);
     }
     private _filter(val: string, flag: string, selControl: any, index: number): string[] {
@@ -156,7 +217,7 @@ export class TemplateVariablePanelComponent implements OnInit {
                 for (let i = 0; i < tplFormGroups.length; i++) {
                     if (i === index) {
                         // value is changed of its own
-                        this.updateState(selControl);
+                        this.updateState(selControl, 'editForm');
                         continue;
                     }
                     const rowControl = tplFormGroups[i]['controls'];
@@ -165,7 +226,7 @@ export class TemplateVariablePanelComponent implements OnInit {
                         tplFormGroups[i].controls['alias'].setErrors({ 'unique': true });
                     } else {
                         tplFormGroups[i]['controls']['alias'].setErrors(null);
-                        this.updateState(selControl);
+                        this.updateState(selControl, 'editForm');
                     }
                 }
             }
@@ -193,12 +254,18 @@ export class TemplateVariablePanelComponent implements OnInit {
         if (event.option.value !== this.prevSelectedTagk) {
             selControl['controls']['filter'].setValue('');
         }
-        this.updateState(selControl);
+        this.updateState(selControl, 'editForm');
     }
     // update state if it's is valid
     selectFilterValueOption(event: any, index: number) {
         const selControl = this.getSelectedControl(index);
-        this.updateState(selControl);
+        this.updateState(selControl, 'editForm');
+    }
+
+    selectVarValueOption(index: number) {
+        const control = <FormArray>this.listForm.controls['listVariables'];
+        const selControl = control.at(index);
+        this.updateState(selControl, 'listForm');
     }
 
     removeTemplateVariable(index: number) {
@@ -206,36 +273,26 @@ export class TemplateVariablePanelComponent implements OnInit {
         const removedItem = control.at(index);
         control.removeAt(index);
         if (removedItem.valid) {
-            this.updateState(removedItem);
+            this.updateState(removedItem, 'editForm');
         }
     }
     done() {
         // just as close the panel to list mode
         this.mode = 'view';
+        this.initListFormGroup();
     }
-
-    canApplyCount(tag: string) {
-        this.updateTagCount(this.dbTagKeys, tag);
-    }
-    updateTagCount(dbTagKeys: any, tag: string) {
-        /* let count = 0;
-        for (const q in dbTagKeys.rawDbTags) {
-            if (dbTagKeys.rawDbTags.hasOwnProperty(q)) {
-                for (let i = 0; i < Object.keys(dbTagKeys.rawDbTags[q]).length; i++) {
-                    if (dbTagKeys.rawDbTags[q][i].indexOf(tag) > -1) {
-                        count++;
-                    }
-                }
-            }
-        } */
-    }
-
-    updateState(selControl: AbstractControl) {
+    updateState(selControl: AbstractControl, from: string) {
         if (selControl.valid) {
             const sublist = [];
-            for (let i = 0; i < this.formTplVariables.controls.length; i++) {
-                if (this.formTplVariables.controls[i].valid) {
-                    sublist.push(this.formTplVariables.controls[i].value);
+            if (from === 'editForm') {
+                for (let i = 0; i < this.formTplVariables.controls.length; i++) {
+                    if (this.formTplVariables.controls[i].valid) {
+                        sublist.push(this.formTplVariables.controls[i].value);
+                    }
+                }
+            } else if (from === 'listForm') {
+                for (let i = 0; i < this.listVariables.controls.length; i++) {
+                    sublist.push(this.listVariables.controls[i].value);
                 }
             }
             this.interCom.requestSend({
@@ -244,8 +301,6 @@ export class TemplateVariablePanelComponent implements OnInit {
                     variables: sublist
                 }
             });
-            // update to see how many queries can be applied to this tagkey
-            // this.canApplyCount(selControl['controls']['tagk'].value);
         }
     }
 
@@ -254,7 +309,7 @@ export class TemplateVariablePanelComponent implements OnInit {
         const fontSize = 14;
         const prefixWidth = this.utils.calculateTextWidth(item.alias, fontSize, fontFace);
         const inputWidth = this.utils.calculateTextWidth(item.filter, fontSize, fontFace);
-        // 34 is padding and such
-        return (prefixWidth + inputWidth + 34) + 'px';
+        // 20 is padding and such
+        return (prefixWidth + inputWidth + 20) + 'px';
     }
 }
