@@ -244,7 +244,7 @@ export class DatatranformerService {
                 const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
                 const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
                 for ( let j = 0;  j < n; j++ ) {
-                    const summarizer = widget.queries[0].metrics[i].summarizer ? widget.queries[0].metrics[i].summarizer : 'avg';
+                    const summarizer = this.getSummarizerOption(widget, i);
                     const aggs = results[i].data[j].NumericSummaryType.aggregations;
                     const tags = results[i].data[j].tags;
                     const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
@@ -346,7 +346,7 @@ export class DatatranformerService {
             const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
             const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
             for ( let j = 0; j < n; j++ ) {
-                const summarizer = widget.queries[0].metrics[i].summarizer ? widget.queries[0].metrics[i].summarizer : 'avg';
+                const summarizer = this.getSummarizerOption(widget, i);
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
@@ -384,7 +384,7 @@ export class DatatranformerService {
             const n = results[i].data.length;
             const color =  mConfig.settings.visual.color === 'auto' ? '' : mConfig.settings.visual.color;
             for ( let j = 0; j < n; j++ ) {
-                const summarizer = widget.queries[0].metrics[i].summarizer ? widget.queries[0].metrics[i].summarizer : 'avg';
+                const summarizer = this.getSummarizerOption(widget, i);
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
@@ -446,6 +446,18 @@ export class DatatranformerService {
                 break;
         }
         return pattern;
+    }
+
+    getSummarizerOption(widget: any, metricIndex: number) {
+        let summarizerOption;
+        if (widget.queries[0].metrics[metricIndex].summarizer) {
+            summarizerOption = widget.queries[0].metrics[metricIndex].summarizer;
+        } else if ( widget.settings.time.downsample.aggregators && widget.settings.time.downsample.aggregators[0]) { // todo: remove once summarizer exposed for all widgets
+            summarizerOption = widget.settings.time.downsample.aggregators[0];
+        } else {
+            summarizerOption = 'avg';
+        }
+        return summarizerOption;
     }
 
   // build opentsdb query base on this of full quanlify metrics for exploer | adhoc
