@@ -121,6 +121,7 @@ export class DashboardService {
     query.metrics = query.metrics.filter(item => item.settings.visual.visible === true);
     return query;
   }
+
   overrideQueryFilters(query, filters, tags=[]) {
     for (let i = 0; i < filters.length; i++) {
       let tagExists = false;
@@ -130,10 +131,35 @@ export class DashboardService {
           tagExists = true;
         }
       }
-      if ( !tagExists && tags.indexOf(filters[i].tagk)!== -1 ) {
+      if ( !tagExists && tags.indexOf(filters[i].tagk) !== -1 ) {
         query.filters.push( { tagk: filters[i].tagk ,  filter: filters[i].filter} );
       }
     }
+    return query;
+  }
+
+  updateQueryByVariables(query: any, tplVariables: any[]) {
+      const cpQuery = this.utils.deepClone(query);
+      const toSplice = [];
+      for (let i = 0; i < cpQuery.filters.length; i++) {
+        const filter = cpQuery.filters[i];
+        if (filter.tagk.charAt(0) === '$') {
+          const varItem = tplVariables.find(v => ('$' + v.alias) === filter.tagk);
+          const definedTagIndex = query.filters.findIndex(f => f.tagk === varItem.tagk);
+          if (definedTagIndex > -1) {
+            // override the current tag if the filter value is not empty and remove this one out
+            if (varItem.filter.trim() !== '') {
+              query.filters[definedTagIndex].filter = [varItem.filter];
+            }
+          } else {
+            if (varItem.filter.trim() !== '') {
+              query.filters[i] = { tagk: varItem.tagk, filter: [varItem.filter], groupBy: false };
+            }
+          }
+        }
+      }
+      query.filters = query.filters.filter(f => f.tagk.charAt(0) !== '$');
+      console.log('query after applied var', query);
     return query;
   }
 
