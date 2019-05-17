@@ -121,7 +121,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
     @Select(AlertsState.getError) error$: Observable<any>;
     @Select(AlertsState.getSaveError) saveError$: Observable<any>;
 
-
     private _guid: any = false;
     get guid(): string {
         if (!this._guid) {
@@ -306,13 +305,13 @@ export class AlertsComponent implements OnInit, OnDestroy {
                     namespace: data.namespace,
                     name: 'Untitled Alert'
                 }
-                this.openAlertDialog(o);
+                this.openAlertEditMode(o);
             } else {
                 // set the namespace if the user comes directly from edit url
                 if ( !this.selectedNamespace ) {
                     this.setNamespace(_data.namespace);
                 }
-                this.openAlertDialog(_data);
+                this.openAlertEditMode(_data);
             }
         }));
 
@@ -420,17 +419,15 @@ export class AlertsComponent implements OnInit, OnDestroy {
             // console.log('SNOOZE ALERT DIALOG [afterClosed]', dialog_out);
         });
     }
-    */
+    
 
     bulkDisableAlerts() {
-        // console.log('BULK DISABLE ALERTS');
         // BULK DISABLE
     }
 
     bulkDeleteAlerts() {
-        // console.log('BULK DELETE ALERTS');
         // BULK DELETE
-    }
+    }*/
 
     toggleAlert(alertObj: any) {
         this.store.dispatch(new ToggleAlerts(this.selectedNamespace, { data: [ { id: alertObj.id, enabled: !alertObj.enabled } ]}));
@@ -443,7 +440,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
     deleteAlert(alertObj: any) {
         this.confirmDeleteDialog = this.dialog.open(this.confirmDeleteDialogRef, {data: alertObj});
         this.confirmDeleteDialog.afterClosed().subscribe(event => {
-            // console.log('CONFIRM DELETE DIALOG [afterClosed]', event);
             if ( event.deleted ) {
                 this.store.dispatch(new DeleteAlerts(this.selectedNamespace, { data: [ alertObj.id ] }));
             }
@@ -461,11 +457,11 @@ export class AlertsComponent implements OnInit, OnDestroy {
             namespace: this.selectedNamespace,
             name: 'Untitled Alert'
         };
-        this.openAlertDialog(data);
+        this.openAlertEditMode(data);
         this.location.go('a/' + this.selectedNamespace + '/_new_');
     }
 
-    openAlertDialog(data: any) {
+    openAlertEditMode(data: any) {
 
         this.configurationEditData = data;
         this.editMode = true;
@@ -538,15 +534,4 @@ export class AlertsComponent implements OnInit, OnDestroy {
         // console.log('contactMenuEsc', $event);
     }
 
-    /* TESTING MESSAGING BAR
-    testMessageBar() {
-        console.log('TEST MESSAGE BAR');
-        this.interCom.requestSend({
-            action: 'systemMessage',
-            payload: {
-                type: 'warning',
-                message: 'This is a test warning message'
-            }
-        });
-    }*/
 }

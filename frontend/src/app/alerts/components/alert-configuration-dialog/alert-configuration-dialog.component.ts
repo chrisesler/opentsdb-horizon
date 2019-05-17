@@ -2,7 +2,6 @@ import {
     Component,
     OnInit,
     OnDestroy,
-    Inject,
     HostBinding,
     ViewChild,
     ElementRef,
@@ -14,18 +13,16 @@ import {
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, FormsModule, NgForm } from '@angular/forms';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
 
-
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material';
 
 import {
     MatDialog,
     MatDialogConfig,
-    MatDialogRef,
-    MAT_DIALOG_DATA
+    MatDialogRef
 } from '@angular/material';
 
-import { Subscription, Observable } from 'rxjs';
+import { Subscription} from 'rxjs';
 
 import { NameAlertDialogComponent } from '../name-alert-dialog/name-alert-dialog.component';
 import { IDygraphOptions } from '../../../shared/modules/dygraphs/IDygraphOptions';
@@ -34,7 +31,7 @@ import { HttpService } from '../../../core/http/http.service';
 import { UtilsService } from '../../../core/services/utils.service';
 import { DatatranformerService } from '../../../core/services/datatranformer.service';
 import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/components/error-dialog/error-dialog.component';
-import { min, pairwise, startWith } from 'rxjs/operators';
+import { pairwise, startWith } from 'rxjs/operators';
 import { IntercomService } from '../../../core/services/intercom.service';
 
 @Component({
@@ -163,8 +160,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         private elRef: ElementRef,
         public dialog: MatDialog,
         private interCom: IntercomService
-        // public dialogRef: MatDialogRef<AlertConfigurationDialogComponent>,
-        // @Inject(MAT_DIALOG_DATA) public dialogData: any
     ) {
         // this.data = dialogData;
         if (this.data.name) {
@@ -174,11 +169,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
     ngOnInit() {
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
-        if (!this.data.name || this.data.name === '') {
-            // have to use setTimeout due to some issue when opening mat-dialog from a lifecycle hook.
-            // see: https://github.com/angular/material2/issues/5268
-            // setTimeout(() => this.openAlertNameDialog());
-        }
         this.setupForm(this.data);
     }
 
@@ -258,21 +248,21 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         // need to 'set' values to start the value watching from the start
         // Ideally you create the fromgroup first, then set values to get correct valueChange events
         // This is to fix the issue of there not being a first change event
-        this.alertForm['controls'].threshold['controls'].singleMetric.get('badThreshold').setValue(data.threshold.singleMetric.badThreshold || null, { emitEvent: true });
-        this.alertForm['controls'].threshold['controls'].singleMetric.get('warnThreshold').setValue(data.threshold.singleMetric.warnThreshold || null, { emitEvent: true });
+        this.alertForm['controls'].threshold['controls'].singleMetric.get('badThreshold')
+            .setValue(data.threshold.singleMetric.badThreshold || null, { emitEvent: true });
+
+        this.alertForm['controls'].threshold['controls'].singleMetric.get('warnThreshold')
+            .setValue(data.threshold.singleMetric.warnThreshold || null, { emitEvent: true });
 
         this.setThresholds('bad', data.threshold.singleMetric.badThreshold || '');
         this.setThresholds('warning', data.threshold.singleMetric.warnThreshold || '');
         this.setThresholds('recovery', data.threshold.singleMetric.recoveryType === 'specific' ? data.threshold.singleMetric.recoveryThreshold : '');
 
-        //this.subs.alertFormSub = <Subscription>this.alertForm.valueChanges.subscribe(val => {
-        //    console.log('FORM CHANGE', val);
-        //});
-
         this.subs.comparisionSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['comparisonOperator'].valueChanges.subscribe(val => {
             this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
         });
+
         // tslint:disable-next-line:max-line-length
         this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges
             .pipe(
@@ -284,14 +274,16 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
                 if ( bad === null ) {
                     // remove possible transitions (if any were selected)
-                    this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !possibleTransitions.includes(d) ));
+                    this.alertForm['controls'].notification.get('transitionsToNotify')
+                        .setValue(transitions.filter(d => !possibleTransitions.includes(d) ));
                 } else if (prev === null && bad !== null) {
                     // In case warn threshold is empty, do not check warn/bad combos
                     if (this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].value === null) {
                         possibleTransitions = possibleTransitions.filter(d => !d.toLowerCase().includes('warn'));
                     }
                     // if it was previously empty/null, then turn on the default transitions
-                    this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.concat(possibleTransitions));
+                    this.alertForm['controls'].notification.get('transitionsToNotify')
+                        .setValue(transitions.concat(possibleTransitions));
                 }
                 this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
                 this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
@@ -308,35 +300,33 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                 const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
                 if ( warn === null ) {
                     // remove possible transitions (if any were selected)
-                    this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.filter(d => !possibleTransitions.includes(d)));
+                    this.alertForm['controls'].notification.get('transitionsToNotify')
+                        .setValue(transitions.filter(d => !possibleTransitions.includes(d)));
                 } else if (prev === null && warn !== null) {
                     // In case bad threshold is empty, do not check warn/bad combos
                     if (this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].value === null) {
                         possibleTransitions = possibleTransitions.filter(d => !d.toLowerCase().includes('bad'));
                     }
                     // if it was previously empty/null, then turn on the default transitions
-                    this.alertForm['controls'].notification.get('transitionsToNotify').setValue(transitions.concat(possibleTransitions));
+                    this.alertForm['controls'].notification.get('transitionsToNotify')
+                        .setValue(transitions.concat(possibleTransitions));
                 }
                 this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
             });
-
-        // tslint:disable-next-line: max-line-length
-        /* this.subs.notifythresholds = <Subscription>this.alertForm.controls['notification']['controls']['transitionsToNotify'].valueChanges.pipe(pairwise()).subscribe(([prev, next]: [any, any]) => {
-            console.log('NOTIFY THRESHOLDS', prev, next, this.alertForm.getRawValue());
-        }); */
-
 
         // tslint:disable-next-line:max-line-length
         this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('recovery', val);
         });
+
         // tslint:disable-next-line:max-line-length
         this.subs.recoveryTypeSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryType'].valueChanges.subscribe(val => {
-            // tslint:disable-next-line:max-line-length
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
+            // tslint:disable-next-line:max-line-length
             this.setThresholds('recovery', val === 'specific' ? this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].value : '');
         });
 
+        // tslint:disable-next-line: max-line-length
         this.subs.metricIdSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['metricId'].valueChanges.subscribe(val => {
             const [qindex, mindex] = val ? val.split(':') : [null, null];
             const gValues = this.alertForm.get('alertGroupingRules').value;
@@ -438,7 +428,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         } else {
             this.thresholds[type] = config;
         }
-        console.log("thresholds", type, value, JSON.stringify(this.thresholds))
+
         this.setThresholdLines();
     }
 
@@ -485,12 +475,12 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const expression = this.queries[qindex].metrics[mindex].expression;
         if (expression) {
             // extract the {{id}} from the expression
-            const re = new RegExp(/\{\{(.+?)\}\}/, "g");
+            const re = new RegExp(/\{\{(.+?)\}\}/, 'g');
             let matches = [];
-            while(matches = re.exec(expression)) {
+            while (matches = re.exec(expression)) {
                 const id = matches[1];
-                const mindex = this.queries[qindex].metrics.findIndex(d => d.id === id );
-                metrics = metrics.concat(this.getExpressionMetrics( qindex, mindex));
+                const midx = this.queries[qindex].metrics.findIndex(d => d.id === id );
+                metrics = metrics.concat(this.getExpressionMetrics( qindex, midx));
             }
         } else {
             metrics = [ this.queries[qindex].metrics[mindex].name ];
@@ -645,7 +635,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     }
 
     getExpressionLabel(qindex, mindex) {
-        let label = 'e';
+        const label = 'e';
         let eIndex = -1;
         for ( let i =0; i <= mindex && i < this.queries[qindex].metrics.length; i++ ) {
             if ( this.queries[qindex].metrics[i].expression ) {
@@ -731,6 +721,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
         const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
         data.threshold.singleMetric.queryIndex = qindex;
+        // tslint:disable-next-line: max-line-length
         data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex; 
         data.threshold.isNagEnabled = data.threshold.nagInterval!== "0" ? true : false;
         // emit to save the alert
