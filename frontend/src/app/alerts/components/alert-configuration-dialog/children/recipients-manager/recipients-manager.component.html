@@ -226,6 +226,19 @@
                                 </mat-form-field>
                             </div>
                         </div>
+                        <div *ngIf="recipientType === _recipientType.email" class="contacts-create-form">
+                            <div class="form-group">
+                                <div class="form-label vertical-center">Email Address </div>
+                                <mat-form-field floatLabel="never" appearance="fill">
+                                    <input [formControl]="emailAddress" matInput placeholder="Enter email*" required
+                                        maxlength="254" [value]="recipientsFormData[_recipientType.email].name"
+                                        (input)="updateRecipient(recipientsFormData[_recipientType.email], 'name', $event.target.value)">
+                                    <mat-error *ngIf="emailAddress.errors && (emailAddress.dirty || emailAddress.touched)">
+                                        Unique, proper email required. Max length is 254.
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -245,7 +258,7 @@
 
 <!-- menu for contact type -->
 <mat-menu class="mega-panel-create-recipient-menu" #menu="matMenu">
-    <button *ngFor="let type of typesExceptEmail" (click)="changeRecipientTypeForCreating($event, type)" mat-menu-item>
+    <button *ngFor="let type of types" (click)="changeRecipientTypeForCreating($event, type)" mat-menu-item>
         <img src="/assets/{{type | lowercase}}-contact.svg" />
         <span>{{typeToDisplayName(type)}}</span>
     </button>

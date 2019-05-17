@@ -60,6 +60,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
     ocProperty = new FormControl('');
     httpName = new FormControl('');
     httpEndpoint = new FormControl('');
+    emailAddress = new FormControl('');
 
     // state control
     private nsRecipientSub: Subscription;
@@ -86,6 +87,10 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
             if (this.ocName.errors || this.ocDisplayCount.errors || this.ocContext.errors || this.ocProperty.errors) {
                 return true;
             }
+        } else if (this.recipientType === RecipientType.email) {
+            if (this.emailAddress.errors) {
+                return true;
+            }
         }
         return false;
     }
@@ -105,12 +110,6 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
 
     get types(): Array<string> {
         const types = Object.keys(RecipientType);
-        return types;
-    }
-
-    get typesExceptEmail(): Array<string> {
-        let types = Object.keys(RecipientType);
-        types = types.filter(e => e !== RecipientType.email);
         return types;
     }
 
@@ -253,6 +252,7 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         this.ocProperty.setValue(this.recipientsFormData[RecipientType.oc].opsdbproperty);
         this.httpName.setValue(this.recipientsFormData[RecipientType.http].name);
         this.httpEndpoint.setValue(this.recipientsFormData[RecipientType.http].endpoint);
+        this.emailAddress.setValue(this.recipientsFormData[RecipientType.email].name);
     }
 
     addUserInputToAlertRecipients($event: MatChipInputEvent) {
@@ -269,7 +269,6 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         }
     }
 
-    // NOTE: UPDATED
     saveCreatedRecipient($event) {
         let newRecipient = { ... this.recipientsFormData[this.recipientType] };
         newRecipient.namespace = this.namespace;
@@ -277,7 +276,6 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         this.setViewMode($event, Mode.all);
     }
 
-    // NOTE: UPDATED
     saveEditedRecipient($event) {
         // check if name has changed
         let updatedRecipient: any = {};
@@ -432,7 +430,6 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         return '';
     }
 
-    // NOTE: UPDATED
     populateEmptyRecipients() {
         let emptyRecipients = {};
         let emptyOpsGenieRecipient = this.createDefaultRecipient(RecipientType.opsgenie);
@@ -513,7 +510,6 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         return recipients;
     }
 
-    // NOTE: UPDATED
     getRecipientIfUniqueName(recipientName: string) {
         let _recipient;
         let count = 0;
@@ -531,7 +527,6 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         }
     }
 
-    // NOTE: UPDATED
     forbiddenNameValidator(recipients: Array<Recipient>, currentRecipient): ValidatorFn {
         return (control: AbstractControl): { [key: string]: any } | null => {
             let forbidden = false;
@@ -548,13 +543,20 @@ export class AlertConfigurationContactsComponent implements OnInit, OnChanges, O
         };
     }
 
-    // NOTE: UPDATED
+    emailValidator(): ValidatorFn {
+        return (control: AbstractControl): { [key: string]: any } | null => {
+            let forbidden = !this.isEmailValid(control.value);
+            return forbidden ? { 'forbiddenName': { value: control.value } } : null;
+        };
+    }
+
     updateValidators() {
         // tslint:disable:max-line-length
         this.opsGenieName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.opsgenie), this.recipientsFormData[this.recipientType])]);
         this.slackName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.slack), this.recipientsFormData[this.recipientType])]);
         this.ocName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.oc), this.recipientsFormData[this.recipientType])]);
         this.httpName = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.http), this.recipientsFormData[this.recipientType])]);
+        this.emailAddress = new FormControl('', [this.forbiddenNameValidator(this.getAllRecipientsForType(RecipientType.email), this.recipientsFormData[this.recipientType]), this.emailValidator()]);
     }
 
     // NOTE: Not sure we need this any more
