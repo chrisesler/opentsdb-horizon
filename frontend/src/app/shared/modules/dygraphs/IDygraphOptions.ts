@@ -4,7 +4,7 @@ export interface DygraphOptionsAxis {
     labelFormatter?: any;
     tickFormat?: {
         unit?: string;
-        precision?: string;
+        precision?: number;
         unitDisplay?: boolean;
         max?: number;
     };
@@ -58,5 +58,11 @@ export interface IDygraphOptions {
     drawGrid?: boolean;
     gridLineColor?: string;
     plotter?: any[];
+    interactionModel?: any;
+    heatmap?: any;
+    pointSize?: number;
+    highlightCircleSize?: number;
+    xAxisHeight?: number;
+    xRangePad?: number;
 }
 

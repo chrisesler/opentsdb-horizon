@@ -214,15 +214,16 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         if ( qindex !== -1 ) {
             this.widget.queries[qindex] = query;
         }
-        let visible = 0;
-        for (const metric of this.widget.queries[0].metrics) {
-            if ( metric.settings.visual.visible ) {
-                visible++;
+        let visibleIndex = 0;
+        for (let i = 0; i < this.widget.queries[0].metrics.length; i++ ) {
+            if ( this.widget.queries[0].metrics[i].settings.visual.visible ) {
+                visibleIndex = i;
+                break;
             }
         }
         // default metric visibility is false. so make first metric visible
-        if ( !visible && this.widget.queries[0].metrics.length ) {
-            this.widget.queries[0].metrics[0].settings.visual.visible = true;
+        for (let i = 0; i < this.widget.queries[0].metrics.length; i++ ) {
+            this.widget.queries[0].metrics[i].settings.visual.visible = visibleIndex === i ? true : false;
         }
     }
 
