@@ -228,4 +228,9 @@ export class BignumberVisualAppearanceComponent implements OnInit {
         this.widget.settings.visual['changedIndicatorEnabled'] =!
         this.widget.settings.visual['changedIndicatorEnabled'];
     }
+
+    setVisualConditions(vConditions) {
+        this.widget.settings.visual.conditions = vConditions;
+        this.widgetChange.emit( {'action': 'SetVisualization', payload: { gIndex: 0, data: this.widget.settings.visual }});
+    }
 }
