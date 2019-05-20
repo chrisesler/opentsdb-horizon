@@ -110,6 +110,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
             case 'BarchartWidgetComponent':
             case 'DonutWidgetComponent':
             case 'TopnWidgetComponent':
+            case 'HeatmapWidgetComponent':
                 return new FormArray(ds.map(item => new FormGroup({
                     label : new FormControl(item.settings.visual.label),
                     color : new FormControl(item.settings.visual.color)

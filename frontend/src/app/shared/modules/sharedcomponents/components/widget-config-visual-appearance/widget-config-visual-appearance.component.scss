@@ -178,6 +178,20 @@
             flex: 0 0 25%;
         }
 
+        .column.heatmap-metric-settings {
+            padding-right: 20px;
+            flex: 0 0 75%;
+        }
+
+        .column.heatmap-unit-settings {
+            .config-control {
+                margin-top: 20px;
+                margin-bottom: 25px;
+                color: rgba(0, 0, 0, 0.54);
+                font-weight: 450;
+            }
+        }
+
         .column.stackbars-container {
             flex: 1 1 450px;
         }

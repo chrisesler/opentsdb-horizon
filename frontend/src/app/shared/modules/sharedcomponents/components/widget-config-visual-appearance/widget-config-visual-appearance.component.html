@@ -240,5 +240,36 @@
                     <conditional-formatter [conditions]="widget.settings.visual.conditions" (conditionChange)="setVisualConditions($event)"></conditional-formatter>  
                 </div>
         </div>
-          
    </ng-template>
+   <ng-template [ngIf]="widget.settings.component_type==='HeatmapWidgetComponent'">
+    <div class="column heatmap-unit-settings">
+            <div class="config-control">
+                <span class="mat-label">Unit</span>
+            </div>
+            <dropdown-unit-type [blackListedUnits]="['raw']" [unit]="widget.settings.visual.unit? widget.settings.visual.unit : 'auto'" (onUnitChange)="setUnit($event)"></dropdown-unit-type>
+    </div>
+    <div class="column heatmap-metric-settings" [formGroup]="gForms">
+        <table class="mat-table">
+            <thead>
+                <tr class="mat-header-row">
+                    <th class="mat-header-cell mat-column-metric">Metric</th>
+                    <th class="mat-header-cell mat-column-color-family">Color</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let query of widget.queries; let gIndex=index">
+                    <tr class="mat-row" *ngFor="let metric of query.metrics; let index = index" [formArrayName]="gIndex">
+                        <td class="mat-cell mat-column-metric" [formGroupName]="index" >
+                            <mat-form-field appearance="fill">
+                                <input matInput formControlName="label" [placeholder]="metric.name || metric.originalExpression">
+                            </mat-form-field>
+                        </td>
+                        <td class="mat-cell mat-column-color-family" [formGroupName]="index">
+                            <color-picker (newColor)="selectColor($event, gIndex, index)" [color]="metric.settings.visual.color" [enableAuto]="'true'"></color-picker>
+                        </td>
+                    </tr>           
+                </ng-container>
+            </tbody>
+        </table>
+    </div>
+</ng-template>
