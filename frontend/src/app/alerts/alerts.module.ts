@@ -55,7 +55,6 @@ import { AlertConfigurationContactsComponent } from './components/alert-configur
     ],
     entryComponents: [
         SnoozeAlertDialogComponent,
-        AlertConfigurationDialogComponent,
         NameAlertDialogComponent
     ]
 })

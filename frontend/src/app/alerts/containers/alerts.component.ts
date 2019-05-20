@@ -13,14 +13,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Location } from '@angular/common';
 import {
-    MatMenuTrigger,
     MatPaginator,
     MatTableDataSource,
     MatSort,
     MatDialog,
-    MatDialogConfig,
     MatDialogRef,
-    DialogPosition,
     MatSnackBar
 } from '@angular/material';
 
@@ -56,6 +53,7 @@ import { CdkService } from '../../core/services/cdk.service';
 
 import * as _moment from 'moment';
 import { TemplatePortal } from '@angular/cdk/portal';
+import { IntercomService } from '../../core/services/intercom.service';
 const moment = _moment;
 
 @Component({
@@ -123,7 +121,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
     @Select(AlertsState.getError) error$: Observable<any>;
     @Select(AlertsState.getSaveError) saveError$: Observable<any>;
 
-
     private _guid: any = false;
     get guid(): string {
         if (!this._guid) {
@@ -144,7 +141,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
     // SNOOZE dialog
     snoozeAlertDialog: MatDialogRef<SnoozeAlertDialogComponent> | null;
 
-    createAlertDialog: MatDialogRef<AlertConfigurationDialogComponent> | null;
+    @ViewChild(AlertConfigurationDialogComponent) createAlertDialog: AlertConfigurationDialogComponent;
+    editMode = false;
+    configurationEditData: any = {};
 
     // confirmDelete Dialog
     confirmDeleteDialog: MatDialogRef<TemplateRef<any>> | null;
@@ -204,7 +203,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
         private location: Location,
         private matIconRegistry: MatIconRegistry,
         private domSanitizer: DomSanitizer,
-        private cdkService: CdkService
+        private cdkService: CdkService,
+        private interCom: IntercomService
     ) {
         this.sparklineDisplay = this.sparklineDisplayMenuOptions[0];
 
@@ -241,7 +241,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.subscription.add(this.selectedNamespace$.subscribe( data => {
             this.selectedNamespace = data;
             if ( this.selectedNamespace ) {
-                this.hasNamespaceWriteAcess = this.userNamespaces.find(d=>d.name === this.selectedNamespace ) ? true : false;
+                this.hasNamespaceWriteAcess = this.userNamespaces.find(d => d.name === this.selectedNamespace ) ? true : false;
                 this.store.dispatch(new LoadAlerts({namespace: this.selectedNamespace}));
             } else {
                 this.hasNamespaceWriteAcess = false;
@@ -273,7 +273,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 case 'add-success':
                 case 'update-success':
                     message = 'Alert has been ' + (status === 'add-success' ? 'created' : 'updated') + '.';
-                    this.createAlertDialog.close();
+                    this.editMode = false;
                     this.router.navigate(['a']);
                     break;
                 case 'enable-success':
@@ -305,23 +305,24 @@ export class AlertsComponent implements OnInit, OnDestroy {
                     namespace: data.namespace,
                     name: 'Untitled Alert'
                 }
-                this.openAlertDialog(o);
+                this.openAlertEditMode(o);
             } else {
                 // set the namespace if the user comes directly from edit url
                 if ( !this.selectedNamespace ) {
                     this.setNamespace(_data.namespace);
                 }
-                this.openAlertDialog(_data);
+                this.openAlertEditMode(_data);
             }
         }));
 
         this.subscription.add(this.error$.subscribe(error => {
             this.error = error;
+            // maybe intercom error for messaging bar?
         }));
 
         this.subscription.add(this.saveError$.subscribe(error => {
             if (this.createAlertDialog ) {
-                this.createAlertDialog.componentInstance.data.error = error;
+                this.createAlertDialog.data.error = error;
             }
         }));
 
@@ -367,13 +368,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.alertsDataSource = new MatTableDataSource<AlertModel>(this.alerts);
         this.alertsDataSource.paginator = this.paginator;
         this.alertsDataSource.sort = this.dataSourceSort;
-
-        // console.log('DATA SOURCE', this.alertsDataSource);
     }
 
     /* Utilities */
     ensureMenuWidth(element: any) {
-        // console.log('ENSURE WIDTH', element);
         element = <ElementRef>element._elementRef;
         return `${element.nativeElement.clientWidth}px`;
     }
@@ -421,17 +419,15 @@ export class AlertsComponent implements OnInit, OnDestroy {
             // console.log('SNOOZE ALERT DIALOG [afterClosed]', dialog_out);
         });
     }
-    */
+    
 
     bulkDisableAlerts() {
-        // console.log('BULK DISABLE ALERTS');
         // BULK DISABLE
     }
 
     bulkDeleteAlerts() {
-        // console.log('BULK DELETE ALERTS');
         // BULK DELETE
-    }
+    }*/
 
     toggleAlert(alertObj: any) {
         this.store.dispatch(new ToggleAlerts(this.selectedNamespace, { data: [ { id: alertObj.id, enabled: !alertObj.enabled } ]}));
@@ -444,7 +440,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
     deleteAlert(alertObj: any) {
         this.confirmDeleteDialog = this.dialog.open(this.confirmDeleteDialogRef, {data: alertObj});
         this.confirmDeleteDialog.afterClosed().subscribe(event => {
-            // console.log('CONFIRM DELETE DIALOG [afterClosed]', event);
             if ( event.deleted ) {
                 this.store.dispatch(new DeleteAlerts(this.selectedNamespace, { data: [ alertObj.id ] }));
             }
@@ -462,37 +457,30 @@ export class AlertsComponent implements OnInit, OnDestroy {
             namespace: this.selectedNamespace,
             name: 'Untitled Alert'
         };
-        this.openAlertDialog(data);
+        this.openAlertEditMode(data);
         this.location.go('a/' + this.selectedNamespace + '/_new_');
     }
 
-    openAlertDialog(data: any) {
-        const dialogConf: MatDialogConfig = new MatDialogConfig();
-        dialogConf.autoFocus = false;
-        dialogConf.width = '100%';
-        dialogConf.maxWidth = '100%';
-        dialogConf.height = '100%';
-        dialogConf.hasBackdrop = false;
-        dialogConf.disableClose = true;
-        // dialogConf.direction = 'ltr';
-        // dialogConf.backdropClass = 'snooze-alert-dialog-backdrop';
-        dialogConf.panelClass = 'alert-configuration-dialog-panel';
-        dialogConf.data = data;
+    openAlertEditMode(data: any) {
 
-        this.createAlertDialog = this.dialog.open(AlertConfigurationDialogComponent, dialogConf);
+        this.configurationEditData = data;
+        this.editMode = true;
 
-        const sub = this.createAlertDialog.componentInstance.request.subscribe((message: any) => {
-            switch ( message.action ) {
-                case 'SaveAlert':
-                    this.store.dispatch(new SaveAlerts(data.namespace, message.payload));
-                    break;
-            }
-        });
-        // this.snoozeAlertDialog.updatePosition({ top: '48px' });
-        this.createAlertDialog.afterClosed().subscribe((dialog_out: any) => {
-            // this is when dialog is closed to return to summary page
-            this.location.go('a');
-        });
+    }
+
+    configurationEdit_change(message: any) {
+        switch ( message.action ) {
+            case 'SaveAlert':
+                // lets save this thing
+                this.store.dispatch(new SaveAlerts(message.namespace, message.payload));
+                break;
+            case 'CancelEdit':
+            default:
+                // this is when dialog is closed to return to summary page
+                this.location.go('a');
+                this.editMode = false;
+                break;
+        }
     }
 
     selectSparklineDisplayOption(option: any) {
@@ -543,7 +531,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     contactMenuEsc($event: any) {
-        console.log('contactMenuEsc', $event);
+        // console.log('contactMenuEsc', $event);
     }
 
 }

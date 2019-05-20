@@ -16,6 +16,17 @@
     }
     
     // CDK ITEMS
+    .dashboard-actions-menu.mat-menu-panel {
+        .mat-menu-item {
+            font-size: 12px;
+            height: 26px;
+            line-height: 26px;
+
+            .mat-icon {
+                @include sizeDenaliIcon(16px);
+            }
+        }
+    }
 }
 
 @mixin navbar-dashboard-actions-menu-component-theme($theme-config) {
@@ -42,7 +53,7 @@
     .dashboard-actions-menu {
         .mat-menu-item {
             .mat-icon {
-                color: map-get($foreground, link);
+                //color: map-get($foreground, link);
             }
         }
     }
