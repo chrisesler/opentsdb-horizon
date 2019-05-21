@@ -111,7 +111,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
         let html  =  '';
         html = options.labelsUTC ? moment(x).utc().format('YYYY/MM/DD HH:mm') : moment(x).format('YYYY/MM/DD HH:mm');
-        html += '<p>' + _self.uConverter.convert(( tooltipData.length / options.heatmap.nseries) * 100, '', '', {unit: '', precision: precision}) + '% of Series(' + tooltipData.length + ' of ' + options.heatmap.nseries + ')</p>';
+        html += '<p>' + _self.uConverter.convert(( tooltipData.length / options.heatmap.nseries) * 100, '', '', {unit: '', precision: precision}) + '% of Series, ' + tooltipData.length + ' of ' + options.heatmap.nseries + '</p>';
         html += '<p>Bucket Range: [' + range[0] + ', ' + range[1] + ')</b><table>';
         tooltipData.sort((a, b) => b.v - a.v);
         const n = tooltipData.length < 5 ? tooltipData.length : 5;
