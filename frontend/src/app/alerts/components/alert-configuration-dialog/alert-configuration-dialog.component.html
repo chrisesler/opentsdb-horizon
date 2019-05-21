@@ -231,9 +231,9 @@
                                 <div class="form-group delay-evaluation">
                                     <div class="form-label vertical-center"><strong>Delay evaluation by</strong></div>
                                     <mat-form-field appearance="fill" floatLabel="never">
-                                        <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="delayEvaluation">
+                                        <input matInput type="number" onkeypress="return event.charCode >= 48" autocomplete="off" placeholder="Enter value" formControlName="delayEvaluation">
                                     </mat-form-field>
-                                    <mat-hint class="info-hint">seconds</mat-hint>
+                                    <mat-hint class="info-hint">mins</mat-hint>
                                 </div>
                             </div>
                         </div>
