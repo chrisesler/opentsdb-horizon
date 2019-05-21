@@ -210,7 +210,7 @@ export class DatatranformerService {
         if (result.hasOwnProperty(qid)) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
         const mConfigs = gConfig ? gConfig.metrics : [];
-        const autoColors =  ['#87119A']; // we support single metric on heatmap, use this.util.getColors if multiple
+        const autoColors =  ['#3F00FF']; // we support single metric on heatmap, use this.util.getColors if multiple
 
             if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
             // sometimes opentsdb returns empty results
