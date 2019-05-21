@@ -6,7 +6,7 @@ $developing-theme: (
   theme-name: 'developing',
   primary:  mat-palette($denali-brand-6, 800, 300, 900),
   accent:   mat-palette($denali-pink),
-  warn:     mat-palette($mat-amber, 600),
+  warn:     mat-palette($mat-red, 600),
   success:  mat-palette($mat-light-green, A400, A200, A700),
   danger:   mat-palette($mat-deep-orange, A400, A100, A700),
   is-dark:  false,
