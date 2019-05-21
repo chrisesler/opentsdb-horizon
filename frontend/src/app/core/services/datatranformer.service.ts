@@ -3,6 +3,7 @@ import { IDygraphOptions } from '../../shared/modules/dygraphs/IDygraphOptions';
 import { barChartPlotter, heatmapPlotter } from '../../shared/dygraphs/plotters';
 import { UtilsService } from './utils.service';
 import * as d3 from 'd3';
+import { windowWhen } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -158,7 +159,6 @@ export class DatatranformerService {
     normalizedData = [];
     options.series = {};
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
-
     options.plotter = heatmapPlotter;
     let cIndex = 0;
     let min = Infinity, max = -Infinity;
@@ -210,12 +210,7 @@ export class DatatranformerService {
         if (result.hasOwnProperty(qid)) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
         const mConfigs = gConfig ? gConfig.metrics : [];
-        const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && item.settings.visual.color === 'auto');
-        const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
-        const vMetricsLen = mvConfigs.length;
-        const vAutoColorMetricsLen = mAutoConfigs.length;
-            let autoColors =  this.util.getColors( null , vAutoColorMetricsLen );
-            autoColors = vAutoColorMetricsLen > 1 ? autoColors : [autoColors];
+        const autoColors =  ['#87119A']; // we support single metric on heatmap, use this.util.getColors if multiple
 
             if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
             // sometimes opentsdb returns empty results
