@@ -5,6 +5,7 @@ import Dygraph from 'dygraphs/src-es5/dygraph.js';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
 import ThresholdsPlugin from '../../../dygraph-threshold-plugin/src/index';
 import * as moment from 'moment';
+import * as d3 from 'd3';
 
 @Directive({
 // tslint:disable-next-line: directive-selector
@@ -98,9 +99,20 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         const format = options.axes.y.tickFormat;
         const precision = format.precision ? format.precision : 2;
 
+        const yScale = d3.scaleQuantize()
+                .domain(options.axes.y.valueRange)
+                .range(Array.from( Array(options.heatmap.buckets), (x, index) => (index + 1)));
+        const range: any = yScale.invertExtent(bucket);
+        for ( let i = 0; i < 2; i++ ) {
+            const dunit = _self.uConverter.getNormalizedUnit(range[i], format);
+            range[i] = _self.uConverter.convert(range[i], format.unit, dunit, { unit: format.unit, precision: precision } );
+        }
+
+
         let html  =  '';
         html = options.labelsUTC ? moment(x).utc().format('YYYY/MM/DD HH:mm') : moment(x).format('YYYY/MM/DD HH:mm');
-        html += '<br>' + tooltipData.length + ' of ' + options.heatmap.nseries + ' Series(s)<br><table>';
+        html += '<p>' + _self.uConverter.convert(( tooltipData.length / options.heatmap.nseries) * 100, '', '', {unit: '', precision: precision}) + '% of Series(' + tooltipData.length + ' of ' + options.heatmap.nseries + ')</p>';
+        html += '<p>Bucket Range: [' + range[0] + ', ' + range[1] + ')</b><table>';
         tooltipData.sort((a, b) => b.v - a.v);
         const n = tooltipData.length < 5 ? tooltipData.length : 5;
         for ( let i = 0; i < n; i++ ) {
