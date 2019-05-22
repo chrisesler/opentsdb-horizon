@@ -82,7 +82,7 @@
             .chart {
                 display: inline-block;
                 position: relative;
-                overflow: auto;
+                overflow: overlay;
             }
             .chart svg {
                 width: 100%;
