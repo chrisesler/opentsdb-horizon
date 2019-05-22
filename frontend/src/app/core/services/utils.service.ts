@@ -40,6 +40,31 @@ export class UtilsService {
     //return dashboard;
   }
 
+  getWidgetQueryStatistics(queries) {
+      let metricsVisibleLen = 0;
+      let metricsVisibleAutoColorLen = 0;
+      const metricsVisibleAutoColorIds = [];
+      for ( let i = 0; i < queries.length; i++ ) {
+          const qid = queries[i].id;
+          for ( let j = 0; j < queries[i].metrics.length; j++ ) {
+            const mid = queries[i].metrics[j].id;
+            if ( queries[i].metrics[j].settings.visual.visible === true) {
+                metricsVisibleLen++;
+                if ( queries[i].metrics[j].settings.visual.color === 'auto' ) {
+                    metricsVisibleAutoColorLen++;
+                    metricsVisibleAutoColorIds.push(qid + '-' + mid);
+                }
+            }
+
+          }
+      }
+    return {
+            nVisibleMetrics: metricsVisibleLen,
+            nVisibleAutoColors: metricsVisibleAutoColorLen,
+            mVisibleAutoColorIds: metricsVisibleAutoColorIds
+        };
+  }
+
   // searches an array of objects for a specify key value and
   // returns the matched object
   getObjectByKey(objs, key, value ) {

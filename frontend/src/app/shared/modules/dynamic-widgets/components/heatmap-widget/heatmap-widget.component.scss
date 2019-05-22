@@ -30,7 +30,8 @@
                 background: #f0f0f0;
                 border: 1px solid #cccccc;
                 padding: 4px;
-                width: 300px;
+                min-width: 350px;
+                max-width: 400px;
                 position: absolute;
                 border-radius: 5px;
                 font-size: 12px;
@@ -39,6 +40,15 @@
                 tr td:first-child {
                     padding-right: 5px;
                     text-align: right;
+                }
+                td {
+                    white-space: nowrap;
+                }
+                p {
+                    font-weight: bold;
+                }
+                table {
+                    margin-top: 5px;
                 }
             }
 
