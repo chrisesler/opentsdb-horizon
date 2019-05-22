@@ -208,6 +208,9 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
       this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
       this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
       this.queryChanges$.next(true);
+      // because it acts like it is not selected after you remove it, but looks selected
+      // simulate the click again
+      this.handlerTagClick(tag);
   }
 
   getTagIndex ( tag ) {
