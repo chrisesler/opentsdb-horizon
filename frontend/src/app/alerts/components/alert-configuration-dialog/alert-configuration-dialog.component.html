@@ -95,7 +95,9 @@
                                                 <mat-label></mat-label>
                                                 <mat-select placeholder="Select" formControlName="comparisonOperator" disableOptionCentering>
                                                     <mat-option value="above">above</mat-option>
+                                                    <mat-option value="above_or_equal_to">above or equal to</mat-option>
                                                     <mat-option value="below">below</mat-option>
+                                                    <mat-option value="below_or_equal_to">below or equal to</mat-option>
                                                 </mat-select>
                                             </mat-form-field>
                                         </div>
@@ -134,7 +136,7 @@
                                     </div>
                             </div>
                             <div class="form-group bad-threshold-setting" formGroupName="singleMetric">
-                                <div class="form-label"><span class="indicator-square is-bad"></span> <strong>Bad state</strong> when metric is {{alertStateDirection}} or equal to</div>
+                                <div class="form-label"><span class="indicator-square is-bad"></span> <strong>Bad state</strong> when metric is {{alertStateDirection}}</div>
                                 <div class="form-control-wrap auto-width">
                                     <mat-form-field appearance="fill" floatLabel="never" [ngClass]="{'mat-form-field-invalid': alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required}">
                                         <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="badThreshold">
@@ -143,7 +145,7 @@
                                 </div>
                             </div>
                             <div class="form-group warning-threshold-setting" formGroupName="singleMetric">
-                                <div class="form-label"><span class="indicator-square is-warning"></span> <strong>Warning state</strong> when metric is {{alertStateDirection}} or equal to</div>
+                                <div class="form-label"><span class="indicator-square is-warning"></span> <strong>Warning state</strong> when metric is {{alertStateDirection}}</div>
                                 <div class="form-control-wrap auto-width">
                                     <mat-form-field appearance="fill" floatLabel="never" [ngClass]="{'mat-form-field-invalid': alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required}">
                                         <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="warnThreshold">
@@ -154,7 +156,7 @@
                                     
 
                             <div class="form-group recovery-threshold-setting" formGroupName="singleMetric">
-                                <div class="form-label"><span class="indicator-square is-good"></span> <strong>Alert will recover</strong> when metric is {{recoveryStateDirection}} or equal to</div>
+                                <div class="form-label"><span class="indicator-square is-good"></span> <strong>Alert will recover</strong> when metric is {{recoveryStateDirection}}</div>
                                 <div class="recovery-options">
                                     <div class="recovery-option">
                                         <mat-radio-button 
@@ -177,7 +179,7 @@
                                             <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="recoveryThreshold">
                                         </mat-form-field>
                                         <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.required">Recovery should not be empty</mat-error>
-                                        <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.invalid">Recovery state value should be {{ alertStateDirection=== 'above' ? 'less' : 'greater'}} than the {{ thresholdSingleMetricControls.warnThreshold.value !== '' ? 'Warning' : 'Bad' }} state value</mat-error>
+                                        <mat-error *ngIf="thresholdSingleMetricControls.recoveryThreshold.errors && thresholdSingleMetricControls.recoveryThreshold.errors.invalid">Recovery state value should be {{ alertStateDirection.indexOf('above') === 0 ? 'less' : 'greater'}} than the {{ thresholdSingleMetricControls.warnThreshold.value ? 'Warning' : 'Bad' }} state value</mat-error>
 
                                     </div>
                                 </div>
