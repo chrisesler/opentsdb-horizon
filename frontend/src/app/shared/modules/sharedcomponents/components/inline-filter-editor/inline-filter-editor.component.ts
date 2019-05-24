@@ -218,6 +218,10 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
       return tagIndex;
   }
 
+  lastAddedKey(tag) {
+      return (this.filters && this.filters.length) ? this.filters[this.filters.length - 1].tagk === tag : false;
+  }
+
   getTagValueIndex ( tag, v ) {
       const tagIndex = this.getTagIndex(tag);
       let tagValueIndex = -1;
@@ -259,8 +263,6 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
       this.queryChanges$.next(true);
   }
 
-
-
   isInfilteredKeys(key) {
       const keys = [];
       for ( let i = 0, len = this.filters.length; i < len; i++  ) {
@@ -268,7 +270,6 @@ export class InlineFilterEditorComponent implements OnInit, OnChanges, OnDestroy
       }
       return keys.indexOf(key);
   }
-
 
   ngOnDestroy() {
       this.queryChangeSub.unsubscribe();
