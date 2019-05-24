@@ -366,7 +366,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const bad = badStateCntrl.value ? badStateCntrl.value : '';
         const warning = warningStateCntrl.value ? warningStateCntrl.value : '';
         const recovery = recoveryStateCntrl.value ? recoveryStateCntrl.value : '';
-        const operator = this.alertStateDirection;
+        const operator = this.alertForm.get('threshold').get('singleMetric').get('comparisonOperator').value;
 
         if ( this.alertForm.touched && bad === '' && warning === '') {
             this.alertForm['controls'].threshold.setErrors({ 'required': true });
@@ -374,10 +374,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
         // validate the warning value
         if ( this.alertForm.touched && bad !== '' && warning !== '' ) {
-            if ( operator === 'above' && warning >= bad ) {
+            if ( (operator === 'above' || operator === 'above_or_equal_to') && warning >= bad ) {
                 warningStateCntrl.setErrors({ 'invalid': true }); 
             }
-            if ( operator === 'below' && warning <= bad ) {
+            if ( (operator === 'below' || operator === 'below_or_equal_to') && warning <= bad ) {
                 warningStateCntrl.setErrors({ 'invalid': true });
             }
         }
@@ -388,10 +388,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         // validate the recovery value
         const badOrWarning = warning !== '' ? warning : bad;
         if ( recoveryMode === 'specific' && this.alertForm.touched && badOrWarning !== '' && recovery !== '' ) {
-            if ( operator === 'above' && recovery >= badOrWarning ) {
+            if ( (operator === 'above' || operator === 'above_or_equal_to') && recovery >= badOrWarning ) {
                 recoveryStateCntrl.setErrors({ 'invalid': true }); 
             }
-            if ( operator === 'below' && recovery <= badOrWarning ) {
+            if ( (operator === 'below' || operator === 'below_or_equal_to') && recovery <= badOrWarning ) {
                 recoveryStateCntrl.setErrors({ 'invalid': true });
             }
         }
@@ -521,15 +521,26 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     }
 
     get alertStateDirection() {
-        return this.alertForm.get('threshold').get('singleMetric').get('comparisonOperator').value;
+        const val = this.alertForm.get('threshold').get('singleMetric').get('comparisonOperator').value;
+        const direction = { 'above': 'above',
+                            'above_or_equal_to': 'above or equal to',
+                            'below': 'below',
+                            'below_or_equal_to': 'below or equal to' };
+        return direction[val];
     }
 
     get recoveryStateDirection() {
         const valCheck = this.alertForm.get('threshold').get('singleMetric').get('comparisonOperator').value;
-        if (valCheck === 'above') {
-            return 'below';
+        switch (valCheck) {
+            case 'above':
+                return 'below or equal to';
+            case 'above_or_equal_to':
+                return 'below';
+            case 'below':
+                return 'above or equal to';
+            case 'below_or_equal_to':
+                return 'above';
         }
-        return 'above';
     }
 
     /** methods */
