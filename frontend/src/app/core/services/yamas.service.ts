@@ -179,6 +179,7 @@ export class YamasService {
                             'type': 'rate',
                             'interval': funs[i].val,
                             'counter': fxCall === 'RateOfChange' ? false : true,
+                            'dropResets': fxCall === 'RateOfChange' ? false : true,
                             'sources': [ds]
                         };
                     queries.push(q);
