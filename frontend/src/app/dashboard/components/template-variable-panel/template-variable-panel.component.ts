@@ -54,6 +54,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     ngOnChanges(changes: SimpleChanges) {
         if (changes.tplVariables) {
             this.initListFormGroup();
+            this.mode = 'view';
         }
         if (changes.undoState && changes.undoState.currentValue) {
                 this.undo = { ...changes.undoState.currentValue };
