@@ -25,7 +25,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     @HostBinding('class.template-variable-panel-component') private _hostClass = true;
 
     @Input() tplVariables: any[];
-    @Input() mode: string;
+    @Input() mode: any;
     @Output() variableChanges: EventEmitter<any> = new EventEmitter<any>();
     @Input() dbTagKeys: any; // all available tags and widget tags from dashboard
     @Input() undoState: any;
@@ -54,16 +54,15 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     ngOnChanges(changes: SimpleChanges) {
         if (changes.tplVariables) {
             this.initListFormGroup();
-            this.mode = 'view';
         }
         if (changes.undoState && changes.undoState.currentValue) {
-                this.undo = { ...changes.undoState.currentValue };
-                if (this.undo.index > -1 && this.mode === 'edit') {
-                    const selControl = this.getSelectedControl(this.undo.index);
-                    if (selControl) {
-                        selControl.get('applied').setValue(this.undo.applied);
-                    }
+            this.undo = { ...changes.undoState.currentValue };
+            if (this.undo.index > -1 && this.mode === 'edit') {
+                const selControl = this.getSelectedControl(this.undo.index);
+                if (selControl) {
+                    selControl.get('applied').setValue(this.undo.applied);
                 }
+            }
         }
     }
 
@@ -89,7 +88,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     }
 
     doEdit() {
-        this.mode = 'edit';
+        this.mode = { view: false};
         this.initEditFormGroup();
         this.interCom.requestSend({
             action: 'getDashboardTags',
@@ -291,8 +290,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         const selControl = this.getSelectedControl(index);
         if (event.option.value !== this.prevSelectedTagk) {
             selControl['controls']['filter'].setValue('');
+            this.updateState(selControl, 'editForm');
         }
-        this.updateState(selControl, 'editForm');
     }
     // update state if it's is valid
     selectFilterValueOption(event: any, index: number) {
@@ -324,7 +323,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     }
     done() {
         // just as close the panel to list mode
-        this.mode = 'view';
+        this.mode = { view: true };
         this.initListFormGroup();
     }
     updateState(selControl: AbstractControl, from: string) {

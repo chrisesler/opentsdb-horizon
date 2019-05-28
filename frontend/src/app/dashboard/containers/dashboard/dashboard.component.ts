@@ -156,7 +156,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     rerender: any = { 'reload': false }; // -> make gridster re-render correctly
     widgets: any[] = [];
     tplVariables: any[] = [];
-    variablePanelMode = 'view';
+    variablePanelMode: any = { view : true };
     userNamespaces: any = [];
     viewEditMode = false;
     newWidget: any; // setup new widget based on type from top bar
@@ -196,6 +196,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // handle route for dashboardModule
         this.subscription.add(this.activatedRoute.url.subscribe(url => {
             this.widgets = [];
+            this.variablePanelMode = { view: true };
             this.store.dispatch(new ClearWidgetsData());
             if (url.length === 1 && url[0].path === '_new_') {
                 this.dbid = '_new_';
