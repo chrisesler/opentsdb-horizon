@@ -21,6 +21,10 @@ export class CmdManager {
         return this._currentCmd;
     }
 
+    public resetCommands() {
+        this.commands = [];
+    }
+
     public execute(cmd: ICommand) {
         cmd.execute();
         this.commands.push(cmd);

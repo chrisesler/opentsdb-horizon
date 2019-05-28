@@ -57,7 +57,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         }
         if (changes.undoState && changes.undoState.currentValue) {
             this.undo = { ...changes.undoState.currentValue };
-            if (this.undo.index > -1 && this.mode === 'edit') {
+            if (this.undo.index > -1 && !this.mode.view) {
                 const selControl = this.getSelectedControl(this.undo.index);
                 if (selControl) {
                     selControl.get('applied').setValue(this.undo.applied);
@@ -291,6 +291,13 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         if (event.option.value !== this.prevSelectedTagk) {
             selControl['controls']['filter'].setValue('');
             this.updateState(selControl, 'editForm');
+            // remove this tag out if any
+            this.interCom.requestSend({
+                action: 'RemoveCustomTagFilter',
+                payload: {
+                            vartag: { tagk: this.prevSelectedTagk, alias: selControl.get('alias').value },
+                            tplIndex: index }
+            });
         }
     }
     // update state if it's is valid
@@ -319,6 +326,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         control.removeAt(index);
         if (removedItem.valid) {
             this.updateState(removedItem, 'editForm');
+            // remove this tag out if any
+            this.interCom.requestSend({
+                action: 'RemoveCustomTagFilter',
+                payload: {  vartag: removedItem.value,
+                            tplIndex: index }
+            });
         }
     }
     done() {

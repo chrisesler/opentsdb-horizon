@@ -368,6 +368,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'UpdateTplAlias':
                     this.updateTplAlias(message.payload);
                     break;
+                case 'RemoveCustomTagFilter':
+                    this.removeCustomTagFilter(message.payload);
+                    break;
                 case 'updateDashboardSettings':
                     if (message.payload.meta) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
@@ -568,7 +571,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }
     }
-
+    removeCustomTagFilter(payload: any) {
+        const vartag = payload.vartag;
+        const tplIndex = payload.tplIndex;
+        for (let i = 0; i < this.widgets.length; i++) {
+            const widget = this.widgets[i];
+            for (let j = 0; j < widget.queries.length; j++) {
+                const filters = widget.queries[j].filters;
+                const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
+                if (fIndex > -1) {
+                    if (filters[fIndex].customFilter) {
+                        const cFilterIndex = filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']');
+                        filters[fIndex].customFilter.splice(cFilterIndex, 1);
+                        this.store.dispatch(new UpdateWidget({
+                            id: widget.id,
+                            needRequery: true,
+                            widget: widget
+                        }));
+                    }
+                }
+            }
+            // then reset the undo if any for this one.
+            this.undoState = { remove: 0, append: 0, replace: 0, index: tplIndex, applied: 0};
+            this.CmdStacks.resetCommands();
+        }
+    }
     updateTplAlias(payload: any) {
         const vartag = payload.vartag;
         const originVal = payload.originVal;
