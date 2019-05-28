@@ -19,32 +19,28 @@ export class DatatranformerService {
       // there is no data in here but default, reset it
       normalizedData = [];
     }
-    if ( result === undefined || Object.keys(result).length === 0 ) {
+    if ( result === undefined || !result.results || !result.results.length ) {
         return normalizedData;
     }
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
     const dict = {};
     const wdQueryStats = this.util.getWidgetQueryStatistics(widget.queries);
     let yMax = 0, y2Max = 0;
-    for (const qid in result) {
-        if (result.hasOwnProperty(qid)) {
-        const gConfig = widget ? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
-        const mConfigs = gConfig ? gConfig.metrics : [];
-        if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
-            dict[qid] = {};
-            for ( let i = 0;  i < result[qid].results.length; i++ ) {
-                const queryResults = result[qid].results[i];
+
+            for ( let i = 0;  i < result.results.length; i++ ) {
+                const queryResults = result.results[i];
                 const [ source, mid ] = queryResults.source.split(":");
-                const mIndex = mid.replace( /\D+/g, '');
-                const mConfig = mConfigs[mIndex];
+                const qIndex = mid.split('-')[1];
+                const mIndex = mid.split('-')[2];
+                const mConfig = widget.queries[qIndex].metrics[mIndex]; // mConfigs[mIndex];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
                 if ( vConfig.visible ) {
-                    if (!dict[qid][mid]) {
-                        dict[qid][mid] = { hashes: {}};
+                    if (!dict[mid]) {
+                        dict[mid] = { hashes: {}};
 
                     }
                     if ( source === 'summarizer') {
-                        dict[qid][mid]['summarizer'] = {};
+                        dict[mid]['summarizer'] = {};
                         const n = queryResults.data.length;
                         for ( let j = 0; j < n; j ++ ) {
                             const tags = queryResults.data[j].tags;
@@ -56,65 +52,60 @@ export class DatatranformerService {
                             for ( let k = 0; k < aggs.length; k++ ) {
                                 aggData[aggs[k]] = data[k];
                             }
-                            dict[qid][mid]['summarizer'][hash] = aggData;
-                            const mConfig = mConfigs[mIndex].settings.visual;
-                            if ( !mConfig.axis || mConfig.axis === 'y1' ) {
+                            dict[mid]['summarizer'][hash] = aggData;
+                            if ( !vConfig.axis || vConfig.axis === 'y1' ) {
                                 yMax = yMax < aggData['max'] ? aggData['max'] : yMax;
                             } else {
                                 y2Max = y2Max < aggData['max'] ? aggData['max'] : y2Max;
                             }
                         }
                     } else {
-                        dict[qid][mid]['values'] = {}; // queryResults.data;
+                        dict[mid]['values'] = {}; // queryResults.data;
                         const n = queryResults.data.length;
                         for ( let j = 0; j < n; j ++ ) {
                             const tags = queryResults.data[j].tags;
-                            let hash = JSON.stringify(tags);
-                            dict[qid][mid]['values'][hash] = queryResults.data[j].NumericType;
+                            const hash = JSON.stringify(tags);
+                            dict[mid]['values'][hash] = queryResults.data[j].NumericType;
                         }
                     }
                 }
             }
-        }
-    }
-  }
+
     options.axes.y.tickFormat.max = yMax;
     options.axes.y2.tickFormat.max = y2Max;
 
     let autoColors =  this.util.getColors( null , wdQueryStats.nVisibleAutoColors );
     autoColors = wdQueryStats.nVisibleAutoColors > 1 ? autoColors : [autoColors];
-    for (const qid in result) {
-        if (result.hasOwnProperty(qid)) {
-        const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
-        const mConfigs = gConfig ? gConfig.metrics : [];
-        const summary = [];
-        if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
+
             // sometimes opentsdb returns empty results
-            for ( let i = 0;  i < result[qid].results.length; i++ ) {
-                const queryResults = result[qid].results[i];
+            for ( let i = 0;  i < result.results.length; i++ ) {
+                const queryResults = result.results[i];
                 const [ source, mid ] = queryResults.source.split(':');
                 if ( source === 'summarizer') {
                     continue;
                 }
-                const mIndex = mid.replace( /\D+/g, '');
+                const qIndex = mid.split('-')[1];
+                const mIndex = mid.split('-')[2];
 
                 const timeSpecification = queryResults.timeSpecification;
-                const mConfig = mConfigs[mIndex];
+                const qid = widget.queries[qIndex].id;
+                const mConfig = widget.queries[qIndex].metrics[mIndex];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
                 const n = queryResults.data.length;
-                const colorIndex = mConfig.settings.visual.color === 'auto' ? wdQueryStats.mVisibleAutoColorIds.indexOf( qid + '-' + mConfig.id ) : -1;
-                const color = mConfig.settings.visual.color === 'auto' ? autoColors[colorIndex] : mConfig.settings.visual.color;
+                const colorIndex = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? wdQueryStats.mVisibleAutoColorIds.indexOf( qid + '-' + mConfig.id ) : -1;
+                const color = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? autoColors[colorIndex] : mConfig.settings.visual.color;
                 const colors = n === 1 ?
-                    [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics === 1 && mConfig.settings.visual.color === 'auto' ? null : color , n ) ;
+                    [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics === 1 && (mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color) ? null : color , n ) ;
                 for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults.data[j].NumericType;
                     const tags = queryResults.data[j].tags;
                     const hash = JSON.stringify(tags);
-                    const metric = vConfig.label || queryResults.data[j].metric;
+                    const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
+                    const metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults.data[j].metric;
                     const numPoints = data.length;
                     const label = options.labels.length.toString();
                     if ( vConfig.visible ) {
-                        const aggData = dict[qid][mid]['summarizer'][hash];
+                        const aggData = dict[mid]['summarizer'][hash];
                         options.labels.push(label);
                         options.visibility.push(true);
                         if ( options.series ) {
@@ -125,7 +116,7 @@ export class DatatranformerService {
                                 axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
                                 metric: metric,
                                 tags: { metric: !mConfig.expression ?
-                                        queryResults.data[j].metric : this.getLableFromMetricTags(metric, tags), ...tags},
+                                        queryResults.data[j].metric : mLabel, ...tags},
                                 aggregations: aggData
                             };
                             if ( vConfig.type === 'bar') {
@@ -148,9 +139,6 @@ export class DatatranformerService {
                     }
                 }
             }
-        }
-    }
-    }
     return [...normalizedData];
   }
 
@@ -163,36 +151,32 @@ export class DatatranformerService {
     let cIndex = 0;
     let min = Infinity, max = -Infinity;
     // find min and max from the series. used in yaxis range
-    for (const qid in result) {
-        if (result.hasOwnProperty(qid)) {
-            const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
-            const mConfigs = gConfig ? gConfig.metrics : [];
+    const gConfig = widget.queries[0];
+    const mConfigs = gConfig ? gConfig.metrics : [];
 
-            if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
-                // sometimes opentsdb returns empty results
-                for ( let i = 0;  i < result[qid].results.length; i++ ) {
-                    const queryResults = result[qid].results[i];
-                    const [ source, mid ] = queryResults.source.split(":");
-                    if ( source === 'summarizer') {
-                        continue;
-                    }
-                    const mIndex = mid.replace( /\D+/g, '')
+    if (gConfig && gConfig.settings.visual.visible && result && result.results) {
+        // sometimes opentsdb returns empty results
+        for ( let i = 0;  i < result.results.length; i++ ) {
+            const queryResults = result.results[i];
+            const [ source, mid ] = queryResults.source.split(':');
+            if ( source === 'summarizer') {
+                continue;
+            }
+            const mIndex = mid.split('-')[2];
 
-                    const mConfig = mConfigs[mIndex];
-                    const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-                    const n = queryResults.data.length;
-                    for ( let j = 0; j < n; j ++ ) {
-                        const data = queryResults.data[j].NumericType;
-                        const numPoints = data.length;
-                        if ( vConfig.visible ) {
-                            for (let k = 0; k < numPoints ; k++ ) {
-                                if (!isNaN(data[k]) && data[k] < min) {
-                                    min = data[k];
-                                }
-                                if (!isNaN(data[k]) && data[k] > max) {
-                                    max = data[k];
-                                }
-                            }
+            const mConfig = mConfigs[mIndex];
+            const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
+            const n = queryResults.data.length;
+            for ( let j = 0; j < n; j ++ ) {
+                const data = queryResults.data[j].NumericType;
+                const numPoints = data.length;
+                if ( vConfig.visible ) {
+                    for (let k = 0; k < numPoints ; k++ ) {
+                        if (!isNaN(data[k]) && data[k] < min) {
+                            min = data[k];
+                        }
+                        if (!isNaN(data[k]) && data[k] > max) {
+                            max = data[k];
                         }
                     }
                 }
@@ -206,62 +190,59 @@ export class DatatranformerService {
     const y = d3.scaleQuantize()
                 .domain([min, max])
                 .range(Array.from( Array(options.heatmap.buckets), (x, index) => (index + 1)));
-    for (const qid in result) {
-        if (result.hasOwnProperty(qid)) {
-        const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
-        const mConfigs = gConfig ? gConfig.metrics : [];
-        const autoColors =  ['#3F00FF']; // we support single metric on heatmap, use this.util.getColors if multiple
 
-            if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
-            // sometimes opentsdb returns empty results
-            for ( let i = 0;  i < result[qid].results.length; i++ ) {
-                const queryResults = result[qid].results[i];
-                const [ source, mid ] = queryResults.source.split(":");
-                const mIndex = mid.replace( /\D+/g, '')
-                const mConfig = mConfigs[mIndex];
-                const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-                if ( source === 'summarizer' || !vConfig.visible) {
-                    continue;
-                }
+    const autoColors =  ['#3F00FF']; // we support single metric on heatmap, use this.util.getColors if multiple
 
-                const timeSpecification = queryResults.timeSpecification;
-                const n = queryResults.data.length;
-                const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++] : mConfig.settings.visual.color;
-                options.heatmap.nseries = n;
-                options.heatmap.color = color;
+    if (gConfig && gConfig.settings.visual.visible && result && result.results) {
+        // sometimes opentsdb returns empty results
+        for ( let i = 0;  i < result.results.length; i++ ) {
+            const queryResults = result.results[i];
+            const [ source, mid ] = queryResults.source.split(':');
+            const mIndex = mid.split('-')[2];
+            const mConfig = mConfigs[mIndex];
+            const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
+            if ( source === 'summarizer' || !vConfig.visible) {
+                continue;
+            }
 
-                for ( let j = 0; j < n; j ++ ) {
-                    const data = queryResults.data[j].NumericType;
-                    const tags = queryResults.data[j].tags;
-                    const numPoints = data.length;
-                        let metric = vConfig.label || queryResults.data[j].metric;
-                        metric = this.getLableFromMetricTags(metric, tags);
-                        const unit = timeSpecification.interval.replace(/[0-9]/g, '');
-                        const m = parseInt(timeSpecification.interval, 10);
-                        for (let k = 0; k < numPoints ; k++ ) {
-                            const time = (timeSpecification.start + ( m * k * mSeconds[unit] )) * 1000;
-                            if (!Array.isArray(normalizedData[k])) {
-                                normalizedData[k] = Array( options.heatmap.buckets + 1 ).fill(null);
-                                normalizedData[k][0] = new Date(time);
-                                options.heatmap.x.push(time);
-                            }
-                                if ( !isNaN(data[k]) ) {
-                                    const bucket = y(data[k]);
-                                        normalizedData[k][bucket] += 1;
-                                    if (!options.series[bucket]) {
-                                        options.series[bucket] = {};
-                                    }
-                                    if (!options.series[bucket][time]) {
-                                        options.series[bucket][time] = [];
-                                    }
-                                    options.series[bucket][time].push({label: metric, v: data[k]});
-                                }
+            const timeSpecification = queryResults.timeSpecification;
+            const n = queryResults.data.length;
+            const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++] : mConfig.settings.visual.color;
+            options.heatmap.nseries = n;
+            options.heatmap.color = color;
+
+            for ( let j = 0; j < n; j ++ ) {
+                const data = queryResults.data[j].NumericType;
+                const tags = queryResults.data[j].tags;
+                const numPoints = data.length;
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, mIndex);
+                    let metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults.data[j].metric;
+                    metric = this.getLableFromMetricTags(metric, { metric: !mConfig.expression ? queryResults.data[j].metric : mLabel, ...tags});
+                    const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+                    const m = parseInt(timeSpecification.interval, 10);
+                    for (let k = 0; k < numPoints ; k++ ) {
+                        const time = (timeSpecification.start + ( m * k * mSeconds[unit] )) * 1000;
+                        if (!Array.isArray(normalizedData[k])) {
+                            normalizedData[k] = Array( options.heatmap.buckets + 1 ).fill(null);
+                            normalizedData[k][0] = new Date(time);
+                            options.heatmap.x.push(time);
                         }
-                }
+                            if ( !isNaN(data[k]) ) {
+                                const bucket = y(data[k]);
+                                    normalizedData[k][bucket] += 1;
+                                if (!options.series[bucket]) {
+                                    options.series[bucket] = {};
+                                }
+                                if (!options.series[bucket][time]) {
+                                    options.series[bucket][time] = [];
+                                }
+                                options.series[bucket][time].push({label: metric, v: data[k]});
+                            }
+                    }
             }
         }
     }
-    }
+
 
     // ranking
     const bucketValues = [];
@@ -303,12 +284,10 @@ export class DatatranformerService {
      */
 
     getChartJSFormattedDataBar( options, widget, datasets, queryData, stacked ) {
-        if ( queryData === undefined || Object.keys(queryData).length === 0 ) {
+        if ( queryData === undefined || !queryData.results || !queryData.results.length ) {
             return datasets;
         }
         // stack colors
-        const colors = [];
-        const metricIndices = [];
         let stacks = [];
 
         // only visible groups
@@ -337,41 +316,38 @@ export class DatatranformerService {
             options.labels = [];
         }
 
-        // set dataset values
-        // tslint:disable-next-line:forin
-        for (let qid in queryData ) {
-            const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
-            const mConfigs = gConfig ? gConfig.metrics : [];
-            const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
-            const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && item.settings.visual.color === 'auto');
-            let autoColors =  this.util.getColors( null , mAutoConfigs.length );
-            autoColors = mAutoConfigs.length > 1 ? autoColors : [autoColors];
-            let cIndex = 0;
-            const results = queryData[qid].results? queryData[qid].results : [];
-            for ( let i = 0;  i < results.length; i++ ) {
-                const mid = results[i].source.split(':')[1];
-                const configIndex = mid.replace( /\D+/g, '')
-                const mConfig = mConfigs[configIndex];
-                if ( !mConfig.settings.visual.visible ) {
-                    continue;
-                }
-                const n = results[i].data.length;
-                const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
-                const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
-                for ( let j = 0;  j < n; j++ ) {
-                    const summarizer = this.getSummarizerOption(widget, i);
-                    const aggs = results[i].data[j].NumericSummaryType.aggregations;
-                    const tags = results[i].data[j].tags;
-                    const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
-                    const aggData = results[i].data[j].NumericSummaryType.data[0][key];
-                    let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
-                    const aggrIndex = aggs.indexOf(summarizer);
-                    label = this.getLableFromMetricTags(label, { metric: results[i].data[j].metric, ...tags});
-                    options.labels.push(label);
-                    datasets[0].data.push(aggData[aggrIndex]);
-                    datasets[0].backgroundColor.push(colors[j]);
-                    datasets[0].tooltipData.push({ metric: results[i].data[j].metric, ...tags });
-                }
+        const gConfig = widget.queries[0];
+        const mConfigs = gConfig ? gConfig.metrics : [];
+        const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
+        const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && (item.settings.visual.color === 'auto' || !item.settings.visual.color));
+        let autoColors =  this.util.getColors( null , mAutoConfigs.length );
+        autoColors = mAutoConfigs.length > 1 ? autoColors : [autoColors];
+        let cIndex = 0;
+        const results = queryData.results ? queryData.results : [];
+        for ( let i = 0;  i < results.length; i++ ) {
+            const mid = results[i].source.split(':')[1];
+            const configIndex = mid.split('-')[2];
+            const mConfig = mConfigs[configIndex];
+            if ( !mConfig.settings.visual.visible ) {
+                continue;
+            }
+            const n = results[i].data.length;
+            const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
+            const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && (mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color) ? null : color , n ) ;
+            for ( let j = 0;  j < n; j++ ) {
+                const summarizer = this.getSummarizerOption(widget, i);
+                const aggs = results[i].data[j].NumericSummaryType.aggregations;
+                const tags = results[i].data[j].tags;
+                const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
+                const aggData = results[i].data[j].NumericSummaryType.data[0][key];
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, configIndex);
+                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
+                const aggrIndex = aggs.indexOf(summarizer);
+                label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
+                options.labels.push(label);
+                datasets[0].data.push(aggData[aggrIndex]);
+                datasets[0].backgroundColor.push(colors[j]);
+                datasets[0].tooltipData.push({ metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags });
             }
         }
         return [...datasets];
@@ -399,19 +375,18 @@ export class DatatranformerService {
     getChartJSFormattedDataDonut(options, widget, datasets, queryData) {
         datasets[0] = {data: [], backgroundColor: [], tooltipData: [] };
         options.labels = [];
-        if ( queryData === undefined || Object.keys(queryData).length === 0) {
+        if ( queryData === undefined || !queryData.results || !queryData.results.length ) {
             return datasets;
         }
-        const qid = Object.keys(queryData)[0];
-        const results = queryData[qid].results ? queryData[qid].results : [];
+        const results = queryData.results ? queryData.results : [];
 
         const metricIndices = [];
-        const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
+        const gConfig = widget.queries[0];
         const mConfigs = gConfig.metrics;
 
        for ( let i = 0; i < results.length; i++ ) {
             const mid = results[i].source.split(':')[1];
-            const configIndex = mid.replace( /\D+/g, '');
+            const configIndex = mid.split('-')[2];
             const mConfig = mConfigs[configIndex];
             const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
             const n = results[i].data.length;
@@ -434,24 +409,24 @@ export class DatatranformerService {
         }
         return [...datasets];
     }
+
     yamasToD3Donut(options, widget, queryData) {
         options.data = [];
-        if ( queryData === undefined || Object.keys(queryData).length === 0) {
+        if ( queryData === undefined || !queryData.results || !queryData.results.length ) {
             return {...options};
         }
-        const qid = Object.keys(queryData)[0];
-        const results = queryData[qid].results ? queryData[qid].results : [];
+        const results = queryData.results ? queryData.results : [];
 
-        const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
+        const gConfig = widget.queries[0];
         const mConfigs = gConfig.metrics;
         const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
-        const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && item.settings.visual.color === 'auto');
+        const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && ( item.settings.visual.color === 'auto' || !item.settings.visual.color ));
         let autoColors =  this.util.getColors( null , mAutoConfigs.length );
         autoColors = mAutoConfigs.length > 1 ? autoColors : [autoColors];
         let cIndex = 0;
-       for ( let i = 0; i < results.length; i++ ) {
+        for ( let i = 0; i < results.length; i++ ) {
             const mid = results[i].source.split(':')[1];
-            const configIndex = mid.replace( /\D+/g, '');
+            const configIndex = mid.split('-')[2];
             const mConfig = mConfigs[configIndex];
             if ( !mConfig.settings.visual.visible ) {
                 continue;
@@ -459,16 +434,17 @@ export class DatatranformerService {
 
             const n = results[i].data.length;
             const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
-            const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
+            const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && ( mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ) ? null: color , n ) ;
             for ( let j = 0; j < n; j++ ) {
                 const summarizer = this.getSummarizerOption(widget, i);
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
-                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, configIndex);
+                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
                 const aggrIndex = aggs.indexOf(summarizer);
-                label = this.getLableFromMetricTags(label, { metric:results[i].data[j].metric, ...tags});
+                label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
                 const o = { label: label, value: aggData[aggrIndex], color: colors[j], tooltipData: tags};
                 options.data.push(o);
             }
@@ -479,25 +455,24 @@ export class DatatranformerService {
 
     yamasToD3Bar(options, widget, queryData) {
         options.data = [];
-        if ( queryData === undefined || Object.keys(queryData).length === 0) {
+        if ( queryData === undefined || !queryData.results || !queryData.results.length ) {
             return {...options};
         }
-        const qid = Object.keys(queryData)[0];
-        const results = queryData[qid].results ? queryData[qid].results : [];
+        const results = queryData.results ? queryData.results : [];
 
-        const gConfig = this.util.getObjectByKey(widget.queries, 'id', qid);
+        const gConfig = widget.queries[0];
         const mConfigs = gConfig.metrics;
 
-       for ( let i = 0; i < results.length; i++ ) {
+        for ( let i = 0; i < results.length; i++ ) {
             const mid = results[i].source.split(':')[1];
-            const configIndex = mid.replace( /\D+/g, '');
+            const configIndex = mid.split('-')[2];
             const mConfig = mConfigs[configIndex];
             if ( !mConfig || !mConfig.settings.visual.visible ) {
                 continue;
             }
 
             const n = results[i].data.length;
-            const color =  mConfig.settings.visual.color === 'auto' ? '' : mConfig.settings.visual.color;
+            const color =  mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? '' : mConfig.settings.visual.color;
             for ( let j = 0; j < n; j++ ) {
                 const summarizer = this.getSummarizerOption(widget, i);
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
@@ -505,8 +480,9 @@ export class DatatranformerService {
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggrIndex = aggs.indexOf(summarizer);
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
-                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : results[i].data[j].metric;
-                label = this.getLableFromMetricTags(label, { metric: results[i].data[j].metric, ...tags});
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, configIndex);
+                let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
+                label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
                 const o = { label: label, value: aggData[aggrIndex], color: this.overrideColor(aggData[aggrIndex], color, widget.settings.visual.conditions), tooltipData: tags};
                 options.data.push(o);
             }
