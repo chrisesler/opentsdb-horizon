@@ -2,7 +2,7 @@
     <div [formGroup]="listForm" class="variable-list-wrapper">
         <button mat-button color="primary" class="configure-variables-button" *ngIf="tplVariables.length === 0" (click)="doEdit()">
             <mat-icon fontSet="denali" fontIcon="d-setting"></mat-icon>
-            <span>Configure dashboard variables</span>
+            <span>Configure dashboard tag filters</span>
         </button>
         <div *ngIf="tplVariables.length > 0">
             <ul class="varlist" formArrayName="listVariables">
@@ -12,7 +12,7 @@
                         [ngStyle]="{width: calculateVariableDisplayWidth(vartpl.get('filter').value)}">
                         <input matInput formControlName="filter" placeholder="" [matAutocomplete]="filterVarValues" 
                             (blur)="onVariableBlur(i)" (focus)="onVariableFocus(i)">
-                        <span matPrefix>${{vartpl.get('alias').value}}</span>
+                        <span matPrefix>[{{vartpl.get('alias').value}}]:</span>
                         <mat-autocomplete #filterVarValues="matAutocomplete" (optionSelected)="selectVarValueOption(i)">
                                 <mat-option *ngFor="let option of filteredValueOptions" [value]="option">
                                     {{option}}
@@ -86,12 +86,24 @@
                                 </button>
                                 <span class="actionslist" *ngIf="tpl.valid">
                                     <span class="affected-count">{{tpl.get('applied').value}}/{{dbTagKeys.totalQueries}}</span>
-                                    <button mat-button color="primary" class="apply-to-all-button" (click)="applyToAll(i)">
-                                        <span>Apply to all</span>
+                                    <button mat-button color="primary" [disabled]="(undo.append === 1 || undo.replace === 1) && undo.index === i"  class="apply-to-all-button" (click)="bulkAction('append', i)">
+                                        <span>Append</span>
                                     </button>
-                                    <button mat-button color="primary" (click)="removeFromAll(i)" [disabled]="tpl.get('applied').value === 0" class="remove-from-all-button">
-                                        <span>Remove from all</span>
+                                    <button *ngIf="undo.append === 1 && undo.index === i" (click)="undoAction(i)" mat-icon-button color="warn" matTooltip="undo append" class="undo-button">
+                                        <mat-icon>undo</mat-icon>
                                     </button>
+                                    <button mat-button color="primary" class="remove-from-all-button" (click)="bulkAction('replace', i)">
+                                        <span>Replace</span>
+                                    </button>
+                                    <button *ngIf="undo.replace === 1 && undo.index === i" (click)="undoAction(i)" mat-icon-button color="warn" matTooltip="undo replace" class="undo-button">
+                                            <mat-icon>undo</mat-icon>
+                                        </button>
+                                    <button mat-button color="primary" (click)="bulkAction('remove', i)" [disabled]="tpl.get('applied').value === 0" class="remove-from-all-button">
+                                        <span>Remove</span>
+                                    </button>
+                                    <button *ngIf="undo.remove === 1 && undo.index === i" (click)="undoAction(i)" mat-icon-button color="warn" matTooltip="undo remove" class="undo-button">
+                                            <mat-icon>undo</mat-icon>
+                                        </button>
                                 </span>
                                 <span *ngIf="tpl.get('alias').hasError('unique'); else requiredMesg">
                                     Alias must be unique.
