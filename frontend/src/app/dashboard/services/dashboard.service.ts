@@ -139,27 +139,27 @@ export class DashboardService {
   }
 
   updateQueryByVariables(query: any, tplVariables: any[]) {
-      const cpQuery = this.utils.deepClone(query);
-      const toSplice = [];
-      for (let i = 0; i < cpQuery.filters.length; i++) {
-        const filter = cpQuery.filters[i];
-        if (filter.tagk.charAt(0) === '$') {
-          const varItem = tplVariables.find(v => ('$' + v.alias) === filter.tagk);
-          const definedTagIndex = query.filters.findIndex(f => f.tagk === varItem.tagk);
-          if (definedTagIndex > -1) {
-            // override the current tag if the filter value is not empty and remove this one out
-            if (varItem.filter.trim() !== '') {
-              query.filters[definedTagIndex].filter = [varItem.filter];
-            }
-          } else {
-            if (varItem.filter.trim() !== '') {
-              query.filters[i] = { tagk: varItem.tagk, filter: [varItem.filter], groupBy: false };
+    for (let i = 0; i < query.filters.length; i++) {
+      const qFilter = query.filters[i];
+      if (qFilter.customFilter && qFilter.customFilter.length > 0) {
+        for (let j = 0; j < qFilter.customFilter.length; j++) {
+          const cFilter = qFilter.customFilter[j].substring(1, qFilter.customFilter[j].length - 1);
+          console.log('cFilter', cFilter);
+          const varIndex = tplVariables.findIndex(tpl => tpl.alias === cFilter);
+          if (varIndex > -1) {
+            if (tplVariables[varIndex].filter !== '' && qFilter.filter.indexOf(tplVariables[varIndex].filter) === -1) {
+              qFilter.filter.push(tplVariables[varIndex].filter);
             }
           }
         }
       }
-      query.filters = query.filters.filter(f => f.tagk.charAt(0) !== '$');
-      console.log('query after applied var', query);
+      // when a filter was not defined, and append the empty value template var, the filter is empty
+      // need to remove from filters to avoid tsdb syntax error
+      console.log('qFilter', qFilter);
+      if (qFilter.filter.length === 0) {
+        query.filters.splice(i, 1);
+      }
+    }
     return query;
   }
 
