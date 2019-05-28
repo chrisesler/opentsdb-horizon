@@ -454,6 +454,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.widgets = this.utilService.deepClone(widgets);
                 if (this.tplVariables.length > 0) {
                     this.getDashboardTagKeys();
+                    // now we have widgets to check on to update count
+                    const tplVars = this.tplVariables;
+                    for (const tpl of tplVars) {
+                        let count = 0;
+                        for (let i = 0; i < this.widgets.length; i++) {
+                            const widget = this.widgets[i];
+                            for (let j = 0; j < widget.queries.length; j++) {
+                                const filters = widget.queries[j].filters;
+                                const fIndex = filters.findIndex(f => f.tagk === tpl.tagk);
+                                if (fIndex > -1) {
+                                    if (filters[fIndex].customFilter && filters[fIndex].customFilter.indexOf('[' + tpl.alias + ']') > -1) {
+                                       count++;
+                                    }
+                                }
+                            }
+                        }
+                        tpl.applied = count;
+                    }
+                    this.tplVariables = [...tplVars];
                 }
             }
         }));

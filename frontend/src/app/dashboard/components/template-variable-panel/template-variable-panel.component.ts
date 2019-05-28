@@ -295,8 +295,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
             this.interCom.requestSend({
                 action: 'RemoveCustomTagFilter',
                 payload: {
-                            vartag: { tagk: this.prevSelectedTagk, alias: selControl.get('alias').value },
-                            tplIndex: index }
+                    vartag: { tagk: this.prevSelectedTagk, alias: selControl.get('alias').value },
+                    tplIndex: index
+                }
             });
         }
     }
