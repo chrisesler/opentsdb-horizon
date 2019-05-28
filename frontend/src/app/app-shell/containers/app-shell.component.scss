@@ -43,6 +43,33 @@
                 inset 20px 0 20px -15px hsla(0,0%,0%,.25) !important;*/
         }
 
+        .messaging-bar {
+            display: flex;
+            align-items: stretch;
+            padding: 3px;
+
+            &.is-hidden {
+                display: none;
+            }
+
+            .message-icon {
+                width: 32px;
+                padding: 8px;
+                border-top-left-radius: 4px;
+                border-bottom-left-radius: 4px;
+                display: flex;
+            }
+
+            .message-text {
+                flex: 1;
+                padding: 4px 8px;
+                border-top-right-radius: 4px;
+                border-bottom-right-radius: 4px;
+                display: flex;
+                align-items: center;
+            }
+        }
+
         //.router-outlet {}
     }
 }
@@ -58,6 +85,8 @@
     $background: map-get($theme-config, background);
     $widget: map-get($theme-config, widgets);
     $is-dark: map-get($theme-config, is-dark);
+
+    $status: map-get($theme-config, status);
 
     $sn-light: #374a5a;
     $sn-dark: #233244;
@@ -80,6 +109,68 @@
             background-color: map-get($background, card);
             border-top: 1px solid transparent;
             color: map-get($background, navbar);
+        }
+
+        .messaging-bar {
+            &.is-error-type {
+                background-color: map-get($status, error);
+                color: map-get($status, error-contrast);
+
+                .message-icon {
+                    background-color: rgba(255, 255, 255, 0.8);
+                    color: map-get($status, error);
+                }
+
+                .message-text {
+                    background-color: rgba(255, 255, 255, 0.8);
+                    color: map-get($foreground, text);
+                }
+            }
+
+            &.is-info-type {
+                background-color: map-get($status, info);
+                color: map-get($status, info-contrast);
+
+                .message-icon {
+                    background-color: rgba(255, 255, 255, 0.8);
+                    color: map-get($status, info);
+                }
+
+                .message-text {
+                    background-color: rgba(255, 255, 255, 0.8);
+                    color: map-get($foreground, text);
+                }
+            }
+
+            &.is-success-type {
+                background-color: map-get($status, success);
+                color: map-get($status, success-contrast);
+
+                .message-icon {
+                    background-color: rgba(255, 255, 255, 0.8);
+                    color: map-get($status, success);
+                }
+
+                .message-text {
+                    background-color: rgba(255, 255, 255, 0.8);
+                    color: map-get($foreground, text);
+                }
+            }
+
+            &.is-warning-type {
+                background-color: map-get($status, warning);
+                color: map-get($status, warning-contrast);
+
+                .message-icon {
+                    background-color: rgba(255, 255, 255, 0.8);
+                    color: map-get($status, warning);
+                }
+
+                .message-text {
+                    background-color: rgba(255, 255, 255, 0.8);
+                    color: map-get($foreground, text);
+                }
+            }
         }
     }
 }

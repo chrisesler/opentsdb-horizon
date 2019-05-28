@@ -41,6 +41,7 @@ import { MarkdownWidgetComponent } from './components/markdown-widget/markdown-w
 // tslint:disable-next-line:max-line-length
 import { MarkdownWidgetVisualAppearanceComponent } from './components/markdown-widget/children/markdown-widget-visual-appearance/markdown-widget-visual-appearance.component';
 import { TopnWidgetComponent } from './components/topn-widget/topn-widget.component';
+import { HeatmapWidgetComponent } from './components/heatmap-widget/heatmap-widget.component';
 
 @NgModule({
     imports: [
@@ -92,10 +93,12 @@ import { TopnWidgetComponent } from './components/topn-widget/topn-widget.compon
         MarkdownWidgetComponent,
         MarkdownWidgetVisualAppearanceComponent,
         TopnWidgetComponent,
+        HeatmapWidgetComponent,
     ],
     entryComponents: [
         PlaceholderWidgetComponent,
         LinechartWidgetComponent,
+        HeatmapWidgetComponent,
         BarchartWidgetComponent,
         StackedBarchartWidgetComponent,
         DeveloperWidgetComponent,

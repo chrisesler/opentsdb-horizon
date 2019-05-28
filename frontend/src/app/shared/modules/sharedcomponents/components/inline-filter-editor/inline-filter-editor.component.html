@@ -12,8 +12,8 @@
                         <div class="tag-key-search-results has-scroller">
                             <div class="is-scroller">
                                 <div class="option-item tag-key-option" *ngFor="let option of tagOptions" 
-                                    [ngClass]="{'added': getTagIndex(option.name) !== -1, 'selected': option.name === selectedTag }">
-                                    <div class="option-cell" (click)="removeTagValues(option.name)" *ngIf="getTagIndex(option.name) !== -1">
+                                    [ngClass]="{'added': getTagIndex(option.name) !== -1, 'selected': option.name === selectedTag, 'last-added-key': lastAddedKey(option.name) }">
+                                    <div class="option-cell add-remove" (click)="removeTagValues(option.name)" *ngIf="getTagIndex(option.name) !== -1">
                                             <mat-icon (click)="removeTagValues(option.name)">remove_circle_outline</mat-icon>
                                     </div>
                                     <div class="option-cell label" (click)="handlerTagClick(option.name)">{{ option.name }}</div>
@@ -49,7 +49,7 @@
                             <div class="is-scroller">
                                 <div class="option-item" *ngFor="let option of filteredTagValues" 
                                     [ngClass]="{'added': filters[selectedTagIndex] && (filters[selectedTagIndex].filter.indexOf(option.name) >= 0 || (filters[selectedTagIndex].customFilter && filters[selectedTagIndex].customFilter.indexOf(option.name.substring(1, option.name.length - 1)) >= 0))}">
-                                    <div class="option-cell">
+                                    <div class="option-cell add-remove">
                                         <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) === -1" (click)="updateTagValueSelection(option.name, 'add');">add_circle_outline</mat-icon>
                                         <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) !== -1" (click)="updateTagValueSelection(option.name, 'remove')">remove_circle_outline</mat-icon>
                                     </div>
@@ -69,7 +69,7 @@
                         <div class="tag-values-selected-list has-scroller" *ngIf="filters[selectedTagIndex]">
                             <div class="is-scroller">
                                 <div class="option-item tag-value-option" *ngFor="let option of filters[selectedTagIndex].filter">
-                                    <div class="option-cell">
+                                    <div class="option-cell add-remove">
                                         <mat-icon (click)="updateTagValueSelection(option, 'remove')">remove_circle_outline</mat-icon>
                                     </div>
                                     <div class="option-cell label"> {{ option }} </div>

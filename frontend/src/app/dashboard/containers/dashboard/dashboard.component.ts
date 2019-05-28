@@ -115,6 +115,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             iconClass: 'widget-icon-line-chart'
         },
         {
+            label: 'Heatmap',
+            type: 'HeatmapWidgetComponent',
+            iconClass: 'widget-icon-heatmap'
+        },
+        {
             label: 'Big Number',
             type: 'BignumberWidgetComponent',
             iconClass: 'widget-icon-big-number'

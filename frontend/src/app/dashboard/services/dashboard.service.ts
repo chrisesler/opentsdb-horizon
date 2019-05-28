@@ -70,6 +70,7 @@ export class DashboardService {
     widget.settings.component_type = type;
     switch ( type ) {
         case 'LinechartWidgetComponent':
+        case 'HeatmapWidgetComponent':
         case 'BarchartWidgetComponent':
         case 'StackedBarchartWidgetComponent':
         case 'DonutWidgetComponent':

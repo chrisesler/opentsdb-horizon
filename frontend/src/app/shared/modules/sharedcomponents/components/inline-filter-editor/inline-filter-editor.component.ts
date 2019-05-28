@@ -215,13 +215,18 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         this.queryChanges$.next(true);
+      // because it acts like it is not selected after you remove it, but looks selected
+      // simulate the click again
+      this.handlerTagClick(tag);
     }
 
     getTagIndex(tag) {
         const tagIndex = this.filters.findIndex(item => item.tagk === tag);
         return tagIndex;
     }
-
+    lastAddedKey(tag) {
+        return (this.filters && this.filters.length) ? this.filters[this.filters.length - 1].tagk === tag : false;
+    }
     getTagValueIndex(tag, v) {
         const tagIndex = this.getTagIndex(tag);
         let tagValueIndex = -1;

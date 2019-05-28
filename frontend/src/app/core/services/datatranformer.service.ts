@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { IDygraphOptions } from '../../shared/modules/dygraphs/IDygraphOptions';
-import barChartPlotter from '../../shared/dygraphs/plotters';
-import { isArray } from 'util';
+import { barChartPlotter, heatmapPlotter } from '../../shared/dygraphs/plotters';
 import { UtilsService } from './utils.service';
-import { group } from '@angular/animations';
+import * as d3 from 'd3';
+import { windowWhen } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -23,20 +23,14 @@ export class DatatranformerService {
         return normalizedData;
     }
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
-    let vMetricsLen = 0;
-    let vAutoColorMetricsLen = 0;
     const dict = {};
+    const wdQueryStats = this.util.getWidgetQueryStatistics(widget.queries);
     let yMax = 0, y2Max = 0;
     for (const qid in result) {
         if (result.hasOwnProperty(qid)) {
         const gConfig = widget ? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
         const mConfigs = gConfig ? gConfig.metrics : [];
         if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
-            const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
-            const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && item.settings.visual.color === 'auto');
-
-            vMetricsLen += mvConfigs.length;
-            vAutoColorMetricsLen += mAutoConfigs.length;
             dict[qid] = {};
             for ( let i = 0;  i < result[qid].results.length; i++ ) {
                 const queryResults = result[qid].results[i];
@@ -83,13 +77,12 @@ export class DatatranformerService {
             }
         }
     }
-}
+  }
     options.axes.y.tickFormat.max = yMax;
     options.axes.y2.tickFormat.max = y2Max;
 
-    let autoColors =  this.util.getColors( null , vAutoColorMetricsLen );
-    autoColors = vAutoColorMetricsLen > 1 ? autoColors : [autoColors];
-    let cIndex = 0;
+    let autoColors =  this.util.getColors( null , wdQueryStats.nVisibleAutoColors );
+    autoColors = wdQueryStats.nVisibleAutoColors > 1 ? autoColors : [autoColors];
     for (const qid in result) {
         if (result.hasOwnProperty(qid)) {
         const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
@@ -99,28 +92,27 @@ export class DatatranformerService {
             // sometimes opentsdb returns empty results
             for ( let i = 0;  i < result[qid].results.length; i++ ) {
                 const queryResults = result[qid].results[i];
-                const [ source, mid ] = queryResults.source.split(":");
+                const [ source, mid ] = queryResults.source.split(':');
                 if ( source === 'summarizer') {
                     continue;
-                } else {
-
                 }
-                const mIndex = mid.replace( /\D+/g, '')
+                const mIndex = mid.replace( /\D+/g, '');
 
                 const timeSpecification = queryResults.timeSpecification;
                 const mConfig = mConfigs[mIndex];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
                 const n = queryResults.data.length;
-                const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
-                const colors = n === 1 ? 
-                    [color] :  this.util.getColors( vMetricsLen === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
+                const colorIndex = mConfig.settings.visual.color === 'auto' ? wdQueryStats.mVisibleAutoColorIds.indexOf( qid + '-' + mConfig.id ) : -1;
+                const color = mConfig.settings.visual.color === 'auto' ? autoColors[colorIndex] : mConfig.settings.visual.color;
+                const colors = n === 1 ?
+                    [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics === 1 && mConfig.settings.visual.color === 'auto' ? null : color , n ) ;
                 for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults.data[j].NumericType;
                     const tags = queryResults.data[j].tags;
                     const hash = JSON.stringify(tags);
                     const metric = vConfig.label || queryResults.data[j].metric;
                     const numPoints = data.length;
-                    let label = options.labels.length.toString();
+                    const label = options.labels.length.toString();
                     if ( vConfig.visible ) {
                         const aggData = dict[qid][mid]['summarizer'][hash];
                         options.labels.push(label);
@@ -159,6 +151,129 @@ export class DatatranformerService {
         }
     }
     }
+    return [...normalizedData];
+  }
+
+  yamasToHeatmap(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
+
+    normalizedData = [];
+    options.series = {};
+    const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
+    options.plotter = heatmapPlotter;
+    let cIndex = 0;
+    let min = Infinity, max = -Infinity;
+    // find min and max from the series. used in yaxis range
+    for (const qid in result) {
+        if (result.hasOwnProperty(qid)) {
+            const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
+            const mConfigs = gConfig ? gConfig.metrics : [];
+
+            if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
+                // sometimes opentsdb returns empty results
+                for ( let i = 0;  i < result[qid].results.length; i++ ) {
+                    const queryResults = result[qid].results[i];
+                    const [ source, mid ] = queryResults.source.split(":");
+                    if ( source === 'summarizer') {
+                        continue;
+                    }
+                    const mIndex = mid.replace( /\D+/g, '')
+
+                    const mConfig = mConfigs[mIndex];
+                    const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
+                    const n = queryResults.data.length;
+                    for ( let j = 0; j < n; j ++ ) {
+                        const data = queryResults.data[j].NumericType;
+                        const numPoints = data.length;
+                        if ( vConfig.visible ) {
+                            for (let k = 0; k < numPoints ; k++ ) {
+                                if (!isNaN(data[k]) && data[k] < min) {
+                                    min = data[k];
+                                }
+                                if (!isNaN(data[k]) && data[k] > max) {
+                                    max = data[k];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    options.axes.y.valueRange = [Math.floor(min), Math.ceil(max)];
+    options.labels = ['x'].concat( Array.from( Array(options.heatmap.buckets), (x, index) => (index + 1).toString()));
+    options.heatmap.x = [];
+
+    const y = d3.scaleQuantize()
+                .domain([min, max])
+                .range(Array.from( Array(options.heatmap.buckets), (x, index) => (index + 1)));
+    for (const qid in result) {
+        if (result.hasOwnProperty(qid)) {
+        const gConfig = widget? this.util.getObjectByKey(widget.queries, 'id', qid) : {};
+        const mConfigs = gConfig ? gConfig.metrics : [];
+        const autoColors =  ['#3F00FF']; // we support single metric on heatmap, use this.util.getColors if multiple
+
+            if (gConfig && gConfig.settings.visual.visible && result[qid] && result[qid].results) {
+            // sometimes opentsdb returns empty results
+            for ( let i = 0;  i < result[qid].results.length; i++ ) {
+                const queryResults = result[qid].results[i];
+                const [ source, mid ] = queryResults.source.split(":");
+                const mIndex = mid.replace( /\D+/g, '')
+                const mConfig = mConfigs[mIndex];
+                const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
+                if ( source === 'summarizer' || !vConfig.visible) {
+                    continue;
+                }
+
+                const timeSpecification = queryResults.timeSpecification;
+                const n = queryResults.data.length;
+                const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++] : mConfig.settings.visual.color;
+                options.heatmap.nseries = n;
+                options.heatmap.color = color;
+
+                for ( let j = 0; j < n; j ++ ) {
+                    const data = queryResults.data[j].NumericType;
+                    const tags = queryResults.data[j].tags;
+                    const numPoints = data.length;
+                        let metric = vConfig.label || queryResults.data[j].metric;
+                        metric = this.getLableFromMetricTags(metric, tags);
+                        const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+                        const m = parseInt(timeSpecification.interval, 10);
+                        for (let k = 0; k < numPoints ; k++ ) {
+                            const time = (timeSpecification.start + ( m * k * mSeconds[unit] )) * 1000;
+                            if (!Array.isArray(normalizedData[k])) {
+                                normalizedData[k] = Array( options.heatmap.buckets + 1 ).fill(null);
+                                normalizedData[k][0] = new Date(time);
+                                options.heatmap.x.push(time);
+                            }
+                                if ( !isNaN(data[k]) ) {
+                                    const bucket = y(data[k]);
+                                        normalizedData[k][bucket] += 1;
+                                    if (!options.series[bucket]) {
+                                        options.series[bucket] = {};
+                                    }
+                                    if (!options.series[bucket][time]) {
+                                        options.series[bucket][time] = [];
+                                    }
+                                    options.series[bucket][time].push({label: metric, v: data[k]});
+                                }
+                        }
+                }
+            }
+        }
+    }
+    }
+
+    // ranking
+    const bucketValues = [];
+    for ( let i = 0; i < normalizedData.length; i++ ) {
+        for ( let j = 1; j < normalizedData[i].length; j++ ) {
+            if ( normalizedData[i][j] !== null && !bucketValues.includes(normalizedData[i][j]) ) {
+                bucketValues.push(normalizedData[i][j]);
+            }
+        }
+    }
+    bucketValues.sort((a, b) => a - b);
+    options.heatmap.bucketValues = bucketValues;
     return [...normalizedData];
   }
 
@@ -244,7 +359,7 @@ export class DatatranformerService {
                 const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
                 const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
                 for ( let j = 0;  j < n; j++ ) {
-                    const summarizer = widget.queries[0].metrics[i].summarizer ? widget.queries[0].metrics[i].summarizer : 'avg';
+                    const summarizer = this.getSummarizerOption(widget, i);
                     const aggs = results[i].data[j].NumericSummaryType.aggregations;
                     const tags = results[i].data[j].tags;
                     const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
@@ -262,7 +377,7 @@ export class DatatranformerService {
         return [...datasets];
     }
 
-    getLableFromMetricTags(label, tags ) {
+    getLableFromMetricTags(label, tags, len= 50 ) {
         const regex = /\{\{([\w-.:\/]+)\}\}/ig
         const matches = label.match(regex);
         if ( matches ) {
@@ -277,7 +392,7 @@ export class DatatranformerService {
                 }
             }
         }
-        label = label.length > 50 ? label.substr(0, 48) + '..' : label;
+        label = label.length > len ? label.substr(0, len - 2) + '..' : label;
         return label;
     }
 
@@ -346,7 +461,7 @@ export class DatatranformerService {
             const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
             const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && mConfig.settings.visual.color === 'auto' ? null: color , n ) ;
             for ( let j = 0; j < n; j++ ) {
-                const summarizer = widget.queries[0].metrics[i].summarizer ? widget.queries[0].metrics[i].summarizer : 'avg';
+                const summarizer = this.getSummarizerOption(widget, i);
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
@@ -384,7 +499,7 @@ export class DatatranformerService {
             const n = results[i].data.length;
             const color =  mConfig.settings.visual.color === 'auto' ? '' : mConfig.settings.visual.color;
             for ( let j = 0; j < n; j++ ) {
-                const summarizer = widget.queries[0].metrics[i].summarizer ? widget.queries[0].metrics[i].summarizer : 'avg';
+                const summarizer = this.getSummarizerOption(widget, i);
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
@@ -446,6 +561,18 @@ export class DatatranformerService {
                 break;
         }
         return pattern;
+    }
+
+    getSummarizerOption(widget: any, metricIndex: number) {
+        let summarizerOption;
+        if (widget.queries[0].metrics[metricIndex].summarizer) {
+            summarizerOption = widget.queries[0].metrics[metricIndex].summarizer;
+        } else if ( widget.settings.time.downsample.aggregators && widget.settings.time.downsample.aggregators[0]) { // todo: remove once summarizer exposed for all widgets
+            summarizerOption = widget.settings.time.downsample.aggregators[0];
+        } else {
+            summarizerOption = 'avg';
+        }
+        return summarizerOption;
     }
 
   // build opentsdb query base on this of full quanlify metrics for exploer | adhoc
