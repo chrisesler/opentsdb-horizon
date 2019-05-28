@@ -82,10 +82,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     }
 
     undoAction(index: number) {
-        const selControl = this.getSelectedControl(index);
-        // const chkWidgets = this.checkEligibleWidgets(selControl);
-        selControl.get('applied').setValue(0);
-        // this.undo[index] = {...this.undoState};
+        // const selControl = this.getSelectedControl(index);
+        // selControl.get('applied').setValue(0);
         this.interCom.requestSend({
             action: 'Undo_customFilers',
             payload: { tplIndex: index }
@@ -184,6 +182,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         const val = selControl['controls'].filter.value;
         if (val  && this.fileredValues.indexOf(val) === -1) {
             selControl['controls'].filter.setValue('');
+            this.updateState(selControl, 'listForm');
+            this.interCom.requestSend({
+                action: 'applyTplVarValue',
+                payload: selControl.value
+            });
         }
     }
 
@@ -266,6 +269,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         if (cname === 'filter' && this.fileredValues.indexOf(val) === -1) {
             selControl['controls'][cname].setValue('');
             this.updateState(selControl, 'editForm');
+            this.interCom.requestSend({
+                action: 'applyTplVarValue',
+                payload: selControl.value
+            });
         }
     }
 
@@ -281,12 +288,20 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     selectFilterValueOption(event: any, index: number) {
         const selControl = this.getSelectedControl(index);
         this.updateState(selControl, 'editForm');
+        this.interCom.requestSend({
+            action: 'applyTplVarValue',
+            payload: selControl.value
+        });
     }
 
     selectVarValueOption(index: number) {
         const control = <FormArray>this.listForm.controls['listVariables'];
         const selControl = control.at(index);
         this.updateState(selControl, 'listForm');
+        this.interCom.requestSend({
+            action: 'applyTplVarValue',
+            payload: selControl.value
+        });
     }
 
     removeTemplateVariable(index: number) {

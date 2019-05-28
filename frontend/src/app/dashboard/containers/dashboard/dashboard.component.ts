@@ -356,6 +356,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'Undo_customFilers':
                     this.undoDbTagFilter(message.payload);
                     break;
+                case 'applyTplVarValue':
+                    this.applyTplVarValue(message.payload);
+                    break;
                 case 'updateDashboardSettings':
                     if (message.payload.meta) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
@@ -535,6 +538,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
             payload: payload
         });
     } */
+
+    applyTplVarValue(vartag: any) {
+        for (let i = 0; i < this.widgets.length; i++) {
+            const widget = this.widgets[i];
+            for (let j = 0; j < widget.queries.length; j++) {
+                const filters = widget.queries[j].filters;
+                const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
+                if (fIndex > -1) {
+                    if (filters[fIndex].customFilter && filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']') > -1) {
+                        // let them requery with new value
+                        this.store.dispatch(new UpdateWidget({
+                            id: widget.id,
+                            needRequery: true,
+                            widget: widget
+                        }));
+                    }
+                }
+            }
+        }
+    }
 
     // to append template variable to coresponding tag value of eligible query
     appendDbTagFilter(payload: any) {
