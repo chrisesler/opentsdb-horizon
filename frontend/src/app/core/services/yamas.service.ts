@@ -25,8 +25,6 @@ export class YamasService {
         const outputIds = [];
 
         for ( const i in this.queries ) {
-            console.log("i=", i)
-
             if ( this.queries[i]) {
                 let hasCommonFilter = false;
                 const filterId = this.queries[i].filters.length ? 'filter-' + this.queries[i].id  : '';
