@@ -46,7 +46,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angul
 
 import { LoggerService } from '../../../core/services/logger.service';
 import { HttpService } from '../../../core/http/http.service';
-
+import { ICommand, CmdManager } from '../../../core/services/CmdManager';
 
 @Component({
     selector: 'app-dashboard',
@@ -167,7 +167,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         tags: []
     };
     isDbTagsLoaded = false;
-
+    CmdStacks = new CmdManager();
+    undoState: any = { append: 0, replace: 0, remove: 0, index: -1, applied: 0 };
     constructor(
         private store: Store,
         private activatedRoute: ActivatedRoute,
@@ -251,7 +252,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         }
                     }
                     this.widgets.push(cloneWidget);
-                    console.log('this widgets aftger clone', this.widgets);
                     // update the state with new widgets
                     // const copyWidgets = this.utilService.deepClone(this.widgets);
                     this.store.dispatch(new UpdateWidgets(this.widgets));
@@ -334,9 +334,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (this.dbid !== '_new_') {
                         payload.id = this.dbid;
                     }
-
                     this.store.dispatch(new SaveDashboard(this.dbid, payload));
-                    console.log('dashboardSaveRequest', this.dbid, payload);
                     break;
                 case 'getDashboardTags':
                     if (!this.isDbTagsLoaded) {
@@ -346,29 +344,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'updateTemplateVariables':
                     this.store.dispatch(new UpdateVariables(message.payload.variables));
                     break;
-                case 'ApplyVarToAllQueries':
-                    this.doApplyVariables(message.payload);
+                case 'BulkAction_replace':
+                    this.replaceDbTagFilter(message.payload);
                     break;
-                case 'RemoveVarFromAllQueries':
+                case 'BulkAction_append':
+                    this.appendDbTagFilter(message.payload);
+                    break;
+                case 'BulkAction_remove':
+                    this.removeDbTagFilter(message.payload);
+                    break;
+                case 'Undo_customFilers':
+                    this.undoDbTagFilter(message.payload);
                     break;
                 case 'updateDashboardSettings':
                     if (message.payload.meta) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
-                    /* if (message.payload.variables) {
-                        // console.log('updateVariables: ', message.payload.variables);
-                        this.store.dispatch(new UpdateVariables(message.payload.variables));
-                    }*/
                     break;
                 case 'getTagValues': // tag template variables call
                     this.getDashboardTagValues(message.payload.tag);
                     break;
                 case 'getUserNamespaces':
-                    // console.log('getUserNamespaces');
                     this.store.dispatch(new LoadUserNamespaces());
                     break;
                 case 'getUserFolderData':
-                    // console.log('getUserFolderData');
                     this.store.dispatch(new LoadUserFolderData());
                     break;
                 default:
@@ -537,19 +536,178 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     } */
 
-    doApplyVariables(vartag: any) {
-        for (const wid in this.dashboardTags.rawDbTags) {
-            if (this.dashboardTags.rawDbTags.hasOwnProperty(wid)) {
-                for (const qid in this.dashboardTags.rawDbTags[wid]) {
-                    if (qid.indexOf(vartag.tagk)) {
-
-                        // they have it push down to widget
+    // to append template variable to coresponding tag value of eligible query
+    appendDbTagFilter(payload: any) {
+        const oldWidgets = this.store.selectSnapshot(WidgetsState.getWigets);
+        const vartag = payload.vartag;
+        const ewidgets = payload.effectedWidgets;
+        const state = { append: 1, replace: 0, remove: 0, index: payload.tplIndex, applied: 0};
+        const cmd: ICommand = {
+            name: 'append',
+            state: state,
+            execute: () => {
+                let count = 0;
+                if (Object.keys(ewidgets).length > 0 && ewidgets.constructor === Object) {
+                    for (const wid in ewidgets) {
+                        if (ewidgets.hasOwnProperty(wid)) {
+                            const wIndex = this.widgets.findIndex(w => w.id === wid);
+                            if (wIndex > -1) {
+                                const widget = this.widgets[wIndex];
+                                for (let i = 0; i < widget.queries.length; i++) {
+                                    if (ewidgets[wid].hasOwnProperty(widget.queries[i].id)) {
+                                        const filters = widget.queries[i].filters;
+                                        // now to insert or append
+                                        const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
+                                        if (fIndex > -1) {
+                                            // tslint:disable-next-line: max-line-length
+                                            filters[fIndex].customFilter && filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']') < 0 ?
+                                                filters[fIndex].customFilter.push('[' + vartag.alias + ']') :
+                                                filters[fIndex].customFilter = ['[' + vartag.alias + ']'];
+                                        } else {
+                                            filters.push({
+                                                tagk: vartag.tagk,
+                                                filter: [],
+                                                groupBy: false,
+                                                customFilter: ['[' + vartag.alias + ']']
+                                            });
+                                        }
+                                        count ++;
+                                    }
+                                }
+                                // now let update and query data
+                                this.store.dispatch(new UpdateWidget({
+                                    id: wid,
+                                    needRequery: true,
+                                    widget: widget
+                                }));
+                            }
+                        }
                     }
+                    state.applied = count;
+                    this.undoState = {...state};
+                }
+            },
+            unexcute: () => {
+                this.unexecuteCmd(ewidgets, oldWidgets);
+            }
+        };
+        this.CmdStacks.execute(cmd);
+    }
+    replaceDbTagFilter(payload: any) {
+        const oldWidgets = this.store.selectSnapshot(WidgetsState.getWigets);
+        const vartag = payload.vartag;
+        const ewidgets = payload.effectedWidgets;
+        const state = { append: 0, replace: 1, remove: 0, index: payload.tplIndex, applied: 0};
+        const cmd: ICommand = {
+            name: 'replace',
+            state: state,
+            execute: () => {
+                let count = 0;
+                for (const wid in ewidgets) {
+                    if (ewidgets.hasOwnProperty(wid)) {
+                        const wIndex = this.widgets.findIndex(w => w.id === wid);
+                        if (wIndex > -1) {
+                            const widget = this.widgets[wIndex];
+                            for (let i = 0; i < widget.queries.length; i++) {
+                                if (ewidgets[wid].hasOwnProperty(widget.queries[i].id)) {
+                                    const filters = widget.queries[i].filters;
+                                    // now to insert or append
+                                    const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
+                                    if (fIndex > -1) {
+                                        filters[fIndex].filter = [];
+                                        filters[fIndex].customFilter = ['[' + vartag.alias + ']'];
+                                        count++;
+                                    }
+                                }
+                            }
+                            // now let update and query data
+                            this.store.dispatch(new UpdateWidget({
+                                id: wid,
+                                needRequery: true,
+                                widget: widget
+                            }));
+                        }
+                    }
+                }
+                state.applied = count;
+                this.undoState = {...state};
+            },
+            unexcute: () => {
+                this.unexecuteCmd(ewidgets, oldWidgets);
+            }
+        };
+        this.CmdStacks.execute(cmd);
+    }
+
+    private unexecuteCmd(ewidgets: any, oldWidgets: any[]) {
+        for (const wid in ewidgets) {
+            if (ewidgets.hasOwnProperty(wid)) {
+                const wIndex = oldWidgets.findIndex(w => w.id === wid);
+                if (wIndex > -1) {
+                    const widget = oldWidgets[wIndex];
+                    this.store.dispatch(new UpdateWidget({
+                        id: wid,
+                        needRequery: true,
+                        widget: widget
+                    }));
                 }
             }
         }
+        // return the undo state of prev command if available
+        const lastCmd = this.CmdStacks.getLastCommand();
+        if (lastCmd !== undefined) {
+            this.undoState = {...lastCmd.state};
+        } else {
+            this.undoState = { append: 0, replace: 0, remove: 0, index: -1 };
+        }
     }
 
+    removeDbTagFilter(payload: any) {
+        const oldWidgets = this.store.selectSnapshot(WidgetsState.getWigets);
+        const vartag = payload.vartag;
+        const ewidgets = payload.effectedWidgets;
+        const state = { append: 0, replace: 0, remove: 1, index: payload.tplIndex, applied: 0};
+        const cmd: ICommand = {
+            name: 'remove',
+            state: state,
+            execute: () => {
+                for (const wid in ewidgets) {
+                    if (ewidgets.hasOwnProperty(wid)) {
+                        const wIndex = this.widgets.findIndex(w => w.id === wid);
+                        if (wIndex > -1) {
+                            const widget = this.widgets[wIndex];
+                            for (let i = 0; i < widget.queries.length; i++) {
+                                if (ewidgets[wid].hasOwnProperty(widget.queries[i].id)) {
+                                    const filters = widget.queries[i].filters;
+                                    // now to insert or append
+                                    const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
+                                    if (fIndex > -1) {
+                                        const cFilterIndex = filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']');
+                                        if (cFilterIndex > -1) { filters[fIndex].customFilter.splice(cFilterIndex, 1); }
+                                    }
+                                }
+                            }
+                            // now let update and query data
+                            this.store.dispatch(new UpdateWidget({
+                                id: wid,
+                                needRequery: true,
+                                widget: widget
+                            }));
+                        }
+                    }
+                }
+                this.undoState = {...state};
+            },
+            unexcute: () => {
+                this.unexecuteCmd(ewidgets, oldWidgets);
+            }
+        };
+        this.CmdStacks.execute(cmd);
+    }
+
+    undoDbTagFilter(payload: any) {
+        this.CmdStacks.undo();
+    }
     // to passing raw data to widget
     updateWidgetGroup(wid, rawdata, error = null) {
         const clientSize = this.store.selectSnapshot(ClientSizeState);
@@ -566,7 +724,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     getDashboardTagValues(tag: any) {
-        console.log('get dasjbaord tag vaue', tag);
         const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
         const query = { metrics, tag }; // unique metrics
         return this.httpService.getTagValues(query).subscribe(values => {
@@ -579,7 +736,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     getDashboardTagKeys() {
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
-            console.log('getdashboardtag res', res);
             this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
             for (let i = 0; res && i < res.results.length; i++) {
                 const [wid, qid] = res.results[i].id ? res.results[i].id.split(':') : [null, null];
@@ -605,48 +761,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let groupid = '';
         const payload = message.payload;
         const dt = this.getDashboardDateRange();
-        // this.checkWidgetTagsLoaded().subscribe(loaded => {
-            if ( payload.queries.length ) {
-                // sending each group to get data.
-                for (let i = 0; i < payload.queries.length; i++) {
-                    let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
-                    groupid = query.id;
-                    const gquery: any = {
-                        wid: message.id,
-                        gid: groupid,
-                        isEditMode: this.viewEditMode
-                    };
-                    if (query.namespace && query.metrics.length) {
-                        // filter only visible metrics
-                        // query = this.dbService.filterMetrics(query);
-                        // let overrideFilters = this.variables.enabled ? this.variables.tplVariables : [];
-                        // get only enabled filters
-                        // overrideFilters = overrideFilters.filter(d => d.enabled);
-                        // query = overrideFilters.length ?
-                        //    this.dbService.overrideQueryFilters(query, overrideFilters, this.wdTags[message.id] ?
-                        //       this.wdTags[message.id][groupid] : []) : query;
-
-                        // here we need to resolve template variables to override or insert
-                        console.log('template varianle', this.tplVariables, message);
-                        if (this.tplVariables.length && query.filters.length) {
-                            // check tpl variables are applied to this query
-                            query = this.dbService.updateQueryByVariables(query, this.tplVariables);
-                        }
-                        console.log('var query', query);
-                        query = this.queryService.buildQuery(payload, dt, query);
-                        // console.log('the group query-2', query, JSON.stringify(query));
-                        gquery.query = query;
-                        // now dispatch request
-                        this.store.dispatch(new GetQueryDataByGroup(gquery));
-                    } else {
-                        gquery.data = {};
-                        this.store.dispatch(new SetQueryDataByGroup(gquery));
+        if (payload.queries.length) {
+            // sending each group to get data.
+            for (let i = 0; i < payload.queries.length; i++) {
+                let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
+                groupid = query.id;
+                const gquery: any = {
+                    wid: message.id,
+                    gid: groupid,
+                    isEditMode: this.viewEditMode
+                };
+                if (query.namespace && query.metrics.length) {
+                    // filter only visible metrics, disable it now since it will break the expression
+                    // query = this.dbService.filterMetrics(query);
+                    // here we need to resolve template variables to override or insert
+                    if (this.tplVariables.length && query.filters.findIndex(f => f.customFilter !== undefined) > -1) {
+                        query = this.dbService.updateQueryByVariables(query, this.tplVariables);
                     }
+                    query = this.queryService.buildQuery(payload, dt, query);
+                    gquery.query = query;
+                    // now dispatch request
+                    this.store.dispatch(new GetQueryDataByGroup(gquery));
+                } else {
+                    gquery.data = {};
+                    this.store.dispatch(new SetQueryDataByGroup(gquery));
                 }
-            } else {
-                this.store.dispatch(new ClearQueryData({ wid: message.id }));
             }
-        // });
+        } else {
+            this.store.dispatch(new ClearQueryData({ wid: message.id }));
+        }
     }
 
     getDashboardDateRange() {
@@ -715,7 +858,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     receiveDashboardAction(event: any) {
-        // console.log('%cNAVBAR:DashboardAction', 'color: #ffffff; background-color: purple; padding: 2px 4px;', event);
         switch (event.action) {
             case 'clone':
                 this.dbid = '_new_';
@@ -739,19 +881,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         dialogConf.data = {};
         this.dashboardDeleteDialog = this.dialog.open(DashboardDeleteDialogComponent, dialogConf);
         this.dashboardDeleteDialog.afterClosed().subscribe((dialog_out: any) => {
-            // console.log('delete dialog confirm', dialog_out);
             if (dialog_out && dialog_out.delete) {
                 this.store.dispatch(new DeleteDashboard(this.dbid));
             }
         });
-    }
-
-    arrayToString(array: any[]): string {
-        if (array) {
-            return array.sort().toString();
-        } else {
-            return '';
-        }
     }
 
     ngOnDestroy() {
