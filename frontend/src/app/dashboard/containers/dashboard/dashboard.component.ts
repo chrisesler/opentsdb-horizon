@@ -356,8 +356,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'Undo_customFilers':
                     this.undoDbTagFilter(message.payload);
                     break;
-                case 'applyTplVarValue':
+                case 'ApplyTplVarValue':
                     this.applyTplVarValue(message.payload);
+                    break;
+                case 'UpdateTplAlias':
+                    this.updateTplAlias(message.payload);
                     break;
                 case 'updateDashboardSettings':
                     if (message.payload.meta) {
@@ -539,6 +542,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     } */
 
+    // apply when custom filter tag value changes
     applyTplVarValue(vartag: any) {
         for (let i = 0; i < this.widgets.length; i++) {
             const widget = this.widgets[i];
@@ -559,6 +563,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
 
+    updateTplAlias(payload: any) {
+        const vartag = payload.vartag;
+        const originVal = payload.originVal;
+        for (let i = 0; i < this.widgets.length; i++) {
+            const widget = this.widgets[i];
+            for (let j = 0; j < widget.queries.length; j++) {
+                const filters = widget.queries[j].filters;
+                const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
+                if (fIndex > -1) {
+                    if (filters[fIndex].customFilter) {
+                        const idx = filters[fIndex].customFilter.indexOf('[' + originVal + ']');
+                        if (idx > -1) {
+                            filters[fIndex].customFilter[idx] = '[' + vartag.alias + ']';
+                            // update the alias and state
+                            this.store.dispatch(new UpdateWidget({
+                                id: widget.id,
+                                needRequery: false,
+                                widget: widget
+                            }));
+                        }
+                    }
+                }
+            }
+        }
+    }
     // to append template variable to coresponding tag value of eligible query
     appendDbTagFilter(payload: any) {
         const oldWidgets = this.store.selectSnapshot(WidgetsState.getWigets);
@@ -611,7 +640,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
             },
             unexcute: () => {
-                this.unexecuteCmd(ewidgets, oldWidgets);
+                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex);
             }
         };
         this.CmdStacks.execute(cmd);
@@ -656,13 +685,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.undoState = {...state};
             },
             unexcute: () => {
-                this.unexecuteCmd(ewidgets, oldWidgets);
+                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex);
             }
         };
         this.CmdStacks.execute(cmd);
     }
 
-    private unexecuteCmd(ewidgets: any, oldWidgets: any[]) {
+    private unexecuteCmd(ewidgets: any, oldWidgets: any[], tplIndex: number) {
         for (const wid in ewidgets) {
             if (ewidgets.hasOwnProperty(wid)) {
                 const wIndex = oldWidgets.findIndex(w => w.id === wid);
@@ -678,10 +707,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
         // return the undo state of prev command if available
         const lastCmd = this.CmdStacks.getLastCommand();
+        console.log('lastCmd', lastCmd);
         if (lastCmd !== undefined) {
             this.undoState = {...lastCmd.state};
         } else {
-            this.undoState = { append: 0, replace: 0, remove: 0, index: -1 };
+            this.undoState = { append: 0, replace: 0, remove: 0, index: tplIndex, applied: 0 };
         }
     }
 
@@ -722,7 +752,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.undoState = {...state};
             },
             unexcute: () => {
-                this.unexecuteCmd(ewidgets, oldWidgets);
+                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex);
             }
         };
         this.CmdStacks.execute(cmd);

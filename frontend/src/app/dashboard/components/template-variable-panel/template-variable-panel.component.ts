@@ -57,15 +57,14 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
             this.initListFormGroup();
         }
         if (changes.undoState && changes.undoState.currentValue) {
-            this.undo = { ...changes.undoState.currentValue };
-            if (this.undo.index > -1) {
-                const selControl = this.getSelectedControl(this.undo.index);
-                if (selControl) {
-                    if (this.undo.applied !== undefined) {
-                        selControl.get('applied').setValue(this.undo.applied);
+                this.undo = { ...changes.undoState.currentValue };
+                console.log('this', this.undo, this.mode);
+                if (this.undo.index > -1 && this.mode === 'edit') {
+                    const selControl = this.getSelectedControl(this.undo.index);
+                    if (selControl) {
+                            selControl.get('applied').setValue(this.undo.applied);
                     }
                 }
-            }
         }
     }
 
@@ -96,6 +95,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         this.interCom.requestSend({
             action: 'getDashboardTags',
         });
+        const selControl = this.getSelectedControl(this.undo.index);
+        if (selControl) {
+                selControl.get('applied').setValue(this.undo.applied);
+        }
     }
     initListFormGroup() {
         this.listForm = this.fb.group({
@@ -172,7 +175,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         selControl['controls'].filter.valueChanges.pipe(
             startWith(''),
             debounceTime(100),
-            map(val => this._filter(val.toString(), 'filter', selControl, index))
+            map(val => this._filter(val.toString(), 'filter', selControl, index, null))
         ).subscribe();
     }
 
@@ -184,7 +187,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
             selControl['controls'].filter.setValue('');
             this.updateState(selControl, 'listForm');
             this.interCom.requestSend({
-                action: 'applyTplVarValue',
+                action: 'ApplyTplVarValue',
                 payload: selControl.value
             });
         }
@@ -200,14 +203,14 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                 startWith(''),
                 debounceTime(100),
                 distinctUntilChanged(),
-                map(val => this._filter(val.toString(), cname, selControl, index))
+                map(val => this._filter(val.toString(), cname, selControl, index, startVal))
             );
     }
     private getSelectedControl(index: number, formArrayName = 'formTplVariables') {
         const control = <FormArray>this.editForm.controls[formArrayName];
         return control.at(index);
     }
-    private _filter(val: string, flag: string, selControl: any, index: number): string[] {
+    private _filter(val: string, flag: string, selControl: any, index: number, startVal: string): string[] {
         const filterVal = val.toLowerCase();
         if (flag === 'tagk') {
             return this.dbTagKeys.tags.filter(key => key.toLowerCase().includes(filterVal));
@@ -230,10 +233,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
             }
         } else {
             // case of alias
-            this.validateAlias(val, index, selControl);
+            this.validateAlias(val, index, selControl, startVal);
         }
     }
-    private validateAlias(val: string, index: number, selControl: any) {
+    private validateAlias(val: string, index: number, selControl: any, startVal: string) {
         if (val.trim() !== '') { // if no change to value
             const tplFormGroups = this.editForm.controls['formTplVariables']['controls'];
             if (tplFormGroups.length > 0) {
@@ -241,6 +244,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                     if (i === index) {
                         // value is changed of its own
                         this.updateState(selControl, 'editForm');
+                        this.interCom.requestSend({
+                            action: 'UpdateTplAlias',
+                            payload: { vartag: selControl.value, originVal: startVal }
+                        });
                         continue;
                     }
                     const rowControl = tplFormGroups[i]['controls'];
@@ -250,6 +257,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                     } else {
                         tplFormGroups[i]['controls']['alias'].setErrors(null);
                         this.updateState(selControl, 'editForm');
+                        this.interCom.requestSend({
+                            action: 'UpdateTplAlias',
+                            payload: { vartag: selControl.value, originVal: startVal }
+                        });
                     }
                 }
             }
@@ -270,7 +281,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
             selControl['controls'][cname].setValue('');
             this.updateState(selControl, 'editForm');
             this.interCom.requestSend({
-                action: 'applyTplVarValue',
+                action: 'ApplyTplVarValue',
                 payload: selControl.value
             });
         }
@@ -289,7 +300,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         const selControl = this.getSelectedControl(index);
         this.updateState(selControl, 'editForm');
         this.interCom.requestSend({
-            action: 'applyTplVarValue',
+            action: 'ApplyTplVarValue',
             payload: selControl.value
         });
     }
@@ -299,7 +310,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         const selControl = control.at(index);
         this.updateState(selControl, 'listForm');
         this.interCom.requestSend({
-            action: 'applyTplVarValue',
+            action: 'ApplyTplVarValue',
             payload: selControl.value
         });
     }
