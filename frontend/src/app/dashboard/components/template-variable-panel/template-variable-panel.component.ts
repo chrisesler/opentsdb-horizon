@@ -49,7 +49,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                 this.fileredValues = message.payload;
             }
         });
-
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -58,11 +57,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         }
         if (changes.undoState && changes.undoState.currentValue) {
                 this.undo = { ...changes.undoState.currentValue };
-                console.log('this', this.undo, this.mode);
                 if (this.undo.index > -1 && this.mode === 'edit') {
                     const selControl = this.getSelectedControl(this.undo.index);
                     if (selControl) {
-                            selControl.get('applied').setValue(this.undo.applied);
+                        selControl.get('applied').setValue(this.undo.applied);
                     }
                 }
         }

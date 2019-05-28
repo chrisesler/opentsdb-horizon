@@ -710,9 +710,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
             }
         }
+        const currentCmd = this.CmdStacks.currentCommand;
+        if (currentCmd.name === 'append' || currentCmd.name === 'replace') {
+            // the undo for append/replace is running, reset the count
+            this.undoState = {...currentCmd.state, applied: 0};
+            this.cdRef.detectChanges();
+        }
         // return the undo state of prev command if available
         const lastCmd = this.CmdStacks.getLastCommand();
-        console.log('lastCmd', lastCmd);
         if (lastCmd !== undefined) {
             this.undoState = {...lastCmd.state};
         } else {
