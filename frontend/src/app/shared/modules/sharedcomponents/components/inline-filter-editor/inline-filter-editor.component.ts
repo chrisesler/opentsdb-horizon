@@ -40,7 +40,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     filteredTagValues = [];
     selectedTagIndex = -1;
     selectedTag = '';
-    loadFirstTagValues = false;
+    loadFirstTagValues = true;
     tagValueTypeControl = new FormControl('literalor');
     tagSearchControl: FormControl;
     tagValueSearchControl: FormControl;
@@ -49,8 +49,9 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     queryChangeSub: Subscription;
     tagKeySub: Subscription;
     tagValueSub: Subscription;
-    dbVariables: any[];
+    tplVariables: any[];
     visible = false;
+    regexVars = /^\[.*\]$/;
     constructor(
         private elRef: ElementRef,
         private httpService: HttpService,
@@ -61,7 +62,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         console.log('inline init');
-        this.dbVariables = this.store.selectSnapshot(DBSettingsState.getTplVariables);
+        this.tplVariables = this.store.selectSnapshot(DBSettingsState.getTplVariables);
         console.log('this query', this.query);
         this.namespace = this.query.namespace;
         this.metrics = this.query.metrics;
@@ -97,10 +98,12 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                 debounceTime(200)
             )
             .subscribe(value => {
+                console.log('this is running', value);
                 const query: any = { namespace: this.namespace, tags: this.filters, metrics: [] };
-                // make sure filters should not include any template variables to search
-                query.tags = query.tags.filter(f => f.tagk.charAt(0) !== '$');
                 query.search = value ? value : '';
+
+                // remove remove filter is it's empty for tagkey search
+                query.tags = query.tags.filter(t => t.filter.length !== 0);
 
                 // filter tags by metrics
                 if (this.metrics) {
@@ -117,12 +120,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                 }
                 this.tagKeySub = this.httpService.getNamespaceTagKeys(query)
                     .subscribe(res => {
-                        for (const dbvar of this.dbVariables) {
-                            const ret = res.filter(option => option.name === dbvar.tagk);
-                            if (ret.length === 1) {
-                                res.unshift({ name: '$' + dbvar.alias });
-                            }
-                        }
                         const selectedKeys = this.filters.map(item => item.tagk);
                         res = res.filter(item => selectedKeys.indexOf(item.name) === -1);
                         const options = selectedKeys.map(item => ({ 'name': item })).concat(res);
@@ -152,12 +149,10 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                 debounceTime(200)
             )
             .subscribe(value => {
-                const a = this.filters.filter(item => {
-                    return item.tagk !== this.selectedTag && item.tagk.charAt(0) !== '$';
-                });
+
                 const query: any = {
                     namespace: this.namespace,
-                    tags: this.filters.filter(item => item.tagk !== this.selectedTag && item.tagk.charAt(0) !== '$'),
+                    tags: this.filters.filter(item => item.tagk !== this.selectedTag),
                     metrics: []
                 };
                 query.search = value ? value : '';
@@ -177,9 +172,16 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                     if (this.tagValueSub) {
                         this.tagValueSub.unsubscribe();
                     }
-                    console.log('query', query);
+                    // any var template match with selected tag
+                    const tplVars = this.tplVariables.filter(v => v.tagk === this.selectedTag);
                     this.tagValueSub = this.httpService.getTagValuesByNamespace(query)
                         .subscribe(res => {
+                            // append tpl vars to the top of the list of value
+                            if (Array.isArray(tplVars) && tplVars.length > 0) {
+                                for (let i = 0; i < tplVars.length; i++) {
+                                    res.unshift({name: '[' + tplVars[i].alias + ']'});
+                                }
+                            }
                             this.filteredTagValues = res;
                             this.cdRef.detectChanges();
                         },
@@ -204,32 +206,15 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     handlerTagClick(tag) {
         this.selectedTag = tag;
         this.selectedTagIndex = this.getTagIndex(tag);
-        if (tag.charAt(0) === '$') {
-            if (this.selectedTagIndex === -1) {
-                this.filters.push({
-                    tagk: tag
-                });
-            } else {
-                this.filters.splice(this.selectedTagIndex, 1);
-                this.selectedTagIndex = -1;
-            }
-            console.log('this filters', this.filters);
-            this.queryChanges$.next(true);
-        } else {
-            this.tagValueTypeControl.setValue('literalor');
-            this.tagValueSearchControl.setValue(null);
-        }
+        this.tagValueTypeControl.setValue('literalor');
+        this.tagValueSearchControl.setValue(null);
     }
 
     removeTagValues(tag) {
-        if (tag.charAt(0) === '$') {
-            this.handlerTagClick(tag);
-        } else {
-            this.filters.splice(this.getTagIndex(tag), 1);
-            this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
-            this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
-            this.queryChanges$.next(true);
-        }
+        this.filters.splice(this.getTagIndex(tag), 1);
+        this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.queryChanges$.next(true);
     }
 
     getTagIndex(tag) {
@@ -240,10 +225,18 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     getTagValueIndex(tag, v) {
         const tagIndex = this.getTagIndex(tag);
         let tagValueIndex = -1;
+        let varValueIndex = -1;
         if (tagIndex !== -1) {
             tagValueIndex = this.filters[tagIndex].filter.indexOf(v);
+            if (this.filters[tagIndex].customFilter) {
+                varValueIndex = this.filters[tagIndex].customFilter.indexOf(v);
+            }
         }
-        return tagValueIndex;
+        if (tagValueIndex === -1 && varValueIndex === -1) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 
     addTagValueRegexp() {
@@ -259,21 +252,38 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         v = v.trim();
         if (this.selectedTagIndex === -1 && operation === 'add') {
             this.selectedTagIndex = this.filters.length;
-            const filter: any = { tagk: this.selectedTag, filter: [] };
+            const filter: any = { tagk: this.selectedTag, filter: [], customFilter: [] };
             filter.groupBy = false;
             this.filters[this.selectedTagIndex] = filter;
         }
 
         if (operation === 'add') {
-            this.filters[this.selectedTagIndex].filter.push(v);
+            console.log('whene adding', v, this.regexVars.test(v));
+            const checkVar = this.regexVars.test(v);
+            if (checkVar) {
+                this.filters[this.selectedTagIndex].customFilter ?
+                this.filters[this.selectedTagIndex].customFilter.push(v) :
+                this.filters[this.selectedTagIndex].customFilter = [v];
+            } else {
+                this.filters[this.selectedTagIndex].filter.push(v);
+            }
         } else if (this.selectedTagIndex !== -1 && operation === 'remove') {
-            const index = this.filters[this.selectedTagIndex].filter.indexOf(v);
-            this.filters[this.selectedTagIndex].filter.splice(index, 1);
-            if (!this.filters[this.selectedTagIndex].filter.length) {
+            if (this.regexVars.test(v)) {
+                const varIndex = this.filters[this.selectedTagIndex].customFilter.indexOf(v);
+                this.filters[this.selectedTagIndex].customFilter.splice(varIndex, 1);
+            } else {
+                const index = this.filters[this.selectedTagIndex].filter.indexOf(v);
+                this.filters[this.selectedTagIndex].filter.splice(index, 1);
+            }
+
+            if ( (this.filters[this.selectedTagIndex].filter.length === 0 && !this.filters[this.selectedTagIndex].customFilter) ||
+                (this.filters[this.selectedTagIndex].filter.length === 0 &&
+                    this.filters[this.selectedTagIndex].customFilter && this.filters[this.selectedTagIndex].customFilter.length === 0)) {
                 this.filters.splice(this.selectedTagIndex, 1);
                 this.selectedTagIndex = -1;
             }
         }
+        console.log('after removing', this.filters);
         this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         this.queryChanges$.next(true);
     }
