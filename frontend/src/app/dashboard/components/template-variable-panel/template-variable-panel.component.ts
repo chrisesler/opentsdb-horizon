@@ -28,6 +28,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     @Input() mode: string;
     @Output() variableChanges: EventEmitter<any> = new EventEmitter<any>();
     @Input() dbTagKeys: any; // all available tags and widget tags from dashboard
+    @Input() undoState: any;
 
     editForm: FormGroup;
     listForm: FormGroup;
@@ -37,38 +38,57 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     fileredValues: string[];
     prevSelectedTagk = '';
     disableDone = false;
-
+    effectedWidgets: any = {};
+    undo: any = {};
     constructor (private fb: FormBuilder, private interCom: IntercomService, private utils: UtilsService ) { }
 
     ngOnInit() {
-
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             if (message.action === 'dashboardTagValues') {
                 this.filteredValueOptions = message.payload;
                 this.fileredValues = message.payload;
             }
         });
+
     }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.tplVariables) {
             this.initListFormGroup();
         }
+        if (changes.undoState && changes.undoState.currentValue) {
+            this.undo = { ...changes.undoState.currentValue };
+            if (this.undo.index > -1) {
+                const selControl = this.getSelectedControl(this.undo.index);
+                if (selControl) {
+                    if (this.undo.applied !== undefined) {
+                        selControl.get('applied').setValue(this.undo.applied);
+                    }
+                }
+            }
+        }
     }
 
-    applyToAll(index: number) {
+    bulkAction(action: string, index: number) {
         const selControl = this.getSelectedControl(index);
+        const chkWidgets = this.checkEligibleWidgets(selControl);
         this.interCom.requestSend({
-            action: 'ApplyVarToAllQueries',
-            payload: selControl.value
+            action: 'BulkAction_' + action,
+            payload: { vartag: selControl.value,
+                       effectedWidgets: chkWidgets,
+                       tplIndex: index
+                    }
         });
     }
 
-    removeFromAll(index: number) {
+    undoAction(index: number) {
         const selControl = this.getSelectedControl(index);
+        // const chkWidgets = this.checkEligibleWidgets(selControl);
+        selControl.get('applied').setValue(0);
+        // this.undo[index] = {...this.undoState};
         this.interCom.requestSend({
-            action: 'RemoveVarFromAllQueries',
-            payload: selControl.value
+            action: 'Undo_customFilers',
+            payload: { tplIndex: index }
         });
     }
 
@@ -221,7 +241,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                         continue;
                     }
                     const rowControl = tplFormGroups[i]['controls'];
-                    if (val === rowControl['alias'].value) {
+                    if (val.trim() === rowControl['alias'].value.trim()) {
                         tplFormGroups[index].controls['alias'].setErrors({ 'unique': true });
                         tplFormGroups[i].controls['alias'].setErrors({ 'unique': true });
                     } else {
@@ -243,8 +263,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         } else {
             this.prevSelectedTagk = val;
         }
-        if (cname === 'filter' &&  val  && this.fileredValues.indexOf(val) === -1) {
+        if (cname === 'filter' && this.fileredValues.indexOf(val) === -1) {
             selControl['controls'][cname].setValue('');
+            this.updateState(selControl, 'editForm');
         }
     }
 
@@ -311,5 +332,26 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         const inputWidth = this.utils.calculateTextWidth(item.filter, fontSize, fontFace);
         // 20 is padding and such
         return (prefixWidth + inputWidth + 20) + 'px';
+    }
+    // return widget and qid of eligible to deal with
+    checkEligibleWidgets(selControl: any) {
+        const vartag = selControl.value;
+        const ewid = {};
+        for (const wid in this.dbTagKeys.rawDbTags) {
+            if (this.dbTagKeys.rawDbTags.hasOwnProperty(wid)) {
+                const eqid = {};
+                for (const qid in this.dbTagKeys.rawDbTags[wid]) {
+                    if (this.dbTagKeys.rawDbTags[wid].hasOwnProperty(qid)) {
+                        if (this.dbTagKeys.rawDbTags[wid][qid].includes(vartag.tagk)) {
+                            eqid[qid] = true;
+                        }
+                    }
+                }
+                if (Object.keys(eqid).length > 0) {
+                    ewid[wid] = eqid;
+                }
+            }
+        }
+        return ewid;
     }
 }
