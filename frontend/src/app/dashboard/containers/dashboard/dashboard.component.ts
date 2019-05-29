@@ -602,6 +602,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     if (filters[fIndex].customFilter) {
                         const cFilterIndex = filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']');
                         filters[fIndex].customFilter.splice(cFilterIndex, 1);
+                        // but if both filer and customFilter is empty then remove the whild filter
+                        if (filters[fIndex].filer.length === 0 && filters[fIndex].customFilter.length === 0) {
+                              filters.splice(fIndex, 1);
+                        }
                         this.store.dispatch(new UpdateWidget({
                             id: widget.id,
                             needRequery: true,
