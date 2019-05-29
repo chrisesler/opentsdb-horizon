@@ -41,6 +41,7 @@ import {
     MiniNavigatorFoldersComponent,
     MiniNavigatorFolderItemComponent
 } from './components/mini-navigator';
+import { DbnavComponent } from './components/dbnav/dbnav.component';
 
 @NgModule({
     imports: [
@@ -73,7 +74,8 @@ import {
         DnavDashboardsComponent,
         MiniNavigatorComponent,
         MiniNavigatorFoldersComponent,
-        MiniNavigatorFolderItemComponent
+        MiniNavigatorFolderItemComponent,
+        DbnavComponent
     ],
     providers: [
         AppShellService,
