@@ -4,16 +4,15 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class YamasService {
-    query: any;
+    queries: any = [];
     downsample: any;
     time: any;
     transformedQuery:any;
 
     constructor() { }
 
-    buildQuery( time, query, downsample: any = {} , summaryOnly= false, sorting) {
+    buildQuery( time, queries, downsample: any = {} , summaryOnly= false, sorting) {
 
-        this.query = query;
         this.downsample = {...downsample};
         this.time = time;
         this.transformedQuery = {
@@ -22,64 +21,71 @@ export class YamasService {
             executionGraph: []
         };
 
-        const mids = [];
-        let hasCommonFilter = false;
-        const filterId = query.filters.length ? 'filter' : '';
+        this.queries = queries;
         const outputIds = [];
-        const groupByIds = [];
 
-        this.downsample.aggregator = this.downsample.aggregators ? this.downsample.aggregators[0] : 'avg';
+        for ( const i in this.queries ) {
+            if ( this.queries[i]) {
+                let hasCommonFilter = false;
+                const filterId = this.queries[i].filters.length ? 'filter-' + this.queries[i].id  : '';
+                const groupByIds = [];
 
-        for (let j = 0; j < query.metrics.length; j++) {
-            const isExpression = query.metrics[j].expression ? true : false;
+                this.downsample.aggregator = this.downsample.aggregators ? this.downsample.aggregators[0] : 'avg';
 
-            if ( query.metrics[j].expression ) {
-                const q = this.getExpressionQuery(j);
-                this.transformedQuery.executionGraph.push(q);
-                let dsId = q.id;
-                // add function definition
-                const res = this.getFunctionQueries(j, dsId);
-                if ( res.queries.length ) {
-                    this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
-                    dsId = res.queries[res.queries.length-1].id;
+                for (let j = 0; j < this.queries[i].metrics.length; j++) {
+
+                    if ( this.queries[i].metrics[j].expression ) {
+                        const q = this.getExpressionQuery(i, j);
+                        this.transformedQuery.executionGraph.push(q);
+                        let dsId = q.id;
+                        // add function definition
+                        const res = this.getFunctionQueries(i, j, dsId);
+                        if ( res.queries.length ) {
+                            this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
+                            dsId = res.queries[res.queries.length-1].id;
+                        }
+                        outputIds.push(dsId);
+                    } else {
+                        const q: any = this.getMetricQuery(i, j);
+                        if ( this.queries[i].metrics[j].groupByTags && !this.checkTagsExistInFilter(i, this.queries[i].metrics[j].groupByTags) ) {
+                            const filter = this.getFilterQuery(i, j);
+                            q.filter = filter.filter;
+                        } else if ( filterId ) {
+                            hasCommonFilter = true;
+                            q.filterId = filterId;
+                        }
+                        this.transformedQuery.executionGraph.push(q);
+                        const aggregator = downsample.aggregator;
+                        const prefix = 'm-' + i + '-' + j;
+                        let dsId = prefix + '-downsample';
+                        // add downsample for the expression
+                        this.transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, aggregator, dsId, [q.id]));
+
+                        // add function definition
+                        const res = this.getFunctionQueries(i, j, dsId);
+                        if ( res.queries.length ) {
+                            this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
+                            dsId = res.queries[res.queries.length-1].id;
+                        }
+
+                        const groupbyId = prefix + '-groupby';
+                        groupByIds.push(groupbyId);
+                        this.transformedQuery.executionGraph
+                            .push(this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId));
+                        outputIds.push(groupbyId);
+                    }
                 }
-                outputIds.push(dsId);
-            } else {
-                const q: any = this.getMetricQuery(j);
-                if ( query.metrics[j].groupByTags && !this.checkTagsExistInFilter(query.metrics[j].groupByTags) ) {
-                    const filter = this.getFilterQuery(j);
-                    q.filter = filter.filter;
-                } else if ( filterId ) {
-                    hasCommonFilter = true;
-                    q.filterId = filterId;
-                }
-                this.transformedQuery.executionGraph.push(q);
-                const aggregator = downsample.aggregator;
-                const prefix = 'm' + j + '-' + aggregator;
-                let dsId = prefix + '-downsample';
-                // add downsample for the expression
-                this.transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, aggregator, dsId, [q.id]));
 
-                // add function definition
-                const res = this.getFunctionQueries(j, dsId);
-                if ( res.queries.length ) {
-                    this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
-                    dsId = res.queries[res.queries.length-1].id;
+                // add common filters
+                if ( this.queries[i].filters.length && hasCommonFilter) {
+                    if ( !this.transformedQuery.filters ) {
+                        this.transformedQuery.filters = [];
+                    }
+                    const _filter: any = this.getFilterQuery(i);
+                    _filter.id = filterId;
+                    this.transformedQuery.filters.push(_filter);
                 }
-
-                const groupbyId = prefix + '-groupby';
-                groupByIds.push(groupbyId);
-                this.transformedQuery.executionGraph
-                    .push(this.getQueryGroupBy(query.metrics[j].tagAggregator, query.metrics[j].groupByTags, [dsId], groupbyId));
-                outputIds.push(groupbyId);
             }
-        }
-
-        // add common filters
-        if ( query.filters.length && hasCommonFilter) {
-            const _filter: any = this.getFilterQuery();
-            _filter.id = filterId;
-            this.transformedQuery.filters = [_filter];
         }
 
         if (sorting && sorting.order && sorting.limit) {
@@ -99,14 +105,14 @@ export class YamasService {
         return this.transformedQuery;
     }
 
-    getMetricQuery(index) {
-        const mid = 'm' + index;
+    getMetricQuery(qindex, mindex) {
+        const mid = 'm-' + qindex + '-' +  mindex;
         const q = {
             id: mid, // using the loop index for now, might need to generate its own id
             type: 'TimeSeriesDataSource',
             metric: {
                 type: 'MetricLiteral',
-                metric:  this.query.namespace + '.' + this.query.metrics[index].name
+                metric:  this.queries[qindex].namespace + '.' + this.queries[qindex].metrics[mindex].name
             },
             fetchLast: false,
         };
@@ -131,9 +137,9 @@ export class YamasService {
         };
     }
 
-    getFilterQuery(index = -1) {
-        const filters = this.query.filters ? this.transformFilters(this.query.filters) : [];
-        const groupByTags = this.query.metrics[index] ? this.query.metrics[index].groupByTags : [];
+    getFilterQuery(qindex, mindex = -1) {
+        const filters = this.queries[qindex].filters ? this.transformFilters(this.queries[qindex].filters) : [];
+        const groupByTags = this.queries[qindex].metrics[mindex] ? this.queries[qindex].metrics[mindex].groupByTags : [];
         let filter:any = {
                         filter : {
                             type: 'Chain',
@@ -143,12 +149,12 @@ export class YamasService {
                     };
         // add groupby tags to filters if its not there
         for ( let i = 0;  groupByTags && i < groupByTags.length; i++ ) {
-            const index = this.query.filters.findIndex(d => d.tagk === groupByTags[i]);
+            const index = this.queries[qindex].filters.findIndex(d => d.tagk === groupByTags[i]);
             if ( index === -1 ) {
                 filter.filter.filters.push( this.getFilter(groupByTags[i], 'regexp(.*)'));
             }
         }
-        if ( this.query.settings.explicitTagMatch ) {
+        if ( this.queries[qindex].settings.explicitTagMatch ) {
             filter = { filter : { type: 'ExplicitTags', filter: filter.filter } };
         }
         return filter;
@@ -158,16 +164,14 @@ export class YamasService {
         const gFilters = [];
     }
 
-    getSourceIndexById(id) {
-        const metrics = this.query.metrics;
-        const index = this.query.metrics.findIndex(d => d.id === id );
-        const qid  =  'm' + index;
+    getSourceIndexById(qindex, id) {
+        const index = this.queries[qindex].metrics.findIndex(d => d.id === id );
         return index;
     }
 
-    getFunctionQueries(index, ds) {
+    getFunctionQueries(qindex, index, ds) {
         const queries = [];
-        const funs = this.query.metrics[index].functions || [];
+        const funs = this.queries[qindex].metrics[index].functions || [];
         for ( let i = 0; i < funs.length; i++ ) {
             const id = 'm' + index + '-rate-' + i;
             const fxCall = funs[i].fxCall;
@@ -189,10 +193,9 @@ export class YamasService {
         }
         return { queries: queries };
     }
-    getExpressionQuery(index) {
-        const config = this.query.metrics[index];
-        const aggregator = this.downsample.aggregator;
-        const eid = 'm' + index;
+    getExpressionQuery(qindex, mindex) {
+        const config = this.queries[qindex].metrics[mindex];
+        const eid = 'm-' + qindex + '-' + mindex;
 
         const sources = [];
         const  expression = config.expression;
@@ -204,11 +207,11 @@ export class YamasService {
         while (matches = re.exec(expression)) {
             const id = matches[1];
             const idreg = new RegExp( '\\{\\{' + id + '\\}\\}' , 'g');
-            const mindex = this.getSourceIndexById(id);
-            const sourceId = 'm' + mindex;
+            const sindex = this.getSourceIndexById(qindex, id);
+            const sourceId = 'm-' + qindex + '-' + sindex;
             let gsourceId = sourceId;
-            if (mindex > -1) {
-                gsourceId = this.query.metrics[mindex].expression === undefined ? sourceId + '-' + aggregator + '-groupby' : sourceId ;
+            if (sindex > -1) {
+                gsourceId = this.queries[qindex].metrics[sindex].expression === undefined ? sourceId +  '-groupby' : sourceId ;
             }
             transformedExp = transformedExp.replace( idreg, sourceId );
             sources.push(gsourceId);
@@ -377,8 +380,8 @@ export class YamasService {
         return summarizer;
     }
 
-    checkTagsExistInFilter(tags) {
-        const filters = this.query.filters;
+    checkTagsExistInFilter(qindex, tags) {
+        const filters = this.queries[qindex].filters;
         let exists = true;
 
         for ( let i = 0; i < tags.length; i++ ) {

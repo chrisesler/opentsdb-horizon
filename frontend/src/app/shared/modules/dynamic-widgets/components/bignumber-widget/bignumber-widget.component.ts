@@ -107,8 +107,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                         if (message.payload && message.payload.error) {
                             this.error = message.payload.error;
                         } else if (message.payload && message.payload.rawdata) {
-                            const gid = Object.keys(message.payload.rawdata)[0];
-                            this.data = (gid !== 'error' && gid !== undefined) ? message.payload.rawdata[gid].results : [];
+                            this.data = message.payload.rawdata.results || [];
                             this.setBigNumber(this.widget.settings.visual.queryID);
                         } else { // no data, so get some
                             this.refreshData();

@@ -50,7 +50,7 @@ export class UtilsService {
             const mid = queries[i].metrics[j].id;
             if ( queries[i].metrics[j].settings.visual.visible === true) {
                 metricsVisibleLen++;
-                if ( queries[i].metrics[j].settings.visual.color === 'auto' ) {
+                if ( queries[i].metrics[j].settings.visual.color === 'auto' || !queries[i].metrics[j].settings.visual.color ) {
                     metricsVisibleAutoColorLen++;
                     metricsVisibleAutoColorIds.push(qid + '-' + mid);
                 }
@@ -63,6 +63,25 @@ export class UtilsService {
             nVisibleAutoColors: metricsVisibleAutoColorLen,
             mVisibleAutoColorIds: metricsVisibleAutoColorIds
         };
+  }
+
+  getWidgetMetricDefaultLabel(queries, qIndex, mIndex: number) {
+      let m = 0;
+      let e = 0;
+      for ( let i = 0; i < queries[qIndex].metrics.length; i++ ) {
+        const isExpression = queries[qIndex].metrics[i].expression !== undefined;
+        if ( !isExpression ) {
+            m++;
+        } else {
+            e++;
+        }
+        if ( i == mIndex ) { // mIndex is string here
+            break;
+        }
+      }
+      let label = queries.length > 1 ? 'Q' + (parseInt(qIndex, 10) + 1) + ':' : '';
+      label += queries[qIndex].metrics[mIndex].expression ? 'e' + e : 'm' + m;
+      return label;
   }
 
   // searches an array of objects for a specify key value and
