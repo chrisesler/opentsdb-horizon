@@ -183,8 +183,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         let metric = {};
         queryID = queryID.toString();
         for ( let i = 0; this.data && i < this.data.length; i++ ) {
-            const mid = this.data[i].source.split(':')[1]; // example: summarizer:m1-avg
-            const configIndex = mid.replace(/[^0-9]+/g, ''); // remove anything before and after the index
+            const mid = this.data[i].source.split(':')[1]; // example: summarizer:m-0-1
+            let configIndex = mid.replace(/[^0-9]+/g, ''); // remove any non-digits. ex: 01
+            configIndex = parseInt(configIndex, 10).toString(); // remove leading zeroes. ex: 1
             if ( configIndex === queryID ) {
                 metric = this.data[i].data[0];
                 break;
