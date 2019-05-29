@@ -790,11 +790,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             for (let i = 0; i < widget.queries.length; i++) {
                                 if (ewidgets[wid].hasOwnProperty(widget.queries[i].id)) {
                                     const filters = widget.queries[i].filters;
-                                    // now to insert or append
                                     const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
                                     if (fIndex > -1) {
                                         const cFilterIndex = filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']');
                                         if (cFilterIndex > -1) { filters[fIndex].customFilter.splice(cFilterIndex, 1); }
+                                        // but if both filer and customFilter is empty then remove the whild filter
+                                        if (filters[fIndex].filter.length === 0 && filters[fIndex].customFilter.length === 0) {
+                                            filters.splice(fIndex, 1);
+                                        }
                                     }
                                 }
                             }

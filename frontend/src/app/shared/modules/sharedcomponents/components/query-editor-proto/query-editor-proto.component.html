@@ -48,7 +48,7 @@
                         <mat-list-item class="tag" role="listitem" *ngFor="let filter of query.filters; let index=index">
                             <div class="tag-filter-detail" *ngIf="filter.filter">
                                 <strong>{{ filter.tagk }}:</strong>
-                                <span>{{ filter.filter.join(', ') }} {{(filter.customFilter && filter.customFilter.length) ? ', ' + filter.customFilter?.join(', ') : ''}}</span>
+                                <span>{{ filter.customFilter ? filter.filter.concat(filter.customFilter).join(', ') : filter.filter.join(', ')}}</span>
                             </div>
                             <div class="tag-filter-detail" *ngIf="!filter.filter">
                                     <strong>{{ filter.tagk }}</strong>
