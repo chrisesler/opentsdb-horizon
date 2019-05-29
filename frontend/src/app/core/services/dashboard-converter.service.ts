@@ -96,9 +96,15 @@ export class DashboardConverterService {
         if (varObj.hasOwnProperty('enabled')) {
           delete varObj.enabled;
         }
+        if (varObj.hasOwnProperty('allowedValues')) {
+          delete varObj.allowedValues;
+        }
+        if (varObj.hasOwnProperty('type')) {
+          delete varObj.type;
+        }
         // take first value only if many
-        if (varObj.filter.lenght > 1) {
-          varObj.filter = [...varObj.filter[0]];
+        if (varObj.filter.lenght > 0) {
+          varObj.filter = varObj.filter[0];
         }
     }
     // dashboard mode was set wrong to true in some dashboards
@@ -113,6 +119,26 @@ export class DashboardConverterService {
     // delete the old one
     delete dashboard.content.settings.variables;
     dashboard.content.settings.tplVariables = tplVariables;
+
+    // we also need to convert topN chart to make sure only 1 series is enable
+    const widgets = [...dashboard.content.widgets];
+    for (let i = 0; i < widgets.length; i++) {
+      const widget = widgets[i];
+      if (widget.settings.component_type === 'TopnWidgetComponent') {
+        const idx = [];
+        for (let j = 0; j < widget.queries[0].metrics.length; j++) {
+          if (widget.queries[0].metrics[j].settings.visual.visible) {
+            idx.push(j);
+          }
+        }
+        if (idx.length > 1) {
+          for (let k = 1; i < idx.length; k++) {
+            widget.queries[0].metrics[idx[k]].settings.visual.visible = false;
+          }
+        }
+      }
+    }
+    dashboard.content.widgets = widgets;
     return dashboard;
   }
 }
