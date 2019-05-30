@@ -69,18 +69,19 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     bulkAction(action: string, index: number) {
         const selControl = this.getSelectedControl(index);
         const chkWidgets = this.checkEligibleWidgets(selControl);
+        if (action === 'append' && selControl.get('applied').value === chkWidgets.effectedCount) {
+            return;
+        }
         this.interCom.requestSend({
             action: 'BulkAction_' + action,
             payload: { vartag: selControl.value,
-                       effectedWidgets: chkWidgets,
+                       effectedWidgets: chkWidgets.ewid,
                        tplIndex: index
                     }
         });
     }
 
     undoAction(index: number) {
-        // const selControl = this.getSelectedControl(index);
-        // selControl.get('applied').setValue(0);
         this.interCom.requestSend({
             action: 'Undo_customFilers',
             payload: { tplIndex: index }
@@ -375,6 +376,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     checkEligibleWidgets(selControl: any) {
         const vartag = selControl.value;
         const ewid = {};
+        let effectedCount = 0;
         for (const wid in this.dbTagKeys.rawDbTags) {
             if (this.dbTagKeys.rawDbTags.hasOwnProperty(wid)) {
                 const eqid = {};
@@ -382,6 +384,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                     if (this.dbTagKeys.rawDbTags[wid].hasOwnProperty(qid)) {
                         if (this.dbTagKeys.rawDbTags[wid][qid].includes(vartag.tagk)) {
                             eqid[qid] = true;
+                            effectedCount++;
                         }
                     }
                 }
@@ -390,6 +393,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                 }
             }
         }
-        return ewid;
+        return { ewid, effectedCount };
+    }
+
+    canAppend(index: number) {
+        const selControl = this.getSelectedControl(index);
+        const chkWidgets = this.checkEligibleWidgets(selControl);
+        return selControl.get('applied').value < chkWidgets.effectedCount ? true : false;
     }
 }

@@ -647,11 +647,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const vartag = payload.vartag;
         const ewidgets = payload.effectedWidgets;
         const state = { append: 1, replace: 0, remove: 0, index: payload.tplIndex, applied: 0};
+        let count = 0;
         const cmd: ICommand = {
             name: 'append',
             state: state,
             execute: () => {
-                let count = 0;
                 if (Object.keys(ewidgets).length > 0 && ewidgets.constructor === Object) {
                     for (const wid in ewidgets) {
                         if (ewidgets.hasOwnProperty(wid)) {
@@ -693,7 +693,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
             },
             unexcute: () => {
-                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex);
+                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex, count);
             }
         };
         this.CmdStacks.execute(cmd);
@@ -703,11 +703,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const vartag = payload.vartag;
         const ewidgets = payload.effectedWidgets;
         const state = { append: 0, replace: 1, remove: 0, index: payload.tplIndex, applied: 0};
+        let count = 0;
         const cmd: ICommand = {
             name: 'replace',
             state: state,
             execute: () => {
-                let count = 0;
                 for (const wid in ewidgets) {
                     if (ewidgets.hasOwnProperty(wid)) {
                         const wIndex = this.widgets.findIndex(w => w.id === wid);
@@ -738,13 +738,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.undoState = {...state};
             },
             unexcute: () => {
-                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex);
+                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex, count);
             }
         };
         this.CmdStacks.execute(cmd);
     }
 
-    private unexecuteCmd(ewidgets: any, oldWidgets: any[], tplIndex: number) {
+    private unexecuteCmd(ewidgets: any, oldWidgets: any[], tplIndex: number, count = 0) {
         for (const wid in ewidgets) {
             if (ewidgets.hasOwnProperty(wid)) {
                 const wIndex = oldWidgets.findIndex(w => w.id === wid);
@@ -759,17 +759,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }
         const currentCmd = this.CmdStacks.currentCommand;
-        if (currentCmd.name === 'append' || currentCmd.name === 'replace') {
-            // the undo for append/replace is running, reset the count
-            this.undoState = {...currentCmd.state, applied: 0};
-            this.cdRef.detectChanges();
-        }
         // return the undo state of prev command if available
         const lastCmd = this.CmdStacks.getLastCommand();
         if (lastCmd !== undefined) {
             this.undoState = {...lastCmd.state};
         } else {
-            this.undoState = { append: 0, replace: 0, remove: 0, index: tplIndex, applied: 0 };
+            this.undoState = { append: 0, replace: 0, remove: 0, index: tplIndex, applied: 0};
+            if (currentCmd.name === 'remove' || currentCmd.name === 'replace') {
+                this.undoState = {...this.undoState, applied: count};
+            }
         }
     }
 
@@ -778,6 +776,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const vartag = payload.vartag;
         const ewidgets = payload.effectedWidgets;
         const state = { append: 0, replace: 0, remove: 1, index: payload.tplIndex, applied: 0};
+        let count = 0;
         const cmd: ICommand = {
             name: 'remove',
             state: state,
@@ -798,6 +797,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                         if (filters[fIndex].filter.length === 0 && filters[fIndex].customFilter.length === 0) {
                                             filters.splice(fIndex, 1);
                                         }
+                                        count++;
                                     }
                                 }
                             }
@@ -813,7 +813,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.undoState = {...state};
             },
             unexcute: () => {
-                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex);
+                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex, count);
             }
         };
         this.CmdStacks.execute(cmd);

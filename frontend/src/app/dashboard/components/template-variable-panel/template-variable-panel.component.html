@@ -86,7 +86,7 @@
                                 </button>
                                 <span class="actionslist" *ngIf="tpl.valid">
                                     <span class="affected-count">{{tpl.get('applied').value}}/{{dbTagKeys.totalQueries}}</span>
-                                    <button mat-button color="primary" [disabled]="(undo.append === 1 || undo.replace === 1) && undo.index === i"  class="apply-to-all-button" (click)="bulkAction('append', i)">
+                                    <button mat-button color="primary" [disabled]="((undo.append === 1 || undo.replace === 1) && undo.index === i) || !canAppend(i)"  class="apply-to-all-button" (click)="bulkAction('append', i)">
                                         <span>Append</span>
                                     </button>
                                     <button *ngIf="undo.append === 1 && undo.index === i" (click)="undoAction(i)" mat-icon-button color="warn" matTooltip="undo append" class="undo-button">
