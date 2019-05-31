@@ -222,7 +222,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
                     queryIndex: data.threshold.singleMetric.queryIndex || -1 ,
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
                     // tslint:disable-next-line:max-line-length
-                    metricId: [ data.threshold.singleMetric.metricId ? this.getMetricDropdownValue(data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : ''],
+                    metricId: [ data.threshold.singleMetric.metricId ? this.getMetricDropdownValue(data.queries.raw, data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : ''],
                     badThreshold:  data.threshold.singleMetric.badThreshold || null,
                     warnThreshold: data.threshold.singleMetric.warnThreshold || null,
                     recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || null,
@@ -397,8 +397,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         }
     }
 
-    getMetricDropdownValue(qindex, sourceid) {
-        const mIndex = sourceid.split('-')[0].replace( /\D+/g, '');
+    getMetricDropdownValue(queries, qindex, mid) {
+        const REGDSID = /q?(\d+)?_?(m|e)(\d+).*/;
+        const qids = REGDSID.exec(mid);
+        const mIndex =  this.utils.getDSIndexToMetricIndex(queries[qindex], parseInt(qids[3], 10) - 1, qids[2] );
         return qindex + ':' + mIndex;
     }
 
@@ -557,7 +559,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             start: '1h-ago'
         };
         if (this.queries[0].namespace && this.queries[0].metrics.length) {
-            const query = this.queryService.buildQuery( settings, time, this.queries[0]);
+            const query = this.queryService.buildQuery( settings, time, {0: this.queries[0]});
             this.getYamasData(query);
         } else {
             this.nQueryDataLoading = 0;
@@ -575,7 +577,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const time = {
             start: '1h-ago'
         };
-        const query = this.queryService.buildQuery( settings, time, this.queries[0]);
+        const query = this.queryService.buildQuery( settings, time, {0 : this.queries[0]});
         return [query];
     }
 
@@ -588,7 +590,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.sub = queryObserver.subscribe(
             result => {
                 this.nQueryDataLoading = 0;
-                this.queryData[this.queries[0].id] = result;
+                this.queryData = result;
                 this.refreshChart();
             },
             err => {
@@ -733,7 +735,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
         data.threshold.singleMetric.queryIndex = qindex;
         // tslint:disable-next-line: max-line-length
-        data.threshold.singleMetric.metricId =  this.queries[qindex].metrics[mindex].expression === undefined ? 'm' + mindex + '-avg-groupby' : 'm' + mindex; 
+        data.threshold.singleMetric.metricId =  this.utils.getDSId({0 : this.queries[0]}, qindex, mindex) + (this.queries[qindex].metrics[mindex].expression === undefined ? '-groupby' : '');
         data.threshold.isNagEnabled = data.threshold.nagInterval!== "0" ? true : false;
         // emit to save the alert
         this.configChange.emit({ action: 'SaveAlert', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );

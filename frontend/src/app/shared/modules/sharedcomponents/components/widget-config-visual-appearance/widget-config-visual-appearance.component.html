@@ -39,8 +39,8 @@
                                 <input matInput formControlName="label" [placeholder]="metric.name || metric.originalExpression">
                             </mat-form-field>
                         </td>
-                        <td class="mat-cell mat-column-mode" [formGroupName]="index"> 
-                            <dropdown-visual-type  formControlName="type"></dropdown-visual-type>   
+                        <td class="mat-cell mat-column-mode" > 
+                            <dropdown-visual-type  [value]="metric.settings.visual.type || 'line'" (valueChange)="setVisualType($event, gIndex, index)"></dropdown-visual-type>   
                         </td>
                         <td class="mat-cell mat-column-color-family" [formGroupName]="index">
                             <color-picker (newColor)="selectColor($event, gIndex, index)" [color]="metric.settings.visual.color" [enableAuto]="'true'"></color-picker>
@@ -55,10 +55,10 @@
                                 <dropdown-line-type formControlName="lineType"></dropdown-line-type>
                             </div>
                         </td>
-                        <td class="mat-cell mat-column-axes" colspan="2" [formGroupName]="index">
-                            <mat-radio-group  formControlName="axis">
-                                <mat-radio-button value="y1">Y1</mat-radio-button>
-                                <mat-radio-button value="y2">Y2</mat-radio-button>
+                        <td class="mat-cell mat-column-axes" colspan="2">
+                            <mat-radio-group>
+                                <mat-radio-button (click)="setAxis('y1', gIndex, index)" value="y1" [checked]="!metric.settings.visual.axis || metric.settings.visual.axis === 'y1'">Y1</mat-radio-button>
+                                <mat-radio-button (click)="setAxis('y2', gIndex, index)" value="y2" [checked]="metric.settings.visual.axis === 'y2'">Y2</mat-radio-button>
                             </mat-radio-group>
                         </td>
                     </tr>           

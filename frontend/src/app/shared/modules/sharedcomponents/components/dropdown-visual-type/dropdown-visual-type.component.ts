@@ -31,6 +31,11 @@ export class DropdownVisualTypeComponent implements OnInit, OnDestroy, ControlVa
             label: 'Bar',
             value: 'bar',
             icon: 'd-chart-bar-vertical'
+        },
+        {
+            label: 'Area',
+            value: 'area',
+            icon: 'd-chart-area-solid'
         }
     ];
 
@@ -80,6 +85,7 @@ export class DropdownVisualTypeComponent implements OnInit, OnDestroy, ControlVa
         this.visualTypeControl = new FormControl( this.value );
         this.subscription = this.visualTypeControl.valueChanges.subscribe( data => {
             this.propagateChange(data);
+            this.valueChange.emit(data);
         });
     }
 
