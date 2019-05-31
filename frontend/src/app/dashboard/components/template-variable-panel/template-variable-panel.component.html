@@ -8,16 +8,15 @@
             <ul class="varlist" formArrayName="listVariables">
                 <li *ngFor="let vartpl of listVariables.controls; let i = index" [formGroupName]="i">
                     <!-- still need to figure out way to dynamically change width when editing the input value -->
-                    <mat-form-field appearance="fill" color="primary" floatLabel="never" class="dashboard-template-variable" 
-                        [ngStyle]="{width: calculateVariableDisplayWidth(vartpl.get('filter').value)}">
+                    <mat-form-field appearance="fill" color="primary" floatLabel="never" class="dashboard-template-variable" [ngStyle]="{width: calculateVariableDisplayWidth(vartpl)}" [attr.id]="'filter-tpl-'+i">
                         <input matInput formControlName="filter" placeholder="" [matAutocomplete]="filterVarValues" 
                             (blur)="onVariableBlur(i)" (focus)="onVariableFocus(i)">
                         <span matPrefix>[{{vartpl.get('alias').value}}]:</span>
-                        <mat-autocomplete #filterVarValues="matAutocomplete" (optionSelected)="selectVarValueOption(i)">
-                                <mat-option *ngFor="let option of filteredValueOptions" [value]="option">
-                                    {{option}}
-                                </mat-option>
-                            </mat-autocomplete>
+                        <mat-autocomplete #filterVarValues="matAutocomplete" (optionSelected)="selectVarValueOption(i)" panelWidth="auto">
+                            <mat-option *ngFor="let option of filteredValueOptions" [value]="option">
+                                {{option}}
+                            </mat-option>
+                        </mat-autocomplete>
                     </mat-form-field>
                 </li>
                 <li>
@@ -33,6 +32,7 @@
 
 <ng-template #variableEditView>
     <div [formGroup]="editForm" class="variable-edit-wrapper">
+        <div class="edit-form-title">Configure dashboard tag filters</div>
         <table formArrayName="formTplVariables">
             <thead>
                 <tr>
@@ -44,23 +44,23 @@
             </thead>
             <tbody>
                 <tr *ngFor="let tpl of formTplVariables.controls; let i=index" [formGroupName]="i" class="variable-edit-controls">
-                        <td>
-                                <div class="settings-control tag-key-control">
-                                    <mat-form-field appearance="fill" color="primary" floatLabel="never">
-                                        <input matInput placeholder="" formControlName="tagk"
-                                            [matAutocomplete]="filterKeyAuto" (focus)="onInputFocus('tagk', i)"
-                                            (blur)="onInputBlur('tagk', i)">
-                                        <mat-autocomplete #filterKeyAuto="matAutocomplete" (optionSelected)="selectTagKeyOption($event, i)">
-                                            <mat-option *ngFor="let option of filteredKeyOptions | async" [value]="option">
-                                                {{option}}
-                                            </mat-option>
-                                        </mat-autocomplete>
-                                    </mat-form-field>
-                                </div>
-                            </td>                    
                     <td>
-                        <div class="settings-control alias-control">
-                            <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 100px;">
+                        <div class="settings-control tag-key-control">
+                            <mat-form-field appearance="fill" color="primary" floatLabel="never">
+                                <input matInput placeholder="" formControlName="tagk"
+                                    [matAutocomplete]="filterKeyAuto" (focus)="onInputFocus('tagk', i)"
+                                    (blur)="onInputBlur('tagk', i)">
+                                <mat-autocomplete #filterKeyAuto="matAutocomplete" (optionSelected)="selectTagKeyOption($event, i)" panelWidth="auto">
+                                    <mat-option *ngFor="let option of filteredKeyOptions | async" [value]="option">
+                                        {{option}}
+                                    </mat-option>
+                                </mat-autocomplete>
+                            </mat-form-field>
+                        </div>
+                    </td>                    
+                    <td>
+                        <div class="settings-control alias-control" style="min-width: 100px; width: 100%;">
+                            <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 100%;" >
                                 <input matInput placeholder="" formControlName="alias" (blur)="onInputBlur('alias', i)" (focus)="onInputFocus('alias', i)" autocomplete="off">
                             </mat-form-field>
                         </div>
@@ -70,7 +70,7 @@
                             <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 300px;">
                                 <input matInput placeholder="set a value (optional)" formControlName="filter"
                                     (focus)="onInputFocus('filter', i)" (blur)="onInputBlur('filter', i)" [matAutocomplete]="filterValueAuto">
-                                <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event, i)">
+                                <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event, i)" panelWidth="auto">
                                     <mat-option *ngFor="let option of filteredValueOptions" [value]="option">
                                         {{option}}
                                     </mat-option>
@@ -86,30 +86,31 @@
                                 </button>
                                 <span class="actionslist" *ngIf="tpl.valid">
                                     <span class="affected-count">{{tpl.get('applied').value}}/{{dbTagKeys.totalQueries}}</span>
-                                    <button mat-button color="primary" [disabled]="((undo.append === 1 || undo.replace === 1) && undo.index === i) || !canAppend(i)"  class="apply-to-all-button" (click)="bulkAction('append', i)">
+                                    <button mat-button color="primary" [disabled]="(undo.append === 1 || undo.replace === 1) && undo.index === i"  class="apply-to-all-button" (click)="bulkAction('append', i)">
                                         <span>Append</span>
                                     </button>
                                     <button *ngIf="undo.append === 1 && undo.index === i" (click)="undoAction(i)" mat-icon-button color="warn" matTooltip="undo append" class="undo-button">
-                                        <mat-icon>undo</mat-icon>
+                                        <mat-icon fontSet="denali" fontIcon="d-refresh"></mat-icon>
                                     </button>
                                     <button mat-button color="primary" class="remove-from-all-button" (click)="bulkAction('replace', i)">
                                         <span>Replace</span>
                                     </button>
                                     <button *ngIf="undo.replace === 1 && undo.index === i" (click)="undoAction(i)" mat-icon-button color="warn" matTooltip="undo replace" class="undo-button">
-                                            <mat-icon>undo</mat-icon>
-                                        </button>
+                                        <mat-icon fontSet="denali" fontIcon="d-refresh"></mat-icon>
+                                    </button>
                                     <button mat-button color="primary" (click)="bulkAction('remove', i)" [disabled]="tpl.get('applied').value === 0" class="remove-from-all-button">
                                         <span>Remove</span>
                                     </button>
                                     <button *ngIf="undo.remove === 1 && undo.index === i" (click)="undoAction(i)" mat-icon-button color="warn" matTooltip="undo remove" class="undo-button">
-                                            <mat-icon>undo</mat-icon>
-                                        </button>
+                                        <mat-icon fontSet="denali" fontIcon="d-refresh"></mat-icon>
+                                    </button>
                                 </span>
-                                <span *ngIf="tpl.get('alias').hasError('unique'); else requiredMesg">
+                                <!-- error messages -->
+                                <span *ngIf="tpl.get('alias').hasError('unique'); else requiredMesg" class="error-msg">
                                     Alias must be unique.
                                 </span>
                                 <ng-template #requiredMesg>
-                                    <span *ngIf="tpl.invalid">Alias and Tag are required.</span>
+                                    <span *ngIf="tpl.invalid" class="error-msg">Alias and Tag are required.</span>
                                 </ng-template>
                             </div>
                         </div>

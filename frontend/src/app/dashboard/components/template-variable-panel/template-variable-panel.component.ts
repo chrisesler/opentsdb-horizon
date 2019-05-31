@@ -69,19 +69,18 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     bulkAction(action: string, index: number) {
         const selControl = this.getSelectedControl(index);
         const chkWidgets = this.checkEligibleWidgets(selControl);
-        if (action === 'append' && selControl.get('applied').value === chkWidgets.effectedCount) {
-            return;
-        }
         this.interCom.requestSend({
             action: 'BulkAction_' + action,
             payload: { vartag: selControl.value,
-                       effectedWidgets: chkWidgets.ewid,
+                       effectedWidgets: chkWidgets,
                        tplIndex: index
                     }
         });
     }
 
     undoAction(index: number) {
+        // const selControl = this.getSelectedControl(index);
+        // selControl.get('applied').setValue(0);
         this.interCom.requestSend({
             action: 'Undo_customFilers',
             payload: { tplIndex: index }
@@ -269,20 +268,22 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     onInputBlur(cname: string, index: number) {
         const selControl = this.getSelectedControl(index);
         const val = selControl['controls'][cname].value;
-        // when user type in and click select and if value is not valid, reset
-        if (cname === 'tagk' && this.dbTagKeys.tags.indexOf(val) === -1) {
-            selControl['controls'][cname].setValue('');
-            selControl['controls']['filter'].setValue('');
-        } else {
-            this.prevSelectedTagk = val;
-        }
-        if (cname === 'filter' && this.fileredValues.indexOf(val) === -1) {
-            selControl['controls'][cname].setValue('');
-            this.updateState(selControl, 'editForm');
-            this.interCom.requestSend({
-                action: 'ApplyTplVarValue',
-                payload: selControl.value
-            });
+        if (val) {
+            // when user type in and click select and if value is not valid, reset
+            if (cname === 'tagk' && this.dbTagKeys.tags.indexOf(val) === -1) {
+                selControl['controls'][cname].setValue('');
+                selControl['controls']['filter'].setValue('');
+            } else {
+                this.prevSelectedTagk = val;
+            }
+            if (cname === 'filter' && this.fileredValues.indexOf(val) === -1) {
+                selControl['controls'][cname].setValue('');
+                this.updateState(selControl, 'editForm');
+                this.interCom.requestSend({
+                    action: 'ApplyTplVarValue',
+                    payload: selControl.value
+                });
+            }
         }
     }
 
@@ -364,19 +365,41 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         }
     }
 
-    calculateVariableDisplayWidth(item: any) {
+    calculateVariableDisplayWidth(item: FormGroup, options: any) {
+
+        let minSize = (options && options.minSize) ? options.minSize : '50px';
+        const filter = item.get('filter').value;
+        const alias = item.get('alias').value;
         const fontFace = 'Ubuntu';
         const fontSize = 14;
-        const prefixWidth = this.utils.calculateTextWidth(item.alias, fontSize, fontFace);
-        const inputWidth = this.utils.calculateTextWidth(item.filter, fontSize, fontFace);
-        // 20 is padding and such
-        return (prefixWidth + inputWidth + 20) + 'px';
+
+        let inputWidth, prefixWidth;
+
+        // input only (value)
+        if (options && options.inputOnly && options.inputOnly === true) {
+            // tslint:disable-next-line: max-line-length
+            inputWidth = (!filter || filter.length === 0) ? minSize : (this.utils.calculateTextWidth(filter, fontSize, fontFace) + 40) + 'px';
+            return inputWidth;
+        // prefix only (alias)
+        } else if (options && options.prefixOnly && options.prefixOnly === true) {
+            // tslint:disable-next-line: max-line-length
+            prefixWidth = (!alias || alias.length === 0 ) ? minSize : (this.utils.calculateTextWidth(alias, fontSize, fontFace) + 40) + 'px';
+            return prefixWidth;
+        // else, calculate both
+        } else {
+            // tslint:disable-next-line: radix
+            minSize = parseInt(minSize);
+            inputWidth = (!filter || filter.length === 0) ? minSize : this.utils.calculateTextWidth(filter, fontSize, fontFace);
+            prefixWidth = this.utils.calculateTextWidth(alias, fontSize, fontFace);
+            // 40 is padding and such
+            return (prefixWidth + inputWidth + 40) + 'px';
+        }
     }
+
     // return widget and qid of eligible to deal with
     checkEligibleWidgets(selControl: any) {
         const vartag = selControl.value;
         const ewid = {};
-        let effectedCount = 0;
         for (const wid in this.dbTagKeys.rawDbTags) {
             if (this.dbTagKeys.rawDbTags.hasOwnProperty(wid)) {
                 const eqid = {};
@@ -384,7 +407,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                     if (this.dbTagKeys.rawDbTags[wid].hasOwnProperty(qid)) {
                         if (this.dbTagKeys.rawDbTags[wid][qid].includes(vartag.tagk)) {
                             eqid[qid] = true;
-                            effectedCount++;
                         }
                     }
                 }
@@ -393,12 +415,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                 }
             }
         }
-        return { ewid, effectedCount };
-    }
-
-    canAppend(index: number) {
-        const selControl = this.getSelectedControl(index);
-        const chkWidgets = this.checkEligibleWidgets(selControl);
-        return selControl.get('applied').value < chkWidgets.effectedCount ? true : false;
+        return ewid;
     }
 }
