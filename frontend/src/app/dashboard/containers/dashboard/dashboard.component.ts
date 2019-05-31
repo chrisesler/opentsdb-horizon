@@ -554,12 +554,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
             let error = null;
-            const grawdata = {};
+            let grawdata = {};
             if (result !== undefined) {
                 if (result.rawdata !== undefined && !result.rawdata.error) {
-                    grawdata[result.gid] = result.rawdata;
+                    grawdata = result.rawdata;
                 } else if (result.rawdata !== undefined) {
-                    grawdata[result.gid] = {};
                     error = result.rawdata.error;
                 }
                 this.updateWidgetGroup(result.wid, grawdata, error);
@@ -665,14 +664,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // this.checkWidgetTagsLoaded().subscribe(loaded => {
             if ( payload.queries.length ) {
                 // sending each group to get data.
+                const queries = {};
                 for (let i = 0; i < payload.queries.length; i++) {
                     let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
                     groupid = query.id;
-                    const gquery: any = {
-                        wid: message.id,
-                        gid: groupid,
-                        isEditMode: this.viewEditMode
-                    };
                     if (query.namespace && query.metrics.length) {
                         // filter only visible metrics
                         // query = this.dbService.filterMetrics(query);
@@ -682,15 +677,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         query = overrideFilters.length ?
                             this.dbService.overrideQueryFilters(query, overrideFilters, this.wdTags[message.id] ?
                                 this.wdTags[message.id][groupid] : []) : query;
-                        query = this.queryService.buildQuery(payload, dt, query);
-                        // console.log('the group query-2', query, JSON.stringify(query));
-                        gquery.query = query;
-                        // now dispatch request
-                        this.store.dispatch(new GetQueryDataByGroup(gquery));
-                    } else {
-                        gquery.data = {};
-                        this.store.dispatch(new SetQueryDataByGroup(gquery));
+                        queries[i] = query;
                     }
+                }
+                const gquery: any = {
+                    wid: message.id,
+                    isEditMode: this.viewEditMode,
+                };
+                if ( Object.keys(queries).length ) {
+                    const query = this.queryService.buildQuery(payload, dt, queries);
+                    gquery.query = query;
+                    // now dispatch request
+                    this.store.dispatch(new GetQueryDataByGroup(gquery));
+                } else {
+                    gquery.data = {};
+                    this.store.dispatch(new SetQueryDataByGroup( gquery));
                 }
             } else {
                 this.store.dispatch(new ClearQueryData({ wid: message.id }));
