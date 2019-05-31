@@ -291,10 +291,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.query.metrics = [...this.query.metrics];
 
         this.queryChanges$.next(true);
-        // after adding a metric, we need to update dashboard tags
-        this.interCom.requestSend({
-            action: 'getDashboardTags',
-        });
     }
 
     updateFilters(filters) {
@@ -323,10 +319,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             this.query.metrics[mIndex].functions.splice(fxIndex, 1);
         }
         this.queryChanges$.next(true);
-        // after delete a metric, we need to update dashboard tags
-        this.interCom.requestSend({
-            action: 'getDashboardTags',
-        });
     }
 
     setMetricTagAggregator(id, value) {

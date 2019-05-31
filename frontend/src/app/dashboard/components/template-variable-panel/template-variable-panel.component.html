@@ -92,7 +92,7 @@
                                     <button *ngIf="undo.append === 1 && undo.index === i" (click)="undoAction(i)" mat-icon-button color="warn" matTooltip="undo append" class="undo-button">
                                         <mat-icon fontSet="denali" fontIcon="d-refresh"></mat-icon>
                                     </button>
-                                    <button mat-button color="primary" class="remove-from-all-button" (click)="bulkAction('replace', i)">
+                                    <button mat-button color="primary" [disabled]="tpl.get('applied').value === 0" class="remove-from-all-button" (click)="bulkAction('replace', i)">
                                         <span>Replace</span>
                                     </button>
                                     <button *ngIf="undo.replace === 1 && undo.index === i" (click)="undoAction(i)" mat-icon-button color="warn" matTooltip="undo replace" class="undo-button">
