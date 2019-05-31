@@ -179,13 +179,13 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         }
     }
 
-    getMetric(queryID: string): any {
+    getMetric(queryID): any {
         let metric = {};
-        queryID = queryID.toString();
         for ( let i = 0; this.data && i < this.data.length; i++ ) {
             const [ source, mid ] = this.data[i].source.split(':'); // example: summarizer:m-0-1
+            const qids = /q?(\d+)?_?(m|e)(\d+).*/.exec(mid);
             // const qIndex = mid.split('-')[1]; // example: 0
-            const mIndex = mid.split('-')[2]; // example: 1
+            const mIndex = parseInt(qids[3], 10) - 1; // example: 1
             if ( mIndex === queryID ) {
                 metric = this.data[i].data[0];
                 break;
