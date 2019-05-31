@@ -61,9 +61,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        console.log('inline init');
         this.tplVariables = this.store.selectSnapshot(DBSettingsState.getTplVariables);
-        console.log('this query', this.query);
         this.namespace = this.query.namespace;
         this.metrics = this.query.metrics;
         this.filters = this.query.filters;
@@ -98,13 +96,10 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                 debounceTime(200)
             )
             .subscribe(value => {
-                console.log('this is running', value);
                 const query: any = { namespace: this.namespace, tags: this.filters, metrics: [] };
                 query.search = value ? value : '';
-
                 // remove remove filter is it's empty for tagkey search
                 query.tags = query.tags.filter(t => t.filter.length !== 0);
-
                 // filter tags by metrics
                 if (this.metrics) {
                     for (let i = 0, len = this.metrics.length; i < len; i++) {
@@ -152,7 +147,8 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
 
                 const query: any = {
                     namespace: this.namespace,
-                    tags: this.filters.filter(item => item.tagk !== this.selectedTag),
+                    // add condition since adding var may not with not existing value so fitler length is zero.
+                    tags: this.filters.filter(item => item.tagk !== this.selectedTag && item.filter.length > 0),
                     metrics: []
                 };
                 query.search = value ? value : '';
@@ -210,14 +206,15 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         this.tagValueSearchControl.setValue(null);
     }
 
+    // to remove tag key and all of its values
     removeTagValues(tag) {
         this.filters.splice(this.getTagIndex(tag), 1);
         this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         this.queryChanges$.next(true);
-      // because it acts like it is not selected after you remove it, but looks selected
-      // simulate the click again
-      this.handlerTagClick(tag);
+        // because it acts like it is not selected after you remove it, but looks selected
+        // simulate the click again
+        this.handlerTagClick(tag);
     }
 
     getTagIndex(tag) {
@@ -263,7 +260,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         }
 
         if (operation === 'add') {
-            console.log('whene adding', v, this.regexVars.test(v));
             const checkVar = this.regexVars.test(v);
             if (checkVar) {
                 this.filters[this.selectedTagIndex].customFilter ?
@@ -288,7 +284,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                 this.selectedTagIndex = -1;
             }
         }
-        console.log('after removing', this.filters);
         this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         this.queryChanges$.next(true);
     }
