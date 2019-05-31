@@ -31,7 +31,6 @@ export class DatatranformerService {
     let areaAxis = 'y1';
     let yMax = 0, y2Max = 0;
     let areaMax = 0;
-    console.log("widget", widget.queries[0])
 
             for ( let i = 0;  i < result.results.length; i++ ) {
                 queryResults.push(result.results[i]);

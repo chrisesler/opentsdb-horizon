@@ -85,20 +85,4 @@ export class AlertsService {
             catchError(this.handleError)
         );
     }
-
-    convert(alert) {
-        if ( !alert.version || alert.version < this.version ) {
-            const queries = {};
-            for (let i = 0; i < alert.queries.raw.length; i++) {
-                queries[i] = alert.queries.raw[i];
-            }
-            alert.version = this.version;
-            // alert.threshold.singleMetric.metricId = "m0-groupby";
-            const metricId = alert.threshold.singleMetric.metricId;
-            const mindex = metricId.split('-')[0].replace( /\D+/g, '');
-            alert.threshold.singleMetric.metricId = this.utils.getDSId(queries, alert.threshold.singleMetric.queryIndex, mindex) + '-groupby';
-            console.log("alert.threshold.singleMetric.metricId", alert)
-        }
-        return alert;
-    }
 }

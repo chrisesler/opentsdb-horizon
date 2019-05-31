@@ -33,6 +33,7 @@ import { DatatranformerService } from '../../../core/services/datatranformer.ser
 import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/components/error-dialog/error-dialog.component';
 import { pairwise, startWith } from 'rxjs/operators';
 import { IntercomService } from '../../../core/services/intercom.service';
+import { AlertConverterService } from '../../services/alert-converter.service';
 
 @Component({
 // tslint:disable-next-line: component-selector
@@ -159,7 +160,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         private utils: UtilsService,
         private elRef: ElementRef,
         public dialog: MatDialog,
-        private interCom: IntercomService
+        private interCom: IntercomService,
+        private alertConverter: AlertConverterService
     ) {
         // this.data = dialogData;
         if (this.data.name) {
@@ -737,6 +739,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         // tslint:disable-next-line: max-line-length
         data.threshold.singleMetric.metricId =  this.utils.getDSId({0 : this.queries[0]}, qindex, mindex) + (this.queries[qindex].metrics[mindex].expression === undefined ? '-groupby' : '');
         data.threshold.isNagEnabled = data.threshold.nagInterval!== "0" ? true : false;
+        // need to change the version info one level above
+        data.threshold.version = this.alertConverter.getAlertCurrentVersion();
         // emit to save the alert
         this.configChange.emit({ action: 'SaveAlert', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
     }
