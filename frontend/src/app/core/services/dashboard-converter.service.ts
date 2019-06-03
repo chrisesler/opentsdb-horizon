@@ -103,7 +103,7 @@ export class DashboardConverterService {
           delete varObj.type;
         }
         // take first value only if many
-        if (varObj.filter.lenght > 0) {
+        if (varObj.filter.length > 0) {
           varObj.filter = varObj.filter[0];
         }
     }

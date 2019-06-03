@@ -17,6 +17,7 @@ import { Subscription } from 'rxjs';
 import { HttpService } from '../../../../../core/http/http.service';
 import { Store } from '@ngxs/store';
 import { DBSettingsState } from '../../../../../dashboard/state/settings.state';
+import { IntercomService } from '../../../../../core/services/intercom.service';
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -56,6 +57,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         private elRef: ElementRef,
         private httpService: HttpService,
         private store: Store,
+        private interCom: IntercomService,
         private cdRef: ChangeDetectorRef) {
 
     }
@@ -265,6 +267,8 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                 this.filters[this.selectedTagIndex].customFilter ?
                 this.filters[this.selectedTagIndex].customFilter.push(v) :
                 this.filters[this.selectedTagIndex].customFilter = [v];
+                // if adding, reset the undo state
+                this.interCom.requestSend({ action: 'ResetCmdStacks'});
             } else {
                 this.filters[this.selectedTagIndex].filter.push(v);
             }
@@ -272,6 +276,8 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
             if (this.regexVars.test(v)) {
                 const varIndex = this.filters[this.selectedTagIndex].customFilter.indexOf(v);
                 this.filters[this.selectedTagIndex].customFilter.splice(varIndex, 1);
+                // if removing, reset the undo state
+                this.interCom.requestSend({ action: 'ResetCmdStacks'});
             } else {
                 const index = this.filters[this.selectedTagIndex].filter.indexOf(v);
                 this.filters[this.selectedTagIndex].filter.splice(index, 1);
