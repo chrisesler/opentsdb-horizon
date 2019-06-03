@@ -1,14 +1,14 @@
 <ng-template [ngIf]="mode.view" [ngIfElse]="variableEditView">
     <div [formGroup]="listForm" class="variable-list-wrapper">
-        <button mat-button color="primary" class="configure-variables-button" *ngIf="tplVariables.length === 0" (click)="doEdit()">
+        <button mat-button color="primary" class="configure-variables-button" *ngIf="tplVariables.length === 0 || countApplied === 0" (click)="doEdit()">
             <mat-icon fontSet="denali" fontIcon="d-setting"></mat-icon>
             <span>Configure dashboard tag filters</span>
         </button>
-        <div *ngIf="tplVariables.length > 0">
+        <div *ngIf="tplVariables.length > 0 && countApplied > 0">
             <ul class="varlist" formArrayName="listVariables">
                 <li *ngFor="let vartpl of listVariables.controls; let i = index" [formGroupName]="i">
                     <!-- still need to figure out way to dynamically change width when editing the input value -->
-                    <mat-form-field appearance="fill" color="primary" floatLabel="never" class="dashboard-template-variable" [ngStyle]="{width: calculateVariableDisplayWidth(vartpl)}" [attr.id]="'filter-tpl-'+i">
+                    <mat-form-field appearance="fill" *ngIf="vartpl.get('applied').value > 0" color="primary" floatLabel="never" class="dashboard-template-variable" [ngStyle]="{width: calculateVariableDisplayWidth(vartpl)}" [attr.id]="'filter-tpl-'+i">
                         <input matInput formControlName="filter" placeholder="" [matAutocomplete]="filterVarValues" 
                             (blur)="onVariableBlur(i)" (focus)="onVariableFocus(i)">
                         <span matPrefix>[{{vartpl.get('alias').value}}]:</span>

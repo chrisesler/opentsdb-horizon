@@ -40,6 +40,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     disableDone = false;
     effectedWidgets: any = {};
     undo: any = {};
+    countApplied = 0;
     constructor (private fb: FormBuilder, private interCom: IntercomService, private utils: UtilsService ) { }
 
     ngOnInit() {
@@ -55,7 +56,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         if (changes.tplVariables) {
             this.initListFormGroup();
         }
-        if (changes.undoState && changes.undoState.currentValue) {
+         if (changes.undoState && changes.undoState.currentValue) {
             this.undo = { ...changes.undoState.currentValue };
             if (this.undo.index > -1 && !this.mode.view) {
                 const selControl = this.getSelectedControl(this.undo.index);
@@ -93,15 +94,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     doEdit() {
         this.mode = { view: false};
         this.initEditFormGroup();
-        this.interCom.requestSend({
-            action: 'getDashboardTags',
-        });
-        const selControl = this.getSelectedControl(this.undo.index);
-        if (selControl) {
-                selControl.get('applied').setValue(this.undo.applied);
-        }
     }
     initListFormGroup() {
+        this.countApplied = 0;
         this.listForm = this.fb.group({
             listVariables: this.fb.array([])
         });
@@ -114,6 +109,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
             };
             const control = <FormArray>this.listForm.controls['listVariables'];
             control.push(this.fb.group(vardata));
+            this.countApplied += data.applied || 0;
         }
     }
 
