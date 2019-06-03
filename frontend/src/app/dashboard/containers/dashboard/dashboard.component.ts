@@ -371,6 +371,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'RemoveCustomTagFilter':
                     this.removeCustomTagFilter(message.payload);
                     break;
+                case 'ResetCmdStacks':
+                    this.CmdStacks.resetCommands();
+                    this.undoState = { append: 0, replace: 0, move: 0, index: -1, applied: 0 };
+                    break;
                 case 'updateDashboardSettings':
                     if (message.payload.meta) {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
@@ -646,6 +650,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const oldWidgets = this.store.selectSnapshot(WidgetsState.getWigets);
         const vartag = payload.vartag;
         const ewidgets = payload.effectedWidgets;
+        const appliedWidgets = {};
         const state = { append: 1, replace: 0, remove: 0, index: payload.tplIndex, applied: 0};
         let count = 0;
         const cmd: ICommand = {
@@ -663,11 +668,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                         const filters = widget.queries[i].filters;
                                         // now to insert or append
                                         const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
+                                        if (!appliedWidgets[wid]) {
+                                            appliedWidgets[wid] = {};
+                                        }
                                         if (fIndex > -1) {
                                             // tslint:disable-next-line: max-line-length
-                                            filters[fIndex].customFilter && filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']') < 0 ?
-                                                filters[fIndex].customFilter.push('[' + vartag.alias + ']') :
+                                            if (filters[fIndex].customFilter) {
+                                                if (filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']') === -1) {
+                                                    filters[fIndex].customFilter.push('[' + vartag.alias + ']');
+                                                    appliedWidgets[wid][widget.queries[i].id] = true;
+                                                }
+                                            } else {
                                                 filters[fIndex].customFilter = ['[' + vartag.alias + ']'];
+                                                appliedWidgets[wid][widget.queries[i].id] = true;
+                                            }
                                         } else {
                                             filters.push({
                                                 tagk: vartag.tagk,
@@ -675,6 +689,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                                 groupBy: false,
                                                 customFilter: ['[' + vartag.alias + ']']
                                             });
+                                            appliedWidgets[wid][widget.queries[i].id] = true;
                                         }
                                         count ++;
                                     }
@@ -690,10 +705,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
                     state.applied = count;
                     this.undoState = {...state};
+                    for (const wid in appliedWidgets) {
+                        if (Object.keys(appliedWidgets[wid]).length === 0) {
+                            delete appliedWidgets[wid];
+                        }
+                    }
                 }
             },
             unexcute: () => {
-                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex, count);
+                this.unexecuteCmd(oldWidgets, payload.tplIndex, count, appliedWidgets);
             }
         };
         this.CmdStacks.execute(cmd);
@@ -702,6 +722,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const oldWidgets = this.store.selectSnapshot(WidgetsState.getWigets);
         const vartag = payload.vartag;
         const ewidgets = payload.effectedWidgets;
+        const appliedWidgets = {};
         const state = { append: 0, replace: 1, remove: 0, index: payload.tplIndex, applied: 0};
         let count = 0;
         const cmd: ICommand = {
@@ -716,11 +737,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             for (let i = 0; i < widget.queries.length; i++) {
                                 if (ewidgets[wid].hasOwnProperty(widget.queries[i].id)) {
                                     const filters = widget.queries[i].filters;
-                                    // now to insert or append
                                     const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
-                                    if (fIndex > -1) {
+                                    // only replace if filter has this custom tag filter there
+                                    if (fIndex > -1 && filters[fIndex].customFilter
+                                            && filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']') > -1) {
+                                        if (!appliedWidgets[wid]) {
+                                            appliedWidgets[wid] = {};
+                                        }
                                         filters[fIndex].filter = [];
                                         filters[fIndex].customFilter = ['[' + vartag.alias + ']'];
+                                        appliedWidgets[wid][widget.queries[i].id] = true;
                                         count++;
                                     }
                                 }
@@ -738,15 +764,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.undoState = {...state};
             },
             unexcute: () => {
-                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex, count);
+                this.unexecuteCmd(oldWidgets, payload.tplIndex, count, appliedWidgets);
             }
         };
         this.CmdStacks.execute(cmd);
     }
 
-    private unexecuteCmd(ewidgets: any, oldWidgets: any[], tplIndex: number, count = 0) {
-        for (const wid in ewidgets) {
-            if (ewidgets.hasOwnProperty(wid)) {
+    private unexecuteCmd(oldWidgets: any[], tplIndex: number, count = 0, appliedWidgets: any) {
+        let countUndo = 0;
+        for (const wid in appliedWidgets) {
+            if (appliedWidgets.hasOwnProperty(wid)) {
                 const wIndex = oldWidgets.findIndex(w => w.id === wid);
                 if (wIndex > -1) {
                     const widget = oldWidgets[wIndex];
@@ -755,16 +782,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         needRequery: true,
                         widget: widget
                     }));
+                    countUndo += Object.keys(appliedWidgets[wid]).length;
                 }
             }
         }
         const currentCmd = this.CmdStacks.currentCommand;
-        // return the undo state of prev command if available
         const lastCmd = this.CmdStacks.getLastCommand();
+        // return the undo state of prev command if available
         if (lastCmd !== undefined) {
+            if (currentCmd.name === 'append') {
+                this.undoState = {...currentCmd.state, applied: count - countUndo};
+                this.cdRef.detectChanges();
+            }
             this.undoState = {...lastCmd.state};
         } else {
-            this.undoState = { append: 0, replace: 0, remove: 0, index: tplIndex, applied: 0};
+            this.undoState = { append: 0, replace: 0, remove: 0, index: tplIndex, applied: count - countUndo};
             if (currentCmd.name === 'remove' || currentCmd.name === 'replace') {
                 this.undoState = {...this.undoState, applied: count};
             }
@@ -775,6 +807,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const oldWidgets = this.store.selectSnapshot(WidgetsState.getWigets);
         const vartag = payload.vartag;
         const ewidgets = payload.effectedWidgets;
+        const appliedWidgets = {};
         const state = { append: 0, replace: 0, remove: 1, index: payload.tplIndex, applied: 0};
         let count = 0;
         const cmd: ICommand = {
@@ -791,13 +824,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                     const filters = widget.queries[i].filters;
                                     const fIndex = filters.findIndex(f => f.tagk === vartag.tagk);
                                     if (fIndex > -1) {
+                                        if (!appliedWidgets[wid]) {
+                                            appliedWidgets[wid] = {};
+                                        }
                                         const cFilterIndex = filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']');
-                                        if (cFilterIndex > -1) { filters[fIndex].customFilter.splice(cFilterIndex, 1); }
-                                        // but if both filer and customFilter is empty then remove the whild filter
+                                        if (cFilterIndex > -1) {
+                                            filters[fIndex].customFilter.splice(cFilterIndex, 1);
+                                            appliedWidgets[wid][widget.queries[i].id] = true;
+                                            count++;
+                                        }
+                                        // but if both filer and customFilter is empty then remove the whole filter
                                         if (filters[fIndex].filter.length === 0 && filters[fIndex].customFilter.length === 0) {
                                             filters.splice(fIndex, 1);
                                         }
-                                        count++;
                                     }
                                 }
                             }
@@ -813,7 +852,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.undoState = {...state};
             },
             unexcute: () => {
-                this.unexecuteCmd(ewidgets, oldWidgets, payload.tplIndex, count);
+                this.unexecuteCmd(oldWidgets, payload.tplIndex, count, appliedWidgets);
             }
         };
         this.CmdStacks.execute(cmd);
