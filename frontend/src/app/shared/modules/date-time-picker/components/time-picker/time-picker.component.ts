@@ -1,12 +1,14 @@
 import {
-    Component, OnInit, ViewChild, Input, Output,
+    Component, OnInit, OnChanges, OnDestroy, ViewChild, Input, Output,
     EventEmitter, AfterViewChecked,
-    ChangeDetectorRef, HostBinding,
+    ChangeDetectorRef, HostBinding, SimpleChanges, HostListener
 } from '@angular/core';
 import { TimeRangePickerComponent } from '../time-range-picker/time-range-picker.component';
 import { TimeRangePickerOptions, ISelectedTime } from '../../models/models';
 import { MatMenuTrigger, MenuPositionX } from '@angular/material';
 import { DateUtilsService } from '../../../../../core/services/dateutils.service';
+import { Subscription, Observable, interval, BehaviorSubject } from 'rxjs';
+import { take, withLatestFrom, filter } from 'rxjs/operators';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -15,7 +17,7 @@ import { DateUtilsService } from '../../../../../core/services/dateutils.service
     styleUrls: []
 })
 
-export class TimePickerComponent implements AfterViewChecked, OnInit {
+export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges, OnDestroy {
     @HostBinding('class.dtp-time-picker') private _hostClass = true;
 
     /** View childs */
@@ -35,6 +37,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
     private _startTime: string;
     private _endTime: string;
     private _timezone: string;
+    private _refresh: number;
 
     @Input() xPosition: MenuPositionX = 'before';
 
@@ -63,8 +66,17 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
         return this._timezone;
     }
 
+    @Input()
+    set refreshDuration(value: number) {
+        this._refresh = value;
+    }
+    get refreshDuration(): number {
+        return this._refresh;
+    }
+
     /** Outputs */
-    @Output() timeSelected = new EventEmitter<ISelectedTime>();
+    @Output() newChange = new EventEmitter();
+    @Output() autoRefreshFlagChanged = new EventEmitter();
 
     /** Variables */
 
@@ -83,6 +95,9 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
     options: TimeRangePickerOptions;
     // tslint:disable-next-line:no-inferrable-types
     // _isOpen: boolean = false;
+    refreshSubcription: Subscription;
+    paused$ = new BehaviorSubject<boolean>(false);
+    secondsRemaining: number;
 
     constructor(private cdRef: ChangeDetectorRef, private utilsService: DateUtilsService) { }
 
@@ -97,6 +112,39 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
             this.endTime = 'now';
         }
         this.isInitialized = true;
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if ( changes.refreshDuration !== undefined && changes.refreshDuration.currentValue ) {
+            const duration = changes.refreshDuration.currentValue;
+            if ( duration ) {
+                this.subscribeToAutoRefresh(duration);
+            }
+        }
+    }
+
+    subscribeToAutoRefresh(refreshOption) {
+        this.secondsRemaining = 60;
+        // cancels already running subscription
+        if ( this.refreshSubcription ) {
+            this.refreshSubcription.unsubscribe();
+        }
+        this.refreshSubcription = interval(1000)
+                                    .pipe(
+                                        withLatestFrom(this.paused$),
+                                        filter(([v, paused]) => !paused),
+                                        take(60)
+                                    )
+                                    .subscribe(
+                                            () => {
+                                                this.secondsRemaining--;
+                                            },
+                                            err => {
+                                            },
+                                            () => {
+                                                this.secondsRemaining = 0;
+                                                this.refresh(true);
+                                    });
     }
 
     setDefaultOptionsValues() {
@@ -145,7 +193,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
         this.endTime = selectedTime.endTimeDisplay;
         this.startTimeToolTip = this.timeRangePicker.startTimeReference.getAbsoluteTimeFromMoment(this.timeRangePicker.startTimeSelected);
         this.endTimeToolTip = this.timeRangePicker.endTimeReference.getAbsoluteTimeFromMoment(this.timeRangePicker.endTimeSelected);
-        this.timeSelected.emit(selectedTime);
+        this.newChange.emit( { action: 'SetDateRange', payload: { newTime: selectedTime} } );
 
         // close mat-menu
         this.trigger.closeMenu();
@@ -166,8 +214,21 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
         this.trigger.closeMenu();
     }
 
-    refresh() {
-        this.timeRangePicker.applyClicked();
+    refresh(refreshOnRelativeOnly= false) {
+        if ( !refreshOnRelativeOnly ||
+            this.startTime.toLowerCase() === 'now' ||
+            this.endTime.toLowerCase() === 'now' ||
+            this.utilsService.relativeTimeToMoment(this.startTime) ||
+            this.utilsService.relativeTimeToMoment(this.endTime) ) {
+                this.timeRangePicker.applyClicked();
+        }
+        if ( this.refreshDuration ) {
+            this.subscribeToAutoRefresh(this.refreshDuration);
+        }
+    }
+
+    autoRefresh(duration) {
+        this.newChange.emit( { action: 'SetAutoRefreshFlag', payload: { duration: duration} } );
     }
 
     updateToolTipsAndDisplayTimes() {
@@ -184,5 +245,20 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
                 this.endTime = this.utilsService.timestampToTime(this.timeRangePicker.endTimeReference.unixTimestamp.toString(), this.timezone);
             }
         }
+    }
+
+    @HostListener('window:focus', ['$event'])
+    onFocus(event: any): void {
+        this.paused$.next(false);
+    }
+
+    @HostListener('window:blur', ['$event'])
+    onBlur(event: any): void {
+        this.paused$.next(true);
+    }
+
+    ngOnDestroy() {
+        this.paused$.complete();
+        this.refreshSubcription.unsubscribe();
     }
 }

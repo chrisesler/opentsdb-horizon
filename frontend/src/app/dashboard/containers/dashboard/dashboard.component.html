@@ -27,7 +27,7 @@
         <button mat-raised-button class="mat-elevation-z0" (click)="variablePanelMode = 'edit'">
             <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
             <span>Add Variable Template</span>
-        </button>
+        </button>d-pause-circle-solid
     </span>-->
 
     <span class="flex-spacer"></span>
@@ -57,7 +57,14 @@
         </mat-menu>
     </span>
 
-    <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="setDateRange($event)" [timezone]="dbTime.zone" [startTime]="dbTime.start" [endTime]="dbTime.end" [xPosition]="menuXAlignValue"></time-picker>
+    <time-picker class="navbar-item nav-date-time-picker" 
+        (newChange)="handleTimePickerChanges($event)" 
+        [timezone]="dbTime.zone" 
+        [startTime]="dbTime.start" 
+        [endTime]="dbTime.end"
+        [refreshDuration]="refreshDuration$ | async" 
+        [xPosition]="menuXAlignValue">
+    </time-picker>
 
     <span class="navbar-item nav-timezone-toggle">
         <navbar-timezone-toggle [timezone]="dbTime.zone" (change)="setTimezone($event);"></navbar-timezone-toggle>

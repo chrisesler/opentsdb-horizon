@@ -30,6 +30,7 @@ import {
     DBSettingsState,
     UpdateMode,
     UpdateDashboardTime,
+    UpdateDashboardAutoRefreshDuration,
     LoadDashboardSettings,
     LoadDashboardTags,
     LoadDashboardTagValues,
@@ -761,8 +762,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // console.log('dashboard name save', event);
     }
 
+    handleTimePickerChanges(message) {
+        switch ( message.action  ) {
+            case 'SetDateRange':
+                this.setDateRange(message.payload.newTime);
+                break;
+            case 'SetAutoRefreshFlag':
+                this.setRefreshDuration(message.payload.duration);
+                break;
+        }
+    }
+
     setDateRange(e: any) {
         this.store.dispatch(new UpdateDashboardTime({ start: e.startTimeDisplay, end: e.endTimeDisplay }));
+    }
+
+    setRefreshDuration(duration) {
+        this.store.dispatch(new UpdateDashboardAutoRefreshDuration(duration));
     }
 
     setTimezone(e: any) {
