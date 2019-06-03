@@ -72,6 +72,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
     @Select(DBState.getDashboardError) dbError$: Observable<any>;
     @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
+    @Select(DBSettingsState.getAutoRefreshDuration) refreshDuration$: Observable<any>;
     @Select(DBSettingsState.getMeta) meta$: Observable<any>;
     @Select(DBSettingsState.getVariables) variables$: Observable<any>;
     @Select(DBSettingsState.getDashboardTags) dbTags$: Observable<any>;
