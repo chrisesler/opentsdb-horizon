@@ -11,6 +11,7 @@ import { DynamicWidgetsModule } from '../shared/modules/dynamic-widgets/dynamic-
 
 // services
 import { DashboardService } from './services/dashboard.service';
+import { DashboardConverterService } from '../core/services/dashboard-converter.service';
 
 // store
 import { NgxsModule } from '@ngxs/store';
@@ -87,7 +88,8 @@ import { TemplateVariablePanelComponent } from './components/template-variable-p
         TemplateVariablePanelComponent
     ],
     providers: [
-        DashboardService
+        DashboardService,
+        DashboardConverterService
     ],
     entryComponents: [
         DashboardSettingsDialogComponent,
