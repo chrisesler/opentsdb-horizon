@@ -19,6 +19,7 @@ import { MatMenuTrigger, MatMenu } from '@angular/material';
 import { MatIconRegistry } from '@angular/material/icon';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
+import { IMessage, IntercomService } from '../../../../../core/services/intercom.service';
 
 import { MatTableDataSource, MatDialogRef, MatDialog } from '@angular/material';
 
@@ -152,7 +153,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         private fb: FormBuilder,
         private matIconRegistry: MatIconRegistry,
         private domSanitizer: DomSanitizer,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private interCom: IntercomService
     ) {
         // add function (f(x)) icon to registry... url has to be trusted
         matIconRegistry.addSvgIcon(
@@ -236,7 +238,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     initSummarizerValue() {
         if (this.options.enableSummarizer) {
-            for (let metric of this.query.metrics) {
+            for (const metric of this.query.metrics) {
                 if (!metric.summarizer) {
                     metric.summarizer = 'avg';
                 }
@@ -338,15 +340,15 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     getGroupByTags(id) {
         const index = this.query.metrics.findIndex(d => d.id === id );
         let groupByTags = [];
-        let expression = undefined;
+        let expression;
         if (this.query.metrics[index] && this.query.metrics[index].expression) {
             expression = this.query.metrics[index].expression;
         }
         if (expression) {
             // replace {{<id>}} with query source id
-            const re = new RegExp(/\{\{(.+?)\}\}/, "g");
+            const re = new RegExp(/\{\{(.+?)\}\}/, 'g');
             let matches = [];
-            let i =0;
+            let i = 0;
             while(matches = re.exec(expression)) {
                 const id = matches[1];
                 const mTags = this.getGroupByTags( id );
