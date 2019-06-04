@@ -888,30 +888,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     getDashboardTagKeys() {
-        // when getting or update the dashboard tag, we only do this
-        // if the dashboard use tplVariables
-        if (this.tplVariables.length > 0) {
-            this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
-                this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
-                for (let i = 0; res && i < res.results.length; i++) {
-                    const [wid, qid] = res.results[i].id ? res.results[i].id.split(':') : [null, null];
-                    if (!wid) { continue; }
-                    const keys = res.results[i].tagKeys.map(d => d.name);
-                    if (!this.dashboardTags.rawDbTags[wid]) {
-                        this.dashboardTags.rawDbTags[wid] = {};
-                    }
-                    this.dashboardTags.rawDbTags[wid][qid] = keys;
-                    this.dashboardTags.totalQueries++;
-                    this.dashboardTags.tags = [...this.dashboardTags.tags,
-                    ...keys.filter(k => this.dashboardTags.tags.indexOf(k) < 0)];
+        this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
+            this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
+            for (let i = 0; res && i < res.results.length; i++) {
+                const [wid, qid] = res.results[i].id ? res.results[i].id.split(':') : [null, null];
+                if (!wid) { continue; }
+                const keys = res.results[i].tagKeys.map(d => d.name);
+                if (!this.dashboardTags.rawDbTags[wid]) {
+                    this.dashboardTags.rawDbTags[wid] = {};
                 }
-                this.dashboardTags.tags.sort(this.utilService.sortAlphaNum);
-                this.isDbTagsLoaded = true;
-            },
-                error => {
-                    this.isDbTagsLoaded = false;
-                });
-        }
+                this.dashboardTags.rawDbTags[wid][qid] = keys;
+                this.dashboardTags.totalQueries++;
+                this.dashboardTags.tags = [...this.dashboardTags.tags,
+                ...keys.filter(k => this.dashboardTags.tags.indexOf(k) < 0)];
+            }
+            this.dashboardTags.tags.sort(this.utilService.sortAlphaNum);
+            this.isDbTagsLoaded = true;
+        },
+            error => {
+                this.isDbTagsLoaded = false;
+            });
     }
     // dispatch payload query by group
     handleQueryPayload(message: any) {
