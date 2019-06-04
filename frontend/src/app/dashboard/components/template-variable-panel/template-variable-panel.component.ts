@@ -35,7 +35,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     listenSub: Subscription;
     filteredKeyOptions: Observable<string[]>; // options for key autosuggest
     filteredValueOptions: Observable<string[]>; // options for value autosuggest
-    fileredValues: string[];
+    filteredValues: string[];
     prevSelectedTagk = '';
     disableDone = false;
     effectedWidgets: any = {};
@@ -47,7 +47,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             if (message.action === 'dashboardTagValues') {
                 this.filteredValueOptions = message.payload;
-                this.fileredValues = message.payload;
+                this.filteredValues = message.payload;
             }
         });
     }
@@ -176,18 +176,25 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         ).subscribe();
     }
 
-    onVariableBlur(index: number) {
+    onVariableBlur(event: any, index: number) {
         const control = <FormArray>this.listForm.controls['listVariables'];
         const selControl = control.at(index);
-        const val = selControl['controls'].filter.value;
-        if (val  && this.fileredValues.indexOf(val) === -1) {
-            selControl['controls'].filter.setValue('');
-            this.updateState(selControl, 'listForm');
-            this.interCom.requestSend({
-                action: 'ApplyTplVarValue',
-                payload: selControl.value
-            });
+        if (event.relatedTarget && event.relatedTarget.className === 'mat-option ng-star-inserted') {
+            selControl['controls'].filter.setValue(event.relatedTarget.innerText.trim());
+        } else {
+            const val = selControl['controls'].filter.value;
+            const idx = this.filteredValues.findIndex(item => item.toLowerCase() === val.toLowerCase());
+            if (idx === -1) {
+                selControl['controls'].filter.setValue('');
+            } else {
+                selControl['controls'].filter.setValue(this.filteredValues[idx]);
+            }
         }
+        this.updateState(selControl, 'listForm');
+        this.interCom.requestSend({
+            action: 'ApplyTplVarValue',
+            payload: selControl.value
+        });
     }
 
     onInputFocus(cname: string, index: number) {
@@ -275,7 +282,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
             } else {
                 this.prevSelectedTagk = val;
             }
-            if (cname === 'filter' && this.fileredValues.indexOf(val) === -1) {
+            if (cname === 'filter' && this.filteredValues.indexOf(val) === -1) {
                 selControl['controls'][cname].setValue('');
                 this.updateState(selControl, 'editForm');
                 this.interCom.requestSend({
@@ -312,15 +319,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         });
     }
 
-    selectVarValueOption(index: number) {
-        const control = <FormArray>this.listForm.controls['listVariables'];
-        const selControl = control.at(index);
-        this.updateState(selControl, 'listForm');
-        this.interCom.requestSend({
-            action: 'ApplyTplVarValue',
-            payload: selControl.value
-        });
-    }
 
     removeTemplateVariable(index: number) {
         const control = <FormArray>this.editForm.controls['formTplVariables'];

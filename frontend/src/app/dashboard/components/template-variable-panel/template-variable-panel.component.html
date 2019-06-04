@@ -10,9 +10,9 @@
                     <!-- still need to figure out way to dynamically change width when editing the input value -->
                     <mat-form-field appearance="fill" *ngIf="vartpl.get('applied').value > 0" color="primary" floatLabel="never" class="dashboard-template-variable" [ngStyle]="{width: calculateVariableDisplayWidth(vartpl)}" [attr.id]="'filter-tpl-'+i">
                         <input matInput formControlName="filter" placeholder="" [matAutocomplete]="filterVarValues" 
-                            (blur)="onVariableBlur(i)" (focus)="onVariableFocus(i)">
+                            (blur)="onVariableBlur($event, i)" (keydown.enter)="onVariableBlur($event, i)" (focus)="onVariableFocus(i)">
                         <span matPrefix>[{{vartpl.get('alias').value}}]:</span>
-                        <mat-autocomplete #filterVarValues="matAutocomplete" (optionSelected)="selectVarValueOption(i)" panelWidth="auto">
+                        <mat-autocomplete #filterVarValues="matAutocomplete" panelWidth="auto">
                             <mat-option *ngFor="let option of filteredValueOptions" [value]="option">
                                 {{option}}
                             </mat-option>
@@ -49,7 +49,7 @@
                             <mat-form-field appearance="fill" color="primary" floatLabel="never">
                                 <input matInput placeholder="" formControlName="tagk"
                                     [matAutocomplete]="filterKeyAuto" (focus)="onInputFocus('tagk', i)"
-                                    (blur)="onInputBlur('tagk', i)">
+                                    (blur)="onInputBlur('tagk', i)" (keydown.enter) ="onInputBlur('tagk', i)">
                                 <mat-autocomplete #filterKeyAuto="matAutocomplete" (optionSelected)="selectTagKeyOption($event, i)" panelWidth="auto">
                                     <mat-option *ngFor="let option of filteredKeyOptions | async" [value]="option">
                                         {{option}}
@@ -61,7 +61,7 @@
                     <td>
                         <div class="settings-control alias-control" style="min-width: 100px; width: 100%;">
                             <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 100%;" >
-                                <input matInput placeholder="" formControlName="alias" (blur)="onInputBlur('alias', i)" (focus)="onInputFocus('alias', i)" autocomplete="off">
+                                <input matInput placeholder="" formControlName="alias" (blur)="onInputBlur('alias', $event, i)" (focus)="onInputFocus('alias', i)" autocomplete="off">
                             </mat-form-field>
                         </div>
                     </td>
@@ -69,7 +69,7 @@
                         <div class="settings-control values-control">
                             <mat-form-field appearance="fill" color="primary" floatLabel="never" style="width: 300px;">
                                 <input matInput placeholder="set a value (optional)" formControlName="filter"
-                                    (focus)="onInputFocus('filter', i)" (blur)="onInputBlur('filter', i)" [matAutocomplete]="filterValueAuto">
+                                    (focus)="onInputFocus('filter', i)" (blur)="onInputBlur('filter', i)" (keydown.enter) ="onInputBlur('filter', i)" [matAutocomplete]="filterValueAuto">
                                 <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event, i)" panelWidth="auto">
                                     <mat-option *ngFor="let option of filteredValueOptions" [value]="option">
                                         {{option}}
