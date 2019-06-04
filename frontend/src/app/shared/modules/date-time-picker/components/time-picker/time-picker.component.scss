@@ -11,7 +11,7 @@
                 }
             }
         }
-        auto-refresh-button {
+        .auto-refresh-button {
             &.mat-raised-button {
                 padding: 0px;
                 margin-left: 6px;
@@ -21,6 +21,7 @@
             span {
                 pointer-events: none;
                 cursor: default;
+                margin-right: 6px;
             }
         }
     }
