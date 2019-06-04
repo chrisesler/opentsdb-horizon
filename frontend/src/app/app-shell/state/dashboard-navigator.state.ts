@@ -1639,8 +1639,9 @@ export class DashboardNavigatorState {
                     subfolders: []
                 };
 
+                // buggy ... need to fix
                 for (const ns of user.memberNamespaces) {
-                    const nsFolder = {...ns,
+                    const nsFolder = {...resourceData['/namespace/' + ns.alias],
                         path: '/namespace/' + ns.alias,
                         fullPath: '/namespace/' + ns.alias,
                         resourceType: 'namespace',

@@ -41,7 +41,15 @@ import {
     MiniNavigatorFoldersComponent,
     MiniNavigatorFolderItemComponent
 } from './components/mini-navigator';
-import { DbnavComponent } from './components/dbnav/dbnav.component';
+
+import {
+    DbfsState,
+    DbfsPanelsState,
+    DbfsResourcesState,
+    DbfsComponent,
+    DbfsService,
+    DbfsUtilsService
+} from './components/dbfs';
 
 @NgModule({
     imports: [
@@ -55,7 +63,10 @@ import { DbnavComponent } from './components/dbnav/dbnav.component';
         NgxsModule.forFeature([
             AppShellState,
             NavigatorState,
-            DashboardNavigatorState
+            DashboardNavigatorState,
+            DbfsState,
+            DbfsPanelsState,
+            DbfsResourcesState,
         ]),
         RouterModule
     ],
@@ -75,11 +86,13 @@ import { DbnavComponent } from './components/dbnav/dbnav.component';
         MiniNavigatorComponent,
         MiniNavigatorFoldersComponent,
         MiniNavigatorFolderItemComponent,
-        DbnavComponent
+        DbfsComponent
     ],
     providers: [
         AppShellService,
         DashboardNavigatorService,
+        DbfsService,
+        DbfsUtilsService,
         { provide: 'WINDOW', useFactory: getBrowserWindow } // this is used to open dashboards in new tab
     ],
     exports: [
