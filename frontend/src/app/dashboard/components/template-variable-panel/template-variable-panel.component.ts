@@ -94,6 +94,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     doEdit() {
         this.mode = { view: false};
         this.initEditFormGroup();
+        this.interCom.requestSend({ action: 'getDashboardTags'});
     }
     initListFormGroup() {
         this.countApplied = 0;
