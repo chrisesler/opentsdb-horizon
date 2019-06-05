@@ -90,7 +90,16 @@ export class DbfsPanelsState {
             panels: [
                 {
                     index: 0,
-                    folderResource: '/',
+                    folderResource: ':panel-root:',
+                    root: true,
+                    synthetic: true,
+                    locked: true
+                }
+            ],
+            miniPanels: [
+                {
+                    index: 0,
+                    folderResource: ':mini-root:',
                     root: true,
                     synthetic: true,
                     moveEnabled: false,

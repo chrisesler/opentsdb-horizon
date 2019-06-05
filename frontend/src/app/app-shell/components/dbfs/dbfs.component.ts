@@ -58,6 +58,10 @@ export class DbfsComponent implements OnInit, OnDestroy {
     @Select(DbfsPanelsState.getPanels) panels$: Observable<any[]>;
     panels: any[] = [];
 
+    @Select(DbfsPanelsState.getCurPanel) currentPanelIndex$: Observable<number>;
+    // tslint:disable-next-line: no-inferrable-types
+    currentPanelIndex: number = 0;
+
     // VIEW CHILDREN
     @ViewChild(NavigatorPanelComponent) private navPanel: NavigatorPanelComponent;
 
@@ -89,6 +93,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.folders$.subscribe( folders => {
             this.folders = folders;
+            console.log('FOLDERS RECIEVED', this.folders);
         }));
 
         this.subscription.add(this.files$.subscribe( files => {
@@ -105,6 +110,10 @@ export class DbfsComponent implements OnInit, OnDestroy {
             this.panels = panels;
         }));
 
+        this.subscription.add(this.currentPanelIndex$.subscribe( idx => {
+            this.currentPanelIndex = idx;
+        }));
+
         // INTERCOM SUBSCRIPTION
         this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
             // intercom stuff
@@ -113,6 +122,33 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
+    }
+
+    /* UTILS */
+    getFolderResource(path: string) {
+        const resource = this.store.selectSnapshot<any>(DbfsResourcesState.getFolderResource(path));
+        console.log('getFolderResource', path, resource);
+        return resource;
+    }
+
+    /* behaviors */
+    navtoMasterPanel() {
+        console.log('NAV TO MASTER PANEL');
+    }
+
+    closeDrawer() {
+        console.log('CLOSE DRAWER');
+        const data: any = {
+            closeNavigator: true
+        };
+        if (this.activeMediaQuery === 'xs') {
+            data.resetForMobile = true;
+        }
+        this.toggleDrawer.emit(data);
+    }
+
+    createDashboard() {
+        console.log('CREATE DASHBOARD');
     }
 
 }

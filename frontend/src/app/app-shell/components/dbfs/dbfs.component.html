@@ -1,3 +1,54 @@
-<p>
-  dbfs works!
-</p>
+<mat-toolbar class="panel-toolbar" [ngClass]="{'is-master-panel': currentPanelIndex === 0}">
+    <mat-toolbar-row fxLayout fxLayoutAlign="start stretch">
+        <div class="nav-item back-to-master">
+            <button mat-icon-button (click)="navtoMasterPanel()">
+                <mat-icon fontSet="denali" fontIcon="d-arrowhead-left"></mat-icon>
+            </button>
+        </div>
+        <div class="nav-item panel-label" (click)="navtoMasterPanel()">
+            <strong>Dashboards</strong>
+        </div>
+        <span class="flex-spacer"></span>
+        <div class="nav-item">
+            <button mat-icon-button (click)="closeDrawer()">
+                <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
+            </button>
+        </div>
+    </mat-toolbar-row>
+</mat-toolbar>
+<navigator-panel #navPanel>
+    <ng-container *ngFor="let panel of panels; let i = index">
+        <ng-container *navigatorPanelItem>
+            <mat-nav-list class="path-tree" *ngIf="currentPanelIndex > 0">
+                <ng-container *ngFor="let leaf of panels; let n = index;">
+                    <mat-list-item class="path-tree-item leaf-{{n}}" 
+                        *ngIf="leaf.folderResource !== ':panel-root:' && n <= i" 
+                        [ngClass]="{'is-active': n === i}"
+                        (click)="navtoSpecificPanel(n, i)">
+                        <mat-icon class="path-icon" fontSet="denali" [fontIcon]="folders[leaf.folderResource].icon ? folders[leaf.folderResource].icon : 'd-folder'"></mat-icon>
+                        <span>{{folders[leaf.folderResource].name}}</span>
+                    </mat-list-item>
+                </ng-container>
+            </mat-nav-list>
+            
+            <ng-container *ngTemplateOutlet="createDashboardButton;context:folders[panel.folderResource]"></ng-container>
+
+            <ng-container *ngIf="panel.folderResource === ':panel-root:' && folders[panel.folderResource].namespaces">
+
+            </ng-container>
+
+            
+            {{getFolderResource(panel.folderResource)|json}}
+        </ng-container>
+    </ng-container>
+</navigator-panel>
+
+<ng-template #createDashboardButton let-ownerType="ownerType" let-fullPath="fullPath" let-pdata="this">
+    <div class="create-dashboard" *ngIf="fullPath === ':panel-root:' || ownerType === 'namespace' || ownerType === 'user'">
+        <button mat-flat-button (click)="createDashboard()">
+            <mat-icon fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
+            <span>Create Dashboard</span>
+        </button>
+    </div>
+    PDATA: {{pdata}}
+</ng-template>

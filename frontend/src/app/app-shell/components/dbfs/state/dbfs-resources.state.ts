@@ -24,8 +24,8 @@ export interface DbfsCommonResourceModel {
     updatedBy?: string; // should be userid
     type?: string;
     // common used within horizon
-    resourceType: string; // folder || file
-    ownerType: string; // user || namespace
+    resourceType?: string; // folder || file
+    ownerType?: string; // user || namespace
     icon?: string;
     namespace?: string; // namespace alias
 }
@@ -41,6 +41,7 @@ export interface DbfsFolderModel extends DbfsCommonResourceModel {
     subfolders?: any[];
     files?: any[];
     loaded?: boolean;
+    trashFolder?: boolean;
 }
 
 export interface DbfsSyntheticFolderModel extends DbfsCommonResourceModel {
@@ -197,27 +198,218 @@ export class DbfsResourcesState {
         let files = {};
 
         // extract namespaces, and assign ids to user.memberNamespaces
+        // & create each individual namespace folder resource
         // for namespaces: DbfsNamespaceModel
         for (const ns of response.memberNamespaces) {
+            // namespace resource
             namespaces[ns.namespace.alias] = ns.namespace;
-            folders[ns.folder.fullPath] = ns.folder;
+            // namespace folder resource
+            const nsFolder = <DbfsFolderModel>{...ns.folder,
+                ownerType: 'namespace',
+                resourceType: 'folder',
+                icon: 'd-dashboard-tile',
+                loaded: false
+            };
+
+            if (nsFolder.subfolders.length > 0) {
+                nsFolder.subfolders = nsFolder.subfolders.map(item => {
+                    const folder = <DbfsFolderModel>{...item,
+                        resourceType: 'folder',
+                        ownerType: 'user',
+                        icon: 'd-folder',
+                        loaded: false,
+                        moveEnabled: true,
+                        selectEnabled: true,
+                        subfolders: [],
+                        files: []
+                    };
+                    if (folder.name.toLowerCase() === 'trash') {
+                        folder.icon = 'd-trash';
+                        folder.trashFolder = true;
+                    }
+                    folders[folder.fullPath] = folder;
+                    return item.fullPath;
+                });
+            }
+
+            if (nsFolder.files.length > 0) {
+                nsFolder.files = nsFolder.files.map(item => {
+                    const file = <DbfsFileModel>{...item,
+                        resourceType: 'file',
+                        ownerType: 'user',
+                        icon: 'd-dashboard-tile',
+                        parentPath: nsFolder.fullPath
+                    };
+                    files[file.fullPath] = file;
+                    return item.fullPath;
+                });
+            }
+
+            folders[ns.folder.fullPath] = nsFolder;
+            // add to user member namespaces
             user.memberNamespaces.push(ns.namespace.alias);
         }
 
         // create master resource '/'
         // DbfsSyntheticFolderModel
+        const panelRoot = <DbfsSyntheticFolderModel>{
+            id: 0,
+            name: 'Dashboards',
+            path: ':panel-root:',
+            fullPath: ':panel-root:',
+            synthetic: true,
+            personal: [],
+            namespaces: []
+        };
+        folders[panelRoot.fullPath] = panelRoot;
 
-        // create each individual namespace resource
-        // DbfsFolderModel
+        const miniPanelRoot = <DbfsSyntheticFolderModel>{
+            id: 0,
+            name: 'Dashboards',
+            path: ':mini-root:',
+            fullPath: ':mini-root:',
+            synthetic: true,
+            subfolders: [
+                '/' + user.userid.replace('.', '/'),
+                ':member-namespaces:'
+            ]
+        };
+
+        folders[miniPanelRoot.fullPath] = miniPanelRoot;
 
         // create each individual folder resources
         // DbfsFolderModel
+
+        const userFolder = <DbfsFolderModel>{...response.personalFolder,
+            resourceType: 'folder',
+            ownerType: 'user',
+            icon: 'd-dashboard-tile',
+            loaded: true
+        };
+        folders[userFolder.fullPath] = userFolder;
+        panelRoot.personal.push(userFolder.fullPath);
+
+        const favFolder = <DbfsFolderModel>{
+            id: 0,
+            name: 'My Favorites',
+            path: '/' + user.userid.replace('.', '/') + '/favorites',
+            fullPath: '/' + user.userid.replace('.', '/') + '/favorites',
+            files: [],
+            resourceType: 'favorites',
+            ownerType: 'user',
+            icon: 'd-star',
+            synthetic: true,
+            loaded: false
+        };
+        folders[favFolder.fullPath] = favFolder;
+        panelRoot.personal.push(favFolder.fullPath);
+
+        // frequently visited
+        const freqFolder = <DbfsFolderModel>{
+            id: 0,
+            name: 'Frequently Visited',
+            path: '/' + user.userid.replace('.', '/') + '/frequently-visited',
+            fullPath: '/' + user.userid.replace('.', '/') + '/frequently-visited',
+            files: [],
+            resourceType: 'frequentlyVisited',
+            ownerType: 'user',
+            icon: 'd-duplicate',
+            synthetic: true,
+            loaded: false
+        };
+        folders[freqFolder.fullPath] = freqFolder;
+        panelRoot.personal.push(freqFolder.fullPath);
+
+        // recently visited
+        const recvFolder = <DbfsFolderModel>{
+            id: 0,
+            name: 'Recently Visited',
+            path: '/' + user.userid.replace('.', '/') + '/recently-visited',
+            fullPath: '/' + user.userid.replace('.', '/') + '/recently-visited',
+            files: [],
+            resourceType: 'recentlyVisited',
+            ownerType: 'user',
+            icon: 'd-time',
+            synthetic: true,
+            loaded: false
+        };
+        folders[recvFolder.fullPath] = recvFolder;
+        panelRoot.personal.push(recvFolder.fullPath);
+
+        // USER Trash
+        // tslint:disable-next-line: max-line-length
+        const userTrash = response.personalFolder.subfolders.filter( item => item.fullPath === '/' + user.userid.replace('.', '/') + '/trash');
+        const userTrashIdx = response.personalFolder.subfolders.indexOf(userTrash[0]);
+        const trashFolder  = <DbfsFolderModel>{...userTrash[0],
+            resourceType: 'folder',
+            ownerType: 'user',
+            icon: 'd-trash',
+            trashFolder: true,
+            loaded: false
+        };
+        folders[trashFolder.fullPath] = trashFolder;
+        panelRoot.personal.push(trashFolder.fullPath);
+        userFolder.subfolders.splice(userTrashIdx, 1);
+
+
+        // member namespace list
+        const mbrnsFolder = <DbfsFolderModel> {
+            id: 0,
+            name: 'Namespaces',
+            path: ':member-namespaces:',
+            fullPath: ':member-namespaces:',
+            subfolders: [],
+            resourceType: 'userMemberNamespaces',
+            icon: 'd-dashboard-tile',
+            synthetic: true,
+            loaded: false,
+            moveEnabled: false,
+            selectEnabled: false
+        }
+
+        // add namespaces to paneRoot.namespaces
+        // & the memberNamespace list
+        for (const ns of user.memberNamespaces) {
+            mbrnsFolder.subfolders.push('/namespace/' + ns);
+            panelRoot.namespaces.push('/namespace/' + ns);
+        }
+
+        folders[mbrnsFolder.fullPath] = mbrnsFolder;
+
+        // FILES
+
+        userFolder.subfolders = userFolder.subfolders.map(item => {
+            const folder = <DbfsFolderModel>{...item,
+                resourceType: 'folder',
+                ownerType: 'user',
+                icon: 'd-folder',
+                loaded: false,
+                moveEnabled: true,
+                selectEnabled: true,
+                subfolders: [],
+                files: []
+            };
+            folders[folder.fullPath] = folder;
+            return item.fullPath;
+        });
+
+        userFolder.files = userFolder.files.map(item => {
+            const file = <DbfsFileModel>{...item,
+                resourceType: 'file',
+                ownerType: 'user',
+                icon: 'd-dashboard-tile',
+                parentPath: userFolder.fullPath
+            };
+            files[file.fullPath] = file;
+            return item.fullPath;
+        });
 
 
         ctx.setState({...state,
             user,
             namespaces,
             folders,
+            files,
             loaded: true
         });
 
