@@ -100,6 +100,10 @@ export class DBState {
         private logger: LoggerService
     ) {}
 
+    @Selector() static getDashboardId(state: DBStateModel) {
+        return state.id;
+    }
+
     @Selector() static getLoadedDB(state: DBStateModel) {
         return state.loadedDB;
     }
