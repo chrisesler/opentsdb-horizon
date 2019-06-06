@@ -5,13 +5,16 @@ import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { LoggerService } from '../../core/services/logger.service';
+import { UtilsService } from '../../core/services/utils.service'
 
 @Injectable()
 export class AlertsService {
 
+    version = 1;
     constructor(
         private logger: LoggerService,
-        private http: HttpClient
+        private http: HttpClient,
+        private utils: UtilsService
     ) { }
 
     /**
