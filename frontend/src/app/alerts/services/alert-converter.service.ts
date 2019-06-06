@@ -11,7 +11,7 @@ export class AlertConverterService {
   constructor(private utils: UtilsService) { }
 
   convert(alert: any) {
-    const version = !alert.threshold.version ? 0 : alert.threshold.version;
+    const version = !alert.version ? 0 : alert.version;
     for (let i = version + 1; i <= this.currentVersion; i++) {
       if (this['toAlertVersion' + i] instanceof Function) {
         alert = this['toAlertVersion' + i](alert);

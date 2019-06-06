@@ -739,8 +739,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         // tslint:disable-next-line: max-line-length
         data.threshold.singleMetric.metricId =  this.utils.getDSId({0 : this.queries[0]}, qindex, mindex) + (this.queries[qindex].metrics[mindex].expression === undefined ? '-groupby' : '');
         data.threshold.isNagEnabled = data.threshold.nagInterval!== "0" ? true : false;
-        // need to change the version info one level above
-        data.threshold.version = this.alertConverter.getAlertCurrentVersion();
+        data.version = this.alertConverter.getAlertCurrentVersion();
         // emit to save the alert
         this.configChange.emit({ action: 'SaveAlert', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
     }

@@ -119,7 +119,7 @@ export class UtilsService {
             return queries[qindex].metrics[index].expression ? eIdx : mIdx;
         };
         let mprefix = 'm';
-        const qprefix =  Object.keys(queries).length > 1 ? 'q' + (parseInt(qindex, 10) + 1) + '_' : '';
+        const qprefix =  Object.keys(queries).length > 0 ? 'q' + (parseInt(qindex, 10) + 1) + '_' : '';
         if ( queries[qindex].metrics[mindex].expression) {
             mprefix = 'e';
         }
