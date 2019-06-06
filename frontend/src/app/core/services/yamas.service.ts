@@ -177,16 +177,29 @@ export class YamasService {
             const fxCall = funs[i].fxCall;
             switch ( fxCall ) {
                 case 'RateOfChange':
-                case 'CounterToRate':
+                case 'RateDiff':
                     const q = {
+                        'id': id ,
+                        'type': 'rate',
+                        'interval': funs[i].val,
+                        'deltaOnly': fxCall === 'RateDiff' ? true : false,
+                        'sources': [ds]
+                    };
+                    queries.push(q);
+                    ds = id;
+                    break;
+                case 'CounterToRate':
+                case 'CounterDiff':
+                    const q2 = {
                             'id': id ,
                             'type': 'rate',
                             'interval': funs[i].val,
-                            'counter': fxCall === 'RateOfChange' ? false : true,
-                            'dropResets': fxCall === 'RateOfChange' ? false : true,
+                            'counter': true,
+                            'dropResets': true,
+                            'deltaOnly': fxCall === 'CounterDiff' ? true : false,
                             'sources': [ds]
                         };
-                    queries.push(q);
+                    queries.push(q2);
                     ds = id;
                 break;
             }
