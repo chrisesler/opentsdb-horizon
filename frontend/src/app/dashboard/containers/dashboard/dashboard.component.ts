@@ -282,12 +282,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'updateWidgetConfig':
                     const mIndex = this.widgets.findIndex(w => w.id === message.id);
                     if (mIndex === -1) {
+                        // do not save if no metrics added
                         // update position to put new on on top
                         const newWidgetY = message.payload.widget.gridPos.h;
                         this.widgets = this.dbService.positionWidgetY(this.widgets, newWidgetY);
                         // change name to fist metric if name is not change
                         if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent') {
-                            if (message.payload.widget.settings.title === 'my widget') {
+                            if (message.payload.widget.settings.title === 'my widget' && message.payload.widget.queries[0].metrics.length) {
                                 message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
                             }
                         }
