@@ -508,7 +508,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.meta = this.utilService.deepClone(t);
         }));
         this.subscription.add(this.tplVariables$.subscribe(tvars => {
-            this.tplVariables = this.utilService.deepClone(tvars);
+            this.tplVariables = tvars ? this.utilService.deepClone(tvars) : [];
         }));
         this.subscription.add(this.widgetGroupRawData$.subscribe(result => {
             let error = null;
