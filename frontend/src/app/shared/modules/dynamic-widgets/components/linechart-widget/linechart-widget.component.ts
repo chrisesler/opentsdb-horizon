@@ -117,7 +117,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'updatedWidgetGroup':
-                        this.nQueryDataLoading -= Object.keys(message.payload.rawdata).length;
+                        this.nQueryDataLoading--;
                         if (!this.isDataLoaded) {
                             this.isDataLoaded = true;
                             this.resetChart();
@@ -583,7 +583,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     requestCachedData() {
-        this.nQueryDataLoading = this.widget.queries.length;
+        this.nQueryDataLoading = 1;
         this.error = null;
         this.interCom.requestSend({
             id: this.widget.id,
