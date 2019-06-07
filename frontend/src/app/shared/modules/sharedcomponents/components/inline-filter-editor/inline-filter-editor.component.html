@@ -47,7 +47,8 @@
                         <span class="seperator"></span>
                         <div class="tag-values-search-results has-scroller" *ngIf="tagValueTypeControl.value==='literalor'">
                             <div class="is-scroller">
-                                <div class="option-item" *ngFor="let option of filteredTagValues" [ngClass]="{'added': filters[selectedTagIndex] && filters[selectedTagIndex].filter.indexOf(option.name) >= 0 }">
+                                <div class="option-item" *ngFor="let option of filteredTagValues" 
+                                    [ngClass]="{'added': filters[selectedTagIndex] && (filters[selectedTagIndex].filter.indexOf(option.name) >= 0 || (filters[selectedTagIndex].customFilter && filters[selectedTagIndex].customFilter.indexOf(option.name) >= 0))}">
                                     <div class="option-cell add-remove">
                                         <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) === -1" (click)="updateTagValueSelection(option.name, 'add');">add_circle_outline</mat-icon>
                                         <mat-icon *ngIf="getTagValueIndex(selectedTag, option.name) !== -1" (click)="updateTagValueSelection(option.name, 'remove')">remove_circle_outline</mat-icon>
@@ -67,7 +68,7 @@
                         </div>
                         <div class="tag-values-selected-list has-scroller" *ngIf="filters[selectedTagIndex]">
                             <div class="is-scroller">
-                                <div class="option-item tag-value-option" *ngFor="let option of filters[selectedTagIndex].filter">
+                                <div class="option-item tag-value-option" *ngFor="let option of filters[selectedTagIndex].filter.concat(filters[selectedTagIndex].customFilter)">
                                     <div class="option-cell add-remove">
                                         <mat-icon (click)="updateTagValueSelection(option, 'remove')">remove_circle_outline</mat-icon>
                                     </div>

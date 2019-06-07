@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from '../../core/services/utils.service';
+import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
 
 @Injectable()
 export class DashboardService {
@@ -20,10 +21,7 @@ export class DashboardService {
             namespace: '',
             isPersonal: false,
         },
-        variables: {
-            enabled: true,
-            tplVariables: []
-        }
+        tplVariables: []
     },
     widgets: [
     ]
@@ -59,7 +57,7 @@ export class DashboardService {
 
   private widgetsConfig = {};
 
-  constructor(private utils: UtilsService) { }
+  constructor(private utils: UtilsService, private dbConverterService: DashboardConverterService) { }
 
 
   setWigetsConfig(conf) {
@@ -124,6 +122,7 @@ export class DashboardService {
     query.metrics = query.metrics.filter(item => item.settings.visual.visible === true);
     return query;
   }
+
   overrideQueryFilters(query, filters, tags=[]) {
     for (let i = 0; i < filters.length; i++) {
       let tagExists = false;
@@ -133,8 +132,136 @@ export class DashboardService {
           tagExists = true;
         }
       }
-      if ( !tagExists && tags.indexOf(filters[i].tagk)!== -1 ) {
+      if ( !tagExists && tags.indexOf(filters[i].tagk) !== -1 ) {
         query.filters.push( { tagk: filters[i].tagk ,  filter: filters[i].filter} );
+      }
+    }
+    return query;
+  }
+
+  // return all eligible widgets id and qid based on list of tplVariables
+  // what widget has the tag defined or not
+  checkEligibleWidgets(tplVariables: any, rawDbTags: any) {
+    const eWidgets = {};
+    for (let i = 0; i < tplVariables.length; i++) {
+      const vartag = tplVariables[i];
+      // if (vartag.filter.trim()  !== '') { // hmm it can be from something to nothing
+        eWidgets[vartag.alias] = {};
+        const ewid = {};
+        for (const wid in rawDbTags) {
+          if (rawDbTags.hasOwnProperty(wid)) {
+            const eqid = {};
+            for (const qid in rawDbTags[wid]) {
+              if (rawDbTags[wid].hasOwnProperty(qid)) {
+                if (rawDbTags[wid][qid].includes(vartag.tagk)) {
+                  eqid[qid] = true;
+                }
+              }
+            }
+            if (Object.keys(eqid).length > 0) {
+              ewid[wid] = eqid;
+            }
+          }
+        }
+        eWidgets[vartag.alias] = ewid;
+      // }
+    }
+    return eWidgets;
+  }
+
+ applyTplVarToWidget(widget: any, eWidgets: any, tplVariables: any[]) {
+  let isModify = false;
+  for (const alias in eWidgets) {
+    if (eWidgets[alias].hasOwnProperty(widget.id)) {
+      const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
+      const vartag = tplVariables[tplIdx];
+      // when user set custom tag to empty, we need to requery to origin config
+      if (vartag.filter === '') { isModify = true; continue; }
+      for (let i = 0; i < widget.queries.length; i++) {
+        const query = widget.queries[i];
+        if (eWidgets[alias][widget.id].hasOwnProperty(query.id)) {
+          const fIdx = query.filters.findIndex(f => f.tagk === vartag.tagk);
+          if (fIdx > -1) {
+            // check if it has this alias, if it does then leave it alone as static mode
+            if ((query.filters[fIdx].customFilter && query.filters[fIdx].customFilter.length === 0)
+                || !query.filters[fIdx].customFilter) {
+                  query.filters[fIdx].filter = [];
+                query.filters[fIdx].dynamicFilter ? query.filters[fIdx].dynamicFilter.push('[' + alias + ']')
+                                                  : query.filters[fIdx].dynamicFilter = ['[' + alias + ']'];
+                isModify = true;
+            } else {
+              // they have static mode, but let it thru
+              isModify = true;
+            }
+          } else {
+            const nfilter = {
+              tagk: vartag.tagk,
+              filter: [],
+              groupBy: false,
+              dynamicFilter: ['[' + alias + ']']
+            };
+            query.filters.push(nfilter);
+            isModify = true;
+          }
+        }
+      }
+    }
+  }
+  return widget;
+}
+  resolveTplVar(query: any, tplVariables: any[]) {
+    for (let i = 0; i < query.filters.length; i++) {
+      const qFilter = query.filters[i];
+      // they do have custom filter mean static filter
+      if (qFilter.customFilter && qFilter.customFilter.length > 0) {
+        for (let j = 0; j < qFilter.customFilter.length; j++) {
+          const alias = qFilter.customFilter[j].substring(1, qFilter.customFilter[j].length - 1);
+          const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
+          if (tplIdx > -1) {
+            if (tplVariables[tplIdx].filter !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
+              qFilter.filter.push(tplVariables[tplIdx].filter);
+            }
+          }
+        }
+      } else if (qFilter.dynamicFilter && qFilter.dynamicFilter.length > 0) {
+        for (let j = 0; j < qFilter.dynamicFilter.length; j++) {
+          const alias = qFilter.dynamicFilter[j].substring(1, qFilter.dynamicFilter[j].length - 1);
+          const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
+          if (tplIdx > -1) {
+            if (tplVariables[tplIdx].filter !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
+              qFilter.filter.push(tplVariables[tplIdx].filter);
+            }
+          }
+        }
+      }
+      // in case filter is empty then remove this filter out
+      if (qFilter.filter.length === 0) {
+        query.filters.splice(i, 1);
+      }
+    }
+    return query;
+  }
+
+  updateQueryByVariables(query: any, tplVariables: any[]) {
+    for (let i = 0; i < query.filters.length; i++) {
+      const qFilter = query.filters[i];
+      if (qFilter.customFilter && qFilter.customFilter.length > 0) {
+        for (let j = 0; j < qFilter.customFilter.length; j++) {
+          const cFilter = qFilter.customFilter[j].substring(1, qFilter.customFilter[j].length - 1);
+          // console.log('cFilter', cFilter);
+          const varIndex = tplVariables.findIndex(tpl => tpl.alias === cFilter);
+          if (varIndex > -1) {
+            if (tplVariables[varIndex].filter !== '' && qFilter.filter.indexOf(tplVariables[varIndex].filter) === -1) {
+              qFilter.filter.push(tplVariables[varIndex].filter);
+            }
+          }
+        }
+      }
+      // when a filter was not defined, and append the empty value template var, the filter is empty
+      // need to remove from filters to avoid tsdb syntax error
+      // console.log('qFilter', qFilter);
+      if (qFilter.filter.length === 0) {
+        query.filters.splice(i, 1);
       }
     }
     return query;
@@ -171,73 +298,11 @@ export class DashboardService {
       delete widgets[i].gridPos.hSm;
     }
     const dashboard = {
-      version: this.version,
+      version: this.dbConverterService.getDBCurrentVersion(),
       settings: dbstate.Settings,
       widgets: widgets
     };
     return dashboard;
   }
 
-  convert(dashboard) {
-    if ( !dashboard.content.version || dashboard.content.version < this.version ) {
-      dashboard.version = 2;
-      const widgets = dashboard.content.widgets;
-      for ( let i = 0; i < widgets.length; i++ ) {
-        const queries = widgets[i].queries;
-        for ( let j = 0; j < queries.length; j++ ) {
-          const metrics = queries[j].metrics;
-          const filters = queries[j].filters;
-          const groupByTags = [];
-          for ( let k = 0; k < filters.length; k++ ) {
-            if (filters[k].groupBy === true ) {
-              groupByTags.push(filters[k].tagk);
-            }
-          }
-          for ( let k = 0; k < metrics.length; k++ ) {
-            // metrics
-            if ( metrics[k].expression === undefined && !metrics[k].groupByTags ) {
-              metrics[k].tagAggregator = metrics[k].tagAggregator || 'sum';
-              metrics[k].groupByTags = groupByTags;
-            }
-            if ( metrics[k].expression && metrics[k].metrics) {
-              metrics[k].expression = metrics[k].originalExpression;
-              const emetrics = metrics[k].metrics;
-              // add missing metric to the metric list
-              for ( let m = 0; m < emetrics.length; m++ ) {
-                const pos = emetrics[m].name.indexOf('.') + 1;
-                emetrics[m].metric = emetrics[m].name.substr(pos);
-                const metric = metrics.find(d => d.expression === undefined && d.name === emetrics[m].metric);
-                if ( !metric ) {
-                  const oMetric = {
-                    id: this.utils.generateId(3),
-                    name: emetrics[m].metric,
-                    settings: {
-                        visual: {
-                            visible: false,
-                            color: 'auto',
-                            label: ''
-                        }
-                    },
-                    tagAggregator: 'sum',
-                    functions: []
-                  };
-                  metrics.push(oMetric);
-                }
-              }
-              for ( let m = 0; m < emetrics.length; m++ ) {
-                const pos = emetrics[m].name.indexOf('.') + 1;
-                emetrics[m].metric = emetrics[m].name.substr(pos);
-                const metric = metrics.find(d => d.expression === undefined && d.name === emetrics[m].metric);
-                emetrics[m].newId = metric ? metric.id : null;
-                const reg = new RegExp(emetrics[m].refId, 'g');
-                metrics[k].expression = metrics[k].expression.replace(reg, '{{' + emetrics[m].newId + '}}' );
-              }
-            }
-          }
-        }
-      }
-    }
-    return dashboard;
-  }
 }
-

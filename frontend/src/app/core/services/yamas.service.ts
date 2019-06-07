@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { UtilsService } from './utils.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ export class YamasService {
     time: any;
     transformedQuery:any;
 
-    constructor() { }
+    constructor( private utils: UtilsService ) { }
 
     buildQuery( time, queries, downsample: any = {} , summaryOnly= false, sorting) {
 
@@ -56,8 +57,7 @@ export class YamasService {
                         }
                         this.transformedQuery.executionGraph.push(q);
                         const aggregator = downsample.aggregator;
-                        const prefix = 'm-' + i + '-' + j;
-                        let dsId = prefix + '-downsample';
+                        let dsId = q.id + '-downsample';
                         // add downsample for the expression
                         this.transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, aggregator, dsId, [q.id]));
 
@@ -68,7 +68,7 @@ export class YamasService {
                             dsId = res.queries[res.queries.length-1].id;
                         }
 
-                        const groupbyId = prefix + '-groupby';
+                        const groupbyId = q.id + '-groupby';
                         groupByIds.push(groupbyId);
                         this.transformedQuery.executionGraph
                             .push(this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId));
@@ -106,7 +106,7 @@ export class YamasService {
     }
 
     getMetricQuery(qindex, mindex) {
-        const mid = 'm-' + qindex + '-' +  mindex;
+        const mid = this.utils.getDSId(this.queries, qindex, mindex);
         const q = {
             id: mid, // using the loop index for now, might need to generate its own id
             type: 'TimeSeriesDataSource',
@@ -175,27 +175,42 @@ export class YamasService {
         for ( let i = 0; i < funs.length; i++ ) {
             const id = 'm' + index + '-rate-' + i;
             const fxCall = funs[i].fxCall;
+            const q = {
+                'id': id ,
+                'type': 'rate',
+                'interval': funs[i].val,
+                'counter': false,
+                'dropResets': false,
+                'deltaOnly': false,
+                'sources': [ds]
+            };
             switch ( fxCall ) {
                 case 'RateOfChange':
+                    q.deltaOnly = false;
+                    break;
+                case 'RateDiff':
+                    q.deltaOnly = true;
+                    break;
                 case 'CounterToRate':
-                    const q = {
-                            'id': id ,
-                            'type': 'rate',
-                            'interval': funs[i].val,
-                            'counter': fxCall === 'RateOfChange' ? false : true,
-                            'dropResets': fxCall === 'RateOfChange' ? false : true,
-                            'sources': [ds]
-                        };
-                    queries.push(q);
-                    ds = id;
+                    q.counter = true;
+                    q.dropResets = true;
+                    q.deltaOnly = false;
+                    break;
+                case 'CounterDiff':
+                    q.counter = true;
+                    q.dropResets = true;
+                    q.deltaOnly = true;
                 break;
             }
+            queries.push(q);
+            ds = id;
         }
         return { queries: queries };
     }
+
     getExpressionQuery(qindex, mindex) {
         const config = this.queries[qindex].metrics[mindex];
-        const eid = 'm-' + qindex + '-' + mindex;
+        const eid = this.utils.getDSId(this.queries, qindex, mindex);
 
         const sources = [];
         const  expression = config.expression;
@@ -208,12 +223,12 @@ export class YamasService {
             const id = matches[1];
             const idreg = new RegExp( '\\{\\{' + id + '\\}\\}' , 'g');
             const sindex = this.getSourceIndexById(qindex, id);
-            const sourceId = 'm-' + qindex + '-' + sindex;
+            const sourceId = this.utils.getDSId(this.queries, qindex, sindex);
             let gsourceId = sourceId;
             if (sindex > -1) {
                 gsourceId = this.queries[qindex].metrics[sindex].expression === undefined ? sourceId +  '-groupby' : sourceId ;
             }
-            transformedExp = transformedExp.replace( idreg, sourceId );
+            transformedExp = transformedExp.replace( idreg, ' ' + sourceId + ' ' );
             sources.push(gsourceId);
         }
         const joinTags = {};
@@ -277,15 +292,15 @@ export class YamasService {
         };
         return filter;
     }
-    
     getOrFilters(key, values) {
-        const filterTypes = { 'literalor': 'TagValueLiteralOr', 'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex', 'librange': 'TagValueLibrange'};
+        const filterTypes = { 'literalor': 'TagValueLiteralOr', 
+            'wildcard': 'TagValueWildCard', 'regexp': 'TagValueRegex', 'librange': 'TagValueLibrange'};
         const filters = [];
         const literals = [];
         for ( let i = 0, len = values.length; i < len; i++ ) {
             let v = values[i];
             const regexp = v.match(/regexp\((.*)\)/);
-            var filtertype = 'literalor';
+            let filtertype = 'literalor';
             if (regexp) {
                 filtertype = 'regexp';
                 v = regexp[1];
@@ -305,7 +320,7 @@ export class YamasService {
                 filters.push(filter);
             }
         }
-        
+
         if ( literals.length ) {
             const filter = {
                 type: 'TagValueLiteralOr',
@@ -318,7 +333,7 @@ export class YamasService {
     }
 
     getChainFilter(key, values) {
-        const chain:any = {
+        const chain: any = {
                         'type': 'Chain',
                         'op': 'OR',
                         'filters': []

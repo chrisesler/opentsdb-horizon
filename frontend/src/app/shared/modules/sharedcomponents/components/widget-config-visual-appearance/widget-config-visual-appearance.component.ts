@@ -143,4 +143,34 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
     setUnit( value ) {
         this.widgetChange.emit( {'action': 'SetUnit', payload: { data: value}});
     }
+
+    setVisualType(type, qIndex, index ) {
+        let areaAxis = null;
+        if (this.widget.settings.component_type === 'LinechartWidgetComponent') {
+            for ( let i = 0; i < this.widget.queries[qIndex].metrics.length; i++ ) {
+                if ( i !== index && this.widget.queries[qIndex].metrics[i].settings.visual.type === 'area' ) {
+                    areaAxis = this.widget.queries[qIndex].metrics[i].settings.visual.axis;
+                    break;
+                }
+            }
+            if ( areaAxis !== null ) {
+                this.gForms.controls[qIndex]['controls'][index]['controls'].axis.setValue(areaAxis, {emitEvent: false});
+            }
+        }
+        this.gForms.controls[qIndex]['controls'][index]['controls'].type.setValue(type);
+
+    }
+
+    setAxis(axis, qIndex, index ) {
+        const type = this.widget.queries[qIndex].metrics[index].settings.visual.type;
+        // make same axis for area type
+        if (this.widget.settings.component_type === 'LinechartWidgetComponent' && type === 'area') {
+            for ( let i = 0; i < this.widget.queries[qIndex].metrics.length; i++ ) {
+                if ( i !== index && this.widget.queries[qIndex].metrics[i].settings.visual.type === 'area' ) {
+                    this.gForms.controls[qIndex]['controls'][i]['controls'].axis.setValue(axis, {emitEvent: false});
+                }
+            }
+        }
+        this.gForms.controls[qIndex]['controls'][index]['controls'].axis.setValue(axis);
+    }
 }

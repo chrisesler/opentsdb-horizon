@@ -19,12 +19,12 @@ export class UtilsService {
   }
 
   convertPatternTSDBCompat(searchPattern) {
-    searchPattern = searchPattern.replace(/\s+/g, ".*");
+    searchPattern = searchPattern.replace(/\s+/g, '.*');
     if ((searchPattern).search(/^\s*\.\*/) === -1) {
         searchPattern = '.*' + searchPattern;
     }
     if ((searchPattern).search(/\.\*\s*$/) === -1) {
-        searchPattern = searchPattern + '.*'
+        searchPattern = searchPattern + '.*';
     }
     return searchPattern.toLowerCase();
 }
@@ -33,11 +33,11 @@ export class UtilsService {
     // add extra info item behaviors
     for (let i = 0; i < dashboard.widgets.length; i++) {
       const wd: any = dashboard.widgets[i];
-      //wd.id = this.utils.generateId(); // we set it manually to test
+      // wd.id = this.utils.generateId(); // we set it manually to test
       const mod = { 'xMd': wd.gridPos.x, 'yMd': wd.gridPos.y, 'dragAndDrop': true, 'resizable': true };
       wd.gridPos = { ...wd.gridPos, ...mod };
     }
-    //return dashboard;
+    // return dashboard;
   }
 
   getWidgetQueryStatistics(queries) {
@@ -84,6 +84,48 @@ export class UtilsService {
       return label;
   }
 
+  getDSIndexToMetricIndex(query, dsmindex, type) {
+    let index = 0;
+    let mindex = -1;
+    let eindex = -1;
+    for ( let i = 0; i < query.metrics.length; i++ ) {
+        if ( query.metrics[i].expression ) {
+            eindex++;
+        } else {
+            mindex++;
+        }
+        if ( type === 'e' && eindex === dsmindex ) {
+            index = i;
+            break;
+        } else if ( type === 'm' && mindex === dsmindex  ) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
+
+    getDSId(queries, qindex, mindex) {
+        const getUserMetricIndex = function(index) {
+            let eIdx = 0;
+            let mIdx = 0;
+            for ( let i = 0; i <= index; i++ ) {
+                if ( queries[qindex].metrics[i].expression ) {
+                    eIdx++;
+                } else {
+                    mIdx++;
+                }
+            }
+            return queries[qindex].metrics[index].expression ? eIdx : mIdx;
+        };
+        let mprefix = 'm';
+        const qprefix =  Object.keys(queries).length > 0 ? 'q' + (parseInt(qindex, 10) + 1) + '_' : '';
+        if ( queries[qindex].metrics[mindex].expression) {
+            mprefix = 'e';
+        }
+        return  qprefix + mprefix + getUserMetricIndex(mindex);
+    }
+
   // searches an array of objects for a specify key value and
   // returns the matched object
   getObjectByKey(objs, key, value ) {
@@ -99,8 +141,7 @@ export class UtilsService {
     const regExp = /{{([^}}]+)}}/g; // get chars between {{}}
     const matches = inputString.match(regExp);
     if (matches) {
-      let tagValues = new Array<string>();
-      let captureGroupToValueMap = {};
+      const captureGroupToValueMap = {};
       for (let i = 0; i < matches.length; i++) {
         const captureGroup = matches[i];
         const captureGroupSplit = captureGroup.split('.');
@@ -128,7 +169,6 @@ export class UtilsService {
     }
     return inputString;
   }
-
 
   getArrayAggregate( aggregate, arr ) {
     switch ( aggregate.toLowerCase() ) {
@@ -257,4 +297,21 @@ export class UtilsService {
 
         return textWidth;
     }
+    // human sort
+    sortAlphaNum (a, b) {
+      const aa = a.toLowerCase().split(/(\d+)/);
+      const bb = b.toLowerCase().split(/(\d+)/);
+      for (let x = 0; x < Math.max(aa.length, bb.length); x++) {
+          if (aa[x] !== undefined && bb[x] !== undefined && aa[x] !== bb[x]) {
+              const cmp1 = (isNaN(parseInt(aa[x], 10))) ? aa[x] : parseInt(aa[x], 10);
+              const cmp2 = (isNaN(parseInt(bb[x], 10))) ? bb[x] : parseInt(bb[x], 10);
+              if (cmp1 === undefined || cmp2 === undefined) {
+                  return aa.length - bb.length;
+              } else {
+                  return (cmp1 < cmp2) ? -1 : 1;
+              }
+          }
+      }
+      return 0;
+  }
 }
