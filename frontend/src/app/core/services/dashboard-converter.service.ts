@@ -106,6 +106,10 @@ export class DashboardConverterService {
         if (varObj.filter.length > 0) {
           varObj.filter = varObj.filter[0];
         }
+        // there is case that user did not set the alias
+        if (varObj.alias.trim() === '') {
+          varObj.alias = varObj.tagk;
+        }
     }
     // dashboard mode was set wrong to true in some dashboards
     dashboard.content.settings.mode = 'dashboard';
