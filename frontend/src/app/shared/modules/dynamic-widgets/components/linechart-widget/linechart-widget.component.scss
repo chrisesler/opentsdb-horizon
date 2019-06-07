@@ -62,15 +62,15 @@
                 }
             }
 
-            .loader{
+            .loading-spinner {
                 position: absolute;
                 left: 5px;
                 bottom: 5px;
                 z-index: 1;
-                width: 24px;
+                /*width: 24px;
                 height: 24px;
                 background-image: url(/assets/denali-loader.svg);
-                background-color: transparent;
+                background-color: transparent;*/
             }
 
             .error{
