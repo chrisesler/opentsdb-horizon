@@ -18,7 +18,7 @@
                 ></div>
             <span class="legend" [style.maxWidth]="size.legendWidth + 'px'" [style.height]="size.height - 30 + 'px'" [style.display]="size.legendWidth>=80 ? 'inline-block':'none'" #chartLegend></span>
         </div>
-        <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
+        <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
         <div class="error" *ngIf="error" (click)="showError()">
             <mat-icon>error</mat-icon>
         </div>

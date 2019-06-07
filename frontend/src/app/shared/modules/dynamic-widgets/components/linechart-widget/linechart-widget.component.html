@@ -44,7 +44,7 @@
                 </table>
             </ng-container>
         </div>
-        <div class="loader" *ngIf="nQueryDataLoading > 0"></div>
+        <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
         <div class="error" *ngIf="error" (click)="showError()">
             <mat-icon>error</mat-icon>
         </div>
