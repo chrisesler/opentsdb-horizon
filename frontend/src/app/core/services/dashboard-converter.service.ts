@@ -146,8 +146,7 @@ export class DashboardConverterService {
     return dashboard;
   }
 
-    // update dashboard to version 3, we move tplVariables to top and remove
-  // enable things
+    // update dashboard to version 4, convert array to string
   toDBVersion4(dashboard: any) {
     dashboard.content.version = 4;
     const tplVariables = [...dashboard.content.settings.tplVariables];
