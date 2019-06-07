@@ -5,7 +5,7 @@ import { LoggerService } from '../../../../core/services/logger.service';
 import { map, tap, catchError, reduce } from 'rxjs/operators';
 import { DbfsUtilsService } from '../services/dbfs-utils.service';
 
-import { DbfsResourcesState } from './dbfs-resources.state';
+import { DbfsResourcesState, DbfsResourcesModel } from './dbfs-resources.state';
 
 /** INTERFACES */
 
@@ -14,6 +14,7 @@ export interface DbfsPanelModel {
     folderResource: string; // key to look up folder in resources
     root?: boolean;
     synthetic?: boolean;
+    dynamic?: boolean;
     // items needed for miniNav
     moveEnabled?: boolean;
     selectEnabled?: boolean;
@@ -34,6 +35,16 @@ export interface DbfsPanelsModel {
 export class DbfsPanelsInitialize {
     static readonly type = '[DBFS Panels] Initialize Panels';
     constructor() {}
+}
+
+export class DbfsAddPanel {
+    static readonly type = '[DBFS Panels] Add Panel';
+    constructor(public readonly payload: any) {}
+}
+
+export class DbfsUpdatePanels {
+    static readonly type = '[DBFS Panels] update panels';
+    constructor(public readonly payload: any) {}
 }
 
 /** STATE */
@@ -79,10 +90,21 @@ export class DbfsPanelsState {
         return state.panelAction;
     }
 
+    /*&static getPanelResources(path: string) {
+        return createSelector([DbfsResourcesState], (state: DbfsResourcesModel) => {
+            let panel = JSON.parse(JSON.stringify(state.folders[path]));
+            if (panel.personal) {
+                panel.personal = panel.personal.map(spath => JSON.parse(JSON.))
+            }
+            Store.
+            return panel;
+        });
+    }*/
+
     /** Actions */
 
     @Action(DbfsPanelsInitialize)
-    DbfsPanelsInitialize(ctx: StateContext<DbfsPanelsModel>, {}: DbfsPanelsInitialize) {
+    panelsInitialize(ctx: StateContext<DbfsPanelsModel>, {}: DbfsPanelsInitialize) {
         this.logger.success('State :: Panels Initialize');
         const state = ctx.getState();
 
@@ -108,6 +130,38 @@ export class DbfsPanelsState {
                 }
             ],
             initialized: true
+        });
+    }
+
+    @Action(DbfsAddPanel)
+    dbfsAddPanel(ctx: StateContext<DbfsPanelsModel>, { payload }: DbfsAddPanel) {
+        const state = ctx.getState();
+        const panels = this.utils.deepClone(state.panels);
+
+        const newPanel = {...payload.panel,
+            index: panels.length
+        };
+
+        panels.push(newPanel);
+
+        ctx.patchState({...state,
+            panels,
+            curPanel: (panels.length - 1),
+            panelAction: {
+                method: payload.panelAction
+            }
+        });
+    }
+
+    @Action(DbfsUpdatePanels)
+    updatePanels(ctx: StateContext<DbfsPanelsModel>, { payload }: DbfsUpdatePanels) {
+        this.logger.action('State :: Update Panels', payload);
+        const state = ctx.getState();
+        const idx = (payload.panels.length - 1);
+        ctx.patchState({...state,
+            panels: payload.panels,
+            curPanel: (idx < 0) ? 0 : idx,
+            panelAction: (payload.panelAction) ? payload.panelAction : {}
         });
     }
 }

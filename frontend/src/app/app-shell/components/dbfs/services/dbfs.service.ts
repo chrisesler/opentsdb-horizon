@@ -5,6 +5,7 @@ import { environment } from '../../../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { LoggerService } from '../../../../core/services/logger.service';
+import { namespace } from 'd3';
 
 @Injectable()
 export class DbfsService {
@@ -24,7 +25,7 @@ export class DbfsService {
 
         if (error.error instanceof ErrorEvent) {
             // a client-side or network error occured
-            this.logger.error('DashboardNavigatorService :: An API error occurred', error.error.message);
+            this.logger.error('DbfsService :: An API error occurred', error.error.message);
         } else {
             // the backend returned unsuccessful response code
             // the response body may contain clues of what went wrong
@@ -41,7 +42,7 @@ export class DbfsService {
     loadResources() {
         const apiUrl = environment.configdb + '/dashboard/topFolders';
 
-        this.logger.api('DashboardNavigatorService :: Get Navigation Resource List', { apiUrl });
+        this.logger.api('DbfsService :: Load Resources', { apiUrl });
 
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
@@ -54,6 +55,35 @@ export class DbfsService {
         };
 
         return this.http.get(apiUrl, httpOptions);
+    }
+
+    getFolderByPath(path: string, topFolder?: any) {
+        const params: any = {};
+        let apiUrl: string;
+
+        if (topFolder && topFolder.type && topFolder.value) {
+            const tokenType = (topFolder.type === 'user') ? 'userId' : 'namespace';
+            apiUrl = environment.configdb + '/dashboard/topFolders?' + tokenType + '=' + topFolder.value;
+            params[tokenType] = topFolder.value;
+        } else {
+            apiUrl = environment.configdb + '/dashboard' + path;
+        }
+
+        this.logger.api('DbfsService :: Get Folder By Path', { path, topFolder, apiUrl, params });
+
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
+        const httpOptions: any = {
+            headers,
+            withCredentials: true,
+            responseType: 'json',
+            params
+        };
+
+        return this.http.get(apiUrl, httpOptions);
+
     }
 
 }

@@ -7,6 +7,7 @@ import { map, tap, catchError, reduce } from 'rxjs/operators';
 import { DbfsPanelsState } from './dbfs-panels.state';
 import { DbfsResourcesState } from './dbfs-resources.state';
 import { select } from 'd3';
+import { DBState } from '../../../../dashboard/state';
 
 /** Interface model */
 
@@ -47,6 +48,11 @@ export class DbfsState {
 
     @Selector() static getLoading(state: DbfsStateModel) {
         return state.loading;
+    }
+
+    @Selector([DBState])
+    static getLoadedDashboardId(dbstate) {
+        return dbstate.id;
     }
 
     /** ACTIONS */
