@@ -127,6 +127,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         } else {
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
+                            this.data.ts = [[0]]; // need to reset this data
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
                             setTimeout(() => {
