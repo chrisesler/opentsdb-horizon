@@ -18,7 +18,7 @@ import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../st
 import { LoadUserNamespaces, LoadUserFolderData, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState,
     UpdateWidgets, UpdateGridPos, UpdateWidget,
-    DeleteWidget, WidgetModel, UpdateLastUpdated } from '../../state/widgets.state';
+    DeleteWidget, WidgetModel } from '../../state/widgets.state';
 import {
     WidgetsRawdataState,
     GetQueryDataByGroup,
@@ -707,6 +707,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if ( Object.keys(queries).length ) {
                 const query = this.queryService.buildQuery(payload, dt, queries);
                 gquery.query = query;
+                // ask widget to loading signal
+                this.interCom.responsePut({
+                    id: payload.id,
+                    action: 'WidgetQueryLoading'
+                });
                 // now dispatch request
                 this.store.dispatch(new GetQueryDataByGroup(gquery));
             } else {

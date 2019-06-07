@@ -139,6 +139,10 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
                       this.setOptions();
                       this.refreshData(message.payload.needRefresh);
                       break;
+                  case 'WidgetQueryLoading':
+                        this.nQueryDataLoading = 1;
+                        this.cdRef.detectChanges();
+                        break;
               }
           }
       });

@@ -81,6 +81,10 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                         this.widget = message.payload.widget;
                         this.refreshData(message.payload.needRefresh);
                         break;
+                    case 'WidgetQueryLoading':
+                        this.nQueryDataLoading = 1;
+                        this.cdRef.detectChanges();
+                        break;
                 }
             }
         });
