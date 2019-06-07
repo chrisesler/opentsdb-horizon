@@ -99,6 +99,11 @@ export class DeleteWidget {
     constructor(public readonly wid: string) {}
 }
 
+export class UpdateLastUpdated {
+    public static type = '[Widget] Update lastUpdated';
+    constructor(public readonly payload: any) {}
+}
+
 @State<WidgetsModel>({
     name: 'Widgets',
     defaults: {
@@ -171,5 +176,16 @@ export class WidgetsState {
             state.widgets.splice(index, 1);
             ctx.patchState({ widgets: state.widgets });
         }
+    }
+
+    @Action(UpdateLastUpdated)
+    updateLastUpdated(ctx: StateContext<WidgetsModel>, { payload }: UpdateLastUpdated) {
+        const curState = ctx.getState();
+        const state = this.utils.deepClone(curState);
+        ctx.patchState({ lastUpdated: {
+            id: payload.id,
+            widget: payload.widget,
+            needRefresh: payload.needRequery
+        }});
     }
 }
