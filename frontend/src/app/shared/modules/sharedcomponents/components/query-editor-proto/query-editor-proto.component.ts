@@ -460,6 +460,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const invalidRefs = [];
 
         const aliases = this.getMetricAliases();
+        console.log(aliases);
         for (let i = 0; result && i < result.length; i++) {
             if (!aliases[result[i]]) {
                 invalidRefs.push(result[i]);
@@ -480,9 +481,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         // cross-query aliases
         for (let i = 0; i < this.queries.length; i++) {
             const queryIndex = i + 1;
+            metricIndex = 0;
+            expressionIndex = 0;
             for (let j = 0; j < this.queries[i].metrics.length; j++) {
-                metricIndex = 0;
-                expressionIndex = 0;
                 const alias = this.queries[i].metrics[j].expression === undefined ?
                     'q' + queryIndex + '.' + 'm' + ++metricIndex :
                     'q' + queryIndex + '.' + 'e' + ++expressionIndex;
@@ -517,12 +518,14 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         // cross-query aliases
         for (let i = 0; i < this.queries.length; i++) {
             const queryIndex = i + 1;
+            metricIndex = 0;
+            expressionIndex = 0;
             for (let j = 0; j < this.queries[i].metrics.length; j++) {
-                metricIndex = 0;
-                expressionIndex = 0;
+                // console.log(this.queries[i].metrics[j]);
                 const alias = this.queries[i].metrics[j].expression === undefined ?
                     'q' + queryIndex + '.' + 'm' + ++metricIndex :
                     'q' + queryIndex + '.' + 'e' + ++expressionIndex;
+                // console.log(alias);
                 aliases[alias] = this.queries[i].metrics[j].id;
             }
         }
