@@ -227,7 +227,12 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
         }
     }
 
-    autoRefresh(duration) {
+    autoRefresh(duration, event) {
+        console.log('AUTO REFRESH CLICK', event);
+        if (event.target.classList.contains('refresh-text')) {
+            event.stopPropagation();
+            return;
+        }
         this.newChange.emit( { action: 'SetAutoRefreshFlag', payload: { duration: duration} } );
     }
 
