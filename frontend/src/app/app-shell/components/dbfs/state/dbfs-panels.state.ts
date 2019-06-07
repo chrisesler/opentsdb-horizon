@@ -15,6 +15,7 @@ export interface DbfsPanelModel {
     root?: boolean;
     synthetic?: boolean;
     dynamic?: boolean;
+    trashFolder?: true;
     // items needed for miniNav
     moveEnabled?: boolean;
     selectEnabled?: boolean;
