@@ -207,7 +207,13 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         this.selectedTagIndex = this.getTagIndex(tag);
         this.tagValueTypeControl.setValue('literalor');
         this.tagValueSearchControl.setValue(null);
-        this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter, ...this.filters[this.selectedTagIndex].customFilter];
+        if (this.selectedTagIndex > -1) {
+            if (this.filters[this.selectedTagIndex].customFilter) {
+                this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter, ...this.filters[this.selectedTagIndex].customFilter];
+            } else {
+                this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter];
+            }
+        }
     }
 
     // to remove tag key and all of its values
