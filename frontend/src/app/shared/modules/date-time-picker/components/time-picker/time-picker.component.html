@@ -1,11 +1,11 @@
-<button class="refresh-button" mat-raised-button (click)="refresh()" >
+<button class="refresh-button" mat-raised-button (click)="setRefresh()" >
     <mat-icon fontSet="denali" fontIcon="d-refresh"></mat-icon>
 </button>
-<button class="refresh-button" mat-raised-button (click)="autoRefresh(60, $event)" *ngIf="!isEditMode && !refreshDuration" matTooltip="Turn auto-refresh on" matTooltipPosition="below">
+<button class="refresh-button" mat-raised-button (click)="setAutoRefresh(60, $event)" *ngIf="!isEditMode && (!refresh || !refresh.auto)" matTooltip="Turn auto-refresh on" matTooltipPosition="below">
     <mat-icon fontSet="denali" fontIcon="d-sync-solid"></mat-icon>
 </button>
 
-<button class="refresh-button auto-refresh-button" mat-raised-button (click)="autoRefresh(0, $event)" *ngIf="!isEditMode && refreshDuration" matTooltip="Turn auto-refresh off" matTooltipPosition="below">
+<button class="refresh-button auto-refresh-button" mat-raised-button (click)="setAutoRefresh(0, $event)" *ngIf="!isEditMode && refresh && refresh.auto" matTooltip="Turn auto-refresh off" matTooltipPosition="below">
     <mat-icon fontSet="denali" fontIcon="d-pause-circle-solid"></mat-icon>
     <span class="refresh-text">refreshing in {{secondsRemaining}}s</span>
 </button>

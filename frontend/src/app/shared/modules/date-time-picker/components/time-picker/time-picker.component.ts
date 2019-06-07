@@ -37,7 +37,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
     private _startTime: string;
     private _endTime: string;
     private _timezone: string;
-    private _refresh: number;
+    private _refresh: any;
 
     @Input() xPosition: MenuPositionX = 'before';
     @Input() isEditMode = false;
@@ -68,10 +68,10 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
     }
 
     @Input()
-    set refreshDuration(value: number) {
+    set refresh(value: any) {
         this._refresh = value;
     }
-    get refreshDuration(): number {
+    get refresh(): any {
         return this._refresh;
     }
 
@@ -116,10 +116,12 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if ( changes.refreshDuration !== undefined && changes.refreshDuration.currentValue ) {
-            const duration = changes.refreshDuration.currentValue;
-            if ( duration ) {
-                this.subscribeToAutoRefresh(duration);
+        if ( changes.refresh !== undefined ) {
+            const refresh = changes.refresh.currentValue;
+            if ( refresh && refresh.duration ) {
+                this.subscribeToAutoRefresh(refresh.duration);
+            } else if ( this.refreshSubcription ) {
+                this.refreshSubcription.unsubscribe();
             }
         }
         if ( changes.isEditMode !== undefined ) {
@@ -127,8 +129,8 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
         }
     }
 
-    subscribeToAutoRefresh(refreshOption) {
-        this.secondsRemaining = 60;
+    subscribeToAutoRefresh(seconds) {
+        this.secondsRemaining = seconds;
         // cancels already running subscription
         if ( this.refreshSubcription ) {
             this.refreshSubcription.unsubscribe();
@@ -137,7 +139,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
                                     .pipe(
                                         withLatestFrom(this.paused$),
                                         filter(([v, paused]) => !paused),
-                                        take(60)
+                                        take(seconds)
                                     )
                                     .subscribe(
                                             () => {
@@ -147,7 +149,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
                                             },
                                             () => {
                                                 this.secondsRemaining = 0;
-                                                this.refresh(true);
+                                                this.setRefresh(true);
                                     });
     }
 
@@ -218,7 +220,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
         this.trigger.closeMenu();
     }
 
-    refresh(refreshOnRelativeOnly= false) {
+    setRefresh(refreshOnRelativeOnly= false) {
         if ( !refreshOnRelativeOnly ||
             this.startTime.toLowerCase() === 'now' ||
             this.endTime.toLowerCase() === 'now' ||
@@ -226,19 +228,19 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
             this.utilsService.relativeTimeToMoment(this.endTime) ) {
                 this.timeRangePicker.applyClicked();
         }
-        if ( this.refreshDuration ) {
-            this.subscribeToAutoRefresh(this.refreshDuration);
+        if ( this.refresh.duration ) {
+            this.subscribeToAutoRefresh(this.refresh.duration);
         }
     }
 
-    autoRefresh(duration, event) {
+    setAutoRefresh(duration, event) {
         if (event.target.classList.contains('refresh-text')) {
             event.stopPropagation();
             return;
         }
 
         if ( !this.isEditMode ) {
-            this.newChange.emit( { action: 'SetAutoRefreshFlag', payload: { duration: duration} } );
+            this.newChange.emit( { action: 'SetAutoRefreshConfig', payload: { auto: duration ? 1 : 0,  duration: duration} } );
         }
     }
 
@@ -270,6 +272,8 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
 
     ngOnDestroy() {
         this.paused$.complete();
-        this.refreshSubcription.unsubscribe();
+        if ( this.refreshSubcription ) {
+            this.refreshSubcription.unsubscribe();
+        }
     }
 }
