@@ -19,9 +19,13 @@
                 min-width: 10px;
             }
             span {
-                pointer-events: none;
+                // pointer-events: none;
                 cursor: default;
                 margin-right: 6px;
+            }
+
+            .mat-icon {
+                cursor: pointer;
             }
         }
     }
