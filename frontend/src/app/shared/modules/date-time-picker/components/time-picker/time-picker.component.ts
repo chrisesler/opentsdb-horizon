@@ -40,6 +40,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
     private _refresh: number;
 
     @Input() xPosition: MenuPositionX = 'before';
+    @Input() isEditMode = false;
 
     @Input()
     set startTime(value: string) {
@@ -120,6 +121,9 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
             if ( duration ) {
                 this.subscribeToAutoRefresh(duration);
             }
+        }
+        if ( changes.isEditMode !== undefined ) {
+            this.paused$.next(changes.isEditMode.currentValue);
         }
     }
 
@@ -228,12 +232,14 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
     }
 
     autoRefresh(duration, event) {
-        console.log('AUTO REFRESH CLICK', event);
         if (event.target.classList.contains('refresh-text')) {
             event.stopPropagation();
             return;
         }
-        this.newChange.emit( { action: 'SetAutoRefreshFlag', payload: { duration: duration} } );
+
+        if ( !this.isEditMode ) {
+            this.newChange.emit( { action: 'SetAutoRefreshFlag', payload: { duration: duration} } );
+        }
     }
 
     updateToolTipsAndDisplayTimes() {
@@ -254,7 +260,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
 
     @HostListener('window:focus', ['$event'])
     onFocus(event: any): void {
-        this.paused$.next(false);
+        this.paused$.next(this.isEditMode);
     }
 
     @HostListener('window:blur', ['$event'])

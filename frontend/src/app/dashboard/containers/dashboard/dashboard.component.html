@@ -62,6 +62,7 @@
         [timezone]="dbTime.zone" 
         [startTime]="dbTime.start" 
         [endTime]="dbTime.end"
+        [isEditMode] = "viewEditMode"
         [refreshDuration]="refreshDuration$ | async" 
         [xPosition]="menuXAlignValue">
     </time-picker>
