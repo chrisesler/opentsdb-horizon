@@ -413,6 +413,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // this.logger.log('dbPathSub', { currentLocation: this.location.path(), newPath: '/d' + path, rawPath: path});
             if (path !== '_new_' && path !== undefined) {
                 this.location.replaceState('/d' + path);
+
+                // possibly need to update the dbid
+                // necessary after saving a _new_ dashboard, so save dialog will not prompt again
+                if (this.dbid === '_new_') {
+                    this.dbid = this.store.selectSnapshot<any>(DBState.getDashboardId);
+                }
             }
         }));
 
@@ -494,6 +500,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.dbSettings$.subscribe(settings => {
+            // title in settings is used in various places. Need to keep this
             this.dbSettings = this.utilService.deepClone(settings);
         }));
         this.subscription.add(this.meta$.subscribe(t => {

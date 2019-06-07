@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { UtilsService } from './utils.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ export class YamasService {
     time: any;
     transformedQuery:any;
 
-    constructor() { }
+    constructor( private utils: UtilsService ) { }
 
     buildQuery( time, queries, downsample: any = {} , summaryOnly= false, sorting) {
 
@@ -56,8 +57,7 @@ export class YamasService {
                         }
                         this.transformedQuery.executionGraph.push(q);
                         const aggregator = downsample.aggregator;
-                        const prefix = 'm-' + i + '-' + j;
-                        let dsId = prefix + '-downsample';
+                        let dsId = q.id + '-downsample';
                         // add downsample for the expression
                         this.transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, aggregator, dsId, [q.id]));
 
@@ -68,7 +68,7 @@ export class YamasService {
                             dsId = res.queries[res.queries.length-1].id;
                         }
 
-                        const groupbyId = prefix + '-groupby';
+                        const groupbyId = q.id + '-groupby';
                         groupByIds.push(groupbyId);
                         this.transformedQuery.executionGraph
                             .push(this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId));
@@ -106,7 +106,7 @@ export class YamasService {
     }
 
     getMetricQuery(qindex, mindex) {
-        const mid = 'm-' + qindex + '-' +  mindex;
+        const mid = this.utils.getDSId(this.queries, qindex, mindex);
         const q = {
             id: mid, // using the loop index for now, might need to generate its own id
             type: 'TimeSeriesDataSource',
@@ -193,9 +193,10 @@ export class YamasService {
         }
         return { queries: queries };
     }
+
     getExpressionQuery(qindex, mindex) {
         const config = this.queries[qindex].metrics[mindex];
-        const eid = 'm-' + qindex + '-' + mindex;
+        const eid = this.utils.getDSId(this.queries, qindex, mindex);
 
         const sources = [];
         const  expression = config.expression;
@@ -208,12 +209,12 @@ export class YamasService {
             const id = matches[1];
             const idreg = new RegExp( '\\{\\{' + id + '\\}\\}' , 'g');
             const sindex = this.getSourceIndexById(qindex, id);
-            const sourceId = 'm-' + qindex + '-' + sindex;
+            const sourceId = this.utils.getDSId(this.queries, qindex, sindex);
             let gsourceId = sourceId;
             if (sindex > -1) {
                 gsourceId = this.queries[qindex].metrics[sindex].expression === undefined ? sourceId +  '-groupby' : sourceId ;
             }
-            transformedExp = transformedExp.replace( idreg, sourceId );
+            transformedExp = transformedExp.replace( idreg, ' ' + sourceId + ' ' );
             sources.push(gsourceId);
         }
         const joinTags = {};

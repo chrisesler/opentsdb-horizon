@@ -84,6 +84,48 @@ export class UtilsService {
       return label;
   }
 
+  getDSIndexToMetricIndex(query, dsmindex, type) {
+    let index = 0;
+    let mindex = -1;
+    let eindex = -1;
+    for ( let i = 0; i < query.metrics.length; i++ ) {
+        if ( query.metrics[i].expression ) {
+            eindex++;
+        } else {
+            mindex++;
+        }
+        if ( type === 'e' && eindex === dsmindex ) {
+            index = i;
+            break;
+        } else if ( type === 'm' && mindex === dsmindex  ) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
+
+    getDSId(queries, qindex, mindex) {
+        const getUserMetricIndex = function(index) {
+            let eIdx = 0;
+            let mIdx = 0;
+            for ( let i = 0; i <= index; i++ ) {
+                if ( queries[qindex].metrics[i].expression ) {
+                    eIdx++;
+                } else {
+                    mIdx++;
+                }
+            }
+            return queries[qindex].metrics[index].expression ? eIdx : mIdx;
+        };
+        let mprefix = 'm';
+        const qprefix =  Object.keys(queries).length > 0 ? 'q' + (parseInt(qindex, 10) + 1) + '_' : '';
+        if ( queries[qindex].metrics[mindex].expression) {
+            mprefix = 'e';
+        }
+        return  qprefix + mprefix + getUserMetricIndex(mindex);
+    }
+
   // searches an array of objects for a specify key value and
   // returns the matched object
   getObjectByKey(objs, key, value ) {
