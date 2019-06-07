@@ -218,7 +218,7 @@ export class DashboardService {
           const alias = qFilter.customFilter[j].substring(1, qFilter.customFilter[j].length - 1);
           const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
           if (tplIdx > -1) {
-            if (tplVariables[tplIdx].filter !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
+            if (tplVariables[tplIdx].filter.trim() !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
               qFilter.filter.push(tplVariables[tplIdx].filter);
             }
           }
@@ -234,11 +234,9 @@ export class DashboardService {
           }
         }
       }
-      // in case filter is empty then remove this filter out
-      if (qFilter.filter.length === 0) {
-        query.filters.splice(i, 1);
-      }
     }
+    // clean out empty filter
+    query.filters = query.filters.filter(f => f.filter.length > 0);
     return query;
   }
 
