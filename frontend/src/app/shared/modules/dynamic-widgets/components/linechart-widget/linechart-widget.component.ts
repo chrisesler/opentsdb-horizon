@@ -127,6 +127,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         } else {
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
+                            this.data.ts = [[0]]; // need to reset this data
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
                             setTimeout(() => {
@@ -171,7 +172,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             case 'SetVisualization':
                 this.setVisualization( message.payload.gIndex, message.payload.data );
                 this.options = { ...this.options };
+                this.widget = { ...this.widget };
                 this.refreshData(false);
+                this.cdRef.detectChanges();
                 break;
             case 'SetAlerts':
                 this.widget.settings.thresholds = message.payload.data;
@@ -377,10 +380,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
  //           if (Object.keys(config).length > 0) {
             const chartAxisID = axisKeys[i] === 'y1' ? 'y' : axisKeys[i] === 'y2' ? 'y2' : 'x';
             const axis = this.options.axes[chartAxisID];
-            if ( !isNaN( config.min ) ) {
+            axis.valueRange = [null, null];
+            if ( !isNaN( config.min ) && config.min.trim() !== '' ) {
                 axis.valueRange[0] =  config.min;
             }
-            if ( !isNaN( config.max ) ) {
+            if ( !isNaN( config.max)  && config.max.trim() !== '' ) {
                 axis.valueRange[1] = config.max;
             }
 
@@ -523,9 +527,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             if ( vConfig.axis === 'y2' ) {
                 this.widget.settings.axes.y2.enabled = true;
             }
-            if ( vConfig.type === 'bar' ) {
-                // this.options.series[label].plotter = multiColumnGroupPlotter;
-            }
         }
         // call only axis changes
         this.setAxesOption();
@@ -571,7 +572,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     requestData() {
         if (!this.isDataLoaded) {
-            this.nQueryDataLoading = this.widget.queries.length;
+            this.nQueryDataLoading = 1;
             this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,

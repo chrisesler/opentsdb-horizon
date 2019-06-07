@@ -1,20 +1,21 @@
 import { Injectable } from '@angular/core';
 import { IDygraphOptions } from '../../shared/modules/dygraphs/IDygraphOptions';
-import { barChartPlotter, heatmapPlotter } from '../../shared/dygraphs/plotters';
+import { barChartPlotter, heatmapPlotter, stackedAreaPlotter } from '../../shared/dygraphs/plotters';
 import { UtilsService } from './utils.service';
 import * as d3 from 'd3';
-import { windowWhen } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DatatranformerService {
 
+   REGDSID = /q?(\d+)?_?(m|e)(\d+).*/;
   // tslint:disable:max-line-length
   constructor(private util: UtilsService ) {  }
 
   // options will also be update of its labels array
   yamasToDygraph(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
+    result = { ...result };
     if ( normalizedData.length && normalizedData[0].length === 1 ) {
       // there is no data in here but default, reset it
       normalizedData = [];
@@ -24,16 +25,22 @@ export class DatatranformerService {
     }
     const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
     const dict = {};
+    const queryResults = [];
     const wdQueryStats = this.util.getWidgetQueryStatistics(widget.queries);
+    let isStacked = false;
+    let areaAxis = 'y1';
     let yMax = 0, y2Max = 0;
+    let areaMax = 0;
 
             for ( let i = 0;  i < result.results.length; i++ ) {
-                const queryResults = result.results[i];
-                const [ source, mid ] = queryResults.source.split(":");
-                const qIndex = mid.split('-')[1];
-                const mIndex = mid.split('-')[2];
-                const mConfig = widget.queries[qIndex].metrics[mIndex]; // mConfigs[mIndex];
+                queryResults.push(result.results[i]);
+                const [ source, mid ] = result.results[i].source.split(':');
+                const qids = this.REGDSID.exec(mid);
+                const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
+                const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
+                const mConfig = widget.queries[qIndex].metrics[mIndex];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
+                queryResults[i] = Object.assign( {}, queryResults[i], {visualType: vConfig.type || 'line'} );
                 if ( vConfig.visible ) {
                     if (!dict[mid]) {
                         dict[mid] = { hashes: {}};
@@ -41,13 +48,13 @@ export class DatatranformerService {
                     }
                     if ( source === 'summarizer') {
                         dict[mid]['summarizer'] = {};
-                        const n = queryResults.data.length;
+                        const n = queryResults[i].data.length;
                         for ( let j = 0; j < n; j ++ ) {
-                            const tags = queryResults.data[j].tags;
+                            const tags = queryResults[i].data[j].tags;
                             const hash = JSON.stringify(tags);
-                            const aggs = queryResults.data[j].NumericSummaryType.aggregations;
-                            const key = Object.keys(queryResults.data[j].NumericSummaryType.data[0])[0];
-                            const data = queryResults.data[j].NumericSummaryType.data[0][key];
+                            const aggs = queryResults[i].data[j].NumericSummaryType.aggregations;
+                            const key = Object.keys(queryResults[i].data[j].NumericSummaryType.data[0])[0];
+                            const data = queryResults[i].data[j].NumericSummaryType.data[0][key];
                             const aggData = {};
                             for ( let k = 0; k < aggs.length; k++ ) {
                                 aggData[aggs[k]] = data[k];
@@ -61,47 +68,58 @@ export class DatatranformerService {
                         }
                     } else {
                         dict[mid]['values'] = {}; // queryResults.data;
-                        const n = queryResults.data.length;
+                        const n = queryResults[i].data.length;
                         for ( let j = 0; j < n; j ++ ) {
-                            const tags = queryResults.data[j].tags;
+                            const tags = queryResults[i].data[j].tags;
                             const hash = JSON.stringify(tags);
-                            dict[mid]['values'][hash] = queryResults.data[j].NumericType;
+                            dict[mid]['values'][hash] = queryResults[i].data[j].NumericType;
+                            const max = d3.max(queryResults[i].data[j].NumericType);
+                            if ( vConfig.type === 'area' && max !== undefined ) {
+                                areaMax += Number(max);
+                                isStacked = true;
+                                areaAxis = vConfig.axis || 'y1';
+                            }
                         }
                     }
                 }
             }
-
+    queryResults.sort( (a, b) => a.visualType - b.visualType );
     options.axes.y.tickFormat.max = yMax;
     options.axes.y2.tickFormat.max = y2Max;
+    const axis = areaAxis === 'y1' ? 'y' : 'y2';
+    if ( isStacked && options.axes[axis].valueRange[1] === null  ) {
+        areaMax = areaMax < y2Max ? y2Max : areaMax;
+        options.axes[axis].valueRange[1] = Math.ceil(areaMax + areaMax * 0.05);
+    }
 
     let autoColors =  this.util.getColors( null , wdQueryStats.nVisibleAutoColors );
     autoColors = wdQueryStats.nVisibleAutoColors > 1 ? autoColors : [autoColors];
 
             // sometimes opentsdb returns empty results
-            for ( let i = 0;  i < result.results.length; i++ ) {
-                const queryResults = result.results[i];
-                const [ source, mid ] = queryResults.source.split(':');
+            for ( let i = 0;  i < queryResults.length; i++ ) {
+                const [ source, mid ] = queryResults[i].source.split(':');
                 if ( source === 'summarizer') {
                     continue;
                 }
-                const qIndex = mid.split('-')[1];
-                const mIndex = mid.split('-')[2];
+                const qids = this.REGDSID.exec(mid);
+                const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
+                const mIndex = this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
 
-                const timeSpecification = queryResults.timeSpecification;
+                const timeSpecification = queryResults[i].timeSpecification;
                 const qid = widget.queries[qIndex].id;
                 const mConfig = widget.queries[qIndex].metrics[mIndex];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-                const n = queryResults.data.length;
+                const n = queryResults[i].data.length;
                 const colorIndex = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? wdQueryStats.mVisibleAutoColorIds.indexOf( qid + '-' + mConfig.id ) : -1;
                 const color = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? autoColors[colorIndex] : mConfig.settings.visual.color;
                 const colors = n === 1 ?
                     [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics === 1 && (mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color) ? null : color , n ) ;
                 for ( let j = 0; j < n; j ++ ) {
-                    const data = queryResults.data[j].NumericType;
-                    const tags = queryResults.data[j].tags;
+                    const data = queryResults[i].data[j].NumericType;
+                    const tags = queryResults[i].data[j].tags;
                     const hash = JSON.stringify(tags);
                     const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
-                    const metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults.data[j].metric;
+                    const metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults[i].data[j].metric;
                     const numPoints = data.length;
                     const label = options.labels.length.toString();
                     if ( vConfig.visible ) {
@@ -113,14 +131,19 @@ export class DatatranformerService {
                                 strokeWidth: vConfig.lineWeight ? parseFloat(vConfig.lineWeight) : 1,
                                 strokePattern: this.getStrokePattern(vConfig.lineType),
                                 color: colors[j],
+                                fillGraph: vConfig.type === 'area' ? true : false,
+                                isStacked: vConfig.type === 'area' ? true : false,
                                 axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
                                 metric: metric,
                                 tags: { metric: !mConfig.expression ?
-                                        queryResults.data[j].metric : mLabel, ...tags},
-                                aggregations: aggData
+                                        queryResults[i].data[j].metric : mLabel, ...tags},
+                                aggregations: aggData,
+                                group: vConfig.type
                             };
                             if ( vConfig.type === 'bar') {
                                 options.series[label].plotter = barChartPlotter;
+                            } else if ( vConfig.type === 'area' ) {
+                                options.series[label].plotter = stackedAreaPlotter;
                             }
                             options.series[label].label = this.getLableFromMetricTags(metric, options.series[label].tags);
                         }
@@ -162,7 +185,8 @@ export class DatatranformerService {
             if ( source === 'summarizer') {
                 continue;
             }
-            const mIndex = mid.split('-')[2];
+            const qids = this.REGDSID.exec(mid);
+            const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
 
             const mConfig = mConfigs[mIndex];
             const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
@@ -198,7 +222,9 @@ export class DatatranformerService {
         for ( let i = 0;  i < result.results.length; i++ ) {
             const queryResults = result.results[i];
             const [ source, mid ] = queryResults.source.split(':');
-            const mIndex = mid.split('-')[2];
+            const qids = this.REGDSID.exec(mid);
+            const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
+
             const mConfig = mConfigs[mIndex];
             const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
             if ( source === 'summarizer' || !vConfig.visible) {
@@ -325,8 +351,8 @@ export class DatatranformerService {
         let cIndex = 0;
         const results = queryData.results ? queryData.results : [];
         for ( let i = 0;  i < results.length; i++ ) {
-            const mid = results[i].source.split(':')[1];
-            const configIndex = mid.split('-')[2];
+            const qids = this.REGDSID.exec(results[i].source.split(':')[1]);
+            const configIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
             const mConfig = mConfigs[configIndex];
             if ( !mConfig.settings.visual.visible ) {
                 continue;
@@ -386,7 +412,8 @@ export class DatatranformerService {
 
        for ( let i = 0; i < results.length; i++ ) {
             const mid = results[i].source.split(':')[1];
-            const configIndex = mid.split('-')[2];
+            const qids = this.REGDSID.exec(mid);
+            const configIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
             const mConfig = mConfigs[configIndex];
             const aggregator = mConfig.settings.visual.aggregator[0] || 'sum';
             const n = results[i].data.length;
@@ -426,7 +453,8 @@ export class DatatranformerService {
         let cIndex = 0;
         for ( let i = 0; i < results.length; i++ ) {
             const mid = results[i].source.split(':')[1];
-            const configIndex = mid.split('-')[2];
+            const qids = this.REGDSID.exec(mid);
+            const configIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
             const mConfig = mConfigs[configIndex];
             if ( !mConfig.settings.visual.visible ) {
                 continue;
@@ -465,7 +493,8 @@ export class DatatranformerService {
 
         for ( let i = 0; i < results.length; i++ ) {
             const mid = results[i].source.split(':')[1];
-            const configIndex = mid.split('-')[2];
+            const qids = this.REGDSID.exec(mid);
+            const configIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
             const mConfig = mConfigs[configIndex];
             if ( !mConfig || !mConfig.settings.visual.visible ) {
                 continue;

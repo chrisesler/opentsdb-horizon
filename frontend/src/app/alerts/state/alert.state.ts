@@ -6,12 +6,10 @@ import {
     createSelector
 } from '@ngxs/store';
 
-import {
-    map,
-    catchError
-} from 'rxjs/operators';
+
 
 import { HttpService } from '../../core/http/http.service';
+import { AlertConverterService } from '../services/alert-converter.service';
 
 export interface AlertStateModel {
     status: string;
@@ -49,7 +47,8 @@ export class GetAlertDetailsById {
 
 export class AlertState {
     constructor(
-        private httpService: HttpService
+        private httpService: HttpService,
+        private alertConverter: AlertConverterService
     ) { }
 
     @Selector() static getAlertDetails(state: AlertStateModel) {
@@ -62,7 +61,8 @@ export class AlertState {
         ctx.patchState({ status: 'loading', loaded: false, error: {} });
         this.httpService.getAlertDetailsById(id).subscribe(
             data => {
-                ctx.patchState({data: data, status:'success', loaded: true, error: {}});
+                data = this.alertConverter.convert(data);
+                ctx.patchState({data: data, status: 'success', loaded: true, error: {}});
             },
             err => {
                 ctx.patchState({ data: {}, status: 'failed', loaded: false, error: err });

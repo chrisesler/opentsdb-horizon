@@ -68,7 +68,7 @@
                         </div>
                         <div class="tag-values-selected-list has-scroller" *ngIf="filters[selectedTagIndex]">
                             <div class="is-scroller">
-                                <div class="option-item tag-value-option" *ngFor="let option of filters[selectedTagIndex].filter">
+                                <div class="option-item tag-value-option" *ngFor="let option of filters[selectedTagIndex].filter.concat(filters[selectedTagIndex].customFilter)">
                                     <div class="option-cell add-remove">
                                         <mat-icon (click)="updateTagValueSelection(option, 'remove')">remove_circle_outline</mat-icon>
                                     </div>
