@@ -76,6 +76,7 @@
 <ng-template #defaultPanel let-panel="panel" let-panelIndex="panelIndex">
     <ng-container *ngTemplateOutlet="createDashboardButton"></ng-container>
     <ng-container *ngTemplateOutlet="folderList;context:{folders: panel.subfolders, panelIndex: panelIndex}"></ng-container>
+    <ng-container *ngTemplateOutlet="dashboardList;context:{dashboards: panel.files, panelIndex: panelIndex}"></ng-container>
 </ng-template>
 
 <ng-template #trashPanel let-panel="panel" let-panelIndex="panelIndex">
@@ -86,65 +87,6 @@
     dynamic
 </ng-template>
 
-<ng-template #panelLayout let-panel="panel" let-panelIndex="panelIndex">
-
-    <ng-container *ngIf="!panel.trashFolder && (panel.fullPath === ':panel-root:' || panel.ownerType === 'namespace' || panel.ownerType === 'user')">
-        <ng-container *ngTemplateOutlet="createDashboardButton"></ng-container>
-    </ng-container>
-
-    <ng-container *ngIf="panel.fullPath === ':panel-root:'">
-        <div class="dnav-folders">
-            <mat-nav-list class="folder-list">
-                <mat-list-item *ngFor="let path of panel.personal; let i = index;" class="folder-nav-item" (click)="gotoFolder(path)">
-                    <ng-container *ngTemplateOutlet="folderDisplay;context:{folder: folders[path]}"></ng-container>
-                </mat-list-item>
-            </mat-nav-list>
-        </div>
-        <div class="block-header folders-header">
-            <div class="block-header-label">
-                <span class="header-label">Namespaces</span>
-            </div>
-        </div>
-        <div class="dnav-folders">
-            <mat-nav-list class="folder-list">
-                <mat-list-item *ngFor="let path of panel.namespaces; let i = index;" class="folder-nav-item" (click)="gotoFolder(path)">
-                    <ng-container *ngTemplateOutlet="folderDisplay;context:{folder: folders[path]}"></ng-container>
-                </mat-list-item>
-            </mat-nav-list>
-        </div>
-    </ng-container>
-
-    <ng-container *ngIf="!panel.synthetic && !panel.root && panel.subfolders && panel.files">
-        <div class="block-header folders-header">
-            <div class="block-header-label">
-                <span class="header-label">folders</span>
-            </div>
-        </div>
-        <div class="dnav-folders">
-            <mat-nav-list class="folder-list">
-                <mat-list-item *ngFor="let path of panel.subfolders; let i = index;" class="folder-nav-item" (click)="gotoFolder(path)">
-                    <ng-container *ngTemplateOutlet="folderDisplay;context:{folder: folders[path]}"></ng-container>
-                </mat-list-item>
-            </mat-nav-list>
-        </div>
-        <div class="block-header dashboards-header">
-            <span class="header-label">Dashboards</span>
-            <span class="counter" *ngIf="panel.files.length > 0">
-                <span class="chip-count">{{panel.files.length}}</span>
-            </span>
-            <span class="flex-spacer"></span>
-        </div>
-        <mat-nav-list class="dashboard-list">
-            <mat-list-item *ngIf="panel.files.length === 0" class="no-item-message">
-                <span class="mat-caption no-item-message">There are no dashboards.</span>
-            </mat-list-item>
-            <mat-list-item *ngFor="let path of panel.files">
-                <ng-container *ngTemplateOutlet="fileDisplay;context:{dashboard: files[path]}"></ng-container>
-            </mat-list-item>
-        </mat-nav-list>
-    </ng-container>
-
-</ng-template>
 
 <ng-template #pathTree let-panels="panels", let-i="i">
     <mat-nav-list class="path-tree">
@@ -219,8 +161,79 @@
     </div>
 </ng-template>
 
-<ng-template #fileList let-files="files" let-panelIndex="panelIndex">
+<ng-template #dashboardList let-dashboards="dashboards" let-panelIndex="panelIndex">
+    <div class="block-header dashboards-header">
+        <span class="header-label">Dashboards</span>
+        <span class="counter" *ngIf="dashboards.length > 0">
+            <span class="chip-count">{{dashboards.length}}</span>
+        </span>
+        <span class="flex-spacer"></span>
+        <button mat-icon-button *ngIf="activeMediaQuery !== 'xs'" (click)="createDashboard()">
+            <mat-icon fontSet="denali" fontIcon="d-dashboard-tile-add"></mat-icon>
+        </button>
+        <button mat-icon-button (click)="editDashboards()" *ngIf="dashboards.length > 0 && activeMediaQuery !== 'xs'" style="display: none;">
+            <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+        </button>
+    </div>
+    <mat-nav-list class="dashboard-list">
+        <mat-list-item *ngIf="dashboards.length === 0" class="no-item-message">
+            <span class="mat-caption no-item-message">There are no dashboards.</span>
+        </mat-list-item>
+        <mat-list-item *ngFor="let dashboard of dashboards">
+            <dnav-dashboard-item [dashboard]="dashboard" (dashboardAction)="dashboardItemAction(dashboard, $event)"></dnav-dashboard-item>
+        </mat-list-item>
+    </mat-nav-list>
+</ng-template>
 
+<ng-template #dashboardItem let-dashboard="dashboard" let-panelIndex="panelIndex">
+    <a routerLink="/d/{{dashboard.id}}{{dashboard.fullPath}}" (click)="menuAction('navigateTo')"class="dnav-dashboard-link flex-spacer">
+        <mat-icon class="dnav-dashboard-icon" fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
+        <span class="dnav-dashboard-label">{{dashboard.name}}</span>
+    </a>
+    <span class="dnav-dashboard-menu">
+        <button mat-icon-button (click)="clickMore($event)">
+            <mat-icon fontSet="denali" fontIcon="d-more-vertical"></mat-icon>
+        </button>
+    </span>
+    <span class="dnav-menu-trigger"
+        [matMenuTriggerFor]="dnavDashboardItemMenu" 
+        (menuOpened)="menuState(true)"
+        (menuClosed)="menuState(false)"
+        #dashboardMenuTrigger></span>
+    <span class="dnav-menu-trigger last-child"
+        [matMenuTriggerFor]="dnavMiniNavigator" 
+        (menuOpened)="menuState(true); miniNav.menuOpen = true;"
+        (menuClosed)="menuState(false); miniNav.menuOpen = false;"
+        #dashboardMiniNavTrigger></span>
+    <mat-menu class="dnav-cdk-dashboard-menu" xPosition="after" #dnavDashboardItemMenu="matMenu" style="transform: translate3d(30px,-32px,0);">
+        <button mat-menu-item (click)="menuAction('openNewTab')">
+            <mat-icon fontSet="denali" fontIcon="d-external"></mat-icon>
+            <span>Open in new tab</span>
+        </button>
+        
+        <button mat-menu-item (click)="menuAction('moveDashboard')">
+            <mat-icon fontSet="denali" fontIcon="d-folder-merge"></mat-icon>
+            <span>Move Dashboard</span>
+        </button>
+        <!-- Hiding for now
+        <button mat-menu-item>
+            <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
+            <span>Copy</span>
+        </button>-->
+        <button mat-menu-item (click)="menuAction('deleteDashboard')">
+            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+            <span>Move to trash</span>
+        </button>
+    </mat-menu>
+    <mat-menu class="dnav-cdk-mini-navigator" xPosition="after" #dnavMiniNavigator="matMenu" style="transform: translate3d(30px, -31px, 0);">
+        <div mat-menu-item (click)="$event.stopPropagation();" [disableRipple]="true">
+            <mini-navigator mode="move" type="dashboard" [path]="dashboard.fullPath" 
+                (navigationCancel)="miniNavTrigger.closeMenu()"
+                (directorySelected)="miniNavAction($event)"
+                #miniNav></mini-navigator>
+        </div>
+    </mat-menu>
+    
 </ng-template>
 
 <ng-template #folderDisplay let-folder="folder">
