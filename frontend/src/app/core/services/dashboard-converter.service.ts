@@ -7,7 +7,7 @@ import { MAT_SLIDE_TOGGLE_DEFAULT_OPTIONS } from '@angular/material';
 })
 export class DashboardConverterService {
 
-  currentVersion = 3;
+  currentVersion = 4;
 
   constructor(private utils: UtilsService) { }
 
@@ -143,6 +143,25 @@ export class DashboardConverterService {
       }
     }
     dashboard.content.widgets = widgets;
+    return dashboard;
+  }
+
+    // update dashboard to version 3, we move tplVariables to top and remove
+  // enable things
+  toDBVersion4(dashboard: any) {
+    dashboard.content.version = 4;
+    const tplVariables = [...dashboard.content.settings.tplVariables];
+    for (let i = 0; i < tplVariables.length; i++) {
+        const varObj: any = tplVariables[i];
+        if (Array.isArray(varObj.filter)) {
+          if (varObj.filter.length > 0) {
+            varObj.filter = varObj.filter[0];
+          } else {
+            varObj.filter = '';
+          }
+        }
+    }
+    dashboard.content.settings.tplVariables = tplVariables;
     return dashboard;
   }
 }
