@@ -175,21 +175,35 @@ export class YamasService {
         for ( let i = 0; i < funs.length; i++ ) {
             const id = 'm' + index + '-rate-' + i;
             const fxCall = funs[i].fxCall;
+            const q = {
+                'id': id ,
+                'type': 'rate',
+                'interval': funs[i].val,
+                'counter': false,
+                'dropResets': false,
+                'deltaOnly': false,
+                'sources': [ds]
+            };
             switch ( fxCall ) {
                 case 'RateOfChange':
+                    q.deltaOnly = false;
+                    break;
+                case 'RateDiff':
+                    q.deltaOnly = true;
+                    break;
                 case 'CounterToRate':
-                    const q = {
-                            'id': id ,
-                            'type': 'rate',
-                            'interval': funs[i].val,
-                            'counter': fxCall === 'RateOfChange' ? false : true,
-                            'dropResets': fxCall === 'RateOfChange' ? false : true,
-                            'sources': [ds]
-                        };
-                    queries.push(q);
-                    ds = id;
+                    q.counter = true;
+                    q.dropResets = true;
+                    q.deltaOnly = false;
+                    break;
+                case 'CounterDiff':
+                    q.counter = true;
+                    q.dropResets = true;
+                    q.deltaOnly = true;
                 break;
             }
+            queries.push(q);
+            ds = id;
         }
         return { queries: queries };
     }
