@@ -127,10 +127,18 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                 {
                     label: 'Rate of Change',
                     fxCall: 'RateOfChange'
+                }, 
+                {
+                    label: 'Value Difference',
+                    fxCall: 'RateDiff'
                 },
                 {
                     label: 'Counter to Rate',
                     fxCall: 'CounterToRate'
+                },
+                {
+                    label: 'Counter Value Difference',
+                    fxCall: 'CounterDiff'
                 }
             ]
         }

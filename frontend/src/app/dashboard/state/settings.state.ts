@@ -126,7 +126,6 @@ export class DBSettingsState {
     updateVariables(ctx: StateContext<DBSettingsModel>, { variables }: UpdateVariables) {
         const state = ctx.getState();
         ctx.patchState({...state, tplVariables: [...variables]});
-        console.log('changes - state', state);
     }
 
     @Action(UpdateMeta)

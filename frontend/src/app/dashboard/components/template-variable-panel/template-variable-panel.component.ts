@@ -40,7 +40,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     disableDone = false;
     effectedWidgets: any = {};
     undo: any = {};
-    countApplied = 0;
     constructor (private fb: FormBuilder, private interCom: IntercomService, private utils: UtilsService ) { }
 
     ngOnInit() {
@@ -56,48 +55,13 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         if (changes.tplVariables) {
             this.initListFormGroup();
         }
-         if (changes.undoState && changes.undoState.currentValue) {
-            this.undo = { ...changes.undoState.currentValue };
-            if (this.undo.index > -1 && !this.mode.view) {
-                const selControl = this.getSelectedControl(this.undo.index);
-                if (selControl) {
-                    selControl.get('applied').setValue(this.undo.applied);
-                }
-            }
-        }
     }
-
-    bulkAction(action: string, index: number) {
-        const selControl = this.getSelectedControl(index);
-        const chkWidgets = this.checkEligibleWidgets(selControl);
-        if (action === 'append' && selControl.get('applied').value === chkWidgets.effectedCount) {
-            return;
-        }
-        this.interCom.requestSend({
-            action: 'BulkAction_' + action,
-            payload: { vartag: selControl.value,
-                       effectedWidgets: chkWidgets.ewid,
-                       tplIndex: index
-                    }
-        });
-    }
-
-    undoAction(index: number) {
-        // const selControl = this.getSelectedControl(index);
-        // selControl.get('applied').setValue(0);
-        this.interCom.requestSend({
-            action: 'Undo_customFilers',
-            payload: { tplIndex: index }
-        });
-    }
-
     doEdit() {
         this.mode = { view: false};
         this.initEditFormGroup();
         this.interCom.requestSend({ action: 'getDashboardTags'});
     }
     initListFormGroup() {
-        this.countApplied = 0;
         this.listForm = this.fb.group({
             listVariables: this.fb.array([])
         });
@@ -105,12 +69,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
             const vardata = {
                 tagk: new FormControl((data.tagk) ? data.tagk : '', []),
                 alias: new FormControl((data.alias) ? data.alias : '', []),
-                filter: new FormControl((data.filter) ? data.filter : '', []),
-                applied: new FormControl(data.applied ? data.applied : 0)
+                filter: new FormControl((data.filter) ? data.filter : '', [])
             };
             const control = <FormArray>this.listForm.controls['listVariables'];
             control.push(this.fb.group(vardata));
-            this.countApplied += data.applied || 0;
         }
     }
 
@@ -159,8 +121,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         const varData = {
             tagk: new FormControl((data.tagk) ? data.tagk : '', [Validators.required]),
             alias: new FormControl((data.alias) ? data.alias : '', [Validators.required]),
-            filter: new FormControl((data.filter) ? data.filter : '', []),
-            applied: new FormControl(data.applied ? data.applied : 0)
+            filter: new FormControl((data.filter) ? data.filter : '', [])
         };
         const control = <FormArray>this.editForm.controls['formTplVariables'];
         control.push(this.fb.group(varData));
@@ -180,22 +141,25 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     onVariableBlur(event: any, index: number) {
         const control = <FormArray>this.listForm.controls['listVariables'];
         const selControl = control.at(index);
+        const eWidgets  = this.checkEligibleWidgets(selControl);
         if (event.relatedTarget && event.relatedTarget.className === 'mat-option ng-star-inserted') {
             selControl['controls'].filter.setValue(event.relatedTarget.innerText.trim());
         } else {
             const val = selControl['controls'].filter.value;
-            const idx = this.filteredValues.findIndex(item => item.toLowerCase() === val.toLowerCase());
+            // error when the val is empty
+            const idx = this.filteredValues.findIndex(item => item && item.toLowerCase() === val.toLowerCase());
             if (idx === -1) {
                 selControl['controls'].filter.setValue('');
             } else {
                 selControl['controls'].filter.setValue(this.filteredValues[idx]);
             }
         }
-        this.updateState(selControl, 'listForm');
-        this.interCom.requestSend({
-            action: 'ApplyTplVarValue',
-            payload: selControl.value
-        });
+        if (this.tplVariables[index].filter !== selControl['controls'].filter.value) {
+            this.updateState(selControl, 'listForm');
+            this.interCom.requestSend({
+                action: 'ApplyTplVarValue'
+            });
+        }
     }
 
     onInputFocus(cname: string, index: number) {
@@ -275,23 +239,23 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
     onInputBlur(cname: string, index: number) {
         const selControl = this.getSelectedControl(index);
         const val = selControl['controls'][cname].value;
-        if (val) {
-            // when user type in and click select and if value is not valid, reset
-            if (cname === 'tagk' && this.dbTagKeys.tags.indexOf(val) === -1) {
-                selControl['controls'][cname].setValue('');
-                selControl['controls']['filter'].setValue('');
-            } else {
-                this.prevSelectedTagk = val;
-            }
-            if (cname === 'filter' && this.filteredValues.indexOf(val) === -1) {
-                selControl['controls'][cname].setValue('');
+        // when user type in and click select and if value is not valid, reset
+        if (cname === 'tagk' && this.dbTagKeys.tags.indexOf(val) === -1) {
+            selControl['controls'][cname].setValue('');
+            selControl['controls']['filter'].setValue('');
+        } else {
+            this.prevSelectedTagk = val;
+        }
+        if (cname === 'filter' && this.filteredValues.indexOf(val) === -1) {
+            selControl['controls'][cname].setValue('');
+            if (this.tplVariables[index].filter !== val) {
                 this.updateState(selControl, 'editForm');
                 this.interCom.requestSend({
-                    action: 'ApplyTplVarValue',
-                    payload: selControl.value
+                    action: 'ApplyTplVarValue'
                 });
             }
         }
+
     }
 
     // update state if it's is valid
@@ -315,8 +279,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         const selControl = this.getSelectedControl(index);
         this.updateState(selControl, 'editForm');
         this.interCom.requestSend({
-            action: 'ApplyTplVarValue',
-            payload: selControl.value
+            action: 'ApplyTplVarValue'
         });
     }
 
@@ -415,11 +378,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                 }
             }
         }
-        return { ewid, effectedCount };
-    }
-    canAppend(index: number) {
-        const selControl = this.getSelectedControl(index);
-        const chkWidgets = this.checkEligibleWidgets(selControl);
-        return selControl.get('applied').value < chkWidgets.effectedCount ? true : false;
+        return { ewid };
     }
 }
