@@ -53,6 +53,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     tplVariables: any[];
     visible = false;
     regexVars = /^\[.*\]$/;
+    selectedTagValues = []; // to hold list selected values of both filter and customFilter
     constructor(
         private elRef: ElementRef,
         private httpService: HttpService,
@@ -206,6 +207,13 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         this.selectedTagIndex = this.getTagIndex(tag);
         this.tagValueTypeControl.setValue('literalor');
         this.tagValueSearchControl.setValue(null);
+        if (this.selectedTagIndex > -1) {
+            if (this.filters[this.selectedTagIndex].customFilter) {
+                this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter, ...this.filters[this.selectedTagIndex].customFilter];
+            } else {
+                this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter];
+            }
+        }
     }
 
     // to remove tag key and all of its values
@@ -281,12 +289,16 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
 
             if ( (this.filters[this.selectedTagIndex].filter.length === 0 && !this.filters[this.selectedTagIndex].customFilter) ||
                 (this.filters[this.selectedTagIndex].filter.length === 0 &&
-                    this.filters[this.selectedTagIndex].customFilter && this.filters[this.selectedTagIndex].customFilter.length === 0)) {
+                    this.filters[this.selectedTagIndex].customFilter.length === 0)) {
                 this.filters.splice(this.selectedTagIndex, 1);
                 this.selectedTagIndex = -1;
             }
+
         }
         this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        if (this.selectedTagIndex > -1) {
+            this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter, ...this.filters[this.selectedTagIndex].customFilter];
+        }
         this.queryChanges$.next(true);
     }
 
