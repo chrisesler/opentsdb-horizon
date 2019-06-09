@@ -665,6 +665,37 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         });
     }
 
+    canDeleteQuery() {
+        let canDelete = true;
+        const metricIds = [];
+        for (const metric of this.query.metrics) {
+            metricIds.push(metric.id);
+        }
+
+        if (this.queries) { // cross queries
+            for (let query of this.queries) {
+                for ( let i = 0; i < query.metrics.length; i++ ) {
+                    const expression = query.metrics[i].expression;
+                    if (expression && query.id !== this.query.id && this.expressionContainIds(expression, metricIds)) {
+                        canDelete = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return canDelete;
+
+    }
+
+    expressionContainIds(expression, ids) {
+        for (let id of ids) {
+            if (expression.indexOf('{{' + id + '}}') !== -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     cloneMetric(id) {
         const index = this.query.metrics.findIndex(d => d.id === id );
         const oMetric = this.query.metrics[index];
@@ -685,11 +716,24 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const index = this.query.metrics.findIndex(d => d.id === id ) ;
         const metrics = this.query.metrics;
         let canDelete = true;
-        for ( let i = 0; i < metrics.length; i++ ) {
-            const expression = metrics[i].expression;
-            if ( expression && i !== index  &&  expression.indexOf('{{' + id + '}}') !== -1 ) {
-                canDelete = false;
-                break;
+
+        if (this.queries) { // cross queries
+            for (let query of this.queries) {
+                for ( let i = 0; i < query.metrics.length; i++ ) {
+                    const expression = query.metrics[i].expression;
+                    if ( expression && i !== index  &&  expression.indexOf('{{' + id + '}}') !== -1 ) {
+                        canDelete = false;
+                        break;
+                    }
+                }
+            }
+        } else {
+            for ( let i = 0; i < metrics.length; i++ ) {
+                const expression = metrics[i].expression;
+                if ( expression && i !== index  &&  expression.indexOf('{{' + id + '}}') !== -1 ) {
+                    canDelete = false;
+                    break;
+                }
             }
         }
         return canDelete;
