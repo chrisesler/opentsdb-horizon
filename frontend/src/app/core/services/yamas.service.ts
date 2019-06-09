@@ -208,41 +208,6 @@ export class YamasService {
         return { queries: queries };
     }
 
-    getSourceIDAndTypeFromMetricID(nodeId) {
-        const size = Object.keys(this.queries).length;
-        // tslint:disable-next-line:forin
-        for (const i in this.queries) {
-            const queryIndex = parseInt(i, 10) + 1;
-            let metricIndex = 0;
-            let expressionIndex = 0;
-            for (let j = 0; j < this.queries[i].metrics.length; j++) {
-                // calculate expression, metric indexes
-                if (this.queries[i].metrics[j].expression) {
-                    expressionIndex++;
-                } else {
-                    metricIndex++;
-                }
-
-                if (this.queries[i].metrics[j].id === nodeId) {
-                    if (size > 1) { // multi-query format
-                        if (this.queries[i].metrics[j].expression) {
-                            return { id: 'q' + queryIndex + '_' + 'e' + expressionIndex, expression: true};
-                        } else {
-                            return { id: 'q' + queryIndex + '_' + 'm' + metricIndex, expression: false};
-                        }
-                    } else { // basic format
-                        if (this.queries[i].metrics[j].expression) {
-                            return {id: 'e' + expressionIndex, expression: true};
-                        } else {
-                            return {id: 'm' + metricIndex, expression: false};
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
     getExpressionQuery(qindex, mindex) {
         const config = this.queries[qindex].metrics[mindex];
         let transformedExp = config.expression;
@@ -257,7 +222,7 @@ export class YamasService {
         while (matches = re.exec(expression)) {
             const id = matches[1];
             const idreg = new RegExp( '\\{\\{' + id + '\\}\\}' , 'g');
-            const sourceIdAndType = this.getSourceIDAndTypeFromMetricID(id);
+            const sourceIdAndType = this.utils.getSourceIDAndTypeFromMetricID(id, this.queries);
             const sourceId = sourceIdAndType.id;
             const isExpression = sourceIdAndType.expression;
             transformedExp = transformedExp.replace(idreg, ' ' + sourceId + ' ' );

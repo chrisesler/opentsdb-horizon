@@ -183,38 +183,38 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         }
     }
 
-    getVisibleQueryAndMetricIndex() {
+    getVisibleMetricId() {
         // tslint:disable-next-line:forin
         for (let i in this.widget.queries) {
-            for (let j in  this.widget.queries[i].metrics) {
+            for (let j in this.widget.queries[i].metrics) {
                 if (this.widget.queries[i].metrics[j].settings.visual.visible) {
-                    return {query: parseInt(i, 10), metric: parseInt(j, 10)};
+                    return this.widget.queries[i].metrics[j].id;
                 }
             }
         }
     }
 
-    getMetric(): any {
-        let metric = {};
-        let qmIndex = this.getVisibleQueryAndMetricIndex();
-        let queryIndex = qmIndex.query;
-        let metricIndex = qmIndex.metric;
-        console.log(this.data);
-        if (this.data) {
-            for ( let i = 0; this.data && i < this.data.length; i++ ) {
-                const [ source, mid ] = this.data[i].source.split(':'); // example: summarizer:q1_m2,  summarizer:m2
-                const qids = /q?(\d+)?_?(m|e)(\d+).*/.exec(mid);
-                const qIndex = qids[1] === undefined ? 0 : parseInt(qids[1], 10) - 1; // example: 0
-                const mIndex = parseInt(qids[3], 10) - 1; // example: 1
-                if (queryIndex === qIndex && metricIndex ===  mIndex) {
-                    metric = this.data[i].data[0];
-                    break;
-                }
-            }
-        }
-        console.log(metric);
-        return metric;
-    }
+    // getMetric(): any {
+    //     let metric = {};
+    //     let qmIndex = this.getVisibleQueryAndMetricIndex();
+    //     let queryIndex = qmIndex.query;
+    //     let metricIndex = qmIndex.metric;
+    //     console.log(this.data);
+    //     if (this.data) {
+    //         for ( let i = 0; this.data && i < this.data.length; i++ ) {
+    //             const [ source, mid ] = this.data[i].source.split(':'); // example: summarizer:q1_m2, summarizer:m2
+    //             const qids = /q?(\d+)?_?(m|e)(\d+).*/.exec(mid);
+    //             const qIndex = parseInt(qids[1], 10) - 1; // example: 0 or NaN
+    //             const mIndex = parseInt(qids[3], 10) - 1; // example: 1
+    //             if ((isNaN(qIndex) || queryIndex === qIndex) && metricIndex ===  mIndex) {
+    //                 metric = this.data[i].data[0];
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     console.log(metric);
+    //     return metric;
+    // }
 
     isNumber(value: string | number): boolean {
         if (value === 0) {
@@ -225,18 +225,22 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     setBigNumber() {
-        let qmIndex = this.getVisibleQueryAndMetricIndex();
-        let queryIndex = qmIndex.query;
-        let metricIndex = qmIndex.metric;
-        let metric = this.getMetric();
+        let metricId = this.getVisibleMetricId();
+        // let queryIndex = qmIndex.query;
+        // let metricIndex = qmIndex.metric;
+        // let metric = this.getMetric();
+        // let tsdbId = this.util.getSourceIDAndTypeFromMetricID(metricId, this.widget.queries).id;
+        // let metric = this.util.getDataForMetric(this.data, tsdbId);
+        let metric = this.util.getSummmarizerDataWithId(metricId, this.widget.queries, this.data);
 
         // tslint:disable-next-line:max-line-length
-        if (metric && metric.NumericSummaryType && this.widget.queries[queryIndex] && this.widget.queries[queryIndex].metrics[metricIndex]) {
+        // if (metric && metric.NumericSummaryType && this.widget.queries[queryIndex] && this.widget.queries[queryIndex].metrics[metricIndex]) {
+        if (metric && metric.NumericSummaryType) {
             const responseAggregators = metric.NumericSummaryType.aggregations;
             const key = Object.keys(metric.NumericSummaryType.data[0])[0];
             const responseAggregatorValues = metric.NumericSummaryType.data[0][key];
             // tslint:disable-next-line:max-line-length
-            let summarizer = this.widget.queries[queryIndex].metrics[metricIndex].summarizer ? this.widget.queries[queryIndex].metrics[metricIndex].summarizer : 'avg';
+            let summarizer = this.util.getSummarizerForMetric(metricId, this.widget.queries);
             this.aggregatorValues = [responseAggregatorValues[responseAggregators.indexOf(summarizer)]];
 
             // SET LOCAL VARIABLES
@@ -463,14 +467,17 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.refreshData(false);
                 break;
             case 'SetSelectedQuery':
-                console.log('*', message.payload.data);
-                this.setSelectedQuery(message.payload.data);
+                // todo
+                console.log('need to implement', message.action);
+                // this.setSelectedQuery(message.payload.data);
                 break;
             case 'UpdateQuery':
-                this.updateQuery(message.payload);
-                this.widget.queries = [...this.widget.queries];
-                this.refreshData();
-                this.needRequery = true;
+                // todo
+                console.log('need to implement', message.action);
+                // this.updateQuery(message.payload);
+                // this.widget.queries = [...this.widget.queries];
+                // this.refreshData();
+                // this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
@@ -495,7 +502,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.deleteQuery(message.id);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
-                // this.needRequery = true;
+                this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
@@ -506,16 +513,17 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         }
     }
 
+    // todo - when is this called?
     updateQuery( payload ) {
-        const query = payload.query;
-        const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
-        if ( qindex !== -1 ) {
-            this.widget.queries[qindex] = query;
-        }
+        // const query = payload.query;
+        // const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
+        // if ( qindex !== -1 ) {
+        //     this.widget.queries[qindex] = query;
+        // }
 
-        let index = 0;
-        console.log(payload);
-        // todo - figure out
+        // let index = 0;
+        // console.log(payload);
+
         // for (let metric of this.widget.queries[0].metrics) {
         //     if (this.widget.settings.visual.queryID === index) {
         //         metric.settings.visual.visible = true;
@@ -551,13 +559,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     setSelectedQuery(queryID: string) {
-        console.log('setting selected query', queryID);
-        let metric = this.getMetric();
-        if (metric) {
-            this.setBigNumber();
-        } else {
-            this.refreshData();
-        }
+        // this.refreshData();
+        // this.setBigNumber();
     }
 
     refreshData(reload = true) {
@@ -644,38 +647,51 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         }
 
         this.widget.queries[qindex].metrics[mindex].settings.visual.visible = true;
-
         this.refreshData(false);
         this.setBigNumber();
     }
 
+    enableFirstMetricVisibility() {
+        for (let query of this.widget.queries) {
+            for (let metric of query.metrics) {
+                metric.settings.visual.visible = true;
+                break;
+            }
+        }
+    }
+
     deleteQueryMetric(qid, mid) {
-        console.log(qid, mid);
         // toggle the individual query
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-        console.log(this.widget);
+        const resetVisbility = this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
         this.widget.queries[qindex].metrics.splice(mindex, 1);
-        console.log(this.widget);
 
         // only reindex visibility if there are metrics AND deleted metric is visible metric
-        // todo - figure out
-        // if (mindex === this.widget.settings.visual.queryID && this.widget.queries[qindex].metrics.length !== 0) {
-        //     this.widget.queries[0].metrics[0].settings.visual.visible = true;
-        //     this.widget.settings.visual.queryID = 0;
-        // }
+        if (resetVisbility && this.widget.queries[qindex].metrics.length !== 0) {
+            this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
+        }
 
-        // if (this.widget.queries[qindex].metrics.length === 1) {
-        //     this.widget.queries[0].metrics[0].settings.visual.visible = true;
-        //     this.widget.settings.visual.queryID = 0;
-        // }
+        if (resetVisbility && this.widget.queries[qindex].metrics.length === 0) {
+            this.enableFirstMetricVisibility();
+        }
     }
 
     deleteQuery(qid) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        console.log(qindex);
-        this.widget.queries.splice(qindex, 1);
-        console.log(this.widget);
+        let resetVisbility = false;
+        for (let metric of this.widget.queries[qindex].metrics ) {
+            if (metric.settings.visual.visible) {
+                resetVisbility = true;
+                break;
+            }
+        }
+        if (this.widget.queries.length > 1) {
+            this.widget.queries.splice(qindex, 1);
+            if (resetVisbility) {
+                this.enableFirstMetricVisibility();
+            }
+        }
     }
 
     deleteQueryFilter(qid, findex) {

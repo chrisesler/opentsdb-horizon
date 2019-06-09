@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { analyzeAndValidateNgModules } from '@angular/compiler';
 
 @Injectable({
   providedIn: 'root'
@@ -314,4 +315,76 @@ export class UtilsService {
       }
       return 0;
   }
+
+    getSummarizerForMetric(id, queries) {
+        // tslint:disable-next-line:max-line-length
+        let metric = this.getMetricFromId(id, queries);
+        return metric.summarizer ? metric.summarizer : 'avg';
+    }
+
+    getSummmarizerDataWithId(id, queries, data) {
+        const sourceId = this.getSourceIDAndTypeFromMetricID(id, queries).id;
+        return this.getSummarizerDataForMetric(data, sourceId);
+    }
+
+    getSummarizerDataForMetric(data, tsdbId): any {
+        let metric = {};
+        console.log(data, tsdbId);
+        if (data) {
+            for ( let i = 0; data && i < data.length; i++ ) {
+                const [ source, mid ] = data[i].source.split(':'); // example: summarizer:q1_m2, summarizer:m2
+                if (mid === tsdbId) {
+                    metric = data[i].data[0];
+                    break;
+                }
+            }
+        }
+        console.log(metric);
+        return metric;
+    }
+
+    getMetricFromId(id, queries) {
+        // tslint:disable-next-line:forin
+        for (let i in queries) {
+            for (let j in queries[i].metrics) {
+                if (queries[i].metrics[j].id === id) {
+                    return queries[i].metrics[j].id;
+                }
+            }
+        }
+    }
+
+    getSourceIDAndTypeFromMetricID(nodeId, queries) {
+        const size = Object.keys(queries).length;
+        // tslint:disable-next-line:forin
+        for (const i in queries) {
+            const queryIndex = parseInt(i, 10) + 1;
+            let metricIndex = 0;
+            let expressionIndex = 0;
+            for (let j = 0; j < queries[i].metrics.length; j++) {
+                // calculate expression, metric indexes
+                if (queries[i].metrics[j].expression) {
+                    expressionIndex++;
+                } else {
+                    metricIndex++;
+                }
+
+                if (queries[i].metrics[j].id === nodeId) {
+                    if (size > 1) { // multi-query format
+                        if (queries[i].metrics[j].expression) {
+                            return { id: 'q' + queryIndex + '_' + 'e' + expressionIndex, expression: true};
+                        } else {
+                            return { id: 'q' + queryIndex + '_' + 'm' + metricIndex, expression: false};
+                        }
+                    } else { // basic format
+                        if (queries[i].metrics[j].expression) {
+                            return {id: 'e' + expressionIndex, expression: true};
+                        } else {
+                            return {id: 'm' + metricIndex, expression: false};
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
