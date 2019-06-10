@@ -102,12 +102,14 @@ export class UnitConverterService {
                     }
                     value = value / 1000;
                     sUnit = this.getDetails('microseconds');
+                    destUnit = sUnit.key;
                 case 'microseconds':
                     if (value / 1000 < 1) {
                         break;
                     }
                     value = value / 1000;
                     sUnit = this.getDetails('milliseconds');
+                    destUnit = sUnit.key;
                 default: 
                     const timeUnits: any[] = this.units.filter((d: any) => d.type === 'time');
                     for (let i = sUnit.index; i < timeUnits.length; i++) {
@@ -146,20 +148,19 @@ export class UnitConverterService {
         const postfix =  options.unit && this.isCustomUnit(options.unit) ? options.unit : ''; // unknown units will be added as postfix
 
         let result=value;
-
         // noop in case src and dest units are the same
         if (srcUnitKey !== destUnitKey) {
             if ( dUnit && dUnit.type === 'time' ) {
                 switch(srcUnitKey) {
                     case 'nanoseconds':
-                        if (destUnitKey.key === 'microseconds') {
+                        if (destUnitKey === 'microseconds') {
                             result = value / 1000;
                             break;
                         }
                         value = value / 1000;
                         srcUnitKey = 'microseconds'; // cascade to microseconds
                     case 'microseconds':
-                        if (destUnitKey.key === 'milliseconds') {
+                        if (destUnitKey === 'milliseconds') {
                             result = value / 1000;
                             break;
                         }

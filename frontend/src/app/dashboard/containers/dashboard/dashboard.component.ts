@@ -32,6 +32,7 @@ import {
     DBSettingsState,
     UpdateMode,
     UpdateDashboardTime,
+    UpdateDashboardAutoRefresh,
     LoadDashboardSettings,
     UpdateDashboardTimeZone,
     UpdateDashboardTitle,
@@ -69,6 +70,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
     @Select(DBState.getDashboardError) dbError$: Observable<any>;
     @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
+    @Select(DBSettingsState.getDashboardAutoRefresh) refresh$: Observable<any>;
     @Select(DBSettingsState.getMeta) meta$: Observable<any>;
     @Select(DBSettingsState.getTplVariables) tplVariables$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
@@ -776,8 +778,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
+    handleTimePickerChanges(message) {
+        switch ( message.action  ) {
+            case 'SetDateRange':
+                this.setDateRange(message.payload.newTime);
+                break;
+            case 'SetAutoRefreshConfig':
+                this.setAutoRefresh(message.payload);
+                break;
+        }
+    }
+
     setDateRange(e: any) {
         this.store.dispatch(new UpdateDashboardTime({ start: e.startTimeDisplay, end: e.endTimeDisplay }));
+    }
+
+    setAutoRefresh(refresh) {
+        this.store.dispatch(new UpdateDashboardAutoRefresh(refresh));
     }
 
     setTimezone(e: any) {

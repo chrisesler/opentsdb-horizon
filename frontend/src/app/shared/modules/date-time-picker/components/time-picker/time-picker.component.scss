@@ -11,6 +11,23 @@
                 }
             }
         }
+        .auto-refresh-button {
+            &.mat-raised-button {
+                padding: 0px;
+                margin-left: 6px;
+                margin-right: 6px;
+                min-width: 10px;
+            }
+            span {
+                // pointer-events: none;
+                cursor: default;
+                margin-right: 6px;
+            }
+
+            .mat-icon {
+                cursor: pointer;
+            }
+        }
     }
 
     // dropdown menu container
