@@ -368,6 +368,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
                     break;
+                case 'GetTplVariables':
+                    this.interCom.responsePut({
+                        action: 'TplVariables',
+                        payload: { tplVariables: this.tplVariables }
+                    });
+                    break;
                 case 'getTagValues': // tag template variables call
                     this.getDashboardTagValues(message.payload.tag);
                     break;
