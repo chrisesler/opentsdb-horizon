@@ -63,7 +63,15 @@
         </mat-menu>
     </span>
 
-    <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="setDateRange($event)" [timezone]="dbTime.zone" [startTime]="dbTime.start" [endTime]="dbTime.end" [xPosition]="menuXAlignValue"></time-picker>
+    <time-picker class="navbar-item nav-date-time-picker" 
+        (newChange)="handleTimePickerChanges($event)" 
+        [timezone]="dbTime.zone" 
+        [startTime]="dbTime.start" 
+        [endTime]="dbTime.end"
+        [isEditMode] = "viewEditMode"
+        [refresh]="refresh$ | async" 
+        [xPosition]="menuXAlignValue">
+    </time-picker>
 
     <span class="navbar-item nav-timezone-toggle">
         <navbar-timezone-toggle [timezone]="dbTime.zone" (change)="setTimezone($event);"></navbar-timezone-toggle>
