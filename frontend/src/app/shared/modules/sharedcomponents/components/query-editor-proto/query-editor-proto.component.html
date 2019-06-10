@@ -303,7 +303,7 @@
 <mat-menu class="tag-filters-menu-wrapper" yPosition="below" #tagFilterMenu="matMenu" >
     <ng-template matMenuContent let-query="query">
     <div class="filter" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" *ngIf="query.namespace">
-        <inline-filter-editor [query]="query" (filterOutput)="updateFilters($event);" ></inline-filter-editor>
+        <inline-filter-editor [query]="query" (filterOutput)="updateFilters($event);" [tplVariables]="tplVariables"></inline-filter-editor>
     </div>
     </ng-template>
 </mat-menu>

@@ -71,6 +71,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     @Input() query: any;
     @Input() label = '';
     @Input() options: IQueryEditorOptions;
+    @Input() tplVariables: any;
 
     @Output() queryOutput = new EventEmitter;
 
