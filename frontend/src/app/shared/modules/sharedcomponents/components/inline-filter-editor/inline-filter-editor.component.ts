@@ -29,6 +29,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     @HostBinding('class.inline-filter-editor') private _hostClass = true;
 
     @Input() query: any;
+    @Input() tplVariables: any[] = [];
     @Output() filterOutput = new EventEmitter();
     @ViewChild('tagValueSearchInput') tagValueSearchInput: ElementRef;
     @ViewChild('tagSearchInput') tagSearchInput: ElementRef;
@@ -50,7 +51,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     queryChangeSub: Subscription;
     tagKeySub: Subscription;
     tagValueSub: Subscription;
-    tplVariables: any[];
     visible = false;
     regexVars = /^\[.*\]$/;
     selectedTagValues = []; // to hold list selected values of both filter and customFilter
@@ -64,7 +64,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.tplVariables = this.store.selectSnapshot(DBSettingsState.getTplVariables);
+        this.tplVariables = this.tplVariables || [];
         this.namespace = this.query.namespace;
         this.metrics = this.query.metrics;
         this.filters = this.query.filters;
