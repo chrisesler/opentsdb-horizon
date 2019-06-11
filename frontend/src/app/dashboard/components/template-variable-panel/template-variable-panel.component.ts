@@ -158,7 +158,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
         }
         if (this.tplVariables[index].filter !== selControl['controls'].filter.value) {
             // comment this out since we don't want to save this over editForm
-            // this.updateState(selControl, 'listForm');
+            this.updateState(selControl, 'listForm');
             this.interCom.requestSend({
                 action: 'ApplyTplVarValue'
             });
@@ -334,7 +334,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                     variables: sublist
                 }
             });
-            console.log('hill -tplVariables', sublist);
         }
     }
 
