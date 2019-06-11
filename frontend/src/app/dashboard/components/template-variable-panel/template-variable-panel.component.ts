@@ -182,7 +182,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                 break;
             case 'alias':
                 const startVal = selControl['controls'][cname].value;
-                selControl['controls'][cname].valueChanges.subscribe(val => {
+                console.log('hill - onfosuc', startVal, cname, index);
+                selControl['controls'][cname].valueChanges.pipe(
+                    debounceTime(300)
+                ).subscribe(val => {
                     this.validateAlias(val.toString(), index, selControl, startVal);
                 });
                 break;
@@ -242,6 +245,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                 }
             }
         }
+        console.log('hill - this is it');
     }
 
     onInputBlur(cname: string, index: number) {
@@ -330,6 +334,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
                     variables: sublist
                 }
             });
+            console.log('hill -tplVariables', sublist);
         }
     }
 
