@@ -157,7 +157,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges {
             }
         }
         if (this.tplVariables[index].filter !== selControl['controls'].filter.value) {
-            this.updateState(selControl, 'listForm');
+            // comment this out since we don't want to save this over editForm
+            // this.updateState(selControl, 'listForm');
             this.interCom.requestSend({
                 action: 'ApplyTplVarValue'
             });
