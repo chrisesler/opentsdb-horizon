@@ -423,7 +423,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     updateConfig(message) {
-        console.log(message);
         switch ( message.action ) {
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);

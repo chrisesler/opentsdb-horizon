@@ -460,7 +460,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const invalidRefs = [];
 
         const aliases = this.getMetricAliases();
-        console.log(aliases);
         for (let i = 0; result && i < result.length; i++) {
             if (!aliases[result[i]]) {
                 invalidRefs.push(result[i]);
@@ -492,12 +491,14 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
 
         metricIndex = 0;
+        expressionIndex = 0;
         for (let i = 0; i < this.query.metrics.length; i++) {
             const alias = this.query.metrics[i].expression === undefined ?
             'm' + ++metricIndex :
             'e' + ++expressionIndex;
             aliases[this.query.metrics[i].id] = alias;
         }
+
         return aliases;
     }
 
@@ -521,11 +522,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             metricIndex = 0;
             expressionIndex = 0;
             for (let j = 0; j < this.queries[i].metrics.length; j++) {
-                // console.log(this.queries[i].metrics[j]);
                 const alias = this.queries[i].metrics[j].expression === undefined ?
                     'q' + queryIndex + '.' + 'm' + ++metricIndex :
                     'q' + queryIndex + '.' + 'e' + ++expressionIndex;
-                // console.log(alias);
                 aliases[alias] = this.queries[i].metrics[j].id;
             }
         }
@@ -701,6 +700,11 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const oMetric = this.query.metrics[index];
         const nMetric = this.utils.deepClone(oMetric);
         nMetric.id = this.utils.generateId(3);
+
+        if (!this.options.enableMultiMetricSelection && nMetric.settings && nMetric.settings.visual) {
+            nMetric.settings.visual.visible = false;
+        }
+
         const insertIndex = this.query.metrics.findIndex(d => d.id === oMetric.id ) + 1;
         this.query.metrics.splice(insertIndex, 0, nMetric);
         this.queryChanges$.next(true);

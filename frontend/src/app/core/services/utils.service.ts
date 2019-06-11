@@ -317,8 +317,7 @@ export class UtilsService {
   }
 
     getSummarizerForMetric(id, queries) {
-        // tslint:disable-next-line:max-line-length
-        let metric = this.getMetricFromId(id, queries);
+        const metric = this.getMetricFromId(id, queries);
         return metric.summarizer ? metric.summarizer : 'avg';
     }
 
@@ -329,7 +328,6 @@ export class UtilsService {
 
     getSummarizerDataForMetric(data, tsdbId): any {
         let metric = {};
-        console.log(data, tsdbId);
         if (data) {
             for ( let i = 0; data && i < data.length; i++ ) {
                 const [ source, mid ] = data[i].source.split(':'); // example: summarizer:q1_m2, summarizer:m2
@@ -339,7 +337,6 @@ export class UtilsService {
                 }
             }
         }
-        console.log(metric);
         return metric;
     }
 
@@ -348,13 +345,13 @@ export class UtilsService {
         for (let i in queries) {
             for (let j in queries[i].metrics) {
                 if (queries[i].metrics[j].id === id) {
-                    return queries[i].metrics[j].id;
+                    return queries[i].metrics[j];
                 }
             }
         }
     }
 
-    getSourceIDAndTypeFromMetricID(nodeId, queries) {
+    getSourceIDAndTypeFromMetricID(metricId, queries) {
         const size = Object.keys(queries).length;
         // tslint:disable-next-line:forin
         for (const i in queries) {
@@ -369,19 +366,13 @@ export class UtilsService {
                     metricIndex++;
                 }
 
-                if (queries[i].metrics[j].id === nodeId) {
-                    if (size > 1) { // multi-query format
-                        if (queries[i].metrics[j].expression) {
-                            return { id: 'q' + queryIndex + '_' + 'e' + expressionIndex, expression: true};
-                        } else {
-                            return { id: 'q' + queryIndex + '_' + 'm' + metricIndex, expression: false};
-                        }
-                    } else { // basic format
-                        if (queries[i].metrics[j].expression) {
-                            return {id: 'e' + expressionIndex, expression: true};
-                        } else {
-                            return {id: 'm' + metricIndex, expression: false};
-                        }
+                if (queries[i].metrics[j].id === metricId) {
+                    if (queries[i].metrics[j].expression) {
+                        // tslint:disable-next-line:max-line-length
+                        return { id: 'q' + queryIndex + '_' + 'e' + expressionIndex, qIndex: queryIndex - 1, mIndex: metricIndex - 1, expression: true};
+                    } else {
+                        // tslint:disable-next-line:max-line-length
+                        return { id: 'q' + queryIndex + '_' + 'm' + metricIndex, qIndex: queryIndex - 1, mIndex: metricIndex - 1, expression: false};
                     }
                 }
             }
