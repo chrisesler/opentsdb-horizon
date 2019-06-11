@@ -3,9 +3,9 @@
     <!--<variable-template-bar *ngIf="!viewEditMode" [dbSettingsVariables]="variables" ></variable-template-bar> -->
     <template-variable-panel *ngIf="!viewEditMode" 
         [ngClass]="{'is-edit-mode': !variablePanelMode.view}" 
-        [mode]="variablePanelMode" 
+        [mode]="variablePanelMode"
+        [widgets]="widgets"
         [tplVariables]="tplVariables"
-        [undoState]="undoState"
         [dbTagKeys]="dashboardTags">
     </template-variable-panel>
     <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" 
