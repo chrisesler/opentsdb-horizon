@@ -370,8 +370,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
                     break;
-                case 'getTagValues': // tag template variables call
-                    this.getDashboardTagValues(message.payload.tag);
+                case 'GetTplVariables':
+                    this.interCom.responsePut({
+                        action: 'TplVariables',
+                        payload: { tplVariables: this.tplVariables }
+                    });
                     break;
                 case 'getUserNamespaces':
                     this.store.dispatch(new LoadUserNamespaces());
@@ -633,21 +636,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 timezone: this.dbTime.zone,
                 gridSize: clientSize
             }
-        });
-    }
-
-    getDashboardTagValues(tag: any) {
-        const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
-        const otherTags = this.tplVariables.filter(tpl => tpl.tagk !== tag.key);
-        for ( let i = 0; i < otherTags.length; i++) {
-            // think about it later
-        }
-        const query = { metrics, tag }; // unique metrics
-        return this.httpService.getTagValues(query).subscribe(values => {
-            this.interCom.responsePut({
-                action: 'dashboardTagValues',
-                payload: values
-            });
         });
     }
 

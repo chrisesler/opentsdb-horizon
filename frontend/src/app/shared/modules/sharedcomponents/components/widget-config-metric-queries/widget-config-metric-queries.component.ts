@@ -47,7 +47,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     /** Dialogs */
     // search metrics dialog
     searchMetricsDialog: MatDialogRef<SearchMetricsDialogComponent> | null;
-    searchDialogSub: Subscription;
 
     // expression
     metricExpressionDialog: MatDialogRef<ExpressionDialogComponent> | null;
@@ -76,6 +75,8 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     newQueryId = '';
     editQueryId = '';
     selectAllToggle: String = 'none'; // none/all/some
+    tplVariables: any[]; // using it from here
+    private subscription: Subscription = new Subscription();
 
     constructor(
         public dialog: MatDialog,
@@ -85,13 +86,17 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     ) { }
 
     ngOnInit() {
-        console.log('editting widget query', this.widget);
-        if ( !this.widget.queries.length ) {
-            // this.addNewQuery();
-            // this.queryEditMode = true;
-        }
-
        this.initOptions();
+
+       this.subscription.add(this.interCom.responseGet().subscribe(message => {
+        if (message.action === 'TplVariables') {
+            this.tplVariables = message.payload.tplVariables;
+        }
+       }));
+
+       this.interCom.requestSend({
+           action: 'GetTplVariables'
+       });
     }
 
     initOptions() {
@@ -222,8 +227,8 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     }
 
     ngOnDestroy() {
-        if (this.searchDialogSub) {
-            this.searchDialogSub.unsubscribe();
+        if (this.subscription) {
+            this.subscription.unsubscribe();
         }
         this.searchMetricsDialog = undefined;
 
@@ -249,23 +254,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             left: '0px',
             right: '0px'
         };
-        /*
-        dialogConf.data = { mgroupId };
-
-        this.searchMetricsDialog = this.dialog.open(SearchMetricsDialogComponent, dialogConf);
-        this.searchMetricsDialog.updatePosition({top: '48px'});
-        // custom emit event on the dialog, comment out but dont delete
-        // this.searchDialogSub = this.searchMetricsDialog.componentInstance.onDialogApply.subscribe((data: any) => {
-        //    console.log('SUBSCRIPTION DATA', data);
-        // });
-        // getting data passing out from dialog
-        this.searchMetricsDialog.afterClosed().subscribe((dialog_out: any) => {
-            this.newQueryId = '';
-            this.modGroup = dialog_out.mgroup;
-            this.widgetChange.emit({action: 'AddMetricsToGroup', payload: { data: this.modGroup }});
-            console.log('return', this.modGroup);
-        });
-        */
     }
 
     openMetricExpressionDialog(group: any) {

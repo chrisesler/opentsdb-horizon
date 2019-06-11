@@ -9,7 +9,8 @@
                         deleteQuery: options.enableMultipleQueries, 
                         enableSummarizer: options.enableSummarizer, 
                         enableMultiMetricSelection: options.enableMultiMetricSelection,
-                        enableGroupBy: options.enableGroupBy }" (queryOutput)="handleQueryRequest($event);"></query-editor-proto>
+                        enableGroupBy: options.enableGroupBy }" (queryOutput)="handleQueryRequest($event);"
+                        [tplVariables]="tplVariables"></query-editor-proto>
                 </div>
                 <div class="query-metric-row" *ngIf="widget.queries.length && widget.queries[widget.queries.length-1].metrics.length && !queryEditMode && options.enableMultipleQueries" style="margin-top:25p;">
                     <button mat-button mat-primary color="primary" (click)="addNewQuery()">Add Query</button>
