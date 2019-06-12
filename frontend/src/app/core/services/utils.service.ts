@@ -377,7 +377,6 @@ export class UtilsService {
     }
 
     getSourceIDAndTypeFromMetricID(metricId, queries) {
-        const size = Object.keys(queries).length;
         // tslint:disable-next-line:forin
         for (const i in queries) {
             const queryIndex = parseInt(i, 10) + 1;
@@ -402,5 +401,6 @@ export class UtilsService {
                 }
             }
         }
+        return {};
     }
 }

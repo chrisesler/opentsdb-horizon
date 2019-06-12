@@ -203,6 +203,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     setBigNumber() {
+        if (!this.getVisibleMetricId()) {
+            this.enableFirstMetricVisibility();
+        }
         let metricId = this.getVisibleMetricId();
         let metricData = this.util.getSummmarizerDataWithId(metricId, this.widget.queries, this.data);
 
@@ -437,8 +440,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 break;
             case 'SetSelectedQuery':
                 // todo?
-                console.log('need to implement', message.action);
-                // this.setSelectedQuery(message.payload.data);
+                console.log('Todo', message.payload.data);
+                this.setSelectedQuery(message.payload.data);
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
@@ -518,8 +521,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     setSelectedQuery(queryID: string) {
-        // this.refreshData();
-        // this.setBigNumber();
+        this.refreshData();
+        this.setBigNumber();
     }
 
     refreshData(reload = true) {
@@ -643,26 +646,12 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         if (resetVisbility && this.widget.queries[qindex].metrics.length !== 0) {
             this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
         }
-
-        if (resetVisbility && this.widget.queries[qindex].metrics.length === 0) {
-            this.enableFirstMetricVisibility();
-        }
     }
 
     deleteQuery(qid) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        let resetVisbility = false;
-        for (let metric of this.widget.queries[qindex].metrics ) {
-            if (metric.settings.visual.visible) {
-                resetVisbility = true;
-                break;
-            }
-        }
         if (this.widget.queries.length > 1) {
             this.widget.queries.splice(qindex, 1);
-            if (resetVisbility) {
-                this.enableFirstMetricVisibility();
-            }
         }
     }
 
