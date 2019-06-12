@@ -273,7 +273,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         const query = payload.query;
         const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
         if ( qindex === -1 ) {
-            query.id = this.util.generateId(6);
+            query.id = this.util.generateId(6, this.util.getExistingIds(this.widget.queries));
             this.widget.queries.push(query);
         } else {
             this.widget.queries[qindex] = query;
@@ -291,7 +291,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     createNewGroup() {
-        const gid = this.util.generateId(6);
+        const gid = this.util.generateId(6, this.util.getExistingIds(this.widget.queries));
         const g = {
             id: gid,
             metrics: [],
@@ -656,7 +656,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         if ( qindex !== -1 ) {
             const query = this.util.deepClone(this.widget.queries[qindex]);
-            query.id = this.util.generateId(3, this.widget.queries.map(d => d.id));
+            query.id = this.util.generateId(3, this.util.getExistingIds(this.widget.queries));
             this.widget.queries.splice(qindex + 1, 0, query);
         }
     }

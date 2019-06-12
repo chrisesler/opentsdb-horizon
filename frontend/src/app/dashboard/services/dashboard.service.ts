@@ -66,7 +66,7 @@ export class DashboardService {
 
   getWidgetPrototype(type= ''): any {
     const widget: any = JSON.parse(JSON.stringify(this.widgetPrototype));
-    widget.id = this.utils.generateId();
+    widget.id = this.utils.generateId(6, this.utils.getExistingIds(widget.queries));
     widget.settings.component_type = type;
     switch ( type ) {
         case 'LinechartWidgetComponent':

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { analyzeAndValidateNgModules } from '@angular/compiler';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +16,22 @@ export class UtilsService {
         id = excludes.includes(id) ? '' : id;
     }
     return id;
+  }
+
+  getExistingIds(queries: any) {
+    let existingIds = [];
+    // tslint:disable:forin
+    if (queries) {
+        for (let i in queries) {
+            existingIds.push(queries[i].id);
+            if (queries[i].metrics) {
+                for (let j in queries[i].metrics) {
+                    existingIds.push(queries[i].metrics[j].id);
+                }
+            }
+        }
+    }
+    return existingIds;
   }
 
   convertPatternTSDBCompat(searchPattern) {

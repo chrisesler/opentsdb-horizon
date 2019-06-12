@@ -253,7 +253,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'cloneWidget':
                     // widgets = this.widgets;
                     const cloneWidget = JSON.parse(JSON.stringify(message.payload));
-                    cloneWidget.id = this.utilService.generateId();
+                    cloneWidget.id = this.utilService.generateId(6, this.utilService.getExistingIds(cloneWidget.queries));
                     cloneWidget.gridPos.x = cloneWidget.gridPos.x;
                     cloneWidget.gridPos.y = cloneWidget.gridPos.y + cloneWidget.gridPos.h;
                     for (let i = 0; i < this.widgets.length; i++) {

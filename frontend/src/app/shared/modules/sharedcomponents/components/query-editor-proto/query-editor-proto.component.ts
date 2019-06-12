@@ -276,7 +276,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             const insertIndex = this.getMetricsLength('metrics');
             for (let i = 0; i < metrics.length; i++) {
                 // tslint:disable-next-line:no-shadowed-variable
-                const id = this.utils.generateId(3);
+                const id = this.utils.generateId(3, this.utils.getExistingIds(this.queries));
                 const oMetric = {
                     id: id,
                     name: metrics[i],
@@ -555,7 +555,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
 
         const config = {
-            id: this.utils.generateId(3),
+            id: this.utils.generateId(3, this.utils.getExistingIds(this.queries)),
             expression: transformedExp,
             originalExpression: expression,
             settings: {
@@ -588,7 +588,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     addFunction(func: any, metricId: string) {
         const newFx = {
-            id: this.utils.generateId(3),
+            id: this.utils.generateId(3, this.utils.getExistingIds(this.queries)),
             fxCall: func.fxCall,
             val: ''
         };
@@ -699,7 +699,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const index = this.query.metrics.findIndex(d => d.id === id );
         const oMetric = this.query.metrics[index];
         const nMetric = this.utils.deepClone(oMetric);
-        nMetric.id = this.utils.generateId(3);
+        nMetric.id = this.utils.generateId(3, this.utils.getExistingIds(this.queries));
 
         if (!this.options.enableMultiMetricSelection && nMetric.settings && nMetric.settings.visual) {
             nMetric.settings.visual.visible = false;

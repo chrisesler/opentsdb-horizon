@@ -322,7 +322,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
     addNewStack() {
         const oStack = {
-            id : this.util.generateId(3),
+            id : this.util.generateId(3, this.util.getExistingIds(this.widget.queries)),
             label: 'Stack-' + ( this.widget.settings.visual.stacks.length + 1 ),
             color: '#000000'
         };
@@ -331,7 +331,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     addNewGroup() {
-        const gid = this.util.generateId(6);
+        const gid = this.util.generateId(6, this.util.getExistingIds(this.widget.queries));
         const g = {
                     id: gid,
                     title: 'untitled group',

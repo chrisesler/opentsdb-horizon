@@ -623,10 +623,10 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         if ( qindex !== -1 ) {
             const query = this.util.deepClone(this.widget.queries[qindex]);
-            query.id = this.util.generateId(3, this.widget.queries.map(d => d.id));
+            query.id = this.util.generateId(3, this.util.getExistingIds(this.widget.queries));
             for (let metric of query.metrics) {
                 metric.settings.visual.visible = false;
-                metric.id = this.util.generateId(3, this.widget.queries.map(d => d.id));
+                metric.id = this.util.generateId(3, this.util.getExistingIds(this.widget.queries));
             }
             this.widget.queries.splice(qindex + 1, 0, query);
         }

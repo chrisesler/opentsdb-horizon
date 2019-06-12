@@ -346,7 +346,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
     setQuery() {
         this.queries = this.data.queries && this.data.queries.raw ? this.data.queries.raw : [{
-                id: this.utils.generateId(),
+                id: this.utils.generateId(6, this.utils.getExistingIds(this.data.queries)),
                 namespace: '',
                 metrics: [],
                 filters: [],
