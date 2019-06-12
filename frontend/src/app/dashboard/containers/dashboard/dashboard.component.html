@@ -3,9 +3,9 @@
     <!--<variable-template-bar *ngIf="!viewEditMode" [dbSettingsVariables]="variables" ></variable-template-bar> -->
     <template-variable-panel *ngIf="!viewEditMode" 
         [ngClass]="{'is-edit-mode': !variablePanelMode.view}" 
-        [mode]="variablePanelMode" 
+        [mode]="variablePanelMode"
+        [widgets]="widgets"
         [tplVariables]="tplVariables"
-        [undoState]="undoState"
         [dbTagKeys]="dashboardTags">
     </template-variable-panel>
     <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" 
@@ -63,7 +63,15 @@
         </mat-menu>
     </span>
 
-    <time-picker class="navbar-item nav-date-time-picker" (timeSelected)="setDateRange($event)" [timezone]="dbTime.zone" [startTime]="dbTime.start" [endTime]="dbTime.end" [xPosition]="menuXAlignValue"></time-picker>
+    <time-picker class="navbar-item nav-date-time-picker" 
+        (newChange)="handleTimePickerChanges($event)" 
+        [timezone]="dbTime.zone" 
+        [startTime]="dbTime.start" 
+        [endTime]="dbTime.end"
+        [isEditMode] = "viewEditMode"
+        [refresh]="refresh$ | async" 
+        [xPosition]="menuXAlignValue">
+    </time-picker>
 
     <span class="navbar-item nav-timezone-toggle">
         <navbar-timezone-toggle [timezone]="dbTime.zone" (change)="setTimezone($event);"></navbar-timezone-toggle>

@@ -9,6 +9,10 @@ export interface DBSettingsModel {
         end: string;
         zone: string;
     };
+    refresh: {
+        auto: number;
+        duration: number;
+    };
     meta: {
         title: string;
         description: string;
@@ -30,6 +34,11 @@ export class UpdateDashboardTime {
 export class UpdateDashboardTimeZone {
     public static type = '[Dashboard] Update Dashboard Timezone';
     constructor(public readonly zone: string) {}
+}
+
+export class UpdateDashboardAutoRefresh {
+    public static type = '[Dashboard] Set Auto Refresh';
+    constructor(public readonly refresh: any) {}
 }
 
 export class LoadDashboardSettings {
@@ -61,6 +70,10 @@ export class UpdateMeta {
             end: 'now',
             zone: 'local'
         },
+        refresh: {
+            auto: 0,
+            duration: 0
+        },
         meta: {
             title: '',
             description: '',
@@ -83,6 +96,10 @@ export class DBSettingsState {
 
     @Selector() static getDashboardTime(state: DBSettingsModel) {
         return state.time;
+    }
+
+    @Selector() static getDashboardAutoRefresh(state: DBSettingsModel) {
+        return state.refresh;
     }
 
     @Selector() static getMeta(state: DBSettingsModel) {
@@ -112,6 +129,11 @@ export class DBSettingsState {
         const time = {...state.time};
         time.zone = zone;
         ctx.patchState({...state, time: time });
+    }
+
+    @Action(UpdateDashboardAutoRefresh)
+    UpdateDashboardAutoRefresh(ctx: StateContext<DBSettingsModel>, { refresh }: UpdateDashboardAutoRefresh) {
+        ctx.patchState({refresh: refresh});
     }
 
     @Action(UpdateDashboardTitle)
