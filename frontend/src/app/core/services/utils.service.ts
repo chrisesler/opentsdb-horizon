@@ -45,6 +45,16 @@ export class UtilsService {
     return searchPattern.toLowerCase();
 }
 
+    replaceIdsInExpressions(newID, oldID, metrics) {
+        for (let metric of metrics) {
+            if (metric.expression) {
+                if (metric.expression.indexOf('{{' + oldID + '}}') !== -1) {
+                    metric.expression = metric.expression.replace('{{' + oldID + '}}', '{{' + newID + '}}');
+                }
+            }
+        }
+    }
+
   modifyWidgets(dashboard: any) {
     // add extra info item behaviors
     for (let i = 0; i < dashboard.widgets.length; i++) {
