@@ -172,40 +172,106 @@ export class YamasService {
     getFunctionQueries(qindex, index, ds) {
         const queries = [];
         const funs = this.queries[qindex].metrics[index].functions || [];
+        var func = null;
         for ( let i = 0; i < funs.length; i++ ) {
-            const id = 'm' + index + '-rate-' + i;
-            const fxCall = funs[i].fxCall;
-            const q = {
-                'id': id ,
-                'type': 'rate',
-                'interval': funs[i].val,
-                'counter': false,
-                'dropResets': false,
-                'deltaOnly': false,
-                'sources': [ds]
-            };
-            switch ( fxCall ) {
-                case 'RateOfChange':
-                    q.deltaOnly = false;
+            console.info("[ WORKING ] " + funs[i].fxCall);
+            switch ( funs[i].fxCall ) {
+                // Rate and Difference
+                case 'RateOfChange':  // old
+                case 'Rate':
+                case 'RateDiff':      // old
+                case 'ValueDiff':
+                case 'CounterToRate': // old
+                case 'CntrRate':
+                case 'CounterDiff':   // old
+                case 'CounterValueDiff':
+                    func = this.handleRateFunction(parseInt(qindex) + 1, index + 1, ds, funs, i);
                     break;
-                case 'RateDiff':
-                    q.deltaOnly = true;
+                
+                // Smoothing
+                case 'EWMA':
+                    func = this.handleSmoothingFunction(parseInt(qindex) + 1, index + 1, ds, funs, i);
                     break;
-                case 'CounterToRate':
-                    q.counter = true;
-                    q.dropResets = true;
-                    q.deltaOnly = false;
-                    break;
-                case 'CounterDiff':
-                    q.counter = true;
-                    q.dropResets = true;
-                    q.deltaOnly = true;
-                break;
             }
-            queries.push(q);
-            ds = id;
+            if (func != null) {
+                queries.push(func);
+                ds = func.id;
+            }
         }
         return { queries: queries };
+    }
+
+    handleRateFunction(qindex, index, previous, funs, i) {
+        const func = {
+            'id': 'q' + qindex + '_m' + index + '-rate',
+            'type': 'rate',
+            'interval': funs[i].val,
+            'counter': false,
+            'dropResets': false,
+            'deltaOnly': false,
+            'sources': [ previous ]
+        };
+        switch ( funs[i].fxCall ) {
+            case 'RateOfChange':
+            case 'Rate':
+                func.deltaOnly = false;
+                break;
+            case 'RateDiff': // old name
+            case 'ValueDiff':
+                func.deltaOnly = true;
+                break;
+            case 'CounterToRate':
+            case 'CntrRate':
+                func.counter = true;
+                func.dropResets = true;
+                func.deltaOnly = false;
+                break;
+            case 'CounterDiff': // old name
+            case 'CounterValueDiff':
+                func.counter = true;
+                func.dropResets = true;
+                func.deltaOnly = true;
+            break;
+        }
+        return func;
+    }
+
+    handleSmoothingFunction(qindex, index, previous, funs, i) {
+        const interval_pattern = RegExp(/\d+\w/);
+        const func = {
+            'id': 'q' + qindex + '_m' + index + '-smooth',
+            'type': 'MovingAverage', // TODO - other types when we have em
+            'interval': null,
+            'samples': null,
+            'alpha': 0.0,
+            //'weighted': true,  // TODO if we add WMA only
+            'exponential': true, // TODO if we add WMA only
+            'sources': [ previous ]
+        }
+        switch ( funs[i].fxCall ) {
+            case 'EWMA':
+                const parts = funs[i].val.split(',');
+                if (parts.length > 1) {
+                    // we have an alpha
+                    if (interval_pattern.test(parts[0])) {
+                        func.interval = parts[0];
+                    } else {
+                        func.samples = parts[0];
+                    }
+                    func.alpha = parts[1];
+                } else if (parts.length == 1) {
+                    if (interval_pattern.test(parts[0])) {
+                        func.interval = parts[0];
+                    } else {
+                        func.samples = parts[0];
+                    }
+                } else {
+                    // nothing, use some defaults.
+                    func.samples = 5;
+                }
+                break;
+        }
+        return func;
     }
 
     getExpressionQuery(qindex, mindex) {
