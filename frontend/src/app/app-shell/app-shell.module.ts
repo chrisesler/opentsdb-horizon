@@ -50,6 +50,8 @@ import {
     DbfsService,
     DbfsUtilsService
 } from './components/dbfs';
+import { DbfsFolderComponent } from './components/dbfs/children/dbfs-folder/dbfs-folder.component';
+import { DbfsFileComponent } from './components/dbfs/children/dbfs-file/dbfs-file.component';
 
 @NgModule({
     imports: [
@@ -86,7 +88,9 @@ import {
         MiniNavigatorComponent,
         MiniNavigatorFoldersComponent,
         MiniNavigatorFolderItemComponent,
-        DbfsComponent
+        DbfsComponent,
+        DbfsFolderComponent,
+        DbfsFileComponent
     ],
     providers: [
         AppShellService,

@@ -24,23 +24,19 @@
             </ng-container>
             <!-- root folder -->
             <ng-container *ngIf="panel.folderResource === ':panel-root:'">
-                root
                 <ng-container *ngTemplateOutlet="rootPanel;context:{panel: (getPanelContext(panel.folderResource)|async), panelIndex: i}"></ng-container>
             </ng-container>
             <!-- default folder -->
             <ng-container *ngIf="!panel.synthetic && !panel.root && !panel.dynamic && !panel.trashFolder">
-                default
                 <ng-container *ngTemplateOutlet="defaultPanel;context:{panel: (getPanelContext(panel.folderResource)|async), panelIndex: i}"></ng-container>
             </ng-container>
             <!-- trash folder-->
             <ng-container *ngIf="panel.trashFolder">
-                trash
                 <ng-container *ngTemplateOutlet="trashPanel;context:{panel: (getPanelContext(panel.folderResource)|async), panelIndex: i}"></ng-container>
             </ng-container>
             <!-- dynamic folder-->
             <ng-container *ngIf="panel.dynamic">
-                dynamic
-                <ng-container *ngTemplateOutlet="dynamicPanel;context:{panel: (getPanelContext(panel.folderResource)|async), panelIndex: i}"></ng-container>
+                <ng-container *ngTemplateOutlet="dynamicPanel;context:{panel: (getDynamicPanelContext(panel.folderResource)|async), panelIndex: i}"></ng-container>
             </ng-container>
         </ng-container>
     </ng-container>
@@ -62,6 +58,12 @@
     <div class="block-header folders-header">
         <div class="block-header-label">
             <span class="header-label">Namespaces</span>
+        </div>
+        <span class="flex-spacer"></span>
+        <div>
+            <button mat-button color="primary" (click)="loadAllNamespacePanel()">
+                <span>view all</span>
+            </button>
         </div>
     </div>
     <div class="dnav-folders">
@@ -85,6 +87,7 @@
 
 <ng-template #dynamicPanel let-panel="panel" let-panelIndex="panelIndex">
     dynamic
+    <ng-container *ngTemplateOutlet="folderList;context:{folders: panel.subfolders, panelIndex: panelIndex}"></ng-container>
 </ng-template>
 
 
@@ -111,10 +114,11 @@
     </div>
 </ng-template>
 
+<!-- FOLDER TEMPLATES -->
+
 <ng-template #folderList let-folders="folders" let-panelIndex="panelIndex">
     <div class="dnav-folders">
-        
-        <div class="block-header folders-header" [ngClass]="{'has-create-actions': editMode === 'create' && activeMediaQuery !== 'xs', 'has-edit-actions': editMode === 'edit' && activeMediaQuery !== 'xs'}">
+        <div class="block-header folders-header" [ngClass]="{'has-create-actions': edit.panel === panelIndex && edit.mode === 'create' && activeMediaQuery !== 'xs', 'has-edit-actions': edit.panel === panelIndex && edit.mode === 'edit' && activeMediaQuery !== 'xs'}">
             <div class="block-header-label">
                 <span class="header-label">{{ (folders.length > 0 || activeMediaQuery === 'xs') ? 'Folders' : 'Add Folder' }}</span>
                 <span class="counter" *ngIf="folders.length > 0">
@@ -136,31 +140,96 @@
                 </button>
             </div>
             <div class="edit-actions" *ngIf="activeMediaQuery !== 'xs'">
-                <button mat-button (click)="doneEdit()">
+                <button mat-button (click)="doneEditFolders()">
                     <span>Done</span>
                 </button>
             </div>
             <div class="create-actions" *ngIf="activeMediaQuery !== 'xs'">
-                <button mat-button (click)="cancelCreate()">
+                <button mat-button (click)="cancelCreateFolder()">
                     <span>Cancel</span>
                 </button>
             </div>
         </div>
-        
         <mat-nav-list class="folder-list">
             <mat-list-item *ngIf="folders.length === 0 && activeMediaQuery === 'xs'" class="no-item-message">
                 <span class="mat-caption">There are no folders.</span>
             </mat-list-item>
-            <mat-list-item *ngIf="editMode === 'create' && !bulkEdit && activeMediaQuery !== 'xs'">
-                <dnav-folder-item [folder]="{ name: ''}" mode="new" [resourceType]="resourceType" (folderAction)="createFolderAction($event)"></dnav-folder-item>
+            <mat-list-item *ngIf="edit.mode === 'create' && edit.panel === panelIndex && activeMediaQuery !== 'xs'">
+                <ng-container *ngTemplateOutlet="folderItem;context:{folder: {name: 'new'}, panelIndex: panelIndex, mode: 'create'}"></ng-container>
             </mat-list-item>
             <mat-list-item *ngFor="let folder of folders; let i = index;" class="folder-nav-item" (click)="gotoFolder(folder.fullPath)">
-                <dnav-folder-item [folder]="folder" [mode]="folder.name === 'Trash' ? 'display' : bulkEdit ? 'edit' : 'display'" [resourceType]="resourceType" (folderAction)="editFolderAction(folder, $event)"></dnav-folder-item>
+                <ng-container *ngTemplateOutlet="folderItem;context:{folder: folder, panelIndex: panelIndex, mode: (currentPanelIndex === panelIndex) ? (folder.name === 'Trash') ? 'display' : bulkEdit ? 'edit' : 'display' : 'display'}"></ng-container>
             </mat-list-item>
         </mat-nav-list>
     </div>
 </ng-template>
 
+<ng-template #folderItem let-folder="folder" let-panelIndex="panelIndex" let-mode="mode">
+    <div class="dnav-folder-item" [ngClass]="{'is-editing': mode === 'create'}">
+        <ng-container *ngIf="mode === 'create' && folderForm.controls">
+        <!-- NEW -->
+        <div class="list-item edit-form" [formGroup]="folderForm">
+            <mat-form-field appearance="fill" [floatLabel]="'never'">
+                <input matInput placeholder="Enter folder Name" formControlName="fc_FolderName" (keyup.enter)="inputSave()">
+                <mat-icon matPrefix fontSet="denali" fontIcon="d-folder-add"></mat-icon>
+                <button mat-icon-button matSuffix class="save-folder-name" (click)="inputSave()" >
+                    <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
+                </button>
+                <mat-error>  
+                    <span *ngIf="!folderForm.get('fc_FolderName').valid && folderForm.get('fc_FolderName').touched">Please enter a valid folder name</span>  
+                </mat-error>
+            </mat-form-field>
+        </div>
+        </ng-container>
+        <ng-container *ngIf="mode === 'edit' && folderForm.controls">
+        <!-- EDIT-->
+        <div class="list-item edit-form" *ngIf="edit.id !== folder.id">
+            <mat-checkbox (change)="checkboxChange($event)" color="primary"></mat-checkbox>
+            <div class="flex-spacer" (dblclick)="menuAction('editname')">{{folder.name}}</div>
+            <span class="dnav-folder-menu">
+                <button mat-icon-button (click)="clickFolderMore(folderMenuTrigger, $event)">
+                    <mat-icon fontSet="denali" fontIcon="d-more-vertical"></mat-icon>
+                </button>
+            </span>
+        </div>
+        <div class="list-item edit-form" *ngIf="edit.id === folder.id" [formGroup]="FolderForm">
+            <mat-form-field appearance="fill" [floatLabel]="'never'">
+                <input matInput placeholder="Edit folder Name" formControlName="fc_FolderName">
+                <mat-icon matPrefix fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                <button mat-icon-button matSuffix class="save-folder-name" (click)="inputSave(folder)" >
+                    <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
+                </button>   
+            </mat-form-field>
+        </div>
+        <span class="dnav-menu-trigger"
+            [matMenuTriggerFor]="dnavFolderItemMenu" 
+            (menuOpened)="menuState(true)"
+            (menuClosed)="menuState(false)"
+            #folderMenuTrigger></span>
+        </ng-container>
+        <ng-container *ngIf="mode === 'display'">
+        <!-- DISPLAY -->
+        <div class="list-item">
+            <mat-icon class="folder-icon" fontSet="denali" [fontIcon]="folder.icon || 'd-folder'"></mat-icon>
+        </div>
+        <div class="list-item folder-name flex-spacer">
+            <span>{{folder.name || 'BROKEN'}}</span>
+        </div>
+        <div class="list-item">
+            <span class="counter">
+                <span class="chip-count">{{((folder.subfolders) ? folder.subfolders.length : 0) + ((folder.files) ? folder.files.length : 0)}}</span>
+            </span>
+        </div>
+        <div class="list-item goto-next-folder">
+            <button mat-icon-button >
+                <mat-icon fontSet="denali" fontIcon="d-arrowhead-right"></mat-icon>
+            </button>
+        </div>
+        </ng-container>
+    </div>
+</ng-template>
+
+<!-- DASHBOARD TEMPLATES -->
 <ng-template #dashboardList let-dashboards="dashboards" let-panelIndex="panelIndex">
     <div class="block-header dashboards-header">
         <span class="header-label">Dashboards</span>
@@ -191,7 +260,7 @@
         <span class="dnav-dashboard-label">{{dashboard.name}}</span>
     </a>
     <span class="dnav-dashboard-menu">
-        <button mat-icon-button (click)="clickMore($event)">
+        <button mat-icon-button (click)="clickFileMore($event)">
             <mat-icon fontSet="denali" fontIcon="d-more-vertical"></mat-icon>
         </button>
     </span>
@@ -235,6 +304,36 @@
     </mat-menu>
     
 </ng-template>
+
+<!-- MENUS -->
+<mat-menu class="dnav-cdk-folder-menu"
+    xPosition="after"
+    style="transform-origin: top left -32px;"
+    #dnavFolderItemMenu="matMenu">
+    <ng-template let-folder="folder" let-panelIndex="panelIndex">
+        <button mat-menu-item (click)="folderMenuAction('editName', folder)">
+            <mat-icon fontSet="denali" fontIcon="d-external"></mat-icon>
+            <span>Edit name</span>
+        </button>
+        
+        <button mat-menu-item (click)="folderMenuAction('moveFolder', folder)">
+            <mat-icon fontSet="denali" fontIcon="d-folder-merge"></mat-icon>
+            <span>Move folder</span>
+        </button>
+        <!-- Hiding for now<button mat-menu-item>
+            <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
+            <span>Copy</span>
+        </button>-->
+        <button mat-menu-item (click)="folderMenuAction('deleteFolder', folder)">
+            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
+            <span>Move to trash</span>
+        </button>
+    </ng-template>
+</mat-menu>
+
+
+
+<!-- OLD STUFF (will remove) -->
 
 <ng-template #folderDisplay let-folder="folder">
     <div class="dnav-folder-item">

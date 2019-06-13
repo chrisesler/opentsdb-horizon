@@ -29,8 +29,9 @@ import {
 
 import { DbfsState } from './state/dbfs.state';
 import { DbfsPanelsState, DbfsPanelsInitialize, DbfsAddPanel, DbfsUpdatePanels } from './state/dbfs-panels.state';
-import { DbfsResourcesState, DbfsLoadResources, DbfsLoadSubfolder } from './state/dbfs-resources.state';
+import { DbfsResourcesState, DbfsLoadResources, DbfsLoadSubfolder, DbfsLoadUsersList, DbfsLoadNamespacesList } from './state/dbfs-resources.state';
 import { LoggerService } from '../../../core/services/logger.service';
+import { MatMenuTrigger } from '@angular/material';
 
 @Component({
 // tslint:disable-next-line: component-selector
@@ -69,6 +70,10 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
     @Select(DbfsPanelsState.getPanelAction) panelAction$: Observable<any>;
 
+    @Select(DbfsResourcesState.getDynamicLoaded) dynamicLoaded$: Observable<any>;
+    usersListLoaded: boolean = false;
+    namespacesListLoaded: boolean = false;
+
     // VIEW CHILDREN
     @ViewChild(NavigatorPanelComponent) private navPanel: NavigatorPanelComponent;
 
@@ -84,17 +89,22 @@ export class DbfsComponent implements OnInit, OnDestroy {
     @Output() toggleDrawer: EventEmitter<any> = new EventEmitter();
 
     /* FORM GROUP STUFF */
-    _fileForm: FormGroup;
-    _folderForm: FormGroup;
+    fileForm: FormGroup;
+    folderForm: FormGroup;
 
+    // tslint:disable-next-line: no-inferrable-types
+    bulkEdit: boolean = false;
     edit: any = {
-        type: '',
         mode: '',
         panel: '',
         id: ''
     };
 
     foldersToRemove: any[] = [];
+
+    menuOpened: any = -1;
+
+    folderMenuTrigger: any;
 
     constructor(
         private store: Store,
@@ -107,6 +117,9 @@ export class DbfsComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
+        this.folderForm = this.fb.group({
+            fc_FolderName: new FormControl('', [Validators.required])
+        });
 
         const self = this;
 
@@ -137,11 +150,16 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.panels$.subscribe( panels => {
             this.panels = panels;
-            this.resetForms();
+            this.resetForms(); // reset forms if you switch panels
         }));
 
         this.subscription.add(this.currentPanelIndex$.subscribe( idx => {
             this.currentPanelIndex = idx;
+        }));
+
+        this.subscription.add(this.dynamicLoaded$.subscribe( loaded => {
+            this.usersListLoaded = loaded.users;
+            this.namespacesListLoaded = loaded.namespaces;
         }));
 
         this.subscription.add(this.panelAction$.subscribe( action => {
@@ -178,7 +196,31 @@ export class DbfsComponent implements OnInit, OnDestroy {
         this.logger.log('getPanelContext', { path, panelIndex, data });
         return data;*/
         const panel = this.store.select(DbfsResourcesState.getFolderResource(path));
-        return panel
+        return panel;
+    }
+
+    getDynamicPanelContext(path: string, panelIndex: number) {
+        /*switch (path) {
+            case ':list-users:':
+                if (!this.usersListLoaded) {
+                    this.store.dispatch(
+                        new DbfsLoadUsersList()
+                    );
+                }
+                break;
+            case ':list-namespaces:':
+                if (!this.namespacesListLoaded) {
+                    this.store.dispatch(
+                        new DbfsLoadNamespacesList()
+                    );
+                }
+                break;
+            default:
+                break;
+        }*/
+
+        const panel = this.store.select(DbfsResourcesState.getDynamicFolderResource(path));
+        return panel;
     }
 
     getPanelResources(path: string) {
@@ -192,14 +234,121 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
     normalizeFolderResource(path) {
         const folder = this.folders[path];
- 
     }
 
     resetForms() {
-        this.logger.log('RESET FORMS')
+        this.logger.log('RESET FORMS');
+        this.foldersToRemove = [];
+        this.bulkEdit = false;
+        this.resetEdit();
+    }
+
+    resetEdit() {
+        this.edit = {
+            mode: '',
+            panel: '',
+            id: ''
+        };
+        this.folderForm.reset({fc_FolderName: ''});
     }
 
     /* behaviors */
+
+    closeDrawer() {
+        this.logger.log('CLOSE DRAWER');
+        const data: any = {
+            closeNavigator: true
+        };
+        if (this.activeMediaQuery === 'xs') {
+            data.resetForMobile = true;
+        }
+        this.toggleDrawer.emit(data);
+    }
+
+    // DYNAMIC FOLDER BEHAVIOR
+
+    loadAllNamespacePanel() {
+        this.logger.log('LOAD ALL NAMESPACES PANEL');
+        if (!this.namespacesListLoaded) {
+            this.store.dispatch(
+                new DbfsLoadNamespacesList()
+            );
+        }
+        this.gotoFolder(':list-namespaces:');
+    }
+
+    // FOLDER BEHAVIORS
+    editFolders() {
+        this.logger.log('BULK EDIT FOLDERS');
+        this.bulkEdit = true;
+    }
+
+    doneEditFolders() {
+        this.logger.log('BULK EDIT DONE');
+    }
+
+    createFolder() {
+        this.logger.log('CREATE FOLDER');
+        this.folderForm.reset({fc_FolderName: ''});
+        this.edit = {
+            mode: 'create',
+            panel: this.currentPanelIndex,
+            id: ''
+        };
+    }
+
+    cancelCreateFolder() {
+        this.logger.log('CANCEL CREATE FOLDER');
+        this.resetEdit();
+    }
+
+    removeFolders() {
+        this.logger.log('REMOVE FOLDERS');
+    }
+
+    clickFolderMore(trigger: MatMenuTrigger, event: any) {
+        this.logger.log('CLICK FOLDER MORE', {trigger, event});
+        event.stopPropagation();
+
+    }
+
+    folderMenuAction(action: string, folder: any, event?: any) {
+        this.logger.log('FOLDER MENU ACTION', {action, event});
+    }
+
+    folderInputSave(folder?: any) {
+        if (this.folderForm.invalid) {
+            return;
+        }
+        if (this.edit.mode === 'new') {
+            // console.log('SAVE NEW', this.FolderForm.controls.fc_FolderName.value);
+            /*this.folderAction.emit({
+                action: 'createFolder',
+                name: this.FolderForm.controls.fc_FolderName.value
+            });*/
+        }
+
+        if (this.edit.mode === 'edit') {
+            // console.log('SAVE EDIT', this.FolderForm.controls.fc_FolderName.value);
+            /*this.nameEdit = false;
+            this.folderAction.emit({
+                action: 'editFolder',
+                name: this.FolderForm.controls.fc_FolderName.value
+            });*/
+        }
+    }
+
+    // FILE (Dashboard) BEHAVIORS
+
+    createDashboard() {
+        this.logger.log('CREATE DASHBOARD');
+    }
+
+    navigateToDashboard(path: string) {
+        this.logger.log('NAVIGATE TO DASHBOARD', { path });
+    }
+
+    // PANEL NAVIGATION BEHAVIORS
 
     navtoSpecificPanel(idx: number, fromIdx: number) {
         // console.log('NAV TO SPECIFIC FOLDER [GO BACK X]');
@@ -232,62 +381,43 @@ export class DbfsComponent implements OnInit, OnDestroy {
         }
     }
 
-    closeDrawer() {
-        this.logger.log('CLOSE DRAWER');
-        const data: any = {
-            closeNavigator: true
-        };
-        if (this.activeMediaQuery === 'xs') {
-            data.resetForMobile = true;
-        }
-        this.toggleDrawer.emit(data);
-    }
-
-    createDashboard() {
-        this.logger.log('CREATE DASHBOARD');
-    }
-
-    navigateToDashboard(path: string) {
-        this.logger.log('NAVIGATE TO DASHBOARD', { path });
-    }
-
-    // PANEL NAVIGATION BEHAVIORS
-
     gotoFolder(path: string) {
-        this.logger.log('GOTO FOLDER', { path });
-        const folder = this.store.selectSnapshot<any>(DbfsResourcesState.getFolderResource(path));
-        const panel = <any>{
-            folderResource: folder.fullPath
-        };
+        if (!this.bulkEdit) {
+            this.logger.log('GOTO FOLDER', { path });
+            const folder = this.store.selectSnapshot<any>(DbfsResourcesState.getFolderResource(path));
+            const panel = <any>{
+                folderResource: folder.fullPath
+            };
 
-        if (folder.synthetic) {
-            panel.synthetic = folder.synthetic;
-        }
+            if (folder.synthetic) {
+                panel.synthetic = folder.synthetic;
+            }
 
-        if (folder.root) {
-            panel.root = folder.root;
-        }
+            if (folder.root) {
+                panel.root = folder.root;
+            }
 
-        if (folder.ownerType === 'dynamic') {
-            panel.dynamic = true;
-        }
+            if (folder.ownerType === 'dynamic') {
+                panel.dynamic = true;
+            }
 
-        if (folder.trashFolder) {
-            panel.trashFolder = true;
-        }
+            if (folder.trashFolder) {
+                panel.trashFolder = true;
+            }
 
-        // add panel
-        this.store.dispatch(
-            new DbfsAddPanel({
-                panel,
-                panelAction: 'goNextPanel'
-            })
-        );
-
-        if (!folder.loaded && !folder.synthetic) {
+            // add panel
             this.store.dispatch(
-                new DbfsLoadSubfolder(folder.fullPath)
+                new DbfsAddPanel({
+                    panel,
+                    panelAction: 'goNextPanel'
+                })
             );
+
+            if (!folder.loaded && !folder.synthetic) {
+                this.store.dispatch(
+                    new DbfsLoadSubfolder(folder.fullPath)
+                );
+            }
         }
     }
 

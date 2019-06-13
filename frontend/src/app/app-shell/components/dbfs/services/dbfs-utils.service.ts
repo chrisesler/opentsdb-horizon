@@ -5,6 +5,8 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { LoggerService } from '../../../../core/services/logger.service';
 
+import { DbfsFileModel, DbfsFolderModel, DbfsUserModel, DbfsNamespaceModel } from '../state/dbfs-resources.state';
+
 @Injectable()
 export class DbfsUtilsService {
 

@@ -28,6 +28,7 @@ export interface DbfsCommonResourceModel {
     ownerType?: string; // user || namespace
     icon?: string;
     namespace?: string; // namespace alias
+    user?: string;
 }
 
 // file models
@@ -78,7 +79,7 @@ export interface DbfsNamespaceModel {
 export interface DbfsUserModel {
     userid: string;
     name: string;
-    memberNamespaces: any[];
+    memberNamespaces?: any[];
 }
 
 // state model
@@ -91,6 +92,10 @@ export interface DbfsResourcesModel {
     files: {}; // user and namespace files (dashboards)
     error: {};
     loaded: boolean;
+    dynamicLoaded: {
+        users: boolean;
+        namespaces: boolean;
+    };
 }
 
 /** ACTIONS */
@@ -126,6 +131,36 @@ export class DbfsLoadSubfolderError {
     constructor(public readonly error: any) {}
 }
 
+export class DbfsLoadUsersList {
+    public static type = '[DBFS Resources] Load Users List';
+    constructor() {}
+}
+
+export class DbfsLoadUsersListSuccess {
+    public static type = '[DBFS Resources] Load Users List SUCCESS';
+    constructor(public readonly response: any) {}
+}
+
+export class DbfsLoadUsersListError {
+    public static type = '[DBFS Resources] Load Users List ERROR';
+    constructor(public readonly error: any) {}
+}
+
+export class DbfsLoadNamespacesList {
+    public static type = '[DBFS Resources] Load Namespaces List';
+    constructor() {}
+}
+
+export class DbfsLoadNamespacesListSuccess {
+    public static type = '[DBFS Resources] Load Namespaces List SUCCESS';
+    constructor(public readonly response: any) {}
+}
+
+export class DbfsLoadNamespacesListError {
+    public static type = '[DBFS Resources] Load Namespaces List ERROR';
+    constructor(public readonly error: any) {}
+}
+
 /** STATE */
 
 @State<DbfsResourcesModel>({
@@ -137,7 +172,11 @@ export class DbfsLoadSubfolderError {
         folders: {},
         files: {},
         error: {},
-        loaded: false
+        loaded: false,
+        dynamicLoaded: {
+            users: false,
+            namespaces: false
+        }
     }
 })
 
@@ -175,6 +214,18 @@ export class DbfsResourcesState {
         return state.loaded;
     }
 
+    @Selector() static getDynamicLoaded(state: DbfsResourcesModel) {
+        return state.dynamicLoaded;
+    }
+
+    @Selector() static getUsersLisLoaded(state: DbfsResourcesModel) {
+        return state.dynamicLoaded.users;
+    }
+
+    @Selector() static getNamespacesLisLoaded(state: DbfsResourcesModel) {
+        return state.dynamicLoaded.namespaces;
+    }
+
     public static getFolderResource(path: string) {
         return createSelector([DbfsResourcesState], (state: DbfsResourcesModel) => {
             // tslint:disable-next-line: prefer-const
@@ -196,6 +247,63 @@ export class DbfsResourcesState {
                 data.files = data.files.map( subPath => state.files[subPath] );
             }
 
+            return data;
+        });
+    }
+
+    public static getDynamicFolderResource(path: string) {
+        return createSelector([DbfsResourcesState], (state: DbfsResourcesModel) => {
+            let data = {...state.folders[path]};
+            switch (path) {
+                case ':list-users:':
+                    const userKeys = Object.keys(state.users).map( key => {
+                        if (state.folders['/user/' + key]) {
+                            return state.folders['/user/' + key];
+                        } else {
+                            const udata = <DbfsFolderModel>{
+                                files: [],
+                                subfolders: [],
+                                fullPath: '/user/' + key,
+                                resourceType: 'folder',
+                                topFolder: true,
+                                type: 'DASHBOARD',
+                                loaded: false,
+                                id: -1,
+                                icon: 'd-dashboard-tile',
+                                user: key
+                            };
+                            return udata;
+
+                        }
+                    });
+                    data.subfolders = userKeys;
+                    break;
+                case ':list-namespaces:':
+                        const nsKeys = Object.keys(state.namespaces).map( key => {
+                            if (state.folders['/namespace/' + key]) {
+                                return state.folders['/namespace/' + key];
+                            } else {
+                                const nsdata = <DbfsFolderModel>{
+                                    files: [],
+                                    subfolders: [],
+                                    fullPath: '/namespace/' + key,
+                                    namespace: key,
+                                    name: state.namespaces[key].name,
+                                    resourceType: 'folder',
+                                    topFolder: true,
+                                    type: 'DASHBOARD',
+                                    loaded: false,
+                                    id: -1,
+                                    icon: 'd-dashboard-tile'
+                                };
+                                return nsdata;
+                            }
+                        });
+                        data.subfolders = nsKeys;
+                    break;
+                default:
+                    break;
+            }
             return data;
         });
     }
@@ -263,6 +371,7 @@ export class DbfsResourcesState {
                 icon: 'd-dashboard-tile',
                 loaded: false,
                 topFolder: true,
+                namespace: ns.namespace.alias,
                 name: ns.namespace.name // have to override nsFolder.name because all the namespace folder names come back as 'HOME'
             };
 
@@ -276,7 +385,8 @@ export class DbfsResourcesState {
                         moveEnabled: true,
                         selectEnabled: true,
                         subfolders: [],
-                        files: []
+                        files: [],
+                        namespace: ns.namespace.alias
                     };
                     if (folder.name.toLowerCase() === 'trash') {
                         folder.icon = 'd-trash';
@@ -296,7 +406,8 @@ export class DbfsResourcesState {
                         resourceType: 'file',
                         ownerType: 'user',
                         icon: 'd-dashboard-tile',
-                        parentPath: nsFolder.fullPath
+                        parentPath: nsFolder.fullPath,
+                        namespace: ns.namespace.alias
                     };
                     files[file.fullPath] = file;
                     return item.fullPath;
@@ -349,7 +460,8 @@ export class DbfsResourcesState {
             loaded: true,
             topFolder: true,
             // override name because it always comes back as 'HOME'
-            name: 'My Dashboards'
+            name: 'My Dashboards',
+            user: activeUser
         };
         folders[userFolder.fullPath] = userFolder;
         panelRoot.personal.push(userFolder.fullPath);
@@ -364,7 +476,8 @@ export class DbfsResourcesState {
             ownerType: 'user',
             icon: 'd-star',
             synthetic: true,
-            loaded: false
+            loaded: false,
+            user: activeUser
         };
         folders[favFolder.fullPath] = favFolder;
         panelRoot.personal.push(favFolder.fullPath);
@@ -380,7 +493,8 @@ export class DbfsResourcesState {
             ownerType: 'user',
             icon: 'd-duplicate',
             synthetic: true,
-            loaded: false
+            loaded: false,
+            user: activeUser
         };
         folders[freqFolder.fullPath] = freqFolder;
         panelRoot.personal.push(freqFolder.fullPath);
@@ -396,7 +510,8 @@ export class DbfsResourcesState {
             ownerType: 'user',
             icon: 'd-time',
             synthetic: true,
-            loaded: false
+            loaded: false,
+            user: activeUser
         };
         folders[recvFolder.fullPath] = recvFolder;
         panelRoot.personal.push(recvFolder.fullPath);
@@ -410,12 +525,12 @@ export class DbfsResourcesState {
             ownerType: 'user',
             icon: 'd-trash',
             trashFolder: true,
-            loaded: false
+            loaded: false,
+            user: activeUser
         };
         folders[trashFolder.fullPath] = trashFolder;
         panelRoot.personal.push(trashFolder.fullPath);
         userFolder.subfolders.splice(userTrashIdx, 1);
-
 
         // member namespace list
         const mbrnsFolder = <DbfsFolderModel> {
@@ -430,7 +545,7 @@ export class DbfsResourcesState {
             loaded: false,
             moveEnabled: false,
             selectEnabled: false
-        }
+        };
 
         // add namespaces to paneRoot.namespaces
         // & the memberNamespace list
@@ -460,7 +575,8 @@ export class DbfsResourcesState {
                 moveEnabled: true,
                 selectEnabled: true,
                 subfolders: [],
-                files: []
+                files: [],
+                user: activeUser
             };
             folders[folder.fullPath] = folder;
             return item.fullPath;
@@ -475,7 +591,8 @@ export class DbfsResourcesState {
                 resourceType: 'file',
                 ownerType: 'user',
                 icon: 'd-dashboard-tile',
-                parentPath: userFolder.fullPath
+                parentPath: userFolder.fullPath,
+                user: activeUser
             };
             files[file.fullPath] = file;
             return item.fullPath;
@@ -562,12 +679,107 @@ export class DbfsResourcesState {
     @Action(DbfsLoadSubfolderSuccess)
     loadSubfolderSuccess(ctx: StateContext<DbfsResourcesModel>, { response }: DbfsLoadSubfolderSuccess) {
         this.logger.success('State :: Load SubFolder', response);
-        //ctx.dispatch({ error });
+
+        const state = ctx.getState();
+
+        const folders = JSON.parse(JSON.stringify(state.folders));
+        const files = JSON.parse(JSON.stringify(state.files));
+
+        const folder = <DbfsFolderModel>{...response};
+
+        if (folder.subfolders) {
+            folder.subfolders = folder.subfolders.map( f => {
+                folders[f.fullPath] = f;
+                return f.fullPath;
+            });
+            folder.subfolders.sort((a: any, b: any) => {
+                return this.utils.sortAlphaNum(folders[a].name, folders[b].name);
+            });
+        }
+
+        if (folder.files) {
+            folder.files = folder.files.map( f => {
+                files[f.fullPath] = f;
+                return f.fullPath;
+            });
+            folder.files.sort((a: any, b: any) => {
+                return this.utils.sortAlphaNum(files[a].name, files[b].name);
+            });
+        }
+
+        folders[folder.fullPath] = folder;
+
+        ctx.setState({...state,
+            folders,
+            files,
+            loaded: true
+        });
     }
 
     @Action(DbfsLoadSubfolderError)
     loadSubfolderError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsLoadSubfolderError) {
         this.logger.error('State :: Load SubFolder', error);
+        ctx.dispatch({ error });
+    }
+
+    @Action(DbfsLoadUsersList)
+    loadUsersList(ctx: StateContext<DbfsResourcesModel>, {}: DbfsLoadUsersList) {
+        this.logger.action('State :: Load Users');
+
+        return this.service.getUsersList().pipe(
+            map( (payload: any) => {
+                ctx.dispatch(new DbfsLoadUsersListSuccess(payload));
+            }),
+            catchError( error => ctx.dispatch(new DbfsLoadUsersListError(error)))
+        );
+    }
+
+    @Action(DbfsLoadUsersListSuccess)
+    loadUsersListSuccess(ctx: StateContext<DbfsResourcesModel>, { response }: DbfsLoadUsersListSuccess) {
+        this.logger.success('State :: Load Users', response);
+        const state = ctx.getState();
+    }
+
+    @Action(DbfsLoadUsersListError)
+    loadUsersListError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsLoadUsersListError) {
+        this.logger.error('State :: Load Users', error);
+        ctx.dispatch({ error });
+    }
+
+    @Action(DbfsLoadNamespacesList)
+    loadNamespacesList(ctx: StateContext<DbfsResourcesModel>, {}: DbfsLoadNamespacesList) {
+        return this.service.getNamespacesList().pipe(
+            map( (payload: any) => {
+                ctx.dispatch(new DbfsLoadNamespacesListSuccess(payload));
+            }),
+            catchError( error => ctx.dispatch(new DbfsLoadNamespacesListError(error)))
+        );
+    }
+
+    @Action(DbfsLoadNamespacesListSuccess)
+    loadNamespacesListSuccess(ctx: StateContext<DbfsResourcesModel>, { response }: DbfsLoadNamespacesListSuccess) {
+        this.logger.success('State :: Load Namespaces', response);
+        const state = ctx.getState();
+        const dynamicLoaded = JSON.parse(JSON.stringify({...state.dynamicLoaded}));
+
+        const namespaces = JSON.parse(JSON.stringify({...state.namespaces}));
+
+        for (const ns of response) {
+            namespaces[ns.alias] = <DbfsNamespaceModel>ns;
+        }
+
+        dynamicLoaded.namesaces = true;
+
+        ctx.setState({...state,
+            namespaces,
+            dynamicLoaded
+        });
+
+    }
+
+    @Action(DbfsLoadNamespacesListError)
+    loadNamespacesListError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsLoadNamespacesListError) {
+        this.logger.error('State :: Load Namespaces', error);
         ctx.dispatch({ error });
     }
 

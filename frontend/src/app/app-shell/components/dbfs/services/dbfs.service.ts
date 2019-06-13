@@ -86,4 +86,42 @@ export class DbfsService {
 
     }
 
+    getUsersList() {
+        let apiUrl = environment.configdb + '/user/list';
+
+        this.logger.api('DbfsService :: Get Users List', { apiUrl });
+
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
+        const httpOptions: any = {
+            headers,
+            withCredentials: true,
+            responseType: 'json'
+        };
+
+        return this.http.get(apiUrl, httpOptions);
+
+    }
+
+    getNamespacesList() {
+        let apiUrl = environment.configdb + '/namespace';
+
+        this.logger.api('DbfsService :: Get Namespaces List', { apiUrl });
+
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
+        const httpOptions: any = {
+            headers,
+            withCredentials: true,
+            responseType: 'json'
+        };
+
+        return this.http.get(apiUrl, httpOptions);
+
+    }
+
 }
