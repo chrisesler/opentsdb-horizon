@@ -382,6 +382,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'getUserFolderData':
                     this.store.dispatch(new LoadUserFolderData());
                     break;
+                case 'SetZoomDateRange':
+                    if ( message.payload.isZoomed ) {
+                        this.dbTime.start = this.dateUtil.timestampToTime(message.payload.start, this.dbTime.zone);
+                        this.dbTime.end = this.dateUtil.timestampToTime(message.payload.end, this.dbTime.zone);
+                    } else {
+                        const dbSettings = this.store.selectSnapshot(DBSettingsState);
+                        this.dbTime = { ...dbSettings.time };
+                    }
+                    this.interCom.responsePut({
+                        action: 'ZoomDateRange',
+                        payload: { zoomingWid: message.id, date: message.payload }
+                    });
+                    break;
                 default:
                     break;
             }
@@ -714,10 +727,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     getDashboardDateRange() {
-        const dbSettings = this.store.selectSnapshot(DBSettingsState);
-        const startTime = this.dateUtil.timeToMoment(dbSettings.time.start, dbSettings.time.zone);
-        const endTime = this.dateUtil.timeToMoment(dbSettings.time.end, dbSettings.time.zone);
-
+        const startTime = this.dateUtil.timeToMoment(this.dbTime.start, this.dbTime.zone);
+        const endTime = this.dateUtil.timeToMoment(this.dbTime.end, this.dbTime.zone);
         return { start: startTime.valueOf(), end: endTime.valueOf() };
     }
 
@@ -766,6 +777,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
+    refresh() {
+        this.interCom.responsePut({
+            action: 'reQueryData',
+            payload: {}
+        });
+    }
+
     handleTimePickerChanges(message) {
         switch ( message.action  ) {
             case 'SetDateRange':
@@ -773,6 +791,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 break;
             case 'SetAutoRefreshConfig':
                 this.setAutoRefresh(message.payload);
+                break;
+            case 'RefreshDashboard':
+                this.refresh();
                 break;
         }
     }

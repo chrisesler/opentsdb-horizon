@@ -53,6 +53,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         strokeWidth: 1,
         strokeBorderWidth: this.isStackedGraph ? 0 : 0,
         highlightSeriesBackgroundAlpha: 0.5,
+        isZoomedIgnoreProgrammaticZoom: true,
+        isCustomZoomed: false,
         highlightSeriesOpts: {
             strokeWidth: 2,
             highlightCircleSize: 3
@@ -111,6 +113,22 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 case 'TimezoneChanged':
                     this.setTimezone(message.payload.zone);
                     this.options = { ...this.options };
+                    break;
+                case 'ZoomDateRange':
+                    const downsample = this.widget.settings.time.downsample.value;
+                    this.options.isCustomZoomed = message.payload.date.isZoomed;
+                    // requery data if auto is set, otherwise set/unset the dateWindow option to zoom/unzoon
+                    if ( downsample === 'auto' ) {
+                        this.refreshData();
+                    } else {
+                        if ( message.payload.date.start !== null ) {
+                            this.options.dateWindow = [message.payload.date.start * 1000, message.payload.date.end * 1000];
+                        } else {
+                            delete this.options.dateWindow;
+                        }
+                        this.options = {...this.options};
+                        this.cdRef.markForCheck();
+                    }
                     break;
             }
 
@@ -556,6 +574,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     toggleChartSeries(index) {
         this.options.visibility[index - 1 ] = !this.options.visibility[index - 1];
         this.options = {...this.options};
+    }
+
+    handleZoom(zConfig) {
+        this.interCom.requestSend({
+            id: this.widget.id,
+            action: 'SetZoomDateRange',
+            payload: zConfig
+        });
     }
 
     getSeriesLabel(index) {

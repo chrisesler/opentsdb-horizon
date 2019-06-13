@@ -1,4 +1,4 @@
-<button class="refresh-button" mat-raised-button (click)="setRefresh()" >
+<button class="refresh-button" mat-raised-button (click)="setRefresh()">
     <mat-icon fontSet="denali" fontIcon="d-refresh"></mat-icon>
 </button>
 <button class="refresh-button" mat-raised-button (click)="setAutoRefresh(60, $event)" *ngIf="!isEditMode && (!refresh || !refresh.auto)" matTooltip="Turn auto-refresh on" matTooltipPosition="below">
