@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
+import { SourceMapSource } from 'webpack-sources';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +10,9 @@ export class YamasService {
     downsample: any;
     time: any;
     transformedQuery:any;
+    // used to map the sub graphs for use in expressions so we can link to the final
+    // function in the list.
+    metricSubGraphs: any = new Map();
 
     constructor( private utils: UtilsService ) { }
 
@@ -37,17 +41,15 @@ export class YamasService {
 
                     if ( this.queries[i].metrics[j].expression ) {
                         const q = this.getExpressionQuery(i, j);
-                        this.transformedQuery.executionGraph.push(q);
-                        let dsId = q.id;
-                        // add function definition
-                        const res = this.getFunctionQueries(i, j, dsId);
-                        if ( res.queries.length ) {
-                            this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
-                            dsId = res.queries[res.queries.length-1].id;
+                        const subGraph = [ q ];
+                        this.getFunctionQueries(i, j, subGraph);
+                        for (let node of subGraph) {
+                            this.transformedQuery.executionGraph.push(node);
                         }
-                        outputIds.push(dsId);
+                        outputIds.push(subGraph[subGraph.length - 1].id);
                     } else {
                         const q: any = this.getMetricQuery(i, j);
+                        const subGraph = [ q ];
                         if ( this.queries[i].metrics[j].groupByTags && !this.checkTagsExistInFilter(i, this.queries[i].metrics[j].groupByTags) ) {
                             const filter = this.getFilterQuery(i, j);
                             q.filter = filter.filter;
@@ -55,24 +57,21 @@ export class YamasService {
                             hasCommonFilter = true;
                             q.filterId = filterId;
                         }
-                        this.transformedQuery.executionGraph.push(q);
+                        
                         const aggregator = downsample.aggregator;
-                        let dsId = q.id + '-downsample';
-                        // add downsample for the expression
-                        this.transformedQuery.executionGraph.push(this.getQueryDownSample(downsample, aggregator, dsId, [q.id]));
+                        let dsId = q.id + '_downsample';
+                        subGraph.push(this.getQueryDownSample(downsample, aggregator, dsId, [q.id]));
 
-                        // add function definition
-                        const res = this.getFunctionQueries(i, j, dsId);
-                        if ( res.queries.length ) {
-                            this.transformedQuery.executionGraph = this.transformedQuery.executionGraph.concat(res.queries);
-                            dsId = res.queries[res.queries.length-1].id;
-                        }
-
-                        const groupbyId = q.id + '-groupby';
+                        const groupbyId = q.id + '_groupby';
                         groupByIds.push(groupbyId);
-                        this.transformedQuery.executionGraph
-                            .push(this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId));
-                        outputIds.push(groupbyId);
+                        subGraph.push(this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId));
+                        this.getFunctionQueries(i, j, subGraph);
+                        for (let node of subGraph) {
+                            this.transformedQuery.executionGraph.push(node);
+                        }
+                        
+                        this.metricSubGraphs.set(q.id, subGraph);
+                        outputIds.push(subGraph[subGraph.length - 1].id);
                     }
                 }
 
@@ -92,7 +91,6 @@ export class YamasService {
             this.transformedQuery.executionGraph.push(this.getTopN(sorting.order, sorting.limit, outputIds));
             this.transformedQuery.executionGraph.push(this.getQuerySummarizer(['topn']));
         } else {
-            // transformedQuery.executionGraph.push(this.getQuerySummarizer(['groupby']));
             this.transformedQuery.executionGraph.push(this.getQuerySummarizer(outputIds));
         }
 
@@ -169,12 +167,17 @@ export class YamasService {
         return index;
     }
 
-    getFunctionQueries(qindex, index, ds) {
-        const queries = [];
+    /**
+     * Appends nodes to, inserts nodes in or modifies the sub graph with functions 
+     * where appropriate. Note the caller will serialize the last entry in this
+     * sub graph.
+     * @param qindex The query index.
+     * @param index The metric index.
+     * @param subGraph The sub graph.
+     */
+    getFunctionQueries(qindex, index, subGraph) {
         const funs = this.queries[qindex].metrics[index].functions || [];
-        var func = null;
         for ( let i = 0; i < funs.length; i++ ) {
-            console.info("[ WORKING ] " + funs[i].fxCall);
             switch ( funs[i].fxCall ) {
                 // Rate and Difference
                 case 'RateOfChange':  // old
@@ -185,31 +188,26 @@ export class YamasService {
                 case 'CntrRate':
                 case 'CounterDiff':   // old
                 case 'CounterValueDiff':
-                    func = this.handleRateFunction(parseInt(qindex) + 1, index + 1, ds, funs, i);
+                    this.handleRateFunction(parseInt(qindex) + 1, index + 1, subGraph, funs, i);
                     break;
                 
                 // Smoothing
                 case 'EWMA':
-                    func = this.handleSmoothingFunction(parseInt(qindex) + 1, index + 1, ds, funs, i);
+                    this.handleSmoothingFunction(parseInt(qindex) + 1, index + 1, subGraph, funs, i);
                     break;
             }
-            if (func != null) {
-                queries.push(func);
-                ds = func.id;
-            }
         }
-        return { queries: queries };
     }
 
-    handleRateFunction(qindex, index, previous, funs, i) {
-        const func = {
-            'id': 'q' + qindex + '_m' + index + '-rate',
+    handleRateFunction(qindex, index, subGraph, funs, i) {
+        var func = {
+            'id': this.generateNodeId('q' + qindex + '_m' + index + '-rate', subGraph),
             'type': 'rate',
             'interval': funs[i].val,
             'counter': false,
             'dropResets': false,
             'deltaOnly': false,
-            'sources': [ previous ]
+            'sources': [ subGraph[subGraph.length - 1].id ]
         };
         switch ( funs[i].fxCall ) {
             case 'RateOfChange':
@@ -225,6 +223,20 @@ export class YamasService {
                 func.counter = true;
                 func.dropResets = true;
                 func.deltaOnly = false;
+                // run before group by so we group the rates, but only if the previous
+                // node wasn't an expression.
+                if (subGraph[subGraph.length - 1].type.toLowerCase() !== 'expression') {
+                    const dsIdx = this.findNode('downsample', subGraph);
+                    if (dsIdx < 0) {
+                        console.error("Couldn't find a downsample node?? " + JSON.stringify(subGraph));
+                    } else {
+                        func.sources[0] = subGraph[dsIdx].id;
+                        this.replaceNodeSource(subGraph[dsIdx].id, func.id, subGraph);
+                        // insert it
+                        subGraph.splice(subGraph[dsIdx] + 1, 0, func);
+                    }
+                    func = null;
+                }
                 break;
             case 'CounterDiff': // old name
             case 'CounterValueDiff':
@@ -233,20 +245,22 @@ export class YamasService {
                 func.deltaOnly = true;
             break;
         }
-        return func;
+        if (func != null) {
+            subGraph.push(func);
+        }
     }
 
-    handleSmoothingFunction(qindex, index, previous, funs, i) {
-        const interval_pattern = RegExp(/\d+\w/);
+    handleSmoothingFunction(qindex, index, subGraph, funs, i) {
+        const interval_pattern = RegExp(/^\d+[a-zA-Z]$/);
         const func = {
-            'id': 'q' + qindex + '_m' + index + '-smooth',
+            'id': this.generateNodeId('q' + qindex + '_m' + index + '-smooth', subGraph),
             'type': 'MovingAverage', // TODO - other types when we have em
             'interval': null,
             'samples': null,
             'alpha': 0.0,
             //'weighted': true,  // TODO if we add WMA only
             'exponential': true, // TODO if we add WMA only
-            'sources': [ previous ]
+            'sources': [ subGraph[subGraph.length - 1].id ]
         }
         switch ( funs[i].fxCall ) {
             case 'EWMA':
@@ -271,7 +285,69 @@ export class YamasService {
                 }
                 break;
         }
-        return func;
+        subGraph.push(func);
+    }
+
+    /**
+     * Searches the sub graph for the given node type and returns the index if found.
+     * @param type The type of node, e.g. "downsample" or "rate"
+     * @param subGraph The sub graph.
+     */
+    findNode(type, subGraph) {
+        for (var i = 0; i < subGraph.length; i++) {
+            if (subGraph[i].type.toLowerCase() === type) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Searches the sub graph for the given ID in node sources. If found, replaces
+     * the ID with the given replacement.
+     * @param original The original ID to look for
+     * @param replacement The replacement source ID
+     * @param subGraph The sub graph.
+     */
+    replaceNodeSource(original, replacement, subGraph) {
+        for (let node of subGraph) {
+            if (node.sources && node.sources.length) {
+                for (var i = 0; i < node.sources.length; i++) {
+                    if (node.sources[i] === original) {
+                        node.sources[i] = replacement;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Runs through the subgraph looking for nodes that start with the same ID. If found,
+     * it will append "_#" and if other similar IDs were found with the same appended value,
+     * just increments the number. That way we can chain similar functions.
+     * @param id The suggested ID.
+     * @param subGraph The sub graph.
+     */
+    generateNodeId(id, subGraph) {
+        var idx = 0;
+        const pattern = new RegExp(id + "_(\\d+)");
+        for (let node of subGraph) {
+            if (node.id === id) {
+                // exact match
+                idx++;
+            } else {
+                let matches = pattern.exec(node.id);
+                if (matches && matches.length == 2) {
+                    if (idx <= parseInt(matches[1])) {
+                        idx = parseInt(matches[1]) + 1;
+                    }
+                }
+            }
+        }
+        if (idx > 0) {
+            return id + "_" + idx;
+        }
+        return id;
     }
 
     getExpressionQuery(qindex, mindex) {
@@ -299,6 +375,9 @@ export class YamasService {
                 sources.push(sourceId);
             } else {
                 sources.push(sourceId +  '-groupby');
+            }
+            } else {
+                sources.push(subGraph[subGraph.length - 1].id);
             }
         }
         const joinTags = {};
