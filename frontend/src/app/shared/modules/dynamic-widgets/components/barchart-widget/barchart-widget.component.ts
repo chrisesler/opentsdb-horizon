@@ -322,31 +322,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
     addNewStack() {
         const oStack = {
-            id : this.util.generateId(3, this.util.getExistingIds(this.widget.queries)),
+            id : this.util.generateId(3, this.util.getIDs(this.util.getAllMetrics(this.widget.queries))),
             label: 'Stack-' + ( this.widget.settings.visual.stacks.length + 1 ),
             color: '#000000'
         };
         const index = this.widget.settings.visual.stacks.push(oStack);
         return oStack;
-    }
-
-    addNewGroup() {
-        const gid = this.util.generateId(6, this.util.getExistingIds(this.widget.queries));
-        const g = {
-                    id: gid,
-                    title: 'untitled group',
-                    queries: [],
-                    settings: {
-                        tempUI: {
-                            selected: false
-                        },
-                        visual: {
-                            visible: true
-                        }
-                    }
-                };
-        this.widget.queries.push(g);
-        return g;
     }
 
     deleteMetrics(groups) {

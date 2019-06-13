@@ -276,7 +276,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             const insertIndex = this.getMetricsLength('metrics');
             for (let i = 0; i < metrics.length; i++) {
                 // tslint:disable-next-line:no-shadowed-variable
-                const id = this.utils.generateId(3, this.utils.getExistingIds(this.queries));
+                const id = this.utils.generateId(3, this.utils.getIDs( this.utils.getAllMetrics(this.queries)));
                 const oMetric = {
                     id: id,
                     name: metrics[i],
@@ -555,7 +555,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
 
         const config = {
-            id: this.utils.generateId(3, this.utils.getExistingIds(this.queries)),
+            id: this.utils.generateId(3, this.utils.getIDs(this.utils.getAllMetrics(this.queries))),
             expression: transformedExp,
             originalExpression: expression,
             settings: {
@@ -587,13 +587,15 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     addFunction(func: any, metricId: string) {
+        const metricIdx = this.query.metrics.findIndex(d => d.id === metricId ) ;
+        this.query.metrics[metricIdx].functions = this.query.metrics[metricIdx].functions || [];
+
         const newFx = {
-            id: this.utils.generateId(3, this.utils.getExistingIds(this.queries)),
+            id: this.utils.generateId(3, this.utils.getIDs(this.query.metrics[metricIdx].functions)),
             fxCall: func.fxCall,
             val: ''
         };
-        const metricIdx = this.query.metrics.findIndex(d => d.id === metricId ) ;
-        this.query.metrics[metricIdx].functions = this.query.metrics[metricIdx].functions || [];
+
         this.query.metrics[metricIdx].functions.push(newFx);
         // tslint:disable-next-line:max-line-length
         // tslint:disable-next-line:no-shadowed-variable
@@ -699,7 +701,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const index = this.query.metrics.findIndex(d => d.id === id );
         const oMetric = this.query.metrics[index];
         const nMetric = this.utils.deepClone(oMetric);
-        nMetric.id = this.utils.generateId(3, this.utils.getExistingIds(this.queries));
+        nMetric.id = this.utils.generateId(3, this.utils.getIDs(this.utils.getAllMetrics(this.queries)));
 
         if (!this.options.enableMultiMetricSelection && nMetric.settings && nMetric.settings.visual) {
             nMetric.settings.visual.visible = false;

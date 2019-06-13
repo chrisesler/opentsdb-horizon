@@ -56,7 +56,7 @@ export class DashboardConverterService {
               const metric = metrics.find(d => d.expression === undefined && d.name === emetrics[m].metric);
               if (!metric) {
                 const oMetric = {
-                  id: this.utils.generateId(3, this.utils.getExistingIds(queries)),
+                  id: this.utils.generateId(3, this.utils.getIDs(this.utils.getAllMetrics(queries))),
                   name: emetrics[m].metric,
                   settings: {
                     visual: {
@@ -179,7 +179,7 @@ export class DashboardConverterService {
             // metrics
             if (ids.has(metrics[k].id)) {
               const oldId = metrics[k].id;
-              const newId = this.utils.generateId(3, this.utils.getExistingIds(queries));
+              const newId = this.utils.generateId(3, this.utils.getIDs(this.utils.getAllMetrics(queries)));
               this.utils.replaceIdsInExpressions(newId, oldId, metrics);
               metrics[k].id = newId;
               ids.add(newId);

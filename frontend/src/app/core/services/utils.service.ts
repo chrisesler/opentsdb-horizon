@@ -18,20 +18,22 @@ export class UtilsService {
     return id;
   }
 
-  getExistingIds(queries: any) {
-    let existingIds = [];
-    // tslint:disable:forin
-    if (queries) {
-        for (let i in queries) {
-            existingIds.push(queries[i].id);
-            if (queries[i].metrics) {
-                for (let j in queries[i].metrics) {
-                    existingIds.push(queries[i].metrics[j].id);
-                }
-            }
+  getIDs(collection: any[]) {
+    const ids = [];
+    for (const obj of collection) {
+        if (obj.hasOwnProperty('id')) {
+            ids.push(obj.id);
         }
     }
-    return existingIds;
+    return ids;
+  }
+
+  getAllMetrics(queries: any[]) {
+    const metrics = [];
+    for (const query of queries) {
+        metrics.concat(query.metrics);
+    }
+    return metrics;
   }
 
   convertPatternTSDBCompat(searchPattern) {
