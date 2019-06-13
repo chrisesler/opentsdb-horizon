@@ -106,6 +106,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch( message.action ) {
                 case 'reQueryData':
+                case 'ZoomDateRange':
                     this.refreshData();
                     break;
             }

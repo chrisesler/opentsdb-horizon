@@ -2,6 +2,7 @@ import { OnInit, OnChanges, OnDestroy, Directive,
          Input, Output, EventEmitter, ElementRef, SimpleChanges } from '@angular/core';
 import { IDygraphOptions } from '../IDygraphOptions';
 import Dygraph from 'dygraphs/src-es5/dygraph.js';
+import DygraphInteraction from '../../../dygraphs/misc/dygraph-interaction-model';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
 import ThresholdsPlugin from '../../../dygraph-threshold-plugin/src/index';
 import * as moment from 'moment';
@@ -18,6 +19,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
   @Input() options: IDygraphOptions;
   @Input() chartType: string;
   @Input() size: any;
+  @Output() zoomed = new EventEmitter;
 
 
   private _g: any;
@@ -153,6 +155,21 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 this.options.highlightCallback = mouseover;
             }
             this.options.legendFormatter = legendFormatter;
+            this.options.zoomCallback = function(minDate, maxDate, yRanges) {
+                // we only handle xzoom
+                if ( !yRanges ) {
+                    _self.zoomed.emit({start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
+                }
+            };
+
+            this.options.interactionModel = DygraphInteraction.defaultModel;
+            this.options.interactionModel.dblclick = function(e, g, context) {
+                if ( g.user_attrs_.isCustomZoomed ) {
+                    _self.zoomed.emit({start: null, end: null, isZoomed: false });
+                } else if ( _self._g.isZoomed() ) {
+                    g.resetZoom();
+                }
+            };
         } else if ( this.chartType === 'heatmap' ) {
             this.options.interactionModel = {
                 'mousemove' : function(event, g, context) {

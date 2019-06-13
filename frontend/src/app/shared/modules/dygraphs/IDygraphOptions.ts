@@ -27,6 +27,8 @@ export interface IDygraphOptions {
     digitsAfterDecimal?: number;
     connectSeparatedPoints?: boolean;
     drawPoints?: boolean;
+    dateWindow?: any[];
+    isCustomZoomed?: boolean;
     file?: any;
     legend?: "follow" | "always" | "never" | "onmouseover";
     logscale?: boolean;
@@ -53,6 +55,8 @@ export interface IDygraphOptions {
     labelsDiv?: any;
     legendFormatter?: any;
     highlightCallback?: any;
+    zoomCallback?: any;
+    isZoomedIgnoreProgrammaticZoom?: boolean;
     labelsKMB?: boolean;
     visibility?: boolean[];
     drawGrid?: boolean;

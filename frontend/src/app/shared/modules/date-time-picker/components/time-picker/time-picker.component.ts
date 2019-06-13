@@ -226,7 +226,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
             this.endTime.toLowerCase() === 'now' ||
             this.utilsService.relativeTimeToMoment(this.startTime) ||
             this.utilsService.relativeTimeToMoment(this.endTime) ) {
-                this.timeRangePicker.applyClicked();
+                this.newChange.emit( { action: 'RefreshDashboard', payload: {} });
         }
         if ( this.refresh.duration ) {
             this.subscribeToAutoRefresh(this.refresh.duration);
