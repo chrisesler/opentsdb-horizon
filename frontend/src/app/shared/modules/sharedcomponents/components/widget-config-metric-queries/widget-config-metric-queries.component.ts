@@ -197,9 +197,26 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
     updateQuery(query) {
         console.log('widget-query :: updateQuery, query, gid', query);
+        query.metrics = this.updateLabelsForTimeShift(query.metrics);
         const payload = { action: 'UpdateQuery', payload: { query: query } };
         this.newQueryId = '';
         this.widgetChange.emit(payload);
+    }
+
+    updateLabelsForTimeShift(metrics: any[]) {
+        for (let metric of metrics) {
+            let totalTimeShift = this.util.getTotalTimeShift(metric.functions);
+            if (totalTimeShift) {
+                if (metric.settings.visual.label === '' || metric.settings.visual.label.startsWith( metric.name + '-')) {
+                    metric.settings.visual.label = metric.name + '-' + totalTimeShift;
+                }
+            } else { // timeshift potentiall removed
+                if (metric.settings.visual.label && metric.settings.visual.label.startsWith(metric.name + '-')) {
+                    metric.settings.visual.label = '';
+                }
+            }
+        }
+        return metrics;
     }
 
     // to add or remove the local tempUI state

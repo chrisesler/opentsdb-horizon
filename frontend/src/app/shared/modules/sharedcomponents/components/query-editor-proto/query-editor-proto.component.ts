@@ -258,9 +258,53 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                     fxCall: 'Rollup',
                     val: 'sum,auto'
                 }
+                ]
+            },
+            {
+            label: 'Timeshift',
+            functions: [
+                {
+                    label: 'Hour Before',
+                    fxCall: 'Timeshift',
+                    fxVal: '1h'
+                },
+                {
+                    label: 'Day Before',
+                    fxCall: 'Timeshift',
+                    fxVal: '1d'
+                },
+                {
+                    label: 'Week Before',
+                    fxCall: 'Timeshift',
+                    fxVal: '1w'
+                },
+                {
+                    label: 'Month Before',
+                    fxCall: 'Timeshift',
+                    fxVal: '4w'
+                }
             ]
         }
     ];
+
+    FunctionValidation: any = {
+        'Rollup' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'RateOfChange' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'CounterToRate' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'Timeshift' : {
+            errorMessage: 'Possible values: 1h, 2d, 3w, etc.',
+            regexValidator: /^\d+[hdw]$/i
+        }
+    };
 
     // MAT-TABLE DEFAULT COLUMNS
     metricTableDisplayColumns: string[] = [
