@@ -76,6 +76,7 @@ export interface WidgetsModel {
         widget: any;
         needRefresh: boolean;
     };
+    
 }
 
 // actions
@@ -97,11 +98,6 @@ export class UpdateWidget {
 export class DeleteWidget {
     public static type = '[Widget] Delete Widget';
     constructor(public readonly wid: string) {}
-}
-
-export class UpdateLastUpdated {
-    public static type = '[Widget] Update lastUpdated';
-    constructor(public readonly payload: any) {}
 }
 
 @State<WidgetsModel>({
@@ -178,14 +174,4 @@ export class WidgetsState {
         }
     }
 
-    @Action(UpdateLastUpdated)
-    updateLastUpdated(ctx: StateContext<WidgetsModel>, { payload }: UpdateLastUpdated) {
-        const curState = ctx.getState();
-        const state = this.utils.deepClone(curState);
-        ctx.patchState({ lastUpdated: {
-            id: payload.id,
-            widget: payload.widget,
-            needRefresh: payload.needRequery
-        }});
-    }
 }

@@ -170,7 +170,6 @@ export class DashboardService {
   }
 
  applyTplVarToWidget(widget: any, eWidgets: any, tplVariables: any[]) {
-  console.log('hill - widget to send in', widget, eWidgets, tplVariables);
   let isModify = false;
   for (const alias in eWidgets) {
     if (eWidgets[alias].hasOwnProperty(widget.id)) {
@@ -210,49 +209,6 @@ export class DashboardService {
   }
   return widget;
 }
-  // apply filter dynamic and ignore if static is set
-  /* applyTplVarToWidget(widget: any, eWidgets: any, tplVariables: any[]) {
-    console.log('hill - widget to send in', widget);
-    let isModify = false;
-    for (const alias in eWidgets) {
-      if (eWidgets[alias].hasOwnProperty(widget.id)) {
-        const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
-        const vartag = tplVariables[tplIdx];
-        // when user set custom tag to empty, we need to requery to origin config
-        if (vartag.filter === '') { isModify = true; continue; }
-        for (let i = 0; i < widget.queries.length; i++) {
-          const query = widget.queries[i];
-          if (eWidgets[alias][widget.id].hasOwnProperty(query.id)) {
-            const fIdx = query.filters.findIndex(f => f.tagk === vartag.tagk);
-            if (fIdx > -1) {
-              // check if it has this alias, if it does then leave it alone as static mode
-              if ((query.filters[fIdx].customFilter && query.filters[fIdx].customFilter.length === 0)
-                  || !query.filters[fIdx].customFilter) {
-                    query.filters[fIdx].filter = [];
-                  query.filters[fIdx].dynamicFilter ? query.filters[fIdx].dynamicFilter.push('[' + alias + ']')
-                                                    : query.filters[fIdx].dynamicFilter = ['[' + alias + ']'];
-                  isModify = true;
-              } else {
-                // they have static mode, but let it thru
-                isModify = true;
-              }
-            } else {
-              const nfilter = {
-                tagk: vartag.tagk,
-                filter: [],
-                groupBy: false,
-                dynamicFilter: ['[' + alias + ']']
-              };
-              query.filters.push(nfilter);
-              isModify = true;
-            }
-          }
-        }
-      }
-    }
-    return isModify ? widget : null;
-  }
- */
   resolveTplVar(query: any, tplVariables: any[]) {
     for (let i = 0; i < query.filters.length; i++) {
       const qFilter = query.filters[i];
@@ -262,7 +218,7 @@ export class DashboardService {
           const alias = qFilter.customFilter[j].substring(1, qFilter.customFilter[j].length - 1);
           const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
           if (tplIdx > -1) {
-            if (tplVariables[tplIdx].filter !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
+            if (tplVariables[tplIdx].filter.trim() !== '' && qFilter.filter.indexOf(tplVariables[tplIdx].filter) === -1) {
               qFilter.filter.push(tplVariables[tplIdx].filter);
             }
           }
@@ -278,11 +234,9 @@ export class DashboardService {
           }
         }
       }
-      // in case filter is empty then remove this filter out
-      if (qFilter.filter.length === 0) {
-        query.filters.splice(i, 1);
-      }
     }
+    // clean out empty filter
+    query.filters = query.filters.filter(f => f.filter.length > 0);
     return query;
   }
 

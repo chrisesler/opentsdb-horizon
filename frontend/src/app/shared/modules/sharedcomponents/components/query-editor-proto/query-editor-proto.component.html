@@ -303,14 +303,14 @@
 <mat-menu class="tag-filters-menu-wrapper" yPosition="below" #tagFilterMenu="matMenu" >
     <ng-template matMenuContent let-query="query">
     <div class="filter" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" *ngIf="query.namespace">
-        <inline-filter-editor [query]="query" (filterOutput)="updateFilters($event);" ></inline-filter-editor>
+        <inline-filter-editor [query]="query" (filterOutput)="updateFilters($event);" [tplVariables]="tplVariables"></inline-filter-editor>
     </div>
     </ng-template>
 </mat-menu>
 <!-- FUNCTION MENU-->
 <mat-menu class="function-selection-cdk-menu" #functionSelectionMenu="matMenu">
     <ng-template matMenuContent let-metric="metric">
-        <div class="function-selection-wrapper" style="width: 300px; height: 200px;">
+        <div class="function-selection-wrapper" style="height: 200px;">
             <div class="function-categories">
                 <mat-nav-list>
                     <a mat-list-item 

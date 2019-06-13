@@ -121,6 +121,10 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                             this.refreshData(message.payload.needRefresh);
                         }
                         break;
+                    case 'WidgetQueryLoading':
+                        this.nQueryDataLoading = 1;
+                        this.cdRef.detectChanges();
+                            break;
                 }
             }        });
         // when the widget first loaded in dashboard, we request to get data

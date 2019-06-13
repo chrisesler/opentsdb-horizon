@@ -158,6 +158,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         this.setOptions();
                         this.refreshData(message.payload.needRefresh);
                         break;
+                    case 'WidgetQueryLoading':
+                        this.nQueryDataLoading = 1;
+                        this.cdRef.detectChanges();
+                        break;
                 }
             }
         });

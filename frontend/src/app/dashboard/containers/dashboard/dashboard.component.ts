@@ -18,7 +18,7 @@ import { DBState, LoadDashboard, SaveDashboard, DeleteDashboard } from '../../st
 import { LoadUserNamespaces, LoadUserFolderData, UserSettingsState } from '../../state/user.settings.state';
 import { WidgetsState,
     UpdateWidgets, UpdateGridPos, UpdateWidget,
-    DeleteWidget, WidgetModel, UpdateLastUpdated } from '../../state/widgets.state';
+    DeleteWidget, WidgetModel } from '../../state/widgets.state';
 import {
     WidgetsRawdataState,
     GetQueryDataByGroup,
@@ -32,6 +32,7 @@ import {
     DBSettingsState,
     UpdateMode,
     UpdateDashboardTime,
+    UpdateDashboardAutoRefresh,
     LoadDashboardSettings,
     UpdateDashboardTimeZone,
     UpdateDashboardTitle,
@@ -69,6 +70,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(DBState.getDashboardStatus) dbStatus$: Observable<string>;
     @Select(DBState.getDashboardError) dbError$: Observable<any>;
     @Select(DBSettingsState.getDashboardTime) dbTime$: Observable<any>;
+    @Select(DBSettingsState.getDashboardAutoRefresh) refresh$: Observable<any>;
     @Select(DBSettingsState.getMeta) meta$: Observable<any>;
     @Select(DBSettingsState.getTplVariables) tplVariables$: Observable<any>;
     @Select(WidgetsState.getWigets) widgets$: Observable<WidgetModel[]>;
@@ -368,8 +370,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.store.dispatch(new UpdateMeta(message.payload.meta));
                     }
                     break;
-                case 'getTagValues': // tag template variables call
-                    this.getDashboardTagValues(message.payload.tag);
+                case 'GetTplVariables':
+                    this.interCom.responsePut({
+                        action: 'TplVariables',
+                        payload: { tplVariables: this.tplVariables }
+                    });
                     break;
                 case 'getUserNamespaces':
                     this.store.dispatch(new LoadUserNamespaces());
@@ -647,21 +652,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
-    getDashboardTagValues(tag: any) {
-        const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
-        const otherTags = this.tplVariables.filter(tpl => tpl.tagk !== tag.key);
-        for ( let i = 0; i < otherTags.length; i++) {
-            // think about it later
-        }
-        const query = { metrics, tag }; // unique metrics
-        return this.httpService.getTagValues(query).subscribe(values => {
-            this.interCom.responsePut({
-                action: 'dashboardTagValues',
-                payload: values
-            });
-        });
-    }
-
     getDashboardTagKeys() {
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
             this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
@@ -720,6 +710,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if ( Object.keys(queries).length ) {
                 const query = this.queryService.buildQuery(payload, dt, queries);
                 gquery.query = query;
+                // ask widget to loading signal
+                this.interCom.responsePut({
+                    id: payload.id,
+                    action: 'WidgetQueryLoading'
+                });
                 // now dispatch request
                 this.store.dispatch(new GetQueryDataByGroup(gquery));
             } else {
@@ -788,8 +783,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
             payload: {}
         });
     }
+
+    handleTimePickerChanges(message) {
+        switch ( message.action  ) {
+            case 'SetDateRange':
+                this.setDateRange(message.payload.newTime);
+                break;
+            case 'SetAutoRefreshConfig':
+                this.setAutoRefresh(message.payload);
+                break;
+            case 'RefreshDashboard':
+                this.refresh();
+                break;
+        }
+    }
+
     setDateRange(e: any) {
         this.store.dispatch(new UpdateDashboardTime({ start: e.startTimeDisplay, end: e.endTimeDisplay }));
+    }
+
+    setAutoRefresh(refresh) {
+        this.store.dispatch(new UpdateDashboardAutoRefresh(refresh));
     }
 
     setTimezone(e: any) {
