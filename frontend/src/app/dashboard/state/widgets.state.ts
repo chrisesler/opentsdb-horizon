@@ -33,7 +33,7 @@ export interface WidgetModel {
         component_type: string;
         data_source?: string;
         description?: string;
-        time?: {};
+        time?: any;
             visual?: {
                 type?: string;
                 stacks?: StackConfig[];

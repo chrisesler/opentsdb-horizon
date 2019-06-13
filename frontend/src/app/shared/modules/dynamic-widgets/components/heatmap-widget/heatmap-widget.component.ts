@@ -108,6 +108,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
       this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
           switch (message.action) {
               case 'reQueryData':
+              case 'ZoomDateRange':
                   this.refreshData();
                   break;
               case 'TimezoneChanged':

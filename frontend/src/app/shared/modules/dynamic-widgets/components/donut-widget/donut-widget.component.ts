@@ -71,6 +71,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch ( message.action ) {
                 case 'reQueryData':
+                case 'ZoomDateRange':
                     this.refreshData();
                     break;
             }

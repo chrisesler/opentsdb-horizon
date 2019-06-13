@@ -65,6 +65,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
 
     /** Outputs */
     @Output() timeSelected = new EventEmitter<ISelectedTime>();
+    @Output() refresh = new EventEmitter;
 
     /** Variables */
 
@@ -166,8 +167,8 @@ export class TimePickerComponent implements AfterViewChecked, OnInit {
         this.trigger.closeMenu();
     }
 
-    refresh() {
-        this.timeRangePicker.applyClicked();
+    setRefresh() {
+        this.refresh.emit();
     }
 
     updateToolTipsAndDisplayTimes() {
