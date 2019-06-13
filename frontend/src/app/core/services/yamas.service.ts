@@ -193,6 +193,7 @@ export class YamasService {
                 
                 // Smoothing
                 case 'EWMA':
+                case 'Median':
                     this.handleSmoothingFunction(parseInt(qindex) + 1, index + 1, subGraph, funs, i);
                     break;
             }
@@ -258,8 +259,9 @@ export class YamasService {
             'interval': null,
             'samples': null,
             'alpha': 0.0,
-            //'weighted': true,  // TODO if we add WMA only
+            'weighted': false,  // TODO if we add WMA only
             'exponential': true, // TODO if we add WMA only
+            'median': false,
             'sources': [ subGraph[subGraph.length - 1].id ]
         }
         switch ( funs[i].fxCall ) {
@@ -283,6 +285,11 @@ export class YamasService {
                     // nothing, use some defaults.
                     func.samples = 5;
                 }
+                break;
+            case 'Median':
+                func.samples = funs[i].val;
+                func.exponential = false;
+                func.median = true;
                 break;
         }
         subGraph.push(func);

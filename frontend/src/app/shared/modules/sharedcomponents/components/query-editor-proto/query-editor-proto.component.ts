@@ -162,6 +162,26 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                     label: 'Moving Average 15m Window',
                     fxCall: 'EWMA',
                     val: '15m,0.0'
+                },
+                {
+                    label: 'Moving Median 3 Samples',
+                    fxCall: 'Median',
+                    val: '3'
+                },
+                {
+                    label: 'Moving Median 5 Samples',
+                    fxCall: 'Median',
+                    val: '5'
+                },
+                {
+                    label: 'Moving Median 7 Samples',
+                    fxCall: 'Median',
+                    val: '7'
+                },
+                {
+                    label: 'Moving Median 9 Samples',
+                    fxCall: 'Median',
+                    val: '9'
                 }
             ]
         },
