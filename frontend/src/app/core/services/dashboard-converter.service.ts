@@ -170,7 +170,7 @@ export class DashboardConverterService {
     const widgets = dashboard.content.widgets;
     for (let i = 0; i < widgets.length; i++) {
       const queries = widgets[i].queries;
-      if (widgets[i].settings.component_type === 'LinechartWidgetComponent') {
+      // if (widgets[i].settings.component_type === 'LinechartWidgetComponent') {
         const ids = new Set();
         ids.add(widgets[i].id);
         for (let j = 0; j < queries.length; j++) {
@@ -188,7 +188,7 @@ export class DashboardConverterService {
             }
           }
         }
-      }
+      // }
     }
     return dashboard;
   }

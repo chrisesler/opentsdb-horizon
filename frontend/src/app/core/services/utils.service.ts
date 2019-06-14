@@ -349,8 +349,12 @@ export class UtilsService {
     }
 
     getSummmarizerDataWithId(id, queries, data) {
-        const sourceId = this.getSourceIDAndTypeFromMetricID(id, queries).id;
-        return this.getSummarizerDataForMetric(data, sourceId);
+        const source = this.getSourceIDAndTypeFromMetricID(id, queries);
+        if (source.hasOwnProperty('id')) {
+            return this.getSummarizerDataForMetric(data, source.id);
+        } else {
+            return {};
+        }
     }
 
     getSummarizerDataForMetric(data, tsdbId): any {

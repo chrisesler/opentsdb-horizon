@@ -223,6 +223,9 @@ export class YamasService {
             const id = matches[1];
             const idreg = new RegExp( '\\{\\{' + id + '\\}\\}' , 'g');
             const sourceIdAndType = this.utils.getSourceIDAndTypeFromMetricID(id, this.queries);
+            if (!sourceIdAndType.hasOwnProperty('id') || !sourceIdAndType.hasOwnProperty('expression')) {
+                continue;
+            }
             const sourceId = sourceIdAndType.id;
             const isExpression = sourceIdAndType.expression;
             transformedExp = transformedExp.replace(idreg, ' ' + sourceId + ' ' );
