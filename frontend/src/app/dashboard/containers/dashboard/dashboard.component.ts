@@ -384,6 +384,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
                 case 'SetZoomDateRange':
                     if ( message.payload.isZoomed ) {
+                        // tslint:disable-next-line:max-line-length
+                        message.payload.start = message.payload.start !== -1 ? message.payload.start : this.dateUtil.timeToMoment(this.dbTime.start, this.dbTime.zone).unix();
+                        // tslint:disable-next-line:max-line-length
+                        message.payload.end = message.payload.end !== -1 ? message.payload.end : this.dateUtil.timeToMoment(this.dbTime.end, this.dbTime.zone).unix();
                         this.dbTime.start = this.dateUtil.timestampToTime(message.payload.start, this.dbTime.zone);
                         this.dbTime.end = this.dateUtil.timestampToTime(message.payload.end, this.dbTime.zone);
                     } else {
@@ -512,7 +516,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 });
             } else {
                 this.interCom.responsePut({
-                    action: 'reQueryData',
+                    action: 'TimeChanged',
                     payload: t
                 });
             }
