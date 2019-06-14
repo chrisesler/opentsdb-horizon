@@ -72,6 +72,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     @Input() label = '';
     @Input() options: IQueryEditorOptions;
     @Input() tplVariables: any;
+    @Input() queries: any[]; // for cross-query
 
     @Output() queryOutput = new EventEmitter;
 
@@ -92,6 +93,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     fg: FormGroup;
     expressionControl: FormControl;
     expressionControls: FormGroup;
+    idRegex = /(q[0-9]+\.)*(m|e)[0-9]/gi;
+    handleBarsRegex = /\{\{(.+?)\}\}/;
 
     timeAggregatorOptions: Array<any> = [
         {
@@ -273,7 +276,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             const insertIndex = this.getMetricsLength('metrics');
             for (let i = 0; i < metrics.length; i++) {
                 // tslint:disable-next-line:no-shadowed-variable
-                const id = this.utils.generateId(3);
+                const id = this.utils.generateId(3, this.utils.getIDs( this.utils.getAllMetrics(this.queries)));
                 const oMetric = {
                     id: id,
                     name: metrics[i],
@@ -355,10 +358,10 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
         if (expression) {
             // replace {{<id>}} with query source id
-            const re = new RegExp(/\{\{(.+?)\}\}/, 'g');
+            const re = new RegExp(this.handleBarsRegex, 'g');
             let matches = [];
             let i = 0;
-            while(matches = re.exec(expression)) {
+            while (matches = re.exec(expression)) {
                 const id = matches[1];
                 const mTags = this.getGroupByTags( id );
                 groupByTags = i === 0 ? mTags : groupByTags.filter(v => mTags.includes(v));
@@ -417,7 +420,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     getExpressionUserInput(expression) {
         // replace {{<id>}} to m|e<index>
-        const re = new RegExp(/\{\{(.+?)\}\}/, 'g');
+        const re = new RegExp(this.handleBarsRegex, 'g');
         let matches = [];
         let userExpression = expression;
         const aliases = this.getHashMetricIdUserAliases();
@@ -453,7 +456,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     isValidExpression(id, expression) {
-        const result = expression.match(/((m|e)[0-9]+)/gi);
+        const result = expression.match(this.idRegex);
         const invalidRefs = [];
 
         const aliases = this.getMetricAliases();
@@ -473,10 +476,29 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         let metricIndex = 0;
         let expressionIndex = 0;
         const aliases = {};
+
+        // cross-query aliases
+        for (let i = 0; i < this.queries.length; i++) {
+            const queryIndex = i + 1;
+            metricIndex = 0;
+            expressionIndex = 0;
+            for (let j = 0; j < this.queries[i].metrics.length; j++) {
+                const alias = this.queries[i].metrics[j].expression === undefined ?
+                    'q' + queryIndex + '.' + 'm' + ++metricIndex :
+                    'q' + queryIndex + '.' + 'e' + ++expressionIndex;
+                aliases[this.queries[i].metrics[j].id] = alias;
+            }
+        }
+
+        metricIndex = 0;
+        expressionIndex = 0;
         for (let i = 0; i < this.query.metrics.length; i++) {
-            const alias = this.query.metrics[i].expression === undefined ? 'm' + ++metricIndex : 'e' + ++expressionIndex;
+            const alias = this.query.metrics[i].expression === undefined ?
+            'm' + ++metricIndex :
+            'e' + ++expressionIndex;
             aliases[this.query.metrics[i].id] = alias;
         }
+
         return aliases;
     }
 
@@ -485,30 +507,55 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         let metricIndex = 0;
         let expressionIndex = 0;
         const aliases = {};
+
+        // shorthand aliases
         for (let i = 0; i < this.query.metrics.length; i++) {
-            const alias = this.query.metrics[i].expression === undefined ? 'm' + ++metricIndex : 'e' + ++expressionIndex;
+            const alias = this.query.metrics[i].expression === undefined ?
+            'm' + ++metricIndex :
+            'e' + ++expressionIndex;
             aliases[alias] = this.query.metrics[i].id;
         }
+
+        // cross-query aliases
+        for (let i = 0; i < this.queries.length; i++) {
+            const queryIndex = i + 1;
+            metricIndex = 0;
+            expressionIndex = 0;
+            for (let j = 0; j < this.queries[i].metrics.length; j++) {
+                const alias = this.queries[i].metrics[j].expression === undefined ?
+                    'q' + queryIndex + '.' + 'm' + ++metricIndex :
+                    'q' + queryIndex + '.' + 'e' + ++expressionIndex;
+                aliases[alias] = this.queries[i].metrics[j].id;
+            }
+        }
+
         return aliases;
     }
 
     getExpressionConfig(expression) {
         let transformedExp = expression;
-        let result = expression.match(/((m|e)[0-9]+)/gi);
+        let result = expression.match(this.idRegex);
         result = result ? this.utils.arrayUnique(result) : result;
-        // const replace = [];
-
         const aliases = this.getMetricAliases();
 
         // update the expression with metric ids
+        // first cross-query
         for (let i = 0; i < result.length; i++) {
-            const regex = new RegExp(result[i], 'g');
-            transformedExp = transformedExp.replace(regex, '{{' + aliases[result[i]] + '}}');
+            if (result[i].includes('.')) {
+                const regex = new RegExp(result[i], 'g');
+                transformedExp = transformedExp.replace(regex, '{{' + aliases[result[i]] + '}}');
+            }
+        }
+        // then shorthand
+        for (let i = 0; i < result.length; i++) {
+            if (!result[i].includes('.')) {
+                const regex = new RegExp(result[i], 'g');
+                transformedExp = transformedExp.replace(regex, '{{' + aliases[result[i]] + '}}');
+            }
         }
 
-
         const config = {
-            id: this.utils.generateId(3),
+            id: this.utils.generateId(3, this.utils.getIDs(this.utils.getAllMetrics(this.queries))),
             expression: transformedExp,
             originalExpression: expression,
             settings: {
@@ -540,13 +587,15 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     addFunction(func: any, metricId: string) {
+        const metricIdx = this.query.metrics.findIndex(d => d.id === metricId ) ;
+        this.query.metrics[metricIdx].functions = this.query.metrics[metricIdx].functions || [];
+
         const newFx = {
-            id: this.utils.generateId(3),
+            id: this.utils.generateId(3, this.utils.getIDs(this.query.metrics[metricIdx].functions)),
             fxCall: func.fxCall,
             val: ''
         };
-        const metricIdx = this.query.metrics.findIndex(d => d.id === metricId ) ;
-        this.query.metrics[metricIdx].functions = this.query.metrics[metricIdx].functions || [];
+
         this.query.metrics[metricIdx].functions.push(newFx);
         // tslint:disable-next-line:max-line-length
         // tslint:disable-next-line:no-shadowed-variable
@@ -617,11 +666,47 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         });
     }
 
+    canDeleteQuery() {
+        let canDelete = true;
+        const metricIds = [];
+        for (const metric of this.query.metrics) {
+            metricIds.push(metric.id);
+        }
+
+        if (this.queries) { // cross queries
+            for (let query of this.queries) {
+                for ( let i = 0; i < query.metrics.length; i++ ) {
+                    const expression = query.metrics[i].expression;
+                    if (expression && query.id !== this.query.id && this.expressionContainIds(expression, metricIds)) {
+                        canDelete = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return canDelete;
+
+    }
+
+    expressionContainIds(expression, ids) {
+        for (let id of ids) {
+            if (expression.indexOf('{{' + id + '}}') !== -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     cloneMetric(id) {
         const index = this.query.metrics.findIndex(d => d.id === id );
         const oMetric = this.query.metrics[index];
         const nMetric = this.utils.deepClone(oMetric);
-        nMetric.id = this.utils.generateId(3);
+        nMetric.id = this.utils.generateId(3, this.utils.getIDs(this.utils.getAllMetrics(this.queries)));
+
+        if (!this.options.enableMultiMetricSelection && nMetric.settings && nMetric.settings.visual) {
+            nMetric.settings.visual.visible = false;
+        }
+
         const insertIndex = this.query.metrics.findIndex(d => d.id === oMetric.id ) + 1;
         this.query.metrics.splice(insertIndex, 0, nMetric);
         this.queryChanges$.next(true);
@@ -637,11 +722,24 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const index = this.query.metrics.findIndex(d => d.id === id ) ;
         const metrics = this.query.metrics;
         let canDelete = true;
-        for ( let i = 0; i < metrics.length; i++ ) {
-            const expression = metrics[i].expression;
-            if ( expression && i !== index  &&  expression.indexOf('{{' + id + '}}') !== -1 ) {
-                canDelete = false;
-                break;
+
+        if (this.queries) { // cross queries
+            for (let query of this.queries) {
+                for ( let i = 0; i < query.metrics.length; i++ ) {
+                    const expression = query.metrics[i].expression;
+                    if ( expression && i !== index  &&  expression.indexOf('{{' + id + '}}') !== -1 ) {
+                        canDelete = false;
+                        break;
+                    }
+                }
+            }
+        } else {
+            for ( let i = 0; i < metrics.length; i++ ) {
+                const expression = metrics[i].expression;
+                if ( expression && i !== index  &&  expression.indexOf('{{' + id + '}}') !== -1 ) {
+                    canDelete = false;
+                    break;
+                }
             }
         }
         return canDelete;

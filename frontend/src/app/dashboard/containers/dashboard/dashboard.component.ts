@@ -253,7 +253,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'cloneWidget':
                     // widgets = this.widgets;
                     const cloneWidget = JSON.parse(JSON.stringify(message.payload));
-                    cloneWidget.id = this.utilService.generateId();
+                    cloneWidget.id = this.utilService.generateId(6, this.utilService.getIDs(this.widgets));
                     cloneWidget.gridPos.x = cloneWidget.gridPos.x;
                     cloneWidget.gridPos.y = cloneWidget.gridPos.y + cloneWidget.gridPos.h;
                     for (let i = 0; i < this.widgets.length; i++) {
@@ -749,7 +749,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // setup the new widget type and using as input to dashboard-content to load edting it.
     addNewWidget(selectedWidget: any) {
-        this.newWidget = this.dbService.getWidgetPrototype(selectedWidget.type);
+        this.newWidget = this.dbService.getWidgetPrototype(selectedWidget.type, this.widgets);
     }
 
     openTimeSeriesMetricDialog(widget: any) {
