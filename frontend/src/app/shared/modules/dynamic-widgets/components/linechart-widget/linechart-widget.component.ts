@@ -107,6 +107,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch (message.action) {
+                case 'TimeChanged':
+                    this.options.isCustomZoomed = false;
+                    delete this.options.dateWindow;
+                    this.refreshData();
+                    break;
                 case 'reQueryData':
                     this.refreshData();
                     break;
@@ -142,6 +147,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         }
                         if (message.payload.error) {
                             this.error = message.payload.error;
+                            this.cdRef.markForCheck();
                         } else {
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
@@ -577,6 +583,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleZoom(zConfig) {
+        const n = this.data.ts.length;
+        if ( zConfig.isZoomed && n > 0 ) {
+            const startTime = new Date(this.data.ts[0][0]).getTime() / 1000;
+            const endTime = new Date(this.data.ts[n - 1][0]).getTime() / 1000;
+            zConfig.start = Math.floor(zConfig.start) <= startTime ? -1 : zConfig.start;
+            zConfig.end = Math.ceil(zConfig.end) >= endTime ? -1 : zConfig.end;
+        }
+        // zoom.start===-1 or zoom.end=== -1, the start or end times will be calculated from the datepicker start or end time
         this.interCom.requestSend({
             id: this.widget.id,
             action: 'SetZoomDateRange',
