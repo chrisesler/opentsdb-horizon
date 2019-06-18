@@ -207,7 +207,7 @@ export class DashboardService {
       }
     }
   }
-  return widget;
+  return isModify ? widget : undefined;
 }
   resolveTplVar(query: any, tplVariables: any[]) {
     for (let i = 0; i < query.filters.length; i++) {
@@ -237,31 +237,6 @@ export class DashboardService {
     }
     // clean out empty filter
     query.filters = query.filters.filter(f => f.filter.length > 0);
-    return query;
-  }
-
-  updateQueryByVariables(query: any, tplVariables: any[]) {
-    for (let i = 0; i < query.filters.length; i++) {
-      const qFilter = query.filters[i];
-      if (qFilter.customFilter && qFilter.customFilter.length > 0) {
-        for (let j = 0; j < qFilter.customFilter.length; j++) {
-          const cFilter = qFilter.customFilter[j].substring(1, qFilter.customFilter[j].length - 1);
-          // console.log('cFilter', cFilter);
-          const varIndex = tplVariables.findIndex(tpl => tpl.alias === cFilter);
-          if (varIndex > -1) {
-            if (tplVariables[varIndex].filter !== '' && qFilter.filter.indexOf(tplVariables[varIndex].filter) === -1) {
-              qFilter.filter.push(tplVariables[varIndex].filter);
-            }
-          }
-        }
-      }
-      // when a filter was not defined, and append the empty value template var, the filter is empty
-      // need to remove from filters to avoid tsdb syntax error
-      // console.log('qFilter', qFilter);
-      if (qFilter.filter.length === 0) {
-        query.filters.splice(i, 1);
-      }
-    }
     return query;
   }
 
@@ -302,5 +277,4 @@ export class DashboardService {
     };
     return dashboard;
   }
-
 }
