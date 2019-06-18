@@ -161,7 +161,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     widgets: any[] = [];
     // tplVariables: any[];
     tplVariables: any = { editTplVariables: [], viewTplVariables: []};
-    variablePanelMode: any = { view : false };
+    variablePanelMode: any = { view : true };
     userNamespaces: any = [];
     viewEditMode = false;
     newWidget: any; // setup new widget based on type from top bar

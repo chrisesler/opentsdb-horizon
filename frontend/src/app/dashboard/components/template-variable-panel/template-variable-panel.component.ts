@@ -41,7 +41,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     filteredValueOptions: string[][];
     prevSelectedTagk = '';
     disableDone = false;
-    trackingSub: Subscription[] = [];
+    trackingSub: any = {};
     // viewTplVariables: any[]; // local copy of tplVariable for view mode
     constructor (
         private fb: FormBuilder,
@@ -83,8 +83,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     manageFilterControl(index: number) {
         const arrayControl = this.mode.view ? this.listForm.get('listVariables') as FormArray
                             : this.editForm.get('formTplVariables') as FormArray;
+        const name = this.mode.view ? 'view' : 'edit';
         const selControl = arrayControl.at(index);
-        this.trackingSub[index] = selControl.get('filter').valueChanges
+        this.trackingSub[name + index] = selControl.get('filter').valueChanges
             .pipe(
                 startWith(''),
                 distinctUntilChanged(),
@@ -109,7 +110,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     initListFormGroup() {
         this.filteredValueOptions = [];
-        this.trackingSub = [];
         this.listForm.controls['listVariables'] = this.fb.array([]);
         this.tplVariables.viewTplVariables.forEach((data, index) => {
             const vardata = {
@@ -124,7 +124,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
 
     initEditFormGroup() {
         this.filteredValueOptions = [];
-        this.trackingSub = [];
         this.editForm.controls['formTplVariables'] = this.fb.array([]);
         this.initializeTplVariables(this.tplVariables.editTplVariables);
         // after reload the tplVariables state and if they are not the same as
@@ -187,10 +186,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     onVariableFocus(index: number) {
-        // if the valueChanges sub is not defined yet
-        if (!this.filteredValueOptions[index]) {
-            this.manageFilterControl(index);
-        }
+        this.manageFilterControl(index);
     }
 
     onVariableBlur(event: any, index: number) {
@@ -232,9 +228,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 });
                 break;
             case 'filter':
-                if (!this.filteredValueOptions[index]) {
-                    this.manageFilterControl(index);
-                }
+                this.manageFilterControl(index);
                 break;
         }
     }
@@ -413,9 +407,9 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     ngOnDestroy() {
-        for (let i = 0; i < this.trackingSub.length; i++) {
-            if (this.trackingSub[i] instanceof Subscription) {
-                this.trackingSub[i].unsubscribe();
+        for (const sub in this.trackingSub) {
+            if (this.trackingSub.hasOwnProperty(sub) && this.trackingSub[sub] instanceof Subscription) {
+                this.trackingSub[sub].unsubscribe();
             }
         }
     }
