@@ -466,7 +466,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     getSelectedMetricTags() {
         const v = this.alertForm.get('threshold').get('singleMetric').get('metricId').value;
         const [qindex, mindex] = v ? v.split(':') : [null, null];
-        console.log("metric id", v, qindex, mindex )
         if ( qindex && mindex  && this.queries[qindex] && this.queries[qindex].metrics.length) {
                 return this.queries[qindex].metrics[mindex].groupByTags || [];
         }
