@@ -4,15 +4,15 @@
             <mat-icon fontSet="denali" fontIcon="d-setting"></mat-icon>
             <span>Configure dashboard tag filters</span>
         </button>
-        <div *ngIf="tplVariables.length > 0">
+        <div *ngIf="tplVariables.viewTplVariables.length > 0">
             <ul class="varlist" formArrayName="listVariables">
                 <li *ngFor="let vartpl of listVariables.controls; let i = index" [formGroupName]="i">
                     <mat-form-field appearance="fill" color="primary" floatLabel="never" class="dashboard-template-variable" [ngStyle]="{width: calculateVariableDisplayWidth(vartpl)}" [attr.id]="'filter-tpl-'+i">
                         <input matInput formControlName="filter" placeholder="" [matAutocomplete]="filterVarValues" 
                             (blur)="onVariableBlur($event, i)" (keydown.enter)="onVariableBlur($event, i)" (focus)="onVariableFocus(i)">
                         <span matPrefix>{{vartpl.get('alias').value}}</span>
-                        <mat-autocomplete #filterVarValues="matAutocomplete" panelWidth="auto">
-                            <mat-option *ngFor="let option of filteredValues" [value]="option">
+                        <mat-autocomplete #filterVarValues="matAutocomplete" (optionSelected)="selectVarValueOption($event, i)" panelWidth="auto">
+                            <mat-option *ngFor="let option of filteredValueOptions[i]" [value]="option">
                                 {{option}}
                             </mat-option>
                         </mat-autocomplete>
@@ -70,7 +70,7 @@
                                 <input matInput placeholder="set a value (optional)" formControlName="filter"
                                     (focus)="onInputFocus('filter', i)" (blur)="onInputBlur('filter', i)" (keydown.enter) ="onInputBlur('filter', i)" [matAutocomplete]="filterValueAuto">
                                 <mat-autocomplete #filterValueAuto="matAutocomplete" (optionSelected)="selectFilterValueOption($event, i)" panelWidth="auto">
-                                    <mat-option *ngFor="let option of filteredValues" [value]="option">
+                                    <mat-option *ngFor="let option of filteredValueOptions[i]" [value]="option">
                                         {{option}}
                                     </mat-option>
                                 </mat-autocomplete>
