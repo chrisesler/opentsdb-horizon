@@ -1,6 +1,6 @@
 <ng-template [ngIf]="mode.view" [ngIfElse]="variableEditView">
     <div [formGroup]="listForm" class="variable-list-wrapper">
-        <button mat-button color="primary" class="configure-variables-button" *ngIf="tplVariables.length === 0" (click)="doEdit()">
+        <button mat-button color="primary" class="configure-variables-button" *ngIf="tplVariables.viewTplVariables.length === 0" (click)="doEdit()">
             <mat-icon fontSet="denali" fontIcon="d-setting"></mat-icon>
             <span>Configure dashboard tag filters</span>
         </button>
