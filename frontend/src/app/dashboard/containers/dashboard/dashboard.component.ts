@@ -255,11 +255,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     // widgets = this.widgets;
                     const cloneWidget = JSON.parse(JSON.stringify(message.payload));
                     cloneWidget.id = this.utilService.generateId(6, this.utilService.getIDs(this.widgets));
-                    cloneWidget.gridPos.x = cloneWidget.gridPos.x;
-                    cloneWidget.gridPos.y = cloneWidget.gridPos.y + cloneWidget.gridPos.h;
+                    cloneWidget.gridPos.yMd = cloneWidget.gridPos.yMd + cloneWidget.gridPos.h;
                     for (let i = 0; i < this.widgets.length; i++) {
-                        if (this.widgets[i].gridPos.y >= cloneWidget.gridPos.y) {
-                            this.widgets[i].gridPos.y += cloneWidget.gridPos.h;
+                        if (this.widgets[i].gridPos.yMd >= cloneWidget.gridPos.yMd) {
+                            this.widgets[i].gridPos.yMd += cloneWidget.gridPos.h;
                         }
                     }
                     this.widgets.push(cloneWidget);

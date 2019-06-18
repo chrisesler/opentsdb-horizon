@@ -261,6 +261,8 @@ export class DashboardService {
   getStorableFormatFromDBState(dbstate) {
     const widgets = this.utils.deepClone(dbstate.Widgets.widgets);
     for (let i = 0; i < widgets.length; i++) {
+      widgets[i].gridPos.x = widgets[i].gridPos.xMd;
+      widgets[i].gridPos.y = widgets[i].gridPos.yMd;
       delete widgets[i].gridPos.xMd;
       delete widgets[i].gridPos.yMd;
       delete widgets[i].gridPos.wMd;
