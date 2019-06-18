@@ -46,7 +46,18 @@
                     </div>
                     <div class="step-section-content">
                         <!-- LOOP OF QUERY ITEMS -->
-                        <query-editor-proto [label]="'Q1'" [query]="queries[0]" [options]="{toggleMetric: false, cloneQuery: false}" (queryOutput)="updateQuery($event);"></query-editor-proto> 
+                        <div class="query-metric-row" *ngFor="let query of queries; let index=index">
+                            <query-editor-proto [label]="'Q' + (index + 1)" [query]="query" [queries]="queries"
+                                [options]="{enableMultipleQueries: true,
+                                    toggleMetric: false,
+                                    toggleQuery: false, 
+                                    cloneQuery: false, 
+                                    deleteQuery: true}" 
+                                (queryOutput)="updateQuery($event);"></query-editor-proto> 
+                        </div>
+                    </div>
+                    <div class="query-metric-row" *ngIf="queries.length && queries[queries.length-1].metrics.length" style="margin-top:25p;">
+                        <button mat-button mat-primary color="primary" (click)="addNewQuery()">Add Query</button>
                     </div>
                 </div>
                 <div class="step-section threshold-section" formGroupName="threshold" [ngClass]="{'is-visible': queries && queries[0] && queries[0].metrics.length > 0}">
@@ -265,8 +276,6 @@
                             <div class="form-label vertical-center"><strong>Send one notification per</strong></div>
                                 <div class="alert-metric-tag-dropdown-wrapper">
                                     <dropdown-metric-tags
-                                        [namespace]="getSelectedMetricQueryIndex() ? queries[getSelectedMetricQueryIndex()].namespace : '' "
-                                        [metric]="getSelectedMetric()"
                                         [selected]="alertForm.get('alertGroupingRules').value"
                                         [tags]="getSelectedMetricTags()"
                                         [all]="false"

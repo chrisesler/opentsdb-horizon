@@ -90,6 +90,7 @@
             }
 
             .graph-wrapper {
+                position: relative;
                 .graph-output {
                     width: 100%;
                     display: flex;
@@ -104,7 +105,7 @@
                 .loading-spinner {
                     position: absolute;
                     left: 10px;
-                    top: 50px;
+                    bottom: 5px;
                     z-index: 1;
                     /*width: 24px;
                     height: 24px;
