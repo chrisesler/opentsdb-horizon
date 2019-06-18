@@ -19,7 +19,8 @@
             [chartType]="chartType"
             [data]="data"
             [size]="size"
-            [options]="options">
+            [options]="options"
+            (zoomed)="handleZoom($event)">
         </div>
         <div class="dygraph-legend" #graphLegend></div>
         <div class="graph-legend" [style.width]="legendWidth" [style.height]="legendHeight">

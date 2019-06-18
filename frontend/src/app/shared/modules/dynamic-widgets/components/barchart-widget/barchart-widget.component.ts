@@ -106,6 +106,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch( message.action ) {
                 case 'reQueryData':
+                case 'ZoomDateRange':
                     this.refreshData();
                     break;
             }
@@ -321,31 +322,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
 
     addNewStack() {
         const oStack = {
-            id : this.util.generateId(3),
+            id : this.util.generateId(3, this.util.getIDs(this.util.getAllMetrics(this.widget.queries))),
             label: 'Stack-' + ( this.widget.settings.visual.stacks.length + 1 ),
             color: '#000000'
         };
         const index = this.widget.settings.visual.stacks.push(oStack);
         return oStack;
-    }
-
-    addNewGroup() {
-        const gid = this.util.generateId(6);
-        const g = {
-                    id: gid,
-                    title: 'untitled group',
-                    queries: [],
-                    settings: {
-                        tempUI: {
-                            selected: false
-                        },
-                        visual: {
-                            visible: true
-                        }
-                    }
-                };
-        this.widget.queries.push(g);
-        return g;
     }
 
     deleteMetrics(groups) {

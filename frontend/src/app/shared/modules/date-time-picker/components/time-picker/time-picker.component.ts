@@ -124,6 +124,9 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
                 this.refreshSubcription.unsubscribe();
             }
         }
+        if ( changes.startTime !== undefined || changes.endTime !== undefined ) {
+            this.subscribeToAutoRefresh(this.isRelativeTime() ? this.refresh.duration : 0);
+        }
         if ( changes.isEditMode !== undefined ) {
             this.paused$.next(changes.isEditMode.currentValue);
         }
@@ -220,15 +223,19 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
         this.trigger.closeMenu();
     }
 
+    isRelativeTime() {
+        return this.utilsService.relativeTimeToMoment(this.startTime) || this.utilsService.relativeTimeToMoment(this.endTime);
+    }
+
     setRefresh(refreshOnRelativeOnly= false) {
         if ( !refreshOnRelativeOnly ||
             this.startTime.toLowerCase() === 'now' ||
             this.endTime.toLowerCase() === 'now' ||
             this.utilsService.relativeTimeToMoment(this.startTime) ||
             this.utilsService.relativeTimeToMoment(this.endTime) ) {
-                this.timeRangePicker.applyClicked();
+                this.newChange.emit( { action: 'RefreshDashboard', payload: {} });
         }
-        if ( this.refresh.duration ) {
+        if ( this.refresh.duration && this.isRelativeTime()) {
             this.subscribeToAutoRefresh(this.refresh.duration);
         }
     }
@@ -260,14 +267,13 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
         }
     }
 
-    @HostListener('window:focus', ['$event'])
-    onFocus(event: any): void {
-        this.paused$.next(this.isEditMode);
-    }
-
-    @HostListener('window:blur', ['$event'])
-    onBlur(event: any): void {
-        this.paused$.next(true);
+    @HostListener('document:visibilitychange', ['$event'])
+    onVisibilitychange(e) {
+        if (document.hidden) {
+            this.paused$.next(true);
+          } else {
+            this.paused$.next(this.isEditMode);
+          }
     }
 
     ngOnDestroy() {

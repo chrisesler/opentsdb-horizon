@@ -254,7 +254,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'cloneWidget':
                     // widgets = this.widgets;
                     const cloneWidget = JSON.parse(JSON.stringify(message.payload));
-                    cloneWidget.id = this.utilService.generateId();
+                    cloneWidget.id = this.utilService.generateId(6, this.utilService.getIDs(this.widgets));
                     cloneWidget.gridPos.x = cloneWidget.gridPos.x;
                     cloneWidget.gridPos.y = cloneWidget.gridPos.y + cloneWidget.gridPos.h;
                     for (let i = 0; i < this.widgets.length; i++) {
@@ -377,6 +377,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'getUserFolderData':
                     this.store.dispatch(new LoadUserFolderData());
                     break;
+                case 'SetZoomDateRange':
+                    if ( message.payload.isZoomed ) {
+                        // tslint:disable-next-line:max-line-length
+                        message.payload.start = message.payload.start !== -1 ? message.payload.start : this.dateUtil.timeToMoment(this.dbTime.start, this.dbTime.zone).unix();
+                        // tslint:disable-next-line:max-line-length
+                        message.payload.end = message.payload.end !== -1 ? message.payload.end : this.dateUtil.timeToMoment(this.dbTime.end, this.dbTime.zone).unix();
+                        this.dbTime.start = this.dateUtil.timestampToTime(message.payload.start, this.dbTime.zone);
+                        this.dbTime.end = this.dateUtil.timestampToTime(message.payload.end, this.dbTime.zone);
+                    } else {
+                        const dbSettings = this.store.selectSnapshot(DBSettingsState);
+                        this.dbTime = { ...dbSettings.time };
+                    }
+                    this.interCom.responsePut({
+                        action: 'ZoomDateRange',
+                        payload: { zoomingWid: message.id, date: message.payload }
+                    });
+                    break;
                 default:
                     break;
             }
@@ -473,7 +490,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 });
             } else {
                 this.interCom.responsePut({
-                    action: 'reQueryData',
+                    action: 'TimeChanged',
                     payload: t
                 });
             }
@@ -701,10 +718,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     getDashboardDateRange() {
-        const dbSettings = this.store.selectSnapshot(DBSettingsState);
-        const startTime = this.dateUtil.timeToMoment(dbSettings.time.start, dbSettings.time.zone);
-        const endTime = this.dateUtil.timeToMoment(dbSettings.time.end, dbSettings.time.zone);
-
+        const startTime = this.dateUtil.timeToMoment(this.dbTime.start, this.dbTime.zone);
+        const endTime = this.dateUtil.timeToMoment(this.dbTime.end, this.dbTime.zone);
         return { start: startTime.valueOf(), end: endTime.valueOf() };
     }
 
@@ -721,7 +736,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // setup the new widget type and using as input to dashboard-content to load edting it.
     addNewWidget(selectedWidget: any) {
-        this.newWidget = this.dbService.getWidgetPrototype(selectedWidget.type);
+        this.newWidget = this.dbService.getWidgetPrototype(selectedWidget.type, this.widgets);
     }
 
     openTimeSeriesMetricDialog(widget: any) {
@@ -753,6 +768,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
+    refresh() {
+        this.interCom.responsePut({
+            action: 'reQueryData',
+            payload: {}
+        });
+    }
+
     handleTimePickerChanges(message) {
         switch ( message.action  ) {
             case 'SetDateRange':
@@ -760,6 +782,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 break;
             case 'SetAutoRefreshConfig':
                 this.setAutoRefresh(message.payload);
+                break;
+            case 'RefreshDashboard':
+                this.refresh();
                 break;
         }
     }

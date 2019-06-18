@@ -108,6 +108,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
       this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
           switch (message.action) {
               case 'reQueryData':
+              case 'ZoomDateRange':
                   this.refreshData();
                   break;
               case 'TimezoneChanged':
@@ -126,6 +127,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
                       }
                       if (message.payload.error) {
                           this.error = message.payload.error;
+                          this.cdRef.markForCheck();
                       } else {
                           const rawdata = message.payload.rawdata;
                           this.setTimezone(message.payload.timezone);
