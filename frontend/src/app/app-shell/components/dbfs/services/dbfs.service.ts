@@ -63,7 +63,7 @@ export class DbfsService {
 
         if (topFolder && topFolder.type && topFolder.value) {
             const tokenType = (topFolder.type === 'user') ? 'userId' : 'namespace';
-            apiUrl = environment.configdb + '/dashboard/topFolders?' + tokenType + '=' + topFolder.value;
+            apiUrl = environment.configdb + '/dashboard/topFolders';
             params[tokenType] = topFolder.value;
         } else {
             apiUrl = environment.configdb + '/dashboard' + path;
@@ -87,7 +87,7 @@ export class DbfsService {
     }
 
     getUsersList() {
-        let apiUrl = environment.configdb + '/user/list';
+        const apiUrl = environment.configdb + '/user/list';
 
         this.logger.api('DbfsService :: Get Users List', { apiUrl });
 
@@ -106,7 +106,7 @@ export class DbfsService {
     }
 
     getNamespacesList() {
-        let apiUrl = environment.configdb + '/namespace';
+        const apiUrl = environment.configdb + '/namespace';
 
         this.logger.api('DbfsService :: Get Namespaces List', { apiUrl });
 
@@ -122,6 +122,82 @@ export class DbfsService {
 
         return this.http.get(apiUrl, httpOptions);
 
+    }
+
+    createFolder(folder: any) {
+        const apiUrl = environment.configdb + '/dashboard/folder';
+
+        this.logger.api('DashboardNavigatorService :: Create Dashboard Folder', { folder, apiUrl });
+
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
+        const httpOptions: any = {
+            headers,
+            withCredentials: true,
+            responseType: 'json'
+        };
+
+        return this.http.put(apiUrl, folder, httpOptions).pipe(
+            catchError(this.handleError)
+        );
+    }
+
+    trashFolder(sourceId: number, destinationId: number) {
+        // this is basically a moveFolder action. The 3rd parameter is a trashFolder flag
+        return this.moveFolder(sourceId, destinationId, true);
+    }
+
+    trashFile(sourceId: number, destinationId: number) {
+        // this is basically a moveFolder action. The 3rd parameter is a trashFolder flag
+        return this.moveFolder(sourceId, destinationId, true);
+    }
+
+    moveFolder(sourceId: number, destinationId: number, trashFolder?: boolean) {
+        const body = {
+            sourceId,
+            destinationId
+        };
+
+        const apiUrl = environment.configdb + '/dashboard/folder/move';
+
+        // tslint:disable-next-line:max-line-length
+        this.logger.api('DashboardNavigatorService :: ' + ((trashFolder) ? 'Trash' : 'Move') + ' Dashboard Folder', { body, apiUrl});
+
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
+        const httpOptions: any = {
+            headers,
+            withCredentials: true,
+            responseType: 'json'
+        };
+
+        return this.http.put(apiUrl, body, httpOptions).pipe(
+            catchError(this.handleError)
+        );
+    }
+
+    updateFolder(folder: any) {
+        const apiUrl = environment.configdb + '/dashboard/folder';
+
+        this.logger.api('DashboardNavigatorService :: Update Dashboard Folder', { id: folder.id, folder, apiUrl });
+
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
+        const httpOptions: any = {
+            headers,
+            withCredentials: true,
+            responseType: 'json'
+        };
+
+        return this.http.put(apiUrl, folder, httpOptions).pipe(
+            catchError(this.handleError)
+        );
     }
 
 }
