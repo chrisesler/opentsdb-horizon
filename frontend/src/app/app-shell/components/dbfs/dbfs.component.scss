@@ -1,0 +1,63 @@
+:host {
+    min-height: 100%;
+
+    .dnav-folders.dynamic-scroller {
+        flex: 1;
+        display: flex;
+
+        .folder-list {
+            flex: 1;
+
+            .cdk-virtual-scroll-viewport {
+                min-height: 100%;
+            }
+        }
+    }
+}
+
+:host-context(.dashboard-navigator) {
+
+    .navigator-panel-inner {
+        min-height: 100%;
+
+        .navigator-panel-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dnav-folders.dynamic-scroller {
+            flex: 1;
+            display: flex;
+
+            .folder-list {
+                flex: 1;
+
+                .cdk-virtual-scroll-viewport {
+                    min-height: 100%;
+                }
+            }
+        }
+    }
+}
+
+.navigator-panel-inner {
+    min-height: 100%;
+
+    .navigator-panel-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dnav-folders.dynamic-scroller {
+        flex: 1;
+        display: flex;
+
+        .folder-list {
+            flex: 1;
+
+            .cdk-virtual-scroll-viewport {
+                min-height: 100%;
+            }
+        }
+    }
+}
