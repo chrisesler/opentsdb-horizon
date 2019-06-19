@@ -381,7 +381,7 @@ export class YamasService {
             if (isExpression) {
                 sources.push(sourceId);
             } else {
-                sources.push(sourceId +  '-groupby');
+                sources.push(sourceId +  '_groupby');
             }
         }
         const joinTags = {};
