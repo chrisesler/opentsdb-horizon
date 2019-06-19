@@ -48,6 +48,11 @@ export class DbfsUpdatePanels {
     constructor(public readonly payload: any) {}
 }
 
+export class DbfsResetPanelAction {
+    static readonly type = '[DBFS Panels] reset panel action';
+    constructor() {}
+}
+
 /** STATE */
 @State<DbfsPanelsModel>({
     name: 'Panels',
@@ -104,6 +109,14 @@ export class DbfsPanelsState {
 
     /** Actions */
 
+    @Action(DbfsResetPanelAction)
+    resetPanelAction(ctx: StateContext<DbfsPanelsModel>, { }: DbfsResetPanelAction) {
+        this.logger.action('State :: Reset Resource Action');
+        ctx.patchState({
+            panelAction: {}
+        });
+    }
+
     @Action(DbfsPanelsInitialize)
     panelsInitialize(ctx: StateContext<DbfsPanelsModel>, {}: DbfsPanelsInitialize) {
         this.logger.success('State :: Panels Initialize');
@@ -136,22 +149,26 @@ export class DbfsPanelsState {
 
     @Action(DbfsAddPanel)
     dbfsAddPanel(ctx: StateContext<DbfsPanelsModel>, { payload }: DbfsAddPanel) {
+        this.logger.action('State :: Add Panels', payload);
         const state = ctx.getState();
         const panels = this.utils.deepClone(state.panels);
 
-        const newPanel = {...payload.panel,
-            index: panels.length
-        };
+        // check if panel with that path already exists
+        // i.e. people click way too fast, too many times
+        const index = panels.findIndex(p => p.folderResource === payload.panel.folderResource);
+        if (index === -1) {
+            const newPanel = {...payload.panel,
+                index: panels.length
+            };
 
-        panels.push(newPanel);
+            panels.push(newPanel);
 
-        ctx.patchState({...state,
-            panels,
-            curPanel: (panels.length - 1),
-            panelAction: {
-                method: payload.panelAction
-            }
-        });
+            ctx.patchState({...state,
+                panels,
+                curPanel: (panels.length - 1),
+                panelAction: payload.panelAction
+            });
+        }
     }
 
     @Action(DbfsUpdatePanels)
