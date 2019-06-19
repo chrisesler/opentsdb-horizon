@@ -353,7 +353,11 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     }
 
     cloneQuery(qid) {
-
+        const qindex = this.queries.findIndex(d => d.id === qid);
+        if ( qindex !== -1 ) {
+            const query = this.utils.getQueryClone(this.queries, qindex);
+            this.queries.splice(qindex + 1, 0, query);
+        }
     }
 
     deleteQuery(qid) {

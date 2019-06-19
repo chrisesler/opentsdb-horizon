@@ -628,8 +628,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     cloneQuery(qid) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         if ( qindex !== -1 ) {
-            const query = this.util.deepClone(this.widget.queries[qindex]);
-            query.id = this.util.generateId(3, this.util.getIDs(this.widget.queries));
+            const query = this.util.getQueryClone(this.widget.queries, qindex);
             this.widget.queries.splice(qindex + 1, 0, query);
         }
     }

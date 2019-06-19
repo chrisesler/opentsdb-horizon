@@ -48,10 +48,11 @@ export class UtilsService {
 }
 
     replaceIdsInExpressions(newID, oldID, metrics) {
-        for (let metric of metrics) {
+        const idreg = new RegExp( '\\{\\{' + oldID + '\\}\\}' , 'g');
+        for (const metric of metrics) {
             if (metric.expression) {
                 if (metric.expression.indexOf('{{' + oldID + '}}') !== -1) {
-                    metric.expression = metric.expression.replace('{{' + oldID + '}}', '{{' + newID + '}}');
+                    metric.expression = metric.expression.replace(idreg, '{{' + newID + '}}');
                 }
             }
         }
@@ -416,5 +417,24 @@ export class UtilsService {
             obj[i] = arr[i];
         }
         return obj;
+    }
+
+    getQueryClone(queries, index) {
+        const query = queries[index];
+        const newQuery = this.deepClone(query);
+        const mids = this.getIDs(this.getAllMetrics(queries));
+        newQuery.id = this.generateId(3, this.getIDs(queries));
+        const oldIds = this.getIDs(query.metrics), newIds = [];
+        for (const metric of query.metrics) {
+            const newId = this.generateId(3, mids);
+            metric.id = newId;
+            mids.push(newId);
+            newIds.push(newId);
+        }
+
+        for ( let i = 0; i < oldIds.length; i++ ) {
+            this.replaceIdsInExpressions(newIds[i], oldIds[i], query.metrics);
+        }
+        return newQuery;
     }
 }
