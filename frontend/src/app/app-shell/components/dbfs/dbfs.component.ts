@@ -7,7 +7,10 @@ import {
     OnInit,
     OnDestroy,
     Output,
-    ViewChild
+    ViewChild,
+    ViewChildren,
+    QueryList,
+    ElementRef
 } from '@angular/core';
 
 import { Router } from '@angular/router';
@@ -28,8 +31,21 @@ import {
 } from '@ngxs/store';
 
 import { DbfsState } from './state/dbfs.state';
-import { DbfsPanelsState, DbfsPanelsInitialize, DbfsAddPanel, DbfsUpdatePanels } from './state/dbfs-panels.state';
-import { DbfsResourcesState, DbfsLoadResources, DbfsLoadSubfolder, DbfsLoadUsersList, DbfsLoadNamespacesList } from './state/dbfs-resources.state';
+import { DbfsPanelsState, DbfsPanelsInitialize, DbfsAddPanel, DbfsUpdatePanels, DbfsResetPanelAction } from './state/dbfs-panels.state';
+import {
+    DbfsResourcesState,
+    DbfsLoadResources,
+    DbfsLoadSubfolder,
+    DbfsLoadUsersList,
+    DbfsLoadNamespacesList,
+    DbfsResetResourceAction,
+    DbfsLoadTopFolder,
+    DbfsCreateFolder,
+    DbfsDeleteFolder,
+    DbfsUpdateFolder,
+    DbfsDeleteDashboard,
+    DbfsAddPlaceholderFolder
+} from './state/dbfs-resources.state';
 import { LoggerService } from '../../../core/services/logger.service';
 import { MatMenuTrigger } from '@angular/material';
 
@@ -42,6 +58,10 @@ import { MatMenuTrigger } from '@angular/material';
 export class DbfsComponent implements OnInit, OnDestroy {
 
     @HostBinding('class.dashboard-navigator') private _hostClass = true;
+
+    @ViewChildren('moreMenuTrigger', {read: MatMenuTrigger}) moreTriggers: QueryList<MatMenuTrigger>;
+    @ViewChildren('miniNavTrigger', {read: MatMenuTrigger}) miniNavTriggers: QueryList<MatMenuTrigger>;
+
 
     // Subscriptions
     private subscription: Subscription = new Subscription();
@@ -56,23 +76,32 @@ export class DbfsComponent implements OnInit, OnDestroy {
     @Select(DbfsResourcesState.getFolderResources) folders$: Observable<any>;
     folders: any = {};
 
-    @Select(DbfsResourcesState.getFileResources) files$: Observable<any>;
-    files: any = {};
+    @Select(DbfsResourcesState.getDynamicLoaded) dynamicLoaded$: Observable<any>;
+    // tslint:disable-next-line: no-inferrable-types
+    usersListLoaded: boolean = false;
+    // tslint:disable-next-line: no-inferrable-types
+    namespacesListLoaded: boolean = false;
+
+    @Select(DbfsResourcesState.getNamespacesData) namespacesData$: Observable<any[]>;
+    namespacesList: any[] = [];
+
+    @Select(DbfsResourcesState.getUsersData) usersData$: Observable<any[]>;
+    usersList: any[] = [];
 
     @Select(DbfsResourcesState.getResourcesLoaded) resourcesLoaded$: Observable<any>;
 
+    @Select(DbfsResourcesState.getResourceAction) resourceAction$: Observable<any>;
+
     @Select(DbfsPanelsState.getPanels) panels$: Observable<any[]>;
     panels: any[] = [];
+
+    panelResources: any[] = [];
 
     @Select(DbfsPanelsState.getCurPanel) currentPanelIndex$: Observable<number>;
     // tslint:disable-next-line: no-inferrable-types
     currentPanelIndex: number = 0;
 
     @Select(DbfsPanelsState.getPanelAction) panelAction$: Observable<any>;
-
-    @Select(DbfsResourcesState.getDynamicLoaded) dynamicLoaded$: Observable<any>;
-    usersListLoaded: boolean = false;
-    namespacesListLoaded: boolean = false;
 
     // VIEW CHILDREN
     @ViewChild(NavigatorPanelComponent) private navPanel: NavigatorPanelComponent;
@@ -100,6 +129,8 @@ export class DbfsComponent implements OnInit, OnDestroy {
         id: ''
     };
 
+    loadingItem: any = '';
+
     foldersToRemove: any[] = [];
 
     menuOpened: any = -1;
@@ -123,7 +154,14 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
         const self = this;
 
-        this.store.dispatch(new DbfsLoadResources());
+        this.subscription.add(this.resourcesLoaded$.subscribe( loaded => {
+            if (loaded === false) {
+                this.store.dispatch(new DbfsLoadResources());
+            }
+            if (loaded === true) {
+                this.store.dispatch(new DbfsPanelsInitialize());
+            }
+        }));
 
         this.subscription.add(this.loadedDashboardId$.subscribe( id => {
             this.loadedDashboardId = id;
@@ -135,17 +173,6 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.folders$.subscribe( folders => {
             this.folders = folders;
-            this.logger.log('FOLDERS RECEIVED', this.folders);
-        }));
-
-        this.subscription.add(this.files$.subscribe( files => {
-            this.files = files;
-        }));
-
-        this.subscription.add(this.resourcesLoaded$.subscribe( loaded => {
-            if (loaded === true) {
-                this.store.dispatch(new DbfsPanelsInitialize());
-            }
         }));
 
         this.subscription.add(this.panels$.subscribe( panels => {
@@ -162,13 +189,72 @@ export class DbfsComponent implements OnInit, OnDestroy {
             this.namespacesListLoaded = loaded.namespaces;
         }));
 
+        this.subscription.add(this.namespacesData$.subscribe( namespaces => {
+            this.namespacesList = Object.keys(namespaces).sort((a: any, b: any) => {
+                return this.utils.sortAlphaNum(namespaces[a].name, namespaces[b].name);
+            }).map(item => namespaces[item]);
+        }));
+
+        this.subscription.add(this.usersData$.subscribe( users => {
+            this.usersList = Object.keys(users).sort((a: any, b: any) => {
+                return this.utils.sortAlphaNum(users[a].name, users[b].name);
+            }).map(item => users[item]);
+        }));
+
+        this.subscription.add(this.resourceAction$.subscribe( action => {
+            // this.logger.log('RESOURCE ACTION', action);
+            switch (action.method) {
+                case 'gotoFolder':
+                    this.gotoFolder(action.args);
+                    break;
+                case 'createFolderSuccess':
+                    this.resetEdit();
+                    break;
+                case 'batchRemoveFoldersComplete':
+                    this.foldersToRemove = [];
+                    break;
+                default:
+                    break;
+            }
+        }));
+
         this.subscription.add(this.panelAction$.subscribe( action => {
-            // console.log('PANEL ACTION', action);
+            // this.logger.log('PANEL ACTION', action);
             switch (action.method) {
                 case 'goNextPanel':
                     setTimeout(function() {
                         self.navPanel.goNext();
                     }, 200);
+                    break;
+                case 'loadSubFolder':
+                    setTimeout(function() {
+                        this.loadingItem = '';
+                        this.navPanel.goNext(function() {
+                            this.store.dispatch(
+                                new DbfsLoadSubfolder(action.path)
+                            );
+                        }.bind(this));
+                    }.bind(this), 200);
+                    break;
+                case 'loadTopFolder':
+                    setTimeout(function() {
+                        this.loadingItem = '';
+                        this.navPanel.goNext(function() {
+                            this.store.dispatch(
+                                new DbfsLoadTopFolder(action.type, action.key, {})
+                            );
+                        }.bind(this));
+                    }.bind(this), 200);
+                    break;
+                case ':list-users:':
+                    setTimeout(function() {
+                        this.navPanel.goNext(this.loadAllUsersPanel.bind(this));
+                    }.bind(self), 200);
+                    break;
+                case ':list-namespaces:':
+                    setTimeout(function() {
+                        this.navPanel.goNext(this.loadAllNamespacesPanel.bind(this));
+                    }.bind(self), 200);
                     break;
                 default:
                     break;
@@ -187,44 +273,8 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
     /* UTILS */
     getPanelContext(path: string, panelIndex: number) {
-        /*const panel = this.store.selectSnapshot<any>(DbfsResourcesState.getFolderResource(path));
-
-        const data = {
-            panelIndex,
-            panel
-        };
-        this.logger.log('getPanelContext', { path, panelIndex, data });
-        return data;*/
-        const panel = this.store.select(DbfsResourcesState.getFolderResource(path));
+        const panel = this.store.selectSnapshot(DbfsResourcesState.getFolderResource(path));
         return panel;
-    }
-
-    getDynamicPanelContext(path: string, panelIndex: number) {
-        /*switch (path) {
-            case ':list-users:':
-                if (!this.usersListLoaded) {
-                    this.store.dispatch(
-                        new DbfsLoadUsersList()
-                    );
-                }
-                break;
-            case ':list-namespaces:':
-                if (!this.namespacesListLoaded) {
-                    this.store.dispatch(
-                        new DbfsLoadNamespacesList()
-                    );
-                }
-                break;
-            default:
-                break;
-        }*/
-
-        const panel = this.store.select(DbfsResourcesState.getDynamicFolderResource(path));
-        return panel;
-    }
-
-    getPanelResources(path: string) {
-        
     }
 
     getResource(path: string, type?: string) {
@@ -232,12 +282,8 @@ export class DbfsComponent implements OnInit, OnDestroy {
         return resource;
     }
 
-    normalizeFolderResource(path) {
-        const folder = this.folders[path];
-    }
-
     resetForms() {
-        this.logger.log('RESET FORMS');
+        //this.logger.log('RESET FORMS');
         this.foldersToRemove = [];
         this.bulkEdit = false;
         this.resetEdit();
@@ -252,10 +298,28 @@ export class DbfsComponent implements OnInit, OnDestroy {
         this.folderForm.reset({fc_FolderName: ''});
     }
 
+    findMoreMenuTrigger(id: any, type: any): MatMenuTrigger {
+        const trigger = this.moreTriggers.find(item => {
+            return item.menuData.type === type && item.menuData.data.id === id;
+        });
+        return  trigger || null;
+    }
+
+    findMiniNavTrigger(id: any, type: any): MatMenuTrigger {
+        const trigger = this.miniNavTriggers.find(item => {
+            return item.menuData.type === type && item.menuData.data.id === id;
+        });
+        return  trigger || null;
+    }
+
+    menuState(state: boolean) {
+        // this._menuOpened = state;
+    }
+
     /* behaviors */
 
     closeDrawer() {
-        this.logger.log('CLOSE DRAWER');
+        // this.logger.log('CLOSE DRAWER');
         const data: any = {
             closeNavigator: true
         };
@@ -265,30 +329,64 @@ export class DbfsComponent implements OnInit, OnDestroy {
         this.toggleDrawer.emit(data);
     }
 
+    clickMoreMenu(id: number, type: string, event: any) {
+        this.logger.log('CLICK MORE MENU', { id, type, event});
+        event.stopPropagation();
+        const mTrigger: MatMenuTrigger = <MatMenuTrigger>this.findMoreMenuTrigger(id, type);
+        console.log('TRIGGERs', this.moreTriggers);
+        if (mTrigger) {
+            mTrigger.toggleMenu();
+        } else {
+            this.logger.error('clickMoreMenu', 'CANT FIND TRIGGER');
+        }
+    }
+
+    clickMoveMenu(id: number, type: string, event?: any) {
+        this.logger.log('CLICK MOVE MENU', { id, type, event});
+        event.stopPropagation();
+        const mTrigger: MatMenuTrigger = <MatMenuTrigger>this.findMiniNavTrigger(id, type);
+        console.log('TRIGGERs', this.miniNavTriggers);
+        if (mTrigger) {
+            mTrigger.toggleMenu();
+        } else {
+            this.logger.error('clickFolderMove', 'CANT FIND TRIGGER');
+        }
+    }
+
     // DYNAMIC FOLDER BEHAVIOR
 
-    loadAllNamespacePanel() {
-        this.logger.log('LOAD ALL NAMESPACES PANEL');
+    loadAllNamespacesPanel() {
+        // this.logger.log('LOAD ALL NAMESPACES PANEL');
         if (!this.namespacesListLoaded) {
             this.store.dispatch(
-                new DbfsLoadNamespacesList()
+                new DbfsLoadNamespacesList({})
             );
         }
-        this.gotoFolder(':list-namespaces:');
+    }
+
+    loadAllUsersPanel() {
+        // this.logger.log('LOAD ALL USERS PANEL');
+        if (!this.usersListLoaded) {
+            this.store.dispatch(
+                new DbfsLoadUsersList({})
+            );
+        }
     }
 
     // FOLDER BEHAVIORS
     editFolders() {
-        this.logger.log('BULK EDIT FOLDERS');
+        // this.logger.log('BULK EDIT FOLDERS');
         this.bulkEdit = true;
     }
 
     doneEditFolders() {
-        this.logger.log('BULK EDIT DONE');
+        // this.logger.log('BULK EDIT DONE');
+        this.bulkEdit = false;
+        this.foldersToRemove = [];
     }
 
     createFolder() {
-        this.logger.log('CREATE FOLDER');
+        // this.logger.log('CREATE FOLDER');
         this.folderForm.reset({fc_FolderName: ''});
         this.edit = {
             mode: 'create',
@@ -298,54 +396,150 @@ export class DbfsComponent implements OnInit, OnDestroy {
     }
 
     cancelCreateFolder() {
-        this.logger.log('CANCEL CREATE FOLDER');
+        //this.logger.log('CANCEL CREATE FOLDER');
         this.resetEdit();
     }
 
     removeFolders() {
         this.logger.log('REMOVE FOLDERS');
+        this.store.dispatch(
+            new DbfsDeleteFolder(
+                this.foldersToRemove,
+                {
+                    method: 'batchRemoveFoldersComplete'
+                }
+            )
+        );
     }
 
-    clickFolderMore(trigger: MatMenuTrigger, event: any) {
-        this.logger.log('CLICK FOLDER MORE', {trigger, event});
-        event.stopPropagation();
-
+    folderCheckboxChange(folder: string, event: any) {
+        this.logger.log('FOLDER CHECKBOX CHANGE', { folder, event });
+        const idx = this.foldersToRemove.indexOf(folder);
+        if (idx === -1) {
+            // not found, so add it
+            this.foldersToRemove.push(folder);
+        } else {
+            // remove
+            this.foldersToRemove.splice(idx, 1);
+        }
+        console.log('FOLDERS TO REMOVE', this.foldersToRemove);
     }
 
-    folderMenuAction(action: string, folder: any, event?: any) {
-        this.logger.log('FOLDER MENU ACTION', {action, event});
-    }
-
-    folderInputSave(folder?: any) {
+    folderInputSave(panelIndex: number, folder?: any) {
+        //console.log('FOLDER INPUT SAVE', panelIndex, folder);
         if (this.folderForm.invalid) {
             return;
         }
-        if (this.edit.mode === 'new') {
-            // console.log('SAVE NEW', this.FolderForm.controls.fc_FolderName.value);
-            /*this.folderAction.emit({
-                action: 'createFolder',
-                name: this.FolderForm.controls.fc_FolderName.value
-            });*/
+        const panelFolder = this.folders[this.panels[panelIndex].folderResource];
+        const resourceAction: any = {};
+
+        // this covers everything needed for edit.mode = 'new'
+        const payload: any = {
+            name: this.folderForm.controls.fc_FolderName.value,
+            parentId: panelFolder.id
+        };
+
+        if (this.edit.mode === 'create') {
+            resourceAction.method = 'createFolderSuccess';
+            this.store.dispatch(
+                new DbfsCreateFolder(
+                    payload,
+                    resourceAction
+                )
+            );
         }
 
         if (this.edit.mode === 'edit') {
-            // console.log('SAVE EDIT', this.FolderForm.controls.fc_FolderName.value);
-            /*this.nameEdit = false;
-            this.folderAction.emit({
-                action: 'editFolder',
-                name: this.FolderForm.controls.fc_FolderName.value
-            });*/
+            payload.id = folder.id;
+            resourceAction.method = 'editFolderSuccess';
+            this.resetEdit();
+            this.store.dispatch(
+                new DbfsUpdateFolder(
+                    payload,
+                    folder.fullPath,
+                    resourceAction
+                )
+            );
+
         }
+
     }
 
     // FILE (Dashboard) BEHAVIORS
 
     createDashboard() {
-        this.logger.log('CREATE DASHBOARD');
+        //this.logger.log('CREATE DASHBOARD');
+        this.router.navigate(['d', '_new_']);
+        this.closeDrawer();
     }
 
     navigateToDashboard(path: string) {
-        this.logger.log('NAVIGATE TO DASHBOARD', { path });
+        //this.logger.log('NAVIGATE TO DASHBOARD', { path });
+    }
+
+    
+
+    // MORE MENU BEHAVIORS
+
+    folderMenuAction(action: string, folder: any, event?: any) {
+        this.logger.log('FOLDER MENU ACTION', {action, folder, event});
+        switch (action) {
+            case 'editName':
+                this.folderForm.reset({fc_FolderName: folder.name});
+                this.edit = {
+                    mode: 'edit',
+                    panel: this.currentPanelIndex,
+                    id: folder.id
+                };
+                break;
+            case 'moveFolder':
+                this.clickMoveMenu(folder.id, 'folder', event);
+                break;
+            case 'deleteFolder':
+                this.store.dispatch(
+                    new DbfsDeleteFolder(
+                        [folder.fullPath],
+                        {
+                            method: 'removeFolderComplete'
+                        }
+                    )
+                );
+                break;
+            default:
+                break;
+        }
+    }
+
+    fileMenuAction(action: string, file: any, event?: any) {
+        this.logger.log('FOLDER MENU ACTION', {action, file, event});
+        switch (action) {
+            case 'openNewTab':
+                this.window.open('/d' + file.path, '_blank');
+                break;
+            case 'moveDashboard':
+                this.clickMoveMenu(file.id, 'file', event);
+                break;
+            case 'deleteDashboard':
+                this.store.dispatch(
+                    new DbfsDeleteDashboard(
+                        file.fullPath,
+                        {
+                            method: 'removeFileComplete'
+                        }
+                    )
+                );
+                break;
+            case 'navigateTo':
+                if (this.activeMediaQuery === 'xs') {
+                    this.toggleDrawer.emit({
+                        closeNavigator: true,
+                        resetForMobile: true
+                    });
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     // PANEL NAVIGATION BEHAVIORS
@@ -353,29 +547,23 @@ export class DbfsComponent implements OnInit, OnDestroy {
     navtoSpecificPanel(idx: number, fromIdx: number) {
         // console.log('NAV TO SPECIFIC FOLDER [GO BACK X]');
         // const idx = this.panels.indexOf(folder);
-        /*if (idx === 0 && this.panels.length === 2) {
-            this.navPanel.goBack( () => {
-                this.panels.splice(idx, 1);
-            });
-        } else {*/
-            this.currentPanelIndex = idx;
-            const _panels = JSON.parse(JSON.stringify(this.panels));
-            _panels.splice((idx + 1), (fromIdx - idx) - 1);
-            this.navPanel.shiftTo(idx, idx + 1, () => {
-                _panels.splice(idx + 1);
-                this.store.dispatch(
-                    new DbfsUpdatePanels({
-                        panels: _panels,
-                        currentPanelIndex: this.currentPanelIndex
-                    })
-                );
-            });
-        // }
+
+        this.currentPanelIndex = idx;
+        const _panels = JSON.parse(JSON.stringify(this.panels));
+        _panels.splice((idx + 1), (fromIdx - idx) - 1);
+        this.navPanel.shiftTo(idx, idx + 1, () => {
+            _panels.splice(idx + 1);
+            this.store.dispatch(
+                new DbfsUpdatePanels({
+                    panels: _panels,
+                    currentPanelIndex: this.currentPanelIndex
+                })
+            );
+        });
     }
 
-
     navtoMasterPanel() {
-        this.logger.log('NAV TO MASTER PANEL');
+        //this.logger.log('NAV TO MASTER PANEL');
         if (this.currentPanelIndex > 0) {
             this.navtoSpecificPanel(0, this.currentPanelIndex);
         }
@@ -383,10 +571,15 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
     gotoFolder(path: string) {
         if (!this.bulkEdit) {
-            this.logger.log('GOTO FOLDER', { path });
+            //this.logger.log('GOTO FOLDER', { path });
             const folder = this.store.selectSnapshot<any>(DbfsResourcesState.getFolderResource(path));
+            
             const panel = <any>{
                 folderResource: folder.fullPath
+            };
+
+            const panelAction: any = {
+                method: 'goNextPanel'
             };
 
             if (folder.synthetic) {
@@ -399,25 +592,62 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
             if (folder.ownerType === 'dynamic') {
                 panel.dynamic = true;
+                panel.locked = true;
+                panelAction.method = panel.folderResource;
             }
 
             if (folder.trashFolder) {
                 panel.trashFolder = true;
             }
 
+            if (!folder.loaded && !folder.synthetic) {
+                /*this.store.dispatch(
+                    new DbfsLoadSubfolder(folder.fullPath)
+                );*/
+                panelAction.method = (folder.topFolder) ? 'loadTopFolder' : 'loadSubFolder';
+                panelAction.path = folder.fullPath;
+                if (folder.topFolder) {
+                    panelAction.type = folder.ownerType;
+                    panelAction.key = folder[panelAction.type];
+                }
+            }
+
+            if (folder.locked) {
+                panel.locked = true;
+            }
+
             // add panel
             this.store.dispatch(
                 new DbfsAddPanel({
                     panel,
-                    panelAction: 'goNextPanel'
+                    panelAction
                 })
             );
 
-            if (!folder.loaded && !folder.synthetic) {
-                this.store.dispatch(
-                    new DbfsLoadSubfolder(folder.fullPath)
-                );
-            }
+        }
+    }
+
+    gotoTopFolder(key: string, type: string) {
+        //this.logger.log('GOTO TOP FOLDER', { key, type });
+
+        // check if folder exists
+        const path = '/' + type + '/' + key;
+        const folder = this.store.selectSnapshot<any>(DbfsResourcesState.getFolderResource(path));
+
+        this.loadingItem = key;
+
+        if (folder.notFound) {
+            this.store.dispatch(
+                new DbfsAddPlaceholderFolder(
+                    path,
+                    {
+                        method: 'gotoFolder',
+                        args: path
+                    }
+                )
+            );
+        } else {
+            this.gotoFolder(path);
         }
     }
 
