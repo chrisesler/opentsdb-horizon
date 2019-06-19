@@ -345,18 +345,43 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
 
     setQuery() {
-        this.queries = this.data.queries && this.data.queries.raw ? this.data.queries.raw : [{
-                id: this.utils.generateId(),
-                namespace: '',
-                metrics: [],
-                filters: [],
-                settings: {
-                    visual: {
-                        visible: true
-                    }
+        this.queries = this.data.queries && this.data.queries.raw ? this.data.queries.raw : [ this.getNewQueryConfig() ];
+    }
+
+    addNewQuery() {
+        this.queries.push(this.getNewQueryConfig());
+    }
+
+    cloneQuery(qid) {
+        const qindex = this.queries.findIndex(d => d.id === qid);
+        if ( qindex !== -1 ) {
+            const query = this.utils.getQueryClone(this.queries, qindex);
+            this.queries.splice(qindex + 1, 0, query);
+        }
+    }
+
+    deleteQuery(qid) {
+        const [ qidx, midx ] = this.thresholdSingleMetricControls.metricId.value.split(':');
+        const qindex = this.queries.findIndex(d => d.id === qid);
+        if ( parseInt(qidx, 10) === qindex ) {
+            this.thresholdSingleMetricControls.metricId.setValue('');
+        }
+        this.queries.splice(qindex, 1);
+    }
+
+    getNewQueryConfig() {
+        const query: any = {
+            id: this.utils.generateId(6, this.utils.getIDs(this.queries)),
+            namespace: '',
+            metrics: [],
+            filters: [],
+            settings: {
+                visual: {
+                    visible: true
                 }
             }
-        ];
+        };
+        return query;
     }
 
     validateThresholds(group) {
@@ -442,29 +467,10 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         this.options = {...this.options};
     }
 
-    getSelectedMetricQueryIndex() {
-        const v = this.alertForm.get('threshold').get('singleMetric').get('metricId').value;
-        const [qindex, mindex] = v ? v.split(':') : [null, null];
-        return qindex;
-    }
-
-    getSelectedMetric() {
-        const v = this.alertForm.get('threshold').get('singleMetric').get('metricId').value;
-        const [qindex, mindex] = v ? v.split(':') : [null, null];
-        if ( qindex && mindex  && this.queries[qindex].metrics.length) {
-            if ( this.queries[qindex].metrics[mindex].expression === undefined ) {
-                return this.queries[qindex].metrics[mindex].name;
-            } else {
-                return this.getExpressionMetrics(qindex, mindex);
-            }
-        }
-        return '';
-    }
-
     getSelectedMetricTags() {
         const v = this.alertForm.get('threshold').get('singleMetric').get('metricId').value;
         const [qindex, mindex] = v ? v.split(':') : [null, null];
-        if ( qindex && mindex  && this.queries[qindex].metrics.length) {
+        if ( qindex && mindex  && this.queries[qindex] && this.queries[qindex].metrics.length) {
                 return this.queries[qindex].metrics[mindex].groupByTags || [];
         }
         return [];
@@ -474,23 +480,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         return this.queries[qindex] &&  this.queries[qindex].metrics[mindex] ? this.queries[qindex].metrics[mindex].groupByTags : [];
     }
 
-    getExpressionMetrics(qindex, mindex) {
-        let metrics = [];
-        const expression = this.queries[qindex].metrics[mindex].expression;
-        if (expression) {
-            // extract the {{id}} from the expression
-            const re = new RegExp(/\{\{(.+?)\}\}/, 'g');
-            let matches = [];
-            while (matches = re.exec(expression)) {
-                const id = matches[1];
-                const midx = this.queries[qindex].metrics.findIndex(d => d.id === id );
-                metrics = metrics.concat(this.getExpressionMetrics( qindex, midx));
-            }
-        } else {
-            metrics = [ this.queries[qindex].metrics[mindex].name ];
-        }
-        return metrics;
-    }
 
     get thresholdControls() {
         return this.alertForm['controls'].threshold['controls'];
@@ -560,8 +549,16 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const time = {
             start: '1h-ago'
         };
-        if (this.queries[0].namespace && this.queries[0].metrics.length) {
-            const query = this.queryService.buildQuery( settings, time, {0: this.queries[0]});
+        const queries = {};
+        for (let i = 0; i < this.queries.length; i++) {
+            const query: any = JSON.parse(JSON.stringify(this.queries[i]));
+            if (query.namespace && query.metrics.length) {
+                queries[i] = query;
+            }
+        }
+
+        if ( Object.keys(queries).length ) {
+            const query = this.queryService.buildQuery( settings, time, queries);
             this.getYamasData(query);
         } else {
             this.nQueryDataLoading = 0;
@@ -579,8 +576,13 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const time = {
             start: '1h-ago'
         };
-        const query = this.queryService.buildQuery( settings, time, {0 : this.queries[0]});
-        return [query];
+        const queries = {};
+        for (let i = 0; i < this.queries.length; i++) {
+            const query: any = JSON.parse(JSON.stringify(this.queries[i]));
+            queries[i] = query;
+        }
+        const q = this.queryService.buildQuery( settings, time, queries);
+        return [q];
     }
 
     // to get query for selected metrics, my rebuild to keep time sync 1h-ago
@@ -637,7 +639,18 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         switch (message.action) {
             case 'QueryChange':
                 // show threshold & notification section when metric is added first time
-                this.showDetail = this.showDetail === false ? this.queries[0].metrics.length!==0 : this.showDetail;
+                const metrics = this.utils.getAllMetrics(this.queries);
+                this.showDetail = this.showDetail === false ? metrics.length !== 0 : this.showDetail;
+                this.reloadData();
+                break;
+            case 'CloneQuery':
+                this.cloneQuery(message.id);
+                this.queries = this.utils.deepClone(this.queries);
+                this.reloadData();
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.id);
+                this.queries = this.utils.deepClone(this.queries);
                 this.reloadData();
                 break;
         }
@@ -650,9 +663,9 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     }
 
     getExpressionLabel(qindex, mindex) {
-        const label = 'e';
+        const label = 'q' + (qindex + 1) + '.e';
         let eIndex = -1;
-        for ( let i =0; i <= mindex && i < this.queries[qindex].metrics.length; i++ ) {
+        for ( let i = 0; i <= mindex && i < this.queries[qindex].metrics.length; i++ ) {
             if ( this.queries[qindex].metrics[i].expression ) {
                 eIndex++;
             }
@@ -737,8 +750,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
         data.threshold.singleMetric.queryIndex = qindex;
         // tslint:disable-next-line: max-line-length
-        data.threshold.singleMetric.metricId =  this.utils.getDSId({0 : this.queries[0]}, qindex, mindex) + (this.queries[qindex].metrics[mindex].expression === undefined ? '-groupby' : '');
-        data.threshold.isNagEnabled = data.threshold.nagInterval!== "0" ? true : false;
+        data.threshold.singleMetric.metricId =  this.utils.getDSId( this.utils.arrayToObject(this.queries), qindex, mindex) + (this.queries[qindex].metrics[mindex].expression === undefined ? '-groupby' : '');
+        data.threshold.isNagEnabled = data.threshold.nagInterval !== '0' ? true : false;
         data.version = this.alertConverter.getAlertCurrentVersion();
         // emit to save the alert
         this.configChange.emit({ action: 'SaveAlert', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
@@ -804,7 +817,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     recoveryTypeChange(event: any) {
         const control = <FormControl>this.thresholdSingleMetricControls.recoveryType;
         control.setValue(event.value);
-        // console.log('recoveryTypeChange', event.value);
     }
 
     alertRecipientsUpdate(event: any) {

@@ -107,6 +107,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch (message.action) {
+                case 'TimeChanged':
+                    this.options.isCustomZoomed = false;
+                    delete this.options.dateWindow;
+                    this.refreshData();
+                    break;
                 case 'reQueryData':
                     this.refreshData();
                     break;
@@ -142,6 +147,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         }
                         if (message.payload.error) {
                             this.error = message.payload.error;
+                            this.cdRef.markForCheck();
                         } else {
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
@@ -267,38 +273,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         const query = payload.query;
         const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
         if ( qindex === -1 ) {
-            query.id = this.util.generateId(6);
+            query.id = this.util.generateId(6, this.util.getIDs(this.widget.queries));
             this.widget.queries.push(query);
         } else {
             this.widget.queries[qindex] = query;
         }
-    }
-
-    addMetricsToGroup(gConfig) {
-        let gid = gConfig.id;
-
-        if ( gid === 'new' ) {
-            const g = this.createNewGroup();
-            this.widget.queries.push(g);
-            gid = g.id;
-        }
-    }
-
-    createNewGroup() {
-        const gid = this.util.generateId(6);
-        const g = {
-            id: gid,
-            metrics: [],
-            settings: {
-                tempUI: {
-                    selected: false
-                },
-                visual: {
-                    visible: true
-                }
-            }
-        };
-        return g;
     }
 
     ngAfterViewInit() {
@@ -577,6 +556,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleZoom(zConfig) {
+        const n = this.data.ts.length;
+        if ( zConfig.isZoomed && n > 0 ) {
+            const startTime = new Date(this.data.ts[0][0]).getTime() / 1000;
+            const endTime = new Date(this.data.ts[n - 1][0]).getTime() / 1000;
+            zConfig.start = Math.floor(zConfig.start) <= startTime ? -1 : zConfig.start;
+            zConfig.end = Math.ceil(zConfig.end) >= endTime ? -1 : zConfig.end;
+        }
+        // zoom.start===-1 or zoom.end=== -1, the start or end times will be calculated from the datepicker start or end time
         this.interCom.requestSend({
             id: this.widget.id,
             action: 'SetZoomDateRange',
@@ -641,8 +628,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     cloneQuery(qid) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         if ( qindex !== -1 ) {
-            const query = this.util.deepClone(this.widget.queries[qindex]);
-            query.id = this.util.generateId(3, this.widget.queries.map(d => d.id));
+            const query = this.util.getQueryClone(this.widget.queries, qindex);
             this.widget.queries.splice(qindex + 1, 0, query);
         }
     }

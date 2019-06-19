@@ -18,6 +18,24 @@ export class UtilsService {
     return id;
   }
 
+  getIDs(collection: any[]) {
+    const ids = [];
+    for (const obj of collection) {
+        if (obj.hasOwnProperty('id')) {
+            ids.push(obj.id);
+        }
+    }
+    return ids;
+  }
+
+  getAllMetrics(queries: any[]) {
+    const metrics = [];
+    for (const query of queries) {
+        metrics.concat(query.metrics);
+    }
+    return metrics;
+  }
+
   convertPatternTSDBCompat(searchPattern) {
     searchPattern = searchPattern.replace(/\s+/g, '.*');
     if ((searchPattern).search(/^\s*\.\*/) === -1) {
@@ -28,6 +46,17 @@ export class UtilsService {
     }
     return searchPattern.toLowerCase();
 }
+
+    replaceIdsInExpressions(newID, oldID, metrics) {
+        const idreg = new RegExp( '\\{\\{' + oldID + '\\}\\}' , 'g');
+        for (const metric of metrics) {
+            if (metric.expression) {
+                if (metric.expression.indexOf('{{' + oldID + '}}') !== -1) {
+                    metric.expression = metric.expression.replace(idreg, '{{' + newID + '}}');
+                }
+            }
+        }
+    }
 
   modifyWidgets(dashboard: any) {
     // add extra info item behaviors
@@ -314,4 +343,98 @@ export class UtilsService {
       }
       return 0;
   }
+
+    getSummarizerForMetric(id, queries) {
+        const metric = this.getMetricFromId(id, queries);
+        return metric.summarizer ? metric.summarizer : 'avg';
+    }
+
+    getSummmarizerDataWithId(id, queries, data) {
+        const source = this.getSourceIDAndTypeFromMetricID(id, queries);
+        if (source.hasOwnProperty('id')) {
+            return this.getSummarizerDataForMetric(data, source.id);
+        } else {
+            return {};
+        }
+    }
+
+    getSummarizerDataForMetric(data, tsdbId): any {
+        let metric = {};
+        if (data) {
+            for ( let i = 0; data && i < data.length; i++ ) {
+                const [ source, mid ] = data[i].source.split(':'); // example: summarizer:q1_m2, summarizer:m2
+                if (mid === tsdbId) {
+                    metric = data[i].data[0];
+                    break;
+                }
+            }
+        }
+        return metric;
+    }
+
+    getMetricFromId(id, queries) {
+        // tslint:disable-next-line:forin
+        for (let i in queries) {
+            for (let j in queries[i].metrics) {
+                if (queries[i].metrics[j].id === id) {
+                    return queries[i].metrics[j];
+                }
+            }
+        }
+    }
+
+    getSourceIDAndTypeFromMetricID(metricId, queries) {
+        // tslint:disable-next-line:forin
+        for (const i in queries) {
+            const queryIndex = parseInt(i, 10) + 1;
+            let metricIndex = 0;
+            let expressionIndex = 0;
+            for (let j = 0; j < queries[i].metrics.length; j++) {
+                // calculate expression, metric indexes
+                if (queries[i].metrics[j].expression) {
+                    expressionIndex++;
+                } else {
+                    metricIndex++;
+                }
+
+                if (queries[i].metrics[j].id === metricId) {
+                    if (queries[i].metrics[j].expression) {
+                        // tslint:disable-next-line:max-line-length
+                        return { id: 'q' + queryIndex + '_' + 'e' + expressionIndex, qIndex: queryIndex - 1, mIndex: metricIndex - 1, expression: true};
+                    } else {
+                        // tslint:disable-next-line:max-line-length
+                        return { id: 'q' + queryIndex + '_' + 'm' + metricIndex, qIndex: queryIndex - 1, mIndex: metricIndex - 1, expression: false};
+                    }
+                }
+            }
+        }
+        return {};
+    }
+
+    arrayToObject(arr) {
+        const obj = {};
+        for (let i = 0; i < arr.length; i++) {
+            obj[i] = arr[i];
+        }
+        return obj;
+    }
+
+    getQueryClone(queries, index) {
+        const query = queries[index];
+        const newQuery = this.deepClone(query);
+        const mids = this.getIDs(this.getAllMetrics(queries));
+        newQuery.id = this.generateId(3, this.getIDs(queries));
+        const oldIds = this.getIDs(query.metrics), newIds = [];
+        for (const metric of query.metrics) {
+            const newId = this.generateId(3, mids);
+            metric.id = newId;
+            mids.push(newId);
+            newIds.push(newId);
+        }
+
+        for ( let i = 0; i < oldIds.length; i++ ) {
+            this.replaceIdsInExpressions(newIds[i], oldIds[i], query.metrics);
+        }
+        return newQuery;
+    }
 }

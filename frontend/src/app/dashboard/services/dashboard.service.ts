@@ -64,9 +64,9 @@ export class DashboardService {
     this.widgetsConfig = {...conf};
   }
 
-  getWidgetPrototype(type= ''): any {
+  getWidgetPrototype(type= '', widgets= []): any {
     const widget: any = JSON.parse(JSON.stringify(this.widgetPrototype));
-    widget.id = this.utils.generateId();
+    widget.id = this.utils.generateId(6, this.utils.getIDs(widgets));
     widget.settings.component_type = type;
     switch ( type ) {
         case 'LinechartWidgetComponent':
@@ -207,7 +207,7 @@ export class DashboardService {
       }
     }
   }
-  return widget;
+  return isModify ? widget : undefined;
 }
   resolveTplVar(query: any, tplVariables: any[]) {
     for (let i = 0; i < query.filters.length; i++) {
@@ -240,31 +240,6 @@ export class DashboardService {
     return query;
   }
 
-  updateQueryByVariables(query: any, tplVariables: any[]) {
-    for (let i = 0; i < query.filters.length; i++) {
-      const qFilter = query.filters[i];
-      if (qFilter.customFilter && qFilter.customFilter.length > 0) {
-        for (let j = 0; j < qFilter.customFilter.length; j++) {
-          const cFilter = qFilter.customFilter[j].substring(1, qFilter.customFilter[j].length - 1);
-          // console.log('cFilter', cFilter);
-          const varIndex = tplVariables.findIndex(tpl => tpl.alias === cFilter);
-          if (varIndex > -1) {
-            if (tplVariables[varIndex].filter !== '' && qFilter.filter.indexOf(tplVariables[varIndex].filter) === -1) {
-              qFilter.filter.push(tplVariables[varIndex].filter);
-            }
-          }
-        }
-      }
-      // when a filter was not defined, and append the empty value template var, the filter is empty
-      // need to remove from filters to avoid tsdb syntax error
-      // console.log('qFilter', qFilter);
-      if (qFilter.filter.length === 0) {
-        query.filters.splice(i, 1);
-      }
-    }
-    return query;
-  }
-
   addGridterInfo(widgets: any[]) {
     for (let i = 0; i < widgets.length; i++) {
       const w = widgets[i];
@@ -286,6 +261,8 @@ export class DashboardService {
   getStorableFormatFromDBState(dbstate) {
     const widgets = this.utils.deepClone(dbstate.Widgets.widgets);
     for (let i = 0; i < widgets.length; i++) {
+      widgets[i].gridPos.x = widgets[i].gridPos.xMd;
+      widgets[i].gridPos.y = widgets[i].gridPos.yMd;
       delete widgets[i].gridPos.xMd;
       delete widgets[i].gridPos.yMd;
       delete widgets[i].gridPos.wMd;
@@ -302,5 +279,4 @@ export class DashboardService {
     };
     return dashboard;
   }
-
 }

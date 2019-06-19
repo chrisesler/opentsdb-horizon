@@ -7,7 +7,7 @@ import { MAT_SLIDE_TOGGLE_DEFAULT_OPTIONS } from '@angular/material';
 })
 export class DashboardConverterService {
 
-  currentVersion = 4;
+  currentVersion = 5;
 
   constructor(private utils: UtilsService) { }
 
@@ -56,7 +56,7 @@ export class DashboardConverterService {
               const metric = metrics.find(d => d.expression === undefined && d.name === emetrics[m].metric);
               if (!metric) {
                 const oMetric = {
-                  id: this.utils.generateId(3),
+                  id: this.utils.generateId(3, this.utils.getIDs(this.utils.getAllMetrics(queries))),
                   name: emetrics[m].metric,
                   settings: {
                     visual: {
@@ -163,4 +163,34 @@ export class DashboardConverterService {
     dashboard.content.settings.tplVariables = tplVariables;
     return dashboard;
   }
+
+  // update dashboard to version 5, make sure ids are unique within widget and replace expression references
+  toDBVersion5(dashboard: any) {
+    dashboard.content.version = 5;
+    const widgets = dashboard.content.widgets;
+    for (let i = 0; i < widgets.length; i++) {
+      const queries = widgets[i].queries;
+      // if (widgets[i].settings.component_type === 'LinechartWidgetComponent') {
+        const ids = new Set();
+        ids.add(widgets[i].id);
+        for (let j = 0; j < queries.length; j++) {
+          const metrics = queries[j].metrics;
+          for (let k = 0; k < metrics.length; k++) {
+            // metrics
+            if (ids.has(metrics[k].id)) {
+              const oldId = metrics[k].id;
+              const newId = this.utils.generateId(3, this.utils.getIDs(this.utils.getAllMetrics(queries)));
+              this.utils.replaceIdsInExpressions(newId, oldId, metrics);
+              metrics[k].id = newId;
+              ids.add(newId);
+            } else {
+              ids.add(metrics[k].id);
+            }
+          }
+        }
+      // }
+    }
+    return dashboard;
+  }
+
 }

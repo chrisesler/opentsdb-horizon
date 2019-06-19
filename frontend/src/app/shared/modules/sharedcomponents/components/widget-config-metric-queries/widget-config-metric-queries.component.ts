@@ -135,7 +135,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                         }
                     };
         }
-        query.id = this.util.generateId(3);
+        query.id = this.util.generateId(3, this.util.getIDs(this.widget.queries));
         return query;
     }
 

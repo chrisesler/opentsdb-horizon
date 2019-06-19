@@ -210,26 +210,30 @@ export class YamasService {
 
     getExpressionQuery(qindex, mindex) {
         const config = this.queries[qindex].metrics[mindex];
+        let transformedExp = config.expression;
         const eid = this.utils.getDSId(this.queries, qindex, mindex);
-
-        const sources = [];
-        const  expression = config.expression;
-        let transformedExp = expression;
+        let sources = [];
+        const expression = config.expression;
 
         // replace {{<id>}} with query source id
         const re = new RegExp(/\{\{(.+?)\}\}/, 'g');
         let matches = [];
+
         while (matches = re.exec(expression)) {
             const id = matches[1];
             const idreg = new RegExp( '\\{\\{' + id + '\\}\\}' , 'g');
-            const sindex = this.getSourceIndexById(qindex, id);
-            const sourceId = this.utils.getDSId(this.queries, qindex, sindex);
-            let gsourceId = sourceId;
-            if (sindex > -1) {
-                gsourceId = this.queries[qindex].metrics[sindex].expression === undefined ? sourceId +  '-groupby' : sourceId ;
+            const sourceIdAndType = this.utils.getSourceIDAndTypeFromMetricID(id, this.queries);
+            if (!sourceIdAndType.hasOwnProperty('id') || !sourceIdAndType.hasOwnProperty('expression')) {
+                continue;
             }
-            transformedExp = transformedExp.replace( idreg, ' ' + sourceId + ' ' );
-            sources.push(gsourceId);
+            const sourceId = sourceIdAndType.id;
+            const isExpression = sourceIdAndType.expression;
+            transformedExp = transformedExp.replace(idreg, ' ' + sourceId + ' ' );
+            if (isExpression) {
+                sources.push(sourceId);
+            } else {
+                sources.push(sourceId +  '-groupby');
+            }
         }
         const joinTags = {};
         const groupByTags = config.groupByTags || [];
