@@ -639,7 +639,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         switch (message.action) {
             case 'QueryChange':
                 // show threshold & notification section when metric is added first time
-                this.showDetail = this.showDetail === false ? this.queries[0].metrics.length!==0 : this.showDetail;
+                const metrics = this.utils.getAllMetrics(this.queries);
+                this.showDetail = this.showDetail === false ? metrics.length !== 0 : this.showDetail;
                 this.reloadData();
                 break;
             case 'CloneQuery':
