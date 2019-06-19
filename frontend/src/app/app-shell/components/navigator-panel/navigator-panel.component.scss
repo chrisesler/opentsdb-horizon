@@ -20,6 +20,13 @@
 
         .navigator-panel-inner {
             display: flex;
+            min-height: 100%;
+        }
+
+        .navigator-panel-item {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
         }
     }
 }
