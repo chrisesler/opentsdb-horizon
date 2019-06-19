@@ -374,7 +374,6 @@ export class YamasService {
             const sourceIdAndType = this.utils.getSourceIDAndTypeFromMetricID(id, this.queries);
             if (!sourceIdAndType.hasOwnProperty('id') || !sourceIdAndType.hasOwnProperty('expression')) {
                 continue;
-                gsourceId = this.queries[qindex].metrics[sindex].expression === undefined ? sourceId +  '_groupby' : sourceId ;
             }
             const sourceId = sourceIdAndType.id;
             const isExpression = sourceIdAndType.expression;
@@ -383,9 +382,6 @@ export class YamasService {
                 sources.push(sourceId);
             } else {
                 sources.push(sourceId +  '-groupby');
-            }
-            } else {
-                sources.push(subGraph[subGraph.length - 1].id);
             }
         }
         const joinTags = {};
