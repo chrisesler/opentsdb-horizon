@@ -6,7 +6,8 @@
         [mode]="variablePanelMode"
         [widgets]="widgets"
         [tplVariables]="tplVariables"
-        [dbTagKeys]="dashboardTags">
+        [dbTagKeys]="dashboardTags"
+        (modeChange)="changeVarPanelMode($event)">
     </template-variable-panel>
     <app-dboard-content fxFlex="1 1 100%" fxLayout="column" fxLayoutAlign="stretch stretch" 
         [newWidget]="newWidget"
