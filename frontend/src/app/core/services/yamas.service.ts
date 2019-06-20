@@ -378,10 +378,13 @@ export class YamasService {
             const sourceId = sourceIdAndType.id;
             const isExpression = sourceIdAndType.expression;
             transformedExp = transformedExp.replace(idreg, ' ' + sourceId + ' ' );
-            if (isExpression) {
-                sources.push(sourceId);
+            // TODO - if metrics are ever added AFTER expressions we can't relyin on this behavior
+            // any more.
+            let subGraph = this.metricSubGraphs.get(sourceId);
+            if (!subGraph) {
+                console.error("Whoops? Where's the sub graph?");
             } else {
-                sources.push(sourceId +  '_groupby');
+                sources.push(subGraph[subGraph.length - 1].id);
             }
         }
         const joinTags = {};
