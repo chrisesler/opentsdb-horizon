@@ -750,7 +750,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
         data.threshold.singleMetric.queryIndex = qindex;
         // tslint:disable-next-line: max-line-length
-        data.threshold.singleMetric.metricId =  this.utils.getDSId( this.utils.arrayToObject(this.queries), qindex, mindex) + (this.queries[qindex].metrics[mindex].expression === undefined ? '-groupby' : '');
+        data.threshold.singleMetric.metricId =  this.utils.getDSId( this.utils.arrayToObject(this.queries), qindex, mindex) + (this.queries[qindex].metrics[mindex].expression === undefined ? '_groupby' : '');
         data.threshold.isNagEnabled = data.threshold.nagInterval !== '0' ? true : false;
         data.version = this.alertConverter.getAlertCurrentVersion();
         // emit to save the alert

@@ -126,23 +126,112 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     // store metric fx temporary here
     functionCategories: any[] = [
         {
-            label: 'Rate',
+            label: 'Smoothing',
             functions: [
                 {
-                    label: 'Rate of Change',
-                    fxCall: 'RateOfChange'
-                }, 
-                {
-                    label: 'Value Difference',
-                    fxCall: 'RateDiff'
+                    label: 'Moving Average 3 Samples',
+                    fxCall: 'EWMA',
+                    val: '3,0.0'
                 },
                 {
-                    label: 'Counter to Rate',
-                    fxCall: 'CounterToRate'
+                    label: 'Moving Average 5 Samples',
+                    fxCall: 'EWMA',
+                    val: '5,0.0'
+                },
+                {
+                    label: 'Moving Average 10 Samples',
+                    fxCall: 'EWMA',
+                    val: '10,0.0'
+                },
+                {
+                    label: 'Moving Average 20 Samples',
+                    fxCall: 'EWMA',
+                    val: '20,0.0'
+                },
+                {
+                    label: 'Moving Average 1m Window',
+                    fxCall: 'EWMA',
+                    val: '1m,0.0'
+                },
+                {
+                    label: 'Moving Average 5m Window',
+                    fxCall: 'EWMA',
+                    val: '5m,0.0'
+                },
+                {
+                    label: 'Moving Average 15m Window',
+                    fxCall: 'EWMA',
+                    val: '15m,0.0'
+                },
+                {
+                    label: 'Moving Median 3 Samples',
+                    fxCall: 'Median',
+                    val: '3'
+                },
+                {
+                    label: 'Moving Median 5 Samples',
+                    fxCall: 'Median',
+                    val: '5'
+                },
+                {
+                    label: 'Moving Median 7 Samples',
+                    fxCall: 'Median',
+                    val: '7'
+                },
+                {
+                    label: 'Moving Median 9 Samples',
+                    fxCall: 'Median',
+                    val: '9'
+                }
+            ]
+        },
+        {
+            label: 'Difference',
+            functions: [
+                {
+                    label: 'Value Difference',
+                    fxCall: 'ValueDiff',
+                    val: 'auto'
                 },
                 {
                     label: 'Counter Value Difference',
-                    fxCall: 'CounterDiff'
+                    fxCall: 'CounterValueDiff',
+                    val: 'auto'
+                }
+            ]
+        },
+        {
+            label: 'Rate',
+            functions: [
+                {
+                    label: 'Per Second',
+                    fxCall: 'Rate',
+                    val: '1s'
+                },
+                {
+                    label: 'Per Minute',
+                    fxCall: 'Rate',
+                    val: '1m'
+                }, 
+                {
+                    label: 'Per Hour',
+                    fxCall: 'Rate',
+                    val: '1h'
+                }, 
+                {
+                    label: 'Counter Per Second',
+                    fxCall: 'CntrRate',
+                    val: '1s'
+                }, 
+                {
+                    label: 'Counter Per Minute',
+                    fxCall: 'CntrRate',
+                    val: '1m'
+                }, 
+                {
+                    label: 'Counter Per Hour',
+                    fxCall: 'CntrRate',
+                    val: '1h'
                 }
             ]
         },
@@ -618,7 +707,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const newFx = {
             id: this.utils.generateId(3, this.utils.getIDs(this.query.metrics[metricIdx].functions)),
             fxCall: func.fxCall,
-            val: ''
+            val: func.val
         };
 
         this.query.metrics[metricIdx].functions.push(newFx);

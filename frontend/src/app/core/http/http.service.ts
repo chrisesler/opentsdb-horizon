@@ -4,6 +4,7 @@ import { Observable, of, throwError, forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
 import { MetaService } from '../services/meta.service';
+import { UtilsService } from '../services/utils.service';
 
 @Injectable({
     providedIn: 'root'
@@ -17,7 +18,7 @@ export class HttpService {
     };
 
     regexMetricFormat = /([^\.]*)\.([^\.]*)\.(.*)/;
-    constructor(private http: HttpClient, private metaService: MetaService) { }
+    constructor(private http: HttpClient, private metaService: MetaService, private utils: UtilsService) { }
 
     getDashoard(id: string): Observable<any> {
         const apiUrl = environment.configdb + '/object/' + id;
@@ -198,11 +199,11 @@ export class HttpService {
                     for (let i = 0; res && i < res.results.length; i++) {
                         if (Object.keys(res.results[i].tagKeysAndValues).length > 0 && res.results[i].tagKeysAndValues[queryObj.tag.key]) {
                             const keys = res.results[i].tagKeysAndValues[queryObj.tag.key].values
-                                .filter(item => tagvalues.indexOf(item.key) === -1);
+                                .filter(item => tagvalues.indexOf(item.name) === -1);
                             tagvalues = tagvalues.concat(keys.map(d => d.name));
                         }
                     }
-                    return tagvalues;
+                    return tagvalues.sort(this.utils.sortAlphaNum);
                 })
             );
     }
