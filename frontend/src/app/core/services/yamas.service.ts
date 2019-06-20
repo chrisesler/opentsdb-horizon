@@ -46,6 +46,7 @@ export class YamasService {
                         for (let node of subGraph) {
                             this.transformedQuery.executionGraph.push(node);
                         }
+                        this.metricSubGraphs.set(q.id, subGraph);
                         outputIds.push(subGraph[subGraph.length - 1].id);
                     } else {
                         const q: any = this.getMetricQuery(i, j);
@@ -177,6 +178,7 @@ export class YamasService {
      */
     getFunctionQueries(qindex, index, subGraph) {
         const funs = this.queries[qindex].metrics[index].functions || [];
+        let nFnRollup = 0;
         for ( let i = 0; i < funs.length; i++ ) {
             switch ( funs[i].fxCall ) {
                 // Rate and Difference
@@ -190,11 +192,31 @@ export class YamasService {
                 case 'CounterValueDiff':
                     this.handleRateFunction(parseInt(qindex) + 1, index + 1, subGraph, funs, i);
                     break;
-                
+
                 // Smoothing
                 case 'EWMA':
                 case 'Median':
                     this.handleSmoothingFunction(parseInt(qindex) + 1, index + 1, subGraph, funs, i);
+                    break;
+                case 'Rollup':
+                    let [ aggregator, ds ] = funs[i].val.split(',').map(d => d.trim());
+                    if ( aggregator ) {
+                        ds = ds || 'auto';
+                        nFnRollup++;
+                        const override = nFnRollup === 1 && this.queries[qindex].metrics[index].expression === undefined;
+                        // first rollup function overrides the metric downsample
+                        if ( override ) {
+                            const nindex = subGraph.findIndex(d => d.id.indexOf('_downsample') !== -1 );
+                            const node = subGraph[nindex];
+                            node.aggregator = aggregator;
+                            node.interval = ds;
+                        } else {
+                            const dsNodes = subGraph.filter(d => d.id.indexOf('_downsample') !== -1 );
+                            // subGraph[0].id will have metric or expression definition
+                            const id = subGraph[0].id + '_downsample' + ( dsNodes.length === 0 ? '' : '_' + dsNodes.length );
+                            subGraph.push(this.getQueryDownSample({value: ds}, aggregator, id, [subGraph[subGraph.length - 1].id]));
+                        }
+                    }
                     break;
             }
         }
@@ -380,7 +402,7 @@ export class YamasService {
             transformedExp = transformedExp.replace(idreg, ' ' + sourceId + ' ' );
             // TODO - if metrics are ever added AFTER expressions we can't relyin on this behavior
             // any more.
-            let subGraph = this.metricSubGraphs.get(sourceId);
+            const subGraph = this.metricSubGraphs.get(sourceId);
             if (!subGraph) {
                 console.error("Whoops? Where's the sub graph?");
             } else {
