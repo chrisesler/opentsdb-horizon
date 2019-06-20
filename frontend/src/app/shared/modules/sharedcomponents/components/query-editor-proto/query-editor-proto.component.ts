@@ -145,6 +145,31 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                     fxCall: 'CounterDiff'
                 }
             ]
+        },
+        {
+            label: 'Rollup',
+            functions: [
+                {
+                    label: 'Average',
+                    fxCall: 'Rollup',
+                    val: 'avg,auto'
+                },
+                {
+                    label: 'Minimum',
+                    fxCall: 'Rollup',
+                    val: 'min,auto'
+                },
+                {
+                    label: 'Maximum',
+                    fxCall: 'Rollup',
+                    val: 'max,auto'
+                },
+                {
+                    label: 'Sum',
+                    fxCall: 'Rollup',
+                    val: 'sum,auto'
+                }
+            ]
         }
     ];
 
