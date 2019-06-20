@@ -212,22 +212,22 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                     label: 'Per Minute',
                     fxCall: 'Rate',
                     val: '1m'
-                }, 
+                },
                 {
                     label: 'Per Hour',
                     fxCall: 'Rate',
                     val: '1h'
-                }, 
+                },
                 {
                     label: 'Counter Per Second',
                     fxCall: 'CntrRate',
                     val: '1s'
-                }, 
+                },
                 {
                     label: 'Counter Per Minute',
                     fxCall: 'CntrRate',
                     val: '1m'
-                }, 
+                },
                 {
                     label: 'Counter Per Hour',
                     fxCall: 'CntrRate',
@@ -266,44 +266,64 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                 {
                     label: 'Hour Before',
                     fxCall: 'Timeshift',
-                    fxVal: '1h'
+                    val: '1h'
                 },
                 {
                     label: 'Day Before',
                     fxCall: 'Timeshift',
-                    fxVal: '1d'
+                    val: '1d'
                 },
                 {
                     label: 'Week Before',
                     fxCall: 'Timeshift',
-                    fxVal: '1w'
+                    val: '1w'
                 },
                 {
                     label: 'Month Before',
                     fxCall: 'Timeshift',
-                    fxVal: '4w'
+                    val: '4w'
                 }
             ]
         }
     ];
 
     FunctionValidation: any = {
-        'Rollup' : {
-            errorMessage: null,
-            regexValidator: null
-        },
         'RateOfChange' : {
             errorMessage: null,
             regexValidator: null
         },
-        'CounterToRate' : {
+        'EWMA' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'Median' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'ValueDiff' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'CounterValueDiff' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'CntrRate' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'Rate' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'Rollup' : {
             errorMessage: null,
             regexValidator: null
         },
         'Timeshift' : {
             errorMessage: 'Possible values: 1h, 2d, 3w, etc.',
             regexValidator: /^\d+[hdw]$/i
-        }
+        },
     };
 
     // MAT-TABLE DEFAULT COLUMNS

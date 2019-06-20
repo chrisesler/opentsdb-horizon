@@ -210,7 +210,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
                 if (metric.settings.visual.label === '' || metric.settings.visual.label.startsWith( metric.name + '-')) {
                     metric.settings.visual.label = metric.name + '-' + totalTimeShift;
                 }
-            } else { // timeshift potentiall removed
+            } else { // timeshift potentially removed
                 if (metric.settings.visual.label && metric.settings.visual.label.startsWith(metric.name + '-')) {
                     metric.settings.visual.label = '';
                 }
