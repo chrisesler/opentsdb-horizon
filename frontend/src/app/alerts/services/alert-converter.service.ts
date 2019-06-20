@@ -33,7 +33,7 @@ export class AlertConverterService {
     alert.version = version;
     const metricId = alert.threshold.singleMetric.metricId;
     const mindex = metricId.split('-')[0].replace( /\D+/g, '');
-    alert.threshold.singleMetric.metricId = this.utils.getDSId(queries, alert.threshold.singleMetric.queryIndex, mindex) + '-groupby';
+    alert.threshold.singleMetric.metricId = this.utils.getDSId(queries, alert.threshold.singleMetric.queryIndex, mindex) + '_groupby';
     return alert;
   }
 }
