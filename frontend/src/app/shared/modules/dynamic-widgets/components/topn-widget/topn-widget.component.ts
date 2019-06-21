@@ -349,6 +349,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     ngOnDestroy() {
         this.listenSub.unsubscribe();
         this.newSizeSub.unsubscribe();
+        this.doRefreshDataSub.unsubscribe();
     }
 }
 

@@ -361,5 +361,6 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         this.listenSub.unsubscribe();
         this.typeSub.unsubscribe();
         this.newSizeSub.unsubscribe();
+        this.doRefreshDataSub.unsubscribe();
     }
 }

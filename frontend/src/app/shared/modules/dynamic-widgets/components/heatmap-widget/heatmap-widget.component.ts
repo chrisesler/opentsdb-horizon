@@ -439,6 +439,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
     ngOnDestroy() {
         this.listenSub.unsubscribe();
         this.newSizeSub.unsubscribe();
+        this.doRefreshDataSub.unsubscribe();
     }
 
 }

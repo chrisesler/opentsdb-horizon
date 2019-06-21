@@ -676,6 +676,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         if (this.listenSub) {
             this.listenSub.unsubscribe();
         }
+        this.doRefreshDataSub.unsubscribe();
     }
 
 }

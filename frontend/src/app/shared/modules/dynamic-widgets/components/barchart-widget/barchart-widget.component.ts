@@ -614,6 +614,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.listenSub.unsubscribe();
         }
         this.typeSub.unsubscribe();
+        this.doRefreshDataSub.unsubscribe();
     }
 }
 
