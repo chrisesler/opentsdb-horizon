@@ -283,7 +283,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.setOptions();
-                console.log("update query. going to refresh data");
                 this.needRequery = true;
                 this.doRefreshData$.next(true);
                 break;
