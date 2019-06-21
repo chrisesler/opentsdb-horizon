@@ -672,9 +672,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
     getSeriesAggregate( index, aggregate, normalizeUnit = true ) {
         const config = this.options.series[index];
-        if (undefined === config) {
-            console.log (" undefined config found!!");
-        }
 
         const value = config.aggregations[aggregate];
         if (!normalizeUnit) {
@@ -796,7 +793,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.closeViewEditMode();
         const cloneWidget = JSON.parse(JSON.stringify(this.widget));
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
-        console.log("need requery: ", this.needRequery);
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
             id: cloneWidget.id,
