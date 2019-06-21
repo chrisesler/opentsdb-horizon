@@ -190,13 +190,13 @@ export class YamasService {
                 case 'CntrRate':
                 case 'CounterDiff':   // old
                 case 'CounterValueDiff':
-                    this.handleRateFunction(parseInt(qindex) + 1, index + 1, subGraph, funs, i);
+                    this.handleRateFunction(parseInt(qindex, 10) + 1, index + 1, subGraph, funs, i);
                     break;
 
                 // Smoothing
                 case 'EWMA':
                 case 'Median':
-                    this.handleSmoothingFunction(parseInt(qindex) + 1, index + 1, subGraph, funs, i);
+                    this.handleSmoothingFunction(parseInt(qindex, 10) + 1, index + 1, subGraph, funs, i);
                     break;
                 case 'Rollup':
                     let [ aggregator, ds ] = funs[i].val.split(',').map(d => d.trim());
