@@ -43,9 +43,6 @@ export class ConditionalFormatterComponent implements OnInit, OnDestroy {
     this.conditionChanges$ = new BehaviorSubject(false);
 
     this.conditionChangeSub = this.conditionChanges$
-                                        .pipe(
-                                            debounceTime(1000)
-                                        )
                                         .subscribe( trigger => {
                                             if ( trigger ) {
                                               this.conditionChange.emit(this.conditions);

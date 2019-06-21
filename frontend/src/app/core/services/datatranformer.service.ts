@@ -14,156 +14,160 @@ export class DatatranformerService {
   constructor(private util: UtilsService ) {  }
 
   // options will also be update of its labels array
-  yamasToDygraph(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
-    result = { ...result };
-    if ( normalizedData.length && normalizedData[0].length === 1 ) {
-      // there is no data in here but default, reset it
-      normalizedData = [];
-    }
-    if ( result === undefined || !result.results || !result.results.length ) {
-        return normalizedData;
-    }
-    const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
-    const dict = {};
-    const queryResults = [];
-    const wdQueryStats = this.util.getWidgetQueryStatistics(widget.queries);
-    let isStacked = false;
-    let areaAxis = 'y1';
-    let yMax = 0, y2Max = 0;
-    let areaMax = 0;
+    yamasToDygraph(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
+        result = { ...result };
+        if (normalizedData.length && normalizedData[0].length === 1) {
+            // there is no data in here but default, reset it
+            normalizedData = [];
+        }
+        if (result === undefined || !result.results || !result.results.length) {
+            return normalizedData;
+        }
+        const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
+        const dict = {};
+        const queryResults = [];
+        const wdQueryStats = this.util.getWidgetQueryStatistics(widget.queries);
+        let isStacked = false;
+        let areaAxis = 'y1';
+        let yMax = 0, y2Max = 0;
+        let areaMax = 0;
 
-            for ( let i = 0;  i < result.results.length; i++ ) {
-                queryResults.push(result.results[i]);
-                const [ source, mid ] = result.results[i].source.split(':');
-                const qids = this.REGDSID.exec(mid);
-                const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
-                const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
-                const mConfig = widget.queries[qIndex].metrics[mIndex];
-                const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-                queryResults[i] = Object.assign( {}, queryResults[i], {visualType: vConfig.type || 'line'} );
-                if ( vConfig.visible ) {
-                    if (!dict[mid]) {
-                        dict[mid] = { hashes: {}};
+        for (let i = 0; i < result.results.length; i++) {
+            queryResults.push(result.results[i]);
+            const [source, mid] = result.results[i].source.split(':');
+            const qids = this.REGDSID.exec(mid);
+            const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
+            const mIndex = this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2]);
+            const mConfig = widget.queries[qIndex].metrics[mIndex];
+            const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
+            queryResults[i] = Object.assign({}, queryResults[i], { visualType: vConfig.type || 'line' });
+            if (vConfig.visible) {
+                if (!dict[mid]) {
+                    dict[mid] = { hashes: {} };
 
-                    }
-                    if ( source === 'summarizer') {
-                        dict[mid]['summarizer'] = {};
-                        const n = queryResults[i].data.length;
-                        for ( let j = 0; j < n; j ++ ) {
-                            const tags = queryResults[i].data[j].tags;
-                            const hash = JSON.stringify(tags);
-                            const aggs = queryResults[i].data[j].NumericSummaryType.aggregations;
-                            const key = Object.keys(queryResults[i].data[j].NumericSummaryType.data[0])[0];
-                            const data = queryResults[i].data[j].NumericSummaryType.data[0][key];
-                            const aggData = {};
-                            for ( let k = 0; k < aggs.length; k++ ) {
-                                aggData[aggs[k]] = data[k];
-                            }
-                            dict[mid]['summarizer'][hash] = aggData;
-                            if ( !vConfig.axis || vConfig.axis === 'y1' ) {
-                                yMax = yMax < aggData['max'] ? aggData['max'] : yMax;
-                            } else {
-                                y2Max = y2Max < aggData['max'] ? aggData['max'] : y2Max;
-                            }
+                }
+                if (source === 'summarizer') {
+                    dict[mid]['summarizer'] = {};
+                    const n = queryResults[i].data.length;
+                    for (let j = 0; j < n; j++) {
+                        const tags = queryResults[i].data[j].tags;
+                        const hash = JSON.stringify(tags);
+                        const aggs = queryResults[i].data[j].NumericSummaryType.aggregations;
+                        const key = Object.keys(queryResults[i].data[j].NumericSummaryType.data[0])[0];
+                        const data = queryResults[i].data[j].NumericSummaryType.data[0][key];
+                        const aggData = {};
+                        for (let k = 0; k < aggs.length; k++) {
+                            aggData[aggs[k]] = data[k];
                         }
-                    } else {
-                        dict[mid]['values'] = {}; // queryResults.data;
-                        const n = queryResults[i].data.length;
-                        for ( let j = 0; j < n; j ++ ) {
-                            const tags = queryResults[i].data[j].tags;
-                            const hash = JSON.stringify(tags);
-                            dict[mid]['values'][hash] = queryResults[i].data[j].NumericType;
-                            const max = d3.max(queryResults[i].data[j].NumericType);
-                            if ( vConfig.type === 'area' && max !== undefined ) {
-                                areaMax += Number(max);
-                                isStacked = true;
-                                areaAxis = vConfig.axis || 'y1';
-                            }
+                        dict[mid]['summarizer'][hash] = aggData;
+                        if (!vConfig.axis || vConfig.axis === 'y1') {
+                            yMax = yMax < aggData['max'] ? aggData['max'] : yMax;
+                        } else {
+                            y2Max = y2Max < aggData['max'] ? aggData['max'] : y2Max;
                         }
                     }
-                }
-            }
-    queryResults.sort( (a, b) => a.visualType - b.visualType );
-    options.axes.y.tickFormat.max = yMax;
-    options.axes.y2.tickFormat.max = y2Max;
-    const axis = areaAxis === 'y1' ? 'y' : 'y2';
-    if ( isStacked && options.axes[axis].valueRange[1] === null  ) {
-        areaMax = areaMax < y2Max ? y2Max : areaMax;
-        options.axes[axis].valueRange[1] = Math.ceil(areaMax + areaMax * 0.05);
-    }
-
-    let autoColors =  this.util.getColors( null , wdQueryStats.nVisibleAutoColors );
-    autoColors = wdQueryStats.nVisibleAutoColors > 1 ? autoColors : [autoColors];
-
-            // sometimes opentsdb returns empty results
-            for ( let i = 0;  i < queryResults.length; i++ ) {
-                const [ source, mid ] = queryResults[i].source.split(':');
-                if ( source === 'summarizer') {
-                    continue;
-                }
-                const qids = this.REGDSID.exec(mid);
-                const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
-                const mIndex = this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
-
-                const timeSpecification = queryResults[i].timeSpecification;
-                const qid = widget.queries[qIndex].id;
-                const mConfig = widget.queries[qIndex].metrics[mIndex];
-                const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-                const n = queryResults[i].data.length;
-                const colorIndex = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? wdQueryStats.mVisibleAutoColorIds.indexOf( qid + '-' + mConfig.id ) : -1;
-                const color = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? autoColors[colorIndex] : mConfig.settings.visual.color;
-                const colors = n === 1 ?
-                    [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics === 1 && (mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color) ? null : color , n ) ;
-                for ( let j = 0; j < n; j ++ ) {
-                    const data = queryResults[i].data[j].NumericType;
-                    const tags = queryResults[i].data[j].tags;
-                    const hash = JSON.stringify(tags);
-                    const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
-                    const metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults[i].data[j].metric;
-                    const numPoints = data.length;
-                    const label = options.labels.length.toString();
-                    if ( vConfig.visible ) {
-                        const aggData = dict[mid]['summarizer'][hash];
-                        options.labels.push(label);
-                        options.visibility.push(true);
-                        if ( options.series ) {
-                            options.series[label] = {
-                                strokeWidth: vConfig.lineWeight ? parseFloat(vConfig.lineWeight) : 1,
-                                strokePattern: this.getStrokePattern(vConfig.lineType),
-                                color: colors[j],
-                                fillGraph: vConfig.type === 'area' ? true : false,
-                                isStacked: vConfig.type === 'area' ? true : false,
-                                axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
-                                metric: metric,
-                                tags: { metric: !mConfig.expression ?
-                                        queryResults[i].data[j].metric : mLabel, ...tags},
-                                aggregations: aggData,
-                                group: vConfig.type
-                            };
-                            if ( vConfig.type === 'bar') {
-                                options.series[label].plotter = barChartPlotter;
-                            } else if ( vConfig.type === 'area' ) {
-                                options.series[label].plotter = stackedAreaPlotter;
-                            }
-                            options.series[label].label = this.getLableFromMetricTags(metric, options.series[label].tags);
-                        }
-                        const seriesIndex = options.labels.indexOf(label);
-                        const unit = timeSpecification.interval.replace(/[0-9]/g, '');
-
-                        // tslint:disable-next-line: radix
-                        const m = parseInt(timeSpecification.interval);
-                        for (let k = 0; k < numPoints ; k++ ) {
-                            if (!Array.isArray(normalizedData[k])) {
-                                const time = timeSpecification.start + ( m * k * mSeconds[unit] );
-                                normalizedData[k] = [ new Date(time * 1000) ];
-                            }
-                            normalizedData[k][seriesIndex] = !isNaN(data[k]) ? data[k] : null;
+                } else {
+                    dict[mid]['values'] = {}; // queryResults.data;
+                    const n = queryResults[i].data.length;
+                    for (let j = 0; j < n; j++) {
+                        const tags = queryResults[i].data[j].tags;
+                        const hash = JSON.stringify(tags);
+                        dict[mid]['values'][hash] = queryResults[i].data[j].NumericType;
+                        const max = d3.max(queryResults[i].data[j].NumericType);
+                        if (vConfig.type === 'area' && max !== undefined) {
+                            areaMax += Number(max);
+                            isStacked = true;
+                            areaAxis = vConfig.axis || 'y1';
                         }
                     }
                 }
             }
-    return [...normalizedData];
-  }
+        }
+        queryResults.sort((a, b) => a.visualType - b.visualType);
+        options.axes.y.tickFormat.max = yMax;
+        options.axes.y2.tickFormat.max = y2Max;
+        const axis = areaAxis === 'y1' ? 'y' : 'y2';
+        if (isStacked && options.axes[axis].valueRange[1] === null) {
+            areaMax = areaMax < y2Max ? y2Max : areaMax;
+            options.axes[axis].valueRange[1] = Math.ceil(areaMax + areaMax * 0.05);
+        }
+
+        let autoColors = this.util.getColors(null, wdQueryStats.nVisibleAutoColors);
+        autoColors = wdQueryStats.nVisibleAutoColors > 1 ? autoColors : [autoColors];
+
+        // sometimes opentsdb returns empty results
+        // reset series in state
+        options.series = {};
+        for (let i = 0; i < queryResults.length; i++) {
+            const [source, mid] = queryResults[i].source.split(':');
+            if (source === 'summarizer') {
+                continue;
+            }
+            const qids = this.REGDSID.exec(mid);
+            const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
+            const mIndex = this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2]);
+
+            const timeSpecification = queryResults[i].timeSpecification;
+            const qid = widget.queries[qIndex].id;
+            const mConfig = widget.queries[qIndex].metrics[mIndex];
+            const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
+            const n = queryResults[i].data.length;
+            const colorIndex = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? wdQueryStats.mVisibleAutoColorIds.indexOf(qid + '-' + mConfig.id) : -1;
+            const color = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? autoColors[colorIndex] : mConfig.settings.visual.color;
+            const colors = n === 1 ?
+                [color] : this.util.getColors(wdQueryStats.nVisibleMetrics === 1 && (mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color) ? null : color, n);
+            for (let j = 0; j < n; j++) {
+                const data = queryResults[i].data[j].NumericType;
+                const tags = queryResults[i].data[j].tags;
+                const hash = JSON.stringify(tags);
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
+                const metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults[i].data[j].metric;
+                const numPoints = data.length;
+                const label = options.labels.length.toString();
+                if (vConfig.visible) {
+                    const aggData = dict[mid]['summarizer'][hash];
+                    options.labels.push(label);
+                    options.visibility.push(true);
+                    if (options.series) {
+                        options.series[label] = {
+                            strokeWidth: vConfig.lineWeight ? parseFloat(vConfig.lineWeight) : 1,
+                            strokePattern: this.getStrokePattern(vConfig.lineType),
+                            color: colors[j],
+                            fillGraph: vConfig.type === 'area' ? true : false,
+                            isStacked: vConfig.type === 'area' ? true : false,
+                            axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
+                            metric: metric,
+                            tags: {
+                                metric: !mConfig.expression ?
+                                    queryResults[i].data[j].metric : mLabel, ...tags
+                            },
+                            aggregations: aggData,
+                            group: vConfig.type
+                        };
+                        if (vConfig.type === 'bar') {
+                            options.series[label].plotter = barChartPlotter;
+                        } else if (vConfig.type === 'area') {
+                            options.series[label].plotter = stackedAreaPlotter;
+                        }
+                        options.series[label].label = this.getLableFromMetricTags(metric, options.series[label].tags);
+                    }
+                    const seriesIndex = options.labels.indexOf(label);
+                    const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+
+                    // tslint:disable-next-line: radix
+                    const m = parseInt(timeSpecification.interval);
+                    for (let k = 0; k < numPoints; k++) {
+                        if (!Array.isArray(normalizedData[k])) {
+                            const time = timeSpecification.start + (m * k * mSeconds[unit]);
+                            normalizedData[k] = [new Date(time * 1000)];
+                        }
+                        normalizedData[k][seriesIndex] = !isNaN(data[k]) ? data[k] : null;
+                    }
+                }
+            }
+        }
+        return [...normalizedData];
+    }
 
   yamasToHeatmap(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
 
@@ -379,7 +383,7 @@ export class DatatranformerService {
         return [...datasets];
     }
 
-    getLableFromMetricTags(label, tags, len= 50 ) {
+    getLableFromMetricTags(label, tags, len= 70 ) {
         const regex = /\{\{([\w-.:\/]+)\}\}/ig
         const matches = label.match(regex);
         if ( matches ) {

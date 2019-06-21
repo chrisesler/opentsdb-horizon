@@ -362,9 +362,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.queryChanges$ = new BehaviorSubject(false);
 
         this.queryChangeSub = this.queryChanges$
-            .pipe(
-                debounceTime(1000)
-            )
             // tslint:disable-next-line:no-shadowed-variable
             .subscribe(trigger => {
                 if (trigger) {
