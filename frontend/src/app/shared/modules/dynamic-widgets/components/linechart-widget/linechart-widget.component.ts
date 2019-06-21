@@ -220,9 +220,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 let columnName = this.legendDisplayColumns[column];
                 switch (columnName) {
                     case 'color':
-                    case 'series':
                         row['color'] = config.color;
-                        row['series'] = config.color;
                         break;
                     case 'name':
                         row[columnName] = this.getSeriesLabel(index);
@@ -619,7 +617,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             let delay = 250;
 
             this.clickTimer = setTimeout(() => {
-                console.log("timer triggered. index=", index);
                 if (!this.preventSingleClick) {
                     this.options.visibility[index] = !this.options.visibility[index];
                 }
@@ -719,7 +716,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     refreshData(reload = true) {
         this.isDataLoaded = false;
         if ( reload ) {
-            console.log("hard reload data");
             this.requestData();
         } else {
             this.requestCachedData();
