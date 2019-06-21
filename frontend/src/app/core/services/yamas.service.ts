@@ -2,6 +2,14 @@ import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
 import { SourceMapSource } from 'webpack-sources';
 
+interface IQuery {
+    id: string;
+    type: string;
+    metric: any;
+    fetchLast: boolean;
+    timeShiftInterval?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -106,7 +114,7 @@ export class YamasService {
 
     getMetricQuery(qindex, mindex) {
         const mid = this.utils.getDSId(this.queries, qindex, mindex);
-        const q = {
+        const q: IQuery = {
             id: mid, // using the loop index for now, might need to generate its own id
             type: 'TimeSeriesDataSource',
             metric: {
@@ -115,6 +123,11 @@ export class YamasService {
             },
             fetchLast: false,
         };
+
+        const timeShift = this.utils.getTotalTimeShift(this.queries[qindex].metrics[mindex].functions);
+        if (timeShift) {
+            q.timeShiftInterval = timeShift;
+        }
 
         return q;
     }
@@ -218,6 +231,10 @@ export class YamasService {
                         }
                     }
                     break;
+
+                // timeshift
+                case 'Timeshift':
+                    break;
             }
         }
     }
@@ -266,7 +283,7 @@ export class YamasService {
                 func.counter = true;
                 func.dropResets = true;
                 func.deltaOnly = true;
-            break;
+                break;
         }
         if (func != null) {
             subGraph.push(func);
