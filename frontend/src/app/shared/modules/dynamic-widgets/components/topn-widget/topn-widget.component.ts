@@ -39,6 +39,8 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     size: any = { width: 0, height: 0 };
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
+    doRefreshData$: BehaviorSubject<boolean>;
+    doRefreshDataSub: Subscription;
     legendWidth = 0;
     editQueryId = null;
     nQueryDataLoading = 0;
@@ -55,6 +57,17 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     ) { }
 
     ngOnInit() {
+        this.doRefreshData$ = new BehaviorSubject(false);
+        this.doRefreshDataSub = this.doRefreshData$
+            .pipe(
+                debounceTime(1000)
+            )
+            .subscribe(trigger => {
+                if (trigger) {
+                    this.refreshData();
+                }
+            });
+
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch ( message.action ) {
@@ -162,7 +175,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetVisualization':
@@ -179,13 +192,13 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'SetSorting':
                 this.setSorting(message.payload);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
@@ -201,13 +214,13 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
         }

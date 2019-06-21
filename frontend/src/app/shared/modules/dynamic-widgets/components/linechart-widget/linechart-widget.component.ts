@@ -12,7 +12,11 @@ import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 import { BehaviorSubject } from 'rxjs';
+import { debounceTime} from 'rxjs/operators';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
+import {MatSort} from '@angular/material/sort';
+import {MatTableDataSource} from '@angular/material/table'
+
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -33,11 +37,15 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChild('widgetoutput') private widgetOutputElement: ElementRef;
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
     @ViewChild('dygraph') private dygraph: ElementRef;
+    @ViewChild(MatSort) sort: MatSort;
 
     private listenSub: Subscription;
     private isDataLoaded = false;
     private isStackedGraph = false;
     chartType = 'line';
+
+    doRefreshData$: BehaviorSubject<boolean>;
+    doRefreshDataSub: Subscription;
 
     options: IDygraphOptions = {
         labels: ['x'],
@@ -90,9 +98,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     nQueryDataLoading: number;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
-    legendDisplayColumns = ['series', 'name', 'min', 'max', 'avg', 'last'];
+    legendDisplayColumns = ['color', 'min', 'max', 'avg', 'last', 'name'];
     editQueryId = null;
     needRequery = false;
+
+    legendDataSource; // = new MatTableDataSource(this.tmpArr);
+
+    timer = null;
+    preventSingleClick: boolean;
+    clickTimer: any;
+
     constructor(
         private cdRef: ChangeDetectorRef,
         private interCom: IntercomService,
@@ -104,6 +119,17 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     ) { }
 
     ngOnInit() {
+        this.doRefreshData$ = new BehaviorSubject(false);
+        this.doRefreshDataSub = this.doRefreshData$
+            .pipe(
+                debounceTime(1000)
+            )
+            .subscribe(trigger => {
+                if (trigger) {
+                    this.refreshData();
+                }
+            });
+
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch (message.action) {
@@ -154,9 +180,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             this.data.ts = [[0]]; // need to reset this data
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
+                            this.legendDataSource = new MatTableDataSource(this.buildLegendData());
+                            this.legendDataSource.sort = this.sort;
                             setTimeout(() => {
                                 this.setSize();
                             });
+                            this.cdRef.detectChanges();
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -176,6 +205,37 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
         this.setOptions();
     }
+
+    buildLegendData() {
+        const series = this.options.series;
+        const table = [];
+        for (const index in series) {
+            let config;
+            if (series.hasOwnProperty(index)) {
+                config = series[index];
+            } else {continue;}
+            let row = {};
+            row['srcIndex'] = index;
+            for (let column = 0; column < this.legendDisplayColumns.length; column++) {
+                let columnName = this.legendDisplayColumns[column];
+                switch (columnName) {
+                    case 'color':
+                    case 'series':
+                        row['color'] = config.color;
+                        row['series'] = config.color;
+                        break;
+                    case 'name':
+                        row[columnName] = this.getSeriesLabel(index);
+                        break;
+                    default:
+                        row[columnName] = this.getSeriesAggregate(index, columnName, false);
+                        break;
+                }
+            }
+            table.push(row);
+        }
+        return table;
+    }
     setOptions() {
         this.setLegendDiv();
         this.setAxesOption();
@@ -194,7 +254,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true; // set flag to requery if apply to dashboard
                 break;
             case 'SetVisualization':
@@ -223,8 +283,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
                 this.setOptions();
-                this.refreshData();
+                console.log("update query. going to refresh data");
                 this.needRequery = true;
+                this.doRefreshData$.next(true);
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
@@ -245,25 +306,25 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             case 'CloneQuery':
                 this.cloneQuery(message.id);
                 this.widget = this.util.deepClone(this.widget);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
                 this.deleteQuery(message.id);
                 this.widget = this.util.deepClone(this.widget);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
         }
@@ -305,10 +366,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     setSize() {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
-         const nativeEl = (this.editMode) ?
+        const nativeEl = (this.editMode) ?
             this.widgetOutputElement.nativeElement.parentElement : this.widgetOutputElement.nativeElement.closest('.mat-card-content');
 
-         const newSize = nativeEl.getBoundingClientRect();
+        const newSize = nativeEl.getBoundingClientRect();
         // let newSize = outputSize;
         let nWidth, nHeight, padding;
 
@@ -346,8 +407,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             nWidth = newSize.width - widthOffset  - (padding * 2) - 30;
         } else {
             padding = 10; // 10px on the top
+            let paddingSides = 1;
             nHeight = newSize.height - heightOffset - (padding * 2);
-            nWidth = newSize.width - widthOffset  - (padding * 2);
+            // nWidth = newSize.width - widthOffset  - (padding * 2);
+            nWidth = newSize.width - widthOffset  - paddingSides;
         }
         this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
         this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
@@ -547,12 +610,44 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     setLegendDiv() {
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
-        this.legendDisplayColumns = ['series', 'name'].concat(this.widget.settings.legend.columns || []);
+        this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
     }
 
-    toggleChartSeries(index) {
-        this.options.visibility[index - 1 ] = !this.options.visibility[index - 1];
-        this.options = {...this.options};
+    toggleChartSeries(index:number, focusOnly) {
+        this.preventSingleClick = focusOnly;
+        if (!focusOnly) {
+            this.clickTimer = 0;
+            let delay = 250;
+
+            this.clickTimer = setTimeout(() => {
+                console.log("timer triggered. index=", index);
+                if (!this.preventSingleClick) {
+                    this.options.visibility[index] = !this.options.visibility[index];
+                }
+                this.options = {...this.options};
+                this.cdRef.markForCheck();
+            }, delay);
+        }
+        else {
+            clearTimeout(this.clickTimer);
+            this.clickTimer = 0;
+
+            let allHidden = true;
+            // check if all the time-series are already hidden
+            for (let i = 0; i < this.options.visibility.length; i += 1) {
+                if (i === (index)) continue;
+                allHidden = allHidden && !this.options.visibility[i];
+            }
+            // if all are already hidden, user probably wants to show all with a dblclick
+            // else the intention is to hide all except the selected one
+            let newVisibility = allHidden === true ? true : false;
+            for (let i = 0; i < this.options.visibility.length; i += 1) {
+                this.options.visibility[i] = newVisibility;
+            }
+            this.options.visibility[index] = true;
+            this.options = { ...this.options };
+        }
+
     }
 
     handleZoom(zConfig) {
@@ -575,22 +670,37 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         const label = this.options.series[index].label; 
         return label;
     }
-    getSeriesAggregate( index, aggregate ) {
+    getSeriesAggregate( index, aggregate, normalizeUnit = true ) {
         const config = this.options.series[index];
+        if (undefined === config) {
+            console.log (" undefined config found!!");
+        }
 
         const value = config.aggregations[aggregate];
+        if (!normalizeUnit) {
+            return value;
+        }
+
         if ( isNaN(value)) {
             return '-';
         }
+
+        return this.normalizeValue(value, index);
+    }
+
+    normalizeValue(value, index) {
+        const config = this.options.series[index];
         const format = config.axis === 'y' ? this.options.axes.y.tickFormat : this.options.axes.y2.tickFormat;
-        const dunit = this.unit.getNormalizedUnit(format.max, format);
-        return this.unit.convert(value, format.unit, dunit, format );
+        const dunit = this.unit.getNormalizedUnit(value, format);
+        return this.unit.convert(value, format.unit, dunit, format);
     }
 
     requestData() {
         if (!this.isDataLoaded) {
             this.nQueryDataLoading = 1;
             this.error = null;
+
+
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
@@ -613,6 +723,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     refreshData(reload = true) {
         this.isDataLoaded = false;
         if ( reload ) {
+            console.log("hard reload data");
             this.requestData();
         } else {
             this.requestCachedData();
@@ -685,6 +796,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.closeViewEditMode();
         const cloneWidget = JSON.parse(JSON.stringify(this.widget));
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');
+        console.log("need requery: ", this.needRequery);
         this.interCom.requestSend({
             action: 'updateWidgetConfig',
             id: cloneWidget.id,
@@ -695,6 +807,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     ngOnDestroy() {
         this.listenSub.unsubscribe();
         this.newSizeSub.unsubscribe();
+        this.doRefreshDataSub.unsubscribe();
     }
 
 }
