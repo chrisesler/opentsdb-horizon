@@ -36,8 +36,8 @@ export class MetricFunctionComponent implements OnInit {
 
   saveInput() {
     if (!this.inputVal.errors) {
-      this.isEdit = false;	      this.fx.val = this.inputVal.value;
-      this.fxOut.emit({metricId: this.metricId, fx: this.fx});	      this.isEdit = false;
+      this.isEdit = false;
+      this.fx.val = this.inputVal.value;
       this.fxOut.emit({metricId: this.metricId, fx: this.fx});
     }
   }
