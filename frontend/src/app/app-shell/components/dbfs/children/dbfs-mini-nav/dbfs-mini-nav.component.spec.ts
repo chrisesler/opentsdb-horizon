@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DbfsFileComponent } from './dbfs-file.component';
+import { DbfsMiniNavComponent } from './dbfs-mini-nav.component';
 
-describe('DbfsFileComponent', () => {
-  let component: DbfsFileComponent;
-  let fixture: ComponentFixture<DbfsFileComponent>;
+describe('DbfsMiniNavComponent', () => {
+  let component: DbfsMiniNavComponent;
+  let fixture: ComponentFixture<DbfsMiniNavComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DbfsFileComponent ]
+      declarations: [ DbfsMiniNavComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DbfsFileComponent);
+    fixture = TestBed.createComponent(DbfsMiniNavComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

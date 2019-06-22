@@ -44,7 +44,8 @@ import {
     DbfsDeleteFolder,
     DbfsUpdateFolder,
     DbfsDeleteDashboard,
-    DbfsAddPlaceholderFolder
+    DbfsAddPlaceholderFolder,
+    DbfsMoveResource
 } from './state/dbfs-resources.state';
 import { LoggerService } from '../../../core/services/logger.service';
 import { MatMenuTrigger } from '@angular/material';
@@ -75,6 +76,9 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
     @Select(DbfsResourcesState.getFolderResources) folders$: Observable<any>;
     folders: any = {};
+
+    @Select(DbfsResourcesState.getFileResources) files$: Observable<any>;
+    files: any = {};
 
     @Select(DbfsResourcesState.getDynamicLoaded) dynamicLoaded$: Observable<any>;
     // tslint:disable-next-line: no-inferrable-types
@@ -137,6 +141,9 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
     folderMenuTrigger: any;
 
+    menuIsOpen: any = false;
+    miniNavOpen: any = false;
+
     constructor(
         private store: Store,
         private interCom: IntercomService,
@@ -173,6 +180,10 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.folders$.subscribe( folders => {
             this.folders = folders;
+        }));
+
+        this.subscription.add(this.files$.subscribe( files => {
+            this.files = files;
         }));
 
         this.subscription.add(this.panels$.subscribe( panels => {
@@ -231,7 +242,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
                         this.loadingItem = '';
                         this.navPanel.goNext(function() {
                             this.store.dispatch(
-                                new DbfsLoadSubfolder(action.path)
+                                new DbfsLoadSubfolder(action.path, {})
                             );
                         }.bind(this));
                     }.bind(this), 200);
@@ -273,7 +284,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
 
     /* UTILS */
     getPanelContext(path: string, panelIndex: number) {
-        const panel = this.store.selectSnapshot(DbfsResourcesState.getFolderResource(path));
+        const panel = this.store.select(DbfsResourcesState.getFolderResource(path));
         return panel;
     }
 
@@ -312,9 +323,40 @@ export class DbfsComponent implements OnInit, OnDestroy {
         return  trigger || null;
     }
 
-    menuState(state: boolean) {
+    menuState(item: any, miniNav?: boolean) {
         // this._menuOpened = state;
+        if (!miniNav) {
+            this.menuIsOpen = item;
+        } else {
+            this.miniNavOpen = item;
+        }
     }
+
+    miniNavClosed(event: any) {
+        this.logger.log('MINI NAV CLOSED', event);
+        this.miniNavOpen = false;
+    }
+
+    miniNavCancel(event: any) {
+        this.logger.log('MINI NAV CANCEL', event);
+        const trigger: MatMenuTrigger = this.findMiniNavTrigger(event.id, event.type);
+        trigger.closeMenu();
+    }
+
+    miniNavSelected(event: any) {
+        this.logger.log('MINI NAV SELECTED', event);
+        switch (event.action) {
+            case 'miniNavMove':
+
+                this.store.dispatch(
+                    new DbfsMoveResource(event.payload.sourceId, event.payload.destinationId, event.payload.originPath, {})
+                );
+                break;
+            default:
+                break;
+        }
+    }
+
 
     /* behaviors */
 
@@ -341,13 +383,15 @@ export class DbfsComponent implements OnInit, OnDestroy {
         }
     }
 
-    clickMoveMenu(id: number, type: string, event?: any) {
+    clickMoveMenu(id: number, type: string, event: any) {
         this.logger.log('CLICK MOVE MENU', { id, type, event});
         event.stopPropagation();
         const mTrigger: MatMenuTrigger = <MatMenuTrigger>this.findMiniNavTrigger(id, type);
         console.log('TRIGGERs', this.miniNavTriggers);
         if (mTrigger) {
             mTrigger.toggleMenu();
+            // close the more menu
+            this.clickMoreMenu(id, type, event);
         } else {
             this.logger.error('clickFolderMove', 'CANT FIND TRIGGER');
         }

@@ -26,15 +26,15 @@
             </ng-container>
             <!-- root folder -->
             <ng-container *ngIf="panel.folderResource === ':panel-root:'">
-                <ng-container *ngTemplateOutlet="rootPanel;context:{panel: getPanelContext(panel.folderResource), panelIndex: i}"></ng-container>
+                <ng-container *ngTemplateOutlet="rootPanel;context:{panel: (getPanelContext(panel.folderResource)|async), panelIndex: i}"></ng-container>
             </ng-container>
             <!-- default folder -->
             <ng-container *ngIf="!panel.synthetic && !panel.root && !panel.dynamic && !panel.trashFolder">
-                <ng-container *ngTemplateOutlet="defaultPanel;context:{panel: getPanelContext(panel.folderResource), panelIndex: i}"></ng-container>
+                <ng-container *ngTemplateOutlet="defaultPanel;context:{panel: (getPanelContext(panel.folderResource)|async), panelIndex: i}"></ng-container>
             </ng-container>
             <!-- trash folder-->
             <ng-container *ngIf="panel.trashFolder">
-                <ng-container *ngTemplateOutlet="trashPanel;context:{panel: getPanelContext(panel.folderResource), panelIndex: i}"></ng-container>
+                <ng-container *ngTemplateOutlet="trashPanel;context:{panel: (getPanelContext(panel.folderResource)|async), panelIndex: i}"></ng-container>
             </ng-container>
             <!-- dynamic folder-->
             <ng-container *ngIf="panel.dynamic">
@@ -43,10 +43,6 @@
         </ng-container>
     </ng-container>
 </navigator-panel>
-
-<ng-template #panelTest let-panel="panel">
-    {{panel|json}}
-</ng-template>
 
 <ng-template #rootPanel let-panel="panel" let-panelIndex="panelIndex">
     <ng-container *ngTemplateOutlet="createDashboardButton"></ng-container>
@@ -89,7 +85,8 @@
 </ng-template>
 
 <ng-template #trashPanel let-panel="panel" let-panelIndex="panelIndex">
-    trash
+    <ng-container *ngTemplateOutlet="trashFolderList;context:{folders: panel.subfolders, panelIndex: panelIndex, locked: (panel.locked || false)}"></ng-container>
+    <ng-container *ngTemplateOutlet="trashDashboardList;context:{dashboards: panel.files, panelIndex: panelIndex, locked: (panel.locked || false)}"></ng-container>
 </ng-template>
 
 <ng-template #dynamicPanel let-panel="panel" let-panelIndex="panelIndex">
@@ -185,7 +182,7 @@
             </div>
         </div>
         <mat-nav-list class="folder-list">
-            <mat-list-item *ngIf="folders.length === 0 && activeMediaQuery === 'xs'" class="no-item-message">
+            <mat-list-item *ngIf="folders.length === 0" class="no-item-message">
                 <span class="mat-caption">There are no folders.</span>
             </mat-list-item>
             <mat-list-item *ngIf="edit.mode === 'create' && edit.panel === panelIndex && activeMediaQuery !== 'xs'">
@@ -199,7 +196,7 @@
 </ng-template>
 
 <ng-template #folderItem let-folder="folder" let-panelIndex="panelIndex" let-mode="mode">
-    <div class="dnav-folder-item" [ngClass]="{'is-editing': mode === 'create'}">
+    <div class="dnav-folder-item" [ngClass]="{'is-editing': mode === 'create', 'dnav-menu-opened': menuIsOpen === folder.fullPath || miniNavOpen === folder.fullPath}">
         <ng-container *ngIf="mode === 'create' && folderForm.controls">
         <!-- NEW -->
         <div class="list-item edit-form" [formGroup]="folderForm">
@@ -239,14 +236,14 @@
             id="folder-more-{{folder.id}}"
             [matMenuTriggerFor]="dnavFolderItemMenu"
             [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}" 
-            (menuOpened)="menuState(true)"
+            (menuOpened)="menuState(folder.fullPath)"
             (menuClosed)="menuState(false)"
             #moreMenuTrigger></span>
         <span class="dnav-menu-trigger last-child"
             [matMenuTriggerFor]="dnavMiniNavigator"
             [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}" 
-            (menuOpened)="menuState(true); miniNav.menuOpen = true;"
-            (menuClosed)="menuState(false); miniNav.menuOpen = false;"
+            (menuOpened)="menuState(folder.fullPath, true);"
+            (menuClosed)="menuState(false, true);"
             #miniNavTrigger></span>
         </ng-container>
 
@@ -255,6 +252,90 @@
         <div class="list-item">
             <mat-icon class="folder-icon" fontSet="denali" [fontIcon]="folder.icon || 'd-folder'"></mat-icon>
         </div>
+        <div class="list-item folder-name flex-spacer">
+            <span>{{folder.name || 'BROKEN'}}</span>
+        </div>
+        <div class="list-item">
+            <span class="counter">
+                <span class="chip-count">{{((folder.subfolders) ? folder.subfolders.length : 0) + ((folder.files) ? folder.files.length : 0)}}</span>
+            </span>
+        </div>
+        <div class="list-item goto-next-folder">
+            <button mat-icon-button >
+                <mat-icon fontSet="denali" fontIcon="d-arrowhead-right"></mat-icon>
+            </button>
+        </div>
+        </ng-container>
+    </div>
+</ng-template>
+
+<ng-template #trashFolderList let-folders="folders" let-panelIndex="panelIndex" let-panelLock="locked">
+    <div class="dnav-folders">
+        <div class="block-header folders-header" [ngClass]="{'has-edit-actions': !panelLock && bulkEdit && activeMediaQuery !== 'xs'}">
+            <div class="block-header-label" [ngClass]="{'edit-actions': bulkEdit}">
+                <span class="header-label">Folders</span>
+                <span class="counter">
+                    <span class="chip-count">{{folders.length}}</span>
+                </span>
+            </div>
+            <span class="flex-spacer"></span>
+            <div class="display-actions" *ngIf="!panelLock && activeMediaQuery !== 'xs'">
+                <button mat-icon-button (click)="editFolders()" *ngIf="folders.length > 0">
+                    <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                </button>
+            </div>
+            <div class="edit-actions" *ngIf="activeMediaQuery !== 'xs'">
+                <button mat-button (click)="doneEditFolders()">
+                    <span>Done</span>
+                </button>
+            </div>
+        </div>
+        <mat-nav-list class="folder-list">
+            <mat-list-item *ngIf="folders.length === 0" class="no-item-message">
+                <span class="mat-caption">There are no folders.</span>
+            </mat-list-item>
+            <mat-list-item *ngIf="edit.mode === 'create' && edit.panel === panelIndex && activeMediaQuery !== 'xs'">
+                <ng-container *ngTemplateOutlet="trashFolderItem;context:{folder: {name: 'new'}, panelIndex: panelIndex, mode: 'create'}"></ng-container>
+            </mat-list-item>
+            <mat-list-item *ngFor="let folder of folders; let i = index;" class="folder-nav-item" (click)="gotoFolder(folder.fullPath)">
+                <ng-container *ngTemplateOutlet="trashFolderItem;context:{folder: folder, panelIndex: panelIndex, mode: (currentPanelIndex === panelIndex) ? (folder.name === 'Trash') ? 'display' : bulkEdit ? 'edit' : 'display' : 'display'}"></ng-container>
+            </mat-list-item>
+        </mat-nav-list>
+    </div>
+</ng-template>
+
+<ng-template #trashFolderItem let-folder="folder" let-panelIndex="panelIndex" let-mode="mode">
+    <div class="dnav-folder-item" [ngClass]="{'is-editing': mode === 'create', 'dnav-menu-opened': menuIsOpen === folder.fullPath || miniNavOpen === folder.fullPath}">
+        <div class="list-item">
+            <mat-icon class="folder-icon" fontSet="denali" [fontIcon]="folder.icon || 'd-folder'"></mat-icon>
+        </div>
+        <ng-container *ngIf="mode === 'edit' && folderForm.controls">
+        <!-- EDIT-->
+        <div class="list-item edit-form" *ngIf="edit.id !== folder.id">
+            <div class="flex-spacer">{{folder.name}}</div>
+            <span class="dnav-folder-menu">
+                <button mat-icon-button (click)="clickMoreMenu(folder.id, 'folder', $event)">
+                    <mat-icon fontSet="denali" fontIcon="d-more-vertical"></mat-icon>
+                </button>
+            </span>
+        </div>
+        <span class="dnav-menu-trigger"
+            id="folder-more-{{folder.id}}"
+            [matMenuTriggerFor]="dnavFolderItemMenu"
+            [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}" 
+            (menuOpened)="menuState(folder.fullPath)"
+            (menuClosed)="menuState(false)"
+            #moreMenuTrigger></span>
+        <span class="dnav-menu-trigger last-child"
+            [matMenuTriggerFor]="dnavMiniNavigator"
+            [matMenuTriggerData]="{data: folder, panelIndex: panelIndex, type: 'folder'}" 
+            (menuOpened)="menuState(folder.fullPath, true);"
+            (menuClosed)="menuState(false, true);"
+            #miniNavTrigger></span>
+        </ng-container>
+
+        <ng-container *ngIf="mode === 'display'">
+        <!-- DISPLAY -->
         <div class="list-item folder-name flex-spacer">
             <span>{{folder.name || 'BROKEN'}}</span>
         </div>
@@ -297,8 +378,26 @@
     </mat-nav-list>
 </ng-template>
 
+<ng-template #trashDashboardList let-dashboards="dashboards" let-panelIndex="panelIndex" let-panelLock="locked">
+    <div class="block-header dashboards-header">
+        <span class="header-label">Dashboards</span>
+        <span class="counter">
+            <span class="chip-count">{{dashboards.length}}</span>
+        </span>
+        <span class="flex-spacer"></span>
+    </div>
+    <mat-nav-list class="dashboard-list">
+        <mat-list-item *ngIf="dashboards.length === 0" class="no-item-message">
+            <span class="mat-caption no-item-message">There are no dashboards.</span>
+        </mat-list-item>
+        <mat-list-item *ngFor="let dashboard of dashboards">
+            <ng-container *ngTemplateOutlet="dashboardItem;context:{dashboard: dashboard, panelIndex: panelIndex}"></ng-container>
+        </mat-list-item>
+    </mat-nav-list>
+</ng-template>
+
 <ng-template #dashboardItem let-dashboard="dashboard" let-panelIndex="panelIndex">
-    <div class="dnav-dashboard-item">
+    <div class="dnav-dashboard-item" [ngClass]="{'dnav-menu-opened': menuIsOpen === dashboard.fullPath || miniNavOpen === dashboard.fullPath}">
         <a routerLink="/d/{{dashboard.id}}{{dashboard.fullPath}}" (click)="fileMenuAction('navigateTo', dashboard)"class="dnav-dashboard-link flex-spacer">
             <mat-icon class="dnav-dashboard-icon" fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
             <span class="dnav-dashboard-label">{{dashboard.name}}</span>
@@ -311,14 +410,14 @@
         <span class="dnav-menu-trigger"
             [matMenuTriggerFor]="dnavDashboardItemMenu"
             [matMenuTriggerData]="{data: dashboard, panelIndex: panelIndex, type: 'file'}"
-            (menuOpened)="menuState(true)"
+            (menuOpened)="menuState(dashboard.fullPath)"
             (menuClosed)="menuState(false)"
             #moreMenuTrigger></span>
         <span class="dnav-menu-trigger last-child"
             [matMenuTriggerFor]="dnavMiniNavigator" 
             [matMenuTriggerData]="{data: dashboard, panelIndex: panelIndex, type: 'file'}"
-            (menuOpened)="menuState(true); miniNav.menuOpen = true;"
-            (menuClosed)="menuState(false); miniNav.menuOpen = false;"
+            (menuOpened)="menuState(dashboard.fullPath, true);"
+            (menuClosed)="menuState(false, true);"
             #miniNavTrigger></span>
     </div>
 </ng-template>
@@ -390,14 +489,19 @@
 <mat-menu class="dnav-cdk-mini-navigator"
     xPosition="after"
     style="transform: translate3d(30px, -31px, 0);"
+    (closed)="miniNavClosed($event)"
     #dnavMiniNavigator="matMenu">
     <ng-template matMenuContent let-data="data" let-panelIndex="panelIndex" let-type="type">
         <div mat-menu-item (click)="$event.stopPropagation();" [disableRipple]="true">
             <!-- TODO: make new nini nav with new dbfs system -->
-            <mini-navigator mode="move" [type]="type" [path]="data.fullPath" 
+            <!--<mini-navigator mode="move" [type]="type" [path]="data.fullPath" 
                 (navigationCancel)="miniNavTrigger.closeMenu()"
                 (directorySelected)="miniNavAction($event)"
-                #miniNav></mini-navigator>
+                #miniNav></mini-navigator>-->
+            <dbfs-mini-nav mode="move" [type]="type" [path]="data.fullPath"
+                (navigationCancel)="miniNavCancel($event)"
+                (directorySelected)="miniNavSelected($event)"
+                #miniNav></dbfs-mini-nav>
         </div>
     </ng-template>
 </mat-menu>

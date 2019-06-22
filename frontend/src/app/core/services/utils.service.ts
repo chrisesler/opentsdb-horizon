@@ -437,4 +437,45 @@ export class UtilsService {
         }
         return newQuery;
     }
+
+    getTotalTimeShift(functions: any[]): string {
+    let numOfHours = 0;
+    if (functions) {
+        for (let i = 0; i < functions.length; i++) {
+            const fxCall = functions[i].fxCall;
+            switch ( fxCall ) {
+                case 'Timeshift':
+                    const timeAmountRegEx = /\d+/;
+                    const timeUnitRegEx = /[a-zA-Z]/;
+                    const timeAmount = parseInt(functions[i].val.match(timeAmountRegEx)[0], 10);
+                    const timeUnit = functions[i].val.match(timeUnitRegEx)[0].toLowerCase();
+                     if (timeUnit === 'w') {
+                        numOfHours = numOfHours + (timeAmount * 7 * 24);
+                    } else if (timeUnit === 'd') {
+                        numOfHours = numOfHours + (timeAmount * 24);
+                    } else { // timeUnit === 'h'
+                        numOfHours = numOfHours + timeAmount;
+                    }
+                    break;
+            }
+        }
+        // determine h d or w
+        if (numOfHours) {
+            let highestUnit = 'h';
+             if (numOfHours % 24 === 0) {
+                highestUnit = 'd';
+                numOfHours = numOfHours / 24;
+                 if (numOfHours % 7 === 0) {
+                    highestUnit = 'w';
+                    numOfHours = numOfHours / 7;
+                }
+            }
+            return numOfHours + highestUnit;
+        } else {
+            return null;
+        }
+    }
+    return null;
+  }
+
 }

@@ -3,5 +3,5 @@
   <input matInput [formControl]="inputVal" (keyup.enter)="saveInput()" (click)="editInput()" [readonly]="!isEdit" 
     (blur)="saveInput()" autocomplete="off">
   <mat-icon matSuffix fontSet="denali" fontIcon="d-close" (click)="delFx(fx.id)"></mat-icon>
-  <!--<mat-hint *ngIf="isEdit">number(s|m|h|d)</mat-hint>-->
+  <mat-hint *ngIf="inputVal.errors">{{getErrorMessage()}}</mat-hint>
 </mat-form-field>

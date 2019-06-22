@@ -5,7 +5,16 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { LoggerService } from '../../../../core/services/logger.service';
 
-import { DbfsFileModel, DbfsFolderModel, DbfsUserModel, DbfsNamespaceModel, DbfsSyntheticFolderModel } from '../state/dbfs-resources.state';
+import {
+    DbfsPanelFolderModel,
+    DbfsFileModel,
+    DbfsFolderModel,
+    DbfsNamespaceModel,
+    DbfsResourcesModel,
+    DbfsSyntheticFolderModel,
+    DbfsUserModel
+} from '../state/dbfs-resources.interfaces';
+
 import { UtilsService } from '../../../../core/services/utils.service';
 
 @Injectable()
@@ -50,6 +59,78 @@ export class DbfsUtilsService {
         details.fullPath = fullPath;
 
         return details;
+    }
+
+    normalizeFolder(rawFolder: any, locked?: boolean): DbfsFolderModel {
+        const details = this.detailsByFullPath(rawFolder.fullPath);
+        const folder = <DbfsFolderModel>{...rawFolder,
+            ownerType: details.type,
+            resourceType: 'folder',
+            icon: 'd-folder',
+            loaded: false,
+            parentPath: details.parentPath
+        };
+
+        if (!folder.files) {
+            folder.files = [];
+        }
+
+        if (!folder.subfolders) {
+            folder.subfolders = [];
+        }
+
+        if (details.topFolder) {
+            folder.topFolder = true;
+        }
+
+        if (details.type) {
+            folder[details.type] = details.typeKey;
+        }
+
+        if (details.trashPath === folder.fullPath) {
+            folder.icon = 'd-trash';
+            folder.trashFolder = true;
+        }
+
+        // locked flag
+        if (locked) {
+            folder.locked = true;
+        }
+
+        return folder;
+    }
+
+    normalizeFile(rawFile: any, locked?: boolean): DbfsFileModel {
+        const details = this.detailsByFullPath(rawFile.fullPath);
+        const file = <DbfsFileModel>{...rawFile,
+            resourceType: 'file',
+            ownerType: details.type,
+            icon: 'd-dashboard-tile',
+            parentPath: details.parentPath
+        };
+        file[details.type] = details.typeKey;
+        // locked flag
+        if (locked) {
+            file.locked = true;
+        }
+        return file;
+    }
+
+    normalizePanelFolder(rawFolder: any, moveEnabled: boolean = true, selectEnabled: boolean = true, noDisplay: boolean = false): DbfsPanelFolderModel {
+
+        console.log('RAW FOLDER', rawFolder);
+        const folder = this.normalizeFolder(rawFolder);
+
+        const panelFolder: DbfsPanelFolderModel  = <DbfsPanelFolderModel>{...folder, moveEnabled, selectEnabled, selected: false};
+        if (panelFolder.files) {
+            delete panelFolder.files;
+        }
+
+        if (noDisplay === true) {
+            panelFolder.noDisplay = true;
+        }
+
+        return panelFolder;
     }
 
 }

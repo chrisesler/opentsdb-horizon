@@ -10,97 +10,24 @@ import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { copyStyles } from '@angular/animations/browser/src/util';
 
 /** INTERFACES */
-
-// common
-export interface DbfsCommonResourceModel {
-    // common from config db
-    id: number;
-    name: string;
-    path: string;
-    fullPath: string;
-    createdTime?: number;
-    createdBy?: string; // should be userid
-    updatedTime?: number;
-    updatedBy?: string; // should be userid
-    type?: string;
-    // common used within horizon
-    resourceType?: string; // folder || file
-    ownerType?: string; // user || namespace
-    icon?: string;
-    namespace?: string; // namespace alias
-    user?: string;
-    locked?: boolean;
-}
-
-// file models
-export interface DbfsFileModel extends DbfsCommonResourceModel {
-    parentPath: string;
-}
-
-// folder models
-
-export interface DbfsFolderModel extends DbfsCommonResourceModel {
-    subfolders?: any[];
-    files?: any[];
-    loaded?: boolean;
-    trashFolder?: boolean;
-    topFolder?: boolean;
-}
-
-export interface DbfsSyntheticFolderModel extends DbfsCommonResourceModel {
-    synthetic: boolean;
-    root?: boolean;
-    personal?: any[];
-    namespaces?: any[];
-
-    // items needed for miniNav
-    // moveEnabled?: boolean;
-    // selectEnabled?: boolean;
-    noDisplay?: boolean;
-    selected?: boolean;
-}
-
-// namespace model (DIFFERENT from namespace folder)
-export interface DbfsNamespaceModel {
-    // these should always have value
-    id: number;
-    name: string;
-    alias: string;
-    // these possibly could come back null depending on where data comes from
-    createdTime?: any;
-    createdBy?: any;
-    updatedTime?: any;
-    updatedBy?: any;
-    dhtracks?: any;
-    enabled?: any;
-    meta?: any;
-}
-
-// user model
-export interface DbfsUserModel {
-    userid: string;
-    name: string;
-    memberNamespaces?: any[];
-}
-
-// state model
-export interface DbfsResourcesModel {
-    // activeUser is ID of user the cookie belongs to
-    activeUser: string;
-    users: {}; // when pulling users other than active user
-    namespaces: {}; // namespaces data... NOT namespace folder
-    folders: {}; // user and namespace folders
-    files: {}; // user and namespace files (dashboards)
-    error: {};
-    loaded: boolean;
-    dynamicLoaded: {
-        users: boolean;
-        namespaces: boolean;
-    };
-    resourceAction: {};
-}
+import {
+    DbfsFileModel,
+    DbfsFolderModel,
+    DbfsNamespaceModel,
+    DbfsResourcesModel,
+    DbfsSyntheticFolderModel,
+    DbfsUserModel
+} from './dbfs-resources.interfaces';
 
 /** ACTIONS */
+
+export class DbfsResourcesError {
+    static readonly type = '[DBFS Resources] Error happened';
+    constructor(
+        public readonly error: any,
+        public readonly label: string = 'Generic Error'
+    ) {}
+}
 
 export class DbfsResetResourceAction {
     static readonly type = '[DBFS Resources] reset resource action';
@@ -117,24 +44,20 @@ export class DbfsLoadResourcesSuccess {
     constructor (public readonly response: any) {}
 }
 
-export class DbfsLoadResourcesError {
-    public static type = '[DBFS Resources] Load Resources ERROR';
-    constructor (public readonly error: any) {}
-}
-
 export class DbfsLoadSubfolder {
     public static type = '[DBFS Resources] Load Subfolder';
-    constructor (public readonly path: any) {}
+    constructor (
+        public readonly path: any,
+        public readonly resourceAction: any
+    ) {}
 }
 
 export class DbfsLoadSubfolderSuccess {
     public static type = '[DBFS Resources] Load Subfolder SUCCESS';
-    constructor (public readonly response: any) {}
-}
-
-export class DbfsLoadSubfolderError {
-    public static type = '[DBFS Resources] Load Subfolder ERROR';
-    constructor (public readonly error: any) {}
+    constructor (
+        public readonly response: any,
+        public readonly resourceAction: any
+    ) {}
 }
 
 export class DbfsLoadUsersList {
@@ -150,11 +73,6 @@ export class DbfsLoadUsersListSuccess {
     ) {}
 }
 
-export class DbfsLoadUsersListError {
-    public static type = '[DBFS Resources] Load Users List ERROR';
-    constructor (public readonly error: any) {}
-}
-
 export class DbfsLoadNamespacesList {
     public static type = '[DBFS Resources] Load Namespaces List';
     constructor (public readonly resourceAction: any) {}
@@ -166,11 +84,6 @@ export class DbfsLoadNamespacesListSuccess {
         public readonly response: any,
         public readonly resourceAction: any
     ) {}
-}
-
-export class DbfsLoadNamespacesListError {
-    public static type = '[DBFS Resources] Load Namespaces List ERROR';
-    constructor (public readonly error: any) {}
 }
 
 export class DbfsLoadTopFolder {
@@ -190,11 +103,6 @@ export class DbfsLoadTopFolderSuccess {
     ) {}
 }
 
-export class DbfsLoadTopFolderError {
-    public static type = '[DBFS Resources] Load Top Folder ERROR';
-    constructor (public readonly error: any) {}
-}
-
 export class DbfsCreateFolder {
     public static type = '[DBFS Resources] Create Folder';
     constructor (
@@ -211,9 +119,22 @@ export class DbfsCreateFolderSuccess {
     ) {}
 }
 
-export class DbfsCreateFolderError {
-    public static type = '[DBFS Resources] Create Folder ERROR';
-    constructor (public readonly error: any) {}
+export class DbfsMoveResource {
+    public static type = '[DBFS Resources] Move Resource';
+    constructor (
+        public readonly sourceId: number,
+        public readonly destinationId: number,
+        public readonly originPath: string,
+        public readonly resourceAction: any
+    ) {}
+}
+
+export class DbfsMoveResourceSuccess {
+    public static type = '[DBFS Resources] Move Resource SUCCESS';
+    constructor (
+        public readonly response: any,
+        public readonly args: any
+    ) {}
 }
 
 export class DbfsUpdateFolder {
@@ -233,9 +154,21 @@ export class DbfsUpdateFolderSuccess {
     ) {}
 }
 
-export class DbfsUpdateFolderError {
-    public static type = '[DBFS Resources] Update Folder ERROR';
-    constructor (public readonly error: any) {}
+export class DbfsUpdateFile {
+    public static type = '[DBFS Resources] Update File';
+    constructor (
+        public readonly file: any,
+        public readonly originPath: string,
+        public readonly resourceAction: any
+    ) {}
+}
+
+export class DbfsUpdateFileSuccess {
+    public static type = '[DBFS Resources] Update File SUCCESS';
+    constructor (
+        public readonly response: any,
+        public readonly args: any
+    ) {}
 }
 
 export class DbfsDeleteFolder {
@@ -254,30 +187,12 @@ export class DbfsDeleteFolderSuccess {
     ) {}
 }
 
-export class DbfsDeleteFolderError {
-    public static type = '[DBFS Resources] Delete Folder ERROR';
-    constructor (public readonly error: any) {}
-}
-
 export class DbfsDeleteDashboard {
     public static type = '[DBFS Resources] Delete Dashboard';
     constructor (
         public readonly file: any,
         public readonly resourceAction: any
     ) {}
-}
-
-export class DbfsDeleteDashboardSuccess {
-    public static type = '[DBFS Resources] Delete Dashboard SUCCESS';
-    constructor (
-        public readonly response: any,
-        public readonly args: any
-    ) {}
-}
-
-export class DbfsDeleteDashboardError {
-    public static type = '[DBFS Resources] Delete Dashboard ERROR';
-    constructor (public readonly error: any) {}
 }
 
 export class DbfsAddPlaceholderFolder {
@@ -405,7 +320,7 @@ export class DbfsResourcesState {
     public static getFolderResource(path: string) {
         return createSelector([DbfsResourcesState], (state: DbfsResourcesModel) => {
             if (!state.folders[path]) {
-                return {notFound: true}
+                return { notFound: true };
             }
             // tslint:disable-next-line: prefer-const
             let data = {...state.folders[path]};
@@ -437,64 +352,22 @@ export class DbfsResourcesState {
         });
     }
 
+    public static getFile(path: string) {
+        return createSelector([DbfsResourcesState], (state: DbfsResourcesModel) => {
+            const data = {...state.files[path]};
+            return data;
+        });
+    }
+
     public static getUser(userid?: string) {
         return createSelector([DbfsResourcesState], (state: DbfsResourcesModel) => {
             // tslint:disable-next-line: prefer-const
             const id = (userid) ? userid : state.activeUser;
             const user = state.users[id];
-            return (user) ? user : {};
             return user;
         });
     }
     /** Utils */
-
-    private normalizeFolder(rawFolder: any, locked?: boolean) {
-        const details = this.dbfsUtils.detailsByFullPath(rawFolder.fullPath);
-        const folder = <DbfsFolderModel>{...rawFolder,
-            ownerType: details.type,
-            resourceType: 'folder',
-            icon: 'd-folder',
-            loaded: false
-        };
-
-        if (!folder.files) {
-            folder.files = [];
-        }
-
-        if (!folder.subfolders) {
-            folder.subfolders = [];
-        }
-
-        if (details.topFolder) {
-            folder.topFolder = true;
-        }
-
-        folder[details.type] = details.typeKey;
-
-        // locked flag
-        if (locked) {
-            folder.locked = true;
-        }
-
-        return folder;
-    }
-
-    private normalizeFile(rawFile: any, locked?: boolean) {
-        const details = this.dbfsUtils.detailsByFullPath(rawFile.fullPath);
-        const file = <DbfsFileModel>{...rawFile,
-            resourceType: 'file',
-            ownerType: details.type,
-            icon: 'd-dashboard-tile',
-            parentPath: details.parentPath
-        };
-        file[details.type] = details.typeKey;
-        // locked flag
-        if (locked) {
-            file.locked = true;
-        }
-        return file;
-    }
-
     private resourceLockCheck(path: string, state: any) {
         const details = this.dbfsUtils.detailsByFullPath(path);
         if (
@@ -507,7 +380,6 @@ export class DbfsResourcesState {
     }
 
     /** Actions */
-
     @Action(DbfsResetResourceAction)
     resetResourceAction(ctx: StateContext<DbfsResourcesModel>, { }: DbfsResetResourceAction) {
         this.logger.action('State :: Reset Resource Action');
@@ -517,7 +389,6 @@ export class DbfsResourcesState {
     }
 
     /** loading resources */
-
     @Action(DbfsLoadResources)
     loadResources(ctx: StateContext<DbfsResourcesModel>, {}: DbfsLoadResources) {
         this.logger.action('State :: Load Navigation Resource List');
@@ -525,9 +396,9 @@ export class DbfsResourcesState {
 
         return this.service.loadResources().pipe(
             map( (payload: any) => {
-                ctx.dispatch(new DbfsLoadResourcesSuccess(payload));
+                return ctx.dispatch(new DbfsLoadResourcesSuccess(payload));
             }),
-            catchError( error => ctx.dispatch(new DbfsLoadResourcesError(error)))
+            catchError( error => ctx.dispatch(new DbfsResourcesError(error, 'Load Navigation Resource List')))
         );
     }
 
@@ -565,36 +436,13 @@ export class DbfsResourcesState {
             // namespace resource
             namespaces[ns.namespace.alias] = ns.namespace;
             // namespace folder resource
-            /*const nsFolder = <DbfsFolderModel>{...ns.folder,
-                ownerType: 'namespace',
-                resourceType: 'folder',
-                icon: 'd-dashboard-tile',
-                loaded: false,
-                topFolder: true,
-                namespace: ns.namespace.alias,
-                name: ns.namespace.name // have to override nsFolder.name because all the namespace folder names come back as 'HOME'
-            };*/
-
-            const nsFolder = this.normalizeFolder(ns.folder);
+            const nsFolder = this.dbfsUtils.normalizeFolder(ns.folder);
             nsFolder.name = ns.namespace.name;
 
             if (nsFolder.subfolders.length > 0) {
                 nsFolder.subfolders = nsFolder.subfolders.map(item => {
-                    const folder = <DbfsFolderModel>{...item,
-                        resourceType: 'folder',
-                        ownerType: 'namespace',
-                        icon: 'd-folder',
-                        loaded: false,
-                        moveEnabled: true,
-                        selectEnabled: true,
-                        subfolders: [],
-                        files: [],
-                        namespace: ns.namespace.alias
-                    };
-                    if (folder.name.toLowerCase() === 'trash') {
-                        folder.icon = 'd-trash';
-                        folder.trashFolder = true;
-                    }
+
+                    const folder = this.dbfsUtils.normalizeFolder(item);
                     folders[folder.fullPath] = folder;
                     return item.fullPath;
                 });
@@ -605,13 +453,7 @@ export class DbfsResourcesState {
 
             if (nsFolder.files.length > 0) {
                 nsFolder.files = nsFolder.files.map(item => {
-                    const file = <DbfsFileModel>{...item,
-                        resourceType: 'file',
-                        ownerType: 'user',
-                        icon: 'd-dashboard-tile',
-                        parentPath: nsFolder.fullPath,
-                        namespace: ns.namespace.alias
-                    };
+                    const file = this.dbfsUtils.normalizeFile(item);
                     files[file.fullPath] = file;
                     return item.fullPath;
                 });
@@ -641,10 +483,12 @@ export class DbfsResourcesState {
         // master resource for mini navigator
         const miniPanelRoot = <DbfsSyntheticFolderModel>{
             id: 0,
-            name: 'Dashboards',
+            name: 'Top Level',
             path: ':mini-root:',
             fullPath: ':mini-root:',
             synthetic: true,
+            moveEnabled: false,
+            selectEnabled: false,
             subfolders: [
                 '/user/' + activeUser,
                 ':member-namespaces:'
@@ -656,16 +500,10 @@ export class DbfsResourcesState {
         // create each individual folder resources
         // DbfsFolderModel
 
-        const userFolder = <DbfsFolderModel>{...response.personalFolder,
-            resourceType: 'folder',
-            ownerType: 'user',
-            icon: 'd-dashboard-tile',
-            loaded: true,
-            topFolder: true,
-            // override name because it always comes back as 'HOME'
-            name: 'My Dashboards',
-            user: activeUser
-        };
+        const userFolder = this.dbfsUtils.normalizeFolder(response.personalFolder);
+        userFolder.loaded = true;
+        userFolder.name = 'My Dashboards';
+
         folders[userFolder.fullPath] = userFolder;
         panelRoot.personal.push(userFolder.fullPath);
 
@@ -723,16 +561,8 @@ export class DbfsResourcesState {
         // tslint:disable-next-line: max-line-length
         const userTrash = response.personalFolder.subfolders.filter( item => item.fullPath === '/user/' + activeUser + '/trash');
         const userTrashIdx = response.personalFolder.subfolders.indexOf(userTrash[0]);
-        const trashFolder  = <DbfsFolderModel>{...userTrash[0],
-            resourceType: 'folder',
-            ownerType: 'user',
-            icon: 'd-trash',
-            trashFolder: true,
-            loaded: false,
-            user: activeUser,
-            subfolders: [],
-            files: []
-        };
+
+        const trashFolder = this.dbfsUtils.normalizeFolder(userTrash[0]);
         folders[trashFolder.fullPath] = trashFolder;
         panelRoot.personal.push(trashFolder.fullPath);
         userFolder.subfolders.splice(userTrashIdx, 1);
@@ -772,17 +602,7 @@ export class DbfsResourcesState {
         // USER SUBFOLDERS & FILES
 
         userFolder.subfolders = userFolder.subfolders.map(item => {
-            const folder = <DbfsFolderModel>{...item,
-                resourceType: 'folder',
-                ownerType: 'user',
-                icon: 'd-folder',
-                loaded: false,
-                moveEnabled: true,
-                selectEnabled: true,
-                subfolders: [],
-                files: [],
-                user: activeUser
-            };
+            const folder = this.dbfsUtils.normalizeFolder(item);
             folders[folder.fullPath] = folder;
             return item.fullPath;
         });
@@ -792,13 +612,7 @@ export class DbfsResourcesState {
         });
 
         userFolder.files = userFolder.files.map(item => {
-            const file = <DbfsFileModel>{...item,
-                resourceType: 'file',
-                ownerType: 'user',
-                icon: 'd-dashboard-tile',
-                parentPath: userFolder.fullPath,
-                user: activeUser
-            };
+            const file = this.dbfsUtils.normalizeFile(item);
             files[file.fullPath] = file;
             return item.fullPath;
         });
@@ -849,16 +663,9 @@ export class DbfsResourcesState {
         });
     }
 
-    @Action(DbfsLoadResourcesError)
-    loadResourcesError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsLoadResourcesError) {
-        this.logger.error('State :: Load Navigation Resource List', error);
-        ctx.dispatch({ error });
-    }
-
-
     @Action(DbfsLoadSubfolder)
-    loadSubfolder(ctx: StateContext<DbfsResourcesModel>, { path }: DbfsLoadSubfolder) {
-        this.logger.action('State :: Load SubFolder', { path });
+    loadSubfolder(ctx: StateContext<DbfsResourcesModel>, { path, resourceAction }: DbfsLoadSubfolder) {
+        this.logger.action('State :: Load SubFolder', { path, resourceAction });
         const state = ctx.getState();
 
         const folder = state.folders[path];
@@ -874,14 +681,14 @@ export class DbfsResourcesState {
 
         return this.service.getFolderByPath(folder.path, topFolder).pipe(
             map( (payload: any) => {
-                ctx.dispatch(new DbfsLoadSubfolderSuccess(payload));
+                return ctx.dispatch(new DbfsLoadSubfolderSuccess(payload, resourceAction));
             }),
-            catchError( error => ctx.dispatch(new DbfsLoadSubfolderError(error)))
+            catchError( error => ctx.dispatch(new DbfsResourcesError(error, 'Load Subfolder')))
         );
     }
 
     @Action(DbfsLoadSubfolderSuccess)
-    loadSubfolderSuccess(ctx: StateContext<DbfsResourcesModel>, { response }: DbfsLoadSubfolderSuccess) {
+    loadSubfolderSuccess(ctx: StateContext<DbfsResourcesModel>, { response, resourceAction }: DbfsLoadSubfolderSuccess) {
         this.logger.success('State :: Load SubFolder', response);
 
         const state = ctx.getState();
@@ -891,12 +698,21 @@ export class DbfsResourcesState {
 
         const locked = this.resourceLockCheck(response.fullPath, state);
 
-        const folder = this.normalizeFolder(response, locked);
+        let folder;
+
+        if (folders[response.fullPath]) {
+            folder = folders[response.fullPath];
+            folder.subfolders = response.subfolders;
+            folder.files = response.files;
+        } else {
+            folder = this.dbfsUtils.normalizeFolder(response, locked);
+        }
+
         folder.loaded = true;
 
         if (folder.subfolders) {
             folder.subfolders = folder.subfolders.map( f => {
-                folders[f.fullPath] = this.normalizeFolder(f, locked);
+                folders[f.fullPath] = this.dbfsUtils.normalizeFolder(f, locked);
                 return f.fullPath;
             });
             folder.subfolders.sort((a: any, b: any) => {
@@ -906,7 +722,7 @@ export class DbfsResourcesState {
 
         if (folder.files) {
             folder.files = folder.files.map( f => {
-                files[f.fullPath] = this.normalizeFile(f, locked);
+                files[f.fullPath] = this.dbfsUtils.normalizeFile(f, locked);
                 return f.fullPath;
             });
             folder.files.sort((a: any, b: any) => {
@@ -916,17 +732,11 @@ export class DbfsResourcesState {
 
         folders[folder.fullPath] = folder;
 
-        ctx.setState({...state,
+        ctx.patchState({
             folders,
             files,
-            loaded: true
+            resourceAction
         });
-    }
-
-    @Action(DbfsLoadSubfolderError)
-    loadSubfolderError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsLoadSubfolderError) {
-        this.logger.error('State :: Load SubFolder', error);
-        ctx.dispatch({ error });
     }
 
     @Action(DbfsLoadUsersList)
@@ -935,9 +745,9 @@ export class DbfsResourcesState {
 
         return this.service.getUsersList().pipe(
             map( (payload: any) => {
-                ctx.dispatch(new DbfsLoadUsersListSuccess(payload, resourceAction));
+                return ctx.dispatch(new DbfsLoadUsersListSuccess(payload, resourceAction));
             }),
-            catchError( error => ctx.dispatch(new DbfsLoadUsersListError(error)))
+            catchError( error => ctx.dispatch(new DbfsResourcesError(error, 'Load Users')))
         );
     }
 
@@ -966,20 +776,15 @@ export class DbfsResourcesState {
         });
     }
 
-    @Action(DbfsLoadUsersListError)
-    loadUsersListError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsLoadUsersListError) {
-        this.logger.error('State :: Load Users', error);
-        ctx.dispatch({ error });
-    }
 
     @Action(DbfsLoadNamespacesList)
     loadNamespacesList(ctx: StateContext<DbfsResourcesModel>, { resourceAction }: DbfsLoadNamespacesList) {
         this.logger.action('State :: Load Namespaces', { resourceAction });
         return this.service.getNamespacesList().pipe(
             map( (payload: any) => {
-                ctx.dispatch(new DbfsLoadNamespacesListSuccess(payload, resourceAction));
+                return ctx.dispatch(new DbfsLoadNamespacesListSuccess(payload, resourceAction));
             }),
-            catchError( error => ctx.dispatch(new DbfsLoadNamespacesListError(error)))
+            catchError( error => ctx.dispatch(new DbfsResourcesError(error, 'Load Namespaces')))
         );
     }
 
@@ -1005,12 +810,6 @@ export class DbfsResourcesState {
 
     }
 
-    @Action(DbfsLoadNamespacesListError)
-    loadNamespacesListError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsLoadNamespacesListError) {
-        this.logger.error('State :: Load Namespaces', error);
-        ctx.dispatch({ error });
-    }
-
     @Action(DbfsLoadTopFolder)
     loadTopFolder(ctx: StateContext<DbfsResourcesModel>, { type, key, resourceAction }: DbfsLoadTopFolder) {
         this.logger.action('State :: Load Top Folder', { type, key, resourceAction });
@@ -1021,9 +820,9 @@ export class DbfsResourcesState {
 
         return this.service.getFolderByPath(path, topFolder).pipe(
             map( (payload: any) => {
-                ctx.dispatch(new DbfsLoadTopFolderSuccess(payload, { type, key, resourceAction }));
+                return ctx.dispatch(new DbfsLoadTopFolderSuccess(payload, { type, key, resourceAction }));
             }),
-            catchError( error => ctx.dispatch(new DbfsLoadTopFolderError(error)))
+            catchError( error => ctx.dispatch(new DbfsResourcesError(error, 'Load Top Folder')))
         );
     }
 
@@ -1042,53 +841,20 @@ export class DbfsResourcesState {
 
         const locked = this.resourceLockCheck(tmpFolder.fullPath, state);
 
-        // check if it is the folder belongs to activeUser or activeUser's member namespaces
-        // if not, flag it as locked
-        /*const details = this.dbfsUtils.detailsByFullPath(response.fullPath);
-        if (args.type === 'user' && details.typeKey !== state.activeUser) {
-            locked = true;
-        }
-        if (args.type === 'namespace' && state.users[state.activeUser].memberNamespaces.indexOf(details.typeKey) === -1) {
-            locked = true;
-        }*/
-
-        /*const folder = <DbfsFolderModel>{...tmpFolder,
-            ownerType: args.type,
-            resourceType: 'folder',
-            icon: 'd-dashboard-tile',
-            loaded: true,
-            topFolder: true,
-            locked
-        };*/
-        const folder = this.normalizeFolder(tmpFolder, locked);
+        const folder = this.dbfsUtils.normalizeFolder(tmpFolder, locked);
         folder.loaded = true;
 
-        // setting type namespace/user : value
-        // i.e. folder['namespace'] = 'yamas'
-        folder[args.type] = args.key;
-
         // have to override topFolder name because all the Top folder names come back as 'HOME'
-        folder.name = state[storeKey][args.key].name;
+        if ( folder.fullPath === '/user/' + state.activeUser ) {
+            folder.name = 'My Dashboards';
+        } else {
+            folder.name = state[storeKey][args.key].name;
+        }
 
         // clean subfolders
         folder.subfolders = folder.subfolders.map(item => {
-            /*const subFolder = <DbfsFolderModel>{...item,
-                resourceType: 'folder',
-                ownerType: args.type,
-                icon: 'd-folder',
-                loaded: false,
-                moveEnabled: true,
-                selectEnabled: true,
-                locked,
-                subfolders: [],
-                files: []
-            };*/
-            const subFolder = this.normalizeFolder(item, locked);
-
-            //subFolder[args.type] = args.key;
-
+            const subFolder = this.dbfsUtils.normalizeFolder(item, locked);
             folders[subFolder.fullPath] = subFolder;
-
             return subFolder.fullPath;
         });
 
@@ -1097,16 +863,7 @@ export class DbfsResourcesState {
         });
 
         folder.files = folder.files.map(item => {
-            /*const file = <DbfsFileModel>{...item,
-                resourceType: 'file',
-                ownerType: args.type,
-                icon: 'd-dashboard-tile',
-                parentPath: folder.fullPath,
-                locked
-            };*/
-            const file = this.normalizeFile(item, locked);
-            //file[args.type] = args.key;
-
+            const file = this.dbfsUtils.normalizeFile(item, locked);
             files[file.fullPath] = file;
             return item.fullPath;
         });
@@ -1125,12 +882,6 @@ export class DbfsResourcesState {
 
     }
 
-    @Action(DbfsLoadTopFolderError)
-    loadTopFolderError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsLoadTopFolderError) {
-        this.logger.error('State :: Load Top Folder', error);
-        ctx.dispatch({ error });
-    }
-
     /** Create Folder */
 
     @Action(DbfsCreateFolder)
@@ -1139,9 +890,9 @@ export class DbfsResourcesState {
 
         return this.service.createFolder(folder).pipe(
             map( (payload: any) => {
-                ctx.dispatch(new DbfsCreateFolderSuccess(payload, { folder, resourceAction }));
+                return ctx.dispatch(new DbfsCreateFolderSuccess(payload, { folder, resourceAction }));
             }),
-            catchError( error => ctx.dispatch(new DbfsCreateFolderError(error)))
+            catchError( error => ctx.dispatch(new DbfsResourcesError(error, 'Create Folder')))
         );
     }
 
@@ -1153,53 +904,32 @@ export class DbfsResourcesState {
 
         const folders = JSON.parse(JSON.stringify({...state.folders}));
 
-        const details = this.dbfsUtils.detailsByFullPath(response.fullPath);
-
-        /*const folder = <DbfsFolderModel>{...response,
-            ownerType: details.type,
-            resourceType: 'folder',
-            icon: 'd-folder',
-            loaded: false,
-            topFolder: true,
-            files: [],
-            subfolders: [],
-            selectEnabled: true,
-            moveEnabled: true
-        };*/
-        const folder = this.normalizeFolder(response);
+        const folder = this.dbfsUtils.normalizeFolder(response);
         folder.loaded = true;
-
-        folder[details.type] = details.typeKey;
 
         folders[folder.fullPath] = folder;
 
         // update parent
-        if (!folders[details.parentPath].subfolders) {
-            folders[details.parentPath].subfolders = [];
+        if (!folders[folder.parentPath].subfolders) {
+            folders[folder.parentPath].subfolders = [];
         }
-        folders[details.parentPath].subfolders.push(folder.fullPath);
+        folders[folder.parentPath].subfolders.push(folder.fullPath);
 
         // re-sort parent folders
-        if (folders[details.parentPath].subfolders.length > 1) {
-            folders[details.parentPath].subfolders = folders[details.parentPath].subfolders.sort((a: any, b: any) => {
+        if (folders[folder.parentPath].subfolders.length > 1) {
+            folders[folder.parentPath].subfolders = folders[folder.parentPath].subfolders.sort((a: any, b: any) => {
                 return this.utils.sortAlphaNum(a, b);
             });
         }
 
-        ctx.patchState({...state,
+        ctx.patchState({
             folders,
             resourceAction: args.resourceAction
         });
     }
 
-    @Action(DbfsCreateFolderError)
-    createFolderError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsCreateFolderError) {
-        this.logger.error('State :: Create Folder', error);
-        ctx.dispatch({ error });
-    }
-
     /** Delete Folder(s) */
-
+    // this can handle bulk deletes
     @Action(DbfsDeleteFolder)
     deleteFolder(ctx: StateContext<DbfsResourcesModel>, { folders, resourceAction }: DbfsDeleteFolder) {
         const state = ctx.getState();
@@ -1211,13 +941,11 @@ export class DbfsResourcesState {
             const details = this.dbfsUtils.detailsByFullPath(folderPath);
             const destination = state.folders[details.trashPath]; // trash folder
 
-            console.log('DELETE FOLDERS', {folders, folderPath, source, details, destination});
-
             return this.service.trashFolder(source.id, destination.id).pipe(
                 map( (payload: any) => {
-                    ctx.dispatch(new DbfsDeleteFolderSuccess(payload, { folders, resourceAction, originDetails: details }));
+                    return ctx.dispatch(new DbfsDeleteFolderSuccess(payload, { folders, resourceAction, originDetails: details }));
                 }),
-                catchError( error => ctx.dispatch(new DbfsDeleteFolderError(error)))
+                catchError( error => ctx.dispatch(new DbfsResourcesError(error, 'Delete Folder')))
             );
         }
     }
@@ -1225,84 +953,19 @@ export class DbfsResourcesState {
     @Action(DbfsDeleteFolderSuccess)
     deleteFolderSuccess(ctx: StateContext<DbfsResourcesModel>, { response, args }: DbfsDeleteFolderSuccess) {
         this.logger.success('State :: Delete Folder', { response, args });
-        const state = ctx.getState();
-        const folders = JSON.parse(JSON.stringify({...state.folders}));
-        const files = JSON.parse(JSON.stringify({...state.files}));
 
-        // get keys of folders and files that may contain the original path
-        const folderKeys = Object.keys(folders).filter(item => item.includes(args.originDetails.fullPath));
-        const fileKeys = Object.keys(files).filter(item => item.includes(args.originDetails.fullPath));
+        ctx.dispatch(new DbfsUpdateFolderSuccess(response, { originDetails: args.originDetails, resourceAction: {} }));
 
-        // remove from origin parent folder subfolders
-        const opfIdx = folders[args.originDetails.parentPath].subfolders.indexOf(args.originDetails.fullPath);
-        folders[args.originDetails.parentPath].subfolders.splice(opfIdx, 1);
-
-        // remove cache of children folders
-        if (folderKeys.length > 0) {
-            for ( const key of folderKeys) {
-                delete folders[key];
-            }
-        }
-
-        // remove cache of children files
-        if (fileKeys.length > 0) {
-            for ( const key of fileKeys) {
-                delete files[key];
-            }
-        }
-
-        // get new folder details
-        const details = this.dbfsUtils.detailsByFullPath(response.fullPath);
-
-        const folder = <DbfsFolderModel>{...response,
-            ownerType: details.type,
-            resourceType: 'folder',
-            icon: 'd-folder',
-            loaded: false,
-            topFolder: true,
-            files: [],
-            subfolders: [],
-            selectEnabled: true,
-            moveEnabled: true
-        };
-
-        folder[details.type] = details.typeKey;
-
-        folders[folder.fullPath] = folder;
-
-        // update parent
-        if (!folders[details.parentPath].subfolders) {
-            folders[details.parentPath].subfolders = [];
-        }
-        folders[details.parentPath].subfolders.push(folder.fullPath);
-
-        // re-sort parent folders
-        if (folders[details.parentPath].subfolders.length > 1) {
-            folders[details.parentPath].subfolders = folders[details.parentPath].subfolders.sort((a: any, b: any) => {
-                return this.utils.sortAlphaNum(a, b);
-            });
-        }
-
-        ctx.patchState({...state,
-            folders,
-            files
-        });
-
-        // see if you need to run it some more
+        // see if you need to run it some more (batch mode)
         if (args.folders.length > 0) {
             ctx.dispatch(new DbfsDeleteFolder(args.folders, args.resourceAction));
         } else {
             // its done running the loop... run the resourceAction (if any)
+            const state = ctx.getState();
             ctx.patchState({...state,
                 resourceAction: args.resourceAction
             });
         }
-    }
-
-    @Action(DbfsDeleteFolderError)
-    deleteFolderError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsDeleteFolderError) {
-        this.logger.error('State :: Delete Folder', error);
-        ctx.dispatch({ error });
     }
 
     @Action(DbfsUpdateFolder)
@@ -1317,7 +980,7 @@ export class DbfsResourcesState {
             map( (payload: any) => {
                 ctx.dispatch(new DbfsUpdateFolderSuccess(payload, args));
             }),
-            catchError( error => ctx.dispatch(new DbfsUpdateFolderError(error)))
+            catchError( error => ctx.dispatch(new DbfsResourcesError(error, 'Update Folder')))
         );
     }
 
@@ -1354,52 +1017,86 @@ export class DbfsResourcesState {
 
         // update file
         // get new folder details
-        const details = this.dbfsUtils.detailsByFullPath(response.fullPath);
-
-        const folder = <DbfsFolderModel>{...response,
-            ownerType: details.type,
-            resourceType: 'folder',
-            icon: 'd-folder',
-            loaded: false,
-            topFolder: true,
-            files: [],
-            subfolders: [],
-            selectEnabled: true,
-            moveEnabled: true
-        };
-
-        folder[details.type] = details.typeKey;
-
+        const folder = this.dbfsUtils.normalizeFolder(response);
         folders[folder.fullPath] = folder;
 
         // update parent
-        if (!folders[details.parentPath].subfolders) {
-            folders[details.parentPath].subfolders = [];
+        if (!folders[folder.parentPath].subfolders) {
+            folders[folder.parentPath].subfolders = [];
         }
-        folders[details.parentPath].subfolders.push(folder.fullPath);
+        folders[folder.parentPath].subfolders.push(folder.fullPath);
 
         // re-sort parent folders
-        if (folders[details.parentPath].subfolders.length > 1) {
-            folders[details.parentPath].subfolders = folders[details.parentPath].subfolders.sort((a: any, b: any) => {
+        if (folders[folder.parentPath].subfolders.length > 1) {
+            folders[folder.parentPath].subfolders = folders[folder.parentPath].subfolders.sort((a: any, b: any) => {
                 return this.utils.sortAlphaNum(a, b);
             });
         }
 
-        ctx.setState({...state,
+        ctx.patchState({
             folders,
             files,
             resourceAction: args.resourceAction
         });
     }
 
-    @Action(DbfsUpdateFolderError)
-    updateFolderError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsUpdateFolderError) {
-        this.logger.error('State :: Update Folder', error);
-        ctx.dispatch({ error });
+    /* Files */
+
+    @Action(DbfsUpdateFile)
+    updateFile(ctx: StateContext<DbfsResourcesModel>, { file, originPath, resourceAction }: DbfsUpdateFile) {
+        this.logger.action('State :: Update Folder', { file, originPath, resourceAction });
+        const args = {
+            originDetails: this.dbfsUtils.detailsByFullPath(originPath),
+            resourceAction
+        };
+
+        return this.service.updateFile(file).pipe(
+            map( (payload: any) => {
+                ctx.dispatch(new DbfsUpdateFileSuccess(payload, args));
+            }),
+            catchError( error => ctx.dispatch(new DbfsResourcesError(error, 'Update File')))
+        );
     }
 
+    @Action(DbfsUpdateFileSuccess)
+    updateFileSuccess(ctx: StateContext<DbfsResourcesModel>, { response, args }: DbfsUpdateFileSuccess) {
+        this.logger.success('State :: Update File', { response, args });
 
-    /* Files */
+        const state = ctx.getState();
+
+        const folders = JSON.parse(JSON.stringify({...state.folders}));
+        const files = JSON.parse(JSON.stringify({...state.files}));
+
+        // remove from origin parent folder files
+        const opfIdx = folders[args.originDetails.parentPath].files.indexOf(args.originDetails.fullPath);
+        folders[args.originDetails.parentPath].files.splice(opfIdx, 1);
+
+        // remove cache of file
+        delete files[args.originDetails.fullPath];
+
+        // update file
+        const file = this.dbfsUtils.normalizeFile(response);
+
+        // update parent
+        if (!folders[file.parentPath].files) {
+            folders[file.parentPath].files = [];
+        }
+        folders[file.parentPath].files.push(file.fullPath);
+
+        // re-sort parent files
+        if (folders[file.parentPath].files.length > 1) {
+            folders[file.parentPath].files = folders[file.parentPath].files.sort((a: any, b: any) => {
+                return this.utils.sortAlphaNum(files[a].name, files[b].name);
+            });
+        }
+
+        ctx.patchState({
+            folders,
+            files,
+            resourceAction: args.resourceAction
+        });
+    }
+
     @Action(DbfsDeleteDashboard)
     deleteDashboard(ctx: StateContext<DbfsResourcesModel>, { file, resourceAction }: DbfsDeleteDashboard) {
         this.logger.action('State :: Delete Dashboard', { file, resourceAction });
@@ -1411,58 +1108,37 @@ export class DbfsResourcesState {
 
         return this.service.trashFile(source.id, destination.id).pipe(
             map( (payload: any) => {
-                ctx.dispatch(new DbfsDeleteDashboardSuccess(payload, { file, resourceAction, originDetails }));
+                return ctx.dispatch(new DbfsUpdateFileSuccess(payload, { file, resourceAction, originDetails }));
             }),
-            catchError( error => ctx.dispatch(new DbfsDeleteDashboardError(error)))
+            catchError( error => ctx.dispatch(new DbfsResourcesError(error, 'Delete Dashboard')))
         );
     }
 
-    @Action(DbfsDeleteDashboardSuccess)
-    deleteDashboardSuccess(ctx: StateContext<DbfsResourcesModel>, { response, args }: DbfsDeleteDashboardSuccess) {
-        this.logger.success('State :: Delete Dashboard', { response, args });
+
+    // generic Resource action
+    @Action(DbfsMoveResource)
+    moveResource(ctx: StateContext<DbfsResourcesModel>, { sourceId, destinationId, originPath, resourceAction }: DbfsMoveResource) {
+        this.logger.error('State :: Move Folder', { sourceId, destinationId, originPath, resourceAction });
 
         const state = ctx.getState();
 
-        const folders = JSON.parse(JSON.stringify({...state.folders}));
-        const files = JSON.parse(JSON.stringify({...state.files}));
-
-        // remove old cache
-        delete files[args.originDetails.fullPath];
-
-        // remove reference from original parent
-        const opfIdx = folders[args.originDetails.parentPath].files.indexOf(args.originDetails.fullPath);
-        folders[args.originDetails.parentPath].files.splice(opfIdx, 1);
-
-        // update - should now be in trash folder
-        const details = this.dbfsUtils.detailsByFullPath(response.fullPath);
-
-        const file = <DbfsFileModel>{...response,
-            resourceType: 'file',
-            ownerType: details.type,
-            icon: 'd-dashboard-tile',
-            parentPath: details.parentPath
+        const args = {
+            originDetails: this.dbfsUtils.detailsByFullPath(originPath),
+            resourceAction
         };
-        file[details.type] = details.typeKey;
 
-        files[file.fullPath] = file;
+        const type: string = (state.files[originPath]) ? 'file' : 'folder';
 
-        // update new parent
-        folders[details.parentPath].files.push(file.fullPath);
-        folders[details.parentPath].files.sort((a: any, b: any) => {
-            return this.utils.sortAlphaNum(a.name, b.name);
-        });
-
-        ctx.patchState({...state,
-            folders,
-            files,
-            resourceAction: args.resourceAction
-        });
-    }
-
-    @Action(DbfsDeleteDashboardError)
-    deleteDashboardError(ctx: StateContext<DbfsResourcesModel>, { error }: DbfsDeleteDashboardError) {
-        this.logger.error('State :: Delete Dashboard', error);
-        ctx.dispatch({ error });
+        return this.service.moveFolder(sourceId, destinationId).pipe(
+            map( (payload: any) => {
+                if ( type === 'file') {
+                    return ctx.dispatch(new DbfsUpdateFileSuccess(payload, args));
+                } else {
+                    return ctx.dispatch(new DbfsUpdateFolderSuccess(payload, args));
+                }
+            }),
+            catchError( error => ctx.dispatch(new DbfsResourcesError(error, 'Move Folder')))
+        );
     }
 
     @Action(DbfsAddPlaceholderFolder)
@@ -1484,15 +1160,21 @@ export class DbfsResourcesState {
             type: 'DASHBOARD'
         };
 
-        const folder = this.normalizeFolder(tmpFolder, locked);
+        const folder = this.dbfsUtils.normalizeFolder(tmpFolder, locked);
 
         folders[path] = folder;
 
-        ctx.patchState({...state,
+        ctx.patchState({
             folders,
             resourceAction
         });
 
+    }
+
+    @Action(DbfsResourcesError)
+    resourcesError(ctx: StateContext<DbfsResourcesModel>, { error, label }: DbfsResourcesError) {
+        this.logger.error('State :: ' + label, error);
+        ctx.dispatch({ error });
     }
 
 }

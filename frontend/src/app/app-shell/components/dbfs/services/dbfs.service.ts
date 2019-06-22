@@ -180,10 +180,10 @@ export class DbfsService {
         );
     }
 
-    updateFolder(folder: any) {
-        const apiUrl = environment.configdb + '/dashboard/folder';
+    updateResource(type: string, payload: any) {
+        const apiUrl = environment.configdb + '/dashboard/' + type;
 
-        this.logger.api('DashboardNavigatorService :: Update Dashboard Folder', { id: folder.id, folder, apiUrl });
+        this.logger.api('DashboardNavigatorService :: Update Dashboard ' + type.toUpperCase(), { id: payload.id, payload, apiUrl });
 
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
@@ -195,9 +195,17 @@ export class DbfsService {
             responseType: 'json'
         };
 
-        return this.http.put(apiUrl, folder, httpOptions).pipe(
+        return this.http.put(apiUrl, payload, httpOptions).pipe(
             catchError(this.handleError)
         );
+    }
+
+    updateFolder(folder: any) {
+        return this.updateResource('folder', folder);
+    }
+
+    updateFile(file: any) {
+        return this.updateResource('file', file);
     }
 
 }

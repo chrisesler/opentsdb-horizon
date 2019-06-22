@@ -126,27 +126,205 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     // store metric fx temporary here
     functionCategories: any[] = [
         {
-            label: 'Rate',
+            label: 'Smoothing',
             functions: [
                 {
-                    label: 'Rate of Change',
-                    fxCall: 'RateOfChange'
-                }, 
-                {
-                    label: 'Value Difference',
-                    fxCall: 'RateDiff'
+                    label: 'Moving Average 3 Samples',
+                    fxCall: 'EWMA',
+                    val: '3,0.0'
                 },
                 {
-                    label: 'Counter to Rate',
-                    fxCall: 'CounterToRate'
+                    label: 'Moving Average 5 Samples',
+                    fxCall: 'EWMA',
+                    val: '5,0.0'
+                },
+                {
+                    label: 'Moving Average 10 Samples',
+                    fxCall: 'EWMA',
+                    val: '10,0.0'
+                },
+                {
+                    label: 'Moving Average 20 Samples',
+                    fxCall: 'EWMA',
+                    val: '20,0.0'
+                },
+                {
+                    label: 'Moving Average 1m Window',
+                    fxCall: 'EWMA',
+                    val: '1m,0.0'
+                },
+                {
+                    label: 'Moving Average 5m Window',
+                    fxCall: 'EWMA',
+                    val: '5m,0.0'
+                },
+                {
+                    label: 'Moving Average 15m Window',
+                    fxCall: 'EWMA',
+                    val: '15m,0.0'
+                },
+                {
+                    label: 'Moving Median 3 Samples',
+                    fxCall: 'Median',
+                    val: '3'
+                },
+                {
+                    label: 'Moving Median 5 Samples',
+                    fxCall: 'Median',
+                    val: '5'
+                },
+                {
+                    label: 'Moving Median 7 Samples',
+                    fxCall: 'Median',
+                    val: '7'
+                },
+                {
+                    label: 'Moving Median 9 Samples',
+                    fxCall: 'Median',
+                    val: '9'
+                }
+            ]
+        },
+        {
+            label: 'Difference',
+            functions: [
+                {
+                    label: 'Value Difference',
+                    fxCall: 'ValueDiff',
+                    val: 'auto'
                 },
                 {
                     label: 'Counter Value Difference',
-                    fxCall: 'CounterDiff'
+                    fxCall: 'CounterValueDiff',
+                    val: 'auto'
+                }
+            ]
+        },
+        {
+            label: 'Rate',
+            functions: [
+                {
+                    label: 'Per Second',
+                    fxCall: 'Rate',
+                    val: '1s'
+                },
+                {
+                    label: 'Per Minute',
+                    fxCall: 'Rate',
+                    val: '1m'
+                },
+                {
+                    label: 'Per Hour',
+                    fxCall: 'Rate',
+                    val: '1h'
+                },
+                {
+                    label: 'Counter Per Second',
+                    fxCall: 'CntrRate',
+                    val: '1s'
+                },
+                {
+                    label: 'Counter Per Minute',
+                    fxCall: 'CntrRate',
+                    val: '1m'
+                },
+                {
+                    label: 'Counter Per Hour',
+                    fxCall: 'CntrRate',
+                    val: '1h'
+                }
+            ]
+        },
+        {
+            label: 'Rollup',
+            functions: [
+                {
+                    label: 'Average',
+                    fxCall: 'Rollup',
+                    val: 'avg,auto'
+                },
+                {
+                    label: 'Minimum',
+                    fxCall: 'Rollup',
+                    val: 'min,auto'
+                },
+                {
+                    label: 'Maximum',
+                    fxCall: 'Rollup',
+                    val: 'max,auto'
+                },
+                {
+                    label: 'Sum',
+                    fxCall: 'Rollup',
+                    val: 'sum,auto'
+                }
+                ]
+            },
+            {
+            label: 'Timeshift',
+            functions: [
+                {
+                    label: 'Hour Before',
+                    fxCall: 'Timeshift',
+                    val: '1h'
+                },
+                {
+                    label: 'Day Before',
+                    fxCall: 'Timeshift',
+                    val: '1d'
+                },
+                {
+                    label: 'Week Before',
+                    fxCall: 'Timeshift',
+                    val: '1w'
+                },
+                {
+                    label: 'Month Before',
+                    fxCall: 'Timeshift',
+                    val: '4w'
                 }
             ]
         }
     ];
+
+    FunctionValidation: any = {
+        'RateOfChange' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'EWMA' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'Median' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'ValueDiff' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'CounterValueDiff' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'CntrRate' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'Rate' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'Rollup' : {
+            errorMessage: null,
+            regexValidator: null
+        },
+        'Timeshift' : {
+            errorMessage: 'Possible values: 1h, 2d, 3w, etc.',
+            regexValidator: /^\d+[hdw]$/i
+        },
+    };
 
     // MAT-TABLE DEFAULT COLUMNS
     metricTableDisplayColumns: string[] = [
@@ -184,9 +362,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.queryChanges$ = new BehaviorSubject(false);
 
         this.queryChangeSub = this.queryChanges$
-            .pipe(
-                debounceTime(1000)
-            )
             // tslint:disable-next-line:no-shadowed-variable
             .subscribe(trigger => {
                 if (trigger) {
@@ -593,7 +768,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         const newFx = {
             id: this.utils.generateId(3, this.utils.getIDs(this.query.metrics[metricIdx].functions)),
             fxCall: func.fxCall,
-            val: ''
+            val: func.val
         };
 
         this.query.metrics[metricIdx].functions.push(newFx);

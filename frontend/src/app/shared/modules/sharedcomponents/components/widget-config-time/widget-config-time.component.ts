@@ -271,7 +271,6 @@ export class WidgetConfigTimeComponent implements OnInit, OnDestroy, AfterViewIn
 
         this.widgetConfigTimeSub = this.widgetConfigTime.valueChanges
                                         .pipe(
-                                            debounceTime(1000),
                                             distinctUntilChanged()
                                         )
                                         .subscribe( function(data) {
