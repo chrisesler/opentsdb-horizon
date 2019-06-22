@@ -108,6 +108,91 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     preventSingleClick: boolean;
     clickTimer: any;
 
+    // EVENTS
+    showEvents = true;
+    showEventStream = false;
+    eventsWidth: number;
+    startTime: number;
+    endTime: number;
+    eventsTimeInterval = 60;
+    now = new Date().getTime();
+    filters = { showComments: true, showSDJobs: true, startTime: 0, endTime: 100000000000 };
+    comments = [
+        {
+            time: this.now - (2.23 * 600 * 1000),
+            user: 'zb',
+            message: 'Should comments in a thread be in reverse order?',
+            threadId: 0,
+            originalComment: true,
+            originalCommentTime: this.now - (2.23 * 600 * 1000)
+        },
+        {
+            time: this.now - (1.22 * 600 * 1000),
+            user: 'agupta',
+            message: 'Yes they should',
+            threadId: 0,
+            originalComment: false,
+            originalCommentTime: this.now - (2.23 * 600 * 1000)
+        },
+        {
+            time: this.now - (0.21 * 600 * 1000),
+            user: 'zb',
+            message: 'okay sounds good.',
+            threadId: 0,
+            originalComment: false,
+            originalCommentTime: this.now - (2.23 * 600 * 1000)
+        },
+        {
+            time: this.now - (2.22 * 600 * 1000),
+            user: 'zb',
+            message: 'Oh! I just remembered!',
+            threadId: 1,
+            originalComment: true,
+            originalCommentTime: this.now - (2.22 * 600 * 1000)
+        },
+        {
+            time: this.now - (5.21 * 600 * 1000),
+            user: 'hilln',
+            message: 'Is this thing on?',
+            threadId: 2,
+            originalComment: true,
+            originalCommentTime: this.now - (5.21 * 600 * 1000)
+        }
+    ];
+    sdJobs = [
+        {
+            time: this.now - (3 * 600 * 1000),
+            jobNumber: '1',
+            status: 'Success',
+            executor: 'zb',
+        },
+        {
+            time: this.now - (4.21 * 600 * 1000),
+            jobNumber: '2',
+            status: 'Success',
+            executor: 'agupta07'
+        },
+        {
+            time: this.now - (4.22 * 600 * 1000),
+            jobNumber: '3',
+            status: 'Success',
+            executor: 'zb'
+        },
+        {
+            time: this.now - (4.23 * 600 * 1000),
+            jobNumber: '4',
+            status: 'Failure',
+            executor: 'zb'
+        },
+        {
+            time: this.now - (5.22 * 600 * 1000),
+            jobNumber: '5',
+            status: 'Failure',
+            executor: 'zb'
+        },
+    ];
+    events = { comments: this.comments, sdJobs: this.sdJobs };
+
     constructor(
         private cdRef: ChangeDetectorRef,
         private interCom: IntercomService,
@@ -432,6 +517,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
         this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
         this.size = {width: nWidth, height: nHeight };
+
+        // Canvas Width resize
+        this.eventsWidth = nWidth - 55;
+
         // after size it set, tell Angular to check changes
         this.cdRef.detectChanges();
     }
@@ -679,6 +768,52 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             action: 'SetZoomDateRange',
             payload: zConfig
         });
+    }
+
+    receivedDateWindow(dateWindow: any) {
+        this.startTime = dateWindow.startTime;
+        this.endTime = dateWindow.endTime;
+        this.filters.startTime = this.startTime;
+        this.filters.endTime = this.endTime;
+        this.filters = {...this.filters};
+    }
+     updatedShowEventStream(showEventStream: boolean) {
+        this.showEventStream = showEventStream;
+    }
+     showEventsChanged(events: boolean) {
+        this.showEvents = events;
+    }
+     showCommentsChanged(comments: boolean) {
+        if (comments) {
+            this.events.comments = this.comments;
+        } else {
+            this.events.comments = [];
+        }
+    }
+     showSDJobsChanged(sdJobs: boolean) {
+        if (sdJobs) {
+            this.events.sdJobs = this.sdJobs;
+        } else {
+            this.events.sdJobs = [];
+        }
+    }
+     updatedEventFilters(filters: any) {
+        this.filters = filters;
+         if (this.filters.showSDJobs) {
+            this.events.sdJobs = this.sdJobs;
+        } else {
+            this.events.sdJobs = [];
+        }
+         if (this.filters.showComments) {
+            this.events.comments = this.comments;
+        } else {
+            this.events.comments = [];
+        }
+         this.events = {... this.events};
+     }
+     updatedEventsTimeInterval(interval) {
+        console.log('new interval', interval);
+        this.eventsTimeInterval = interval;
     }
 
     getSeriesLabel(index) {

@@ -1,0 +1,65 @@
+@mixin event-stream-component-base() {
+
+    .event-stream {
+        .event-details {
+            padding: 5px;
+            min-width: 200px;
+            position: fixed;
+            z-index: 100;
+            background: wheat;
+            max-height: 100%;
+            overflow: scroll;
+
+            .top-header {
+                // margin-bottom: 10px;
+                .title {
+                    font-size: 22px;
+                }
+                .close {
+                    right: 0px;
+                    position: absolute;
+                    top: 0px;
+                    line-height: 26px;
+                    padding: 0px;
+                }
+            }
+
+            h2 {
+                font-weight: 600;
+            }
+
+            .event-groups {
+                div {
+                    // margin-top: 10px;
+                }
+            }
+
+            .group-type-heading {
+                font-size: 12px;
+                padding-left: 5px;
+            }
+
+            .event-description {
+                padding-left: 10px;
+            }
+
+            .comment-reply {
+                padding-left: 15px;
+            }
+
+
+        }
+    }
+}
+
+@mixin event-stream-component-theme($theme-config) {
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $success: map-get($theme-config, success);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $is-dark-theme: map-get($theme-config, is-dark);
+
+}

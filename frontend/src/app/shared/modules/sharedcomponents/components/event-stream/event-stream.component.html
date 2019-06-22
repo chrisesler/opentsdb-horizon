@@ -1,0 +1,35 @@
+<div class="event-details" *ngIf="show"> 
+    <div class="top-header">
+        <span class="title"> Event Stream </span>
+        <button mat-button class="close" (click)="hide()"> Close </button>
+    </div>
+
+    <div class="mat-body-strong">Show:</div>
+    <div>
+        <mat-slide-toggle [checked]="filters.showComments" (change)="showCommentsChanged($event.checked)">Comments</mat-slide-toggle>
+    </div>
+    <div>
+        <mat-slide-toggle [checked]="filters.showSDJobs" (change)="showSDJobsChanged($event.checked)">SD Jobs</mat-slide-toggle>
+    </div>
+    
+    <div class="event-groups">
+      <div *ngFor="let groupInterval of groupedEvents">
+        <b> {{groupInterval.timeInterval}} </b>
+          <div *ngIf="groupInterval.comments">
+              <div class="group-type-heading">Comments</div>
+              <div *ngFor="let thread of groupInterval.comments"> 
+                <div *ngFor="let comment of thread" class="event-description" [ngClass]="{'comment-reply': !comment.originalComment}">
+                  {{comment.user}}:  {{comment.message}} 
+                </div>
+              </div>
+          </div>
+
+          <div *ngIf="groupInterval.sdJobs">
+              <div class="group-type-heading">Screwdriver Jobs</div>
+              <div *ngFor="let sdJob of groupInterval.sdJobs" class="event-description"> 
+                SD Job {{sdJob.jobNumber}}: {{sdJob.status}}. Triggered by {{sdJob.executor}}. 
+              </div>
+          </div>
+      </div>
+    </div>
+</div>

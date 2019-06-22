@@ -7,6 +7,13 @@
             </button>
         </span>
     </div>
+    <event-stream 
+        [data]="events" 
+        [filters]="filters" 
+        [timeInterval]="60" 
+        [show]="showEventStream" 
+        (updatedFilters)="updatedEventFilters($event)" 
+        (updatedShowing)="updatedShowEventStream($event)"></event-stream>
     <div class="widget-output" #widgetoutput
         [ngClass]="{
             'display-legend-top': widget.settings.legend.display && widget.settings.legend.position=='top' && options.labels.length > 1,
@@ -20,6 +27,7 @@
             [data]="data"
             [size]="size"
             [options]="options"
+            (dateWindow)="receivedDateWindow($event)"
             (zoomed)="handleZoom($event)">
         </div>
         <div class="dygraph-legend" #graphLegend></div>
@@ -55,6 +63,15 @@
         </div>
     </div>
     
+</div>
+
+<div class="events-overlay" [hidden]="!showEvents">
+    <event-timeline 
+    [startTime]="startTime" 
+    [endTime]="endTime" 
+    [width]="eventsWidth" 
+    [events]="events" 
+    (canvasClicked)="updatedShowEventStream(true)" (timeInterval)="updatedEventsTimeInterval($event)"></event-timeline>
 </div>
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">
@@ -97,6 +114,19 @@
                 </ng-template>
             </mat-tab>
         <mat-tab>
+        <mat-tab label="Events" [disabled]="editQueryId">
+                <ng-template matTabContent>
+                    <div class="events-config">
+                        <div>
+                            <mat-slide-toggle 
+                                [checked]="showEvents" 
+                                (change)="showEventsChanged($event.checked)">
+                                Events Enabled
+                            </mat-slide-toggle>
+                        </div>
+                    </div>
+                </ng-template>
+            </mat-tab>
             <!-- custom tab label. (see: https://material.angular.io/components/tabs/overview#labels) -->
             <!-- <ng-template mat-tab-label>
                 &lt;/&gt; Query Editor

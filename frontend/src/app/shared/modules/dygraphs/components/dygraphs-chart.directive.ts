@@ -20,7 +20,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
   @Input() chartType: string;
   @Input() size: any;
   @Output() zoomed = new EventEmitter;
-
+  @Output() dateWindow = new EventEmitter<any>();
 
   private _g: any;
   private gDimension: any;
@@ -50,6 +50,15 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         }
         labelsDiv.style.left = (event.offsetX  + xOffset ) + 'px';
         labelsDiv.style.top = (event.offsetY   + yOffset)  + 'px';
+    };
+
+    // needed to capture start and end times
+    const drawCallback = (dygraph: any) => {
+        if (dygraph.dateWindow_) {
+            this.dateWindow.emit({startTime: dygraph.dateWindow_[0], endTime: dygraph.dateWindow_[1] });
+        } else {
+            this.dateWindow.emit({startTime: dygraph.rawData_[0][0], endTime: dygraph.rawData_[dygraph.rawData_.length - 1][0] });
+        }
     };
 
     const legendFormatter = function(data) {
@@ -163,6 +172,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     _self.zoomed.emit({start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
                 }
             };
+            this.options.drawCallback = drawCallback;
 
             this.options.interactionModel = DygraphInteraction.defaultModel;
             this.options.interactionModel.dblclick = function(e, g, context) {
