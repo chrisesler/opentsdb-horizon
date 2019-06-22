@@ -614,11 +614,8 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     enableFirstMetricVisibility() {
-        for (let query of this.widget.queries) {
-            for (let metric of query.metrics) {
-                metric.settings.visual.visible = true;
-                break;
-            }
+        if (this.widget.queries.length && this.widget.queries[0].metrics.length) {
+            this.widget.queries[0].metrics[0].settings.visual.visible = true;
         }
     }
 
