@@ -210,6 +210,22 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.refreshData();
                 this.needRequery = true;
                 break;
+            case 'ToggleQueryVisibility':
+                this.toggleQueryVisibility(message.id);
+                this.refreshData(false);
+                this.needRequery = false;
+                break;
+            case 'CloneQuery':
+                this.cloneQuery(message.id);
+                this.refreshData();
+                this.needRequery = true;
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.id);
+                this.refreshData();
+                this.widget = {...this.widget};
+                this.needRequery = true;
+                break;
         }
     }
 
@@ -278,11 +294,12 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     toggleQueryMetricVisibility(qid, mid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
         const mindex = this.widget.queries[0].metrics.findIndex(d => d.id === mid);
         for (const metric of this.widget.queries[0].metrics) {
             metric.settings.visual.visible = false;
         }
-        this.widget.queries[0].metrics[mindex].settings.visual.visible = true;
+        this.widget.queries[qindex].metrics[mindex].settings.visual.visible = true;
     }
 
     deleteQueryMetric(qid, mid) {
@@ -298,6 +315,29 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     deleteQueryFilter(qid, findex) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries[qindex].filters.splice(findex, 1);
+    }
+
+    toggleQueryVisibility(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
+    }
+
+    cloneQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        if ( qindex !== -1 ) {
+            const query = this.util.getQueryClone(this.widget.queries, qindex);
+            query.metrics.map(d => { d.settings.visual.visible = false; } );
+            this.widget.queries.splice(qindex + 1, 0, query);
+        }
+    }
+
+    deleteQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const hasSelectedMetric = this.widget.queries[qindex].metrics.findIndex( d => d.settings.visual.visible );
+        this.widget.queries.splice(qindex, 1);
+        if ( hasSelectedMetric !== -1 && this.widget.queries.length && this.widget.queries[0].metrics.length  ) {
+            this.widget.queries[0].metrics[0].settings.visual.visible = true;
+        }
     }
 
     showError() {

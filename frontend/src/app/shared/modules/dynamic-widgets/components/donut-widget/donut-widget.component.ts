@@ -154,7 +154,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
     requestData() {
         if (!this.isDataLoaded) {
-            this.nQueryDataLoading = this.widget.queries.length;
+            this.nQueryDataLoading = 1;
             this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
@@ -166,7 +166,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     requestCachedData() {
-        this.nQueryDataLoading = this.widget.queries.length;
+        this.nQueryDataLoading = 1;
         this.error = null;
         this.interCom.requestSend({
             id: this.widget.id,
@@ -229,6 +229,21 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
+                this.needRequery = true;
+                break;
+            case 'ToggleQueryVisibility':
+                this.toggleQueryVisibility(message.id);
+                this.refreshData(false);
+                this.needRequery = false;
+                break;
+            case 'CloneQuery':
+                this.cloneQuery(message.id);
+                this.refreshData();
+                this.needRequery = true;
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.id);
                 this.refreshData();
                 this.needRequery = true;
                 break;
@@ -306,6 +321,24 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     deleteQueryFilter(qid, findex) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries[qindex].filters.splice(findex, 1);
+    }
+
+    toggleQueryVisibility(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
+    }
+
+    cloneQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        if ( qindex !== -1 ) {
+            const query = this.util.getQueryClone(this.widget.queries, qindex);
+            this.widget.queries.splice(qindex + 1, 0, query);
+        }
+    }
+
+    deleteQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries.splice(qindex, 1);
     }
 
     showError() {

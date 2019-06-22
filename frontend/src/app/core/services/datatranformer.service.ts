@@ -38,10 +38,11 @@ export class DatatranformerService {
                 const qids = this.REGDSID.exec(mid);
                 const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
                 const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
+                const gConfig = widget.queries[qIndex];
                 const mConfig = widget.queries[qIndex].metrics[mIndex];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
                 queryResults[i] = Object.assign( {}, queryResults[i], {visualType: vConfig.type || 'line'} );
-                if ( vConfig.visible ) {
+                if ( gConfig.settings.visual.visible && vConfig.visible ) {
                     if (!dict[mid]) {
                         dict[mid] = { hashes: {}};
 
@@ -107,6 +108,7 @@ export class DatatranformerService {
 
                 const timeSpecification = queryResults[i].timeSpecification;
                 const qid = widget.queries[qIndex].id;
+                const gConfig = widget.queries[qIndex];
                 const mConfig = widget.queries[qIndex].metrics[mIndex];
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
                 const n = queryResults[i].data.length;
@@ -122,7 +124,7 @@ export class DatatranformerService {
                     const metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults[i].data[j].metric;
                     const numPoints = data.length;
                     const label = options.labels.length.toString();
-                    if ( vConfig.visible ) {
+                    if ( gConfig.settings.visual.visible && vConfig.visible ) {
                         const aggData = dict[mid]['summarizer'][hash];
                         options.labels.push(label);
                         options.visibility.push(true);
@@ -174,10 +176,8 @@ export class DatatranformerService {
     let cIndex = 0;
     let min = Infinity, max = -Infinity;
     // find min and max from the series. used in yaxis range
-    const gConfig = widget.queries[0];
-    const mConfigs = gConfig ? gConfig.metrics : [];
 
-    if (gConfig && gConfig.settings.visual.visible && result && result.results) {
+    if ( result && result.results ) {
         // sometimes opentsdb returns empty results
         for ( let i = 0;  i < result.results.length; i++ ) {
             const queryResults = result.results[i];
@@ -186,15 +186,16 @@ export class DatatranformerService {
                 continue;
             }
             const qids = this.REGDSID.exec(mid);
-            const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
-
-            const mConfig = mConfigs[mIndex];
+            const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
+            const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
+            const gConfig = widget.queries[qIndex];
+            const mConfig = widget.queries[qIndex].metrics[mIndex];
             const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
             const n = queryResults.data.length;
             for ( let j = 0; j < n; j ++ ) {
                 const data = queryResults.data[j].NumericType;
                 const numPoints = data.length;
-                if ( vConfig.visible ) {
+                if ( gConfig.settings.visual.visible && vConfig.visible ) {
                     for (let k = 0; k < numPoints ; k++ ) {
                         if (!isNaN(data[k]) && data[k] < min) {
                             min = data[k];
@@ -217,17 +218,19 @@ export class DatatranformerService {
 
     const autoColors =  ['#3F00FF']; // we support single metric on heatmap, use this.util.getColors if multiple
 
-    if (gConfig && gConfig.settings.visual.visible && result && result.results) {
+    if ( result && result.results ) {
         // sometimes opentsdb returns empty results
         for ( let i = 0;  i < result.results.length; i++ ) {
             const queryResults = result.results[i];
             const [ source, mid ] = queryResults.source.split(':');
             const qids = this.REGDSID.exec(mid);
-            const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
+            const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
+            const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
 
-            const mConfig = mConfigs[mIndex];
+            const gConfig = widget.queries[qIndex];
+            const mConfig = widget.queries[qIndex].metrics[mIndex];
             const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-            if ( source === 'summarizer' || !vConfig.visible) {
+            if ( source === 'summarizer' || !gConfig.settings.visual.visible || !vConfig.visible) {
                 continue;
             }
 
@@ -313,60 +316,37 @@ export class DatatranformerService {
         if ( queryData === undefined || !queryData.results || !queryData.results.length ) {
             return datasets;
         }
-        // stack colors
-        let stacks = [];
-
-        // only visible groups
-        const nGroups = widget.queries.filter( d => d.settings.visual.visible ).length;
-        const wSettings = widget.settings;
 
         options.scales.xAxes[0].stacked = stacked;
         options.scales.yAxes[0].stacked = stacked;
 
-        if ( stacked && wSettings.visual ) {
-            stacks = wSettings.visual.stacks;
-            if ( !datasets.length ) {
-                for ( let i = 0; i < stacks.length; i++ ) {
-                    datasets.push( { data: Array(nGroups).fill(null), backgroundColor: stacks[i].color, label: stacks[i].label } );
-                }
-            }
+        datasets[0] = {data: [], backgroundColor: [], tooltipData: []};
+        options.labels = [];
+        const wdQueryStats = this.util.getWidgetQueryStatistics(widget.queries);
+        let autoColors =  this.util.getColors( null , wdQueryStats.nVisibleAutoColors );
+        autoColors = wdQueryStats.nVisibleAutoColors > 1 ? autoColors : [autoColors];
 
-            for ( let i = 0; i < nGroups; i++ ) {
-                const label = widget.queries[i].title;
-                if ( !options.labels.includes(label) ) {
-                    options.labels.push(label);
-                }
-            }
-        } else {
-            datasets[0] = {data: [], backgroundColor: [], tooltipData: []};
-            options.labels = [];
-        }
-
-        const gConfig = widget.queries[0];
-        const mConfigs = gConfig ? gConfig.metrics : [];
-        const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
-        const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && (item.settings.visual.color === 'auto' || !item.settings.visual.color));
-        let autoColors =  this.util.getColors( null , mAutoConfigs.length );
-        autoColors = mAutoConfigs.length > 1 ? autoColors : [autoColors];
         let cIndex = 0;
         const results = queryData.results ? queryData.results : [];
         for ( let i = 0;  i < results.length; i++ ) {
             const qids = this.REGDSID.exec(results[i].source.split(':')[1]);
-            const configIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
-            const mConfig = mConfigs[configIndex];
-            if ( !mConfig.settings.visual.visible ) {
+            const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
+            const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
+            const gConfig = widget.queries[qIndex];
+            const mConfig = widget.queries[qIndex].metrics[mIndex];
+            if ( !gConfig.settings.visual.visible || !mConfig.settings.visual.visible ) {
                 continue;
             }
             const n = results[i].data.length;
-            const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
-            const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && (mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color) ? null : color , n ) ;
+            const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++] : mConfig.settings.visual.color;
+            const colors = n === 1 ? [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics === 1 && (mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color) ? null : color , n ) ;
             for ( let j = 0;  j < n; j++ ) {
-                const summarizer = this.getSummarizerOption(widget, i);
+                const summarizer = this.getSummarizerOption(widget, qIndex, mIndex);
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
-                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, configIndex);
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, mIndex);
                 let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
                 const aggrIndex = aggs.indexOf(summarizer);
                 label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
@@ -444,32 +424,39 @@ export class DatatranformerService {
         }
         const results = queryData.results ? queryData.results : [];
 
-        const gConfig = widget.queries[0];
-        const mConfigs = gConfig.metrics;
-        const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
-        const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && ( item.settings.visual.color === 'auto' || !item.settings.visual.color ));
-        let autoColors =  this.util.getColors( null , mAutoConfigs.length );
-        autoColors = mAutoConfigs.length > 1 ? autoColors : [autoColors];
+        // const gConfig = widget.queries[0];
+        // const mConfigs = gConfig.metrics;
+        // const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
+        // const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && ( item.settings.visual.color === 'auto' || !item.settings.visual.color ));
+        // let autoColors =  this.util.getColors( null , mAutoConfigs.length );
+        // autoColors = mAutoConfigs.length > 1 ? autoColors : [autoColors];
+
+        const wdQueryStats = this.util.getWidgetQueryStatistics(widget.queries);
+        let autoColors =  this.util.getColors( null , wdQueryStats.nVisibleAutoColors );
+        autoColors = wdQueryStats.nVisibleAutoColors > 1 ? autoColors : [autoColors];
+
         let cIndex = 0;
         for ( let i = 0; i < results.length; i++ ) {
             const mid = results[i].source.split(':')[1];
             const qids = this.REGDSID.exec(mid);
-            const configIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
-            const mConfig = mConfigs[configIndex];
-            if ( !mConfig.settings.visual.visible ) {
+            const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
+            const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
+            const gConfig = widget.queries[qIndex];
+            const mConfig = widget.queries[qIndex].metrics[mIndex];
+            if ( !gConfig.settings.visual.visible || !mConfig.settings.visual.visible ) {
                 continue;
             }
 
             const n = results[i].data.length;
             const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++]: mConfig.settings.visual.color;
-            const colors = n === 1 ? [color] :  this.util.getColors( mvConfigs.length === 1 && ( mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ) ? null: color , n ) ;
+            const colors = n === 1 ? [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics  === 1 && ( mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ) ? null: color , n ) ;
             for ( let j = 0; j < n; j++ ) {
-                const summarizer = this.getSummarizerOption(widget, i);
+                const summarizer = this.getSummarizerOption(widget, 0, mIndex);
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
-                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, configIndex);
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, mIndex);
                 let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
                 const aggrIndex = aggs.indexOf(summarizer);
                 label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
@@ -488,28 +475,27 @@ export class DatatranformerService {
         }
         const results = queryData.results ? queryData.results : [];
 
-        const gConfig = widget.queries[0];
-        const mConfigs = gConfig.metrics;
-
         for ( let i = 0; i < results.length; i++ ) {
             const mid = results[i].source.split(':')[1];
             const qids = this.REGDSID.exec(mid);
-            const configIndex =  this.util.getDSIndexToMetricIndex(widget.queries[0], parseInt(qids[3], 10) - 1, qids[2] );
-            const mConfig = mConfigs[configIndex];
-            if ( !mConfig || !mConfig.settings.visual.visible ) {
+            const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
+            const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
+            const gConfig = widget.queries[qIndex];
+            const mConfig = widget.queries[qIndex].metrics[mIndex];
+            if ( !gConfig.settings.visual.visible || !mConfig.settings.visual.visible ) {
                 continue;
             }
 
             const n = results[i].data.length;
             const color =  mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? '' : mConfig.settings.visual.color;
             for ( let j = 0; j < n; j++ ) {
-                const summarizer = this.getSummarizerOption(widget, i);
+                const summarizer = this.getSummarizerOption(widget, qIndex, mIndex);
                 const aggs = results[i].data[j].NumericSummaryType.aggregations;
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggrIndex = aggs.indexOf(summarizer);
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
-                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, configIndex);
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, mIndex);
                 let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
                 label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
                 const o = { label: label, value: aggData[aggrIndex], color: this.overrideColor(aggData[aggrIndex], color, widget.settings.visual.conditions), tooltipData: tags};
@@ -568,12 +554,12 @@ export class DatatranformerService {
         return pattern;
     }
 
-    getSummarizerOption(widget: any, metricIndex: number) {
+    getSummarizerOption(widget: any, qIndex: number, metricIndex: number) {
         let summarizerOption;
-        if (widget.queries[0].metrics[metricIndex].summarizer) {
-            summarizerOption = widget.queries[0].metrics[metricIndex].summarizer;
-        } else if ( widget.settings.time.downsample.aggregators && widget.settings.time.downsample.aggregators[0]) { // todo: remove once summarizer exposed for all widgets
-            summarizerOption = widget.settings.time.downsample.aggregators[0];
+        if (widget.queries[qIndex].metrics[metricIndex].summarizer) {
+            summarizerOption = widget.queries[qIndex].metrics[metricIndex].summarizer;
+        } else if ( widget.settings.time.downsample.aggregators && widget.settings.time.downsample.aggregators[qIndex]) { // todo: remove once summarizer exposed for all widgets
+            summarizerOption = widget.settings.time.downsample.aggregators[qIndex];
         } else {
             summarizerOption = 'avg';
         }

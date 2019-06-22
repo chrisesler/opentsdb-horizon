@@ -183,7 +183,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
     requestData() {
         if (!this.isDataLoaded) {
-            this.nQueryDataLoading = this.widget.queries.length;
+            this.nQueryDataLoading = 1;
             this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
@@ -195,7 +195,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     requestCachedData() {
-        this.nQueryDataLoading = this.widget.queries.length;
+        this.nQueryDataLoading = 1;
         this.error = null;
         this.interCom.requestSend({
             id: this.widget.id,
@@ -254,17 +254,29 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
                 this.refreshData(false);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
                 this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
+                this.needRequery = true;
+                break;
+            case 'ToggleQueryVisibility':
+                this.toggleQueryVisibility(message.id);
+                this.refreshData(false);
+                this.needRequery = false;
+                break;
+            case 'CloneQuery':
+                this.cloneQuery(message.id);
+                this.refreshData();
+                this.needRequery = true;
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.id);
                 this.refreshData();
                 this.needRequery = true;
                 break;
@@ -302,32 +314,24 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         if ( qindex !== -1 ) {
             this.widget.queries[qindex] = query;
         }
-
     }
 
-    setStackForGroup(gid) {
-        const gconfig = this.util.getObjectByKey(this.widget.queries.groups, 'id', gid);
-        const queries = gconfig.queries;
-        const stacks = this.widget.settings.visual.stacks || [];
+    toggleQueryVisibility(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
+    }
 
-        const availStacks = stacks.filter(x => !queries.find(function(a) {  return x.id === a.settings.visual.stack; } ));
-        for ( let i = 0; i < queries.length; i++ ) {
-            const vSetting = queries[i].settings.visual;
-            if ( !vSetting.stack ) {
-                const stack = availStacks.length ?  availStacks.shift() : this.addNewStack();
-                vSetting.stack = stack.id;
-            }
+    cloneQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        if ( qindex !== -1 ) {
+            const query = this.util.getQueryClone(this.widget.queries, qindex);
+            this.widget.queries.splice(qindex + 1, 0, query);
         }
     }
 
-    addNewStack() {
-        const oStack = {
-            id : this.util.generateId(3, this.util.getIDs(this.util.getAllMetrics(this.widget.queries))),
-            label: 'Stack-' + ( this.widget.settings.visual.stacks.length + 1 ),
-            color: '#000000'
-        };
-        const index = this.widget.settings.visual.stacks.push(oStack);
-        return oStack;
+    deleteQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries.splice(qindex, 1);
     }
 
     deleteMetrics(groups) {
@@ -478,31 +482,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         }
     }
 
-    setStackedBarLabels(gConfigs) {
-        const labels = [];
-        const labelUntitled = 'untitled group';
-        let labelIndex = 1;
-        gConfigs.forEach( (config, i ) => {
-            let label = config.label;
-            if ( label === '' ) {
-                label = labelUntitled + (labelIndex === 1 ? '' : ' ' + labelIndex);
-                labelIndex++;
-            }
-            this.widget.queries.groups[i].title = label;
-            labels.push( label );
-        });
-        this.options.labels = labels;
-        this.options = {...this.options};
-    }
-
-    setStackedStackVisuals(configs) {
-        this.widget.settings.visual.stacks = configs;
-        this.widget.settings.visual.stacks.forEach((config, i) => {
-            this.data[i].label = config.label;
-            this.data[i].backgroundColor = config.color;
-        });
-        this.data = [...this.data];
-    }
 
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
