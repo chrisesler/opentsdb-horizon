@@ -528,12 +528,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     getGroupByTags(id) {
-        const index = this.query.metrics.findIndex(d => d.id === id );
         let groupByTags = [];
-        let expression;
-        if (this.query.metrics[index] && this.query.metrics[index].expression) {
-            expression = this.query.metrics[index].expression;
-        }
+        const expression = this.utils.getMetricFromId(id, this.queries).expression;
+
         if (expression) {
             // replace {{<id>}} with query source id
             const re = new RegExp(this.handleBarsRegex, 'g');
@@ -546,9 +543,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
                 i++;
             }
         } else {
-            if ( index > -1) {
-                groupByTags  =  this.query.metrics[index].groupByTags || [];
-            }
+            groupByTags = this.utils.getMetricFromId(id, this.queries).groupByTags || [];
         }
         return groupByTags;
     }
