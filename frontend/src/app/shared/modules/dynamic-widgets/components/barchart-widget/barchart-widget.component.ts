@@ -35,6 +35,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     // properties to pass to  chartjs chart directive
 
     type = 'bar';
+    doRefreshData$: BehaviorSubject<boolean>;
+    doRefreshDataSub: Subscription;
     type$: BehaviorSubject<string>;
     typeSub: Subscription;
 
@@ -89,6 +91,18 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     ) { }
 
     ngOnInit() {
+        this.doRefreshData$ = new BehaviorSubject(false);
+
+        this.doRefreshDataSub = this.doRefreshData$
+            .pipe(
+                debounceTime(1000)
+            )
+            .subscribe(trigger => {
+                if (trigger) {
+                    this.refreshData();
+                }
+            });
+
         this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'vertical');
         this.options.legend.display = this.isStackedGraph ? true : false;
 
@@ -212,7 +226,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetStackedBarVisualization':
@@ -234,7 +248,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
             case 'SetSorting':
                 this.setSorting(message.payload);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'ChangeVisualization':
@@ -243,7 +257,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
@@ -258,12 +272,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'ToggleQueryVisibility':
@@ -273,12 +287,12 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
             case 'CloneQuery':
                 this.cloneQuery(message.id);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
                 this.deleteQuery(message.id);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
 
@@ -580,6 +594,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.listenSub.unsubscribe();
         }
         this.typeSub.unsubscribe();
+        this.doRefreshDataSub.unsubscribe();
     }
 }
 
