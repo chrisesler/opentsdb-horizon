@@ -22,15 +22,15 @@ import {
     DbfsRemoveMiniNavPanel,
     DbfsMiniNavLoadPanel,
     DbfsLoadSubfolder
-} from '../../state';
+} from '../../../../state';
 
 import {
     Select,
     Store
 } from '@ngxs/store';
 import { LoggerService } from '../../../../../core/services/logger.service';
-import { DbfsUtilsService } from '../../services/dbfs-utils.service';
-import { DbfsService } from '../../services/dbfs.service';
+import { DbfsUtilsService } from '../../../../services/dbfs-utils.service';
+import { DbfsService } from '../../../../services/dbfs.service';
 import { map, catchError } from 'rxjs/operators';
 import { UtilsService } from '../../../../../core/services/utils.service';
 

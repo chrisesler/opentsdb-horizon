@@ -10,7 +10,9 @@ import { NgxsModule } from '@ngxs/store';
 import {
     AppShellState,
     NavigatorState,
-    DashboardNavigatorState
+    DbfsState,
+    DbfsPanelsState,
+    DbfsResourcesState
  } from './state';
 
 
@@ -20,38 +22,21 @@ import { SharedcomponentsModule } from '../shared/modules/sharedcomponents/share
 
 // services
 import { AppShellService } from './services/app-shell.service';
-import { DashboardNavigatorService } from './services/dashboard-navigator.service';
+import { DbfsUtilsService } from './services/dbfs-utils.service';
+import { DbfsService } from './services/dbfs.service';
 
 // components
-import { DashboardNavigatorComponent } from './components/dashboard-navigator/dashboard-navigator.component';
 import { AppShellComponent } from './containers/app-shell.component';
 import { AppNavbarComponent } from './components/app-navbar/app-navbar.component';
 import { TestNavigatorComponent } from './components/test-navigator/test-navigator.component';
 import { NavigatorPanelItemDirective } from './directives/navigator-panel-item.directive';
 import { NavigatorPanelComponent, NavigatorPanelItemElement } from './components/navigator-panel/navigator-panel.component';
 import { NavigatorSidenavComponent } from './components/navigator-sidenav/navigator-sidenav.component';
-import {
-    DnavDashboardItemComponent,
-    DnavFolderItemComponent,
-    DnavFoldersComponent,
-    DnavDashboardsComponent
-} from './components/dashboard-navigator';
-import {
-    MiniNavigatorComponent,
-    MiniNavigatorFoldersComponent,
-    MiniNavigatorFolderItemComponent
-} from './components/mini-navigator';
 
 import {
-    DbfsState,
-    DbfsPanelsState,
-    DbfsResourcesState,
     DbfsComponent,
-    DbfsService,
-    DbfsUtilsService,
-    DbfsMiniNavComponent 
+    DbfsMiniNavComponent
 } from './components/dbfs';
-
 
 @NgModule({
     imports: [
@@ -65,7 +50,6 @@ import {
         NgxsModule.forFeature([
             AppShellState,
             NavigatorState,
-            DashboardNavigatorState,
             DbfsState,
             DbfsPanelsState,
             DbfsResourcesState,
@@ -73,7 +57,6 @@ import {
         RouterModule
     ],
     declarations: [
-        DashboardNavigatorComponent,
         AppShellComponent,
         AppNavbarComponent,
         TestNavigatorComponent,
@@ -81,19 +64,11 @@ import {
         NavigatorPanelComponent,
         NavigatorPanelItemElement,
         NavigatorSidenavComponent,
-        DnavDashboardItemComponent,
-        DnavFolderItemComponent,
-        DnavFoldersComponent,
-        DnavDashboardsComponent,
-        MiniNavigatorComponent,
-        MiniNavigatorFoldersComponent,
-        MiniNavigatorFolderItemComponent,
         DbfsComponent,
         DbfsMiniNavComponent
     ],
     providers: [
         AppShellService,
-        DashboardNavigatorService,
         DbfsService,
         DbfsUtilsService,
         { provide: 'WINDOW', useFactory: getBrowserWindow } // this is used to open dashboards in new tab

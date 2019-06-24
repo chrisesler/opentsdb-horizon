@@ -1,13 +1,13 @@
 import { State, StateContext, Action, Store, Selector, createSelector } from '@ngxs/store';
 import { append, patch, removeItem, updateItem } from '@ngxs/store/operators';
-import { UtilsService } from '../../../../core/services/utils.service';
-import { LoggerService } from '../../../../core/services/logger.service';
+import { UtilsService } from '../../core/services/utils.service';
+import { LoggerService } from '../../core/services/logger.service';
 import { map, tap, catchError, reduce } from 'rxjs/operators';
 
 import { DbfsPanelsState } from './dbfs-panels.state';
 import { DbfsResourcesState } from './dbfs-resources.state';
 import { select } from 'd3';
-import { DBState } from '../../../../dashboard/state';
+import { DBState } from '../../dashboard/state';
 
 /** Interface model */
 

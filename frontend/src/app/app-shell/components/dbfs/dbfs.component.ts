@@ -30,8 +30,8 @@ import {
     StateContext
 } from '@ngxs/store';
 
-import { DbfsState } from './state/dbfs.state';
-import { DbfsPanelsState, DbfsPanelsInitialize, DbfsAddPanel, DbfsUpdatePanels, DbfsResetPanelAction } from './state/dbfs-panels.state';
+import { DbfsState } from '../../state/dbfs.state';
+import { DbfsPanelsState, DbfsPanelsInitialize, DbfsAddPanel, DbfsUpdatePanels, DbfsResetPanelAction } from '../../state/dbfs-panels.state';
 import {
     DbfsResourcesState,
     DbfsLoadResources,
@@ -46,9 +46,10 @@ import {
     DbfsDeleteDashboard,
     DbfsAddPlaceholderFolder,
     DbfsMoveResource
-} from './state/dbfs-resources.state';
+} from '../../state/dbfs-resources.state';
 import { LoggerService } from '../../../core/services/logger.service';
 import { MatMenuTrigger } from '@angular/material';
+import { DBState } from '../../../dashboard/state';
 
 @Component({
 // tslint:disable-next-line: component-selector
@@ -106,6 +107,9 @@ export class DbfsComponent implements OnInit, OnDestroy {
     currentPanelIndex: number = 0;
 
     @Select(DbfsPanelsState.getPanelAction) panelAction$: Observable<any>;
+
+    @Select(DBState.getDashboardId) curDashboardId$: Observable<any>;
+    curDashboardId: any = false;
 
     // VIEW CHILDREN
     @ViewChild(NavigatorPanelComponent) private navPanel: NavigatorPanelComponent;
@@ -270,6 +274,10 @@ export class DbfsComponent implements OnInit, OnDestroy {
                 default:
                     break;
             }
+        }));
+
+        this.subscription.add(this.curDashboardId$.subscribe(id => {
+            this.curDashboardId = id;
         }));
 
         // INTERCOM SUBSCRIPTION
@@ -672,7 +680,6 @@ export class DbfsComponent implements OnInit, OnDestroy {
     }
 
     gotoTopFolder(key: string, type: string) {
-        //this.logger.log('GOTO TOP FOLDER', { key, type });
 
         // check if folder exists
         const path = '/' + type + '/' + key;
@@ -681,17 +688,22 @@ export class DbfsComponent implements OnInit, OnDestroy {
         this.loadingItem = key;
 
         if (folder.notFound) {
-            this.store.dispatch(
-                new DbfsAddPlaceholderFolder(
-                    path,
-                    {
-                        method: 'gotoFolder',
-                        args: path
-                    }
-                )
-            );
+            setTimeout(function() {
+                this.store.dispatch(
+                    new DbfsAddPlaceholderFolder(
+                        path,
+                        {
+                            method: 'gotoFolder',
+                            args: path
+                        }
+                    )
+                );
+            }.bind(this), 200);
+
         } else {
-            this.gotoFolder(path);
+            setTimeout(function() {
+                this.gotoFolder(path);
+            }.bind(this), 200);
         }
     }
 

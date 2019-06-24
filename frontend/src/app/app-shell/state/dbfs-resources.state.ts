@@ -1,7 +1,7 @@
 import { State, StateContext, Action, Store, Selector, createSelector } from '@ngxs/store';
 import { append, patch, removeItem, updateItem } from '@ngxs/store/operators';
-import { UtilsService } from '../../../../core/services/utils.service';
-import { LoggerService } from '../../../../core/services/logger.service';
+import { UtilsService } from '../../core/services/utils.service';
+import { LoggerService } from '../../core/services/logger.service';
 import { map, tap, catchError, reduce } from 'rxjs/operators';
 
 import { DbfsService } from '../services/dbfs.service';
@@ -18,6 +18,7 @@ import {
     DbfsSyntheticFolderModel,
     DbfsUserModel
 } from './dbfs-resources.interfaces';
+import { iterateListLike } from '@angular/core/src/change_detection/change_detection_util';
 
 /** ACTIONS */
 
@@ -557,14 +558,14 @@ export class DbfsResourcesState {
         folders[recvFolder.fullPath] = recvFolder;
         panelRoot.personal.push(recvFolder.fullPath);
 
-        // USER Trash
+        // USER Trash - add to root panel
         // tslint:disable-next-line: max-line-length
         const userTrash = response.personalFolder.subfolders.filter( item => item.fullPath === '/user/' + activeUser + '/trash');
         const userTrashIdx = response.personalFolder.subfolders.indexOf(userTrash[0]);
 
         const trashFolder = this.dbfsUtils.normalizeFolder(userTrash[0]);
         folders[trashFolder.fullPath] = trashFolder;
-        panelRoot.personal.push(trashFolder.fullPath);
+        panelRoot.personal.push(userTrash[0].fullPath);
         userFolder.subfolders.splice(userTrashIdx, 1);
 
         // member namespace list
@@ -610,6 +611,9 @@ export class DbfsResourcesState {
         userFolder.subfolders.sort((a: any, b: any) => {
             return this.utils.sortAlphaNum(folders[a].name, folders[b].name);
         });
+
+        // add trash folder last - after sort. Trash folder always last
+        userFolder.subfolders.push(trashFolder.fullPath);
 
         userFolder.files = userFolder.files.map(item => {
             const file = this.dbfsUtils.normalizeFile(item);
@@ -844,12 +848,28 @@ export class DbfsResourcesState {
         const folder = this.dbfsUtils.normalizeFolder(tmpFolder, locked);
         folder.loaded = true;
 
+        let trash: any;
+        let trashIdx: any;
         // have to override topFolder name because all the Top folder names come back as 'HOME'
         if ( folder.fullPath === '/user/' + state.activeUser ) {
             folder.name = 'My Dashboards';
         } else {
             folder.name = state[storeKey][args.key].name;
         }
+
+        if (response.personalFolder) {
+            trash = response.personalFolder.subfolders.filter( item => item.fullPath.split('/').pop() === 'trash');
+            trashIdx = response.personalFolder.subfolders.indexOf(trash[0]);
+        } else {
+            trash = response.subfolders.filter( item => item.fullPath.split('/').pop() === 'trash');
+            trashIdx = response.subfolders.indexOf(trash[0]);
+        }
+
+
+        const trashFolder = this.dbfsUtils.normalizeFolder(trash[0]);
+        folders[trashFolder.fullPath] = trashFolder;
+
+        folder.subfolders.splice(trashIdx, 1);
 
         // clean subfolders
         folder.subfolders = folder.subfolders.map(item => {
@@ -861,6 +881,9 @@ export class DbfsResourcesState {
         folder.subfolders = folder.subfolders.sort((a: any, b: any) => {
             return this.utils.sortAlphaNum(folders[a].name, folders[b].name);
         });
+
+        // add trash after sort. trash folder always last
+        folder.subfolders.push(trashFolder.fullPath);
 
         folder.files = folder.files.map(item => {
             const file = this.dbfsUtils.normalizeFile(item, locked);

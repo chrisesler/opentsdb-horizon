@@ -49,7 +49,7 @@
     <div class="dnav-folders">
         <mat-nav-list class="folder-list">
             <mat-list-item *ngFor="let folder of panel.personal; let i = index;" class="folder-nav-item" (click)="gotoFolder(folder.fullPath)">
-                <ng-container *ngTemplateOutlet="folderDisplay;context:{folder: folder}"></ng-container>
+                <ng-container *ngTemplateOutlet="simpleFolderDisplay;context:{data: folder, icon: folder.icon, showcount: true}"></ng-container>
             </mat-list-item>
         </mat-nav-list>
     </div>
@@ -72,7 +72,7 @@
     <div class="dnav-folders">
         <mat-nav-list class="folder-list">
             <mat-list-item *ngFor="let folder of panel.namespaces; let i = index;" class="folder-nav-item" (click)="gotoTopFolder(folder.namespace, 'namespace')">
-                <ng-container *ngTemplateOutlet="folderDisplay;context:{folder: folder}"></ng-container>
+                <ng-container *ngTemplateOutlet="simpleFolderDisplay;context:{data: folder, icon: folder.icon, showcount: true}"></ng-container>
             </mat-list-item>
         </mat-nav-list>
     </div>
@@ -99,7 +99,7 @@
             <mat-nav-list class="folder-list">
                 <cdk-virtual-scroll-viewport itemSize="36" class="example-viewport">
                 <mat-list-item *ngFor="let ns of namespacesList; let i = index;" class="folder-nav-item" (click)="loadingItem = nsAlias; gotoTopFolder(ns.alias, 'namespace')">
-                    <ng-container *ngTemplateOutlet="simpleRowDisplay;context:{data: ns, icon: 'd-dashboard-tile', loading: (loadingItem === ns.alias)}"></ng-container>
+                    <ng-container *ngTemplateOutlet="simpleFolderDisplay;context:{data: ns, icon: 'd-dashboard-tile', loading: (loadingItem === ns.alias)}"></ng-container>
                 </mat-list-item>
                 </cdk-virtual-scroll-viewport>
             </mat-nav-list>
@@ -114,7 +114,7 @@
             <mat-nav-list class="folder-list">
                 <cdk-virtual-scroll-viewport itemSize="36" class="example-viewport">
                 <mat-list-item *ngFor="let user of usersList; let i = index;" class="folder-nav-item" (click)="loadingItem = user.alias; gotoTopFolder(user.alias, 'user')">
-                    <ng-container *ngTemplateOutlet="simpleRowDisplay;context:{data: user, icon: 'd-user-single-solid', loading: (loadingItem === user.alias)}"></ng-container>
+                    <ng-container *ngTemplateOutlet="simpleFolderDisplay;context:{data: user, icon: 'd-user-single-solid', loading: (loadingItem === user.alias)}"></ng-container>
                 </mat-list-item>
                 </cdk-virtual-scroll-viewport>
             </mat-nav-list>
@@ -201,7 +201,7 @@
         <!-- NEW -->
         <div class="list-item edit-form" [formGroup]="folderForm">
             <mat-form-field appearance="fill" [floatLabel]="'never'">
-                <input matInput placeholder="Enter folder Name" formControlName="fc_FolderName" (keyup.enter)="inputSave()">
+                <input matInput placeholder="Enter folder Name" formControlName="fc_FolderName" (keyup.enter)="folderInputSave(panelIndex)">
                 <mat-icon matPrefix fontSet="denali" fontIcon="d-folder-add"></mat-icon>
                 <button mat-icon-button matSuffix class="save-folder-name" (click)="folderInputSave(panelIndex)" >
                     <mat-icon fontSet="denali" fontIcon="d-check"></mat-icon>
@@ -372,7 +372,7 @@
         <mat-list-item *ngIf="dashboards.length === 0" class="no-item-message">
             <span class="mat-caption no-item-message">There are no dashboards.</span>
         </mat-list-item>
-        <mat-list-item *ngFor="let dashboard of dashboards">
+        <mat-list-item *ngFor="let dashboard of dashboards" [ngClass]="{'matched-dashboard': dashboard.id === curDashboardId}">
             <ng-container *ngTemplateOutlet="dashboardItem;context:{dashboard: dashboard, panelIndex: panelIndex}"></ng-container>
         </mat-list-item>
     </mat-nav-list>
@@ -397,7 +397,7 @@
 </ng-template>
 
 <ng-template #dashboardItem let-dashboard="dashboard" let-panelIndex="panelIndex">
-    <div class="dnav-dashboard-item" [ngClass]="{'dnav-menu-opened': menuIsOpen === dashboard.fullPath || miniNavOpen === dashboard.fullPath}">
+    <div class="dnav-dashboard-item" [ngClass]="{'dnav-menu-opened': menuIsOpen === dashboard.fullPath || miniNavOpen === dashboard.fullPath, 'matched-dashboard': dashboard.id === curDashboardId}">
         <a routerLink="/d/{{dashboard.id}}{{dashboard.fullPath}}" (click)="fileMenuAction('navigateTo', dashboard)"class="dnav-dashboard-link flex-spacer">
             <mat-icon class="dnav-dashboard-icon" fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
             <span class="dnav-dashboard-label">{{dashboard.name}}</span>
@@ -423,7 +423,7 @@
 </ng-template>
 
 <!-- OTHER TEMPLATES -->
-<ng-template #simpleRowDisplay let-data="data" let-icon="icon" let-loading="loading">
+<ng-template #simpleFolderDisplay let-data="data" let-icon="icon" let-loading="loading" let-showcount="showcount">
     <div class="dnav-folder-item">
         <div class="list-item">
             <mat-icon class="folder-icon" fontSet="denali" [fontIcon]="icon || 'd-dashboard-tile'"></mat-icon>
@@ -431,11 +431,11 @@
         <div class="list-item folder-name flex-spacer">
             <span>{{data.name || 'BROKEN'}}</span>
         </div>
-        <!--<div class="list-item">
+        <div class="list-item" *ngIf="showcount">
             <span class="counter">
-                <span class="chip-count">{{((folder.subfolders) ? folder.subfolders.length : 0) + ((folder.files) ? folder.files.length : 0)}}</span>
+                <span class="chip-count">{{((data.subfolders) ? data.subfolders.length : 0) + ((data.files) ? data.files.length : 0)}}</span>
             </span>
-        </div>-->
+        </div>
         <div class="list-item goto-next-folder">
             <div class="loading-spinner size-s color-primary" *ngIf="loading"></div>
             <button mat-icon-button *ngIf="!loading">
@@ -493,11 +493,6 @@
     #dnavMiniNavigator="matMenu">
     <ng-template matMenuContent let-data="data" let-panelIndex="panelIndex" let-type="type">
         <div mat-menu-item (click)="$event.stopPropagation();" [disableRipple]="true">
-            <!-- TODO: make new nini nav with new dbfs system -->
-            <!--<mini-navigator mode="move" [type]="type" [path]="data.fullPath" 
-                (navigationCancel)="miniNavTrigger.closeMenu()"
-                (directorySelected)="miniNavAction($event)"
-                #miniNav></mini-navigator>-->
             <dbfs-mini-nav mode="move" [type]="type" [path]="data.fullPath"
                 (navigationCancel)="miniNavCancel($event)"
                 (directorySelected)="miniNavSelected($event)"
@@ -505,37 +500,3 @@
         </div>
     </ng-template>
 </mat-menu>
-
-
-
-<!-- OLD STUFF (will remove) -->
-
-<ng-template #folderDisplay let-folder="folder">
-    <div class="dnav-folder-item">
-        <div class="list-item">
-            <mat-icon class="folder-icon" fontSet="denali" [fontIcon]="folder.icon || 'd-folder'"></mat-icon>
-        </div>
-        <div class="list-item folder-name flex-spacer">
-            <span>{{folder.name || 'BROKEN'}}</span>
-        </div>
-        <div class="list-item">
-            <span class="counter">
-                <span class="chip-count">{{((folder.subfolders) ? folder.subfolders.length : 0) + ((folder.files) ? folder.files.length : 0)}}</span>
-            </span>
-        </div>
-        <div class="list-item goto-next-folder">
-            <button mat-icon-button >
-                <mat-icon fontSet="denali" fontIcon="d-arrowhead-right"></mat-icon>
-            </button>
-        </div>
-    </div>
-</ng-template>
-
-<ng-template #fileDisplay let-dashboard="dashboard">
-    <div class="dnav-dashboard-item">
-        <a routerLink="/d{{dashboard.path}}" (click)="menuAction('navigateTo')" class="dnav-dashboard-link flex-spacer">
-            <mat-icon class="dnav-dashboard-icon" fontSet="denali" fontIcon="d-dashboard-tile"></mat-icon>
-            <span class="dnav-dashboard-label">{{dashboard.name}}</span>
-        </a>
-    </div>
-</ng-template>

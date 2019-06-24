@@ -1,11 +1,14 @@
 import { State, StateContext, Action, Store, Selector, createSelector } from '@ngxs/store';
 import { append, patch, removeItem, updateItem } from '@ngxs/store/operators';
-import { UtilsService } from '../../../../core/services/utils.service';
-import { LoggerService } from '../../../../core/services/logger.service';
+import { UtilsService } from '../../core/services/utils.service';
+import { LoggerService } from '../../core/services/logger.service';
 import { map, tap, catchError, reduce } from 'rxjs/operators';
 import { DbfsUtilsService } from '../services/dbfs-utils.service';
 
-import { DbfsResourcesState, DbfsLoadTopFolder, DbfsLoadTopFolderSuccess, DbfsLoadSubfolderSuccess, DbfsLoadSubfolder } from './dbfs-resources.state';
+import {
+    DbfsResourcesState
+} from './dbfs-resources.state';
+
 import { DbfsService } from '../services/dbfs.service';
 
 /** INTERFACES */
