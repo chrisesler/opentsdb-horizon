@@ -67,9 +67,8 @@ export class YamasService {
                             q.filterId = filterId;
                         }
                         
-                        const aggregator = downsample.aggregator;
                         let dsId = q.id + '_downsample';
-                        subGraph.push(this.getQueryDownSample(downsample, aggregator, dsId, [q.id]));
+                        subGraph.push(this.getQueryDownSample(downsample, this.downsample.aggregator, dsId, [q.id]));
 
                         const groupbyId = q.id + '_groupby';
                         groupByIds.push(groupbyId);

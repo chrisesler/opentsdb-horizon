@@ -12,8 +12,8 @@ import {
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { startWith, debounceTime, catchError } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+import { startWith, debounceTime, catchError } from 'rxjs/operators';
 import { HttpService } from '../../../../../core/http/http.service';
 import { Store } from '@ngxs/store';
 import { DBSettingsState } from '../../../../../dashboard/state/settings.state';
@@ -71,9 +71,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         this.queryChanges$ = new BehaviorSubject(false);
 
         this.queryChangeSub = this.queryChanges$
-            .pipe(
-                debounceTime(1000)
-            )
             .subscribe(trigger => {
                 if (trigger) {
                     this.triggerQueryChanges();

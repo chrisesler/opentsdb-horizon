@@ -8,6 +8,7 @@ import { Subscription, BehaviorSubject } from 'rxjs';
 import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
+import { debounceTime} from 'rxjs/operators';
 
 
 @Component({
@@ -32,6 +33,10 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     private isDataLoaded = false;
     type$: BehaviorSubject<string>;
     typeSub: Subscription;
+
+    doRefreshData$: BehaviorSubject<boolean>;
+    doRefreshDataSub: Subscription;
+
     options: any  = {
         type: 'doughnut',
         legend: {
@@ -61,6 +66,17 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     ) { }
 
     ngOnInit() {
+        this.doRefreshData$ = new BehaviorSubject(false);
+        this.doRefreshDataSub = this.doRefreshData$
+            .pipe(
+                debounceTime(1000)
+            )
+            .subscribe(trigger => {
+                if (trigger) {
+                    this.refreshData();
+                }
+            });
+
         this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'doughnut');
         this.typeSub = this.type$.subscribe( type => {
             this.widget.settings.visual.type = type;
@@ -182,7 +198,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetLegend':
@@ -200,13 +216,13 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'SetSorting':
                 this.setSorting(message.payload);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
@@ -223,13 +239,13 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
         }
@@ -345,5 +361,6 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         this.listenSub.unsubscribe();
         this.typeSub.unsubscribe();
         this.newSizeSub.unsubscribe();
+        this.doRefreshDataSub.unsubscribe();
     }
 }

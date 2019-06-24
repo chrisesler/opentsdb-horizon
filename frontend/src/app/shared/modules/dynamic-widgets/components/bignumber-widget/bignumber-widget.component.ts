@@ -77,6 +77,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
 
+    doRefreshData$: BehaviorSubject<boolean>;
+    doRefreshDataSub: Subscription;
+
     @ViewChild('myCanvas') myCanvas: ElementRef;
     public context: CanvasRenderingContext2D;
 
@@ -92,6 +95,17 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
         this.disableAnyRemainingGroupBys();
         this.setDefaultVisualization();
+
+        this.doRefreshData$ = new BehaviorSubject(false);
+        this.doRefreshDataSub = this.doRefreshData$
+            .pipe(
+                debounceTime(1000)
+            )
+            .subscribe(trigger => {
+                if (trigger) {
+                    this.refreshData();
+                }
+            });
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
 
@@ -446,7 +460,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
@@ -471,7 +485,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
@@ -483,7 +497,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
         }
@@ -659,6 +673,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         if (this.listenSub) {
             this.listenSub.unsubscribe();
         }
+        this.doRefreshDataSub.unsubscribe();
     }
 
 }
