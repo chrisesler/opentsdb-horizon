@@ -231,12 +231,12 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'CloneQuery':
                 this.cloneQuery(message.id);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
                 this.deleteQuery(message.id);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.widget = {...this.widget};
                 this.needRequery = true;
                 break;
