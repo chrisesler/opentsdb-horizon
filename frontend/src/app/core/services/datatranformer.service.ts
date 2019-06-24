@@ -498,8 +498,10 @@ export class DatatranformerService {
                 const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, mIndex);
                 let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
                 label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
-                const o = { label: label, value: aggData[aggrIndex], color: this.overrideColor(aggData[aggrIndex], color, widget.settings.visual.conditions), tooltipData: tags};
-                options.data.push(o);
+                if ( !isNaN(aggData[aggrIndex])) {
+                    const o = { label: label, value: aggData[aggrIndex], color: this.overrideColor(aggData[aggrIndex], color, widget.settings.visual.conditions), tooltipData: tags};
+                    options.data.push(o);
+                }
             }
         }
 

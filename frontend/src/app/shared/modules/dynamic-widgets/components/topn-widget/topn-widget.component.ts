@@ -58,6 +58,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch ( message.action ) {
+                case 'TimeChanged':
                 case 'reQueryData':
                 case 'ZoomDateRange':
                     this.refreshData();

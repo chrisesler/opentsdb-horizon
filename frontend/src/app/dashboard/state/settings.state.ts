@@ -120,7 +120,7 @@ export class DBSettingsState {
     updateDashboardTime(ctx: StateContext<DBSettingsModel>, { time }: UpdateDashboardTime) {
         const state = ctx.getState();
         time.zone = state.time.zone;
-        ctx.patchState({...state, time: time});
+        ctx.patchState({time: time});
     }
 
     @Action(UpdateDashboardTimeZone)
