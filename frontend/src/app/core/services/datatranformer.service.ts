@@ -246,7 +246,7 @@ export class DatatranformerService {
                 const data = queryResults.data[j].NumericType;
                 const tags = queryResults.data[j].tags;
                 const numPoints = data.length;
-                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, mIndex);
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
                     let metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults.data[j].metric;
                     metric = this.getLableFromMetricTags(metric, { metric: !mConfig.expression ? queryResults.data[j].metric : mLabel, ...tags});
                     const unit = timeSpecification.interval.replace(/[0-9]/g, '');
@@ -348,7 +348,7 @@ export class DatatranformerService {
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
-                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, mIndex);
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
                 let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
                 const aggrIndex = aggs.indexOf(summarizer);
                 label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
@@ -458,7 +458,7 @@ export class DatatranformerService {
                 const tags = results[i].data[j].tags;
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
-                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, mIndex);
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
                 let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
                 const aggrIndex = aggs.indexOf(summarizer);
                 label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
@@ -497,7 +497,7 @@ export class DatatranformerService {
                 const key = Object.keys(results[i].data[j].NumericSummaryType.data[0])[0];
                 const aggrIndex = aggs.indexOf(summarizer);
                 const aggData = results[i].data[j].NumericSummaryType.data[0][key];
-                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, 0, mIndex);
+                const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
                 let label = mConfig.settings.visual.label ? mConfig.settings.visual.label : mConfig.expression ? mLabel : results[i].data[j].metric;
                 label = this.getLableFromMetricTags(label, { metric: !mConfig.expression ? results[i].data[j].metric : mLabel, ...tags});
                 if ( !isNaN(aggData[aggrIndex])) {

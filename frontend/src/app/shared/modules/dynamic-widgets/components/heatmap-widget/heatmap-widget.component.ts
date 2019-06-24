@@ -13,6 +13,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 import { BehaviorSubject } from 'rxjs';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
+import { debounceTime } from 'rxjs/operators';
 import heatmapPlotter from '../../../../dygraphs/plotters';
 
 @Component({
@@ -88,6 +89,8 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   size: any = { width: 120, height: 75};
   newSize$: BehaviorSubject<any>;
   newSizeSub: Subscription;
+  doRefreshData$: BehaviorSubject<boolean>;
+  doRefreshDataSub: Subscription;
   nQueryDataLoading: number;
   error: any;
   errorDialog: MatDialogRef < ErrorDialogComponent > | null;
@@ -104,6 +107,16 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   ) { }
 
   ngOnInit() {
+    this.doRefreshData$ = new BehaviorSubject(false);
+    this.doRefreshDataSub = this.doRefreshData$
+        .pipe(
+            debounceTime(1000)
+        )
+        .subscribe(trigger => {
+            if (trigger) {
+                this.refreshData();
+            }
+        });
       // subscribe to event stream
       this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
           switch (message.action) {
@@ -184,7 +197,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             break;
         case 'SetTimeConfiguration':
             this.setTimeConfiguration(message.payload.data);
-            this.refreshData();
+            this.doRefreshData$.next(true);
             this.needRequery = true; // set flag to requery if apply to dashboard
             break;
         case 'SetVisualization':
@@ -200,7 +213,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
         case 'UpdateQuery':
             this.updateQuery(message.payload);
             this.widget.queries = [...this.widget.queries];
-            this.refreshData();
+            this.doRefreshData$.next(true);
             this.needRequery = true;
             break;
         case 'SetQueryEditMode':
@@ -216,13 +229,13 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             break;
         case 'DeleteQueryMetric':
             this.deleteQueryMetric(message.id, message.payload.mid);
-            this.refreshData();
+            this.doRefreshData$.next(true);
             this.needRequery = true;
             break;
         case 'DeleteQueryFilter':
             this.deleteQueryFilter(message.id, message.payload.findex);
             this.widget.queries = this.util.deepClone(this.widget.queries);
-            this.refreshData();
+            this.doRefreshData$.next(true);
             this.needRequery = true;
             break;
         case 'ToggleQueryVisibility':
@@ -232,12 +245,12 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             break;
         case 'CloneQuery':
             this.cloneQuery(message.id);
-            this.refreshData();
+            this.doRefreshData$.next(true);
             this.needRequery = true;
             break;
         case 'DeleteQuery':
             this.deleteQuery(message.id);
-            this.refreshData();
+            this.doRefreshData$.next(true);
             this.widget = {...this.widget};
             this.needRequery = true;
             break;
@@ -466,6 +479,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   ngOnDestroy() {
       this.listenSub.unsubscribe();
       this.newSizeSub.unsubscribe();
+      this.doRefreshDataSub.unsubscribe();
   }
 
 }
