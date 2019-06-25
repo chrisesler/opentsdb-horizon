@@ -114,6 +114,9 @@ export class UtilsService {
   }
 
   getDSIndexToMetricIndex(query, dsmindex, type) {
+    if ( !query ) {
+        return -1;
+    }
     let index = 0;
     let mindex = -1;
     let eindex = -1;
