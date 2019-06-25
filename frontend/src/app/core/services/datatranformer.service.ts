@@ -38,11 +38,11 @@ export class DatatranformerService {
         const qids = this.REGDSID.exec(mid);
         const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
         const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
-        const gConfig = widget.queries[qIndex];
-        const mConfig = widget.queries[qIndex].metrics[mIndex];
+        const gConfig = widget.queries[qIndex] ? widget.queries[qIndex] : null;
+        const mConfig = gConfig && gConfig.metrics[mIndex] ? gConfig.metrics[mIndex] : null;
         const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
         queryResults[i] = Object.assign( {}, queryResults[i], {visualType: vConfig.type || 'line'} );
-        if ( gConfig.settings.visual.visible && vConfig.visible ) {
+        if ( gConfig && gConfig.settings.visual.visible && vConfig.visible ) {
             if (!dict[mid]) {
                 dict[mid] = { hashes: {}};
             }
@@ -109,14 +109,14 @@ export class DatatranformerService {
 
                 const timeSpecification = queryResults[i].timeSpecification;
                 const qid = widget.queries[qIndex].id;
-                const gConfig = widget.queries[qIndex];
-                const mConfig = widget.queries[qIndex].metrics[mIndex];
+                const gConfig = widget.queries[qIndex] ? widget.queries[qIndex] : null;
+                const mConfig = gConfig && widget.queries[qIndex].metrics[mIndex] ? widget.queries[qIndex].metrics[mIndex] : {};
                 const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
                 const n = queryResults[i].data.length;
-                const colorIndex = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? wdQueryStats.mVisibleAutoColorIds.indexOf( qid + '-' + mConfig.id ) : -1;
-                const color = mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color ? autoColors[colorIndex] : mConfig.settings.visual.color;
+                const colorIndex = vConfig.color === 'auto' || !vConfig.color ? wdQueryStats.mVisibleAutoColorIds.indexOf( qid + '-' + mConfig.id ) : -1;
+                const color = vConfig.color === 'auto' || !vConfig.color ? autoColors[colorIndex] : mConfig.settings.visual.color;
                 const colors = n === 1 ?
-                    [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics === 1 && (mConfig.settings.visual.color === 'auto' || !mConfig.settings.visual.color) ? null : color , n ) ;
+                    [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics === 1 && (vConfig.color === 'auto' || !vConfig.color) ? null : color , n ) ;
                 for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults[i].data[j].NumericType;
                     const tags = queryResults[i].data[j].tags;
@@ -125,7 +125,7 @@ export class DatatranformerService {
                     const metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults[i].data[j].metric;
                     const numPoints = data.length;
                     const label = options.labels.length.toString();
-                    if ( gConfig.settings.visual.visible && vConfig.visible ) {
+                    if ( gConfig && gConfig.settings.visual.visible && vConfig.visible ) {
                         const aggData = dict[mid]['summarizer'][hash];
                         options.labels.push(label);
                         options.visibility.push(true);
@@ -151,18 +151,18 @@ export class DatatranformerService {
                             options.series[label].label = this.getLableFromMetricTags(metric, options.series[label].tags);
                         }
                         options.series[label].label = this.getLableFromMetricTags(metric, options.series[label].tags);
-                    const seriesIndex = options.labels.indexOf(label);
-                    const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+                        const seriesIndex = options.labels.indexOf(label);
+                        const unit = timeSpecification.interval.replace(/[0-9]/g, '');
 
-                    // tslint:disable-next-line: radix
-                    const m = parseInt(timeSpecification.interval);
-                    for (let k = 0; k < numPoints; k++) {
-                        if (!Array.isArray(normalizedData[k])) {
-                            const time = timeSpecification.start + (m * k * mSeconds[unit]);
-                            normalizedData[k] = [new Date(time * 1000)];
+                        // tslint:disable-next-line: radix
+                        const m = parseInt(timeSpecification.interval);
+                        for (let k = 0; k < numPoints; k++) {
+                            if (!Array.isArray(normalizedData[k])) {
+                                const time = timeSpecification.start + (m * k * mSeconds[unit]);
+                                normalizedData[k] = [new Date(time * 1000)];
+                            }
+                            normalizedData[k][seriesIndex] = !isNaN(data[k]) ? data[k] : null;
                         }
-                        normalizedData[k][seriesIndex] = !isNaN(data[k]) ? data[k] : null;
-                    }
                 }
             }
         }
@@ -190,14 +190,14 @@ export class DatatranformerService {
             const qids = this.REGDSID.exec(mid);
             const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
             const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
-            const gConfig = widget.queries[qIndex];
-            const mConfig = widget.queries[qIndex].metrics[mIndex];
+            const gConfig = widget.queries[qIndex] ? widget.queries[qIndex] : null;
+            const mConfig = gConfig && gConfig.metrics[mIndex] ? widget.queries[qIndex].metrics[mIndex] : null;
             const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
             const n = queryResults.data.length;
             for ( let j = 0; j < n; j ++ ) {
                 const data = queryResults.data[j].NumericType;
                 const numPoints = data.length;
-                if ( gConfig.settings.visual.visible && vConfig.visible ) {
+                if ( gConfig && gConfig.settings.visual.visible && vConfig.visible ) {
                     for (let k = 0; k < numPoints ; k++ ) {
                         if (!isNaN(data[k]) && data[k] < min) {
                             min = data[k];
@@ -229,16 +229,16 @@ export class DatatranformerService {
             const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
             const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
 
-            const gConfig = widget.queries[qIndex];
-            const mConfig = widget.queries[qIndex].metrics[mIndex];
+            const gConfig = widget.queries[qIndex] ? widget.queries[qIndex] : null;
+            const mConfig = gConfig && gConfig.metrics[mIndex] ? widget.queries[qIndex].metrics[mIndex] : null;
             const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
-            if ( source === 'summarizer' || !gConfig.settings.visual.visible || !vConfig.visible) {
+            if ( source === 'summarizer' || !gConfig || !gConfig.settings.visual.visible || !vConfig.visible) {
                 continue;
             }
 
             const timeSpecification = queryResults.timeSpecification;
             const n = queryResults.data.length;
-            const color = mConfig.settings.visual.color === 'auto' ? autoColors[cIndex++] : mConfig.settings.visual.color;
+            const color = vConfig.color === 'auto' ? autoColors[cIndex++] : vConfig.color;
             options.heatmap.nseries = n;
             options.heatmap.color = color;
 
@@ -334,9 +334,9 @@ export class DatatranformerService {
             const qids = this.REGDSID.exec(results[i].source.split(':')[1]);
             const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
             const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
-            const gConfig = widget.queries[qIndex];
-            const mConfig = widget.queries[qIndex].metrics[mIndex];
-            if ( !gConfig.settings.visual.visible || !mConfig.settings.visual.visible ) {
+            const gConfig = widget.queries[qIndex] ? widget.queries[qIndex] : null;
+            const mConfig = widget.queries[qIndex] && widget.queries[qIndex].metrics[mIndex] ? widget.queries[qIndex].metrics[mIndex] : null;
+            if ( !gConfig || !mConfig || !gConfig.settings.visual.visible || !mConfig.settings.visual.visible ) {
                 continue;
             }
             const n = results[i].data.length;
@@ -425,14 +425,6 @@ export class DatatranformerService {
             return {...options};
         }
         const results = queryData.results ? queryData.results : [];
-
-        // const gConfig = widget.queries[0];
-        // const mConfigs = gConfig.metrics;
-        // const mvConfigs = mConfigs.filter(item => item.settings.visual.visible);
-        // const mAutoConfigs = mConfigs.filter(item => item.settings.visual.visible && ( item.settings.visual.color === 'auto' || !item.settings.visual.color ));
-        // let autoColors =  this.util.getColors( null , mAutoConfigs.length );
-        // autoColors = mAutoConfigs.length > 1 ? autoColors : [autoColors];
-
         const wdQueryStats = this.util.getWidgetQueryStatistics(widget.queries);
         let autoColors =  this.util.getColors( null , wdQueryStats.nVisibleAutoColors );
         autoColors = wdQueryStats.nVisibleAutoColors > 1 ? autoColors : [autoColors];
@@ -443,9 +435,9 @@ export class DatatranformerService {
             const qids = this.REGDSID.exec(mid);
             const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
             const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
-            const gConfig = widget.queries[qIndex];
-            const mConfig = widget.queries[qIndex].metrics[mIndex];
-            if ( !gConfig.settings.visual.visible || !mConfig.settings.visual.visible ) {
+            const gConfig = widget.queries[qIndex] ? widget.queries[qIndex] : null;
+            const mConfig = widget.queries[qIndex] && widget.queries[qIndex].metrics[mIndex] ? widget.queries[qIndex].metrics[mIndex] : null;
+            if ( !gConfig || !mConfig || !gConfig.settings.visual.visible || !mConfig.settings.visual.visible ) {
                 continue;
             }
 
@@ -482,9 +474,9 @@ export class DatatranformerService {
             const qids = this.REGDSID.exec(mid);
             const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
             const mIndex =  this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
-            const gConfig = widget.queries[qIndex];
-            const mConfig = widget.queries[qIndex].metrics[mIndex];
-            if ( !gConfig.settings.visual.visible || !mConfig.settings.visual.visible ) {
+            const gConfig = widget.queries[qIndex] ? widget.queries[qIndex] : null;
+            const mConfig = widget.queries[qIndex] && widget.queries[qIndex].metrics[mIndex] ? widget.queries[qIndex].metrics[mIndex] : null;
+            if ( !gConfig || !mConfig || !gConfig.settings.visual.visible || !mConfig.settings.visual.visible ) {
                 continue;
             }
 

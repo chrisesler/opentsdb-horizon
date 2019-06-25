@@ -148,7 +148,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
     requestData() {
         if (!this.isDataLoaded) {
-            this.nQueryDataLoading = this.widget.queries.length;
+            this.nQueryDataLoading = 1;
             this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
@@ -160,7 +160,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     requestCachedData() {
-        this.nQueryDataLoading = this.widget.queries.length;
+        this.nQueryDataLoading = 1;
         this.error = null;
         this.interCom.requestSend({
             id: this.widget.id,
@@ -245,20 +245,28 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
     updateQuery( payload ) {
         const query = payload.query;
-        const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
+        let qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
         if ( qindex !== -1 ) {
             this.widget.queries[qindex] = query;
         }
-        let visibleIndex = 0;
-        for (let i = 0; i < this.widget.queries[0].metrics.length; i++ ) {
-            if ( this.widget.queries[0].metrics[i].settings.visual.visible ) {
-                visibleIndex = i;
+        let hasVisibleMetric = false;
+        for (let i = 0; i < this.widget.queries.length; i++ ) {
+            for (let j = 0; j < this.widget.queries[i].metrics.length; j++ ) {
+                if ( this.widget.queries[i].metrics[j].settings.visual.visible ) {
+                    hasVisibleMetric = true;
+                    break;
+                }
+            }
+            if ( hasVisibleMetric ) {
                 break;
             }
         }
+
         // default metric visibility is false. so make first metric visible
-        for (let i = 0; i < this.widget.queries[0].metrics.length; i++ ) {
-            this.widget.queries[0].metrics[i].settings.visual.visible = visibleIndex === i ? true : false;
+        // find query with metrics in it
+        qindex = this.widget.queries.findIndex(d => d.metrics.length > 0);
+        if ( qindex !== -1 && hasVisibleMetric === false ) {
+            this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
         }
     }
 
@@ -309,20 +317,25 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
     toggleQueryMetricVisibility(qid, mid) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        const mindex = this.widget.queries[0].metrics.findIndex(d => d.id === mid);
-        for (const metric of this.widget.queries[0].metrics) {
-            metric.settings.visual.visible = false;
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        for (let i = 0; i < this.widget.queries.length; i++ ) {
+            for (let j = 0; j < this.widget.queries[i].metrics.length; j++ ) {
+                this.widget.queries[i].metrics[j].settings.visual.visible = false;
+            }
         }
         this.widget.queries[qindex].metrics[mindex].settings.visual.visible = true;
     }
 
     deleteQueryMetric(qid, mid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        let qindex = this.widget.queries.findIndex(d => d.id === qid);
         const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
         const delMetricVisibility = this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
         this.widget.queries[qindex].metrics.splice(mindex, 1);
-        if ( delMetricVisibility && this.widget.queries[qindex].metrics.length ) {
-            this.widget.queries[0].metrics[0].settings.visual.visible = true;
+
+        // find query with metrics in it
+        qindex = this.widget.queries.findIndex(d => d.metrics.length > 0);
+        if ( qindex !== -1 && delMetricVisibility ) {
+            this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
         }
     }
 
@@ -346,11 +359,13 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     deleteQuery(qid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        let qindex = this.widget.queries.findIndex(d => d.id === qid);
         const hasSelectedMetric = this.widget.queries[qindex].metrics.findIndex( d => d.settings.visual.visible );
         this.widget.queries.splice(qindex, 1);
-        if ( hasSelectedMetric !== -1 && this.widget.queries.length && this.widget.queries[0].metrics.length  ) {
-            this.widget.queries[0].metrics[0].settings.visual.visible = true;
+
+        qindex = this.widget.queries.findIndex(d => d.metrics.length > 0 );
+        if ( qindex !== -1 && hasSelectedMetric !== -1  ) {
+            this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
         }
     }
 
