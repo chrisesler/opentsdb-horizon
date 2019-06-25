@@ -125,7 +125,7 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
 
     /* INIT MINI NAV */
     private miniNavInit() {
-        this.logger.log('MINI NAV INIT',{
+        this.logger.log('MINI NAV INIT', {
             mode: this.mode,
             type: this.type,
             path: this.path
@@ -160,7 +160,7 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
             pathParts.pop();
         }
 
-        const pathPrefix = pathParts.splice(0, 3).join('/');
+        let pathPrefix = pathParts.splice(0, 3).join('/');
 
         // cache member namespaces directory until needed
         const mbrNamespaces = this.store.selectSnapshot(DbfsResourcesState.getFolder(':member-namespaces:'));
@@ -170,12 +170,12 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
 
         this.folders[mbrNamespacesPanel.fullPath] = mbrNamespacesPanel;
 
-        mbrNamespacesPanel.subfolders.forEach((item) => {
-            const enabled = (item.split('/').length > 2);
+        for (let i = 0; i < mbrNamespacesPanel.subfolders.length; i++) {
+            const item = mbrNamespacesPanel.subfolders[i];
             const folder = this.store.selectSnapshot(DbfsResourcesState.getFolder(item));
-            const folderPanel = this.dbfsUtils.normalizePanelFolder(folder, enabled, enabled);
+            const folderPanel = this.dbfsUtils.normalizePanelFolder(folder, true, true);
             this.folders[folderPanel.fullPath] = folderPanel;
-        });
+        }
 
         if (pathDetails.type === 'namespace') {
             // if opening path IS within a namespace, lets go ahead and add the mbrNamespacesPanel to panels
@@ -188,44 +188,60 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
 
             this.folders[userFolderPanel.fullPath] = userFolderPanel;
 
-            userFolderPanel.subfolders.forEach((item) => {
-                const folder = this.store.selectSnapshot(DbfsResourcesState.getFolder(item));
-                const folderPanel = this.dbfsUtils.normalizePanelFolder(folder, true, true, (folder.fullPath === this.originDetails.fullPath));
-                this.folders[folderPanel.fullPath] = folderPanel;
-            });
+            for (let i = 0; i < userFolderPanel.subfolders.length; i++) {
+                const item = userFolderPanel.subfolders[i];
+                if (item) {
+                    const folder = this.store.selectSnapshot(DbfsResourcesState.getFolder(item));
+                    const folderPanel = this.dbfsUtils.normalizePanelFolder(folder, true, true, (folder.fullPath === this.originDetails.fullPath));
+                    this.folders[folderPanel.fullPath] = folderPanel;
+                }
+            }
         }
 
         // top folder for the opening path
         const topFolder = this.store.selectSnapshot(DbfsResourcesState.getFolder(pathPrefix));
         const topFolderPanel = this.dbfsUtils.normalizePanelFolder(topFolder, true, true, (topFolder.fullPath === this.originDetails.fullPath));
         topFolderPanel.loaded = topFolder.loaded;
-        
+
         this.panels.push(topFolderPanel);
         this.folders[topFolderPanel.fullPath] = topFolderPanel;
 
-        topFolderPanel.subfolders.forEach((item) => {
-            const folder = this.store.selectSnapshot(DbfsResourcesState.getFolder(item));
-            const folderPanel = this.dbfsUtils.normalizePanelFolder(folder, true, true, (folder.fullPath === this.originDetails.fullPath));
-            folderPanel.loaded = folder.loaded;
-            this.folders[folderPanel.fullPath] = folderPanel;
-        });
+        for (let i = 0; i < topFolder.subfolders.length; i++) {
+            const item = topFolder.subfolders[i];
+            if (item) {
+                const folder = this.store.selectSnapshot(DbfsResourcesState.getFolder(item));
+                const folderPanel = this.dbfsUtils.normalizePanelFolder(folder, true, true, (folder.fullPath === this.originDetails.fullPath));
+                folderPanel.loaded = folder.loaded;
+                this.folders[folderPanel.fullPath] = folderPanel;
+            }
+        }
+
 
         // now lets traverse the rest of the opening path to get the parts
         if (pathParts.length > 0) {
-            for (const part of pathParts) {
-                const folder = this.store.selectSnapshot(DbfsResourcesState.getFolder(pathPrefix + '/' + part));
+
+            for (let i = 0; i < pathParts.length; i++) {
+                const part = pathParts[i].trim();
+                // add part to prefix
+                pathPrefix = pathPrefix + '/' + part;
+                // get folder
+                const folder = this.store.selectSnapshot(DbfsResourcesState.getFolder(pathPrefix));
                 const folderPanel = this.dbfsUtils.normalizePanelFolder(folder, true, true, (folder.fullPath === this.originDetails.fullPath));
                 folderPanel.loaded = folder.loaded;
-                
+
                 this.panels.push(folderPanel);
                 this.folders[folderPanel.fullPath] = folderPanel;
                 
-                folder.subfolders.forEach((item) => {
-                    const subfolder = this.store.selectSnapshot(DbfsResourcesState.getFolder(item));
-                    const subfolderPanel = this.dbfsUtils.normalizePanelFolder(subfolder, true, true, (subfolder.fullPath === this.originDetails.fullPath));
-                    subfolderPanel.loaded = subfolder.loaded;
-                    this.folders[subfolderPanel.fullPath] = subfolderPanel;
-                });
+                for (let j = 0; j < folder.subfolders.length; j++) {
+                    const item = folder.subfolders[i];
+                    console.log('ITEM', item);
+                    if (item) {
+                        const subfolder = this.store.selectSnapshot(DbfsResourcesState.getFolder(item));
+                        const subfolderPanel = this.dbfsUtils.normalizePanelFolder(subfolder, true, true, (subfolder.fullPath === this.originDetails.fullPath));
+                        subfolderPanel.loaded = subfolder.loaded;
+                        this.folders[subfolderPanel.fullPath] = subfolderPanel;
+                    }
+                }
             }
         }
 

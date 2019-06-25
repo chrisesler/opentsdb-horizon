@@ -1036,14 +1036,18 @@ export class DbfsResourcesState {
         // remove cache of children folders
         if (folderKeys.length > 0) {
             for ( const key of folderKeys) {
-                delete folders[key];
+                if (folders[key]) {
+                    delete folders[key];
+                }
             }
         }
 
         // remove cache of children files
         if (fileKeys.length > 0) {
             for ( const key of fileKeys) {
-                delete files[key];
+                if (files[key]) {
+                    delete files[key];
+                }
             }
         }
 
@@ -1052,17 +1056,19 @@ export class DbfsResourcesState {
         const folder = this.dbfsUtils.normalizeFolder(response);
         folders[folder.fullPath] = folder;
 
-        // update parent
-        if (!folders[folder.parentPath].subfolders) {
-            folders[folder.parentPath].subfolders = [];
-        }
-        folders[folder.parentPath].subfolders.push(folder.fullPath);
+        // update parent (if we have it cached)
+        if (folders[folder.parentPath]) {
+            if (!folders[folder.parentPath].subfolders) {
+                folders[folder.parentPath].subfolders = [];
+            }
+            folders[folder.parentPath].subfolders.push(folder.fullPath);
 
-        // re-sort parent folders
-        if (folders[folder.parentPath].subfolders.length > 1) {
-            folders[folder.parentPath].subfolders = folders[folder.parentPath].subfolders.sort((a: any, b: any) => {
-                return this.utils.sortAlphaNum(a, b);
-            });
+            // re-sort parent folders
+            if (folders[folder.parentPath].subfolders.length > 1) {
+                folders[folder.parentPath].subfolders = folders[folder.parentPath].subfolders.sort((a: any, b: any) => {
+                    return this.utils.sortAlphaNum(a, b);
+                });
+            }
         }
 
         ctx.patchState({
@@ -1109,17 +1115,21 @@ export class DbfsResourcesState {
         // update file
         const file: DbfsFileModel = this.dbfsUtils.normalizeFile(response);
 
-        // update parent
-        if (!folders[file.parentPath].files) {
-            folders[file.parentPath].files = [];
-        }
-        folders[file.parentPath].files.push(file.fullPath);
+        // update parent (if we have it cached)
+        if (folders[file.parentPath]) {
 
-        // re-sort parent files
-        if (folders[file.parentPath].files.length > 1) {
-            folders[file.parentPath].files = folders[file.parentPath].files.sort((a: any, b: any) => {
-                return this.utils.sortAlphaNum(files[a].name, files[b].name);
-            });
+            if (!folders[file.parentPath].files) {
+                folders[file.parentPath].files = [];
+            }
+
+            folders[file.parentPath].files.push(file.fullPath);
+
+            // re-sort parent files
+            if (folders[file.parentPath].files.length > 1) {
+                folders[file.parentPath].files = folders[file.parentPath].files.sort((a: any, b: any) => {
+                    return this.utils.sortAlphaNum(files[a].name, files[b].name);
+                });
+            }
         }
 
         ctx.patchState({
@@ -1150,7 +1160,7 @@ export class DbfsResourcesState {
     // generic Resource action
     @Action(DbfsMoveResource)
     moveResource(ctx: StateContext<DbfsResourcesModel>, { sourceId, destinationId, originPath, resourceAction }: DbfsMoveResource) {
-        this.logger.error('State :: Move Folder', { sourceId, destinationId, originPath, resourceAction });
+        this.logger.action('State :: Move Folder', { sourceId, destinationId, originPath, resourceAction });
 
         const state = ctx.getState();
 
