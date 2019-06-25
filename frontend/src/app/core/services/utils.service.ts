@@ -381,6 +381,7 @@ export class UtilsService {
                 }
             }
         }
+        return {};
     }
 
     getSourceIDAndTypeFromMetricID(metricId, queries) {
