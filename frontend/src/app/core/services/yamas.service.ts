@@ -204,14 +204,7 @@ export class YamasService {
                 case 'CounterDiff':   // old
                 case 'CounterValueDiff':
                     this.handleRateFunction(parseInt(qindex, 10) + 1, index + 1, subGraph, funs, i);
-                    break;/*
-                case 'AsCount':
-                    // set aggregator=sum
-                    const nindex = subGraph.findIndex(d => d.id.indexOf('_downsample') !== -1 );
-                    const node = subGraph[nindex];
-                    node.aggregator = 'sum';
                     break;
-                    */
                 // Smoothing
                 case 'EWMA':
                 case 'Median':
