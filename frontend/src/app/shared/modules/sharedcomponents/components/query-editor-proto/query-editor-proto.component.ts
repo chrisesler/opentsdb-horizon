@@ -204,6 +204,11 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             label: 'Rate',
             functions: [
                 {
+                    label: 'Total Per Time Interval',
+                    fxCall: 'AsCount',
+                    val: ''
+                },
+                {
                     label: 'Per Second',
                     fxCall: 'Rate',
                     val: '1s'
@@ -287,7 +292,13 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
     ];
 
-    FunctionValidation: any = {
+
+    FunctionOptions: any = {
+        'AsCount': {
+            noVal: true,
+            errorMessage: null,
+            regexValidator: null
+        },
         'RateOfChange' : {
             errorMessage: null,
             regexValidator: null
