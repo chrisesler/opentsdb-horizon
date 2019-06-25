@@ -83,7 +83,9 @@ export interface DbfsResourcesModel {
     // activeUser is ID of user the cookie belongs to
     activeUser: string;
     users: {}; // when pulling users other than active user
+    userList: any[];
     namespaces: {}; // namespaces data... NOT namespace folder
+    namespaceList: any[];
     folders: {}; // user and namespace folders
     files: {}; // user and namespace files (dashboards)
     error: {};

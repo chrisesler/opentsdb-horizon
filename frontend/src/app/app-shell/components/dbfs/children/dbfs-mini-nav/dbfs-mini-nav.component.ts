@@ -1,6 +1,5 @@
 import {
     Component,
-    ElementRef,
     EventEmitter,
     HostBinding,
     Input,
@@ -15,13 +14,8 @@ import { Observable, Subscription, of } from 'rxjs';
 import { NavigatorPanelComponent } from '../../../navigator-panel/navigator-panel.component';
 
 import {
-    DbfsPanelsState,
     DbfsResourcesState,
-    DbfsLoadResources,
-    DbfsOpenMiniNav,
-    DbfsRemoveMiniNavPanel,
-    DbfsMiniNavLoadPanel,
-    DbfsLoadSubfolder
+    DbfsLoadResources
 } from '../../../../state';
 
 import {
@@ -31,7 +25,7 @@ import {
 import { LoggerService } from '../../../../../core/services/logger.service';
 import { DbfsUtilsService } from '../../../../services/dbfs-utils.service';
 import { DbfsService } from '../../../../services/dbfs.service';
-import { map, catchError } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
@@ -88,9 +82,6 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
                     return true;
                 }
             }
-            /*if (this.originDetails.parentPath === this.panels[this.panelIndex].fullPath) {
-                return false;
-            }*/
             // this.logger.log('MOVE ENABLED', {originDetails: this.originDetails, curPanel: this.panels[this.panelIndex]})
             return this.panels[this.panelIndex].moveEnabled;
         }
@@ -249,10 +240,10 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
     }
 
     navigatorAction(action: string, event?: any) {
-        this.logger.log('[MINI NAV] NAVIGATOR ACTION', {action, event});
+        // this.logger.log('[MINI NAV] NAVIGATOR ACTION', {action, event});
         switch (action) {
             case 'move':
-                console.log('selected', this.originDetails, this.selected, this.panels[this.panelIndex]);
+                // console.log('selected', this.originDetails, this.selected, this.panels[this.panelIndex]);
 
                 this.directorySelected.emit({
                     action: 'miniNavMove',
@@ -288,7 +279,7 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
                     this.panels.splice(this.panelIndex);
                     this.panelIndex = this.panels.length - 1;
                     this.selected = false;
-                    console.log('this.panels', this.panels);
+                    // console.log('this.panels', this.panels);
                 }.bind(this));
                 break;
             default:
@@ -297,11 +288,11 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
     }
 
     folderAction(action: any, folder: any, event: any) {
-        this.logger.log('[MINI NAV] FOLDER ACTION', {action, folder, event, panels: this.panels});
+        // this.logger.log('[MINI NAV] FOLDER ACTION', {action, folder, event, panels: this.panels});
         event.stopPropagation();
         switch (action) {
             case 'gotoFolder':
-                console.log('GOTO FOLDER', folder);
+                // console.log('GOTO FOLDER', folder);
                 if (folder.loaded) {
                     this.addPanel(folder.fullPath);
                 } else {
@@ -317,17 +308,17 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
                     // can't select the folder, so just load it as a panel
                     // example is if they are viewing path '/namespace'
                     // OR if it is selected already, just act like a double click and load the panel
-                    console.log('Can\'t select', folder.fullPath);
-                    console.log('details', pathParts, folder, this.selected);
+                    // console.log('Can\'t select', folder.fullPath);
+                    // console.log('details', pathParts, folder, this.selected);
                     this.selected = false;
                     this.folderAction('gotoFolder', folder, event);
                 } else if (this.selected === folder.fullPath) {
-                    console.log('already selected', folder.fullPath);
+                    // console.log('already selected', folder.fullPath);
                     // its already selected, act like a double-click and load the panel
                     this.selected = '';
                     this.folderAction('gotoFolder', folder, event);
                 } else {
-                    console.log('mark selected', folder.fullPath);
+                    // console.log('mark selected', folder.fullPath);
                     this.selected = folder.fullPath;
                 }
                 break;
@@ -337,7 +328,7 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
     }
 
     private addPanel(path) {
-        this.logger.log('ADD PANEL', {path});
+        // this.logger.log('ADD PANEL', {path});
         this.panels.push(this.folders[path]);
         this.panelIndex = this.panels.length - 1;
 
@@ -346,11 +337,11 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
             this.navPanel.goNext();
         }.bind(this), 200);
 
-        console.log('this.panels', this.panels);
+        // console.log('this.panels', this.panels);
     }
 
     private loadSubFolderThenPanel(folder: any) {
-        this.logger.log('LOAD SUBFOLDER', { folder });
+        this.logger.log('LOAD SUBFOLDER THEN PANEL', { folder });
 
         const details = this.dbfsUtils.detailsByFullPath(folder.fullPath);
         let topFolder: any = false;
@@ -397,7 +388,4 @@ export class DbfsMiniNavComponent implements OnInit, OnDestroy {
             this.addPanel(folderPanel.fullPath);
         });
     }
-
-
-
 }

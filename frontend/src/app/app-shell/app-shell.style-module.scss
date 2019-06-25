@@ -9,15 +9,11 @@
 @import './containers/app-shell.component';
 
 // components
-//@import './components/mini-navigator/mini-navigator.component';
 @import './components/navigator-sidenav/navigator-sidenav.component';
 @import './components/app-navbar/app-navbar.component';
 @import './components/navigator-panel/navigator-panel.component';
 @import './components/dbfs/dbfs.component';
 @import './components/dbfs/children/dbfs-mini-nav/dbfs-mini-nav.component';
-
-// TODO: REMOVE NAVIGATOR STYLES
-//@import './components/dashboard-navigator/dashboard-navigator.component';
 
 $navbar-config: (
     'navbar-height': 48px,
@@ -38,14 +34,11 @@ $navbar-config: (
     // example: @include componentName-component-core();
     @include app-shell-component-base();
 
-    //@include mini-navigator-component-base();
     @include app-navigator-sidenav-component-base();
     @include app-navbar-component-base();
     @include navigator-panel-component-base();
     @include dbfs-component-base();
     @include dbfs-mini-nav-component-base();
-
-    //@include dashboard-navigator-component-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
@@ -56,12 +49,9 @@ $navbar-config: (
 
     @include app-shell-component-theme($theme-config);
 
-    //@include mini-navigator-component-theme($theme-config);
     @include app-navigator-sidenav-component-theme($theme-config);
     @include app-navbar-component-theme($theme-config);
     @include navigator-panel-component-theme($theme-config);
     @include dbfs-component-theme($theme-config);
     @include dbfs-mini-nav-component-theme($theme-config);
-
-    //@include dashboard-navigator-component-theme($theme-config);
 }

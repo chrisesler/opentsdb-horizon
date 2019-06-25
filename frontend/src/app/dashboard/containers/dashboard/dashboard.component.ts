@@ -436,9 +436,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 // possibly need to update the dbid
                 // necessary after saving a _new_ dashboard, so save dialog will not prompt again
                 if (this.dbid === '_new_') {
-                    console.log('NEW TO SAVE PATH', path);
+
                     this.dbid = this.store.selectSnapshot<any>(DBState.getDashboardId);
 
+                    // if the save was on a NEW dashboard, lets tell the navigator to update
                     if (path !== '/_new_' && path !== undefined) {
                         const fullPath = '/' + path.split('/').slice(2).join('/'); // strip off the id part of the url
                         const details = this.dbfsUtils.detailsByFullPath(fullPath);

@@ -9,15 +9,13 @@ import {
     Output,
     ViewChild,
     ViewChildren,
-    QueryList,
-    ElementRef
+    QueryList
 } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 
-import { Observable, Subscription } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, Subscription, BehaviorSubject } from 'rxjs';
 
 import { NavigatorPanelComponent } from '../navigator-panel/navigator-panel.component';
 
@@ -38,7 +36,6 @@ import {
     DbfsLoadSubfolder,
     DbfsLoadUsersList,
     DbfsLoadNamespacesList,
-    DbfsResetResourceAction,
     DbfsLoadTopFolder,
     DbfsCreateFolder,
     DbfsDeleteFolder,
@@ -50,6 +47,11 @@ import {
 import { LoggerService } from '../../../core/services/logger.service';
 import { MatMenuTrigger } from '@angular/material';
 import { DBState } from '../../../dashboard/state';
+
+import {
+    MatTableDataSource
+} from '@angular/material';
+
 
 @Component({
 // tslint:disable-next-line: component-selector
@@ -87,11 +89,15 @@ export class DbfsComponent implements OnInit, OnDestroy {
     // tslint:disable-next-line: no-inferrable-types
     namespacesListLoaded: boolean = false;
 
-    @Select(DbfsResourcesState.getNamespacesData) namespacesData$: Observable<any[]>;
+    @Select(DbfsResourcesState.getNamespacesList) namespacesData$: Observable<any[]>;
     namespacesList: any[] = [];
+    namespacesDataSource = new MatTableDataSource([]);
+    namespaceFilter: FormControl = new FormControl('');
 
-    @Select(DbfsResourcesState.getUsersData) usersData$: Observable<any[]>;
+    @Select(DbfsResourcesState.getUsersList) usersData$: Observable<any[]>;
     usersList: any[] = [];
+    usersDataSource = new MatTableDataSource([]);
+    usersFilter: FormControl = new FormControl('');
 
     @Select(DbfsResourcesState.getResourcesLoaded) resourcesLoaded$: Observable<any>;
 
@@ -205,15 +211,19 @@ export class DbfsComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.namespacesData$.subscribe( namespaces => {
-            this.namespacesList = Object.keys(namespaces).sort((a: any, b: any) => {
-                return this.utils.sortAlphaNum(namespaces[a].name, namespaces[b].name);
-            }).map(item => namespaces[item]);
+            // this.logger.log('NAMESPACES', {namespaces});
+            this.namespacesList = namespaces;
+            this.namespacesDataSource = new MatTableDataSource(this.namespacesList);
+            this.namespacesDataSource.filterPredicate = (data: any, filter: string) => {
+                return data.name.toLowerCase().includes(filter);
+            };
+
         }));
 
         this.subscription.add(this.usersData$.subscribe( users => {
-            this.usersList = Object.keys(users).sort((a: any, b: any) => {
-                return this.utils.sortAlphaNum(users[a].name, users[b].name);
-            }).map(item => users[item]);
+            // this.logger.log('USERS', {users});
+            this.usersList = users;
+            this.usersDataSource = new MatTableDataSource(this.usersList);
         }));
 
         this.subscription.add(this.resourceAction$.subscribe( action => {
@@ -239,6 +249,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
                 case 'goNextPanel':
                     setTimeout(function() {
                         self.navPanel.goNext();
+                        this.resetDataSourceFilters();
                     }, 200);
                     break;
                 case 'loadSubFolder':
@@ -263,11 +274,13 @@ export class DbfsComponent implements OnInit, OnDestroy {
                     break;
                 case ':list-users:':
                     setTimeout(function() {
+                        this.resetDataSourceFilters();
                         this.navPanel.goNext(this.loadAllUsersPanel.bind(this));
                     }.bind(self), 200);
                     break;
                 case ':list-namespaces:':
                     setTimeout(function() {
+                        this.resetDataSourceFilters();
                         this.navPanel.goNext(this.loadAllNamespacesPanel.bind(this));
                     }.bind(self), 200);
                     break;
@@ -341,21 +354,20 @@ export class DbfsComponent implements OnInit, OnDestroy {
     }
 
     miniNavClosed(event: any) {
-        this.logger.log('MINI NAV CLOSED', event);
+        // this.logger.log('MINI NAV CLOSED', event);
         this.miniNavOpen = false;
     }
 
     miniNavCancel(event: any) {
-        this.logger.log('MINI NAV CANCEL', event);
+        // this.logger.log('MINI NAV CANCEL', event);
         const trigger: MatMenuTrigger = this.findMiniNavTrigger(event.id, event.type);
         trigger.closeMenu();
     }
 
     miniNavSelected(event: any) {
-        this.logger.log('MINI NAV SELECTED', event);
+        // this.logger.log('MINI NAV SELECTED', event);
         switch (event.action) {
             case 'miniNavMove':
-
                 this.store.dispatch(
                     new DbfsMoveResource(event.payload.sourceId, event.payload.destinationId, event.payload.originPath, {})
                 );
@@ -380,10 +392,10 @@ export class DbfsComponent implements OnInit, OnDestroy {
     }
 
     clickMoreMenu(id: number, type: string, event: any) {
-        this.logger.log('CLICK MORE MENU', { id, type, event});
+        // this.logger.log('CLICK MORE MENU', { id, type, event});
         event.stopPropagation();
         const mTrigger: MatMenuTrigger = <MatMenuTrigger>this.findMoreMenuTrigger(id, type);
-        console.log('TRIGGERs', this.moreTriggers);
+        // console.log('TRIGGERs', this.moreTriggers);
         if (mTrigger) {
             mTrigger.toggleMenu();
         } else {
@@ -392,10 +404,10 @@ export class DbfsComponent implements OnInit, OnDestroy {
     }
 
     clickMoveMenu(id: number, type: string, event: any) {
-        this.logger.log('CLICK MOVE MENU', { id, type, event});
+        // this.logger.log('CLICK MOVE MENU', { id, type, event});
         event.stopPropagation();
         const mTrigger: MatMenuTrigger = <MatMenuTrigger>this.findMiniNavTrigger(id, type);
-        console.log('TRIGGERs', this.miniNavTriggers);
+        // console.log('TRIGGERs', this.miniNavTriggers);
         if (mTrigger) {
             mTrigger.toggleMenu();
             // close the more menu
@@ -403,6 +415,21 @@ export class DbfsComponent implements OnInit, OnDestroy {
         } else {
             this.logger.error('clickFolderMove', 'CANT FIND TRIGGER');
         }
+    }
+
+    applyNamespacesListFilter(filterValue: string) {
+        this.namespacesDataSource.filter = filterValue.trim().toLowerCase();
+        // this.logger.log('APPLY NAMESPACES FILTER', {filterValue, dataSource: this.namespacesDataSource});
+    }
+
+    applyUsersListFilter(filterValue: string) {
+        this.usersDataSource.filter = filterValue.trim().toLowerCase();
+        // this.logger.log('APPLY USERS FILTER', {filterValue, dataSource: this.usersDataSource});
+    }
+
+    resetDataSourceFilters() {
+        this.namespacesDataSource.filter = '';
+        this.usersDataSource.filter = '';
     }
 
     // DYNAMIC FOLDER BEHAVIOR
@@ -453,7 +480,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
     }
 
     removeFolders() {
-        this.logger.log('REMOVE FOLDERS');
+        // this.logger.log('REMOVE FOLDERS');
         this.store.dispatch(
             new DbfsDeleteFolder(
                 this.foldersToRemove,
@@ -465,7 +492,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
     }
 
     folderCheckboxChange(folder: string, event: any) {
-        this.logger.log('FOLDER CHECKBOX CHANGE', { folder, event });
+        // this.logger.log('FOLDER CHECKBOX CHANGE', { folder, event });
         const idx = this.foldersToRemove.indexOf(folder);
         if (idx === -1) {
             // not found, so add it
@@ -474,7 +501,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
             // remove
             this.foldersToRemove.splice(idx, 1);
         }
-        console.log('FOLDERS TO REMOVE', this.foldersToRemove);
+        // console.log('FOLDERS TO REMOVE', this.foldersToRemove);
     }
 
     folderInputSave(panelIndex: number, folder?: any) {
@@ -534,7 +561,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
     // MORE MENU BEHAVIORS
 
     folderMenuAction(action: string, folder: any, event?: any) {
-        this.logger.log('FOLDER MENU ACTION', {action, folder, event});
+        // this.logger.log('FOLDER MENU ACTION', {action, folder, event});
         switch (action) {
             case 'editName':
                 this.folderForm.reset({fc_FolderName: folder.name});
@@ -563,7 +590,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
     }
 
     fileMenuAction(action: string, file: any, event?: any) {
-        this.logger.log('FOLDER MENU ACTION', {action, file, event});
+        // this.logger.log('FOLDER MENU ACTION', {action, file, event});
         switch (action) {
             case 'openNewTab':
                 this.window.open('/d' + file.path, '_blank');
@@ -611,6 +638,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
                     currentPanelIndex: this.currentPanelIndex
                 })
             );
+            this.resetDataSourceFilters();
         });
     }
 
@@ -618,6 +646,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
         //this.logger.log('NAV TO MASTER PANEL');
         if (this.currentPanelIndex > 0) {
             this.navtoSpecificPanel(0, this.currentPanelIndex);
+            this.resetDataSourceFilters();
         }
     }
 
@@ -625,7 +654,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
         if (!this.bulkEdit) {
             //this.logger.log('GOTO FOLDER', { path });
             const folder = this.store.selectSnapshot<any>(DbfsResourcesState.getFolderResource(path));
-            
+
             const panel = <any>{
                 folderResource: folder.fullPath
             };
@@ -653,9 +682,6 @@ export class DbfsComponent implements OnInit, OnDestroy {
             }
 
             if (!folder.loaded && !folder.synthetic) {
-                /*this.store.dispatch(
-                    new DbfsLoadSubfolder(folder.fullPath)
-                );*/
                 panelAction.method = (folder.topFolder) ? 'loadTopFolder' : 'loadSubFolder';
                 panelAction.path = folder.fullPath;
                 if (folder.topFolder) {

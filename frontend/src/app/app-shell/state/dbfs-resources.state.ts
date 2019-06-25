@@ -18,7 +18,6 @@ import {
     DbfsSyntheticFolderModel,
     DbfsUserModel
 } from './dbfs-resources.interfaces';
-import { iterateListLike } from '@angular/core/src/change_detection/change_detection_util';
 
 /** ACTIONS */
 
@@ -211,7 +210,9 @@ export class DbfsAddPlaceholderFolder {
     defaults: {
         activeUser: '',
         users: {},
+        userList: [],
         namespaces: {},
+        namespaceList: [],
         folders: {},
         files: {},
         error: {},
@@ -276,45 +277,22 @@ export class DbfsResourcesState {
 
     @Selector() static getNamespacesList(state: DbfsResourcesModel) {
         let namespaces = [];
-        const nsKeys = Object.keys(state.namespaces).sort((a: any, b: any) => {
-            const aa = a.toLowerCase().split(/(\d+)/);
-            const bb = b.toLowerCase().split(/(\d+)/);
-            for (let x = 0; x < Math.max(aa.length, bb.length); x++) {
-                if (aa[x] !== undefined && bb[x] !== undefined && aa[x] !== bb[x]) {
-                    const cmp1 = (isNaN(parseInt(aa[x], 10))) ? aa[x] : parseInt(aa[x], 10);
-                    const cmp2 = (isNaN(parseInt(bb[x], 10))) ? bb[x] : parseInt(bb[x], 10);
-                    if (cmp1 === undefined || cmp2 === undefined) {
-                        return aa.length - bb.length;
-                    } else {
-                        return (cmp1 < cmp2) ? -1 : 1;
-                    }
-                }
-            }
-            return 0;
+        // filter this, because filtering doesn't work correctly with ALL the data
+        namespaces = state.namespaceList.map(item => {
+            const data = {
+                alias: state.namespaces[item].alias,
+                id: state.namespaces[item].id,
+                name: state.namespaces[item].name,
+                enabled: state.namespaces[item].enabled
+            };
+            return data;
         });
-        namespaces = nsKeys.map(item => state.namespaces[item]);
         return namespaces;
     }
 
     @Selector() static getUsersList(state: DbfsResourcesModel) {
         let users = [];
-        const uKeys = Object.keys(state.users).sort((a: any, b: any) => {
-            const aa = a.toLowerCase().split(/(\d+)/);
-            const bb = b.toLowerCase().split(/(\d+)/);
-            for (let x = 0; x < Math.max(aa.length, bb.length); x++) {
-                if (aa[x] !== undefined && bb[x] !== undefined && aa[x] !== bb[x]) {
-                    const cmp1 = (isNaN(parseInt(aa[x], 10))) ? aa[x] : parseInt(aa[x], 10);
-                    const cmp2 = (isNaN(parseInt(bb[x], 10))) ? bb[x] : parseInt(bb[x], 10);
-                    if (cmp1 === undefined || cmp2 === undefined) {
-                        return aa.length - bb.length;
-                    } else {
-                        return (cmp1 < cmp2) ? -1 : 1;
-                    }
-                }
-            }
-            return 0;
-        });
-        users = uKeys.map(item => state.users[item]);
+        users = state.userList.map(item => state.users[item]);
         return users;
     }
 
@@ -616,7 +594,7 @@ export class DbfsResourcesState {
         userFolder.subfolders.push(trashFolder.fullPath);
 
         userFolder.files = userFolder.files.map(item => {
-            const file = this.dbfsUtils.normalizeFile(item);
+            const file: DbfsFileModel = this.dbfsUtils.normalizeFile(item);
             files[file.fullPath] = file;
             return item.fullPath;
         });
@@ -726,7 +704,7 @@ export class DbfsResourcesState {
 
         if (folder.files) {
             folder.files = folder.files.map( f => {
-                files[f.fullPath] = this.dbfsUtils.normalizeFile(f, locked);
+                files[f.fullPath] = <DbfsFileModel>this.dbfsUtils.normalizeFile(f, locked);
                 return f.fullPath;
             });
             folder.files.sort((a: any, b: any) => {
@@ -763,18 +741,35 @@ export class DbfsResourcesState {
         const dynamicLoaded = JSON.parse(JSON.stringify({...state.dynamicLoaded}));
 
         const users = JSON.parse(JSON.stringify({...state.users}));
+        const userList: any[] = [];
 
-        for (const usr of response) {
+        /*for (const usr of response) {
             usr.alias = usr.userid.slice(5);
+            userList.push(usr.alias);
+            if (!users[usr.alias]) {
+                users[usr.alias] = <DbfsUserModel>usr;
+            }
+        }*/
+
+        for (let i = 0; i < response.length; i++) {
+            const usr = response[i];
+            usr.alias = usr.userid.slice(5);
+            userList.push(usr.alias);
             if (!users[usr.alias]) {
                 users[usr.alias] = <DbfsUserModel>usr;
             }
         }
 
+        // sort user list
+        userList.sort((a: any, b: any) => {
+            return this.utils.sortAlphaNum(users[a].name, users[b].name);
+        });
+
         dynamicLoaded.users = true;
 
         ctx.patchState({
             users,
+            userList,
             dynamicLoaded,
             resourceAction
         });
@@ -799,19 +794,32 @@ export class DbfsResourcesState {
         const dynamicLoaded = JSON.parse(JSON.stringify({...state.dynamicLoaded}));
 
         const namespaces = JSON.parse(JSON.stringify({...state.namespaces}));
+        const namespaceList: any[] = [];
 
-        for (const ns of response) {
+        /*for (const ns of response) {
             namespaces[ns.alias] = <DbfsNamespaceModel>ns;
+            namespaceList.push(ns.alias);
+        }*/
+
+        for (let i = 0; i < response.length; i++) {
+            const ns = response[i];
+            namespaces[ns.alias] = <DbfsNamespaceModel>ns;
+            namespaceList.push(ns.alias);
         }
+
+        // sort list
+        namespaceList.sort((a: any, b: any) => {
+            return this.utils.sortAlphaNum(a, b);
+        });
 
         dynamicLoaded.namespaces = true;
 
         ctx.patchState({
             namespaces,
+            namespaceList,
             dynamicLoaded,
             resourceAction
         });
-
     }
 
     @Action(DbfsLoadTopFolder)
@@ -865,10 +873,11 @@ export class DbfsResourcesState {
             trashIdx = response.subfolders.indexOf(trash[0]);
         }
 
-
+        // get trash folder (topFolder should always have a trash folder)
         const trashFolder = this.dbfsUtils.normalizeFolder(trash[0]);
         folders[trashFolder.fullPath] = trashFolder;
 
+        // pull it out of list to avoid sorting
         folder.subfolders.splice(trashIdx, 1);
 
         // clean subfolders
@@ -882,11 +891,11 @@ export class DbfsResourcesState {
             return this.utils.sortAlphaNum(folders[a].name, folders[b].name);
         });
 
-        // add trash after sort. trash folder always last
+        // add trash back in folder list after sort. trash folder always last
         folder.subfolders.push(trashFolder.fullPath);
 
         folder.files = folder.files.map(item => {
-            const file = this.dbfsUtils.normalizeFile(item, locked);
+            const file: DbfsFileModel = this.dbfsUtils.normalizeFile(item, locked);
             files[file.fullPath] = file;
             return item.fullPath;
         });
@@ -1098,7 +1107,7 @@ export class DbfsResourcesState {
         delete files[args.originDetails.fullPath];
 
         // update file
-        const file = this.dbfsUtils.normalizeFile(response);
+        const file: DbfsFileModel = this.dbfsUtils.normalizeFile(response);
 
         // update parent
         if (!folders[file.parentPath].files) {

@@ -194,6 +194,20 @@
             }
         }
 
+        // FILTER INPUT CONTROL
+        .filter-list-control {
+            padding: 4px;
+
+            .mat-form-field {
+                width: 100%;
+
+                .mat-icon {
+                    @include sizeDenaliIcon(12px);
+                    margin-left: 6px;
+                }
+            }
+        }
+
 
         // FOLDERS
         .dnav-folders {
@@ -619,6 +633,10 @@
                 background-color: $navbar-background;
                 color: find-color-invert($navbar-background);
             }
+        }
+
+        .filter-list-control {
+            border-bottom: 1px solid rgba($divider,.07);
         }
 
         // FOLDERS

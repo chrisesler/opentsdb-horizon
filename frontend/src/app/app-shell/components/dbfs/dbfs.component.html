@@ -95,10 +95,16 @@
             <div>Loading Namespace List</div>
             <div class="loading-spinner color-primary" ></div>
         </div>
+        <div class="filter-list-control" *ngIf="namespacesList.length > user.memberNamespaces.length">
+            <mat-form-field appearance="fill" color="primary">
+                <mat-icon matPrefix fontSet="denali" fontIcon="d-search"></mat-icon>
+                <input matInput (keyup)="applyNamespacesListFilter($event.target.value)" placeholder="Filter Namespaces">
+            </mat-form-field>
+        </div>
         <div class="dnav-folders dynamic-scroller" *ngIf="namespacesList.length > user.memberNamespaces.length">
             <mat-nav-list class="folder-list">
                 <cdk-virtual-scroll-viewport itemSize="36" class="example-viewport">
-                <mat-list-item *ngFor="let ns of namespacesList; let i = index;" class="folder-nav-item" (click)="loadingItem = nsAlias; gotoTopFolder(ns.alias, 'namespace')">
+                <mat-list-item *cdkVirtualFor="let ns of namespacesDataSource; let i = index;" class="folder-nav-item" (click)="loadingItem = nsAlias; gotoTopFolder(ns.alias, 'namespace')">
                     <ng-container *ngTemplateOutlet="simpleFolderDisplay;context:{data: ns, icon: 'd-dashboard-tile', loading: (loadingItem === ns.alias)}"></ng-container>
                 </mat-list-item>
                 </cdk-virtual-scroll-viewport>
@@ -110,10 +116,16 @@
             <div>Loading Users List</div>
             <div class="loading-spinner color-primary" ></div>
         </div>
+        <div class="filter-list-control" *ngIf="usersList.length > 1">
+            <mat-form-field appearance="fill" color="primary">
+                <mat-icon matPrefix fontSet="denali" fontIcon="d-search"></mat-icon>
+                <input matInput (keyup)="applyUsersListFilter($event.target.value)" placeholder="Filter Users">
+            </mat-form-field>
+        </div>
         <div class="dnav-folders dynamic-scroller" *ngIf="usersList.length > 1">
             <mat-nav-list class="folder-list">
                 <cdk-virtual-scroll-viewport itemSize="36" class="example-viewport">
-                <mat-list-item *ngFor="let user of usersList; let i = index;" class="folder-nav-item" (click)="loadingItem = user.alias; gotoTopFolder(user.alias, 'user')">
+                <mat-list-item *cdkVirtualFor="let user of usersDataSource; let i = index;" class="folder-nav-item" (click)="loadingItem = user.alias; gotoTopFolder(user.alias, 'user')">
                     <ng-container *ngTemplateOutlet="simpleFolderDisplay;context:{data: user, icon: 'd-user-single-solid', loading: (loadingItem === user.alias)}"></ng-container>
                 </mat-list-item>
                 </cdk-virtual-scroll-viewport>
