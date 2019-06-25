@@ -143,7 +143,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
             label: 'Notes',
             type: 'MarkdownWidgetComponent',
             iconClass: 'widget-icon-notes'
-        }/*,
+        },
+        {
+            label: 'Events',
+            type: 'EventsWidgetComponent',
+            iconClass: 'widget-icon-notes'
+        },
+
+        /*,
         {
             label: 'Statuses',
             type: 'WidgetStatusComponent',
@@ -294,7 +301,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         const newWidgetY = message.payload.widget.gridPos.h;
                         this.widgets = this.dbService.positionWidgetY(this.widgets, newWidgetY);
                         // change name to fist metric if name is not change
-                        if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent') {
+                        if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent' &&
+                        message.payload.widget.settings.component_type !== 'EventsWidgetComponent') {
                             if (message.payload.widget.settings.title === 'my widget' && message.payload.widget.queries[0].metrics.length) {
                                 message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
                             }
@@ -312,7 +320,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         if (this.widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
                             this.widgets[mIndex] = message.payload.widget;
                             // change name to fist metric if name is not change
-                            if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent') {
+                            console.log(message.payload.widget.settings.component_type );
+                            if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent' &&
+                                message.payload.widget.settings.component_type !== 'EventsWidgetComponent') {
                                 if (message.payload.widget.settings.title === 'my widget') {
                                     message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
                                 }

@@ -1,0 +1,29 @@
+@mixin events-widget-component-base() {
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-view-padding: map-get($widgets-common-config, edit-padding);
+    $tab-width: map-get($widgets-common-config, tab-width);
+    $action-bar-height: map-get($widgets-common-config, action-bar-height);
+
+    .events-widget { 
+
+        .main-container {
+            margin-top: 20px;
+        }
+
+    }
+}
+
+@mixin events-widget-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+
+    .events-widget { 
+        // color: red;
+    }
+
+}

@@ -42,6 +42,7 @@ import { MarkdownWidgetComponent } from './components/markdown-widget/markdown-w
 import { MarkdownWidgetVisualAppearanceComponent } from './components/markdown-widget/children/markdown-widget-visual-appearance/markdown-widget-visual-appearance.component';
 import { TopnWidgetComponent } from './components/topn-widget/topn-widget.component';
 import { HeatmapWidgetComponent } from './components/heatmap-widget/heatmap-widget.component';
+import { EventsWidgetComponent } from './components/events-widget/events-widget.component';
 
 @NgModule({
     imports: [
@@ -70,7 +71,8 @@ import { HeatmapWidgetComponent } from './components/heatmap-widget/heatmap-widg
         StackedBarchartConfigMetricQueriesComponent,
         DonutchartLegendComponent,
         MarkdownWidgetComponent,
-        MarkdownWidgetVisualAppearanceComponent
+        MarkdownWidgetVisualAppearanceComponent,
+        EventsWidgetComponent
     ],
     declarations: [
         PlaceholderWidgetComponent,
@@ -94,6 +96,7 @@ import { HeatmapWidgetComponent } from './components/heatmap-widget/heatmap-widg
         MarkdownWidgetVisualAppearanceComponent,
         TopnWidgetComponent,
         HeatmapWidgetComponent,
+        EventsWidgetComponent,
     ],
     entryComponents: [
         PlaceholderWidgetComponent,
@@ -106,7 +109,8 @@ import { HeatmapWidgetComponent } from './components/heatmap-widget/heatmap-widg
         DonutWidgetComponent,
         TopnWidgetComponent,
         StatusWidgetComponent,
-        MarkdownWidgetComponent
+        MarkdownWidgetComponent,
+        EventsWidgetComponent
     ]
 })
 export class DynamicWidgetsModule { }

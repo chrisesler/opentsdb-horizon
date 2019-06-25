@@ -9,7 +9,8 @@ import {
     TopnWidgetComponent,
     DeveloperWidgetComponent,
     BignumberWidgetComponent,
-    MarkdownWidgetComponent
+    MarkdownWidgetComponent,
+    EventsWidgetComponent
 } from '../../shared/modules/dynamic-widgets/components';
 
 @Injectable({
@@ -19,6 +20,7 @@ export class WidgetService {
     constructor() { }
 
     getComponentToLoad(name: string) {
+        console.log(name);
         switch (name) {
             case 'LinechartWidgetComponent':
                 return LinechartWidgetComponent;
@@ -38,6 +40,8 @@ export class WidgetService {
                 return BignumberWidgetComponent;
             case 'MarkdownWidgetComponent':
                 return MarkdownWidgetComponent;
+            case 'EventsWidgetComponent':
+                return EventsWidgetComponent;
             default:
                 return PlaceholderWidgetComponent;
         }
