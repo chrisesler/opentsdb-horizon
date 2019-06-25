@@ -109,7 +109,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
 
-            if ( message.action === 'reQueryData' || message.action === 'ZoomDateRange') {
+            if ( message.action === 'TimeChanged' || message.action === 'reQueryData' || message.action === 'ZoomDateRange') {
                 this.refreshData();
             }
             if (message && (message.id === this.widget.id)) { // 2. Get and set the metric

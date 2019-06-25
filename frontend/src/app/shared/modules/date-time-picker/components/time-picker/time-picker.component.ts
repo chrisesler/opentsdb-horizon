@@ -124,7 +124,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
                 this.refreshSubcription.unsubscribe();
             }
         }
-        if ( changes.startTime !== undefined || changes.endTime !== undefined ) {
+        if ( this.refresh && this.refresh.duration && (changes.startTime !== undefined || changes.endTime !== undefined) ) {
             this.subscribeToAutoRefresh(this.isRelativeTime() ? this.refresh.duration : 0);
         }
         if ( changes.isEditMode !== undefined ) {
@@ -235,7 +235,7 @@ export class TimePickerComponent implements AfterViewChecked, OnInit, OnChanges,
             this.utilsService.relativeTimeToMoment(this.endTime) ) {
                 this.newChange.emit( { action: 'RefreshDashboard', payload: {} });
         }
-        if ( this.refresh.duration && this.isRelativeTime()) {
+        if ( this.refresh && this.refresh.duration && this.isRelativeTime()) {
             this.subscribeToAutoRefresh(this.refresh.duration);
         }
     }
