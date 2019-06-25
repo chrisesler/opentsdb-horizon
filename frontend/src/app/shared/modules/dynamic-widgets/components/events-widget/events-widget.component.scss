@@ -6,11 +6,86 @@
 
     .events-widget { 
 
-        .main-container {
+        // Dynamically added classes
+        .top-margin {
             margin-top: 20px;
         }
 
+        .widget-output-container {
+            height: 100%;
+            overflow-x: hidden;
+            .widget-output {
+                &.notCentered {
+                    align-items: flex-start;
+                }
+                height: 100%;
+            }
+          }
+  
+          .widget-output {
+            overflow: overlay;
+            .widget-container {
+              padding-left: 4px;
+              padding-top: 15px;
+              width: 100%;
+            }
+        }
+
+        .widget-controls-container {
+            flex: 1 1 100%;
+            margin: 12px;
+            height: 200px;
+            background-color: white;
+        }
+
+        .query-container {
+            display: flex;
+            padding: 10px;
+            padding-top: 15px;
+            flex-direction: row;
+        }
+
     }
+
+    // .edit-view-container.is-active { 
+    //     .widget-panel-content.bignumber-widget {
+    //         // in edit mode, give the output some padding
+    //         .widget-output {
+    //             padding: 16px;
+    //         }
+
+    //         // in edit mode, give big number a fixed width 
+    //         // close to something people might use
+    //         .big-num-container {
+    //             flex: 1 0 300px;
+    //             padding: 0 25px;
+    //         }
+
+    //         // in edit mode, show the metric representing the big number
+    //         .fully-qualified-metric {
+    //             display: block;
+    //             flex: 1 1 100%;
+    //             padding-left: 30px; 
+
+    //             .metric-details {
+    //                 display: flex;
+    //                 flex-direction: column;
+    //                 flex: 1;
+    //             }
+        
+    //             .metric-tag {
+    //                 font-size: 10px;
+    //                 display: inline-flex;
+    //                 margin-right: 10px;
+    //                 margin-bottom: 8px;
+        
+    //                 .tag-key {
+    //                     margin-right: 2px;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 @mixin events-widget-component-theme($theme-config) {

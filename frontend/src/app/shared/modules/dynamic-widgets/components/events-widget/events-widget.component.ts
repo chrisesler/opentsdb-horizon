@@ -14,6 +14,9 @@ export class EventsWidgetComponent implements OnInit, OnDestroy {
   /** Inputs */
   @Input() editMode: boolean;
   @Input() widget: any;
+  data: any;
+
+  // query
 
   isDataRefreshRequired = false;
   private listenSub: Subscription;
@@ -31,6 +34,12 @@ export class EventsWidgetComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
+    if (!this.widget.query) {
+      this.widget.query = 'namespace = *';
+    }
+
+    console.log(this.widget);
+
     this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
       if (message && (message.id === this.widget.id)) {
         switch (message.action) {
@@ -40,6 +49,10 @@ export class EventsWidgetComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  textChanged(txt: string) {
+    this.widget.query = txt;
   }
 
   applyConfig() {

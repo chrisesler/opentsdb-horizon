@@ -9,15 +9,12 @@
             </span>
         </div>
       
-        <!-- <div class="widget-output notCentered" #widgetoutput [style.background]="widget.settings.visual.backgroundColor" [ngClass]="{'monospace': widget.settings.visual.font === 'monospace', 'top-margin': editMode }">
+        <div class="widget-output notCentered" #widgetoutput [ngClass]="{'top-margin': editMode }">
             <div class="widget-container">
-              <span class="markdown-body" id="markdown-override" [style.color]="widget.settings.visual.textColor" >
-                <markdown [data]="widget.settings.visual.text"></markdown>
-              </span>
+                <div *ngFor="let event of events">
+                    {{event.title}}
+                  </div>
             </div>
-        </div> -->
-        <div *ngFor="let event of events; let i = index">
-          {{event.title}}
         </div>
       </div>
       
@@ -39,9 +36,9 @@
                 </ng-template>
             </mat-tab> -->
 
-            <mat-tab label="Visual Appearance">
-                <ng-template matTabContent>
-                    <div> [Search Query]</div>
+            <mat-tab label="Query">
+                <ng-template matTabContent class="query-container">
+                    <textarea matInput placeholder="Type your query" [value]="widget.query" (keyup)="textChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
                 </ng-template>
             </mat-tab>
 
