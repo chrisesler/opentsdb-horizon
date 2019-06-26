@@ -251,6 +251,29 @@
     .widget-config-tab.metric-queries-configuration {
         // style rules here
 
+        .dbfilter-panel {
+            background-color: rgb(250, 249, 249);
+            margin-bottom: 5px;
+            padding: 0px;
+            .mat-button-toggle-group {
+                margin: 6px 6px 6px 0px;
+                span {
+                    margin-left: 4px;
+                }
+                .mat-button-toggle-label-content {
+                    line-height: 24px;
+                    .mat-icon {
+                        height: 18px;
+                        font-size: 16px;
+                    }
+                }
+            }
+            .mat-button-toggle-checked {
+                background-color: mat-color($primary);
+                color: mat-color($primary, default-contrast);
+            }
+        }
+
         .query-metric-row {
             .metric-tags {
                 .mat-basic-chip {

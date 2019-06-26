@@ -2,6 +2,22 @@
     <div class="query-metrics-wrap" [ngClass]="{'is-editing-metric': queryEditMode}">
         <mat-accordion class="query-group-list mat-elevation-z0" [ngClass]="{'items-selected': selectAllToggle !== 'none'}" displayMode="flat" [multi]="true" [hideToggle]="false">
             <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [disabled]="true" [expanded]="true">
+                <div class="dbfilter-panel" *ngIf="displayDBFilterOption()">                  
+                    <mat-button-toggle-group name="useDBFilter" [formControl]="applyTplControl">
+                            <mat-button-toggle value="apply">
+                                <mat-icon fontSet="denali" fontIcon="d-lock-open-solid"></mat-icon>
+                                <span>Enable</span>
+                            </mat-button-toggle>
+                            <mat-button-toggle value="not_apply">
+                                <mat-icon fontSet="denali" fontIcon="d-lock-close-solid"></mat-icon>
+                                <span>Disable</span>
+                            </mat-button-toggle>
+                    </mat-button-toggle-group>
+                    using tag filter from dashboard for tags:
+                            <span *ngFor="let f of this.appliedTplVariables; let isLast = last">
+                                    [{{f.alias}}]{{f.filter !== '' ? '=' + f.filter : ''}}{{isLast ? '' : ', '}}
+                            </span>
+                </div>
                 <div class="query-metric-row" *ngFor="let query of widget.queries; let index=index">
                     <query-editor-proto  [label]="'Q' + (index + 1)" [query]="query" [queries]="widget.queries"
                     [options]="{toggleQuery: options.enableMultipleQueries,
