@@ -384,4 +384,59 @@ export class HttpService {
         // console.log("deleteA;lert", namespace, payload);
         return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
     }
+
+    getEvents(query: string) {
+        let now = new Date().getTime();
+        // console.log('returning a query', query);
+        // const apiUrl = environment.configdb + '/namespace/' + namespace + '/contact';
+        // const httpOptions = {
+        //     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+        //     withCredentials: true,
+        //     observe: 'response' as 'response'
+        // };
+        // return this.http.get(apiUrl, httpOptions);
+
+        return { events: [
+            {
+                title: 'Event 1',
+                source: 'sd',
+                time: now - (3 * 600 * 1000),
+                jobNumber: '1',
+                status: 'Success',
+                executor: 'zb',
+            },
+            {
+                title: 'Event 2',
+                source: 'sd',
+                time: now - (4.21 * 600 * 1000),
+                jobNumber: '2',
+                status: 'Success',
+                executor: 'agupta07'
+             },
+            {
+                title: 'Event 3',
+                source: 'sd',
+                time: now - (4.22 * 600 * 1000),
+                jobNumber: '3',
+                status: 'Success',
+                executor: 'zb'
+            },
+            {
+                title: 'Event 4',
+                source: 'sd',
+                time: now - (4.23 * 600 * 1000),
+                jobNumber: '4',
+                status: 'Failure',
+                executor: 'zb'
+            },
+            {
+                title: 'Event 5',
+                source: 'sd',
+                time: now - (5.22 * 600 * 1000),
+                jobNumber: '5',
+                status: 'Failure',
+                executor: 'zb'
+            }
+        ], query: query};
+    }
 }

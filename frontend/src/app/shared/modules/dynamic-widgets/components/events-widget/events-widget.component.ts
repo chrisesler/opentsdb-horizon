@@ -1,44 +1,45 @@
-import { Component, OnInit , HostBinding, Input, OnDestroy} from '@angular/core';
+import { Component, OnInit , HostBinding, Input, OnDestroy, OnChanges, SimpleChanges} from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
+import { EventsState, GetEvents } from '../../../../../dashboard/state/events.state';
+import { Store, Select } from '@ngxs/store';
 
 @Component({
   selector: 'app-events-widget',
   templateUrl: './events-widget.component.html',
   styleUrls: ['./events-widget.component.scss']
 })
-export class EventsWidgetComponent implements OnInit, OnDestroy {
+export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
   @HostBinding('class.events-widget') private _componentClass = true;
 
-  constructor( private interCom: IntercomService) {  }
+  constructor( private interCom: IntercomService, private store: Store) {  }
   /** Inputs */
   @Input() editMode: boolean;
-  @Input() widget: any;
-  data: any;
-
-  // query
+  @Input() widget: any; // includes query
+  events: any[];
 
   isDataRefreshRequired = false;
   private listenSub: Subscription;
 
-  events = [
-    {
-      title: 'Event 1'
-    },
-    {
-      title: 'Event 2'
-     },
-    {
-      title: 'Event 3'
-    }];
+  // state control
+  private eventsSub: Subscription;
+  // private lastUpdatedEventsSub: Subscription;
+  @Select(EventsState.GetEvents) _events$: Observable<any>;
+  // @Select(RecipientsState.GetLastUpdated) _recipientLastUpdated$: Observable<any>;
 
   ngOnInit() {
 
     if (!this.widget.query) {
       this.widget.query = 'namespace = *';
     }
-
-    console.log(this.widget);
+    this.store.dispatch(new GetEvents(this.widget.query));
+    this.eventsSub = this._events$.subscribe(data => {
+      if (data) {
+        this.events = [];
+        const _data = JSON.parse(JSON.stringify(data));
+        this.events = _data.events;
+      }
+  });
 
     this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
       if (message && (message.id === this.widget.id)) {
@@ -51,8 +52,15 @@ export class EventsWidgetComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    // if (changes) {
+    //   this.store.dispatch(new GetEvents(this.widget.query));
+    // }
+}
+
   textChanged(txt: string) {
     this.widget.query = txt;
+    this.store.dispatch(new GetEvents(this.widget.query));
   }
 
   applyConfig() {
@@ -75,6 +83,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.listenSub.unsubscribe();
+    this.eventsSub.unsubscribe();
   }
 
 }

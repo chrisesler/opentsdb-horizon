@@ -20,7 +20,6 @@ export class WidgetService {
     constructor() { }
 
     getComponentToLoad(name: string) {
-        console.log(name);
         switch (name) {
             case 'LinechartWidgetComponent':
                 return LinechartWidgetComponent;
