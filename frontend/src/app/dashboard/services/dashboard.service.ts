@@ -146,69 +146,96 @@ export class DashboardService {
     for (let i = 0; i < tplVariables.length; i++) {
       const vartag = tplVariables[i];
       // if (vartag.filter.trim()  !== '') { // hmm it can be from something to nothing
-        eWidgets[vartag.alias] = {};
-        const ewid = {};
-        for (const wid in rawDbTags) {
-          if (rawDbTags.hasOwnProperty(wid)) {
-            const eqid = {};
-            for (const qid in rawDbTags[wid]) {
-              if (rawDbTags[wid].hasOwnProperty(qid)) {
-                if (rawDbTags[wid][qid].includes(vartag.tagk)) {
-                  eqid[qid] = true;
-                }
+      eWidgets[vartag.alias] = {};
+      const ewid = {};
+      for (const wid in rawDbTags) {
+        if (rawDbTags.hasOwnProperty(wid)) {
+          const eqid = {};
+          for (const qid in rawDbTags[wid]) {
+            if (rawDbTags[wid].hasOwnProperty(qid)) {
+              if (rawDbTags[wid][qid].includes(vartag.tagk)) {
+                eqid[qid] = true;
               }
             }
-            if (Object.keys(eqid).length > 0) {
-              ewid[wid] = eqid;
-            }
+          }
+          if (Object.keys(eqid).length > 0) {
+            ewid[wid] = eqid;
           }
         }
-        eWidgets[vartag.alias] = ewid;
+      }
+      eWidgets[vartag.alias] = ewid;
       // }
     }
     return eWidgets;
   }
 
- applyTplVarToWidget(widget: any, eWidgets: any, tplVariables: any[]) {
-  let isModify = false;
-  for (const alias in eWidgets) {
-    if (eWidgets[alias].hasOwnProperty(widget.id)) {
-      const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
-      const vartag = tplVariables[tplIdx];
-      // when user set custom tag to empty, we need to requery to origin config
-      if (vartag.filter === '') { isModify = true; continue; }
-      for (let i = 0; i < widget.queries.length; i++) {
-        const query = widget.queries[i];
-        if (eWidgets[alias][widget.id].hasOwnProperty(query.id)) {
-          const fIdx = query.filters.findIndex(f => f.tagk === vartag.tagk);
-          if (fIdx > -1) {
-            // check if it has this alias, if it does then leave it alone as static mode
-            if ((query.filters[fIdx].customFilter && query.filters[fIdx].customFilter.length === 0)
+  // return widget custom tag info if this widget is eligible
+  checkWidgetDBFilter(widget: any, tplVariables: any, rawDbTags: any) {
+    const eWidget = {};
+    const ewid = {};
+    for (let i = 0; i < tplVariables.length; i++) {
+      const vartag = tplVariables[i];
+      if (rawDbTags[widget.id]) {
+        const eqid = {};
+        for (const qid in rawDbTags[widget.id]) {
+          if (rawDbTags[widget.id].hasOwnProperty(qid)) {
+            if (rawDbTags[widget.id][qid].includes(vartag.tagk)) {
+              eqid[qid] = true;
+            }
+          }
+        }
+        if (Object.keys(eqid).length > 0) {
+          ewid[widget.id] = eqid;
+          eWidget[vartag.alias] = ewid;
+        }
+      }
+    }
+    return eWidget;
+  }
+
+  applyTplVarToWidget(widget: any, eWidgets: any, tplVariables: any[]) {
+    // for editing widget, we need to get the id out.
+    const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
+
+    let isModify = false;
+    for (const alias in eWidgets) {
+      if (eWidgets[alias].hasOwnProperty(wid)) {
+        const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
+        const vartag = tplVariables[tplIdx];
+        // when user set custom tag to empty, we need to requery to origin config
+        if (vartag.filter === '') { isModify = true; continue; }
+        for (let i = 0; i < widget.queries.length; i++) {
+          const query = widget.queries[i];
+          if (eWidgets[alias][wid].hasOwnProperty(query.id)) {
+            const fIdx = query.filters.findIndex(f => f.tagk === vartag.tagk);
+            if (fIdx > -1) {
+              // check if it has this alias, if it does then leave it alone as static mode
+              if ((query.filters[fIdx].customFilter && query.filters[fIdx].customFilter.length === 0)
                 || !query.filters[fIdx].customFilter) {
-                  query.filters[fIdx].filter = [];
+                query.filters[fIdx].filter = [];
                 query.filters[fIdx].dynamicFilter ? query.filters[fIdx].dynamicFilter.push('[' + alias + ']')
-                                                  : query.filters[fIdx].dynamicFilter = ['[' + alias + ']'];
+                  : query.filters[fIdx].dynamicFilter = ['[' + alias + ']'];
                 isModify = true;
+              } else {
+                // they have static mode, but let it thru
+                isModify = true;
+              }
             } else {
-              // they have static mode, but let it thru
+              const nfilter = {
+                tagk: vartag.tagk,
+                filter: [],
+                groupBy: false,
+                dynamicFilter: ['[' + alias + ']']
+              };
+              query.filters.push(nfilter);
               isModify = true;
             }
-          } else {
-            const nfilter = {
-              tagk: vartag.tagk,
-              filter: [],
-              groupBy: false,
-              dynamicFilter: ['[' + alias + ']']
-            };
-            query.filters.push(nfilter);
-            isModify = true;
           }
         }
       }
     }
+    return isModify ? widget : undefined;
   }
-  return isModify ? widget : undefined;
-}
   resolveTplVar(query: any, tplVariables: any[]) {
     for (let i = 0; i < query.filters.length; i++) {
       const qFilter = query.filters[i];
