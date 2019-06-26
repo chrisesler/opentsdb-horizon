@@ -29,7 +29,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
   constructor(private element: ElementRef, private uConverter: UnitConverterService) { }
 
   ngOnInit() {
-    console.log('this chart type', this.options, this.chartType, this.element);
+    // console.log('this chart type', this.options, this.chartType, this.element);
   }
 
   ngOnChanges(changes: SimpleChanges) {
