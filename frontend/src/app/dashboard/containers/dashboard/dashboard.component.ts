@@ -176,6 +176,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         totalQueries: 0,
         tags: []
     };
+    isDbTagsLoaded$ = new Subject();
     isDbTagsLoaded = false;
     eWidgets: any = {}; // to whole eligible widgets with custom dashboard tags
     constructor(
@@ -280,7 +281,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.rerender = { 'reload': true };
                     break;
                 case 'getQueryData':
-                    // payload needs to break into group to send in
                     this.handleQueryPayload(message);
                     break;
                 case 'updateWidgetConfig':
@@ -365,9 +365,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     }
                     break;
                 case 'GetTplVariables':
+                    // this is request for inline-tag-filters to display
+                    // custom tag to select.
                     this.interCom.responsePut({
                         action: 'TplVariables',
-                        payload: { tplVariables: this.tplVariables.editTplVariables }
+                        payload: {
+                            tplVariables: this.tplVariables,
+                            mode: this.variablePanelMode.view ? 'view' : 'edit'
+                        }
                     });
                     break;
                 case 'getUserNamespaces':
@@ -466,9 +471,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
             const dbstate = this.store.selectSnapshot(DBState);
             if (dbstate.loaded) {
                 this.widgets = this.utilService.deepClone(widgets);
-                    if (!this.isDbTagsLoaded) {
-                        this.getDashboardTagKeys();
-                    }
+                // only get dashboard tag key when they already set it up.
+                if (this.tplVariables.editTplVariables.length > 0) {
+                    this.getDashboardTagKeys();
+                }
             }
         }));
 
@@ -562,15 +568,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     // apply when custom tag value is changed
     applyTplVarValue(payload: any) {
-        this.eWidgets = this.dbService.checkEligibleWidgets(payload.tvars, this.dashboardTags.rawDbTags);
-        this.tplVariables.viewTplVariables = payload.from === 'view' ? payload.tvars : this.tplVariables.editTplVariables;
         const cWidgets = this.utilService.deepClone(this.widgets);
         for (let i = 0; i < cWidgets.length; i++) {
-            const widget = this.dbService.applyTplVarToWidget(cWidgets[i], this.eWidgets, payload.tvars);
-            if (widget) {
-                // passing unsave varsList
-                this.handleQueryPayload({ id: widget.id, payload: widget, from: payload.from });
-            }
+            this.handleQueryPayload({id: cWidgets[i].id, payload: cWidgets[i]});
         }
     }
     // when delete a dashboard custom tag
@@ -641,9 +641,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
     }
-
+    // get all dashboard tags
     getDashboardTagKeys() {
-        this.isDbTagsLoaded = true;
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
             this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
             for (let i = 0; res && i < res.results.length; i++) {
@@ -659,10 +658,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 ...keys.filter(k => this.dashboardTags.tags.indexOf(k) < 0)];
             }
             this.dashboardTags.tags.sort(this.utilService.sortAlphaNum);
+            this.isDbTagsLoaded = true;
+            this.isDbTagsLoaded$.next(true);
         },
             error => {
-                this.isDbTagsLoaded = false;
+                this.isDbTagsLoaded = true;
+                this.isDbTagsLoaded$.next(true);
             });
+    }
+
+    checkDbTagsLoaded(): Observable<any> {
+        if (this.tplVariables.editTplVariables.length > 0) {
+            if (!this.isDbTagsLoaded) {
+                return this.isDbTagsLoaded$;
+            } else {
+                return of(true);
+            }
+        } else {
+            return of(true);
+        }
     }
 
     changeVarPanelMode(mode: any) {
@@ -673,47 +687,58 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let groupid = '';
         const payload = message.payload;
         const dt = this.getDashboardDateRange();
-        if (payload.queries.length) {
-            // sending each group to get data.
-            const queries = {};
-            for (let i = 0; i < payload.queries.length; i++) {
-                let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
-                groupid = query.id;
-                if (query.namespace && query.metrics.length) {
-                    // filter only visible metrics, disable it now since it will break the expression
-                    // query = this.dbService.filterMetrics(query);
-                    // here we need to resolve template variables to override or insert
-                    // const tplVars = message.tplVariables ? message.tplVariables : this.tplVariables.editTplVariables;
-                    const tplVars = message.from && message.from === 'view' ?
-                            this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
-                    if (tplVars.length && query.filters.findIndex(f =>
-                        f.customFilter !== undefined || f.dynamicFilter !== undefined) > -1) {
-                        query = this.dbService.resolveTplVar(query, tplVars);
+        this.checkDbTagsLoaded().subscribe(loaded => {
+            if (payload.queries.length) {
+                // should we modify the widget if using dashboard tag filter
+                const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
+                if ((!message.payload.settings.hasOwnProperty('useDBFilter') || message.payload.settings.useDBFilter)
+                    && tplVars.length > 0) {
+                    // let check this.
+                    const eWidget = this.dbService.checkWidgetDBFilter(message.payload, tplVars, this.dashboardTags.rawDbTags);
+                    const widget = this.dbService.applyTplVarToWidget(message.payload, eWidget, tplVars);
+                    if (!widget) {
+                        return;
                     }
-                    queries[i] = query;
                 }
-            }
-            const gquery: any = {
-                wid: message.id,
-                isEditMode: this.viewEditMode
-            };
-            if ( Object.keys(queries).length ) {
-                const query = this.queryService.buildQuery(payload, dt, queries);
-                gquery.query = query;
-                // ask widget to loading signal
-                this.interCom.responsePut({
-                    id: payload.id,
-                    action: 'WidgetQueryLoading'
-                });
-                // now dispatch request
-                this.store.dispatch(new GetQueryDataByGroup(gquery));
+                // sending each group to get data.
+                const queries = {};
+                for (let i = 0; i < payload.queries.length; i++) {
+                    let query: any = JSON.parse(JSON.stringify(payload.queries[i]));
+                    groupid = query.id;
+                    if (query.namespace && query.metrics.length) {
+                        // filter only visible metrics, disable it now since it will break the expression
+                        // query = this.dbService.filterMetrics(query);
+                        // here we need to resolve template variables to override or insert
+                        if (query.filters.findIndex(f =>
+                            f.customFilter !== undefined || f.dynamicFilter !== undefined) > -1) {
+                            query = this.dbService.resolveTplVar(query, tplVars);
+                        }
+                        queries[i] = query;
+                    }
+                }
+                const gquery: any = {
+                    wid: message.id,
+                    isEditMode: this.viewEditMode
+                };
+                if (Object.keys(queries).length) {
+                    console.log('hill - queries widget', queries);
+                    const query = this.queryService.buildQuery(payload, dt, queries);
+                    gquery.query = query;
+                    // ask widget to loading signal
+                    this.interCom.responsePut({
+                        id: payload.id,
+                        action: 'WidgetQueryLoading'
+                    });
+                    // now dispatch request
+                    this.store.dispatch(new GetQueryDataByGroup(gquery));
+                } else {
+                    gquery.data = {};
+                    this.store.dispatch(new SetQueryDataByGroup(gquery));
+                }
             } else {
-                gquery.data = {};
-                this.store.dispatch(new SetQueryDataByGroup( gquery));
+                this.store.dispatch(new ClearQueryData({ wid: message.id }));
             }
-        } else {
-            this.store.dispatch(new ClearQueryData({ wid: message.id }));
-        }
+        });
     }
 
     getDashboardDateRange() {
