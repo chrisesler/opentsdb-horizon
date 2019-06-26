@@ -8,6 +8,7 @@ import { Subscription, BehaviorSubject } from 'rxjs';
 import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
+import { debounceTime} from 'rxjs/operators';
 
 
 @Component({
@@ -32,6 +33,10 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     private isDataLoaded = false;
     type$: BehaviorSubject<string>;
     typeSub: Subscription;
+
+    doRefreshData$: BehaviorSubject<boolean>;
+    doRefreshDataSub: Subscription;
+
     options: any  = {
         type: 'doughnut',
         legend: {
@@ -61,6 +66,17 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     ) { }
 
     ngOnInit() {
+        this.doRefreshData$ = new BehaviorSubject(false);
+        this.doRefreshDataSub = this.doRefreshData$
+            .pipe(
+                debounceTime(1000)
+            )
+            .subscribe(trigger => {
+                if (trigger) {
+                    this.refreshData();
+                }
+            });
+
         this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'doughnut');
         this.typeSub = this.type$.subscribe( type => {
             this.widget.settings.visual.type = type;
@@ -70,6 +86,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch ( message.action ) {
+                case 'TimeChanged':
                 case 'reQueryData':
                 case 'ZoomDateRange':
                     this.refreshData();
@@ -154,7 +171,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
     requestData() {
         if (!this.isDataLoaded) {
-            this.nQueryDataLoading = this.widget.queries.length;
+            this.nQueryDataLoading = 1;
             this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
@@ -166,7 +183,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     requestCachedData() {
-        this.nQueryDataLoading = this.widget.queries.length;
+        this.nQueryDataLoading = 1;
         this.error = null;
         this.interCom.requestSend({
             id: this.widget.id,
@@ -182,7 +199,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetLegend':
@@ -200,13 +217,13 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'SetSorting':
                 this.setSorting(message.payload);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
@@ -223,13 +240,28 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
+                this.needRequery = true;
+                break;
+            case 'ToggleQueryVisibility':
+                this.toggleQueryVisibility(message.id);
+                this.refreshData(false);
+                this.needRequery = false;
+                break;
+            case 'CloneQuery':
+                this.cloneQuery(message.id);
+                this.doRefreshData$.next(true);
+                this.needRequery = true;
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.id);
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
         }
@@ -308,6 +340,24 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         this.widget.queries[qindex].filters.splice(findex, 1);
     }
 
+    toggleQueryVisibility(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
+    }
+
+    cloneQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        if ( qindex !== -1 ) {
+            const query = this.util.getQueryClone(this.widget.queries, qindex);
+            this.widget.queries.splice(qindex + 1, 0, query);
+        }
+    }
+
+    deleteQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries.splice(qindex, 1);
+    }
+
     showError() {
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         const offsetHeight = 60;
@@ -345,5 +395,6 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
         this.listenSub.unsubscribe();
         this.typeSub.unsubscribe();
         this.newSizeSub.unsubscribe();
+        this.doRefreshDataSub.unsubscribe();
     }
 }

@@ -57,8 +57,10 @@
                 height: 100%;
                 overflow: auto;
                 z-index: 0;
+                background-color: #fee;
                 .mat-table {
                     font-family: Monaco, monospace;
+                    background-color: inherit;
                 }
             }
 
@@ -137,7 +139,7 @@
             &.display-legend-bottom {
                 .graph-legend {
                     table {
-                        flex: 1;
+                        // flex: 1;
                     }
                     tr {
                         cursor: pointer;
@@ -151,7 +153,7 @@
                         line-height: 12px;
                     }
                     .mat-cell, .mat-header-cell {
-                        padding: 0px 2px;
+                        padding: 0px 8px;
                         font-size: 9px;
                         border-bottom-width: 0px;
                     }
@@ -203,7 +205,7 @@
         .widget-panel-content.linechart-widget {
             .widget-output {
                 //top: 30px;
-                padding: 8px;
+                padding: 8px 0px;
                 //display: block;
                 position: relative;
             }

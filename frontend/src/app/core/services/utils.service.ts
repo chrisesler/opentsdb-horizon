@@ -48,10 +48,11 @@ export class UtilsService {
 }
 
     replaceIdsInExpressions(newID, oldID, metrics) {
-        for (let metric of metrics) {
+        const idreg = new RegExp( '\\{\\{' + oldID + '\\}\\}' , 'g');
+        for (const metric of metrics) {
             if (metric.expression) {
                 if (metric.expression.indexOf('{{' + oldID + '}}') !== -1) {
-                    metric.expression = metric.expression.replace('{{' + oldID + '}}', '{{' + newID + '}}');
+                    metric.expression = metric.expression.replace(idreg, '{{' + newID + '}}');
                 }
             }
         }
@@ -113,6 +114,9 @@ export class UtilsService {
   }
 
   getDSIndexToMetricIndex(query, dsmindex, type) {
+    if ( !query ) {
+        return -1;
+    }
     let index = 0;
     let mindex = -1;
     let eindex = -1;
@@ -380,6 +384,7 @@ export class UtilsService {
                 }
             }
         }
+        return {};
     }
 
     getSourceIDAndTypeFromMetricID(metricId, queries) {
@@ -409,4 +414,94 @@ export class UtilsService {
         }
         return {};
     }
+
+    arrayToObject(arr) {
+        const obj = {};
+        for (let i = 0; i < arr.length; i++) {
+            obj[i] = arr[i];
+        }
+        return obj;
+    }
+
+    getQueryClone(queries, index) {
+        const query = queries[index];
+        const newQuery = this.deepClone(query);
+        const mids = this.getIDs(this.getAllMetrics(queries));
+        newQuery.id = this.generateId(3, this.getIDs(queries));
+        const oldIds = this.getIDs(query.metrics), newIds = [];
+        for (const metric of query.metrics) {
+            const newId = this.generateId(3, mids);
+            metric.id = newId;
+            mids.push(newId);
+            newIds.push(newId);
+        }
+
+        for ( let i = 0; i < oldIds.length; i++ ) {
+            this.replaceIdsInExpressions(newIds[i], oldIds[i], query.metrics);
+        }
+        return newQuery;
+    }
+
+    getTotalTimeShift(functions: any[]): string {
+    let numOfHours = 0;
+    if (functions) {
+        for (let i = 0; i < functions.length; i++) {
+            const fxCall = functions[i].fxCall;
+            switch ( fxCall ) {
+                case 'Timeshift':
+                    const timeAmountRegEx = /\d+/;
+                    const timeUnitRegEx = /[a-zA-Z]/;
+                    const timeAmount = parseInt(functions[i].val.match(timeAmountRegEx)[0], 10);
+                    const timeUnit = functions[i].val.match(timeUnitRegEx)[0].toLowerCase();
+                     if (timeUnit === 'w') {
+                        numOfHours = numOfHours + (timeAmount * 7 * 24);
+                    } else if (timeUnit === 'd') {
+                        numOfHours = numOfHours + (timeAmount * 24);
+                    } else { // timeUnit === 'h'
+                        numOfHours = numOfHours + timeAmount;
+                    }
+                    break;
+            }
+        }
+        // determine h d or w
+        if (numOfHours) {
+            let highestUnit = 'h';
+             if (numOfHours % 24 === 0) {
+                highestUnit = 'd';
+                numOfHours = numOfHours / 24;
+                 if (numOfHours % 7 === 0) {
+                    highestUnit = 'w';
+                    numOfHours = numOfHours / 7;
+                }
+            }
+            return numOfHours + highestUnit;
+        } else {
+            return null;
+        }
+    }
+    return null;
+  }
+
+  getTimestampsFromTimeSpecification(tsConfigs) {
+    let tsObj = {};
+    const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
+    for ( let i = 0; i < tsConfigs.length; i++ ) {
+        const timeSpecification = tsConfigs[i].timeSpecification;
+        const nPoints = tsConfigs[i].nPoints;
+        const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+        const m = parseInt(timeSpecification.interval, 10);
+        for (let j = 0; j < nPoints; j++) {
+            const secs = timeSpecification.start + (m * j * mSeconds[unit]);
+            tsObj[secs * 1000] = true;
+        }
+    }
+    const ts: number[] = Object.keys(tsObj).map(d => parseInt(d, 10));
+    ts.sort((a, b) => a - b);
+    tsObj = {};
+    for ( let i = 0; i < ts.length; i++ ) {
+        tsObj[ts[i]] = i;
+    }
+    return tsObj;
+  }
+
 }

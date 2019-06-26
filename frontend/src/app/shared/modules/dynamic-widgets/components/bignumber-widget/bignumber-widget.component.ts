@@ -77,6 +77,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
 
+    doRefreshData$: BehaviorSubject<boolean>;
+    doRefreshDataSub: Subscription;
+
     @ViewChild('myCanvas') myCanvas: ElementRef;
     public context: CanvasRenderingContext2D;
 
@@ -93,9 +96,20 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         this.disableAnyRemainingGroupBys();
         this.setDefaultVisualization();
 
+        this.doRefreshData$ = new BehaviorSubject(false);
+        this.doRefreshDataSub = this.doRefreshData$
+            .pipe(
+                debounceTime(1000)
+            )
+            .subscribe(trigger => {
+                if (trigger) {
+                    this.refreshData();
+                }
+            });
+
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
 
-            if ( message.action === 'reQueryData' || message.action === 'ZoomDateRange') {
+            if ( message.action === 'TimeChanged' || message.action === 'reQueryData' || message.action === 'ZoomDateRange') {
                 this.refreshData();
             }
             if (message && (message.id === this.widget.id)) { // 2. Get and set the metric
@@ -448,7 +462,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
@@ -473,7 +487,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
@@ -485,7 +499,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'ToggleDBFilterUsage':
@@ -621,22 +635,17 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     }
 
     enableFirstMetricVisibility() {
-        for (let query of this.widget.queries) {
-            for (let metric of query.metrics) {
-                metric.settings.visual.visible = true;
-                break;
-            }
+        if (this.widget.queries.length && this.widget.queries[0].metrics.length) {
+            this.widget.queries[0].metrics[0].settings.visual.visible = true;
         }
     }
 
     cloneQuery(qid) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         if ( qindex !== -1 ) {
-            const query = this.util.deepClone(this.widget.queries[qindex]);
-            query.id = this.util.generateId(3, this.util.getIDs(this.widget.queries));
+            const query = this.util.getQueryClone(this.widget.queries, qindex);
             for (let metric of query.metrics) {
                 metric.settings.visual.visible = false;
-                metric.id = this.util.generateId(3, this.util.getIDs(this.util.getAllMetrics(this.widget.queries)));
             }
             this.widget.queries.splice(qindex + 1, 0, query);
         }
@@ -671,6 +680,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         if (this.listenSub) {
             this.listenSub.unsubscribe();
         }
+        this.doRefreshDataSub.unsubscribe();
     }
 
 }

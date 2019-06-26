@@ -170,11 +170,20 @@
                     <!-- custom function loop -->
                     <div class="metric-row-data custom-function" *ngFor="let fx of data.metric.functions">
                         <div class="custom-function-wrapper">
-                            <metric-function [metricId]="data.metric.id" [fx]="fx" (fxOut)="functionUpdate($event)" (fxDel)="functionDelete($event)"></metric-function>
+                            <metric-function 
+                                [metricId]="data.metric.id" 
+                                [fx]="fx" 
+                                (fxOut)="functionUpdate($event)" 
+                                (fxDel)="functionDelete($event)"
+                                [regexValidator]="FunctionOptions[fx.fxCall].regexValidator" 
+                                [errorMessage]="FunctionOptions[fx.fxCall].errorMessage"
+                                [options]="FunctionOptions[fx.fxCall]">
+                            </metric-function>
                         </div>
                     </div>
                     <!-- custom function icon [ ALWAYS LAST ] -->
                     <div class="metric-row-data add-function"
+                        *ngIf="data.type === 'metric'"
                         [matMenuTriggerFor]="functionSelectionMenu"
                         [matMenuTriggerData]="{metric: data.metric}"
                         (click)="functionMenuOpened($event, i)"

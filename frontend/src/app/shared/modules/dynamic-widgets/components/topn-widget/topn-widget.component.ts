@@ -39,6 +39,8 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     size: any = { width: 0, height: 0 };
     newSize$: BehaviorSubject<any>;
     newSizeSub: Subscription;
+    doRefreshData$: BehaviorSubject<boolean>;
+    doRefreshDataSub: Subscription;
     legendWidth = 0;
     editQueryId = null;
     nQueryDataLoading = 0;
@@ -55,9 +57,21 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     ) { }
 
     ngOnInit() {
+        this.doRefreshData$ = new BehaviorSubject(false);
+        this.doRefreshDataSub = this.doRefreshData$
+            .pipe(
+                debounceTime(1000)
+            )
+            .subscribe(trigger => {
+                if (trigger) {
+                    this.refreshData();
+                }
+            });
+
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch ( message.action ) {
+                case 'TimeChanged':
                 case 'reQueryData':
                 case 'ZoomDateRange':
                     this.refreshData();
@@ -134,7 +148,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
     requestData() {
         if (!this.isDataLoaded) {
-            this.nQueryDataLoading = this.widget.queries.length;
+            this.nQueryDataLoading = 1;
             this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
@@ -146,7 +160,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     requestCachedData() {
-        this.nQueryDataLoading = this.widget.queries.length;
+        this.nQueryDataLoading = 1;
         this.error = null;
         this.interCom.requestSend({
             id: this.widget.id,
@@ -162,7 +176,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetVisualization':
@@ -179,13 +193,13 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'SetSorting':
                 this.setSorting(message.payload);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
@@ -201,13 +215,29 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
+                this.needRequery = true;
+                break;
+            case 'ToggleQueryVisibility':
+                this.toggleQueryVisibility(message.id);
+                this.refreshData(false);
+                this.needRequery = false;
+                break;
+            case 'CloneQuery':
+                this.cloneQuery(message.id);
+                this.doRefreshData$.next(true);
+                this.needRequery = true;
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.id);
+                this.doRefreshData$.next(true);
+                this.widget = {...this.widget};
                 this.needRequery = true;
                 break;
         }
@@ -215,20 +245,28 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
     updateQuery( payload ) {
         const query = payload.query;
-        const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
+        let qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
         if ( qindex !== -1 ) {
             this.widget.queries[qindex] = query;
         }
-        let visibleIndex = 0;
-        for (let i = 0; i < this.widget.queries[0].metrics.length; i++ ) {
-            if ( this.widget.queries[0].metrics[i].settings.visual.visible ) {
-                visibleIndex = i;
+        let hasVisibleMetric = false;
+        for (let i = 0; i < this.widget.queries.length; i++ ) {
+            for (let j = 0; j < this.widget.queries[i].metrics.length; j++ ) {
+                if ( this.widget.queries[i].metrics[j].settings.visual.visible ) {
+                    hasVisibleMetric = true;
+                    break;
+                }
+            }
+            if ( hasVisibleMetric ) {
                 break;
             }
         }
+
         // default metric visibility is false. so make first metric visible
-        for (let i = 0; i < this.widget.queries[0].metrics.length; i++ ) {
-            this.widget.queries[0].metrics[i].settings.visual.visible = visibleIndex === i ? true : false;
+        // find query with metrics in it
+        qindex = this.widget.queries.findIndex(d => d.metrics.length > 0);
+        if ( qindex !== -1 && hasVisibleMetric === false ) {
+            this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
         }
     }
 
@@ -278,26 +316,57 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     toggleQueryMetricVisibility(qid, mid) {
-        const mindex = this.widget.queries[0].metrics.findIndex(d => d.id === mid);
-        for (const metric of this.widget.queries[0].metrics) {
-            metric.settings.visual.visible = false;
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+        for (let i = 0; i < this.widget.queries.length; i++ ) {
+            for (let j = 0; j < this.widget.queries[i].metrics.length; j++ ) {
+                this.widget.queries[i].metrics[j].settings.visual.visible = false;
+            }
         }
-        this.widget.queries[0].metrics[mindex].settings.visual.visible = true;
+        this.widget.queries[qindex].metrics[mindex].settings.visual.visible = true;
     }
 
     deleteQueryMetric(qid, mid) {
-        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        let qindex = this.widget.queries.findIndex(d => d.id === qid);
         const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
         const delMetricVisibility = this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
         this.widget.queries[qindex].metrics.splice(mindex, 1);
-        if ( delMetricVisibility && this.widget.queries[qindex].metrics.length ) {
-            this.widget.queries[0].metrics[0].settings.visual.visible = true;
+
+        // find query with metrics in it
+        qindex = this.widget.queries.findIndex(d => d.metrics.length > 0);
+        if ( qindex !== -1 && delMetricVisibility ) {
+            this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
         }
     }
 
     deleteQueryFilter(qid, findex) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries[qindex].filters.splice(findex, 1);
+    }
+
+    toggleQueryVisibility(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
+    }
+
+    cloneQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        if ( qindex !== -1 ) {
+            const query = this.util.getQueryClone(this.widget.queries, qindex);
+            query.metrics.map(d => { d.settings.visual.visible = false; } );
+            this.widget.queries.splice(qindex + 1, 0, query);
+        }
+    }
+
+    deleteQuery(qid) {
+        let qindex = this.widget.queries.findIndex(d => d.id === qid);
+        const hasSelectedMetric = this.widget.queries[qindex].metrics.findIndex( d => d.settings.visual.visible );
+        this.widget.queries.splice(qindex, 1);
+
+        qindex = this.widget.queries.findIndex(d => d.metrics.length > 0 );
+        if ( qindex !== -1 && hasSelectedMetric !== -1  ) {
+            this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
+        }
     }
 
     showError() {
@@ -336,6 +405,7 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     ngOnDestroy() {
         this.listenSub.unsubscribe();
         this.newSizeSub.unsubscribe();
+        this.doRefreshDataSub.unsubscribe();
     }
 }
 

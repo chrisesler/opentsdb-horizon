@@ -13,6 +13,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 import { BehaviorSubject } from 'rxjs';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
+import { debounceTime } from 'rxjs/operators';
 import heatmapPlotter from '../../../../dygraphs/plotters';
 
 @Component({
@@ -88,6 +89,8 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   size: any = { width: 120, height: 75};
   newSize$: BehaviorSubject<any>;
   newSizeSub: Subscription;
+  doRefreshData$: BehaviorSubject<boolean>;
+  doRefreshDataSub: Subscription;
   nQueryDataLoading: number;
   error: any;
   errorDialog: MatDialogRef < ErrorDialogComponent > | null;
@@ -104,9 +107,20 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   ) { }
 
   ngOnInit() {
+    this.doRefreshData$ = new BehaviorSubject(false);
+    this.doRefreshDataSub = this.doRefreshData$
+        .pipe(
+            debounceTime(1000)
+        )
+        .subscribe(trigger => {
+            if (trigger) {
+                this.refreshData();
+            }
+        });
       // subscribe to event stream
       this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
           switch (message.action) {
+              case 'TimeChanged':
               case 'reQueryData':
               case 'ZoomDateRange':
                   this.refreshData();
@@ -183,7 +197,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             break;
         case 'SetTimeConfiguration':
             this.setTimeConfiguration(message.payload.data);
-            this.refreshData();
+            this.doRefreshData$.next(true);
             this.needRequery = true; // set flag to requery if apply to dashboard
             break;
         case 'SetVisualization':
@@ -199,7 +213,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
         case 'UpdateQuery':
             this.updateQuery(message.payload);
             this.widget.queries = [...this.widget.queries];
-            this.refreshData();
+            this.doRefreshData$.next(true);
             this.needRequery = true;
             break;
         case 'SetQueryEditMode':
@@ -215,13 +229,29 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             break;
         case 'DeleteQueryMetric':
             this.deleteQueryMetric(message.id, message.payload.mid);
-            this.refreshData();
+            this.doRefreshData$.next(true);
             this.needRequery = true;
             break;
         case 'DeleteQueryFilter':
             this.deleteQueryFilter(message.id, message.payload.findex);
             this.widget.queries = this.util.deepClone(this.widget.queries);
-            this.refreshData();
+            this.doRefreshData$.next(true);
+            this.needRequery = true;
+            break;
+        case 'ToggleQueryVisibility':
+            this.toggleQueryVisibility(message.id);
+            this.refreshData(false);
+            this.needRequery = false;
+            break;
+        case 'CloneQuery':
+            this.cloneQuery(message.id);
+            this.doRefreshData$.next(true);
+            this.needRequery = true;
+            break;
+        case 'DeleteQuery':
+            this.deleteQuery(message.id);
+            this.doRefreshData$.next(true);
+            this.widget = {...this.widget};
             this.needRequery = true;
             break;
     }
@@ -246,20 +276,28 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
 
   updateQuery( payload ) {
     const query = payload.query;
-    const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
+    let qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
     if ( qindex !== -1 ) {
         this.widget.queries[qindex] = query;
     }
-    let visibleIndex = 0;
-    for (let i = 0; i < this.widget.queries[0].metrics.length; i++ ) {
-        if ( this.widget.queries[0].metrics[i].settings.visual.visible ) {
-            visibleIndex = i;
+    let hasVisibleMetric = false;
+    for (let i = 0; i < this.widget.queries.length; i++ ) {
+        for (let j = 0; j < this.widget.queries[i].metrics.length; j++ ) {
+            if ( this.widget.queries[i].metrics[j].settings.visual.visible ) {
+                hasVisibleMetric = true;
+                break;
+            }
+        }
+        if ( hasVisibleMetric ) {
             break;
         }
     }
+
     // default metric visibility is false. so make first metric visible
-    for (let i = 0; i < this.widget.queries[0].metrics.length; i++ ) {
-        this.widget.queries[0].metrics[i].settings.visual.visible = visibleIndex === i ? true : false;
+    // find query with metrics in it
+    qindex = this.widget.queries.findIndex(d => d.metrics.length > 0);
+    if ( qindex !== -1 && hasVisibleMetric === false ) {
+        this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
     }
   }
 
@@ -292,26 +330,56 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   toggleQueryMetricVisibility(qid, mid) {
-    const mindex = this.widget.queries[0].metrics.findIndex(d => d.id === mid);
-    for (const metric of this.widget.queries[0].metrics) {
-        metric.settings.visual.visible = false;
+    const qindex = this.widget.queries.findIndex(d => d.id === qid);
+    const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+    for (let i = 0; i < this.widget.queries.length; i++ ) {
+        for (let j = 0; j < this.widget.queries[i].metrics.length; j++ ) {
+            this.widget.queries[i].metrics[j].settings.visual.visible = false;
+        }
     }
-    this.widget.queries[0].metrics[mindex].settings.visual.visible = true;
+    this.widget.queries[qindex].metrics[mindex].settings.visual.visible = true;
   }
 
   deleteQueryMetric(qid, mid) {
-    const qindex = this.widget.queries.findIndex(d => d.id === qid);
+    let qindex = this.widget.queries.findIndex(d => d.id === qid);
     const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
     const delMetricVisibility = this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
     this.widget.queries[qindex].metrics.splice(mindex, 1);
-    if ( delMetricVisibility && this.widget.queries[qindex].metrics.length ) {
-        this.widget.queries[0].metrics[0].settings.visual.visible = true;
+
+    // find query with metrics in it
+    qindex = this.widget.queries.findIndex(d => d.metrics.length > 0);
+    if ( qindex !== -1 && delMetricVisibility ) {
+        this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
     }
   }
 
   deleteQueryFilter(qid, findex) {
     const qindex = this.widget.queries.findIndex(d => d.id === qid);
     this.widget.queries[qindex].filters.splice(findex, 1);
+  }
+
+  toggleQueryVisibility(qid) {
+    const qindex = this.widget.queries.findIndex(d => d.id === qid);
+    this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
+  }
+
+  cloneQuery(qid) {
+    const qindex = this.widget.queries.findIndex(d => d.id === qid);
+    if ( qindex !== -1 ) {
+        const query = this.util.getQueryClone(this.widget.queries, qindex);
+        query.metrics.map(d => { d.settings.visual.visible = false; } );
+        this.widget.queries.splice(qindex + 1, 0, query);
+    }
+}
+
+  deleteQuery(qid) {
+    let qindex = this.widget.queries.findIndex(d => d.id === qid);
+    const hasSelectedMetric = this.widget.queries[qindex].metrics.findIndex( d => d.settings.visual.visible );
+    this.widget.queries.splice(qindex, 1);
+    qindex = this.widget.queries.findIndex(d => d.metrics.length > 0 );
+    if ( qindex !== -1 && hasSelectedMetric !== -1  ) {
+        this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
+    }
   }
 
   setOptions() {
@@ -425,6 +493,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   ngOnDestroy() {
       this.listenSub.unsubscribe();
       this.newSizeSub.unsubscribe();
+      this.doRefreshDataSub.unsubscribe();
   }
 
 }

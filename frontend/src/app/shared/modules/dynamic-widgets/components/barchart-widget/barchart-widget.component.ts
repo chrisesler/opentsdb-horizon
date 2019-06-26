@@ -35,6 +35,8 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     // properties to pass to  chartjs chart directive
 
     type = 'bar';
+    doRefreshData$: BehaviorSubject<boolean>;
+    doRefreshDataSub: Subscription;
     type$: BehaviorSubject<string>;
     typeSub: Subscription;
 
@@ -89,6 +91,18 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     ) { }
 
     ngOnInit() {
+        this.doRefreshData$ = new BehaviorSubject(false);
+
+        this.doRefreshDataSub = this.doRefreshData$
+            .pipe(
+                debounceTime(1000)
+            )
+            .subscribe(trigger => {
+                if (trigger) {
+                    this.refreshData();
+                }
+            });
+
         this.type$ = new BehaviorSubject(this.widget.settings.visual.type || 'vertical');
         this.options.legend.display = this.isStackedGraph ? true : false;
 
@@ -105,6 +119,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         // subscribe to event stream
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
             switch( message.action ) {
+                case 'TimeChanged':
                 case 'reQueryData':
                 case 'ZoomDateRange':
                     this.refreshData();
@@ -183,7 +198,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
     requestData() {
         if (!this.isDataLoaded) {
-            this.nQueryDataLoading = this.widget.queries.length;
+            this.nQueryDataLoading = 1;
             this.error = null;
             this.interCom.requestSend({
                 id: this.widget.id,
@@ -195,7 +210,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
     }
 
     requestCachedData() {
-        this.nQueryDataLoading = this.widget.queries.length;
+        this.nQueryDataLoading = 1;
         this.error = null;
         this.interCom.requestSend({
             id: this.widget.id,
@@ -211,7 +226,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
             case 'SetTimeConfiguration':
                 this.setTimeConfiguration(message.payload.data);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetStackedBarVisualization':
@@ -233,7 +248,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 break;
             case 'SetSorting':
                 this.setSorting(message.payload);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'ChangeVisualization':
@@ -242,7 +257,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
                 this.widget.queries = [...this.widget.queries];
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'SetQueryEditMode':
@@ -254,18 +269,30 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
                 this.refreshData(false);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.refreshData();
+                this.doRefreshData$.next(true);
+                this.needRequery = true;
+                break;
+            case 'ToggleQueryVisibility':
+                this.toggleQueryVisibility(message.id);
+                this.refreshData(false);
+                this.needRequery = false;
+                break;
+            case 'CloneQuery':
+                this.cloneQuery(message.id);
+                this.doRefreshData$.next(true);
+                this.needRequery = true;
+                break;
+            case 'DeleteQuery':
+                this.deleteQuery(message.id);
+                this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'ToggleDBFilterUsage':
@@ -309,32 +336,24 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         if ( qindex !== -1 ) {
             this.widget.queries[qindex] = query;
         }
-
     }
 
-    setStackForGroup(gid) {
-        const gconfig = this.util.getObjectByKey(this.widget.queries.groups, 'id', gid);
-        const queries = gconfig.queries;
-        const stacks = this.widget.settings.visual.stacks || [];
+    toggleQueryVisibility(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries[qindex].settings.visual.visible = !this.widget.queries[qindex].settings.visual.visible;
+    }
 
-        const availStacks = stacks.filter(x => !queries.find(function(a) {  return x.id === a.settings.visual.stack; } ));
-        for ( let i = 0; i < queries.length; i++ ) {
-            const vSetting = queries[i].settings.visual;
-            if ( !vSetting.stack ) {
-                const stack = availStacks.length ?  availStacks.shift() : this.addNewStack();
-                vSetting.stack = stack.id;
-            }
+    cloneQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        if ( qindex !== -1 ) {
+            const query = this.util.getQueryClone(this.widget.queries, qindex);
+            this.widget.queries.splice(qindex + 1, 0, query);
         }
     }
 
-    addNewStack() {
-        const oStack = {
-            id : this.util.generateId(3, this.util.getIDs(this.util.getAllMetrics(this.widget.queries))),
-            label: 'Stack-' + ( this.widget.settings.visual.stacks.length + 1 ),
-            color: '#000000'
-        };
-        const index = this.widget.settings.visual.stacks.push(oStack);
-        return oStack;
+    deleteQuery(qid) {
+        const qindex = this.widget.queries.findIndex(d => d.id === qid);
+        this.widget.queries.splice(qindex, 1);
     }
 
     deleteMetrics(groups) {
@@ -485,31 +504,6 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         }
     }
 
-    setStackedBarLabels(gConfigs) {
-        const labels = [];
-        const labelUntitled = 'untitled group';
-        let labelIndex = 1;
-        gConfigs.forEach( (config, i ) => {
-            let label = config.label;
-            if ( label === '' ) {
-                label = labelUntitled + (labelIndex === 1 ? '' : ' ' + labelIndex);
-                labelIndex++;
-            }
-            this.widget.queries.groups[i].title = label;
-            labels.push( label );
-        });
-        this.options.labels = labels;
-        this.options = {...this.options};
-    }
-
-    setStackedStackVisuals(configs) {
-        this.widget.settings.visual.stacks = configs;
-        this.widget.settings.visual.stacks.forEach((config, i) => {
-            this.data[i].label = config.label;
-            this.data[i].backgroundColor = config.color;
-        });
-        this.data = [...this.data];
-    }
 
     setSorting(sConfig) {
         this.widget.settings.sorting = { order: sConfig.order, limit: sConfig.limit };
@@ -607,6 +601,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             this.listenSub.unsubscribe();
         }
         this.typeSub.unsubscribe();
+        this.doRefreshDataSub.unsubscribe();
     }
 }
 
