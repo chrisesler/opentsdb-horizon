@@ -35,28 +35,20 @@ export class YamasService {
         };
 
         this.queries = queries;
+        this.metricSubGraphs = new Map();
         const outputIds = [];
 
+        // add metric definitions
         for ( const i in this.queries ) {
             if ( this.queries[i]) {
                 let hasCommonFilter = false;
                 const filterId = this.queries[i].filters.length ? 'filter-' + this.queries[i].id  : '';
-                const groupByIds = [];
 
                 this.downsample.aggregator = this.downsample.aggregators ? this.downsample.aggregators[0] : 'avg';
 
                 for (let j = 0; j < this.queries[i].metrics.length; j++) {
 
-                    if ( this.queries[i].metrics[j].expression ) {
-                        const q = this.getExpressionQuery(i, j);
-                        const subGraph = [ q ];
-                        this.getFunctionQueries(i, j, subGraph);
-                        for (let node of subGraph) {
-                            this.transformedQuery.executionGraph.push(node);
-                        }
-                        this.metricSubGraphs.set(q.id, subGraph);
-                        outputIds.push(subGraph[subGraph.length - 1].id);
-                    } else {
+                    if ( !this.queries[i].metrics[j].expression ) {
                         const q: any = this.getMetricQuery(i, j);
                         const subGraph = [ q ];
                         if ( this.queries[i].metrics[j].groupByTags && !this.checkTagsExistInFilter(i, this.queries[i].metrics[j].groupByTags) ) {
@@ -71,7 +63,6 @@ export class YamasService {
                         subGraph.push(this.getQueryDownSample(downsample, this.downsample.aggregator, dsId, [q.id]));
 
                         const groupbyId = q.id + '_groupby';
-                        groupByIds.push(groupbyId);
                         subGraph.push(this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId));
                         this.getFunctionQueries(i, j, subGraph);
                         for (let node of subGraph) {
@@ -93,6 +84,35 @@ export class YamasService {
                     this.transformedQuery.filters.push(_filter);
                 }
             }
+        }
+
+        const expNodes = [];
+        // add expression definitions
+        for ( const i in this.queries ) {
+            if ( this.queries[i]) {
+                for (let j = 0; j < this.queries[i].metrics.length; j++) {
+
+                    if ( this.queries[i].metrics[j].expression ) {
+                        const q = this.getExpressionQuery(i, j);
+                        expNodes.push(q);
+                        const subGraph = [ q ];
+                        this.getFunctionQueries(i, j, subGraph);
+                        for (const node of subGraph) {
+                            this.transformedQuery.executionGraph.push(node);
+                        }
+                        this.metricSubGraphs.set(q.id, subGraph);
+                        outputIds.push(subGraph[subGraph.length - 1].id);
+                    }
+                }
+            }
+        }
+
+        // replace the sourceid with sourceid of the function definition of metric/expression
+        for ( let i = 0; i < expNodes.length; i++ ) {
+            expNodes[i].sources = expNodes[i].sources.map(d => {
+                                                                const subGraph = this.metricSubGraphs.get(d);
+                                                                return subGraph[subGraph.length - 1].id;
+                                                            });
         }
 
         if (sorting && sorting.order && sorting.limit) {
@@ -431,14 +451,8 @@ export class YamasService {
             const sourceId = sourceIdAndType.id;
             const isExpression = sourceIdAndType.expression;
             transformedExp = transformedExp.replace(idreg, ' ' + sourceId + ' ' );
-            // TODO - if metrics are ever added AFTER expressions we can't relyin on this behavior
-            // any more.
-            const subGraph = this.metricSubGraphs.get(sourceId);
-            if (!subGraph) {
-                console.error("Whoops? Where's the sub graph?");
-            } else {
-                sources.push(subGraph[subGraph.length - 1].id);
-            }
+            // the source id will be replaced with the sourceid of function definition of the metric/expression later
+            sources.push(sourceId);
         }
         const joinTags = {};
         const groupByTags = config.groupByTags || [];
