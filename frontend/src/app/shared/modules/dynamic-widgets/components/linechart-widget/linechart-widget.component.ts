@@ -51,7 +51,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         labels: ['x'],
         labelsUTC: false,
         labelsKMB: true,
-        connectSeparatedPoints: false,
+        connectSeparatedPoints: true,
         drawPoints: false,
         //  labelsDivWidth: 0,
         // legend: 'follow',
