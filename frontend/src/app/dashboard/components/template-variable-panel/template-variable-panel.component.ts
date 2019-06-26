@@ -82,9 +82,13 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     // @mode: from input, view or edit
     manageFilterControl(index: number) {
         const arrayControl = this.mode.view ? this.listForm.get('listVariables') as FormArray
-                            : this.editForm.get('formTplVariables') as FormArray;
+            : this.editForm.get('formTplVariables') as FormArray;
         const name = this.mode.view ? 'view' : 'edit';
         const selControl = arrayControl.at(index);
+        // unsubscribe if exists to keep list as new
+        if (this.trackingSub.hasOwnProperty(name + index)) {
+            this.trackingSub[name + index].unsubscribe();
+        }
         this.trackingSub[name + index] = selControl.get('filter').valueChanges
             .pipe(
                 startWith(''),
@@ -96,8 +100,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     payload += val + '.*';
                 }
                 const metrics = this.dbService.getMetricsFromWidgets(this.widgets);
-                const tag = { key: selControl.get('tagk').value, value: payload};
-                const query = { metrics, tag};
+                const tag = { key: selControl.get('tagk').value, value: payload };
+                const query = { metrics, tag };
                 this.httpService.getTagValues(query).subscribe(
                     results => {
                         this.filteredValueOptions[index] = results;
