@@ -29,7 +29,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
   constructor(private element: ElementRef, private uConverter: UnitConverterService) { }
 
   ngOnInit() {
-    // console.log('this chart type', this.options, this.chartType, this.element);   
+    // console.log('this chart type', this.options, this.chartType, this.element);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -62,12 +62,14 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
         let html = '<p>' + data.xHTML + '</p>';
         if ( self.chartType !== 'heatmap' ) {
+            // console.log('%cLEGEND FORMATTER','color: white; background-color: maroon; padding 2px;', data, seriesConfig);
             data.series.forEach(function(series) {
                 if (!series.isVisible || !series.isHighlighted) {
                     return;
                 }
                 const tags = seriesConfig[series.label].tags;
-                const metric = tags.metric;
+                const label = seriesConfig[series.label].label;
+                const metric = (tags.metric !== label) ? label : tags.metric;
                 html += '<p>Value: '  + series.yHTML + '</p>';
                 html += '<p>' + metric + '</p>';
                 for (const k in tags ) {
