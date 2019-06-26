@@ -213,7 +213,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.updateAlertValue(message.payload.data); // update the alert unit type and value
                 this.widget.settings.axes = { ...this.widget.settings.axes, ...message.payload.data };
                 this.setAxesOption();
-                this.options = { ...this.options };
+                // this.options = { ...this.options };
                 this.refreshData(false);
                 break;
             case 'SetLegend':
@@ -221,7 +221,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
-                this.widget.queries = [...this.widget.queries];
+                // this.widget.queries = [...this.widget.queries];
                 this.setOptions();
                 this.refreshData();
                 this.needRequery = true;
@@ -235,34 +235,39 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             case 'ToggleQueryVisibility':
                 this.toggleQueryVisibility(message.id);
                 this.refreshData(false);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
+                // this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
                 this.refreshData(false);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
+                // this.widget.queries = this.util.deepClone(this.widget.queries);
                 break;
             case 'CloneQuery':
                 this.cloneQuery(message.id);
-                this.widget = this.util.deepClone(this.widget);
+                // this.widget = this.util.deepClone(this.widget);
                 this.refreshData();
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
                 this.deleteQuery(message.id);
-                this.widget = this.util.deepClone(this.widget);
+                // this.widget = this.util.deepClone(this.widget);
                 this.refreshData();
                 this.needRequery = true;
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
+                // this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.refreshData();
                 this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
+                // this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
+                this.needRequery = true;
+                break;
+            case 'ToggleDBFilterUsage':
+                this.widget.settings.useDBFilter = message.payload;
                 this.refreshData();
                 this.needRequery = true;
                 break;
@@ -300,6 +305,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             };
             this.newSize$.next(newSize);
         });
+    }
+
+    isApplyTpl(): boolean {
+        return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
     }
 
     setSize() {
