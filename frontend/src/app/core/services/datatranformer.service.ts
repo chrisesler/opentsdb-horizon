@@ -31,6 +31,8 @@ export class DatatranformerService {
     let areaAxis = 'y1';
     let yMax = 0, y2Max = 0;
     let areaMax = 0;
+    const mTimeConfigs = {};
+    let totalSeries = 0;
 
     for ( let i = 0;  i < result.results.length; i++ ) {
         queryResults.push(result.results[i]);
@@ -69,6 +71,10 @@ export class DatatranformerService {
             } else {
                 dict[mid]['values'] = {}; // queryResults.data;
                 const n = queryResults[i].data.length;
+                totalSeries += n;
+                const nPoints = queryResults[i].data[0].NumericType.length;
+                const key = queryResults[i].timeSpecification.start + '-' + queryResults[i].timeSpecification.end + '-' + queryResults[i].timeSpecification.interval + '-' + nPoints;
+                mTimeConfigs[key] = {timeSpecification: queryResults[i].timeSpecification, nSeries: n, nPoints: nPoints};
                 for (let j = 0; j < n; j++) {
                     const tags = queryResults[i].data[j].tags;
                     const hash = JSON.stringify(tags);
@@ -83,6 +89,13 @@ export class DatatranformerService {
             }
         }
     }
+    const tsObj = this.util.getTimestampsFromTimeSpecification(Object.values(mTimeConfigs));
+    const ts = Object.keys(tsObj);
+    for ( let i = 0; i < ts.length; i++ ) {
+        normalizedData[i] = Array( totalSeries + 1 ).fill(null);
+        normalizedData[i][0] = new Date(parseInt(ts[i], 10));
+    }
+
     queryResults.sort((a, b) => a.visualType - b.visualType);
     options.axes.y.tickFormat.max = yMax;
     options.axes.y2.tickFormat.max = y2Max;
@@ -153,15 +166,12 @@ export class DatatranformerService {
                         options.series[label].label = this.getLableFromMetricTags(metric, options.series[label].tags);
                         const seriesIndex = options.labels.indexOf(label);
                         const unit = timeSpecification.interval.replace(/[0-9]/g, '');
-
-                        // tslint:disable-next-line: radix
-                        const m = parseInt(timeSpecification.interval);
+                        const m = parseInt(timeSpecification.interval, 10);
                         for (let k = 0; k < numPoints; k++) {
-                            if (!Array.isArray(normalizedData[k])) {
-                                const time = timeSpecification.start + (m * k * mSeconds[unit]);
-                                normalizedData[k] = [new Date(time * 1000)];
-                            }
-                            normalizedData[k][seriesIndex] = !isNaN(data[k]) ? data[k] : null;
+                            const secs = timeSpecification.start + (m * k * mSeconds[unit]);
+                            const ms = secs * 1000;
+                            const tsIndex = tsObj[ms];
+                            normalizedData[tsIndex][seriesIndex] = !isNaN(data[k]) ? data[k] : NaN;
                         }
                 }
             }

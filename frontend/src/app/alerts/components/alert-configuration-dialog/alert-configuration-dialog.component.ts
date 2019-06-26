@@ -68,7 +68,7 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         labels: ['x'],
         labelsUTC: false,
         labelsKMB: true,
-        connectSeparatedPoints: false,
+        connectSeparatedPoints: true,
         drawPoints: false,
         //  labelsDivWidth: 0,
         // legend: 'follow',
