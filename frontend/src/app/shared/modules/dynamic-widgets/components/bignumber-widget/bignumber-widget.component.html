@@ -88,7 +88,10 @@
             <div class="error" *ngIf="error" (click)="showError()">
                 <mat-icon>error</mat-icon>
             </div>
-
+            <div class="apply-tpl-status">
+                    <mat-icon fontSet="denali" matTooltip="Dashboard tag filters is disabled!"
+                         fontIcon="d-lock-close-solid" *ngIf="!isApplyTpl()"></mat-icon>
+            </div>
             <div class="fully-qualified-metric" *ngIf="editMode">
                 <div class="metric-detail" *ngIf="selectedMetric">
                     <div class="metric-label">{{ selectedMetric.metric }}</div>

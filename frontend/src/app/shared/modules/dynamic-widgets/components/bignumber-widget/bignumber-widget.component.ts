@@ -166,7 +166,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             this.newSize$.next(newSize);
         });
     }
-
+    isApplyTpl(): boolean {
+        return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
+    }
     // for first time and call.
     setSize() {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
@@ -483,6 +485,11 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
                 this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.refreshData();
+                this.needRequery = true;
+                break;
+            case 'ToggleDBFilterUsage':
+                this.widget.settings.useDBFilter = message.payload;
                 this.refreshData();
                 this.needRequery = true;
                 break;
