@@ -35,28 +35,20 @@ export class YamasService {
         };
 
         this.queries = queries;
+        this.metricSubGraphs = new Map();
         const outputIds = [];
 
+        // add metric definitions
         for ( const i in this.queries ) {
             if ( this.queries[i]) {
                 let hasCommonFilter = false;
                 const filterId = this.queries[i].filters.length ? 'filter-' + this.queries[i].id  : '';
-                const groupByIds = [];
 
                 this.downsample.aggregator = this.downsample.aggregators ? this.downsample.aggregators[0] : 'avg';
 
                 for (let j = 0; j < this.queries[i].metrics.length; j++) {
 
-                    if ( this.queries[i].metrics[j].expression ) {
-                        const q = this.getExpressionQuery(i, j);
-                        const subGraph = [ q ];
-                        this.getFunctionQueries(i, j, subGraph);
-                        for (let node of subGraph) {
-                            this.transformedQuery.executionGraph.push(node);
-                        }
-                        this.metricSubGraphs.set(q.id, subGraph);
-                        outputIds.push(subGraph[subGraph.length - 1].id);
-                    } else {
+                    if ( !this.queries[i].metrics[j].expression ) {
                         const q: any = this.getMetricQuery(i, j);
                         const subGraph = [ q ];
                         if ( this.queries[i].metrics[j].groupByTags && !this.checkTagsExistInFilter(i, this.queries[i].metrics[j].groupByTags) ) {
@@ -71,7 +63,6 @@ export class YamasService {
                         subGraph.push(this.getQueryDownSample(downsample, this.downsample.aggregator, dsId, [q.id]));
 
                         const groupbyId = q.id + '_groupby';
-                        groupByIds.push(groupbyId);
                         subGraph.push(this.getQueryGroupBy(this.queries[i].metrics[j].tagAggregator, this.queries[i].metrics[j].groupByTags, [dsId], groupbyId));
                         this.getFunctionQueries(i, j, subGraph);
                         for (let node of subGraph) {
@@ -91,6 +82,24 @@ export class YamasService {
                     const _filter: any = this.getFilterQuery(i);
                     _filter.id = filterId;
                     this.transformedQuery.filters.push(_filter);
+                }
+            }
+        }
+
+        // add expression definitions
+        for ( const i in this.queries ) {
+            if ( this.queries[i]) {
+                for (let j = 0; j < this.queries[i].metrics.length; j++) {
+
+                    if ( this.queries[i].metrics[j].expression ) {
+                        const q = this.getExpressionQuery(i, j);
+                        const subGraph = [ q ];
+                        this.getFunctionQueries(i, j, subGraph);
+                        for (const node of subGraph) {
+                            this.transformedQuery.executionGraph.push(node);
+                        }
+                        this.metricSubGraphs.set(q.id, subGraph);
+                        outputIds.push(subGraph[subGraph.length - 1].id);                    }
                 }
             }
         }
