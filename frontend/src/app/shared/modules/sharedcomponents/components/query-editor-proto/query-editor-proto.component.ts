@@ -294,7 +294,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
 
     FunctionOptions: any = {
-        'AsCount': {
+        'TotalPerTimeInterval': {
             noVal: true,
             errorMessage: null,
             regexValidator: null
