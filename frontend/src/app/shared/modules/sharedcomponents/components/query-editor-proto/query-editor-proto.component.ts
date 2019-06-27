@@ -93,7 +93,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     fg: FormGroup;
     expressionControl: FormControl;
     expressionControls: FormGroup;
-    idRegex = /(q[0-9]+\.)*(m|e)[0-9]/gi;
+    idRegex = /(q[0-9]+\.)*(m|e)[0-9]+/gi;
     handleBarsRegex = /\{\{(.+?)\}\}/;
 
     timeAggregatorOptions: Array<any> = [
@@ -205,7 +205,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             functions: [
                 {
                     label: 'Total Per Time Interval',
-                    fxCall: 'AsCount',
+                    fxCall: 'TotalPerTimeInterval',
                     val: ''
                 },
                 {
@@ -294,7 +294,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
 
     FunctionOptions: any = {
-        'AsCount': {
+        'TotalPerTimeInterval': {
             noVal: true,
             errorMessage: null,
             regexValidator: null
@@ -718,20 +718,20 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         let transformedExp = expression;
         let result = expression.match(this.idRegex);
         result = result ? this.utils.arrayUnique(result) : result;
+        result.sort().reverse(); // wanted to replace m10 first, then m1
         const aliases = this.getMetricAliases();
-
         // update the expression with metric ids
         // first cross-query
         for (let i = 0; i < result.length; i++) {
             if (result[i].includes('.')) {
-                const regex = new RegExp(result[i], 'g');
+                const regex = new RegExp("(?<!{)" + result[i] , 'g');
                 transformedExp = transformedExp.replace(regex, '{{' + aliases[result[i]] + '}}');
             }
         }
         // then shorthand
         for (let i = 0; i < result.length; i++) {
             if (!result[i].includes('.')) {
-                const regex = new RegExp(result[i], 'g');
+                const regex = new RegExp("(?<!{)" + result[i] , "g");
                 transformedExp = transformedExp.replace(regex, '{{' + aliases[result[i]] + '}}');
             }
         }

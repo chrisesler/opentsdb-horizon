@@ -72,9 +72,8 @@ export class DatatranformerService {
                 dict[mid]['values'] = {}; // queryResults.data;
                 const n = queryResults[i].data.length;
                 totalSeries += n;
-                const nPoints = queryResults[i].data[0].NumericType.length;
-                const key = queryResults[i].timeSpecification.start + '-' + queryResults[i].timeSpecification.end + '-' + queryResults[i].timeSpecification.interval + '-' + nPoints;
-                mTimeConfigs[key] = {timeSpecification: queryResults[i].timeSpecification, nSeries: n, nPoints: nPoints};
+                const key = queryResults[i].timeSpecification.start + '-' + queryResults[i].timeSpecification.end + '-' + queryResults[i].timeSpecification.interval;
+                mTimeConfigs[key] = {timeSpecification: queryResults[i].timeSpecification, nSeries: n};
                 for (let j = 0; j < n; j++) {
                     const tags = queryResults[i].data[j].tags;
                     const hash = JSON.stringify(tags);
@@ -171,7 +170,9 @@ export class DatatranformerService {
                             const secs = timeSpecification.start + (m * k * mSeconds[unit]);
                             const ms = secs * 1000;
                             const tsIndex = tsObj[ms];
-                            normalizedData[tsIndex][seriesIndex] = !isNaN(data[k]) ? data[k] : NaN;
+                            if ( tsIndex ) {
+                                normalizedData[tsIndex][seriesIndex] = !isNaN(data[k]) ? data[k] : NaN;
+                            }
                         }
                 }
             }

@@ -214,7 +214,8 @@ export class YamasService {
         for ( let i = 0; i < funs.length; i++ ) {
             switch ( funs[i].fxCall ) {
                 // Rate and Difference
-                case 'AsCount':
+                case 'AsCount':  // old
+                case 'TotalPerTimeInterval':
                 case 'RateOfChange':  // old
                 case 'Rate':
                 case 'RateDiff':      // old
@@ -271,6 +272,7 @@ export class YamasService {
         };
         switch ( funs[i].fxCall ) {
             case 'AsCount':
+            case 'TotalPerTimeInterval':
                 // set downsample aggregator=sum, ascount def. should be after the metric def.
                 func.interval = '1s';
                 func.rateToCount = true;
