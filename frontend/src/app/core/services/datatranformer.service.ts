@@ -177,7 +177,6 @@ export class DatatranformerService {
                 }
             }
         }
-        console.log("data", normalizedData);
         return [...normalizedData];
     }
 

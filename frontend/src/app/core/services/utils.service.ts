@@ -504,7 +504,6 @@ export class UtilsService {
     for ( let i = 0; i < ts.length; i++ ) {
         tsObj[ts[i]] = i;
     }
-    console.log("ts", ts)
     return tsObj;
   }
 
