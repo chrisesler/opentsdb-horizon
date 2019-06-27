@@ -54,12 +54,12 @@ export class EventStreamComponent implements OnInit, OnChanges {
   groupEvents() {
     this.groupedEvents = [];
     // tslint:disable-next-line:prefer-const
-    for (let comment of this.data.comments) {
-      this.addCommentToGroupedEvents(comment);
-    }
+    // for (let comment of this.data.comments) {
+    //   this.addCommentToGroupedEvents(comment);
+    // }
 
     // tslint:disable-next-line:prefer-const
-    for (let sdJob of this.data.sdJobs) {
+    for (let sdJob of this.data) {
       this.addSDEventToGroupedEvents(sdJob);
     }
 

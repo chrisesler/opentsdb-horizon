@@ -52,17 +52,25 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     this.eventLocations = [];
 
     // tslint:disable:prefer-const
-    for (let comment of this.events.comments) {
-      if (comment.time >= this.startTime && comment.time <= this.endTime) {
-        let xStart = (comment.time - this.startTime) * this.getEventResolution();
-        this.drawEvent(xStart, 'gray', comment.user + ': ' + comment.message);
-      }
-    }
+    // for (let comment of this.events.comments) {
+    //   if (comment.time >= this.startTime && comment.time <= this.endTime) {
+    //     let xStart = (comment.time - this.startTime) * this.getEventResolution();
+    //     this.drawEvent(xStart, 'gray', comment.user + ': ' + comment.message);
+    //   }
+    // }
 
-    for (let sdJob of this.events.sdJobs) {
-      if (sdJob.time >= this.startTime && sdJob.time <= this.endTime) {
-        let xStart = (sdJob.time - this.startTime) * this.getEventResolution();
-        this.drawEvent(xStart, 'red', 'SD Job ' + sdJob.jobNumber + ': ' + sdJob.status);
+    // for (let sdJob of this.events.sdJobs) {
+    //   if (sdJob.time >= this.startTime && sdJob.time <= this.endTime) {
+    //     let xStart = (sdJob.time - this.startTime) * this.getEventResolution();
+    //     this.drawEvent(xStart, 'red', 'SD Job ' + sdJob.jobNumber + ': ' + sdJob.status);
+    //   }
+    // }
+
+    for (let event of this.events) {
+      if (event.time >= this.startTime && event.time <= this.endTime) {
+        let xStart = (event.time - this.startTime) * this.getEventResolution();
+        // this.drawEvent(xStart, 'gray', event.user + ': ' + event.message);
+        this.drawEvent(xStart, 'red', 'SD Job ' + event.jobNumber + ': ' + event.status);
       }
     }
   }

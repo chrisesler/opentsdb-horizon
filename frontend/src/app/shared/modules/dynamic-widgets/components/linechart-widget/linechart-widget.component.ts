@@ -6,7 +6,7 @@ import { IntercomService, IMessage } from '../../../../../core/services/intercom
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
@@ -15,7 +15,9 @@ import { BehaviorSubject } from 'rxjs';
 import { debounceTime} from 'rxjs/operators';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
 import {MatSort} from '@angular/material/sort';
-import {MatTableDataSource} from '@angular/material/table'
+import {MatTableDataSource} from '@angular/material/table';
+import { EventsState, GetEvents } from '../../../../../dashboard/state/events.state';
+import { Store, Select } from '@ngxs/store';
 
 
 @Component({
@@ -109,89 +111,65 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     clickTimer: any;
 
     // EVENTS
+    events: any[];
+    eventsQuery = 'blahh';
     showEvents = true;
     showEventStream = false;
     eventsWidth: number;
     startTime: number;
     endTime: number;
     eventsTimeInterval = 60;
-    now = new Date().getTime();
+    // now = new Date().getTime();
     filters = { showComments: true, showSDJobs: true, startTime: 0, endTime: 100000000000 };
-    comments = [
-        {
-            time: this.now - (2.23 * 600 * 1000),
-            user: 'zb',
-            message: 'Should comments in a thread be in reverse order?',
-            threadId: 0,
-            originalComment: true,
-            originalCommentTime: this.now - (2.23 * 600 * 1000)
-        },
-        {
-            time: this.now - (1.22 * 600 * 1000),
-            user: 'agupta',
-            message: 'Yes they should',
-            threadId: 0,
-            originalComment: false,
-            originalCommentTime: this.now - (2.23 * 600 * 1000)
-        },
-        {
-            time: this.now - (0.21 * 600 * 1000),
-            user: 'zb',
-            message: 'okay sounds good.',
-            threadId: 0,
-            originalComment: false,
-            originalCommentTime: this.now - (2.23 * 600 * 1000)
-        },
-        {
-            time: this.now - (2.22 * 600 * 1000),
-            user: 'zb',
-            message: 'Oh! I just remembered!',
-            threadId: 1,
-            originalComment: true,
-            originalCommentTime: this.now - (2.22 * 600 * 1000)
-        },
-        {
-            time: this.now - (5.21 * 600 * 1000),
-            user: 'hilln',
-            message: 'Is this thing on?',
-            threadId: 2,
-            originalComment: true,
-            originalCommentTime: this.now - (5.21 * 600 * 1000)
-        }
-    ];
-    sdJobs = [
-        {
-            time: this.now - (3 * 600 * 1000),
-            jobNumber: '1',
-            status: 'Success',
-            executor: 'zb',
-        },
-        {
-            time: this.now - (4.21 * 600 * 1000),
-            jobNumber: '2',
-            status: 'Success',
-            executor: 'agupta07'
-        },
-        {
-            time: this.now - (4.22 * 600 * 1000),
-            jobNumber: '3',
-            status: 'Success',
-            executor: 'zb'
-        },
-        {
-            time: this.now - (4.23 * 600 * 1000),
-            jobNumber: '4',
-            status: 'Failure',
-            executor: 'zb'
-        },
-        {
-            time: this.now - (5.22 * 600 * 1000),
-            jobNumber: '5',
-            status: 'Failure',
-            executor: 'zb'
-        },
-    ];
-    events = { comments: this.comments, sdJobs: this.sdJobs };
+    // comments = [
+    //     {
+    //         time: this.now - (2.23 * 600 * 1000),
+    //         user: 'zb',
+    //         message: 'Should comments in a thread be in reverse order?',
+    //         threadId: 0,
+    //         originalComment: true,
+    //         originalCommentTime: this.now - (2.23 * 600 * 1000)
+    //     },
+    //     {
+    //         time: this.now - (1.22 * 600 * 1000),
+    //         user: 'agupta',
+    //         message: 'Yes they should',
+    //         threadId: 0,
+    //         originalComment: false,
+    //         originalCommentTime: this.now - (2.23 * 600 * 1000)
+    //     },
+    //     {
+    //         time: this.now - (0.21 * 600 * 1000),
+    //         user: 'zb',
+    //         message: 'okay sounds good.',
+    //         threadId: 0,
+    //         originalComment: false,
+    //         originalCommentTime: this.now - (2.23 * 600 * 1000)
+    //     },
+    //     {
+    //         time: this.now - (2.22 * 600 * 1000),
+    //         user: 'zb',
+    //         message: 'Oh! I just remembered!',
+    //         threadId: 1,
+    //         originalComment: true,
+    //         originalCommentTime: this.now - (2.22 * 600 * 1000)
+    //     },
+    //     {
+    //         time: this.now - (5.21 * 600 * 1000),
+    //         user: 'hilln',
+    //         message: 'Is this thing on?',
+    //         threadId: 2,
+    //         originalComment: true,
+    //         originalCommentTime: this.now - (5.21 * 600 * 1000)
+    //     }
+    // ];
+    // events = { comments: this.comments, sdJobs: this.sdJobs };
+
+    // state control
+    private eventsSub: Subscription;
+    // private lastUpdatedEventsSub: Subscription;
+    @Select(EventsState.GetEvents) _events$: Observable<any>;
+    // @Select(RecipientsState.GetLastUpdated) _recipientLastUpdated$: Observable<any>;
 
     constructor(
         private cdRef: ChangeDetectorRef,
@@ -200,7 +178,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         private dataTransformer: DatatranformerService,
         private util: UtilsService,
         private elRef: ElementRef,
-        private unit: UnitConverterService
+        private unit: UnitConverterService,
+        private store: Store
     ) { }
 
     ngOnInit() {
@@ -289,6 +268,19 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     }
             }
         });
+
+        // if (!this.widget.querueventsQuery) {
+        //     this.widget.eventsQuery = 'namespace = *';
+        //   }
+          this.store.dispatch(new GetEvents(this.eventsQuery));
+          this.eventsSub = this._events$.subscribe(data => {
+            if (data) {
+              this.events = [];
+              const _data = JSON.parse(JSON.stringify(data));
+              this.events = _data.events;
+            }
+        });
+
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
         setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
@@ -784,31 +776,31 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.showEvents = events;
     }
      showCommentsChanged(comments: boolean) {
-        if (comments) {
-            this.events.comments = this.comments;
-        } else {
-            this.events.comments = [];
-        }
+        // if (comments) {
+        //     this.events.comments = this.comments;
+        // } else {
+        //     this.events.comments = [];
+        // }
     }
      showSDJobsChanged(sdJobs: boolean) {
-        if (sdJobs) {
-            this.events.sdJobs = this.sdJobs;
-        } else {
-            this.events.sdJobs = [];
-        }
+        // if (sdJobs) {
+        //     this.events.sdJobs = this.sdJobs;
+        // } else {
+        //     this.events.sdJobs = [];
+        // }
     }
      updatedEventFilters(filters: any) {
         this.filters = filters;
-         if (this.filters.showSDJobs) {
-            this.events.sdJobs = this.sdJobs;
-        } else {
-            this.events.sdJobs = [];
-        }
-         if (this.filters.showComments) {
-            this.events.comments = this.comments;
-        } else {
-            this.events.comments = [];
-        }
+        //  if (this.filters.showSDJobs) {
+        //     this.events.sdJobs = this.sdJobs;
+        // } else {
+        //     this.events.sdJobs = [];
+        // }
+        //  if (this.filters.showComments) {
+        //     this.events.comments = this.comments;
+        // } else {
+        //     this.events.comments = [];
+        // }
          this.events = {... this.events};
      }
      updatedEventsTimeInterval(interval) {
