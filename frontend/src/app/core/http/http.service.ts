@@ -400,7 +400,7 @@ export class HttpService {
             {
                 title: 'Event 1',
                 source: 'sd',
-                time: now - (3 * 600 * 1000),
+                startTime: now - (3 * 600 * 1000),
                 jobNumber: '1',
                 status: 'Success',
                 executor: 'zb',
@@ -408,7 +408,7 @@ export class HttpService {
             {
                 title: 'Event 2',
                 source: 'sd',
-                time: now - (4.21 * 600 * 1000),
+                startTime: now - (4.21 * 600 * 1000),
                 jobNumber: '2',
                 status: 'Success',
                 executor: 'agupta07'
@@ -416,7 +416,7 @@ export class HttpService {
             {
                 title: 'Event 3',
                 source: 'sd',
-                time: now - (4.22 * 600 * 1000),
+                startTime: now - (4.22 * 600 * 1000),
                 jobNumber: '3',
                 status: 'Success',
                 executor: 'zb'
@@ -424,7 +424,7 @@ export class HttpService {
             {
                 title: 'Event 4',
                 source: 'sd',
-                time: now - (4.23 * 600 * 1000),
+                startTime: now - (4.23 * 600 * 1000),
                 jobNumber: '4',
                 status: 'Failure',
                 executor: 'zb'
@@ -432,7 +432,7 @@ export class HttpService {
             {
                 title: 'Event 5',
                 source: 'sd',
-                time: now - (5.22 * 600 * 1000),
+                startTime: now - (5.22 * 600 * 1000),
                 jobNumber: '5',
                 status: 'Failure',
                 executor: 'zb'

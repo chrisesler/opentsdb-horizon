@@ -804,7 +804,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
          this.events = {... this.events};
      }
      updatedEventsTimeInterval(interval) {
-        console.log('new interval', interval);
+        // console.log('new interval', interval);
         this.eventsTimeInterval = interval;
     }
 

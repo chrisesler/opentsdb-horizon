@@ -56,7 +56,6 @@ export class EventsState {
     constructor(private httpService: HttpService) { }
 
     @Selector() static GetEvents(state: EventsStateModel) {
-        console.log('getEvents method');
         return state.events;
     }
 
@@ -72,7 +71,6 @@ export class EventsState {
 
     @Action(GetEvents)
     getEvents(ctx: StateContext<EventsStateModel>, { query }: GetEvents) {
-        console.log('here is the query', query);
         // ctx.patchState({ loading: true });
         // return this.httpService.getEvents(query).pipe(
         //     map((payload: any) => {

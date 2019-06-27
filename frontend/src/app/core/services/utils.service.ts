@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import * as _moment from 'moment';
+const moment = _moment;
 
 @Injectable({
     providedIn: 'root'
@@ -512,5 +514,53 @@ export class UtilsService {
         }
         return tsObj;
     }
+
+  getEventBuckets(startTime, endTime, maxNumOfBuckets, events) {
+    // startTime in milliseconds. ex: 1561670640000
+    // tslint:disable-next-line:max-line-length
+    const validBucketSizes = [1, 5, 10, 15, 20, 30, 60, 60 * 2, 60 * 3, 60 * 4, 60 * 6, 60 * 12, 60 * 24, 60 * 48, 60 * 24 * 7, 60 * 24 * 14, 60 * 24 * 28, 60 * 24 * 28 * 3, 60 * 24 * 28 * 12]; // in minutes
+    const sTime = moment(startTime);
+    const eTime = moment(endTime);
+    const duration = moment.duration(eTime.diff(sTime)).as('minutes');
+
+    // find bucketSize
+    let bucketSize = validBucketSizes[validBucketSizes.length - 1];
+    for (let i = validBucketSizes.length - 1; i >= 0; i--) {
+        const numOfBuckets = parseInt((duration / validBucketSizes[i]).toString(), 10);
+        if (numOfBuckets <= maxNumOfBuckets) {
+            bucketSize = validBucketSizes[i];
+        } else {
+            break;
+        }
+    }
+
+    // create buckets
+    let buckets = []; // [ {startTime: startTime, endTime: endTime, events: []} ]
+    for (let i = 0; i < maxNumOfBuckets; i++) {
+        const bucketStartTime = startTime + bucketSize * i * 60 * 1000;
+        const bucketEndTime =  startTime + bucketSize * (i + 1) * 60 * 1000;
+        buckets.push({startTime: bucketStartTime, endTime: bucketEndTime, events: []});
+    }
+
+    // fillup buckets
+    for (const event of events) {
+        const eStartTime = event.startTime;
+        for (const bucket of buckets) {
+            if (eStartTime >= bucket.startTime && eStartTime < bucket.endTime) {
+                bucket.events.push(event);
+                break;
+            }
+        }
+    }
+
+    // remove unused buckets
+    for (let i = 0; i < buckets.length; i++) {
+        if (buckets[i].events.length === 0 ) {
+            buckets.splice(i, 1);
+            i--;
+        }
+    }
+    return buckets;
+  }
 
 }

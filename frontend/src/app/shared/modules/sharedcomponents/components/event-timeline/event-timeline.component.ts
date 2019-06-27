@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, HostBinding, Input, Output, EventEmitter,
   OnChanges, SimpleChanges } from '@angular/core';
+  import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -30,8 +31,10 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   eventLocations: any = [];
   showComments = true;
   showSDJobs = false;
+  iconWidth = 5; // pixels
+  buckets = [];
 
-  constructor() { }
+  constructor(private util: UtilsService) { }
 
   ngOnInit() { }
 
@@ -51,43 +54,39 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     this.context = (<HTMLCanvasElement>this.eventsOverlayCanvas.nativeElement).getContext('2d');
     this.eventLocations = [];
 
+    console.log('** width', this.width);
+    this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
     // tslint:disable:prefer-const
-    // for (let comment of this.events.comments) {
-    //   if (comment.time >= this.startTime && comment.time <= this.endTime) {
-    //     let xStart = (comment.time - this.startTime) * this.getEventResolution();
-    //     this.drawEvent(xStart, 'gray', comment.user + ': ' + comment.message);
-    //   }
-    // }
-
-    // for (let sdJob of this.events.sdJobs) {
-    //   if (sdJob.time >= this.startTime && sdJob.time <= this.endTime) {
-    //     let xStart = (sdJob.time - this.startTime) * this.getEventResolution();
-    //     this.drawEvent(xStart, 'red', 'SD Job ' + sdJob.jobNumber + ': ' + sdJob.status);
-    //   }
-    // }
-
-    for (let event of this.events) {
-      if (event.time >= this.startTime && event.time <= this.endTime) {
-        let xStart = (event.time - this.startTime) * this.getEventResolution();
-        // this.drawEvent(xStart, 'gray', event.user + ': ' + event.message);
-        this.drawEvent(xStart, 'red', 'SD Job ' + event.jobNumber + ': ' + event.status);
+    for (let bucket of this.buckets) {
+      if (bucket.startTime >= this.startTime && bucket.startTime <= this.endTime) {
+        let xStart = (bucket.endTime - this.startTime) * this.getEventResolution();
+        this.drawEvent(xStart, 'red', bucket.events.length, this.getPlaceholderText(bucket));
       }
     }
+  }
+
+  getPlaceholderText(bucket) {
+    let placeholder = '';
+    for (let event of bucket.events) {
+      placeholder = placeholder + event.title + ' ';
+    }
+    return placeholder;
   }
 
   getEventResolution() {
     return this.width / (this.endTime - this.startTime);
   }
 
-  drawEvent(xStart, color, placeholder) {
+  drawEvent(xStart, color, count, placeholder) {
     this.context.beginPath();
     this.context.strokeStyle = color;
     this.context.rect(xStart - 5, 5, 10, 10);
     this.context.stroke();
-
-    // this.eventLocations.push({x: xStart - 5, y: 5, w: 10, h: 10, placeholder: placeholder });
     this.eventLocations.push({xStart: (xStart - 5 - 5), xEnd: (xStart - 5) + 10 + 5, yStart: 5 - 5, yEnd: 5 + 10 + 5,
       placeholder: placeholder });
+    if (count > 1) { // draw number in box
+      this.context.fillText(count.toString(), (xStart - 2), 13);
+    }
   }
 
   canvasEnter(event: any) {
