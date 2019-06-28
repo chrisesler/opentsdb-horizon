@@ -18,7 +18,8 @@ import {
     MatSort,
     MatDialog,
     MatDialogRef,
-    MatSnackBar
+    MatSnackBar,
+    MatInput
 } from '@angular/material';
 
 
@@ -69,6 +70,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     @ViewChild(MatSort) dataSourceSort: MatSort;
 
     @ViewChild('confirmDeleteDialog', {read: TemplateRef}) confirmDeleteDialogRef: TemplateRef<any>;
+    @ViewChild('alertFilterInput', {read: MatInput}) alertFilterInput: MatInput;
 
     @Input() response;
 
@@ -118,6 +120,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     @Select(AlertsState.getActionResponse) asActionResponse$: Observable<any>;
     @Select(AlertsState.getEditItem) editItem$: Observable<any>;
+    @Select(AlertsState.getReadOnly) readOnly$: Observable<boolean>;
+    readOnly: boolean = false;
     @Select(AlertsState.getError) error$: Observable<any>;
     @Select(AlertsState.getSaveError) saveError$: Observable<any>;
 
@@ -315,6 +319,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
             }
         }));
 
+        this.subscription.add(this.readOnly$.subscribe( readOnly => {
+            this.readOnly = readOnly;
+        }));
+
         this.subscription.add(this.error$.subscribe(error => {
             this.error = error;
             // maybe intercom error for messaging bar?
@@ -365,9 +373,14 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     /** privates */
     private setTableDataSource() {
+        this.alertFilterInput.value = '';
         this.alertsDataSource = new MatTableDataSource<AlertModel>(this.alerts);
         this.alertsDataSource.paginator = this.paginator;
         this.alertsDataSource.sort = this.dataSourceSort;
+    }
+
+    applyAlertDataFilter(dataFilter: string) {
+        this.alertsDataSource.filter = dataFilter;
     }
 
     /* Utilities */

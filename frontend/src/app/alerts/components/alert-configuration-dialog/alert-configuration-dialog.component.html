@@ -25,7 +25,7 @@
             <mat-toolbar class="config-toolbar">
                 <div class="toolbar-item alert-name-detail">
                     <span class="namespace">Namespace: {{data.namespace}}</span>
-                    <div class="alert-name">
+                    <div class="alert-name" *ngIf="!readOnly">
                         <inline-editable class="navbar-item" 
                             [fieldValue]="data.name"
                             [minLength]="3"
@@ -35,6 +35,11 @@
                         <!--<button mat-icon-button color="primary">
                             <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
                         </button>-->
+                    </div>
+                    <div class="alert-name" *ngIf="readOnly">
+                        <div>
+                            {{data.name}}
+                        </div>
                     </div>
                 </div>
             </mat-toolbar>
@@ -46,6 +51,7 @@
                     </div>
                     <div class="step-section-content">
                         <!-- LOOP OF QUERY ITEMS -->
+                        <ng-template [ngIf]="!readOnly">
                         <div class="query-metric-row" *ngFor="let query of queries; let index=index">
                             <query-editor-proto [label]="'Q' + (index + 1)" [query]="query" [queries]="queries"
                                 [options]="{enableMultipleQueries: true,
@@ -55,8 +61,13 @@
                                     deleteQuery: true}" 
                                 (queryOutput)="updateQuery($event);"></query-editor-proto> 
                         </div>
+                        </ng-template>
+                        <ng-template [ngIf]="readOnly">
+                            READONLY<br>
+                            {{queries|json}}
+                        </ng-template>
                     </div>
-                    <div class="query-metric-row" *ngIf="queries.length && queries[queries.length-1].metrics.length" style="margin-top:25p;">
+                    <div class="query-metric-row" *ngIf="!readOnly && queries.length && queries[queries.length-1].metrics.length" style="margin-top:25p;">
                         <button mat-button mat-primary color="primary" (click)="addNewQuery()">Add Query</button>
                     </div>
                 </div>
@@ -67,7 +78,7 @@
                         </div>
                         <div class="step-section-content">
                             <!-- this might change to radio buttons -->
-                            <div class="form-group select-threshold-type">
+                            <div class="form-group select-threshold-type" *ngIf="!readOnly">
                                 <div class="form-label vertical-center"><strong>Select threshold type</strong></div>
                                 <div class="threshold-type-options">
                                     <mat-radio-group formControlName="subType">
@@ -78,9 +89,18 @@
                                     <mat-hint>One metric with one or more static thresholds.</mat-hint>
                                 </div>                                
                             </div>
+                            <div class="form-group select-threshold-type" *ngIf="readOnly">
+                                <div class="form-label vertical-center"><strong>Threshold type</strong></div>
+                                <div class="threshold-type-options">
+                                    {{data.threshold.subType === 'singleMetric' ? 'Single' : ''}}
+                                    {{data.threshold.subType === 'composite' ? 'Composite' : ''}}
+                                    {{data.threshold.subType === 'periodOverPeriod' ? 'Period / Period' : ''}}
+                                </div>                                
+                            </div>
+
 
                             <!-- select query -->
-                            <div class="form-group select-query" formGroupName="singleMetric">
+                            <div class="form-group select-query" formGroupName="singleMetric" *ngIf="!readOnly">
                                 <div class="form-label vertical-center"><strong>Select Metric</strong></div>
                                 <div class="form-control-wrap auto-width">
                                     <mat-form-field appearance="fill">
@@ -94,74 +114,128 @@
                                     <mat-error *ngIf="alertForm.touched && thresholdSingleMetricControls.metricId.errors && thresholdSingleMetricControls.metricId.errors.required">Please select a metric</mat-error>
                                 </div>
                             </div>
-                            <div class="form-group sliding-window" formGroupName="singleMetric">
-                                    <div class="form-label vertical-center"><strong>Sliding Window</strong></div>
-                                    <!-- sentence-like form -->
-                                    <div class="sentence-chain-form">
-                                        <div class="sentence-item">
-                                            <span>Trigger when the metric is</span>
-                                        </div>
-                                        <div class="sentence-item">
-                                            <mat-form-field appearance="fill">
-                                                <mat-label></mat-label>
-                                                <mat-select placeholder="Select" formControlName="comparisonOperator" disableOptionCentering>
-                                                    <mat-option value="above">above</mat-option>
-                                                    <mat-option value="above_or_equal_to">above or equal to</mat-option>
-                                                    <mat-option value="below">below</mat-option>
-                                                    <mat-option value="below_or_equal_to">below or equal to</mat-option>
-                                                </mat-select>
-                                            </mat-form-field>
-                                        </div>
-                                        <div class="sentence-item">
-                                            <span>the threshold</span>
-                                        </div>
-                                        <div class="sentence-item">
-                                            <mat-form-field appearance="fill">
-                                                <mat-label></mat-label>
-                                                <mat-select placeholder="Select" formControlName="timeSampler" disableOptionCentering>
-                                                    <mat-option value='at_least_once'>at least once</mat-option>
-                                                    <mat-option value='all_of_the_times'>at all times</mat-option>
-                                                    <mat-option value='on_avg'>on average</mat-option>
-                                                    <mat-option value='in_total'>in total</mat-option>
-                                                </mat-select>
-                                            </mat-form-field>
-                                        </div>
-                                        <div class="sentence-item">
-                                            <span>during the last</span>
-                                        </div>
-                                        <div class="sentence-item">
-                                            <mat-form-field appearance="fill" floatLabel="never">
-                                                <mat-select placeholder="Select" formControlName="slidingWindow" disableOptionCentering>
-                                                    <mat-option value=60>1 min</mat-option>
-                                                    <mat-option value=300>5 min</mat-option>
-                                                    <mat-option value=600>10 min</mat-option>
-                                                    <mat-option value=900>15 min</mat-option>
-                                                    <mat-option value=1800>30 min</mat-option>
-                                                    <mat-option value=3600>1 hr</mat-option>
-                                                    <mat-option value=21600>6 hr</mat-option>
-                                                    <mat-option value=43200>12 hr</mat-option>
-                                                    <mat-option value=86400>24 hr</mat-option>
-                                                </mat-select>
-                                            </mat-form-field>
-                                        </div>
+                            <div class="form-group select-query" formGroupName="singleMetric" *ngIf="readOnly">
+                                <div class="form-label vertical-center"><strong>Selected Metric</strong></div>
+                                <div class="form-control-wrap auto-width">
+                                    <ng-container *ngTemplateOutlet="selectedMetricReadOnly;context:{data:getMetricDropdownValue(data.queries.raw, data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId).split(':')}"></ng-container>
+                                    <ng-template #selectedMetricReadOnly let-data="data">
+                                        {{queries[data[0]].metrics[data[1]].name}}
+                                    </ng-template>
+                                </div>
+                            </div>
+                            <div class="form-group sliding-window" formGroupName="singleMetric" *ngIf="!readOnly">
+                                <div class="form-label vertical-center"><strong>Sliding Window</strong></div>
+                                <!-- sentence-like form -->
+                                <div class="sentence-chain-form">
+                                    <div class="sentence-item">
+                                        <span>Trigger when the metric is</span>
                                     </div>
+                                    <div class="sentence-item">
+                                        <mat-form-field appearance="fill">
+                                            <mat-label></mat-label>
+                                            <mat-select placeholder="Select" formControlName="comparisonOperator" disableOptionCentering>
+                                                <mat-option value="above">above</mat-option>
+                                                <mat-option value="above_or_equal_to">above or equal to</mat-option>
+                                                <mat-option value="below">below</mat-option>
+                                                <mat-option value="below_or_equal_to">below or equal to</mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <span>the threshold</span>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <mat-form-field appearance="fill">
+                                            <mat-label></mat-label>
+                                            <mat-select placeholder="Select" formControlName="timeSampler" disableOptionCentering>
+                                                <mat-option value='at_least_once'>at least once</mat-option>
+                                                <mat-option value='all_of_the_times'>at all times</mat-option>
+                                                <mat-option value='on_avg'>on average</mat-option>
+                                                <mat-option value='in_total'>in total</mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <span>during the last</span>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <mat-form-field appearance="fill" floatLabel="never">
+                                            <mat-select placeholder="Select" formControlName="slidingWindow" disableOptionCentering>
+                                                <mat-option value=60>1 min</mat-option>
+                                                <mat-option value=300>5 min</mat-option>
+                                                <mat-option value=600>10 min</mat-option>
+                                                <mat-option value=900>15 min</mat-option>
+                                                <mat-option value=1800>30 min</mat-option>
+                                                <mat-option value=3600>1 hr</mat-option>
+                                                <mat-option value=21600>6 hr</mat-option>
+                                                <mat-option value=43200>12 hr</mat-option>
+                                                <mat-option value=86400>24 hr</mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group sliding-window" formGroupName="singleMetric" *ngIf="readOnly">
+                                <div class="form-label vertical-center"><strong>Sliding Window</strong></div>
+                                <!-- sentence-like form -->
+                                <div class="sentence-chain-form">
+                                    <div class="sentence-item">
+                                        <span>Trigger when the metric is</span>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <strong>{{data.threshold.singleMetric.comparisonOperator}}</strong>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <span>the threshold</span>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <strong>
+                                            {{data.threshold.singleMetric.timeSampler === 'at_least_once' ? 'at least once' : ''}}
+                                            {{data.threshold.singleMetric.timeSampler === 'all_of_the_times' ? 'at all times' : ''}}
+                                            {{data.threshold.singleMetric.timeSampler === 'on_avg' ? 'on average' : ''}}
+                                            {{data.threshold.singleMetric.timeSampler === 'in_total' ? 'in total' : ''}}
+                                        </strong>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <span>during the last</span>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <strong>
+                                            {{data.threshold.singleMetric.slidingWindow === '60' ? '1 min' : ''}}
+                                            {{data.threshold.singleMetric.slidingWindow === '300' ? '5 min' : ''}}
+                                            {{data.threshold.singleMetric.slidingWindow === '600' ? '10 min' : ''}}
+                                            {{data.threshold.singleMetric.slidingWindow === '900' ? '15 min' : ''}}
+                                            {{data.threshold.singleMetric.slidingWindow === '1800' ? '30 min' : ''}}
+                                            {{data.threshold.singleMetric.slidingWindow === '3600' ? '1 hr' : ''}}
+                                            {{data.threshold.singleMetric.slidingWindow === '21600' ? '6 hr' : ''}}
+                                            {{data.threshold.singleMetric.slidingWindow === '43200' ? '12 hr' : ''}}
+                                            {{data.threshold.singleMetric.slidingWindow === '86400' ? '24 hr' : ''}}
+                                        </strong>
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group bad-threshold-setting" formGroupName="singleMetric">
                                 <div class="form-label"><span class="indicator-square is-bad"></span> <strong>Bad state</strong> when metric is {{alertStateDirection}}</div>
-                                <div class="form-control-wrap auto-width">
+                                <div class="form-control-wrap auto-width" *ngIf="!readOnly">
                                     <mat-form-field appearance="fill" floatLabel="never" [ngClass]="{'mat-form-field-invalid': alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required}">
                                         <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="badThreshold">
                                     </mat-form-field>
                                     <mat-error *ngIf="alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required">Bad or Warning state should not be empty</mat-error>
                                 </div>
+                                <div class="form-control-wrap auto-width" *ngIf="readOnly">
+                                    {{data.threshold.singleMetric.badThreshold}}
+                                </div>
                             </div>
                             <div class="form-group warning-threshold-setting" formGroupName="singleMetric">
                                 <div class="form-label"><span class="indicator-square is-warning"></span> <strong>Warning state</strong> when metric is {{alertStateDirection}}</div>
-                                <div class="form-control-wrap auto-width">
+                                <div class="form-control-wrap auto-width" *ngIf="!readOnly">
                                     <mat-form-field appearance="fill" floatLabel="never" [ngClass]="{'mat-form-field-invalid': alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required}">
                                         <input matInput type="number" autocomplete="off" placeholder="Enter value" formControlName="warnThreshold">
                                     </mat-form-field>
                                     <mat-error *ngIf="thresholdSingleMetricControls['warnThreshold'].errors && thresholdSingleMetricControls['warnThreshold'].errors.invalid">Warning state value should be {{ alertStateDirection=== 'above' ? 'less' : 'greater'}} than the Bad state value</mat-error>
+                                </div>
+                                <div class="form-control-wrap auto-width" *ngIf="readOnly">
+                                    {{data.threshold.singleMetric.warnThreshold}}
                                 </div>
                             </div>
                                     
@@ -372,8 +446,11 @@
             </div>
         </div>
     </mat-card-content>
-    <mat-card-actions>
+    <mat-card-actions *ngIf="!readOnly">
         <button mat-flat-button color="primary" type="submit" (click)="validate()" [disabled]="!(queries && queries[0] && queries[0].metrics.length > 0)">Save Alert</button>
         <button mat-stroked-button (click)="cancelEdit()" color="primary">Cancel</button>
+    </mat-card-actions>
+    <mat-card-actions *ngIf="readOnly">
+        <button mat-stroked-button (click)="cancelEdit()" color="primary">Close</button>
     </mat-card-actions>
 </mat-card>

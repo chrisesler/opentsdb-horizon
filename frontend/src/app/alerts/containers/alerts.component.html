@@ -1,5 +1,5 @@
 <ng-template [ngIf]="editMode" [ngIfElse]="notEditMode">
-    <alert-configuration-dialog [data]="configurationEditData" (configChange)="configurationEdit_change($event)"></alert-configuration-dialog>
+    <alert-configuration-dialog [data]="configurationEditData" [readOnly]="readOnly" (configChange)="configurationEdit_change($event)"></alert-configuration-dialog>
 </ng-template>
 
 <ng-template #notEditMode>
@@ -18,7 +18,7 @@
         </div>
         <div class="control-item alert-filter-input">
             <mat-form-field appearance="fill" floatLabel="never">
-                <input matInput placeholder="Filter alerts" autocomplete="off">
+                <input matInput placeholder="Filter alerts" autocomplete="off" (keydown)="applyAlertDataFilter($event.target.value)" #alertFilterInput>
                 <mat-icon matSuffix fontSet="denali" fontIcon="d-search"></mat-icon>
             </mat-form-field>
         </div>

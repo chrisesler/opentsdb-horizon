@@ -51,6 +51,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
 
     @Input() response;
 
+    @Input() readOnly: boolean = false;
+
     @Output() configChange = new EventEmitter();
 
     // placeholder for expected data from dialogue initiation
