@@ -201,13 +201,23 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             ]
         },
         {
-            label: 'Rate',
+            label: 'Interval Total',
             functions: [
                 {
-                    label: 'Total Per Time Interval',
-                    fxCall: 'TotalPerTimeInterval',
-                    val: ''
+                    label: 'Total Using Base Interval - Second',
+                    fxCall: 'TotalUsingBaseInterval',
+                    val: '1s'
                 },
+                {
+                    label: 'Total Using Base Interval - Minute',
+                    fxCall: 'TotalUsingBaseInterval',
+                    val: '1m'
+                }
+            ]
+        },
+        {
+            label: 'Rate',
+            functions: [
                 {
                     label: 'Per Second',
                     fxCall: 'Rate',
@@ -294,8 +304,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
 
     FunctionOptions: any = {
-        'TotalPerTimeInterval': {
-            noVal: true,
+        'TotalUsingBaseInterval': {
             errorMessage: null,
             regexValidator: null
         },
