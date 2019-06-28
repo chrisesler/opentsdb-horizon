@@ -11,6 +11,7 @@ import { AlertsService } from '../services/alerts.service';
 import { forkJoin } from 'rxjs';
 
 import { LoggerService } from '../../core/services/logger.service';
+import { UtilsService } from '../../core/services/utils.service';
 
 
 export interface AlertModel {
@@ -45,6 +46,7 @@ export interface AlertsStateModel {
     alerts: AlertModel[];
     alertTypeFilter: string;
     editItem: any;
+    readOnly: boolean;
 }
 
 /* actions */
@@ -103,7 +105,8 @@ export class CheckWriteAccess {
         alerts: [],
         actionStatus: '',
         alertTypeFilter: 'all', // all, alerting, snoozed, disabled
-        editItem: {}
+        editItem: {},
+        readOnly: false
     }
 })
 
@@ -111,7 +114,8 @@ export class AlertsState {
     constructor(
         private logger: LoggerService,
         private httpService: HttpService,
-        private alertsService: AlertsService
+        private alertsService: AlertsService,
+        private utils: UtilsService
     ) { }
 
     /* SELECTORS */
@@ -143,6 +147,11 @@ export class AlertsState {
     @Selector()
     static getEditItem(state: AlertsStateModel) {
         return state.editItem;
+    }
+
+    @Selector()
+    static getReadOnly(state: AlertsStateModel) {
+        return state.readOnly;
     }
 
     @Selector()
@@ -181,15 +190,21 @@ export class AlertsState {
             const req1 = this.alertsService.getUserNamespaces();
             const req2 = this.alertsService.getNamespaces();
 
-            return forkJoin([req1,  req2]).subscribe((res:any[])=> {
+            return forkJoin([req1,  req2]).subscribe((res: any[]) => {
+                const req1sort = res[0].sort((a: any, b: any) => {
+                    return this.utils.sortAlphaNum(a.name, b.name);
+                });
+                const req2sort = res[1].sort((a: any, b: any) => {
+                    return this.utils.sortAlphaNum(a.name, b.name);
+                });
                 ctx.patchState({
-                    userNamespaces: res[0],
-                    allNamespaces: res[1],
+                    userNamespaces: req1sort,
+                    allNamespaces: req2sort,
                     loading: false,
                     loaded: { userNamespaces: true, allNamespaces: true}
                 });
                 },
-                error=> {
+                error => {
                     ctx.patchState({ error: error });
                 }
             );
@@ -206,10 +221,15 @@ export class AlertsState {
         const state = ctx.getState();
         const userNamespaces = state.userNamespaces;
         // ctx.patchState( { editItem: {}, error: {} } );
-        if ( userNamespaces.find( (d:any) => d.name === payload.namespace )) {
-            ctx.patchState( { editItem: payload } );
+        if ( userNamespaces.find( (d: any) => d.name === payload.namespace )) {
+            ctx.patchState( { editItem: payload, readOnly: false } );
         } else {
-            ctx.patchState( { error: { message: "You don't have permission to " + ( payload.id === '_new_' ? 'create new' : 'edit the' )+ ' alert.' } } ); 
+            if (payload.id === '_new_' ) {
+                ctx.patchState( { error: { message: "You don't have permission to create new alert." } } );
+            } else {
+                ctx.patchState( { editItem: payload, readOnly: true } );
+            }
+            //ctx.patchState( { error: { message: "You don't have permission to " + ( payload.id === '_new_' ? 'create new' : 'edit the' )+ ' alert.' } } ); 
         }
     }
 
