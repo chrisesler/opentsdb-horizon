@@ -8,12 +8,10 @@
         </span>
     </div>
     <event-stream 
-        [data]="events" 
-        [filters]="filters" 
-        [timeInterval]="60" 
-        [show]="showEventStream" 
-        (updatedFilters)="updatedEventFilters($event)" 
-        (updatedShowing)="updatedShowEventStream($event)"></event-stream>
+        [buckets]="buckets" 
+        [show]="showEventStream"
+        (updatedShowing)="updatedShowEventStream($event)"
+    ></event-stream>
     <div class="widget-output" #widgetoutput
         [ngClass]="{
             'display-legend-top': widget.settings.legend.display && widget.settings.legend.position=='top' && options.labels.length > 1,
@@ -71,7 +69,9 @@
     [endTime]="endTime" 
     [width]="eventsWidth" 
     [events]="events" 
-    (canvasClicked)="updatedShowEventStream(true)" (timeInterval)="updatedEventsTimeInterval($event)"></event-timeline>
+    (canvasClicked)="updatedShowEventStream(true)" 
+    (timeInterval)="updatedEventsTimeInterval($event)"
+    (newBuckets)="newBuckets($event)"></event-timeline>
 </div>
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">

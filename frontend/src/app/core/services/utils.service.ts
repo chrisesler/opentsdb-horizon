@@ -519,11 +519,11 @@ export class UtilsService {
     // startTime in milliseconds. ex: 1561670640000
     // tslint:disable-next-line:max-line-length
     const validBucketSizes = [1, 5, 10, 15, 20, 30, 60, 60 * 2, 60 * 3, 60 * 4, 60 * 6, 60 * 12, 60 * 24, 60 * 48, 60 * 24 * 7, 60 * 24 * 14, 60 * 24 * 28, 60 * 24 * 28 * 3, 60 * 24 * 28 * 12]; // in minutes
-    const sTime = moment(startTime);
-    const eTime = moment(endTime);
-    const duration = moment.duration(eTime.diff(sTime)).as('minutes');
+    const duration = moment.duration(moment(endTime).diff(moment(startTime))).as('minutes');
+    const minuteAsMilliseconds = 60 * 1000;
+    const buckets = []; // [ {startTime: startTime, endTime: endTime, events: []} ]
 
-    // find bucketSize
+    // find bucketSize (number of minutes)
     let bucketSize = validBucketSizes[validBucketSizes.length - 1];
     for (let i = validBucketSizes.length - 1; i >= 0; i--) {
         const numOfBuckets = parseInt((duration / validBucketSizes[i]).toString(), 10);
@@ -534,15 +534,31 @@ export class UtilsService {
         }
     }
 
-    // create buckets
-    let buckets = []; // [ {startTime: startTime, endTime: endTime, events: []} ]
-    for (let i = 0; i < maxNumOfBuckets; i++) {
-        const bucketStartTime = startTime + bucketSize * i * 60 * 1000;
-        const bucketEndTime =  startTime + bucketSize * (i + 1) * 60 * 1000;
-        buckets.push({startTime: bucketStartTime, endTime: bucketEndTime, events: []});
+    // find first bucket
+    const numOfMinutes = moment(startTime).minutes();
+    let bucketStartTime = startTime;
+    let bucketEndTime = startTime;
+    if (numOfMinutes === 0) {
+        bucketEndTime = bucketStartTime + bucketSize * minuteAsMilliseconds;
+    } else {
+        bucketEndTime = bucketEndTime + minuteAsMilliseconds;
+        while (moment(bucketEndTime).minutes() % bucketSize !== 0) {
+            bucketEndTime = bucketEndTime + minuteAsMilliseconds;
+        }
+    }
+    buckets.push({startTime: bucketStartTime, endTime: bucketEndTime, width: bucketSize * minuteAsMilliseconds, events: []});
+
+    // create remaining buckets
+    while (bucketEndTime + 2 * bucketSize * minuteAsMilliseconds < endTime) {
+        bucketStartTime = bucketEndTime;
+        bucketEndTime = bucketStartTime + bucketSize * minuteAsMilliseconds;
+        buckets.push({startTime: bucketStartTime, endTime: bucketEndTime, width: bucketSize * minuteAsMilliseconds, events: []});
     }
 
-    // fillup buckets
+    // insert last bucket
+    buckets.push({startTime: bucketEndTime, endTime: endTime, width: bucketSize * minuteAsMilliseconds, events: []});
+
+    // fillup buckets with events
     for (const event of events) {
         const eStartTime = event.startTime;
         for (const bucket of buckets) {
@@ -560,7 +576,7 @@ export class UtilsService {
             i--;
         }
     }
-    return buckets;
+    return buckets.reverse();
   }
 
 }

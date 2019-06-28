@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, HostBinding, Input, Output, EventEmitter,
   OnChanges, SimpleChanges } from '@angular/core';
-  import { UtilsService } from '../../../../../core/services/utils.service';
+import { UtilsService } from '../../../../../core/services/utils.service';
+import { isFactory } from '@angular/core/src/render3/interfaces/injector';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -24,6 +25,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
 
   @Output() canvasClicked: EventEmitter<any> = new EventEmitter();
   @Output() timeInterval: EventEmitter<number> = new EventEmitter();
+  @Output() newBuckets: EventEmitter<any[]> = new EventEmitter();
 
   @ViewChild('eventsOverlayCanvas') eventsOverlayCanvas: ElementRef;
   context: CanvasRenderingContext2D;
@@ -31,7 +33,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   eventLocations: any = [];
   showComments = true;
   showSDJobs = false;
-  iconWidth = 5; // pixels
+  iconWidth = 10.1; // pixels
   buckets = [];
 
   constructor(private util: UtilsService) { }
@@ -53,16 +55,19 @@ export class EventTimelineComponent implements OnInit, OnChanges {
 
     this.context = (<HTMLCanvasElement>this.eventsOverlayCanvas.nativeElement).getContext('2d');
     this.eventLocations = [];
-
-    console.log('** width', this.width);
     this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
+
     // tslint:disable:prefer-const
-    for (let bucket of this.buckets) {
-      if (bucket.startTime >= this.startTime && bucket.startTime <= this.endTime) {
-        let xStart = (bucket.endTime - this.startTime) * this.getEventResolution();
-        this.drawEvent(xStart, 'red', bucket.events.length, this.getPlaceholderText(bucket));
+    for (let i = 0; i < this.buckets.length; i++) {
+      if (this.buckets[i].startTime >= this.startTime && this.buckets[i].startTime <= this.endTime) {
+        let xStart = (this.buckets[i].endTime - this.startTime) * this.getEventResolution();
+        if (i === 0) { // if last bucket, take start + interval - remember that first bucket is latest time
+          xStart = (this.buckets[i].startTime + this.buckets[i].width - this.startTime) * this.getEventResolution();
+        }
+        this.drawEvent(xStart, 'red', this.buckets[i].events.length, this.getPlaceholderText(this.buckets[i]));
       }
     }
+    this.newBuckets.emit(this.buckets);
   }
 
   getPlaceholderText(bucket) {

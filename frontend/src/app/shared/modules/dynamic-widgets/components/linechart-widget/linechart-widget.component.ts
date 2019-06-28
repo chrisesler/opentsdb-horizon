@@ -111,6 +111,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     clickTimer: any;
 
     // EVENTS
+    buckets: any[]; // TODO: remove with island legend
     events: any[];
     eventsQuery = 'blahh';
     showEvents = true;
@@ -121,49 +122,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     eventsTimeInterval = 60;
     // now = new Date().getTime();
     filters = { showComments: true, showSDJobs: true, startTime: 0, endTime: 100000000000 };
-    // comments = [
-    //     {
-    //         time: this.now - (2.23 * 600 * 1000),
-    //         user: 'zb',
-    //         message: 'Should comments in a thread be in reverse order?',
-    //         threadId: 0,
-    //         originalComment: true,
-    //         originalCommentTime: this.now - (2.23 * 600 * 1000)
-    //     },
-    //     {
-    //         time: this.now - (1.22 * 600 * 1000),
-    //         user: 'agupta',
-    //         message: 'Yes they should',
-    //         threadId: 0,
-    //         originalComment: false,
-    //         originalCommentTime: this.now - (2.23 * 600 * 1000)
-    //     },
-    //     {
-    //         time: this.now - (0.21 * 600 * 1000),
-    //         user: 'zb',
-    //         message: 'okay sounds good.',
-    //         threadId: 0,
-    //         originalComment: false,
-    //         originalCommentTime: this.now - (2.23 * 600 * 1000)
-    //     },
-    //     {
-    //         time: this.now - (2.22 * 600 * 1000),
-    //         user: 'zb',
-    //         message: 'Oh! I just remembered!',
-    //         threadId: 1,
-    //         originalComment: true,
-    //         originalCommentTime: this.now - (2.22 * 600 * 1000)
-    //     },
-    //     {
-    //         time: this.now - (5.21 * 600 * 1000),
-    //         user: 'hilln',
-    //         message: 'Is this thing on?',
-    //         threadId: 2,
-    //         originalComment: true,
-    //         originalCommentTime: this.now - (5.21 * 600 * 1000)
-    //     }
-    // ];
-    // events = { comments: this.comments, sdJobs: this.sdJobs };
+
 
     // state control
     private eventsSub: Subscription;
@@ -806,6 +765,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
      updatedEventsTimeInterval(interval) {
         // console.log('new interval', interval);
         this.eventsTimeInterval = interval;
+    }
+
+    newBuckets(buckets) {
+        this.buckets = buckets;
     }
 
     getSeriesLabel(index) {

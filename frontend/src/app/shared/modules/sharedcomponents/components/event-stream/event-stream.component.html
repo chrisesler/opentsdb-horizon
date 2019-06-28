@@ -1,18 +1,17 @@
 <div class="event-details" *ngIf="show"> 
     <div class="top-header">
-        <span class="title"> Event Stream </span>
+        <span class="title"> Event Details </span>
         <button mat-button class="close" (click)="hide()"> Close </button>
     </div>
 
-    <div class="mat-body-strong">Show:</div>
-    <div>
-        <mat-slide-toggle [checked]="filters.showComments" (change)="showCommentsChanged($event.checked)">Comments</mat-slide-toggle>
-    </div>
-    <div>
-        <mat-slide-toggle [checked]="filters.showSDJobs" (change)="showSDJobsChanged($event.checked)">SD Jobs</mat-slide-toggle>
+    <div *ngFor="let bucket of buckets">
+        <div class="group-type-heading">{{buildTimeStamp(bucket.endTime)}}</div>
+        <div *ngFor="let event of bucket.events">
+            <div class="event-description"> {{event.title}}</div>
+        </div>
     </div>
     
-    <div class="event-groups">
+    <!-- <div class="event-groups">
       <div *ngFor="let groupInterval of groupedEvents">
         <b> {{groupInterval.timeInterval}} </b>
           <div *ngIf="groupInterval.comments">
@@ -31,5 +30,5 @@
               </div>
           </div>
       </div>
-    </div>
+    </div> -->
 </div>
