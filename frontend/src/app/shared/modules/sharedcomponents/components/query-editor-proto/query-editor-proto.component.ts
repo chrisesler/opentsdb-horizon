@@ -305,8 +305,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     FunctionOptions: any = {
         'TotalUsingBaseInterval': {
-            errorMessage: null,
-            regexValidator: null
+            errorMessage: 'Possible values: 1s, 1m, 1h, etc.',
+            regexValidator: /^\d+[smhd]$/i
         },
         'RateOfChange' : {
             errorMessage: null,
