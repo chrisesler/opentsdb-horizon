@@ -93,7 +93,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     fg: FormGroup;
     expressionControl: FormControl;
     expressionControls: FormGroup;
-    idRegex = /(q[0-9]+\.)*(m|e)[0-9]/gi;
+    idRegex = /(q[0-9]+\.)*(m|e)[0-9]+/gi;
     handleBarsRegex = /\{\{(.+?)\}\}/;
 
     timeAggregatorOptions: Array<any> = [
@@ -201,13 +201,23 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             ]
         },
         {
-            label: 'Rate',
+            label: 'Interval Total',
             functions: [
                 {
-                    label: 'Total Per Time Interval',
-                    fxCall: 'AsCount',
-                    val: ''
+                    label: 'Total Using Base Interval - Second',
+                    fxCall: 'TotalUsingBaseInterval',
+                    val: '1s'
                 },
+                {
+                    label: 'Total Using Base Interval - Minute',
+                    fxCall: 'TotalUsingBaseInterval',
+                    val: '1m'
+                }
+            ]
+        },
+        {
+            label: 'Rate',
+            functions: [
                 {
                     label: 'Per Second',
                     fxCall: 'Rate',
@@ -294,10 +304,9 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
 
     FunctionOptions: any = {
-        'AsCount': {
-            noVal: true,
-            errorMessage: null,
-            regexValidator: null
+        'TotalUsingBaseInterval': {
+            errorMessage: 'Possible values: 1s, 1m, 1h, etc.',
+            regexValidator: /^\d+[smhd]$/i
         },
         'RateOfChange' : {
             errorMessage: null,
@@ -718,20 +727,20 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         let transformedExp = expression;
         let result = expression.match(this.idRegex);
         result = result ? this.utils.arrayUnique(result) : result;
+        result.sort().reverse(); // wanted to replace m10 first, then m1
         const aliases = this.getMetricAliases();
-
         // update the expression with metric ids
         // first cross-query
         for (let i = 0; i < result.length; i++) {
             if (result[i].includes('.')) {
-                const regex = new RegExp(result[i], 'g');
+                const regex = new RegExp("(?<!{)" + result[i] , 'g');
                 transformedExp = transformedExp.replace(regex, '{{' + aliases[result[i]] + '}}');
             }
         }
         // then shorthand
         for (let i = 0; i < result.length; i++) {
             if (!result[i].includes('.')) {
-                const regex = new RegExp(result[i], 'g');
+                const regex = new RegExp("(?<!{)" + result[i] , "g");
                 transformedExp = transformedExp.replace(regex, '{{' + aliases[result[i]] + '}}');
             }
         }
