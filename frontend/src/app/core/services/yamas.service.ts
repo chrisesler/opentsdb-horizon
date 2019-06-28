@@ -214,8 +214,7 @@ export class YamasService {
         for ( let i = 0; i < funs.length; i++ ) {
             switch ( funs[i].fxCall ) {
                 // Rate and Difference
-                case 'AsCount':  // old
-                case 'TotalPerTimeInterval':
+                case 'TotalUsingBaseInterval':
                 case 'RateOfChange':  // old
                 case 'Rate':
                 case 'RateDiff':      // old
@@ -271,10 +270,8 @@ export class YamasService {
             'sources': [ subGraph[subGraph.length - 1].id ]
         };
         switch ( funs[i].fxCall ) {
-            case 'AsCount':
-            case 'TotalPerTimeInterval':
+            case 'TotalUsingBaseInterval':
                 // set downsample aggregator=sum, ascount def. should be after the metric def.
-                func.interval = '1s';
                 func.rateToCount = true;
                 func.sources = [subGraph[0].id];
                 const nindex = subGraph.findIndex(d => d.id.indexOf('_downsample') !== -1 );
