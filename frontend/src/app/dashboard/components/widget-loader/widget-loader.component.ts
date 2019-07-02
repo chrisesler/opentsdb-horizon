@@ -1,7 +1,7 @@
 import {
     Type, Component, OnInit, Input, Output, ViewChild,
     ComponentFactoryResolver, EventEmitter,
-    OnChanges, SimpleChanges, HostBinding, ChangeDetectionStrategy
+    OnChanges, SimpleChanges, HostBinding, ChangeDetectionStrategy, ElementRef
 } from '@angular/core';
 import { WidgetService } from '../../../core/services/widget.service';
 import { WidgetDirective } from '../../directives/widget.directive';
@@ -10,6 +10,7 @@ import { IntercomService, IMessage } from '../../../core/services/intercom.servi
 import { MatMenu, MatMenuTrigger } from '@angular/material';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 import { WidgetDeleteDialogComponent } from '../widget-delete-dialog/widget-delete-dialog.component';
+import { InfoIslandService } from '../../../shared/modules/info-island/services/info-island.service';
 
 
 @Component({
@@ -35,7 +36,9 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         private widgetService: WidgetService,
         private interCom: IntercomService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private island: InfoIslandService,
+        private hostElRef: ElementRef
         ) { }
 
     ngOnInit() {
@@ -53,6 +56,10 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                 }
             }
         }
+    }
+
+    openIsland() {
+        this.island.openIsland(this.widget, this.hostElRef.nativeElement);
     }
 
     loadComponent() {

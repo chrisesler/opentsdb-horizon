@@ -6,6 +6,9 @@
                         <mat-toolbar-row>
                             <span class="panel-title" *ngIf="widget.settings.component_type !== 'PlaceholderWidgetComponent' && widget.settings.component_type !== 'BignumberWidgetComponent' && widget.settings.component_type !== 'MarkdownWidgetComponent'">{{widget.settings.title}}</span>
                             <span class="flex-spacer"></span>
+                            <button mat-icon-button (click)="openIsland();">
+                                <mat-icon fontSet="denali" fontIcon="d-memory-chip"></mat-icon>
+                            </button>
                             <button mat-icon-button [matMenuTriggerFor]="widgetMenu">
                               <mat-icon fontSet="denali" fontIcon="d-more-horizontal"></mat-icon>
                             </button>

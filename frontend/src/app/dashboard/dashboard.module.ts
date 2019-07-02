@@ -9,6 +9,8 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 import { SharedcomponentsModule } from '../shared/modules/sharedcomponents/sharedcomponents.module';
 import { DynamicWidgetsModule } from '../shared/modules/dynamic-widgets/dynamic-widgets.module';
 
+import { InfoIslandModule } from '../shared/modules/info-island/info-island.module';
+
 // services
 import { DashboardService } from './services/dashboard.service';
 import { DashboardConverterService } from '../core/services/dashboard-converter.service';
@@ -54,6 +56,7 @@ import { TemplateVariablePanelComponent } from './components/template-variable-p
         MaterialModule,
         GridsterModule.forRoot(),
         SharedcomponentsModule,
+        InfoIslandModule,
         DashboardRoutingModule,
         NgxsModule.forFeature([
             DBState,

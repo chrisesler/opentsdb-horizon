@@ -1,0 +1,120 @@
+@mixin info-island-component-base() {
+    .info-island-container {
+        
+        .mat-card {
+            padding: 0;
+            flex: 1
+        }
+
+
+        .mat-header {
+            padding: 8px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
+        .mat-card-header-text {
+            margin: 0;
+            width: 100%;
+        }
+
+        .mat-card-title {
+            margin-bottom: 0;
+            margin-left: 8px;
+            margin-right: 8px;
+            align-items: center;
+
+            .title {
+                font-size: 14px;
+                flex: 1;
+            }
+
+            .close {
+                margin-left: 16px;
+                margin-right: -8px;
+            }
+        }
+
+        .mat-card-actions {
+            margin: 0;
+        }
+
+        .mat-card-content {
+            margin: 0;
+            padding: 8px;
+        }
+
+        // STYLES FOR RESIZABILITY
+        & {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
+        }
+
+        .resizers {
+            user-select: none;
+        }
+
+        .resizer{
+            width: 10px;
+            height: 10px;
+            border-radius: 50%; /*magic to turn square into circle*/
+            background: white;
+            border: 3px solid #4286f4;
+            position: absolute;
+          }
+          
+          .resizer.top-left {
+            left: -5px;
+            top: -5px;
+            cursor: nwse-resize; /*resizer cursor*/
+          }
+          .resizer.top-right {
+            right: -5px;
+            top: -5px;
+            cursor: nesw-resize;
+          }
+         .resizer.bottom-left {
+            left: -5px;
+            bottom: -5px;
+            cursor: nesw-resize;
+          }
+          .resizer.bottom-right {
+            right: -5px;
+            bottom: -5px;
+            cursor: nwse-resize;
+          }
+
+    }
+}
+
+@mixin info-island-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $tname: map-get($theme-config, theme-name);
+
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+    $widget: map-get($theme-config, widgets);
+    $is-dark: map-get($theme-config, is-dark);
+
+    $divider: map-get($foreground, divider);
+
+    .info-island-container {
+        @include mat-elevation(4);
+
+        .mat-card-header {
+            background: maroon;
+            color: white;
+            border-bottom: 1px solid $divider;
+        }
+
+        .mat-card-actions {
+            border-top: 1px solid $divider;
+        }
+    }
+}
