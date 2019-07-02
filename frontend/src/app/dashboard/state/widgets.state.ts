@@ -68,6 +68,7 @@ export interface WidgetModel {
         hSm?: number
     };
     queries: any[];
+    eventQuery?: string;
 }
 
 export interface WidgetsModel {

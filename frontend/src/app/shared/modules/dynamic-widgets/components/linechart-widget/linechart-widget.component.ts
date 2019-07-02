@@ -111,18 +111,13 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     clickTimer: any;
 
     // EVENTS
+    showEvents = false;  // EVENT TOGGLE
     buckets: any[]; // TODO: remove with island legend
     events: any[];
-    eventsQuery = 'blahh';
-    showEvents = true;
     showEventStream = false;
     eventsWidth: number;
     startTime: number;
     endTime: number;
-    eventsTimeInterval = 60;
-    // now = new Date().getTime();
-    filters = { showComments: true, showSDJobs: true, startTime: 0, endTime: 100000000000 };
-
 
     // state control
     private eventsSub: Subscription;
@@ -228,10 +223,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             }
         });
 
-        // if (!this.widget.querueventsQuery) {
-        //     this.widget.eventsQuery = 'namespace = *';
-        //   }
-          this.store.dispatch(new GetEvents(this.eventsQuery));
+        if (!this.widget.eventQuery) {
+            this.widget.eventQuery = 'namespace = *';
+        }
+          this.store.dispatch(new GetEvents(this.widget.eventQuery));
           this.eventsSub = this._events$.subscribe(data => {
             if (data) {
               this.events = [];
@@ -724,47 +719,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     receivedDateWindow(dateWindow: any) {
         this.startTime = dateWindow.startTime;
         this.endTime = dateWindow.endTime;
-        this.filters.startTime = this.startTime;
-        this.filters.endTime = this.endTime;
-        this.filters = {...this.filters};
     }
      updatedShowEventStream(showEventStream: boolean) {
         this.showEventStream = showEventStream;
     }
      showEventsChanged(events: boolean) {
         this.showEvents = events;
-    }
-     showCommentsChanged(comments: boolean) {
-        // if (comments) {
-        //     this.events.comments = this.comments;
-        // } else {
-        //     this.events.comments = [];
-        // }
-    }
-     showSDJobsChanged(sdJobs: boolean) {
-        // if (sdJobs) {
-        //     this.events.sdJobs = this.sdJobs;
-        // } else {
-        //     this.events.sdJobs = [];
-        // }
-    }
-     updatedEventFilters(filters: any) {
-        this.filters = filters;
-        //  if (this.filters.showSDJobs) {
-        //     this.events.sdJobs = this.sdJobs;
-        // } else {
-        //     this.events.sdJobs = [];
-        // }
-        //  if (this.filters.showComments) {
-        //     this.events.comments = this.comments;
-        // } else {
-        //     this.events.comments = [];
-        // }
-         this.events = {... this.events};
-     }
-     updatedEventsTimeInterval(interval) {
-        // console.log('new interval', interval);
-        this.eventsTimeInterval = interval;
     }
 
     newBuckets(buckets) {
@@ -868,6 +828,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     deleteQueryFilter(qid, findex) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries[qindex].filters.splice(findex, 1);
+    }
+
+    eventQueryChanged(txt: string) {
+        this.widget.eventQuery = txt;
+        // this.store.dispatch(new GetEvents(this.widget.eventQuery));
     }
 
     showError() {

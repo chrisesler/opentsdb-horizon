@@ -29,10 +29,10 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit() {
 
-    if (!this.widget.query) {
-      this.widget.query = 'namespace = *';
+    if (!this.widget.eventQuery) {
+      this.widget.eventQuery = 'namespace = *';
     }
-    this.store.dispatch(new GetEvents(this.widget.query));
+    this.store.dispatch(new GetEvents(this.widget.eventQuery));
     this.eventsSub = this._events$.subscribe(data => {
       if (data) {
         this.events = [];
@@ -59,8 +59,8 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
 }
 
   textChanged(txt: string) {
-    this.widget.query = txt;
-    this.store.dispatch(new GetEvents(this.widget.query));
+    this.widget.eventQuery = txt;
+    this.store.dispatch(new GetEvents(this.widget.eventQuery));
   }
 
   applyConfig() {

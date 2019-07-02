@@ -38,7 +38,7 @@
 
             <mat-tab label="Query">
                 <ng-template matTabContent class="query-container">
-                    <textarea matInput placeholder="Type your query" [value]="widget.query" (keyup)="textChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
+                    <textarea matInput placeholder="Type your query" [value]="widget.eventQuery" (keyup)="textChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
                 </ng-template>
             </mat-tab>
 

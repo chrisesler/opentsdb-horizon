@@ -26,6 +26,7 @@
             [size]="size"
             [options]="options"
             [eventBuckets]="buckets"
+            [showEvents]="showEvents"
             (dateWindow)="receivedDateWindow($event)"
             (zoomed)="handleZoom($event)">
         </div>
@@ -71,7 +72,6 @@
     [width]="eventsWidth" 
     [events]="events" 
     (canvasClicked)="updatedShowEventStream(true)" 
-    (timeInterval)="updatedEventsTimeInterval($event)"
     (newBuckets)="newBuckets($event)"></event-timeline>
 </div>
 <!-- NOTE: This needs to move to other component -->
@@ -113,21 +113,25 @@
                 <ng-template matTabContent>
                     <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
                 </ng-template>
-            </mat-tab>
-        <mat-tab>
-        <mat-tab label="Events" [disabled]="editQueryId">
+        </mat-tab>
+        <!-- <mat-tab label="Events" [disabled]="editQueryId">
                 <ng-template matTabContent>
                     <div class="events-config">
                         <div>
-                            <mat-slide-toggle 
-                                [checked]="showEvents" 
-                                (change)="showEventsChanged($event.checked)">
-                                Events Enabled
-                            </mat-slide-toggle>
+                        <mat-slide-toggle 
+                            [checked]="showEvents" 
+                            (change)="showEventsChanged($event.checked)">
+                            Events Enabled
+                        </mat-slide-toggle>
+                        <div>
+                            <b>Event Query: </b> 
+                            <textarea matInput placeholder="Type your query" [value]="widget.eventQuery" (keyup)="eventQueryChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
                         </div>
                     </div>
-                </ng-template>
-            </mat-tab>
+                </div>
+            </ng-template>
+        </mat-tab> -->
+        <mat-tab>
             <!-- custom tab label. (see: https://material.angular.io/components/tabs/overview#labels) -->
             <!-- <ng-template mat-tab-label>
                 &lt;/&gt; Query Editor

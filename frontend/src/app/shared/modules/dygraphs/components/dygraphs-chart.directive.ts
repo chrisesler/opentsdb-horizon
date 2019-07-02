@@ -20,6 +20,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
   @Input() chartType: string;
   @Input() size: any;
   @Input() eventBuckets: any[];
+  @Input() showEvents: boolean;
   @Output() zoomed = new EventEmitter;
   @Output() dateWindow = new EventEmitter<any>();
 
@@ -63,7 +64,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     };
 
     const underlayCallback = (canvas, area, g) => {
-        if (this.eventBuckets) {
+        if (this.eventBuckets && this.showEvents) {
             // tslint:disable-next-line:forin
             for (const bucket of this.eventBuckets) {
                 var coords = g.toDomCoords(bucket.startTime + bucket.width, 0);
