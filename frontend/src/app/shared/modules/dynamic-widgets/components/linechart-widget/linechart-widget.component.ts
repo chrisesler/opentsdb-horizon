@@ -121,9 +121,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     // state control
     private eventsSub: Subscription;
-    // private lastUpdatedEventsSub: Subscription;
     @Select(EventsState.GetEvents) _events$: Observable<any>;
-    // @Select(RecipientsState.GetLastUpdated) _recipientLastUpdated$: Observable<any>;
 
     constructor(
         private cdRef: ChangeDetectorRef,
@@ -874,6 +872,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.listenSub.unsubscribe();
         this.newSizeSub.unsubscribe();
         this.doRefreshDataSub.unsubscribe();
+        this.eventsSub.unsubscribe();
     }
 
 }

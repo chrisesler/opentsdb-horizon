@@ -387,7 +387,6 @@ export class HttpService {
 
     getEvents(query: string) {
         let now = new Date().getTime();
-        // console.log('returning a query', query);
         // const apiUrl = environment.configdb + '/namespace/' + namespace + '/contact';
         // const httpOptions = {
         //     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
