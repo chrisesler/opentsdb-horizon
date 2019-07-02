@@ -19,6 +19,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
   @Input() options: IDygraphOptions;
   @Input() chartType: string;
   @Input() size: any;
+  @Input() eventBuckets: any[];
   @Output() zoomed = new EventEmitter;
   @Output() dateWindow = new EventEmitter<any>();
 
@@ -58,6 +59,27 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             this.dateWindow.emit({startTime: dygraph.dateWindow_[0], endTime: dygraph.dateWindow_[1] });
         } else {
             this.dateWindow.emit({startTime: dygraph.rawData_[0][0], endTime: dygraph.rawData_[dygraph.rawData_.length - 1][0] });
+        }
+    };
+
+    const underlayCallback = (canvas, area, g) => {
+        if (this.eventBuckets) {
+            // tslint:disable-next-line:forin
+            for (const bucket of this.eventBuckets) {
+                var coords = g.toDomCoords(bucket.startTime + bucket.width, 0);
+                // splitX and splitY are the coordinates on the canvas
+                var splitX = coords[0];
+                var splitY = coords[1];
+
+                // The drawing area doesn't start at (0, 0), it starts at (area.x, area.y).
+                // That's why we subtract them from splitX and splitY. This gives us the
+                // actual distance from the upper-left hand corder of the graph itself.
+                // var leftSideWidth = splitX - area.x;
+                // var topHeight = splitY - area.y;
+
+                canvas.fillStyle = 'lightblue';
+                canvas.fillRect(splitX - 1, area.y, 2, splitY);
+            }
         }
     };
 
@@ -173,6 +195,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 }
             };
             this.options.drawCallback = drawCallback;
+            this.options.underlayCallback = underlayCallback;
 
             this.options.interactionModel = DygraphInteraction.defaultModel;
             this.options.interactionModel.dblclick = function(e, g, context) {

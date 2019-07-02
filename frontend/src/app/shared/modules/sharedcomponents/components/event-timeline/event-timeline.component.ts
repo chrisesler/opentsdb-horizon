@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, HostBinding, Input, Output, EventEmitter,
   OnChanges, SimpleChanges } from '@angular/core';
 import { UtilsService } from '../../../../../core/services/utils.service';
-import { isFactory } from '@angular/core/src/render3/interfaces/injector';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -9,7 +8,6 @@ import { isFactory } from '@angular/core/src/render3/interfaces/injector';
   templateUrl: './event-timeline.component.html',
   styleUrls: ['./event-timeline.component.scss']
 })
-
 
 export class EventTimelineComponent implements OnInit, OnChanges {
   @HostBinding('class.widget-panel-content') private _hostClass = true;
@@ -64,7 +62,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         if (i === 0) { // if last bucket, take start + interval - remember that first bucket is latest time
           xStart = (this.buckets[i].startTime + this.buckets[i].width - this.startTime) * this.getEventResolution();
         }
-        this.drawEvent(xStart, 'red', this.buckets[i].events.length, this.getPlaceholderText(this.buckets[i]));
+        this.drawEvent(xStart, 'lightblue', this.buckets[i].events.length, this.getPlaceholderText(this.buckets[i]));
       }
     }
     this.newBuckets.emit(this.buckets);
@@ -85,11 +83,13 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   drawEvent(xStart, color, count, placeholder) {
     this.context.beginPath();
     this.context.strokeStyle = color;
-    this.context.rect(xStart - 5, 5, 10, 10);
+    this.context.fillStyle = 'lightblue';
+    this.context.fillRect(xStart - 5, 5, 10, 10);
     this.context.stroke();
     this.eventLocations.push({xStart: (xStart - 5 - 5), xEnd: (xStart - 5) + 10 + 5, yStart: 5 - 5, yEnd: 5 + 10 + 5,
       placeholder: placeholder });
     if (count > 1) { // draw number in box
+      this.context.fillStyle = 'black';
       this.context.fillText(count.toString(), (xStart - 2), 13);
     }
   }
@@ -105,6 +105,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         xCoord <= eventLocation.xEnd &&
         yCoord >= eventLocation.yStart &&
         yCoord <= eventLocation.yEnd) {
+          this.context.fillStyle = 'black';
           this.context.fillText(eventLocation.placeholder, eventLocation.xStart + 20, 15);
           break;
       }

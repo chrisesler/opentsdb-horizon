@@ -1,12 +1,14 @@
 @mixin event-stream-component-base() {
 
     .event-stream {
+        position: absolute;
+        right: 200px;
         .event-details {
             padding: 5px;
             min-width: 200px;
             position: fixed;
             z-index: 100;
-            background: wheat;
+            background: lightblue;
             max-height: 100%;
             overflow: scroll;
 
