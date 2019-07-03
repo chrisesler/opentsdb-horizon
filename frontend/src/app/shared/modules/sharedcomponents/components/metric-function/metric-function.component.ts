@@ -14,6 +14,7 @@ export class MetricFunctionComponent implements OnInit {
   @Input() metricId: string; // metric that contains these functions
   @Input() errorMessage: string;  // OPTIONAL
   @Input() regexValidator: RegExp; // OPTIONAL
+  @Input() options: any = {};
   @Output() fxOut = new EventEmitter;
   @Output() fxDel = new EventEmitter;
   inputVal: FormControl;
@@ -25,7 +26,7 @@ export class MetricFunctionComponent implements OnInit {
     // this.isEdit = this.fx.val === '' ? true : false;
     // for now set the default value to rate function
     // we can set default value by fx type later
-    if (this.fx.val === '') {
+    if ( !this.options.noVal && this.fx.val === '') {
       this.fx.val = '1s';
     }
     if (!this.errorMessage) {

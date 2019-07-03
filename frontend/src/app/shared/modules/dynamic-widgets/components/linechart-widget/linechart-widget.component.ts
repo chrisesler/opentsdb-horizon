@@ -51,7 +51,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         labels: ['x'],
         labelsUTC: false,
         labelsKMB: true,
-        connectSeparatedPoints: false,
+        connectSeparatedPoints: true,
         drawPoints: false,
         //  labelsDivWidth: 0,
         // legend: 'follow',
@@ -177,7 +177,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         } else {
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
-                            this.data.ts = [[0]]; // need to reset this data
+                            this.resetChart(); // need to reset this data
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
                             this.legendDataSource = new MatTableDataSource(this.buildLegendData());

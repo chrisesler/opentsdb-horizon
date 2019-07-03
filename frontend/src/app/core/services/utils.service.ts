@@ -482,4 +482,29 @@ export class UtilsService {
     return null;
   }
 
+  getTimestampsFromTimeSpecification(tsConfigs) {
+    let tsObj = {};
+    const mSeconds = { 's': 1, 'm': 60, 'h': 3600, 'd': 86400 };
+    for ( let i = 0; i < tsConfigs.length; i++ ) {
+        const timeSpecification = tsConfigs[i].timeSpecification;
+        const unit = timeSpecification.interval.replace(/[0-9]/g, '');
+        const m = parseInt(timeSpecification.interval, 10);
+        let start = timeSpecification.start;
+        const end = timeSpecification.end;
+        let j = 0;
+        while ( start < end ) {
+            tsObj[start * 1000] = true;
+            j++;
+            start = timeSpecification.start + (m * j * mSeconds[unit]);
+        }
+    }
+    const ts: number[] = Object.keys(tsObj).map(d => parseInt(d, 10));
+    ts.sort((a, b) => a - b);
+    tsObj = {};
+    for ( let i = 0; i < ts.length; i++ ) {
+        tsObj[ts[i]] = i;
+    }
+    return tsObj;
+  }
+
 }
