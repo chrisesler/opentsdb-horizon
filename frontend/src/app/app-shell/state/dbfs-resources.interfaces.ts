@@ -73,6 +73,7 @@ export interface DbfsNamespaceModel {
 
 // user model
 export interface DbfsUserModel {
+    alias: string;
     userid: string;
     name: string;
     memberNamespaces?: any[];
