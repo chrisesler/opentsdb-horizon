@@ -39,7 +39,7 @@ import {
     UpdateVariables,
     UpdateMeta
 } from '../../state/settings.state';
-import { AppShellState, NavigatorState } from '../../../app-shell/state';
+import { AppShellState, NavigatorState, DbfsLoadTopFolder, DbfsLoadSubfolder } from '../../../app-shell/state';
 import { MatMenuTrigger, MenuPositionX, MatSnackBar } from '@angular/material';
 import {
     SearchMetricsDialogComponent
@@ -50,6 +50,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angul
 import { LoggerService } from '../../../core/services/logger.service';
 import { HttpService } from '../../../core/http/http.service';
 import { ICommand, CmdManager } from '../../../core/services/CmdManager';
+import { DbfsUtilsService } from '../../../app-shell/services/dbfs-utils.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -194,7 +195,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private cdRef: ChangeDetectorRef,
         private elRef: ElementRef,
         private logger: LoggerService,
-        private httpService: HttpService
+        private httpService: HttpService,
+        private dbfsUtils: DbfsUtilsService
     ) { }
     ngOnInit() {
         // handle route for dashboardModule
@@ -434,7 +436,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 // possibly need to update the dbid
                 // necessary after saving a _new_ dashboard, so save dialog will not prompt again
                 if (this.dbid === '_new_') {
+
                     this.dbid = this.store.selectSnapshot<any>(DBState.getDashboardId);
+
+                    // if the save was on a NEW dashboard, lets tell the navigator to update
+                    if (path !== '/_new_' && path !== undefined) {
+                        const fullPath = '/' + path.split('/').slice(2).join('/'); // strip off the id part of the url
+                        const details = this.dbfsUtils.detailsByFullPath(fullPath);
+                        const parentDetails = this.dbfsUtils.detailsByFullPath(details.parentPath);
+                        if (parentDetails.topFolder) {
+                            this.store.dispatch(new DbfsLoadTopFolder(parentDetails.type, parentDetails.typeKey, {}));
+                        } else {
+                            this.store.dispatch(new DbfsLoadSubfolder(parentDetails.fullPath, {}));
+                        }
+                    }
                 }
             }
         }));
