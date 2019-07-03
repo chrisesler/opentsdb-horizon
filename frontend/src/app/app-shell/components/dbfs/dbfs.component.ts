@@ -221,7 +221,7 @@ export class DbfsComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.usersData$.subscribe( users => {
-            // this.logger.log('USERS', {users});
+            //this.logger.log('USERS', {users});
             this.usersList = users;
             this.usersDataSource = new MatTableDataSource(this.usersList);
         }));
@@ -244,13 +244,14 @@ export class DbfsComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.panelAction$.subscribe( action => {
+
             // this.logger.log('PANEL ACTION', action);
             switch (action.method) {
                 case 'goNextPanel':
                     setTimeout(function() {
-                        self.navPanel.goNext();
+                        this.navPanel.goNext();
                         this.resetDataSourceFilters();
-                    }, 200);
+                    }.bind(this), 200);
                     break;
                 case 'loadSubFolder':
                     setTimeout(function() {
