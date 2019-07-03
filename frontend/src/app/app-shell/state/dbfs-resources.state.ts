@@ -1,13 +1,10 @@
 import { State, StateContext, Action, Store, Selector, createSelector } from '@ngxs/store';
-import { append, patch, removeItem, updateItem } from '@ngxs/store/operators';
 import { UtilsService } from '../../core/services/utils.service';
 import { LoggerService } from '../../core/services/logger.service';
 import { map, tap, catchError, reduce } from 'rxjs/operators';
 
 import { DbfsService } from '../services/dbfs.service';
 import { DbfsUtilsService } from '../services/dbfs-utils.service';
-import { CdkTextareaAutosize } from '@angular/cdk/text-field';
-import { copyStyles } from '@angular/animations/browser/src/util';
 
 /** INTERFACES */
 import {
@@ -291,9 +288,7 @@ export class DbfsResourcesState {
     }
 
     @Selector() static getUsersList(state: DbfsResourcesModel) {
-        let users = [];
-        users = state.userList.map(item => state.users[item]);
-        return users;
+        return state.userList.map(item => state.users[item]);
     }
 
     public static getFolderResource(path: string) {
@@ -762,7 +757,7 @@ export class DbfsResourcesState {
 
         // sort user list
         userList.sort((a: any, b: any) => {
-            return this.utils.sortAlphaNum(users[a].name, users[b].name);
+            return this.utils.sortAlphaNum(users[a].alias, users[b].alias);
         });
 
         dynamicLoaded.users = true;
