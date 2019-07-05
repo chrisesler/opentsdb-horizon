@@ -1109,6 +1109,7 @@ export class DbfsResourcesState {
 
         // update file
         const file: DbfsFileModel = this.dbfsUtils.normalizeFile(response);
+        files[file.fullPath] = file;
 
         // update parent (if we have it cached)
         if (folders[file.parentPath]) {
