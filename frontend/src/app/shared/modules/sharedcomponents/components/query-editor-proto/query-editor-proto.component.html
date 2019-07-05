@@ -175,9 +175,9 @@
                                 [fx]="fx" 
                                 (fxOut)="functionUpdate($event)" 
                                 (fxDel)="functionDelete($event)"
-                                [regexValidator]="FunctionOptions[fx.fxCall].regexValidator" 
-                                [errorMessage]="FunctionOptions[fx.fxCall].errorMessage"
-                                [options]="FunctionOptions[fx.fxCall]">
+                                [regexValidator]="FunctionOptions[fx.fxCall] ? FunctionOptions[fx.fxCall].regexValidator : null" 
+                                [errorMessage]="FunctionOptions[fx.fxCall] ? FunctionOptions[fx.fxCall].errorMessage: null"
+                                [options]="FunctionOptions[fx.fxCall] ? FunctionOptions[fx.fxCall] : {}">
                             </metric-function>
                         </div>
                     </div>

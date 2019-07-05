@@ -1,7 +1,4 @@
-@import './children/mini-navigator-folders/mini-navigator-folders.component';
-@import './children/mini-navigator-folder-item/mini-navigator-folder-item.component';
-
-@mixin mini-navigator-component-base() {
+@mixin dbfs-mini-nav-component-base() {
 
     $mini-nav-dimension: 300px;
     $mini-nav-font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
@@ -13,8 +10,6 @@
 
     $action-bar-height: ($bar-dimension + ($bar-spacing*4));
     $action-bar-button-height: ($bar-dimension - ($bar-spacing*2));
-
-    // $action-bar-font-size: mat-font-size(map-get($app-fontface-config, sans), caption);
 
     .mini-navigator-component {
         display: flex;
@@ -116,6 +111,7 @@
             }
         }
 
+        // navigator panel
         .navigator-panel {
             .navigator-panel-wrapper {
                 display: flex;
@@ -127,7 +123,77 @@
             }
         }
 
-        
+        // FOLDERS LIST
+        .mini-navigator-folders {
+            display: flex;
+            flex-direction: column;
+    
+            .folder-list.mat-list-base {
+                padding: 0;
+                
+            }
+    
+            .folder-nav-item.mat-list-item {
+                height: 32px;
+    
+                .mat-list-item-content {
+                    padding: 0 8px;
+                }
+            }
+        }
+
+        // FOLDER ITEM
+        .mini-navigator-folder-item {
+            flex: 1;
+            display: flex;
+            justify-content: stretch;
+            align-items: stretch;
+            height: 36px;
+            font-weight: 300;
+            font-size: 12px;
+    
+            &.is-editing {
+                margin-right: 12px;
+            }
+            
+            .mat-icon {
+                height: 12px;
+                width: 12px;
+                font-size: 100%; 
+            }
+            
+            .folder-icon {
+                margin-right: 8px;
+            }
+    
+            .list-item {
+                display: flex;
+                align-items: center;
+    
+                &.edit-form {
+                    &,
+                    .mat-form-field {
+                        flex: 1;
+                    }
+                    .mat-form-field-prefix {
+                        margin-left: 6px;
+                    }
+                }
+    
+                &.goto-next-folder {
+                    margin-right: 8px;
+                }
+            }
+    
+            .folder-name {
+                span {
+                    max-width: 198px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+        }
     }
 
     // CDK
@@ -165,13 +231,9 @@
             }
         }
     }
-
-    // INCLUDE CHILDREN
-    @include mini-navigator-folders-component-base();
-    @include mini-navigator-folder-item-component-base();
 }
 
-@mixin mini-navigator-component-theme($theme-config) {
+@mixin dbfs-mini-nav-component-theme($theme-config) {
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
     $accent: map-get($theme-config, accent);
@@ -179,7 +241,6 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
-
     $status: map-get($theme-config, status);
 
     /* navbar config */
@@ -189,12 +250,11 @@
     $sn-dark-text: map-get($navbar-config, sn-dark-text);
     $sn-seperator: map-get($navbar-config, sn-seperator);
     $sn-active: map-get($navbar-config, sn-active);
-
+ 
     $navbar-background: map-get($background, navbar);
     $navbar-text: find-color-invert($navbar-background);
-    //$menu-background: if($is-dark-theme, lighten(map-get($primary, default), 5%), lighten(map-get($background, navbar), 5%) );
+    
     $menu-background: map-get($background, card);
-
     $menu-background-hover: find-color-invert($menu-background);
 
     .mini-navigator-component {
@@ -211,6 +271,64 @@
             //border-top: 1px solid rgba($navbar-text,.25);
             color: $navbar-background;
             box-shadow: inset 0 1px 0 0 rgba($navbar-background,.12);
+        }
+
+        // FOLDERS LIST
+        .mini-navigator-folders {
+            // content here
+    
+            .mat-list .mat-list-item,
+            .mat-nav-list .mat-list-item {
+                color: rgba($navbar-background,.65);
+    
+                .path-icon,
+                .folder-icon,
+                .dashboard-icon
+                .goto-next-folder {
+                    margin-right: 8px;
+                    color: inherit;
+                }
+
+                &.is-active,
+                &.is-selected {
+                    color: rgba($navbar-text,.85);
+                }
+    
+                &.is-selected {
+                    background-color: $navbar-background;
+                }
+    
+                &:not(:last-child) {
+                    border-bottom: 1px solid rgba($navbar-background,.07);
+                }
+    
+                &:first-child {
+                    border-top: 1px solid transparent;
+                }
+            }
+    
+        }
+
+        // FOLDER ITEM
+        .mini-navigator-folder-item {
+            .save-folder-name {
+                color: map-get($status, success);
+            }
+    
+            .list-item.edit-form {
+                    
+                .mat-form-field {
+                    .mat-input-element::placeholder {
+                        color: rgba($navbar-text, .25);
+                    }
+                }
+            }
+    
+            .dnav-folder-menu {
+                .mat-icon-button {
+                    background: rgba(0, 0, 0, .2);
+                }
+            }
         }
     }
 
@@ -232,8 +350,4 @@
             }
         }
     }
-
-    // INCLUDE CHILDREN
-    @include mini-navigator-folders-component-theme($theme-config);
-    @include mini-navigator-folder-item-component-theme($theme-config);
 }

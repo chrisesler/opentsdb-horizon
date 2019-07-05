@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DnavFolderItemComponent } from './dnav-folder-item.component';
+import { DbfsComponent } from './dbfs.component';
 
-describe('DnavFolderItemComponent', () => {
-  let component: DnavFolderItemComponent;
-  let fixture: ComponentFixture<DnavFolderItemComponent>;
+describe('DbfsComponent', () => {
+  let component: DbfsComponent;
+  let fixture: ComponentFixture<DbfsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DnavFolderItemComponent ]
+      declarations: [ DbfsComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DnavFolderItemComponent);
+    fixture = TestBed.createComponent(DbfsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
