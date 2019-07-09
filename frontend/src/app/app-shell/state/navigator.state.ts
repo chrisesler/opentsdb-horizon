@@ -6,8 +6,8 @@ import {
 } from '@ngxs/store';
 
 import {
-    DashboardNavigatorState
-} from './dashboard-navigator.state';
+    DbfsState
+} from './dbfs.state';
 
 import { MediaObserver } from '@angular/flex-layout';
 
@@ -88,7 +88,7 @@ export class SetSideNavOpen {
         drawerOpen: false
     },
     children: [
-        DashboardNavigatorState
+        DbfsState
     ]
 })
 

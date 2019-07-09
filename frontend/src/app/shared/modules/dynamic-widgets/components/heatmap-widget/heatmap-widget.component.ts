@@ -17,6 +17,7 @@ import { debounceTime } from 'rxjs/operators';
 import heatmapPlotter from '../../../../dygraphs/plotters';
 
 @Component({
+// tslint:disable-next-line: component-selector
   selector: 'heatmap-widget',
   templateUrl: './heatmap-widget.component.html',
   styleUrls: ['./heatmap-widget.component.scss'],
@@ -159,6 +160,11 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
                         this.nQueryDataLoading = 1;
                         this.cdRef.detectChanges();
                         break;
+                  case 'ResetUseDBFilter':
+                      // reset useDBFilter to true
+                      this.widget.settings.useDBFilter = true;
+                      this.cdRef.detectChanges();
+                      break;
               }
           }
       });
@@ -254,7 +260,16 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
             this.widget = {...this.widget};
             this.needRequery = true;
             break;
+        case 'ToggleDBFilterUsage':
+            this.widget.settings.useDBFilter = message.payload.apply;
+            this.refreshData();
+            this.needRequery = message.payload.reQuery;
+            break;
     }
+  }
+
+  isApplyTpl(): boolean {
+    return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
   }
 
   setTimezone(timezone) {

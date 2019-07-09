@@ -32,6 +32,9 @@ export class LoggerService {
                 case 'log':
                     color = '#1e90ff'; // dodgerBlue
                     break;
+                case 'intercom':
+                    color = '#006064'; // dark teal
+                    break;
                 default:
                     color = '#ffa500'; // orange
                     colorInverse = 'black';
@@ -44,7 +47,7 @@ export class LoggerService {
                     'color: ' + colorInverse + '; background-color: ' + color + '; padding: 6px 8px; font-weight: bold;',
                     'color: black; padding: 4px 8px; font-weight: bold; border: 2px solid ' + color + ';'
                 );
-                if (type === 'log' || type === 'ng') {
+                if (type === 'log' || type === 'ng' || type === 'intercom') {
                     const keys = Object.keys(params);
                     for (const key of keys) {
                         console.log('%c' + key, 'font-weight: bold;', params[key]);
@@ -85,6 +88,10 @@ export class LoggerService {
 
     success(label: string, params?: any) {
         this.consoleOutput('success', label, params);
+    }
+
+    intercom(label: string, params?: any) {
+        this.consoleOutput('intercom', label, params);
     }
 
     error(label: string, errorMsg: any) {

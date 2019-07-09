@@ -41,18 +41,20 @@
                 <span [matMenuTriggerFor]="tagFilterMenu" #tagFilterMenuTrigger="matMenuTrigger" [matMenuTriggerData]="{query: query}" class="tag-filter-menu-trigger"></span>
                 <div class="tags-selected" *ngIf="query.filters.length">
                     <div class="tags-selected-header">
-                        <span><strong>Tag Filters</strong> ({{ query.filters.length }})</span>
+                        <!--<span><strong>Tag Filters</strong> ({{ query.filters.length }})</span>-->
                         <span class="explicit-match"><mat-checkbox (click)="$event.stopPropagation();" [checked]="query.settings.explicitTagMatch" (change)="toggleExplictTagMatch($event)">Only match selected tag keys</mat-checkbox></span>
                     </div>
                     <mat-list class="tag-filter-rows" role="list">
                         <mat-list-item class="tag" role="listitem" *ngFor="let filter of query.filters; let index=index">
-                            <div class="tag-filter-detail" *ngIf="filter.filter">
+                            <div class="tag-filter-detail" *ngIf="filter.filter.length || (filter.customFilter && filter.customFilter.length)">
                                 <strong>{{ filter.tagk }}:</strong>
                                 <span>{{ filter.customFilter ? filter.filter.concat(filter.customFilter).join(', ') : filter.filter.join(', ')}}</span>
                             </div>
+                            <!-- 
                             <div class="tag-filter-detail" *ngIf="!filter.filter">
                                     <strong>{{ filter.tagk }}</strong>
                             </div>
+                            -->
                         </mat-list-item>
                     </mat-list>
                 </div>
