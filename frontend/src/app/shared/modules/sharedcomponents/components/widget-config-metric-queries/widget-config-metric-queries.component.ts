@@ -79,6 +79,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     tplVariables: any = {};
     appliedTplVariables: any[] = [];
     applyTplControl: FormControl;
+    hasCustomFilter = false;
     private subscription: Subscription = new Subscription();
 
     constructor(
@@ -110,9 +111,10 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         if (this.applyTplControl) {
             this.applyTplControl.valueChanges.subscribe(val => {
                 const flag = (val === 'apply') ? true : false;
-                this.widgetChange.emit({ action: 'ToggleDBFilterUsage', payload: flag });
+                this.widgetChange.emit({ action: 'ToggleDBFilterUsage', payload: { apply: flag, reQuery: true }});
             });
         }
+        this.checkCustomFilter(this.widget);
     }
 
     initOptions() {
@@ -126,7 +128,6 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
     displayDBFilterOption(): boolean {
         if (this.appliedTplVariables.length > 0) {
-            // (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter)) {
                 return true;
             }
         return false;
@@ -225,11 +226,40 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         const payload = { action: 'UpdateQuery', payload: { query: query } };
         this.newQueryId = '';
         this.widgetChange.emit(payload);
+
+        // check if user manually add dashboard tag filters to common tags
+        // clone it so we can handle it here
+        const cWidget = this.util.deepClone(this.widget);
+        const qIndx = cWidget.queries.findIndex(q => q.id === query.id);
+        if (qIndx === -1) {
+            cWidget.queries.push(query);
+        } else {
+            cWidget.queries[qIndx] = query;
+        }
+        this.checkCustomFilter(cWidget);
+        if (this.hasCustomFilter) {
+            // set useDBFilter to true anyway
+            this.applyTplControl.setValue('apply');
+            this.widgetChange.emit({ action: 'ToggleDBFilterUsage', payload: { apply: true, reQuery: false }});
+        }
+    }
+
+    // check if filters of a query have customFilter values
+    // check all queries of this widget, not just
+    checkCustomFilter(widget: any) {
+        this.hasCustomFilter = false;
+        for (let i = 0; i < widget.queries.length; i++) {
+            const idx = widget.queries[i].filters.findIndex(f => f.customFilter && f.customFilter.length > 0);
+            if (idx > -1) {
+                this.hasCustomFilter = true;
+                break;
+            }
+        }
     }
 
     updateLabelsForTimeShift(metrics: any[]) {
-        for (let metric of metrics) {
-            let totalTimeShift = this.util.getTotalTimeShift(metric.functions);
+        for (const metric of metrics) {
+            const totalTimeShift = this.util.getTotalTimeShift(metric.functions);
             if (totalTimeShift) {
                 if (metric.settings.visual.label === '' || metric.settings.visual.label.startsWith( metric.name + '-')) {
                     metric.settings.visual.label = metric.name + '-' + totalTimeShift;

@@ -2,7 +2,7 @@
     <div class="query-metrics-wrap" [ngClass]="{'is-editing-metric': queryEditMode}">
         <mat-accordion class="query-group-list mat-elevation-z0" [ngClass]="{'items-selected': selectAllToggle !== 'none'}" displayMode="flat" [multi]="true" [hideToggle]="false">
             <mat-expansion-panel class="query-group-item mat-elevation-z0" [hideToggle]="true" [disabled]="true" [expanded]="true">
-                <div class="dbfilter-panel" *ngIf="displayDBFilterOption()">                  
+                <div class="dbfilter-panel" *ngIf="displayDBFilterOption() && !hasCustomFilter">                  
                     <mat-button-toggle-group name="useDBFilter" [formControl]="applyTplControl">
                             <mat-button-toggle value="apply">
                                 <mat-icon fontSet="denali" fontIcon="d-lock-open-solid"></mat-icon>
