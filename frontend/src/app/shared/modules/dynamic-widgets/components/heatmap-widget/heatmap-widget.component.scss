@@ -86,6 +86,17 @@
                 background-color: transparent;*/
             }
 
+            .apply-tpl-status {
+                position: absolute;
+                right: -5px;
+                top: 0px;
+                z-index: 1;
+                .mat-icon {
+                    font-size: 16px;
+                    color: rgb(216, 216, 215);
+                }
+            }
+            
             .error{
                 position: absolute;
                 left: 0px;
