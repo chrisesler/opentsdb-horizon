@@ -177,7 +177,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         } else {
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
-                            this.data.ts = [[0]]; // need to reset this data
+                            this.resetChart();
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
                             this.legendDataSource = new MatTableDataSource(this.buildLegendData());
@@ -197,7 +197,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         this.nQueryDataLoading = 1;
                         this.cdRef.detectChanges();
                         break;
-                }
+                    case 'ResetUseDBFilter':
+                        // reset useDBFilter to true
+                        this.widget.settings.useDBFilter = true;
+                        this.cdRef.detectChanges();
+                        break;
+                    }
             }
         });
         // when the widget first loaded in dashboard, we request to get data
@@ -326,10 +331,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.needRequery = true;
                 break;
             case 'ToggleDBFilterUsage':
-                this.widget.settings.useDBFilter = message.payload;
+                this.widget.settings.useDBFilter = message.payload.apply;
                 this.refreshData();
-                this.widget.queries = this.util.deepClone(this.widget.queries);
-                this.needRequery = true;
+                this.needRequery = message.payload.reQuery;
                 break;
         }
     }
@@ -702,8 +706,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         if (!this.isDataLoaded) {
             this.nQueryDataLoading = 1;
             this.error = null;
-
-
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',
