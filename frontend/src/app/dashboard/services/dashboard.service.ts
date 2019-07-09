@@ -170,33 +170,70 @@ export class DashboardService {
   }
 
   // return widget custom tag info if this widget is eligible
-  checkWidgetDBFilter(widget: any, tplVariables: any, rawDbTags: any) {
-    const eWidget = {};
-    const ewid = {};
+  applyWidgetDBFilter(widget: any, tplVariables: any, rawDbTags: any) {
+   let isModify = false;
+   const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
+   const eWidget = {};
     for (let i = 0; i < tplVariables.length; i++) {
       const vartag = tplVariables[i];
-      if (rawDbTags[widget.id]) {
+      if (rawDbTags[wid]) {
         const eqid = {};
-        for (const qid in rawDbTags[widget.id]) {
-          if (rawDbTags[widget.id].hasOwnProperty(qid)) {
-            if (rawDbTags[widget.id][qid].includes(vartag.tagk)) {
+        for (const qid in rawDbTags[wid]) {
+          if (rawDbTags[wid].hasOwnProperty(qid)) {
+            if (rawDbTags[wid][qid].includes(vartag.tagk)) {
               eqid[qid] = true;
             }
           }
         }
         if (Object.keys(eqid).length > 0) {
-          ewid[widget.id] = eqid;
-          eWidget[vartag.alias] = ewid;
+          eWidget[vartag.alias] = eqid;
         }
       }
     }
-    return eWidget;
+    // mcolo: abc: true, cdf: true --> for query id
+    for (const alias of Object.keys(eWidget)) {
+        const tplIdx = tplVariables.findIndex(tpl => tpl.alias === alias);
+        const vartag = tplVariables[tplIdx];
+        // when user set custom tag to empty, we need to requery to origin config
+        if (vartag.filter === '') { isModify = true; continue; }
+        for (let i = 0; i < widget.queries.length; i++) {
+          const query = widget.queries[i];
+          if (eWidget[alias].hasOwnProperty(query.id)) {
+            // see if it has filter of this tag
+            const fIdx = query.filters.findIndex(f => f.tagk === vartag.tagk);
+            if (fIdx > -1) {
+              const currFilter = query.filters[fIdx];
+              // if they manually define this [alias] in customFilter then we don't
+              // modify it since it's static mode
+              if (!currFilter.customFilter || currFilter.customFilter.length === 0) {
+                currFilter.filter = [];
+                currFilter.dynamicFilter ?
+                  currFilter.dynamicFilter.push('[' + alias + ']') : currFilter.dynamicFilter = ['[' + alias + ']'];
+                isModify = true;
+              }
+            } else {
+              const nfilter = {
+                tagk: vartag.tagk,
+                filter: [],
+                groupBy: false,
+                dynamicFilter: ['[' + alias + ']']
+              };
+              query.filters.push(nfilter);
+              isModify = true;
+            }
+          }
+        }
+    }
+    return isModify ? widget : undefined;
   }
 
+  // to insert dynamicFilter or modify customFilter accordingly
+  // @widget: widget to modify
+  // @eWidget: object to hold this widget dashboard tag filter of eligible
+  // @tplVariables: current list of db tag filters (in view or edit mode)
   applyTplVarToWidget(widget: any, eWidgets: any, tplVariables: any[]) {
     // for editing widget, we need to get the id out.
     const wid = widget.id.indexOf('__EDIT__') !== -1 ? widget.id.replace('__EDIT__', '') : widget.id;
-
     let isModify = false;
     for (const alias in eWidgets) {
       if (eWidgets[alias].hasOwnProperty(wid)) {
