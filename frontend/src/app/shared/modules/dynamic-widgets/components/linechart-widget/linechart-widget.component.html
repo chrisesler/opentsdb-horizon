@@ -49,6 +49,10 @@
         <div class="error" *ngIf="error" (click)="showError()">
             <mat-icon>error</mat-icon>
         </div>
+        <div class="apply-tpl-status">
+            <mat-icon fontSet="denali" matTooltip="Dashboard tag filters disabled!"
+                 fontIcon="d-lock-close-solid" *ngIf="!isApplyTpl()"></mat-icon>
+        </div>
     </div>
     
 </div>

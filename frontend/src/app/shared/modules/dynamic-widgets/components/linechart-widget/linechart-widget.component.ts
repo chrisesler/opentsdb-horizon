@@ -197,7 +197,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         this.nQueryDataLoading = 1;
                         this.cdRef.detectChanges();
                         break;
-                }
+                    case 'ResetUseDBFilter':
+                        // reset useDBFilter to true
+                        this.widget.settings.useDBFilter = true;
+                        this.cdRef.detectChanges();
+                        break;
+                    }
             }
         });
         // when the widget first loaded in dashboard, we request to get data
@@ -209,15 +214,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     buildLegendData() {
         const series = this.options.series;
         const table = [];
+        // tslint:disable-next-line: forin
         for (const index in series) {
             let config;
             if (series.hasOwnProperty(index)) {
                 config = series[index];
             } else {continue;}
-            let row = {};
+            const row = {};
             row['srcIndex'] = index;
             for (let column = 0; column < this.legendDisplayColumns.length; column++) {
-                let columnName = this.legendDisplayColumns[column];
+                const columnName = this.legendDisplayColumns[column];
                 switch (columnName) {
                     case 'color':
                         row['color'] = config.color;
@@ -324,6 +330,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
+            case 'ToggleDBFilterUsage':
+                this.widget.settings.useDBFilter = message.payload.apply;
+                this.refreshData();
+                this.needRequery = message.payload.reQuery;
+                break;
         }
     }
 
@@ -358,6 +369,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             };
             this.newSize$.next(newSize);
         });
+    }
+
+    isApplyTpl(): boolean {
+        return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
     }
 
     setSize() {
@@ -404,7 +419,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             nWidth = newSize.width - widthOffset  - (padding * 2) - 30;
         } else {
             padding = 10; // 10px on the top
-            let paddingSides = 1;
+            const paddingSides = 1;
             nHeight = newSize.height - heightOffset - (padding * 2);
             // nWidth = newSize.width - widthOffset  - (padding * 2);
             nWidth = newSize.width - widthOffset  - paddingSides;
@@ -614,7 +629,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.preventSingleClick = focusOnly;
         if (!focusOnly) {
             this.clickTimer = 0;
-            let delay = 250;
+            const delay = 250;
 
             this.clickTimer = setTimeout(() => {
                 if (!this.preventSingleClick) {
@@ -623,20 +638,19 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.options = {...this.options};
                 this.cdRef.markForCheck();
             }, delay);
-        }
-        else {
+        } else {
             clearTimeout(this.clickTimer);
             this.clickTimer = 0;
 
             let allHidden = true;
             // check if all the time-series are already hidden
             for (let i = 0; i < this.options.visibility.length; i += 1) {
-                if (i === (index)) continue;
+                if (i === (index)) { continue; }
                 allHidden = allHidden && !this.options.visibility[i];
             }
             // if all are already hidden, user probably wants to show all with a dblclick
             // else the intention is to hide all except the selected one
-            let newVisibility = allHidden === true ? true : false;
+            const newVisibility = allHidden === true ? true : false;
             for (let i = 0; i < this.options.visibility.length; i += 1) {
                 this.options.visibility[i] = newVisibility;
             }
@@ -692,8 +706,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         if (!this.isDataLoaded) {
             this.nQueryDataLoading = 1;
             this.error = null;
-
-
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getQueryData',

@@ -407,6 +407,10 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         this.options = { ...defaultOptions, ...this.options};
     }
 
+    hasValidFilter(query: any): Number {
+        const index =  query.filters.findIndex(f => f.filter.length || (f.customFilter && f.customFilter.length));
+        return  index;
+    }
 
     // helper function to format the table datasource into a structure
     // that allows the table to work more or less like it did before
@@ -865,7 +869,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
 
         if (this.queries) { // cross queries
-            for (let query of this.queries) {
+            for (const query of this.queries) {
                 for ( let i = 0; i < query.metrics.length; i++ ) {
                     const expression = query.metrics[i].expression;
                     if (expression && query.id !== this.query.id && this.expressionContainIds(expression, metricIds)) {
@@ -880,7 +884,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     }
 
     expressionContainIds(expression, ids) {
-        for (let id of ids) {
+        for (const id of ids) {
             if (expression.indexOf('{{' + id + '}}') !== -1) {
                 return true;
             }
@@ -915,7 +919,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         let canDelete = true;
 
         if (this.queries) { // cross queries
-            for (let query of this.queries) {
+            for (const query of this.queries) {
                 for ( let i = 0; i < query.metrics.length; i++ ) {
                     const expression = query.metrics[i].expression;
                     if ( expression && i !== index  &&  expression.indexOf('{{' + id + '}}') !== -1 ) {
@@ -954,5 +958,4 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
     // datasource table stuff - predicate helpers to determine if add metric/expression rows should show
     checkAddMetricRow = (i: number, data: object) => data.hasOwnProperty('addMetric');
     checkAddExpressionRow = (i: number, data: object) => data.hasOwnProperty('addExpression');
-
 }

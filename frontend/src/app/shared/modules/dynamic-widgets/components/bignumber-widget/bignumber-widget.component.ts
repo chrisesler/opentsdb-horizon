@@ -109,7 +109,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
 
-            if ( message.action === 'TimeChanged' || message.action === 'reQueryData' || message.action === 'ZoomDateRange') {
+            if (message.action === 'TimeChanged' || message.action === 'reQueryData' || message.action === 'ZoomDateRange') {
                 this.refreshData();
             }
             if (message && (message.id === this.widget.id)) { // 2. Get and set the metric
@@ -129,27 +129,25 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                         this.cdRef.detectChanges();
                         break;
                     case 'getUpdatedWidgetConfig':
-                        if (this.widget.id === message.id) {
-                            this.widget = message.payload.widget;
-                            this.setBigNumber();
-                            this.refreshData(message.payload.needRefresh);
-                        }
+                        this.widget = message.payload.widget;
+                        this.setBigNumber();
+                        this.refreshData(message.payload.needRefresh);
                         break;
                     case 'WidgetQueryLoading':
                         this.nQueryDataLoading = 1;
                         this.cdRef.detectChanges();
-                            break;
+                        break;
+                    case 'ResetUseDBFilter':
+                        // reset useDBFilter to true
+                        this.widget.settings.useDBFilter = true;
+                        this.cdRef.detectChanges();
+                        break;
                 }
-            }        });
+            }
+        });
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
-        setTimeout(() => {
-            if (!this.editMode) {
-                this.requestData();
-            } else {
-                this.requestCachedData();
-            }
-        }, 0);
+        setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
     }
   ngAfterViewInit() {
     this.setSize();
@@ -180,7 +178,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             this.newSize$.next(newSize);
         });
     }
-
+    isApplyTpl(): boolean {
+        return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
+    }
     // for first time and call.
     setSize() {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
@@ -499,6 +499,11 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.widget.queries = this.util.deepClone(this.widget.queries);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
+                break;
+            case 'ToggleDBFilterUsage':
+                this.widget.settings.useDBFilter = message.payload.apply;
+                this.refreshData();
+                this.needRequery = message.payload.reQuery;
                 break;
         }
     }
