@@ -351,7 +351,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.store.dispatch(new UpdateVariables(message.payload.variables));
                     break;
                 case 'ApplyTplVarValue':
-                    this.applyTplVarValue(message.payload);
+                    this.applyTplVarValue();
                     break;
                 case 'UpdateTplAlias':
                     this.updateTplAlias(message.payload);
@@ -472,7 +472,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (dbstate.loaded) {
                 this.widgets = this.utilService.deepClone(widgets);
                 // only get dashboard tag key when they already set it up.
-                if (this.tplVariables.editTplVariables.length > 0) {
+                if (this.tplVariables.editTplVariables.length > 0 && !this.isDbTagsLoaded) {
                     this.getDashboardTagKeys();
                 }
             }
@@ -567,11 +567,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }));
     }
     // apply when custom tag value is changed
-    applyTplVarValue(payload: any) {
-        const cWidgets = this.utilService.deepClone(this.widgets);
-        for (let i = 0; i < cWidgets.length; i++) {
-            this.handleQueryPayload({id: cWidgets[i].id, payload: cWidgets[i]});
-        }
+    applyTplVarValue() {
+       for (let i = 0; i < this.widgets.length; i++) {
+           // put condition to not event send in.
+           if (!this.widgets[i].settings.hasOwnProperty('useDBFilter') || this.widgets[i].settings.useDBFilter) {
+               this.handleQueryPayload({id: this.widgets[i].id, payload: this.widgets[i]});
+           }
+       }
     }
     // when delete a dashboard custom tag
     removeCustomTagFilter(payload: any) {
@@ -586,20 +588,37 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         const cFilterIndex = filters[fIndex].customFilter.indexOf('[' + vartag.alias + ']');
                         if (cFilterIndex > -1) {
                             filters[fIndex].customFilter.splice(cFilterIndex, 1);
+                            // requery if the remove custom tag has value
+                            this.store.dispatch(new UpdateWidget({
+                                id: widget.id,
+                                needRequery: false,
+                                widget: widget
+                            }));
                         }
-                        // update effected, but no need to call requery here.
-                        this.store.dispatch(new UpdateWidget({
-                            id: widget.id,
-                            needRequery: false,
-                            widget: widget
-                        }));
+
                     }
                 }
             }
         }
-        // after update customFilter of widgets, call them to update query
-        // to optimize this, we can only query if they have effected tag
-        this.applyTplVarValue({ tvars: this.tplVariables.editTplVariables, from: 'edit'});
+        // if they remove everything, then make sure we clean once it's lock before.
+        if (this.tplVariables.editTplVariables.length === 0) {
+            let flag = false;
+            for (let i = 0; i < this.widgets.length; i++) {
+                const widget = this.widgets[i];
+                if (widget.settings.hasOwnProperty('useDBFilter') && !widget.settings.useDBFilter) {
+                    widget.settings.useDBFilter = true;
+                    flag = true;
+                    // let the widget know to update it lock
+                    this.interCom.responsePut({
+                        id: widget.id,
+                        action: 'ResetUseDBFilter'
+                    });
+                }
+            }
+            if (flag) {
+                this.store.dispatch(new UpdateWidgets(this.widgets));
+            }
+        }
     }
     // when custom tag alias is changed, just update in widget if use
     updateTplAlias(payload: any) {
@@ -660,6 +679,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.dashboardTags.tags.sort(this.utilService.sortAlphaNum);
             this.isDbTagsLoaded = true;
             this.isDbTagsLoaded$.next(true);
+            console.log('hill - dbtagkeys', this.dashboardTags);
         },
             error => {
                 this.isDbTagsLoaded = true;
@@ -680,25 +700,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     changeVarPanelMode(mode: any) {
+        if (!mode.view && !this.isDbTagsLoaded) {
+            this.getDashboardTagKeys();
+        }
         this.variablePanelMode = {...mode};
     }
     // dispatch payload query by group
     handleQueryPayload(message: any) {
         let groupid = '';
-        const payload = message.payload;
+        // make sure we modify the copy for tsdb query
+        const payload = this.utilService.deepClone(message.payload);
         const dt = this.getDashboardDateRange();
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (payload.queries.length) {
+                console.log('hill - message handle', message);
                 // should we modify the widget if using dashboard tag filter
                 const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
-                if ((!message.payload.settings.hasOwnProperty('useDBFilter') || message.payload.settings.useDBFilter)
+                if ((!payload.settings.hasOwnProperty('useDBFilter') || payload.settings.useDBFilter)
                     && tplVars.length > 0) {
-                    // let check this.
-                    const eWidget = this.dbService.checkWidgetDBFilter(message.payload, tplVars, this.dashboardTags.rawDbTags);
-                    const widget = this.dbService.applyTplVarToWidget(message.payload, eWidget, tplVars);
-                    if (!widget) {
-                        return;
-                    }
+                    // modify query if needed
+                    this.dbService.applyWidgetDBFilter(payload, tplVars, this.dashboardTags.rawDbTags);
                 }
                 // sending each group to get data.
                 const queries = {};
@@ -721,7 +742,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     isEditMode: this.viewEditMode
                 };
                 if (Object.keys(queries).length) {
-                    console.log('hill - queries widget', queries);
                     const query = this.queryService.buildQuery(payload, dt, queries);
                     gquery.query = query;
                     // ask widget to loading signal
