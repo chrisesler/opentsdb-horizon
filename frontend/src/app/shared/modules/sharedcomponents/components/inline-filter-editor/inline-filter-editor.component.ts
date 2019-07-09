@@ -15,9 +15,6 @@ import { BehaviorSubject } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { startWith, debounceTime, catchError } from 'rxjs/operators';
 import { HttpService } from '../../../../../core/http/http.service';
-import { Store } from '@ngxs/store';
-import { DBSettingsState } from '../../../../../dashboard/state/settings.state';
-import { IntercomService } from '../../../../../core/services/intercom.service';
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -57,8 +54,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     constructor(
         private elRef: ElementRef,
         private httpService: HttpService,
-        private store: Store,
-        private interCom: IntercomService,
         private cdRef: ChangeDetectorRef) {
 
     }
@@ -193,6 +188,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
 
     requestChanges() {
         this.filterOutput.emit(this.filters);
+        console.log('hill - filters to pass', this.filters);
     }
 
     triggerQueryChanges() {
