@@ -42,7 +42,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     prevSelectedTagk = '';
     disableDone = false;
     trackingSub: any = {};
-    // viewTplVariables: any[]; // local copy of tplVariable for view mode
+
     constructor (
         private fb: FormBuilder,
         private interCom: IntercomService,
@@ -68,6 +68,8 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                 this.initEditFormGroup();
             }
         } else if (changes.mode && !changes.mode.firstChange && changes.mode.currentValue.view) {
+            // copy edit -> view list
+            this.tplVariables.viewTplVariables = this.tplVariables.editTplVariables;
             this.initListFormGroup();
         } else if (changes.mode && !changes.mode.firstChange && !changes.mode.currentValue.view) {
             this.initEditFormGroup();
@@ -135,7 +137,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         if (JSON.stringify(this.tplVariables.editTplVariables) !== JSON.stringify(this.tplVariables.viewTplVariables)) {
             this.interCom.requestSend({
                 action: 'ApplyTplVarValue',
-                payload: { tvars: this.tplVariables.editTplVariables, from: 'edit' }
+                // payload: { tvars: this.tplVariables.editTplVariables, from: 'edit' }
             });
         }
         // we sub to form status changes
@@ -199,12 +201,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const val = selControl.get('filter').value;
         const idx = this.filteredValueOptions[index].findIndex(item => item && item.toLowerCase() === val.toLowerCase());
         if (idx === -1) {
-           selControl.get('filter').setValue('', { onlySelf: true, emitEvent: false });
+           selControl.get('filter').setValue('');
         } else {
-           selControl.get('filter').setValue(this.filteredValueOptions[index][idx], { onlySelf: true, emitEvent: false });
+           selControl.get('filter').setValue(this.filteredValueOptions[index][idx]);
         }
         // if it's a different value from viewlist
-        if (this.tplVariables.viewTplVariables[index].filter !== selControl['controls'].filter.value) {
+        if (this.tplVariables.viewTplVariables[index].filter !== selControl.get('filter').value) {
             this.updateViewTplVariables();
         }
     }
@@ -303,10 +305,11 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     // update state if it's is valid
     selectTagKeyOption(event: any, index: number) {
         const selControl = this.getSelectedControl(index);
-        if (event.option.value !== this.prevSelectedTagk) {
-            selControl['controls']['filter'].setValue('');
-            this.updateState(selControl, false);
-            // remove this tag out if any
+        // if control is valid and the key is different
+        if (selControl.valid && event.option.value !== this.prevSelectedTagk) {
+            // const flag = selControl.get('filter').value !== '' ? true : false;
+            selControl.get('filter').setValue('');
+            // remove this tag out of widget if any
             this.interCom.requestSend({
                 action: 'RemoveCustomTagFilter',
                 payload: {
@@ -314,6 +317,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
                     tplIndex: index
                 }
             });
+            this.updateState(selControl);
         }
     }
     // update state if it's is valid
@@ -333,12 +337,12 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         const removedItem = control.at(index);
         control.removeAt(index);
         if (removedItem.valid) {
-            this.updateState(removedItem, false);
-            // remove this tag out if any
+            // remove this tag out of widget if manually add in.
             this.interCom.requestSend({
                 action: 'RemoveCustomTagFilter',
                 payload: {  vartag: removedItem.value }
             });
+            this.updateState(removedItem);
         }
     }
     done() {
@@ -361,7 +365,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             if (reQuery) {
                 this.interCom.requestSend({
                     action: 'ApplyTplVarValue',
-                    payload: { tvars: sublist, from: 'edit' }
+                    // payload: { tvars: sublist, from: 'edit' }
                 });
             }
         }
@@ -373,9 +377,10 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             varsList.push(this.listVariables.controls[i].value);
         }
         this.tplVariables.viewTplVariables = varsList;
+        console.log('hill - update view call', this.tplVariables.viewTplVariables);
         this.interCom.requestSend({
             action: 'ApplyTplVarValue',
-            payload: { tvars: varsList, from: 'view' }
+            // payload: { tvars: varsList, from: 'view' }
         });
     }
 
