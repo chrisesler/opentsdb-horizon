@@ -139,6 +139,20 @@ export class DashboardService {
     return query;
   }
 
+  // check if dashboard have any mertics
+  havingDBMetrics(widgets: any[]): boolean {
+    if (widgets.length === 0) { return false; }
+    for (let i = 0; i < widgets.length; i++) {
+      const widQueries = widgets[i].queries || [];
+      for (let j = 0; j < widQueries.length; j++) {
+        const metrics = widQueries[j].metrics || [];
+        if (metrics.length > 0) {
+          return true;
+        }
+      }
+    }
+  }
+
   // return all eligible widgets id and qid based on list of tplVariables
   // what widget has the tag defined or not
   checkEligibleWidgets(tplVariables: any, rawDbTags: any) {

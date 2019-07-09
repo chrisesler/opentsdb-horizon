@@ -180,6 +180,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     isDbTagsLoaded$ = new Subject();
     isDbTagsLoaded = false;
     eWidgets: any = {}; // to whole eligible widgets with custom dashboard tags
+    showDBTagFilters = false;
     constructor(
         private store: Store,
         private activatedRoute: ActivatedRoute,
@@ -490,6 +491,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 if (this.tplVariables.editTplVariables.length > 0 && !this.isDbTagsLoaded) {
                     this.getDashboardTagKeys();
                 }
+                // check to see if we can display variable template panel or not
+                this.showDBTagFilters = this.dbService.havingDBMetrics(this.widgets);
             }
         }));
 
