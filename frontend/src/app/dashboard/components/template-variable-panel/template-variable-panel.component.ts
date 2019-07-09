@@ -377,7 +377,6 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             varsList.push(this.listVariables.controls[i].value);
         }
         this.tplVariables.viewTplVariables = varsList;
-        console.log('hill - update view call', this.tplVariables.viewTplVariables);
         this.interCom.requestSend({
             action: 'ApplyTplVarValue',
             // payload: { tvars: varsList, from: 'view' }

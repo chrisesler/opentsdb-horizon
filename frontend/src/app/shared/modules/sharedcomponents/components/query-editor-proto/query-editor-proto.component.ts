@@ -409,7 +409,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     hasValidFilter(query: any): Number {
         const index =  query.filters.findIndex(f => f.filter.length || (f.customFilter && f.customFilter.length));
-        console.log('hill - check hasValidFilter', query.filters, index);
         return  index;
     }
 
@@ -507,7 +506,6 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
 
     updateFilters(filters) {
         this.query.filters = filters;
-        console.log('hill - passing filtera', filters);
         this.queryChanges$.next(true);
     }
 

@@ -188,7 +188,6 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
 
     requestChanges() {
         this.filterOutput.emit(this.filters);
-        console.log('hill - filters to pass', this.filters);
     }
 
     triggerQueryChanges() {

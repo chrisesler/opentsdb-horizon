@@ -679,7 +679,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.dashboardTags.tags.sort(this.utilService.sortAlphaNum);
             this.isDbTagsLoaded = true;
             this.isDbTagsLoaded$.next(true);
-            console.log('hill - dbtagkeys', this.dashboardTags);
         },
             error => {
                 this.isDbTagsLoaded = true;
@@ -713,7 +712,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const dt = this.getDashboardDateRange();
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (payload.queries.length) {
-                console.log('hill - message handle', message);
                 // should we modify the widget if using dashboard tag filter
                 const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
                 if ((!payload.settings.hasOwnProperty('useDBFilter') || payload.settings.useDBFilter)
