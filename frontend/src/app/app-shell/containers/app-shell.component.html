@@ -30,13 +30,19 @@
                     [autoFocus]="false"
                     #drawer>
                     <!-- DRAWER CONTENTS -->
-                    <dashboard-navigator 
+                    <!--<dashboard-navigator 
                         *ngIf="activeNavSection === 'dashboard'"
                         [activeNavSection]="activeNavSection"
                         [activeMediaQuery]="activeMediaQuery"
                         [drawerMode]="drawerMode"
                         (toggleDrawer)="toggleDrawerMode($event)"
-                        ></dashboard-navigator>
+                        ></dashboard-navigator>-->
+                    <dbfs *ngIf="activeNavSection === 'dashboard'"
+                        [activeNavSection]="activeNavSection"
+                        [activeMediaQuery]="activeMediaQuery"
+                        [drawerMode]="drawerMode"
+                        (toggleDrawer)="toggleDrawerMode($event)"
+                        ></dbfs>
                     <!-- placeholders -->
                     <test-navigator 
                         *ngIf="activeNavSection === 'metric-explorer'"
