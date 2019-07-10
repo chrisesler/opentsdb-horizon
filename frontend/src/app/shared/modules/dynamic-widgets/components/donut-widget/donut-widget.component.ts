@@ -115,6 +115,11 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                         this.nQueryDataLoading = 1;
                         this.cdRef.detectChanges();
                         break;
+                    case 'ResetUseDBFilter':
+                        // reset useDBFilter to true
+                        this.widget.settings.useDBFilter = true;
+                        this.cdRef.detectChanges();
+                        break;
                 }
             }
         });
@@ -264,7 +269,16 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
+            case 'ToggleDBFilterUsage':
+                this.widget.settings.useDBFilter = message.payload.apply;
+                this.refreshData();
+                this.needRequery = message.payload.reQuery;
+                break;
         }
+    }
+
+    isApplyTpl(): boolean {
+        return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
     }
 
     updateQuery( payload ) {

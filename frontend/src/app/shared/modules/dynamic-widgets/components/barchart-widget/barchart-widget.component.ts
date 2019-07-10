@@ -150,6 +150,10 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                         this.nQueryDataLoading = 1;
                         this.cdRef.detectChanges();
                         break;
+                    case 'ResetUseDBFilter':
+                        this.widget.settings.useDBFilter = true;
+                        this.cdRef.detectChanges();
+                        break;
                 }
             }
         });
@@ -295,10 +299,16 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
-
+            case 'ToggleDBFilterUsage':
+                this.widget.settings.useDBFilter = message.payload.apply;
+                this.refreshData();
+                this.needRequery = message.payload.reQuery;
+                break;
         }
     }
-
+    isApplyTpl(): boolean {
+        return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
+    }
     // for first time and call.
     setSize(newSize) {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
@@ -355,7 +365,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
         for ( let i = groups.length - 1; i >= 0; i-- ) {
             const group = groups[i];
             const queries = group.queries;
-            //group delete 
+            // group delete
             if ( group.settings.tempUI.selected === 'all' ) {
                 groups.splice( i, 1 );
                 deletedMetrics = true;

@@ -19,6 +19,7 @@ import { InlineQueryEditorComponent } from '../inline-query-editor/inline-query-
 
 import { Subscription } from 'rxjs';
 import { UtilsService } from '../../../../../core/services/utils.service';
+import { FormControl } from '@angular/forms';
 
 interface IMetricQueriesConfigOptions {
     enableMultipleQueries?: boolean;
@@ -75,7 +76,10 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     newQueryId = '';
     editQueryId = '';
     selectAllToggle: String = 'none'; // none/all/some
-    tplVariables: any[]; // using it from here
+    tplVariables: any = {};
+    appliedTplVariables: any[] = [];
+    applyTplControl: FormControl;
+    hasCustomFilter = false;
     private subscription: Subscription = new Subscription();
 
     constructor(
@@ -86,17 +90,31 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     ) { }
 
     ngOnInit() {
-       this.initOptions();
+        this.initOptions();
 
-       this.subscription.add(this.interCom.responseGet().subscribe(message => {
-        if (message.action === 'TplVariables') {
-            this.tplVariables = message.payload.tplVariables;
+        this.subscription.add(this.interCom.responseGet().subscribe(message => {
+            if (message.action === 'TplVariables') {
+                this.tplVariables = message.payload.tplVariables.editTplVariables;
+                this.appliedTplVariables = message.payload.mode === 'view' ?
+                    message.payload.tplVariables.viewTplVariables : message.payload.tplVariables.editTplVariables;
+            }
+        }));
+        this.interCom.requestSend({
+            action: 'GetTplVariables'
+        });
+
+        if (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter) {
+            this.applyTplControl = new FormControl('apply');
+        } else {
+            this.applyTplControl = new FormControl('not_apply');
         }
-       }));
-
-       this.interCom.requestSend({
-           action: 'GetTplVariables'
-       });
+        if (this.applyTplControl) {
+            this.applyTplControl.valueChanges.subscribe(val => {
+                const flag = (val === 'apply') ? true : false;
+                this.widgetChange.emit({ action: 'ToggleDBFilterUsage', payload: { apply: flag, reQuery: true }});
+            });
+        }
+        this.checkCustomFilter(this.widget);
     }
 
     initOptions() {
@@ -106,6 +124,13 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             'enableMultipleQueries': false,
             'enableMultiMetricSelection': true };
         this.options = Object.assign(defaultOptions, this.options);
+    }
+
+    displayDBFilterOption(): boolean {
+        if (this.appliedTplVariables.length > 0) {
+                return true;
+            }
+        return false;
     }
 
     addNewQuery() {
@@ -201,11 +226,40 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
         const payload = { action: 'UpdateQuery', payload: { query: query } };
         this.newQueryId = '';
         this.widgetChange.emit(payload);
+
+        // check if user manually add dashboard tag filters to common tags
+        // clone it so we can handle it here
+        const cWidget = this.util.deepClone(this.widget);
+        const qIndx = cWidget.queries.findIndex(q => q.id === query.id);
+        if (qIndx === -1) {
+            cWidget.queries.push(query);
+        } else {
+            cWidget.queries[qIndx] = query;
+        }
+        this.checkCustomFilter(cWidget);
+        if (this.hasCustomFilter) {
+            // set useDBFilter to true anyway
+            this.applyTplControl.setValue('apply');
+            this.widgetChange.emit({ action: 'ToggleDBFilterUsage', payload: { apply: true, reQuery: false }});
+        }
+    }
+
+    // check if filters of a query have customFilter values
+    // check all queries of this widget, not just
+    checkCustomFilter(widget: any) {
+        this.hasCustomFilter = false;
+        for (let i = 0; i < widget.queries.length; i++) {
+            const idx = widget.queries[i].filters.findIndex(f => f.customFilter && f.customFilter.length > 0);
+            if (idx > -1) {
+                this.hasCustomFilter = true;
+                break;
+            }
+        }
     }
 
     updateLabelsForTimeShift(metrics: any[]) {
-        for (let metric of metrics) {
-            let totalTimeShift = this.util.getTotalTimeShift(metric.functions);
+        for (const metric of metrics) {
+            const totalTimeShift = this.util.getTotalTimeShift(metric.functions);
             if (totalTimeShift) {
                 if (metric.settings.visual.label === '' || metric.settings.visual.label.startsWith( metric.name + '-')) {
                     metric.settings.visual.label = metric.name + '-' + totalTimeShift;
@@ -257,7 +311,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
     // opens the dialog window to search and add metrics
     openTimeSeriesMetricDialog(mgroupId: string) {
-        console.log('%cMGROUP', 'background: purple; color: white;', mgroupId);
+        // console.log('%cMGROUP', 'background: purple; color: white;', mgroupId);
         // do something
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.width = '100%';
@@ -274,7 +328,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     }
 
     openMetricExpressionDialog(group: any) {
-        console.log('%cMGROUP', 'background: purple; color: white;', group);
+        // console.log('%cMGROUP', 'background: purple; color: white;', group);
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         dialogConf.width = '100%';
         dialogConf.maxWidth = '100%';
@@ -287,25 +341,12 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             left: '0px',
             right: '0px'
         };
-        /*
-        dialogConf.data = { mgroupId: group.id, queries: group.queries};
-
-        this.metricExpressionDialog = this.dialog.open(ExpressionDialogComponent, dialogConf);
-        this.metricExpressionDialog.updatePosition({top: '48px'});
-
-        this.metricExpressionDialog.afterClosed().subscribe((dialog_out: any) => {
-            console.log('openMetricExpressionDialog::afterClosed', dialog_out);
-            this.modGroup = dialog_out.mgroup;
-            this.widgetChange.emit({action: 'AddMetricsToGroup', payload: { data: this.modGroup }});
-            console.log('...expression return...', this.modGroup);
-        });
-        */
     }
 
     openInlineQueryEditorDialog(query: any) {
-        console.log('%cInlineQueryDialog', 'background: purple; color: white;', query);
+        // console.log('%cInlineQueryDialog', 'background: purple; color: white;', query);
         const parentPos = this.elRef.nativeElement.closest('.widget-controls-container').getBoundingClientRect();
-        console.log("parentpos", parentPos);
+        // console.log("parentpos", parentPos);
         const dialogConf: MatDialogConfig = new MatDialogConfig();
         const offsetHeight = 60;
         dialogConf.width = parentPos.width + 'px';
@@ -319,7 +360,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             left: parentPos.left + 'px',
             right: '0px'
         };
-        console.log("dialogConf", dialogConf.position);
+        // console.log("dialogConf", dialogConf.position);
         dialogConf.data = query;
 
         this.inlineQueryEditorDialog = this.dialog.open(InlineQueryEditorComponent, dialogConf);
@@ -335,11 +376,11 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
 
 
     toggle_displayGroupsIndividually(event: any) {
-        console.log('TOGGLE::DisplayGroupsIndividually', event);
+        // console.log('TOGGLE::DisplayGroupsIndividually', event);
     }
 
     toggle_groupSelected(group: any, event: MouseEvent) {
-        console.log('TOGGLE::GroupSelected', group, event);
+        // console.log('TOGGLE::GroupSelected', group, event);
         event.stopPropagation();
 
         // some or none are selected, then we select them all
@@ -378,7 +419,7 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     }
 
     toggle_metricSelected(metric: any, group: any, event: MouseEvent) {
-        console.log('TOGGLE::MetricSelected', group, event);
+        // console.log('TOGGLE::MetricSelected', group, event);
         event.stopPropagation();
 
         metric.settings.selected = !metric.settings.selected;
@@ -420,46 +461,31 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
     }
 
     toggle_groupCollapsed(group: any, event: MouseEvent) {
-        console.log('TOGGLE::GroupCollapsed', group, event);
+        // console.log('TOGGLE::GroupCollapsed', group, event);
         event.stopPropagation();
         group.collapsed = !group.collapsed;
     }
 
     clone_queryGroup(group: any, event: MouseEvent) {
-        console.log('DUPLICATE QUERY Group ', group);
+        // console.log('DUPLICATE QUERY Group ', group);
         event.stopPropagation();
         // do something
     }
 
     deleteGroup(gIndex) {
-        console.log('DELETE QUERY GROUP ', gIndex);
+        // console.log('DELETE QUERY GROUP ', gIndex);
         this.widgetChange.emit( {'action': 'DeleteGroup', payload: { gIndex: gIndex }});
         // do something
     }
 
     toggleGroup(gIndex) {
-        console.log('TOGGLE QUERY GROUP ', gIndex);
+        // console.log('TOGGLE QUERY GROUP ', gIndex);
         this.widgetChange.emit( {'action': 'ToggleGroup', payload: { gIndex: gIndex }});
         // do something
     }
 
-    toggleGroupQuery(gIndex, qid) {
-        console.log('TOGGLE QUERY ITEM VISIBILITY');
-        const queries = this.widget.query.groups[gIndex].queries;
-        const index = queries.findIndex(query => query.id === qid );
-        if ( index !== -1 ) {
-            this.widgetChange.emit( {'action': 'ToggleGroupQuery', payload: { gIndex: gIndex, index: index }});
-        }
-    }
-
-    cloneQuery(item: any, event: MouseEvent) {
-        console.log('DUPLICATE QUERY ITEM ', item);
-        event.stopPropagation();
-        // do something
-    }
-
     deleteGroupQuery(gIndex, qid) {
-        console.log('DELETE QUERY ITEM ', qid);
+        // console.log('DELETE QUERY ITEM ', qid);
         const queries = this.widget.query.groups[gIndex].queries;
         const index = queries.findIndex(query => query.id === qid );
         if ( this.widget.query.groups[gIndex].queries.length === 1 && index === 0 ) {
@@ -469,61 +495,4 @@ export class WidgetConfigMetricQueriesComponent implements OnInit, OnDestroy, On
             this.widgetChange.emit( {'action': 'DeleteGroupQuery', payload: { gIndex: gIndex, index: index }});
         }
     }
-
-    /**
-     * Batch Events
-     */
-
-    batch_selectAllToggle(event: MouseEvent) {
-        console.log('BATCH::SelectAllToggle', this.selectAllToggle);
-        event.stopPropagation();
-        let group, metric;
-        if (this.selectAllToggle === 'none' || this.selectAllToggle === 'some') {
-            this.selectAllToggle = 'all';
-            // mark all groups as selected
-            for (group of this.widget.query.groups) {
-                group.settings.tempUI.selected = 'all';
-                for (metric of group.queries) {
-                    metric.settings.selected = true;
-                }
-            }
-        } else {
-            this.selectAllToggle = 'none';
-            // mark all groups as un-selected
-            for (group of this.widget.query.groups) {
-                group.settings.tempUI.selected = 'none';
-                for (metric of group.queries) {
-                    metric.settings.selected = false;
-                }
-            }
-        }
-    }
-
-    batch_groupMetrics(event: MouseEvent) {
-        console.log('BATCH::GroupMetrics', event);
-        event.stopPropagation();
-        this.widgetChange.emit({action: 'MergeMetrics', payload: { data: JSON.parse(JSON.stringify(this.widget.query.groups)) }});
-    }
-
-    batch_splitMetrics(event: MouseEvent) {
-        console.log('BATCH::SplitMetrics', event);
-        event.stopPropagation();
-        this.widgetChange.emit({action: 'SplitMetrics', payload: { data: JSON.parse(JSON.stringify(this.widget.query.groups)) }});
-    }
-
-    batch_deleteMetrics(event: MouseEvent) {
-        console.log('BATCH::DeleteMetrics', event);
-        event.stopPropagation();
-        this.widgetChange.emit({action: 'DeleteMetrics', payload: { data: JSON.parse(JSON.stringify(this.widget.query.groups)) }});
-    }
-
-    /**
-     * Other
-     */
-
-    addTimeSeriesExpression() {
-        console.log('ADD TIME SERIES EXPRESSION');
-        // do something
-    }
-
 }

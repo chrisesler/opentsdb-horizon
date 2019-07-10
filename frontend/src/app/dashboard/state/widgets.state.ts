@@ -33,6 +33,7 @@ export interface WidgetModel {
         component_type: string;
         data_source?: string;
         description?: string;
+        useDBFilter?: boolean;
         time?: any;
             visual?: {
                 type?: string;
@@ -76,7 +77,6 @@ export interface WidgetsModel {
         widget: any;
         needRefresh: boolean;
     };
-    
 }
 
 // actions
