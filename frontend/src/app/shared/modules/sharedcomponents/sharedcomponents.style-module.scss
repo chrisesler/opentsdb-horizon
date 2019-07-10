@@ -45,6 +45,7 @@
 @import 'components/tag-aggregator/tag-aggregator.component';
 @import 'components/namespace-autocomplete/namespace-autocomplete.component';
 @import 'components/event-stream/event-stream.component';
+@import 'components/event-timeline/event-timeline.component';
 
 // widget common FIRST
 @import 'components/widget-config.common';
@@ -91,6 +92,7 @@
     @include tag-aggregator-component-base();
     @include namespace-autocomplete-component-base();
     @include event-stream-component-base();
+    @include event-timeline-component-base();
 
 
     // WIDGET CONFIG ITEMS
@@ -138,6 +140,7 @@
     @include tag-aggregator-component-theme($theme-config);
     @include namespace-autocomplete-component-theme($theme-config);
     @include event-stream-component-theme($theme-config);
+    @include event-timeline-component-theme($theme-config);
 
     // WIDGET CONFIG ITEMS
     @include widget-config-common-theme($theme-config);

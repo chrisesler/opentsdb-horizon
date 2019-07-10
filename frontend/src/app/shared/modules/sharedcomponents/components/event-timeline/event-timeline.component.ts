@@ -20,6 +20,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   @Input() endTime: number;
   @Input() width: number;
   @Input() events: any;
+  @Input() toolTipHeightFromTop: any; // pixels from top of widget
 
   @Output() canvasClicked: EventEmitter<any> = new EventEmitter();
   @Output() timeInterval: EventEmitter<number> = new EventEmitter();
@@ -33,6 +34,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   showSDJobs = false;
   iconWidth = 10.1; // pixels
   buckets = [];
+  toolTipData: any = {};
 
   constructor(private util: UtilsService) { }
 
@@ -62,7 +64,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         if (i === 0) { // if last bucket, take start + interval - remember that first bucket is latest time
           xStart = (this.buckets[i].startTime + this.buckets[i].width - this.startTime) * this.getEventResolution();
         }
-        this.drawEvent(xStart, 'lightblue', this.buckets[i].events.length, this.getPlaceholderText(this.buckets[i]));
+        this.drawEvent(xStart, 'lightblue', this.buckets[i]);
       }
     }
     this.newBuckets.emit(this.buckets);
@@ -71,8 +73,9 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   getPlaceholderText(bucket) {
     let placeholder = '';
     for (let event of bucket.events) {
-      placeholder = placeholder + event.title + ' ';
+      placeholder = placeholder + event.title + '\n';
     }
+    placeholder = placeholder.trim();
     return placeholder;
   }
 
@@ -80,14 +83,15 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     return this.width / (this.endTime - this.startTime);
   }
 
-  drawEvent(xStart, color, count, placeholder) {
+  drawEvent(xStart, color, bucket) {
+    const count = bucket.events.length;
     this.context.beginPath();
     this.context.strokeStyle = color;
     this.context.fillStyle = 'lightblue';
     this.context.fillRect(xStart - 5, 0, 10, 10);
     this.context.stroke();
     this.eventLocations.push({xStart: (xStart - 5 - 5), xEnd: (xStart - 5) + 10 + 5, yStart: 5 - 5, yEnd: 5 + 10 + 5,
-      placeholder: placeholder });
+      bucket: bucket });
     if (count > 1) { // draw number in box
       this.context.fillStyle = 'black';
       this.context.fillText(count.toString(), (xStart - 2), 9);
@@ -98,21 +102,26 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     this.drawEvents();
     let xCoord = event.offsetX;
     let yCoord = event.offsetY;
+    let hoveredOverIcon = false;
 
-    // add tooltip
+    // send event for tooltip
     for (let eventLocation of this.eventLocations) {
       if (xCoord >= eventLocation.xStart &&
         xCoord <= eventLocation.xEnd &&
         yCoord >= eventLocation.yStart &&
         yCoord <= eventLocation.yEnd) {
-          this.context.fillStyle = 'black';
-          this.context.fillText(eventLocation.placeholder, eventLocation.xStart + 20, 15);
+          this.toolTipData = {bucket: eventLocation.bucket, xCoord: xCoord + 45 + 'px', yCoord: yCoord };
+          hoveredOverIcon = true;
           break;
       }
+    }
+    if (!hoveredOverIcon) {
+      this.toolTipData = {bucket: null, xCoord: null, yCoord: null };
     }
   }
 
   canvasLeave(event: any) {
+    this.toolTipData = {bucket: null, xCoord: null, yCoord: null };
     this.drawEvents();
   }
 

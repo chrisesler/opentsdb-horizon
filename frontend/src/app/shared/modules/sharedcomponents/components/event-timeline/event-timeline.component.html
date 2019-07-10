@@ -7,3 +7,7 @@
   (mouseleave)="canvasLeave($event)" 
   [ngStyle]="{ 'width' : width}">
 </canvas>
+
+<div class="tooltip" *ngIf="toolTipData.bucket" [style.left]="toolTipData.xCoord" [style.top]="toolTipHeightFromTop + toolTipData.yCoord + 32 + 'px'" >
+  {{getPlaceholderText(toolTipData.bucket)}}
+</div>

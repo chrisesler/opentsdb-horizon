@@ -38,7 +38,8 @@
                 [startTime]="startTime" 
                 [endTime]="endTime" 
                 [width]="eventsWidth" 
-                [events]="events" 
+                [events]="events"
+                [toolTipHeightFromTop]="size.height" 
                 (canvasClicked)="updatedShowEventStream(true)" 
                 (newBuckets)="newBuckets($event)"></event-timeline>
             </div>
