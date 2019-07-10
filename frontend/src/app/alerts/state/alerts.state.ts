@@ -11,6 +11,7 @@ import { AlertsService } from '../services/alerts.service';
 import { forkJoin } from 'rxjs';
 
 import { LoggerService } from '../../core/services/logger.service';
+import { UtilsService } from '../../core/services/utils.service';
 
 
 export interface AlertModel {
@@ -45,6 +46,7 @@ export interface AlertsStateModel {
     alerts: AlertModel[];
     alertTypeFilter: string;
     editItem: any;
+    readOnly: boolean;
 }
 
 /* actions */
@@ -103,7 +105,8 @@ export class CheckWriteAccess {
         alerts: [],
         actionStatus: '',
         alertTypeFilter: 'all', // all, alerting, snoozed, disabled
-        editItem: {}
+        editItem: {},
+        readOnly: false
     }
 })
 
@@ -111,7 +114,8 @@ export class AlertsState {
     constructor(
         private logger: LoggerService,
         private httpService: HttpService,
-        private alertsService: AlertsService
+        private alertsService: AlertsService,
+        private utils: UtilsService
     ) { }
 
     /* SELECTORS */
@@ -146,6 +150,11 @@ export class AlertsState {
     }
 
     @Selector()
+    static getReadOnly(state: AlertsStateModel) {
+        return state.readOnly;
+    }
+
+    @Selector()
     static getError(state: AlertsStateModel) {
         return state.error;
     }
@@ -174,22 +183,28 @@ export class AlertsState {
 
     @Action(LoadNamespaces)
     loadNamespaces(ctx: StateContext<AlertsStateModel>, { options }: LoadNamespaces) {
-        this.logger.state('AlertsState :: Load namespaces', { options });
+        //this.logger.state('AlertsState :: Load namespaces', { options });
         const state = ctx.getState();
        if (!state.loaded.userNamespaces) {
         ctx.patchState({ loading: true, error: {} });
             const req1 = this.alertsService.getUserNamespaces();
             const req2 = this.alertsService.getNamespaces();
 
-            return forkJoin([req1,  req2]).subscribe((res:any[])=> {
+            return forkJoin([req1,  req2]).subscribe((res: any[]) => {
+                const req1sort = res[0].sort((a: any, b: any) => {
+                    return this.utils.sortAlphaNum(a.name, b.name);
+                });
+                const req2sort = res[1].sort((a: any, b: any) => {
+                    return this.utils.sortAlphaNum(a.name, b.name);
+                });
                 ctx.patchState({
-                    userNamespaces: res[0],
-                    allNamespaces: res[1],
+                    userNamespaces: req1sort,
+                    allNamespaces: req2sort,
                     loading: false,
                     loaded: { userNamespaces: true, allNamespaces: true}
                 });
                 },
-                error=> {
+                error => {
                     ctx.patchState({ error: error });
                 }
             );
@@ -198,18 +213,23 @@ export class AlertsState {
 
     @Action(SetNamespace)
     SetNamespace(ctx: StateContext<AlertsStateModel>, { namespace }: SetNamespace) {
-        ctx.patchState({ selectedNamespace: namespace});
+        const state = ctx.getState();
+        const userNamespaces = state.userNamespaces;
+        const readOnly = (userNamespaces.find( (d: any) => d.name === namespace ) === undefined) ? true : false;
+
+        ctx.patchState({ selectedNamespace: namespace, readOnly});
     }
 
     @Action(CheckWriteAccess)
     checkWriteAccess(ctx: StateContext<AlertsStateModel>, { payload }: CheckWriteAccess) {
         const state = ctx.getState();
         const userNamespaces = state.userNamespaces;
-        // ctx.patchState( { editItem: {}, error: {} } );
-        if ( userNamespaces.find( (d:any) => d.name === payload.namespace )) {
-            ctx.patchState( { editItem: payload } );
+        const readOnly = (userNamespaces.find( (d: any) => d.name === payload.namespace ) === undefined) ? true : false;
+
+        if (payload.id === '_new_' ) {
+            ctx.patchState( { error: { message: 'You don\'t have permission to create new alert.' } } );
         } else {
-            ctx.patchState( { error: { message: "You don't have permission to " + ( payload.id === '_new_' ? 'create new' : 'edit the' )+ ' alert.' } } ); 
+            ctx.patchState( { editItem: payload, readOnly } );
         }
     }
 

@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
 import { MetaService } from '../services/meta.service';
 import { UtilsService } from '../services/utils.service';
+import { LoggerService } from '../services/logger.service';
 
 @Injectable({
     providedIn: 'root'
@@ -18,7 +19,12 @@ export class HttpService {
     };
 
     regexMetricFormat = /([^\.]*)\.([^\.]*)\.(.*)/;
-    constructor(private http: HttpClient, private metaService: MetaService, private utils: UtilsService) { }
+    constructor(
+        private http: HttpClient,
+        private metaService: MetaService,
+        private utils: UtilsService,
+        private logger: LoggerService
+    ) { }
 
     getDashoard(id: string): Observable<any> {
         const apiUrl = environment.configdb + '/object/' + id;
@@ -336,6 +342,7 @@ export class HttpService {
     }
 
     saveAlert(namespace, payload: any): Observable<any> {
+        this.logger.api('saveAlert', {namespace, payload});
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
@@ -349,6 +356,7 @@ export class HttpService {
     }
 
     getAlertDetailsById(id: number): Observable<any> {
+        this.logger.api('getAlertDetailsById', {id});
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
@@ -357,6 +365,7 @@ export class HttpService {
     }
 
     getAlerts(options): Observable<any> {
+        // this.logger.api('getAlerts', {options});
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
           });
@@ -365,6 +374,7 @@ export class HttpService {
     }
 
     deleteAlerts(namespace, payload): Observable<any> {
+        this.logger.api('deleteAlerts', {namespace, payload});
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });

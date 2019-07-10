@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AlertConfigurationDialogComponent } from './alert-configuration-dialog.component';
+import { AlertDetailsComponent } from './alert-details.component';
 
 describe('AlertConfigurationDialogComponent', () => {
-  let component: AlertConfigurationDialogComponent;
-  let fixture: ComponentFixture<AlertConfigurationDialogComponent>;
+  let component: AlertDetailsComponent;
+  let fixture: ComponentFixture<AlertDetailsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AlertConfigurationDialogComponent ]
+      declarations: [ AlertDetailsComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AlertConfigurationDialogComponent);
+    fixture = TestBed.createComponent(AlertDetailsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
