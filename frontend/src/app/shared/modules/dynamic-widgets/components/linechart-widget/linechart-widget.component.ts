@@ -450,11 +450,21 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             }
             padding = 8; // 8px top and bottom
             nHeight = newSize.height - heightOffset - titleSize.height - (padding * 2);
+
+            if (this.showEvents) {  // give room for events
+                nHeight = nHeight - 35;
+            }
+
             nWidth = newSize.width - widthOffset  - (padding * 2) - 30;
         } else {
             padding = 10; // 10px on the top
             const paddingSides = 1;
             nHeight = newSize.height - heightOffset - (padding * 2);
+
+            if (this.showEvents) {  // give room for events
+                nHeight = nHeight - 25;
+            }
+
             // nWidth = newSize.width - widthOffset  - (padding * 2);
             nWidth = newSize.width - widthOffset  - paddingSides;
         }

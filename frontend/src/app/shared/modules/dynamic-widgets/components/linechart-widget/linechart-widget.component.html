@@ -19,18 +19,31 @@
             'display-legend-bottom': widget.settings.legend.display && widget.settings.legend.position=='bottom' && options.labels.length > 1,
             'display-legend-left': widget.settings.legend.display && widget.settings.legend.position=='left' && options.labels.length > 1
         }">
-        <div #dygraph class="graph-chart" [ngClass]="{'hide': widget.settings.legend.display &&  ( size.width <= 10 || size.height <= 10 ) }"
-            dygraphsChart
-            [chartType]="chartType"
-            [data]="data"
-            [size]="size"
-            [options]="options"
-            [eventBuckets]="buckets"
-            [showEvents]="showEvents"
-            (dateWindow)="receivedDateWindow($event)"
-            (zoomed)="handleZoom($event)">
+
+        <div>
+            <div #dygraph class="graph-chart" [ngClass]="{'hide': widget.settings.legend.display &&  ( size.width <= 10 || size.height <= 10 ) }"
+                dygraphsChart
+                [chartType]="chartType"
+                [data]="data"
+                [size]="size"
+                [options]="options"
+                [eventBuckets]="buckets"
+                [showEvents]="showEvents"
+                (dateWindow)="receivedDateWindow($event)"
+                (zoomed)="handleZoom($event)">
+            </div>
+            <div class="dygraph-legend" #graphLegend></div>
+            <div class="events-overlay" [hidden]="!showEvents">
+                <event-timeline 
+                [startTime]="startTime" 
+                [endTime]="endTime" 
+                [width]="eventsWidth" 
+                [events]="events" 
+                (canvasClicked)="updatedShowEventStream(true)" 
+                (newBuckets)="newBuckets($event)"></event-timeline>
+            </div>
         </div>
-        <div class="dygraph-legend" #graphLegend></div>
+
         <div class="graph-legend" [style.width]="legendWidth" [style.height]="legendHeight">
             <ng-container *ngIf="widget.settings.legend.display">
                 <table mat-table matSort [dataSource]="legendDataSource">
@@ -62,18 +75,8 @@
                  fontIcon="d-lock-close-solid" *ngIf="!isApplyTpl()"></mat-icon>
         </div>
     </div>
-    
 </div>
 
-<div class="events-overlay" [hidden]="!showEvents">
-    <event-timeline 
-    [startTime]="startTime" 
-    [endTime]="endTime" 
-    [width]="eventsWidth" 
-    [events]="events" 
-    (canvasClicked)="updatedShowEventStream(true)" 
-    (newBuckets)="newBuckets($event)"></event-timeline>
-</div>
 <!-- NOTE: This needs to move to other component -->
 <div class="widget-controls-container" *ngIf="editMode">
     <!-- tabs with config content -->

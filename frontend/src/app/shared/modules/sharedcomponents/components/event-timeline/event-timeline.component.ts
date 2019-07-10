@@ -84,13 +84,13 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     this.context.beginPath();
     this.context.strokeStyle = color;
     this.context.fillStyle = 'lightblue';
-    this.context.fillRect(xStart - 5, 5, 10, 10);
+    this.context.fillRect(xStart - 5, 0, 10, 10);
     this.context.stroke();
     this.eventLocations.push({xStart: (xStart - 5 - 5), xEnd: (xStart - 5) + 10 + 5, yStart: 5 - 5, yEnd: 5 + 10 + 5,
       placeholder: placeholder });
     if (count > 1) { // draw number in box
       this.context.fillStyle = 'black';
-      this.context.fillText(count.toString(), (xStart - 2), 13);
+      this.context.fillText(count.toString(), (xStart - 2), 9);
     }
   }
 
