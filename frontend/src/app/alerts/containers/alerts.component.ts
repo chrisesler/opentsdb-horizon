@@ -326,13 +326,13 @@ export class AlertsComponent implements OnInit, OnDestroy {
             this.hasNamespaceWriteAccess = !readOnly;
             const routeSnapshot = this.activatedRoute.snapshot.url;
             let modeCheck;
-            this.logger.log('READ ONLY?', {readOnly, routeUrl: this.router.url, activatedRoute: this.activatedRoute });
+            //this.logger.log('READ ONLY?', {readOnly, routeUrl: this.router.url, activatedRoute: this.activatedRoute });
 
             // check if there is a mode in the url
             // purely aesthetic. If url has 'edit', but its readonly, it will still be readonly
             if (routeSnapshot.length > 0 && readOnly) {
                 modeCheck = routeSnapshot[routeSnapshot.length - 1];
-                console.log('modeCheck', modeCheck.path);
+                //console.log('modeCheck', modeCheck.path);
 
                 // there is no mode in the url
                 if (modeCheck.path.toLowerCase() !== 'view' && modeCheck.path.toLowerCase() !== 'edit') {
@@ -385,7 +385,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         // handle route for alerts
         this.subscription.add(this.activatedRoute.url.pipe(delayWhen(() => this.configLoaded$)).subscribe(url => {
-            this.logger.log('ROUTE URL', {url});
+            //this.logger.log('ROUTE URL', {url});
             if (url.length === 1 ) {
                 this.setNamespace(url[0].path);
             } else if (url.length === 2 && url[1].path === '_new_') {

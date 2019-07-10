@@ -365,7 +365,7 @@ export class HttpService {
     }
 
     getAlerts(options): Observable<any> {
-        this.logger.api('getAlerts', {options});
+        // this.logger.api('getAlerts', {options});
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
           });

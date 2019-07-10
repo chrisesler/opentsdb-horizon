@@ -188,7 +188,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
         this.setupForm(this.data);
 
-        console.log('%cDATA','color: white; background: red; padding: 4px;', this.data, this.queries);
+        // console.log('%cDATA','color: white; background: red; padding: 4px;', this.data, this.queries);
     }
 
     ngOnDestroy() {

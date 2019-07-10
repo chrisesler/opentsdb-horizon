@@ -183,7 +183,7 @@ export class AlertsState {
 
     @Action(LoadNamespaces)
     loadNamespaces(ctx: StateContext<AlertsStateModel>, { options }: LoadNamespaces) {
-        this.logger.state('AlertsState :: Load namespaces', { options });
+        //this.logger.state('AlertsState :: Load namespaces', { options });
         const state = ctx.getState();
        if (!state.loaded.userNamespaces) {
         ctx.patchState({ loading: true, error: {} });
