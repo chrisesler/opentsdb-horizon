@@ -213,23 +213,23 @@ export class AlertsState {
 
     @Action(SetNamespace)
     SetNamespace(ctx: StateContext<AlertsStateModel>, { namespace }: SetNamespace) {
-        ctx.patchState({ selectedNamespace: namespace});
+        const state = ctx.getState();
+        const userNamespaces = state.userNamespaces;
+        const readOnly = (userNamespaces.find( (d: any) => d.name === namespace ) === undefined) ? true : false;
+
+        ctx.patchState({ selectedNamespace: namespace, readOnly});
     }
 
     @Action(CheckWriteAccess)
     checkWriteAccess(ctx: StateContext<AlertsStateModel>, { payload }: CheckWriteAccess) {
         const state = ctx.getState();
         const userNamespaces = state.userNamespaces;
-        // ctx.patchState( { editItem: {}, error: {} } );
-        if ( userNamespaces.find( (d: any) => d.name === payload.namespace )) {
-            ctx.patchState( { editItem: payload, readOnly: false } );
+        const readOnly = (userNamespaces.find( (d: any) => d.name === payload.namespace ) === undefined) ? true : false;
+
+        if (payload.id === '_new_' ) {
+            ctx.patchState( { error: { message: 'You don\'t have permission to create new alert.' } } );
         } else {
-            if (payload.id === '_new_' ) {
-                ctx.patchState( { error: { message: "You don't have permission to create new alert." } } );
-            } else {
-                ctx.patchState( { editItem: payload, readOnly: true } );
-            }
-            //ctx.patchState( { error: { message: "You don't have permission to " + ( payload.id === '_new_' ? 'create new' : 'edit the' )+ ' alert.' } } ); 
+            ctx.patchState( { editItem: payload, readOnly } );
         }
     }
 

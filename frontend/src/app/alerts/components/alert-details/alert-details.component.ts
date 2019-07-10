@@ -14,7 +14,7 @@ import { FormBuilder, FormGroup, FormArray, FormControl, Validators, FormsModule
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
 
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material';
+import { MatChipInputEvent, MatTableDataSource } from '@angular/material';
 
 import {
     MatDialog,
@@ -37,21 +37,27 @@ import { AlertConverterService } from '../../services/alert-converter.service';
 
 @Component({
 // tslint:disable-next-line: component-selector
-    selector: 'alert-configuration-dialog',
-    templateUrl: './alert-configuration-dialog.component.html',
+    selector: 'alert-details',
+    templateUrl: './alert-details.component.html',
     styleUrls: []
 })
 
-
-export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, AfterContentInit {
-    @HostBinding('class.alert-configuration-dialog-component') private _hostClass = true;
+export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentInit {
+    @HostBinding('class.alert-details-component') private _hostClass = true;
 
     @ViewChild('graphOutput') private graphOutput: ElementRef;
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
 
     @Input() response;
 
-    @Input() readOnly: boolean = false;
+    @Input() viewMode: string = ''; // edit || view
+
+    @Input() hasWriteAccess: boolean = false;
+
+    get readOnly(): boolean {
+        if (!this.hasWriteAccess) { return true; }
+        return (this.viewMode === 'edit') ? false : true;
+    }
 
     @Output() configChange = new EventEmitter();
 
@@ -154,6 +160,13 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     // tslint:disable-next-line:no-inferrable-types
     activeTabIndex: number = 0;
 
+    // FOR DISPLAY ONLY VIEW - metric columns
+    metricTableDisplayColumns: string[] = [
+        'metric-index',
+        'name',
+        'modifiers'
+    ];
+
     constructor(
         private fb: FormBuilder,
         private queryService: QueryService,
@@ -174,6 +187,8 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
     ngOnInit() {
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
         this.setupForm(this.data);
+
+        console.log('%cDATA','color: white; background: red; padding: 4px;', this.data, this.queries);
     }
 
     ngOnDestroy() {
@@ -344,7 +359,6 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
             this.refreshChart();
         });
     }
-
 
     setQuery() {
         this.queries = this.data.queries && this.data.queries.raw ? this.data.queries.raw : [ this.getNewQueryConfig() ];
@@ -832,6 +846,90 @@ export class AlertConfigurationDialogComponent implements OnInit, OnDestroy, Aft
         }
         this.notificationRecipients.setValue(event);
 
+    }
+
+    // FOR DISPLAY ONLY VIEW OF METRICS - Simulate data source for metric table
+    simulateMetricDataSource(queryMetrics: any[]) {
+
+        // extract metrics only, then format with pre-constructed label, a type, and reference to the metric data
+        const metrics = [];
+        queryMetrics.filter(d => d.expression === undefined).forEach((metric, i) => {
+            metrics.push({ indexLabel: 'm' + (i + 1), type: 'metric', metric });
+        });
+
+        // extract expressions only, then format with pre-constructed label, a type, and reference to the expression data
+        const expressions = [];
+        queryMetrics.filter(d => d.expression !== undefined).forEach((metric, i) => {
+            expressions.push({ indexLabel: 'e' + (i + 1), type: 'expression', metric });
+        });
+
+        // merge the arrays and create datasource
+        return new MatTableDataSource(metrics.concat(expressions));
+    }
+
+    // FOR DISPLAY ONLY VIEW OF METRICS - to get expression output
+    getExpressionUserInput(expression, query) {
+
+        const handleBarsRegex = /\{\{(.+?)\}\}/;
+        // replace {{<id>}} to m|e<index>
+        const re = new RegExp(handleBarsRegex, 'g');
+        let matches = [];
+        let userExpression = expression;
+        const aliases = this.getHashMetricIdUserAliases(query);
+        while (matches = re.exec(expression)) {
+            const id = '' + matches[1];
+            const idreg = new RegExp('\\{\\{' + id + '\\}\\}', 'g');
+            userExpression = userExpression.replace(idreg, aliases[id]);
+        }
+        return userExpression;
+    }
+
+    // FOR DISPLAY ONLY VIEW OF METRICS - helper used by the above function
+    getHashMetricIdUserAliases(query: any) {
+        let metricIndex = 0;
+        let expressionIndex = 0;
+        const aliases = {};
+
+        // cross-query aliases
+        for (let i = 0; i < this.queries.length; i++) {
+            const queryIndex = i + 1;
+            metricIndex = 0;
+            expressionIndex = 0;
+            for (let j = 0; j < this.queries[i].metrics.length; j++) {
+                const alias = this.queries[i].metrics[j].expression === undefined ?
+                    'q' + queryIndex + '.' + 'm' + ++metricIndex :
+                    'q' + queryIndex + '.' + 'e' + ++expressionIndex;
+                aliases[this.queries[i].metrics[j].id] = alias;
+            }
+        }
+
+        metricIndex = 0;
+        expressionIndex = 0;
+        for (let i = 0; i < query.metrics.length; i++) {
+            const alias = query.metrics[i].expression === undefined ?
+            'm' + ++metricIndex :
+            'e' + ++expressionIndex;
+            aliases[query.metrics[i].id] = alias;
+        }
+
+        return aliases;
+    }
+
+    // FOR DISPLAY ONLY VIEW OF METRICS - helper to extract recipient types from data
+    getRecipientTypeKeys(): any[] {
+        return Object.keys(this.data.notification.recipients);
+    }
+
+    // FOR DISPLAY ONLY VIEW OF METRICS - helper to get display value of recipient type
+    typeToDisplayName(type: string): string {
+        const types = {
+            opsgenie: 'OpsGenie',
+            slack: 'Slack',
+            http: 'HTTP',
+            oc: 'OC',
+            email: 'Email'
+        }
+        return types[type];
     }
 
     /** Privates */

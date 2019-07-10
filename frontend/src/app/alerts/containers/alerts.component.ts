@@ -43,18 +43,19 @@ import {
 import { AlertState, GetAlertDetailsById } from '../state/alert.state';
 
 import { SnoozeAlertDialogComponent } from '../components/snooze-alert-dialog/snooze-alert-dialog.component';
-import { AlertConfigurationDialogComponent } from '../components/alert-configuration-dialog/alert-configuration-dialog.component';
+import { AlertDetailsComponent } from '../components/alert-details/alert-details.component';
 
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 
-import { RecipientType } from '../components/alert-configuration-dialog/children/recipients-manager/models';
+import { RecipientType } from '../components/alert-details/children/recipients-manager/models';
 
 import { CdkService } from '../../core/services/cdk.service';
 
 import * as _moment from 'moment';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { IntercomService } from '../../core/services/intercom.service';
+import { LoggerService } from '../../core/services/logger.service';
 const moment = _moment;
 
 @Component({
@@ -69,8 +70,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChild(MatSort) dataSourceSort: MatSort;
 
-    @ViewChild('confirmDeleteDialog', {read: TemplateRef}) confirmDeleteDialogRef: TemplateRef<any>;
-    @ViewChild('alertFilterInput', {read: MatInput}) alertFilterInput: MatInput;
+    @ViewChild('confirmDeleteDialog', { read: TemplateRef }) confirmDeleteDialogRef: TemplateRef<any>;
+    @ViewChild('alertFilterInput', { read: MatInput }) alertFilterInput: MatInput;
 
     @Input() response;
 
@@ -82,7 +83,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     @Select(AlertsState.getSelectedNamespace) selectedNamespace$: Observable<any>;
     selectedNamespace = '';
 
-    hasNamespaceWriteAcess = false;
+    hasNamespaceWriteAccess = false;
 
     @Select(AlertsState.getUserNamespaces) userNamespaces$: Observable<any[]>;
     userNamespaces: any[] = [];
@@ -121,7 +122,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
     @Select(AlertsState.getActionResponse) asActionResponse$: Observable<any>;
     @Select(AlertsState.getEditItem) editItem$: Observable<any>;
     @Select(AlertsState.getReadOnly) readOnly$: Observable<boolean>;
-    readOnly: boolean = false;
     @Select(AlertsState.getError) error$: Observable<any>;
     @Select(AlertsState.getSaveError) saveError$: Observable<any>;
 
@@ -145,8 +145,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
     // SNOOZE dialog
     snoozeAlertDialog: MatDialogRef<SnoozeAlertDialogComponent> | null;
 
-    @ViewChild(AlertConfigurationDialogComponent) createAlertDialog: AlertConfigurationDialogComponent;
-    editMode = false;
+    @ViewChild(AlertDetailsComponent) createAlertDialog: AlertDetailsComponent;
+
+    detailsView = false;
+    detailsMode = 'edit'; // 'edit' or 'view'
     configurationEditData: any = {};
 
     // confirmDelete Dialog
@@ -201,14 +203,15 @@ export class AlertsComponent implements OnInit, OnDestroy {
         private dialog: MatDialog,
         private httpService: HttpService,
         private snackBar: MatSnackBar,
-        private  activatedRoute: ActivatedRoute,
+        private activatedRoute: ActivatedRoute,
         private router: Router,
         private cdRef: ChangeDetectorRef,
         private location: Location,
         private matIconRegistry: MatIconRegistry,
         private domSanitizer: DomSanitizer,
         private cdkService: CdkService,
-        private interCom: IntercomService
+        private interCom: IntercomService,
+        private logger: LoggerService
     ) {
         this.sparklineDisplay = this.sparklineDisplayMenuOptions[0];
 
@@ -245,10 +248,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.subscription.add(this.selectedNamespace$.subscribe( data => {
             this.selectedNamespace = data;
             if ( this.selectedNamespace ) {
-                this.hasNamespaceWriteAcess = this.userNamespaces.find(d => d.name === this.selectedNamespace ) ? true : false;
+                // this.hasNamespaceWriteAccess = this.userNamespaces.find(d => d.name === this.selectedNamespace ) ? true : false;
                 this.store.dispatch(new LoadAlerts({namespace: this.selectedNamespace}));
             } else {
-                this.hasNamespaceWriteAcess = false;
+                this.hasNamespaceWriteAccess = false;
                 this.alerts = [];
             }
         }));
@@ -277,7 +280,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 case 'add-success':
                 case 'update-success':
                     message = 'Alert has been ' + (status === 'add-success' ? 'created' : 'updated') + '.';
-                    this.editMode = false;
+                    this.detailsView = false;
                     this.router.navigate(['a']);
                     break;
                 case 'enable-success':
@@ -320,7 +323,52 @@ export class AlertsComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.readOnly$.subscribe( readOnly => {
-            this.readOnly = readOnly;
+            this.hasNamespaceWriteAccess = !readOnly;
+            const routeSnapshot = this.activatedRoute.snapshot.url;
+            let modeCheck;
+            this.logger.log('READ ONLY?', {readOnly, routeUrl: this.router.url, activatedRoute: this.activatedRoute });
+
+            // check if there is a mode in the url
+            // purely aesthetic. If url has 'edit', but its readonly, it will still be readonly
+            if (routeSnapshot.length > 0 && readOnly) {
+                modeCheck = routeSnapshot[routeSnapshot.length - 1];
+                console.log('modeCheck', modeCheck.path);
+
+                // there is no mode in the url
+                if (modeCheck.path.toLowerCase() !== 'view' && modeCheck.path.toLowerCase() !== 'edit') {
+                    // force view url path
+                    const parts = routeSnapshot.map(item => item.path);
+                    parts.unshift('/a');
+                    parts.push('view');
+                    this.location.go(parts.join('/'));
+                } else if (modeCheck.path.toLowerCase() === 'edit') {
+                    // mode is in url, so check if it matches edit, and forcibly change it to view
+                    const parts = routeSnapshot.map(item => item.path);
+                    parts.pop();
+                    parts.unshift('/a');
+                    parts.push('view');
+                    this.location.go(parts.join('/'));
+                }
+
+                this.detailsMode = 'view';
+
+            // it's not readonly, check if mode in url. If not, add 'edit'
+            // if it has 'view' in the url, it will still pass
+            } else if (routeSnapshot.length > 0 && !readOnly) {
+                modeCheck = routeSnapshot[routeSnapshot.length - 1];
+                // there is no mode in the url
+                if (modeCheck.path.toLowerCase() !== 'view' && modeCheck.path.toLowerCase() !== 'edit') {
+                    // enforce mode in url path, defaulting to edit
+                    const parts = routeSnapshot.map(item => item.path);
+                    parts.unshift('/a');
+                    parts.push('edit');
+                    this.location.go(parts.join('/'));
+                    this.detailsMode = 'edit';
+                } else {
+                    this.detailsMode = modeCheck.path.toLowerCase();
+                }
+            }
+
         }));
 
         this.subscription.add(this.error$.subscribe(error => {
@@ -337,6 +385,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         // handle route for alerts
         this.subscription.add(this.activatedRoute.url.pipe(delayWhen(() => this.configLoaded$)).subscribe(url => {
+            this.logger.log('ROUTE URL', {url});
             if (url.length === 1 ) {
                 this.setNamespace(url[0].path);
             } else if (url.length === 2 && url[1].path === '_new_') {
@@ -373,7 +422,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     /** privates */
     private setTableDataSource() {
-        this.alertFilterInput.value = '';
+        if (this.alertFilterInput) {
+            this.alertFilterInput.value = '';
+        }
         this.alertsDataSource = new MatTableDataSource<AlertModel>(this.alerts);
         this.alertsDataSource.paginator = this.paginator;
         this.alertsDataSource.sort = this.dataSourceSort;
@@ -407,41 +458,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     /** actions */
 
-    /*
-    openSnoozeAlertDialog(alertObj: any) {
-        const dialogConf: MatDialogConfig = new MatDialogConfig();
-        dialogConf.autoFocus = false;
-        // dialogConf.width = '100%';
-        // dialogConf.maxWidth = '600px';
-        // dialogConf.height = 'auto';
-        // dialogConf.hasBackdrop = true;
-        // dialogConf.direction = 'ltr';
-        // dialogConf.backdropClass = 'snooze-alert-dialog-backdrop';
-        dialogConf.panelClass = 'snooze-alert-dialog-panel';
-        dialogConf.position = <DialogPosition>{
-            top: '48px',
-            bottom: '0px',
-            left: '0px',
-            right: '0px'
-        };
-        dialogConf.data = { alert: alertObj };
-
-        this.snoozeAlertDialog = this.dialog.open(SnoozeAlertDialogComponent, dialogConf);
-        // this.snoozeAlertDialog.updatePosition({ top: '48px' });
-        this.snoozeAlertDialog.afterClosed().subscribe((dialog_out: any) => {
-            // console.log('SNOOZE ALERT DIALOG [afterClosed]', dialog_out);
-        });
-    }
-    
-
-    bulkDisableAlerts() {
-        // BULK DISABLE
-    }
-
-    bulkDeleteAlerts() {
-        // BULK DELETE
-    }*/
-
     toggleAlert(alertObj: any) {
         this.store.dispatch(new ToggleAlerts(this.selectedNamespace, { data: [ { id: alertObj.id, enabled: !alertObj.enabled } ]}));
     }
@@ -460,7 +476,18 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     editAlert(element: any) {
-        this.location.go('a/' + element.id + '/' + element.namespace + '/' + element.slug);
+        // console.log('****** WRITE ACCESS ******', this.hasNamespaceWriteAccess);
+        // check if they have write access
+        const mode = (this.hasNamespaceWriteAccess) ? 'edit' : 'view';
+        this.detailsMode = mode;
+
+        this.location.go('a/' + element.id + '/' + element.namespace + '/' + element.slug + '/' + mode);
+        this.store.dispatch(new GetAlertDetailsById(element.id));
+    }
+
+    viewAlert(element: any) {
+        this.detailsMode = 'view';
+        this.location.go('a/' + element.id + '/' + element.namespace + '/' + element.slug + '/view');
         this.store.dispatch(new GetAlertDetailsById(element.id));
     }
 
@@ -475,9 +502,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     openAlertEditMode(data: any) {
-
         this.configurationEditData = data;
-        this.editMode = true;
+        this.detailsView = true;
 
     }
 
@@ -491,7 +517,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
             default:
                 // this is when dialog is closed to return to summary page
                 this.location.go('a');
-                this.editMode = false;
+                this.detailsView = false;
                 break;
         }
     }
