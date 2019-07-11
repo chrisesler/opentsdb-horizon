@@ -26,6 +26,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   @Output() canvasClicked: EventEmitter<any> = new EventEmitter();
   @Output() timeInterval: EventEmitter<number> = new EventEmitter();
   @Output() newBuckets: EventEmitter<any[]> = new EventEmitter();
+  @Output() bucketClicked: EventEmitter<any> = new EventEmitter();
 
   @ViewChild('eventsOverlayCanvas') eventsOverlayCanvas: ElementRef;
   context: CanvasRenderingContext2D;
@@ -176,8 +177,26 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     // this.drawEvents();
   }
 
-  clicked() {
+  clicked(event: any) {
     this.canvasClicked.emit();
+
+    let xCoord = event.offsetX;
+    let yCoord = event.offsetY;
+
+    // send event for tooltip
+    let index = 0;
+    for (let eventLocation of this.eventLocations) {
+      if (xCoord >= eventLocation.xStart &&
+        xCoord <= eventLocation.xEnd &&
+        yCoord >= eventLocation.yStart &&
+        yCoord <= eventLocation.yEnd) {
+          this.bucketClicked.emit(index);
+          break;
+      }
+      index++;
+    }
+
+
   }
 
 }

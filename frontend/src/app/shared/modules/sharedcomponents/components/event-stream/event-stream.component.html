@@ -4,12 +4,23 @@
         <button mat-button class="close" (click)="hide()"> x </button>
     </div>
 
-    <div *ngFor="let bucket of buckets">
-        <div class="group-type-heading">{{util.buildDisplayTime(bucket.endTime, startTime, endTime, false, timezone)}}</div>
-        <div *ngFor="let event of bucket.events">
-            <div class="event-description"> {{event.title}}</div>
-        </div>
-    </div>
+    <mat-accordion>
+        <mat-expansion-panel *ngFor="let bucket of buckets; let i = index" 
+            [expanded]="bucketPanelState[i]"
+            (opened)="updateExpansion(i, true)"
+            (closed)="updateExpansion(i, false)">
+
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    {{util.buildDisplayTime(bucket.endTime, startTime, endTime, false, timezone)}}
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div *ngFor="let event of bucket.events">
+                <div class="event-description"> {{event.title}}</div>
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
     
     <!-- <div class="event-groups">
       <div *ngFor="let groupInterval of groupedEvents">

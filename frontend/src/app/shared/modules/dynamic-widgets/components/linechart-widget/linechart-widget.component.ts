@@ -113,6 +113,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     // EVENTS
     showEvents = false;  // EVENT TOGGLE
     buckets: any[]; // TODO: remove with island legend
+    expandedBucket: number; // TODO: remove with island legend
     events: any[];
     showEventStream = false;
     eventsWidth: number;
@@ -722,6 +723,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             action: 'SetZoomDateRange',
             payload: zConfig
         });
+    }
+
+    bucketClickedAtIndex(index) {
+        this.expandedBucket = index;
     }
 
     receivedDateWindow(dateWindow: any) {

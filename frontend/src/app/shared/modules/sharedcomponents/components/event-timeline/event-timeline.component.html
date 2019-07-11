@@ -2,7 +2,7 @@
   #eventsOverlayCanvas 
   height="20" 
   style="border:0px dotted lightgray;" 
-  (click)="clicked()" 
+  (click)="clicked($event)" 
   (mousemove)="canvasEnter($event)" 
   (mouseleave)="canvasLeave($event)" 
   [ngStyle]="{ 'width' : width}">

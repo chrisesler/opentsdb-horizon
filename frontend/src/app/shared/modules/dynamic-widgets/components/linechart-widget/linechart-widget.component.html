@@ -12,7 +12,8 @@
         [show]="showEventStream"
         [startTime]="startTime" 
         [endTime]="endTime"
-        [timezone] = "this.options.labelsUTC ? 'utc' : 'local'" 
+        [timezone]="this.options.labelsUTC ? 'utc' : 'local'"
+        [expandedBucketIndex] = "expandedBucket"
         (updatedShowing)="updatedShowEventStream($event)"
     ></event-stream>
     <div class="widget-output" #widgetoutput
@@ -44,7 +45,8 @@
                 [events]="events"
                 [toolTipHeightFromTop]="size.height"
                 [timezone] = "this.options.labelsUTC ? 'utc' : 'local'" 
-                (canvasClicked)="updatedShowEventStream(true)" 
+                (canvasClicked)="updatedShowEventStream(true)"
+                (bucketClicked)="bucketClickedAtIndex($event)"
                 (newBuckets)="newBuckets($event)"></event-timeline>
             </div>
         </div>

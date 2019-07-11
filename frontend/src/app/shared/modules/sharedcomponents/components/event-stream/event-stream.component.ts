@@ -17,7 +17,10 @@ export class EventStreamComponent implements OnInit, OnChanges {
   @Input() startTime: number;  // in milliseconds
   @Input() endTime: number;    // in miliseconds
   @Input() timezone: string;
+  @Input() expandedBucketIndex: number;
   @Output() updatedShowing: EventEmitter<boolean> = new EventEmitter();
+
+  bucketPanelState: boolean[] = [];
 
   constructor(private util: UtilsService) { }
 
@@ -28,12 +31,29 @@ export class EventStreamComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // this.groupEvents();
+    if (changes && changes.buckets && changes.buckets.currentValue.length !== this.bucketPanelState.length) {
+      this.initializeAndCollapsePanels();
+    }
+    if (changes && changes.expandedBucketIndex) {
+      this.initializeAndCollapsePanels();
+      this.updateExpansion(this.expandedBucketIndex, true);
+    }
   }
 
   hide() {
+    this.initializeAndCollapsePanels();
     this.show = false;
     this.updatedShowing.emit(this.show);
+  }
+
+  updateExpansion(index, expanded) {
+    this.bucketPanelState[index] = expanded;
+  }
+
+  initializeAndCollapsePanels() {
+    for (let i = 0; i < this.buckets.length; i++) {
+      this.bucketPanelState[i] = false;
+    }
   }
 
 }
