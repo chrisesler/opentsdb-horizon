@@ -26,6 +26,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     @HostBinding('class.inline-filter-editor') private _hostClass = true;
 
     @Input() query: any;
+    @Input() options: any;
     @Input() tplVariables: any[] = [];
     @Output() filterOutput = new EventEmitter();
     @ViewChild('tagValueSearchInput') tagValueSearchInput: ElementRef;
@@ -36,6 +37,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     metrics: any[];
     queryBeforeEdit: any;
     tagOptions = [];
+    tagFilteredOptions = [];
     filteredTagValues = [];
     selectedTagIndex = -1;
     selectedTag = '';
@@ -71,11 +73,27 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                     this.triggerQueryChanges();
                 }
             });
+        this.setTagKeys();
         this.initFormControls();
     }
 
     initFormControls() {
-        this.setTagSearch();
+        this.tagSearchControl = new FormControl('');
+        this.tagSearchControl.valueChanges
+            .pipe(
+                debounceTime(100)
+            )
+            .subscribe(search => {
+                search = search.trim();
+                search = search === '' ? '.*' : search;
+                search = search.replace(/\s+/g, '.*').toLowerCase();
+                const regex = new RegExp( search );
+                for ( let i = 0; i < this.tagOptions.length; i++ ) {
+                    this.tagFilteredOptions = this.tagOptions.filter(d => regex.test(d.name.toLowerCase()));
+                }
+                this.cdRef.detectChanges();
+            });
+
         this.setTagValueSearch();
     }
 
@@ -83,50 +101,44 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
         this.requestChanges();
     }
 
-    setTagSearch() {
-        this.tagSearchControl = new FormControl('');
-        this.tagSearchControl.valueChanges
-            .pipe(
-                startWith(''),
-                debounceTime(200)
-            )
-            .subscribe(value => {
-                const query: any = { namespace: this.namespace, tags: this.filters, metrics: [] };
-                query.search = value ? value : '';
-                // remove remove filter is it's empty for tagkey search
-                query.tags = query.tags.filter(t => t.filter.length !== 0);
-                // filter tags by metrics
-                if (this.metrics) {
-                    for (let i = 0, len = this.metrics.length; i < len; i++) {
-                        if (!this.metrics[i].expression) {
-                            query.metrics.push(this.metrics[i].name);
-                        }
-                    }
-                    query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) === i);
+    setTagKeys() {
+        const query: any = { namespace: this.namespace, tags: this.filters, metrics: [] };
+        query.search =  '';
+        // remove remove filter is it's empty for tagkey search
+        query.tags = query.tags.filter(t => t.filter.length !== 0);
+        // filter tags by metrics
+        if (this.metrics) {
+            for (let i = 0, len = this.metrics.length; i < len; i++) {
+                if (!this.metrics[i].expression) {
+                    query.metrics.push(this.metrics[i].name);
                 }
-                this.message['tagControl'] = {};
-                if (this.tagKeySub) {
-                    this.tagKeySub.unsubscribe();
-                }
-                this.tagKeySub = this.httpService.getNamespaceTagKeys(query)
-                    .subscribe(res => {
-                        const selectedKeys = this.filters.map(item => item.tagk);
-                        res = res.filter(item => selectedKeys.indexOf(item.name) === -1);
-                        const options = selectedKeys.map(item => ({ 'name': item })).concat(res);
-                        if (this.loadFirstTagValues && options.length) {
-                            this.handlerTagClick(options[0].name);
-                        }
-                        this.loadFirstTagValues = false;
-                        this.tagOptions = options;
-                        this.cdRef.detectChanges();
-                    },
-                        err => {
-                            this.tagOptions = [];
-                            const message = err.error.error ? err.error.error.message : err.message;
-                            this.message['tagControl'] = { 'type': 'error', 'message': message };
-                            this.cdRef.detectChanges();
-                        });
-            });
+            }
+            query.metrics = query.metrics.filter((x, i, a) => a.indexOf(x) === i);
+        }
+        this.message['tagControl'] = {};
+        if (this.tagKeySub) {
+            this.tagKeySub.unsubscribe();
+        }
+        this.tagKeySub = this.httpService.getNamespaceTagKeys(query, this.options.metaSource)
+                                            .subscribe(res => {
+                                                    const selectedKeys = this.filters.map(item => item.tagk);
+                                                    res = res.filter(item => selectedKeys.indexOf(item.name) === -1);
+                                                    const options = selectedKeys.map(item => ({ 'name': item })).concat(res);
+                                                    if (this.loadFirstTagValues && options.length) {
+                                                        this.handlerTagClick(options[0].name);
+                                                    }
+                                                    this.loadFirstTagValues = false;
+                                                    this.tagOptions = options;
+                                                    this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+                                                },
+                                                err => {
+                                                    this.tagOptions = [];
+                                                    this.tagFilteredOptions = [];
+                                                    const message = err.error.error ? err.error.error.message : err.message;
+                                                    this.message['tagControl'] = { 'type': 'error', 'message': message };
+                                                    this.cdRef.detectChanges();
+                                                }
+                                            );
     }
 
     setTagValueSearch() {
@@ -165,7 +177,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
                     }
                     // any var template match with selected tag
                     const tplVars = this.tplVariables.filter(v => v.tagk === this.selectedTag);
-                    this.tagValueSub = this.httpService.getTagValuesByNamespace(query)
+                    this.tagValueSub = this.httpService.getTagValuesByNamespace(query, this.options.metaSource)
                         .subscribe(res => {
                             // append tpl vars to the top of the list of value
                             if (Array.isArray(tplVars) && tplVars.length > 0) {
@@ -211,7 +223,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
     // to remove tag key and all of its values
     removeTagValues(tag) {
         this.filters.splice(this.getTagIndex(tag), 1);
-        this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.setTagKeys();
         this.tagValueSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
         this.queryChanges$.next(true);
         // because it acts like it is not selected after you remove it, but looks selected
@@ -287,7 +299,7 @@ export class InlineFilterEditorComponent implements OnInit, OnDestroy {
             }
 
         }
-        this.tagSearchControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        this.setTagKeys();
         if (this.selectedTagIndex > -1) {
             this.selectedTagValues = [...this.filters[this.selectedTagIndex].filter, ...this.filters[this.selectedTagIndex].customFilter];
         }

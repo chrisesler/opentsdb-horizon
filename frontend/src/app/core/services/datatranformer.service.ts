@@ -118,7 +118,6 @@ export class DatatranformerService {
                 const qids = this.REGDSID.exec(mid);
                 const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
                 const mIndex = this.util.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
-
                 const timeSpecification = queryResults[i].timeSpecification;
                 const qid = widget.queries[qIndex].id;
                 const gConfig = widget.queries[qIndex] ? widget.queries[qIndex] : null;
