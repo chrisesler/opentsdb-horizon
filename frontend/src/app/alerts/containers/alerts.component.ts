@@ -500,7 +500,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     createAlert(type: string) {
         const data = {
-            alertType: type,
+            type: type,
             namespace: this.selectedNamespace,
             name: 'Untitled Alert'
         };

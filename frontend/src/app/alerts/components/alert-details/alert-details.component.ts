@@ -409,7 +409,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             type: 'healthcheck',
             enabled: data.enabled === undefined ? true : data.enabled,
             alertGroupingRules: [ data.alertGroupingRules || []],
-            labels: this.fb.array(data.labels || ['test']),
+            labels: this.fb.array(data.labels || []),
             threshold: this.fb.group({
                 nagInterval: data.threshold.nagInterval || '0',
                 notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false',
@@ -426,9 +426,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }),
             notification: this.fb.group({
                 transitionsToNotify: [ data.notification.transitionsToNotify || []],
-                recipients: [ data.notification.recipients || {email: [{name: 'syed@verizonmedia.com'}]}],
-                subject: data.notification.subject  || 'test subject',
-                body: data.notification.body || 'test body',
+                recipients: [ data.notification.recipients || {}],
+                subject: data.notification.subject  || '',
+                body: data.notification.body || '',
                 opsgeniePriority:  data.notification.opsgeniePriority || '',
                 // opsgenieTags: data.notification.opsgenieTags || '',
                 // OC conditional values

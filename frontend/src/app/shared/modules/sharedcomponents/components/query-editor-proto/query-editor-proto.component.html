@@ -282,7 +282,7 @@
     </div>
     
 </div>
-<div class="metric-action-buttons" *ngIf="query.namespace || query.metrics.length || query.filters.length">
+<div class="metric-action-buttons" *ngIf="options.enableMetric && (query.namespace || query.metrics.length || query.filters.length)">
     <button mat-button color="primary" *ngIf="!isAddMetricProgress || !query.metrics.length " (click)="addQueryItemProgress('metric')">
         <mat-icon fontSet="denali" fontIcon="d-add"></mat-icon>
         <span>Metric</span>
