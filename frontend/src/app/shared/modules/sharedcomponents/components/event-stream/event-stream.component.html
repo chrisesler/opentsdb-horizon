@@ -1,6 +1,6 @@
 <div class="event-details" *ngIf="show"> 
     <div class="top-header">
-        <span class="title"> Event Details </span>
+        <span></span>
         <button mat-button class="close" (click)="hide()"> x </button>
     </div>
 
@@ -10,36 +10,22 @@
             (opened)="updateExpansion(i, true)"
             (closed)="updateExpansion(i, false)">
 
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    {{util.buildDisplayTime(bucket.endTime, startTime, endTime, false, timezone)}}
+            <mat-expansion-panel-header id="bucket-header">
+                <mat-panel-title >
+                    <span> {{util.buildDisplayTime(bucket.endTime, startTime, endTime, false, timezone)}}</span> 
+                    <span *ngIf="bucket.events.length > 1"> - {{bucket.events.length}} </span> 
+                    <span *ngIf="bucket.events.length > 1"> Events</span>
                 </mat-panel-title>
             </mat-expansion-panel-header>
 
-            <div *ngFor="let event of bucket.events">
-                <div class="event-description"> {{event.title}}</div>
+            <div *ngFor="let event of bucket.events" class="event">
+                <div class="event-header">
+                    <span class="event-source">{{event.source}}</span>
+                    <span class="event-time">{{util.buildDisplayTime(event.startTime, startTime, endTime, bucket.width <= 1000 * 60, timezone)}}</span>
+                </div>
+                <div class="event-description"> {{event.title}}  </div>
             </div>
         </mat-expansion-panel>
     </mat-accordion>
-    
-    <!-- <div class="event-groups">
-      <div *ngFor="let groupInterval of groupedEvents">
-        <b> {{groupInterval.timeInterval}} </b>
-          <div *ngIf="groupInterval.comments">
-              <div class="group-type-heading">Comments</div>
-              <div *ngFor="let thread of groupInterval.comments"> 
-                <div *ngFor="let comment of thread" class="event-description" [ngClass]="{'comment-reply': !comment.originalComment}">
-                  {{comment.user}}:  {{comment.message}} 
-                </div>
-              </div>
-          </div>
 
-          <div *ngIf="groupInterval.sdJobs">
-              <div class="group-type-heading">Screwdriver Jobs</div>
-              <div *ngFor="let sdJob of groupInterval.sdJobs" class="event-description"> 
-                SD Job {{sdJob.jobNumber}}: {{sdJob.status}}. Triggered by {{sdJob.executor}}. 
-              </div>
-          </div>
-      </div>
-    </div> -->
 </div>

@@ -35,6 +35,7 @@
 
   <!-- Summarize the bucket by number of each type of event -->
   <div *ngIf="toolTipData.bucket.events.length > 1">
+    <div>{{util.buildDisplayTime(toolTipData.bucket.endTime, startTime, endTime, false, timezone)}}</div>
     <div *ngFor="let summary of getBucketSummary(toolTipData.bucket)">
       {{summary[1]}} {{summary[0]}}
       <span *ngIf="summary[1] === 1"> event </span> 
