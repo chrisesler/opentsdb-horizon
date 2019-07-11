@@ -281,7 +281,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 case 'update-success':
                     message = 'Alert has been ' + (status === 'add-success' ? 'created' : 'updated') + '.';
                     this.detailsView = false;
-                    this.router.navigate(['a']);
+                    // this.router.navigate(['a']);
+                    // this.editMode = false;
                     break;
                 case 'enable-success':
                     message = 'Alert has been enabled.';
@@ -308,17 +309,17 @@ export class AlertsComponent implements OnInit, OnDestroy {
             const _data = JSON.parse(JSON.stringify(data));
             if ( _data.id === '_new_' ) {
                 const o = {
-                    alertType: 'metric',
+                    type: 'simple',
                     namespace: data.namespace,
                     name: 'Untitled Alert'
-                }
+                };
                 this.openAlertEditMode(o);
             } else {
+                this.openAlertEditMode(_data);
                 // set the namespace if the user comes directly from edit url
                 if ( !this.selectedNamespace ) {
                     this.setNamespace(_data.namespace);
                 }
-                this.openAlertEditMode(_data);
             }
         }));
 
@@ -332,7 +333,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
             // purely aesthetic. If url has 'edit', but its readonly, it will still be readonly
             if (routeSnapshot.length > 0 && readOnly) {
                 modeCheck = routeSnapshot[routeSnapshot.length - 1];
-                //console.log('modeCheck', modeCheck.path);
 
                 // there is no mode in the url
                 if (modeCheck.path.toLowerCase() !== 'view' && modeCheck.path.toLowerCase() !== 'edit') {
@@ -385,12 +385,16 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         // handle route for alerts
         this.subscription.add(this.activatedRoute.url.pipe(delayWhen(() => this.configLoaded$)).subscribe(url => {
-            //this.logger.log('ROUTE URL', {url});
+            // this.logger.log('ROUTE URL', {url});
             if (url.length === 1 ) {
-                this.setNamespace(url[0].path);
+                if ( /^\d+$/.test(url[0].path) ) {
+                    this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path, 10)));
+                } else {
+                    this.setNamespace(url[0].path);
+                }
             } else if (url.length === 2 && url[1].path === '_new_') {
-                this.setNamespace(url[0].path);
                 this.store.dispatch(new CheckWriteAccess({ namespace: url[0].path, id: '_new_'}));
+                this.setNamespace(url[0].path);
             } else if (url.length > 2) {
                 // load alert the alert
                 this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path, 10)));
@@ -409,6 +413,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
     setNamespace( namespace ) {
         if ( this.selectedNamespace !== namespace ) {
             this.store.dispatch(new SetNamespace(namespace));
+            if ( !this.detailsView ) {
+                this.location.go('a/' + this.selectedNamespace);
+            }
         }
     }
 
@@ -504,7 +511,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     openAlertEditMode(data: any) {
         this.configurationEditData = data;
         this.detailsView = true;
-
+        // this.editMode = true;
     }
 
     configurationEdit_change(message: any) {
@@ -512,12 +519,13 @@ export class AlertsComponent implements OnInit, OnDestroy {
             case 'SaveAlert':
                 // lets save this thing
                 this.store.dispatch(new SaveAlerts(message.namespace, message.payload));
+                this.location.go('a/' + message.namespace);
                 break;
             case 'CancelEdit':
             default:
                 // this is when dialog is closed to return to summary page
-                this.location.go('a');
                 this.detailsView = false;
+                this.location.go('a/' + this.selectedNamespace);
                 break;
         }
     }

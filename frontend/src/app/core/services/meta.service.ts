@@ -9,28 +9,26 @@ export class MetaService {
 
   constructor(private utilsService: UtilsService) { }
 
-  getQuery(type, params, andOp = true) {
+  getQuery(source, type, params, andOp = true) {
     params = Array.isArray(params) ? params : [params];
     const metaQuery: any = {
       'from': 0,
       'to': 1,
       'order': 'ASCENDING',
       'type': type,
+      'source': source,
       'aggregationSize': 1000,
       'queries': [],
     };
 
     for ( let i = 0, len = params.length; i < len; i++ ) {
-      const query: any = {
-                          'filter': {
-                          'type': 'Chain',
-                          'filters': []
-                      }};
+      const filters = [];
+      const query: any = {};
       query.id = params[i].id || 'id-' + i;
       query.namespace =  type !== 'NAMESPACES' ? params[i].namespace : this.utilsService.convertPatternTSDBCompat(params[i].search);
       if ( type === 'TAG_KEYS_AND_VALUES') {
         metaQuery.aggregationField =  params[i].tagkey;
-        query.filter.filters.push({
+        filters.push({
           type: 'TagValueRegex',
           filter: this.utilsService.convertPatternTSDBCompat(params[i].search),
           tagKey: params[i].tagkey
@@ -38,7 +36,7 @@ export class MetaService {
       }
       switch( type ) {
         case 'METRICS':
-          query.filter.filters.push({
+          filters.push({
             'type': 'MetricRegex',
             'metric': this.utilsService.convertPatternTSDBCompat(params[i].search)
           });
@@ -46,23 +44,25 @@ export class MetaService {
 
         // set the metrics filter only if its set. tsdb requires atleast one filter in the query
         case 'TAG_KEYS':
-            query.filter.filters.push({
-              'type': 'TagKeyRegex',
-              'filter': this.utilsService.convertPatternTSDBCompat(params[i].search)
-            });
+            if ( source === 'meta' ) {
+              filters.push({
+                'type': 'TagKeyRegex',
+                'filter': this.utilsService.convertPatternTSDBCompat(params[i].search)
+              });
+            }
           break;
       }
 
       if (params[i].metrics && params[i].metrics.length) {
         if (andOp) {
           for (let j = 0; j < params[i].metrics.length; j++) {
-            query.filter.filters.push({
+            filters.push({
               'type': 'MetricLiteral',
               'metric': params[i].metrics[j]
             });
           }
         } else {
-          query.filter.filters.push({
+          filters.push({
             'type': 'MetricLiteral',
             'metric': params[i].metrics.join('|')
           });
@@ -73,7 +73,13 @@ export class MetaService {
           const f = params[i].tags[k];
           const values = f.filter;
           const filter:any = values.length === 1 ? this.getFilter(f.tagk, values[0]) : this.getChainFilter(f.tagk, values);
-          query.filter.filters.push(filter);
+          filters.push(filter);
+      }
+      if ( filters.length ) {
+        query.filter = {
+                          'type': 'Chain',
+                          'filters': filters
+                        };
       }
       metaQuery.queries.push(query);
     }
@@ -95,13 +101,25 @@ export class MetaService {
   }
 
   getChainFilter(key, values) {
+    const literalorV = [];
     const chain = {
                     'type': 'Chain',
                     'op': 'OR',
                     'filters': []
                 };
     for ( let i = 0, len = values.length; i < len; i++ ) {
+      const regexp = values[i].match(/regexp\((.*)\)/);
+      const v = regexp ? regexp[1] : values[i];
+      const type = regexp  ? 'regexp' : 'literalor';
+      if ( type === 'regexp') {
         chain.filters.push(this.getFilter(key, values[i]));
+      } else {
+        literalorV.push(v);
+      }
+    }
+
+    if ( literalorV.length > 0 ) {
+      chain.filters.push({ type: 'TagValueLiteralOr', filter: literalorV.join('|'), tagKey: key});
     }
     return chain;
   }

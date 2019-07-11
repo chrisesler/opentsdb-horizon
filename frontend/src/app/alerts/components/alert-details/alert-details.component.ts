@@ -22,13 +22,14 @@ import {
     MatDialogRef
 } from '@angular/material';
 
-import { Subscription} from 'rxjs';
+import { Subscription, Observable, of } from 'rxjs';
 
 import { NameAlertDialogComponent } from '../name-alert-dialog/name-alert-dialog.component';
 import { IDygraphOptions } from '../../../shared/modules/dygraphs/IDygraphOptions';
 import { QueryService } from '../../../core/services/query.service';
 import { HttpService } from '../../../core/http/http.service';
 import { UtilsService } from '../../../core/services/utils.service';
+import { MetaService } from '../../../core/services/meta.service';
 import { DatatranformerService } from '../../../core/services/datatranformer.service';
 import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/components/error-dialog/error-dialog.component';
 import { pairwise, startWith } from 'rxjs/operators';
@@ -70,6 +71,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     // metric query?
     queries = [];
+    tags: string[];
 
     // DYGRAPH OPTIONS
     options: IDygraphOptions = {
@@ -120,6 +122,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     recipients = {'slack' : [{'name': 'yamas_dev'}], 'oc': [{'name': 'oc red'}]};
 
     thresholds: any = { };
+    thresholdType: String = '';
     // tslint:disable-next-line:no-inferrable-types
     showThresholdAdvanced: boolean = false; // toggle in threshold form
 
@@ -145,8 +148,31 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         { label: 'P5', value: 'P5' }
     ];
 
-    // SUBSCRIPTIONS HOLDER
-    subs: any = {};
+    alertOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    recoverOptions: any[] = [
+                                { label: 'Never', value: null },
+                                { label: 'After 1 hour', value: 60 },
+                                { label: 'After 2 hours', value: 120 },
+                                { label: 'After 4 hours', value: 240 },
+                                { label: 'After 8 hours', value: 480 },
+                                { label: 'After 12 hours', value: 720 },
+                                { label: 'After 24 hours', value: 1440 }
+                            ];
+
+    transitionOptions: any = {
+                                'goodToBad' : 'Good To Bad',
+                                'warnToBad' : 'Warn To Bad',
+                                'warnToGood' : 'Warn To Good',
+                                'badToGood' : 'Bad to Good',
+                                'goodToWarn' : 'Good To Warn',
+                                'badToWarn' : 'Bad to Warn',
+                                'goodToUnknown' : 'Good To Unknown',
+                                'UnknownToGood' : 'Unknown To Good',
+                                'badToUnknown' : 'Bad To Unknown',
+                                'UnknownToBad' : 'Unknown To Bad',
+                                'warnToUnknown' : 'Warn To Unknown',
+                                'UnknownToWarn' : 'Unknown To Warn'
+                            };
     sub: Subscription;
     nQueryDataLoading = 0;
     showDetail = false;
@@ -159,6 +185,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     // tslint:disable-next-line:no-inferrable-types
     activeTabIndex: number = 0;
+    private subscription: Subscription = new Subscription();
 
     // FOR DISPLAY ONLY VIEW - metric columns
     metricTableDisplayColumns: string[] = [
@@ -170,6 +197,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     constructor(
         private fb: FormBuilder,
         private queryService: QueryService,
+        private metaService: MetaService,
         private httpService: HttpService,
         private dataTransformer: DatatranformerService,
         private utils: UtilsService,
@@ -186,17 +214,21 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     ngOnInit() {
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
-        this.setupForm(this.data);
-
-        // console.log('%cDATA','color: white; background: red; padding: 4px;', this.data, this.queries);
+        switch ( this.data.type ) {
+            case 'simple':
+                this.thresholdType = 'singleMetric';
+                this.setupForm(this.data);
+                break;
+            case 'healthcheck':
+                this.thresholdType = 'healthCheck';
+                this.setupHealthCheckForm(this.data);
+                break;
+        }
     }
 
+
     ngOnDestroy() {
-        this.subs.badStateSub.unsubscribe();
-        this.subs.warningStateSub.unsubscribe();
-        this.subs.recoveryStateSub.unsubscribe();
-        this.subs.recoveryTypeSub.unsubscribe();
-        this.subs.metricIdSub.unsubscribe();
+        this.subscription.unsubscribe();
     }
 
     ngAfterContentInit() {
@@ -249,8 +281,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     slidingWindow : data.threshold.singleMetric.slidingWindow ? data.threshold.singleMetric.slidingWindow.toString() : '300',
                     comparisonOperator : data.threshold.singleMetric.comparisonOperator || 'above',
                     timeSampler : data.threshold.singleMetric.timeSampler || 'at_least_once'
-                }),
-            }, this.validateThresholds),
+                })
+            }, this.validateSingleMetricThresholds),
             notification: this.fb.group({
                 transitionsToNotify: [ data.notification.transitionsToNotify || []],
                 recipients: [ data.notification.recipients || {}],
@@ -263,6 +295,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 ocSeverity: data.notification.ocSeverity || '5'
             })
         });
+        this.setTags();
 
         // need to 'set' values to start the value watching from the start
         // Ideally you create the fromgroup first, then set values to get correct valueChange events
@@ -277,13 +310,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.setThresholds('warning', data.threshold.singleMetric.warnThreshold || '');
         this.setThresholds('recovery', data.threshold.singleMetric.recoveryType === 'specific' ? data.threshold.singleMetric.recoveryThreshold : '');
 
-        this.subs.comparisionSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['comparisonOperator'].valueChanges.subscribe(val => {
+        this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['comparisonOperator'].valueChanges.subscribe(val => {
             this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
-        });
+        }));
 
         // tslint:disable-next-line:max-line-length
-        this.subs.badStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges
+        this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].valueChanges
             .pipe(
                 startWith(this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['badThreshold'].value),
                 pairwise()
@@ -306,10 +339,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 }
                 this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
                 this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
-            });
+            }));
 
         // tslint:disable-next-line:max-line-length
-        this.subs.warningStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].valueChanges
+        this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].valueChanges
             .pipe(
                 startWith(this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['warnThreshold'].value),
                 pairwise()
@@ -331,22 +364,22 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                         .setValue(transitions.concat(possibleTransitions));
                 }
                 this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
-            });
+            }));
 
         // tslint:disable-next-line:max-line-length
-        this.subs.recoveryStateSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].valueChanges.subscribe(val => {
+        this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].valueChanges.subscribe(val => {
             this.setThresholds('recovery', val);
-        });
+        }));
 
         // tslint:disable-next-line:max-line-length
-        this.subs.recoveryTypeSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryType'].valueChanges.subscribe(val => {
+        this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryType'].valueChanges.subscribe(val => {
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors(null);
             // tslint:disable-next-line:max-line-length
             this.setThresholds('recovery', val === 'specific' ? this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['recoveryThreshold'].value : '');
-        });
+        }));
 
         // tslint:disable-next-line: max-line-length
-        this.subs.metricIdSub = <Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['metricId'].valueChanges.subscribe(val => {
+        this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['metricId'].valueChanges.subscribe(val => {
             const [qindex, mindex] = val ? val.split(':') : [null, null];
             const gValues = this.alertForm.get('alertGroupingRules').value;
             if ( qindex && mindex && gValues.length ) {
@@ -356,8 +389,82 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             } else {
                 this.alertForm.get('alertGroupingRules').setValue([]);
             }
+            this.setTags();
             this.refreshChart();
+        }));
+    }
+
+    setupHealthCheckForm(data = null) {
+        const def = {
+                threshold : { healthCheck: {} },
+                notification: {},
+                queries: { aura: [] }
+            };
+        data = Object.assign(def, data);
+        this.showDetail = data.id ? true : false;
+        this.showThresholdAdvanced = data.threshold.nagInterval > 0 ? true : false;
+        this.setQuery();
+        this.alertForm = this.fb.group({
+            name: data.name || 'Untitled Alert',
+            type: 'healthcheck',
+            enabled: data.enabled === undefined ? true : data.enabled,
+            alertGroupingRules: [ data.alertGroupingRules || []],
+            labels: this.fb.array(data.labels || ['test']),
+            threshold: this.fb.group({
+                nagInterval: data.threshold.nagInterval || '0',
+                notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false',
+                autoRecoveryInterval: data.threshold.autoRecoveryInterval || null,
+                missingDataInterval: data.threshold.missingDataInterval || null,
+                healthCheck: this.fb.group({
+                    queryIndex: 0,
+                    queryType : 'aura',
+                    badThreshold:  data.threshold.healthCheck.badThreshold || null,
+                    recoveryThreshold: data.threshold.healthCheck.recoveryThreshold || 1,
+                    warnThreshold: data.threshold.healthCheck.warnThreshold || null,
+                    unknownThreshold: data.threshold.healthCheck.unknownThreshold || null,
+                })
+            }),
+            notification: this.fb.group({
+                transitionsToNotify: [ data.notification.transitionsToNotify || []],
+                recipients: [ data.notification.recipients || {email: [{name: 'syed@verizonmedia.com'}]}],
+                subject: data.notification.subject  || 'test subject',
+                body: data.notification.body || 'test body',
+                opsgeniePriority:  data.notification.opsgeniePriority || '',
+                // opsgenieTags: data.notification.opsgenieTags || '',
+                // OC conditional values
+                runbookId: data.notification.runbookId || '',
+                ocSeverity: data.notification.ocSeverity || '5'
+            })
         });
+        this.setTags();
+        // tslint:disable-next-line:max-line-length
+        this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['healthCheck']['controls']['badThreshold'].valueChanges
+                .subscribe( bad => {
+                    const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
+                    if ( !bad ) {
+                        // remove possible transitions (if any were selected)
+                        this.alertForm['controls'].notification.get('transitionsToNotify')
+                            .setValue(transitions.filter(d => !d.toLowerCase().includes('bad') ));
+                    }
+                }));
+        // tslint:disable-next-line:max-line-length
+        this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['healthCheck']['controls']['warnThreshold'].valueChanges
+                .subscribe( warn => {
+                    const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
+                    if ( !warn ) {
+                        this.alertForm['controls'].notification.get('transitionsToNotify')
+                            .setValue(transitions.filter(d => !d.toLowerCase().includes('warn') ));
+                    }
+                }));
+        // tslint:disable-next-line:max-line-length
+        this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['healthCheck']['controls']['unknownThreshold'].valueChanges
+                .subscribe( unknown => {
+                    const transitions = this.alertForm['controls'].notification.get('transitionsToNotify').value;
+                    if ( !unknown ) {
+                        this.alertForm['controls'].notification.get('transitionsToNotify')
+                            .setValue(transitions.filter(d => !d.toLowerCase().includes('unknown') ));
+                    }
+                }));
     }
 
     setQuery() {
@@ -400,7 +507,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         return query;
     }
 
-    validateThresholds(group) {
+    validateSingleMetricThresholds(group) {
         const badStateCntrl = this.thresholdSingleMetricControls['badThreshold'];
         const warningStateCntrl = this.thresholdSingleMetricControls['warnThreshold'];
         const recoveryStateCntrl = this.thresholdSingleMetricControls['recoveryThreshold'];
@@ -437,6 +544,28 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             if ( (operator === 'below' || operator === 'below_or_equal_to') && recovery <= badOrWarning ) {
                 recoveryStateCntrl.setErrors({ 'invalid': true });
             }
+        }
+    }
+
+    validateHealthCheckForm() {
+        const bad = this.healthCheckControls['badThreshold'].value;
+        const warn = this.healthCheckControls['warnThreshold'].value;
+        const unknown = this.healthCheckControls['unknownThreshold'].value;
+        const notifyOnMissing = this.thresholdControls['notifyOnMissing'].value;
+        const missingDataInterval = this.thresholdControls['missingDataInterval'].value;
+
+        if (  !bad  && !warn && !unknown && notifyOnMissing === 'false' ) {
+            this.alertForm['controls'].threshold.setErrors({ 'required': true });
+        }
+
+        this.thresholdControls.missingDataInterval.setErrors(null);
+        if ( notifyOnMissing === 'true' && missingDataInterval === null ) {
+            this.thresholdControls.missingDataInterval.setErrors({ 'required': true });
+        }
+
+        // transitionsToNotify is required only when bad or warn or unknown is selected
+        if ( (bad  || warn || unknown)  && !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
+            this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
         }
     }
 
@@ -483,14 +612,24 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.options = {...this.options};
     }
 
-    getSelectedMetricTags() {
-        const v = this.alertForm.get('threshold').get('singleMetric').get('metricId').value;
-        const [qindex, mindex] = v ? v.split(':') : [null, null];
-        if ( qindex && mindex  && this.queries[qindex] && this.queries[qindex].metrics.length) {
-                return this.queries[qindex].metrics[mindex].groupByTags || [];
+    setTags() {
+        if ( this.thresholdType === 'singleMetric' ) {
+            const v = this.alertForm.get('threshold').get('singleMetric').get('metricId').value;
+            const [qindex, mindex] = v ? v.split(':') : [null, null];
+            let res = [];
+            if ( qindex && mindex  && this.queries[qindex] && this.queries[qindex].metrics.length) {
+                    res = this.queries[qindex].metrics[mindex].groupByTags || [];
+                    this.tags = res;
+            }
+        } else {
+            const query: any = { search: '', namespace: this.queries[0].namespace, tags: this.queries[0].filters, metrics: [] };
+            this.httpService.getNamespaceTagKeys(query, 'aurastatus')
+                            .subscribe( res => {
+                                this.tags = res.map( d => d.name);
+                            });
         }
-        return [];
     }
+
 
     getMetricGroupByTags(qindex, mindex) {
         return this.queries[qindex] &&  this.queries[qindex].metrics[mindex] ? this.queries[qindex].metrics[mindex].groupByTags : [];
@@ -505,8 +644,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         return this.alertForm['controls'].threshold['controls'].singleMetric['controls'];
     }
 
-    get thresholdType() {
-        return this.thresholdControls.subType.value;
+    get healthCheckControls() {
+        return this.alertForm['controls'].threshold['controls'].healthCheck['controls'];
     }
 
     get thresholdRecoveryType() {
@@ -552,6 +691,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         }
     }
 
+    getAutoRecoveryOptionByVal(v) {
+        const index = this.recoverOptions.findIndex(d => d.value === v );
+        return this.recoverOptions[index];
+    }
+
     /** methods */
 
 
@@ -578,6 +722,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             this.getYamasData(query);
         } else {
             this.nQueryDataLoading = 0;
+            this.options.labels = ['x'];
             this.chartData = { ts: [[0]] };
         }
     }
@@ -599,6 +744,12 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         }
         const q = this.queryService.buildQuery( settings, time, queries);
         return [q];
+    }
+
+    getMetaQuery() {
+        const query: any = { search: '', namespace: this.queries[0].namespace, tags: this.queries[0].filters, metrics: [] };
+        const metaQuery = this.metaService.getQuery('aurastatus', 'TAG_KEYS', query);
+        return metaQuery.queries;
     }
 
     // to get query for selected metrics, my rebuild to keep time sync 1h-ago
@@ -635,6 +786,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }
         }
         config.queries = queries;
+        this.options.labels = ['x'];
         const data = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], this.queryData);
         this.setChartYMax();
         this.chartData = { ts: data };
@@ -658,6 +810,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 const metrics = this.utils.getAllMetrics(this.queries);
                 this.showDetail = this.showDetail === false ? metrics.length !== 0 : this.showDetail;
                 this.reloadData();
+                this.setTags();
                 break;
             case 'CloneQuery':
                 this.cloneQuery(message.id);
@@ -666,7 +819,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 break;
             case 'DeleteQuery':
                 this.deleteQuery(message.id);
-                this.queries = this.utils.deepClone(this.queries);
+                if ( this.queries.length === 0 ) {
+                    this.addNewQuery();
+                }
                 this.reloadData();
                 break;
         }
@@ -711,15 +866,21 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     validate() {
         this.alertForm.markAsTouched();
-        this.validateThresholds(this.alertForm['controls'].threshold);
-
-        if ( !this.thresholdSingleMetricControls.metricId.value ) {
-            this.thresholdSingleMetricControls.metricId.setErrors({ 'required': true });
+        switch ( this.data.type ) {
+            case 'simple':
+                this.validateSingleMetricThresholds(this.alertForm['controls'].threshold);
+                if ( !this.thresholdSingleMetricControls.metricId.value ) {
+                    this.thresholdSingleMetricControls.metricId.setErrors({ 'required': true });
+                }
+                if ( !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
+                    this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
+                }
+                break;
+            case 'healthcheck':
+                this.validateHealthCheckForm();
+                break;
         }
 
-        if ( !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
-            this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
-        }
 
         if ( Object.keys(this.notificationRecipientsValue).length === 0 ) {
             this.notificationRecipients.setErrors({ 'required': true });
@@ -762,11 +923,19 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     saveAlert() {
         const data: any = this.utils.deepClone(this.alertForm.getRawValue());
         data.id = this.data.id;
-        data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
-        const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
-        data.threshold.singleMetric.queryIndex = qindex;
-        // tslint:disable-next-line: max-line-length
-        data.threshold.singleMetric.metricId =  this.utils.getDSId( this.utils.arrayToObject(this.queries), qindex, mindex) + (this.queries[qindex].metrics[mindex].expression === undefined ? '_groupby' : '');
+        switch( data.type ) {
+            case 'simple':
+                data.queries = { raw: this.queries, tsdb: this.getTsdbQuery()};
+                const [qindex, mindex] = data.threshold.singleMetric.metricId.split(':');
+                data.threshold.singleMetric.queryIndex = qindex;
+                // tslint:disable-next-line: max-line-length
+                data.threshold.singleMetric.metricId =  this.utils.getDSId( this.utils.arrayToObject(this.queries), qindex, mindex) + (this.queries[qindex].metrics[mindex].expression === undefined ? '_groupby' : '');
+                break;
+            case 'healthcheck':
+                data.threshold.missingDataInterval = data.threshold.notifyOnMissing === 'true' ? data.threshold.missingDataInterval : null;
+                data.queries = { aura: this.getMetaQuery(), raw: this.queries };
+                break;
+        }
         data.threshold.isNagEnabled = data.threshold.nagInterval !== '0' ? true : false;
         data.version = this.alertConverter.getAlertCurrentVersion();
         // emit to save the alert

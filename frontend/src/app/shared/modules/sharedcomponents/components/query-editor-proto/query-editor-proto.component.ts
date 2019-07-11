@@ -406,7 +406,8 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             'toggleMetric': true,
             'enableGroupBy': true,
             'enableSummarizer': false,
-            'enableMultiMetricSelection': true
+            'enableMultiMetricSelection': true,
+            'enableExplicitTagMatch': true,
          };
         this.options = { ...defaultOptions, ...this.options};
     }

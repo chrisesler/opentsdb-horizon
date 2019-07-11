@@ -1,6 +1,6 @@
 <mat-card class="alert-configuration-wrapper mat-elevation-z0" [formGroup]="alertForm">
     <mat-card-content>
-        <div class="preview-wrapper">
+        <div class="preview-wrapper" [ngClass]="{'is-visible': data.type === 'simple'}">
             <div class="graph-wrapper">
                 <div class="graph-output" #graphOutput>
                     <div #dygraph class="chart"
@@ -55,11 +55,15 @@
                     <div class="step-section-content">
                         <div class="query-metric-row" *ngFor="let query of queries; let index=index">
                             <query-editor-proto [label]="'Q' + (index + 1)" [query]="query" [queries]="queries"
-                                [options]="{enableMultipleQueries: true,
+                                [options]="{
+                                    metaSource: data.type === 'healthcheck' ? 'aurastatus' : 'meta',
+                                    enableMultipleQueries: data.type === 'simple',
+                                    enableMetric: data.type === 'simple',
                                     toggleMetric: false,
                                     toggleQuery: false, 
-                                    cloneQuery: true, 
-                                    deleteQuery: true}" 
+                                    cloneQuery: data.type === 'simple', 
+                                    deleteQuery: data.type === 'simple',
+                                    enableExplicitTagMatch: data.type === 'simple'}" 
                                 (queryOutput)="updateQuery($event);"></query-editor-proto> 
                         </div>
                     </div>
@@ -67,7 +71,7 @@
                         <button mat-button mat-primary color="primary" (click)="addNewQuery()">Add Query</button>
                     </div>
                 </div>
-                <div class="step-section threshold-section" formGroupName="threshold" [ngClass]="{'is-visible': queries && queries[0] && queries[0].metrics.length > 0}">
+                <div class="step-section threshold-section" *ngIf="data.type === 'simple'"  formGroupName="threshold" [ngClass]="{'is-visible': data.id || queries && queries[0] && queries[0].metrics.length > 0}">
                 
                     <div class="step-section-label">
                         <span class="step-section-label-text">2. Threshold</span>
@@ -261,7 +265,130 @@
                         </div>
                     </div>
                 </div>
-                <div class="step-section notification-section" formGroupName="notification" [ngClass]="{'is-visible': queries && queries[0] && queries[0].metrics.length > 0}">
+                <div class="step-section condition-section" *ngIf="data.type === 'healthcheck'" formGroupName="threshold" [ngClass]="{'is-visible': data.id || queries && queries[0] && queries[0].filters.length > 0}">
+                        <!--<div class="step-section threshold-section" formGroupName="threshold" [hidden]=" !data.id && !showDetail ">-->
+                                <div class="step-section-label">
+                                    <span class="step-section-label-text">2. Conditions</span>
+                                </div>
+                                <div class="step-section-content">
+                                    <!-- this might change to radio buttons -->
+        
+                                    <div class="form-group bad-threshold-setting" formGroupName="healthCheck">
+                                        <div class="form-label"><span class="indicator-square is-bad"></span> <strong>Bad alert</strong> after</div>
+                                        <div class="form-control-wrap auto-width">
+                                            <mat-form-field appearance="fill" floatLabel="never" style="max-width: 180px">
+                                                <mat-select placeholder="None" formControlName="badThreshold" disableOptionCentering>
+                                                    <mat-option>None</mat-option>
+                                                    <mat-option *ngFor="let i of alertOptions" [value]="i">{{i}}</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                            <mat-error *ngIf="alertForm['controls'].threshold.errors && alertForm['controls'].threshold.errors.required">Please select Bad or Warn or Unknown or Missing data</mat-error>
+                                        </div>
+                                        <div>BAD results</div>
+                                    </div>
+                                    <div class="form-group warning-threshold-setting" formGroupName="healthCheck">
+                                        <div class="form-label"><span class="indicator-square is-warning"></span> <strong>Warning alert</strong> after</div>
+                                        <div class="form-control-wrap auto-width">
+                                            <mat-form-field appearance="fill" floatLabel="never">
+                                                <mat-select placeholder="None" formControlName="warnThreshold">
+                                                    <mat-option>None</mat-option>
+                                                    <mat-option *ngFor="let i of alertOptions" [value]="i">{{i}}</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                        <div>WARN results</div>
+                                    </div>
+                                    <div class="form-group recover-threshold-setting" formGroupName="healthCheck">
+                                        <div class="form-label"><span class="indicator-square is-good"></span> <strong>Recover alert</strong> after</div>
+                                        <div class="form-control-wrap auto-width">
+                                            <mat-form-field appearance="fill" floatLabel="never">
+                                                <mat-select placeholder="Select" formControlName="recoveryThreshold">
+                                                    <mat-option *ngFor="let i of alertOptions" [value]="i">{{i}}</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                        <div>OK results</div>
+                                    </div>
+                                    <div class="form-group recover-threshold-setting" formGroupName="healthCheck">
+                                            <div class="form-label"><strong>Unknown alert</strong> after</div>
+                                            <div class="form-control-wrap auto-width">
+                                                <mat-form-field appearance="fill" floatLabel="never">
+                                                    <mat-select placeholder="None" formControlName="unknownThreshold">
+                                                        <mat-option>None</mat-option>
+                                                        <mat-option *ngFor="let i of alertOptions" [value]="i">{{i}}</mat-option>
+                                                    </mat-select>
+                                                </mat-form-field>
+                                            </div>
+                                            <div>Unknown results</div>
+                                        </div>
+                                    <div class="form-group alert-missing-data">
+                                        <div class="form-label vertical-center"><strong>Missing data</strong></div>
+                                        <div class="missing-data-item">
+                                            <mat-form-field appearance="fill" floatLabel="never">
+                                                <mat-select placeholder="Select" formControlName="notifyOnMissing" disableOptionCentering>
+                                                    <mat-option value="false">Do not notify</mat-option>
+                                                    <mat-option value="true">Notify</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                            <mat-hint class="info-hint">
+                                                <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+                                                <span>Receive separate notification if there is no data.</span>
+                                            </mat-hint>
+                                        </div>
+                                    </div>
+                                    <div class="form-group missing-data-interval" *ngIf="thresholdControls.notifyOnMissing.value === 'true'">
+                                        <div class="form-label vertical-center"><strong>Missing data interval</strong></div>
+                                        <mat-form-field appearance="fill" floatLabel="never">
+                                            <input matInput type="number" onkeypress="return event.charCode >= 48" autocomplete="off" placeholder="Enter value" formControlName="missingDataInterval">
+                                        </mat-form-field>
+                                        <mat-hint class="info-hint">mins</mat-hint>
+                                        <mat-error *ngIf="thresholdControls.missingDataInterval.errors && thresholdControls.missingDataInterval.errors.required">Missing data interval should not be empty</mat-error>
+                                    </div>
+                                    <div class="form-group auto-recovery" >
+                                        <div class="form-label"><strong>Purge missing state</strong></div>
+                                        <div class="form-control-wrap auto-width">
+                                            <mat-form-field appearance="fill" floatLabel="never">
+                                                <mat-select placeholder="Never" formControlName="autoRecoveryInterval">
+                                                    <mat-option *ngFor="let option of recoverOptions" [value]="option.value">{{option.label}}</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                    </div>
+                                    
+                                            
+                                    <div class="show-advanced-threshold-toggle" [ngClass]="{'is-open': showThresholdAdvanced}">
+                                            <div class="toggle-wrap">
+                                                <a class="toggle-action" (click)="showThresholdAdvanced = !showThresholdAdvanced;">
+                                                    <mat-icon fontSet="denali" [fontIcon]="showThresholdAdvanced ? 'd-arrowhead-up' : 'd-arrowhead-down'"></mat-icon>
+                                                    <span>{{showThresholdAdvanced ? 'Hide' : 'Show'}} advanced options</span>
+                                                </a>
+                                            </div>
+                                            <div class="form-group alert-nag-interval">
+                                                    <div class="form-label vertical-center"><strong>Nag interval</strong></div>
+                                                    <div class="nag-interval-item">
+                                                        <mat-form-field appearance="fill" floatLabel="never">
+                                                            <mat-select placeholder="Select" formControlName="nagInterval" disableOptionCentering>
+                                                                <mat-option value="0">Disabled</mat-option>
+                                                                <mat-option value="300">5 min</mat-option>
+                                                                <mat-option value="600">10 min</mat-option>
+                                                                <mat-option value="900">15 min</mat-option>
+                                                                <mat-option value="1800">30 min</mat-option>
+                                                                <mat-option value="3600">1 hr</mat-option>
+                                                                <mat-option value="21600">6 hr</mat-option>
+                                                                <mat-option value="43200">12 hr</mat-option>
+                                                                <mat-option value="86400">24 hr</mat-option>
+                                                            </mat-select>
+                                                        </mat-form-field>
+                                                        <mat-hint class="info-hint">
+                                                                <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+                                                                <span>How often an alert is fired when state persists.</span>
+                                                        </mat-hint>
+                                                    </div>
+                                                </div>
+                                    </div>
+                                </div>
+                </div>
+                <div class="step-section notification-section" formGroupName="notification" [ngClass]="{'is-visible': data.id || queries && queries[0] && ( queries[0].metrics.length > 0 || data.type === 'healthcheck' && queries[0].filters.length > 0)}">
                     <div class="step-section-label">
                         <span class="step-section-label-text">3. Notification</span>
                     </div>
@@ -269,15 +396,21 @@
                         <div class="form-group alert-notify-when">
                             <div class="form-label"><strong>Notify</strong> when state transitions from</div>
                             <div class="form-control-wrap">
-                                <mat-selection-list class="notify-when-options" formControlName="transitionsToNotify">
-                                    <mat-list-option value="goodToBad" [disabled]="thresholdSingleMetricControls.badThreshold.value === null">Good to Bad</mat-list-option>
-                                    <mat-list-option value="warnToBad" [disabled]="thresholdSingleMetricControls.badThreshold.value===null || thresholdSingleMetricControls.warnThreshold.value===null">Warn to Bad</mat-list-option>
-                                    <mat-list-option value="warnToGood" [disabled]="thresholdSingleMetricControls.warnThreshold.value===null">Warn to Good</mat-list-option>
-                                    <mat-list-option value="badToGood" [disabled]="thresholdSingleMetricControls.badThreshold.value===null">Bad to Good</mat-list-option>
-                                    <mat-list-option value="goodToWarn" [disabled]="thresholdSingleMetricControls.warnThreshold.value===null">Good to Warn</mat-list-option>
-                                    <mat-list-option value="badToWarn" [disabled]="thresholdSingleMetricControls.badThreshold.value===null || thresholdSingleMetricControls.warnThreshold.value===null">Bad to Warn</mat-list-option>
-                                </mat-selection-list>
-                                <mat-error *ngIf="alertForm.get('notification').get('transitionsToNotify').errors && alertForm.get('notification').get('transitionsToNotify').errors.required">Please select the state transitions</mat-error>
+                                    <mat-selection-list class="notify-when-options" formControlName="transitionsToNotify">
+                                        <mat-list-option value="goodToBad" [disabled]="!thresholdControls[thresholdType].controls.badThreshold.value">Good to Bad</mat-list-option>
+                                        <mat-list-option value="warnToBad" [disabled]="!thresholdControls[thresholdType].controls.badThreshold.value || !thresholdControls[thresholdType].controls.warnThreshold.value">Warn to Bad</mat-list-option>
+                                        <mat-list-option value="warnToGood" [disabled]="!thresholdControls[thresholdType].controls.warnThreshold.value">Warn to Good</mat-list-option>
+                                        <mat-list-option value="badToGood" [disabled]="!thresholdControls[thresholdType].controls.badThreshold.value">Bad to Good</mat-list-option>
+                                        <mat-list-option value="goodToWarn" [disabled]="!thresholdControls[thresholdType].controls.warnThreshold.value">Good to Warn</mat-list-option>
+                                        <mat-list-option value="badToWarn" [disabled]="!thresholdControls[thresholdType].controls.badThreshold.value || !thresholdControls[thresholdType].controls.warnThreshold.value">Bad to Warn</mat-list-option>
+                                        <mat-list-option *ngIf="data.type === 'healthcheck'" value="goodToUnknown" [disabled]="!thresholdControls[thresholdType].controls.unknownThreshold.value">Good To Unknown</mat-list-option>
+                                        <mat-list-option *ngIf="data.type === 'healthcheck'" value="UnknownToGood" [disabled]="!thresholdControls[thresholdType].controls.unknownThreshold.value">Unknown To Good</mat-list-option>
+                                        <mat-list-option *ngIf="data.type === 'healthcheck'" value="badToUnknown" [disabled]="!thresholdControls[thresholdType].controls.unknownThreshold.value || !thresholdControls[thresholdType].controls.badThreshold.value">Bad To Unknown</mat-list-option>
+                                        <mat-list-option *ngIf="data.type === 'healthcheck'" value="UnknownToBad" [disabled]="!thresholdControls[thresholdType].controls.unknownThreshold.value || !thresholdControls[thresholdType].controls.badThreshold.value">Unknown To Bad</mat-list-option>
+                                        <mat-list-option *ngIf="data.type === 'healthcheck'" value="warnToUnknown" [disabled]="!thresholdControls[thresholdType].controls.unknownThreshold.value || !thresholdControls[thresholdType].controls.warnThreshold.value">Warn To Unknown</mat-list-option>
+                                        <mat-list-option *ngIf="data.type === 'healthcheck'" value="UnknownToWarn" [disabled]="!thresholdControls[thresholdType].controls.unknownThreshold.value || !thresholdControls[thresholdType].controls.warnThreshold.value">Unknown To Warn</mat-list-option>
+                                    </mat-selection-list>
+                                    <mat-error *ngIf="alertForm.get('notification').get('transitionsToNotify').errors && alertForm.get('notification').get('transitionsToNotify').errors.required">Please select the state transitions</mat-error>
                             </div>
                         </div>
                         <!-- TODO: add the grouping rules control here -->
@@ -286,7 +419,7 @@
                                 <div class="alert-metric-tag-dropdown-wrapper">
                                     <dropdown-metric-tags
                                         [selected]="alertForm.get('alertGroupingRules').value"
-                                        [tags]="getSelectedMetricTags()"
+                                        [tags]="tags"
                                         [all]="false"
                                         (change)="setQueryGroupRules($event)"></dropdown-metric-tags>
                                 </div>
@@ -411,7 +544,7 @@
                         </ng-container>
                     </div>
                 </div>
-                <div class="step-section threshold-section is-visible">
+                <div class="step-section threshold-section is-visible" *ngIf="data.type === 'simple'">
                     <div class="step-section-label">
                         <span class="step-section-label-text">2. Threshold</span>
                     </div>
@@ -549,6 +682,87 @@
                         </div>
                     </div>
                 </div>
+                <div class="step-section conditions-section is-visible" *ngIf="data.type === 'healthcheck'">
+                        <div class="step-section-label">
+                            <span class="step-section-label-text">2. Conditions</span>
+                        </div>
+                        <div class="step-section-content">
+                            <!-- this might change to radio buttons -->
+                            
+                            <div class="form-group select-threshold-type" *ngIf="data.threshold.healthCheck.badThreshold">
+                                <div class="form-label vertical-center"><span class="indicator-square is-bad"></span> <strong>Bad alert </strong> after</div>
+                                <div class="form-control-wrap auto-width">
+                                        {{data.threshold.healthCheck.badThreshold}}
+                                    </div>
+                                    <div>&nbsp;BAD results</div>                                
+                            </div>
+                            <div class="form-group select-threshold-type" *ngIf="data.threshold.healthCheck.warnThreshold">
+                                    <div class="form-label vertical-center"><span class="indicator-square is-warning"></span> <strong>Warning alert </strong> after</div>
+                                    <div class="form-control-wrap auto-width">
+                                            {{data.threshold.healthCheck.warnThreshold}}
+                                        </div>
+                                        <div>&nbsp;WARN results</div>                                
+                            </div>
+                            <div class="form-group select-threshold-type">
+                                    <div class="form-label vertical-center"><span class="indicator-square is-good"></span> <strong>Recover alert </strong> after</div>
+                                    <div class="form-control-wrap auto-width">
+                                            {{data.threshold.healthCheck.recoveryThreshold}}
+                                        </div>
+                                        <div>&nbsp;OK results</div>                                
+                            </div>
+                            <div class="form-group select-threshold-type" *ngIf="data.threshold.healthCheck.unknownThreshold">
+                                    <div class="form-label vertical-center"><span class="indicator-square is-unknown"></span> <strong>Unknown alert </strong> after</div>
+                                    <div class="form-control-wrap auto-width">
+                                            {{data.threshold.healthCheck.unknownThreshold}}
+                                        </div>
+                                        <div>&nbsp;Unknown results</div>                                
+                            </div>
+                            <div class="form-group missing-data">
+                                    <div class="form-label vertical-center"><strong>Missing data </strong></div>
+                                    <div class="missing-data-item">
+                                        <span>{{data.threshold.notifyOnMissing === "true" ? 'Notify' : 'Do not notify'}}</span>
+                                        <mat-hint class="info-hint">
+                                            <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+                                            <span>Receive separate notification if there is no data.</span>
+                                        </mat-hint>
+                                    </div>
+                            </div>
+                            <div class="form-group missing-data-interval" *ngIf="data.threshold.notifyOnMissing === 'true'">
+                                <div class="form-label vertical-center"><strong>Missing data interval</strong></div>
+                                <div class="missing-data-item">
+                                    <span>{{data.threshold.missingDataInterval}}</span>
+                                    <mat-hint class="info-hint">mins</mat-hint>
+                                </div>
+                            </div>
+                            <div class="form-group alert-nag-interval">
+                                    <div class="form-label vertical-center"><strong>Purge missing state</strong></div>
+                                    <div class="missing-data-item">
+                                        <span>{{!data.threshold.autoRecoveryInterval ? 'Never' : getAutoRecoveryOptionByVal(data.threshold.autoRecoveryInterval).label}}</span>
+                                    </div>
+                            </div>
+    
+    
+                            <div class="form-group alert-nag-interval" *ngIf="data.threshold.isNagEnabled">
+                                <div class="form-label vertical-center"><strong>Nag interval</strong></div>
+                                <div class="nag-interval-item">
+                                    <span>
+                                        {{data.threshold.nagInterval === '300' ? '5 min' : ''}}
+                                        {{data.threshold.nagInterval === '600' ? '10 min' : ''}}
+                                        {{data.threshold.nagInterval === '900' ? '15 min' : ''}}
+                                        {{data.threshold.nagInterval === '1800' ? '30 min' : ''}}
+                                        {{data.threshold.nagInterval === '3600' ? '1 hr' : ''}}
+                                        {{data.threshold.nagInterval === '21600' ? '6 hr' : ''}}
+                                        {{data.threshold.nagInterval === '43200' ? '12 hr' : ''}}
+                                        {{data.threshold.nagInterval === '86400' ? '24 hr' : ''}}
+                                    </span>
+                                    <mat-hint class="info-hint">
+                                            <mat-icon fontSet="denali" fontIcon="d-information-circle"></mat-icon>
+                                            <span>How often an alert is fired when state persists.</span>
+                                    </mat-hint>
+                                </div>
+                            </div>
+                        </div>
+                </div>
                 <div class="step-section notification-section is-visible">
                     <div class="step-section-label">
                         <span class="step-section-label-text">3. Notification</span>
@@ -558,12 +772,7 @@
                             <div class="form-label"><strong>Notify</strong> when state transitions from</div>
                             <div class="form-control-wrap">
                                 <ng-container *ngFor="let transition of data.notification.transitionsToNotify; let last = last">
-                                    {{transition === 'goodToBad' ? 'Good To Bad' : ''}}
-                                    {{transition === 'warnToBad' ? 'Warn To Bad' : ''}}
-                                    {{transition === 'warnToGood' ? 'Warn To Good' : ''}}
-                                    {{transition === 'badToGood' ? 'Bad to Good' : ''}}
-                                    {{transition === 'goodToWarn' ? 'Good To Warn' : ''}}
-                                    {{transition === 'badToWarn' ? 'Bad to Warn' : ''}}
+                                    {{transitionOptions[transition]}}
                                     {{(!last) ? ', ' : ''}}
                                 </ng-container>
                             </div>
@@ -643,7 +852,7 @@
 
     </mat-card-content>
     <mat-card-actions *ngIf="!readOnly">
-        <button mat-flat-button color="primary" type="submit" (click)="validate()" [disabled]="!(queries && queries[0] && queries[0].metrics.length > 0)">Save Alert</button>
+        <button mat-flat-button color="primary" type="submit" (click)="validate()" [disabled]="!( queries[0].metrics.length > 0 || data.type === 'healthcheck' && queries[0].filters.length > 0 )">Save Alert</button>
         <button mat-stroked-button (click)="cancelEdit()" color="primary">Cancel</button>
     </mat-card-actions>
     <mat-card-actions *ngIf="readOnly">

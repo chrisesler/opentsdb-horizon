@@ -11,7 +11,7 @@
                         </div>
                         <div class="tag-key-search-results has-scroller">
                             <div class="is-scroller">
-                                <div class="option-item tag-key-option" *ngFor="let option of tagOptions" 
+                                <div class="option-item tag-key-option" *ngFor="let option of tagFilteredOptions" 
                                     [ngClass]="{'added': getTagIndex(option.name) !== -1, 'selected': option.name === selectedTag, 'last-added-key': lastAddedKey(option.name) }">
                                     <div class="option-cell add-remove" (click)="removeTagValues(option.name)" *ngIf="getTagIndex(option.name) !== -1">
                                             <mat-icon (click)="removeTagValues(option.name)">remove_circle_outline</mat-icon>

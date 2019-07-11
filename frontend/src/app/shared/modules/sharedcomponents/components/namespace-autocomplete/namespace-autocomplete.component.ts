@@ -12,9 +12,10 @@ import {
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { map, startWith, debounceTime, switchMap } from 'rxjs/operators';
+import { map, startWith, debounceTime, switchMap, skip } from 'rxjs/operators';
 import { MatAutocomplete } from '@angular/material';
 import { HttpService } from '../../../../../core/http/http.service';
+import { start } from 'repl';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -28,13 +29,15 @@ export class NamespaceAutocompleteComponent implements OnInit {
     @HostBinding('class.namespace-autocomplete-component') private _hostClass = true;
 
     @Input() value = '';
+    @Input() options: any = {};
     @Output() nschange = new EventEmitter();
     @Output() blur = new EventEmitter();
     @ViewChild('namespaceInput') nsInput: ElementRef;
     @ViewChild('namespaceAuto') nsAutoCompleteCntrl: MatAutocomplete;
 
     visible = false;
-    filteredNamespaceOptions: Observable<string[]>;
+    filteredNamespaceOptions = [];
+    namespaces = [];
     namespaceControl: FormControl;
     selectedNamespace;
 
@@ -43,13 +46,31 @@ export class NamespaceAutocompleteComponent implements OnInit {
     constructor(private httpService: HttpService, private elRef: ElementRef) { }
 
     ngOnInit() {
+        let showFullList = true;
         this.namespaceControl = new FormControl(this.value);
-        this.filteredNamespaceOptions = this.namespaceControl.valueChanges
+        this.namespaceControl.valueChanges
             .pipe(
-                startWith(''),
-                debounceTime(300),
-                switchMap(value => this.httpService.getNamespaces({ search: value }))
-            );
+                debounceTime(100),
+            ).subscribe( search => {
+                search = search.trim();
+                search = search === '' || showFullList ? '.*' : search;
+                search = search.replace(/\s+/g, '.*').toLowerCase();
+                const regex = new RegExp( search );
+                for ( let i = 0; i < this.namespaces.length; i++ ) {
+                    this.filteredNamespaceOptions = this.namespaces.filter(d => regex.test(d.toLowerCase()));
+                }
+                showFullList = false;
+            });
+        this.httpService.getNamespaces({ search: '' }, this.options.metaSource)
+                        .subscribe(res => {
+                            this.namespaces = res;
+                            this.namespaceControl.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+                        },
+                        err => {
+                            this.namespaces = [];
+                            this.filteredNamespaceOptions = [];
+                        });
+
         setTimeout(() => {
             // this.nsInput.nativeElement.focus();
             this.visible = true;
@@ -62,18 +83,16 @@ export class NamespaceAutocompleteComponent implements OnInit {
         const textVal = this.namespaceControl.value;
 
         // check if the namespace is valid option
-        this.filteredNamespaceOptions.forEach(options => {
 
-            // find index in options
-            const checkIdx = options.findIndex(item => textVal.toLowerCase() === item.toLowerCase());
+        // find index in options
+        const checkIdx = this.filteredNamespaceOptions.findIndex(item => textVal.toLowerCase() === item.toLowerCase());
 
-            if (checkIdx >= 0) {
-                // set value to the option value (since typed version could be different case)
-                this.selectedNamespace = options[checkIdx];
-                // emit change
-                this.nschange.emit(this.selectedNamespace);
-            }
-        });
+        if (checkIdx >= 0) {
+            // set value to the option value (since typed version could be different case)
+            this.selectedNamespace = this.filteredNamespaceOptions[checkIdx];
+            // emit change
+            this.nschange.emit(this.selectedNamespace);
+        }
     }
 
     /**
