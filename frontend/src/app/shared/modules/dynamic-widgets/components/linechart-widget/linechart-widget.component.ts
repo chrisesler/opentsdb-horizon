@@ -696,6 +696,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     normalizeValue(value, index) {
+        if ( isNaN(value)) {
+            return '-';
+        }
         const config = this.options.series[index];
         const format = config.axis === 'y' ? this.options.axes.y.tickFormat : this.options.axes.y2.tickFormat;
         const dunit = this.unit.getNormalizedUnit(value, format);
