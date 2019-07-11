@@ -10,6 +10,9 @@
     <event-stream 
         [buckets]="buckets" 
         [show]="showEventStream"
+        [startTime]="startTime" 
+        [endTime]="endTime"
+        [timezone] = "this.options.labelsUTC ? 'utc' : 'local'" 
         (updatedShowing)="updatedShowEventStream($event)"
     ></event-stream>
     <div class="widget-output" #widgetoutput

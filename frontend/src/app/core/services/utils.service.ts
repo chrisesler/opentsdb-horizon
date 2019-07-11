@@ -599,8 +599,8 @@ export class UtilsService {
     } else {
         hour = a.getHours();
         ampm = hour >= 12 ? 'pm' : 'am';
-        hour = hour % 12;
-        hour = hour ? hour : 12; // the hour '0' should be '12'
+        // hour = hour % 12;
+        // hour = hour ? hour : 12; // the hour '0' should be '12'
     }
 
     let min;
@@ -648,9 +648,9 @@ export class UtilsService {
     }
 
     // add am/pm for local time
-    if (timezone !== 'utc') {
-        dateString = dateString + ' ' + time[6];
-    }
+    // if (timezone !== 'utc') {
+    //     dateString = dateString + ' ' + time[6];
+    // }
 
     return dateString;
 

@@ -14,6 +14,9 @@ export class EventStreamComponent implements OnInit, OnChanges {
 
   @Input() buckets: any[];
   @Input() show: boolean;
+  @Input() startTime: number;  // in milliseconds
+  @Input() endTime: number;    // in miliseconds
+  @Input() timezone: string;
   @Output() updatedShowing: EventEmitter<boolean> = new EventEmitter();
 
   constructor(private util: UtilsService) { }
