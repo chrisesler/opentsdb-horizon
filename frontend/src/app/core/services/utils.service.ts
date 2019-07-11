@@ -592,14 +592,16 @@ export class UtilsService {
     const month = (timezone === 'utc') ? months[a.getUTCMonth()] : months[a.getMonth()];
     const date = (timezone === 'utc') ? a.getUTCDate() : a.getDate();
     let hour;
+    let ampm;
     if (timezone === 'utc') {
         hour = a.getUTCHours();
+        ampm = hour >= 12 ? 'pm' : 'am';
     } else {
         hour = a.getHours();
+        ampm = hour >= 12 ? 'pm' : 'am';
         hour = hour % 12;
         hour = hour ? hour : 12; // the hour '0' should be '12'
     }
-    const ampm = hour >= 12 ? 'pm' : 'am';
 
     let min;
     if (timezone === 'utc') {
@@ -608,17 +610,21 @@ export class UtilsService {
         min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();
     }
 
-    time.push(year, month, date, hour, min, ampm);
+    let sec;
+    if (timezone === 'utc') {
+        sec = a.getUTCSeconds() < 10 ? '0' + a.getUTCSeconds() : a.getUTCSeconds();
+    } else {
+        sec = a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds();
+    }
+
+
+    time.push(year, month, date, hour, min, sec, ampm);
     return time;
   }
 
 
-  buildTimeStamp(unixSeconds: number, startTime: number, endTime, timezone?: string): string {
-    if (!timezone) {
-        timezone = 'local';
-    }
-
-    const time = this.getTimeArray(unixSeconds, timezone);
+  buildDisplayTime(unixMillisec: number, startTime: number, endTime, includeSeconds: boolean = false, timezone: string = 'local'): string {
+    const time = this.getTimeArray(unixMillisec, timezone);
     const start = this.getTimeArray(startTime, timezone);
     const end = this.getTimeArray(endTime, timezone);
 
@@ -631,14 +637,19 @@ export class UtilsService {
     }
 
     let dateString = '';
-    if (crossedMidnight) {
+    if (crossedMidnight) { // include full time, including year and date
         dateString = time[0] + '-' + time[1] + '-' + time[2] + ' ' + time[3] + ':' + time[4];
-    } else {
+    } else { // only include hour and minute
         dateString = time[3] + ':' + time[4];
     }
 
+    if (includeSeconds) {
+        dateString = dateString + ':' + time[5];
+    }
+
+    // add am/pm for local time
     if (timezone !== 'utc') {
-        dateString = dateString + ' ' + time[5];
+        dateString = dateString + ' ' + time[6];
     }
 
     return dateString;

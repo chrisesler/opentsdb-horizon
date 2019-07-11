@@ -21,6 +21,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   @Input() width: number;
   @Input() events: any;
   @Input() toolTipHeightFromTop: any; // pixels from top of widget
+  @Input() timezone: string;
 
   @Output() canvasClicked: EventEmitter<any> = new EventEmitter();
   @Output() timeInterval: EventEmitter<number> = new EventEmitter();

@@ -39,7 +39,8 @@
                 [endTime]="endTime" 
                 [width]="eventsWidth" 
                 [events]="events"
-                [toolTipHeightFromTop]="size.height" 
+                [toolTipHeightFromTop]="size.height"
+                [timezone] = "this.options.labelsUTC ? 'utc' : 'local'" 
                 (canvasClicked)="updatedShowEventStream(true)" 
                 (newBuckets)="newBuckets($event)"></event-timeline>
             </div>
