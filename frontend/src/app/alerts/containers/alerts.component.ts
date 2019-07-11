@@ -56,6 +56,7 @@ import * as _moment from 'moment';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { IntercomService } from '../../core/services/intercom.service';
 import { LoggerService } from '../../core/services/logger.service';
+import { UtilsService } from '../../core/services/utils.service';
 const moment = _moment;
 
 @Component({
@@ -190,7 +191,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     namespaceDropMenuOpen: boolean = false;
     configLoaded$  = new Subject();
 
-    error:any ;
+    error: any ;
 
     // portal templates
     @ViewChild('alertspageNavbarTmpl') alertspageNavbarTmpl: TemplateRef<any>;
@@ -211,7 +212,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
         private domSanitizer: DomSanitizer,
         private cdkService: CdkService,
         private interCom: IntercomService,
-        private logger: LoggerService
+        private logger: LoggerService,
+        private utils: UtilsService
     ) {
         this.sparklineDisplay = this.sparklineDisplayMenuOptions[0];
 
@@ -327,45 +329,49 @@ export class AlertsComponent implements OnInit, OnDestroy {
             this.hasNamespaceWriteAccess = !readOnly;
             const routeSnapshot = this.activatedRoute.snapshot.url;
             let modeCheck;
-            //this.logger.log('READ ONLY?', {readOnly, routeUrl: this.router.url, activatedRoute: this.activatedRoute });
+            // this.logger.log('READ ONLY?', {readOnly, routeUrl: this.router.url, activatedRoute: this.activatedRoute });
 
-            // check if there is a mode in the url
-            // purely aesthetic. If url has 'edit', but its readonly, it will still be readonly
-            if (routeSnapshot.length > 0 && readOnly) {
-                modeCheck = routeSnapshot[routeSnapshot.length - 1];
+            if (routeSnapshot.length > 1 && this.utils.checkIfNumeric(routeSnapshot[0].path) && routeSnapshot[1].path !== '_new_') {
 
-                // there is no mode in the url
-                if (modeCheck.path.toLowerCase() !== 'view' && modeCheck.path.toLowerCase() !== 'edit') {
-                    // force view url path
-                    const parts = routeSnapshot.map(item => item.path);
-                    parts.unshift('/a');
-                    parts.push('view');
-                    this.location.go(parts.join('/'));
-                } else if (modeCheck.path.toLowerCase() === 'edit') {
-                    // mode is in url, so check if it matches edit, and forcibly change it to view
-                    const parts = routeSnapshot.map(item => item.path);
-                    parts.pop();
-                    parts.unshift('/a');
-                    parts.push('view');
-                    this.location.go(parts.join('/'));
-                }
+                // check if there is a mode in the url
+                // purely aesthetic. If url has 'edit', but its readonly, it will still be readonly
+                if (readOnly) {
+                    modeCheck = routeSnapshot[routeSnapshot.length - 1];
+                    // console.log('modeCheck', modeCheck.path);
 
-                this.detailsMode = 'view';
+                    // there is no mode in the url
+                    if (modeCheck.path.toLowerCase() !== 'view' && modeCheck.path.toLowerCase() !== 'edit') {
+                        // force view url path
+                        const parts = routeSnapshot.map(item => item.path);
+                        parts.unshift('/a');
+                        parts.push('view');
+                        this.location.go(parts.join('/'));
+                    } else {
+                        // mode is in url, so check if it matches edit, and forcibly change it to view
+                        const parts = routeSnapshot.map(item => item.path);
+                        parts.pop();
+                        parts.unshift('/a');
+                        parts.push('view');
+                        this.location.go(parts.join('/'));
+                    }
 
-            // it's not readonly, check if mode in url. If not, add 'edit'
-            // if it has 'view' in the url, it will still pass
-            } else if (routeSnapshot.length > 0 && !readOnly) {
-                modeCheck = routeSnapshot[routeSnapshot.length - 1];
-                // there is no mode in the url
-                if (modeCheck.path.toLowerCase() !== 'view' && modeCheck.path.toLowerCase() !== 'edit') {
-                    // enforce mode in url path, defaulting to edit
-                    const parts = routeSnapshot.map(item => item.path);
-                    parts.unshift('/a');
-                    parts.push('edit');
-                    this.location.go(parts.join('/'));
-                    this.detailsMode = 'edit';
-                } else {
-                    this.detailsMode = modeCheck.path.toLowerCase();
+                    this.detailsMode = 'view';
+
+                // it's not readonly, check if mode in url. If not, add 'edit'
+                // if it has 'view' in the url, it will still pass
+                } else if (!readOnly) {
+                    modeCheck = routeSnapshot[routeSnapshot.length - 1];
+                    // there is no mode in the url
+                    if (modeCheck.path.toLowerCase() !== 'view' && modeCheck.path.toLowerCase() !== 'edit') {
+                        // enforce mode in url path, defaulting to edit
+                        const parts = routeSnapshot.map(item => item.path);
+                        parts.unshift('/a');
+                        parts.push('edit');
+                        this.location.go(parts.join('/'));
+                        this.detailsMode = 'edit';
+                    } else {
+                        this.detailsMode = modeCheck.path.toLowerCase();
+                    }
                 }
             }
 
@@ -385,27 +391,63 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         // handle route for alerts
         this.subscription.add(this.activatedRoute.url.pipe(delayWhen(() => this.configLoaded$)).subscribe(url => {
-            // this.logger.log('ROUTE URL', {url});
-            if (url.length === 1 ) {
-                if ( /^\d+$/.test(url[0].path) ) {
-                    this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path, 10)));
-                } else {
-                    this.setNamespace(url[0].path);
-                }
-            } else if (url.length === 2 && url[1].path === '_new_') {
-                this.store.dispatch(new CheckWriteAccess({ namespace: url[0].path, id: '_new_'}));
+            if (url.length === 1 && !this.utils.checkIfNumeric(url[0].path) ) {
+                // if only one item, and its not numeric, probably a namespace
                 this.setNamespace(url[0].path);
+            } else if (url.length === 2 && url[1].path === '_new_') {
+                // new alert
+                this.setNamespace(url[0].path);
+                this.store.dispatch(new CheckWriteAccess({ namespace: url[0].path, id: '_new_'}));
+            } else if (
+                (url.length === 2 &&
+                this.utils.checkIfNumeric(url[0].path) &&
+                (url[1].path.toLocaleLowerCase() === 'view' || url[1].path.toLocaleLowerCase() === 'edit')) ||
+                (url.length === 1 && this.utils.checkIfNumeric(url[0].path))
+            ) {
+                // abreviated alert url... probably came from alert email
+                this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path, 10)));
             } else if (url.length > 2) {
                 // load alert the alert
                 this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path, 10)));
             } else if ( this.userNamespaces.length || this.allNamespaces.length ) {
+                // set a namespace... probably should update url?
                 this.setNamespace( this.userNamespaces.length ? this.userNamespaces[0].name : this.allNamespaces[0].name);
             }
         }));
 
         // check the edit access. skips the first time with default value
         this.subscription.add(this.alertDetail$.pipe(skip(1)).subscribe( data => {
+            const routeSnapshot = this.activatedRoute.snapshot.url;
+            let parts;
+
+            // url path has 2 parts, (i.e. /a/1234/view)
+            if (
+                routeSnapshot.length === 2 &&
+                this.utils.checkIfNumeric(routeSnapshot[0].path) &&
+                (routeSnapshot[1].path.toLowerCase() === 'view' || routeSnapshot[1].path.toLowerCase() === 'edit')
+            ) {
+                // fix the URL if it is abbreviated route from alert email
+                parts = ['/a', data.id, data.namespace, data.slug, routeSnapshot[1].path.toLowerCase()];
+                this.location.go(parts.join('/'));
+
+                // set the namespace, since we probably didn't get it from the url
+                this.setNamespace(data.namespace);
+
+            // url path has 1 parts, (i.e. /a/1234)
+            } else if (
+                routeSnapshot.length === 1 &&
+                this.utils.checkIfNumeric(routeSnapshot[0].path)
+            ) {
+                // fix the URL if it is abbreviated route from alert email
+                parts = ['/a', data.id, data.namespace, data.slug, 'view'];
+                this.location.go(parts.join('/'));
+
+                // set the namespace, since we probably didn't get it from the url
+                this.setNamespace(data.namespace);
+            }
+
             this.store.dispatch(new CheckWriteAccess( data ));
+
         }));
 
     }
@@ -413,14 +455,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
     setNamespace( namespace ) {
         if ( this.selectedNamespace !== namespace ) {
             this.store.dispatch(new SetNamespace(namespace));
-            if ( !this.detailsView ) {
-                this.location.go('a/' + this.selectedNamespace);
-            }
         }
     }
 
     loadAlerts(namespace) {
         this.setNamespace(namespace);
+        this.location.go('a/' + namespace);
     }
 
     ngOnDestroy() {
