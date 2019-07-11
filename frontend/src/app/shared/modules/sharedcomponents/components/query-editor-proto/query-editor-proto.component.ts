@@ -112,6 +112,10 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         {
             label: 'Avg',
             value: 'avg'
+        },
+        {
+            label: 'Last',
+            value: 'last'
         }
     ];
 
