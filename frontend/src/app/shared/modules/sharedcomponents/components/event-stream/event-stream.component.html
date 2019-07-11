@@ -5,7 +5,7 @@
     </div>
 
     <div *ngFor="let bucket of buckets">
-        <div class="group-type-heading">{{buildTimeStamp(bucket.endTime)}}</div>
+        <div class="group-type-heading">{{util.buildTimeStamp(bucket.endTime)}}</div>
         <div *ngFor="let event of bucket.events">
             <div class="event-description"> {{event.title}}</div>
         </div>

@@ -35,6 +35,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   iconWidth = 10.1; // pixels
   buckets = [];
   toolTipData: any = {};
+  maxTooltipSourceSummaries = 3;
 
   constructor(private util: UtilsService) { }
 
@@ -77,6 +78,49 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     }
     placeholder = placeholder.trim();
     return placeholder;
+  }
+
+  getBucketSummary(bucket): any[] {
+    let summaries = []; // [[source, count]]
+    let sourceToCount = new Map();
+
+    // get the counts per source
+    for (let event of bucket.events) {
+      if (sourceToCount.has(event.source)) {
+        let count = sourceToCount.get(event.source) + 1;
+        sourceToCount.set(event.source, count);
+      } else {
+        sourceToCount.set(event.source, 1);
+      }
+    }
+
+    // order the map by count, put in array
+    let sortedSourceAndCount = Array.from(sourceToCount).sort((a, b) => {
+      // a[0], b[0] is the key of the map
+      return a[0] - b[0];
+    });
+
+    // fill up summaries
+    let i = 0;
+    while (i < this.maxTooltipSourceSummaries - 1 && i < sortedSourceAndCount.length) {
+      summaries.push(sortedSourceAndCount[i]);
+      i++;
+    }
+
+    // determine if 'more' bucket is needed
+    if (sortedSourceAndCount.length < this.maxTooltipSourceSummaries) {
+      // do nothing
+    } else if (sortedSourceAndCount.length === this.maxTooltipSourceSummaries) {
+      summaries.push(sortedSourceAndCount[i]);
+    } else {
+      let count = 0;
+      for (i; i < sortedSourceAndCount.length; i++ ) {
+        count = sortedSourceAndCount[i][1] + count;
+      }
+      summaries.push(['more', count]);
+    }
+
+    return summaries;
   }
 
   getEventResolution() {

@@ -33,9 +33,4 @@ export class EventStreamComponent implements OnInit, OnChanges {
     this.updatedShowing.emit(this.show);
   }
 
-  buildTimeStamp(timestamp: number): string {
-    const _moment: Moment = moment(timestamp);
-    return _moment.format('YYYY-MM-DD-HH:mm');
-  }
-
 }

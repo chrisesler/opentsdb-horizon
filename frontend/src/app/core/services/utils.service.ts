@@ -579,4 +579,9 @@ export class UtilsService {
     return buckets.reverse();
   }
 
+  buildTimeStamp(unixSeconds: number): string {
+    const __moment = moment(unixSeconds);
+    return __moment.format('YYYY-MM-DD HH:mm A');
+  }
+
 }

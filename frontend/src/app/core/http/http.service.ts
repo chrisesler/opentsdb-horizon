@@ -398,15 +398,16 @@ export class HttpService {
         return { events: [
             {
                 title: 'Event 1',
-                source: 'sd',
+                source: 'aws',
                 startTime: now - (3 * 600 * 1000),
+                endTime: now,
                 jobNumber: '1',
                 status: 'Success',
                 executor: 'zb',
             },
             {
                 title: 'Event 2',
-                source: 'sd',
+                source: 'aws',
                 startTime: now - (4.1 * 600 * 1000),
                 jobNumber: '2',
                 status: 'Success',
@@ -414,7 +415,7 @@ export class HttpService {
              },
             {
                 title: 'Event 3',
-                source: 'sd',
+                source: 'aws',
                 startTime: now - (4.22 * 600 * 1000),
                 jobNumber: '3',
                 status: 'Success',
