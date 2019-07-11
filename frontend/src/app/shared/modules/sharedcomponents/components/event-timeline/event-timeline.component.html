@@ -20,7 +20,7 @@
     </div>
     <div>
       <span>
-          {{util.buildTimeStamp(toolTipData.bucket.events[0].startTime)}}
+          {{util.buildTimeStamp(toolTipData.bucket.events[0].startTime, startTime, endTime)}}
       </span>
 
       <span *ngIf="toolTipData.bucket.events[0].endTime">
@@ -28,7 +28,7 @@
       </span>
 
       <span *ngIf="toolTipData.bucket.events[0].endTime">
-          {{util.buildTimeStamp(toolTipData.bucket.events[0].endTime)}}
+          {{util.buildTimeStamp(toolTipData.bucket.events[0].endTime, startTime, endTime)}}
       </span>
     </div>
   </div>

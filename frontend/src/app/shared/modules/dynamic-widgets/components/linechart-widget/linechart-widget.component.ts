@@ -111,7 +111,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     clickTimer: any;
 
     // EVENTS
-    showEvents = false;  // EVENT TOGGLE
+    showEvents = true;  // EVENT TOGGLE
     buckets: any[]; // TODO: remove with island legend
     events: any[];
     showEventStream = false;

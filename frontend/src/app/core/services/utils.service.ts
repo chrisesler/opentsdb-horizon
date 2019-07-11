@@ -579,9 +579,70 @@ export class UtilsService {
     return buckets.reverse();
   }
 
-  buildTimeStamp(unixSeconds: number): string {
-    const __moment = moment(unixSeconds);
-    return __moment.format('YYYY-MM-DD HH:mm A');
+  getTimeArray(timeInMilliseconds, timezone?: string): any[] {
+    const time = [];
+    if (!timezone) {
+        timezone = 'local';
+    }
+    timezone = timezone.toLowerCase();
+
+    const a = new Date(timeInMilliseconds);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const year = (timezone === 'utc') ? a.getUTCFullYear() : a.getFullYear();
+    const month = (timezone === 'utc') ? months[a.getUTCMonth()] : months[a.getMonth()];
+    const date = (timezone === 'utc') ? a.getUTCDate() : a.getDate();
+    let hour;
+    if (timezone === 'utc') {
+        hour = a.getUTCHours();
+    } else {
+        hour = a.getHours();
+        hour = hour % 12;
+        hour = hour ? hour : 12; // the hour '0' should be '12'
+    }
+    const ampm = hour >= 12 ? 'pm' : 'am';
+
+    let min;
+    if (timezone === 'utc') {
+        min = a.getUTCMinutes() < 10 ? '0' + a.getUTCMinutes() : a.getUTCMinutes();
+    } else {
+        min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();
+    }
+
+    time.push(year, month, date, hour, min, ampm);
+    return time;
+  }
+
+
+  buildTimeStamp(unixSeconds: number, startTime: number, endTime, timezone?: string): string {
+    if (!timezone) {
+        timezone = 'local';
+    }
+
+    const time = this.getTimeArray(unixSeconds, timezone);
+    const start = this.getTimeArray(startTime, timezone);
+    const end = this.getTimeArray(endTime, timezone);
+
+    let crossedMidnight = false;
+    for (let i = 0; i < 3; i++) {
+        if (start[i] !== end[i]) {
+            crossedMidnight = true;
+            break;
+        }
+    }
+
+    let dateString = '';
+    if (crossedMidnight) {
+        dateString = time[0] + '-' + time[1] + '-' + time[2] + ' ' + time[3] + ':' + time[4];
+    } else {
+        dateString = time[3] + ':' + time[4];
+    }
+
+    if (timezone !== 'utc') {
+        dateString = dateString + ' ' + time[5];
+    }
+
+    return dateString;
+
   }
 
 }
