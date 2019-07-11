@@ -191,7 +191,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     namespaceDropMenuOpen: boolean = false;
     configLoaded$  = new Subject();
 
-    error:any ;
+    error: any ;
 
     // portal templates
     @ViewChild('alertspageNavbarTmpl') alertspageNavbarTmpl: TemplateRef<any>;
@@ -283,7 +283,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 case 'update-success':
                     message = 'Alert has been ' + (status === 'add-success' ? 'created' : 'updated') + '.';
                     this.detailsView = false;
-                    this.router.navigate(['a']);
+                    // this.router.navigate(['a']);
+                    // this.editMode = false;
                     break;
                 case 'enable-success':
                     message = 'Alert has been enabled.';
@@ -310,17 +311,17 @@ export class AlertsComponent implements OnInit, OnDestroy {
             const _data = JSON.parse(JSON.stringify(data));
             if ( _data.id === '_new_' ) {
                 const o = {
-                    alertType: 'metric',
+                    type: 'simple',
                     namespace: data.namespace,
                     name: 'Untitled Alert'
-                }
+                };
                 this.openAlertEditMode(o);
             } else {
+                this.openAlertEditMode(_data);
                 // set the namespace if the user comes directly from edit url
                 if ( !this.selectedNamespace ) {
                     this.setNamespace(_data.namespace);
                 }
-                this.openAlertEditMode(_data);
             }
         }));
 
@@ -328,7 +329,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
             this.hasNamespaceWriteAccess = !readOnly;
             const routeSnapshot = this.activatedRoute.snapshot.url;
             let modeCheck;
-            //this.logger.log('READ ONLY?', {readOnly, routeUrl: this.router.url, activatedRoute: this.activatedRoute });
+            // this.logger.log('READ ONLY?', {readOnly, routeUrl: this.router.url, activatedRoute: this.activatedRoute });
 
             if (routeSnapshot.length > 1 && this.utils.checkIfNumeric(routeSnapshot[0].path) && routeSnapshot[1].path !== '_new_') {
 
@@ -336,7 +337,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 // purely aesthetic. If url has 'edit', but its readonly, it will still be readonly
                 if (readOnly) {
                     modeCheck = routeSnapshot[routeSnapshot.length - 1];
-                    //console.log('modeCheck', modeCheck.path);
+                    // console.log('modeCheck', modeCheck.path);
 
                     // there is no mode in the url
                     if (modeCheck.path.toLowerCase() !== 'view' && modeCheck.path.toLowerCase() !== 'edit') {
@@ -539,7 +540,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     createAlert(type: string) {
         const data = {
-            alertType: type,
+            type: type,
             namespace: this.selectedNamespace,
             name: 'Untitled Alert'
         };
@@ -550,7 +551,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     openAlertEditMode(data: any) {
         this.configurationEditData = data;
         this.detailsView = true;
-
+        // this.editMode = true;
     }
 
     configurationEdit_change(message: any) {
@@ -558,12 +559,13 @@ export class AlertsComponent implements OnInit, OnDestroy {
             case 'SaveAlert':
                 // lets save this thing
                 this.store.dispatch(new SaveAlerts(message.namespace, message.payload));
+                this.location.go('a/' + message.namespace);
                 break;
             case 'CancelEdit':
             default:
                 // this is when dialog is closed to return to summary page
-                this.location.go('a');
                 this.detailsView = false;
+                this.location.go('a/' + this.selectedNamespace);
                 break;
         }
     }

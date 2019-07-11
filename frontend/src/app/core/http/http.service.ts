@@ -71,12 +71,12 @@ export class HttpService {
             );
     }
 
-    getNamespaces(queryObj: any): Observable<any> {
+    getNamespaces(queryObj: any, source= 'meta'): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
         const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('NAMESPACES', queryObj);
+        const query = this.metaService.getQuery(source, 'NAMESPACES', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => res ? res.results[0].namespaces : []),
@@ -98,7 +98,7 @@ export class HttpService {
             newQueryParams[namespace].metrics.push(metric);
         }
         const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('TAG_KEYS', Object.values(newQueryParams));
+        const query = this.metaService.getQuery('meta', 'TAG_KEYS', Object.values(newQueryParams));
         console.log('tag query for query', query);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
@@ -120,7 +120,7 @@ export class HttpService {
             'Content-Type': 'application/json'
         });
         const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('METRICS', queryObj);
+        const query = this.metaService.getQuery('meta', 'METRICS', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => res ? res.results[0].metrics : [])
@@ -147,32 +147,31 @@ export class HttpService {
             }
         }
         if ( hasMetric ) {
-            const query = this.metaService.getQuery('TAG_KEYS', newQueries);
-            console.log('the query', query);
+            const query = this.metaService.getQuery('meta', 'TAG_KEYS', newQueries);
             const apiUrl = environment.metaApi + '/search/timeseries';
             return this.http.post(apiUrl, query, { headers, withCredentials: true });
         } else {
             return of({ 'results': [] });
         }
     }
-    getNamespaceTagKeys(queryObj: any): Observable<any> {
+    getNamespaceTagKeys(queryObj: any, source = 'meta'): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
-        const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('TAG_KEYS', queryObj);
+        const apiUrl =  environment.metaApi + '/search/timeseries';
+        const query = this.metaService.getQuery(source, 'TAG_KEYS', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => res ? res.results[0].tagKeys : [])
             );
     }
 
-    getTagValuesByNamespace(queryObj: any): Observable<any> {
+    getTagValuesByNamespace(queryObj: any, source = 'meta'): Observable<any> {
       const headers = new HttpHeaders({
         'Content-Type': 'application/json'
       });
-      const apiUrl = environment.metaApi + '/search/timeseries';
-      const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj, false);
+      const apiUrl =  environment.metaApi + '/search/timeseries';
+      const query = this.metaService.getQuery(source, 'TAG_KEYS_AND_VALUES', queryObj, false);
       return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
                           map((res: any) => res && res.results[0].tagKeysAndValues[queryObj.tagkey] ?
@@ -196,7 +195,7 @@ export class HttpService {
             newQueryParams[namespace].metrics.push(metric);
         }
         const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', Object.values(newQueryParams), false);
+        const query = this.metaService.getQuery('meta', 'TAG_KEYS_AND_VALUES', Object.values(newQueryParams), false);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {

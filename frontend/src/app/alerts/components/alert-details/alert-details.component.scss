@@ -81,11 +81,15 @@
         .preview-wrapper {
             padding: 8px 16px;
             height: 180px;
-            display: flex;
+            display: none;
 
             .graph-wrapper,
             .legend-wrapper {
                 flex: 1;
+                display: flex;
+            }
+
+            &.is-visible {
                 display: flex;
             }
 
@@ -372,6 +376,7 @@
 
             .mat-list-item.mat-list-option {
                 height: 32px;
+                max-width: 180px;
 
                 .mat-list-item-content {
                     flex-direction: row;
@@ -604,6 +609,7 @@
         }
 
         .notify-when-options {
+            flex-wrap: wrap;
             .mat-pseudo-checkbox {
                 color: map-get($primary, default);
             }

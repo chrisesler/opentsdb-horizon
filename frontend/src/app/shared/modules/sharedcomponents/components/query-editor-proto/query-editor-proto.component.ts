@@ -35,6 +35,7 @@ interface IQueryEditorOptions {
     deleteQuery?: boolean;
     toggleQuery?: boolean;
     cloneQuery?: boolean;
+    enableMetric?: boolean;
     toggleMetric?: boolean;
     enableGroupBy?: boolean;
     enableSummarizer?: boolean;
@@ -403,10 +404,12 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             'deleteQuery': false,
             'toggleQuery': false,
             'cloneQuery': false,
+            'enableMetric': true,
             'toggleMetric': true,
             'enableGroupBy': true,
             'enableSummarizer': false,
-            'enableMultiMetricSelection': true
+            'enableMultiMetricSelection': true,
+            'enableExplicitTagMatch': true,
          };
         this.options = { ...defaultOptions, ...this.options};
     }
