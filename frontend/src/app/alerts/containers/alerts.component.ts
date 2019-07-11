@@ -346,7 +346,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                         parts.unshift('/a');
                         parts.push('view');
                         this.location.go(parts.join('/'));
-                    } else if (modeCheck.path.toLowerCase() === 'edit') {
+                    } else {
                         // mode is in url, so check if it matches edit, and forcibly change it to view
                         const parts = routeSnapshot.map(item => item.path);
                         parts.pop();
