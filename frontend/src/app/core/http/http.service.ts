@@ -132,10 +132,10 @@ export class HttpService {
             'Content-Type': 'application/json'
         });
         const newQueries = [];
-        let hasMetric = false;
         for (let i = 0, len = widgets.length; i < len; i++) {
             const queries = widgets[i].queries;
             for (let j = 0;  j < queries.length; j++) {
+                let hasMetric = false;
                 const q = { id: widgets[i].id + ':' + queries[j].id, search: '', namespace: queries[j].namespace, metrics: [] };
                 for (let k = 0;  k < queries[j].metrics.length; k++) {
                     if ( queries[j].metrics[k].expression === undefined ) {
@@ -143,12 +143,14 @@ export class HttpService {
                         hasMetric = true;
                     }
                 }
-                newQueries.push(q);
+                if ( hasMetric ) {
+                    newQueries.push(q);
+                }
             }
         }
-        if ( hasMetric ) {
+        if ( newQueries.length ) {
             const query = this.metaService.getQuery('TAG_KEYS', newQueries);
-            console.log('the query', query);
+            // console.log('hill - query dashboard tag key', query);
             const apiUrl = environment.metaApi + '/search/timeseries';
             return this.http.post(apiUrl, query, { headers, withCredentials: true });
         } else {
