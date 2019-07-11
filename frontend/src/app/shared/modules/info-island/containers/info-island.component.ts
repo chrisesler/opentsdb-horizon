@@ -1,7 +1,7 @@
-import { Component, OnInit, Inject, OnDestroy, HostBinding, AfterViewInit, ViewChild, ElementRef, ViewChildren, QueryList } from '@angular/core';
+import { Component,OnInit, Inject, OnDestroy, HostBinding,
+    AfterViewInit, ViewChild, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
-import { ISLAND_DATA } from '../info-island.tokens';
 import { Subject, Observable, Subscription } from 'rxjs';
 import { InfoIslandOptions } from '../services/info-island-options';
 import { LoggerService } from '../../../../core/services/logger.service';
@@ -16,7 +16,7 @@ import { CdkDrag } from '@angular/cdk/drag-drop';
             state(
                 'void',
                 style({
-                    //transform: 'translateY(100%)',
+                    // transform: 'translateY(100%)',
                     opacity: 0
                 })
             ),
@@ -34,7 +34,6 @@ import { CdkDrag } from '@angular/cdk/drag-drop';
 export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
 
     constructor(
-        @Inject(ISLAND_DATA) public data,
         private logger: LoggerService,
         private hostEl: ElementRef
     ) { }
@@ -49,8 +48,8 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @ViewChildren('resizerEl', { read: CdkDrag }) dragHandles: QueryList<ElementRef>;
 
-    private onDestroy = new Subject<void>();
-    onDestroy$ = this.onDestroy.asObservable();
+    private onCloseIsland = new Subject<void>();
+    onCloseIsland$ = this.onCloseIsland.asObservable();
 
     animationState: '*' | 'void' = 'void';
     private durationTimeoutId: any;
@@ -80,12 +79,11 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
     ngOnInit() { }
 
     ngOnDestroy() {
-        this.onDestroy.unsubscribe();
+        this.onCloseIsland.unsubscribe();
     }
 
     ngAfterViewInit() {
         this.hostPosition = this.hostEl.nativeElement.getBoundingClientRect();
-        // this.makeResizable();
         this.logger.log('ISLAND', { island: this.islandContainer });
         this.logger.log('ResizerEls', { resizers: this.resizers });
     }
@@ -108,131 +106,9 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
 
     animationDone() {
         if (this.animationState === 'void') {
-            this.onDestroy.next();
+            this.onCloseIsland.next();
         }
     }
-
-    /*private makeResizable() {
-        const element = this.islandContainer.nativeElement;
-        const resizers = this.resizers;
-        const minimum_size = 20;
-        let original_width = 0;
-        let original_height = 0;
-        let original_x = 0;
-        let original_y = 0;
-        let original_mouse_x = 0;
-        let original_mouse_y = 0;
-
-
-        const self = this;
-
-        resizers.forEach(item => {
-            const currentResizer = item.nativeElement;
-            console.log('currentResizer', currentResizer);
-
-            currentResizer.addEventListener('mousedown', function(e) {
-                e.preventDefault()
-                original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
-                original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
-                original_x = element.getBoundingClientRect().left;
-                original_y = element.getBoundingClientRect().top;
-                original_mouse_x = e.pageX;
-                original_mouse_y = e.pageY;
-                window.addEventListener('mousemove', resize)
-                window.addEventListener('mouseup', stopResize)
-            });
-
-            currentResizer
-        });
-
-        function resize(e) {
-
-        }
-
-        function resizeStop() {
-
-        }
-    }
-
-    mouseDownResize(event: any) {
-        event.preventDefault();
-        this.dragContainer.disabled = true;
-
-        const element = this.islandContainer.nativeElement;
-        this.origDims.width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
-        this.origDims.height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
-        this.origDims.x = element.getBoundingClientRect().left;
-        this.origDims.y = element.getBoundingClientRect().top;
-        this.origDims.mouse_x = event.pageX;
-        this.origDims.mouse_y = event.pageY;
-
-        const transformMatrix = this.getTransformMatrix(element);
-        this.origDims.transformMatrix = transformMatrix;
-
-        this._mouseMoveEvent = window.addEventListener('mousemove', this.mouseMoveResize.bind(this));
-        if (!this._mouseUpEvent) {
-            this._mouseUpEvent = window.addEventListener('mouseup', this.mouseUpStopResize.bind(this));
-        }
-    }
-
-    mouseMoveResize(event: any) {
-        this.logger.action('MOUSE MOVE EVENT', { event, origin: this.origDims });
-        const currentResizer = event.srcElement;
-        const element = this.islandContainer.nativeElement;
-
-        if (currentResizer.classList.contains('bottom-right')) {
-            this.logger.log('BOTTOM-RIGHT');
-            const width = this.origDims.width + (event.pageX - this.origDims.mouse_x);
-            const height = this.origDims.height + (event.pageY - this.origDims.mouse_y);
-            if (width > this.minimum_size) {
-                element.style.width = width + 'px';
-            }
-            if (height > this.minimum_size) {
-                element.style.height = height + 'px';
-            }
-        } else if (currentResizer.classList.contains('bottom-left')) {
-            this.logger.log('BOTTOM-LEFT');
-            const height = this.origDims.height + (event.pageY - this.origDims.mouse_y);
-            const width = this.origDims.width - (event.pageX - this.origDims.mouse_x);
-            if (height > this.minimum_size) {
-                element.style.height = height + 'px';
-            }
-            if (width > this.minimum_size) {
-                element.style.width = width + 'px';
-                //element.style.left = this.origDims.x + (event.pageX - this.origDims.mouse_x) + 'px';
-                //element.style.transform = 'translate3d(' + this.origDims.tran
-            }
-        } else if (currentResizer.classList.contains('top-right')) {
-            this.logger.log('TOP-RIGHT');
-            const width = this.origDims.width + (event.pageX - this.origDims.mouse_x);
-            const height = this.origDims.height - (event.pageY - this.origDims.mouse_y);
-            if (width > this.minimum_size) {
-                element.style.width = width + 'px';
-            }
-            if (height > this.minimum_size) {
-                element.style.height = height + 'px';
-                //element.style.top = this.origDims.y + (event.pageY - this.origDims.mouse_y) + 'px';
-            }
-        } else {
-            this.logger.log('TOP-LEFT');
-            const width = this.origDims.width - (event.pageX - this.origDims.mouse_x);
-            const height = this.origDims.height - (event.pageY - this.origDims.mouse_y);
-            if (width > this.minimum_size) {
-                element.style.width = width + 'px'
-                //element.style.left = this.origDims.x + (event.pageX - this.origDims.mouse_x) + 'px';
-            }
-            if (height > this.minimum_size) {
-                element.style.height = height + 'px';
-                //element.style.top = this.origDims.y + (event.pageY - this.origDims.mouse_y) + 'px';
-            }
-        }
-    }
-
-    mouseUpStopResize(event: any) {
-        window.removeEventListener('mousemove', this._mouseMoveEvent);
-        //window.removeEventListener('mouseup', this._mouseUpEvent);
-        this.dragContainer.disabled = false;
-    }*/
 
     private getTransformMatrix(el: any) {
         const transArr = [];
@@ -241,6 +117,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         const elStyle = window.getComputedStyle(el),
 
+        // tslint:disable-next-line: deprecation
         transform = elStyle.transform || elStyle.webkitTransform;
 
         if (transform === 'none') {
@@ -253,15 +130,11 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         mat = transform.match(/^matrix\((.+)\)$/);
-        mat ? transArr.push(parseFloat(mat[1].split(', ')[4])) : 0;
-        mat ? transArr.push(parseFloat(mat[1].split(', ')[5])) : 0;
+        transArr.push( mat ? parseFloat(mat[1].split(', ')[4]) : 0);
+        transArr.push( mat ? parseFloat(mat[1].split(', ')[5]) : 0);
         transArr.push(0);
         return transArr;
     }
-
-
-
-
 
     dragResizeStart(e: any) {
         this.logger.log('dragResizeStart', {event: e});
@@ -284,8 +157,8 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
 
         let width: any;
         let height: any;
-        let transform: any = [...this.origDims.transformMatrix];
-        let triggerTransform: boolean = false;
+        const transform: any = [...this.origDims.transformMatrix];
+        let triggerTransform = false;
         let diff: any;
 
         if (currentResizer.classList.contains('bottom-right')) {
