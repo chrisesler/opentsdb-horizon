@@ -57,6 +57,10 @@ export class WidgetConfigLegendComponent implements OnInit, OnDestroy {
         {
             label: 'Sum',
             value: 'sum'
+        },
+        {
+            label: 'Last',
+            value: 'last'
         }
     ];
     tags = [];
