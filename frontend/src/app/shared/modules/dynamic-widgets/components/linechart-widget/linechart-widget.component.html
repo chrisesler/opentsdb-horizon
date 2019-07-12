@@ -15,6 +15,7 @@
         [timezone]="this.options.labelsUTC ? 'utc' : 'local'"
         [expandedBucketIndex] = "expandedBucket"
         (updatedShowing)="updatedShowEventStream($event)"
+        (updatedExpandedBucketIndex)="bucketClickedAtIndex($event)"
     ></event-stream>
     <div class="widget-output" #widgetoutput
         [ngClass]="{

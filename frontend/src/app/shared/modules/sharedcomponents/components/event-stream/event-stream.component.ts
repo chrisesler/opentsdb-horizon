@@ -13,12 +13,12 @@ export class EventStreamComponent implements OnInit, OnChanges {
   @Input() buckets: any[];
   @Input() show: boolean;
   @Input() startTime: number;  // in milliseconds
-  @Input() endTime: number;    // in miliseconds
+  @Input() endTime: number;    // in milliseconds
   @Input() timezone: string;
   @Input() expandedBucketIndex: number;
-  @Output() updatedShowing: EventEmitter<boolean> = new EventEmitter();
 
-  bucketPanelState: boolean[] = [];
+  @Output() updatedShowing: EventEmitter<boolean> = new EventEmitter();
+  @Output() updatedExpandedBucketIndex: EventEmitter<number> = new EventEmitter();
 
   constructor(private util: UtilsService) { }
 
@@ -26,32 +26,32 @@ export class EventStreamComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     // tslint:disable-next-line:max-line-length
-    if (changes && changes.buckets && changes.buckets.currentValue && changes.buckets.currentValue.length !== this.bucketPanelState.length) {
-      this.initializeAndCollapsePanels();
+    if (changes && changes.buckets
+      && changes.buckets.currentValue && changes.buckets.previousValue
+      && changes.buckets.previousValue.length !== changes.buckets.currentValue.length) {
+      this.collapseExpansion();
     }
-    if (changes && changes.expandedBucketIndex) {
-      this.initializeAndCollapsePanels();
-      this.updateExpansion(this.expandedBucketIndex, true);
+    if (changes && changes.expandedBucketIndex && changes.expandedBucketIndex.currentValue !== this.expandedBucketIndex) {
+      this.openExpansion(this.expandedBucketIndex);
     }
   }
 
   hide() {
-    // this.initializeAndCollapsePanels();
+    this.collapseExpansion();
     this.show = false;
     this.updatedShowing.emit(this.show);
   }
 
-  updateExpansion(index, expanded) {
-    this.bucketPanelState[index] = expanded;
+  openExpansion(index) {
+    this.expandedBucketIndex = index;
+    this.updatedExpandedBucketIndex.emit(this.expandedBucketIndex);
   }
 
-  initializeAndCollapsePanels() {
-    if (!this.buckets) {
-      this.buckets = [];
-    }
-
-    for (let i = 0; i < this.buckets.length; i++) {
-      this.bucketPanelState[i] = false;
+  collapseExpansion(index: number = -1) {
+    // an expansion panel can call collapse after a different panel has been opened
+    if (index === -1 || index === this.expandedBucketIndex) {
+      this.expandedBucketIndex = -1;
+      this.updatedExpandedBucketIndex.emit(this.expandedBucketIndex);
     }
   }
 

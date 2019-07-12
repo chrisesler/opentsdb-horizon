@@ -6,9 +6,9 @@
 
     <mat-accordion>
         <mat-expansion-panel *ngFor="let bucket of buckets; let i = index" 
-            [expanded]="bucketPanelState[i]"
-            (opened)="updateExpansion(i, true)"
-            (closed)="updateExpansion(i, false)">
+            [expanded]="i === expandedBucketIndex"
+            (opened)="openExpansion(i)"
+            (closed)="collapseExpansion(i)">
 
             <mat-expansion-panel-header id="bucket-header">
                 <mat-panel-title >
