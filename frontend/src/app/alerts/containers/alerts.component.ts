@@ -391,6 +391,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         // handle route for alerts
         this.subscription.add(this.activatedRoute.url.pipe(delayWhen(() => this.configLoaded$)).subscribe(url => {
+
+            // this.logger.log('ROUT CHANGE', { url });
+
             if (url.length === 1 && !this.utils.checkIfNumeric(url[0].path) ) {
                 // if only one item, and its not numeric, probably a namespace
                 this.setNamespace(url[0].path);
@@ -409,9 +412,17 @@ export class AlertsComponent implements OnInit, OnDestroy {
             } else if (url.length > 2) {
                 // load alert the alert
                 this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path, 10)));
+            } else if (url.length === 0 && this.detailsView && this.selectedNamespace.length > 0) {
+                this.location.go('/a/' + this.selectedNamespace);
+                this.detailsView = false;
+
             } else if ( this.userNamespaces.length || this.allNamespaces.length ) {
                 // set a namespace... probably should update url?
                 this.setNamespace( this.userNamespaces.length ? this.userNamespaces[0].name : this.allNamespaces[0].name);
+
+                if (this.detailsView) {
+                    this.detailsView = false;
+                }
             }
         }));
 
