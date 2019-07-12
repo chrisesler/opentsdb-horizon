@@ -16,7 +16,7 @@ export class MetaService {
       'to': 1,
       'order': 'ASCENDING',
       'type': type,
-      'source': source,
+      'source': source === 'aurastatus' ? 'aurastatus' : '',
       'aggregationSize': 1000,
       'queries': [],
     };

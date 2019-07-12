@@ -180,12 +180,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             this.resetChart(); // need to reset this data
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
-                            this.legendDataSource = new MatTableDataSource(this.buildLegendData());
-                            this.legendDataSource.sort = this.sort;
                             setTimeout(() => {
                                 this.setSize();
                             });
                             this.cdRef.detectChanges();
+                            this.refreshLegendSource();
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -211,6 +210,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.setOptions();
     }
 
+    refreshLegendSource() {
+        this.legendDataSource = new MatTableDataSource(this.buildLegendData());
+        this.legendDataSource.sort = this.sort;
+    }
     buildLegendData() {
         const series = this.options.series;
         const table = [];
@@ -282,6 +285,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 break;
             case 'SetLegend':
                 this.setLegend(message.payload.data);
+                this.cdRef.detectChanges();
+                this.refreshLegendSource();
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);

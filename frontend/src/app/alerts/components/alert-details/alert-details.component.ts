@@ -257,7 +257,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.reloadData();
 
         // TODO: need to check if there is something in this.data
-
+        const bad = data.threshold.singleMetric.badThreshold !== undefined ? data.threshold.singleMetric.badThreshold : null;
+        const warn = data.threshold.singleMetric.warnThreshold !== undefined ? data.threshold.singleMetric.warnThreshold : null;
+        const recover = data.threshold.singleMetric.recoveryThreshold !== undefined ? data.threshold.singleMetric.recoveryThreshold : null;
         this.alertForm = this.fb.group({
             name: data.name || 'Untitled Alert',
             type: data.type || 'simple',
@@ -274,10 +276,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     queryType : data.threshold.singleMetric.queryType || 'tsdb',
                     // tslint:disable-next-line:max-line-length
                     metricId: [ data.threshold.singleMetric.metricId ? this.getMetricDropdownValue(data.queries.raw, data.threshold.singleMetric.queryIndex, data.threshold.singleMetric.metricId) : ''],
-                    badThreshold:  data.threshold.singleMetric.badThreshold || null,
-                    warnThreshold: data.threshold.singleMetric.warnThreshold || null,
-                    recoveryThreshold: data.threshold.singleMetric.recoveryThreshold || null,
+                    badThreshold:  bad,
+                    warnThreshold: warn,
+                    recoveryThreshold: recover,
                     recoveryType: data.threshold.singleMetric.recoveryType || 'minimum',
+                    // tslint:disable-next-line:max-line-length
                     slidingWindow : data.threshold.singleMetric.slidingWindow ? data.threshold.singleMetric.slidingWindow.toString() : '300',
                     comparisonOperator : data.threshold.singleMetric.comparisonOperator || 'above',
                     timeSampler : data.threshold.singleMetric.timeSampler || 'at_least_once'
@@ -301,14 +304,14 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         // Ideally you create the fromgroup first, then set values to get correct valueChange events
         // This is to fix the issue of there not being a first change event
         this.alertForm['controls'].threshold['controls'].singleMetric.get('badThreshold')
-            .setValue(data.threshold.singleMetric.badThreshold || null, { emitEvent: true });
+            .setValue(bad, { emitEvent: true });
 
         this.alertForm['controls'].threshold['controls'].singleMetric.get('warnThreshold')
-            .setValue(data.threshold.singleMetric.warnThreshold || null, { emitEvent: true });
+            .setValue(warn, { emitEvent: true });
 
-        this.setThresholds('bad', data.threshold.singleMetric.badThreshold || '');
-        this.setThresholds('warning', data.threshold.singleMetric.warnThreshold || '');
-        this.setThresholds('recovery', data.threshold.singleMetric.recoveryType === 'specific' ? data.threshold.singleMetric.recoveryThreshold : '');
+        this.setThresholds('bad', bad);
+        this.setThresholds('warning', warn);
+        this.setThresholds('recovery', recover);
 
         this.subscription.add(<Subscription>this.alertForm.controls['threshold']['controls']['singleMetric']['controls']['comparisonOperator'].valueChanges.subscribe(val => {
             this.thresholdSingleMetricControls['warnThreshold'].setErrors(null);
@@ -513,17 +516,17 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         const recoveryStateCntrl = this.thresholdSingleMetricControls['recoveryThreshold'];
 
         const recoveryMode = this.thresholdRecoveryType;
-        const bad = badStateCntrl.value ? badStateCntrl.value : '';
-        const warning = warningStateCntrl.value ? warningStateCntrl.value : '';
-        const recovery = recoveryStateCntrl.value ? recoveryStateCntrl.value : '';
+        const bad = badStateCntrl.value;
+        const warning = warningStateCntrl.value;
+        const recovery = recoveryStateCntrl.value;
         const operator = this.alertForm.get('threshold').get('singleMetric').get('comparisonOperator').value;
 
-        if ( this.alertForm.touched && bad === '' && warning === '') {
+        if ( this.alertForm.touched && badStateCntrl.value === null && warningStateCntrl.value === null ) {
             this.alertForm['controls'].threshold.setErrors({ 'required': true });
         }
 
         // validate the warning value
-        if ( this.alertForm.touched && bad !== '' && warning !== '' ) {
+        if ( this.alertForm.touched && badStateCntrl.value !== null && warningStateCntrl.value !== null ) {
             if ( (operator === 'above' || operator === 'above_or_equal_to') && warning >= bad ) {
                 warningStateCntrl.setErrors({ 'invalid': true }); 
             }
@@ -531,13 +534,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 warningStateCntrl.setErrors({ 'invalid': true });
             }
         }
-        if ( this.alertForm.touched && recoveryMode === 'specific' && recovery === '') {
+        if ( this.alertForm.touched && recoveryMode === 'specific' && recoveryStateCntrl.value === null ) {
             this.thresholdSingleMetricControls['recoveryThreshold'].setErrors({ 'required': true });
         }
 
         // validate the recovery value
-        const badOrWarning = warning !== '' ? warning : bad;
-        if ( recoveryMode === 'specific' && this.alertForm.touched && badOrWarning !== '' && recovery !== '' ) {
+        const badOrWarning = warningStateCntrl.value !== null ? warning : bad;
+        if ( recoveryMode === 'specific' && this.alertForm.touched && badOrWarning !== null && recoveryStateCntrl.value !== null ) {
             if ( (operator === 'above' || operator === 'above_or_equal_to') && recovery >= badOrWarning ) {
                 recoveryStateCntrl.setErrors({ 'invalid': true }); 
             }
@@ -623,10 +626,12 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }
         } else {
             const query: any = { search: '', namespace: this.queries[0].namespace, tags: this.queries[0].filters, metrics: [] };
-            this.httpService.getNamespaceTagKeys(query, 'aurastatus')
-                            .subscribe( res => {
-                                this.tags = res.map( d => d.name);
-                            });
+            if (this.queries[0].namespace !== '' ) {
+                this.httpService.getNamespaceTagKeys(query, 'aurastatus')
+                                .subscribe( res => {
+                                    this.tags = res.map( d => d.name);
+                                });
+            }
         }
     }
 
