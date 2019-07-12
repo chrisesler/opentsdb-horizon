@@ -912,7 +912,7 @@ This simulates the output of the query editor - minus a few events and buttons
                         <th mat-header-cell *matHeaderCellDef>metric index</th>
                         <td mat-cell *matCellDef="let data; let i = dataIndex;">
                             <div class="metric-row-data metric-index">
-                                <button mat-flat-button>
+                                <button mat-flat-button style="cursor: default;">
                                     <span class="label">
                                         <span>{{ data.indexLabel}}</span>
                                     </span>
@@ -927,8 +927,8 @@ This simulates the output of the query editor - minus a few events and buttons
                         <td mat-cell *matCellDef="let data;">
                             <!-- if metric -->
                             <ng-template [ngIf]="data.type === 'metric'">
-                                <div class="metric-row-data metric-name">
-                                    <div class="display-name">
+                                <div class="metric-row-data metric-name" style="cursor: default;">
+                                    <div class="display-name" style="cursor: default;">
                                         <span>{{data.metric.name}}</span>
                                         <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
                                     </div>
@@ -936,8 +936,8 @@ This simulates the output of the query editor - minus a few events and buttons
                             </ng-template>
                             <!-- if expression -->
                             <ng-template [ngIf]="data.type === 'expression'">
-                                <div class="metric-row-data expression">
-                                    <div class="display-name">
+                                <div class="metric-row-data expression" style="cursor: default;">
+                                    <div class="display-name" style="cursor: default;">
                                         <span>{{ getExpressionUserInput(data.metric.expression, query) }}</span>
                                         <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
                                     </div>
@@ -951,16 +951,16 @@ This simulates the output of the query editor - minus a few events and buttons
                         <th mat-header-cell *matHeaderCellDef>modifier</th>
                         <td mat-cell *matCellDef="let data;" style="width: 100%">
                             <!-- aggregator -->
-                            <div class="metric-row-data tag-aggregator">
+                            <div class="metric-row-data tag-aggregator" style="cursor: default;">
                                 <div class="tag-aggregator-wrapper">
                                     <div class="tag-aggregator-component" *ngIf="data.type === 'metric'">
-                                        <button mat-button style="cursor: pointer;">
+                                        <button mat-button style="cursor: default;">
                                             <div>{{data.metric.tagAggregator}}</div>
                                         </button>
                                     </div>
                                     <span class="by-spacer">{{ data.type === 'expression' ? 'JOIN ON' : 'By' }}</span>
                                     <div class="dropdown-metric-tags">
-                                        <button mat-button style="cursor: pointer;">
+                                        <button mat-button style="cursor: default;">
                                             <div class="button-label">
                                                 <div>{{(data.metric.groupByTags && data.metric.groupByTags.length) ? data.metric.groupByTags.join(', ') : 'Everything'}}</div>
                                             </div>
@@ -971,11 +971,11 @@ This simulates the output of the query editor - minus a few events and buttons
         
                             <!-- custom function loop -->
                             <div class="metric-row-data custom-function" *ngFor="let fx of data.metric.functions">
-                                <div class="custom-function-wrapper">
+                                <div class="custom-function-wrapper" style="cursor: default;">
                                     <div class="metric-function-component">
                                         <mat-form-field appearance="standard" floatLabel="never" style="width: 200px !important;" class="readonly-mode" >
                                             <div matPrefix>{{fx.fxCall}}</div>
-                                            <input matInput [value]="fx.val" readonly="true" autocomplete="off" style="cursor: pointer;">
+                                            <input matInput [value]="fx.val" readonly="true" autocomplete="off" style="cursor: default;">
                                         </mat-form-field>
                                     </div>
                                 </div>
