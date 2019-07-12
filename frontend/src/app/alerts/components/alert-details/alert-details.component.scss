@@ -185,8 +185,12 @@
                 overflow: auto;
             }
 
-            .query-metric-row.read-only {
-                pointer-events: none;
+            .query-metric-row.read-only * {
+                cursor: default;
+
+                .query-metric-table.mat-table {
+                    cursor: default;
+                }
             }
 
             .step-section {
