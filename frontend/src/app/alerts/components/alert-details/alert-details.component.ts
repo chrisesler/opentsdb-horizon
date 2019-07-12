@@ -626,10 +626,12 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }
         } else {
             const query: any = { search: '', namespace: this.queries[0].namespace, tags: this.queries[0].filters, metrics: [] };
-            this.httpService.getNamespaceTagKeys(query, 'aurastatus')
-                            .subscribe( res => {
-                                this.tags = res.map( d => d.name);
-                            });
+            if (this.queries[0].namespace !== '' ) {
+                this.httpService.getNamespaceTagKeys(query, 'aurastatus')
+                                .subscribe( res => {
+                                    this.tags = res.map( d => d.name);
+                                });
+            }
         }
     }
 
