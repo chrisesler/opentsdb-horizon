@@ -727,6 +727,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     bucketClickedAtIndex(index) {
         this.expandedBucket = index;
+        this.updatedShowEventStream(true);
     }
 
     receivedDateWindow(dateWindow: any) {

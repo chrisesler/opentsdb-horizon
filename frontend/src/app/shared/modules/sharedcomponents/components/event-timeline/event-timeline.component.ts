@@ -178,7 +178,8 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   }
 
   clicked(event: any) {
-    this.canvasClicked.emit();
+    // todo: enable at later time (when it makes sense to click on event stream, but not an event)
+    // this.canvasClicked.emit();
 
     let xCoord = event.offsetX;
     let yCoord = event.offsetY;

@@ -1,6 +1,4 @@
 import { Component, OnInit, HostBinding, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { Moment } from 'moment';
-import * as moment from 'moment';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
@@ -24,14 +22,11 @@ export class EventStreamComponent implements OnInit, OnChanges {
 
   constructor(private util: UtilsService) { }
 
-  ngOnInit() {
-    if (!this.buckets) {
-      this.buckets = [];
-    }
-  }
+  ngOnInit() { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes && changes.buckets && changes.buckets.currentValue.length !== this.bucketPanelState.length) {
+    // tslint:disable-next-line:max-line-length
+    if (changes && changes.buckets && changes.buckets.currentValue && changes.buckets.currentValue.length !== this.bucketPanelState.length) {
       this.initializeAndCollapsePanels();
     }
     if (changes && changes.expandedBucketIndex) {
@@ -41,7 +36,7 @@ export class EventStreamComponent implements OnInit, OnChanges {
   }
 
   hide() {
-    this.initializeAndCollapsePanels();
+    // this.initializeAndCollapsePanels();
     this.show = false;
     this.updatedShowing.emit(this.show);
   }
@@ -51,6 +46,10 @@ export class EventStreamComponent implements OnInit, OnChanges {
   }
 
   initializeAndCollapsePanels() {
+    if (!this.buckets) {
+      this.buckets = [];
+    }
+
     for (let i = 0; i < this.buckets.length; i++) {
       this.bucketPanelState[i] = false;
     }
