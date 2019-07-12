@@ -20,6 +20,8 @@ export class EventStreamComponent implements OnInit, OnChanges {
   @Output() updatedShowing: EventEmitter<boolean> = new EventEmitter();
   @Output() updatedExpandedBucketIndex: EventEmitter<number> = new EventEmitter();
 
+  expandedEventId = -1;  // for expanding details
+
   constructor(private util: UtilsService) { }
 
   ngOnInit() { }
@@ -52,6 +54,16 @@ export class EventStreamComponent implements OnInit, OnChanges {
     if (index === -1 || index === this.expandedBucketIndex) {
       this.expandedBucketIndex = -1;
       this.updatedExpandedBucketIndex.emit(this.expandedBucketIndex);
+    }
+  }
+
+  openDetails(id) {
+    this.expandedEventId = id;
+  }
+
+  closeDetails(id: number = -1) {
+    if (id === -1 || id === this.expandedEventId) {
+      this.expandedEventId = -1;
     }
   }
 

@@ -431,6 +431,18 @@ export class UtilsService {
         return obj;
     }
 
+    transformTagMapToArray(map: Map<any, any>): any[] {
+        const ret = [];
+
+        Object.keys(map).forEach(function (key) {
+            ret.push({
+                key: key.toString(),
+                value: map[key].toString()});
+
+        });
+        return ret;
+    }
+
     getQueryClone(queries, index) {
         const query = queries[index];
         const newQuery = this.deepClone(query);

@@ -9,17 +9,11 @@
             min-width: 500px;
             position: fixed;
             z-index: 100;
-            background: lightblue;
             max-height: 100%;
             overflow: scroll;
 
             mat-expansion-panel {
                 mat-expansion-panel-header {
-                    #bucket-header {
-                        // height: 32px;
-                        // background-color: lightgray;
-                    }
-                    
                     span {
                         margin-right: 2px;
                     }
@@ -36,8 +30,16 @@
                             font-weight: bold;
                         }
                         .event-time {
-                            color: darkgray;
+
                         }
+                    }
+
+                    .tag {
+                        padding-right: 3px;
+                    }
+    
+                    .details {
+                        margin-top: 3px;
                     }
                 }
             }
@@ -55,4 +57,26 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
+    .event-stream {
+        .event-details {
+            background: lightblue;
+        
+            mat-expansion-panel {
+
+                .event {
+
+                    &:hover {
+                        background-color: lightgray;
+                    }
+    
+                    .event-header {
+
+                        .event-time {
+                            color: darkgray;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

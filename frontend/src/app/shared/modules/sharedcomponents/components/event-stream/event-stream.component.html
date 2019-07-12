@@ -24,6 +24,32 @@
                     <span *ngIf="bucket.events.length > 1" class="event-time">{{util.buildDisplayTime(event.startTime, startTime, endTime, bucket.width <= 1000 * 60, timezone)}}</span>
                 </div>
                 <div class="event-description"> {{event.title}}  </div>
+
+                <div class="priority" *ngIf="event.priority">
+                    Priority: {{event.priority}}
+                </div>
+
+                <!-- event tags -->
+                <div *ngIf="event.tags">
+                    <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.tags)">
+                        <span class="tag-key">{{ tag.key }}:</span>
+                        <strong class="tag-value">{{ tag.value }}</strong>
+                    </span>
+                </div>
+
+                <!-- event details -->
+                <mat-expansion-panel class="details"
+                       [expanded]="event.eventId === expandedEventId"
+                       (opened)="openDetails(event.eventId)"
+                       (closed)="closeDetails(event.eventId)">
+                    <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        {{event.eventId === expandedEventId ? 'Hide' : 'Show'}} Details
+                    </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    {{event.message}}
+                </mat-expansion-panel>
+
             </div>
         </mat-expansion-panel>
     </mat-accordion>

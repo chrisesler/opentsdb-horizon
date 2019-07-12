@@ -240,7 +240,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
             // get array of 'tags'
             if (metricData['tags']) {
-                this.tags = this.transform(metricData['tags']);
+                this.tags = this.util.transformTagMapToArray(metricData['tags']);
             } else {
                 this.tags = null;
             }
@@ -409,18 +409,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
             action: 'getWidgetCachedData',
             payload: this.widget
         });
-    }
-
-    transform(map: Map<any, any>): any[] {
-        let ret = [];
-
-        Object.keys(map).forEach(function (key) {
-            ret.push({
-                key: key.toString(),
-                value: map[key].toString()});
-
-        });
-        return ret;
     }
 
     bigNumToChangeIndicatorValue(bigNum: IBigNum): string {

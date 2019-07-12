@@ -398,44 +398,70 @@ export class HttpService {
         return { events: [
             {
                 title: 'Event 1',
+                // tslint:disable:max-line-length
+                message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
                 source: 'aws',
+                namespace: 'yamas',
+                priority: 'low',
+                tags: {
+                    'host': 'tsdbr-1.yms.gq1.yahoo.com',
+                    '_application': 'tsdb'
+                },
+                eventId: '123456',
                 startTime: now - (3 * 600 * 1000),
                 endTime: now,
-                jobNumber: '1',
-                status: 'Success',
-                executor: 'zb',
             },
             {
                 title: 'Event 2',
+                message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
                 source: 'aws',
                 startTime: now - (4.1 * 600 * 1000),
-                jobNumber: '2',
-                status: 'Success',
-                executor: 'agupta07'
+                eventId: '1234568',
+                namespace: 'yamas',
+                priority: 'low',
+                tags: {
+                    'host': 'tsdbr-1.yms.gq1.yahoo.com',
+                    '_application': 'tsdb'
+                },
              },
             {
                 title: 'Event 3',
+                message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
                 source: 'aws',
                 startTime: now - (4.22 * 600 * 1000),
-                jobNumber: '3',
-                status: 'Success',
-                executor: 'zb'
+                eventId: '1234569',
+                namespace: 'yamas',
+                priority: 'low',
+                tags: {
+                    'host': 'tsdbr-1.yms.gq1.yahoo.com',
+                    '_application': 'tsdb'
+                },
             },
             {
                 title: 'Event 4',
+                message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
                 source: 'sd',
                 startTime: now - (4.23 * 600 * 1000),
-                jobNumber: '4',
-                status: 'Failure',
-                executor: 'zb'
+                eventId: '1234560',
+                namespace: 'yamas',
+                priority: 'low',
+                tags: {
+                    'host': 'tsdbr-1.yms.gq1.yahoo.com',
+                    '_application': 'tsdb'
+                },
             },
             {
                 title: 'Event 5',
+                message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
                 source: 'sd',
                 startTime: now - (5.22 * 600 * 1000),
-                jobNumber: '5',
-                status: 'Failure',
-                executor: 'zb'
+                eventId: '1234561',
+                namespace: 'yamas',
+                priority: 'low',
+                tags: {
+                    'host': 'tsdbr-1.yms.gq1.yahoo.com',
+                    '_application': 'tsdb'
+                },
             }
         ], query: query};
     }
