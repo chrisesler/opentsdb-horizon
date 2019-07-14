@@ -60,6 +60,7 @@
 @import 'components/widget-config-time/widget-config-time.component';
 @import 'components/widget-config-visual-appearance/widget-config-visual-appearance.component';
 @import 'components/widget-config-legend-big-number/widget-config-legend-big-number.component';
+@import 'components/widget-config-events/widget-config-events.component';
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin sharedcomponents-module-core() {
@@ -107,6 +108,7 @@
     @include widget-config-visual-appearance-component-base();
     @include widget-config-legend-big-number-component-base();
     @include widget-config-sorting-component-base();
+    @include widget-config-events-component-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
@@ -154,4 +156,5 @@
     @include widget-config-visual-appearance-component-theme($theme-config);
     @include widget-config-legend-big-number-component-theme($theme-config);
     @include widget-config-sorting-component-theme($theme-config);
+    @include widget-config-events-component-theme($theme-config);
 }

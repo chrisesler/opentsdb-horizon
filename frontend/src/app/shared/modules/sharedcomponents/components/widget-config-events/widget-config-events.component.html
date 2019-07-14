@@ -1,0 +1,24 @@
+
+    <mat-slide-toggle 
+        [checked]="widget.settings.visual.showEvents" 
+        (change)="showEventsChanged($event.checked)">
+        Events Enabled
+    </mat-slide-toggle>
+    <div>
+        <b>Namespace: </b> 
+        <mat-form-field>
+            <mat-label>{{widget.eventQueries[0].namespace}}</mat-label>
+            <mat-select>
+                <!-- <mat-option *ngFor="let food of foods" [value]="food.value">
+                    {{food.viewValue}}
+                </mat-option> -->
+                <mat-option>
+                    blahh
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div>
+        <b>Search: </b> 
+        <textarea matInput placeholder="ex: priority:high AND title: my event" [value]="widget.eventQueries[0].search" (keyup)="eventQueryChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
+    </div>

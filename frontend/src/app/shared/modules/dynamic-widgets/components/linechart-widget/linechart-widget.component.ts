@@ -111,7 +111,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     clickTimer: any;
 
     // EVENTS
-    showEvents = false;  // EVENT TOGGLE
+    showEvents = true;  // EVENT TOGGLE
     buckets: any[]; // TODO: remove with island legend
     expandedBucket: number; // TODO: remove with island legend
     events: any[];
@@ -222,9 +222,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             }
         });
 
-        if (!this.widget.eventQuery) {
-            this.widget.eventQuery = 'namespace = *';
-        }
           this.store.dispatch(new GetEvents(this.widget.eventQuery));
           this.eventsSub = this._events$.subscribe(data => {
             if (data) {
@@ -737,9 +734,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
      updatedShowEventStream(showEventStream: boolean) {
         this.showEventStream = showEventStream;
     }
-     showEventsChanged(events: boolean) {
-        this.showEvents = events;
-    }
 
     newBuckets(buckets) {
         this.buckets = buckets;
@@ -842,11 +836,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     deleteQueryFilter(qid, findex) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries[qindex].filters.splice(findex, 1);
-    }
-
-    eventQueryChanged(txt: string) {
-        this.widget.eventQuery = txt;
-        // this.store.dispatch(new GetEvents(this.widget.eventQuery));
     }
 
     showError() {

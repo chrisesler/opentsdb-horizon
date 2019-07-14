@@ -81,6 +81,47 @@ export class EventsState {
         // TODO: REMOVE
         const state = ctx.getState();
         ctx.setState({ ...state, events: this.httpService.getEvents(query), loading: false });
+
+        // TODO: convert to format we like
+        // response to look like this:
+
+        // {
+        //     "results": [
+        //       {
+        //         "source": "q1_m1:q1_m1",
+        //         "data": [
+        //           {
+        //             "Event": {
+        //               "eventId": "123445",
+        //               "timestamp": "1561071600",
+        //               "title": "Disk is busy",
+        //               "message": "Disk is busy",
+        //               "priority": "low",
+        //               "namespace": "yamas",
+        //               "tags": {
+        //                 "host": "tsdbr-1.yms.gq1.yahoo.com",
+        //                 "_application": "tsdb"
+        //               }
+        //             }
+        //           },
+        //           {
+        //             "Event": {
+        //               "eventId": "123445",
+        //               "timestamp": "1561071600",
+        //               "title": "CPU is busy",
+        //               "message": "FOO BAR is busy",
+        //               "priority": "high",
+        //               "namespace": "yamas",
+        //               "tags": {
+        //                 "host": "tsdbr-2.yms.gq1.yahoo.com",
+        //                 "_application": "tsdb"
+        //               }
+        //             }
+        //           }
+        //         ]
+        //       }
+        //     ]
+        //   }
     }
 
     // @Action(LoadEventsSuccess)

@@ -125,23 +125,11 @@
                     <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
                 </ng-template>
         </mat-tab>
-        <!-- <mat-tab label="Events" [disabled]="editQueryId">
+        <mat-tab label="Events" [disabled]="editQueryId">
                 <ng-template matTabContent>
-                    <div class="events-config">
-                        <div>
-                        <mat-slide-toggle 
-                            [checked]="showEvents" 
-                            (change)="showEventsChanged($event.checked)">
-                            Events Enabled
-                        </mat-slide-toggle>
-                        <div>
-                            <b>Event Query: </b> 
-                            <textarea matInput placeholder="Type your query" [value]="widget.eventQuery" (keyup)="eventQueryChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
-                        </div>
-                    </div>
-                </div>
-            </ng-template>
-        </mat-tab> -->
+                    <widget-config-events [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-events>
+                </ng-template>
+        </mat-tab>
         <mat-tab>
             <!-- custom tab label. (see: https://material.angular.io/components/tabs/overview#labels) -->
             <!-- <ng-template mat-tab-label>

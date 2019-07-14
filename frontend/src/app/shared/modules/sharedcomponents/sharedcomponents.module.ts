@@ -62,6 +62,7 @@ import { DropdownMetricTagsComponent } from './components/dropdown-metric-tags/d
 import { MetricFunctionComponent } from './components/metric-function/metric-function.component';
 import { EventStreamComponent } from './components/event-stream/event-stream.component';
 import { EventTimelineComponent } from './components/event-timeline/event-timeline.component';
+import { WidgetConfigEventsComponent } from './components/widget-config-events/widget-config-events.component';
 
 @NgModule({
     imports: [
@@ -113,14 +114,15 @@ import { EventTimelineComponent } from './components/event-timeline/event-timeli
         TagGroupbyComponent,
         WidgetConfigSortingComponent,
         ConditionalFormatterComponent,
-        QueryEditorFlatComponent, 
+        QueryEditorFlatComponent,
         QueryEditorProtoComponent,
         InlineFilterEditorComponent,
         MetricAutocompleteComponent,
         DropdownMetricTagsComponent,
         MetricFunctionComponent,
         EventStreamComponent,
-        EventTimelineComponent
+        EventTimelineComponent,
+        WidgetConfigEventsComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -160,7 +162,8 @@ import { EventTimelineComponent } from './components/event-timeline/event-timeli
         DropdownMetricTagsComponent,
         MetricFunctionComponent,
         EventStreamComponent,
-        EventTimelineComponent
+        EventTimelineComponent,
+        WidgetConfigEventsComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,

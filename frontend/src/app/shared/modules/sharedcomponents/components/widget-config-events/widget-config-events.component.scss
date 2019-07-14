@@ -1,0 +1,21 @@
+@mixin widget-config-events-component-base() {
+
+    .widget-config-events {
+
+    }
+}
+
+@mixin widget-config-events-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+
+    .widget-config-events {
+        // style rules here
+    }
+
+}
