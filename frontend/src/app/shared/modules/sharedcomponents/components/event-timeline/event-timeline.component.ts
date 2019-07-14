@@ -32,8 +32,6 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   context: CanvasRenderingContext2D;
 
   eventLocations: any = [];
-  showComments = true;
-  showSDJobs = false;
   iconWidth = 10.1; // pixels
   buckets = [];
   toolTipData: any = {};

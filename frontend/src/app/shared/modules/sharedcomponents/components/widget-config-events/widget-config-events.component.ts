@@ -1,6 +1,4 @@
-import { Component, OnInit, OnDestroy, HostBinding, Input, Output, EventEmitter } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -14,17 +12,12 @@ export class WidgetConfigEventsComponent implements OnInit {
 
 
   constructor() { }
-
       /** Inputs */
       @Input() widget: any;
       @Input() allowEventToggling: boolean;
 
       /** Outputs */
       @Output() widgetChange = new EventEmitter;
-
-      /** Local variables */
-      formGroups: FormGroup;
-      formGroupSub: Subscription;
 
   ngOnInit() {
 
@@ -48,31 +41,25 @@ export class WidgetConfigEventsComponent implements OnInit {
       this.widget.settings.visual.showEvents = false;
     }
 
-    console.log(this.widget);
-
   }
 
   eventQueryChanged(txt: string) {
     this.widget.eventQueries[0].search = txt;
-    // this.store.dispatch(new GetEvents(this.widget.eventQuery));
-    // this.widgetChange.emit( {action: 'SetEventQuery', payload: [{namespace: this.order, search: this.limit}] );
+    this.widgetChange.emit( {action: 'SetEventQuery', payload: {eventQueries: this.widget.eventQueries}});
   }
 
   showEventsChanged(events: boolean) {
     this.widget.settings.visual.showEvents = events;
     this.widgetChange.emit( {action: 'SetShowEvents', payload: {showEvents: events} } );
-    // todo dispatch correctly - does this enable events for all widgets?
   }
 
   saveNamespace(namespace) {
     this.widget.eventQueries[0].namespace = namespace;
-    // todo - dispatch
+    this.widgetChange.emit( {action: 'SetEventQuery', payload: {eventQueries: this.widget.eventQueries}});
   }
 
   cancelSaveNamespace(event) {
-    console.log(event);
+    // console.log(event);
   }
-
-// todo unsubscribe
 
 }

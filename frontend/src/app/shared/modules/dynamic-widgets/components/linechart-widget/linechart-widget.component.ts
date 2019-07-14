@@ -329,7 +329,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 break;
             case 'SetShowEvents':
                 this.setShowEvents(message.payload.showEvents);
-                console.log(message);
+                break;
+            case 'SetEventQuery':
+                this.setEventQueries(message.payload.eventQueries);
                 break;
             case 'CloseQueryEditMode':
                 this.editQueryId = null;
@@ -691,9 +693,19 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     setShowEvents(showEvents: boolean) {
         this.widget.settings.visual.showEvents = showEvents;
         this.widget.settings = {... this.widget.settings};
-        if (showEvents) {
+        if (this.widget.settings.visual.showEvents) {
             this.store.dispatch(new GetEvents(this.widget.eventQueries));
         }
+    }
+
+    setEventQueries(eventQueries: any[]) {
+        console.log(eventQueries);
+        // this.widget.eventQueries = eventQueries;
+        // this.widget.eventQueries = {... this.widget.eventQueries};
+
+        // if (this.widget.settings.visual.showEvents) {
+        //     this.store.dispatch(new GetEvents(this.widget.eventQueries));
+        // }
     }
 
     toggleChartSeries(index:number, focusOnly) {
