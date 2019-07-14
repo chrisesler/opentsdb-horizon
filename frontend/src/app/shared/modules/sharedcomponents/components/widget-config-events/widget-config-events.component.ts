@@ -30,9 +30,13 @@ export class WidgetConfigEventsComponent implements OnInit {
     if (!this.widget.eventQueries) {
       this.widget.eventQueries = [];
       this.widget.eventQueries[0] = {
-        namespace: 'Yamas',
-        search: 'priority:high'
+        namespace: '',
+        search: ''
       };
+    }
+
+    if (!this.widget.eventQueries[0].namespace && this.widget.queries && this.widget.queries[0] && this.widget.queries[0].namespace) {
+      this.widget.eventQueries[0].namespace = this.widget.queries[0].namespace;
     }
 
     if (this.widget.settings.visual.showEvents === undefined) {
@@ -41,9 +45,6 @@ export class WidgetConfigEventsComponent implements OnInit {
 
     console.log(this.widget);
 
-    // if (!this.widget.eventQuery) {
-    //   this.widget.eventQuery = [{namespace: 'Yamas', search: 'priority:high'}];
-    // }
   }
 
   eventQueryChanged(txt: string) {
@@ -54,6 +55,7 @@ export class WidgetConfigEventsComponent implements OnInit {
 
   showEventsChanged(events: boolean) {
     this.widget.settings.visual.showEvents = events;
+    this.widgetChange.emit( {action: 'SetShowEvents', payload: {showEvents: events} } );
     // todo dispatch
   }
 

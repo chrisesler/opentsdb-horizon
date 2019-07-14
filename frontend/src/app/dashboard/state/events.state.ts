@@ -3,7 +3,7 @@ import { HttpService } from '../../core/http/http.service';
 import { map, catchError } from 'rxjs/operators';
 
 export interface EventsModel {
-    query: string;
+    eventQueries: Array<any>;
     events: Array<any>;
 }
 
@@ -18,7 +18,7 @@ export interface EventsStateModel {
 export class GetEvents {
     public static type = '[Events] Load';
     constructor(
-        public readonly query: string
+        public readonly eventQueries: any[]
     ) { }
 }
 
@@ -43,7 +43,7 @@ export class GetEvents {
     name: 'Events',
     defaults: {
         events: {
-            query: '',
+            eventQueries: [],
             events: []
         },
         error: {},
@@ -70,7 +70,7 @@ export class EventsState {
     // }
 
     @Action(GetEvents)
-    getEvents(ctx: StateContext<EventsStateModel>, { query }: GetEvents) {
+    getEvents(ctx: StateContext<EventsStateModel>, { eventQueries }: GetEvents) {
         // ctx.patchState({ loading: true });
         // return this.httpService.getEvents(query).pipe(
         //     map((payload: any) => {
@@ -80,7 +80,7 @@ export class EventsState {
         // );
         // TODO: REMOVE
         const state = ctx.getState();
-        ctx.setState({ ...state, events: this.httpService.getEvents(query), loading: false });
+        ctx.setState({ ...state, events: this.httpService.getEvents(eventQueries), loading: false });
 
         // TODO: convert to format we like
         // response to look like this:

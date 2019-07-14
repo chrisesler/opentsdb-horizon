@@ -111,7 +111,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     clickTimer: any;
 
     // EVENTS
-    showEvents = true;  // EVENT TOGGLE
     buckets: any[]; // TODO: remove with island legend
     expandedBucket: number; // TODO: remove with island legend
     events: any[];
@@ -222,7 +221,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             }
         });
 
-          this.store.dispatch(new GetEvents(this.widget.eventQuery));
+          this.setDefaultEvents();
+          if (this.widget.settings.visual.showEvents) {
+            this.store.dispatch(new GetEvents(this.widget.eventQueries));
+          }
           this.eventsSub = this._events$.subscribe(data => {
             if (data) {
               this.events = [];
@@ -324,6 +326,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
+                break;
+            case 'SetShowEvents':
+                this.setShowEvents(message.payload.showEvents);
+                console.log(message);
                 break;
             case 'CloseQueryEditMode':
                 this.editQueryId = null;
@@ -449,7 +455,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             padding = 8; // 8px top and bottom
             nHeight = newSize.height - heightOffset - titleSize.height - (padding * 2);
 
-            if (this.showEvents) {  // give room for events
+            if (this.widget.settings.visual.showEvents) {  // give room for events
                 nHeight = nHeight - 35;
             }
 
@@ -459,7 +465,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             const paddingSides = 1;
             nHeight = newSize.height - heightOffset - (padding * 2);
 
-            if (this.showEvents) {  // give room for events
+            if (this.widget.settings.visual.showEvents) {  // give room for events
                 nHeight = nHeight - 25;
             }
 
@@ -669,6 +675,25 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     setLegendDiv() {
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
         this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
+    }
+
+    setDefaultEvents() {
+        if (!this.widget.eventQueries) {
+            this.widget.eventQueries = [];
+            this.widget.eventQueries[0] = {
+              namespace: '',
+              search: ''
+            };
+            this.widget.settings.visual.showEvents = false;
+        }
+    }
+
+    setShowEvents(showEvents: boolean) {
+        this.widget.settings.visual.showEvents = showEvents;
+        this.widget.settings = {... this.widget.settings};
+        if (showEvents) {
+            this.store.dispatch(new GetEvents(this.widget.eventQueries));
+        }
     }
 
     toggleChartSeries(index:number, focusOnly) {

@@ -385,7 +385,7 @@ export class HttpService {
         return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
     }
 
-    getEvents(query: string) {
+    getEvents(eventQueries: any[]) {
         let now = new Date().getTime();
         // const apiUrl = environment.configdb + '/namespace/' + namespace + '/contact';
         // const httpOptions = {
@@ -463,6 +463,6 @@ export class HttpService {
                     '_application': 'tsdb'
                 },
             }
-        ], query: query};
+        ], eventQueries: eventQueries};
     }
 }

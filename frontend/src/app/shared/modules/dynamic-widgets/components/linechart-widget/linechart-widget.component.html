@@ -33,12 +33,12 @@
                 [size]="size"
                 [options]="options"
                 [eventBuckets]="buckets"
-                [showEvents]="showEvents"
+                [showEvents]="widget.settings.visual.showEvents"
                 (dateWindow)="receivedDateWindow($event)"
                 (zoomed)="handleZoom($event)">
             </div>
             <div class="dygraph-legend" #graphLegend></div>
-            <div class="events-overlay" [hidden]="!showEvents">
+            <div class="events-overlay" [hidden]="!widget.settings.visual.showEvents">
                 <event-timeline 
                 [startTime]="startTime" 
                 [endTime]="endTime" 
