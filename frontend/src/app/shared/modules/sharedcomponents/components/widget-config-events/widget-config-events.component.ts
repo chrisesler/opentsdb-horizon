@@ -56,7 +56,16 @@ export class WidgetConfigEventsComponent implements OnInit {
   showEventsChanged(events: boolean) {
     this.widget.settings.visual.showEvents = events;
     this.widgetChange.emit( {action: 'SetShowEvents', payload: {showEvents: events} } );
-    // todo dispatch
+    // todo dispatch correctly - does this enable events for all widgets?
+  }
+
+  saveNamespace(namespace) {
+    this.widget.eventQueries[0].namespace = namespace;
+    // todo - dispatch
+  }
+
+  cancelSaveNamespace(event) {
+    console.log(event);
   }
 
 // todo unsubscribe
