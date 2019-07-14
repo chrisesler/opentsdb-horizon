@@ -39,10 +39,12 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     this.getEvents();
 
     this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-      console.log('&', message, this.widget.id);
 
-      switch ( message.action ) {
+      switch (message.action) {
         case 'TimeChanged':
+          this.getEvents();
+          break;
+        case 'reQueryData':
           this.getEvents();
           break;
       }
@@ -57,6 +59,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
             this.timezone = message.payload.time.zone;
             this.startTime = this.dateUtil.timeToMoment(message.payload.time.start, this.timezone).unix() * 1000;
             this.endTime = this.dateUtil.timeToMoment(message.payload.time.end, this.timezone).unix() * 1000;
+            this.cdRef.detectChanges();
             break;
         }
       }
@@ -110,6 +113,6 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
         //     this.setMetaData(message.payload.data);
         //     break;
     }
-}
+  }
 
 }

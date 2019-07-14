@@ -18,7 +18,6 @@ import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import { Store, Select } from '@ngxs/store';
 
-
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'linechart-widget',
@@ -138,6 +137,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             .subscribe(trigger => {
                 if (trigger) {
                     this.refreshData();
+                    this.getEvents();
                 }
             });
 
@@ -148,9 +148,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     this.options.isCustomZoomed = false;
                     delete this.options.dateWindow;
                     this.refreshData();
+                    this.getEvents();
                     break;
                 case 'reQueryData':
                     this.refreshData();
+                    this.getEvents();
                     break;
                 case 'TimezoneChanged':
                     this.setTimezone(message.payload.zone);
@@ -212,15 +214,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         this.widget.settings.useDBFilter = true;
                         this.cdRef.detectChanges();
                         break;
-                    }
+                    case 'updatedEvents':
+                        this.events = message.payload.events;
+                        this.cdRef.detectChanges();
+                        break;
+                }
             }
         });
 
           this.setDefaultEvents();
-          if (this.widget.settings.visual.showEvents) {
-              // todo remove
-            // this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
-          }
+          this.getEvents();
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
@@ -675,32 +678,31 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.widget = this.util.setDefaultEventsConfig(this.widget, false);
     }
 
+    getEvents() {
+        if (this.widget.settings.visual.showEvents) {
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'getEventData',
+                payload: this.widget
+            });
+        }
+    }
+
     setShowEvents(showEvents: boolean) {
         this.widget.settings.visual.showEvents = showEvents;
         this.widget.settings = {... this.widget.settings};
-        if (this.widget.settings.visual.showEvents) {
-            // this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
-        }
     }
 
     setEventQuerySearch(search: string) {
         // todo: set correctly
         // this.widget.eventQueries[0].search = search;
         this.widget.eventQueries = {... this.widget.eventQueries};
-
-        if (this.widget.settings.visual.showEvents) {
-            // this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
-        }
     }
 
     setEventQueryNamespace(namespace: string) {
         // todo: set correctly
         // this.widget.eventQueries[0].namespace = namespace;
         this.widget.eventQueries = {... this.widget.eventQueries};
-
-        if (this.widget.settings.visual.showEvents) {
-            // this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
-        }
     }
 
     toggleChartSeries(index:number, focusOnly) {

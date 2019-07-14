@@ -388,7 +388,7 @@ export class HttpService {
 
     getEvents(wid: string, time: any, eventQueries: any[]) {
         const query = this.yamasService.buildEventsQuery(time, eventQueries);
-        // todo: send query to tsdb and add time
+        // todo: send query to tsdb, add time and wid
         let now = new Date().getTime();
         // const apiUrl = environment.configdb + '/namespace/' + namespace + '/contact';
         // const httpOptions = {
@@ -421,10 +421,11 @@ export class HttpService {
             ], eventQueries: eventQueries};
         }
 
-        return { events: [
+        return {
+            wid: wid,
+            time: time,
+            events: [
             {
-                wid: wid,
-                time: time,
                 title: 'Event 1',
                 // tslint:disable:max-line-length
                 message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
