@@ -17,6 +17,7 @@ export class WidgetConfigEventsComponent implements OnInit {
 
       /** Inputs */
       @Input() widget: any;
+      @Input() allowEventToggling: boolean;
 
       /** Outputs */
       @Output() widgetChange = new EventEmitter;
@@ -26,6 +27,10 @@ export class WidgetConfigEventsComponent implements OnInit {
       formGroupSub: Subscription;
 
   ngOnInit() {
+
+    if (this.allowEventToggling === undefined) {
+      this.allowEventToggling = true;
+    }
 
     if (!this.widget.eventQueries) {
       this.widget.eventQueries = [];

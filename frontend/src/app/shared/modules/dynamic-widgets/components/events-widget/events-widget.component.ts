@@ -56,7 +56,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     // if (changes) {
     //   this.store.dispatch(new GetEvents(this.widget.query));
     // }
-}
+  }
 
   textChanged(txt: string) {
     this.widget.eventQuery = txt;
@@ -85,5 +85,14 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     this.listenSub.unsubscribe();
     this.eventsSub.unsubscribe();
   }
+
+  updateConfig(message) {
+    console.log(message);
+    switch ( message.action ) {
+        // case 'SetMetaData':
+        //     this.setMetaData(message.payload.data);
+        //     break;
+    }
+}
 
 }

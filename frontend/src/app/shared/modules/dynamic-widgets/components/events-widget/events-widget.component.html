@@ -11,9 +11,23 @@
       
         <div class="widget-output notCentered" #widgetoutput [ngClass]="{'top-margin': editMode }">
             <div class="widget-container">
-                <div *ngFor="let event of events">
-                    {{event.title}}
-                  </div>
+                <div *ngFor="let event of events" class="event">
+                    <div>
+                        {{event.title}}
+                    </div>
+                    <div>
+                        {{event.source}}
+                    </div>
+                    <div>
+                        <!-- <span>
+                            {{util.buildDisplayTime(event.startTime, 0, 0, true, timezone )}}
+                        </span>
+                
+                        <span *ngIf="events.endTimestamp">
+                            - {{util.buildDisplayTime(event.endTimestamp, startTime, endTime, true, timezone)}}
+                        </span> -->
+                    </div>
+                </div>
             </div>
         </div>
       </div>
@@ -21,27 +35,11 @@
       <div class="widget-controls-container" *ngIf="editMode">
         <!-- tabs with config content -->
         <mat-tab-group class="widget-configs" selectedIndex="0" color="primary" [@.disabled]="'true'">
-            <!-- <mat-tab label="Editor">
+            <mat-tab label="Events" [disabled]="editQueryId">
                 <ng-template matTabContent>
-                    <mat-form-field class="inputArea">
-                      <textarea matInput placeholder="Type here. We support Markdown." [value]="widget.settings.visual.text" (keyup)="textChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
-                    </mat-form-field>
-                    <div class="markdown-note"> <a target="_blank" href="https://www.markdownguide.org/cheat-sheet/">Markdown reference</a> </div>
-                </ng-template>
-            </mat-tab> -->
-      
-            <!-- <mat-tab label="Visual Appearance">
-                <ng-template matTabContent>
-                    <markdown-widget-visual-appearance [widget]="widget" (widgetChange)="updateConfig($event);"></markdown-widget-visual-appearance>
-                </ng-template>
-            </mat-tab> -->
-
-            <mat-tab label="Query">
-                <ng-template matTabContent class="query-container">
-                    <textarea matInput placeholder="Type your query" [value]="widget.eventQuery" (keyup)="textChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
+                    <widget-config-events [widget]="widget" [allowEventToggling]="false" (widgetChange)="updateConfig($event);"></widget-config-events>
                 </ng-template>
             </mat-tab>
-
         </mat-tab-group>
     </div>    
 </div>

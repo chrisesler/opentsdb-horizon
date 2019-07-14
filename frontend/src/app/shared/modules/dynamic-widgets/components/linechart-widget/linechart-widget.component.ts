@@ -114,7 +114,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     buckets: any[]; // TODO: remove with island legend
     expandedBucket: number; // TODO: remove with island legend
     events: any[];
-    showEventStream = false;
+    showEventStream = false; // TODO: remove with island legend
     eventsWidth: number;
     startTime: number;
     endTime: number;

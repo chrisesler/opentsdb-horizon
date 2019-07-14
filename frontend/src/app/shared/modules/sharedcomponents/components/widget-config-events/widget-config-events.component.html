@@ -1,5 +1,6 @@
 
-<mat-slide-toggle 
+<div *ngIf="allowEventToggling">
+    <mat-slide-toggle 
     [checked]="widget.settings.visual.showEvents" 
     (change)="showEventsChanged($event.checked)">
     <span *ngIf="widget.settings.visual.showEvents">
@@ -8,7 +9,9 @@
     <span *ngIf="!widget.settings.visual.showEvents">
       Events Disabled
     </span>
-</mat-slide-toggle>
+  </mat-slide-toggle>
+</div>
+
 
 <div>
     <b>Namespace: </b> 
