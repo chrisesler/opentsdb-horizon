@@ -4,22 +4,22 @@
     [checked]="widget.settings.visual.showEvents" 
     (change)="showEventsChanged($event.checked)">
     <span *ngIf="widget.settings.visual.showEvents">
-      Events Enabled
+        Events Enabled
     </span>
     <span *ngIf="!widget.settings.visual.showEvents">
-      Events Disabled
+      Events <b>Disabled</b>
     </span>
   </mat-slide-toggle>
 </div>
 
 <div *ngIf="!allowEventToggling || (allowEventToggling && widget.settings.visual.showEvents)">
-    <div>
-        <b>Namespace: </b> 
+    <div class="namespace">
+        <b>Namespace</b>
         <namespace-autocomplete [value]="widget.eventQueries[0].namespace" (nschange)="saveNamespace($event)" (blur)="cancelSaveNamespace($event)"></namespace-autocomplete>
     </div>
     
-    <div>
-        <b>Search: </b> 
-        <textarea matInput placeholder="ex: priority:high AND title: my event" [value]="widget.eventQueries[0].search" (keyup)="eventQueryChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
+    <div class="search">
+        <b>Search </b>
+        <textarea class="search-input" matInput placeholder="ex: priority:high AND message:blahh" [value]="widget.eventQueries[0].search" (keyup)="eventQueryChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
     </div>
 </div>

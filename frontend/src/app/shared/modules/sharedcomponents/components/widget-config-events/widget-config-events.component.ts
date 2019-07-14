@@ -28,14 +28,6 @@ export class WidgetConfigEventsComponent implements OnInit {
 
     this.widget = this.util.setDefaultEventsConfig(this.widget, false);
 
-    if (!this.widget.eventQueries) {
-      this.widget.eventQueries = [];
-      this.widget.eventQueries[0] = {};
-      this.widget.eventQueries[0].namespace = '';
-      this.widget.eventQueries[0].search = '';
-      this.widget.eventQueries[0].id = 'q1_m1';
-    }
-
     if (!this.widget.eventQueries[0].namespace && this.widget.queries && this.widget.queries[0] && this.widget.queries[0].namespace) {
       this.widget.eventQueries[0].namespace = this.widget.queries[0].namespace;
     }

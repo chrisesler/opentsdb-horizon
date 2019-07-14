@@ -1,7 +1,22 @@
 @mixin widget-config-events-component-base() {
 
     .widget-config-events {
+        padding: 10px;
+        width: 100%;
 
+        .namespace {
+            margin-top: 10px;
+        }
+
+        .search {
+            margin-top: 10px;
+            width: 100%;
+
+            .search-input {
+                display: block;
+                width: 100%;
+            }
+        }
     }
 }
 
@@ -13,9 +28,16 @@
     $warn: map-get($theme-config, warn);
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
+    $chip-bg: rgba(map-get($primary, default), .1);
 
     .widget-config-events {
-        // style rules here
+
+        .search {
+            .search-input {
+                background: $chip-bg;
+
+            }
+        }
     }
 
 }
