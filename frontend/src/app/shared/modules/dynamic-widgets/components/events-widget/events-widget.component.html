@@ -16,16 +16,10 @@
                         {{event.title}}
                     </div>
                     <div>
-                        {{event.source}}
-                    </div>
-                    <div>
-                        <!-- <span>
-                            {{util.buildDisplayTime(event.startTime, 0, 0, true, timezone )}}
+                        {{event.source}} -
+                        <span>
+                            {{util.buildDisplayTime(event.timestamp, startTime, endTime, true, timezone )}}
                         </span>
-                
-                        <span *ngIf="events.endTimestamp">
-                            - {{util.buildDisplayTime(event.endTimestamp, startTime, endTime, true, timezone)}}
-                        </span> -->
                     </div>
                 </div>
             </div>

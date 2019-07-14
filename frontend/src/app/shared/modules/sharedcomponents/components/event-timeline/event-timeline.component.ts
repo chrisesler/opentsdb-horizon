@@ -56,19 +56,22 @@ export class EventTimelineComponent implements OnInit, OnChanges {
 
     this.context = (<HTMLCanvasElement>this.eventsOverlayCanvas.nativeElement).getContext('2d');
     this.eventLocations = [];
-    this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
 
-    // tslint:disable:prefer-const
-    for (let i = 0; i < this.buckets.length; i++) {
-      if (this.buckets[i].startTime >= this.startTime && this.buckets[i].startTime <= this.endTime) {
-        let xStart = (this.buckets[i].endTime - this.startTime) * this.getEventResolution();
-        if (i === 0) { // if last bucket, take start + interval - remember that first bucket is latest time
-          xStart = (this.buckets[i].startTime + this.buckets[i].width - this.startTime) * this.getEventResolution();
+    if (this.events) {
+      this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
+
+      // tslint:disable:prefer-const
+      for (let i = 0; i < this.buckets.length; i++) {
+        if (this.buckets[i].startTime >= this.startTime && this.buckets[i].startTime <= this.endTime) {
+          let xStart = (this.buckets[i].endTime - this.startTime) * this.getEventResolution();
+          if (i === 0) { // if last bucket, take start + interval - remember that first bucket is latest time
+            xStart = (this.buckets[i].startTime + this.buckets[i].width - this.startTime) * this.getEventResolution();
+          }
+          this.drawEvent(xStart, 'lightblue', this.buckets[i]);
         }
-        this.drawEvent(xStart, 'lightblue', this.buckets[i]);
       }
+      this.newBuckets.emit(this.buckets);
     }
-    this.newBuckets.emit(this.buckets);
   }
 
   getPlaceholderText(bucket) {

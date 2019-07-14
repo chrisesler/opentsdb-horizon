@@ -680,4 +680,12 @@ export class UtilsService {
     return widget;
   }
 
+  isNumber(value: string | number): boolean {
+    if (value === 0) {
+        return true;
+    } else {
+        return value ? parseInt(value.toString(), 10) !== NaN : false;
+    }
+}
+
 }

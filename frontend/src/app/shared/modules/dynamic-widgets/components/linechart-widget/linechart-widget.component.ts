@@ -16,7 +16,6 @@ import { debounceTime} from 'rxjs/operators';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
-import { EventsState, GetEvents } from '../../../../../dashboard/state/events.state';
 import { Store, Select } from '@ngxs/store';
 
 
@@ -119,10 +118,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     startTime: number;
     endTime: number;
 
-    // state control
-    private eventsSub: Subscription;
-    @Select(EventsState.GetEvents) _events$: Observable<any>;
-
     constructor(
         private cdRef: ChangeDetectorRef,
         private interCom: IntercomService,
@@ -223,15 +218,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
           this.setDefaultEvents();
           if (this.widget.settings.visual.showEvents) {
-            this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
+              // todo remove
+            // this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
           }
-          this.eventsSub = this._events$.subscribe(data => {
-            if (data) {
-              this.events = [];
-              const _data = JSON.parse(JSON.stringify(data));
-              this.events = _data.events;
-            }
-        });
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
@@ -690,7 +679,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.widget.settings.visual.showEvents = showEvents;
         this.widget.settings = {... this.widget.settings};
         if (this.widget.settings.visual.showEvents) {
-            this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
+            // this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
         }
     }
 
@@ -700,7 +689,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.widget.eventQueries = {... this.widget.eventQueries};
 
         if (this.widget.settings.visual.showEvents) {
-            this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
+            // this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
         }
     }
 
@@ -710,7 +699,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.widget.eventQueries = {... this.widget.eventQueries};
 
         if (this.widget.settings.visual.showEvents) {
-            this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
+            // this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
         }
     }
 
@@ -920,7 +909,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.listenSub.unsubscribe();
         this.newSizeSub.unsubscribe();
         this.doRefreshDataSub.unsubscribe();
-        this.eventsSub.unsubscribe();
     }
 
 }

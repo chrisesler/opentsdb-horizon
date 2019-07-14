@@ -51,6 +51,7 @@ import { LoggerService } from '../../../core/services/logger.service';
 import { HttpService } from '../../../core/http/http.service';
 import { ICommand, CmdManager } from '../../../core/services/CmdManager';
 import { DbfsUtilsService } from '../../../app-shell/services/dbfs-utils.service';
+import { EventsState, GetEvents } from '../../../dashboard/state/events.state';
 
 @Component({
     selector: 'app-dashboard',
@@ -80,6 +81,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(AppShellState.getCurrentMediaQuery) mediaQuery$: Observable<string>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
     @Select(NavigatorState.getDrawerOpen) drawerOpen$: Observable<any>;
+    @Select(EventsState.GetEvents) events$: Observable<any>;
 
     // available widgets menu trigger
     @ViewChild('availableWidgetsMenuTrigger', { read: MatMenuTrigger }) availableWidgetsMenuTrigger: MatMenuTrigger;
@@ -292,6 +294,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     break;
                 case 'getQueryData':
                     this.handleQueryPayload(message);
+                    break;
+                case 'getEventData':
+                    this.handleEventQueryPayload(message);
                     break;
                 case 'updateWidgetConfig':
                     const mIndex = this.widgets.findIndex(w => w.id === message.id);
@@ -593,6 +598,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.rerender = { 'reload': true };
             }, 300);
         }));
+
+        this.subscription.add(this.events$.subscribe(result => {
+            const time = this.dbTime;
+            let error = null;
+            let grawdata = {};
+            if (result !== undefined) {
+                if (result.events !== undefined && !result.events.error) {
+                    grawdata = result.events;
+                } else if (result.events !== undefined) {
+                    error = result.events.error;
+                }
+                this.updateEvents(result.wid, grawdata, time, error);
+            }
+        }));
     }
     // apply when custom tag value is changed
     applyTplVarValue() {
@@ -783,6 +802,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
             } else {
                 this.store.dispatch(new ClearQueryData({ wid: message.id }));
+            }
+        });
+    }
+
+    handleEventQueryPayload(message: any) {
+        this.store.dispatch(new GetEvents( {start: this.dbTime.start, end: this.dbTime.end}, message.payload.eventQueries, message.id));
+    }
+
+    updateEvents(wid, rawdata, time, error = null) {
+        // const clientSize = this.store.selectSnapshot(ClientSizeState);
+        this.interCom.responsePut({
+            id: wid,
+            action: 'updatedEvents',
+            payload: {
+                events: rawdata,
+                time: time,
+                error: error
             }
         });
     }

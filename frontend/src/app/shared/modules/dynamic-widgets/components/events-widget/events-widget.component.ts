@@ -1,9 +1,9 @@
-import { Component, OnInit , HostBinding, Input, OnDestroy, OnChanges, SimpleChanges} from '@angular/core';
+import { Component, OnInit , HostBinding, Input, OnDestroy, OnChanges, SimpleChanges, ChangeDetectorRef} from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { Subscription, Observable } from 'rxjs';
-import { EventsState, GetEvents } from '../../../../../dashboard/state/events.state';
 import { Store, Select } from '@ngxs/store';
 import { UtilsService } from '../../../../../core/services/utils.service';
+import { DateUtilsService } from '../../../../../core/services/dateutils.service';
 
 @Component({
   selector: 'app-events-widget',
@@ -13,40 +13,50 @@ import { UtilsService } from '../../../../../core/services/utils.service';
 export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
   @HostBinding('class.events-widget') private _componentClass = true;
 
-  constructor( private interCom: IntercomService, private store: Store, private util: UtilsService) {  }
+  constructor(  private interCom: IntercomService,
+                private store: Store,
+                private util: UtilsService,
+                private dateUtil: DateUtilsService,
+                private cdRef: ChangeDetectorRef) {  }
+
   /** Inputs */
   @Input() editMode: boolean;
   @Input() widget: any; // includes query
-  events: any[];
 
+  /** Local Variables */
+  events: any[];
+  startTime: number;
+  endTime: number;
+  timezone: string;
+
+  // state control
   isDataRefreshRequired = false;
   private listenSub: Subscription;
 
-  // state control
-  private eventsSub: Subscription;
-  // private lastUpdatedEventsSub: Subscription;
-  @Select(EventsState.GetEvents) _events$: Observable<any>;
-  // @Select(RecipientsState.GetLastUpdated) _recipientLastUpdated$: Observable<any>;
-
   ngOnInit() {
 
-    this.widget = this.util.setDefaultEventsConfig(this.widget, true);
-
-    // todo: set from dashboard time
-    this.store.dispatch(new GetEvents( {start: 0, end: 0}, this.widget.eventQueries));
-    this.eventsSub = this._events$.subscribe(data => {
-      if (data) {
-        this.events = [];
-        const _data = JSON.parse(JSON.stringify(data));
-        this.events = _data.events;
-      }
-  });
+    this.widget = {... this.util.setDefaultEventsConfig(this.widget, true)};
+    this.getEvents();
 
     this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+      console.log('&', message, this.widget.id);
+
+      switch ( message.action ) {
+        case 'TimeChanged':
+          this.getEvents();
+          break;
+      }
+
       if (message && (message.id === this.widget.id)) {
         switch (message.action) {
           case 'getUpdatedWidgetConfig': // called when switching to presentation view
-                this.widget = message.payload.widget;
+            this.widget = message.payload.widget;
+            break;
+          case 'updatedEvents':
+            this.events = message.payload.events;
+            this.timezone = message.payload.time.zone;
+            this.startTime = this.dateUtil.timeToMoment(message.payload.time.start, this.timezone).unix() * 1000;
+            this.endTime = this.dateUtil.timeToMoment(message.payload.time.end, this.timezone).unix() * 1000;
             break;
         }
       }
@@ -61,8 +71,15 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
 
   textChanged(txt: string) {
     this.widget.eventQuery = txt;
-     // todo: set from dashboard time
-    this.store.dispatch(new GetEvents( {start: 0, end: 0}, this.widget.eventQueries));
+    this.getEvents();
+  }
+
+  getEvents() {
+      this.interCom.requestSend({
+        id: this.widget.id,
+        action: 'getEventData',
+        payload: this.widget
+    });
   }
 
   applyConfig() {
@@ -85,11 +102,9 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy() {
     this.listenSub.unsubscribe();
-    this.eventsSub.unsubscribe();
   }
 
   updateConfig(message) {
-    console.log(message);
     switch ( message.action ) {
         // case 'SetMetaData':
         //     this.setMetaData(message.payload.data);

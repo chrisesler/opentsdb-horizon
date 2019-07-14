@@ -208,13 +208,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
         }
     }
 
-    isNumber(value: string | number): boolean {
-        if (value === 0) {
-            return true;
-        } else {
-            return value ? parseInt(value.toString(), 10) !== NaN : false;
-        }
-    }
 
     setBigNumber() {
         if (!this.getVisibleMetricId()) {
@@ -263,10 +256,10 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     determineTextAndBackgroundColors() {
         this.textColor = this.widget.settings.visual.textColor;
         this.backgroundColor = this.widget.settings.visual.backgroundColor;
-        if (this.isNumber(this.aggregatorValues[0]) && this.widget.settings.visual.conditions) {
+        if (this.util.isNumber(this.aggregatorValues[0]) && this.widget.settings.visual.conditions) {
             let rawValue = this.aggregatorValues[0];
             for (let condition of this.widget.settings.visual.conditions) {
-                if (this.isNumber(condition.value) && this.conditionApplies(rawValue, condition)) {
+                if (this.util.isNumber(condition.value) && this.conditionApplies(rawValue, condition)) {
                     this.backgroundColor = condition.color;
                 }
             }
@@ -300,7 +293,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
         let bigNumberWidth;
 
-        if (this.isNumber(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num)) {
+        if (this.util.isNumber(this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num)) {
             bigNumberWidth = this.getWidthOfText(' ' + this.UN.getBigNumber(this.aggregatorValues[i], this.widget.settings.visual.unit, this.widget.settings.visual.precision).num + ' ', 'l', this.defaultBigNumberFontWeight);
         } else {
             bigNumberWidth = this.getWidthOfText(' ' + this.noDataText + ' ', 'l', this.defaultBigNumberFontWeight);

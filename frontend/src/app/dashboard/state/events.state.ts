@@ -19,7 +19,8 @@ export class GetEvents {
     public static type = '[Events] Load';
     constructor(
         public readonly time: any,
-        public readonly eventQueries: any[]
+        public readonly eventQueries: any[],
+        public readonly wid: string
     ) { }
 }
 
@@ -71,7 +72,7 @@ export class EventsState {
     // }
 
     @Action(GetEvents)
-    getEvents(ctx: StateContext<EventsStateModel>, { time, eventQueries }: GetEvents) {
+    getEvents(ctx: StateContext<EventsStateModel>, { wid, time, eventQueries }: GetEvents) {
         // ctx.patchState({ loading: true });
         // return this.httpService.getEvents(query).pipe(
         //     map((payload: any) => {
@@ -81,7 +82,7 @@ export class EventsState {
         // );
         // TODO: REMOVE
         const state = ctx.getState();
-        ctx.setState({ ...state, events: this.httpService.getEvents(time, eventQueries), loading: false });
+        ctx.setState({ ...state, events: this.httpService.getEvents(wid, time, eventQueries), loading: false });
 
         // TODO: convert to format we like
         // response to look like this:

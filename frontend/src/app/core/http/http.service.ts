@@ -386,9 +386,9 @@ export class HttpService {
         return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
     }
 
-    getEvents(time: any, eventQueries: any[]) {
+    getEvents(wid: string, time: any, eventQueries: any[]) {
         const query = this.yamasService.buildEventsQuery(time, eventQueries);
-        // todo: send query to tsdb
+        // todo: send query to tsdb and add time
         let now = new Date().getTime();
         // const apiUrl = environment.configdb + '/namespace/' + namespace + '/contact';
         // const httpOptions = {
@@ -398,8 +398,33 @@ export class HttpService {
         // };
         // return this.http.get(apiUrl, httpOptions);
 
+        if (eventQueries[0].namespace !== 'Yamas') {
+            return {
+                wid: wid,
+                time: time,
+                events: [
+                {
+                    title: 'Event 10X',
+                    // tslint:disable:max-line-length
+                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
+                    source: 'aws',
+                    namespace: 'not yamas',
+                    priority: 'low',
+                    tags: {
+                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
+                        '_application': 'tsdb'
+                    },
+                    eventId: '123456',
+                    timestamp: now - (3 * 600 * 1000),
+                    endTimestamp: now,
+                }
+            ], eventQueries: eventQueries};
+        }
+
         return { events: [
             {
+                wid: wid,
+                time: time,
                 title: 'Event 1',
                 // tslint:disable:max-line-length
                 message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
