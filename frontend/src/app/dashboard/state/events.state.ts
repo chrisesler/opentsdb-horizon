@@ -18,6 +18,7 @@ export interface EventsStateModel {
 export class GetEvents {
     public static type = '[Events] Load';
     constructor(
+        public readonly time: any,
         public readonly eventQueries: any[]
     ) { }
 }
@@ -70,7 +71,7 @@ export class EventsState {
     // }
 
     @Action(GetEvents)
-    getEvents(ctx: StateContext<EventsStateModel>, { eventQueries }: GetEvents) {
+    getEvents(ctx: StateContext<EventsStateModel>, { time, eventQueries }: GetEvents) {
         // ctx.patchState({ loading: true });
         // return this.httpService.getEvents(query).pipe(
         //     map((payload: any) => {
@@ -80,7 +81,7 @@ export class EventsState {
         // );
         // TODO: REMOVE
         const state = ctx.getState();
-        ctx.setState({ ...state, events: this.httpService.getEvents(eventQueries), loading: false });
+        ctx.setState({ ...state, events: this.httpService.getEvents(time, eventQueries), loading: false });
 
         // TODO: convert to format we like
         // response to look like this:

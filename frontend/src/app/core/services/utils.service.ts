@@ -572,7 +572,7 @@ export class UtilsService {
 
     // fillup buckets with events
     for (const event of events) {
-        const eStartTime = event.startTime;
+        const eStartTime = event.timestamp;
         for (const bucket of buckets) {
             if (eStartTime >= bucket.startTime && eStartTime < bucket.endTime) {
                 bucket.events.push(event);
@@ -666,6 +666,18 @@ export class UtilsService {
 
     return dateString;
 
+  }
+
+  setDefaultEventsConfig(widget, displayEvents: boolean) {
+    if (!widget.eventQueries) {
+        widget.eventQueries = [];
+        widget.eventQueries[0] = {};
+        widget.eventQueries[0].namespace = '';
+        widget.eventQueries[0].search = '';
+        widget.eventQueries[0].id = 'q1_m1';
+        widget.settings.visual.showEvents = displayEvents;
+    }
+    return widget;
   }
 
 }

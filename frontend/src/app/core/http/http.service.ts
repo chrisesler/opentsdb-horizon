@@ -4,6 +4,7 @@ import { Observable, of, throwError, forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
 import { MetaService } from '../services/meta.service';
+import { YamasService } from '../services/yamas.service';
 import { UtilsService } from '../services/utils.service';
 import { LoggerService } from '../services/logger.service';
 
@@ -23,8 +24,8 @@ export class HttpService {
         private http: HttpClient,
         private metaService: MetaService,
         private utils: UtilsService,
-        private logger: LoggerService
-    ) { }
+        private logger: LoggerService,
+        private yamasService: YamasService) { }
 
     getDashoard(id: string): Observable<any> {
         const apiUrl = environment.configdb + '/object/' + id;
@@ -385,7 +386,9 @@ export class HttpService {
         return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
     }
 
-    getEvents(eventQueries: any[]) {
+    getEvents(time: any, eventQueries: any[]) {
+        const query = this.yamasService.buildEventsQuery(time, eventQueries);
+        // todo: send query to tsdb
         let now = new Date().getTime();
         // const apiUrl = environment.configdb + '/namespace/' + namespace + '/contact';
         // const httpOptions = {
@@ -408,14 +411,14 @@ export class HttpService {
                     '_application': 'tsdb'
                 },
                 eventId: '123456',
-                startTime: now - (3 * 600 * 1000),
-                endTime: now,
+                timestamp: now - (3 * 600 * 1000),
+                endTimestamp: now,
             },
             {
                 title: 'Event 2',
                 message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
                 source: 'aws',
-                startTime: now - (4.1 * 600 * 1000),
+                timestamp: now - (4.1 * 600 * 1000),
                 eventId: '1234568',
                 namespace: 'yamas',
                 priority: 'low',
@@ -428,7 +431,7 @@ export class HttpService {
                 title: 'Event 3',
                 message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
                 source: 'aws',
-                startTime: now - (4.22 * 600 * 1000),
+                timestamp: now - (4.22 * 600 * 1000),
                 eventId: '1234569',
                 namespace: 'yamas',
                 priority: 'low',
@@ -441,7 +444,7 @@ export class HttpService {
                 title: 'Event 4',
                 message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
                 source: 'sd',
-                startTime: now - (4.23 * 600 * 1000),
+                timestamp: now - (4.23 * 600 * 1000),
                 eventId: '1234560',
                 namespace: 'yamas',
                 priority: 'low',
@@ -454,7 +457,7 @@ export class HttpService {
                 title: 'Event 5',
                 message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
                 source: 'sd',
-                startTime: now - (5.22 * 600 * 1000),
+                timestamp: now - (5.22 * 600 * 1000),
                 eventId: '1234561',
                 namespace: 'yamas',
                 priority: 'low',

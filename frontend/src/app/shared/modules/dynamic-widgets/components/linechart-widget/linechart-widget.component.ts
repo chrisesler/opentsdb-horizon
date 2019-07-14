@@ -223,7 +223,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
           this.setDefaultEvents();
           if (this.widget.settings.visual.showEvents) {
-            this.store.dispatch(new GetEvents(this.widget.eventQueries));
+            this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
           }
           this.eventsSub = this._events$.subscribe(data => {
             if (data) {
@@ -330,8 +330,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             case 'SetShowEvents':
                 this.setShowEvents(message.payload.showEvents);
                 break;
-            case 'SetEventQuery':
-                this.setEventQueries(message.payload.eventQueries);
+            case 'SetEventQuerySearch':
+                this.setEventQuerySearch(message.payload.eventQuerySearch);
+                break;
+            case 'SetEventQueryNamespace':
+                this.setEventQueryNamespace(message.payload.namespace);
                 break;
             case 'CloseQueryEditMode':
                 this.editQueryId = null;
@@ -680,32 +683,35 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     setDefaultEvents() {
-        if (!this.widget.eventQueries) {
-            this.widget.eventQueries = [];
-            this.widget.eventQueries[0] = {
-              namespace: '',
-              search: ''
-            };
-            this.widget.settings.visual.showEvents = false;
-        }
+        this.widget = this.util.setDefaultEventsConfig(this.widget, false);
     }
 
     setShowEvents(showEvents: boolean) {
         this.widget.settings.visual.showEvents = showEvents;
         this.widget.settings = {... this.widget.settings};
         if (this.widget.settings.visual.showEvents) {
-            this.store.dispatch(new GetEvents(this.widget.eventQueries));
+            this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
         }
     }
 
-    setEventQueries(eventQueries: any[]) {
-        console.log(eventQueries);
-        // this.widget.eventQueries = eventQueries;
-        // this.widget.eventQueries = {... this.widget.eventQueries};
+    setEventQuerySearch(search: string) {
+        // todo: set correctly
+        // this.widget.eventQueries[0].search = search;
+        this.widget.eventQueries = {... this.widget.eventQueries};
 
-        // if (this.widget.settings.visual.showEvents) {
-        //     this.store.dispatch(new GetEvents(this.widget.eventQueries));
-        // }
+        if (this.widget.settings.visual.showEvents) {
+            this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
+        }
+    }
+
+    setEventQueryNamespace(namespace: string) {
+        // todo: set correctly
+        // this.widget.eventQueries[0].namespace = namespace;
+        this.widget.eventQueries = {... this.widget.eventQueries};
+
+        if (this.widget.settings.visual.showEvents) {
+            this.store.dispatch(new GetEvents( {start: this.startTime, end: this.endTime}, this.widget.eventQueries));
+        }
     }
 
     toggleChartSeries(index:number, focusOnly) {

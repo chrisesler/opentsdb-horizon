@@ -1,4 +1,5 @@
 import { Component, OnInit, HostBinding, Input, Output, EventEmitter } from '@angular/core';
+import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -11,7 +12,7 @@ export class WidgetConfigEventsComponent implements OnInit {
   @HostBinding('class.widget-config-events') private _hostClass = true;
 
 
-  constructor() { }
+  constructor( private util: UtilsService) { }
       /** Inputs */
       @Input() widget: any;
       @Input() allowEventToggling: boolean;
@@ -25,12 +26,14 @@ export class WidgetConfigEventsComponent implements OnInit {
       this.allowEventToggling = true;
     }
 
+    this.widget = this.util.setDefaultEventsConfig(this.widget, false);
+
     if (!this.widget.eventQueries) {
       this.widget.eventQueries = [];
-      this.widget.eventQueries[0] = {
-        namespace: '',
-        search: ''
-      };
+      this.widget.eventQueries[0] = {};
+      this.widget.eventQueries[0].namespace = '';
+      this.widget.eventQueries[0].search = '';
+      this.widget.eventQueries[0].id = 'q1_m1';
     }
 
     if (!this.widget.eventQueries[0].namespace && this.widget.queries && this.widget.queries[0] && this.widget.queries[0].namespace) {
@@ -43,19 +46,16 @@ export class WidgetConfigEventsComponent implements OnInit {
 
   }
 
-  eventQueryChanged(txt: string) {
-    this.widget.eventQueries[0].search = txt;
-    this.widgetChange.emit( {action: 'SetEventQuery', payload: {eventQueries: this.widget.eventQueries}});
+  eventQueryChanged(search: string) {
+    this.widgetChange.emit( {action: 'SetEventQuerySearch', payload: {search: search}});
   }
 
   showEventsChanged(events: boolean) {
-    this.widget.settings.visual.showEvents = events;
     this.widgetChange.emit( {action: 'SetShowEvents', payload: {showEvents: events} } );
   }
 
-  saveNamespace(namespace) {
-    this.widget.eventQueries[0].namespace = namespace;
-    this.widgetChange.emit( {action: 'SetEventQuery', payload: {eventQueries: this.widget.eventQueries}});
+  saveNamespace(namespace: string) {
+    this.widgetChange.emit( {action: 'SetEventQueryNamespace', payload: {namespace: namespace}});
   }
 
   cancelSaveNamespace(event) {

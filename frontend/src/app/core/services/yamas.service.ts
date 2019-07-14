@@ -655,7 +655,7 @@ export class YamasService {
                 id: query.id,
                 type: 'TimeSeriesDataSourceConfig',
                 types: ['Events'],
-                groupBy: query.groupBy,
+                groupBy: query.groupBy ? query.groupBy : '',
                 from: '0',   // todo: what is this?
                 size: '100', // todo: what is this?
                 namespace: query.namespace,

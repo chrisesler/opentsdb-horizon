@@ -3,6 +3,7 @@ import { IntercomService, IMessage } from '../../../../../core/services/intercom
 import { Subscription, Observable } from 'rxjs';
 import { EventsState, GetEvents } from '../../../../../dashboard/state/events.state';
 import { Store, Select } from '@ngxs/store';
+import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
   selector: 'app-events-widget',
@@ -12,7 +13,7 @@ import { Store, Select } from '@ngxs/store';
 export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
   @HostBinding('class.events-widget') private _componentClass = true;
 
-  constructor( private interCom: IntercomService, private store: Store) {  }
+  constructor( private interCom: IntercomService, private store: Store, private util: UtilsService) {  }
   /** Inputs */
   @Input() editMode: boolean;
   @Input() widget: any; // includes query
@@ -29,10 +30,10 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit() {
 
-    if (!this.widget.eventQuery) {
-      this.widget.eventQuery = 'namespace = *';
-    }
-    this.store.dispatch(new GetEvents(this.widget.eventQuery));
+    this.widget = this.util.setDefaultEventsConfig(this.widget, true);
+
+    // todo: set from dashboard time
+    this.store.dispatch(new GetEvents( {start: 0, end: 0}, this.widget.eventQueries));
     this.eventsSub = this._events$.subscribe(data => {
       if (data) {
         this.events = [];
@@ -60,7 +61,8 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
 
   textChanged(txt: string) {
     this.widget.eventQuery = txt;
-    this.store.dispatch(new GetEvents(this.widget.eventQuery));
+     // todo: set from dashboard time
+    this.store.dispatch(new GetEvents( {start: 0, end: 0}, this.widget.eventQueries));
   }
 
   applyConfig() {
