@@ -25,31 +25,46 @@
                 </div>
                 <div class="event-description"> {{event.title}}  </div>
 
-                <div class="priority" *ngIf="event.priority">
-                    Priority: {{event.priority}}
+                <div class="namespace">
+                    Namespace: <b>{{event.namespace}}</b>
                 </div>
 
-                <!-- event tags -->
-                <div *ngIf="event.tags">
-                    <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.tags)">
-                        <span class="tag-key">{{ tag.key }}:</span>
-                        <strong class="tag-value">{{ tag.value }}</strong>
-                    </span>
+                <div class="optionals">
+                    <div class="priority" *ngIf="event.priority">
+                        Priority: <b>{{event.priority}}</b>
+                    </div>
+
+                    <!-- event tags -->
+                    <div *ngIf="event.tags">
+                        <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.tags)">
+                            <span class="tag-key">{{ tag.key }}:</span>
+                            <strong class="tag-value">{{ tag.value }}</strong>
+                        </span>
+                    </div>
+    
+                    <!-- additional properties -->
+                    <div *ngIf="event.additionalProps">
+                        <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.additionalProps)">
+                            <span class="tag-key">{{ tag.key }}:</span>
+                            <strong class="tag-value">{{ tag.value }}</strong>
+                        </span>
+                    </div>
+    
+                    <!-- event details -->
+                    <mat-expansion-panel 
+                            *ngIf="event.message"
+                            class="details"
+                           [expanded]="event.eventId === expandedEventId"
+                           (opened)="openDetails(event.eventId)"
+                           (closed)="closeDetails(event.eventId)">
+                        <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            {{event.eventId === expandedEventId ? 'Hide' : 'Show'}} Details
+                        </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        {{event.message}}
+                    </mat-expansion-panel>
                 </div>
-
-                <!-- event details -->
-                <mat-expansion-panel class="details"
-                       [expanded]="event.eventId === expandedEventId"
-                       (opened)="openDetails(event.eventId)"
-                       (closed)="closeDetails(event.eventId)">
-                    <mat-expansion-panel-header>
-                    <mat-panel-title>
-                        {{event.eventId === expandedEventId ? 'Hide' : 'Show'}} Details
-                    </mat-panel-title>
-                    </mat-expansion-panel-header>
-                    {{event.message}}
-                </mat-expansion-panel>
-
             </div>
         </mat-expansion-panel>
     </mat-accordion>
