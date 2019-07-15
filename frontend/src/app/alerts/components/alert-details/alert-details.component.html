@@ -348,7 +348,7 @@
                                         <div class="form-label"><strong>Purge missing state</strong></div>
                                         <div class="form-control-wrap auto-width">
                                             <mat-form-field appearance="fill" floatLabel="never">
-                                                <mat-select placeholder="Never" formControlName="autoRecoveryInterval">
+                                                <mat-select placeholder="Never" formControlName="missingDataPurgeInterval">
                                                     <mat-option *ngFor="let option of recoverOptions" [value]="option.value">{{option.label}}</mat-option>
                                                 </mat-select>
                                             </mat-form-field>
