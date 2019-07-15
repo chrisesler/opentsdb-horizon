@@ -151,12 +151,12 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     alertOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     recoverOptions: any[] = [
                                 { label: 'Never', value: null },
-                                { label: 'After 1 hour', value: 60 },
-                                { label: 'After 2 hours', value: 120 },
-                                { label: 'After 4 hours', value: 240 },
-                                { label: 'After 8 hours', value: 480 },
-                                { label: 'After 12 hours', value: 720 },
-                                { label: 'After 24 hours', value: 1440 }
+                                { label: 'After 1 hour', value: 60 * 60 },
+                                { label: 'After 2 hours', value: 120 * 60 },
+                                { label: 'After 4 hours', value: 240 * 60 },
+                                { label: 'After 8 hours', value: 480 * 60 },
+                                { label: 'After 12 hours', value: 720 * 60 },
+                                { label: 'After 24 hours', value: 1440 * 60 }
                             ];
 
     transitionOptions: any = {
@@ -416,7 +416,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             threshold: this.fb.group({
                 nagInterval: data.threshold.nagInterval || '0',
                 notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false',
-                autoRecoveryInterval: data.threshold.autoRecoveryInterval || null,
+                missingDataPurgeInterval: data.threshold.missingDataPurgeInterval || null,
                 missingDataInterval: data.threshold.missingDataInterval || null,
                 healthCheck: this.fb.group({
                     queryIndex: 0,
