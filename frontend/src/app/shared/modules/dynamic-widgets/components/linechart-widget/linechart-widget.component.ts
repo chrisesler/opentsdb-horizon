@@ -216,7 +216,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         break;
                     case 'updatedEvents':
                         this.events = message.payload.events;
-                        this.cdRef.detectChanges();
                         break;
                 }
             }
