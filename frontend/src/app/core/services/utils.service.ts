@@ -530,7 +530,7 @@ export class UtilsService {
   getEventBuckets(startTime, endTime, maxNumOfBuckets, events) {
     // startTime in milliseconds. ex: 1561670640000
     // tslint:disable-next-line:max-line-length
-    const validBucketSizes = [1, 5, 10, 15, 20, 30, 60, 60 * 2, 60 * 3, 60 * 4, 60 * 6, 60 * 12, 60 * 24, 60 * 48, 60 * 24 * 7, 60 * 24 * 14, 60 * 24 * 28, 60 * 24 * 28 * 3, 60 * 24 * 28 * 12]; // in minutes
+    const validBucketSizes = [1, 5, 10, 15, 30, 60, 60 * 2, 60 * 3, 60 * 4, 60 * 6, 60 * 12, 60 * 24, 60 * 48, 60 * 24 * 7, 60 * 24 * 14, 60 * 24 * 28, 60 * 24 * 28 * 3, 60 * 24 * 28 * 12]; // in minutes
     const duration = moment.duration(moment(endTime).diff(moment(startTime))).as('minutes');
     const minuteAsMilliseconds = 60 * 1000;
     const buckets = []; // [ {startTime: startTime, endTime: endTime, events: []} ]

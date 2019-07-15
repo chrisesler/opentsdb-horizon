@@ -39,7 +39,6 @@ export class WidgetConfigEventsComponent implements OnInit {
   }
 
   eventQueryChanged(search: string) {
-    console.log(search);
     this.widgetChange.emit( {action: 'SetEventQuerySearch', payload: {search: search}});
   }
 
