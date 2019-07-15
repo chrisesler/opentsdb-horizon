@@ -323,7 +323,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.setShowEvents(message.payload.showEvents);
                 break;
             case 'SetEventQuerySearch':
-                this.setEventQuerySearch(message.payload.eventQuerySearch);
+                this.setEventQuerySearch(message.payload.search);
                 break;
             case 'SetEventQueryNamespace':
                 this.setEventQueryNamespace(message.payload.namespace);
@@ -695,14 +695,18 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     setEventQuerySearch(search: string) {
         // todo: set correctly
-        // this.widget.eventQueries[0].search = search;
-        this.widget.eventQueries = {... this.widget.eventQueries};
+        const deepClone = JSON.parse(JSON.stringify(this.widget));
+        deepClone.eventQueries[0].search = search;
+        this.widget.eventQueries = {... deepClone.eventQueries};
+        this.getEvents();
     }
 
     setEventQueryNamespace(namespace: string) {
         // todo: set correctly
-        // this.widget.eventQueries[0].namespace = namespace;
-        this.widget.eventQueries = {... this.widget.eventQueries};
+        const deepClone = JSON.parse(JSON.stringify(this.widget));
+        deepClone.eventQueries[0].namespace = namespace;
+        this.widget.eventQueries = {... deepClone.eventQueries};
+        this.getEvents();
     }
 
     toggleChartSeries(index:number, focusOnly) {
