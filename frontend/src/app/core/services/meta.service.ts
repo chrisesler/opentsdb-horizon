@@ -69,6 +69,14 @@ export class MetaService {
         }
       }
 
+      if ( source === 'aurastatus' && (type === 'TAG_KEYS' || type === 'TAG_KEYS_AND_VALUES') ) {
+        filters.unshift({
+          'type': 'FieldLiteralOr',
+          'key': 'statusType',
+          'filter': 'check'
+        });
+      }
+
       for (let k = 0;  params[i].tags && k < params[i].tags.length; k++) {
           const f = params[i].tags[k];
           const values = f.filter;
