@@ -304,6 +304,11 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             this._g.updateOptions(this.options);
             this._g.resize(nsize.width, nsize.height);
         }
+
+        if (this._g && changes.eventBuckets) {
+            // todo: refresh properly
+            this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
+        }
     }
   }
 
