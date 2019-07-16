@@ -57,6 +57,8 @@ export interface IDygraphOptions {
     highlightCallback?: any;
     zoomCallback?: any;
     isZoomedIgnoreProgrammaticZoom?: boolean;
+    drawCallback?: any;
+    underlayCallback?: any;
     labelsKMB?: boolean;
     visibility?: boolean[];
     drawGrid?: boolean;

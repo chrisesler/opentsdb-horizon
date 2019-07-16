@@ -56,6 +56,11 @@ export class PlaceholderWidgetComponent  {
             label: 'Notes',
             type: 'MarkdownWidgetComponent',
             iconClass: 'widget-icon-notes'
+        },
+        {
+            label: 'Events',
+            type: 'EventsWidgetComponent',
+            iconClass: 'widget-icon-notes'
         }
         /*,
         {

@@ -1,0 +1,46 @@
+<div class="main-container">
+    <div class="widget-output-container" fxLayout="column">
+        <div class="widget-title" *ngIf="editMode" fxLayout="row" fxFlex="1 1 30px">
+            <span class="flex-spacer"></span>
+            <span>
+                <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
+                    <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
+                </button>
+            </span>
+        </div>
+      
+        <div class="widget-output notCentered" #widgetoutput [ngClass]="{'top-margin': editMode }">
+            <div class="widget-container">
+                <div *ngFor="let event of events" class="event">
+                    <div>
+                        {{event.title}}
+                    </div>
+                    <div>
+                        {{event.source}} -
+                        <span>
+                            {{util.buildDisplayTime(event.timestamp, startTime, endTime, true, timezone )}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+      
+      <div class="widget-controls-container" *ngIf="editMode">
+        <!-- tabs with config content -->
+        <mat-tab-group class="widget-configs" selectedIndex="0" color="primary" [@.disabled]="'true'">
+            <mat-tab label="Events" [disabled]="editQueryId">
+                <ng-template matTabContent>
+                    <widget-config-events [widget]="widget" [allowEventToggling]="false" (widgetChange)="updateConfig($event);"></widget-config-events>
+                </ng-template>
+            </mat-tab>
+        </mat-tab-group>
+    </div>    
+</div>
+
+<div class="widget-actions" *ngIf="editMode">
+    <!-- controls to save/cancel -->
+    <button mat-raised-button color="primary" class="mat-elevation-z0" (click)="applyConfig()">Apply to Dashboard</button>
+    <button mat-stroked-button color="primary" class="mat-elevation-z0" (click)="closeViewEditMode()">Cancel</button>
+</div>
+
