@@ -51,6 +51,7 @@ import { LoggerService } from '../../../core/services/logger.service';
 import { HttpService } from '../../../core/http/http.service';
 import { ICommand, CmdManager } from '../../../core/services/CmdManager';
 import { DbfsUtilsService } from '../../../app-shell/services/dbfs-utils.service';
+import { EventsState, GetEvents } from '../../../dashboard/state/events.state';
 
 @Component({
     selector: 'app-dashboard',
@@ -80,6 +81,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     @Select(AppShellState.getCurrentMediaQuery) mediaQuery$: Observable<string>;
     @Select(DBSettingsState.GetDashboardMode) dashboardMode$: Observable<string>;
     @Select(NavigatorState.getDrawerOpen) drawerOpen$: Observable<any>;
+    @Select(EventsState.GetEvents) events$: Observable<any>;
 
     // available widgets menu trigger
     @ViewChild('availableWidgetsMenuTrigger', { read: MatMenuTrigger }) availableWidgetsMenuTrigger: MatMenuTrigger;
@@ -143,7 +145,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
             label: 'Notes',
             type: 'MarkdownWidgetComponent',
             iconClass: 'widget-icon-notes'
-        }/*,
+        },
+        {
+            label: 'Events',
+            type: 'EventsWidgetComponent',
+            iconClass: 'widget-icon-notes'
+        },
+
+        /*,
         {
             label: 'Statuses',
             type: 'WidgetStatusComponent',
@@ -286,6 +295,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'getQueryData':
                     this.handleQueryPayload(message);
                     break;
+                case 'getEventData':
+                    this.handleEventQueryPayload(message);
+                    break;
                 case 'updateWidgetConfig':
                     const mIndex = this.widgets.findIndex(w => w.id === message.id);
                     if (mIndex === -1) {
@@ -294,7 +306,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         const newWidgetY = message.payload.widget.gridPos.h;
                         this.widgets = this.dbService.positionWidgetY(this.widgets, newWidgetY);
                         // change name to fist metric if name is not change
-                        if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent') {
+                        if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent' &&
+                        message.payload.widget.settings.component_type !== 'EventsWidgetComponent') {
                             if (message.payload.widget.settings.title === 'my widget' && message.payload.widget.queries[0].metrics.length) {
                                 message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
                             }
@@ -312,7 +325,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         if (this.widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
                             this.widgets[mIndex] = message.payload.widget;
                             // change name to fist metric if name is not change
-                            if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent') {
+                            if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent' &&
+                                message.payload.widget.settings.component_type !== 'EventsWidgetComponent') {
                                 if (message.payload.widget.settings.title === 'my widget') {
                                     message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
                                 }
@@ -583,6 +597,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.rerender = { 'reload': true };
             }, 300);
         }));
+
+        this.subscription.add(this.events$.subscribe(result => {
+            const time = this.dbTime;
+            let error = null;
+            let grawdata = {};
+            if (result !== undefined) {
+                if (result.events !== undefined && !result.events.error) {
+                    grawdata = result.events;
+                } else if (result.events !== undefined) {
+                    error = result.events.error;
+                }
+                this.updateEvents(result.wid, grawdata, time, error);
+            }
+        }));
     }
     // apply when custom tag value is changed
     applyTplVarValue() {
@@ -773,6 +801,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
             } else {
                 this.store.dispatch(new ClearQueryData({ wid: message.id }));
+            }
+        });
+    }
+
+    handleEventQueryPayload(message: any) {
+        this.store.dispatch(new GetEvents( {start: this.dbTime.start, end: this.dbTime.end}, message.payload.eventQueries, message.id));
+    }
+
+    updateEvents(wid, rawdata, time, error = null) {
+        // const clientSize = this.store.selectSnapshot(ClientSizeState);
+        this.interCom.responsePut({
+            id: wid,
+            action: 'updatedEvents',
+            payload: {
+                events: rawdata,
+                time: time,
+                error: error
             }
         });
     }

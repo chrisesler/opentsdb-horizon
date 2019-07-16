@@ -18,7 +18,9 @@ import { DashboardConverterService } from '../core/services/dashboard-converter.
 // store
 import { NgxsModule } from '@ngxs/store';
 import { DBState, DBSettingsState, WidgetsState, ClientSizeState,
-         WidgetsConfigState, WidgetsRawdataState, UserSettingsState } from './state';
+         WidgetsConfigState, WidgetsRawdataState, UserSettingsState,  } from './state';
+
+import { EventsState } from './state/events.state';
 
 // components
 import { DashboardComponent } from './containers/dashboard/dashboard.component';
@@ -64,7 +66,8 @@ import { TemplateVariablePanelComponent } from './components/template-variable-p
             WidgetsState,
             ClientSizeState,
             WidgetsRawdataState,
-            UserSettingsState
+            UserSettingsState,
+            EventsState
         ]),
         DynamicWidgetsModule
     ],

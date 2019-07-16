@@ -39,6 +39,7 @@ export interface WidgetModel {
                 type?: string;
                 stacks?: StackConfig[];
                 [x: string]: any;
+                showEvents?: boolean;
             };
             axes?: {
                 x?: Axis;
@@ -68,6 +69,7 @@ export interface WidgetModel {
         hSm?: number
     };
     queries: any[];
+    eventQueries?: any[];
 }
 
 export interface WidgetsModel {

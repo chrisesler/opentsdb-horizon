@@ -60,6 +60,9 @@ import { InlineFilterEditorComponent } from './components/inline-filter-editor/i
 import { MetricAutocompleteComponent } from './components/metric-autocomplete/metric-autocomplete.component';
 import { DropdownMetricTagsComponent } from './components/dropdown-metric-tags/dropdown-metric-tags.component';
 import { MetricFunctionComponent } from './components/metric-function/metric-function.component';
+import { EventStreamComponent } from './components/event-stream/event-stream.component';
+import { EventTimelineComponent } from './components/event-timeline/event-timeline.component';
+import { WidgetConfigEventsComponent } from './components/widget-config-events/widget-config-events.component';
 
 @NgModule({
     imports: [
@@ -111,12 +114,15 @@ import { MetricFunctionComponent } from './components/metric-function/metric-fun
         TagGroupbyComponent,
         WidgetConfigSortingComponent,
         ConditionalFormatterComponent,
-        QueryEditorFlatComponent, 
+        QueryEditorFlatComponent,
         QueryEditorProtoComponent,
         InlineFilterEditorComponent,
         MetricAutocompleteComponent,
         DropdownMetricTagsComponent,
-        MetricFunctionComponent
+        MetricFunctionComponent,
+        EventStreamComponent,
+        EventTimelineComponent,
+        WidgetConfigEventsComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -154,7 +160,10 @@ import { MetricFunctionComponent } from './components/metric-function/metric-fun
         QueryEditorProtoComponent,
         MetricAutocompleteComponent,
         DropdownMetricTagsComponent,
-        MetricFunctionComponent
+        MetricFunctionComponent,
+        EventStreamComponent,
+        EventTimelineComponent,
+        WidgetConfigEventsComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,

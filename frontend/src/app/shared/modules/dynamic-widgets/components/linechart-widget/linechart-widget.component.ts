@@ -6,7 +6,7 @@ import { IntercomService, IMessage } from '../../../../../core/services/intercom
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
@@ -15,8 +15,8 @@ import { BehaviorSubject } from 'rxjs';
 import { debounceTime} from 'rxjs/operators';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
 import {MatSort} from '@angular/material/sort';
-import {MatTableDataSource} from '@angular/material/table'
-
+import {MatTableDataSource} from '@angular/material/table';
+import { Store, Select } from '@ngxs/store';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -108,6 +108,15 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     preventSingleClick: boolean;
     clickTimer: any;
 
+    // EVENTS
+    buckets: any[]; // TODO: remove with island legend
+    expandedBucket: number; // TODO: remove with island legend
+    events: any[];
+    showEventStream = false; // TODO: remove with island legend
+    eventsWidth: number;
+    startTime: number;
+    endTime: number;
+
     constructor(
         private cdRef: ChangeDetectorRef,
         private interCom: IntercomService,
@@ -115,7 +124,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         private dataTransformer: DatatranformerService,
         private util: UtilsService,
         private elRef: ElementRef,
-        private unit: UnitConverterService
+        private unit: UnitConverterService,
+        private store: Store
     ) { }
 
     ngOnInit() {
@@ -127,6 +137,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             .subscribe(trigger => {
                 if (trigger) {
                     this.refreshData();
+                    this.getEvents();
                 }
             });
 
@@ -137,9 +148,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     this.options.isCustomZoomed = false;
                     delete this.options.dateWindow;
                     this.refreshData();
+                    this.getEvents();
                     break;
                 case 'reQueryData':
                     this.refreshData();
+                    this.getEvents();
                     break;
                 case 'TimezoneChanged':
                     this.setTimezone(message.payload.zone);
@@ -201,9 +214,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         this.widget.settings.useDBFilter = true;
                         this.cdRef.detectChanges();
                         break;
-                    }
+                    case 'updatedEvents':
+                        this.events = message.payload.events;
+                        break;
+                }
             }
         });
+
+          this.setDefaultEvents();
+          this.getEvents();
+
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
         setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
@@ -297,6 +317,15 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 break;
             case 'SetQueryEditMode':
                 this.editQueryId = message.payload.id;
+                break;
+            case 'SetShowEvents':
+                this.setShowEvents(message.payload.showEvents);
+                break;
+            case 'SetEventQuerySearch':
+                this.setEventQuerySearch(message.payload.search);
+                break;
+            case 'SetEventQueryNamespace':
+                this.setEventQueryNamespace(message.payload.namespace);
                 break;
             case 'CloseQueryEditMode':
                 this.editQueryId = null;
@@ -421,17 +450,31 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             }
             padding = 8; // 8px top and bottom
             nHeight = newSize.height - heightOffset - titleSize.height - (padding * 2);
+
+            if (this.widget.settings.visual.showEvents) {  // give room for events
+                nHeight = nHeight - 35;
+            }
+
             nWidth = newSize.width - widthOffset  - (padding * 2) - 30;
         } else {
             padding = 10; // 10px on the top
             const paddingSides = 1;
             nHeight = newSize.height - heightOffset - (padding * 2);
+
+            if (this.widget.settings.visual.showEvents) {  // give room for events
+                nHeight = nHeight - 25;
+            }
+
             // nWidth = newSize.width - widthOffset  - (padding * 2);
             nWidth = newSize.width - widthOffset  - paddingSides;
         }
         this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
         this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
         this.size = {width: nWidth, height: nHeight };
+
+        // Canvas Width resize
+        this.eventsWidth = nWidth - 55;
+
         // after size it set, tell Angular to check changes
         this.cdRef.detectChanges();
     }
@@ -630,6 +673,41 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
     }
 
+    setDefaultEvents() {
+        this.widget = this.util.setDefaultEventsConfig(this.widget, false);
+    }
+
+    getEvents() {
+        if (this.widget.settings.visual.showEvents) {
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'getEventData',
+                payload: this.widget
+            });
+        }
+    }
+
+    setShowEvents(showEvents: boolean) {
+        this.widget.settings.visual.showEvents = showEvents;
+        this.widget.settings = {... this.widget.settings};
+    }
+
+    setEventQuerySearch(search: string) {
+        // todo: set correctly
+        const deepClone = JSON.parse(JSON.stringify(this.widget));
+        deepClone.eventQueries[0].search = search;
+        this.widget.eventQueries = {... deepClone.eventQueries};
+        this.getEvents();
+    }
+
+    setEventQueryNamespace(namespace: string) {
+        // todo: set correctly
+        const deepClone = JSON.parse(JSON.stringify(this.widget));
+        deepClone.eventQueries[0].namespace = namespace;
+        this.widget.eventQueries = {... deepClone.eventQueries};
+        this.getEvents();
+    }
+
     toggleChartSeries(index:number, focusOnly) {
         this.preventSingleClick = focusOnly;
         if (!focusOnly) {
@@ -679,6 +757,23 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             action: 'SetZoomDateRange',
             payload: zConfig
         });
+    }
+
+    bucketClickedAtIndex(index) {
+        this.expandedBucket = index;
+        this.updatedShowEventStream(true);
+    }
+
+    receivedDateWindow(dateWindow: any) {
+        this.startTime = dateWindow.startTime;
+        this.endTime = dateWindow.endTime;
+    }
+     updatedShowEventStream(showEventStream: boolean) {
+        this.showEventStream = showEventStream;
+    }
+
+    newBuckets(buckets) {
+        this.buckets = buckets;
     }
 
     getSeriesLabel(index) {

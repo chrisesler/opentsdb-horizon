@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import * as _moment from 'moment';
+const moment = _moment;
 
 @Injectable({
     providedIn: 'root'
@@ -429,6 +431,18 @@ export class UtilsService {
         return obj;
     }
 
+    transformTagMapToArray(map: Map<any, any>): any[] {
+        const ret = [];
+
+        Object.keys(map).forEach(function (key) {
+            ret.push({
+                key: key.toString(),
+                value: map[key].toString()});
+
+        });
+        return ret;
+    }
+
     getQueryClone(queries, index) {
         const query = queries[index];
         const newQuery = this.deepClone(query);
@@ -512,5 +526,166 @@ export class UtilsService {
         }
         return tsObj;
     }
+
+  getEventBuckets(startTime, endTime, maxNumOfBuckets, events) {
+    // startTime in milliseconds. ex: 1561670640000
+    // tslint:disable-next-line:max-line-length
+    const validBucketSizes = [1, 5, 10, 15, 30, 60, 60 * 2, 60 * 3, 60 * 4, 60 * 6, 60 * 12, 60 * 24, 60 * 48, 60 * 24 * 7, 60 * 24 * 14, 60 * 24 * 28, 60 * 24 * 28 * 3, 60 * 24 * 28 * 12]; // in minutes
+    const duration = moment.duration(moment(endTime).diff(moment(startTime))).as('minutes');
+    const minuteAsMilliseconds = 60 * 1000;
+    const buckets = []; // [ {startTime: startTime, endTime: endTime, events: []} ]
+
+    // find bucketSize (number of minutes)
+    let bucketSize = validBucketSizes[validBucketSizes.length - 1];
+    for (let i = validBucketSizes.length - 1; i >= 0; i--) {
+        const numOfBuckets = parseInt((duration / validBucketSizes[i]).toString(), 10);
+        if (numOfBuckets <= maxNumOfBuckets) {
+            bucketSize = validBucketSizes[i];
+        } else {
+            break;
+        }
+    }
+
+    // find first bucket
+    const numOfMinutes = moment(startTime).minutes();
+    let bucketStartTime = startTime;
+    let bucketEndTime = startTime;
+    if (numOfMinutes === 0) {
+        bucketEndTime = bucketStartTime + bucketSize * minuteAsMilliseconds;
+    } else {
+        bucketEndTime = bucketEndTime + minuteAsMilliseconds;
+        while (moment(bucketEndTime).minutes() % bucketSize !== 0) {
+            bucketEndTime = bucketEndTime + minuteAsMilliseconds;
+        }
+    }
+    buckets.push({startTime: bucketStartTime, endTime: bucketEndTime, width: bucketSize * minuteAsMilliseconds, events: []});
+
+    // create remaining buckets
+    while (bucketEndTime + 2 * bucketSize * minuteAsMilliseconds < endTime) {
+        bucketStartTime = bucketEndTime;
+        bucketEndTime = bucketStartTime + bucketSize * minuteAsMilliseconds;
+        buckets.push({startTime: bucketStartTime, endTime: bucketEndTime, width: bucketSize * minuteAsMilliseconds, events: []});
+    }
+
+    // insert last bucket
+    buckets.push({startTime: bucketEndTime, endTime: endTime, width: bucketSize * minuteAsMilliseconds, events: []});
+
+    // fillup buckets with events
+    for (const event of events) {
+        const eStartTime = event.timestamp;
+        for (const bucket of buckets) {
+            if (eStartTime >= bucket.startTime && eStartTime < bucket.endTime) {
+                bucket.events.push(event);
+                break;
+            }
+        }
+    }
+
+    // remove unused buckets
+    for (let i = 0; i < buckets.length; i++) {
+        if (buckets[i].events.length === 0 ) {
+            buckets.splice(i, 1);
+            i--;
+        }
+    }
+    return buckets.reverse();
+  }
+
+  getTimeArray(timeInMilliseconds, timezone?: string): any[] {
+    const time = [];
+    if (!timezone) {
+        timezone = 'local';
+    }
+    timezone = timezone.toLowerCase();
+
+    const a = new Date(timeInMilliseconds);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const year = (timezone === 'utc') ? a.getUTCFullYear() : a.getFullYear();
+    const month = (timezone === 'utc') ? months[a.getUTCMonth()] : months[a.getMonth()];
+    const date = (timezone === 'utc') ? a.getUTCDate() : a.getDate();
+    let hour;
+    let ampm;
+    if (timezone === 'utc') {
+        hour = a.getUTCHours();
+        ampm = hour >= 12 ? 'pm' : 'am';
+    } else {
+        hour = a.getHours();
+        ampm = hour >= 12 ? 'pm' : 'am';
+        // hour = hour % 12;
+        // hour = hour ? hour : 12; // the hour '0' should be '12'
+    }
+
+    let min;
+    if (timezone === 'utc') {
+        min = a.getUTCMinutes() < 10 ? '0' + a.getUTCMinutes() : a.getUTCMinutes();
+    } else {
+        min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();
+    }
+
+    let sec;
+    if (timezone === 'utc') {
+        sec = a.getUTCSeconds() < 10 ? '0' + a.getUTCSeconds() : a.getUTCSeconds();
+    } else {
+        sec = a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds();
+    }
+
+
+    time.push(year, month, date, hour, min, sec, ampm);
+    return time;
+  }
+
+
+  buildDisplayTime(unixMillisec: number, startTime: number, endTime, includeSeconds: boolean = false, timezone: string = 'local'): string {
+    const time = this.getTimeArray(unixMillisec, timezone);
+    const start = this.getTimeArray(startTime, timezone);
+    const end = this.getTimeArray(endTime, timezone);
+
+    let crossedMidnight = false;
+    for (let i = 0; i < 3; i++) {
+        if (start[i] !== end[i]) {
+            crossedMidnight = true;
+            break;
+        }
+    }
+
+    let dateString = '';
+    if (crossedMidnight) { // include full time, including year and date
+        dateString = time[0] + '-' + time[1] + '-' + time[2] + ' ' + time[3] + ':' + time[4];
+    } else { // only include hour and minute
+        dateString = time[3] + ':' + time[4];
+    }
+
+    if (includeSeconds) {
+        dateString = dateString + ':' + time[5];
+    }
+
+    // add am/pm for local time
+    // if (timezone !== 'utc') {
+    //     dateString = dateString + ' ' + time[6];
+    // }
+
+    return dateString;
+
+  }
+
+  setDefaultEventsConfig(widget, displayEvents: boolean) {
+    if (!widget.eventQueries) {
+        widget.eventQueries = [];
+        widget.eventQueries[0] = {};
+        widget.eventQueries[0].namespace = '';
+        widget.eventQueries[0].search = '';
+        widget.eventQueries[0].id = 'q1_m1';
+        widget.settings.visual.showEvents = displayEvents;
+    }
+    return widget;
+  }
+
+  isNumber(value: string | number): boolean {
+    if (value === 0) {
+        return true;
+    } else {
+        return value ? parseInt(value.toString(), 10) !== NaN : false;
+    }
+}
 
 }

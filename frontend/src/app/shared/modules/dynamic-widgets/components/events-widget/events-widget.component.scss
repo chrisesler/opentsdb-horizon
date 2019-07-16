@@ -1,0 +1,74 @@
+@mixin events-widget-component-base() {
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-view-padding: map-get($widgets-common-config, edit-padding);
+    $tab-width: map-get($widgets-common-config, tab-width);
+    $action-bar-height: map-get($widgets-common-config, action-bar-height);
+
+    .events-widget { 
+        overflow: scroll;
+
+        // Dynamically added classes
+        // .top-margin {
+        //     margin-top: 20px;
+        // }
+
+        .widget-output-container {
+            height: 100%;
+            // overflow-x: hidden;
+            // .widget-output {
+            //     &.notCentered {
+            //         align-items: flex-start;
+            //     }
+            //     height: 100%;
+            // }
+          }
+  
+        .widget-output {
+            .widget-container {
+                padding-left: 4px;
+                width: 100%;
+
+                .event {
+                    padding-bottom: 5px;
+                }
+            }
+        }
+
+        .widget-controls-container {
+            flex: 1 1 100%;
+            margin: 12px;
+            height: 200px;
+            background-color: white;
+        }
+
+        .query-container {
+            display: flex;
+            padding: 10px;
+            padding-top: 15px;
+            flex-direction: row;
+        }
+
+    }
+
+}
+
+@mixin events-widget-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+
+    .events-widget { 
+
+        .event {
+            &:hover {
+                background-color: lightblue;
+            }
+            border-bottom: 1px solid lightgray;
+        }
+    }
+
+}

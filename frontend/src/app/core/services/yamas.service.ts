@@ -10,6 +10,13 @@ interface IQuery {
     timeShiftInterval?: string;
 }
 
+interface IEventQuery {
+    id: string;
+    namespace: string;
+    search: string;
+    groupBy?: any[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -629,4 +636,55 @@ export class YamasService {
         }
         return exists;
     }
+
+    buildEventsQuery(time, queries: IEventQuery[]) {
+        this.time = time;
+        this.transformedQuery = {
+            start: time.start,
+            end: time.end,
+            executionGraph: [],
+            filters: [],
+            serdesConfigs: []
+        };
+        this.queries = queries;  // todo? necessary?
+
+        let filterIndex = 1;
+
+        for (const query of this.queries) {
+            const node = {
+                id: query.id,
+                type: 'TimeSeriesDataSourceConfig',
+                types: ['Events'],
+                groupBy: query.groupBy ? query.groupBy : '',
+                from: '0',   // todo: what is this?
+                size: '100', // todo: what is this?
+                namespace: query.namespace,
+                fetchLast: 'false',
+                filterId: 'f' + filterIndex,
+            };
+            this.transformedQuery.executionGraph.push(node);
+
+            const filter = {
+                type: 'Chain',
+                op: 'AND',
+                filters: [{
+                    type: 'FreeText',
+                    filter: query.search
+                }]
+            };
+            this.transformedQuery.filters.push({id: 'f' + filterIndex, filter: filter});
+
+            const serdesConfig = {
+                id: 'JsonV3QuerySerdes',
+                filter: [query.id]
+            };
+            this.transformedQuery.serdesConfigs.push(serdesConfig);
+
+            filterIndex++;
+        }
+        this.transformedQuery.logLevel = 'TRACE';
+
+        return this.transformedQuery;
+    }
+
 }

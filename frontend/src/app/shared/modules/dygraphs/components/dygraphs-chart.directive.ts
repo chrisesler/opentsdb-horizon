@@ -19,8 +19,10 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
   @Input() options: IDygraphOptions;
   @Input() chartType: string;
   @Input() size: any;
+  @Input() eventBuckets: any[];
+  @Input() showEvents: boolean;
   @Output() zoomed = new EventEmitter;
-
+  @Output() dateWindow = new EventEmitter<any>();
 
   private _g: any;
   private gDimension: any;
@@ -50,6 +52,36 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         }
         labelsDiv.style.left = (event.offsetX  + xOffset ) + 'px';
         labelsDiv.style.top = (event.offsetY   + yOffset)  + 'px';
+    };
+
+    // needed to capture start and end times
+    const drawCallback = (dygraph: any) => {
+        if (dygraph.dateWindow_) {
+            this.dateWindow.emit({startTime: dygraph.dateWindow_[0], endTime: dygraph.dateWindow_[1] });
+        } else {
+            this.dateWindow.emit({startTime: dygraph.rawData_[0][0], endTime: dygraph.rawData_[dygraph.rawData_.length - 1][0] });
+        }
+    };
+
+    const underlayCallback = (canvas, area, g) => {
+        if (this.eventBuckets && this.showEvents) {
+            // tslint:disable-next-line:forin
+            for (const bucket of this.eventBuckets) {
+                var coords = g.toDomCoords(bucket.startTime + bucket.width, 0);
+                // splitX and splitY are the coordinates on the canvas
+                var splitX = coords[0];
+                var splitY = coords[1];
+
+                // The drawing area doesn't start at (0, 0), it starts at (area.x, area.y).
+                // That's why we subtract them from splitX and splitY. This gives us the
+                // actual distance from the upper-left hand corder of the graph itself.
+                // var leftSideWidth = splitX - area.x;
+                // var topHeight = splitY - area.y;
+
+                canvas.fillStyle = 'lightblue';
+                canvas.fillRect(splitX - 1, area.y, 2, splitY);
+            }
+        }
     };
 
     const legendFormatter = function(data) {
@@ -163,6 +195,8 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     _self.zoomed.emit({start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
                 }
             };
+            this.options.drawCallback = drawCallback;
+            this.options.underlayCallback = underlayCallback;
 
             this.options.interactionModel = DygraphInteraction.defaultModel;
             this.options.interactionModel.dblclick = function(e, g, context) {
@@ -269,6 +303,11 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             const nsize = changes.size.currentValue;
             this._g.updateOptions(this.options);
             this._g.resize(nsize.width, nsize.height);
+        }
+
+        if (this._g && (changes.eventBuckets || changes.showEvents)) {
+            // refresh underlay
+            this._g.updateOptions(this.options);
         }
     }
   }
