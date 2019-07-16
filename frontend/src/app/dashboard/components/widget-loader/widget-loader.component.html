@@ -6,7 +6,7 @@
                         <mat-toolbar-row>
                             <span class="panel-title" *ngIf="widget.settings.component_type !== 'PlaceholderWidgetComponent' && widget.settings.component_type !== 'BignumberWidgetComponent' && widget.settings.component_type !== 'MarkdownWidgetComponent'">{{widget.settings.title}}</span>
                             <span class="flex-spacer"></span>
-                            <button mat-icon-button (click)="openIsland();">
+                            <button mat-icon-button (click)="openIsland({ type: 'component', componentName: 'IslandTestComponent'});">
                                 <mat-icon fontSet="denali" fontIcon="d-memory-chip"></mat-icon>
                             </button>
                             <button mat-icon-button [matMenuTriggerFor]="widgetMenu">
@@ -53,3 +53,8 @@
         <div widget-container></div>
     </mat-card-content>
 </mat-card>
+
+<ng-template #islandPortalTest>
+    <strong>Info Island Template Portal Example (w/context)</strong> <br />
+    {{widget|json}}
+</ng-template>
