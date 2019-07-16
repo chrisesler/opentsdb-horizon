@@ -59,7 +59,7 @@ export class AlertsService {
             responseType: 'json'
         };
 
-        this.logger.api('AlertsService :: Get Namespaces I Belong to', apiUrl);
+        // this.logger.api('AlertsService :: Get Namespaces I Belong to', apiUrl);
 
         return this.http.get(apiUrl, httpOptions).pipe(
             catchError(this.handleError)
@@ -79,7 +79,7 @@ export class AlertsService {
             responseType: 'json'
         };
 
-        this.logger.api('AlertsService :: Get All Namespaces', apiUrl);
+        // this.logger.api('AlertsService :: Get All Namespaces', apiUrl);
 
         return this.http.get(apiUrl, httpOptions).pipe(
             catchError(this.handleError)

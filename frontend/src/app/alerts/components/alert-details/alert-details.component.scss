@@ -1,6 +1,6 @@
-@mixin alert-configuration-dialog-component-base() {
+@mixin alert-details-component-base() {
 
-    .alert-configuration-dialog-component {
+    .alert-details-component {
         display: flex;
         flex: 1;
         height: 100%;
@@ -81,11 +81,15 @@
         .preview-wrapper {
             padding: 8px 16px;
             height: 180px;
-            display: flex;
+            display: none;
 
             .graph-wrapper,
             .legend-wrapper {
                 flex: 1;
+                display: flex;
+            }
+
+            &.is-visible {
                 display: flex;
             }
 
@@ -179,6 +183,14 @@
                 padding: 8px 0 0;
                 flex: 1;
                 overflow: auto;
+            }
+
+            .query-metric-row.read-only * {
+                cursor: default;
+
+                .query-metric-table.mat-table {
+                    cursor: default;
+                }
             }
 
             .step-section {
@@ -368,6 +380,7 @@
 
             .mat-list-item.mat-list-option {
                 height: 32px;
+                max-width: 180px;
 
                 .mat-list-item-content {
                     flex-direction: row;
@@ -476,7 +489,7 @@
     }
 }
 
-@mixin alert-configuration-dialog-component-theme($theme-config) {
+@mixin alert-details-component-theme($theme-config) {
     /* Theme config parts */
     $primary: map-get($theme-config, primary);
     $accent: map-get($theme-config, accent);
@@ -495,7 +508,7 @@
 
     $card: map-get($background, card);
 
-    .alert-configuration-dialog-component {
+    .alert-details-component {
 
         .alert-configuration-wrapper {
 
@@ -600,6 +613,7 @@
         }
 
         .notify-when-options {
+            flex-wrap: wrap;
             .mat-pseudo-checkbox {
                 color: map-get($primary, default);
             }

@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
 import { MetaService } from '../services/meta.service';
 import { UtilsService } from '../services/utils.service';
+import { LoggerService } from '../services/logger.service';
 
 @Injectable({
     providedIn: 'root'
@@ -18,7 +19,12 @@ export class HttpService {
     };
 
     regexMetricFormat = /([^\.]*)\.([^\.]*)\.(.*)/;
-    constructor(private http: HttpClient, private metaService: MetaService, private utils: UtilsService) { }
+    constructor(
+        private http: HttpClient,
+        private metaService: MetaService,
+        private utils: UtilsService,
+        private logger: LoggerService
+    ) { }
 
     getDashoard(id: string): Observable<any> {
         const apiUrl = environment.configdb + '/object/' + id;
@@ -65,12 +71,12 @@ export class HttpService {
             );
     }
 
-    getNamespaces(queryObj: any): Observable<any> {
+    getNamespaces(queryObj: any, source= 'meta'): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
         const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('NAMESPACES', queryObj);
+        const query = this.metaService.getQuery(source, 'NAMESPACES', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => res ? res.results[0].namespaces : []),
@@ -92,7 +98,7 @@ export class HttpService {
             newQueryParams[namespace].metrics.push(metric);
         }
         const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('TAG_KEYS', Object.values(newQueryParams));
+        const query = this.metaService.getQuery('meta', 'TAG_KEYS', Object.values(newQueryParams));
         console.log('tag query for query', query);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
@@ -114,7 +120,7 @@ export class HttpService {
             'Content-Type': 'application/json'
         });
         const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('METRICS', queryObj);
+        const query = this.metaService.getQuery('meta', 'METRICS', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => res ? res.results[0].metrics : [])
@@ -126,10 +132,10 @@ export class HttpService {
             'Content-Type': 'application/json'
         });
         const newQueries = [];
-        let hasMetric = false;
         for (let i = 0, len = widgets.length; i < len; i++) {
             const queries = widgets[i].queries;
             for (let j = 0;  j < queries.length; j++) {
+                let hasMetric = false;
                 const q = { id: widgets[i].id + ':' + queries[j].id, search: '', namespace: queries[j].namespace, metrics: [] };
                 for (let k = 0;  k < queries[j].metrics.length; k++) {
                     if ( queries[j].metrics[k].expression === undefined ) {
@@ -137,36 +143,38 @@ export class HttpService {
                         hasMetric = true;
                     }
                 }
-                newQueries.push(q);
+                if ( hasMetric ) {
+                    newQueries.push(q);
+                }
             }
         }
-        if ( hasMetric ) {
-            const query = this.metaService.getQuery('TAG_KEYS', newQueries);
-            console.log('the query', query);
+        if ( newQueries.length ) {
+            const query = this.metaService.getQuery('meta', 'TAG_KEYS', newQueries);
+            // console.log('hill - query dashboard tag key', query);
             const apiUrl = environment.metaApi + '/search/timeseries';
             return this.http.post(apiUrl, query, { headers, withCredentials: true });
         } else {
             return of({ 'results': [] });
         }
     }
-    getNamespaceTagKeys(queryObj: any): Observable<any> {
+    getNamespaceTagKeys(queryObj: any, source = 'meta'): Observable<any> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
-        const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('TAG_KEYS', queryObj);
+        const apiUrl =  environment.metaApi + '/search/timeseries';
+        const query = this.metaService.getQuery(source, 'TAG_KEYS', queryObj);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => res ? res.results[0].tagKeys : [])
             );
     }
 
-    getTagValuesByNamespace(queryObj: any): Observable<any> {
+    getTagValuesByNamespace(queryObj: any, source = 'meta'): Observable<any> {
       const headers = new HttpHeaders({
         'Content-Type': 'application/json'
       });
-      const apiUrl = environment.metaApi + '/search/timeseries';
-      const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', queryObj, false);
+      const apiUrl =  environment.metaApi + '/search/timeseries';
+      const query = this.metaService.getQuery(source, 'TAG_KEYS_AND_VALUES', queryObj, false);
       return this.http.post(apiUrl, query, { headers, withCredentials: true })
                         .pipe(
                           map((res: any) => res && res.results[0].tagKeysAndValues[queryObj.tagkey] ?
@@ -190,7 +198,7 @@ export class HttpService {
             newQueryParams[namespace].metrics.push(metric);
         }
         const apiUrl = environment.metaApi + '/search/timeseries';
-        const query = this.metaService.getQuery('TAG_KEYS_AND_VALUES', Object.values(newQueryParams), false);
+        const query = this.metaService.getQuery('meta', 'TAG_KEYS_AND_VALUES', Object.values(newQueryParams), false);
         return this.http.post(apiUrl, query, { headers, withCredentials: true })
             .pipe(
                 map((res: any) => {
@@ -336,6 +344,7 @@ export class HttpService {
     }
 
     saveAlert(namespace, payload: any): Observable<any> {
+        this.logger.api('saveAlert', {namespace, payload});
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
@@ -349,6 +358,7 @@ export class HttpService {
     }
 
     getAlertDetailsById(id: number): Observable<any> {
+        this.logger.api('getAlertDetailsById', {id});
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
@@ -357,6 +367,7 @@ export class HttpService {
     }
 
     getAlerts(options): Observable<any> {
+        // this.logger.api('getAlerts', {options});
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
           });
@@ -365,6 +376,7 @@ export class HttpService {
     }
 
     deleteAlerts(namespace, payload): Observable<any> {
+        this.logger.api('deleteAlerts', {namespace, payload});
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });

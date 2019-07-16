@@ -1,8 +1,8 @@
-<ng-template [ngIf]="editMode" [ngIfElse]="notEditMode">
-    <alert-configuration-dialog [data]="configurationEditData" (configChange)="configurationEdit_change($event)"></alert-configuration-dialog>
+<ng-template [ngIf]="detailsView" [ngIfElse]="alertListView">
+    <alert-details [data]="configurationEditData" [viewMode]="detailsMode" [hasWriteAccess]="hasNamespaceWriteAccess" (configChange)="configurationEdit_change($event)"></alert-details>
 </ng-template>
 
-<ng-template #notEditMode>
+<ng-template #alertListView>
     <div class="alerts-main-controls" fxFlex="1 1 60px" fxFlex.xs="1 1 190px" fxLayoutAlign="stretch stretch" fxLayout="row" fxLayout.xs="column">
         <div class="control-item namespace-selector">
             <button mat-button 
@@ -18,12 +18,12 @@
         </div>
         <div class="control-item alert-filter-input">
             <mat-form-field appearance="fill" floatLabel="never">
-                <input matInput placeholder="Filter alerts" autocomplete="off">
+                <input matInput placeholder="Filter alerts" autocomplete="off" (keydown)="applyAlertDataFilter($event.target.value)" #alertFilterInput>
                 <mat-icon matSuffix fontSet="denali" fontIcon="d-search"></mat-icon>
             </mat-form-field>
         </div>
         
-        <div class="control-item create-alert-control" *ngIf="hasNamespaceWriteAcess">
+        <div class="control-item create-alert-control" *ngIf="hasNamespaceWriteAccess">
             <button mat-flat-button color="primary" [matMenuTriggerFor]="createAlertMenu">Create alert</button>
         </div>
         <span class="flex-spacer"></span>
@@ -95,7 +95,7 @@
                         </th>
                         <td mat-cell *matCellDef="let element">
                             <span class="alert-name">{{element.name}}</span>
-                            <div class="edit-actions-wrapper">
+                            <div class="edit-actions-wrapper" *ngIf="hasNamespaceWriteAccess">
                                 <button mat-button color="primary" (click)="editAlert(element)">
                                     <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
                                     <span>edit</span>
@@ -111,6 +111,12 @@
                                 <button mat-button color="primary" (click)="deleteAlert(element)">
                                     <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                                     <span>Delete</span>
+                                </button>
+                            </div>
+                            <div class="edit-actions-wrapper" *ngIf="!hasNamespaceWriteAccess">
+                                <button mat-button color="primary" (click)="viewAlert(element)">
+                                    <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
+                                    <span>view alert details</span>
                                 </button>
                             </div>
                         </td>
@@ -137,9 +143,11 @@
                                 <span>{{element.contacts.length}}</span>
                             </button>-->
                             <!--<recipients-manager  [selectedAlertRecipients]="element.recipients"></recipients-manager>-->
-                            <div class="contact-icon-strip" [matMenuTriggerFor]="contactsMenu" [matMenuTriggerData]="{element: element}">
-                                <mat-icon *ngFor="let contactType of getRecipientKeys(element)" [svgIcon]="contactType + '_contact'"></mat-icon>
-                            </div>
+                            <ng-container *ngIf="getRecipientKeys(element).length > 0">
+                                <div class="contact-icon-strip" [matMenuTriggerFor]="contactsMenu" [matMenuTriggerData]="{element: element}">
+                                    <mat-icon *ngFor="let contactType of getRecipientKeys(element)" [svgIcon]="contactType + '_contact'"></mat-icon>
+                                </div>
+                            </ng-container>
                         </td>
                     </ng-container>
 
@@ -271,20 +279,20 @@
 
     <mat-menu #createAlertMenu="matMenu" class="create-alert-menu">
         <ng-template matMenuContent>
-            <button mat-menu-item class="alert-type-option" (click)="createAlert('metric')">
+            <button mat-menu-item class="alert-type-option" (click)="createAlert('simple')">
                 <div class="alert-type-detail">
                     <span class="alert-type-label" color="primary">Metric</span>
                     <span class="alert-type-desc mat-caption">Alert on a single metric or expression</span>
                 </div>
             </button>
-            <!--<mat-divider></mat-divider>
-            <button mat-menu-item class="alert-type-option" (click)="createAlert('health-check')" disabled>
+            <mat-divider></mat-divider>
+            <button mat-menu-item class="alert-type-option" (click)="createAlert('healthcheck')">
                 <div class="alert-type-detail">
                     <span class="alert-type-label" color="primary">Health check</span>
-                    <span class="alert-type-desc mat-caption">Lorem ipsum dolor sit amet, consectetur adipiscing elit sedio.</span>
+                    <span class="alert-type-desc mat-caption">Alert on statuses generated by user-defined checks</span>
                 </div>
             </button>
-            <mat-divider></mat-divider>
+            <!--<mat-divider></mat-divider>
             <button mat-menu-item class="alert-type-option" (click)="createAlert('host-down')" disabled>
                 <div class="alert-type-detail">
                     <span class="alert-type-label" color="primary">Host down</span>
