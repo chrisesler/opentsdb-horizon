@@ -1,7 +1,7 @@
 import {
     Type, Component, OnInit, Input, Output, ViewChild,
     ComponentFactoryResolver, EventEmitter,
-    OnChanges, SimpleChanges, HostBinding, ChangeDetectionStrategy, ElementRef
+    OnChanges, SimpleChanges, HostBinding, ChangeDetectionStrategy, ElementRef, TemplateRef
 } from '@angular/core';
 import { WidgetService } from '../../../core/services/widget.service';
 import { WidgetDirective } from '../../directives/widget.directive';
@@ -11,7 +11,7 @@ import { MatMenu, MatMenuTrigger } from '@angular/material';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angular/material';
 import { WidgetDeleteDialogComponent } from '../widget-delete-dialog/widget-delete-dialog.component';
 import { InfoIslandService } from '../../../shared/modules/info-island/services/info-island.service';
-
+import { TemplatePortal, ComponentPortal } from '@angular/cdk/portal';
 
 @Component({
     selector: 'app-widget-loader',
@@ -27,6 +27,8 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     @ViewChild(WidgetDirective) widgetContainer: WidgetDirective;
     @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
 
+    @ViewChild('islandPortalTest') islandPortalTest: TemplateRef<any>;
+
     _component: any = null;
     componentFactory: any = null;
     viewContainerRef: any;
@@ -39,7 +41,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         private dialog: MatDialog,
         private island: InfoIslandService,
         private hostElRef: ElementRef
-        ) { }
+    ) { }
 
     ngOnInit() {
         this.loadComponent();
@@ -58,8 +60,57 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         }
     }
 
-    openIsland() {
-        this.island.openIsland(this.widget, this.hostElRef.nativeElement);
+    openIsland(portalDef: any) {
+
+        // EXAMPLE ONLY
+        // USING template portal for now, but it could be a component portal. just for reference
+        // Component portal mildly more complicated if you want to pass data. Needs Injector
+
+        // if (portalType === 'component') {
+        //     const compRef = new ComponentPortal(IslandTestComponent, undefined, {});
+        // } else {
+            // template portal
+            // figure out way to load template
+            // const portalRef = new TemplatePortal(this.islandPortalTest, undefined, {});
+        // }
+
+        const dataToInject = { widget: this.widget };
+
+        let componentOrTemplateRef;
+        if (portalDef.type === 'component') {
+            // component based
+            /*
+                to load component from infoIslandModule using lookup for pre-selected components
+                portalDef = {
+                    componentName: 'IslandTestComponent'
+                }
+
+                to load component using an imported component type
+                portalDef = {
+                    componentRef: IslandTestComponent
+                }
+            */
+            const compRef = (portalDef.componentName) ? this.island.getComponentToLoad(portalDef.componentName) : portalDef.componentRef;
+            componentOrTemplateRef = new ComponentPortal(compRef, null, this.island.createInjector(dataToInject));
+        } else {
+            // template based
+            /*
+                to load component from template ref name
+                portalDef = {
+                    templateName: 'islandPortalTest'
+                }
+
+                to load component using an imported component type
+                portalDef = {
+                    templateRef: this.islandPortalTest
+                }
+            */
+            const tplRef = (portalDef.templateName) ? this[portalDef.templateName] : portalDef.templateRef;
+            componentOrTemplateRef = new TemplatePortal(tplRef, null, dataToInject);
+        }
+
+        // this.island = is infoIslandService
+        this.island.openIsland(this.hostElRef, componentOrTemplateRef);
     }
 
     loadComponent() {
