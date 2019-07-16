@@ -325,7 +325,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         if (this.widgets[mIndex].settings.component_type === 'PlaceholderWidgetComponent') {
                             this.widgets[mIndex] = message.payload.widget;
                             // change name to fist metric if name is not change
-                            console.log(message.payload.widget.settings.component_type );
                             if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent' &&
                                 message.payload.widget.settings.component_type !== 'EventsWidgetComponent') {
                                 if (message.payload.widget.settings.title === 'my widget') {

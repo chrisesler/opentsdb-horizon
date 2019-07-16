@@ -39,8 +39,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     this.getEvents();
 
     this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-
-      console.log(message);
+      // console.log(message);
 
       switch (message.action) {
         case 'TimeChanged':
