@@ -6,6 +6,7 @@ import { Subject, Observable, Subscription } from 'rxjs';
 import { InfoIslandOptions } from '../services/info-island-options';
 import { LoggerService } from '../../../../core/services/logger.service';
 import { CdkDrag } from '@angular/cdk/drag-drop';
+import { Portal } from '@angular/cdk/portal';
 
 @Component({
     selector: 'app-info-island',
@@ -56,7 +57,10 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
 
     options: InfoIslandOptions = {
         closable: false,
-        draggable: true
+        draggable: true,
+        width: 600,
+        height: 300,
+        showActions: false
     };
 
     minimum_size = {x: 150, y: 100};
@@ -76,6 +80,8 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
     _mouseMoveEvent: any;
     _mouseUpEvent: any;
 
+    portalRef: Portal<any>; // item to be displayed in island
+
     ngOnInit() { }
 
     ngOnDestroy() {
@@ -88,10 +94,11 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
         this.logger.log('ResizerEls', { resizers: this.resizers });
     }
 
-    open(options?: any) {
+    open(portalRef: Portal<any>, options?: any) {
         if (options) {
-            this.options = options;
+            Object.assign(this.options, options);
         }
+        this.portalRef = portalRef;
         this.animationState = '*';
     }
 

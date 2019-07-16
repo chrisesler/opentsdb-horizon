@@ -3,46 +3,57 @@
         
         .mat-card {
             padding: 0;
-            flex: 1
-        }
+            flex: 1;
+            display: flex;
+            flex-direction: column;
 
+            .mat-header {
+                padding: 8px;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+    
+            .mat-card-header-text {
+                margin: 0;
+                width: 100%;
+            }
+    
+            .mat-card-title {
+                margin-bottom: 0;
+                margin-left: 8px;
+                margin-right: 8px;
+                align-items: center;
+    
+                .title {
+                    font-size: 14px;
+                    flex: 1;
+                }
+    
+                .close {
+                    margin-left: 16px;
+                    margin-right: -8px;
+                }
+            }
+    
+            .mat-card-actions {
+                padding: 0;
+                margin: 0;
+                margin-bottom: 0;
+            }
 
-        .mat-header {
-            padding: 8px;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-        }
-
-        .mat-card-header-text {
-            margin: 0;
-            width: 100%;
-        }
-
-        .mat-card-title {
-            margin-bottom: 0;
-            margin-left: 8px;
-            margin-right: 8px;
-            align-items: center;
-
-            .title {
-                font-size: 14px;
+            > .mat-card-actions:last-child {
+                margin-bottom: 0;
+            }
+    
+            .mat-card-content {
+                margin: 0;
+                padding: 8px;
                 flex: 1;
             }
-
-            .close {
-                margin-left: 16px;
-                margin-right: -8px;
-            }
         }
 
-        .mat-card-actions {
-            margin: 0;
-        }
 
-        .mat-card-content {
-            margin: 0;
-            padding: 8px;
-        }
+        
 
         // STYLES FOR RESIZABILITY
         & {
