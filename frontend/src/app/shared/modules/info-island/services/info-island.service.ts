@@ -1,16 +1,22 @@
 import {
     Injectable,
     Injector,
-    ElementRef
+    ElementRef,
+    Type,
+    ViewContainerRef
 } from '@angular/core';
 
-import { ComponentPortal, PortalInjector } from '@angular/cdk/portal';
+import { ComponentPortal, PortalInjector, Portal, TemplatePortal } from '@angular/cdk/portal';
 import { Overlay, OverlayRef, OriginConnectionPosition, OverlayConnectionPosition, ConnectionPositionPair } from '@angular/cdk/overlay';
 
 import { LoggerService } from '../../../../core/services/logger.service';
 
 import { InfoIslandComponent } from '../containers/info-island.component';
 import { InfoIslandOptions } from './info-island-options';
+
+
+import { IslandTestComponent } from '../components/island-test/island-test.component';
+import { ISLAND_DATA } from '../info-island.tokens';
 
 @Injectable()
 export class InfoIslandService {
@@ -20,7 +26,9 @@ export class InfoIslandService {
 
     private readonly DEFAULT_OPTIONS: InfoIslandOptions = {
         closable: true,
-        draggable: true
+        draggable: true,
+        width: 600,
+        height: 450
     };
 
     constructor(
@@ -29,20 +37,47 @@ export class InfoIslandService {
         private logger: LoggerService
     ) {}
 
-    openIsland(data: any, widgetContainerRef: ElementRef, options?: Partial<InfoIslandOptions>) {
+    getComponentToLoad(name: string) {
+        let retComp: any;
+        switch (name) {
+            case 'IslandTestComponent':
+            default:
+                retComp = IslandTestComponent;
+                break;
+
+        }
+
+        return retComp;
+    }
+
+
+
+    /** ISLAND CREATION  */
+    openIsland(widgetContainerRef: ElementRef, portalRef: Portal<any>, options?: Partial<InfoIslandOptions>) {
         if (this.overlayRef) {
             this.closeIsland(); // in case there is one open
         }
 
         this.createOverlayRef(widgetContainerRef);
 
-        const dataToInject = (data) ? { data } : {};
-
-        const portal = new ComponentPortal(InfoIslandComponent, null, this.createInjector(dataToInject));
+        const portal = new ComponentPortal(InfoIslandComponent);
         const componentRef = this.overlayRef.attach(portal);
 
         this.islandComp = componentRef.instance;
-        this.islandComp.open({...this.DEFAULT_OPTIONS, ...options});
+        const optionsToPass = JSON.parse(JSON.stringify(this.DEFAULT_OPTIONS));
+        if (options) {
+            Object.assign(optionsToPass, options);
+        }
+
+        /* Dynamic width from the opening widget - commented out for now
+        const containerDims = widgetContainerRef.nativeElement.getBoundingClientRect();
+
+        if (containerDims.width > this.DEFAULT_OPTIONS.width && containerDims.width < window.innerWidth) {
+            optionsToPass.width = containerDims.width;
+        }
+        */
+
+        this.islandComp.open(portalRef, optionsToPass);
         this.islandComp.onCloseIsland$.subscribe(() => {
             this.overlayRef.detach();
         });
@@ -95,9 +130,9 @@ export class InfoIslandService {
         return positionStrategy;
     }
 
-    private createInjector(dataToPass): PortalInjector {
+    createInjector(dataToPass): PortalInjector {
         const injectorTokens = new WeakMap();
-        // injectorTokens.set(ISLAND_DATA, dataToPass);
+        injectorTokens.set(ISLAND_DATA, dataToPass);
         return new PortalInjector(this.injector, injectorTokens);
     }
 }
