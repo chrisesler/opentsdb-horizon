@@ -1,0 +1,39 @@
+<div *ngIf="events">
+    <div *ngFor="let event of events" class="event">
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <span class="event-time"> {{util.buildDisplayTime(event.timestamp, startTime, endTime, true, timezone)}} </span>
+                <span class="event-title"> {{event.title}} </span>
+                <span class="event-source"> {{event.source}} </span>
+            </mat-expansion-panel-header>
+    
+            <div class="details">
+                <div class="namespace">
+                    Namespace: <b>{{event.namespace}}</b>
+                </div>
+    
+                <div class="priority" *ngIf="event.priority">
+                    Priority: <b>{{event.priority}}</b>
+                </div>
+    
+                <div class="tags" *ngIf="event.tags">
+                    <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.tags)">
+                        <span class="tag-key">{{ tag.key }}:</span>
+                        <strong class="tag-value">{{ tag.value }}</strong>
+                    </span>
+                </div>
+    
+                <div class= "additionalProps" *ngIf="event.additionalProps" class="additionalProps">
+                    <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.additionalProps)">
+                        <span class="tag-key">{{ tag.key }}:</span>
+                        <strong class="tag-value">{{ tag.value }}</strong>
+                    </span>
+                </div>
+    
+                <div class="message">
+                    {{event.message}}
+                </div>
+            </div>
+        </mat-expansion-panel>
+    </div>
+</div>

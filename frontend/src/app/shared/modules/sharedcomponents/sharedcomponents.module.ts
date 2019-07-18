@@ -63,6 +63,7 @@ import { MetricFunctionComponent } from './components/metric-function/metric-fun
 import { EventStreamComponent } from './components/event-stream/event-stream.component';
 import { EventTimelineComponent } from './components/event-timeline/event-timeline.component';
 import { WidgetConfigEventsComponent } from './components/widget-config-events/widget-config-events.component';
+import { EventListComponent } from './components/event-list/event-list.component';
 
 @NgModule({
     imports: [
@@ -122,7 +123,8 @@ import { WidgetConfigEventsComponent } from './components/widget-config-events/w
         MetricFunctionComponent,
         EventStreamComponent,
         EventTimelineComponent,
-        WidgetConfigEventsComponent
+        WidgetConfigEventsComponent,
+        EventListComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -163,7 +165,8 @@ import { WidgetConfigEventsComponent } from './components/widget-config-events/w
         MetricFunctionComponent,
         EventStreamComponent,
         EventTimelineComponent,
-        WidgetConfigEventsComponent
+        WidgetConfigEventsComponent,
+        EventListComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,
