@@ -27,10 +27,6 @@
             .widget-container {
                 padding-left: 4px;
                 width: 100%;
-
-                .event {
-                    padding-bottom: 5px;
-                }
             }
         }
 
@@ -63,12 +59,6 @@
 
     .events-widget { 
 
-        .event {
-            &:hover {
-                background-color: lightblue;
-            }
-            border-bottom: 1px solid lightgray;
-        }
     }
 
 }

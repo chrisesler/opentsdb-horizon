@@ -62,6 +62,7 @@ import { DropdownMetricTagsComponent } from './components/dropdown-metric-tags/d
 import { MetricFunctionComponent } from './components/metric-function/metric-function.component';
 import { EventTimelineComponent } from './components/event-timeline/event-timeline.component';
 import { WidgetConfigEventsComponent } from './components/widget-config-events/widget-config-events.component';
+import { EventListComponent } from './components/event-list/event-list.component';
 
 @NgModule({
     imports: [
@@ -120,7 +121,8 @@ import { WidgetConfigEventsComponent } from './components/widget-config-events/w
         DropdownMetricTagsComponent,
         MetricFunctionComponent,
         EventTimelineComponent,
-        WidgetConfigEventsComponent
+        WidgetConfigEventsComponent,
+        EventListComponent
     ],
     exports: [
         SearchMetricsDialogComponentV0,
@@ -160,7 +162,8 @@ import { WidgetConfigEventsComponent } from './components/widget-config-events/w
         DropdownMetricTagsComponent,
         MetricFunctionComponent,
         EventTimelineComponent,
-        WidgetConfigEventsComponent
+        WidgetConfigEventsComponent,
+        EventListComponent
     ],
     entryComponents: [
         SearchMetricsDialogComponentV0,
