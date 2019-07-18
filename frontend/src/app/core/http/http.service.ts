@@ -404,7 +404,7 @@ export class HttpService {
                 time: time,
                 events: [
                 {
-                    title: 'Event 10X',
+                    title: 'My other event',
                     // tslint:disable:max-line-length
                     message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
                     source: 'aws',
@@ -429,21 +429,24 @@ export class HttpService {
                 title: 'Event 1',
                 // tslint:disable:max-line-length
                 message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                source: 'aws',
+                source: 'Jenkins',
                 namespace: 'yamas',
                 priority: 'low',
                 tags: {
                     'host': 'tsdbr-1.yms.gq1.yahoo.com',
                     '_application': 'tsdb'
                 },
+                additionalProps: {
+                    'prop1 key': 'prop1 value'
+                },
                 eventId: '123456',
                 timestamp: now - (3 * 600 * 1000),
                 endTimestamp: now,
             },
             {
-                title: 'Event 2',
+                title: 'New instance started for autoscaling group 123456',
                 message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                source: 'aws',
+                source: 'AWS',
                 timestamp: now - (4.1 * 600 * 1000),
                 eventId: '1234568',
                 namespace: 'yamas',
@@ -454,9 +457,9 @@ export class HttpService {
                 },
              },
             {
-                title: 'Event 3',
+                title: 'Screwdriver success for \'horizon\' repo',
                 message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                source: 'aws',
+                source: 'Screwdriver',
                 timestamp: now - (4.22 * 600 * 1000),
                 eventId: '1234569',
                 namespace: 'yamas',
@@ -467,9 +470,9 @@ export class HttpService {
                 },
             },
             {
-                title: 'Event 4',
+                title: 'AWS Auto scaling failure for group 123456789',
                 message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                source: 'sd',
+                source: 'AWS',
                 timestamp: now - (4.23 * 600 * 1000),
                 eventId: '1234560',
                 namespace: 'yamas',
@@ -480,9 +483,9 @@ export class HttpService {
                 },
             },
             {
-                title: 'Event 5',
+                title: 'Screwdriver success for \'horizon\' repo',
                 message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                source: 'sd',
+                source: 'Screwdriver',
                 timestamp: now - (5.22 * 600 * 1000),
                 eventId: '1234561',
                 namespace: 'yamas',

@@ -1,0 +1,52 @@
+@mixin event-list-component-base() {
+    $default-padding: map-get($widgets-common-config, default-padding);
+    $edit-view-padding: map-get($widgets-common-config, edit-padding);
+    $tab-width: map-get($widgets-common-config, tab-width);
+    $action-bar-height: map-get($widgets-common-config, action-bar-height);
+
+    .event-list { 
+        // overflow: scroll;
+
+        .event {
+            padding-bottom: 5px;
+
+            .event-source {
+                font-weight: bold;
+                padding-left: 5px;
+            }
+
+            .event-title {
+                // font-style: italic;
+                padding-left: 5px;
+            }
+
+            .event-time {
+                font-family: monospace;
+                color: darkgray
+                // font-style: italic;
+            }
+
+            .details {
+                div {
+                    margin-top: 3px;
+                }
+            }
+        }
+    }
+}
+
+@mixin event-list-component-theme($theme-config) {
+
+    /* Theme config parts */
+    $primary: map-get($theme-config, primary);
+    $accent: map-get($theme-config, accent);
+    $warn: map-get($theme-config, warn);
+    $foreground: map-get($theme-config, foreground);
+    $background: map-get($theme-config, background);
+
+    .event-list { 
+
+
+    }
+
+}

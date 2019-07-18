@@ -68,14 +68,9 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // if (changes) {
-    //   this.store.dispatch(new GetEvents(this.widget.query));
-    // }
-  }
-
-  textChanged(txt: string) {
-    this.widget.eventQuery = txt;
-    this.getEvents();
+    if (changes) {
+      // console.log(changes);
+    }
   }
 
   getEvents() {

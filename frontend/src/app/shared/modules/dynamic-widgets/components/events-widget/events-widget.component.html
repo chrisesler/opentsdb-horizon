@@ -11,17 +11,8 @@
       
         <div class="widget-output notCentered" #widgetoutput [ngClass]="{'top-margin': editMode }">
             <div class="widget-container">
-                <div *ngFor="let event of events" class="event">
-                    <div>
-                        {{event.title}}
-                    </div>
-                    <div>
-                        {{event.source}} -
-                        <span>
-                            {{util.buildDisplayTime(event.timestamp, startTime, endTime, true, timezone )}}
-                        </span>
-                    </div>
-                </div>
+                <event-list [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime">
+                </event-list>
             </div>
         </div>
       </div>
