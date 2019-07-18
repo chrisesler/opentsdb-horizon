@@ -414,6 +414,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             alertGroupingRules: [ data.alertGroupingRules || []],
             labels: this.fb.array(data.labels || []),
             threshold: this.fb.group({
+                subType: data.threshold.subType || 'healthCheck',
                 nagInterval: data.threshold.nagInterval || '0',
                 notifyOnMissing: data.threshold.notifyOnMissing ? data.threshold.notifyOnMissing.toString() : 'false',
                 missingDataPurgeInterval: data.threshold.missingDataPurgeInterval || null,
