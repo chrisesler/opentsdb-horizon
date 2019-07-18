@@ -11,12 +11,15 @@ import { Overlay, OverlayRef, OriginConnectionPosition, OverlayConnectionPositio
 
 import { LoggerService } from '../../../../core/services/logger.service';
 
+/** Island Wrapper */
 import { InfoIslandComponent } from '../containers/info-island.component';
 import { InfoIslandOptions } from './info-island-options';
-
-
-import { IslandTestComponent } from '../components/island-test/island-test.component';
 import { ISLAND_DATA } from '../info-island.tokens';
+
+/** Possible Island Components */
+import { IslandTestComponent } from '../components/island-test/island-test.component';
+import { EventStreamComponent } from '../components/event-stream/event-stream.component';
+import { IntercomService } from '../../../../core/services/intercom.service';
 
 @Injectable()
 export class InfoIslandService {
@@ -24,7 +27,10 @@ export class InfoIslandService {
     private overlayRef: OverlayRef;
     private islandComp: InfoIslandComponent;
 
+    private originId: any = false;
+
     private readonly DEFAULT_OPTIONS: InfoIslandOptions = {
+        originId: false,
         closable: true,
         draggable: true,
         width: 600,
@@ -34,12 +40,16 @@ export class InfoIslandService {
     constructor(
         private injector: Injector,
         private overlay: Overlay,
-        private logger: LoggerService
+        private logger: LoggerService,
+        private interCom: IntercomService
     ) {}
 
     getComponentToLoad(name: string) {
         let retComp: any;
         switch (name) {
+            case 'EventStreamComponent':
+                retComp = EventStreamComponent;
+                break;
             case 'IslandTestComponent':
             default:
                 retComp = IslandTestComponent;
@@ -50,10 +60,8 @@ export class InfoIslandService {
         return retComp;
     }
 
-
-
     /** ISLAND CREATION  */
-    openIsland(widgetContainerRef: ElementRef, portalRef: Portal<any>, options?: Partial<InfoIslandOptions>) {
+    openIsland(widgetContainerRef: ElementRef, portalRef: Portal<any>, options: Partial<InfoIslandOptions>) {
         if (this.overlayRef) {
             this.closeIsland(); // in case there is one open
         }
@@ -65,9 +73,11 @@ export class InfoIslandService {
 
         this.islandComp = componentRef.instance;
         const optionsToPass = JSON.parse(JSON.stringify(this.DEFAULT_OPTIONS));
-        if (options) {
-            Object.assign(optionsToPass, options);
-        }
+
+        // merge options
+        Object.assign(optionsToPass, options);
+
+        this.originId = options.originId;
 
         /* Dynamic width from the opening widget - commented out for now
         const containerDims = widgetContainerRef.nativeElement.getBoundingClientRect();
@@ -80,12 +90,20 @@ export class InfoIslandService {
         this.islandComp.open(portalRef, optionsToPass);
         this.islandComp.onCloseIsland$.subscribe(() => {
             this.overlayRef.detach();
+            this.interCom.responsePut({
+                id: options.originId,
+                action: 'InfoIslandClosed'
+            });
         });
     }
 
     closeIsland() {
         if (this.overlayRef.hasAttached()) {
             this.overlayRef.detach();
+            this.interCom.responsePut({
+                id: this.originId ,
+                action: 'InfoIslandClosed'
+            });
         }
     }
 
