@@ -6,9 +6,11 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { InfoIslandService } from './services/info-island.service';
 import { InfoIslandComponent } from './containers/info-island.component';
-import { IslandTestComponent } from './components/island-test/island-test.component';
 
-import { ISLAND_DATA } from './info-island.tokens';
+/** possible island components */
+import { IslandTestComponent } from './components/island-test/island-test.component';
+import { EventStreamComponent } from './components/event-stream/event-stream.component';
+
 
 @NgModule({
     imports: [
@@ -17,14 +19,18 @@ import { ISLAND_DATA } from './info-island.tokens';
         OverlayModule,
         MaterialModule
     ],
-    providers: [ InfoIslandService ],
     declarations: [
         InfoIslandComponent,
-        IslandTestComponent
+        IslandTestComponent,
+        EventStreamComponent
+    ],
+    providers: [
+        InfoIslandService
     ],
     entryComponents: [
         InfoIslandComponent,
-        IslandTestComponent
+        IslandTestComponent,
+        EventStreamComponent
     ]
 })
 export class InfoIslandModule { }
