@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError, forkJoin } from 'rxjs';
+import { Observable, of, throwError, forkJoin, BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { catchError, map, tap } from 'rxjs/operators';
 import { MetaService } from '../services/meta.service';
@@ -397,13 +397,13 @@ export class HttpService {
         //     observe: 'response' as 'response'
         // };
         // return this.http.get(apiUrl, httpOptions);
+        let fakeResponse: any;
 
         if (eventQueries[0].namespace !== 'Yamas') {
-            return {
+            fakeResponse = {
                 wid: wid,
                 time: time,
-                events: [
-                {
+                events: [{
                     title: 'Event 10X',
                     // tslint:disable:max-line-length
                     message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
@@ -417,81 +417,85 @@ export class HttpService {
                     eventId: '123456',
                     timestamp: now - (3 * 600 * 1000),
                     endTimestamp: now,
-                }
-            ], eventQueries: eventQueries};
-        }
+                }],
+                eventQueries: eventQueries
+            };
+        } else {
 
-        return {
-            wid: wid,
-            time: time,
-            events: [
-            {
-                title: 'Event 1',
-                // tslint:disable:max-line-length
-                message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                source: 'aws',
-                namespace: 'yamas',
-                priority: 'low',
-                tags: {
-                    'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                    '_application': 'tsdb'
+            fakeResponse = {
+                wid: wid,
+                time: time,
+                events: [{
+                    title: 'Event 1',
+                    // tslint:disable:max-line-length
+                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
+                    source: 'aws',
+                    namespace: 'yamas',
+                    priority: 'low',
+                    tags: {
+                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
+                        '_application': 'tsdb'
+                    },
+                    eventId: '123456',
+                    timestamp: now - (3 * 600 * 1000),
+                    endTimestamp: now,
                 },
-                eventId: '123456',
-                timestamp: now - (3 * 600 * 1000),
-                endTimestamp: now,
-            },
-            {
-                title: 'Event 2',
-                message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                source: 'aws',
-                timestamp: now - (4.1 * 600 * 1000),
-                eventId: '1234568',
-                namespace: 'yamas',
-                priority: 'low',
-                tags: {
-                    'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                    '_application': 'tsdb'
+                {
+                    title: 'Event 2',
+                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
+                    source: 'aws',
+                    timestamp: now - (4.1 * 600 * 1000),
+                    eventId: '1234568',
+                    namespace: 'yamas',
+                    priority: 'low',
+                    tags: {
+                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
+                        '_application': 'tsdb'
+                    },
                 },
-             },
-            {
-                title: 'Event 3',
-                message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                source: 'aws',
-                timestamp: now - (4.22 * 600 * 1000),
-                eventId: '1234569',
-                namespace: 'yamas',
-                priority: 'low',
-                tags: {
-                    'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                    '_application': 'tsdb'
+                {
+                    title: 'Event 3',
+                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
+                    source: 'aws',
+                    timestamp: now - (4.22 * 600 * 1000),
+                    eventId: '1234569',
+                    namespace: 'yamas',
+                    priority: 'low',
+                    tags: {
+                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
+                        '_application': 'tsdb'
+                    },
                 },
-            },
-            {
-                title: 'Event 4',
-                message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                source: 'sd',
-                timestamp: now - (4.23 * 600 * 1000),
-                eventId: '1234560',
-                namespace: 'yamas',
-                priority: 'low',
-                tags: {
-                    'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                    '_application': 'tsdb'
+                {
+                    title: 'Event 4',
+                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
+                    source: 'sd',
+                    timestamp: now - (4.23 * 600 * 1000),
+                    eventId: '1234560',
+                    namespace: 'yamas',
+                    priority: 'low',
+                    tags: {
+                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
+                        '_application': 'tsdb'
+                    },
                 },
-            },
-            {
-                title: 'Event 5',
-                message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                source: 'sd',
-                timestamp: now - (5.22 * 600 * 1000),
-                eventId: '1234561',
-                namespace: 'yamas',
-                priority: 'low',
-                tags: {
-                    'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                    '_application': 'tsdb'
-                },
-            }
-        ], eventQueries: eventQueries};
+                {
+                    title: 'Event 5',
+                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
+                    source: 'sd',
+                    timestamp: now - (5.22 * 600 * 1000),
+                    eventId: '1234561',
+                    namespace: 'yamas',
+                    priority: 'low',
+                    tags: {
+                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
+                        '_application': 'tsdb'
+                    },
+                }],
+                eventQueries: eventQueries
+            };
+        }
+        // Fake an observable response
+        return (new BehaviorSubject(fakeResponse)).asObservable();
     }
 }
