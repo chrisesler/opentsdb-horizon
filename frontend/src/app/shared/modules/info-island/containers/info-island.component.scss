@@ -47,8 +47,9 @@
     
             .mat-card-content {
                 margin: 0;
-                padding: 8px;
+                padding: 0;
                 flex: 1;
+                overflow: auto;
             }
         }
 
