@@ -480,6 +480,7 @@ export class YamasService {
                 fillPolicy: 'NAN',
                 realFillPolicy: 'NONE'
             }],
+            infectiousNan: true,
             variableInterpolators: {},
             sources: sources
         };
