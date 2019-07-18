@@ -137,7 +137,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     this.context.fillStyle = 'lightblue';
     this.context.fillRect(xStart - 5, 0, 10, 10);
     this.context.stroke();
-    this.eventLocations.push({xStart: (xStart - 5 - 5), xEnd: (xStart - 5) + 10 + 5, yStart: 5 - 5, yEnd: 5 + 10 + 5,
+    this.eventLocations.push({xStart: (xStart - 5), xEnd: (xStart - 5) + 10 + 5, yStart: 5 - 5, yEnd: 5 + 10 + 5,
       bucket: bucket });
     if (count > 1) { // draw number in box
       this.context.fillStyle = 'black';
