@@ -12,6 +12,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition } from '@angul
 import { WidgetDeleteDialogComponent } from '../widget-delete-dialog/widget-delete-dialog.component';
 import { InfoIslandService } from '../../../shared/modules/info-island/services/info-island.service';
 import { TemplatePortal, ComponentPortal } from '@angular/cdk/portal';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-widget-loader',
@@ -34,17 +35,46 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     viewContainerRef: any;
     widgetDeleteDialog: MatDialogRef<WidgetDeleteDialogComponent> | null;
 
+    private subscription: Subscription = new Subscription();
+
     constructor(
         private widgetService: WidgetService,
         private interCom: IntercomService,
         private componentFactoryResolver: ComponentFactoryResolver,
         private dialog: MatDialog,
-        private island: InfoIslandService,
+        private infoIslandService: InfoIslandService,
         private hostElRef: ElementRef
     ) { }
 
     ngOnInit() {
         this.loadComponent();
+
+        this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
+            switch (message.action) {
+                case 'InfoIslandOpen':
+                    const dataToInject = {
+                        widget: this.widget,
+                        originId: message.id,
+                        data: message.payload.data
+                    };
+                    const portalDef = message.payload.portalDef;
+                    let componentOrTemplateRef;
+                    if (portalDef.type === 'component') {
+                        // component based
+                        // tslint:disable-next-line: max-line-length
+                        const compRef = (portalDef.name) ? this.infoIslandService.getComponentToLoad(portalDef.name) : portalDef.reference;
+                        componentOrTemplateRef = new ComponentPortal(compRef, null, this.infoIslandService.createInjector(dataToInject));
+                    } else {
+                        // template based
+                        const tplRef = (portalDef.templateName) ? this[portalDef.name] : portalDef.reference;
+                        componentOrTemplateRef = new TemplatePortal(tplRef, null, dataToInject);
+                    }
+                    this.infoIslandService.openIsland(this.hostElRef, componentOrTemplateRef, { originId: message.id });
+                    break;
+                default:
+                    break;
+            }
+        }));
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -90,8 +120,8 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                     componentRef: IslandTestComponent
                 }
             */
-            const compRef = (portalDef.componentName) ? this.island.getComponentToLoad(portalDef.componentName) : portalDef.componentRef;
-            componentOrTemplateRef = new ComponentPortal(compRef, null, this.island.createInjector(dataToInject));
+            const compRef = (portalDef.componentName) ? this.infoIslandService.getComponentToLoad(portalDef.name) : portalDef.reference;
+            componentOrTemplateRef = new ComponentPortal(compRef, null, this.infoIslandService.createInjector(dataToInject));
         } else {
             // template based
             /*
@@ -105,12 +135,12 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                     templateRef: this.islandPortalTest
                 }
             */
-            const tplRef = (portalDef.templateName) ? this[portalDef.templateName] : portalDef.templateRef;
+            const tplRef = (portalDef.templateName) ? this[portalDef.name] : portalDef.reference;
             componentOrTemplateRef = new TemplatePortal(tplRef, null, dataToInject);
         }
 
         // this.island = is infoIslandService
-        this.island.openIsland(this.hostElRef, componentOrTemplateRef);
+        this.infoIslandService.openIsland(this.hostElRef, componentOrTemplateRef, { originId: this.widget.id });
     }
 
     loadComponent() {
