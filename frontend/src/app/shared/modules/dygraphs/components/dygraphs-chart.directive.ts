@@ -56,9 +56,9 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
     // needed to capture start and end times
     const drawCallback = (dygraph: any) => {
-        if (dygraph.dateWindow_) {
+        if (dygraph && dygraph.dateWindow_) {
             this.dateWindow.emit({startTime: dygraph.dateWindow_[0], endTime: dygraph.dateWindow_[1] });
-        } else {
+        } else if (dygraph && dygraph.rawData_) {
             this.dateWindow.emit({startTime: dygraph.rawData_[0][0], endTime: dygraph.rawData_[dygraph.rawData_.length - 1][0] });
         }
     };
