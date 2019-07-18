@@ -56,6 +56,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
     private durationTimeoutId: any;
 
     options: InfoIslandOptions = {
+        originId: false,
         closable: false,
         draggable: true,
         width: 600,
@@ -94,10 +95,10 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
         this.logger.log('ResizerEls', { resizers: this.resizers });
     }
 
-    open(portalRef: Portal<any>, options?: any) {
-        if (options) {
-            Object.assign(this.options, options);
-        }
+    open(portalRef: Portal<any>, options: any) {
+        // merge options
+        Object.assign(this.options, options);
+
         this.portalRef = portalRef;
         this.animationState = '*';
     }
