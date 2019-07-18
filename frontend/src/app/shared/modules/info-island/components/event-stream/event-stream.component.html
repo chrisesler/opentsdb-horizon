@@ -1,9 +1,5 @@
-<div class="event-details" *ngIf="show"> 
-    <div class="top-header">
-        <span></span>
-        <button mat-button class="close" (click)="hide()"> x </button>
-    </div>
-
+<div class="event-details"> 
+    
     <mat-accordion>
         <mat-expansion-panel *ngFor="let bucket of buckets; let i = index" 
             [expanded]="i === expandedBucketIndex"
