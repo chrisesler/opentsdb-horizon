@@ -1,5 +1,7 @@
 @mixin event-stream-component-base() {
 
+    $mono-fontface: map-get($app-fontface-config, mono);
+
     .event-stream {
         .event-stream-list {
             min-width: 500px;
@@ -9,8 +11,7 @@
                 display: none;
             }
 
-            .event-accordion.mat-accordion {
-            }
+            //.event-accordion.mat-accordion { }
 
             .event-panel.mat-expansion-panel {
                 @include mat-elevation(0);
@@ -27,11 +28,70 @@
                     }
                 }
 
+                .mat-expansion-panel-header-title {
+                    font-size: mat-font-size($mono-fontface, body-1);
+
+                    .event-time {
+                        font-family: mat-font-family($mono-fontface);
+                        margin-right: 12px;
+                    }
+
+                    //.event-count {}
+                }
+
                 .mat-expansion-panel-body {
                     padding: 0;
 
                     .event-summary {
                         padding: 8px 24px 8px 46px;
+                    }
+
+                    .event-header {
+                        :not(:last-child) {
+                            margin-right: 6px;
+                        }
+                        .event-time {
+                            font-family: mat-font-family($mono-fontface);
+                            font-size: mat-font-size($mono-fontface, caption);  
+                        }
+                    }
+
+                    .event-header,
+                    .event-description,
+                    .event-namespace,
+                    .event-priority,
+                    .event-tag {
+                        span:not(:last-child),
+                        strong:not(:last-child) {
+                            margin-right: 6px;
+                        }
+                    }
+
+                    .event-tag {
+                        margin-right: 12px;
+                    }
+
+                    .event-details-wrapper {
+                        .mat-button {
+                            min-width: initial;
+                            padding: 0 4px;
+                            line-height: initial;
+                            margin: 4px 0 4px -4px;
+
+                            font-size: 12px;
+
+                            .mat-icon {
+                                @include sizeDenaliIcon(12px);
+                                margin-left: 6px;
+                            }
+                        }
+
+                        .event-details {
+                            padding: 6px;
+                            border-radius: 4px;
+                            font-family: mat-font-family($mono-fontface);
+                            font-size: mat-font-size($mono-fontface, caption);
+                        }
                     }
                 }
 
@@ -43,43 +103,6 @@
                         }
                     }
                 }
-            }
-
-
-            .mat-expansion-panel {
-                /*.mat-expansion-panel-header {
-                    span {
-                        margin-right: 2px;
-                    }
-                }
-
-                .event {
-                    padding-bottom: 10px;
-
-                    .event-header {
-                        span {
-                            margin-right: 2px;
-                        }
-
-                        .event-source {
-                            font-weight: bold;
-                        }
-
-                        // .event-time { }
-                    }
-
-                    .optionals {
-                        margin-top: 5px;
-
-                        .tag {
-                            padding-right: 3px;
-                        }
-
-                        .details {
-                            margin-top: 3px;
-                        }
-                    }
-                }*/
             }
         }
     }
@@ -146,9 +169,7 @@
                         background: darken($divider, 5%);
                     }
 
-                    .mat-expansion-indicator {
-
-                    }
+                    //.mat-expansion-indicator { }
                     
                 }
 
@@ -157,18 +178,23 @@
                         &:not(:last-child) {
                             border-bottom: 1px solid $header-bg;
                         }
+
+                        &:hover {
+                            background: rgba(map-get($primary, default), .10);
+                        }
+
+                        .event-details {
+                            border: 1px solid $divider;
+                            background: $header-bg;
+                        }
                     }
                 }
 
                 // when event-panel (accordion item) is open
                 &.mat-expanded {
-                    .mat-expansion-panel-header {
-
-                        .mat-expansion-indicator {
-
-                        }
-                        
-                    }
+                    //.mat-expansion-panel-header {
+                    //    .mat-expansion-indicator { }   
+                    //}
 
                     .mat-expansion-panel-body {
                         border-bottom: 1px solid $divider;
@@ -179,22 +205,7 @@
                     }
                 }
             }
-            /*.mat-expansion-panel {
-
-                .event {
-
-                    &:hover {
-                        background-color: lightgray;
-                    }
-
-                    .event-header {
-
-                        .event-time {
-                            color: darkgray;
-                        }
-                    }
-                }
-            }*/
+            
         }
     }
 }
