@@ -1,20 +1,53 @@
 @mixin event-stream-component-base() {
 
     .event-stream {
-        /*position: absolute;
-        bottom: -10px;
-        right: 500px;*/
-
-        .event-details {
-            padding: 5px;
+        .event-stream-list {
             min-width: 500px;
-            //position: fixed;
-            //z-index: 100;
             max-height: 100%;
-            //overflow: scroll;
+
+            &.not-ready {
+                display: none;
+            }
+
+            .event-accordion.mat-accordion {
+            }
+
+            .event-panel.mat-expansion-panel {
+                @include mat-elevation(0);
+                border-radius: 0;
+
+                .mat-expansion-panel-header {
+                    flex-direction: row-reverse;
+                    cursor: pointer;
+                    border-radius: 0;
+
+                    .mat-expansion-indicator {
+                        margin-right: 12px;
+                        margin-top: -6px;
+                    }
+                }
+
+                .mat-expansion-panel-body {
+                    padding: 0;
+
+                    .event-summary {
+                        padding: 8px 24px 8px 46px;
+                    }
+                }
+
+                // when event-panel (accordion item) is open
+                &.mat-expanded {
+                    .mat-expansion-panel-header {
+                        .mat-expansion-indicator {
+                            margin-top: 2px;
+                        }
+                    }
+                }
+            }
+
 
             .mat-expansion-panel {
-                .mat-expansion-panel-header {
+                /*.mat-expansion-panel-header {
                     span {
                         margin-right: 2px;
                     }
@@ -22,31 +55,66 @@
 
                 .event {
                     padding-bottom: 10px;
-    
+
                     .event-header {
                         span {
                             margin-right: 2px;
                         }
+
                         .event-source {
                             font-weight: bold;
                         }
+
                         // .event-time { }
                     }
+
                     .optionals {
                         margin-top: 5px;
 
                         .tag {
                             padding-right: 3px;
                         }
-        
+
                         .details {
                             margin-top: 3px;
                         }
                     }
-                }
+                }*/
             }
         }
     }
+
+    // MATERIAL FIXES
+    .mat-expansion-panel-header {
+        // If the panel, that the header is in, is inside an element being animated by Angular,
+        // the default behavior is to block all child animations. This means that the header's
+        // height won't kick in until the parent animation is done. We add a fallback to the
+        // header's default height. If the animations aren't blocked, these styles will be overridden
+        // by the inline styles from the animations module.
+        .ng-animating .mat-expansion-panel & {
+            min-height: 32px;
+        }
+
+        .ng-animating .mat-expansion-panel.mat-expanded & {
+            min-height: 32px;
+        }
+    }
+
+    .mat-expansion-panel-content {
+
+        // If the expansion panel is inside an element being animated by Angular,
+        // the default behavior is to block all child animations. This means that the
+        // default `height: 0` won't kick in until the parent animation is over, which
+        // will cause the panel to appear open, before it snaps into place. We don't want
+        // to set the default height to zero, because it'll break the `height: '*'` from
+        // the animation definitions. Instead we add a fallback that only applies only if
+        // it's inside a parent that is mid-animation.
+        .ng-animating .mat-expansion-panel:not(.mat-expanded) & {
+            height: 0;
+            overflow: hidden;
+        }
+    }
+
 }
 
 @mixin event-stream-component-theme($theme-config) {
@@ -59,18 +127,66 @@
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
 
+    $card: map-get($background, card);
+    $divider: map-get($foreground, divider);
+
+    $header-bg: lighten($divider, 50%);
+
     .event-stream {
-        .event-details {
-            background: lightblue;
-        
-            .mat-expansion-panel {
+        .event-stream-list {
+            background: $card;
+
+            .event-panel.mat-expansion-panel {
+
+                .mat-expansion-panel-header {
+                    border-bottom: 1px solid $divider;
+                    background: $header-bg;
+
+                    &:hover {
+                        background: darken($divider, 5%);
+                    }
+
+                    .mat-expansion-indicator {
+
+                    }
+                    
+                }
+
+                .mat-expansion-panel-body {
+                    .event-summary {
+                        &:not(:last-child) {
+                            border-bottom: 1px solid $header-bg;
+                        }
+                    }
+                }
+
+                // when event-panel (accordion item) is open
+                &.mat-expanded {
+                    .mat-expansion-panel-header {
+
+                        .mat-expansion-indicator {
+
+                        }
+                        
+                    }
+
+                    .mat-expansion-panel-body {
+                        border-bottom: 1px solid $divider;
+    
+                        .event-summary {
+                            
+                        }
+                    }
+                }
+            }
+            /*.mat-expansion-panel {
 
                 .event {
 
                     &:hover {
                         background-color: lightgray;
                     }
-    
+
                     .event-header {
 
                         .event-time {
@@ -78,7 +194,7 @@
                         }
                     }
                 }
-            }
+            }*/
         }
     }
 }
