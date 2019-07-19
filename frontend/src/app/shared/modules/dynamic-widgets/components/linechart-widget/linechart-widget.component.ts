@@ -801,6 +801,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     timeRange$: this._timeRange.asObservable(),
                     timezone$: this._timezone.asObservable(),
                     expandedBucketIndex$: this._expandedBucketIndex.asObservable()
+                },
+                options: {
+                    title: 'Event Stream'
                 }
             };
 
