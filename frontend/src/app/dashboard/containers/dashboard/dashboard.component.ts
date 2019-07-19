@@ -52,6 +52,7 @@ import { HttpService } from '../../../core/http/http.service';
 import { ICommand, CmdManager } from '../../../core/services/CmdManager';
 import { DbfsUtilsService } from '../../../app-shell/services/dbfs-utils.service';
 import { EventsState, GetEvents } from '../../../dashboard/state/events.state';
+import { environment } from '../../../../environments/environment';
 
 @Component({
     selector: 'app-dashboard',
@@ -451,7 +452,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // the router url will point to previous path of clone dashboard
             // this.logger.log('dbPathSub', { currentLocation: this.location.path(), newPath: '/d' + path, rawPath: path});
             if (path !== '_new_' && path !== undefined) {
-                this.location.replaceState('/d' + path);
+                if (environment.queryParams) {
+                    this.location.replaceState('/d' + path + '?' + environment.queryParams);
+                } else {
+                    this.location.replaceState('/d' + path);
+                }
 
                 // possibly need to update the dbid
                 // necessary after saving a _new_ dashboard, so save dialog will not prompt again
