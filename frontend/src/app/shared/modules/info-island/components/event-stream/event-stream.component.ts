@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input, OnChanges, SimpleChanges, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, HostBinding, Input, OnChanges, SimpleChanges, OnDestroy, Inject, ViewChild, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
 import { Subscription } from 'rxjs';
@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { IntercomService } from '../../../../../core/services/intercom.service';
 import { ISLAND_DATA } from '../../info-island.tokens';
 import { distinctUntilChanged } from 'rxjs/operators';
+import { MatAccordion, MatExpansionPanel } from '@angular/material';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -13,22 +14,23 @@ import { distinctUntilChanged } from 'rxjs/operators';
     templateUrl: './event-stream.component.html',
     styleUrls: ['./event-stream.component.scss']
 })
-export class EventStreamComponent implements OnInit, OnChanges, OnDestroy {
+export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
     @HostBinding('class.event-stream') private _componentClass = true;
 
-    @Input() buckets: any[] = [];
-    // @Input() show: boolean;
-    @Input() startTime: number;  // in milliseconds
-    @Input() endTime: number;    // in milliseconds
-    @Input() timezone: string;
-    @Input() expandedBucketIndex: number;
+    @ViewChild('eventAccordion', {read: MatAccordion}) private eventAccordion: MatAccordion;
+    @ViewChildren('eventPanel', {read: MatExpansionPanel}) eventPanels: QueryList<MatExpansionPanel>;
 
-    // @Output() updatedShowing: EventEmitter<boolean> = new EventEmitter();
-    // @Output() updatedExpandedBucketIndex: EventEmitter<number> = new EventEmitter();
+    buckets: any[] = [];
+    startTime: number;  // in milliseconds
+    endTime: number;    // in milliseconds
+    timezone: string;
+    expandedBucketIndex: number;
 
     expandedEventId = -1;  // for expanding details
 
     private subscription: Subscription = new Subscription();
+
+    displayReady = false;
 
     constructor(
         private util: UtilsService,
@@ -36,16 +38,6 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy {
         private interCom: IntercomService,
         @Inject(ISLAND_DATA) private _data: any
     ) {
-
-        this.subscription.add(_data.data.buckets$.pipe(distinctUntilChanged()).subscribe( buckets => {
-            // this.logger.log('BUCKETS RECEIVED', {buckets});
-            this.buckets = buckets;
-        }));
-
-        this.subscription.add(_data.data.expandedBucketIndex$.pipe(distinctUntilChanged()).subscribe( index => {
-            // this.logger.log('SELECTED BUCKET INDEX RECEIVED', {index});
-            this.expandedBucketIndex = index;
-        }));
 
         this.subscription.add(_data.data.timeRange$.subscribe( time => {
             // this.logger.log('TIME RANGE RECEIVED', {time});
@@ -57,9 +49,50 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy {
             // this.logger.log('TIME ZONE RECEIVED', {timezone});
             this.timezone = timezone;
         }));
+
+        this.subscription.add(this._data.data.expandedBucketIndex$.pipe(distinctUntilChanged()).subscribe( index => {
+            // this.logger.log('SELECTED BUCKET INDEX RECEIVED', {index});
+            this.expandedBucketIndex = index;
+
+            if (this.displayReady) {
+
+                this.eventAccordion.closeAll();
+
+                const newSelected = this.eventPanels.find( (panel: MatExpansionPanel, idx: number) => idx === index);
+
+                if (newSelected) {
+                    setTimeout( () => {
+                        newSelected.open();
+                    }, 200);
+                }
+            }
+        }));
+
+        this.subscription.add(_data.data.buckets$.pipe(distinctUntilChanged()).subscribe( buckets => {
+            // this.logger.log('BUCKETS RECEIVED', {buckets});
+            this.buckets = buckets.map(bucket => {
+                if (bucket.events.length > 1) {
+                    bucket.displayTime = this.util.buildDisplayTime(bucket.endTime, this.startTime, this.endTime, bucket.width <= 1000 * 60, this.timezone);
+                } else {
+                    // tslint:disable-next-line: max-line-length
+                    bucket.displayTime = this.util.buildDisplayTime(bucket.events[0].timestamp, this.startTime, this.endTime, bucket.width <= 1000 * 60, this.timezone);
+                }
+
+                for (let i = 0; i < bucket.events.length; i++) {
+                    const event: any = this.util.deepClone(bucket.events[i]);
+                    event.displayTime = this.util.buildDisplayTime(event.timestamp, this.startTime, this.endTime, bucket.width <= 1000 * 60, this.timezone);
+                    bucket.events[i] = event;
+                    console.log('FORMATTING DISPLAY TEXT', bucket.events[i].displayTime);
+                }
+
+                return bucket;
+            });
+        }));
     }
 
-    ngOnInit() { }
+    ngOnInit() {
+        
+    }
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
@@ -67,14 +100,30 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges): void {
         // tslint:disable-next-line:max-line-length
-        if (changes && changes.buckets
+        /*if (changes && changes.buckets
             && changes.buckets.currentValue && changes.buckets.previousValue
             && changes.buckets.previousValue.length !== changes.buckets.currentValue.length) {
             this.collapseExpansion();
         }
         if (changes && changes.expandedBucketIndex && changes.expandedBucketIndex.currentValue !== this.expandedBucketIndex) {
             this.openExpansion(this.expandedBucketIndex);
-        }
+        }*/
+    }
+
+    ngAfterViewInit() {
+
+        this.eventAccordion.closeAll();
+        this.eventAccordion.multi = true;
+
+        const newSelected = this.eventPanels.find( (panel: MatExpansionPanel, idx: number) => idx === this.expandedBucketIndex);
+
+
+            setTimeout( function() {
+                newSelected.open();
+                this.displayReady = true;
+            }.bind(this), 200);
+
+
     }
 
     /*hide() {
