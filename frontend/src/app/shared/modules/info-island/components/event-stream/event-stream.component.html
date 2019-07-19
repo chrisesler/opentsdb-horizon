@@ -1,11 +1,10 @@
-<div class="event-details"> 
-    
-    <mat-accordion>
-        <mat-expansion-panel *ngFor="let bucket of buckets; let i = index" 
+<div class="event-stream-list" [ngClass]="{'not-ready': !displayReady}"> 
+    <mat-accordion class="event-accordion" displayMode="flat" #eventAccordion>
+        <!--<mat-expansion-panel *ngFor="let bucket of buckets; let i = index" 
             [expanded]="i === expandedBucketIndex"
             (opened)="openExpansion(i)"
-            (closed)="collapseExpansion(i)">
-
+            (closed)="collapseExpansion(i)"
+            #eventPanel>
             <mat-expansion-panel-header id="bucket-header">
                 <mat-panel-title >
                     <span *ngIf="bucket.events.length > 1"> {{util.buildDisplayTime(bucket.endTime, startTime, endTime, false, timezone)}} ({{bucket.events.length}} Events)</span> 
@@ -30,7 +29,7 @@
                         Priority: <b>{{event.priority}}</b>
                     </div>
 
-                    <!-- event tags -->
+ 
                     <div *ngIf="event.tags">
                         <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.tags)">
                             <span class="tag-key">{{ tag.key }}:</span>
@@ -38,7 +37,7 @@
                         </span>
                     </div>
     
-                    <!-- additional properties -->
+
                     <div *ngIf="event.additionalProps">
                         <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.additionalProps)">
                             <span class="tag-key">{{ tag.key }}:</span>
@@ -46,7 +45,7 @@
                         </span>
                     </div>
     
-                    <!-- event details -->
+
                     <mat-expansion-panel 
                             *ngIf="event.message"
                             class="details"
@@ -62,7 +61,45 @@
                     </mat-expansion-panel>
                 </div>
             </div>
-        </mat-expansion-panel>
+        </mat-expansion-panel> -->
+        <ng-container *ngFor="let bucket of buckets; let i = index">
+            <mat-expansion-panel class="event-panel" expanded="{{expandedBucketIndex === i}}" #eventPanel>
+                <mat-expansion-panel-header collapsedHeight="32px" expandedHeight="32px" >
+                    <mat-panel-title>
+                        {{bucket.displayTime}} ({{bucket.events.length}} {{(bucket.events.length > 1) ? 'Events' : 'Event'}})
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="event-summary" *ngFor="let event of bucket.events">
+                    <div class="event-header">
+                        <strong class="event-source">{{event.source}}</strong>
+                        <span class="event-time">{{event.displayTime || 'BROKETIME'}}</span>
+                    </div>
+                    <div class="event-description"> {{event.title}}  </div>
+                    <div class="namespace">
+                        <span>Namespace:</span> <strong>{{event.namespace}}</strong>
+                    </div>
+                    <div class="optionals">
+                        <div class="priority" *ngIf="event.priority">
+                            <span>Priority:</span> <strong>{{event.priority}}</strong>
+                        </div>
+    
+                        <div *ngIf="event.tags">
+                            <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.tags)">
+                                <span class="tag-key">{{ tag.key }}:</span>
+                                <strong class="tag-value">{{ tag.value }}</strong>
+                            </span>
+                        </div>
+        
+                        <div *ngIf="event.additionalProps">
+                            <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.additionalProps)">
+                                <span class="tag-key">{{ tag.key }}:</span>
+                                <strong class="tag-value">{{ tag.value }}</strong>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </mat-expansion-panel>
+        </ng-container>
     </mat-accordion>
 
 </div>
