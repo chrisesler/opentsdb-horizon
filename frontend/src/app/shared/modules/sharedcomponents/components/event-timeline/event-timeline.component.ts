@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, HostBinding, Input, Output, EventEmitter,
   OnChanges, SimpleChanges } from '@angular/core';
 import { UtilsService } from '../../../../../core/services/utils.service';
+import * as deepEqual from 'deep-equal';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -58,7 +59,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     this.eventLocations = [];
 
     if (this.events) {
-      const oldBuckets = JSON.stringify(this.buckets);
+      const oldBuckets = {...this.buckets};
       this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
 
       // tslint:disable:prefer-const
@@ -71,8 +72,8 @@ export class EventTimelineComponent implements OnInit, OnChanges {
           this.drawEvent(xStart, 'lightblue', this.buckets[i]);
         }
       }
-      // only emit if buckets are different
-      if (JSON.stringify(this.buckets) !== oldBuckets) {
+
+      if (!deepEqual(oldBuckets, this.buckets)) {
         this.newBuckets.emit(this.buckets);
       }
     }
