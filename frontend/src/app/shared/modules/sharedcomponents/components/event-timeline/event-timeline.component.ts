@@ -52,6 +52,9 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         }
     }
 
+    // NOTE: This function emits new buckets ALL THE TIME WHEN THE MOUSE MOVES
+    // NOTE: Even if the buckets doesn't change, it emits a change. Constantly.
+    // FIX: ZACK, PLEASE FIX THIS ASAP
     drawEvents() {
         // manually set width
         (<HTMLCanvasElement>this.eventsOverlayCanvas.nativeElement).width = this.width;
