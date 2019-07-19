@@ -50,6 +50,7 @@ import { NamespaceTagValuesComponent } from './components/namespace-tag-values/n
 import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.component';
 import { QueryEditorComponent } from './components/query-editor/query-editor.component';
 import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
+import { DebugDialogComponent } from './components/debug-dialog/debug-dialog.component';
 import { TagAggregatorComponent } from './components/tag-aggregator/tag-aggregator.component';
 import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.component';
 import { WidgetConfigSortingComponent } from './components/widget-config-sorting/widget-config-sorting.component';
@@ -110,6 +111,7 @@ import { EventListComponent } from './components/event-list/event-list.component
         TagvEditviewComponent,
         QueryEditorComponent,
         ErrorDialogComponent,
+        DebugDialogComponent,
         TagAggregatorComponent,
         TagGroupbyComponent,
         WidgetConfigSortingComponent,
@@ -174,7 +176,8 @@ import { EventListComponent } from './components/event-list/event-list.component
         InlineFilterEditorComponent,
         NamespaceTagValuesComponent,
         MetricAutocompleteComponent,
-        ErrorDialogComponent
+        ErrorDialogComponent,
+        DebugDialogComponent
     ],
 })
 export class SharedcomponentsModule { }
