@@ -58,6 +58,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     this.eventLocations = [];
 
     if (this.events) {
+      const oldBuckets = JSON.stringify(this.buckets);
       this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
 
       // tslint:disable:prefer-const
@@ -70,7 +71,10 @@ export class EventTimelineComponent implements OnInit, OnChanges {
           this.drawEvent(xStart, 'lightblue', this.buckets[i]);
         }
       }
-      this.newBuckets.emit(this.buckets);
+      // only emit if buckets are different
+      if (JSON.stringify(this.buckets) !== oldBuckets) {
+        this.newBuckets.emit(this.buckets);
+      }
     }
   }
 
@@ -146,7 +150,6 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   }
 
   canvasEnter(event: any) {
-    this.drawEvents();
     let xCoord = event.offsetX;
     let yCoord = event.offsetY;
     let hoveredOverIcon = false;
@@ -169,7 +172,6 @@ export class EventTimelineComponent implements OnInit, OnChanges {
 
   canvasLeave(event: any) {
     this.toolTipData = {bucket: null, xCoord: null, yCoord: null };
-    this.drawEvents();
   }
 
   receivedDateWindow(dateWindow: any) {
