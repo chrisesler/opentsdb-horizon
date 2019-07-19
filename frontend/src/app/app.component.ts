@@ -59,6 +59,15 @@ export class AppComponent implements OnInit {
                         console.info("Overriding Meta host with " + val);
                     }
             });
+
+            queryParams.pipe(map(params => params.get('__debug_level'))).subscribe(
+                val => {
+                    if (val) {
+                        environment.debugLevel = val;
+                        this.appendQueryParam('__debug_level', val);
+                        console.info("Overriding debug level with " + environment.debugLevel);
+                    }
+            });
           }
         });
     }
