@@ -97,8 +97,13 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
         }
     }
 
-    openIsland(portalDef: any) {
+    /* EXAMPLE FUNCTION */
+    openIsland() {
 
+        const portalDef: any = {
+            type: 'component',
+            name: 'IslandTestComponent'
+        };
         // EXAMPLE ONLY
         // USING template portal for now, but it could be a component portal. just for reference
         // Component portal mildly more complicated if you want to pass data. Needs Injector
@@ -146,8 +151,12 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
             componentOrTemplateRef = new TemplatePortal(tplRef, null, dataToInject);
         }
 
+        const options = {
+            originId: this.widget.id,
+            title: 'TEST INFO ISLAND COMPONENT'
+        };
         // this.island = is infoIslandService
-        this.infoIslandService.openIsland(this.hostElRef, componentOrTemplateRef, { originId: this.widget.id });
+        this.infoIslandService.openIsland(this.hostElRef, componentOrTemplateRef, options);
     }
 
     loadComponent() {
