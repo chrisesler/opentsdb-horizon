@@ -59,6 +59,13 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                     };
                     const portalDef = message.payload.portalDef;
                     let componentOrTemplateRef;
+
+                    let options: any = { };
+                    if (message.payload.options) {
+                        Object.assign(options, message.payload.options);
+                    }
+                    options.originId = message.id;
+
                     if (portalDef.type === 'component') {
                         // component based
                         // tslint:disable-next-line: max-line-length
@@ -69,7 +76,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                         const tplRef = (portalDef.templateName) ? this[portalDef.name] : portalDef.reference;
                         componentOrTemplateRef = new TemplatePortal(tplRef, null, dataToInject);
                     }
-                    this.infoIslandService.openIsland(this.hostElRef, componentOrTemplateRef, { originId: message.id });
+                    this.infoIslandService.openIsland(this.hostElRef, componentOrTemplateRef, options);
                     break;
                 default:
                     break;
