@@ -4,10 +4,104 @@
     $tab-width: map-get($widgets-common-config, tab-width);
     $action-bar-height: map-get($widgets-common-config, action-bar-height);
 
-    .event-list { 
+    $mono-fontface: map-get($app-fontface-config, mono);
+
+    .event-list .event-stream-list { 
         // overflow: scroll;
 
-        .event {
+        .event-panel.mat-expansion-panel {
+            @include mat-elevation(0);
+            border-radius: 0;
+
+            .mat-expansion-panel-header {
+                flex-direction: row-reverse;
+                cursor: pointer;
+                border-radius: 0;
+
+                .mat-expansion-indicator {
+                    margin-right: 12px;
+                    margin-top: -6px;
+                }
+            }
+
+            .mat-expansion-panel-header-title {
+                font-size: mat-font-size($mono-fontface, body-1);
+
+                .event-time {
+                    font-family: mat-font-family($mono-fontface);
+                    margin-right: 12px;
+                }
+
+                //.event-count {}
+            }
+
+            .mat-expansion-panel-body {
+                padding: 0;
+
+                .event-summary {
+                    padding: 8px 24px 8px 46px;
+                }
+
+                .event-header {
+                    :not(:last-child) {
+                        margin-right: 6px;
+                    }
+                    .event-time {
+                        font-family: mat-font-family($mono-fontface);
+                        font-size: mat-font-size($mono-fontface, caption);  
+                    }
+                }
+
+                .event-header,
+                .event-description,
+                .event-namespace,
+                .event-priority,
+                .event-tag {
+                    span:not(:last-child),
+                    strong:not(:last-child) {
+                        margin-right: 6px;
+                    }
+                }
+
+                .event-tag {
+                    margin-right: 12px;
+                }
+
+                .event-details-wrapper {
+                    .mat-button {
+                        min-width: initial;
+                        padding: 0 4px;
+                        line-height: initial;
+                        margin: 4px 0 4px -4px;
+
+                        font-size: 12px;
+
+                        .mat-icon {
+                            @include sizeDenaliIcon(12px);
+                            margin-left: 6px;
+                        }
+                    }
+
+                    .event-details {
+                        padding: 6px;
+                        border-radius: 4px;
+                        font-family: mat-font-family($mono-fontface);
+                        font-size: mat-font-size($mono-fontface, caption);
+                    }
+                }
+            }
+
+            // when event-panel (accordion item) is open
+            &.mat-expanded {
+                .mat-expansion-panel-header {
+                    .mat-expansion-indicator {
+                        margin-top: 2px;
+                    }
+                }
+            }
+        }
+
+        /*.event {
             padding-bottom: 5px;
 
             .event-source {
@@ -31,7 +125,7 @@
                     margin-top: 3px;
                 }
             }
-        }
+        }*/
     }
 }
 
@@ -44,8 +138,59 @@
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
 
+    $card: map-get($background, card);
+    $divider: map-get($foreground, divider);
+
+    $header-bg: lighten($divider, 50%);
+
     .event-list { 
 
+        .event-panel.mat-expansion-panel {
+
+            .mat-expansion-panel-header {
+                border-bottom: 1px solid $divider;
+                background: $header-bg;
+
+                &:hover {
+                    background: darken($divider, 5%);
+                }
+
+                //.mat-expansion-indicator { }
+                
+            }
+
+            .mat-expansion-panel-body {
+                .event-summary {
+                    &:not(:last-child) {
+                        border-bottom: 1px solid $header-bg;
+                    }
+
+                    &:hover {
+                        background: rgba(map-get($primary, default), .10);
+                    }
+
+                    .event-details {
+                        border: 1px solid $divider;
+                        background: $header-bg;
+                    }
+                }
+            }
+
+            // when event-panel (accordion item) is open
+            &.mat-expanded {
+                //.mat-expansion-panel-header {
+                //    .mat-expansion-indicator { }   
+                //}
+
+                .mat-expansion-panel-body {
+                    border-bottom: 1px solid $divider;
+
+                    .event-summary {
+                        
+                    }
+                }
+            }
+        }
 
     }
 
