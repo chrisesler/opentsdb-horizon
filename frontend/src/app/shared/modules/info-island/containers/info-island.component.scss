@@ -115,13 +115,15 @@
     $is-dark: map-get($theme-config, is-dark);
 
     $divider: map-get($foreground, divider);
+    $card: map-get($background, card);
+    $text: map-get($foreground, text);
 
     .info-island-container {
         @include mat-elevation(4);
 
         .mat-card-header {
-            background: maroon;
-            color: white;
+            background: $card;
+            color: $text;
             border-bottom: 1px solid $divider;
         }
 
