@@ -7,7 +7,7 @@
     <mat-card>
         <mat-card-header cdkDragHandle #dragHandle>
             <mat-card-title fxLayout="row">
-                <div class="title">Info Island</div>
+                <div class="title">{{options.title || 'Info Island'}}</div>
                 <div class="close" *ngIf="options?.closable">
                     <button mat-icon-button class="close-button" (click)="animateClose()">
                         <i class="material-icons">close</i>
