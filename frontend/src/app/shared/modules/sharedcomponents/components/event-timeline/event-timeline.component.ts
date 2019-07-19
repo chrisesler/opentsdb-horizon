@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, HostBinding, Input, Output, EventEmitter,
   OnChanges, SimpleChanges } from '@angular/core';
 import { UtilsService } from '../../../../../core/services/utils.service';
+import * as deepEqual from 'deep-equal';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -58,6 +59,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     this.eventLocations = [];
 
     if (this.events) {
+      const oldBuckets = {...this.buckets};
       this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
 
       // tslint:disable:prefer-const
@@ -70,7 +72,10 @@ export class EventTimelineComponent implements OnInit, OnChanges {
           this.drawEvent(xStart, 'lightblue', this.buckets[i]);
         }
       }
-      this.newBuckets.emit(this.buckets);
+
+      if (!deepEqual(oldBuckets, this.buckets)) {
+        this.newBuckets.emit(this.buckets);
+      }
     }
   }
 
@@ -146,7 +151,6 @@ export class EventTimelineComponent implements OnInit, OnChanges {
   }
 
   canvasEnter(event: any) {
-    this.drawEvents();
     let xCoord = event.offsetX;
     let yCoord = event.offsetY;
     let hoveredOverIcon = false;
@@ -169,7 +173,6 @@ export class EventTimelineComponent implements OnInit, OnChanges {
 
   canvasLeave(event: any) {
     this.toolTipData = {bucket: null, xCoord: null, yCoord: null };
-    this.drawEvents();
   }
 
   receivedDateWindow(dateWindow: any) {
