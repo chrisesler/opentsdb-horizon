@@ -72,17 +72,17 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
             // this.logger.log('BUCKETS RECEIVED', {buckets});
             this.buckets = buckets.map(bucket => {
                 if (bucket.events.length > 1) {
-                    bucket.displayTime = this.util.buildDisplayTime(bucket.endTime, this.startTime, this.endTime, bucket.width <= 1000 * 60, this.timezone);
+                    bucket.displayTime = this.util.buildDisplayTime(bucket.endTime, this.startTime, this.endTime, true, this.timezone);
                 } else {
                     // tslint:disable-next-line: max-line-length
-                    bucket.displayTime = this.util.buildDisplayTime(bucket.events[0].timestamp, this.startTime, this.endTime, bucket.width <= 1000 * 60, this.timezone);
+                    bucket.displayTime = this.util.buildDisplayTime(bucket.events[0].timestamp, this.startTime, this.endTime, true, this.timezone);
                 }
 
                 for (let i = 0; i < bucket.events.length; i++) {
                     const event: any = this.util.deepClone(bucket.events[i]);
                     event.displayTime = this.util.buildDisplayTime(event.timestamp, this.startTime, this.endTime, bucket.width <= 1000 * 60, this.timezone);
+                    event.showDetails = false;
                     bucket.events[i] = event;
-                    console.log('FORMATTING DISPLAY TEXT', bucket.events[i].displayTime);
                 }
 
                 return bucket;
