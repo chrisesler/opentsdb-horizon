@@ -5,6 +5,8 @@ import { MatDialog} from '@angular/material';
 import { LoginExpireDialogComponent } from './core/components/login-expire-dialog/login-expire-dialog.component';
 import { Select } from '@ngxs/store';
 import { Router,  NavigationEnd } from '@angular/router';
+import { environment } from '../environments/environment';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-root',
@@ -29,8 +31,48 @@ export class AppComponent implements OnInit {
           if (event instanceof NavigationEnd) {
             // after resolve path, this is the url the app uses
             this.fullUrlPath = event.urlAfterRedirects;
+            const queryParams = this.router.routerState.root.queryParamMap;
+            queryParams.pipe(map(params => params.get('__tsdb_host'))).subscribe(
+                val => {
+                    if (val) {
+                        environment.tsdb_host = val;
+                        environment.tsdb_hosts = [ val ];
+                        this.appendQueryParam('__tsdb_host', val);
+                        console.info("Overriding TSDB host with " + val);
+                    }
+            });
+
+            queryParams.pipe(map(params => params.get('__config_host'))).subscribe(
+                val => {
+                    if (val) {
+                        environment.configdb = val;
+                        this.appendQueryParam('__config_host', val);
+                        console.info("Overriding ConfigDB host with " + val);
+                    }
+            });
+
+            queryParams.pipe(map(params => params.get('__meta_host'))).subscribe(
+                val => {
+                    if (val) {
+                        environment.metaApi = val;
+                        this.appendQueryParam('__meta_host', val);
+                        console.info("Overriding Meta host with " + val);
+                    }
+            });
           }
         });
+    }
+
+    /**
+     * Simple method to append the query params back in the environment query params so
+     * that we can rebuild the URI when the dashboard and path is added.
+     */
+    appendQueryParam(key: string, val: string) {
+        if (environment.queryParams) {
+            environment.queryParams += '&' + key + '=' + val;
+        } else {
+            environment.queryParams = key + '=' + val;
+        }
     }
 
     ngOnInit() {
