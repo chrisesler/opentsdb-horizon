@@ -729,7 +729,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // todo: set correctly
         const deepClone = JSON.parse(JSON.stringify(this.widget));
         deepClone.eventQueries[0].search = search;
-        this.widget.eventQueries = {... deepClone.eventQueries};
+        this.widget.eventQueries = [...deepClone.eventQueries];
         this.getEvents();
     }
 
@@ -737,7 +737,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // todo: set correctly
         const deepClone = JSON.parse(JSON.stringify(this.widget));
         deepClone.eventQueries[0].namespace = namespace;
-        this.widget.eventQueries = {... deepClone.eventQueries};
+        this.widget.eventQueries = [... deepClone.eventQueries];
         this.getEvents();
     }
 

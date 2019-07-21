@@ -118,19 +118,18 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     setEventQuerySearch(search: string) {
-        // todo: set correctly
-        const deepClone = JSON.parse(JSON.stringify(this.widget));
-        deepClone.eventQueries[0].search = search;
-        this.widget.eventQueries = { ...deepClone.eventQueries };
-        this.getEvents();
+      // todo: set correctly
+      const deepClone = JSON.parse(JSON.stringify(this.widget));
+      deepClone.eventQueries[0].search = search;
+      this.widget.eventQueries = [... deepClone.eventQueries];
+      this.getEvents();
     }
 
     setEventQueryNamespace(namespace: string) {
-        // todo: set correctly
-        const deepClone = JSON.parse(JSON.stringify(this.widget));
-        deepClone.eventQueries[0].namespace = namespace;
-        this.widget.eventQueries = { ...deepClone.eventQueries };
-        this.getEvents();
+      // todo: set correctly
+      const deepClone = JSON.parse(JSON.stringify(this.widget));
+      deepClone.eventQueries[0].namespace = namespace;
+      this.widget.eventQueries = [... deepClone.eventQueries];
+      this.getEvents();
     }
-
 }

@@ -433,6 +433,17 @@ export class HttpService {
         const query = this.yamasService.buildEventsQuery(time, eventQueries);
         // todo: send query to tsdb, add time and wid
         let now = new Date().getTime();
+
+        let httpOptions = {
+            headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+            withCredentials: true,
+            observe: 'response' as 'response'
+        };
+
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
         // const apiUrl = environment.configdb + '/namespace/' + namespace + '/contact';
         // const httpOptions = {
         //     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -555,6 +566,38 @@ export class HttpService {
             };
         }
         // Fake an observable response
-        return (new BehaviorSubject(fakeResponse)).asObservable();
+        // return (new BehaviorSubject(fakeResponse)).asObservable();
+        return this.http.post('https://Dev-mt-2-gq.yamas.ouroath.com:443/api/query/graph', {
+            'start': '1h-ago',
+            'filters': [],
+            'mode': 'SINGLE',
+            'traceEnabled': false,
+            'debugEnabled': false,
+            'warnEnabled': false,
+            'timezone': null,
+            'executionGraph': [
+              {
+                'id': 'ha_m1_BF',
+                'type': 'TimeSeriesDataSource',
+                'types': ['events'],
+                'from': 0,
+                'size': 10,
+                'namespace': 'o2infra',
+                'filter': {
+                  'filters': [
+                    {
+                      'filter': 'Reload filesystem for o2_datadog',
+                      'type': 'PassThrough'
+                    }
+                  ],
+                  'op': 'AND',
+                  'type': 'Chain'
+                }
+              }
+            ],
+            'serdesConfigs': [],
+            'logLevel': 'ERROR'
+          },  { headers, withCredentials: true });
+
     }
 }

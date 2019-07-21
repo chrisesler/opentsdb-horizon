@@ -647,46 +647,42 @@ export class YamasService {
             end: time.end,
             executionGraph: [],
             filters: [],
-            serdesConfigs: []
+            mode: 'SINGLE',
+            traceEnabled: false,
+            debugEnabled: false,
+            warnEnabled: false,
+            timezone: null,
+            serdesConfigs: [],
+            logLevel: 'ERROR'
         };
         this.queries = queries;  // todo? necessary?
 
-        let filterIndex = 1;
-
-        for (const query of this.queries) {
+        for (const query of queries) {
             const node = {
                 id: query.id,
-                type: 'TimeSeriesDataSourceConfig',
-                types: ['Events'],
-                groupBy: query.groupBy ? query.groupBy : '',
+                type: 'TimeSeriesDataSource',
+                types: ['events'],
                 from: '0',   // todo: what is this?
-                size: '100', // todo: what is this?
+                size: '100',
                 namespace: query.namespace,
-                fetchLast: 'false',
-                filterId: 'f' + filterIndex,
+                filter: {}
             };
+
+            if (query.search) {
+                const filters = [{
+                        type: 'PassThrough',
+                        filter: query.search
+                    }];
+
+                node.filter = {
+                    filters,
+                    type: 'Chain',
+                    op: 'AND',
+                };
+            }
+
             this.transformedQuery.executionGraph.push(node);
-
-            const filter = {
-                type: 'Chain',
-                op: 'AND',
-                filters: [{
-                    type: 'FreeText',
-                    filter: query.search
-                }]
-            };
-            this.transformedQuery.filters.push({id: 'f' + filterIndex, filter: filter});
-
-            const serdesConfig = {
-                id: 'JsonV3QuerySerdes',
-                filter: [query.id]
-            };
-            this.transformedQuery.serdesConfigs.push(serdesConfig);
-
-            filterIndex++;
         }
-        this.transformedQuery.logLevel = environment.debugLevel.toUpperCase();
-
         return this.transformedQuery;
     }
 
