@@ -23,6 +23,7 @@ export interface AlertModel {
         snoozed: number;
     };
     name: string;
+    labels: string[];
     namespace: string;
     groupLabels: any[];
     contacts: any[];
@@ -44,6 +45,7 @@ export interface AlertsStateModel {
     actionResponse: any;
     actionStatus: string;
     alerts: AlertModel[];
+    snoozes: any[];
     alertTypeFilter: string;
     editItem: any;
     readOnly: boolean;
@@ -82,6 +84,22 @@ export class ToggleAlerts {
     constructor(public namespace: string, public payload: any) {}
 }
 
+export class LoadSnoozes {
+    static readonly type = '[Alerts] Load Snoozes';
+    constructor(public options: any) {}
+}
+
+export class SaveSnoozes {
+    static readonly type = '[Alerts] Save Snoozes';
+    constructor(public namespace: string, public payload: any) {}
+}
+
+export class DeleteSnoozes {
+    static readonly type = '[Alerts] Delete Snoozes';
+    constructor(public namespace: string, public payload: any) {}
+}
+
+
 export class CheckWriteAccess {
     static readonly type = "[Alerts] Check write Access";
     constructor(public payload: any) {}
@@ -103,6 +121,7 @@ export class CheckWriteAccess {
         saveError: {}, // handles dialog create/update error
         actionResponse: {},
         alerts: [],
+        snoozes: [],
         actionStatus: '',
         alertTypeFilter: 'all', // all, alerting, snoozed, disabled
         editItem: {},
@@ -175,6 +194,11 @@ export class AlertsState {
     }
 
     @Selector()
+    static getSnoozes(state: AlertsStateModel) {
+        return state.snoozes;
+    }
+
+    @Selector()
     static getActionStatus(state: AlertsStateModel) {
         return state.actionStatus;
     }
@@ -226,11 +250,7 @@ export class AlertsState {
         const userNamespaces = state.userNamespaces;
         const readOnly = (userNamespaces.find( (d: any) => d.name === payload.namespace ) === undefined) ? true : false;
 
-        if (payload.id === '_new_' ) {
-            ctx.patchState( { error: { message: 'You don\'t have permission to create new alert.' } } );
-        } else {
-            ctx.patchState( { editItem: payload, readOnly } );
-        }
+        ctx.patchState( { editItem: payload, readOnly } );
     }
 
     @Action(LoadAlerts)
@@ -293,4 +313,45 @@ export class AlertsState {
 
     }
 
+    @Action(LoadSnoozes)
+    LoadSnoozes(ctx: StateContext<AlertsStateModel>, { options }: LoadSnoozes) {
+        ctx.patchState({ error: {}});
+        return this.httpService.getSnoozes(options).subscribe(
+            snoozes => {
+                ctx.patchState({ snoozes: snoozes});
+            },
+            error => {
+                ctx.patchState({ error: error });
+            }
+        );
+
+    }
+
+    @Action(SaveSnoozes)
+    saveSnoozes(ctx: StateContext<AlertsStateModel>, { namespace, payload }: SaveSnoozes) {
+        ctx.patchState({ actionStatus: 'save-progress', saveError: {}});
+        return this.httpService.saveSnooze(namespace, payload).subscribe(
+            res => {
+                ctx.patchState({ actionStatus: payload.data[0].id ? 'snooze-update-success' : 'snooze-add-success'});
+                ctx.dispatch(new LoadSnoozes({namespace: namespace}));
+            },
+            error => {
+                ctx.patchState({ actionStatus: payload.data[0].id ? 'snooze-update-failed' : 'snooze-add-failed', saveError: error });
+            }
+        );
+    }
+
+    @Action(DeleteSnoozes)
+    deleteSnoozes(ctx: StateContext<AlertsStateModel>, { namespace, payload:payload }: DeleteSnoozes) {
+        ctx.patchState({ actionStatus: 'snooze-delete-progress', error: {}});
+        return this.httpService.deleteSnoozes(namespace, payload).subscribe(
+            res => {
+                ctx.patchState({ actionStatus: 'snooze-delete-success'});
+                ctx.dispatch(new LoadSnoozes({namespace: namespace}));
+            },
+            error => {
+                ctx.patchState({ error: error });
+            }
+        );
+    }
 }

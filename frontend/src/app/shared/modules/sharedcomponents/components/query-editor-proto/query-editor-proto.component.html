@@ -1,4 +1,4 @@
-<mat-toolbar class="namespace-bar"
+<mat-toolbar class="namespace-bar" *ngIf="options.showNamespaceBar"
     [ngClass]="{'is-expanded': query.namespace || query.metrics.length || query.filters.length}">
     <div class="toolbar-item query-index">
         <span>{{ label }}</span>

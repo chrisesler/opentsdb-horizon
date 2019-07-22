@@ -12,21 +12,23 @@ import { HttpService } from '../../core/http/http.service';
 import { AlertConverterService } from '../services/alert-converter.service';
 import { LoggerService } from '../../core/services/logger.service';
 
-export interface AlertStateModel {
+export interface SnoozeStateModel {
     status: string;
     error: any;
     loaded: boolean;
     data: any;
 }
 
-export class GetAlertDetailsById {
-    static readonly type = '[Alert] Get Alert Details By Id';
+
+export class GetSnoozeDetailsById {
+    static readonly type = '[Snooze] Get Snooze Details By Id';
     constructor(public id: number) {}
 }
 
+
 /* state define */
-@State<AlertStateModel>({
-    name: 'Alert',
+@State<SnoozeStateModel>({
+    name: 'Snooze',
     defaults: {
         status: '',
         error: {},
@@ -34,41 +36,33 @@ export class GetAlertDetailsById {
         data: {
             id: null,
             namespace: '',
-            name: '',
-            type: 'SIMPLE',
-            enabled: true,
-            alertGroupingRules: [],
-            labels: [],
-            threshold: {},
             notification: {}
         }
     }
 })
 
-export class AlertState {
+export class SnoozeState {
     constructor(
         private httpService: HttpService,
         private alertConverter: AlertConverterService,
         private logger: LoggerService
     ) { }
 
-    @Selector() static getAlertDetails(state: AlertStateModel) {
+    @Selector() static getSnoozeDetails(state: SnoozeStateModel) {
         return state.data;
     }
 
-    @Action(GetAlertDetailsById)
-    getAlertDetailsById(ctx: StateContext<AlertStateModel>, { id: id }: GetAlertDetailsById) {
-        this.logger.action('Alert::getAlertDetailsById', {id});
-        const state = ctx.getState();
+    @Action(GetSnoozeDetailsById)
+    getSnoozeDetailsById(ctx: StateContext<SnoozeStateModel>, { id: id }: GetSnoozeDetailsById) {
+        this.logger.action('Snooze::getSnoozeDetailsById', {id});
         ctx.patchState({ status: 'loading', loaded: false, error: {} });
-        this.httpService.getAlertDetailsById(id).subscribe(
+        this.httpService.getSnoozeDetailsById(id).subscribe(
             data => {
-                this.logger.success('Alert::getAlertDetailsById', {data});
-                data = this.alertConverter.convert(data);
+                this.logger.success('Snooze::getSnoozeDetailsById', {data});
                 ctx.patchState({data: data, status: 'success', loaded: true, error: {}});
             },
             err => {
-                this.logger.error('Alert::getAlertDetailsById', {error: err});
+                this.logger.error('Snooze::getSnoozeDetailsById', {error: err});
                 ctx.patchState({ data: {}, status: 'failed', loaded: false, error: err });
             }
         );
