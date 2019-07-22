@@ -574,7 +574,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
           log: this.debugData,
           query: this.storeQuery 
         };
-        console.info("DIAG CONF: " + dialogConf.data);
+        
         // re-use?
         this.debugDialog = this.dialog.open(DebugDialogComponent, dialogConf);
         this.debugDialog.afterClosed().subscribe((dialog_out: any) => {
