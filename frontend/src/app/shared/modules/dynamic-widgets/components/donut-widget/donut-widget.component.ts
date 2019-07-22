@@ -8,7 +8,9 @@ import { Subscription, BehaviorSubject } from 'rxjs';
 import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef, DialogPosition} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
+import { DebugDialogComponent } from '../../../sharedcomponents/components/debug-dialog/debug-dialog.component';
 import { debounceTime} from 'rxjs/operators';
+import { environment } from '../../../../../../environments/environment';
 
 
 @Component({
@@ -55,6 +57,9 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
+    debugData: any; // debug data from the data source.
+    debugDialog: MatDialogRef < DebugDialogComponent > | null;
+    storeQuery: any;
     needRequery = false;
 
     constructor(
@@ -103,6 +108,11 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                         if ( message.payload.error ) {
                             this.error = message.payload.error;
                         }
+                        if (environment.debugLevel.toUpperCase() === 'TRACE' ||
+                            environment.debugLevel.toUpperCase() == 'DEBUG' ||
+                            environment.debugLevel.toUpperCase() == 'INFO') {
+                                this.debugData = message.payload.rawdata.log; // debug log
+                        }
                         this.options = this.dataTransformer.yamasToD3Donut(this.options, this.widget, message.payload.rawdata);
                         this.cdRef.detectChanges();
                         break;
@@ -113,6 +123,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
                         break;
                     case 'WidgetQueryLoading':
                         this.nQueryDataLoading = 1;
+                        this.storeQuery = message.payload.storeQuery;
                         this.cdRef.detectChanges();
                         break;
                     case 'ResetUseDBFilter':
@@ -384,6 +395,26 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.errorDialog = this.dialog.open(ErrorDialogComponent, dialogConf);
         this.errorDialog.afterClosed().subscribe((dialog_out: any) => {
+        });
+    }
+
+    showDebug() {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        const offsetHeight = 60;
+        dialogConf.width = '75%';
+        dialogConf.minWidth = '500px';
+        dialogConf.height = '75%';
+        dialogConf.minHeight = '200px';
+        dialogConf.backdropClass = 'error-dialog-backdrop'; // re-use for now
+        dialogConf.panelClass = 'error-dialog-panel';
+         dialogConf.data = {
+          log: this.debugData,
+          query: this.storeQuery 
+        };
+        
+        // re-use?
+        this.debugDialog = this.dialog.open(DebugDialogComponent, dialogConf);
+        this.debugDialog.afterClosed().subscribe((dialog_out: any) => {
         });
     }
 

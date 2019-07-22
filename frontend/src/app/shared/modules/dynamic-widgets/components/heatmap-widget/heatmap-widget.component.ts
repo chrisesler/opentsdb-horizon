@@ -11,10 +11,12 @@ import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state'
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
+import { DebugDialogComponent } from '../../../sharedcomponents/components/debug-dialog/debug-dialog.component';
 import { BehaviorSubject } from 'rxjs';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
 import { debounceTime } from 'rxjs/operators';
-import heatmapPlotter from '../../../../dygraphs/plotters';
+import { heatmapPlotter } from '../../../../dygraphs/plotters';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
 // tslint:disable-next-line: component-selector
@@ -95,6 +97,9 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
   nQueryDataLoading: number;
   error: any;
   errorDialog: MatDialogRef < ErrorDialogComponent > | null;
+  debugData: any; // debug data from the data source.
+  debugDialog: MatDialogRef < DebugDialogComponent > | null;
+  storeQuery: any;
   editQueryId = null;
   needRequery = false;
   constructor(
@@ -148,6 +153,11 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
                           this.setTimezone(message.payload.timezone);
                           this.data.ts = this.dataTransformer.yamasToHeatmap(this.widget, this.options, this.data.ts, rawdata);
                           this.data = { ...this.data };
+                          if (environment.debugLevel.toUpperCase() === 'TRACE' ||
+                            environment.debugLevel.toUpperCase() == 'DEBUG' ||
+                            environment.debugLevel.toUpperCase() == 'INFO') {
+                                this.debugData = rawdata.log; // debug log
+                            }
                           setTimeout(() => this.setSize());
                       }
                       break;
@@ -158,6 +168,7 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
                       break;
                   case 'WidgetQueryLoading':
                         this.nQueryDataLoading = 1;
+                        this.storeQuery = message.payload.storeQuery;
                         this.cdRef.detectChanges();
                         break;
                   case 'ResetUseDBFilter':
@@ -485,6 +496,27 @@ export class HeatmapWidgetComponent implements OnInit, AfterViewInit, OnDestroy 
       this.errorDialog.afterClosed().subscribe((dialog_out: any) => {
       });
   }
+
+  showDebug() {
+    const dialogConf: MatDialogConfig = new MatDialogConfig();
+    const offsetHeight = 60;
+    dialogConf.width = '75%';
+    dialogConf.minWidth = '500px';
+    dialogConf.height = '75%';
+    dialogConf.minHeight = '200px';
+    dialogConf.backdropClass = 'error-dialog-backdrop'; // re-use for now
+    dialogConf.panelClass = 'error-dialog-panel';
+     dialogConf.data = {
+      log: this.debugData,
+      query: this.storeQuery 
+    };
+    
+    // re-use?
+    this.debugDialog = this.dialog.open(DebugDialogComponent, dialogConf);
+    this.debugDialog.afterClosed().subscribe((dialog_out: any) => {
+    });
+  }
+
   // request send to update state to close edit mode
   closeViewEditMode() {
       this.interCom.requestSend({
