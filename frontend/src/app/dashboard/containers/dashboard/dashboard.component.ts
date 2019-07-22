@@ -788,12 +788,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
                 const gquery: any = {
                     wid: message.id,
-                    isEditMode: this.viewEditMode
+                    isEditMode: this.viewEditMode,
+                    dbid: this.dbid
                 };
                 if (Object.keys(queries).length) {
                     const query = this.queryService.buildQuery(payload, dt, queries);
                     gquery.query = query;
-                    
+                    console.debug("****** DSHBID: " + this.dbid + "  WID: " + gquery.wid);
                     // ask widget to loading signal
                     this.interCom.responsePut({
                         id: payload.id,
