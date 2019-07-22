@@ -150,7 +150,11 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         });
         if (count > 1) { // draw number in box
             this.context.fillStyle = 'black';
-            this.context.fillText(count.toString(), (xStart - 2), 9);
+            if (count.toString().length > 1) {
+              this.context.fillText(count.toString(), xStart - 5, 9);
+            } else { // center single digit
+              this.context.fillText(count.toString(), (xStart - 2), 9);
+            }
         }
     }
 
@@ -204,8 +208,6 @@ export class EventTimelineComponent implements OnInit, OnChanges {
             }
             index++;
         }
-
-
     }
 
 }

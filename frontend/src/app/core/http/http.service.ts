@@ -430,174 +430,68 @@ export class HttpService {
     /** snooze */
 
     getEvents(wid: string, time: any, eventQueries: any[]) {
-        const query = this.yamasService.buildEventsQuery(time, eventQueries);
-        // todo: send query to tsdb, add time and wid
-        let now = new Date().getTime();
-
-        let httpOptions = {
-            headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-            withCredentials: true,
-            observe: 'response' as 'response'
-        };
-
+        let query = this.yamasService.buildEventsQuery(time, eventQueries);
+        // console.log(JSON.stringify(query, null, 2));
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });
 
-        // const apiUrl = environment.configdb + '/namespace/' + namespace + '/contact';
-        // const httpOptions = {
-        //     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-        //     withCredentials: true,
-        //     observe: 'response' as 'response'
-        // };
-        // return this.http.get(apiUrl, httpOptions);
-        let fakeResponse: any;
+        const apiUrl = environment.eventsApi + '/query/graph';
+        // query = {
+        //     'start': '1563826755729',
+        //     'end': '1563830355729',
+        //     'filters': [],
+        //     'mode': 'SINGLE',
+        //     'traceEnabled': false,
+        //     'debugEnabled': false,
+        //     'warnEnabled': false,
+        //     'timezone': null,
+        //     'executionGraph': [
+        //       {
+        //         'id': 'ha_m1_BF',
+        //         'type': 'TimeSeriesDataSource',
+        //         'types': ['events'],
+        //         'from': 0,
+        //         'size': 100,
+        //         'namespace': 'o2infra',
+        //         'filter': {
+        //           'filters': [
+        //             {
+        //               'filter': '*:*',
+        //               'type': 'PassThrough'
+        //             }
+        //           ],
+        //           'op': 'AND',
+        //           'type': 'Chain'
+        //         }
+        //       }
+        //     ],
+        //     'serdesConfigs': [],
+        //     'logLevel': 'ERROR'
+        //   };
 
-        if (eventQueries[0].namespace !== 'Yamas') {
-            fakeResponse = {
-                wid: wid,
-                time: time,
-                events: [{
-                    title: 'My other event',
-                    // tslint:disable:max-line-length
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'aws',
-                    namespace: 'not yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                    eventId: '123456',
-                    timestamp: now - (3 * 600 * 1000),
-                    endTimestamp: now,
-                }],
-                eventQueries: eventQueries
-            };
-        } else {
-
-            fakeResponse = {
-                wid: wid,
-                time: time,
-                events: [{
-                    title: 'Event 1',
-                    // tslint:disable:max-line-length
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'Jenkins',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                    additionalProps: {
-                        'prop1 key': 'prop1 value'
-                    },
-                    eventId: '123456',
-                    timestamp: now - (3 * 600 * 1000),
-                    endTimestamp: now,
-                },
-                {
-                    title: 'New instance started for autoscaling group 123456',
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'AWS',
-                    timestamp: now - (4.1 * 600 * 1000),
-                    eventId: '1234568',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                },
-                {
-                    title: 'Screwdriver success for \'horizon\' repo',
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'Screwdriver',
-                    timestamp: now - (4.22 * 600 * 1000),
-                    eventId: '1234569',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                },
-                {
-                    title: 'AWS Auto scaling failure for group 123456789',
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'AWS',
-                    timestamp: now - (4.23 * 600 * 1000),
-                    eventId: '1234560',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                },
-                {
-                    title: 'Screwdriver success for \'horizon\' repo',
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'Screwdriver',
-                    timestamp: now - (5.22 * 600 * 1000),
-                    eventId: '1234561',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
+        return this.http.post(apiUrl, query, { headers, withCredentials: true }).pipe(
+            map((res: any) => {
+                // console.log('the res', res);
+                let events = [];
+                for (let i = 0; res && i < res.results.length; i++) {
+                    for (let j = 0; res.results[i] && j < res.results[i].data.length; j++) {
+                        if (Object.keys(res.results[i].data[j]).length > 0 && res.results[i].data[j].EventsType) {
+                            const event = res.results[i].data[j].EventsType;
+                            // put tags at top-level
+                            if (res.results[i].data[j].tags) {
+                                event.tags = res.results[i].data[j].tags;
+                            }
+                            // time in milliseconds
+                            if (String(event.timestamp).length === 10) {
+                                event.timestamp = event.timestamp * 1000;
+                            }
+                            events.push(event);
+                        }
                     }
-                },
-                {
-                    title: 'Event 5',
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'sd',
-                    timestamp: now - (5.22 * 600 * 1000),
-                    eventId: '1234561',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                }],
-                eventQueries: eventQueries
-            };
-        }
-        // Fake an observable response
-        // return (new BehaviorSubject(fakeResponse)).asObservable();
-        return this.http.post('https://Dev-mt-2-gq.yamas.ouroath.com:443/api/query/graph', {
-            'start': '1h-ago',
-            'filters': [],
-            'mode': 'SINGLE',
-            'traceEnabled': false,
-            'debugEnabled': false,
-            'warnEnabled': false,
-            'timezone': null,
-            'executionGraph': [
-              {
-                'id': 'ha_m1_BF',
-                'type': 'TimeSeriesDataSource',
-                'types': ['events'],
-                'from': 0,
-                'size': 10,
-                'namespace': 'o2infra',
-                'filter': {
-                  'filters': [
-                    {
-                      'filter': 'Reload filesystem for o2_datadog',
-                      'type': 'PassThrough'
-                    }
-                  ],
-                  'op': 'AND',
-                  'type': 'Chain'
                 }
-              }
-            ],
-            'serdesConfigs': [],
-            'logLevel': 'ERROR'
-          },  { headers, withCredentials: true });
-
+                return {events: events, wid: wid, time: time, eventQueries: eventQueries};
+            })
+        );
     }
 }

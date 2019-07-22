@@ -35,11 +35,12 @@ export class WidgetConfigEventsComponent implements OnInit {
     if (this.widget.settings.visual.showEvents === undefined) {
       this.widget.settings.visual.showEvents = false;
     }
-
   }
 
   eventQueryChanged(search: string) {
-    this.widgetChange.emit( {action: 'SetEventQuerySearch', payload: {search: search}});
+    if (search.trim() !== this.widget.eventQueries[0].search.trim()) {
+      this.widgetChange.emit( {action: 'SetEventQuerySearch', payload: {search: search}});
+    }
   }
 
   showEventsChanged(events: boolean) {
@@ -47,7 +48,9 @@ export class WidgetConfigEventsComponent implements OnInit {
   }
 
   saveNamespace(namespace: string) {
-    this.widgetChange.emit( {action: 'SetEventQueryNamespace', payload: {namespace: namespace}});
+    if (namespace) {
+      this.widgetChange.emit( {action: 'SetEventQueryNamespace', payload: {namespace: namespace}});
+    }
   }
 
   cancelSaveNamespace(event) {

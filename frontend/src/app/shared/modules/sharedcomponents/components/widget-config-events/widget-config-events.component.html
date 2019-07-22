@@ -16,6 +16,7 @@
     <div class="namespace">
         <b>Namespace</b>
         <namespace-autocomplete [value]="widget.eventQueries[0].namespace" (nschange)="saveNamespace($event)" (blur)="cancelSaveNamespace($event)"></namespace-autocomplete>
+        <mat-error *ngIf="!widget.eventQueries[0].namespace">* Mandatory</mat-error>
     </div>
     
     <div class="search">

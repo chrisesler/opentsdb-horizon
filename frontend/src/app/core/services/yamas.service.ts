@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
-import { SourceMapSource } from 'webpack-sources';
 import { environment } from '../../../environments/environment';
 
 interface IQuery {
@@ -663,23 +662,21 @@ export class YamasService {
                 type: 'TimeSeriesDataSource',
                 types: ['events'],
                 from: '0',   // todo: what is this?
-                size: '100',
+                size: '50',
                 namespace: query.namespace,
                 filter: {}
             };
 
-            if (query.search) {
-                const filters = [{
-                        type: 'PassThrough',
-                        filter: query.search
-                    }];
+            const filters = [{
+                    type: 'PassThrough',
+                    filter: query.search.trim() ? query.search : '*:*'
+                }];
 
-                node.filter = {
-                    filters,
-                    type: 'Chain',
-                    op: 'AND',
-                };
-            }
+            node.filter = {
+                filters,
+                type: 'Chain',
+                op: 'AND',
+            };
 
             this.transformedQuery.executionGraph.push(node);
         }
