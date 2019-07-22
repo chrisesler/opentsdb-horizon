@@ -40,6 +40,7 @@ interface IQueryEditorOptions {
     enableGroupBy?: boolean;
     enableSummarizer?: boolean;
     enableMultiMetricSelection?: boolean;
+    showNamespaceBar?: boolean;
 }
 
 @Component({
@@ -410,6 +411,7 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
             'enableSummarizer': false,
             'enableMultiMetricSelection': true,
             'enableExplicitTagMatch': true,
+            'showNamespaceBar': true
          };
         this.options = { ...defaultOptions, ...this.options};
     }

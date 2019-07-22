@@ -386,6 +386,50 @@ export class HttpService {
         return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
     }
 
+    /** snooze */
+    saveSnooze(namespace, payload: any): Observable<any> {
+        this.logger.api('saveSnooze', {namespace, payload});
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.configdb + '/namespace/' + namespace + '/snooze';
+        if ( !payload.data[0].id  ) {
+            return this.http.post(apiUrl, payload.data, { headers, withCredentials: true });
+        } else {
+            // payload.data[0].id = payload.id;
+            return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
+        }
+    }
+
+    getSnoozeDetailsById(id: number): Observable<any> {
+        this.logger.api('getSnoozeDetailsById', {id});
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.configdb + '/snooze/' + id;
+        return this.http.get(apiUrl, { headers, withCredentials: true });
+    }
+
+    getSnoozes(options): Observable<any> {
+        this.logger.api('getSnoozes', {options});
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+          });
+        const apiUrl = environment.configdb + '/namespace/' + options.namespace + '/snooze';
+        return this.http.get(apiUrl, { headers, withCredentials: true });
+    }
+
+    deleteSnoozes(namespace, payload): Observable<any> {
+        this.logger.api('deleteSnoozes', {namespace, payload});
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.configdb + '/snooze';
+        // console.log("deleteA;lert", namespace, payload);
+        return this.http.request('delete', apiUrl, { headers, withCredentials: true, body: payload.data });
+    }
+    /** snooze */
+
     getEvents(wid: string, time: any, eventQueries: any[]) {
         const query = this.yamasService.buildEventsQuery(time, eventQueries);
         // todo: send query to tsdb, add time and wid
