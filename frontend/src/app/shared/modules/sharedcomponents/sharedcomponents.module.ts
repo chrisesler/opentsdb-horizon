@@ -60,7 +60,6 @@ import { InlineFilterEditorComponent } from './components/inline-filter-editor/i
 import { MetricAutocompleteComponent } from './components/metric-autocomplete/metric-autocomplete.component';
 import { DropdownMetricTagsComponent } from './components/dropdown-metric-tags/dropdown-metric-tags.component';
 import { MetricFunctionComponent } from './components/metric-function/metric-function.component';
-import { EventStreamComponent } from './components/event-stream/event-stream.component';
 import { EventTimelineComponent } from './components/event-timeline/event-timeline.component';
 import { WidgetConfigEventsComponent } from './components/widget-config-events/widget-config-events.component';
 import { EventListComponent } from './components/event-list/event-list.component';
@@ -121,7 +120,6 @@ import { EventListComponent } from './components/event-list/event-list.component
         MetricAutocompleteComponent,
         DropdownMetricTagsComponent,
         MetricFunctionComponent,
-        EventStreamComponent,
         EventTimelineComponent,
         WidgetConfigEventsComponent,
         EventListComponent
@@ -163,7 +161,6 @@ import { EventListComponent } from './components/event-list/event-list.component
         MetricAutocompleteComponent,
         DropdownMetricTagsComponent,
         MetricFunctionComponent,
-        EventStreamComponent,
         EventTimelineComponent,
         WidgetConfigEventsComponent,
         EventListComponent
