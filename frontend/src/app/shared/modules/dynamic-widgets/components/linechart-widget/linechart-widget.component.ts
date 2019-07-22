@@ -12,11 +12,12 @@ import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
 import { BehaviorSubject } from 'rxjs';
-import { debounceTime} from 'rxjs/operators';
+import { debounceTime } from 'rxjs/operators';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
-import {MatSort} from '@angular/material/sort';
-import {MatTableDataSource} from '@angular/material/table';
-import { Store, Select } from '@ngxs/store';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { LoggerService } from '../../../../../core/services/logger.service';
+
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -39,7 +40,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChild('dygraph') private dygraph: ElementRef;
     @ViewChild(MatSort) sort: MatSort;
 
-    private listenSub: Subscription;
+    private subscription: Subscription = new Subscription();
     private isDataLoaded = false;
     private isStackedGraph = false;
     chartType = 'line';
@@ -109,13 +110,19 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     clickTimer: any;
 
     // EVENTS
-    buckets: any[]; // TODO: remove with island legend
-    expandedBucket: number; // TODO: remove with island legend
+    buckets: any[] = []; // still need this, as dygraph was looking for it
+    // expandedBucket: number; // TODO: remove with island legend
     events: any[];
-    showEventStream = false; // TODO: remove with island legend
+    showEventStream = false; // Local flag whether island open
     eventsWidth: number;
     startTime: number;
     endTime: number;
+
+    // behaviors that get passed to island legend
+    private _buckets: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private _timeRange: BehaviorSubject<any> = new BehaviorSubject({});
+    private _timezone: BehaviorSubject<any> = new BehaviorSubject('');
+    private _expandedBucketIndex: BehaviorSubject<number> = new BehaviorSubject(-1);
 
     constructor(
         private cdRef: ChangeDetectorRef,
@@ -125,7 +132,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         private util: UtilsService,
         private elRef: ElementRef,
         private unit: UnitConverterService,
-        private store: Store
+        private logger: LoggerService
     ) { }
 
     ngOnInit() {
@@ -141,8 +148,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 }
             });
 
+        this.subscription.add(this._buckets.pipe().subscribe( buckets => {
+            this.buckets = buckets;
+        }));
+
         // subscribe to event stream
-        this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
+        this.subscription.add(this.interCom.responseGet().subscribe((message: IMessage) => {
             switch (message.action) {
                 case 'TimeChanged':
                     this.options.isCustomZoomed = false;
@@ -178,6 +189,13 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
+                    case 'InfoIslandClosed':
+                        this.logger.action('[widget sub] INFO ISLAND CLOSED');
+                        this.updatedShowEventStream(false);
+                        break;
+                    case 'UpdateExpandedBucketIndex':
+                        this._expandedBucketIndex.next(message.payload.index);
+                        break;
                     case 'updatedWidgetGroup':
                         this.nQueryDataLoading--;
                         if (!this.isDataLoaded) {
@@ -219,10 +237,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         break;
                 }
             }
-        });
+        }));
 
-          this.setDefaultEvents();
-          this.getEvents();
+        this.setDefaultEvents();
+        this.getEvents();
 
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
@@ -234,6 +252,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.legendDataSource = new MatTableDataSource(this.buildLegendData());
         this.legendDataSource.sort = this.sort;
     }
+
     buildLegendData() {
         const series = this.options.series;
         const table = [];
@@ -263,6 +282,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
         return table;
     }
+
     setOptions() {
         this.setLegendDiv();
         this.setAxesOption();
@@ -481,6 +501,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     setTimezone(timezone) {
         this.options.labelsUTC = timezone === 'utc' ? true : false;
+        this._timezone.next(timezone);
     }
 
     setTimeConfiguration(config) {
@@ -663,7 +684,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.options = {...this.options};
     }
 
-
     setMetaData(config) {
         this.widget.settings = {...this.widget.settings, ...config};
     }
@@ -711,7 +731,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.getEvents();
     }
 
-    toggleChartSeries(index:number, focusOnly) {
+    toggleChartSeries(index: number, focusOnly) {
         this.preventSingleClick = focusOnly;
         if (!focusOnly) {
             this.clickTimer = 0;
@@ -763,26 +783,60 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     bucketClickedAtIndex(index) {
-        this.expandedBucket = index;
-        this.updatedShowEventStream(true);
+        // this.expandedBucket = index;
+        this._expandedBucketIndex.next(index);
+
+        // NEED TO CHECK IF ISLAND IS OPEN
+        if ( !this.showEventStream ) {
+            // IF NOT OPEN, OPEN IT
+
+            // to open info island
+            const payload = {
+                portalDef: {
+                    type: 'component',
+                    name: 'EventStreamComponent'
+                },
+                data: {
+                    buckets$: this._buckets.asObservable(),
+                    timeRange$: this._timeRange.asObservable(),
+                    timezone$: this._timezone.asObservable(),
+                    expandedBucketIndex$: this._expandedBucketIndex.asObservable()
+                },
+                options: {
+                    title: 'Event Stream'
+                }
+            };
+
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'InfoIslandOpen',
+                payload: payload
+            });
+
+            this.updatedShowEventStream(true);
+        }
     }
 
     receivedDateWindow(dateWindow: any) {
         this.startTime = dateWindow.startTime;
         this.endTime = dateWindow.endTime;
+        this._timeRange.next({startTime: this.startTime, endTime: this.endTime });
     }
-     updatedShowEventStream(showEventStream: boolean) {
+
+    updatedShowEventStream(showEventStream: boolean) {
         this.showEventStream = showEventStream;
     }
 
     newBuckets(buckets) {
-        this.buckets = buckets;
+        // this.buckets = buckets;
+        this._buckets.next(buckets);
     }
 
     getSeriesLabel(index) {
-        const label = this.options.series[index].label; 
+        const label = this.options.series[index].label;
         return label;
     }
+
     getSeriesAggregate( index, aggregate, normalizeUnit = true ) {
         const config = this.options.series[index];
 
@@ -858,6 +912,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         this.widget.queries.splice(qindex, 1);
     }
+
     toggleQueryMetricVisibility(qid, mid) {
         // toggle the individual query metric
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
@@ -914,7 +969,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     ngOnDestroy() {
-        this.listenSub.unsubscribe();
+        this.subscription.unsubscribe();
         this.newSizeSub.unsubscribe();
         this.doRefreshDataSub.unsubscribe();
     }

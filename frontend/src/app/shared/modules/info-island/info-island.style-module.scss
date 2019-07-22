@@ -1,0 +1,12 @@
+@import './containers/info-island.component';
+@import './components/event-stream/event-stream.component';
+
+@mixin info-island-module-core() {
+    @include info-island-component-base();
+    @include event-stream-component-base();
+}
+
+@mixin info-island-module-theme($theme-config) {
+    @include info-island-component-theme($theme-config);
+    @include event-stream-component-theme($theme-config);
+}

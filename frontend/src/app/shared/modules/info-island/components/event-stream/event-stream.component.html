@@ -1,17 +1,23 @@
-<div class="event-stream-list" *ngIf="events">
-    <mat-accordion class="event-accordion" displayMode="flat" multi="true" #eventAccordion>
-        <ng-container *ngFor="let event of events; let i = index">
-            <mat-expansion-panel class="event-panel" #eventPanel>
+<div class="event-stream-list" [ngClass]="{'not-ready': !displayReady}"> 
+    <mat-accordion class="event-accordion" displayMode="flat" #eventAccordion>
+        <ng-container *ngFor="let bucket of buckets; let i = index">
+            <mat-expansion-panel class="event-panel" expanded="{{expandedBucketIndex === i}}" #eventPanel>
                 <mat-expansion-panel-header collapsedHeight="32px" expandedHeight="32px" >
                     <mat-panel-title>
                         <strong>
-                            <span class="event-time">{{util.buildDisplayTime(event.timestamp, startTime, endTime, true, timezone)}}</span>
-                            <span class="event-title"> {{event.title}} </span>
-                            <span class="event-source"> {{event.source}} </span>
+                            <span class="event-time">{{bucket.displayTime}}</span>
+                            <span class="event-count">{{bucket.events.length}} {{(bucket.events.length > 1) ? 'Events' : 'Event'}}</span>
                         </strong>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
-                <div class="event-summary">
+                <div class="event-summary" *ngFor="let event of bucket.events">
+                    <div class="event-header">
+                        <strong class="event-source">{{event.source}}</strong>
+                        <span class="event-time">{{event.displayTime || 'BROKETIME'}}</span>
+                    </div>
+                    <div class="event-description">
+                        <span>{{event.title}}</span>
+                    </div>
                     <div class="event-namespace">
                         <span>Namespace:</span> <strong>{{event.namespace}}</strong>
                     </div>
@@ -33,9 +39,13 @@
                                 <strong class="tag-value">{{ tag.value }}{{last?'':','}}</strong>
                             </span>
                         </div>
-    
+
                         <div class="event-details-wrapper">
-                            <div class="event-details">
+                            <button mat-button color="primary" (click)="event.showDetails = !event.showDetails;">
+                                <span>{{event.showDetails ? 'Hide' : 'Show'}} Details</span>
+                                <mat-icon fontSet="denali" [fontIcon]="(event.showDetails) ? 'd-arrowhead-up' : 'd-arrowhead-down'"></mat-icon>
+                            </button>
+                            <div class="event-details" *ngIf="event.showDetails">
                                 {{event.message}}   
                             </div>
                         </div>
@@ -44,4 +54,5 @@
             </mat-expansion-panel>
         </ng-container>
     </mat-accordion>
+
 </div>
