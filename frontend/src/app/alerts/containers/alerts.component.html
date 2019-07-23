@@ -412,17 +412,22 @@
     </div>
 
     <span class="flex-spacer"></span>
-    <span class="navbar-item">
-        <mat-button-toggle-group 
-            class="mat-elevation-z0"
-            color="primary"
-            appearance="legacy" 
-            aria-label="Font Style"
-            [value]="list"
-            (change)="switchType($event.value)">
-        <mat-button-toggle value="alerts">Alerts</mat-button-toggle>
-        <mat-button-toggle value="snooze">Snooze</mat-button-toggle>
-     </mat-button-toggle-group>
-    </span>
+    <!-- list mode toggle ( alerts or snoozes )-->
+    <div class="navbar-item">
+        <div class="navbar-sliding-toggle">
+            <nav mat-tab-nav-bar class="sliding-toggle-group">
+                <a mat-tab-link
+                    [active]="list === 'alerts'"
+                    (click)="switchType('alerts')">
+                    Alerts
+                </a>
+                <a mat-tab-link
+                    [active]="list === 'snooze'"
+                    (click)="switchType('snooze')">
+                    Snooze
+                </a>
+            </nav>
+        </div>
+    </div>
 
 </ng-template>
