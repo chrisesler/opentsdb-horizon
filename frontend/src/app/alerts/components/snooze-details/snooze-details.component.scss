@@ -81,14 +81,6 @@
                 overflow: auto;
             }
 
-            .query-metric-row.read-only * {
-                cursor: default;
-
-                .query-metric-table.mat-table {
-                    cursor: default;
-                }
-            }
-
             .step-section {
                 margin-bottom: 8px;
                 display: block;
@@ -209,6 +201,17 @@
                         }
                     }
 
+                    .time-ranges {
+                        .date-picker-component {
+                            &:first-child {
+                                margin-right: 5px;
+                            }
+                            &:last-child {
+                                margin-left: 5px;
+                            }
+                        }
+                    }
+
                     .alert-list {
                         .mat-chip {
                             font-size: 10px;
@@ -241,6 +244,31 @@
                     margin-right: 8px
                 }
             }
+
+            .query-editor-proto .metric-wrapper{
+                border-left: 0px;
+                border-right: 0px;
+                .common-tags {
+                    background-color: #ffffff;
+                    padding: 0px;
+                    margin-left: 0px;
+                    .common-tags-wrapper {
+                        margin: 0px;
+                        .mat-button {
+                            padding-left: 0px;
+                        }
+                    }
+                    .common-tags-label {
+                        display: none;
+                    }
+                }
+                .tags-selected-header {
+                    border-bottom: 0px;
+                }
+                .tags-selected .tag {
+                    margin-left: 0px;
+                }
+            }
         }
 
         .mat-dialog-title {
@@ -266,33 +294,6 @@
             padding: 4px 16px;
         }
 
-        .form-control {
-            &:not(:last-child) {
-                margin-bottom: 16px;
-            }
-
-            .mat-form-field {
-                width: 100%;
-            }
-
-            .item-row {
-                display: flex;
-                width: 100%;
-
-                .mat-form-field {
-                    &:first-child {
-                        margin-right: 4px;
-                    }
-                    &:last-child {
-                        margin-left: 4px;
-                    }
-                }
-            }
-
-            .item-row:not(:last-child) {
-                margin-bottom: 8px;
-            }
-        }
 
         .mat-label {
             font-weight: 500;

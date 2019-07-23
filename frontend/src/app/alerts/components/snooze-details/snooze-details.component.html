@@ -25,6 +25,7 @@
                                         <span class="mega-panel-trigger" [matMenuTriggerFor]="alertListMenu"  #alertListMenu></span>
                                     </mat-chip-list>
                                 </mat-form-field>
+                                <mat-error *ngIf="snoozeForm.errors && snoozeForm.errors.required">Please select the Alert(s) and/or Filter(s) </mat-error>
                             </div>
                         </div>
                         <div class="form-group snooze-tag-filters">
@@ -69,42 +70,35 @@
                                 (change)="timePreset=$event.value">
                                 <mat-button-toggle *ngFor="let option of presetOptions;" [value]="option.label" >{{option.label}}</mat-button-toggle>
                              </mat-button-toggle-group>
-                             <div class="date-range" *ngIf="dateType === 'custom'">
-                                <mat-form-field appearance="fill">
-                                        <mat-label>Start Date</mat-label>
-                                        <input matInput 
-                                            autocomplete="off"
-                                            formControlName="startTime"
-                                            [matDatepicker]="startDatePicker">
-                                        <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-                                        <mat-datepicker color="accent" class="simple-time-picker-calendar" #startDatePicker></mat-datepicker>
-                                    </mat-form-field>
-                                    <mat-form-field appearance="fill" class="start-time">
-                                            <mat-label>Start Time</mat-label>
-                                            <mat-select [formControl]="startTimeCntrl">
-                                                <mat-option *ngFor="let option of timeOptions" [value]="option.value">{{option.label}}</mat-option>
-                                            </mat-select>
-                                    </mat-form-field>
-                                    <mat-error *ngIf="snoozeForm.get('startTime').errors && snoozeForm.get('startTime').errors.required">Please select the Start Date </mat-error>
+                                        <div class="time-ranges" fxLayout="row" fxLayout.xs="column" *ngIf="dateType === 'custom'">
+                                            <!-- start time -->
+                                            <datepicker2  #datetimePickerStart 
+                                                [date]="snoozeForm.get('startTime').value"
+                                                [options]="{ enableFuture: true}"
+                                                [timezone]="'local'"
+                                                [formatError]="pickerOptions.startDateFormatError"
+                                                [maxDateError]="pickerOptions.startMaxDateError"
+                                                [minDateError]="pickerOptions.startMinDateError"
+                                                [placeholder]="pickerOptions.startTimePlaceholder"
+                                                [inputBoxName]="pickerOptions.startTimeInputBoxName"
+                                                (dateChange)="setDate('startTime', $event)">
+                                            </datepicker2>
+                                    
+                                            <!-- end time -->
+                                            <datepicker2  #datetimePickerEnd 
+                                                [date]="snoozeForm.get('endTime').value"
+                                                [options]="{ enableFuture: true}"
+                                                [timezone]="'local'"
+                                                [placeholder]="pickerOptions.endTimePlaceholder"
+                                                [formatError]="pickerOptions.endDateFormatError"
+                                                [maxDateError]="pickerOptions.endMaxDateError"
+                                                [minDateError]="pickerOptions.endMinDateError"
+                                                [inputBoxName]="pickerOptions.endTimeInputBoxName"
+                                                (dateChange)="setDate('endTime', $event)">
+                                            </datepicker2>
+                                            <mat-error *ngIf="snoozeForm.get('endTime').errors && snoozeForm.get('endTime').errors.greater">End Time should be greater than the Start Time </mat-error>
+                                            <mat-error *ngIf="snoozeForm.get('endTime').errors && snoozeForm.get('endTime').errors.future">End Time should be in future </mat-error>
 
-    
-                                    <mat-form-field appearance="fill" >
-                                        <mat-label>End Date</mat-label>
-                                        <input matInput
-                                            autocomplete="off"
-                                            formControlName="endTime"
-                                            [matDatepicker]="endDatePicker">
-                                        <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
-                                        <mat-datepicker color="accent" class="simple-time-picker-calendar" #endDatePicker></mat-datepicker>
-                                    </mat-form-field>
-                                    <mat-form-field appearance="fill" class="end-time">
-                                            <mat-label>End Time</mat-label>
-                                            <mat-select [formControl]="endTimeCntrl">
-                                                <mat-option *ngFor="let option of timeOptions" [value]="option.value">{{option.label}}</mat-option>
-                                            </mat-select>
-                                    </mat-form-field>
-                                    <mat-error *ngIf="snoozeForm.get('endTime').errors && snoozeForm.get('endTime').errors.required">Please select the End Date </mat-error>
-                                    <mat-error *ngIf="snoozeForm.get('endTime').errors && snoozeForm.get('endTime').errors.future">End Date & Time should be in future </mat-error>
                             </div>
                         </div>
                     </div>
@@ -143,8 +137,8 @@
         </div>
 </div>
 <mat-card-actions>
-    <button mat-flat-button color="primary" type="submit" (click)="validate()">Save Snooze</button>
-    <button mat-stroked-button  color="primary" (click)="cancelEdit()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit" (click)="validate()" *ngIf="!readOnly">Save Snooze</button>
+    <button mat-stroked-button  color="primary" (click)="cancelEdit()">{{ readOnly ? 'Close' : 'Cancel' }}</button>
 </mat-card-actions>
 </mat-card>
 

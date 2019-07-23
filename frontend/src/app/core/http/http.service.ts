@@ -424,9 +424,8 @@ export class HttpService {
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
         });
-        const apiUrl = environment.configdb + '/snooze';
-        // console.log("deleteA;lert", namespace, payload);
-        return this.http.request('delete', apiUrl, { headers, withCredentials: true, body: payload.data });
+        const apiUrl = environment.configdb + '/snooze/delete';
+        return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
     }
     /** snooze */
 

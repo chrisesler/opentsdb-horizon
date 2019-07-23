@@ -129,9 +129,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     snoozeDisplayedColumns: string[] = [
         'select',
         'name',
-        'scope',
         'modified',
-        'message'
+        'scope'
     ];
 
     // for batch selection
@@ -269,7 +268,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 // this.hasNamespaceWriteAccess = this.userNamespaces.find(d => d.name === this.selectedNamespace ) ? true : false;
                 this.stateLoaded.alerts = false;
                 this.stateLoaded.snooze = false;
-                this.loadAlertsOrSnooze();
+                this.loadAlertsSnooze(this.list === 'alerts' ? ['alerts'] : ['alerts', 'snooze']);
             } else {
                 this.hasNamespaceWriteAccess = false;
                 this.alerts = [];
@@ -300,6 +299,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.subscription.add(this.snoozes$.pipe(skip(1)).subscribe( snoozes => {
             this.stateLoaded.snooze = true;
             this.snoozes = JSON.parse(JSON.stringify(snoozes));
+            this.snoozes =  this.snoozes.map( (d: any) => {
+                            if ( d.filters && d.filters.filters.length )  {
+                                d.filters = this.utils.getFiltersTsdbToLocal(d.filters.filters);
+                                return d;
+                            }
+                            });
             this.setSnoozeTableDataSource();
         }));
 
@@ -346,9 +351,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
             let _data = JSON.parse(JSON.stringify(data));
 
             // alert meta is needed when snooze add/edit
-            if ( this.list === 'snooze' && !this.stateLoaded.alerts ) {
-                this.store.dispatch(new LoadAlerts({namespace: _data.namespace}));
-            }
+            // if ( this.list === 'snooze' && !this.stateLoaded.alerts ) {
+                // this.store.dispatch(new LoadAlerts({namespace: _data.namespace}));
+            // }
             // set the namespace if the user comes directly from edit url
             if ( !this.selectedNamespace ) {
                 this.setNamespace(_data.namespace);
@@ -438,6 +443,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 this.list = 'snooze';
                 if (url.length >= 2 && this.utils.checkIfNumeric(url[1].path)) {
                     this.store.dispatch(new GetSnoozeDetailsById(parseInt(url[1].path, 10)));
+                } else if (url.length === 3 && url[2].path === '_new_') {
+                    // new snooze
+                    this.setNamespace(url[1].path);
+                    this.store.dispatch(new CheckWriteAccess({ namespace: url[1].path, id: '_new_'}));
                 } else {
                     this.detailsView = false;
                     // tslint:disable-next-line:max-line-length
@@ -520,7 +529,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     switchType(mode) {
         this.list = mode;
         if ( !this.stateLoaded[mode] ) {
-            this.loadAlertsOrSnooze();
+            this.loadAlertsSnooze([mode]);
         }
         this.setRouterUrl();
     }
@@ -536,10 +545,11 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.setRouterUrl();
     }
 
-    loadAlertsOrSnooze() {
-        if ( this.list === 'alerts' ) {
+    loadAlertsSnooze(list) {
+        if ( list.includes('alerts') ) {
             this.store.dispatch(new LoadAlerts({namespace: this.selectedNamespace}));
-        } else if ( this.list === 'snooze' ) {
+        }
+        if ( list.includes('snooze') ) {
             this.store.dispatch(new LoadSnoozes({namespace: this.selectedNamespace}));
         }
     }
@@ -578,6 +588,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
             }
         }
         this.alertListMeta = Object.values(alertOptions);
+    }
+
+    getAlertNamesByIds(ids) {
+        let names = [];
+        names = this.alerts.filter(d => ids.includes(d.id)).map(d => d.name );
+        return names.length ? names : ids;
     }
 
     applyAlertDataFilter(dataFilter: string) {
@@ -644,7 +660,11 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     createSnooze() {
+        if (!this.stateLoaded.alerts ) {
+            this.store.dispatch(new LoadAlerts({namespace: this.selectedNamespace}));
+        }
         const data = {
+            id: '_new_',
             namespace: this.selectedNamespace
         };
         this.configurationEditData = data;

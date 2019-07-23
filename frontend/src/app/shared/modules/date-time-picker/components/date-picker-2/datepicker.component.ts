@@ -37,6 +37,7 @@ export class DatepickerComponent implements OnInit {
     @Input() formatError: String;
     @Input() placeholder: string;
     @Input() inputBoxName: string;
+    @Input() options: any = { enableFuture: false};
 
     @Output() dateChange = new EventEmitter<string>();
     @Output() open = new EventEmitter<void>();
@@ -242,7 +243,8 @@ export class DatepickerComponent implements OnInit {
                     isFuture: (Number(_moment.format('YYYYMMDD'))) > now,
                     isToday: (Number(_moment.format('YYYYMMDD'))) === now,
                     enabled:
-                        (Number(_moment.format('YYYYMMDD')) <= now && Number(_moment.format('YYYYMMDD')) > 20010909),
+                        // tslint:disable-next-line:max-line-length
+                        ( this.options.enableFuture || (Number(_moment.format('YYYYMMDD')) <= now) && Number(_moment.format('YYYYMMDD')) > 20010909),
                     selected: Number(_moment.format('YYYYMMDD')) === selected && this.isDateValid,
                     currentMonth : true
                 });
@@ -324,7 +326,7 @@ export class DatepickerComponent implements OnInit {
         return (control: AbstractControl): {[key: string]: any} | null => {
             let forbidden: boolean = false;
             const _moment: Moment = this.utilsService.timeToMoment(control.value, this.timezone);
-            if (_moment && _moment.unix() > this.getNow().unix()) {
+            if ( !this.options.enableFuture && _moment && _moment.unix() > this.getNow().unix()) {
                 forbidden = true;
             }
             return forbidden ? {'maxDate': {value: control.value}} : null;

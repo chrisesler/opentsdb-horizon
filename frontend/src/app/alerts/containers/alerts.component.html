@@ -304,16 +304,29 @@
                         <th mat-header-cell *matHeaderCellDef>
                             <span>Scope</span>
                         </th>
-                        <td mat-cell *matCellDef="let element"> ... </td>
+                        <td mat-cell *matCellDef="let element">
+                            <mat-list class="alerts-filters-list" role="list">
+                                <mat-list-item class="alerts-filters-list-item" role="listitem" *ngIf="element.alertIds.length">
+                                    <div class="alerts-filters-list-item-detail">
+                                        <strong>Alerts:</strong>
+                                        <span>{{ getAlertNamesByIds(element.alertIds).join(', ')}}</span>
+                                    </div>
+                                </mat-list-item>
+                                <mat-list-item class="alerts-filters-list-item" role="listitem" *ngIf="element.labels.length">
+                                    <div class="alerts-filters-list-item-detail">
+                                        <strong>Labels:</strong>
+                                        <span>{{ element.labels.join(', ')}}</span>
+                                    </div>
+                                </mat-list-item>
+                                <mat-list-item class="alerts-filters-list-item" role="listitem" *ngFor="let filter of element.filters; let index=index">
+                                    <div class="alerts-filters-list-item-detail" *ngIf="filter.filter.length">
+                                        <strong>{{ filter.tagk }}:</strong>
+                                        <span>{{ filter.filter.join(', ')}}</span>
+                                    </div>
+                                </mat-list-item>
+                            </mat-list>
+                        </td>
                     </ng-container>
-
-                    <ng-container matColumnDef="message">
-                        <th mat-header-cell *matHeaderCellDef>
-                            <span>Message</span>
-                        </th>
-                        <td mat-cell *matCellDef="let element"> {{ element.notification.message }}</td>
-                    </ng-container>
-
                 
                     <tr mat-header-row *matHeaderRowDef="snoozeDisplayedColumns; sticky: true" [ngClass]="{'is-batch-editing': selection.hasValue()}"></tr>
                     <tr mat-row *matRowDef="let row; columns: snoozeDisplayedColumns;" [ngClass]="{'is-disabled': !row.enabled}"></tr>
@@ -412,7 +425,7 @@
     </div>
 
     <span class="flex-spacer"></span>
-    <span class="navbar-item">
+    <span class="navbar-item" *ngIf="!detailsView">
         <mat-button-toggle-group 
             class="mat-elevation-z0"
             color="primary"

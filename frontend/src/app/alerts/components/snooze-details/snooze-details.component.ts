@@ -3,10 +3,8 @@ import {
     Component,
     OnInit, OnChanges, Input, Output, EventEmitter,
     SimpleChanges,
-    OnDestroy,
-    Inject,
     HostBinding,
-    ViewChild, ElementRef, HostListener, Injectable
+    ViewChild, ElementRef, HostListener
 } from '@angular/core';
 
 import { MatChipInputEvent, MatMenuTrigger, MatInput } from '@angular/material';
@@ -25,6 +23,7 @@ import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-mo
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { IntercomService } from '../../../core/services/intercom.service';
 
+import { DatepickerComponent } from '../../../shared/modules/date-time-picker/components/date-picker-2/datepicker.component';
 
 import * as moment from 'moment';
 
@@ -46,6 +45,9 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
     @ViewChild('formDirective', {read: FormGroupDirective}) formDirective: FormGroupDirective;
     @ViewChild('alertListMenu', { read: MatMenuTrigger }) private alertListMenuTrigger: MatMenuTrigger;
     @ViewChild('alertInput', { read: MatInput }) private alertInput: MatInput;
+
+    @ViewChild('datetimePickerStart') startTimeReference: DatepickerComponent;
+    @ViewChild('datetimePickerEnd') endTimeReference: DatepickerComponent;
 
 
     @Input() viewMode: string = ''; // edit || view
@@ -85,10 +87,9 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
 
     readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
+    pickerOptions: any;
     queries: any[] = [];
     alertLabels: any[] = [];
-    // alertLabels: any[] = [ {label: 'lable1', type: 'label'}, {label: 'label2', type: 'label'}];
-    // allAlertLabelsOptions: any[] = [ {label: 'lable1', type: 'label'}, {label: 'label2', type: 'label'}, {label: 'label3', type: 'label'}];
 
     constructor(
         private elRef: ElementRef,
@@ -99,6 +100,24 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
     ) { }
 
     ngOnInit() {
+        this.pickerOptions = {  startFutureTimesDisabled: false, 
+                                endFutureTimesDisabled: true,
+                                defaultStartText: '',
+                                defaultEndText: '',
+                                defaultStartHoursFromNow: 1,
+                                defaultEndHoursFromNow: 0,
+                                startMaxDateError: 'Future not allowed',
+                                endMaxDateError: 'Future not allowed',
+                                startMinDateError: 'Must be > 1B seconds after unix epoch',
+                                endMinDateError: 'Must be > 1B seconds after unix epoch',
+                                startDateFormatError:  'Invalid.',
+                                endDateFormatError:  'Invalid.',
+                                startTimePlaceholder: '',
+                                endTimePlaceholder: '',
+                                startTimeInputBoxName: 'Start Time',
+                                endTimeInputBoxName: 'End Time',
+                                minMinuteDuration: 2
+                            };
         for ( let i = 0; i < 24; i++ ) {
             for ( let j = 0; j < 60; j = j + 15 ) {
                 this.timeOptions.push( {
@@ -112,7 +131,7 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
     ngOnChanges( changes: SimpleChanges ) {
         if (changes.alertListMeta && changes.alertListMeta.currentValue) {
             const alertListMeta = changes.alertListMeta.currentValue;
-            for ( let i = 0; i < this.data.alertIds.length; i++ ) {
+            for ( let i = 0; this.data.alertIds && i < this.data.alertIds.length; i++ ) {
                 const option = alertListMeta.find(d => d.id === this.data.alertIds[i]); 
                 if ( option ) {
                     this.alertLabels.push(option);
@@ -123,17 +142,20 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
 
     setupForm(data) {
         const def = {
+            alertIds: [],
+            labels: [],
             notification: {}
         };
         data = Object.assign({}, def, data);
 
         const starthrms = data.startTime ? (data.startTime + moment(data.startTime).utcOffset() * 60 * 1000) % 86400000 : 0;
         const endhrms = data.endTime ? (data.endTime + moment(data.endTime).utcOffset() * 60 * 1000) % 86400000 : 0;
-        console.log("data=>", this.utils.deepClone(data), data.startTime, starthrms);
 
         this.snoozeForm = this.fb.group({
-            startTime: data.startTime ? new Date(data.startTime - starthrms) : new Date(),
-            endTime: data.endTime ? new Date(data.endTime - endhrms) : new Date(),
+            // tslint:disable-next-line:max-line-length
+            startTime: data.startTime ? moment(data.startTime - starthrms).format('MM/DD/YYYY hh:mm a') : moment().format('MM/DD/YYYY hh:mm a'),
+            // tslint:disable-next-line:max-line-length
+            endTime: data.endTime ? moment(data.endTime - endhrms).format('MM/DD/YYYY hh:mm a') : moment().add(1, 'hours').format('MM/DD/YYYY hh:mm a'),
             notification: this.fb.group({
                 recipients: data.notification.recipients || {'email': [ {name: 'syed'}]},
                 subject: data.notification.subject || 'test',
@@ -148,7 +170,7 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
         this.startTimeCntrl = new FormControl(starthrms);
         this.endTimeCntrl = new FormControl(endhrms);
 
-        this.dateType = data.id ? 'custom' : 'preset';
+        this.dateType = data.id !== '_new_' ? 'custom' : 'preset';
 
     /*
         const filters2 = [
@@ -191,37 +213,12 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
             }
           ];
         */
-        const filters = data.filters && data.filters.filters.length ? this.getFiltersTsdbToLocal(data.filters.filters) : [];
+        const filters = data.filters && data.filters.filters.length ? this.utils.getFiltersTsdbToLocal(data.filters.filters) : [];
         this.setQuery({ namespace: this.data.namespace, filters: filters} );
     }
 
-    getFiltersTsdbToLocal(filters) {
-        const filterTypes = ['TagValueLiteralOr', 'TagValueRegex'];
-        let newFilters = [];
-        for (let i = 0; i < filters.length; i++ ) {
-            const filter = filters[i];
-            const ftype = filter.type;
-            if ( ftype === 'Chain' && filter['op'] === 'OR' ) {
-                newFilters = newFilters.concat(this.getFiltersTsdbToLocal(filter.filters));
-            } else if ( filterTypes.includes(ftype) ) {
-                let values = [];
-                switch ( ftype ) {
-                    case 'TagValueLiteralOr':
-                        values = filter.filter.split('|');
-                        break;
-                    case 'TagValueRegex':
-                        values = ['regexp(' + filter.filter + ')'];
-                        break;
-                }
-                const index = newFilters.findIndex(d => d.tagk === filter.tagKey);
-                if ( index === -1 ) {
-                    newFilters.push( { tagk: filter.tagKey, filter: values });
-                } else {
-                    newFilters[index].filter = newFilters[index].filter.concat(values);
-                }
-            }
-        }
-        return newFilters;
+    setDate(field, value) {
+        this.snoozeForm.get('endTime').setErrors(null);
     }
 
     setQuery(query) {
@@ -280,18 +277,23 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
         this.snoozeForm.markAsTouched();
         this.snoozeForm.get('startTime').setErrors(null);
         this.snoozeForm.get('endTime').setErrors(null);
+        this.snoozeForm.setErrors(null);
+
+        if ( this.alertLabels.length === 0 && this.queries[0].filters.length === 0 ) {
+            this.snoozeForm.setErrors({ 'required': true });
+        }
 
         if ( this.dateType === 'custom' ) {
-            if ( this.snoozeForm.get('startTime').value === null ) {
-                this.snoozeForm.get('startTime').setErrors({ 'required': true });
+            if ( !this.startTimeReference.isDateValid || !this.endTimeReference.isDateValid ) {
+                this.snoozeForm.setErrors({ 'invalid': true });
             }
-            const endtime = this.snoozeForm.get('endTime').value;
-            if (  endtime === null ) {
-                this.snoozeForm.get('endTime').setErrors({ 'required': true });
-            } else if ( endtime.valueOf() + this.endTimeCntrl.value <= moment().valueOf() ) {
+            const startts = this.startTimeReference.date;
+            const endts = this.endTimeReference.date;
+            if ( moment(endts).valueOf() <= moment().valueOf() ) {
                 this.snoozeForm.get('endTime').setErrors({ 'future': true });
+            } else if ( moment(endts).valueOf() <= moment(startts).valueOf()) {
+                this.snoozeForm.get('endTime').setErrors({ 'greater': true });
             }
-            console.log("data endtime", endtime.valueOf(), this.endTimeCntrl.value, endtime.valueOf()+ this.endTimeCntrl.value , moment().valueOf())
         }
 
         if ( Object.keys(this.snoozeForm.get('notification').get('recipients').value).length === 0 ) {
@@ -328,7 +330,7 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
 
     saveSnooze() {
         const data: any = this.utils.deepClone(this.snoozeForm.getRawValue());
-        data.id = this.data.id;
+        data.id = this.data.id !== '_new_' ? this.data.id : '';
         data.alertIds = this.alertLabels.filter(d => d.type === 'alert').map(d => d.id);
         data.labels = this.alertLabels.filter(d => d.type === 'label').map(d => d.label);
         if ( this.dateType === 'preset' ) {
@@ -337,11 +339,10 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
             data.startTime = m.valueOf();
             data.endTime = m.add(tconfig.value, tconfig.unit).valueOf();
         } else {
-            data.startTime = this.snoozeForm.get('startTime').value.valueOf() + this.startTimeCntrl.value;
-            data.endTime = this.snoozeForm.get('endTime').value.valueOf() + this.endTimeCntrl.value;
+            data.startTime = moment(this.startTimeReference.date).valueOf();
+            data.endTime = moment(this.endTimeReference.date).valueOf();
         }
         data.filters = this.getMetaFilter();
-        console.log("save snooze", JSON.parse(JSON.stringify(data)));
         // emit to save the snooze
         this.configChange.emit({ action: 'SaveSnooze', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
     }
