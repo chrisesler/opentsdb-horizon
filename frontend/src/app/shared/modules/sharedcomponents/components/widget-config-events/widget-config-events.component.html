@@ -20,7 +20,7 @@
     </div>
     
     <div class="search">
-        <b>Search </b>
-        <textarea class="search-input" matInput placeholder="ex: priority:high AND message:blahh" [value]="widget.eventQueries[0].search" (keyup)="eventQueryChanged($event.target.value)" [cdkTextareaAutosize]="false"></textarea>
+        <b>Search</b>
+        <input matInput type="search" class="search-input" [formControl]="seachControl" placeholder="ex: priority:high AND message:blahh">
     </div>
 </div>
