@@ -302,7 +302,7 @@
                     </ng-container>
                 
                     <tr mat-header-row *matHeaderRowDef="snoozeDisplayedColumns; sticky: true" [ngClass]="{'is-batch-editing': selection.hasValue()}"></tr>
-                    <tr mat-row *matRowDef="let row; columns: snoozeDisplayedColumns;" [ngClass]="{'is-disabled': !row.enabled}"></tr>
+                    <tr mat-row *matRowDef="let row; columns: snoozeDisplayedColumns;"></tr>
                 </table>
                 <div class="message" *ngIf="snoozes.length === 0">No snoozes found</div>
             </div>
