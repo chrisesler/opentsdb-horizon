@@ -58,7 +58,7 @@
 
             <tbody class="mat-calendar-body">
                 <tr *ngFor="let week of weeks">
-                    <td class="mat-calendar-body-cell" *ngFor="let day of week" [ngClass]="{'mat-calendar-body-disabled': day.isFuture, 'mat-calendar-body-not-current': !day.currentMonth && !day.isFuture, 'mat-calendar-body-active': day.isToday}">
+                    <td class="mat-calendar-body-cell" *ngFor="let day of week" [ngClass]="{'mat-calendar-body-disabled': !options.enableFuture && day.isFuture, 'mat-calendar-body-not-current': !day.currentMonth && !day.isFuture, 'mat-calendar-body-active': day.isToday}">
                         <div class="mat-calendar-body-cell-content"
                             [ngClass]="{'mat-calendar-body-today': day.isToday, 'mat-calendar-body-selected': day.selected}"
                             (click)="day.enabled ? selectDate(day) : null">

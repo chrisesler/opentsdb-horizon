@@ -1,39 +1,47 @@
-<div *ngIf="events">
-    <div *ngFor="let event of events" class="event">
-        <mat-expansion-panel>
-            <mat-expansion-panel-header>
-                <span class="event-time"> {{util.buildDisplayTime(event.timestamp, startTime, endTime, true, timezone)}} </span>
-                <span class="event-title"> {{event.title}} </span>
-                <span class="event-source"> {{event.source}} </span>
-            </mat-expansion-panel-header>
+<div class="event-stream-list" *ngIf="events">
+    <mat-accordion class="event-accordion" displayMode="flat" multi="true" #eventAccordion>
+        <ng-container *ngFor="let event of events; let i = index">
+            <mat-expansion-panel class="event-panel" #eventPanel>
+                <mat-expansion-panel-header collapsedHeight="32px" expandedHeight="32px" >
+                    <mat-panel-title>
+                        <strong>
+                            <span class="event-time">{{util.buildDisplayTime(event.timestamp, startTime, endTime, true, timezone)}}</span>
+                            <span class="event-title"> {{event.title}} </span>
+                            <span class="event-source"> {{event.source}} </span>
+                        </strong>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="event-summary">
+                    <div class="event-namespace">
+                        <span>Namespace:</span> <strong>{{event.namespace}}</strong>
+                    </div>
+                    <div class="event-optionals">
+                        <div class="event-priority" *ngIf="event.priority">
+                            <span>Priority:</span> <strong>{{event.priority}}</strong>
+                        </div>
     
-            <div class="details">
-                <div class="namespace">
-                    Namespace: <b>{{event.namespace}}</b>
-                </div>
+                        <div *ngIf="event.tags" class="event-tags">
+                            <span class="event-tag" *ngFor="let tag of util.transformTagMapToArray(event.tags); let last = last">
+                                <span class="tag-key">{{ tag.key }}:</span>
+                                <strong class="tag-value">{{ tag.value }}{{last?'':','}}</strong>
+                            </span>
+                        </div>
+        
+                        <div *ngIf="event.additionalProps" class="event-tags">
+                            <span class="event-tag" *ngFor="let tag of util.transformTagMapToArray(event.additionalProps); let last = last">
+                                <span class="tag-key">{{ tag.key }}:</span>
+                                <strong class="tag-value">{{ tag.value }}{{last?'':','}}</strong>
+                            </span>
+                        </div>
     
-                <div class="priority" *ngIf="event.priority">
-                    Priority: <b>{{event.priority}}</b>
+                        <div class="event-details-wrapper">
+                            <div class="event-details">
+                                {{event.message}}   
+                            </div>
+                        </div>
+                    </div>
                 </div>
-    
-                <div class="tags" *ngIf="event.tags">
-                    <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.tags)">
-                        <span class="tag-key">{{ tag.key }}:</span>
-                        <strong class="tag-value">{{ tag.value }}</strong>
-                    </span>
-                </div>
-    
-                <div class= "additionalProps" *ngIf="event.additionalProps" class="additionalProps">
-                    <span class="tag" *ngFor="let tag of util.transformTagMapToArray(event.additionalProps)">
-                        <span class="tag-key">{{ tag.key }}:</span>
-                        <strong class="tag-value">{{ tag.value }}</strong>
-                    </span>
-                </div>
-    
-                <div class="message">
-                    {{event.message}}
-                </div>
-            </div>
-        </mat-expansion-panel>
-    </div>
+            </mat-expansion-panel>
+        </ng-container>
+    </mat-accordion>
 </div>

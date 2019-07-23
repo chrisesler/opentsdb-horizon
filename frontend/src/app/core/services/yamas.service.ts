@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
 import { SourceMapSource } from 'webpack-sources';
+import { environment } from '../../../environments/environment';
 
 interface IQuery {
     id: string;
@@ -134,6 +135,7 @@ export class YamasService {
             id: 'JsonV3QuerySerdes',
             filter: summaryOnly ? ['summarizer'] : outputIds.concat(['summarizer']) // outputIds : outputIds.concat(['summarizer'])
         }];
+        this.transformedQuery.logLevel = environment.debugLevel.toUpperCase();
         console.log('tsdb query', JSON.stringify(this.transformedQuery));
         return this.transformedQuery;
     }
@@ -683,7 +685,7 @@ export class YamasService {
 
             filterIndex++;
         }
-        this.transformedQuery.logLevel = 'TRACE';
+        this.transformedQuery.logLevel = environment.debugLevel.toUpperCase();
 
         return this.transformedQuery;
     }

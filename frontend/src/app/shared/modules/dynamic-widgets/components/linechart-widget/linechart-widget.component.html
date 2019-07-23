@@ -7,7 +7,7 @@
             </button>
         </span>
     </div>
-    <event-stream 
+    <!--<event-stream 
         [buckets]="buckets" 
         [show]="showEventStream"
         [startTime]="startTime" 
@@ -16,7 +16,7 @@
         [expandedBucketIndex] = "expandedBucket"
         (updatedShowing)="updatedShowEventStream($event)"
         (updatedExpandedBucketIndex)="bucketClickedAtIndex($event)"
-    ></event-stream>
+    ></event-stream>-->
     <div class="widget-output" #widgetoutput
         [ngClass]="{
             'display-legend-top': widget.settings.legend.display && widget.settings.legend.position=='top' && options.labels.length > 1,
@@ -77,6 +77,9 @@
         <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
         <div class="error" *ngIf="error" (click)="showError()">
             <mat-icon>error</mat-icon>
+        </div>
+        <div class="debug" *ngIf="debugData" (click)="showDebug()">
+            <mat-icon>info</mat-icon> {{ this.widget.id }}
         </div>
         <div class="apply-tpl-status">
             <mat-icon fontSet="denali" matTooltip="Dashboard tag filters disabled!"

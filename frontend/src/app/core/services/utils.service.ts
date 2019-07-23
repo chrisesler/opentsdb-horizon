@@ -686,6 +686,35 @@ export class UtilsService {
     } else {
         return value ? parseInt(value.toString(), 10) !== NaN : false;
     }
-}
+  }
+
+  getFiltersTsdbToLocal(filters) {
+    const filterTypes = ['TagValueLiteralOr', 'TagValueRegex'];
+    let newFilters = [];
+    for (let i = 0; i < filters.length; i++ ) {
+        const filter = filters[i];
+        const ftype = filter.type;
+        if ( ftype === 'Chain' && filter['op'] === 'OR' ) {
+            newFilters = newFilters.concat(this.getFiltersTsdbToLocal(filter.filters));
+        } else if ( filterTypes.includes(ftype) ) {
+            let values = [];
+            switch ( ftype ) {
+                case 'TagValueLiteralOr':
+                    values = filter.filter.split('|');
+                    break;
+                case 'TagValueRegex':
+                    values = ['regexp(' + filter.filter + ')'];
+                    break;
+            }
+            const index = newFilters.findIndex(d => d.tagk === filter.tagKey);
+            if ( index === -1 ) {
+                newFilters.push( { tagk: filter.tagKey, filter: values });
+            } else {
+                newFilters[index].filter = newFilters[index].filter.concat(values);
+            }
+        }
+    }
+    return newFilters;
+  }
 
 }

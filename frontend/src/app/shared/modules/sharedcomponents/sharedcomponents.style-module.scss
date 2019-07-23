@@ -44,7 +44,6 @@
 @import 'components/metric-function/metric-function.component';
 @import 'components/tag-aggregator/tag-aggregator.component';
 @import 'components/namespace-autocomplete/namespace-autocomplete.component';
-@import 'components/event-stream/event-stream.component';
 @import 'components/event-timeline/event-timeline.component';
 @import 'components/event-list/event-list.component';
 
@@ -93,7 +92,7 @@
     @include metric-function-component-base();
     @include tag-aggregator-component-base();
     @include namespace-autocomplete-component-base();
-    @include event-stream-component-base();
+    
     @include event-timeline-component-base();
     @include event-list-component-base();
 
@@ -143,7 +142,7 @@
     @include metric-function-component-theme($theme-config);
     @include tag-aggregator-component-theme($theme-config);
     @include namespace-autocomplete-component-theme($theme-config);
-    @include event-stream-component-theme($theme-config);
+    
     @include event-timeline-component-theme($theme-config);
     @include event-list-component-theme($theme-config);
 

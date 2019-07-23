@@ -50,6 +50,7 @@ import { NamespaceTagValuesComponent } from './components/namespace-tag-values/n
 import { TagvEditviewComponent } from './components/tagv-editview/tagv-editview.component';
 import { QueryEditorComponent } from './components/query-editor/query-editor.component';
 import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
+import { DebugDialogComponent } from './components/debug-dialog/debug-dialog.component';
 import { TagAggregatorComponent } from './components/tag-aggregator/tag-aggregator.component';
 import { TagGroupbyComponent } from './components/tag-groupby/tag-groupby.component';
 import { WidgetConfigSortingComponent } from './components/widget-config-sorting/widget-config-sorting.component';
@@ -60,7 +61,6 @@ import { InlineFilterEditorComponent } from './components/inline-filter-editor/i
 import { MetricAutocompleteComponent } from './components/metric-autocomplete/metric-autocomplete.component';
 import { DropdownMetricTagsComponent } from './components/dropdown-metric-tags/dropdown-metric-tags.component';
 import { MetricFunctionComponent } from './components/metric-function/metric-function.component';
-import { EventStreamComponent } from './components/event-stream/event-stream.component';
 import { EventTimelineComponent } from './components/event-timeline/event-timeline.component';
 import { WidgetConfigEventsComponent } from './components/widget-config-events/widget-config-events.component';
 import { EventListComponent } from './components/event-list/event-list.component';
@@ -111,6 +111,7 @@ import { EventListComponent } from './components/event-list/event-list.component
         TagvEditviewComponent,
         QueryEditorComponent,
         ErrorDialogComponent,
+        DebugDialogComponent,
         TagAggregatorComponent,
         TagGroupbyComponent,
         WidgetConfigSortingComponent,
@@ -121,7 +122,6 @@ import { EventListComponent } from './components/event-list/event-list.component
         MetricAutocompleteComponent,
         DropdownMetricTagsComponent,
         MetricFunctionComponent,
-        EventStreamComponent,
         EventTimelineComponent,
         WidgetConfigEventsComponent,
         EventListComponent
@@ -163,7 +163,6 @@ import { EventListComponent } from './components/event-list/event-list.component
         MetricAutocompleteComponent,
         DropdownMetricTagsComponent,
         MetricFunctionComponent,
-        EventStreamComponent,
         EventTimelineComponent,
         WidgetConfigEventsComponent,
         EventListComponent
@@ -177,7 +176,8 @@ import { EventListComponent } from './components/event-list/event-list.component
         InlineFilterEditorComponent,
         NamespaceTagValuesComponent,
         MetricAutocompleteComponent,
-        ErrorDialogComponent
+        ErrorDialogComponent,
+        DebugDialogComponent
     ],
 })
 export class SharedcomponentsModule { }
