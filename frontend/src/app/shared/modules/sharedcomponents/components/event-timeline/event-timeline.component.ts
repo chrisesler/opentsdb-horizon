@@ -35,10 +35,12 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     context: CanvasRenderingContext2D;
 
     eventLocations: any = [];
-    iconWidth = 10.1; // pixels
+    iconWidth = 25; // pixels
     buckets = [];
     toolTipData: any = {};
     maxTooltipSourceSummaries = 3;
+    iconColor = '#44BCB7';
+    eventRunnerColor = '#E1E5E5';
 
     constructor(private util: UtilsService) { }
 
@@ -60,6 +62,12 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         this.context = (<HTMLCanvasElement>this.eventsOverlayCanvas.nativeElement).getContext('2d');
         this.eventLocations = [];
 
+        this.context.beginPath();
+        this.context.strokeStyle = this.eventRunnerColor;
+        this.context.fillStyle = this.eventRunnerColor;
+        this.context.fillRect(0, 5, this.width, 10);
+        this.context.stroke();
+
         if (this.events) {
             const oldBuckets = { ...this.buckets };
             this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
@@ -71,7 +79,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
                     if (i === 0) { // if last bucket, take start + interval - remember that first bucket is latest time
                         xStart = (this.buckets[i].startTime + this.buckets[i].width - this.startTime) * this.getEventResolution();
                     }
-                    this.drawEvent(xStart, 'lightblue', this.buckets[i]);
+                    this.drawEvent(xStart, this.iconColor, this.buckets[i]);
                 }
             }
 
@@ -141,20 +149,23 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         const count = bucket.events.length;
         this.context.beginPath();
         this.context.strokeStyle = color;
-        this.context.fillStyle = 'lightblue';
-        this.context.fillRect(xStart - 5, 0, 10, 10);
+        this.context.arc(xStart, 10, 10, 0, 2 * Math.PI);
+        this.context.fillStyle = this.iconColor;
+        this.context.fill();
+        // this.context.fillRect(xStart - 10, 0, 20, 20); // icons 20px squares
         this.context.stroke();
         this.eventLocations.push({
-            xStart: (xStart - 5), xEnd: (xStart - 5) + 10 + 5, yStart: 5 - 5, yEnd: 5 + 10 + 5,
+            xStart: (xStart - 10), xEnd: (xStart + 10), yStart: 0, yEnd: 20,
             bucket: bucket
         });
-        if (count > 1) { // draw number in box
-            this.context.fillStyle = 'black';
-            if (count.toString().length > 1) {
-              this.context.fillText(count.toString(), xStart - 5, 9);
-            } else { // center single digit
-              this.context.fillText(count.toString(), (xStart - 2), 9);
-            }
+        // draw number in box
+        this.context.fillStyle = 'black';
+        if (count.toString().length > 2) {
+            this.context.fillText('*', xStart, 12);
+        } else if (count.toString().length === 2) {
+            this.context.fillText(count.toString(), xStart - 6, 12);
+        } else { // center single digit
+            this.context.fillText(count.toString(), (xStart ), 12);
         }
     }
 
@@ -209,5 +220,4 @@ export class EventTimelineComponent implements OnInit, OnChanges {
             index++;
         }
     }
-
 }

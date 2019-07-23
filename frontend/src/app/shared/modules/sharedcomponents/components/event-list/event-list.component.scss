@@ -17,6 +17,9 @@
                 flex-direction: row-reverse;
                 cursor: pointer;
                 border-radius: 0;
+                line-height: 16px;
+                padding-bottom: 2px;
+                padding-left: 12px;
 
                 .mat-expansion-indicator {
                     margin-right: 12px;
@@ -149,7 +152,7 @@
 
             .mat-expansion-panel-header {
                 border-bottom: 1px solid $divider;
-                background: $header-bg;
+                background: rgba(228, 209, 209, 0.12);
 
                 &:hover {
                     background: darken($divider, 5%);
