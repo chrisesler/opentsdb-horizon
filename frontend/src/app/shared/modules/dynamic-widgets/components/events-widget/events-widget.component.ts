@@ -45,9 +45,8 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
 
             switch (message.action) {
                 case 'TimeChanged':
-                    this.getEvents();
-                    break;
                 case 'reQueryData':
+                case 'ZoomDateRange':
                     this.getEvents();
                     break;
             }
