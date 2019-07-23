@@ -472,7 +472,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 // load alert the alert
                 this.store.dispatch(new GetAlertDetailsById(parseInt(url[0].path, 10)));
             } else if (url.length === 0 && this.detailsView && this.selectedNamespace.length > 0) {
-                this.location.go('/a/' + this.selectedNamespace);
+                this.location.go('/a/' + (this.list === 'snooze' ? 'snooze/' : '' ) + this.selectedNamespace);
                 this.detailsView = false;
 
             } else if ( this.userNamespaces.length || this.allNamespaces.length ) {
@@ -598,6 +598,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     applyAlertDataFilter(dataFilter: string) {
         this.alertsDataSource.filter = dataFilter;
+    }
+
+    applySnoozeDataFilter(dataFilter: string) {
+        this.snoozesDataSource.filter = dataFilter;
     }
 
     /* Utilities */

@@ -205,7 +205,9 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
     }
 
     addAlertOrLabel(item) {
-        this.alertLabels.push(item);
+        if ( !this.alertLabels.includes(item) ) {
+            this.alertLabels.push(item);
+        }
     }
 
     removeAlertOrLabel(index) {

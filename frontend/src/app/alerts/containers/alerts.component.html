@@ -20,7 +20,7 @@
         <div class="control-item alert-filter-input">
             <mat-form-field appearance="fill" floatLabel="never">
                 <input matInput placeholder="Filter alerts" *ngIf="list === 'alerts'" autocomplete="off" (keydown)="applyAlertDataFilter($event.target.value)" #alertFilterInput>
-                <input matInput placeholder="Filter snooze" *ngIf="list === 'snooze'" autocomplete="off" (keydown)="applyAlertDataFilter($event.target.value)" #snoozeFilterInput>
+                <input matInput placeholder="Filter snooze" *ngIf="list === 'snooze'" autocomplete="off" (keydown)="applySnoozeDataFilter($event.target.value)" #snoozeFilterInput>
                 <mat-icon matSuffix fontSet="denali" fontIcon="d-search"></mat-icon>
             </mat-form-field>
         </div>
