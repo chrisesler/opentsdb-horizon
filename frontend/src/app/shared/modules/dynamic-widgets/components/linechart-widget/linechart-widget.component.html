@@ -7,16 +7,6 @@
             </button>
         </span>
     </div>
-    <!--<event-stream 
-        [buckets]="buckets" 
-        [show]="showEventStream"
-        [startTime]="startTime" 
-        [endTime]="endTime"
-        [timezone]="this.options.labelsUTC ? 'utc' : 'local'"
-        [expandedBucketIndex] = "expandedBucket"
-        (updatedShowing)="updatedShowEventStream($event)"
-        (updatedExpandedBucketIndex)="bucketClickedAtIndex($event)"
-    ></event-stream>-->
     <div class="widget-output" #widgetoutput
         [ngClass]="{
             'display-legend-top': widget.settings.legend.display && widget.settings.legend.position=='top' && options.labels.length > 1,

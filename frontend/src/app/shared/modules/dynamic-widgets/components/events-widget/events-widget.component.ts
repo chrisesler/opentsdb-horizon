@@ -27,7 +27,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     @Input() widget: any; // includes query
 
     /** Local Variables */
-    events: any[];
+    events: any[] = [];
     startTime: number;
     endTime: number;
     timezone: string;

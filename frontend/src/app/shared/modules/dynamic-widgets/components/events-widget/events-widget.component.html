@@ -1,7 +1,7 @@
 <div class="main-container">
     <div class="widget-output-container" fxLayout="column">
         <div class="widget-title event-stream-title" *ngIf="!editMode" fxLayout="row" fxFlex="1 1 21px">
-            <span fxFlex="1 1 100%">{{widget.eventQueries[0].namespace}} - {{widget.eventQueries[0].search}}</span>
+            <span fxFlex="1 1 100%">({{events.length}}) {{widget.eventQueries[0].namespace}} - {{widget.eventQueries[0].search}}</span>
         </div>
         <div class="widget-title" *ngIf="editMode" fxLayout="row" fxFlex="1 1 30px">
             <span fxFlex="1 1 100%">{{widget.eventQueries[0].namespace}} - {{widget.eventQueries[0].search}} </span>
@@ -14,7 +14,10 @@
       
         <div class="widget-output notCentered" #widgetoutput [ngClass]="{'top-margin': editMode }">
             <div class="widget-container">
-                <event-list [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime">
+                <event-list *ngIf="editMode" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime" [previewLimit]="5">
+                </event-list>
+                <!-- Limit to 5 b/c rendering slows down query entry -->
+                <event-list *ngIf="!editMode" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime">
                 </event-list>
             </div>
         </div>

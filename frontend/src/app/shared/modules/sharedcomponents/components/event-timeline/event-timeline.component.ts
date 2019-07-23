@@ -160,12 +160,12 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         });
         // draw number in box
         this.context.fillStyle = 'black';
-        if (count.toString().length > 2) {
-            this.context.fillText('*', xStart, 12);
-        } else if (count.toString().length === 2) {
+        if (count.toString().length === 2) {
             this.context.fillText(count.toString(), xStart - 6, 12);
+        } else if (count.toString().length > 2) {
+            this.context.fillText('*', xStart - 3, 12);
         } else { // center single digit
-            this.context.fillText(count.toString(), (xStart ), 12);
+            this.context.fillText(count.toString(), xStart - 3, 12);
         }
     }
 
