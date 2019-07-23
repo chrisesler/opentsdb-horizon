@@ -37,33 +37,6 @@
     <div *ngIf="list === 'alerts'" class="alert-results" fxFlex="1 1 100%" fxLayout="column">
         <div class="alert-results-wrapper">
             <div class="alert-results-body">
-                <!--<mat-toolbar class="batch-controls-toolbar">
-                    <div class="toolbar-item batch-select-control">
-                        <mat-checkbox (change)="$event ? masterToggle() : null"
-                            [checked]="selection.hasValue() && isAllSelected()"
-                            [indeterminate]="selection.hasValue() && !isAllSelected()"
-                            color="primary">
-                        </mat-checkbox>
-                    </div>
-                    <div class="toolbar-item batch-disable-control">
-                        <button mat-button>
-                            <mat-icon fontSet="denali" fontIcon="d-notification-disable"></mat-icon>
-                            <span>Disable</span>
-                        </button>
-                    </div>
-                    <div class="toolbar-item batch-snooze-control">
-                        <button mat-button>
-                            <mat-icon>snooze</mat-icon>
-                            <span>Snooze</span>
-                        </button>
-                    </div>
-                    <div class="toolbar-item batch-trash-control">
-                        <button mat-button>
-                            <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
-                            <span>Delete</span>
-                        </button>
-                    </div>
-                </mat-toolbar>-->
                 <table class="alerts-result-table" mat-table [dataSource]="alertsDataSource" matSort>
                     <ng-container matColumnDef="select">
                         <th mat-header-cell *matHeaderCellDef>

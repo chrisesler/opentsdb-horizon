@@ -172,47 +172,6 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
 
         this.dateType = data.id !== '_new_' ? 'custom' : 'preset';
 
-    /*
-        const filters2 = [
-            {
-              "type": "FieldLiteralOr",
-              "key": "statusType",
-              "filter": "check"
-            },
-            {
-              "type": "Chain",
-              "op": "OR",
-              "filters": [
-                {
-                  "type": "TagValueRegex",
-                  "filter": ".*",
-                  "tagKey": "Region"
-                },
-                {
-                  "type": "TagValueLiteralOr",
-                  "filter": "ap-northeast-2|ap-south-1",
-                  "tagKey": "Region"
-                }
-              ]
-            },
-            {
-              "type": "Chain",
-              "op": "OR",
-              "filters": [
-                {
-                  "type": "TagValueLiteralOr",
-                  "filter": "supervisor-l-10.yms.bf2.yahoo.com|supervisor-l-11.yms.gq1.yahoo.com|supervisor-l-12.yms.bf2.yahoo.com",
-                  "tagKey": "host"
-                }
-              ]
-            },
-            {
-              "type": "TagValueLiteralOr",
-              "filter": "003255642081",
-              "tagKey": "AwsId"
-            }
-          ];
-        */
         const filters = data.filters && data.filters.filters.length ? this.utils.getFiltersTsdbToLocal(data.filters.filters) : [];
         this.setQuery({ namespace: this.data.namespace, filters: filters} );
     }
