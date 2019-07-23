@@ -144,6 +144,7 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
         const def = {
             alertIds: [],
             labels: [],
+            filters: {},
             notification: {}
         };
         data = Object.assign({}, def, data);
@@ -157,9 +158,9 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
             // tslint:disable-next-line:max-line-length
             endTime: data.endTime ? moment(data.endTime - endhrms).format('MM/DD/YYYY hh:mm a') : moment().add(1, 'hours').format('MM/DD/YYYY hh:mm a'),
             notification: this.fb.group({
-                recipients: data.notification.recipients || {'email': [ {name: 'syed'}]},
-                subject: data.notification.subject || 'test',
-                message: data.notification.message || 'subject'
+                recipients: data.notification.recipients || {},
+                subject: data.notification.subject || '',
+                message: data.notification.message || ''
             })
         });
         // add alerts to selection list
@@ -172,7 +173,7 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
 
         this.dateType = data.id !== '_new_' ? 'custom' : 'preset';
 
-        const filters = data.filters && data.filters.filters.length ? this.utils.getFiltersTsdbToLocal(data.filters.filters) : [];
+        const filters = data.filters.filters && data.filters.filters.length ? this.utils.getFiltersTsdbToLocal(data.filters.filters) : [];
         this.setQuery({ namespace: this.data.namespace, filters: filters} );
     }
 
@@ -303,7 +304,7 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
             data.startTime = moment(this.startTimeReference.date).valueOf();
             data.endTime = moment(this.endTimeReference.date).valueOf();
         }
-        data.filters = this.getMetaFilter();
+        data.filters = this.queries[0].filters.length ? this.getMetaFilter() : {};
         // emit to save the snooze
         this.configChange.emit({ action: 'SaveSnooze', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
     }
