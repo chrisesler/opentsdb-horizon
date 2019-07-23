@@ -12,6 +12,7 @@
         .hide {
             display: none;
         }
+
         // Don't have padding for line-charts
         .widget-output {
             padding: 0;
@@ -180,6 +181,16 @@
             bottom: 0px;
              event-timeline {
                 display: inline;
+            }
+        }
+
+        .events-config {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            .event-result-title {
+                font-weight: bold;
+                padding-left: 10px;
             }
         }
 

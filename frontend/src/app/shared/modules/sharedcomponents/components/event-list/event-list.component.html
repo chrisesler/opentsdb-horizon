@@ -1,6 +1,6 @@
 <div class="event-stream-list" *ngIf="events">
     <mat-accordion class="event-accordion" displayMode="flat" multi="true" #eventAccordion>
-        <ng-container *ngFor="let event of events; let i = index">
+        <ng-container *ngFor="let event of slicedList(); let i = index">
             <mat-expansion-panel class="event-panel" #eventPanel>
                 <mat-expansion-panel-header collapsedHeight="32px" expandedHeight="32px" >
                     <mat-panel-title>
