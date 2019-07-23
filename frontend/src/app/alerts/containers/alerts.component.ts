@@ -60,6 +60,7 @@ import { TemplatePortal } from '@angular/cdk/portal';
 import { IntercomService } from '../../core/services/intercom.service';
 import { LoggerService } from '../../core/services/logger.service';
 import { UtilsService } from '../../core/services/utils.service';
+import { SnoozeDetailsComponent } from '../components/snooze-details/snooze-details.component';
 const moment = _moment;
 
 @Component({
@@ -161,6 +162,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
 
     @ViewChild(AlertDetailsComponent) createAlertDialog: AlertDetailsComponent;
+    @ViewChild(SnoozeDetailsComponent) snoozeDetailsComp: SnoozeDetailsComponent;
 
     detailsView = false;
     list = 'alerts';
@@ -428,8 +430,11 @@ export class AlertsComponent implements OnInit, OnDestroy {
         }));
 
         this.subscription.add(this.saveError$.subscribe(error => {
-            if (this.createAlertDialog ) {
+            if (this.list === 'alerts' && this.createAlertDialog ) {
                 this.createAlertDialog.data.error = error;
+            }
+            if ( this.list === 'snooze' && this.snoozeDetailsComp ) {
+                this.snoozeDetailsComp.data.error = error;
             }
         }));
 

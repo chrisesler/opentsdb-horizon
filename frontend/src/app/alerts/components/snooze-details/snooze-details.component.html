@@ -1,7 +1,7 @@
 <mat-card class="snooze-configuration-wrapper mat-elevation-z0">
         <div class="controls-wrapper" >
                 <div class="snooze-control-steps" [formGroup]="snoozeForm">
-                        <!--<div class="error" > {{ data.error.message }} </div>-->
+                        <div class="error" *ngIf="data.error"> {{ data.error.message }} </div>
                         <div class="step-section snooze-section is-visible">
                             <div class="step-section-label">
                                 <span class="step-section-label-text">1. Snooze on</span>
