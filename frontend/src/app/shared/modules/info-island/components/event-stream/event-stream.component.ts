@@ -70,6 +70,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
 
         this.subscription.add(_data.data.buckets$.pipe(distinctUntilChanged()).subscribe( buckets => {
             // console.log('BUCKETS RECEIVED', {buckets});
+            this.collapseExpansion();
             this.buckets = buckets.map(bucket => {
                 if (bucket.events.length > 1) {
                     bucket.displayTime = this.util.buildDisplayTime(bucket.endTime, this.startTime, this.endTime, true, this.timezone);
@@ -115,13 +116,12 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
 
         const newSelected = this.eventPanels.find( (panel: MatExpansionPanel, idx: number) => idx === this.expandedBucketIndex);
 
-
-            setTimeout( function() {
+        setTimeout( function() {
+            if (newSelected) {
                 newSelected.open();
-                this.displayReady = true;
-            }.bind(this), 200);
-
-
+            }
+            this.displayReady = true;
+        }.bind(this), 200);
     }
 
     /*hide() {

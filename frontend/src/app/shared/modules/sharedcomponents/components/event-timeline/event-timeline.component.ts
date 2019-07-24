@@ -69,7 +69,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         this.context.stroke();
 
         if (this.events) {
-            const oldBuckets = { ...this.buckets };
+            const oldBuckets = [ ...this.buckets ];
             this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
 
             // tslint:disable:prefer-const
@@ -179,8 +179,8 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         context.quadraticCurveTo(x, b, x, b - radius);
         context.lineTo(x, y + radius);
         context.quadraticCurveTo(x, y, x + radius, y);
-        this.context.fillStyle = color;
-        this.context.fill();
+        context.fillStyle = color;
+        context.fill();
         context.stroke();
     }
 
