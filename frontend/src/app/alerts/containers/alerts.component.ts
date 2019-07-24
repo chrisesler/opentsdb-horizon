@@ -756,6 +756,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
         return time.format('YYYY-MM-DD HH:mm');
     }
 
+    formatTime(time: any) {
+        return moment(time).format('YYYY-MM-DD HH:mm');
+    }
+
     getRecipientKeys(element: any) {
         // extract keys
         const objKeys = element.recipients ? Object.keys(element.recipients) : [];
