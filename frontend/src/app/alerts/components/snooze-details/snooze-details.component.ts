@@ -172,8 +172,8 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
         this.endTimeCntrl = new FormControl(endhrms);
 
         this.dateType = data.id !== '_new_' ? 'custom' : 'preset';
-
-        const filters = data.filters.filters && data.filters.filters.length ? this.utils.getFiltersTsdbToLocal(data.filters.filters) : [];
+        // tslint:disable-next-line:max-line-length
+        const filters = data.filter && data.filter.filters && data.filter.filters.length ? this.utils.getFiltersTsdbToLocal(data.filter.filters) : [];
         this.setQuery({ namespace: this.data.namespace, filters: filters} );
     }
 
@@ -304,7 +304,7 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
             data.startTime = moment(this.startTimeReference.date).valueOf();
             data.endTime = moment(this.endTimeReference.date).valueOf();
         }
-        data.filters = this.queries[0].filters.length ? this.getMetaFilter() : {};
+        data.filter = this.queries[0].filters.length ? this.getMetaFilter() : {};
         // emit to save the snooze
         this.configChange.emit({ action: 'SaveSnooze', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
     }
