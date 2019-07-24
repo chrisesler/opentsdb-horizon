@@ -479,7 +479,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             nHeight = newSize.height - heightOffset - titleSize.height - (padding * 2);
 
             if (this.widget.settings.visual.showEvents) {  // give room for events
-                nHeight = nHeight - 35;
+                nHeight = nHeight - 45;
             }
 
             nWidth = newSize.width - widthOffset  - (padding * 2) - 30;
@@ -489,7 +489,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             nHeight = newSize.height - heightOffset - (padding * 2);
 
             if (this.widget.settings.visual.showEvents) {  // give room for events
-                nHeight = nHeight - 25;
+                nHeight = nHeight - 35;
             }
 
             // nWidth = newSize.width - widthOffset  - (padding * 2);
@@ -810,7 +810,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     expandedBucketIndex$: this._expandedBucketIndex.asObservable()
                 },
                 options: {
-                    title: 'Event Stream'
+                    title: this.widget.eventQueries[0].search ?
+                        'Events: ' + this.widget.eventQueries[0].namespace + ' - ' + this.widget.eventQueries[0].search :
+                        'Events: ' + this.widget.eventQueries[0].namespace
                 }
             };
 
@@ -835,8 +837,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     newBuckets(buckets) {
-        // this.buckets = buckets;
         this._buckets.next(buckets);
+        this._expandedBucketIndex.next(-1);
     }
 
     getSeriesLabel(index) {
