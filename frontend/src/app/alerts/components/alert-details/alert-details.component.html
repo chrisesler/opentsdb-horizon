@@ -516,7 +516,7 @@
         <!-- 
         [****    READ ONLY MODE    ****]
         -->
-        <div *ngIf="readOnly" class="controls-wrapper">
+        <div *ngIf="readOnly" class="controls-wrapper read-only-mode">
             <mat-toolbar class="config-toolbar">
                 <div class="toolbar-item alert-name-detail">
                     <span class="namespace">Namespace: {{data.namespace}}</span>
@@ -676,7 +676,7 @@
                             </div>
                             <div class="form-group delay-evaluation">
                                 <div class="form-label vertical-center"><strong>Delay evaluation by</strong></div>
-                                <span>{{data.threshold.delayEvaluation}}</span>
+                                <span class="delay-time">{{data.threshold.delayEvaluation}}</span>
                                 <mat-hint class="info-hint">mins</mat-hint>
                             </div>
                         </div>
@@ -787,7 +787,7 @@
                         <div class="form-group alert-recipients">
                             <div class="form-label vertical-center"><strong>Alert recipients</strong></div>
                             <div class="form-control-wrap">
-                                <div *ngFor="let type of getRecipientTypeKeys()">
+                                <div *ngFor="let type of getRecipientTypeKeys()" class="recipient-type-output">
                                     <strong>{{typeToDisplayName(type)}}</strong>
                                     <ul>
                                         <li *ngFor="let recipient of data.notification.recipients[type]">
