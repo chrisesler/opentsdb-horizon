@@ -110,7 +110,7 @@
                     flex-direction: column;
                     overflow-y: auto;
                     max-width: 100%;
-                    padding-top: 16px;
+                    //padding-top: 16px;
                     .message {
                         font-weight: 500; 
                         height: 30px; 
@@ -514,6 +514,18 @@
         .mat-divider {
             margin: 8px 0;
         }
+
+        .filter-all-namespaces {
+            padding: 8px 16px;
+            width: 100%;
+
+            .mat-form-field {
+                width: 100%;
+                .mat-form-field-suffix {
+                    align-self: center;
+                }
+            }
+        }
     }
 
     .sparkline-display-cdk-menu.mat-menu-panel {
@@ -744,6 +756,10 @@
 
     .namespace-selector-menu {
         border: 1px solid map-get($foreground, divider);
+
+        .filter-all-namespaces {
+            border-bottom: 1px solid map-get($foreground, divider);
+        }
     }
 
     .alert-contacts-menu.mat-menu-panel {
