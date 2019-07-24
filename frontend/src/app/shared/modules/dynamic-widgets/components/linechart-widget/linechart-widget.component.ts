@@ -115,7 +115,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     // EVENTS
     buckets: any[] = []; // still need this, as dygraph was looking for it
-    // expandedBucket: number; // TODO: remove with island legend
     events: any[];
     showEventStream = false; // Local flag whether island open
     eventsWidth: number;
@@ -148,7 +147,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             .subscribe(trigger => {
                 if (trigger) {
                     this.refreshData();
-                    this.getEvents();
                 }
             });
 
@@ -163,11 +161,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     this.options.isCustomZoomed = false;
                     delete this.options.dateWindow;
                     this.refreshData();
-                    this.getEvents();
                     break;
                 case 'reQueryData':
                     this.refreshData();
-                    this.getEvents();
                     break;
                 case 'TimezoneChanged':
                     this.setTimezone(message.payload.zone);
@@ -244,6 +240,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         break;
                     case 'updatedEvents':
                         this.events = message.payload.events;
+                        this.cdRef.detectChanges();
                         break;
                 }
             }
@@ -729,7 +726,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // todo: set correctly
         const deepClone = JSON.parse(JSON.stringify(this.widget));
         deepClone.eventQueries[0].search = search;
-        this.widget.eventQueries = {... deepClone.eventQueries};
+        this.widget.eventQueries = [...deepClone.eventQueries];
         this.getEvents();
     }
 
@@ -737,7 +734,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // todo: set correctly
         const deepClone = JSON.parse(JSON.stringify(this.widget));
         deepClone.eventQueries[0].namespace = namespace;
-        this.widget.eventQueries = {... deepClone.eventQueries};
+        this.widget.eventQueries = [... deepClone.eventQueries];
         this.getEvents();
     }
 
@@ -899,8 +896,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.isDataLoaded = false;
         if ( reload ) {
             this.requestData();
+            this.getEvents();
         } else {
             this.requestCachedData();
+            this.getEvents(); // todo: add events cache in-future
         }
     }
 

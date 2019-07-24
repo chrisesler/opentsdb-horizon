@@ -27,7 +27,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     @Input() widget: any; // includes query
 
     /** Local Variables */
-    events: any[];
+    events: any[] = [];
     startTime: number;
     endTime: number;
     timezone: string;
@@ -42,13 +42,11 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
         this.getEvents();
 
         this.listenSub = this.interCom.responseGet().subscribe((message: IMessage) => {
-            // console.log(message);
 
             switch (message.action) {
                 case 'TimeChanged':
-                    this.getEvents();
-                    break;
                 case 'reQueryData':
+                case 'ZoomDateRange':
                     this.getEvents();
                     break;
             }
@@ -57,6 +55,7 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
                 switch (message.action) {
                     case 'getUpdatedWidgetConfig': // called when switching to presentation view
                         this.widget = message.payload.widget;
+                        this.getEvents();
                         break;
                     case 'updatedEvents':
                         this.events = message.payload.events;
@@ -118,19 +117,18 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     setEventQuerySearch(search: string) {
-        // todo: set correctly
-        const deepClone = JSON.parse(JSON.stringify(this.widget));
-        deepClone.eventQueries[0].search = search;
-        this.widget.eventQueries = { ...deepClone.eventQueries };
-        this.getEvents();
+      // todo: set correctly
+      const deepClone = JSON.parse(JSON.stringify(this.widget));
+      deepClone.eventQueries[0].search = search;
+      this.widget.eventQueries = [... deepClone.eventQueries];
+      this.getEvents();
     }
 
     setEventQueryNamespace(namespace: string) {
-        // todo: set correctly
-        const deepClone = JSON.parse(JSON.stringify(this.widget));
-        deepClone.eventQueries[0].namespace = namespace;
-        this.widget.eventQueries = { ...deepClone.eventQueries };
-        this.getEvents();
+      // todo: set correctly
+      const deepClone = JSON.parse(JSON.stringify(this.widget));
+      deepClone.eventQueries[0].namespace = namespace;
+      this.widget.eventQueries = [... deepClone.eventQueries];
+      this.getEvents();
     }
-
 }
