@@ -35,7 +35,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     context: CanvasRenderingContext2D;
 
     eventLocations: any = [];
-    iconWidth = 25; // pixels
+    iconWidth = 20.1; // pixels
     buckets = [];
     toolTipData: any = {};
     maxTooltipSourceSummaries = 3;
@@ -147,13 +147,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
 
     drawEvent(xStart, color, bucket) {
         const count = bucket.events.length;
-        this.context.beginPath();
-        this.context.strokeStyle = color;
-        this.context.arc(xStart, 10, 10, 0, 2 * Math.PI);
-        this.context.fillStyle = this.iconColor;
-        this.context.fill();
-        // this.context.fillRect(xStart - 10, 0, 20, 20); // icons 20px squares
-        this.context.stroke();
+        this.roundRect(xStart - 7, 2, 15, 15, 2, color);
         this.eventLocations.push({
             xStart: (xStart - 10), xEnd: (xStart + 10), yStart: 0, yEnd: 20,
             bucket: bucket
@@ -167,6 +161,27 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         } else { // center single digit
             this.context.fillText(count.toString(), xStart - 3, 12);
         }
+    }
+
+    roundRect(x, y, w, h, radius, color) {
+        const context = this.context;
+        const r = x + w;
+        const b = y + h;
+        context.beginPath();
+        context.strokeStyle = color;
+        context.lineWidth = 4;
+        context.moveTo(x + radius, y);
+        context.lineTo(r - radius, y);
+        context.quadraticCurveTo(r, y, r, y + radius);
+        context.lineTo(r, y + h - radius);
+        context.quadraticCurveTo(r, b, r - radius, b);
+        context.lineTo(x + radius, b);
+        context.quadraticCurveTo(x, b, x, b - radius);
+        context.lineTo(x, y + radius);
+        context.quadraticCurveTo(x, y, x + radius, y);
+        this.context.fillStyle = color;
+        this.context.fill();
+        context.stroke();
     }
 
     canvasEnter(event: any) {

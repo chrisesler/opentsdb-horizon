@@ -69,7 +69,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
         }));
 
         this.subscription.add(_data.data.buckets$.pipe(distinctUntilChanged()).subscribe( buckets => {
-            // this.logger.log('BUCKETS RECEIVED', {buckets});
+            // console.log('BUCKETS RECEIVED', {buckets});
             this.buckets = buckets.map(bucket => {
                 if (bucket.events.length > 1) {
                     bucket.displayTime = this.util.buildDisplayTime(bucket.endTime, this.startTime, this.endTime, true, this.timezone);
@@ -80,7 +80,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
 
                 for (let i = 0; i < bucket.events.length; i++) {
                     const event: any = this.util.deepClone(bucket.events[i]);
-                    event.displayTime = this.util.buildDisplayTime(event.timestamp, this.startTime, this.endTime, bucket.width <= 1000 * 60, this.timezone);
+                    event.displayTime = this.util.buildDisplayTime(event.timestamp, this.startTime, this.endTime, true, this.timezone);
                     event.showDetails = false;
                     bucket.events[i] = event;
                 }
@@ -90,9 +90,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
         }));
     }
 
-    ngOnInit() {
-        
-    }
+    ngOnInit() { }
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
