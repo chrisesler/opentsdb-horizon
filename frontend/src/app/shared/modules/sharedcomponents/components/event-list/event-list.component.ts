@@ -37,7 +37,7 @@ export class EventListComponent implements OnInit {
     }
 
     slicedList() {
-        if (Number.isInteger(this.previewLimit) && this.events.length - 1 > this.previewLimit ) {
+        if (Number.isInteger(this.previewLimit) && this.events.length - 1 > this.previewLimit && this.previewLimit > 0 ) {
             return this.events.slice(0, this.previewLimit);
         } else {
             return this.events;

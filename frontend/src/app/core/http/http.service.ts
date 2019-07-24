@@ -437,38 +437,6 @@ export class HttpService {
         });
 
         const apiUrl = environment.eventsApi + '/query/graph';
-        // query = {
-        //     'start': '1563826755729',
-        //     'end': '1563830355729',
-        //     'filters': [],
-        //     'mode': 'SINGLE',
-        //     'traceEnabled': false,
-        //     'debugEnabled': false,
-        //     'warnEnabled': false,
-        //     'timezone': null,
-        //     'executionGraph': [
-        //       {
-        //         'id': 'ha_m1_BF',
-        //         'type': 'TimeSeriesDataSource',
-        //         'types': ['events'],
-        //         'from': 0,
-        //         'size': 100,
-        //         'namespace': 'o2infra',
-        //         'filter': {
-        //           'filters': [
-        //             {
-        //               'filter': '*:*',
-        //               'type': 'PassThrough'
-        //             }
-        //           ],
-        //           'op': 'AND',
-        //           'type': 'Chain'
-        //         }
-        //       }
-        //     ],
-        //     'serdesConfigs': [],
-        //     'logLevel': 'ERROR'
-        //   };
 
         return this.http.post(apiUrl, query, { headers, withCredentials: true }).pipe(
             map((res: any) => {
