@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, HostBinding, Input } from '@angular/core';
 import { UtilsService } from '../../../../../core/services/utils.service';
 
 @Component({
@@ -14,6 +14,7 @@ export class EventListComponent implements OnInit {
     @Input() timezone: string;
     @Input() startTime: number;
     @Input() endTime: number;
+    @Input() previewLimit: number;
 
     constructor(
         private util: UtilsService
@@ -34,4 +35,12 @@ export class EventListComponent implements OnInit {
             this.endTime = 1;
         }
     }
+
+    slicedList() {
+        if (Number.isInteger(this.previewLimit) && this.events.length - 1 > this.previewLimit && this.previewLimit > 0 ) {
+            return this.events.slice(0, this.previewLimit);
+        } else {
+            return this.events;
+         }
+      }
 }

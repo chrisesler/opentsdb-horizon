@@ -386,132 +386,80 @@ export class HttpService {
         return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
     }
 
-    getEvents(wid: string, time: any, eventQueries: any[]) {
-        const query = this.yamasService.buildEventsQuery(time, eventQueries);
-        // todo: send query to tsdb, add time and wid
-        let now = new Date().getTime();
-        // const apiUrl = environment.configdb + '/namespace/' + namespace + '/contact';
-        // const httpOptions = {
-        //     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-        //     withCredentials: true,
-        //     observe: 'response' as 'response'
-        // };
-        // return this.http.get(apiUrl, httpOptions);
-        let fakeResponse: any;
-
-        if (eventQueries[0].namespace !== 'Yamas') {
-            fakeResponse = {
-                wid: wid,
-                time: time,
-                events: [{
-                    title: 'My other event',
-                    // tslint:disable:max-line-length
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'aws',
-                    namespace: 'not yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                    eventId: '123456',
-                    timestamp: now - (3 * 600 * 1000),
-                    endTimestamp: now,
-                }],
-                eventQueries: eventQueries
-            };
+    /** snooze */
+    saveSnooze(namespace, payload: any): Observable<any> {
+        this.logger.api('saveSnooze', {namespace, payload});
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.configdb + '/namespace/' + namespace + '/snooze';
+        if ( !payload.data[0].id  ) {
+            return this.http.post(apiUrl, payload.data, { headers, withCredentials: true });
         } else {
-
-            fakeResponse = {
-                wid: wid,
-                time: time,
-                events: [{
-                    title: 'Event 1',
-                    // tslint:disable:max-line-length
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'Jenkins',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                    additionalProps: {
-                        'prop1 key': 'prop1 value'
-                    },
-                    eventId: '123456',
-                    timestamp: now - (3 * 600 * 1000),
-                    endTimestamp: now,
-                },
-                {
-                    title: 'New instance started for autoscaling group 123456',
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'AWS',
-                    timestamp: now - (4.1 * 600 * 1000),
-                    eventId: '1234568',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                },
-                {
-                    title: 'Screwdriver success for \'horizon\' repo',
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'Screwdriver',
-                    timestamp: now - (4.22 * 600 * 1000),
-                    eventId: '1234569',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                },
-                {
-                    title: 'AWS Auto scaling failure for group 123456789',
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'AWS',
-                    timestamp: now - (4.23 * 600 * 1000),
-                    eventId: '1234560',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                },
-                {
-                    title: 'Screwdriver success for \'horizon\' repo',
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'Screwdriver',
-                    timestamp: now - (5.22 * 600 * 1000),
-                    eventId: '1234561',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    }
-                },
-                {
-                    title: 'Event 5',
-                    message: 'Super looooooooooong message. sfjsfdsjf sdljfls;jf;ldsj f;ldsjfldsjfljsdlfjdslfj sd;ljfsdljflsdjf;lsdjf sdlfjds;lfjsd;lj f;lsjd fldsjf;ldsj;fljsd;l fjsd;l jfs;dljfs;ldj fsldjflsdjlf jsdf',
-                    source: 'sd',
-                    timestamp: now - (5.22 * 600 * 1000),
-                    eventId: '1234561',
-                    namespace: 'yamas',
-                    priority: 'low',
-                    tags: {
-                        'host': 'tsdbr-1.yms.gq1.yahoo.com',
-                        '_application': 'tsdb'
-                    },
-                }],
-                eventQueries: eventQueries
-            };
+            // payload.data[0].id = payload.id;
+            return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
         }
-        // Fake an observable response
-        return (new BehaviorSubject(fakeResponse)).asObservable();
+    }
+
+    getSnoozeDetailsById(id: number): Observable<any> {
+        this.logger.api('getSnoozeDetailsById', {id});
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.configdb + '/snooze/' + id;
+        return this.http.get(apiUrl, { headers, withCredentials: true });
+    }
+
+    getSnoozes(options): Observable<any> {
+        this.logger.api('getSnoozes', {options});
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+          });
+        const apiUrl = environment.configdb + '/namespace/' + options.namespace + '/snooze';
+        return this.http.get(apiUrl, { headers, withCredentials: true });
+    }
+
+    deleteSnoozes(namespace, payload): Observable<any> {
+        this.logger.api('deleteSnoozes', {namespace, payload});
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+        });
+        const apiUrl = environment.configdb + '/snooze/delete';
+        return this.http.put(apiUrl, payload.data, { headers, withCredentials: true });
+    }
+    /** snooze */
+
+    getEvents(wid: string, time: any, eventQueries: any[]) {
+        let query = this.yamasService.buildEventsQuery(time, eventQueries);
+        // console.log(JSON.stringify(query, null, 2));
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
+        const apiUrl = environment.eventsApi + '/query/graph';
+
+        return this.http.post(apiUrl, query, { headers, withCredentials: true }).pipe(
+            map((res: any) => {
+                // console.log('the res', res);
+                let events = [];
+                for (let i = 0; res && i < res.results.length; i++) {
+                    for (let j = 0; res.results[i] && j < res.results[i].data.length; j++) {
+                        if (Object.keys(res.results[i].data[j]).length > 0 && res.results[i].data[j].EventsType) {
+                            const event = res.results[i].data[j].EventsType;
+                            // put tags at top-level
+                            if (res.results[i].data[j].tags) {
+                                event.tags = res.results[i].data[j].tags;
+                            }
+                            // time in milliseconds
+                            if (String(event.timestamp).length === 10) {
+                                event.timestamp = event.timestamp * 1000;
+                            }
+                            events.push(event);
+                        }
+                    }
+                }
+                return {events: events, wid: wid, time: time, eventQueries: eventQueries};
+            })
+        );
     }
 }
