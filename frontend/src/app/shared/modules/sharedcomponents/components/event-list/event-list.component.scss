@@ -97,6 +97,7 @@
             // when event-panel (accordion item) is open
             &.mat-expanded {
                 .mat-expansion-panel-header {
+                    font-weight: bold;
                     .mat-expansion-indicator {
                         margin-top: 2px;
                     }
@@ -151,8 +152,8 @@
         .event-panel.mat-expansion-panel {
 
             .mat-expansion-panel-header {
-                border-bottom: 1px solid $divider;
-                background: rgba(228, 209, 209, 0.12);
+                // border-bottom: 1px solid $divider;
+                // background: rgba(228, 209, 209, 0.12);
 
                 &:hover {
                     background: darken($divider, 5%);
@@ -181,9 +182,10 @@
 
             // when event-panel (accordion item) is open
             &.mat-expanded {
-                //.mat-expansion-panel-header {
+                .mat-expansion-panel-header {
                 //    .mat-expansion-indicator { }   
-                //}
+                    background: $header-bg;
+                }
 
                 .mat-expansion-panel-body {
                     border-bottom: 1px solid $divider;

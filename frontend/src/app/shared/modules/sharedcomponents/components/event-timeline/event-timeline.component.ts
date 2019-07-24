@@ -35,7 +35,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     context: CanvasRenderingContext2D;
 
     eventLocations: any = [];
-    iconWidth = 20.1; // pixels
+    iconWidth = 20.1; // pixels (0.1 so that we have n-1 buckets)
     buckets = [];
     toolTipData: any = {};
     maxTooltipSourceSummaries = 3;
@@ -147,19 +147,20 @@ export class EventTimelineComponent implements OnInit, OnChanges {
 
     drawEvent(xStart, color, bucket) {
         const count = bucket.events.length;
-        this.roundRect(xStart - 7, 2, 15, 15, 2, color);
+        this.roundRect(xStart - 7, 2, 16, 16, 2, color);
         this.eventLocations.push({
             xStart: (xStart - 10), xEnd: (xStart + 10), yStart: 0, yEnd: 20,
             bucket: bucket
         });
         // draw number in box
-        this.context.fillStyle = 'black';
+        this.context.fillStyle = 'white';
+        this.context.font = 'bold 12px Ubuntu';
         if (count.toString().length === 2) {
-            this.context.fillText(count.toString(), xStart - 6, 12);
+            this.context.fillText(count.toString(), xStart - 6, 14);
         } else if (count.toString().length > 2) {
-            this.context.fillText('*', xStart - 3, 12);
+            this.context.fillText('*', xStart - 3, 14);
         } else { // center single digit
-            this.context.fillText(count.toString(), xStart - 3, 12);
+            this.context.fillText(count.toString(), xStart - 3, 14);
         }
     }
 

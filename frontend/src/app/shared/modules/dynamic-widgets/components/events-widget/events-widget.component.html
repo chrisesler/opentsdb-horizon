@@ -1,10 +1,10 @@
 <div class="main-container">
     <div class="widget-output-container" fxLayout="column">
         <div class="widget-title event-stream-title" *ngIf="!editMode" fxLayout="row" fxFlex="1 1 21px">
-            <span fxFlex="1 1 100%">({{events.length}}) {{widget.eventQueries[0].namespace}} - {{widget.eventQueries[0].search}}</span>
+            <span fxFlex="1 1 100%">({{events.length}}) {{getTitle()}}</span>
         </div>
         <div class="widget-title" *ngIf="editMode" fxLayout="row" fxFlex="1 1 30px">
-            <span fxFlex="1 1 100%">{{widget.eventQueries[0].namespace}} - {{widget.eventQueries[0].search}} </span>
+            <span fxFlex="1 1 100%">{{getTitle()}} </span>
             <span>
                 <button mat-button color="primary" class="close-edit-view-btn" (click)="closeViewEditMode()">
                     <mat-icon fontSet="denali" fontIcon="d-close"></mat-icon>
