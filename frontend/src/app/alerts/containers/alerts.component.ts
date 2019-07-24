@@ -302,10 +302,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
             this.stateLoaded.snooze = true;
             this.snoozes = JSON.parse(JSON.stringify(snoozes));
             this.snoozes =  this.snoozes.map( (d: any) => {
-                                if ( d.filters && d.filters.filters && d.filters.filters.length )  {
-                                    d.filters = this.utils.getFiltersTsdbToLocal(d.filters.filters);
+                                if ( d.filter && d.filter.filters && d.filter.filters.length )  {
+                                    d.rawFilters = this.utils.getFiltersTsdbToLocal(d.filter.filters);
                                 } else {
-                                    d.filters = [];
+                                    d.rawFilters = [];
                                 }
                                 return d;
                             });
