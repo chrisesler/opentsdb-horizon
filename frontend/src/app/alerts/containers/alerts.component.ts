@@ -97,6 +97,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     @Select(AlertsState.getAllNamespaces) allNamespaces$: Observable<any[]>;
     allNamespaces: any[] = [];
 
+    allNamespacesDS = new MatTableDataSource([]);
+
     @Select(AlertState.getAlertDetails) alertDetail$: Observable<any>;
     @Select(SnoozeState.getSnoozeDetails) snoozeDetail$: Observable<any>;
 
@@ -279,6 +281,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.allNamespaces$.subscribe( data => {
             this.allNamespaces = data;
+            this.logger.log('NAMESPACES', this.allNamespaces);
+            this.allNamespacesDS = new MatTableDataSource(this.allNamespaces);
+            this.logger.log('NAMESPACES_DS', this.allNamespacesDS);
+            this.allNamespacesDS.filterPredicate = (data: any, filter: string) => {
+                return data.name.toLowerCase().includes(filter.toLowerCase());
+            };
         }));
 
         this.subscription.add(this.userNamespaces$.subscribe( data => {
@@ -605,6 +613,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
     applyAlertDataFilter(dataFilter: string) {
         this.alertsDataSource.filter = dataFilter;
+    }
+
+    applyAllNamespaceDataFilter(dataFilter: string) {
+        this.allNamespacesDS.filter = dataFilter;
     }
 
     applySnoozeDataFilter(dataFilter: string) {

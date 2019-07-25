@@ -75,7 +75,7 @@ export class WidgetsRawdataState {
         if (  this.subs[qid] ) {
             this.subs[qid].unsubscribe();
         }
-        this.queryObserver = this.httpService.getYamasData(payload.query);
+        this.queryObserver = this.httpService.getYamasData(payload);
 
         this.subs[qid] = this.queryObserver.subscribe(
             data => {
