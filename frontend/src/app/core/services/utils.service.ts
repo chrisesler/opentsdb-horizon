@@ -606,10 +606,10 @@ export class UtilsService {
     let hour;
     let ampm;
     if (timezone === 'utc') {
-        hour = a.getUTCHours();
+        hour = a.getUTCHours() < 10 ? '0' + a.getUTCHours() : a.getUTCHours();
         ampm = hour >= 12 ? 'pm' : 'am';
     } else {
-        hour = a.getHours();
+        hour = a.getHours() < 10 ? '0' + a.getHours() : a.getHours();
         ampm = hour >= 12 ? 'pm' : 'am';
         // hour = hour % 12;
         // hour = hour ? hour : 12; // the hour '0' should be '12'
