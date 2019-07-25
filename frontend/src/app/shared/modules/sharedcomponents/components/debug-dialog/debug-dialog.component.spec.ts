@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SnoozeAlertDialogComponent } from './snooze-alert-dialog.component';
+import { DebugDialogComponent } from './debug-dialog.component';
 
-describe('SnoozeAlertDialogComponent', () => {
-  let component: SnoozeAlertDialogComponent;
-  let fixture: ComponentFixture<SnoozeAlertDialogComponent>;
+describe('DebugDialogComponent', () => {
+  let component: DebugDialogComponent;
+  let fixture: ComponentFixture<DebugDialogComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SnoozeAlertDialogComponent ]
+      declarations: [ DebugDialogComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SnoozeAlertDialogComponent);
+    fixture = TestBed.createComponent(DebugDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

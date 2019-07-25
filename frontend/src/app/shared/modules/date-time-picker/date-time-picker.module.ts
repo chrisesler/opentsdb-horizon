@@ -28,7 +28,8 @@ import { ReactiveFormsModule } from '@angular/forms';
   ],
   providers: [],
   exports: [
-    TimePickerComponent
+    TimePickerComponent,
+    DatepickerComponent
   ]
 })
 export class DateTimePickerModule { }

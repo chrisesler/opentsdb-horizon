@@ -6,6 +6,7 @@
 export const environment = {
   production: false,
   queryParams: null,
+  debugLevel: 'ERROR',
   tsdb_host: 'https://tsdbr-1-bf2.yamas.ouroath.com:4443',
   tsdb_hosts: [
     'https://metrics-a.yamas.ouroath.com:443',
@@ -19,5 +20,6 @@ export const environment = {
   configdb: 'https://stg-config.yamas.ouroath.com:4443/api/v1',
   // configdb: 'https://config.yamas.ouroath.com:443/api/v1',
   metaApi: 'https://meta.yamas.ouroath.com:443/api',
-  // metaApi: 'https://stg-mt-1-gq1.yamas.ouroath.com/api'
+  // metaApi: 'https://stg-mt-1-gq1.yamas.ouroath.com/api',
+  eventsApi: 'https://dev-mt-2-gq1.yamas.ouroath.com:443/api'
 };

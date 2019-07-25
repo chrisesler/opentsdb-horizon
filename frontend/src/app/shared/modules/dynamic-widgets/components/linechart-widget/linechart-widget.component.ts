@@ -11,13 +11,14 @@ import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state'
 import { IDygraphOptions } from '../../../dygraphs/IDygraphOptions';
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
+import { DebugDialogComponent } from '../../../sharedcomponents/components/debug-dialog/debug-dialog.component';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { LoggerService } from '../../../../../core/services/logger.service';
-
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -99,6 +100,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     nQueryDataLoading: number;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
+    debugData: any; // debug data from the data source.
+    debugDialog: MatDialogRef < DebugDialogComponent > | null;
+    storeQuery: any;
     legendDisplayColumns = ['color', 'min', 'max', 'avg', 'last', 'name'];
     editQueryId = null;
     needRequery = false;
@@ -111,7 +115,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     // EVENTS
     buckets: any[] = []; // still need this, as dygraph was looking for it
-    // expandedBucket: number; // TODO: remove with island legend
     events: any[];
     showEventStream = false; // Local flag whether island open
     eventsWidth: number;
@@ -144,7 +147,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             .subscribe(trigger => {
                 if (trigger) {
                     this.refreshData();
-                    this.getEvents();
                 }
             });
 
@@ -159,11 +161,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     this.options.isCustomZoomed = false;
                     delete this.options.dateWindow;
                     this.refreshData();
-                    this.getEvents();
                     break;
                 case 'reQueryData':
                     this.refreshData();
-                    this.getEvents();
                     break;
                 case 'TimezoneChanged':
                     this.setTimezone(message.payload.zone);
@@ -211,6 +211,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             this.resetChart(); // need to reset this data
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
+                            if (environment.debugLevel.toUpperCase() === 'TRACE' ||
+                                environment.debugLevel.toUpperCase() == 'DEBUG' ||
+                                environment.debugLevel.toUpperCase() == 'INFO') {
+                                    this.debugData = rawdata.log; // debug log
+                            }
                             setTimeout(() => {
                                 this.setSize();
                             });
@@ -225,6 +230,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         break;
                     case 'WidgetQueryLoading':
                         this.nQueryDataLoading = 1;
+                        this.storeQuery = message.payload.storeQuery;
                         this.cdRef.detectChanges();
                         break;
                     case 'ResetUseDBFilter':
@@ -234,6 +240,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         break;
                     case 'updatedEvents':
                         this.events = message.payload.events;
+                        this.cdRef.detectChanges();
                         break;
                 }
             }
@@ -472,7 +479,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             nHeight = newSize.height - heightOffset - titleSize.height - (padding * 2);
 
             if (this.widget.settings.visual.showEvents) {  // give room for events
-                nHeight = nHeight - 35;
+                nHeight = nHeight - 45;
             }
 
             nWidth = newSize.width - widthOffset  - (padding * 2) - 30;
@@ -482,7 +489,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             nHeight = newSize.height - heightOffset - (padding * 2);
 
             if (this.widget.settings.visual.showEvents) {  // give room for events
-                nHeight = nHeight - 25;
+                nHeight = nHeight - 35;
             }
 
             // nWidth = newSize.width - widthOffset  - (padding * 2);
@@ -719,7 +726,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // todo: set correctly
         const deepClone = JSON.parse(JSON.stringify(this.widget));
         deepClone.eventQueries[0].search = search;
-        this.widget.eventQueries = {... deepClone.eventQueries};
+        this.widget.eventQueries = [...deepClone.eventQueries];
         this.getEvents();
     }
 
@@ -727,7 +734,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // todo: set correctly
         const deepClone = JSON.parse(JSON.stringify(this.widget));
         deepClone.eventQueries[0].namespace = namespace;
-        this.widget.eventQueries = {... deepClone.eventQueries};
+        this.widget.eventQueries = [... deepClone.eventQueries];
         this.getEvents();
     }
 
@@ -803,7 +810,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     expandedBucketIndex$: this._expandedBucketIndex.asObservable()
                 },
                 options: {
-                    title: 'Event Stream'
+                    title: this.widget.eventQueries[0].search ?
+                        'Events: ' + this.widget.eventQueries[0].namespace + ' - ' + this.widget.eventQueries[0].search :
+                        'Events: ' + this.widget.eventQueries[0].namespace
                 }
             };
 
@@ -828,8 +837,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     newBuckets(buckets) {
-        // this.buckets = buckets;
         this._buckets.next(buckets);
+        this._expandedBucketIndex.next(-1);
     }
 
     getSeriesLabel(index) {
@@ -889,8 +898,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.isDataLoaded = false;
         if ( reload ) {
             this.requestData();
+            this.getEvents();
         } else {
             this.requestCachedData();
+            this.getEvents(); // todo: add events cache in-future
         }
     }
 
@@ -948,6 +959,29 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.errorDialog.afterClosed().subscribe((dialog_out: any) => {
         });
     }
+
+    showDebug() {
+        const parentPos = this.elRef.nativeElement.getBoundingClientRect();
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        const offsetHeight = 60;
+        dialogConf.width = '75%';
+        dialogConf.minWidth = '500px';
+        dialogConf.height = '75%';
+        dialogConf.minHeight = '200px';
+        dialogConf.backdropClass = 'error-dialog-backdrop'; // re-use for now
+        dialogConf.panelClass = 'error-dialog-panel';
+
+        dialogConf.data = {
+          log: this.debugData,
+          query: this.storeQuery 
+        };
+        
+        // re-use?
+        this.debugDialog = this.dialog.open(DebugDialogComponent, dialogConf);
+        this.debugDialog.afterClosed().subscribe((dialog_out: any) => {
+        });
+    }
+
     // request send to update state to close edit mode
     closeViewEditMode() {
         this.interCom.requestSend({

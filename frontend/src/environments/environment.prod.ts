@@ -1,6 +1,8 @@
+
 export const environment = {
   production: true,
   queryParams: null,
+  debugLevel: 'ERROR',
   tsdb_host: 'https://metrics.yamas.ouroath.com:443',
   tsdb_hosts: [
     'https://metrics-a.yamas.ouroath.com:443',
@@ -13,4 +15,5 @@ export const environment = {
   ],
   configdb: 'https://config.yamas.ouroath.com:443/api/v1',
   metaApi: 'https://meta.yamas.ouroath.com:443/api',
+  eventsApi: 'https://dev-mt-2-gq1.yamas.ouroath.com:443/api'
 };

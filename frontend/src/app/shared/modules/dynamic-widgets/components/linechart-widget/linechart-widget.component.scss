@@ -12,6 +12,7 @@
         .hide {
             display: none;
         }
+
         // Don't have padding for line-charts
         .widget-output {
             padding: 0;
@@ -97,6 +98,16 @@
                 color: red;
             }
 
+            .debug{
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                z-index: 1;
+                width: 30px;
+                height: 30px;
+                color: rgb(75, 9, 228);
+            }
+
             // now for positioning of legend
             &.display-legend-top,
             &.display-legend-right,
@@ -167,9 +178,19 @@
 
         .events-overlay {
             padding-left: 50px;
-            bottom: 0px;
+            padding-top: 6px;
              event-timeline {
                 display: inline;
+            }
+        }
+
+        .events-config {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            .event-result-title {
+                font-weight: bold;
+                padding-left: 10px;
             }
         }
 

@@ -788,14 +788,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
                 const gquery: any = {
                     wid: message.id,
-                    isEditMode: this.viewEditMode
+                    isEditMode: this.viewEditMode,
+                    dbid: this.dbid
                 };
                 if (Object.keys(queries).length) {
                     const query = this.queryService.buildQuery(payload, dt, queries);
                     gquery.query = query;
+                    console.debug("****** DSHBID: " + this.dbid + "  WID: " + gquery.wid);
                     // ask widget to loading signal
                     this.interCom.responsePut({
                         id: payload.id,
+                        payload: {
+                            storeQuery: query
+                        },
                         action: 'WidgetQueryLoading'
                     });
                     // now dispatch request
@@ -811,7 +816,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     handleEventQueryPayload(message: any) {
-        this.store.dispatch(new GetEvents( {start: this.dbTime.start, end: this.dbTime.end}, message.payload.eventQueries, message.id));
+        if ( message.payload.eventQueries[0].namespace) {
+            const dbTime = this.getDashboardDateRange();
+            this.store.dispatch(new GetEvents( {
+                start: dbTime.start,
+                end: dbTime.end},
+                message.payload.eventQueries, message.id));
+        }
     }
 
     updateEvents(wid, rawdata, time, error = null) {

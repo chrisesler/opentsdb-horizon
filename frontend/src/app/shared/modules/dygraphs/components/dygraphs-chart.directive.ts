@@ -80,7 +80,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     // var leftSideWidth = splitX - area.x;
                     // var topHeight = splitY - area.y;
 
-                    canvas.fillStyle = 'lightblue';
+                    canvas.fillStyle = '#44BCB7';
                     canvas.fillRect(splitX - 1, area.y, 2, splitY);
                 }
             }

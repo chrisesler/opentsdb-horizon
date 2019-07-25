@@ -15,11 +15,11 @@ import { AlertsService } from './services/alerts.service';
 
 // store
 import { NgxsModule } from '@ngxs/store';
-import { AlertState, AlertsState, RecipientsState } from './state';
+import { AlertState, AlertsState, RecipientsState, SnoozeState } from './state';
 
 // components
 import { AlertsComponent } from './containers/alerts.component';
-import { SnoozeAlertDialogComponent } from './components/snooze-alert-dialog/snooze-alert-dialog.component';
+import { SnoozeDetailsComponent } from './components/snooze-details/snooze-details.component';
 import { NameAlertDialogComponent } from './components/name-alert-dialog/name-alert-dialog.component';
 import { AlertDetailsComponent } from './components/alert-details/alert-details.component';
 import { DygraphsModule } from '../shared/modules/dygraphs/dygraphs.module';
@@ -40,12 +40,13 @@ import { AlertConfigurationContactsComponent } from './components/alert-details/
         NgxsModule.forFeature([
             AlertState,
             AlertsState,
+            SnoozeState,
             RecipientsState
         ])
     ],
     declarations: [
         AlertsComponent,
-        SnoozeAlertDialogComponent,
+        SnoozeDetailsComponent,
         NameAlertDialogComponent,
         AlertDetailsComponent,
         AlertConfigurationContactsComponent
@@ -54,7 +55,6 @@ import { AlertConfigurationContactsComponent } from './components/alert-details/
         AlertsService
     ],
     entryComponents: [
-        SnoozeAlertDialogComponent,
         NameAlertDialogComponent
     ]
 })

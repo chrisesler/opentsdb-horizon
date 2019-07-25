@@ -35,10 +35,12 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     context: CanvasRenderingContext2D;
 
     eventLocations: any = [];
-    iconWidth = 10.1; // pixels
+    iconWidth = 20.1; // pixels (0.1 so that we have n-1 buckets)
     buckets = [];
     toolTipData: any = {};
     maxTooltipSourceSummaries = 3;
+    iconColor = '#44BCB7';
+    eventRunnerColor = '#E1E5E5';
 
     constructor(private util: UtilsService) { }
 
@@ -60,8 +62,14 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         this.context = (<HTMLCanvasElement>this.eventsOverlayCanvas.nativeElement).getContext('2d');
         this.eventLocations = [];
 
+        this.context.beginPath();
+        this.context.strokeStyle = this.eventRunnerColor;
+        this.context.fillStyle = this.eventRunnerColor;
+        this.context.fillRect(0, 5, this.width, 10);
+        this.context.stroke();
+
         if (this.events) {
-            const oldBuckets = { ...this.buckets };
+            const oldBuckets = [ ...this.buckets ];
             this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
 
             // tslint:disable:prefer-const
@@ -71,7 +79,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
                     if (i === 0) { // if last bucket, take start + interval - remember that first bucket is latest time
                         xStart = (this.buckets[i].startTime + this.buckets[i].width - this.startTime) * this.getEventResolution();
                     }
-                    this.drawEvent(xStart, 'lightblue', this.buckets[i]);
+                    this.drawEvent(xStart, this.iconColor, this.buckets[i]);
                 }
             }
 
@@ -139,19 +147,42 @@ export class EventTimelineComponent implements OnInit, OnChanges {
 
     drawEvent(xStart, color, bucket) {
         const count = bucket.events.length;
-        this.context.beginPath();
-        this.context.strokeStyle = color;
-        this.context.fillStyle = 'lightblue';
-        this.context.fillRect(xStart - 5, 0, 10, 10);
-        this.context.stroke();
+        this.roundRect(xStart - 7, 2, 16, 16, 2, color);
         this.eventLocations.push({
-            xStart: (xStart - 5), xEnd: (xStart - 5) + 10 + 5, yStart: 5 - 5, yEnd: 5 + 10 + 5,
+            xStart: (xStart - 10), xEnd: (xStart + 10), yStart: 0, yEnd: 20,
             bucket: bucket
         });
-        if (count > 1) { // draw number in box
-            this.context.fillStyle = 'black';
-            this.context.fillText(count.toString(), (xStart - 2), 9);
+        // draw number in box
+        this.context.fillStyle = 'white';
+        this.context.font = 'bold 12px Ubuntu';
+        if (count.toString().length === 2) {
+            this.context.fillText(count.toString(), xStart - 6, 14);
+        } else if (count.toString().length > 2) {
+            this.context.fillText('*', xStart - 3, 14);
+        } else { // center single digit
+            this.context.fillText(count.toString(), xStart - 3, 14);
         }
+    }
+
+    roundRect(x, y, w, h, radius, color) {
+        const context = this.context;
+        const r = x + w;
+        const b = y + h;
+        context.beginPath();
+        context.strokeStyle = color;
+        context.lineWidth = 4;
+        context.moveTo(x + radius, y);
+        context.lineTo(r - radius, y);
+        context.quadraticCurveTo(r, y, r, y + radius);
+        context.lineTo(r, y + h - radius);
+        context.quadraticCurveTo(r, b, r - radius, b);
+        context.lineTo(x + radius, b);
+        context.quadraticCurveTo(x, b, x, b - radius);
+        context.lineTo(x, y + radius);
+        context.quadraticCurveTo(x, y, x + radius, y);
+        context.fillStyle = color;
+        context.fill();
+        context.stroke();
     }
 
     canvasEnter(event: any) {
@@ -204,8 +235,5 @@ export class EventTimelineComponent implements OnInit, OnChanges {
             }
             index++;
         }
-
-
     }
-
 }

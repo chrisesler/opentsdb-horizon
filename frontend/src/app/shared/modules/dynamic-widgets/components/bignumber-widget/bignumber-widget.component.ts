@@ -7,6 +7,8 @@ import { debounceTime } from 'rxjs/operators';
 import { ElementQueries, ResizeSensor } from 'css-element-queries';
 import { MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material';
 import { ErrorDialogComponent } from '../../../sharedcomponents/components/error-dialog/error-dialog.component';
+import { DebugDialogComponent } from '../../../sharedcomponents/components/debug-dialog/debug-dialog.component';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -72,6 +74,9 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     nQueryDataLoading = 0;
     error: any;
     errorDialog: MatDialogRef < ErrorDialogComponent > | null;
+    debugData: any; // debug data from the data source.
+    debugDialog: MatDialogRef < DebugDialogComponent > | null;
+    storeQuery: any;
     shadowInitialized: boolean = false;
 
     newSize$: BehaviorSubject<any>;
@@ -121,6 +126,11 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                         if (message.payload && message.payload.error) {
                             this.error = message.payload.error;
                         } else if (message.payload && message.payload.rawdata) {
+                            if (environment.debugLevel.toUpperCase() === 'TRACE' ||
+                                environment.debugLevel.toUpperCase() == 'DEBUG' ||
+                                environment.debugLevel.toUpperCase() == 'INFO') {
+                                    this.debugData = message.payload.rawdata.log; // debug log
+                            }
                             this.data = message.payload.rawdata.results || [];
                             this.setBigNumber();
                         } else { // no data, so get some
@@ -135,6 +145,7 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                         break;
                     case 'WidgetQueryLoading':
                         this.nQueryDataLoading = 1;
+                        this.storeQuery = message.payload.storeQuery;
                         this.cdRef.detectChanges();
                         break;
                     case 'ResetUseDBFilter':
@@ -547,6 +558,26 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
 
         this.errorDialog = this.dialog.open(ErrorDialogComponent, dialogConf);
         this.errorDialog.afterClosed().subscribe((dialog_out: any) => {
+        });
+    }
+
+    showDebug() {
+        const dialogConf: MatDialogConfig = new MatDialogConfig();
+        const offsetHeight = 60;
+        dialogConf.width = '75%';
+        dialogConf.minWidth = '500px';
+        dialogConf.height = '75%';
+        dialogConf.minHeight = '200px';
+        dialogConf.backdropClass = 'error-dialog-backdrop'; // re-use for now
+        dialogConf.panelClass = 'error-dialog-panel';
+         dialogConf.data = {
+          log: this.debugData,
+          query: this.storeQuery 
+        };
+        
+        // re-use?
+        this.debugDialog = this.dialog.open(DebugDialogComponent, dialogConf);
+        this.debugDialog.afterClosed().subscribe((dialog_out: any) => {
         });
     }
 
