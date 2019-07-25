@@ -597,7 +597,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         const alertOptions = {};
         for ( let i = 0; i < this.alerts.length; i++ ) {
             alertOptions[this.alerts[i].id] =  { label: this.alerts[i].name, id: this.alerts[i].id, type: 'alert'};
-            for ( let j = 0; j < this.alerts[i].labels.length; j++ ) {
+            for ( let j = 0; this.alerts[i].labels && j < this.alerts[i].labels.length; j++ ) {
                 const label = this.alerts[i].labels[j];
                 alertOptions[label] = { label: label, type: 'label'};
             }
