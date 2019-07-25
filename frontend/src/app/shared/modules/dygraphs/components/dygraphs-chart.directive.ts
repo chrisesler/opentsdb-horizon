@@ -38,7 +38,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
 
-        const self = this;
+        const _self = this;
         const mouseover = function (event, x, pts, row) {
             const labelsDiv = this.user_attrs_.labelsDiv;
             labelsDiv.style.display = 'block';
@@ -95,7 +95,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             }
 
             let html = '<p>' + data.xHTML + '</p>';
-            if (self.chartType !== 'heatmap') {
+            if (_self.chartType !== 'heatmap') {
                 // console.log('%cLEGEND FORMATTER','color: white; background-color: maroon; padding 2px;', data, seriesConfig);
                 data.series.forEach(function (series) {
                     if (!series.isVisible || !series.isHighlighted) {
@@ -116,7 +116,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             return html;
         };
 
-        const _self = this;
         const tickFormatter = function (value, gran, opts) {
             const format = opts('tickFormat');
             const dunit = _self.uConverter.getNormalizedUnit(value, format);
