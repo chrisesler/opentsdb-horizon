@@ -334,6 +334,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.setLegend(message.payload.data);
                 this.cdRef.detectChanges();
                 this.refreshLegendSource();
+                this.setSize();
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
