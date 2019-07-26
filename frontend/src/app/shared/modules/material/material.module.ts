@@ -8,6 +8,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { PlatformModule } from '@angular/cdk/platform';
 import { PortalModule } from '@angular/cdk/portal';
 import { CdkTableModule } from '@angular/cdk/table';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import {
   MatAutocompleteModule,
   MatButtonModule,
@@ -90,7 +91,8 @@ import {
     ObserversModule,
     OverlayModule,
     PlatformModule,
-    PortalModule
+    PortalModule,
+    DragDropModule
   ]
 })
 export class MaterialModule {}

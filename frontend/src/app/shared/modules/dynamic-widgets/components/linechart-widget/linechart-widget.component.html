@@ -113,6 +113,11 @@
                     <widget-config-legend [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-legend>
                 </ng-template>
         </mat-tab>
+        <mat-tab label="Multigraph" [disabled]="editQueryId">
+                <ng-template matTabContent>
+                    <widget-config-multigraph [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-multigraph>
+                </ng-template>
+        </mat-tab>
         <mat-tab label="Meta Data" [disabled]="editQueryId">
                 <ng-template matTabContent>
                     <widget-config-general [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-general>
