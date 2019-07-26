@@ -310,10 +310,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
             this.stateLoaded.snooze = true;
             this.snoozes = JSON.parse(JSON.stringify(snoozes));
             this.snoozes =  this.snoozes.map( (d: any) => {
-                                if ( d.filters && d.filters.filters && d.filters.filters.length )  {
-                                    d.filters = this.utils.getFiltersTsdbToLocal(d.filters.filters);
+                                if ( d.filter && d.filter.filters && d.filter.filters.length )  {
+                                    d.rawFilters = this.utils.getFiltersTsdbToLocal(d.filter.filters);
                                 } else {
-                                    d.filters = [];
+                                    d.rawFilters = [];
                                 }
                                 return d;
                             });
@@ -597,7 +597,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         const alertOptions = {};
         for ( let i = 0; i < this.alerts.length; i++ ) {
             alertOptions[this.alerts[i].id] =  { label: this.alerts[i].name, id: this.alerts[i].id, type: 'alert'};
-            for ( let j = 0; j < this.alerts[i].labels.length; j++ ) {
+            for ( let j = 0; this.alerts[i].labels && j < this.alerts[i].labels.length; j++ ) {
                 const label = this.alerts[i].labels[j];
                 alertOptions[label] = { label: label, type: 'label'};
             }
@@ -766,6 +766,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
     formatAlertTimeModified(element: any) {
         const time = moment(element.updatedTime);
         return time.format('YYYY-MM-DD HH:mm');
+    }
+
+    formatTime(time: any) {
+        return moment(time).format('YYYY-MM-DD HH:mm');
     }
 
     getRecipientKeys(element: any) {
