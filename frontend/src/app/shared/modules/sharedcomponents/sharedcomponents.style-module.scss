@@ -47,6 +47,7 @@
 @import 'components/event-timeline/event-timeline.component';
 @import 'components/event-list/event-list.component';
 
+
 // widget common FIRST
 @import 'components/widget-config.common';
 
@@ -61,6 +62,7 @@
 @import 'components/widget-config-visual-appearance/widget-config-visual-appearance.component';
 @import 'components/widget-config-legend-big-number/widget-config-legend-big-number.component';
 @import 'components/widget-config-events/widget-config-events.component';
+@import 'components/widget-config-multigraph/widget-config-multigraph.component';
 
 // [ STEP 2 ] - ADD COMPONENT'S BASE MIXINS (aka structure)
 @mixin sharedcomponents-module-core() {
@@ -110,6 +112,7 @@
     @include widget-config-legend-big-number-component-base();
     @include widget-config-sorting-component-base();
     @include widget-config-events-component-base();
+    @include widget-config-multigraph-component-base();
 }
 
 // [ STEP 3 ] - ADD COMPONENT'S THEME MIXINS (aka look-n-feel)
@@ -159,4 +162,5 @@
     @include widget-config-legend-big-number-component-theme($theme-config);
     @include widget-config-sorting-component-theme($theme-config);
     @include widget-config-events-component-theme($theme-config);
+    @include widget-config-multigraph-component-theme($theme-config);
 }
