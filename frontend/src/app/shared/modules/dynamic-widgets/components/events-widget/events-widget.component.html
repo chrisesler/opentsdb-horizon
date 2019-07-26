@@ -14,11 +14,9 @@
       
         <div class="widget-output notCentered" #widgetoutput [ngClass]="{'top-margin': editMode }">
             <div class="widget-container">
-                <event-list *ngIf="editMode" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime" [previewLimit]="5">
-                </event-list>
-                <!-- Limit to 5 b/c rendering slows down query entry -->
-                <event-list *ngIf="!editMode" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime">
-                </event-list>
+                <!-- Limit b/c rendering slows down query entry -->
+                <event-list *ngIf="editMode" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime" [previewLimit]="10"></event-list>
+                <event-list *ngIf="!editMode" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime"></event-list>
             </div>
         </div>
       </div>
