@@ -63,11 +63,15 @@
                     justify-content: center;
                 }
             }
+
+            .mat-cell.mat-column-order .mat-icon {
+                cursor: grab;
+            }
         }
 
         .add-tag-control .mat-form-field {
             width: 100%;
-            
+
             .mat-form-field-prefix {
                 align-self: stretch;
                 display: flex;
