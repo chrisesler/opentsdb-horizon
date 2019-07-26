@@ -1,7 +1,7 @@
 <div class="event-stream-list" *ngIf="events">
     <mat-accordion class="event-accordion" displayMode="flat" multi="true" #eventAccordion>
         <ng-container *ngFor="let event of slicedList(); let i = index">
-            <mat-expansion-panel class="event-panel" #eventPanel>
+            <mat-expansion-panel class="event-panel" #eventPanel expanded="{{expandedBucketIndex === i}}" (opened)="openExpansion(i)" (closed)="collapseExpansion(i)">
                 <mat-expansion-panel-header collapsedHeight="32px" expandedHeight="32px" >
                     <mat-panel-title>
                         <span class="event-time">{{util.buildDisplayTime(event.timestamp, startTime, endTime, true, timezone)}}</span>
@@ -9,7 +9,7 @@
                         <span class="event-source"> {{event.source}} </span>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
-                <div class="event-summary">
+                <div *ngIf="expandedBucketIndex === i" class="event-summary">
                     <div class="event-namespace">
                         <span>Namespace:</span> <strong>{{event.namespace}}</strong>
                     </div>
