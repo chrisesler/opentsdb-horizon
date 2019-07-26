@@ -4,10 +4,10 @@
             <mat-expansion-panel class="event-panel" expanded="{{expandedBucketIndex === i}}" #eventPanel>
                 <mat-expansion-panel-header collapsedHeight="32px" expandedHeight="32px" >
                     <mat-panel-title>
-                        <strong>
+                        <span>
                             <span class="event-time">{{bucket.displayTime}}</span>
                             <span class="event-count">{{bucket.events.length}} {{(bucket.events.length > 1) ? 'Events' : 'Event'}}</span>
-                        </strong>
+                        </span>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div class="event-summary" *ngFor="let event of bucket.events">

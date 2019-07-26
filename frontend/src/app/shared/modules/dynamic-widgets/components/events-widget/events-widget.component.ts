@@ -83,6 +83,12 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
         });
     }
 
+    getTitle() {
+        return this.widget.eventQueries[0].search ?
+            this.widget.eventQueries[0].namespace + ' - ' + this.widget.eventQueries[0].search :
+            this.widget.eventQueries[0].namespace;
+    }
+
     applyConfig() {
         const cloneWidget = { ...this.widget };
         cloneWidget.id = cloneWidget.id.replace('__EDIT__', '');

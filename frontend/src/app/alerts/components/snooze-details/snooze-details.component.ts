@@ -69,8 +69,6 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
 
     /** Form  */
     snoozeForm: FormGroup;
-    startTimeCntrl: FormControl;
-    endTimeCntrl: FormControl;
     dateType = 'preset';
     timePreset = '1hr';
 
@@ -149,14 +147,11 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
         };
         data = Object.assign({}, def, data);
 
-        const starthrms = data.startTime ? (data.startTime + moment(data.startTime).utcOffset() * 60 * 1000) % 86400000 : 0;
-        const endhrms = data.endTime ? (data.endTime + moment(data.endTime).utcOffset() * 60 * 1000) % 86400000 : 0;
-
         this.snoozeForm = this.fb.group({
             // tslint:disable-next-line:max-line-length
-            startTime: data.startTime ? moment(data.startTime - starthrms).format('MM/DD/YYYY hh:mm a') : moment().format('MM/DD/YYYY hh:mm a'),
+            startTime: data.startTime ? moment(data.startTime).format('MM/DD/YYYY hh:mm a') : moment().format('MM/DD/YYYY hh:mm a'),
             // tslint:disable-next-line:max-line-length
-            endTime: data.endTime ? moment(data.endTime - endhrms).format('MM/DD/YYYY hh:mm a') : moment().add(1, 'hours').format('MM/DD/YYYY hh:mm a'),
+            endTime: data.endTime ? moment(data.endTime).format('MM/DD/YYYY hh:mm a') : moment().add(1, 'hours').format('MM/DD/YYYY hh:mm a'),
             notification: this.fb.group({
                 recipients: data.notification.recipients || {},
                 subject: data.notification.subject || '',
@@ -168,12 +163,10 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
         for ( let i = 0; i < data.labels.length; i++ ) {
             this.alertLabels.push({ label: data.labels[i], type: 'label'});
         }
-        this.startTimeCntrl = new FormControl(starthrms);
-        this.endTimeCntrl = new FormControl(endhrms);
 
         this.dateType = data.id !== '_new_' ? 'custom' : 'preset';
-
-        const filters = data.filters.filters && data.filters.filters.length ? this.utils.getFiltersTsdbToLocal(data.filters.filters) : [];
+        // tslint:disable-next-line:max-line-length
+        const filters = data.filter && data.filter.filters && data.filter.filters.length ? this.utils.getFiltersTsdbToLocal(data.filter.filters) : [];
         this.setQuery({ namespace: this.data.namespace, filters: filters} );
     }
 
@@ -304,7 +297,7 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
             data.startTime = moment(this.startTimeReference.date).valueOf();
             data.endTime = moment(this.endTimeReference.date).valueOf();
         }
-        data.filters = this.queries[0].filters.length ? this.getMetaFilter() : {};
+        data.filter = this.queries[0].filters.length ? this.getMetaFilter() : {};
         // emit to save the snooze
         this.configChange.emit({ action: 'SaveSnooze', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
     }
