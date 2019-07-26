@@ -14,7 +14,7 @@
                 <!--- Note that these columns can be defined in any order.
                         The actual rendered columns are set as a property on the row definition" -->
 
-                <!-- Position Column -->
+                <!-- label -->
                 <ng-container matColumnDef="label">
                     <mat-header-cell *matHeaderCellDef> </mat-header-cell>
                     <mat-cell *matCellDef="let element; let rowIndex = index">
@@ -22,7 +22,7 @@
                     </mat-cell>
                 </ng-container>
 
-                <!-- Name Column -->
+                <!-- display as row graph -->
                 <ng-container matColumnDef="y">
                     <mat-header-cell *matHeaderCellDef>AS ROWS</mat-header-cell>
                     <mat-cell *matCellDef="let element; let rowIndex = index" [formGroupName]="rowIndex">
@@ -35,7 +35,7 @@
                     </mat-cell>
                 </ng-container>
 
-                <!-- Weight Column -->
+                <!-- Display as column graph -->
                 <ng-container matColumnDef="x">
                     <mat-header-cell *matHeaderCellDef>AS COLUMNS</mat-header-cell>
                     <mat-cell *matCellDef="let element; let rowIndex = index" [formGroupName]="rowIndex">
@@ -48,7 +48,7 @@
                     </mat-cell>
                 </ng-container>
 
-                <!-- Symbol Column -->
+                <!-- Display as Within Graph -->
                 <ng-container matColumnDef="g">
                     <mat-header-cell *matHeaderCellDef>WITHIN GRAPH</mat-header-cell>
                     <mat-cell *matCellDef="let element; let rowIndex = index" [formGroupName]="rowIndex">
@@ -61,22 +61,22 @@
                     </mat-cell>
                 </ng-container>
 
+                <!-- order drag handles to reshuffle -->
                 <ng-container matColumnDef="order">
                     <mat-header-cell *matHeaderCellDef>ORDER</mat-header-cell>
                     <mat-cell *matCellDef="let element;">
+                        <!-- icon is drag handle for the row -->
                         <mat-icon fontSet="denali" fontIcon="d-drag-handle" cdkDragHandle></mat-icon>
                     </mat-cell>
                 </ng-container>
 
+                <!-- row and header definition -->
                 <mat-header-row *matHeaderRowDef="chartDisplayColumns"></mat-header-row>
+                <!-- we DRAG the whole row -->
                 <mat-row class="multigraph-data-row" *matRowDef="let row; columns: chartDisplayColumns;" cdkDrag [cdkDragData]="row"></mat-row>
             </mat-table>
             <div class="add-tag-control">
-                <!-- TODO: Need to add a way to get available tags -->
-                <!--<button mat-button color="primary" class="add-tag-key-trigger">
-                    <mat-icon fontSet="denali" fontIcon="d-add-circle"></mat-icon>
-                    <span>Add Tag Key</span>
-                </button>-->
+                <!-- Input to add a tag -->
                 <mat-form-field appearance="fill">
                     <input matInput placeholder="Add tag key" 
                         [formControl]="tagKeyControlInput"
@@ -123,6 +123,7 @@
                         <span>Optimize for widget viewport</span>
                     </div>
                 </div>
+                <!-- grid graph size options -->
                 <div class="radio-row" *ngIf="FC_layout.value === 'grid'">
                     <mat-radio-group formControlName="viewportDisplay">
                         <mat-radio-button
@@ -152,6 +153,7 @@
                         <span>columns within widget viewport</span>
                     </div>
                 </div>
+                <!-- freeflow graph size options -->
                 <div class="radio-row" *ngIf="FC_layout.value === 'freeflow'">
                     <mat-radio-group formControlName="viewportDisplay">
                         <mat-radio-button
