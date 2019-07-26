@@ -16,6 +16,8 @@ export class EventListComponent implements OnInit {
     @Input() endTime: number;
     @Input() previewLimit: number;
 
+    expandedBucketIndex = -1;
+
     constructor(
         private util: UtilsService
     ) { }
@@ -43,4 +45,16 @@ export class EventListComponent implements OnInit {
             return this.events;
          }
       }
+
+    openExpansion(index) {
+        this.expandedBucketIndex = index;
+    }
+
+    // accodion closes
+    collapseExpansion(index: number = -1) {
+        // an expansion panel can call collapse after a different panel has been opened
+        if (index === -1 || index === this.expandedBucketIndex) {
+            this.expandedBucketIndex = -1;
+        }
+    }
 }
