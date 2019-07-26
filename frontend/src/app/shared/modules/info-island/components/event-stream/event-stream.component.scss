@@ -42,6 +42,10 @@
                 .mat-expansion-panel-body {
                     padding: 0;
 
+                    .max-error-message {
+                        padding-left: 10px;
+                    }
+
                     .event-summary {
                         padding: 8px 24px 8px 46px;
                     }

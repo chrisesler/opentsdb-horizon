@@ -35,7 +35,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     context: CanvasRenderingContext2D;
 
     eventLocations: any = [];
-    iconWidth = 20.1; // pixels (0.1 so that we have n-1 buckets)
+    iconWidth = 25.1; // pixels (0.1 so that we have n-1 buckets)
     buckets = [];
     toolTipData: any = {};
     maxTooltipSourceSummaries = 3;

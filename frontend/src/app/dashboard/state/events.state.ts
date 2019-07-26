@@ -34,7 +34,8 @@ export class GetEvents {
     constructor(
         public readonly time: any,
         public readonly eventQueries: any[],
-        public readonly wid: string
+        public readonly wid: string,
+        public readonly limit?: number
     ) { }
 }
 
@@ -153,14 +154,14 @@ export class EventsState {
     // }
 
     @Action(GetEvents)
-    getEvents(ctx: StateContext<EventsStateModel>, { time, eventQueries, wid }: GetEvents) {
+    getEvents(ctx: StateContext<EventsStateModel>, { time, eventQueries, wid, limit }: GetEvents) {
 
         this.logger.action(GetEvents.type, { time, eventQueries, wid });
         ctx.patchState({loading: true});
 
-        return this.httpService.getEvents(wid, time, eventQueries).pipe(
+        return this.httpService.getEvents(wid, time, eventQueries, limit).pipe(
             map( (response: any) => {
-                return ctx.dispatch(new GetEventsSuccess(response, { time, eventQueries, wid } ));
+                return ctx.dispatch(new GetEventsSuccess(response, { time, eventQueries, wid, limit } ));
             }),
             catchError( error => ctx.dispatch(new EventsGenericError(error, 'Get Events Error')) )
         );

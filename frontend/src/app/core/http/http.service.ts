@@ -432,8 +432,8 @@ export class HttpService {
     }
     /** snooze */
 
-    getEvents(wid: string, time: any, eventQueries: any[]) {
-        let query = this.yamasService.buildEventsQuery(time, eventQueries);
+    getEvents(wid: string, time: any, eventQueries: any[], limit) {
+        let query = this.yamasService.buildEventsQuery(time, eventQueries, limit);
         // console.log(JSON.stringify(query, null, 2));
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'

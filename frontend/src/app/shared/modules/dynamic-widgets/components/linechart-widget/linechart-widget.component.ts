@@ -709,7 +709,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getEventData',
-                payload: this.widget
+                payload: {eventQueries: this.widget.eventQueries, limit: 1000}
             });
         }
     }

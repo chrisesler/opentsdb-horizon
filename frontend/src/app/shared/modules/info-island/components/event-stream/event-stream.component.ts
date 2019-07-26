@@ -25,8 +25,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
     endTime: number;    // in milliseconds
     timezone: string;
     expandedBucketIndex: number;
-
-    expandedEventId = -1;  // for expanding details
+    maxEventsShown = 30;
 
     private subscription: Subscription = new Subscription();
 
@@ -51,7 +50,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
         }));
 
         this.subscription.add(this._data.data.expandedBucketIndex$.pipe(distinctUntilChanged()).subscribe( index => {
-            // this.logger.log('SELECTED BUCKET INDEX RECEIVED', {index});
+            // console.log('SELECTED BUCKET INDEX RECEIVED', {index});
             this.expandedBucketIndex = index;
 
             if (this.displayReady) {
@@ -156,16 +155,6 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
                     index: -1
                 }
             });
-        }
-    }
-
-    openDetails(id) {
-        this.expandedEventId = id;
-    }
-
-    closeDetails(id: number = -1) {
-        if (id === -1 || id === this.expandedEventId) {
-            this.expandedEventId = -1;
         }
     }
 
