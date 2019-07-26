@@ -3,7 +3,7 @@ import {
     OnChanges, SimpleChanges
 } from '@angular/core';
 import { UtilsService } from '../../../../../core/services/utils.service';
-import * as deepEqual from 'deep-equal';
+import * as deepEqual from 'fast-deep-equal';
 
 @Component({
     // tslint:disable-next-line:component-selector
