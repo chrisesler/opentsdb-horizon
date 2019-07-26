@@ -65,12 +65,19 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
     const underlayCallback = (canvas, area, g) => {
         if (this.eventBuckets && this.showEvents) {
-            // tslint:disable-next-line:forin
+            let index = this.eventBuckets.length - 1;
             for (const bucket of this.eventBuckets) {
-                var coords = g.toDomCoords(bucket.startTime + bucket.width, 0);
+                let coords;
+                if (index === 0) { // first icon placed at end time
+                    coords = g.toDomCoords(bucket.endTime, 0);
+                } else { // all others placed start + width (so last icon not off the chart)
+                    coords = g.toDomCoords(bucket.startTime + bucket.width, 0);
+                }
+                index --;
+
                 // splitX and splitY are the coordinates on the canvas
-                var splitX = coords[0];
-                var splitY = coords[1];
+                const splitX = coords[0];
+                const splitY = coords[1];
 
                 // The drawing area doesn't start at (0, 0), it starts at (area.x, area.y).
                 // That's why we subtract them from splitX and splitY. This gives us the

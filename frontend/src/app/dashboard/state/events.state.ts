@@ -34,7 +34,8 @@ export class GetEvents {
     constructor(
         public readonly time: any,
         public readonly eventQueries: any[],
-        public readonly wid: string
+        public readonly wid: string,
+        public readonly limit?: number
     ) { }
 }
 
@@ -153,74 +154,17 @@ export class EventsState {
     // }
 
     @Action(GetEvents)
-    getEvents(ctx: StateContext<EventsStateModel>, { time, eventQueries, wid }: GetEvents) {
+    getEvents(ctx: StateContext<EventsStateModel>, { time, eventQueries, wid, limit }: GetEvents) {
 
         this.logger.action(GetEvents.type, { time, eventQueries, wid });
-        // ctx.patchState({ loading: true });
-        // return this.httpService.getEvents(query).pipe(
-        //     map((payload: any) => {
-        //         ctx.dispatch(new LoadEventsSuccess(query, payload.body));
-        //     }),
-        //     catchError(error => ctx.dispatch(new LoadEventsFail(error)))
-        // );
-        // TODO: REMOVE
-        //const state = ctx.getState();
-
-        /*const fakeEvents = this.httpService.getEvents(wid, time, eventQueries);
-        fakeEvents.buckets = [];
-        fakeEvents.selectedBucketIndex = -1;
-
-        ctx.setState({ ...state, events: this.httpService.getEvents(wid, time, eventQueries), loading: false });*/
-
         ctx.patchState({loading: true});
 
-        return this.httpService.getEvents(wid, time, eventQueries).pipe(
+        return this.httpService.getEvents(wid, time, eventQueries, limit).pipe(
             map( (response: any) => {
-                return ctx.dispatch(new GetEventsSuccess(response, { time, eventQueries, wid } ));
+                return ctx.dispatch(new GetEventsSuccess(response, { time, eventQueries, wid, limit } ));
             }),
             catchError( error => ctx.dispatch(new EventsGenericError(error, 'Get Events Error')) )
         );
-
-        // TODO: convert to format we like
-        // response to look like this:
-
-        // {
-        //     "results": [
-        //       {
-        //         "source": "q1_m1:q1_m1",
-        //         "data": [
-        //           {
-        //             "Event": {
-        //               "eventId": "123445",
-        //               "timestamp": "1561071600",
-        //               "title": "Disk is busy",
-        //               "message": "Disk is busy",
-        //               "priority": "low",
-        //               "namespace": "yamas",
-        //               "tags": {
-        //                 "host": "tsdbr-1.yms.gq1.yahoo.com",
-        //                 "_application": "tsdb"
-        //               }
-        //             }
-        //           },
-        //           {
-        //             "Event": {
-        //               "eventId": "123445",
-        //               "timestamp": "1561071600",
-        //               "title": "CPU is busy",
-        //               "message": "FOO BAR is busy",
-        //               "priority": "high",
-        //               "namespace": "yamas",
-        //               "tags": {
-        //                 "host": "tsdbr-2.yms.gq1.yahoo.com",
-        //                 "_application": "tsdb"
-        //               }
-        //             }
-        //           }
-        //         ]
-        //       }
-        //     ]
-        //   }
     }
 
     @Action(GetEventsSuccess)

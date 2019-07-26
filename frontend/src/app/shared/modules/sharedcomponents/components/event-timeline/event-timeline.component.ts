@@ -3,7 +3,7 @@ import {
     OnChanges, SimpleChanges
 } from '@angular/core';
 import { UtilsService } from '../../../../../core/services/utils.service';
-import * as deepEqual from 'deep-equal';
+import * as deepEqual from 'fast-deep-equal';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -35,7 +35,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     context: CanvasRenderingContext2D;
 
     eventLocations: any = [];
-    iconWidth = 20.1; // pixels (0.1 so that we have n-1 buckets)
+    iconWidth = 25.1; // pixels (0.1 so that we have n-1 buckets)
     buckets = [];
     toolTipData: any = {};
     maxTooltipSourceSummaries = 3;
@@ -69,8 +69,9 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         this.context.stroke();
 
         if (this.events) {
-            const oldBuckets = [ ...this.buckets ];
+            const oldBucketsIds = this.getEventIdsForBuckets([...this.buckets]);
             this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
+            const newBucketsIds = this.getEventIdsForBuckets([...this.buckets]);
 
             // tslint:disable:prefer-const
             for (let i = 0; i < this.buckets.length; i++) {
@@ -83,10 +84,22 @@ export class EventTimelineComponent implements OnInit, OnChanges {
                 }
             }
 
-            if (!deepEqual(oldBuckets, this.buckets)) {
+            if (!deepEqual(oldBucketsIds, newBucketsIds)) {
                 this.newBuckets.emit(this.buckets);
             }
         }
+    }
+
+    getEventIdsForBuckets(buckets) {
+        let bucketsOfIds = [];
+        for (const bucket of buckets) {
+            let eventIds = [];
+            for (const event of bucket.events) {
+                eventIds.push(event.eventId);
+            }
+            bucketsOfIds.push(eventIds);
+        }
+        return bucketsOfIds;
     }
 
     getPlaceholderText(bucket) {

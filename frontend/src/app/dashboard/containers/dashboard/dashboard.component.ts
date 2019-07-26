@@ -818,10 +818,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     handleEventQueryPayload(message: any) {
         if ( message.payload.eventQueries[0].namespace) {
             const dbTime = this.getDashboardDateRange();
-            this.store.dispatch(new GetEvents( {
-                start: dbTime.start,
-                end: dbTime.end},
-                message.payload.eventQueries, message.id));
+            this.store.dispatch(new GetEvents(
+                {   start: dbTime.start,
+                    end: dbTime.end
+                },
+                message.payload.eventQueries,
+                message.id,
+                message.payload.limit));
         }
     }
 

@@ -128,7 +128,7 @@
                     <div class="events-config">
                         <widget-config-events [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-events>
                         <div *ngIf="widget.settings.visual.showEvents" class="event-result-title"> Preview </div>
-                        <event-list *ngIf="widget.settings.visual.showEvents" class="events-list" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime" [previewLimit]="5">
+                        <event-list *ngIf="widget.settings.visual.showEvents" class="events-list" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime" [previewLimit]="previewEventsCount">
                         </event-list>
                     </div>
                 </ng-template>

@@ -120,6 +120,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     eventsWidth: number;
     startTime: number;
     endTime: number;
+    previewEventsCount = 10;
+    eventsCount = 10000;
 
     // behaviors that get passed to island legend
     private _buckets: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -334,6 +336,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.setLegend(message.payload.data);
                 this.cdRef.detectChanges();
                 this.refreshLegendSource();
+                this.setSize();
                 break;
             case 'UpdateQuery':
                 this.updateQuery(message.payload);
@@ -709,7 +712,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getEventData',
-                payload: this.widget
+                payload: {eventQueries: this.widget.eventQueries, limit: this.eventsCount}
             });
         }
     }
@@ -811,8 +814,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 },
                 options: {
                     title: this.widget.eventQueries[0].search ?
-                        'Events: ' + this.widget.eventQueries[0].namespace + ' - ' + this.widget.eventQueries[0].search :
-                        'Events: ' + this.widget.eventQueries[0].namespace
+                       // tslint:disable-next-line:max-line-length
+                       this.getEventCountInBuckets() + ' Events: ' + this.widget.eventQueries[0].namespace + ' - ' + this.widget.eventQueries[0].search :
+                       this.getEventCountInBuckets() + ' Events: ' + this.widget.eventQueries[0].namespace
                 }
             };
 
@@ -839,6 +843,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     newBuckets(buckets) {
         this._buckets.next(buckets);
         this._expandedBucketIndex.next(-1);
+    }
+
+    getEventCountInBuckets() {
+        let count = 0;
+        for (const bucket of this.buckets) {
+            count = count + bucket.events.length;
+        }
+        return count;
     }
 
     getSeriesLabel(index) {
