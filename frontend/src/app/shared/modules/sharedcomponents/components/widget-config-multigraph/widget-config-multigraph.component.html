@@ -104,7 +104,6 @@
             <div class="display-as-type">
                 <mat-form-field appearance="fill">
                     <mat-select formControlName="layout" required>
-                        <mat-option>--</mat-option>
                         <mat-option *ngFor="let layout of layoutPresetOptions" [value]="layout.value">
                         {{layout.label}}
                         </mat-option>
@@ -133,7 +132,6 @@
                     <div class="radio-inline-label" formGroupName="custom">
                         <mat-form-field appearance="fill" class="numeric-options">
                             <mat-select formControlName="x" [required]="FC_gridOpts_viewportDisplay.value === 'custom'">
-                                <mat-option>--</mat-option>
                                 <mat-option *ngFor="let option of customPresetValues" [value]="option">
                                 {{option}}
                                 </mat-option>
@@ -143,7 +141,6 @@
                         <span>rows and</span>
                         <mat-form-field appearance="fill" class="numeric-options">
                             <mat-select formControlName="y" [required]="FC_gridOpts_viewportDisplay.value === 'custom'">
-                                <mat-option>--</mat-option>
                                 <mat-option *ngFor="let option of customPresetValues" [value]="option">
                                 {{option}}
                                 </mat-option>
@@ -163,7 +160,6 @@
                     <div class="radio-inline-label" formGroupName="custom">
                         <mat-form-field appearance="fill" class="numeric-options">
                             <mat-select formControlName="y" [required]="FC_gridOpts_viewportDisplay.value === 'custom'">
-                                <mat-option>--</mat-option>
                                 <mat-option *ngFor="let option of customPresetValues" [value]="option">
                                 {{option}}
                                 </mat-option>
