@@ -15,7 +15,8 @@
             'display-legend-left': widget.settings.legend.display && widget.settings.legend.position=='left' && options.labels.length > 1
         }">
         <!-- STANDARD GRAPH OUTPUT -->
-        <ng-template [ngIf]="!multigraphEnabled" [ngIfElse]="multigraphOutput">
+
+        <ng-template [ngIf]="!multigraphEnabled">
             <div>
                 <div #dygraph class="graph-chart" [ngClass]="{'hide': widget.settings.legend.display &&  ( size.width <= 10 || size.height <= 10 ) }"
                     dygraphsChart
@@ -25,6 +26,7 @@
                     [options]="options"
                     [eventBuckets]="buckets"
                     [showEvents]="widget.settings.visual.showEvents"
+                    [renderReady]="renderReady"
                     (dateWindow)="receivedDateWindow($event)"
                     (zoomed)="handleZoom($event)">
                 </div>
@@ -67,7 +69,7 @@
             </div>
         </ng-template>
         <!-- MULTIGRAPH OUTPUT -->
-        <ng-template #multigraphOutput>
+        <ng-template [ngIf]="multigraphEnabled">
             <div class="multigraph-output">
                 <div class="multi-graph-container" [ngClass]="{'multigraph-grid-mode': multigraphMode === 'grid', 'multigraph-freeflow-mode': multigraphMode === 'freeflow'}">
                     <!-- grid output -->
@@ -90,6 +92,7 @@
                 </div>
             </div>
         </ng-template>
+
         <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
         <div class="error" *ngIf="error" (click)="showError()">
             <mat-icon>error</mat-icon>
