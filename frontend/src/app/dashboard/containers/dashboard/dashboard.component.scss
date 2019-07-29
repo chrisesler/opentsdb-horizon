@@ -218,6 +218,10 @@
                     &.widget-icon-notes::after {
                         background-position: 0px -100px;
                     }
+
+                    &.widget-icon-events::after {
+                        background-position: -50px -100px;
+                    }
                     
                     /*&::after {
                         content: '';
