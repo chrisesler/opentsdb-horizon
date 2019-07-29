@@ -220,8 +220,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
-                                environment.debugLevel.toUpperCase() == 'DEBUG' ||
-                                environment.debugLevel.toUpperCase() == 'INFO') {
+                                environment.debugLevel.toUpperCase() === 'DEBUG' ||
+                                environment.debugLevel.toUpperCase() === 'INFO') {
                                     this.debugData = rawdata.log; // debug log
                             }
                             setTimeout(() => {
