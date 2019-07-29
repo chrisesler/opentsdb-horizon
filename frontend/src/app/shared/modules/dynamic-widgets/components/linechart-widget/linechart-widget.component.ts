@@ -117,7 +117,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     // TODO: These multigraph values need to be retrieved from widget settings
     multigraphEnabled = true;
     multigraphMode = 'grid'; // grid || freeflow
+    renderReady = false;
     fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
 
     // EVENTS
     buckets: any[] = []; // still need this, as dygraph was looking for it
@@ -260,7 +262,36 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
         setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
-        this.setOptions();
+
+        // Timing issue? trying to move to afterViewInit
+        setTimeout(() => {
+            this.setOptions();
+            this.renderReady = true;
+        }, 200);
+    }
+
+    ngAfterViewInit() {
+
+        ElementQueries.listen();
+        ElementQueries.init();
+        const initSize = {
+            width: this.widgetOutputElement.nativeElement.clientWidth,
+            height: this.widgetOutputElement.nativeElement.clientHeight
+        };
+        this.newSize$ = new BehaviorSubject(initSize);
+
+        this.newSizeSub = this.newSize$.subscribe(size => {
+            this.setSize();
+            // this.newSize = size;
+        });
+        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () => {
+             const newSize = {
+                width: this.widgetOutputElement.nativeElement.clientWidth,
+                height: this.widgetOutputElement.nativeElement.clientHeight
+            };
+            this.newSize$.next(newSize);
+        });
+
     }
 
     refreshLegendSource() {
@@ -419,27 +450,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    ngAfterViewInit() {
-        ElementQueries.listen();
-        ElementQueries.init();
-        const initSize = {
-            width: this.widgetOutputElement.nativeElement.clientWidth,
-            height: this.widgetOutputElement.nativeElement.clientHeight
-        };
-        this.newSize$ = new BehaviorSubject(initSize);
-
-        this.newSizeSub = this.newSize$.subscribe(size => {
-            this.setSize();
-            // this.newSize = size;
-        });
-        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () => {
-             const newSize = {
-                width: this.widgetOutputElement.nativeElement.clientWidth,
-                height: this.widgetOutputElement.nativeElement.clientHeight
-            };
-            this.newSize$.next(newSize);
-        });
-    }
+    
 
     isApplyTpl(): boolean {
         return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
@@ -705,8 +716,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     setLegendDiv() {
-        this.options.labelsDiv = this.dygraphLegend.nativeElement;
-        this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
+        if (this.multigraphEnabled) {
+            this.options.labelsDiv = false;
+        } else {
+            this.options.labelsDiv = this.dygraphLegend.nativeElement;
+            this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
+        }
     }
 
     setDefaultEvents() {
