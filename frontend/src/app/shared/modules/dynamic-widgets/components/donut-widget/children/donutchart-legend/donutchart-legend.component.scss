@@ -2,6 +2,11 @@
 // TODO: Describe how this is setup & why there are two mixins (at a minimum)
 
 @mixin donutchart-legend-component-base() {
+
+    .legend text {
+        font-size: 10px;
+    }
+
     .widget-config-tab.donutchart-legend-configuration {
         // style rules here
         padding: 14px 0;

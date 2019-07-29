@@ -181,7 +181,7 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
             newSize.width = newSize.width - legendWidth;
         }
 
-        this.size = {...newSize, legendWidth: legendWidth - 20};
+        this.size = {...newSize, legendWidth: legendWidth};
         this.cdRef.detectChanges();
     }
 

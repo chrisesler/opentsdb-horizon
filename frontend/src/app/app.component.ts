@@ -7,6 +7,7 @@ import { Select } from '@ngxs/store';
 import { Router,  NavigationEnd } from '@angular/router';
 import { environment } from '../environments/environment';
 import { map } from 'rxjs/operators';
+import {Location} from '@angular/common';
 
 @Component({
     selector: 'app-root',
@@ -24,7 +25,8 @@ export class AppComponent implements OnInit {
 
     constructor(
         private dialog: MatDialog,
-        private router: Router
+        private router: Router,
+        private location: Location
     ) { 
         // register this router events to capture url changes
         this.router.events.subscribe((event) => {
@@ -85,6 +87,7 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
+        console.log("location: ", location);
         this.auth$.subscribe(auth => {
             if (auth === 'invalid') {
                 // console.log('open auth dialog');
