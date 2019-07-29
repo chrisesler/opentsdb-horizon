@@ -10,8 +10,8 @@ var DygraphLayout = require("dygraphs/src/dygraph-layout");
 
 var barChartPlotter = function(e) {
     // We need to handle all the series simultaneously.
-    debugger;
-    console.log("seriesIndex: ", e.seriesIndex);
+    // debugger;
+    // console.log("seriesIndex: ", e.seriesIndex);
     // if (e.seriesIndex !== 0) return;
 
     var g = e.dygraph;
@@ -19,7 +19,7 @@ var barChartPlotter = function(e) {
         g.attributes_.user_.barChartPlotter = {};
     }
 
-    console.log(g.attributes_.user_.barChartPlotter);
+    // console.log(g.attributes_.user_.barChartPlotter);
 
     g.attributes_.user_.barChartPlotter.called = true;
 
@@ -121,7 +121,7 @@ var barChartPlotter = function(e) {
         }
     }
 
-    console.log(barChartSeries);
+    // console.log(barChartSeries);
 
     // Find the minimum separation between x-values.
     // This determines the bar width.
@@ -161,7 +161,7 @@ var barChartPlotter = function(e) {
         seriesName = setNames[j];
         connectSeparated = g.getOption('connectSeparatedPoints', seriesName);
         logscale = g.attributes_.getForSeries("logscale", seriesName);
-        console.log("log scale: ", logscale, " series: ", seriesName);
+        // console.log("log scale: ", logscale, " series: ", seriesName);
 
         if (logscale) {
             y_bottom = e.dygraph.toDomYCoord(1);
