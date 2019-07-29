@@ -113,6 +113,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     preventSingleClick: boolean;
     clickTimer: any;
 
+    // MULTIGRAPH
+    // TODO: These multigraph values need to be retrieved from widget settings
+    multigraphEnabled = true;
+    multigraphMode = 'grid'; // grid || freeflow
+    fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
     // EVENTS
     buckets: any[] = []; // still need this, as dygraph was looking for it
     events: any[];
@@ -270,7 +276,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             let config;
             if (series.hasOwnProperty(index)) {
                 config = series[index];
-            } else {continue;}
+            } else {continue; }
             const row = {};
             row['srcIndex'] = index;
             for (let column = 0; column < this.legendDisplayColumns.length; column++) {
@@ -457,7 +463,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         let labelLen = 0;
         for ( const i in this.options.series ) {
             if (this.options.series.hasOwnProperty(i)) {
-            labelLen = labelLen < this.options.series[i].label.length ? this.options.series[i].label.length: labelLen ;
+            labelLen = labelLen < this.options.series[i].label.length ? this.options.series[i].label.length : labelLen ;
             }
         }
         if (legendSettings.display &&

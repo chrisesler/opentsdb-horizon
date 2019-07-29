@@ -154,35 +154,77 @@ $widgets-common-config: (
         }
     }
 
+    .multigraph-output {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: auto;
+    }
+
     .multi-graph-container {
+
         display: flex;
         flex-direction: column;
         justify-content: stretch;
         align-items: stretch;
 
-        .graph-row {
-            flex: 1;
-            display: flex;
-            flex-direction: row;
-            justify-content: stretch;
-            align-items: stretch;
+        .graph-cell {
+            position: relative;
+        }
 
-            &:not(:last-child){
-                border-bottom: 1px solid #ccc;
+        &.multigraph-grid-mode {
+            display: flex;
+
+
+            .graph-cell {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 6px;
+                min-width: 200px;
+                min-height: 200px;
+            }
+
+            .graph-row {
+                flex: 1;
+                display: flex;
+                flex-direction: row;
+                justify-content: stretch;
+                align-items: stretch;
             }
         }
 
-        .graph-cell {
-            flex: 1;
+        &.multigraph-freeflow-mode {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px;
-            min-width: 200px;
-            min-height: 200px;
 
-            &:not(:last-child){
-                border-right: 1px solid #ccc;
+            .graph-cell {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 6px;
+                min-width: 200px;
+                max-width: 200px;
+                min-height: 200px;
+            }
+
+            .graph-row {
+                width: 100%;
+                flex: 1;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+
+                &:not(:first-child) {
+                    margin-top: 12px;
+                }
+
+                .row-label {
+                    width: 100%;
+                    display: flex;
+                }
             }
         }
     }
@@ -224,6 +266,8 @@ $widgets-common-config: (
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
+
+    $divider: map-get($foreground, divider);
     
     .edit-view-container.is-active {
         .widget-output-container {
@@ -276,6 +320,45 @@ $widgets-common-config: (
 
         .widget-actions {
             border-top: 1px solid map-get($foreground, dividers);
+        }
+    }
+
+    .multi-graph-container {
+
+        &.multigraph-grid-mode {
+
+            .graph-cell {
+                &:not(:last-child){
+                    border-right: 1px solid $divider;
+                }
+            }
+
+            .graph-row {
+                &:not(:last-child){
+                    .graph-cell {
+                        border-bottom: 1px solid $divider;
+                    }
+                }
+            }
+        }
+
+        &.multigraph-freeflow-mode {
+
+            .graph-cell {
+                border-right: 1px solid $divider;
+                border-bottom: 1px solid $divider;
+            }
+
+            .graph-row {
+                .graph-cell {
+                    border-bottom: 1px solid $divider;
+                }
+
+                .row-label {
+                    padding: 4px 8px;
+                    background: $divider;
+                }
+            }
         }
     }
 }
