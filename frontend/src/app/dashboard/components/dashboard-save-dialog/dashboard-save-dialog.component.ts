@@ -94,10 +94,10 @@ export class DashboardSaveDialogComponent implements OnInit, OnDestroy {
         this.listenSub.unsubscribe();
     }
 
-    personalUseChecked(e: any) {
-        if (e.checked) {
+    dashboardSaveToChanged(e: any) {
+        if ('isPersonal' === e.value) {
             this.namespace.disable(); // disable namespace control
-        } else {
+        } else if ('isNamespace' === e.value){
             this.namespace.enable(); // enable namespace control
         }
     }

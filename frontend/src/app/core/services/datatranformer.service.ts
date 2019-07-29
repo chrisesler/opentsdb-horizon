@@ -79,7 +79,7 @@ export class DatatranformerService {
                     const hash = JSON.stringify(tags);
                     dict[mid]['values'][hash] = queryResults[i].data[j].NumericType;
                     const max = d3.max(queryResults[i].data[j].NumericType);
-                    if (vConfig.type === 'area' && max !== undefined) {
+                    if ( ('area' === vConfig.type || 'bar' === vConfig.type) && undefined !== max) {
                         areaMax += Number(max);
                         isStacked = true;
                         areaAxis = vConfig.axis || 'y1';
