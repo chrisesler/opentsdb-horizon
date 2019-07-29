@@ -1,22 +1,35 @@
 // borrowed from Dygraphs for RStudio
 // https://github.com/rstudio/dygraphs/blob/master/inst/plotters/stackedbarchart.js
 
+
+
+
 "use strict";
 
 var DygraphLayout = require("dygraphs/src/dygraph-layout");
 
 var barChartPlotter = function(e) {
     // We need to handle all the series simultaneously.
-    if (e.seriesIndex !== 0) return;
+    debugger;
+    console.log("seriesIndex: ", e.seriesIndex);
+    // if (e.seriesIndex !== 0) return;
 
     var g = e.dygraph;
+    if (!g.attributes_.user_.barChartPlotter) {
+        g.attributes_.user_.barChartPlotter = {};
+    }
+
+    console.log(g.attributes_.user_.barChartPlotter);
+
+    g.attributes_.user_.barChartPlotter.called = true;
+
     var ctx = e.drawingContext;
     var sets = e.allSeriesPoints;
     var y_bottom = e.dygraph.toDomYCoord(0);
 
 
     //extracting and reducing the Dygraph.stackPoints_ function
-    function stackPoints(points, cumulativeYval, seriesExtremes, fillMethod) {
+    function stackPoints(points, cumulativeYval, fillMethod) {
         var lastXval = null;
         var prevPoint = null;
         var nextPoint = null;
@@ -81,14 +94,6 @@ var barChartPlotter = function(e) {
             lastXval = xval;
 
             point.yval_stacked = stackedYval;
-
-            if (stackedYval > seriesExtremes[1]) {
-                seriesExtremes[1] = stackedYval;
-            }
-            if (stackedYval < seriesExtremes[0]) {
-                seriesExtremes[0] = stackedYval;
-            }
-
         }
     };
 
@@ -104,14 +109,19 @@ var barChartPlotter = function(e) {
         fillColors.push(strokeColors[i]);
     }
 
-    var seriesExtremes = [];
-
-    var tmpExtremes = [];
-    tmpExtremes[0] = Infinity;
-    tmpExtremes[1] = -Infinity;
-    for (var j = 0; j < sets.length; j++) {
-        seriesExtremes.push(tmpExtremes);
+    // figure out which series are configured to use
+    // barCharts. ignore the rest.
+    //e.dygraph.user_attrs_.series[].plotter.name;
+    var seriesInfo = g.user_attrs_.series;
+    var barChartSeries = {};
+    for (var i in seriesInfo) {
+        if (seriesInfo[i].plotter !== undefined && 
+            seriesInfo[i].plotter.name === "barChartPlotter") {
+            barChartSeries[i-1] = i;
+        }
     }
+
+    console.log(barChartSeries);
 
     // Find the minimum separation between x-values.
     // This determines the bar width.
@@ -127,64 +137,48 @@ var barChartPlotter = function(e) {
     // set up cumulative records
     var cumulativeYval = [];
     var packed = g.gatherDatasets_(g.rolledSeries_, null);
-    var extremes = packed.extremes;
     var seriesName;
 
     for (var j = sets.length - 1; j >= 0; j--) {
+
+        if (!barChartSeries[j]) continue;
 
         points = sets[j];
         seriesName = setNames[j];
 
         //  stack the data 
-        stackPoints(points, cumulativeYval, seriesExtremes[j],
-            g.getBooleanOption("stackedGraphNaNFill"));
-
-        extremes[seriesName] = seriesExtremes[j];
+        stackPoints(points, cumulativeYval, g.getBooleanOption("stackedGraphNaNFill"));
     }
 
-    // There is currently no way to update the axes height from inside the plotter...
-    // Will have to wait until update can be made to underlying dygraphs lib
-    // Preferring to do issue or pull request to main library on github instead of modifying here
-    // g.computeYAxisRanges_(extremes);
-    // g.layout_.setYAxes(g.axes_);
     var axis;
     var logscale;
     var connectSeparated;
 
     // Do the actual plotting.
     for (var j = 0; j < sets.length; j++) {
+        if (!barChartSeries[j]) continue;
+
         seriesName = setNames[j];
         connectSeparated = g.getOption('connectSeparatedPoints', seriesName);
         logscale = g.attributes_.getForSeries("logscale", seriesName);
+        console.log("log scale: ", logscale, " series: ", seriesName);
+
+        if (logscale) {
+            y_bottom = e.dygraph.toDomYCoord(1);
+        }
 
         axis = g.axisPropertiesForSeries(seriesName);
-
         points = sets[j];
-
         for (var i = 0; i < points.length; i++) {
             var point = points[i];
 
-            var yval = point.yval;
-
             point.y_stacked = DygraphLayoutCalcYNormal_(
                 axis, point.yval_stacked, logscale);
-
-            if (yval !== null && !isNaN(yval)) {
-                yval = point.yval_stacked;
-            }
-            if (yval === null) {
-                yval = NaN;
-                if (!connectSeparated) {
-                    point.yval = NaN;
-                }
-            }
-            point.y = DygraphLayoutCalcYNormal_(axis, yval, logscale);
-
+            
+            point.y = point.y_stacked;
             point.canvasx = g.plotter_.area.w * point.x + g.plotter_.area.x;
             point.canvasy = g.plotter_.area.h * point.y + g.plotter_.area.y;
-
             var center_x = point.canvasx;
-
             ctx.fillStyle = fillColors[j];
             ctx.strokeStyle = fillColors[j];
 
