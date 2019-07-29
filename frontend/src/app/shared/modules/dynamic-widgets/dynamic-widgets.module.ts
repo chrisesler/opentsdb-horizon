@@ -13,7 +13,10 @@ import { SharedcomponentsModule } from '../sharedcomponents/sharedcomponents.mod
 import { PlaceholderWidgetComponent } from './components/placeholder-widget/placeholder-widget.component';
 import { LinechartWidgetComponent } from './components/linechart-widget/linechart-widget.component';
 import { DeveloperWidgetComponent } from './components/developer-widget/developer-widget.component';
-import { MarkdownModule } from 'ngx-markdown';
+import {
+    MarkdownModule, 
+    MarkedOptions
+} from 'ngx-markdown';
 
 import {
     BignumberWidgetComponent,
@@ -54,7 +57,14 @@ import { EventsWidgetComponent } from './components/events-widget/events-widget.
         ChartjsModule,
         D3Module,
         SharedcomponentsModule,
-        MarkdownModule.forRoot()
+        MarkdownModule.forRoot({
+            markedOptions: {
+              provide: MarkedOptions,
+              useValue: {
+                sanitize: true,
+              }
+            }
+          })
     ],
     exports: [
         PlaceholderWidgetComponent,
