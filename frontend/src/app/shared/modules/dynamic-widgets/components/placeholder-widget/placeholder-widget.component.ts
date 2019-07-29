@@ -60,7 +60,7 @@ export class PlaceholderWidgetComponent  {
         {
             label: 'Events',
             type: 'EventsWidgetComponent',
-            iconClass: 'widget-icon-notes'
+            iconClass: 'widget-icon-events'
         }
         /*,
         {

@@ -150,7 +150,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         {
             label: 'Events',
             type: 'EventsWidgetComponent',
-            iconClass: 'widget-icon-notes'
+            iconClass: 'widget-icon-events'
         },
 
         /*,
