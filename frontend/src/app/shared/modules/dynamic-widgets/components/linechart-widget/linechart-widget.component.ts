@@ -115,7 +115,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     // MULTIGRAPH
     // TODO: These multigraph values need to be retrieved from widget settings
-    multigraphEnabled = true;
+    multigraphEnabled = false;
     multigraphMode = 'grid'; // grid || freeflow
     renderReady = false;
     fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -436,6 +436,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.refreshData();
                 this.needRequery = message.payload.reQuery;
                 break;
+            case 'UpdateMultigraph':
+                this.widget.settings.multigraph = message.payload;
+                console.log('hill - UpdateMultigraph', message.payload);
+                this.refreshData();
+                this.needRequery = true; // todo: check if we need requery cases
+                break;
         }
     }
 
@@ -449,8 +455,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             this.widget.queries[qindex] = query;
         }
     }
-
-    
 
     isApplyTpl(): boolean {
         return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
@@ -1008,7 +1012,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
           log: this.debugData,
           query: this.storeQuery 
         };
-        
         // re-use?
         this.debugDialog = this.dialog.open(DebugDialogComponent, dialogConf);
         this.debugDialog.afterClosed().subscribe((dialog_out: any) => {
