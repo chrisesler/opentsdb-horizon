@@ -79,9 +79,10 @@
 
         // preview area - graph and legend
         .preview-wrapper {
-            padding: 8px 16px;
+            padding: 0px;
             height: 180px;
             display: none;
+            flex-direction: row;
 
             .graph-wrapper,
             .legend-wrapper {
@@ -96,7 +97,6 @@
             .graph-wrapper {
                 position: relative;
                 .graph-output {
-                    width: 100%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -263,6 +263,12 @@
 
                         &:not(:last-child) {
                             margin-right: 8px;
+                        }
+
+                        &.threshold {
+                            .mat-form-field {
+                                width: 70px;
+                            }
                         }
                     }
                 }

@@ -15,6 +15,7 @@ interface IEventQuery {
     namespace: string;
     search: string;
     groupBy?: any[];
+    downSample?: any;
 }
 
 @Injectable({
@@ -677,8 +678,10 @@ export class YamasService {
                 type: 'Chain',
                 op: 'AND',
             };
-
             this.transformedQuery.executionGraph.push(node);
+            if ( query.downSample ) {
+                this.transformedQuery.executionGraph.push(this.getQueryDownSample(query.downSample, query.downSample.aggregator, null, [query.id]));
+            }
         }
         return this.transformedQuery;
     }

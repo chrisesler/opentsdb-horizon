@@ -33,7 +33,6 @@ export class DatatranformerService {
     let areaMax = 0;
     const mTimeConfigs = {};
     let totalSeries = 0;
-
     for ( let i = 0;  i < result.results.length; i++ ) {
         queryResults.push(result.results[i]);
         const [ source, mid ] = result.results[i].source.split(':');
@@ -46,10 +45,9 @@ export class DatatranformerService {
         queryResults[i] = Object.assign( {}, queryResults[i], {visualType: vConfig.type || 'line'} );
         if ( gConfig && gConfig.settings.visual.visible && vConfig.visible ) {
             if (!dict[mid]) {
-                dict[mid] = { hashes: {}};
+                dict[mid] = { hashes: {}, summarizer: {}};
             }
             if (source === 'summarizer') {
-                dict[mid]['summarizer'] = {};
                 const n = queryResults[i].data.length;
                 for (let j = 0; j < n; j++) {
                     const tags = queryResults[i].data[j].tags;
