@@ -3,7 +3,7 @@ import {
     OnChanges, SimpleChanges
 } from '@angular/core';
 import { UtilsService } from '../../../../../core/services/utils.service';
-import * as deepEqual from 'deep-equal';
+import * as deepEqual from 'fast-deep-equal';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -35,7 +35,7 @@ export class EventTimelineComponent implements OnInit, OnChanges {
     context: CanvasRenderingContext2D;
 
     eventLocations: any = [];
-    iconWidth = 25; // pixels
+    iconWidth = 25.1; // pixels (0.1 so that we have n-1 buckets)
     buckets = [];
     toolTipData: any = {};
     maxTooltipSourceSummaries = 3;
@@ -69,8 +69,9 @@ export class EventTimelineComponent implements OnInit, OnChanges {
         this.context.stroke();
 
         if (this.events) {
-            const oldBuckets = { ...this.buckets };
+            const oldBucketsIds = this.getEventIdsForBuckets([...this.buckets]);
             this.buckets = this.util.getEventBuckets(this.startTime, this.endTime, this.width / this.iconWidth, this.events);
+            const newBucketsIds = this.getEventIdsForBuckets([...this.buckets]);
 
             // tslint:disable:prefer-const
             for (let i = 0; i < this.buckets.length; i++) {
@@ -83,10 +84,22 @@ export class EventTimelineComponent implements OnInit, OnChanges {
                 }
             }
 
-            if (!deepEqual(oldBuckets, this.buckets)) {
+            if (!deepEqual(oldBucketsIds, newBucketsIds)) {
                 this.newBuckets.emit(this.buckets);
             }
         }
+    }
+
+    getEventIdsForBuckets(buckets) {
+        let bucketsOfIds = [];
+        for (const bucket of buckets) {
+            let eventIds = [];
+            for (const event of bucket.events) {
+                eventIds.push(event.eventId);
+            }
+            bucketsOfIds.push(eventIds);
+        }
+        return bucketsOfIds;
     }
 
     getPlaceholderText(bucket) {
@@ -147,26 +160,42 @@ export class EventTimelineComponent implements OnInit, OnChanges {
 
     drawEvent(xStart, color, bucket) {
         const count = bucket.events.length;
-        this.context.beginPath();
-        this.context.strokeStyle = color;
-        this.context.arc(xStart, 10, 10, 0, 2 * Math.PI);
-        this.context.fillStyle = this.iconColor;
-        this.context.fill();
-        // this.context.fillRect(xStart - 10, 0, 20, 20); // icons 20px squares
-        this.context.stroke();
+        this.roundRect(xStart - 7, 2, 16, 16, 2, color);
         this.eventLocations.push({
             xStart: (xStart - 10), xEnd: (xStart + 10), yStart: 0, yEnd: 20,
             bucket: bucket
         });
         // draw number in box
-        this.context.fillStyle = 'black';
+        this.context.fillStyle = 'white';
+        this.context.font = 'bold 12px Ubuntu';
         if (count.toString().length === 2) {
-            this.context.fillText(count.toString(), xStart - 6, 12);
+            this.context.fillText(count.toString(), xStart - 6, 14);
         } else if (count.toString().length > 2) {
-            this.context.fillText('*', xStart - 3, 12);
+            this.context.fillText('*', xStart - 3, 14);
         } else { // center single digit
-            this.context.fillText(count.toString(), xStart - 3, 12);
+            this.context.fillText(count.toString(), xStart - 3, 14);
         }
+    }
+
+    roundRect(x, y, w, h, radius, color) {
+        const context = this.context;
+        const r = x + w;
+        const b = y + h;
+        context.beginPath();
+        context.strokeStyle = color;
+        context.lineWidth = 4;
+        context.moveTo(x + radius, y);
+        context.lineTo(r - radius, y);
+        context.quadraticCurveTo(r, y, r, y + radius);
+        context.lineTo(r, y + h - radius);
+        context.quadraticCurveTo(r, b, r - radius, b);
+        context.lineTo(x + radius, b);
+        context.quadraticCurveTo(x, b, x, b - radius);
+        context.lineTo(x, y + radius);
+        context.quadraticCurveTo(x, y, x + radius, y);
+        context.fillStyle = color;
+        context.fill();
+        context.stroke();
     }
 
     canvasEnter(event: any) {

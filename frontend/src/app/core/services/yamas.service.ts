@@ -640,7 +640,7 @@ export class YamasService {
         return exists;
     }
 
-    buildEventsQuery(time, queries: IEventQuery[]) {
+    buildEventsQuery(time, queries: IEventQuery[], limit: number = 50) {
         this.time = time;
         this.transformedQuery = {
             start: time.start,
@@ -663,7 +663,7 @@ export class YamasService {
                 type: 'TimeSeriesDataSource',
                 types: ['events'],
                 from: '0',   // todo: what is this?
-                size: '50',
+                size: limit,
                 namespace: query.namespace,
                 filter: {}
             };

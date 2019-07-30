@@ -85,7 +85,7 @@ export class UnitConverterService {
         }
 
         precision = Number.isInteger(result) && !options.precisionStrict ? 0 : precision;
-        return prefix + result.toFixed(precision) + ( oUnit ? oUnit.unit: '') + postfix;
+        return prefix + parseFloat(result.toFixed(precision)) + ( oUnit ? oUnit.unit: '') + postfix;
     }
 
     getNormalizedUnit(value, options) {
@@ -177,7 +177,7 @@ export class UnitConverterService {
 
         precision = Number.isInteger(result) && !options.precisionStrict ? 0 : precision;
 
-        return prefix + result.toFixed(precision) + ' ' + ( dUnit ? dUnit.unit: '') +  postfix;
+        return prefix + parseFloat(result.toFixed(precision)) + ' ' + ( dUnit ? dUnit.unit: '') +  postfix;
     }
 
     getDefaultUnit(value, bigUnit=false) {

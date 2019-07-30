@@ -645,10 +645,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             end: this.dateUtil.timeToMoment(this.endTime, 'local').valueOf()};
         if ( eventQueries.length ) {
             this.error = '';
-            this.httpService.getEvents('123', time, eventQueries).subscribe(res => {
+            this.httpService.getEvents('123', time, eventQueries, 100).subscribe(res => {
                 this.events = res.events;
                 const config = {
-                    queries: [{ settings: { visual: {visible: true}}, metrics: [{name: 'count', settings: {visual: {type: 'bar', visible: true}}}]}]
+                    queries: [{ settings: { visual: {visible: true}}, metrics: [{name: 'count', settings: {visual: {type: 'bar', color:'#1aa3ff', visible: true}}}]}]
                 };
                 this.options.labels = ['x'];
                 const data = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], res.counts);

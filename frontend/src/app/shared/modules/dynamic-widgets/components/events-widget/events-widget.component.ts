@@ -31,6 +31,8 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
     startTime: number;
     endTime: number;
     timezone: string;
+    previewEventsCount = 10;
+    eventsCount = 100;
 
     // state control
     isDataRefreshRequired = false;
@@ -79,8 +81,14 @@ export class EventsWidgetComponent implements OnInit, OnDestroy, OnChanges {
         this.interCom.requestSend({
             id: this.widget.id,
             action: 'getEventData',
-            payload: this.widget
+            payload: {eventQueries: this.widget.eventQueries, limit: this.editMode ? this.previewEventsCount : this.eventsCount}
         });
+    }
+
+    getTitle() {
+        return this.widget.eventQueries[0].search ?
+            this.widget.eventQueries[0].namespace + ' - ' + this.widget.eventQueries[0].search :
+            this.widget.eventQueries[0].namespace;
     }
 
     applyConfig() {

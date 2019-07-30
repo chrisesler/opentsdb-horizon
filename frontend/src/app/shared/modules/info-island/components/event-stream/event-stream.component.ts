@@ -25,8 +25,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
     endTime: number;    // in milliseconds
     timezone: string;
     expandedBucketIndex: number;
-
-    expandedEventId = -1;  // for expanding details
+    maxEventsShown = 30;
 
     private subscription: Subscription = new Subscription();
 
@@ -51,7 +50,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
         }));
 
         this.subscription.add(this._data.data.expandedBucketIndex$.pipe(distinctUntilChanged()).subscribe( index => {
-            // this.logger.log('SELECTED BUCKET INDEX RECEIVED', {index});
+            // console.log('SELECTED BUCKET INDEX RECEIVED', {index});
             this.expandedBucketIndex = index;
 
             if (this.displayReady) {
@@ -69,7 +68,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
         }));
 
         this.subscription.add(_data.data.buckets$.pipe(distinctUntilChanged()).subscribe( buckets => {
-            // this.logger.log('BUCKETS RECEIVED', {buckets});
+            // console.log('BUCKETS RECEIVED', {buckets});
             this.buckets = buckets.map(bucket => {
                 if (bucket.events.length > 1) {
                     bucket.displayTime = this.util.buildDisplayTime(bucket.endTime, this.startTime, this.endTime, true, this.timezone);
@@ -80,7 +79,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
 
                 for (let i = 0; i < bucket.events.length; i++) {
                     const event: any = this.util.deepClone(bucket.events[i]);
-                    event.displayTime = this.util.buildDisplayTime(event.timestamp, this.startTime, this.endTime, bucket.width <= 1000 * 60, this.timezone);
+                    event.displayTime = this.util.buildDisplayTime(event.timestamp, this.startTime, this.endTime, true, this.timezone);
                     event.showDetails = false;
                     bucket.events[i] = event;
                 }
@@ -90,9 +89,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
         }));
     }
 
-    ngOnInit() {
-        
-    }
+    ngOnInit() { }
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
@@ -117,13 +114,12 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
 
         const newSelected = this.eventPanels.find( (panel: MatExpansionPanel, idx: number) => idx === this.expandedBucketIndex);
 
-
-            setTimeout( function() {
+        setTimeout( function() {
+            if (newSelected) {
                 newSelected.open();
-                this.displayReady = true;
-            }.bind(this), 200);
-
-
+            }
+            this.displayReady = true;
+        }.bind(this), 200);
     }
 
     /*hide() {
@@ -159,16 +155,6 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
                     index: -1
                 }
             });
-        }
-    }
-
-    openDetails(id) {
-        this.expandedEventId = id;
-    }
-
-    closeDetails(id: number = -1) {
-        if (id === -1 || id === this.expandedEventId) {
-            this.expandedEventId = -1;
         }
     }
 

@@ -174,7 +174,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
     if ( this.options.legend.display ) {
       const legendg = legend
                             .append("svg")
-                            .attr("width", maxLegendItemLen * 9 )
+                            .attr("width", (3+maxLegendItemLen) * 9 )
                             .attr("height", legendItemHeight*dataset.length)
                             .append("g")
                             .attr("class", "legend");
@@ -184,7 +184,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
           .enter()
           .append("rect")
           .attr("x", 0)
-          .attr("y", (d, i) => i *  legendItemHeight)
+          .attr("y", (d, i) => (i *  legendItemHeight))
           .attr("width", 10)
           .attr("height", 10)
           .style('stroke', (d:any) => d.color )
@@ -198,7 +198,7 @@ export class D3PieChartDirective implements OnInit, OnChanges {
           .attr("x", 15)
           .attr("width", 10)
           .attr("height", 10)
-          .attr("y", (d, i) => i *  legendItemHeight + 10)
+          .attr("y", (d, i) => (i *  legendItemHeight + 10))
           .text((d:any)=> d.label)
           .on('click', legendClickHandler);
     }

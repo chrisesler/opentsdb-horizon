@@ -150,7 +150,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         {
             label: 'Events',
             type: 'EventsWidgetComponent',
-            iconClass: 'widget-icon-notes'
+            iconClass: 'widget-icon-events'
         },
 
         /*,
@@ -788,12 +788,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
                 const gquery: any = {
                     wid: message.id,
-                    isEditMode: this.viewEditMode
+                    isEditMode: this.viewEditMode,
+                    dbid: this.dbid
                 };
                 if (Object.keys(queries).length) {
                     const query = this.queryService.buildQuery(payload, dt, queries);
                     gquery.query = query;
-                    
+                    console.debug("****** DSHBID: " + this.dbid + "  WID: " + gquery.wid);
                     // ask widget to loading signal
                     this.interCom.responsePut({
                         id: payload.id,
@@ -817,10 +818,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     handleEventQueryPayload(message: any) {
         if ( message.payload.eventQueries[0].namespace) {
             const dbTime = this.getDashboardDateRange();
-            this.store.dispatch(new GetEvents( {
-                start: dbTime.start,
-                end: dbTime.end},
-                message.payload.eventQueries, message.id));
+            this.store.dispatch(new GetEvents(
+                {   start: dbTime.start,
+                    end: dbTime.end
+                },
+                message.payload.eventQueries,
+                message.id,
+                message.payload.limit));
         }
     }
 

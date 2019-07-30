@@ -97,6 +97,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     @Select(AlertsState.getAllNamespaces) allNamespaces$: Observable<any[]>;
     allNamespaces: any[] = [];
 
+    allNamespacesDS = new MatTableDataSource([]);
+
     @Select(AlertState.getAlertDetails) alertDetail$: Observable<any>;
     @Select(SnoozeState.getSnoozeDetails) snoozeDetail$: Observable<any>;
 
@@ -279,6 +281,12 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.allNamespaces$.subscribe( data => {
             this.allNamespaces = data;
+            this.logger.log('NAMESPACES', this.allNamespaces);
+            this.allNamespacesDS = new MatTableDataSource(this.allNamespaces);
+            this.logger.log('NAMESPACES_DS', this.allNamespacesDS);
+            this.allNamespacesDS.filterPredicate = (data: any, filter: string) => {
+                return data.name.toLowerCase().includes(filter.toLowerCase());
+            };
         }));
 
         this.subscription.add(this.userNamespaces$.subscribe( data => {
@@ -302,10 +310,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
             this.stateLoaded.snooze = true;
             this.snoozes = JSON.parse(JSON.stringify(snoozes));
             this.snoozes =  this.snoozes.map( (d: any) => {
-                                if ( d.filters && d.filters.filters && d.filters.filters.length )  {
-                                    d.filters = this.utils.getFiltersTsdbToLocal(d.filters.filters);
+                                if ( d.filter && d.filter.filters && d.filter.filters.length )  {
+                                    d.rawFilters = this.utils.getFiltersTsdbToLocal(d.filter.filters);
                                 } else {
-                                    d.filters = [];
+                                    d.rawFilters = [];
                                 }
                                 return d;
                             });
@@ -607,6 +615,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.alertsDataSource.filter = dataFilter;
     }
 
+    applyAllNamespaceDataFilter(dataFilter: string) {
+        this.allNamespacesDS.filter = dataFilter;
+    }
+
     applySnoozeDataFilter(dataFilter: string) {
         this.snoozesDataSource.filter = dataFilter;
     }
@@ -757,6 +769,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
     formatAlertTimeModified(element: any) {
         const time = moment(element.updatedTime);
         return time.format('YYYY-MM-DD HH:mm');
+    }
+
+    formatTime(time: any) {
+        return moment(time).format('YYYY-MM-DD HH:mm');
     }
 
     getRecipientKeys(element: any) {

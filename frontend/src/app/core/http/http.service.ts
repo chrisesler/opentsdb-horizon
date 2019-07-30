@@ -53,13 +53,16 @@ export class HttpService {
         );
     }
     /* will refactor later */
-    getYamasData(query: any): Observable<any> {
-        const headers = new HttpHeaders(
+    getYamasData(payload: any): Observable<any> {
+        console.debug("------------ DSHBID: " + payload.dbid + "  WID: " + payload.wid + "  QUERY: " + payload.query);
+        var headers = new HttpHeaders(
             { 'Content-Type': 'application/json' });
+        headers = headers.set('X-Horizon-DSHBID', String(payload.dbid))
+                         .set('X-Horizon-WID', String(payload.wid));
         // simple random from 0 to length of hosts - 1
         // const metricsUrl = environment.tsdb_host + '/api/query/graph';
         const metricsUrl = environment.tsdb_hosts[Math.floor(Math.random() * (environment.tsdb_hosts.length - 1))] + '/api/query/graph';
-        return this.http.post(metricsUrl, query, { headers, withCredentials: true });
+        return this.http.post(metricsUrl, payload.query, { headers, withCredentials: true });
     }
     /* post to search for metric */
     searchMetrics(queryObj: any): Observable<any> {
@@ -429,8 +432,9 @@ export class HttpService {
     }
     /** snooze */
 
-    getEvents(wid: string, time: any, eventQueries: any[]) {
-        let query = this.yamasService.buildEventsQuery(time, eventQueries);
+    getEvents(wid: string, time: any, eventQueries: any[], limit) {
+        let query = this.yamasService.buildEventsQuery(time, eventQueries, limit);
+        // console.log(JSON.stringify(query, null, 2));
         const headers = new HttpHeaders({
             'Content-Type': 'application/json'
         });

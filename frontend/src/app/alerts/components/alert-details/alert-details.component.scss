@@ -323,7 +323,7 @@
                         height: 32px; 
                         min-width: 200px;
                         border-radius: 2px;
-                        dropdown-metric-tags {
+                        .dropdown-metric-tags {
                             button {
                                 width: 100%;
                             }
@@ -339,6 +339,32 @@
                             }
                         }
                     }
+                }
+            }
+
+            &.read-only-mode {
+
+                .form-control-wrap,
+                .threshold-type-options,
+                .recovery-option,
+                .sentence-item,
+                .delay-evaluation .delay-time,
+                .recipient-type-output > strong,
+                .message-subject-body > div,
+                .alert-oc-runbookid,
+                .alert-oc-severity,
+                .alert-labels {
+                    line-height: 32px;
+                }
+
+                .sentence-item {
+                    height: 32px;
+                }
+
+                .nag-interval-item,
+                .missing-data-item {
+                    display: flex;
+                    align-items: center;
                 }
             }
         }
