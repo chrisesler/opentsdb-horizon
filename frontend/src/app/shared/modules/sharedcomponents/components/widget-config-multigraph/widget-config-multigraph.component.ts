@@ -1,14 +1,14 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, HostBinding, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy,
+    HostBinding, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 import { Subscription, Subject } from 'rxjs';
-
-import {CdkDragDrop, moveItemInArray, transferArrayItem, CdkDragHandle, CdkDropList, CdkDrag} from '@angular/cdk/drag-drop';
-
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 import {MatTable} from '@angular/material/table';
 import { HttpService } from '../../../../../core/http/http.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { MatAutocompleteTrigger } from '@angular/material';
+import {MultigraphService } from '../../../../../core/services/multigraph.service';
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -80,17 +80,19 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     constructor(
         private fb: FormBuilder,
         private httpService: HttpService,
-        private utilService: UtilsService
+        private utilService: UtilsService,
+        private multiService: MultigraphService
     ) { }
 
     ngOnInit() {
+        console.log('hill - widget', this.widget);
         // get widget tags
         this.getWidgetTagKeys();
         // check of they have multigraph or not
         if (this.widget.settings.multigraph) {
             this.multigraph = {...this.widget.settings.multigraph };
         } else {
-            const groupByTags = this.getGroupByTags(this.widget.queries);
+            const groupByTags = this.multiService.getGroupByTags(this.widget.queries);
             for (let i = 0; i < groupByTags.length; i++) {
                 const item = {
                     key: groupByTags[i],
@@ -106,21 +108,6 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
         this.subscription.unsubscribe();
     }
 
-    getGroupByTags(queries: any[]): string[] {
-        let ret = [];
-        for (let i = 0; i < queries.length; i++) {
-            const query = queries[i];
-            for (let j = 0; j < query.metrics.length; j++) {
-                const metric = query.metrics[j];
-                if (metric.groupByTags.length) {
-                    ret = ret.concat(metric.groupByTags.filter((item) => {
-                        return ret.indexOf(item) < 0;
-                    }));
-                }
-            }
-        }
-        return ret;
-    }
     createForm(multigraph: any) {
 
         // setup the group

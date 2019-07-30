@@ -219,8 +219,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
                             this.resetChart(); // need to reset this data
+                            // render multigraph or not is here
+                            
                             this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                             this.data = { ...this.data };
+
+
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
                                 environment.debugLevel.toUpperCase() === 'DEBUG' ||
                                 environment.debugLevel.toUpperCase() === 'INFO') {
