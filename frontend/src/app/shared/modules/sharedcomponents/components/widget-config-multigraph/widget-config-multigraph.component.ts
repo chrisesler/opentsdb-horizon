@@ -25,18 +25,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.multigraph-configuration') private _tabClass = true;
 
-    /** Inputs */
-    private _widget: any = {};
-    @Input()
-    set widget(val: any) {
-        this._widget = val;
-        // get tag keys?
-        this.getWidgetTagKeys();
-    }
-
-    get widget(): any {
-        return this._widget;
-    }
+    @Input() widget: any;
 
     /** Outputs */
     @Output() widgetChange = new EventEmitter();
@@ -53,11 +42,6 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
 
     /** Form Group */
     widgetConfigMultigraph: FormGroup;
-
-    // form subscriptions
-
-    // form values
-
     // form control options
     layoutPresetOptions: Array<any> = [
         {
@@ -78,32 +62,20 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     /** Mat Table Stuff */
     chartDisplayColumns: string[] = ['label', 'x', 'y', 'g', 'order'];
 
-
-    /** FAKE DATA */
-
-    fakeMultigraph: any = {
+    // default mutilgraph
+    multigraph: any = {
         chart: [
             {
                 key: 'metric_group',
-                displayAs: 'g', // x|| y || g
-                order: 0
-            },
-            {
-                key: 'tag_label',
-                displayAs: 'g', // x|| y || g
-                order: 1
+                displayAs: 'g', // g|x|y
             }
         ],
-        layout: 'grid', // grid || freeflow
+        layout: 'grid', // grid | freeflow
         gridOptions: {
-            viewportDisplay: 'fit', // fit || custom
-            custom: {
-                x: 3,
-                y: 3
-            }
+            viewportDisplay: 'fit', // fit | custom
+            custom: {x: 3, y: 3}
         }
     };
-
 
     constructor(
         private fb: FormBuilder,
@@ -112,14 +84,44 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        this.createForm();
+        // get widget tags
+        this.getWidgetTagKeys();
+        // check of they have multigraph or not
+        if (this.widget.settings.multigraph) {
+            this.multigraph = {...this.widget.settings.multigraph };
+        } else {
+            const groupByTags = this.getGroupByTags(this.widget.queries);
+            for (let i = 0; i < groupByTags.length; i++) {
+                const item = {
+                    key: groupByTags[i],
+                    displayAs: 'g'
+                };
+                this.multigraph.chart.push(item);
+            }
+        }
+        this.createForm(this.multigraph);
     }
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
     }
 
-    createForm() {
+    getGroupByTags(queries: any[]): string[] {
+        let ret = [];
+        for (let i = 0; i < queries.length; i++) {
+            const query = queries[i];
+            for (let j = 0; j < query.metrics.length; j++) {
+                const metric = query.metrics[j];
+                if (metric.groupByTags.length) {
+                    ret = ret.concat(metric.groupByTags.filter((item) => {
+                        return ret.indexOf(item) < 0;
+                    }));
+                }
+            }
+        }
+        return ret;
+    }
+    createForm(multigraph: any) {
 
         // setup the group
         this.widgetConfigMultigraph = this.fb.group({
@@ -135,13 +137,13 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
         });
 
         // patch with values (triggering first valueChange)
-        this.widgetConfigMultigraph.patchValue(this.fakeMultigraph, {
+        this.widgetConfigMultigraph.patchValue(this.multigraph, {
             emitEvent: true
         });
 
-        for (const i in this.fakeMultigraph.chart) {
-            if (this.fakeMultigraph.chart[i]) {
-                const chartItem = this.fakeMultigraph.chart[i];
+        for (const i in this.multigraph.chart) {
+            if (this.multigraph.chart[i]) {
+                const chartItem = this.multigraph.chart[i];
                 this.addChartItem(chartItem);
             }
         }
@@ -170,10 +172,11 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
         );
 
         this.subscription.add(
-            this.widgetConfigMultigraph.controls['chart'].valueChanges.subscribe(changes => {
-                console.log('CHART CHANGES', changes);
+            this.widgetConfigMultigraph.valueChanges.subscribe(changes => {
                 if (this.chartTable) {
+                    console.log('hill - chart table', changes);
                     this.chartTable.renderRows();
+                    this.widgetChange.emit({ action: 'UpdateMultigraph', payload: changes });
                 }
             })
         );
