@@ -682,11 +682,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     createSnooze() {
-        console.log("alertListMeta", this.stateLoaded.alerts);
         if (!this.stateLoaded.alerts ) {
             this.store.dispatch(new LoadAlerts({namespace: this.selectedNamespace}));
         }
-        console.log("alertListMeta", this.alertListMeta);
         const data = {
             id: '_new_',
             namespace: this.selectedNamespace
