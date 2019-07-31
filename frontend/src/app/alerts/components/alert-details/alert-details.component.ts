@@ -7,7 +7,7 @@ import {
     ElementRef,
     TemplateRef,
     AfterContentInit, EventEmitter,
-    Output, HostListener,
+    Output,
     Input
 } from '@angular/core';
 
@@ -743,8 +743,12 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     validateEventAlertForm() {
         const namespace = this.alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').value;
+        const threshold = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
         if ( !namespace ) {
             this.alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').setErrors({'required': true});
+        }
+        if ( !threshold ) {
+            this.alertForm.get('threshold').get('eventAlert').get('threshold').setErrors({'required': true});
         }
     }
 
@@ -1347,15 +1351,4 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }
         });
     }
-
-    @HostListener('window:resize', ['$event'])
-    onResize(event) {
-        const newSize = {
-            width: this.elRef.nativeElement.getBoundingClientRect() * 0.6,
-            height: this.graphOutput.nativeElement.clientHeight
-        };
-        // console.log("come shere ", newSize, this.elRef.nativeElement.getBoundingClientRect())
-        // this.size = newSize;
-    }
-
 }

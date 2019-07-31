@@ -266,8 +266,14 @@
                         }
 
                         &.threshold {
+                            position: relative;
                             .mat-form-field {
                                 width: 70px;
+                            }
+                            .mat-error {
+                                position: absolute;
+                                top: 100%;
+                                white-space: nowrap;
                             }
                         }
                     }
