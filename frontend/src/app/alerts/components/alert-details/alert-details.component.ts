@@ -433,7 +433,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 recipients: [ data.notification.recipients || {}],
                 subject: data.notification.subject  || '',
                 body: data.notification.body || '',
-                opsgeniePriority:  data.notification.opsgeniePriority || '',
+                opsgeniePriority:  data.notification.opsgeniePriority || 'P5',
                 // opsgenieTags: data.notification.opsgenieTags || '',
                 // OC conditional values
                 runbookId: data.notification.runbookId || '',
@@ -1105,6 +1105,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             email: 'Email'
         }
         return types[type];
+    }
+
+    getSplunkLink() {
+        return 'https://logs.yms.yahoo.com:9999/splunk/en-US/app/search/search?q=search%20index%3Dcorona-alerts%20alert_id%3D'
+        + this.data.id;
     }
 
     /** Privates */
