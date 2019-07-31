@@ -644,6 +644,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             start: this.dateUtil.timeToMoment(this.startTime, 'local').valueOf(),
             end: this.dateUtil.timeToMoment(this.endTime, 'local').valueOf()};
         if ( eventQueries.length ) {
+            this.nQueryDataLoading = 1;
             this.error = '';
             this.httpService.getEvents('123', time, eventQueries, 100).subscribe(res => {
                 this.events = res.events;
@@ -663,8 +664,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 this.options.axes.y.tickFormat.max = max;
                 this.setChartYMax();
                 this.chartData = { ts: data };
+                this.nQueryDataLoading = 0;
             }, err => {
                 this.error = err;
+                this.nQueryDataLoading = 0;
             });
         }
     }

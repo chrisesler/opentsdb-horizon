@@ -20,25 +20,6 @@
             <event-list [events]="events" [timezone]="'utc'" [startTime]="startTime" [endTime]="endTime" style="overflow: scroll">
             </event-list>
         </div>
-        <!--<div class="preview-wrapper" fxLayout="row" [ngClass]="{'is-visible': data.type === 'event'}">
-                <div class="graph-wrapper">
-                        <div class="graph-output" #graphOutput>
-                            <div #dygraph class="chart"
-                            dygraphsChart
-                            [chartType]="'line'"
-                            [data]="chartData"
-                            [size]="size"
-                            [options]="options">
-                            </div>
-                            <div class="dygraph-legend" #graphLegend></div>
-                        </div>
-                        <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
-                        <div class="error" *ngIf="error" (click)="showError()">
-                            <mat-icon>error</mat-icon>
-                        </div>
-                </div>
-        </div>-->
-
         <!-- 
         [****    EDIT MODE    ****]
         -->
