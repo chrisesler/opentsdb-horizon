@@ -33,7 +33,7 @@
                                     <div class="form-control-wrap">
                                             <query-editor-proto  [query]="queries[0]" [queries]="queries"
                                             [options]="{
-                                                metaSource: 'aurastatus',
+                                                metaSource: 'aurastatus:alert',
                                                 showNamespaceBar: false,
                                                 enableMultipleQueries: false,
                                                 enableMetric: false,
@@ -104,33 +104,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="step-section notification-section">
+                        <div class="step-section miscellaneous-section">
                             <div class="step-section-label">
-                                <span class="step-section-label-text">3. Notification</span>
+                                <span class="step-section-label-text">3. Miscellaneous</span>
                             </div>
                             <div class="step-section-content">
-                                <div class="form-group snooze-recipients">
-                                    <div class="form-label vertical-center"><strong>Recipients</strong></div>
-                                    <div class="form-control-wrap">
-                                        <recipients-manager (updatedAlertRecipients)="alertRecipientsUpdate($event)"
-                                            [namespace]="data.namespace"
-                                            [selectedAlertRecipients]="snoozeForm['controls'].notification.get('recipients').value"
-                                            ></recipients-manager>
-                                        <mat-error *ngIf="snoozeForm.get('notification').get('recipients').errors && snoozeForm.get('notification').get('recipients').errors.required">Please select the recipients</mat-error>
-                                    </div>
-                                </div>
-                                
                                 <div class="form-group alert-message">
-                                    <div class="form-label vertical-center"><strong>Alert message</strong></div>
-                                    <div class="message-subject-body" formGroupName="notification">
-                                        <mat-form-field appearance="fill" floatLabel="never" >
-                                            <input matInput autocomplete="off" formControlName="subject" placeholder="Enter a subject">
-                                        </mat-form-field>
-                                        <mat-error *ngIf="snoozeForm.get('notification').get('subject').errors && snoozeForm.get('notification').get('subject').errors.required">Please enter the subject</mat-error>
+                                    <div class="form-label vertical-center"><strong>Reason to snooze</strong></div>
+                                    <div class="message-subject-body">
                                         <mat-form-field appearance="fill" floatLabel="never">
-                                            <textarea matInput autocomplete="off"  formControlName="message" placeholder="Enter a message"></textarea>
+                                            <textarea matInput autocomplete="off"  formControlName="reason" placeholder="Enter a reason"></textarea>
                                         </mat-form-field>
-                                        <mat-error *ngIf="snoozeForm.get('notification').get('message').errors && snoozeForm.get('notification').get('message').errors.required">Please enter the message</mat-error>
                                     </div>  
                                 </div>
                             </div>

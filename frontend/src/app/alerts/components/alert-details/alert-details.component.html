@@ -40,6 +40,9 @@
                             <mat-icon fontSet="denali" fontIcon="d-pencil"></mat-icon>
                         </button>-->
                     </div>
+                    <div class="splunk-link" *ngIf="data.id">
+                        <a [href]="getSplunkLink()" target="_blank">View in Splunk</a>
+                    </div>
                 </div>
                 <span class="flex-spacer"></span>
                 <!--<div class="toolbar-item" *ngIf="hasWriteAccess">
@@ -56,7 +59,7 @@
                         <div class="query-metric-row" *ngFor="let query of queries; let index=index">
                             <query-editor-proto [label]="'Q' + (index + 1)" [query]="query" [queries]="queries"
                                 [options]="{
-                                    metaSource: data.type === 'healthcheck' ? 'aurastatus' : 'meta',
+                                    metaSource: data.type === 'healthcheck' ? 'aurastatus:check' : 'meta',
                                     enableMultipleQueries: data.type === 'simple',
                                     enableMetric: data.type === 'simple',
                                     toggleMetric: false,
@@ -476,18 +479,14 @@
                             </mat-form-field>
                         </div>
                         <div class="oc-specific-fields" *ngIf="notificationRecipientsValue && notificationRecipientsValue.oc">
-                            <mat-divider></mat-divider>
-                            <div class="form-group">
-                                <div class="form-label vertical-center"><strong>OC Contact Settings</strong></div>
-                            </div>
                             <div class="form-group alert-oc-runbookid">
-                                <div class="form-label vertical-center"><strong>Runbook ID</strong></div>
+                                <div class="form-label vertical-center"><strong>OC Runbook ID</strong></div>
                                 <mat-form-field appearance="fill" floatLabel="never">
                                     <input matInput autocomplete="off" formControlName="runbookId" placeholder="Enter runbook id">
                                 </mat-form-field>
                             </div>
                             <div class="form-group alert-oc-severity">
-                                <div class="form-label vertical-center"><strong>Severity</strong></div>
+                                <div class="form-label vertical-center"><strong>OC Severity</strong></div>
                                 <div class="severity-type-options">
                                     <mat-radio-group formControlName="ocSeverity">
                                         <mat-radio-button *ngFor="let option of ocSeverityOptions" value="{{option.value}}">{{option.label}}</mat-radio-button>
@@ -496,12 +495,8 @@
                             </div>
                         </div>
                         <div class="ops-genie-specific-fields" *ngIf="notificationRecipientsValue && notificationRecipientsValue.opsgenie">
-                            <mat-divider></mat-divider>
-                            <div class="form-group">
-                                <div class="form-label vertical-center"><strong>Ops Genie Settings</strong></div>
-                            </div>
                             <div class="form-group alert-oc-severity">
-                                <div class="form-label vertical-center"><strong>Priority</strong></div>
+                                <div class="form-label vertical-center"><strong>OpsGenie Priority</strong></div>
                                 <div class="priority-type-options">
                                     <mat-radio-group formControlName="opsgeniePriority">
                                         <mat-radio-button *ngFor="let option of opsGeniePriorityOptions" value="{{option.value}}">{{option.label}}</mat-radio-button>
@@ -818,16 +813,12 @@
                             </div>
                         </div>
                         <div class="oc-specific-fields" *ngIf="notificationRecipientsValue && notificationRecipientsValue.oc">
-                            <mat-divider></mat-divider>
-                            <div class="form-group">
-                                <div class="form-label vertical-center"><strong>OC Contact Settings</strong></div>
-                            </div>
                             <div class="form-group alert-oc-runbookid">
-                                <div class="form-label vertical-center"><strong>Runbook ID</strong></div>
+                                <div class="form-label vertical-center"><strong>OC Runbook ID</strong></div>
                                 <span>{{data.notification.runbookId}}</span>
                             </div>
                             <div class="form-group alert-oc-severity">
-                                <div class="form-label vertical-center"><strong>Severity</strong></div>
+                                <div class="form-label vertical-center"><strong>OC Severity</strong></div>
                                 <div class="severity-type-options">
                                     <span>{{data.notification.ocSeverity}}</span>
                                 </div>                                
@@ -835,11 +826,8 @@
                         </div>
                         <div class="ops-genie-specific-fields" *ngIf="notificationRecipientsValue && notificationRecipientsValue.opsgenie">
                             <mat-divider></mat-divider>
-                            <div class="form-group">
-                                <div class="form-label vertical-center"><strong>Ops Genie Settings</strong></div>
-                            </div>
                             <div class="form-group alert-oc-severity">
-                                <div class="form-label vertical-center"><strong>Priority</strong></div>
+                                <div class="form-label vertical-center"><strong>OpsGenie Priority</strong></div>
                                 <div class="priority-type-options">
                                     <span>{{data.notification.opsgeniePriority}}</span>
                                 </div>                                
