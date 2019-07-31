@@ -536,8 +536,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             queries: this.fb.group({
                 eventdb: this.fb.array([
                         this.fb.group({
-                            namespace: data.queries.eventdb[0].namespace || 'o2infra',
-                            filter: data.queries.eventdb[0].filter || 'aws',
+                            namespace: data.queries.eventdb[0].namespace || '',
+                            filter: data.queries.eventdb[0].filter || '',
                             groupBy: [data.queries.eventdb[0].groupBy || []]})
                     ])
             }),
@@ -552,9 +552,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }),
             notification: this.fb.group({
                 transitionsToNotify: [ data.notification.transitionsToNotify || ['goodToBad']],
-                recipients: [ data.notification.recipients || {email: [{name: 'syed@verizonmedia.com'}]}],
-                subject: data.notification.subject  || 'test',
-                body: data.notification.body || 'body',
+                recipients: [ data.notification.recipients || {}],
+                subject: data.notification.subject  || '',
+                body: data.notification.body || '',
                 opsgeniePriority:  data.notification.opsgeniePriority || '',
                 runbookId: data.notification.runbookId || '',
                 ocSeverity: data.notification.ocSeverity || '5'
