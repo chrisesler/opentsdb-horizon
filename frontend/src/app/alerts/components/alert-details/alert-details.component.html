@@ -56,7 +56,7 @@
                         <div class="query-metric-row" *ngFor="let query of queries; let index=index">
                             <query-editor-proto [label]="'Q' + (index + 1)" [query]="query" [queries]="queries"
                                 [options]="{
-                                    metaSource: data.type === 'healthcheck' ? 'aurastatus' : 'meta',
+                                    metaSource: data.type === 'healthcheck' ? 'aurastatus:check' : 'meta',
                                     enableMultipleQueries: data.type === 'simple',
                                     enableMetric: data.type === 'simple',
                                     toggleMetric: false,
