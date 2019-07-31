@@ -15,7 +15,122 @@
             'display-legend-left': widget.settings.legend.display && widget.settings.legend.position=='left' && options.labels.length > 1
         }">
         <!-- STANDARD GRAPH OUTPUT -->
+        <div class="multigraph-output">
+            <div class="multi-graph-container" [ngClass]="{'multigraph-grid-mode': multigraphMode === 'grid', 'multigraph-freeflow-mode': !multigraphEnabled || multigraphMode === 'freeflow'}">
+                <div class="graph-row" *ngFor="let yKey of getGraphDataObjectKeys(graphData); let i = index;">
+                    <div class="graph-cell" *ngFor="let xKey of getGraphDataObjectKeys(graphData[yKey]); let j = index;" [style.width.px]="size.width" [style.height.px]="size.height">
+                        <!--grid-cell-[{{i}},{{j}}]
+                        <ng-container *ngTemplateOutlet="graphRender;context:(getGraphTemplateContext(graphData[yKey][xKey],{yKey:yKey,xKey:xKey,yIdx:i,xIdx:j}))"></ng-container>-->
+                        <div>
+                            <div #dygraph class="graph-chart" [ngClass]="{'hide': widget.settings.legend.display &&  ( size.width <= 10 || size.height <= 10 ) }"
+                                dygraphsChart
+                                [chartType]="chartType"
+                                [data]="graphData[yKey][xKey]"
+                                [size]="size"
+                                [options]="options"
+                                [eventBuckets]="buckets"
+                                [showEvents]="widget.settings.visual.showEvents"
+                                [renderReady]="false"
+                                (dateWindow)="receivedDateWindow($event)"
+                                (zoomed)="handleZoom($event)">
+                            </div>
+                            <div class="dygraph-legend" #graphLegend [attr.id]="'graphlegend-' + i + '-' + j"></div>
+                            <div class="events-overlay" [hidden]="!widget.settings.visual.showEvents" *ngIf="!multigraphEnabled">
+                                <event-timeline 
+                                [startTime]="startTime" 
+                                [endTime]="endTime" 
+                                [width]="eventsWidth" 
+                                [events]="events"
+                                [toolTipHeightFromTop]="size.height"
+                                [timezone] = "options.labelsUTC ? 'utc' : 'local'" 
+                                (canvasClicked)="updatedShowEventStream(true)"
+                                (bucketClicked)="bucketClickedAtIndex($event)"
+                                (newBuckets)="newBuckets($event)"></event-timeline>
+                            </div>
+                        </div>
+            
+                        <div class="graph-legend" [style.width]="legendWidth" [style.height]="legendHeight" *ngIf="!multigraphEnabled">
+                            <ng-container *ngIf="widget.settings.legend.display">
+                                <table mat-table matSort [dataSource]="legendDataSource">
+                                    <ng-container matColumnDef="color">
+                                            <th mat-header-cell *matHeaderCellDef></th>
+                                            <td mat-cell *matCellDef="let element"><div class="line-series"  [style.backgroundColor]= "element.color"></div></td>
+                                    </ng-container>
+                                    <ng-container matColumnDef="name">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header>name</th>
+                                            <td mat-cell *matCellDef="let element" [style.textDecoration]="options.visibility[element.srcIndex-1]===true? 'none': 'line-through'" > {{element.name}} </td>
+                                    </ng-container>
+                                    <ng-container *ngFor="let column of widget.settings.legend.columns || [] " [matColumnDef]="column">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column }}</th>
+                                        <td mat-cell *matCellDef="let element"> {{ root.normalizeValue(element[column], element.srcIndex) }}</td>
+                                    </ng-container>
+                                    <ng-container >
+                                        <tr mat-header-row *matHeaderRowDef="legendDisplayColumns;sticky: true"></tr>
+                                    </ng-container>
+                                    <tr mat-row *matRowDef="let element; columns: legendDisplayColumns" (click)="stoggleChartSeries(element.srcIndex-1, false)" (dblclick)="toggleChartSeries(element.srcIndex-1, true)"></tr>
+                                </table>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <ng-template #graphRender let-root let-data="data" let-ctx="ctx">
+            <div>
+                <div class="dygraph-legend" #graphLegend [attr.id]="'graphlegend-' + ctx.yIdx + '-' + ctx.xIdx"></div>
+                <div #dygraph class="graph-chart" [ngClass]="{'hide': root.widget.settings.legend.display &&  ( root.size.width <= 10 || root.size.height <= 10 ) }"
+                    dygraphsChart
+                    [chartType]="root.chartType"
+                    [data]="data"
+                    [size]="root.size"
+                    [options]="root.getMultigraphOptions(ctx)"
+                    [eventBuckets]="root.buckets"
+                    [showEvents]="root.widget.settings.visual.showEvents"
+                    [renderReady]="false"
+                    (dateWindow)="root.receivedDateWindow($event)"
+                    (zoomed)="root.handleZoom($event)">
+                </div>
+                
+                <div class="events-overlay" [hidden]="!root.widget.settings.visual.showEvents" *ngIf="!multigraphEnabled">
+                    <event-timeline 
+                    [startTime]="root.startTime" 
+                    [endTime]="root.endTime" 
+                    [width]="root.eventsWidth" 
+                    [events]="root.events"
+                    [toolTipHeightFromTop]="root.size.height"
+                    [timezone] = "root.options.labelsUTC ? 'utc' : 'local'" 
+                    (canvasClicked)="root.updatedShowEventStream(true)"
+                    (bucketClicked)="root.bucketClickedAtIndex($event)"
+                    (newBuckets)="root.newBuckets($event)"></event-timeline>
+                </div>
+            </div>
+
+            <div class="graph-legend" [style.width]="root.legendWidth" [style.height]="root.legendHeight" *ngIf="!multigraphEnabled">
+                <ng-container *ngIf="root.widget.settings.legend.display">
+                    <table mat-table matSort [dataSource]="root.legendDataSource">
+                        <ng-container matColumnDef="color">
+                                <th mat-header-cell *matHeaderCellDef></th>
+                                <td mat-cell *matCellDef="let element"><div class="line-series"  [style.backgroundColor]= "element.color"></div></td>
+                        </ng-container>
+                        <ng-container matColumnDef="name">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>name</th>
+                                <td mat-cell *matCellDef="let element" [style.textDecoration]="root.options.visibility[element.srcIndex-1]===true? 'none': 'line-through'" > {{element.name}} </td>
+                        </ng-container>
+                        <ng-container *ngFor="let column of root.widget.settings.legend.columns || [] " [matColumnDef]="column">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column }}</th>
+                            <td mat-cell *matCellDef="let element"> {{ root.normalizeValue(element[column], element.srcIndex) }}</td>
+                        </ng-container>
+                        <ng-container >
+                            <tr mat-header-row *matHeaderRowDef="root.legendDisplayColumns;sticky: true"></tr>
+                        </ng-container>
+                        <tr mat-row *matRowDef="let element; columns: root.legendDisplayColumns" (click)="root.toggleChartSeries(element.srcIndex-1, false)" (dblclick)="root.toggleChartSeries(element.srcIndex-1, true)"></tr>
+                    </table>
+                </ng-container>
+            </div>
+        </ng-template>
+        
+        <!--
         <ng-template [ngIf]="!multigraphEnabled">
             <div>
                 <div #dygraph class="graph-chart" [ngClass]="{'hide': widget.settings.legend.display &&  ( size.width <= 10 || size.height <= 10 ) }"
@@ -67,12 +182,13 @@
                     </table>
                 </ng-container>
             </div>
-        </ng-template>
-        <!-- MULTIGRAPH OUTPUT -->
+        </ng-template>-->
+        
+        <!-- MULTIGRAPH OUTPUT 
         <ng-template [ngIf]="multigraphEnabled">
             <div class="multigraph-output">
                 <div class="multi-graph-container" [ngClass]="{'multigraph-grid-mode': multigraphMode === 'grid', 'multigraph-freeflow-mode': multigraphMode === 'freeflow'}">
-                    <!-- grid output -->
+
                     <ng-container *ngIf="multigraphMode === 'grid'">
                         <div class="graph-row" *ngFor="let row of fakeLoopData; let i = index;">
                             <div class="graph-cell" *ngFor="let cell of fakeLoopData; let j = index;">
@@ -80,7 +196,6 @@
                             </div>
                         </div>
                     </ng-container>
-                    <!-- freeflow output -->
                     <ng-container *ngIf="multigraphMode === 'freeflow'">
                         <div class="graph-row" *ngFor="let row of fakeLoopData; let i = index;">
                             <div class="row-label">ROW {{i}}</div>
@@ -91,7 +206,7 @@
                     </ng-container>
                 </div>
             </div>
-        </ng-template>
+        </ng-template>-->
 
         <div class="loading-spinner size-s color-primary" *ngIf="nQueryDataLoading > 0"></div>
         <div class="error" *ngIf="error" (click)="showError()">
