@@ -248,7 +248,7 @@
 
                     <ng-container matColumnDef="name">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                            <span *ngIf="!selection.hasValue()" mat-sort-header="name">End Time</span>
+                            <span *ngIf="!selection.hasValue()">End Time</span>
                             <div class="bulk-actions-wrapper" *ngIf="selection.hasValue()">
                                 <button mat-button color="primary" (click)="bulkDeleteAlerts()">
                                     <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
