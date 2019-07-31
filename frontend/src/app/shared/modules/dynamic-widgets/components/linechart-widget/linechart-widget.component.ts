@@ -221,8 +221,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             setTimeout(() => {
                                 this.setSize();
                             });
-                            this.cdRef.detectChanges();
                             this.refreshLegendSource();
+                            this.cdRef.detectChanges();
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
