@@ -53,7 +53,7 @@ export interface WidgetModel {
             tags?: string[];
         };
         thresholds?: ThresholdConfig[];
-        multigraph?: {};
+        multigraph?: any;
     };
     gridPos: {
         x: number;
