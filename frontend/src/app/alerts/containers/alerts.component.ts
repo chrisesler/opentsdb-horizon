@@ -301,10 +301,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.subscription.add(this.alerts$.pipe(skip(1)).subscribe( alerts => {
             this.stateLoaded.alerts = true;
             this.alerts = JSON.parse(JSON.stringify(alerts));
-            if ( this.list === 'snooze' ) {
-                this.setAlertListMeta();
-            }
             this.setTableDataSource();
+            this.setAlertListMeta();
         }));
 
         this.subscription.add(this.snoozes$.pipe(skip(1)).subscribe( snoozes => {
@@ -684,9 +682,11 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     createSnooze() {
+        console.log("alertListMeta", this.stateLoaded.alerts);
         if (!this.stateLoaded.alerts ) {
             this.store.dispatch(new LoadAlerts({namespace: this.selectedNamespace}));
         }
+        console.log("alertListMeta", this.alertListMeta);
         const data = {
             id: '_new_',
             namespace: this.selectedNamespace
