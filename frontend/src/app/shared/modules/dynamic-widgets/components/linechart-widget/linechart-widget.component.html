@@ -31,6 +31,7 @@
                                 [eventBuckets]="buckets"
                                 [showEvents]="widget.settings.visual.showEvents"
                                 [renderReady]="false"
+                                [multigraph]="multigraphEnabled"
                                 (dateWindow)="receivedDateWindow($event)"
                                 (zoomed)="handleZoom($event)">
                             </div>

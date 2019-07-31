@@ -24,6 +24,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
     @Input() eventBuckets: any[];
     @Input() showEvents: boolean;
     @Input() renderReady = true;
+    @Input() multigraph = false;
     @Output() zoomed = new EventEmitter;
     @Output() dateWindow = new EventEmitter<any>();
 
@@ -47,23 +48,23 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
     }
 
     ngAfterViewInit() {
-        if (!this.renderReady) {
-
-            // check for labels div
-            // if not set, hard check dom...
-            // if not in dom, create and inject an element
-            if (!this.options.labelsDiv) {
-                const parent = this.element.nativeElement.parentNode;
-                const legendCheck = parent.querySelector('.dygraph-legend');
-                if (legendCheck) {
-                    this.labelsDiv = legendCheck;
-                } else {
-                    this.labelsDiv = document.createElement('div');
-                    this.labelsDiv.classList.add('dygraph-legend');
-                    this.element.nativeElement.parentNode.appendChild(this.labelsDiv);
-                }
-                this.options.labelsDiv = this.labelsDiv;
+        // check for labels div
+        // if not set, hard check dom...
+        // if not in dom, create and inject an element
+        if (this.multigraph || !this.options.labelsDiv) {
+            const parent = this.element.nativeElement.parentNode;
+            const legendCheck = parent.querySelector('.dygraph-legend');
+            if (legendCheck) {
+                this.labelsDiv = legendCheck;
+            } else {
+                this.labelsDiv = document.createElement('div');
+                this.labelsDiv.classList.add('dygraph-legend');
+                this.element.nativeElement.parentNode.appendChild(this.labelsDiv);
             }
+            this.options.labelsDiv = this.labelsDiv;
+        }
+
+        if (!this.renderReady) {
             // console.log('RENDER NOT READY... CHANGING THAT');
             this.renderReady = true;
         }
@@ -72,10 +73,13 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
     ngOnChanges(changes: SimpleChanges) {
 
         if (this.renderReady) {
-            console.log('RUNNING DYGRAPH SETUP', this.size);
-            if (this.labelsDiv) {
+
+            if (this.labelsDiv && this.multigraph) {
                 this.options.labelsDiv = this.labelsDiv;
             }
+
+            console.log('RUNNING DYGRAPH SETUP', this.size, this.options);
+
             const self = this;
 
             const mouseover = function (event, x, pts, row) {
