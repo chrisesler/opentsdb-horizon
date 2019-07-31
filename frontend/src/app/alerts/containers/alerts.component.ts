@@ -301,10 +301,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.subscription.add(this.alerts$.pipe(skip(1)).subscribe( alerts => {
             this.stateLoaded.alerts = true;
             this.alerts = JSON.parse(JSON.stringify(alerts));
-            if ( this.list === 'snooze' ) {
-                this.setAlertListMeta();
-            }
             this.setTableDataSource();
+            this.setAlertListMeta();
         }));
 
         this.subscription.add(this.snoozes$.pipe(skip(1)).subscribe( snoozes => {
