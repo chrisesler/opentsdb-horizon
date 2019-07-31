@@ -132,8 +132,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
     snoozeDisplayedColumns: string[] = [
         'select',
         'name',
-        'modified',
-        'scope'
+        'createdBy',
+        'scope',
+        'reason'
     ];
 
     // for batch selection
@@ -772,7 +773,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     formatTime(time: any) {
-        return moment(time).format('YYYY-MM-DD HH:mm');
+        return moment(time).format('YYYY-MM-DD  hh:mm a');
     }
 
     getRecipientKeys(element: any) {

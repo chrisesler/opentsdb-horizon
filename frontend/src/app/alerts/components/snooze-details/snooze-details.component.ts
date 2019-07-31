@@ -143,7 +143,6 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
             alertIds: [],
             labels: [],
             filters: {},
-            notification: {}
         };
         data = Object.assign({}, def, data);
 
@@ -152,11 +151,7 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
             startTime: data.startTime ? moment(data.startTime).format('MM/DD/YYYY hh:mm a') : moment().format('MM/DD/YYYY hh:mm a'),
             // tslint:disable-next-line:max-line-length
             endTime: data.endTime ? moment(data.endTime).format('MM/DD/YYYY hh:mm a') : moment().add(1, 'hours').format('MM/DD/YYYY hh:mm a'),
-            notification: this.fb.group({
-                recipients: data.notification.recipients || {},
-                subject: data.notification.subject || '',
-                message: data.notification.message || ''
-            })
+            reason: data.reason || ''
         });
         // add alerts to selection list
         // add labels to selection list
@@ -224,7 +219,7 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
 
     getMetaFilter() {
         const query: any = { search: '', namespace: this.queries[0].namespace, tags: this.queries[0].filters, metrics: [] };
-        const metaQuery = this.metaService.getQuery('aurastatus', 'TAG_KEYS', query);
+        const metaQuery = this.metaService.getQuery('aurastatus:alert', 'TAG_KEYS', query);
         return metaQuery.queries[0].filter;
     }
 
@@ -249,17 +244,6 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
             } else if ( moment(endts).valueOf() <= moment(startts).valueOf()) {
                 this.snoozeForm.get('endTime').setErrors({ 'greater': true });
             }
-        }
-
-        if ( Object.keys(this.snoozeForm.get('notification').get('recipients').value).length === 0 ) {
-            this.snoozeForm.get('notification').get('recipients').setErrors({ 'required': true });
-        }
-        if ( this.snoozeForm.get('notification').get('subject').value.trim() === '' ) {
-            this.snoozeForm.get('notification').get('subject').setErrors({ 'required': true });
-        }
-
-        if ( this.snoozeForm.get('notification').get('message').value.trim() === '' ) {
-            this.snoozeForm.get('notification').get('message').setErrors({ 'required': true });
         }
 
         if ( this.snoozeForm.valid ) {

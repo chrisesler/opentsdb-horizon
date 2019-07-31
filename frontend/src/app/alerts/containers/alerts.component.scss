@@ -497,13 +497,22 @@
             }
 
             .cdk-column-modified {
-                width: 130px;
+                width: 120px ;
             }
 
+            .cdk-column-createdBy {
+                width: 120px;
+            }
 
             .cdk-column-scope {
-                width: 60%;
+                width: 55%;
             }
+
+            .cdk-column-reason {
+                width: 18%;
+            }
+
+ 
 
             .cdk-column-name {
                 position: relative;

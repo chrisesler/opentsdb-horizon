@@ -956,7 +956,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     getMetaQuery() {
         const query: any = { search: '', namespace: this.queries[0].namespace, tags: this.queries[0].filters, metrics: [] };
-        const metaQuery = this.metaService.getQuery('aurastatus', 'TAG_KEYS', query);
+        const metaQuery = this.metaService.getQuery('aurastatus:check', 'TAG_KEYS', query);
         return metaQuery.queries;
     }
 
