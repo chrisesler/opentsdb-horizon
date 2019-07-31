@@ -725,7 +725,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
         if ( Object.keys(queries).length ) {
             const query = this.queryService.buildQuery( settings, time, queries);
-            this.getYamasData(query);
+            this.getYamasData({query: query});
         } else {
             this.nQueryDataLoading = 0;
             this.options.labels = ['x'];
