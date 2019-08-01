@@ -8,7 +8,7 @@ export class MultigraphService {
   constructor() { }
 
   // fill up tag values from rawdata
-  fillMultiTagValues(multiConf: any, rawdata: any) {
+  fillMultiTagValues(multiConf: any, rawdata: any): any {
     console.log('hill - rawdata', rawdata);
     const xTemp = '{{' + Object.keys(multiConf.x).join('}}/{{') + '}}';
     const yTemp = '{{' + Object.keys(multiConf.y).join('}}/{{') + '}}';
@@ -53,14 +53,14 @@ export class MultigraphService {
               xValues.push(x);
             } */
             lookupData[y][x] = {
-              results: {
+              results: [{
                 source: dataSrc.source,
                 timeSpecification: dataSrc.timeSpecification,
                 data: []
-              }
+              }]
             };
           }
-          lookupData[y][x].results.data.push(dataSrc.data[j]);
+          lookupData[y][x].results[0].data.push(dataSrc.data[j]);
         }
       }
     }
@@ -81,7 +81,7 @@ export class MultigraphService {
       xCombine = this.combineKeys(xCombine, xAll[i]);
     }
     for (let i = 0; i < yAll.length; i++) {
-      yCombine = this.combineKeys(yCombine, yAll[i])
+      yCombine = this.combineKeys(yCombine, yAll[i]);
     }
 
     for (let i = 0; i < yCombine.length; i++) {
@@ -96,6 +96,7 @@ export class MultigraphService {
       }
     }
     console.log("final array", results);
+    return results;
   }
 
   // build multigraph config
