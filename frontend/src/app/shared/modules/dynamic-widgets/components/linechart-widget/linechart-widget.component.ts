@@ -241,9 +241,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                     if (results.hasOwnProperty(ykey)) {
                                         for (const xkey in results[ykey]) {
                                             if (results[ykey].hasOwnProperty(xkey)) {
+                                                let copyOptions = this.util.deepClone(this.options);
                                                 graphs[ykey][xkey].ts = [[0]];
+
                                                 graphs[ykey][xkey].ts = this.dataTransformer.yamasToDygraph(
-                                                     this.widget, this.options, graphs[ykey][xkey].ts, results[ykey][xkey]
+                                                     this.widget, copyOptions, graphs[ykey][xkey].ts, results[ykey][xkey]
                                                 );
                                                 // console.log('hill - ykey', results[ykey][xkey]);
                                             }
