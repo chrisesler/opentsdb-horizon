@@ -146,6 +146,7 @@ import { WidgetConfigMultigraphComponent } from './components/widget-config-mult
         SimpleTimePickerComponent,
         ColorPickerModule,
         InlineEditableComponent,
+        NamespaceAutocompleteComponent,
         DropdownLineWeightComponent,
         DropdownUnitTypeComponent,
         NavbarUserMenuComponent,
