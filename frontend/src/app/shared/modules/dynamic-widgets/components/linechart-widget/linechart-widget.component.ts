@@ -5,6 +5,7 @@ import {
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
+import { MultigraphService } from '../../../../../core/services/multigraph.service';
 import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
 import { Subscription, Observable } from 'rxjs';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
@@ -145,7 +146,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         private util: UtilsService,
         private elRef: ElementRef,
         private unit: UnitConverterService,
-        private logger: LoggerService
+        private logger: LoggerService,
+        private multiService: MultigraphService
     ) { }
 
     ngOnInit() {
@@ -220,11 +222,20 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             this.setTimezone(message.payload.timezone);
                             this.resetChart(); // need to reset this data
                             // render multigraph or not is here
-                            
-                            this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
-                            this.data = { ...this.data };
-
-
+                            const graphs = {};
+                            const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
+                            console.log('hill - multiConf', multiConf);
+                            this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
+                            if (this.multigraphEnabled) {
+                                // fill out tag values from rawdata
+                                // console.log('hill - rawdata', rawdata);
+                                this.multiService.fillMultiTagValues(multiConf, rawdata);
+                            } else {
+                                this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
+                                this.data = { ...this.data };
+                                graphs['y'] = {};
+                                graphs['y']['x'] = this.data;
+                            }
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
                                 environment.debugLevel.toUpperCase() === 'DEBUG' ||
                                 environment.debugLevel.toUpperCase() === 'INFO') {
