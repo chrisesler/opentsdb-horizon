@@ -230,6 +230,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
                             console.log('hill - multiConf', multiConf);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
+                            // this.multigraphEnabled = false;
                             if (this.multigraphEnabled) {
                                 // fill out tag values from rawdata
                                 // console.log('hill - rawdata', rawdata);
@@ -238,7 +239,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 // we need to convert to dygraph for these multigraph
                                 for (const ykey in results) {
                                     if (results.hasOwnProperty(ykey)) {
-                                        
                                         for (const xkey in results[ykey]) {
                                             if (results[ykey].hasOwnProperty(xkey)) {
                                                 graphs[ykey][xkey].ts = [[0]];
@@ -250,7 +250,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                         }
                                     }
                                 }
-                                console.log('hill - graphs', graphs);
                             } else {
                                 console.log('hill - rawdata', rawdata);
                                 this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
@@ -259,6 +258,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'] = this.data;
                             }
                             this.graphData = graphs;
+                            console.log('hill - graphs', graphs);
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
                                 environment.debugLevel.toUpperCase() === 'DEBUG' ||
                                 environment.debugLevel.toUpperCase() === 'INFO') {
@@ -267,7 +267,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             setTimeout(() => {
                                 this.setSize();
                             });
-                            this.refreshLegendSource();
+                            if (!this.multigraphEnabled) {
+                                this.refreshLegendSource();
+                            }
                             this.cdRef.detectChanges();
                         }
                         break;
