@@ -226,15 +226,33 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             this.setTimezone(message.payload.timezone);
                             this.resetChart(); // need to reset this data
                             // render multigraph or not is here
-                            const graphs = {};
+                            let graphs = {};
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
                             console.log('hill - multiConf', multiConf);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
                             if (this.multigraphEnabled) {
                                 // fill out tag values from rawdata
                                 // console.log('hill - rawdata', rawdata);
-                                this.multiService.fillMultiTagValues(multiConf, rawdata);
+                                const results = this.multiService.fillMultiTagValues(multiConf, rawdata);
+                                graphs = this.util.deepClone(results);
+                                // we need to convert to dygraph for these multigraph
+                                for (const ykey in results) {
+                                    if (results.hasOwnProperty(ykey)) {
+                                        
+                                        for (const xkey in results[ykey]) {
+                                            if (results[ykey].hasOwnProperty(xkey)) {
+                                                graphs[ykey][xkey].ts = [[0]];
+                                                graphs[ykey][xkey].ts = this.dataTransformer.yamasToDygraph(
+                                                     this.widget, this.options, graphs[ykey][xkey].ts, results[ykey][xkey]
+                                                );
+                                                // console.log('hill - ykey', results[ykey][xkey]);
+                                            }
+                                        }
+                                    }
+                                }
+                                console.log('hill - graphs', graphs);
                             } else {
+                                console.log('hill - rawdata', rawdata);
                                 this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                                 this.data = { ...this.data };
                                 graphs['y'] = {};
