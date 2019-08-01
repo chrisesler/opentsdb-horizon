@@ -301,6 +301,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             };
         data = Object.assign(def, data);
         this.showDetail = data.id ? true : false;
+        this.startTime =  '1h';
+        this.endTime = 'now';
         this.setQuery();
         this.reloadData();
 
@@ -677,7 +679,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             case 'SetDateRange':
                 this.startTime = message.payload.newTime.startTimeDisplay;
                 this.endTime = message.payload.newTime.endTimeDisplay;
-                this.doEventQuery$.next(['list', 'count']);
+                if ( this.data.type === 'event') {
+                    this.doEventQuery$.next(['list', 'count']);
+                } else if ( this.data.type === 'simple' ) {
+                    this.reloadData();
+                }
                 break;
         }
     }
@@ -918,7 +924,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }
         };
         const time = {
-            start: '1h-ago'
+            start: this.dateUtil.timeToMoment(this.startTime, 'local').valueOf(),
+            end: this.dateUtil.timeToMoment(this.endTime, 'local').valueOf()
         };
         const queries = {};
         for (let i = 0; i < this.queries.length; i++) {

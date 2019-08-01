@@ -1224,7 +1224,7 @@ This simulates the output of the query editor - minus a few events and buttons
             </div>
         
             <span class="flex-spacer"></span> 
-<div class="navbar-item" *ngIf="data.type === 'event'">
+<div class="navbar-item" *ngIf="data.type === 'simple' || data.type === 'event'">
         <time-picker class="navbar-item nav-date-time-picker" 
             (newChange)="handleTimePickerChanges($event)" 
             [timezone]="'local'" 
