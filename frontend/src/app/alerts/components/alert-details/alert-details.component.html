@@ -704,6 +704,9 @@
                             {{data.name}}
                         </div>
                     </div>
+                    <div class="splunk-link" *ngIf="data.id">
+                        <a [href]="getSplunkLink()" target="_blank">View in Splunk</a>
+                    </div>
                 </div>
                 <span class="flex-spacer"></span>
                 <div class="toolbar-item" *ngIf="hasWriteAccess" >
