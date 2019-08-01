@@ -1,8 +1,8 @@
 <mat-card class="alert-configuration-wrapper mat-elevation-z0" [formGroup]="alertForm">
     <mat-card-content>
-        <div class="preview-wrapper" [ngClass]="{'is-visible': data.type === 'simple'}">
-            <div class="graph-wrapper">
-                <div class="graph-output" #graphOutput>
+        <div class="preview-wrapper"  #graphOutput  [ngClass]="{'is-visible': data.type === 'simple' || data.type === 'event'}">
+            <div class="graph-wrapper" style="width:65%">
+                <div class="graph-output" >
                     <div #dygraph class="chart"
                         dygraphsChart
                         [chartType]="'line'"
@@ -17,15 +17,13 @@
                     <mat-icon>error</mat-icon>
                 </div>
             </div>
-            <!--<div class="legend-wrapper">
-                legend
-            </div>-->
+            <event-list [events]="events" [timezone]="'utc'" [startTime]="startTime" [endTime]="endTime" style="overflow: scroll">
+            </event-list>
         </div>
-
         <!-- 
         [****    EDIT MODE    ****]
         -->
-        <div *ngIf="!readOnly" class="controls-wrapper">
+        <div *ngIf="!readOnly && (data.type === 'simple' || data.type === 'healthcheck') " class="controls-wrapper">
             <mat-toolbar class="config-toolbar">
                 <div class="toolbar-item alert-name-detail">
                     <span class="namespace">Namespace: {{data.namespace}}</span>
@@ -508,6 +506,192 @@
                 </div>
             </div>
         </div>
+
+        <!-- Event Alert -->
+        <div *ngIf="!readOnly && data.type === 'event'" class="controls-wrapper">
+                <mat-toolbar class="config-toolbar">
+                    <div class="toolbar-item alert-name-detail">
+                        <span class="namespace">Namespace: {{data.namespace}}</span>
+                        <div class="alert-name">
+                            <inline-editable class="navbar-item" 
+                                [fieldValue]="data.name"
+                                [minLength]="3"
+                                [maxLength]="100"
+                                (updatedValue)="setAlertName($event)">
+                            </inline-editable>
+                        </div>
+                    </div>
+                    <span class="flex-spacer"></span>
+                </mat-toolbar>
+                <div class="alert-control-steps">
+                    <div class="error" *ngIf="data.error"> {{ data.error.message }} </div>
+                    <div class="step-section threshold-section is-visible" formGroupName="threshold">
+                
+                            <div class="step-section-label">
+                                <span class="step-section-label-text">1. Conditions</span>
+                            </div>
+                            <div class="step-section-content">
+                                <div class="form-group namespace">
+                                    <div class="form-label vertical-center"><strong>Namespace</strong></div>
+                                    <div class="form-control-wrap">
+                                        <namespace-autocomplete [value]="alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').value" 
+                                            [options]="{metaSource: 'aurastatus'}"
+                                            (nschange)="saveNamespace($event)" 
+                                            (blur)="cancelSaveNamespace($event)">
+                                        </namespace-autocomplete>
+                                        <mat-error *ngIf="alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').errors && alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').errors.required">Please select the namespace</mat-error>
+                                        <!---->
+                                    </div>
+                                </div>
+                                <div class="form-group search-term" formGroupName="eventAlert">
+                                        <div class="form-label vertical-center"><strong>Alert on event containing</strong></div>
+                                        <div class="form-control-wrap">
+                                            <mat-form-field appearance="fill" floatLabel="never">
+                                                <input matInput type="text" [formControl]="alertForm.get('queries').get('eventdb')['controls'][0].get('filter')" #eventSearchControl autocomplete="off"  placeholder="e.g AWS">
+                                            </mat-form-field>
+                                        </div>
+                                </div>
+                                <div class="form-group sliding-window" formGroupName="eventAlert">
+                                    <div class="form-label vertical-center"><strong>Trigger alert when</strong></div>
+                                    <!-- sentence-like form -->
+                                    <div class="sentence-chain-form">
+                                        <div class="sentence-item">
+                                            <span>Event count is above or equals</span>
+                                        </div>
+                                        <div class="sentence-item threshold">
+                                            <mat-form-field appearance="fill" floatLabel="never">
+                                                <input matInput type="number" min="1" autocomplete="off" placeholder="Enter value" formControlName="threshold">
+                                            </mat-form-field>
+                                            <mat-error *ngIf="alertForm.get('threshold').get('eventAlert').get('threshold').errors && alertForm.get('threshold').get('eventAlert').get('threshold').errors.required">Please set the threshold</mat-error>
+                                        </div>
+                                        <div class="sentence-item">
+                                            <span>during the last</span>
+                                        </div>
+                                        <div class="sentence-item">
+                                            <mat-form-field appearance="fill" floatLabel="never">
+                                                <mat-select placeholder="Select" formControlName="slidingWindow" disableOptionCentering>
+                                                    <mat-option value=60>1 min</mat-option>
+                                                    <mat-option value=300>5 min</mat-option>
+                                                    <mat-option value=600>10 min</mat-option>
+                                                    <mat-option value=900>15 min</mat-option>
+                                                    <mat-option value=1800>30 min</mat-option>
+                                                    <mat-option value=3600>1 hr</mat-option>
+                                                    <mat-option value=21600>6 hr</mat-option>
+                                                    <mat-option value=43200>12 hr</mat-option>
+                                                    <mat-option value=86400>24 hr</mat-option>
+                                                    <mat-option value=172800>48 hr</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                        <div class="sentence-item">
+                                            <span>per</span>
+                                        </div>
+                                        <div class="sentence-item">
+                                            <dropdown-metric-tags
+                                                [selected]="alertForm.get('queries').get('eventdb')['controls'][0].get('groupBy').value"
+                                                [tags]="tags"
+                                                [all]="false"
+                                                (change)="setEventAlertGroupBy($event)"></dropdown-metric-tags>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="step-section notification-section is-visible"  formGroupName="notification" >
+                        <div class="step-section-label">
+                            <span class="step-section-label-text">2. Notification</span>
+                        </div>
+                        <div class="step-section-content">
+                                <div class="form-group alert-notify-when">
+                                    <div class="form-label"><strong>Notify</strong> when state transitions from</div>
+                                    <div class="form-control-wrap">
+                                            <mat-selection-list class="notify-when-options" formControlName="transitionsToNotify">
+                                                <mat-list-option value="goodToBad">Good to Bad</mat-list-option>
+                                                <mat-list-option value="badToGood">Bad to Good</mat-list-option>
+                                            </mat-selection-list>
+                                            <mat-error *ngIf="alertForm.get('notification').get('transitionsToNotify').errors && alertForm.get('notification').get('transitionsToNotify').errors.required">Please select the state transitions</mat-error>
+
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="step-section-content">
+                            <!-- TODO: add the grouping rules control here -->
+                            <div class="form-group alert-grouping-rules">
+                                <div class="form-label vertical-center"><strong>Send one notification per</strong></div>
+                                    <div class="alert-metric-tag-dropdown-wrapper">
+                                        <dropdown-metric-tags
+                                            [selected]="alertForm.get('alertGroupingRules').value"
+                                            [tags]="tags"
+                                            [all]="false"
+                                            (change)="setQueryGroupRules($event)"></dropdown-metric-tags>
+                                    </div>
+                                </div>
+                            <div class="form-group alert-recipients">
+                                <div class="form-label vertical-center"><strong>Alert recipients</strong></div>
+                                <div class="form-control-wrap">
+                                    <recipients-manager (updatedAlertRecipients)="alertRecipientsUpdate($event)" 
+                                        [namespace]="data.namespace"
+                                        [selectedAlertRecipients]="notificationRecipients.value"
+                                        [formHasError]="notificationRecipients.errors && notificationRecipients.errors.required"></recipients-manager>
+                                    <mat-error *ngIf="notificationRecipients.errors && notificationRecipients.errors.required">Please select the recipients</mat-error>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group alert-message">
+                                <div class="form-label vertical-center"><strong>Alert message</strong></div>
+                                <div class="message-subject-body">
+                                    <mat-form-field appearance="fill" floatLabel="never" [ngClass]="{'mat-form-field-invalid': alertForm['controls'].notification.get('subject').errors && alertForm['controls'].notification.get('subject').errors.required}">
+                                        <input matInput autocomplete="off" formControlName="subject" placeholder="Enter a subject">
+                                    </mat-form-field>
+                                    <mat-error *ngIf="alertForm['controls'].notification.get('subject').errors && alertForm['controls'].notification.get('subject').errors.required" style="margin-bottom: 8px;">Please enter the subject</mat-error>
+    
+                                    <mat-form-field appearance="fill" floatLabel="never" [ngClass]="{'mat-form-field-invalid': alertForm['controls'].notification.get('body').errors && alertForm['controls'].notification.get('body').errors.required}">
+                                        <textarea matInput autocomplete="off" formControlName="body" placeholder="Enter a message"></textarea>
+                                    </mat-form-field>
+                                    <mat-error *ngIf="alertForm['controls'].notification.get('body').errors && alertForm['controls'].notification.get('body').errors.required">Please enter the message</mat-error>
+                                </div>   
+                            </div>
+    
+                            <div class="oc-specific-fields" *ngIf="notificationRecipientsValue && notificationRecipientsValue.oc">
+                                <mat-divider></mat-divider>
+                                <div class="form-group">
+                                    <div class="form-label vertical-center"><strong>OC Contact Settings</strong></div>
+                                </div>
+                                <div class="form-group alert-oc-runbookid">
+                                    <div class="form-label vertical-center"><strong>Runbook ID</strong></div>
+                                    <mat-form-field appearance="fill" floatLabel="never">
+                                        <input matInput autocomplete="off" formControlName="runbookId" placeholder="Enter runbook id">
+                                    </mat-form-field>
+                                </div>
+                                <div class="form-group alert-oc-severity">
+                                    <div class="form-label vertical-center"><strong>Severity</strong></div>
+                                    <div class="severity-type-options">
+                                        <mat-radio-group formControlName="ocSeverity">
+                                            <mat-radio-button *ngFor="let option of ocSeverityOptions" value="{{option.value}}">{{option.label}}</mat-radio-button>
+                                        </mat-radio-group>
+                                    </div>                                
+                                </div>
+                            </div>
+                            <div class="ops-genie-specific-fields" *ngIf="notificationRecipientsValue && notificationRecipientsValue.opsgenie">
+                                <mat-divider></mat-divider>
+                                <div class="form-group">
+                                    <div class="form-label vertical-center"><strong>Ops Genie Settings</strong></div>
+                                </div>
+                                <div class="form-group alert-oc-severity">
+                                    <div class="form-label vertical-center"><strong>Priority</strong></div>
+                                    <div class="priority-type-options">
+                                        <mat-radio-group formControlName="opsgeniePriority">
+                                            <mat-radio-button *ngFor="let option of opsGeniePriorityOptions" value="{{option.value}}">{{option.label}}</mat-radio-button>
+                                        </mat-radio-group>
+                                    </div>                                
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        
+        <!-- Event Alert -->
         <!-- 
         [****    READ ONLY MODE    ****]
         -->
@@ -531,7 +715,7 @@
             </mat-toolbar>
             <div class="alert-control-steps">
                 <div class="error" *ngIf="data.error"> {{ data.error.message }} </div>
-                <div class="step-section queries-section is-visible">
+                <div class="step-section queries-section is-visible" *ngIf="['simple', 'healthcheck'].includes(data.type)">
                     <div class="step-section-label">
                         <span class="step-section-label-text">1. Queries</span>
                     </div>
@@ -761,9 +945,58 @@
                             </div>
                         </div>
                 </div>
+                <div class="step-section threshold-section is-visible" *ngIf="data.type === 'event'">
+                        <div class="step-section-label">
+                            <span class="step-section-label-text">1. Conditions</span>
+                        </div>
+                        <div class="step-section-content">
+                            
+                            <div class="form-group namespace">
+                                <div class="form-label vertical-center"><strong>Namespace</strong></div>
+                                <div>{{data.queries.eventdb[0].namespace}}</div>                                
+                            </div>
+                            <div class="form-group namespace">
+                                    <div class="form-label vertical-center"><strong>Filter</strong></div>
+                                    <div>{{data.queries.eventdb[0].filter}}</div>                                
+                            </div>
+
+                            <div class="form-group sliding-window">
+                                <div class="form-label vertical-center"><strong>Trigger alert when</strong></div>
+                                <!-- sentence-like form -->
+                                <div class="sentence-chain-form">
+                                    <div class="sentence-item">
+                                        <span>Event count is above or equals</span>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <strong>{{data.threshold.eventAlert.threshold}}</strong>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <span>during the last</span>
+                                    </div>
+                                    <div class="sentence-item">
+                                        <strong>
+                                            {{data.threshold.eventAlert.slidingWindow === '60' ? '1 min' : ''}}
+                                            {{data.threshold.eventAlert.slidingWindow === '300' ? '5 min' : ''}}
+                                            {{data.threshold.eventAlert.slidingWindow === '600' ? '10 min' : ''}}
+                                            {{data.threshold.eventAlert.slidingWindow === '900' ? '15 min' : ''}}
+                                            {{data.threshold.eventAlert.slidingWindow === '1800' ? '30 min' : ''}}
+                                            {{data.threshold.eventAlert.slidingWindow === '3600' ? '1 hr' : ''}}
+                                            {{data.threshold.eventAlert.slidingWindow === '21600' ? '6 hr' : ''}}
+                                            {{data.threshold.eventAlert.slidingWindow === '43200' ? '12 hr' : ''}}
+                                            {{data.threshold.eventAlert.slidingWindow === '86400' ? '24 hr' : ''}}
+                                            {{data.threshold.eventAlert.slidingWindow === '172800' ? '48 hr' : ''}}
+                                        </strong>
+                                    </div>
+                                    <div class="sentence-item" *ngIf="data.queries.eventdb[0].groupBy.length">
+                                            <span>per <strong>{{ data.queries.eventdb[0].groupBy.join(', ')}}</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 <div class="step-section notification-section is-visible">
                     <div class="step-section-label">
-                        <span class="step-section-label-text">3. Notification</span>
+                        <span class="step-section-label-text">{{['simple', 'healthcheck'].includes(data.type) ? 3: 2}}. Notification</span>
                     </div>
                     <div class="step-section-content">
                         <div class="form-group alert-notify-when">
@@ -809,7 +1042,7 @@
                             </div>   
                         </div>
 
-                        <div class="form-group alert-labels" *ngIf="data.labels.length > 0">
+                        <div class="form-group alert-labels" *ngIf="data.labels && data.labels.length > 0">
                             <div class="form-label vertical-center"><strong>Labels</strong></div>
                             <div>
                                 {{data.labels.join(', ')}}
@@ -843,7 +1076,7 @@
 
     </mat-card-content>
     <mat-card-actions *ngIf="!readOnly">
-        <button mat-flat-button color="primary" type="submit" (click)="validate()" [disabled]="!( queries[0].metrics.length > 0 || data.type === 'healthcheck' && queries[0].filters.length > 0 )">Save Alert</button>
+        <button mat-flat-button color="primary" type="submit" (click)="validate()" [disabled]="!( data.type === 'event' || data.type === 'simple' && queries[0].metrics.length > 0 || data.type === 'healthcheck' && queries[0].filters.length > 0 )">Save Alert</button>
         <button mat-stroked-button (click)="cancelEdit()" color="primary">Cancel</button>
     </mat-card-actions>
     <mat-card-actions *ngIf="readOnly">
@@ -987,4 +1220,21 @@ This simulates the output of the query editor - minus a few events and buttons
             </div>
         </div>
     </div>
-</ng-template>         
+</ng-template> 
+<ng-template #alertDateTimeNavbarItemTmpl> 
+        <div class="navbar-item">
+                <span class="dashboard-name">Alerts Management</span>
+            </div>
+        
+            <span class="flex-spacer"></span> 
+<div class="navbar-item" *ngIf="data.type === 'simple' || data.type === 'event'">
+        <time-picker class="navbar-item nav-date-time-picker" 
+            (newChange)="handleTimePickerChanges($event)" 
+            [timezone]="'local'" 
+            [startTime]="startTime" 
+            [endTime]="endTime"
+            [config]="{enableSync: false, enableRefresh: false}"
+            [xPosition]="menuXAlignValue">
+        </time-picker>
+    </div>  
+</ng-template>      
