@@ -1,6 +1,6 @@
 import {
     Component, OnInit, HostBinding, Input,
-    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit
+    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, ViewChildren, QueryList
 } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
@@ -41,6 +41,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
     @ViewChild('dygraph') private dygraph: ElementRef;
     @ViewChild(MatSort) sort: MatSort;
+
+    @ViewChildren('graphLegend', {read: ElementRef}) graphLegends: QueryList<ElementRef>;
 
     private subscription: Subscription = new Subscription();
     private isDataLoaded = false;
@@ -116,10 +118,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     // MULTIGRAPH
     // TODO: These multigraph values need to be retrieved from widget settings
-    multigraphEnabled = false;
+    multigraphEnabled = true;
     multigraphMode = 'grid'; // grid || freeflow
     renderReady = false;
-    fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // eventually remove this
+
+    graphData: any = {};
 
 
     // EVENTS
@@ -236,6 +240,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y'] = {};
                                 graphs['y']['x'] = this.data;
                             }
+                            this.graphData = graphs;
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
                                 environment.debugLevel.toUpperCase() === 'DEBUG' ||
                                 environment.debugLevel.toUpperCase() === 'INFO') {
@@ -244,8 +249,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             setTimeout(() => {
                                 this.setSize();
                             });
-                            this.cdRef.detectChanges();
                             this.refreshLegendSource();
+                            this.cdRef.detectChanges();
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -534,9 +539,47 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             // nWidth = newSize.width - widthOffset  - (padding * 2);
             nWidth = newSize.width - widthOffset  - paddingSides;
         }
-        this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
-        this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
-        this.size = {width: nWidth, height: nHeight };
+
+        // TODO: need to figure out how to calculate a size if this is a multigraph render
+        // Not sure this is best place to determine size... might need helper function
+        if (this.multigraphEnabled && this.widget.settings.multigraph) {
+            const multigraphSettings = this.widget.settings.multigraph;
+
+            const rowCount = this.getGraphDataObjectKeys(this.graphData).length;
+            // find max col count
+            // TODO: need to make this dynamic. right now just marking 2 from mock data
+            const colCount = 2;
+
+            if (multigraphSettings.gridOptions.viewportDisplay === 'fit') {
+                const tWidth = (nWidth / ((colCount < 3) ? colCount : 3)) - 1;
+                const tHeight = (nHeight / ((rowCount < 3) ? rowCount : 3)) - 1;
+
+                this.legendWidth = !widthOffset ? tWidth + 'px' : widthOffset + 'px';
+                this.legendHeight = !heightOffset ? tHeight + 'px' : heightOffset + 'px';
+
+                this.size = {width: tWidth, height: tHeight };
+                console.log('MULTIGRAPH FIT', this.size);
+            } else {
+                const tWidth = (nWidth / multigraphSettings.gridOptions.custom.x) - 1;
+                const tHeight = (nHeight / multigraphSettings.gridOptions.custom.y) - 1;
+
+                this.legendWidth = !widthOffset ? tWidth + 'px' : widthOffset + 'px';
+                this.legendHeight = !heightOffset ? tHeight + 'px' : heightOffset + 'px';
+
+                this.size = {width: ((tWidth >= 200) ? tWidth : 200), height: ((tHeight >= 200) ? tHeight : 200) };
+                console.log('MULTIGRAPH CUSTOM', this.size);
+            }
+        } else {
+
+            this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
+            this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
+
+            this.size = { width: nWidth, height: nHeight };
+            console.log('NOT MULTIGRAPH', this.size);
+        }
+
+
+
 
         // Canvas Width resize
         this.eventsWidth = nWidth - 55;
@@ -738,7 +781,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         if (this.multigraphEnabled) {
             this.options.labelsDiv = false;
         } else {
-            this.options.labelsDiv = this.dygraphLegend.nativeElement;
+            this.options.labelsDiv = (this.dygraphLegend) ? this.dygraphLegend.nativeElement : undefined;
             this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
         }
     }
@@ -817,6 +860,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleZoom(zConfig) {
+        //console.log('ZOOM ZOOM', zConfig);
         const n = this.data.ts.length;
         if ( zConfig.isZoomed && n > 0 ) {
             const startTime = new Date(this.data.ts[0][0]).getTime() / 1000;
@@ -1025,7 +1069,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
         dialogConf.data = {
           log: this.debugData,
-          query: this.storeQuery 
+          query: this.storeQuery
         };
         // re-use?
         this.debugDialog = this.dialog.open(DebugDialogComponent, dialogConf);
@@ -1051,6 +1095,45 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             id: cloneWidget.id,
             payload: { widget: cloneWidget, needRequery: this.needRequery }
         });
+    }
+
+    // ctx should contain loop context... see template for details
+    getGraphTemplateContext(data: any, ctx: any = {}): any {
+        /*const graphContext = {
+            $implicit: this,
+            data: data
+        };*/
+        //console.log('CTX', ctx);
+        const graphContext = {
+            $implicit: this,
+            data: data,
+            ctx: ctx
+        };
+
+        return graphContext;
+    }
+
+    getGraphDataObjectKeys(obj: any): string[] {
+        const keys = Object.keys(obj);
+        //console.log('GETTING KEYS', obj, keys);
+        return keys;
+    }
+
+    getMultigraphOptions(ctx: any): any {
+        const options = {...this.options};
+        const legend = this.findGraphLegend('graphlegend-' + ctx.yIdx + '-' + ctx.xIdx);
+        if (legend) {
+            options.labelsDiv = legend.nativeElement;
+        }
+        //console.log('OPTIONS', options);
+        return options;
+    }
+
+    findGraphLegend(id: string): ElementRef {
+        const legend = this.graphLegends.find((item: ElementRef) => {
+            return item.nativeElement.getAttribute('data-id') === id;
+        });
+        return legend || null;
     }
 
     ngOnDestroy() {

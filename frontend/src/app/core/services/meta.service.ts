@@ -10,13 +10,14 @@ export class MetaService {
   constructor(private utilsService: UtilsService) { }
 
   getQuery(source, type, params, andOp = true) {
+    const [ mSource, fType ] = source.split(':');
     params = Array.isArray(params) ? params : [params];
     const metaQuery: any = {
       'from': 0,
       'to': 1,
       'order': 'ASCENDING',
       'type': type,
-      'source': source === 'aurastatus' ? 'aurastatus' : '',
+      'source': mSource === 'aurastatus' ? 'aurastatus' : '',
       'aggregationSize': 1000,
       'queries': [],
     };
@@ -44,7 +45,7 @@ export class MetaService {
 
         // set the metrics filter only if its set. tsdb requires atleast one filter in the query
         case 'TAG_KEYS':
-            if ( source === 'meta' ) {
+            if ( mSource === 'meta' ) {
               filters.push({
                 'type': 'TagKeyRegex',
                 'filter': this.utilsService.convertPatternTSDBCompat(params[i].search)
@@ -69,11 +70,11 @@ export class MetaService {
         }
       }
 
-      if ( source === 'aurastatus' && (type === 'TAG_KEYS' || type === 'TAG_KEYS_AND_VALUES') ) {
+      if ( mSource === 'aurastatus' && (type === 'TAG_KEYS' || type === 'TAG_KEYS_AND_VALUES') ) {
         filters.unshift({
           'type': 'FieldLiteralOr',
           'key': 'statusType',
-          'filter': 'check'
+          'filter': fType === 'alert' ? 'alert' : 'check'
         });
       }
 

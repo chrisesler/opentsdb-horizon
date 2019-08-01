@@ -1,6 +1,6 @@
 import {
     OnInit, OnChanges, OnDestroy, Directive,
-    Input, Output, EventEmitter, ElementRef, SimpleChanges
+    Input, Output, EventEmitter, ElementRef, SimpleChanges, AfterViewInit, Renderer2
 } from '@angular/core';
 import { IDygraphOptions } from '../IDygraphOptions';
 import Dygraph from 'dygraphs/src-es5/dygraph.js';
@@ -15,7 +15,7 @@ import * as d3 from 'd3';
     selector: '[dygraphsChart]',
 
 })
-export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
+export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, AfterViewInit {
 
     @Input() data: any;
     @Input() options: IDygraphOptions;
@@ -24,6 +24,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     @Input() eventBuckets: any[];
     @Input() showEvents: boolean;
     @Input() renderReady = true;
+    @Input() multigraph = false;
     @Output() zoomed = new EventEmitter;
     @Output() dateWindow = new EventEmitter<any>();
 
@@ -32,17 +33,57 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     private gDimension: any;
     public dataLoading: boolean;
 
-    constructor(private element: ElementRef, private uConverter: UnitConverterService) { }
+    public labelsDiv: any;
+
+    constructor(
+        private element: ElementRef,
+        private uConverter: UnitConverterService
+    ) { }
 
     ngOnInit() {
         // console.log('this chart type', this.options, this.chartType, this.element);
+        // NOTE: Might need to change the options.labelsDiv to be either nativeElement or string
+        // if string, then need to get element based on the string as id
+
+    }
+
+    ngAfterViewInit() {
+        // check for labels div
+        // if not set, hard check dom...
+        // if not in dom, create and inject an element
+        if (this.multigraph || !this.options.labelsDiv) {
+            const parent = this.element.nativeElement.parentNode;
+            const legendCheck = parent.querySelector('.dygraph-legend');
+            if (legendCheck) {
+                this.labelsDiv = legendCheck;
+            } else {
+                this.labelsDiv = document.createElement('div');
+                this.labelsDiv.classList.add('dygraph-legend');
+                this.element.nativeElement.parentNode.appendChild(this.labelsDiv);
+            }
+            this.options.labelsDiv = this.labelsDiv;
+        }
+
+        if (!this.renderReady) {
+            // console.log('RENDER NOT READY... CHANGING THAT');
+            this.renderReady = true;
+        }
     }
 
     ngOnChanges(changes: SimpleChanges) {
 
         if (this.renderReady) {
+
+            if (this.labelsDiv && this.multigraph) {
+                this.options.labelsDiv = this.labelsDiv;
+            }
+
+            console.log('RUNNING DYGRAPH SETUP', this.size, this.options);
+
             const self = this;
+
             const mouseover = function (event, x, pts, row) {
+                // console.log('MOUSEOVER ', this.user_attrs_);
                 const labelsDiv = this.user_attrs_.labelsDiv;
                 labelsDiv.style.display = 'block';
                 let xOffset = 0;
@@ -100,8 +141,8 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 const seriesConfig = this.user_attrs_.series;
                 if (data.x == null) {
                     const labelsDiv = this.user_attrs_.labelsDiv;
-                    labelsDiv.style.display = 'none';
-                    return '';
+                    //labelsDiv.style.display = 'none';
+                    //return '';
                 }
 
                 let html = '<p>' + data.xHTML + '</p>';
@@ -202,6 +243,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                         }
                         this.options.legendFormatter = legendFormatter;
                         this.options.zoomCallback = function (minDate, maxDate, yRanges) {
+                            console.log('ZOOM CALLBACK');
                             // we only handle xzoom
                             if (!yRanges) {
                                 _self.zoomed.emit({ start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
@@ -270,6 +312,9 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                             }
                         };
                     }
+
+                    console.log('OPTIONS', this.options);
+
                     this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
                 }
                 // if new data

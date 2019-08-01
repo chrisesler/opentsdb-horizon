@@ -132,8 +132,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
     snoozeDisplayedColumns: string[] = [
         'select',
         'name',
-        'modified',
-        'scope'
+        'createdBy',
+        'scope',
+        'reason'
     ];
 
     // for batch selection
@@ -300,10 +301,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.subscription.add(this.alerts$.pipe(skip(1)).subscribe( alerts => {
             this.stateLoaded.alerts = true;
             this.alerts = JSON.parse(JSON.stringify(alerts));
-            if ( this.list === 'snooze' ) {
-                this.setAlertListMeta();
-            }
             this.setTableDataSource();
+            this.setAlertListMeta();
         }));
 
         this.subscription.add(this.snoozes$.pipe(skip(1)).subscribe( snoozes => {
@@ -769,7 +768,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     formatTime(time: any) {
-        return moment(time).format('YYYY-MM-DD HH:mm');
+        return moment(time).format('YYYY-MM-DD  hh:mm a');
     }
 
     getRecipientKeys(element: any) {
