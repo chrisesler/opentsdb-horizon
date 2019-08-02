@@ -10,8 +10,8 @@ export class MultigraphService {
   // fill up tag values from rawdata
   fillMultiTagValues(multiConf: any, rawdata: any): any {
     console.log('hill - rawdata', rawdata);
-    const xTemp = '{{' + Object.keys(multiConf.x).join('}}/{{') + '}}';
-    const yTemp = '{{' + Object.keys(multiConf.y).join('}}/{{') + '}}';
+    const xTemp = multiConf.x ? '{{' + Object.keys(multiConf.x).join('}}/{{') + '}}' : 'x';
+    const yTemp = multiConf.y ? '{{' + Object.keys(multiConf.y).join('}}/{{') + '}}' : 'y';
     let xCombine = [];
     let yCombine = [];
     const lookupData = {};
@@ -28,13 +28,13 @@ export class MultigraphService {
           const tagKeys = Object.keys(tags);
           for ( let k = 0; k < tagKeys.length; k++ ) {
             const key = tagKeys[k];
-            if ( x.indexOf(key) !== -1 ) {
+            if ( multiConf.x && x.indexOf(key) !== -1 ) {
               x = x.replace('{{' + key + '}}', tags[key]);
               if (!multiConf.x[key].includes(tags[key])) {
                 multiConf.x[key].push(tags[key]);
               }
             }
-            if ( y.indexOf(key) !== -1 ) {
+            if ( multiConf.y && y.indexOf(key) !== -1 ) {
               y = y.replace('{{' + key + '}}', tags[key]);
               if (!multiConf.y[key].includes(tags[key])) {
                 multiConf.y[key].push(tags[key]);
@@ -65,8 +65,8 @@ export class MultigraphService {
       }
     }
     // let build the master results table
-    const xAll = [];
-    const yAll = [];
+    const xAll = multiConf.x ? [] : [['x']];
+    const yAll = multiConf.y ? [] : [['y']];
     for (const tag in multiConf.x) {
       if (multiConf.x.hasOwnProperty(tag)) {
         xAll.push(multiConf.x[tag]);
