@@ -6,6 +6,7 @@
         [formControl]="namespaceControl"
         [matAutocomplete]="namespaceAuto"
         (keydown.enter)="namespaceKeydown($event)"
+        (focus)="resetNamespaceList()"
         #nsInput>
 </mat-form-field>
 <mat-autocomplete #namespaceAuto="matAutocomplete" (optionSelected)="namespaceOptionSelected($event)">

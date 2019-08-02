@@ -144,6 +144,7 @@ import { EventListComponent } from './components/event-list/event-list.component
         SimpleTimePickerComponent,
         ColorPickerModule,
         InlineEditableComponent,
+        NamespaceAutocompleteComponent,
         DropdownLineWeightComponent,
         DropdownUnitTypeComponent,
         NavbarUserMenuComponent,

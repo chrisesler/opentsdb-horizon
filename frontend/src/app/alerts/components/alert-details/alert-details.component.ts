@@ -5,6 +5,7 @@ import {
     HostBinding,
     ViewChild,
     ElementRef,
+    TemplateRef,
     AfterContentInit, EventEmitter,
     Output,
     Input
@@ -22,7 +23,8 @@ import {
     MatDialogRef
 } from '@angular/material';
 
-import { Subscription, Observable, of } from 'rxjs';
+import { Subscription, BehaviorSubject } from 'rxjs';
+import { debounceTime, skip } from 'rxjs/operators';
 
 import { NameAlertDialogComponent } from '../name-alert-dialog/name-alert-dialog.component';
 import { IDygraphOptions } from '../../../shared/modules/dygraphs/IDygraphOptions';
@@ -35,6 +37,11 @@ import { ErrorDialogComponent } from '../../../shared/modules/sharedcomponents/c
 import { pairwise, startWith } from 'rxjs/operators';
 import { IntercomService } from '../../../core/services/intercom.service';
 import { AlertConverterService } from '../../services/alert-converter.service';
+import { CdkService } from '../../../core/services/cdk.service';
+import { DateUtilsService } from '../../../core/services/dateutils.service';
+
+import { TemplatePortal } from '@angular/cdk/portal';
+import * as d3 from 'd3';
 
 @Component({
 // tslint:disable-next-line: component-selector
@@ -48,6 +55,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     @ViewChild('graphOutput') private graphOutput: ElementRef;
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
+    @ViewChild('eventSearchControl') private eventSearchControl: ElementRef;
+    @ViewChild('alertDateTimeNavbarItemTmpl') alertDateTimeNavbarItemTmpl: TemplateRef<any>;
 
     @Input() response;
 
@@ -159,6 +168,18 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                                 { label: 'After 24 hours', value: 1440 * 60 }
                             ];
 
+    dsTimeRange = {
+                    60: { value: 1, unit: 'hours', label: '1h'}, // 1m
+                    300: { value: 2, unit: 'hours', label: '2h'}, // 5m
+                    600: { value: 4, unit: 'hours', label: '4h'}, // 10min
+                    900: { value: 6, unit: 'hours', label: '6h'}, // 15min
+                    1800: { value: 12, unit: 'hours', label: '12h'}, // 30m
+                    3600: { value: 1, unit: 'days', label: '1d'}, // 1hr
+                    21600: { value: 6, unit: 'days', label: '6d'}, // 6hr
+                    43200: { value: 12, unit: 'days', label: '12d'}, // 12 hr
+                    86400: { value: 2, unit: 'weeks', label: '2w'}, // 24 hr
+                    172800: { value: 4, unit: 'weeks', label: '4w'} // 48 hr
+                };
     transitionOptions: any = {
                                 'goodToBad' : 'Good To Bad',
                                 'warnToBad' : 'Warn To Bad',
@@ -194,12 +215,22 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         'modifiers'
     ];
 
+    events:any = [];
+    startTime;
+    endTime;
+    alertspageNavbarPortal: TemplatePortal;
+
+    doEventQuery$ = new BehaviorSubject(['list', 'count']);
+    eventQuery: any = { namespace: '', search: ''};
+
     constructor(
         private fb: FormBuilder,
         private queryService: QueryService,
         private metaService: MetaService,
         private httpService: HttpService,
         private dataTransformer: DatatranformerService,
+        private dateUtil: DateUtilsService,
+        private cdkService: CdkService,
         private utils: UtilsService,
         private elRef: ElementRef,
         public dialog: MatDialog,
@@ -213,7 +244,22 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     ngOnInit() {
+        this.alertspageNavbarPortal = new TemplatePortal(this.alertDateTimeNavbarItemTmpl, undefined, {});
+        this.cdkService.setNavbarPortal(this.alertspageNavbarPortal);
+
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
+
+
+        this.subscription.add(this.doEventQuery$
+            .pipe(
+                skip(1),
+                debounceTime(1000)
+            )
+            .subscribe(list => {
+                this.doEventQuery(list);
+            })
+        );
+
         switch ( this.data.type ) {
             case 'simple':
                 this.thresholdType = 'singleMetric';
@@ -223,9 +269,12 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 this.thresholdType = 'healthCheck';
                 this.setupHealthCheckForm(this.data);
                 break;
+            case 'event':
+                this.thresholdType = 'eventAlert';
+                this.setupEventForm(this.data);
+                break;
         }
     }
-
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
@@ -235,11 +284,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
         ElementQueries.listen();
         ElementQueries.init();
-
-        const resizeSensor = new ResizeSensor(this.graphOutput.nativeElement, () => {
+        const resizeSensor = new ResizeSensor(this.elRef.nativeElement, (size) => {
              const newSize = {
-                width: this.graphOutput.nativeElement.clientWidth,
-                height: this.graphOutput.nativeElement.clientHeight
+                width: size.width * ( this.data.type === 'event' ? 0.65 : 1 ) - 5,
+                height: 160
             };
             this.size = newSize;
         });
@@ -253,6 +301,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             };
         data = Object.assign(def, data);
         this.showDetail = data.id ? true : false;
+        this.startTime =  '1h';
+        this.endTime = 'now';
         this.setQuery();
         this.reloadData();
 
@@ -471,6 +521,67 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 }));
     }
 
+    setupEventForm(data = null) {
+        const def = {
+                queries: { eventdb: [{}] },
+                threshold : { eventAlert: {} },
+                notification: {}
+            };
+        data = Object.assign(def, data);
+        this.showDetail = data.id ? true : false;
+        this.alertForm = this.fb.group({
+            name: data.name || 'Untitled Alert',
+            type: 'event',
+            enabled: data.enabled === undefined ? true : data.enabled,
+            namespace: data.namespace || null,
+            alertGroupingRules: [ data.alertGroupingRules || []],
+            queries: this.fb.group({
+                eventdb: this.fb.array([
+                        this.fb.group({
+                            namespace: data.queries.eventdb[0].namespace || '',
+                            filter: data.queries.eventdb[0].filter || '',
+                            groupBy: [data.queries.eventdb[0].groupBy || []]})
+                    ])
+            }),
+            threshold: this.fb.group({
+                subType: data.threshold.subType || 'eventAlert',
+                eventAlert: this.fb.group({
+                    queryType: 'eventdb',
+                    queryIndex: 0,
+                    threshold: data.threshold.eventAlert.threshold || 1,
+                    slidingWindow: data.threshold.eventAlert.slidingWindow || '600'
+                })
+            }),
+            notification: this.fb.group({
+                transitionsToNotify: [ data.notification.transitionsToNotify || ['goodToBad']],
+                recipients: [ data.notification.recipients || {}],
+                subject: data.notification.subject  || '',
+                body: data.notification.body || '',
+                opsgeniePriority:  data.notification.opsgeniePriority || '',
+                runbookId: data.notification.runbookId || '',
+                ocSeverity: data.notification.ocSeverity || '5'
+            })
+        });
+        this.options.axes.y.valueRange[0] = 0;
+        this.startTime =  this.dsTimeRange[this.alertForm.get('threshold').get('eventAlert').get('slidingWindow').value].label;
+        this.endTime = 'now';
+        this.doEventQuery$.next(['list', 'count']);
+        this.setThresholds('bad', data.threshold.eventAlert.threshold || 1);
+        this.setTags();
+
+        this.alertForm.get('threshold').get('eventAlert').get('slidingWindow').valueChanges.subscribe(value => {
+            this.startTime =  this.dsTimeRange[this.alertForm.get('threshold').get('eventAlert').get('slidingWindow').value].label;
+            this.endTime = 'now';
+            this.doEventQuery$.next(['list', 'count']);
+        });
+        this.alertForm.get('queries').get('eventdb')['controls'][0].valueChanges.subscribe(changes => {
+            this.doEventQuery$.next(['list', 'count']);
+        });
+        this.alertForm.get('threshold').get('eventAlert').get('threshold').valueChanges.pipe(debounceTime(500)).subscribe(value => {
+            this.setThresholds('bad', value);
+        });
+    }
+
     setQuery() {
         this.queries = this.data.queries && this.data.queries.raw ? this.data.queries.raw : [ this.getNewQueryConfig() ];
     }
@@ -509,6 +620,72 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }
         };
         return query;
+    }
+
+    doEventQuery(list) {
+        const id = 'q1_m1';
+        let namespace = this.alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').value;
+        namespace = namespace !== null ? namespace.trim() : '';
+        const filter = this.alertForm.get('queries').get('eventdb')['controls'][0].get('filter').value;
+        const downsample = this.alertForm.get('threshold').get('eventAlert').get('slidingWindow').value;
+        const query = {
+                        id: id,
+                        namespace: namespace,
+                        search: filter,
+                        };
+        const eventQueries = [];
+        if ( list.includes('list') && namespace ) {
+            eventQueries.push( query);
+        }
+        if ( list.includes('count') && namespace) {
+            eventQueries.push( { ...query } ); // spread operator inserts new object, changes to it doesn't affect origin query obj
+            eventQueries[1].id = id + '_count';
+            eventQueries[1].downSample = { aggregator: 'sum', value: (downsample / 60) + 'm'};
+        }
+        const time = {
+            start: this.dateUtil.timeToMoment(this.startTime, 'local').valueOf(),
+            end: this.dateUtil.timeToMoment(this.endTime, 'local').valueOf()};
+        if ( eventQueries.length ) {
+            this.nQueryDataLoading = 1;
+            this.error = '';
+            this.httpService.getEvents('123', time, eventQueries, 100).subscribe(res => {
+                this.events = res.events;
+                const config = {
+                    queries: [{ settings: { visual: {visible: true}}, metrics: [{name: 'count', settings: {visual: {type: 'bar', color:'#1aa3ff', visible: true}}}]}]
+                };
+                this.options.labels = ['x'];
+                const data = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], res.counts);
+                // we are expecting one series. the max logic needs to changed when we support group by
+                let max = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
+                if ( res.counts.results.length && res.counts.results[0].data.length) {
+                    for ( let i = 0; i < res.counts.results[0].data[0].NumericType.length - 1; i++ ) { // we ignore the last point
+                        const d = res.counts.results[0].data[0].NumericType[i];
+                        max = !isNaN(d) && d > max ? d : max;
+                    }
+                }
+                this.options.axes.y.tickFormat.max = max;
+                this.setChartYMax();
+                this.chartData = { ts: data };
+                this.nQueryDataLoading = 0;
+            }, err => {
+                this.error = err;
+                this.nQueryDataLoading = 0;
+            });
+        }
+    }
+
+    handleTimePickerChanges(message) {
+        switch ( message.action  ) {
+            case 'SetDateRange':
+                this.startTime = message.payload.newTime.startTimeDisplay;
+                this.endTime = message.payload.newTime.endTimeDisplay;
+                if ( this.data.type === 'event') {
+                    this.doEventQuery$.next(['list', 'count']);
+                } else if ( this.data.type === 'simple' ) {
+                    this.reloadData();
+                }
+                break;
+        }
     }
 
     validateSingleMetricThresholds(group) {
@@ -573,6 +750,17 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         }
     }
 
+    validateEventAlertForm() {
+        const namespace = this.alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').value;
+        const threshold = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
+        if ( !namespace ) {
+            this.alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').setErrors({'required': true});
+        }
+        if ( !threshold ) {
+            this.alertForm.get('threshold').get('eventAlert').get('threshold').setErrors({'required': true});
+        }
+    }
+
     getMetricDropdownValue(queries, qindex, mid) {
         const REGDSID = /q?(\d+)?_?(m|e)(\d+).*/;
         const qids = REGDSID.exec(mid);
@@ -625,6 +813,15 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     res = this.queries[qindex].metrics[mindex].groupByTags || [];
                     this.tags = res;
             }
+        } else if ( this.thresholdType === 'eventAlert' ) {
+            const namespace = this.alertForm.get('namespace').value;
+            const query: any = { search: '', namespace: namespace, tags: [], metrics: [] };
+            if ( namespace !== null ) {
+                this.httpService.getNamespaceTagKeys(query, 'meta')
+                                .subscribe( res => {
+                                    this.tags = res.map( d => d.name);
+                                });
+            }
         } else {
             const query: any = { search: '', namespace: this.queries[0].namespace, tags: this.queries[0].filters, metrics: [] };
             if (this.queries[0].namespace !== '' ) {
@@ -639,6 +836,20 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     getMetricGroupByTags(qindex, mindex) {
         return this.queries[qindex] &&  this.queries[qindex].metrics[mindex] ? this.queries[qindex].metrics[mindex].groupByTags : [];
+    }
+
+    saveNamespace(namespace) {
+        // this.eventAlertNamespace = namespace;
+        this.eventSearchControl.nativeElement.focus();
+        this.alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').setValue(namespace);
+        this.setTags();
+        this.doEventQuery$.next(['list', 'count']);
+    }
+
+    cancelSaveNamespace(e) {
+        // this.eventAlertNamespace = this.alertForm.get('threshold').get('eventAlert').get('namespace').value;
+        // this.alertForm.get('threshold').get('eventAlert').get('namespace').setValue(ns, {emitModelToViewChange: true});
+        // console.log("cancelSaveNamespace", this.alertForm.get('threshold').get('eventAlert').get('namespace').value);
     }
 
 
@@ -713,7 +924,8 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }
         };
         const time = {
-            start: '1h-ago'
+            start: this.dateUtil.timeToMoment(this.startTime, 'local').valueOf(),
+            end: this.dateUtil.timeToMoment(this.endTime, 'local').valueOf()
         };
         const queries = {};
         for (let i = 0; i < this.queries.length; i++) {
@@ -799,14 +1011,22 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     setChartYMax() {
-        // check the y max value 
-        const bad = this.thresholdSingleMetricControls['badThreshold'].value;
-        const warning = this.thresholdSingleMetricControls['warnThreshold'].value;
-        const recovery = this.thresholdSingleMetricControls['recoveryThreshold'].value;
-        const max = Math.max(bad, warning, recovery);
+        let max;
+        switch ( this.data.type ) {
+            case 'simple':
+                const bad = this.thresholdSingleMetricControls['badThreshold'].value;
+                const warning = this.thresholdSingleMetricControls['warnThreshold'].value;
+                const recovery = this.thresholdSingleMetricControls['recoveryThreshold'].value;
+                max = Math.max(bad, warning, recovery);
+                break;
+            case 'event':
+                max = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
+                break;
+        }
         if ( max && max > this.options.axes.y.tickFormat.max ) {
             this.options.axes.y.valueRange[1] = max +  max * 0.1 ;
         }
+
     }
 
     updateQuery(message) {
@@ -885,6 +1105,12 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             case 'healthcheck':
                 this.validateHealthCheckForm();
                 break;
+            case 'event':
+                this.validateEventAlertForm();
+                if ( !this.alertForm['controls'].notification.get('transitionsToNotify').value.length ) {
+                    this.alertForm['controls'].notification.get('transitionsToNotify').setErrors({ 'required': true });
+                }
+                break;
         }
 
 
@@ -936,13 +1162,16 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 data.threshold.singleMetric.queryIndex = qindex;
                 // tslint:disable-next-line: max-line-length
                 data.threshold.singleMetric.metricId =  this.utils.getDSId( this.utils.arrayToObject(this.queries), qindex, mindex) + (this.queries[qindex].metrics[mindex].expression === undefined ? '_groupby' : '');
+                data.threshold.isNagEnabled = data.threshold.nagInterval !== '0' ? true : false;
                 break;
             case 'healthcheck':
                 data.threshold.missingDataInterval = data.threshold.notifyOnMissing === 'true' ? data.threshold.missingDataInterval : null;
                 data.queries = { aura: this.getMetaQuery(), raw: this.queries };
+                data.threshold.isNagEnabled = data.threshold.nagInterval !== '0' ? true : false;
+                break;
+            case 'event':
                 break;
         }
-        data.threshold.isNagEnabled = data.threshold.nagInterval !== '0' ? true : false;
         data.version = this.alertConverter.getAlertCurrentVersion();
         // emit to save the alert
         this.configChange.emit({ action: 'SaveAlert', namespace: this.data.namespace, payload: { data: this.utils.deepClone([data]) }} );
@@ -1000,6 +1229,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         }
     }
     */
+
+    setEventAlertGroupBy(arr) {
+        this.alertForm.get('queries').get('eventdb')['controls'][0].get('groupBy').setValue(arr, {emitEvent: false});
+    }
 
     setQueryGroupRules(arr) {
         this.groupRulesLabelValues.setValue(arr);
@@ -1133,5 +1366,4 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             }
         });
     }
-
 }
