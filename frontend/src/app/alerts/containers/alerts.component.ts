@@ -253,7 +253,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         // setup navbar portal
         this.alertspageNavbarPortal = new TemplatePortal(this.alertspageNavbarTmpl, undefined, {});
-        this.cdkService.setNavbarPortal(this.alertspageNavbarPortal);
+        this.setNavbarPortal();
 
         this.subscription.add(this.loaded$.subscribe( data => {
             this.stateLoaded = JSON.parse(JSON.stringify(data));
@@ -451,7 +451,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         // handle route for alerts
         this.subscription.add(this.activatedRoute.url.pipe(delayWhen(() => this.configLoaded$)).subscribe(url => {
 
-            // this.logger.log('ROUT CHANGE', { url });
+            this.logger.log('ROUT CHANGE', { url });
 
             if ( url.length >= 1 && url[0].path === 'snooze') {
                 this.list = 'snooze';
@@ -488,6 +488,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
             } else if (url.length === 0 && this.detailsView && this.selectedNamespace.length > 0) {
                 this.location.go('/a/' + (this.list === 'snooze' ? 'snooze/' : '' ) + this.selectedNamespace);
                 this.detailsView = false;
+                this.setNavbarPortal();
 
             } else if ( this.userNamespaces.length || this.allNamespaces.length ) {
                 // set a namespace... probably should update url?
@@ -538,6 +539,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
             this.store.dispatch(new CheckWriteAccess( data ));
         }));
 
+    }
+
+    setNavbarPortal() {
+        this.cdkService.setNavbarPortal(this.alertspageNavbarPortal);
     }
 
     switchType(mode) {
@@ -741,6 +746,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 this.detailsView = false;
                 this.location.go('a/' + this.selectedNamespace);
                 break;
+        }
+        if ( message.action === 'CancelEdit' || message.action === 'SaveAlert' ) {
+            this.setNavbarPortal();
         }
     }
 

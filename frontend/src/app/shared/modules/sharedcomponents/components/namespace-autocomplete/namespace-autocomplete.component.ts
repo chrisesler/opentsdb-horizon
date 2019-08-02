@@ -94,6 +94,12 @@ export class NamespaceAutocompleteComponent implements OnInit {
         }
     }
 
+    resetNamespaceList() {
+        if ( this.namespaces.length ) {
+            this.filteredNamespaceOptions = this.namespaces;
+        }
+    }
+
     /**
      * * Event fired when an autocomplete option is selected
      */
@@ -111,6 +117,7 @@ export class NamespaceAutocompleteComponent implements OnInit {
     documentClickHandler(target) {
         if (!target.classList.contains('mat-option-text') && this.visible) {
             // console.log('window:click outside', this.elRef, target, this.elRef.nativeElement.contains(target));
+            this.namespaceControl.setValue(this.value, {emitEvent: false});
             this.blur.emit('');
         }
     }
