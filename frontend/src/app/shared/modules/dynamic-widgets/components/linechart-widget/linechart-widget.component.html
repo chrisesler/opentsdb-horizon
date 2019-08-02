@@ -27,7 +27,7 @@
                                 [chartType]="chartType"
                                 [data]="graphData[yKey][xKey]"
                                 [size]="size"
-                                [options]="options"
+                                [options]="graphData[yKey][xKey].options"
                                 [eventBuckets]="buckets"
                                 [showEvents]="widget.settings.visual.showEvents"
                                 [renderReady]="false"
