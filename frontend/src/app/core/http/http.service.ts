@@ -443,8 +443,8 @@ export class HttpService {
 
         return this.http.post(apiUrl, query, { headers, withCredentials: true }).pipe(
             map((res: any) => {
-                // console.log('the res', res);
-                let events = [];
+                let events = [], counts: any = {};
+                counts.results = res && res.results.length ? res.results.filter(d =>  d.source.indexOf('count') !== -1 ) : [];
                 for (let i = 0; res && i < res.results.length; i++) {
                     for (let j = 0; res.results[i] && j < res.results[i].data.length; j++) {
                         if (Object.keys(res.results[i].data[j]).length > 0 && res.results[i].data[j].EventsType) {
@@ -461,7 +461,7 @@ export class HttpService {
                         }
                     }
                 }
-                return {events: events, wid: wid, time: time, eventQueries: eventQueries};
+                return {events: events, counts: counts, wid: wid, time: time, eventQueries: eventQueries};
             })
         );
     }
