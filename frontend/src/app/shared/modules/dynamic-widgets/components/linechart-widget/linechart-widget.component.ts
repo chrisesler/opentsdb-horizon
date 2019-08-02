@@ -259,6 +259,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 this.data = { ...this.data };
                                 graphs['y'] = {};
                                 graphs['y']['x'] = this.data;
+                                graphs['y']['x'].options = this.options;
                             }
                             this.graphData = graphs;
                             console.log('hill - graphs', graphs);
