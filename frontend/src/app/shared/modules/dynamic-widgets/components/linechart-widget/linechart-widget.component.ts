@@ -258,6 +258,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                                 this.data = { ...this.data };
                                 graphs['y'] = {};
+                                graphs['y']['x'] = this.options;
                                 graphs['y']['x'] = this.data;
                             }
                             this.graphData = graphs;
