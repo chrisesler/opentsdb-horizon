@@ -60,13 +60,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     @Input() response;
 
-    @Input() viewMode: string = ''; // edit || view
+    @Input() viewMode: string = ''; // edit || clone || view
 
     @Input() hasWriteAccess: boolean = false;
 
     get readOnly(): boolean {
         if (!this.hasWriteAccess) { return true; }
-        return (this.viewMode === 'edit') ? false : true;
+        return (this.viewMode === 'edit' || this.viewMode === 'clone') ? false : true;
     }
 
     @Output() configChange = new EventEmitter();

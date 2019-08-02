@@ -282,9 +282,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
         this.subscription.add(this.allNamespaces$.subscribe( data => {
             this.allNamespaces = data;
-            this.logger.log('NAMESPACES', this.allNamespaces);
+            // this.logger.log('NAMESPACES', this.allNamespaces);
             this.allNamespacesDS = new MatTableDataSource(this.allNamespaces);
-            this.logger.log('NAMESPACES_DS', this.allNamespacesDS);
+            // this.logger.log('NAMESPACES_DS', this.allNamespacesDS);
             this.allNamespacesDS.filterPredicate = (data: any, filter: string) => {
                 return data.name.toLowerCase().includes(filter.toLowerCase());
             };
@@ -418,7 +418,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
                 } else if (!readOnly) {
                     modeCheck = routeSnapshot[routeSnapshot.length - 1];
                     // there is no mode in the url
-                    if (modeCheck.path.toLowerCase() !== 'view' && modeCheck.path.toLowerCase() !== 'edit') {
+                    if ( !['view', 'edit', 'clone'].includes(modeCheck.path.toLowerCase()) ) {
                         // enforce mode in url path, defaulting to edit
                         const parts = routeSnapshot.map(item => item.path);
                         parts.unshift('/a');
@@ -477,7 +477,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
             } else if (
                 (url.length === 2 &&
                 this.utils.checkIfNumeric(url[0].path) &&
-                (url[1].path.toLocaleLowerCase() === 'view' || url[1].path.toLocaleLowerCase() === 'edit')) ||
+                (['view', 'edit', 'clone'].includes(url[1].path.toLocaleLowerCase()))) ||
                 (url.length === 1 && this.utils.checkIfNumeric(url[0].path))
             ) {
                 // abreviated alert url... probably came from alert email
@@ -509,7 +509,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
             if (
                 routeSnapshot.length === 2 &&
                 this.utils.checkIfNumeric(routeSnapshot[0].path) &&
-                (routeSnapshot[1].path.toLowerCase() === 'view' || routeSnapshot[1].path.toLowerCase() === 'edit')
+                ( ['view', 'edit', 'clone'].includes(routeSnapshot[1].path.toLowerCase()))
             ) {
                 // fix the URL if it is abbreviated route from alert email
                 parts = ['/a', data.id, data.namespace, data.slug, routeSnapshot[1].path.toLowerCase()];
@@ -665,6 +665,14 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.store.dispatch(new GetAlertDetailsById(element.id));
     }
 
+    cloneAlert(element: any) {
+        const mode = (this.hasNamespaceWriteAccess) ? 'clone' : 'view';
+        this.detailsMode = mode;
+
+        this.location.go('a/' + element.id + '/' + element.namespace + '/' + element.slug + '/' + mode);
+        this.store.dispatch(new GetAlertDetailsById(element.id));
+    }
+
     viewAlert(element: any) {
         this.detailsMode = 'view';
         this.location.go('a/' + element.id + '/' + element.namespace + '/' + element.slug + '/view');
@@ -682,6 +690,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     openEditMode(data: any) {
+        if ( this.detailsMode === 'clone') {
+            data.id = '';
+            data.name = 'Clone of ' + data.name;
+        }
         this.configurationEditData = data;
         this.detailsView = true;
     }
