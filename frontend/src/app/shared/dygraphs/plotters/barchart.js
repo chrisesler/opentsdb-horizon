@@ -1,9 +1,5 @@
 // borrowed from Dygraphs for RStudio
 // https://github.com/rstudio/dygraphs/blob/master/inst/plotters/stackedbarchart.js
-
-
-
-
 "use strict";
 
 var DygraphLayout = require("dygraphs/src/dygraph-layout");
@@ -18,13 +14,11 @@ var barChartPlotter = function(e) {
     if (!g.attributes_.user_.barChartPlotter) {
         g.attributes_.user_.barChartPlotter = {};
     }
-
     // console.log(g.attributes_.user_.barChartPlotter);
-
     g.attributes_.user_.barChartPlotter.called = true;
 
-    var ctx = e.drawingContext;
     var sets = e.allSeriesPoints;
+    var ctx = e.drawingContext;
     var y_bottom = e.dygraph.toDomYCoord(0);
 
 
@@ -114,9 +108,10 @@ var barChartPlotter = function(e) {
     //e.dygraph.user_attrs_.series[].plotter.name;
     var seriesInfo = g.user_attrs_.series;
     var barChartSeries = {};
+    // console.log("seriesinfo", seriesInfo);
     for (var i in seriesInfo) {
         if (seriesInfo[i].plotter !== undefined && 
-            seriesInfo[i].plotter.name === "barChartPlotter") {
+            seriesInfo[i].plotter === barChartPlotter) {
             barChartSeries[i-1] = i;
         }
     }
@@ -181,6 +176,9 @@ var barChartPlotter = function(e) {
             var center_x = point.canvasx;
             ctx.fillStyle = fillColors[j];
             ctx.strokeStyle = fillColors[j];
+
+            // console.log("rendering");
+            // console.log(center_x - bar_width / 2, point.canvasy, bar_width, y_bottom - point.canvasy);
 
             ctx.fillRect(center_x - bar_width / 2, point.canvasy,
                 bar_width, y_bottom - point.canvasy);
