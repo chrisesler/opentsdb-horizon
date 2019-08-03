@@ -1,14 +1,17 @@
 import { Component, OnInit, OnDestroy,
-    HostBinding, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+    HostBinding, Input, Output, EventEmitter, ViewChild, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 import { Subscription, Subject } from 'rxjs';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
-import {MatTable} from '@angular/material/table';
+import { MatTable } from '@angular/material/table';
 import { HttpService } from '../../../../../core/http/http.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
 import { MatAutocompleteTrigger } from '@angular/material';
-import {MultigraphService } from '../../../../../core/services/multigraph.service';
+import { MultigraphService } from '../../../../../core/services/multigraph.service';
+import { LoggerService } from '../../../../../core/services/logger.service';
+import * as deepEqual from 'fast-deep-equal';
+import { pairwise } from 'rxjs/operators';
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -16,7 +19,7 @@ import {MultigraphService } from '../../../../../core/services/multigraph.servic
     templateUrl: './widget-config-multigraph.component.html',
     styleUrls: []
 })
-export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
+export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnChanges {
 
     @ViewChild('chartTable') chartTable: MatTable<any>;
     @ViewChild('tagKeyInput', {read: ElementRef}) tagKeyInput: ElementRef;
@@ -25,7 +28,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     @HostBinding('class.widget-config-tab') private _hostClass = true;
     @HostBinding('class.multigraph-configuration') private _tabClass = true;
 
-    @Input() widget: any;
+    @Input() widget: any = {};
 
     /** Outputs */
     @Output() widgetChange = new EventEmitter();
@@ -73,19 +76,26 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
         layout: 'grid', // grid | freeflow
         gridOptions: {
             viewportDisplay: 'fit', // fit | custom
-            custom: {x: 3, y: 3}
+            custom: {
+                x: 3,
+                y: 3
+            }
         }
     };
+
+    multigraphSubs: any = false;
 
     constructor(
         private fb: FormBuilder,
         private httpService: HttpService,
         private utilService: UtilsService,
-        private multiService: MultigraphService
+        private multiService: MultigraphService,
+        private loggerService: LoggerService
     ) { }
 
     ngOnInit() {
         console.log('hill - widget', this.widget);
+        /*
         // get widget tags
         this.getWidgetTagKeys();
         // check of they have multigraph or not
@@ -101,11 +111,41 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
                 this.multigraph.chart.push(item);
             }
         }
-        this.createForm(this.multigraph);
+        this.createForm(this.multigraph);*/
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        this.loggerService.log('SIMPLE CHANGES', changes);
+        if (changes['widget']) {
+            if (!deepEqual(this.widget, changes['widget'])) {
+                this.subscription.unsubscribe();
+                this.subscription = new Subscription();
+                this.setupMultigraph();
+            }
+        }
     }
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
+    }
+
+    setupMultigraph() {
+        // get widget tags
+        this.getWidgetTagKeys();
+        // check of they have multigraph or not
+        if (this.widget.settings.multigraph) {
+            this.multigraph = this.utilService.deepClone(this.widget.settings.multigraph);
+        } else {
+            const groupByTags = this.multiService.getGroupByTags(this.widget.queries);
+            for (let i = 0; i < groupByTags.length; i++) {
+                const item = {
+                    key: groupByTags[i],
+                    displayAs: 'g'
+                };
+                this.multigraph.chart.push(item);
+            }
+        }
+        this.createForm(this.multigraph);
     }
 
     createForm(multigraph: any) {
@@ -141,6 +181,9 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     }
 
     setViewportDisplayValidators() {
+
+        /*
+
         this.subscription.add(
             this.FC_gridOpts_viewportDisplay.valueChanges.subscribe(viewportDisplay => {
                 console.log ('VIEWPORT DISPLAY [CHANGE]', viewportDisplay);
@@ -156,14 +199,25 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
                     // this.FC_gridOpts_custom_y.disable();
                 }
             })
-        );
+        );*/
 
         this.subscription.add(
-            this.widgetConfigMultigraph.valueChanges.subscribe(changes => {
-                if (this.chartTable) {
-                    console.log('hill - chart table', changes);
+            this.widgetConfigMultigraph.valueChanges.pipe(pairwise()).subscribe(([prev, changes]: [any, any]) => {
+                console.log('hill - chart table', prev, changes);
+                if (this.chartTable && !deepEqual(prev, changes)) {
+
+                    if (changes.gridOptions.viewportDisplay === 'custom') {
+                        this.FC_gridOpts_custom_x.setValidators([Validators.required]);
+                        this.FC_gridOpts_custom_x.enable();
+                    } else {
+                        this.FC_gridOpts_custom_x.setValidators(null);
+                        this.FC_gridOpts_custom_x.disable();
+                    }
+
+
                     this.chartTable.renderRows();
                     this.widgetChange.emit({ action: 'UpdateMultigraph', payload: changes });
+                    
                 }
             })
         );
