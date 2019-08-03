@@ -42,6 +42,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChild('dygraph') private dygraph: ElementRef;
     @ViewChild(MatSort) sort: MatSort;
 
+    @ViewChild('multigraphContainer', {read: ElementRef}) multigraphContainer: ElementRef;
+    @ViewChild('multigraphHeaderRow', {read: ElementRef}) multigraphHeaderRow: ElementRef;
+
     @ViewChildren('graphLegend', {read: ElementRef}) graphLegends: QueryList<ElementRef>;
 
     private subscription: Subscription = new Subscription();
@@ -122,6 +125,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     multigraphMode = 'grid'; // grid || freeflow
     renderReady = false;
     fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // eventually remove this
+    multigraphColumns: string[] = [];
 
     graphData: any = {};
 
@@ -262,7 +266,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'] = this.data;
                                 graphs['y']['x'].options = this.options;
                             }
+                            this.setMultigraphColumns(graphs);
                             this.graphData = graphs;
+
                             console.log('hill - graphs', graphs);
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
                                 environment.debugLevel.toUpperCase() === 'DEBUG' ||
@@ -1159,6 +1165,20 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             return item.nativeElement.getAttribute('data-id') === id;
         });
         return legend || null;
+    }
+
+    setMultigraphColumns(data) {
+        const ykeys = this.getGraphDataObjectKeys(data);
+        const colKeys = this.getGraphDataObjectKeys(data[ykeys[0]]);
+        if (colKeys.length === 1 && colKeys[0] === 'x') {
+            this.multigraphColumns = [];
+        } else {
+            this.multigraphColumns = colKeys;
+        }
+    }
+
+    multigraphContainerScroll(event: any) {
+        
     }
 
     ngOnDestroy() {
