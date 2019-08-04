@@ -1178,7 +1178,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     multigraphContainerScroll(event: any) {
-        
+        if (this.multigraphHeaderRow) {
+            this.multigraphHeaderRow.nativeElement.style.marginTop = event.target.scrollTop + 'px';
+        }
     }
 
     ngOnDestroy() {
