@@ -15,8 +15,9 @@
             'display-legend-left': widget.settings.legend.display && widget.settings.legend.position=='left' && options.labels.length > 1
         }">
         <!-- STANDARD GRAPH OUTPUT -->
-        <div class="multigraph-output">
-            <div class="multi-graph-container" #multigraphContainer [ngClass]="{'multigraph-grid-mode': multigraphMode === 'grid', 'multigraph-freeflow-mode': !multigraphEnabled || multigraphMode === 'freeflow'}" (scroll)="multigraphContainerScroll($event)">
+        <div class="multigraph-output" (scroll)="multigraphContainerScroll($event)">
+            <div class="multi-graph-container" #multigraphContainer
+                [ngClass]="{'multigraph-grid-mode': multigraphMode === 'grid', 'multigraph-freeflow-mode': !multigraphEnabled || multigraphMode === 'freeflow'}">
                 <!-- column headers -->
                 <div class="graph-header-row" #multigraphHeaderRow *ngIf="multigraphColumns.length > 0">
                     <div class="graph-header-cell" *ngFor="let columnName of multigraphColumns" [style.width.px]="size.width">
