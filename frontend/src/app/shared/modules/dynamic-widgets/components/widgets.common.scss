@@ -187,6 +187,7 @@ $widgets-common-config: (
             flex-direction: row;
             justify-content: stretch;
             align-items: stretch;
+            z-index: 200
         }
 
         .graph-header-row + .graph-row {
@@ -354,7 +355,7 @@ $widgets-common-config: (
 
         /* headers */
         .graph-header-cell {
-            background: $divider;
+            background: lighten(#cccccc, 10% );
         }
 
         .graph-header-row {
