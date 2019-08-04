@@ -14,6 +14,22 @@
                 <!--- Note that these columns can be defined in any order.
                         The actual rendered columns are set as a property on the row definition" -->
 
+                <!-- REMOVE -->
+                <ng-container matColumnDef="remove">
+                    <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+                    <mat-cell *matCellDef="let element; let rowIndex = index">
+                        <span *ngIf="element.get('key').value !== 'metric_group'"
+                            matTooltip="Can not disable a GroupBy tag."
+                            [matTooltipDisabled]="!checkIfGroupByTags(element.get('key').value)">
+                            <button mat-icon-button color="primary"
+                                [disabled]="checkIfGroupByTags(element.get('key').value)"
+                                (click)="removeMultigraphTag(rowIndex)">
+                                <mat-icon fontSet="denali" fontIcon="d-minus-circle"></mat-icon>
+                            </button>
+                        </span>
+                    </mat-cell>
+                </ng-container>
+                
                 <!-- label -->
                 <ng-container matColumnDef="label">
                     <mat-header-cell *matHeaderCellDef> </mat-header-cell>
@@ -113,10 +129,10 @@
             </div>
             <div class="grid-options" formGroupName="gridOptions">
                 <div class="radio-row">
-                    <mat-radio-group formControlName="viewportDisplay">
+                    <mat-radio-group>
                         <mat-radio-button 
                             value="fit"
-                            [checked]="FC_gridOpts_viewportDisplay.value === 'fit'"></mat-radio-button>
+                            [checked]="FC_gridOpts_viewportDisplay.value === 'fit'" (change)="setViewportDisplayMode($event)"></mat-radio-button>
                     </mat-radio-group>
                     <div class="radio-inline-label">
                         <span>Optimize for widget viewport</span>
@@ -124,10 +140,10 @@
                 </div>
                 <!-- grid graph size options -->
                 <div class="radio-row" *ngIf="FC_layout.value === 'grid'">
-                    <mat-radio-group formControlName="viewportDisplay">
+                    <mat-radio-group>
                         <mat-radio-button
                             value="custom"
-                            [checked]="FC_gridOpts_viewportDisplay.value === 'custom'"></mat-radio-button>
+                            [checked]="FC_gridOpts_viewportDisplay.value === 'custom'" (change)="setViewportDisplayMode($event)"></mat-radio-button>
                     </mat-radio-group>
                     <div class="radio-inline-label" formGroupName="custom">
                         <mat-form-field appearance="fill" class="numeric-options">
@@ -152,10 +168,10 @@
                 </div>
                 <!-- freeflow graph size options -->
                 <div class="radio-row" *ngIf="FC_layout.value === 'freeflow'">
-                    <mat-radio-group formControlName="viewportDisplay">
+                    <mat-radio-group>
                         <mat-radio-button
                             value="custom"
-                            [checked]="FC_gridOpts_viewportDisplay.value === 'custom'"></mat-radio-button>
+                            [checked]="FC_gridOpts_viewportDisplay.value === 'custom'" (change)="setViewportDisplayMode($event)"></mat-radio-button>
                     </mat-radio-group>
                     <div class="radio-inline-label" formGroupName="custom">
                         <mat-form-field appearance="fill" class="numeric-options">
