@@ -64,6 +64,27 @@
                 }
             }
 
+            .mat-header-cell:first-of-type
+            .mat-cell:first-of-type {
+                padding-left: 0;
+            }
+
+            .mat-cell.mat-column-remove {
+                padding-right: 6px;
+                padding-left: 6px;
+                max-width: 30px;
+
+                .mat-icon-button {
+                    width: 18px;
+                    height: 18px;
+                    line-height: 18px;
+
+                    .mat-icon {
+                        @include sizeDenaliIcon(14px);
+                    }
+                }
+            }
+
             .mat-cell.mat-column-order .mat-icon {
                 cursor: grab;
             }
@@ -76,7 +97,7 @@
                 align-self: stretch;
                 display: flex;
                 align-items: center;
-                margin: 0 4px;
+                margin: 0 4px 0 8px;
 
                 .mat-icon {
                     @include sizeDenaliIcon(14px);
