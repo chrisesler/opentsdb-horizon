@@ -78,7 +78,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
                 this.options.labelsDiv = this.labelsDiv;
             }
 
-            console.log('RUNNING DYGRAPH SETUP', this.size, this.options);
+            // console.log('RUNNING DYGRAPH SETUP', this.size, this.options);
 
             const self = this;
 
@@ -141,8 +141,8 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
                 const seriesConfig = this.user_attrs_.series;
                 if (data.x == null) {
                     const labelsDiv = this.user_attrs_.labelsDiv;
-                    //labelsDiv.style.display = 'none';
-                    //return '';
+                    // labelsDiv.style.display = 'none';
+                    // return '';
                 }
 
                 let html = '<p>' + data.xHTML + '</p>';
@@ -313,7 +313,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
                         };
                     }
 
-                    console.log('OPTIONS', this.options);
+                    // console.log('OPTIONS', this.options);
 
                     this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
                 }

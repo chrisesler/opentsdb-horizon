@@ -891,7 +891,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleZoom(zConfig) {
-        //console.log('ZOOM ZOOM', zConfig);
+        // console.log('ZOOM ZOOM', zConfig);
         const n = this.data.ts.length;
         if ( zConfig.isZoomed && n > 0 ) {
             const startTime = new Date(this.data.ts[0][0]).getTime() / 1000;
@@ -1146,7 +1146,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     getGraphDataObjectKeys(obj: any): string[] {
         const keys = Object.keys(obj);
-        //console.log('GETTING KEYS', obj, keys);
         return keys;
     }
 
@@ -1156,7 +1155,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         if (legend) {
             options.labelsDiv = legend.nativeElement;
         }
-        //console.log('OPTIONS', options);
         return options;
     }
 
