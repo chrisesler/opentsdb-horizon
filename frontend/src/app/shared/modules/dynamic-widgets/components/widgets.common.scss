@@ -198,6 +198,16 @@ $widgets-common-config: (
 
         .graph-cell {
             position: relative;
+
+            .graph-header {
+                @include mat-typography-level-to-styles(map-get($app-fontface-config, mono), caption);
+                padding: 0 4px;
+                flex: 1 1 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 15px;
+            }
         }
 
         &.multigraph-grid-mode {
@@ -207,8 +217,9 @@ $widgets-common-config: (
             .graph-cell {
                 //flex: 1;
                 display: flex;
-                align-items: center;
-                justify-content: center;
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: flex-start;
                 //padding: 6px;
                 //min-width: 200px;
                 //min-height: 200px;
@@ -228,8 +239,9 @@ $widgets-common-config: (
 
             .graph-cell {
                 display: flex;
-                align-items: center;
-                justify-content: center;
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: flex-start;
                 //padding: 6px;
                 //min-width: 200px;
                 //max-width: 200px;
@@ -359,10 +371,18 @@ $widgets-common-config: (
         }
 
         .graph-header-row {
+            background: lighten(#cccccc, 10% );
             
         }
 
         /* graph row/cells */
+
+        .graph-cell {
+            .graph-header {
+                background: lighten(#cccccc, 12% );
+                box-shadow: inset 0 -1px 0 0 #cccccc, inset 0 1px 0 0 #cccccc; 
+            }
+        }
 
         &.multigraph-grid-mode {
 
