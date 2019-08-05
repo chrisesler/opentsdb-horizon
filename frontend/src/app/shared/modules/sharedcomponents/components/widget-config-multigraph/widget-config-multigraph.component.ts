@@ -95,23 +95,6 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
 
     ngOnInit() {
         console.log('hill - widget', this.widget);
-        /*
-        // get widget tags
-        this.getWidgetTagKeys();
-        // check of they have multigraph or not
-        if (this.widget.settings.multigraph) {
-            this.multigraph = {...this.widget.settings.multigraph };
-        } else {
-            const groupByTags = this.multiService.getGroupByTags(this.widget.queries);
-            for (let i = 0; i < groupByTags.length; i++) {
-                const item = {
-                    key: groupByTags[i],
-                    displayAs: 'g'
-                };
-                this.multigraph.chart.push(item);
-            }
-        }
-        this.createForm(this.multigraph);*/
         this.setupMultigraph();
     }
 
@@ -185,25 +168,6 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
 
     setViewportDisplayValidators() {
 
-        /*
-
-        this.subscription.add(
-            this.FC_gridOpts_viewportDisplay.valueChanges.subscribe(viewportDisplay => {
-                console.log ('VIEWPORT DISPLAY [CHANGE]', viewportDisplay);
-                if (viewportDisplay === 'custom') {
-                    this.FC_gridOpts_custom_x.setValidators([Validators.required]);
-                    this.FC_gridOpts_custom_x.enable();
-                    // this.FC_gridOpts_custom_y.setValidators([Validators.required]);
-                    // this.FC_gridOpts_custom_y.enable();
-                } else {
-                    this.FC_gridOpts_custom_x.setValidators(null);
-                    this.FC_gridOpts_custom_x.disable();
-                    // this.FC_gridOpts_custom_y.setValidators(null);
-                    // this.FC_gridOpts_custom_y.disable();
-                }
-            })
-        );*/
-
         this.subscription.add(
             this.widgetConfigMultigraph.valueChanges
                 .pipe(
@@ -261,7 +225,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
     }
 
     setViewportDisplayMode(event: any) {
-        console.log('SET VIEWPORT DISPLAY MODE', event);
+        // console.log('SET VIEWPORT DISPLAY MODE', event);
         this.FC_gridOpts_viewportDisplay.setValue(event.value);
     }
 
@@ -288,7 +252,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
     /** auto complete stuff */
 
     onTagKeyInputBlur(event: any) {
-        console.log('TAG KEY INPUT BLUR', event);
+        // console.log('TAG KEY INPUT BLUR', event);
         // check if in tag key array
         const val = this.tagKeyControlInput.value;
 
@@ -304,7 +268,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
     }
 
     onTagKeyInputFocus() {
-        console.log('TAG KEY INPUT FOCUS');
+        // console.log('TAG KEY INPUT FOCUS');
         this.tagKeyControlInput.setValue('');
         this.tagKeyACTrigger.openPanel();
     }
