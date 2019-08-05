@@ -17,20 +17,30 @@
         <!-- STANDARD GRAPH OUTPUT -->
         <div class="multigraph-output" (scroll)="multigraphContainerScroll($event)">
             <div class="multi-graph-container" #multigraphContainer
-                [ngClass]="{'multigraph-grid-mode': multigraphMode === 'grid', 'multigraph-freeflow-mode': !multigraphEnabled || multigraphMode === 'freeflow'}">
+                [ngClass]="{'multigraph-grid-mode': multigraphMode === 'grid', 'multigraph-freeflow-mode': multigraphMode === 'freeflow'}">
                 <!-- column headers -->
-                <div class="graph-header-row" #multigraphHeaderRow *ngIf="multigraphColumns.length > 0">
+                <div class="graph-header-row" #multigraphHeaderRow *ngIf="multigraphColumns.length > 0 && multigraphMode === 'grid'">
                     <div class="graph-header-cell" *ngFor="let columnName of multigraphColumns" [style.width.px]="size.width">
                         <span>{{columnName}}</span>
                     </div>
                 </div>
                 <!-- graphs -->
                 <div class="graph-row" *ngFor="let yKey of getGraphDataObjectKeys(graphData); let i = index;">
-                    <div class="graph-cell" *ngFor="let xKey of getGraphDataObjectKeys(graphData[yKey]); let j = index;" [style.width.px]="size.width" [style.height.px]="size.height">
+                    <!--<div class="row-label" *ngIf="multigraphMode === 'freeflow'">
+                        <span>{{multigraphColumns[i]}}</span>
+                    </div>-->
+                    <div class="graph-cell" 
+                        *ngFor="let xKey of getGraphDataObjectKeys(graphData[yKey]); let j = index;"
+                        [style.width.px]="(size.width - 1)"
+                        [style.height.px]="size.height"
+                        [style.maxWidth]="(multigraphEnabled && multigraphMode === 'freeflow') ? (size.width - 1) + 'px' : 'initial'">
                         <!--grid-cell-[{{i}},{{j}}]
                         <ng-container *ngTemplateOutlet="graphRender;context:(getGraphTemplateContext(graphData[yKey][xKey],{yKey:yKey,xKey:xKey,yIdx:i,xIdx:j}))"></ng-container>-->
-                        <div class="graph-header" *ngIf="multigraphEnabled && yKey !== 'y'">
+                        <div class="graph-header" *ngIf="multigraphEnabled && yKey !== 'y' && multigraphMode === 'grid'">
                             <span>{{yKey}}</span>
+                        </div>
+                        <div class="graph-header" *ngIf="multigraphEnabled && xKey !== 'x' && multigraphMode === 'freeflow'">
+                            <span>{{multigraphColumns[i]}}</span>
                         </div>
                         <div>
                             <div #dygraph class="graph-chart" [ngClass]="{'hide': widget.settings.legend.display &&  ( size.width <= 10 || size.height <= 10 ) }"
@@ -84,7 +94,9 @@
                             </ng-container>
                         </div>
                     </div>
+                    <div class="freeflow-break" *ngIf="multigraphMode === 'freeflow' && ((j / freeflowBreak) % 1 === 0)"></div>
                 </div>
+                
             </div>
         </div>
 
