@@ -760,6 +760,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let groupid = '';
         // make sure we modify the copy for tsdb query
         const payload = this.utilService.deepClone(message.payload);
+        // tslint:disable-next-line:max-line-length
+        const groupby = payload.settings.multigraph ? payload.settings.multigraph.chart.filter(d=> d.key !== 'metric_group' && d.displayAs !== 'g').map(d => d.key) : [];
         const dt = this.getDashboardDateRange();
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (payload.queries.length) {
@@ -782,6 +784,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         if (query.filters.findIndex(f =>
                             f.customFilter !== undefined || f.dynamicFilter !== undefined) > -1) {
                             query = this.dbService.resolveTplVar(query, tplVars);
+                        }
+                        // override the multigraph groupby config
+                        for ( let j = 0; j < query.metrics.length; j++ ) {
+                            // console.log("payload1", query.metrics[j].groupByTags.concat(groupby))
+                            const metricGroupBy = query.metrics[j].groupByTags || [];
+                            query.metrics[j].groupByTags = this.utilService.arrayUnique(metricGroupBy.concat(groupby));
                         }
                         queries[i] = query;
                     }

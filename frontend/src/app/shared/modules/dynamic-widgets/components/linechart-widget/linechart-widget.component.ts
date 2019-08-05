@@ -1193,7 +1193,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     setMultigraphColumns(data) {
         const ykeys = this.getGraphDataObjectKeys(data);
-        const colKeys = this.getGraphDataObjectKeys(data[ykeys[0]]);
+        const colKeys = ykeys.length ? this.getGraphDataObjectKeys(data[ykeys[0]]) : [];
         if (colKeys.length === 1 && colKeys[0] === 'x') {
             this.multigraphColumns = [];
         } else {

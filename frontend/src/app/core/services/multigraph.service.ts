@@ -95,7 +95,9 @@ export class MultigraphService {
         }
       }
     }
-    console.log("final array", results);
+    if ( !Object.keys(lookupData).length ) {
+      results['y'] = {'x': rawdata };
+    }
     return results;
   }
 
