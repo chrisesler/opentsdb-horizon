@@ -207,6 +207,12 @@ $widgets-common-config: (
                 align-items: center;
                 justify-content: center;
                 line-height: 15px;
+                white-space: nowrap;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+
             }
         }
 
