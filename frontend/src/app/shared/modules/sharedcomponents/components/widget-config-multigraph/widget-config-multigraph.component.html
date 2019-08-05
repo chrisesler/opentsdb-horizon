@@ -118,10 +118,10 @@
         <div class="form-field-group">
             <!-- DISPLAY OPTIONS HERE -->
             <div class="display-as-type">
-                <mat-form-field appearance="fill">
-                    <mat-select formControlName="layout" required>
-                        <mat-option *ngFor="let layout of layoutPresetOptions" [value]="layout.value">
-                        {{layout.label}}
+                <mat-form-field appearance="fill" >
+                    <mat-select [value]="FC_layout.value" (selectionChange)="selectLayoutTypeChange($event)">
+                        <mat-option *ngFor="let layoutOption of layoutPresetOptions" [value]="layoutOption.value">
+                        {{layoutOption.label}}
                         </mat-option>
                     </mat-select>
                     <mat-error *ngIf="FC_layout.hasError('required')">Please choose a display type</mat-error>
@@ -132,7 +132,8 @@
                     <mat-radio-group>
                         <mat-radio-button 
                             value="fit"
-                            [checked]="FC_gridOpts_viewportDisplay.value === 'fit'" (change)="setViewportDisplayMode($event)"></mat-radio-button>
+                            [checked]="FC_gridOpts_viewportDisplay.value === 'fit'"
+                            (change)="setViewportDisplayMode($event)"></mat-radio-button>
                     </mat-radio-group>
                     <div class="radio-inline-label">
                         <span>Optimize for widget viewport</span>
@@ -143,11 +144,15 @@
                     <mat-radio-group>
                         <mat-radio-button
                             value="custom"
-                            [checked]="FC_gridOpts_viewportDisplay.value === 'custom'" (change)="setViewportDisplayMode($event)"></mat-radio-button>
+                            [checked]="FC_gridOpts_viewportDisplay.value === 'custom'"
+                            (change)="setViewportDisplayMode($event)"></mat-radio-button>
                     </mat-radio-group>
                     <div class="radio-inline-label" formGroupName="custom">
                         <mat-form-field appearance="fill" class="numeric-options">
-                            <mat-select formControlName="x" [required]="FC_gridOpts_viewportDisplay.value === 'custom'">
+                            <mat-select
+                                [value]="FC_gridOpts_custom_x.value" 
+                                (selectionChange)="selectCustomRows($event)"
+                                required>
                                 <mat-option *ngFor="let option of customPresetValues" [value]="option">
                                 {{option}}
                                 </mat-option>
@@ -156,7 +161,10 @@
                         </mat-form-field>
                         <span>rows and</span>
                         <mat-form-field appearance="fill" class="numeric-options">
-                            <mat-select formControlName="y" [required]="FC_gridOpts_viewportDisplay.value === 'custom'">
+                            <mat-select 
+                                [value]="FC_gridOpts_custom_y.value" 
+                                (selectionChange)="selectCustomColumns($event)"
+                                required>
                                 <mat-option *ngFor="let option of customPresetValues" [value]="option">
                                 {{option}}
                                 </mat-option>
@@ -171,11 +179,15 @@
                     <mat-radio-group>
                         <mat-radio-button
                             value="custom"
-                            [checked]="FC_gridOpts_viewportDisplay.value === 'custom'" (change)="setViewportDisplayMode($event)"></mat-radio-button>
+                            [checked]="FC_gridOpts_viewportDisplay.value === 'custom'"
+                            (change)="setViewportDisplayMode($event)"></mat-radio-button>
                     </mat-radio-group>
                     <div class="radio-inline-label" formGroupName="custom">
                         <mat-form-field appearance="fill" class="numeric-options">
-                            <mat-select formControlName="y" [required]="FC_gridOpts_viewportDisplay.value === 'custom'">
+                            <mat-select 
+                                [value]="FC_gridOpts_custom_y.value" 
+                                (selectionChange)="selectCustomColumns($event)"
+                                required>
                                 <mat-option *ngFor="let option of customPresetValues" [value]="option">
                                 {{option}}
                                 </mat-option>
