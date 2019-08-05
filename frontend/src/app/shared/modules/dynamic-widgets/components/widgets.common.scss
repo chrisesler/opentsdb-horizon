@@ -214,6 +214,13 @@ $widgets-common-config: (
                 right: 0;
 
             }
+
+            &:hover {
+                .graph-header {
+                    display: none; 
+                    // NOTE: I don't agree with hiding it
+                }
+            }
         }
 
         &.multigraph-grid-mode {
@@ -244,6 +251,7 @@ $widgets-common-config: (
             display: flex;
 
             .graph-cell {
+                flex: 1;
                 display: flex;
                 flex-direction: column;
                 align-items: stretch;
@@ -252,6 +260,13 @@ $widgets-common-config: (
                 //min-width: 200px;
                 //max-width: 200px;
                 //min-height: 200px;
+            }
+
+            .freeflow-break {
+                flex: 1;
+                flex-basis: 100%;
+                height: 0;
+                min-width: 100%;
             }
 
             .graph-row {
@@ -268,8 +283,14 @@ $widgets-common-config: (
                 }
 
                 .row-label {
+                    @include mat-typography-level-to-styles(map-get($app-fontface-config, mono), caption);
                     width: 100%;
+                    padding: 0 4px;
                     display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    line-height: 15px;
+                    white-space: nowrap;
                 }
             }
         }
