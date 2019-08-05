@@ -126,6 +126,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     renderReady = false;
     fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // eventually remove this
     multigraphColumns: string[] = [];
+    freeflowBreak = 1;
 
     graphData: any = {};
 
@@ -236,6 +237,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
                             // this.multigraphEnabled = false;
                             if (this.multigraphEnabled) {
+                                this.multigraphMode = this.widget.settings.multigraph.layout;
+
                                 // fill out tag values from rawdata
                                 // console.log('hill - rawdata', rawdata);
                                 const results = this.multiService.fillMultiTagValues(multiConf, rawdata);
@@ -490,6 +493,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             case 'UpdateMultigraph':
                 this.widget.settings.multigraph = message.payload;
                 console.log('hill - UpdateMultigraph', message.payload);
+                this.multigraphMode = this.widget.settings.multigraph.layout;
                 this.refreshData();
                 this.needRequery = true; // todo: check if we need requery cases
                 break;
@@ -576,23 +580,42 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         if (this.multigraphEnabled && this.widget.settings.multigraph) {
             const multigraphSettings = this.widget.settings.multigraph;
 
-            const rowCount = this.getGraphDataObjectKeys(this.graphData).length;
+            if (this.multigraphMode === 'freeflow') {
+                this.freeflowBreak = multigraphSettings.gridOptions.custom.y;
+            }
+
+            const rowKeys = this.getGraphDataObjectKeys(this.graphData);
+            const rowCount = rowKeys.length;
             // find max col count
-            // TODO: need to make this dynamic. right now just marking 2 from mock data
-            const colCount = 2;
+            const colKeys = this.getGraphDataObjectKeys(this.graphData[rowKeys[0]]);
+            const colCount = colKeys.length;
+
+            let tWidth;
+            let tHeight;
 
             if (multigraphSettings.gridOptions.viewportDisplay === 'fit') {
-                const tWidth = (nWidth / ((colCount < 3) ? colCount : 3)) - 1;
-                const tHeight = (nHeight / ((rowCount < 3) ? rowCount : 3)) - 1;
+                // calculate width and height, minus potential border widths
+                tWidth = (nWidth / ((colCount < 3) ? colCount : 3)) - ((colCount < 3) ? colCount : 3);
+                tHeight = (nHeight / ((rowCount < 3) ? rowCount : 3)) - ((colCount < 3) ? colCount : 3);
+
+                if (rowCount === 1 && colKeys[0] !== 'x') {
+                    tHeight = tHeight - 15;
+                    this.logger.ng('SINGLE ROW / MULTIPLE COLUMNS', {tWidth, tHeight});
+                } else if (rowCount > 1 && rowCount <= 3) {
+                    tHeight = tHeight - (15 / ((rowCount > 3) ? 3 : rowCount));
+                    this.logger.ng('MULTIPLE ROWS ', {tWidth, tHeight});
+                }
 
                 this.legendWidth = !widthOffset ? tWidth + 'px' : widthOffset + 'px';
                 this.legendHeight = !heightOffset ? tHeight + 'px' : heightOffset + 'px';
 
                 this.size = {width: tWidth, height: tHeight };
+                this.logger.log('FIT SIZE', {tWidth, tHeight, multigraphSettings});
                 console.log('MULTIGRAPH FIT', this.size);
             } else {
-                const tWidth = (nWidth / multigraphSettings.gridOptions.custom.x) - 1;
-                const tHeight = (nHeight / multigraphSettings.gridOptions.custom.y) - 1;
+                tWidth = (nWidth / multigraphSettings.gridOptions.custom.y) - 1;
+                tHeight = (nHeight / multigraphSettings.gridOptions.custom.x) - 1;
+                this.logger.log('CUSTOM SIZE', {tWidth, tHeight, multigraphSettings});
 
                 this.legendWidth = !widthOffset ? tWidth + 'px' : widthOffset + 'px';
                 this.legendHeight = !heightOffset ? tHeight + 'px' : heightOffset + 'px';
@@ -1145,6 +1168,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     getGraphDataObjectKeys(obj: any): string[] {
+        if (!obj || obj === undefined || obj === null) {
+            return [];
+        }
         const keys = Object.keys(obj);
         //console.log('GETTING KEYS', obj, keys);
         return keys;
