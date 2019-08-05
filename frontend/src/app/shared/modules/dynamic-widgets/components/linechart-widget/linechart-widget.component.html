@@ -26,9 +26,12 @@
                 </div>
                 <!-- graphs -->
                 <div class="graph-row" *ngFor="let yKey of getGraphDataObjectKeys(graphData); let i = index;">
-                    <div class="graph-cell" *ngFor="let xKey of getGraphDataObjectKeys(graphData[yKey]); let j = index;" [style.width.px]="size.width" [style.height.px]="size.height">
+                    <div class="graph-cell" *ngFor="let xKey of getGraphDataObjectKeys(graphData[yKey]); let j = index;" [style.width.px]="size.width" [style.height.px]="(multigraphEnabled ? (size.height + 15) : size.height)">
                         <!--grid-cell-[{{i}},{{j}}]
                         <ng-container *ngTemplateOutlet="graphRender;context:(getGraphTemplateContext(graphData[yKey][xKey],{yKey:yKey,xKey:xKey,yIdx:i,xIdx:j}))"></ng-container>-->
+                        <div class="graph-header" *ngIf="multigraphEnabled">
+                            <span>{{yKey}}</span>
+                        </div>
                         <div>
                             <div #dygraph class="graph-chart" [ngClass]="{'hide': widget.settings.legend.display &&  ( size.width <= 10 || size.height <= 10 ) }"
                                 dygraphsChart
