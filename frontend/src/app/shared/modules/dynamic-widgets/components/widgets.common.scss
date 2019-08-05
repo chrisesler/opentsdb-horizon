@@ -204,8 +204,8 @@ $widgets-common-config: (
                 padding: 0 4px;
                 flex: 1 1 15px;
                 display: flex;
-                align-items: center;
-                justify-content: center;
+                align-items: left;
+                justify-content: left;
                 line-height: 15px;
             }
         }
@@ -379,8 +379,8 @@ $widgets-common-config: (
 
         .graph-cell {
             .graph-header {
-                background: lighten(#cccccc, 12% );
-                box-shadow: inset 0 -1px 0 0 #cccccc, inset 0 1px 0 0 #cccccc; 
+                background: lighten(#cccccc, 80% );
+                // box-shadow: inset 0 -1px 0 0 #cccccc, inset 0 1px 0 0 #cccccc; 
             }
         }
 
