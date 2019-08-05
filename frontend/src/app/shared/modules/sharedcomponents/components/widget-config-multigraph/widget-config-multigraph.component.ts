@@ -11,7 +11,7 @@ import { MatAutocompleteTrigger } from '@angular/material';
 import { MultigraphService } from '../../../../../core/services/multigraph.service';
 import { LoggerService } from '../../../../../core/services/logger.service';
 import * as deepEqual from 'fast-deep-equal';
-import { pairwise } from 'rxjs/operators';
+import { pairwise, startWith, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -158,7 +158,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
             gridOptions: this.fb.group({
                 viewportDisplay: new FormControl('', [Validators.required]),
                 custom: this.fb.group({
-                    x: new FormControl(1),
+                    x: new FormControl(1, [Validators.required]),
                     y: new FormControl(1, [Validators.required])
                 })
             })
@@ -175,6 +175,8 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
                 this.addChartItem(chartItem);
             }
         }
+
+        this.widgetConfigMultigraph.updateValueAndValidity({ onlySelf: false, emitEvent: true });
 
         this.setViewportDisplayValidators();
 
@@ -203,17 +205,22 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
         );*/
 
         this.subscription.add(
-            this.widgetConfigMultigraph.valueChanges.pipe(pairwise()).subscribe(([prev, changes]: [any, any]) => {
-                
+            this.widgetConfigMultigraph.valueChanges
+                .pipe(
+                    startWith(this.widgetConfigMultigraph.getRawValue()),
+                    distinctUntilChanged(),
+                    pairwise()
+                ).subscribe(([prev, changes]: [any, any]) => {
+                console.log('cesler - chart table', prev, changes);
                 if (this.chartTable && !deepEqual(prev, changes)) {
                     console.log('hill - chart table', prev, changes);
-                    if (changes.gridOptions.viewportDisplay === 'custom') {
+                    /*if (changes.gridOptions.viewportDisplay === 'custom') {
                         this.FC_gridOpts_custom_x.setValidators([Validators.required]);
                         this.FC_gridOpts_custom_x.enable();
                     } else {
                         this.FC_gridOpts_custom_x.setValidators(null);
                         this.FC_gridOpts_custom_x.disable();
-                    }
+                    }*/
 
 
                     this.chartTable.renderRows();
@@ -256,6 +263,20 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
     setViewportDisplayMode(event: any) {
         console.log('SET VIEWPORT DISPLAY MODE', event);
         this.FC_gridOpts_viewportDisplay.setValue(event.value);
+    }
+
+    selectLayoutTypeChange(event: any) {
+        console.log('SET LAYOUT TYPE CHANGE', event);
+        this.FC_layout.setValue(event.value);
+        //this.widgetConfigMultigraph.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+    }
+
+    selectCustomRows(event: any) {
+        this.FC_gridOpts_custom_x.setValue(event.value);
+    }
+
+    selectCustomColumns(event: any) {
+        this.FC_gridOpts_custom_y.setValue(event.value);
     }
 
     removeMultigraphTag(index: number) {
