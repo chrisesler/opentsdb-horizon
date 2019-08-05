@@ -59,7 +59,7 @@ export class YamasService {
                     if ( !this.queries[i].metrics[j].expression ) {
                         const q: any = this.getMetricQuery(i, j);
                         const subGraph = [ q ];
-                        if ( this.queries[i].metrics[j].groupByTags && !this.checkTagsExistInFilter(i, this.queries[i].metrics[j].groupByTags) ) {
+                        if ( this.queries[i].metrics[j].groupByTags && this.queries[i].metrics[j].groupByTags.length && !this.checkTagsExistInFilter(i, this.queries[i].metrics[j].groupByTags) ) {
                             const filter = this.getFilterQuery(i, j);
                             q.filter = filter.filter;
                         } else if ( filterId ) {

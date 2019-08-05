@@ -84,7 +84,9 @@ export class MultigraphService {
       yCombine = this.combineKeys(yCombine, yAll[i]);
     }
 
+    let hasData = false;
     for (let i = 0; i < yCombine.length; i++) {
+      hasData = true;
       for (let j = 0; j < xCombine.length; j++) {
         if (!results[yCombine[i]]) { results[yCombine[i]] = {};}
         if (!results[yCombine[i]][xCombine[j]]) {
@@ -95,7 +97,9 @@ export class MultigraphService {
         }
       }
     }
-    console.log("final array", results);
+    if ( !hasData ) {
+      results['y'] = {'x': rawdata };
+    }
     return results;
   }
 
