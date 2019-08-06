@@ -37,8 +37,7 @@ export class AppComponent implements OnInit {
 
             queryParams.subscribe( p => {
                     this.urlOverride.applyURLParamsToDB(p);
-                }
-            );
+                });
 
             queryParams.pipe(map(params => params.get('__tsdb_host'))).subscribe(
                 val => {
