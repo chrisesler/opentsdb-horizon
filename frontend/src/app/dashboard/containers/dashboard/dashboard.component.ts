@@ -452,11 +452,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // the router url will point to previous path of clone dashboard
             // this.logger.log('dbPathSub', { currentLocation: this.location.path(), newPath: '/d' + path, rawPath: path});
             if (path !== '_new_' && path !== undefined) {
+                /*
                 if (environment.queryParams) {
                     this.location.replaceState('/d' + path + '?' + environment.queryParams);
                 } else {
                     this.location.replaceState('/d' + path);
                 }
+                */
 
                 // possibly need to update the dbid
                 // necessary after saving a _new_ dashboard, so save dialog will not prompt again
@@ -548,6 +550,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.tplVariables$.subscribe(tvars => {
             // whenever tplVariables$ trigger, we save to view too.
             if (tvars) {
+                console.log("tplvars changed", tvars);
                 this.tplVariables = {...this.tplVariables,
                     editTplVariables: this.utilService.deepClone(tvars),
                     viewTplVariables: this.utilService.deepClone(tvars)
@@ -623,6 +626,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
            // put condition to not event send in.
            if (!this.widgets[i].settings.hasOwnProperty('useDBFilter') || this.widgets[i].settings.useDBFilter) {
                this.handleQueryPayload({id: this.widgets[i].id, payload: this.widgets[i]});
+               this.updateURLTags();
            }
        }
     }
@@ -697,6 +701,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }
     }
+
     // to passing raw data to widget
     updateWidgetGroup(wid, rawdata, error = null) {
         const clientSize = this.store.selectSnapshot(ClientSizeState);
@@ -749,6 +754,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
 
+    updateURLTags() {
+        this.checkDbTagsLoaded().subscribe(loaded => {
+            const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
+            this.interCom.requestSend({
+                action: 'updateURLTags',
+                payload: tplVars
+            });
+        });
+    }
+
     changeVarPanelMode(mode: any) {
         if (!mode.view && !this.isDbTagsLoaded) {
             this.getDashboardTagKeys();
@@ -768,6 +783,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 if ((!payload.settings.hasOwnProperty('useDBFilter') || payload.settings.useDBFilter)
                     && tplVars.length > 0) {
                     // modify query if needed
+                    console.log("payload: ", payload, " tplVars", tplVars, " rawdbtags", this.dashboardTags.rawDbTags);
                     this.dbService.applyWidgetDBFilter(payload, tplVars, this.dashboardTags.rawDbTags);
                 }
                 // sending each group to get data.

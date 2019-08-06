@@ -9,6 +9,7 @@ import { DashboardService } from '../services/dashboard.service';
 import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
 import { map, catchError } from 'rxjs/operators';
 import { LoggerService } from '../../core/services/logger.service';
+import { environment } from '../../../environments/environment';
 
 
 export interface DBStateModel {
@@ -138,6 +139,8 @@ export class DBState {
                     const dashboard: any = res.body;
                     // update grister info for UI only
                     this.dbService.addGridterInfo(dashboard.content.widgets);
+                    this.dbService.updateTimeFromURL(dashboard);
+                    this.dbService.updateTplVariablesFromURL(dashboard);
                     if (dashboard.content.version && dashboard.content.version === this.dbConverterService.currentVersion) {
                         ctx.dispatch(new LoadDashboardSuccess(dashboard));
                     } else {

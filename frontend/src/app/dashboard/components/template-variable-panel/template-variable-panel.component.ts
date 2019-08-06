@@ -196,6 +196,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     onVariableBlur(event: any, index: number) {
+        // debugger;
         const control = <FormArray>this.listForm.controls['listVariables'];
         const selControl = control.at(index);
         const val = selControl.get('filter').value;
@@ -327,6 +328,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
     }
 
     selectVarValueOption(event: any, index: number) {
+        // debugger;
         if (this.tplVariables.viewTplVariables[index].filter !== event.option.value) {
             this.updateViewTplVariables();
         }
@@ -349,6 +351,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         this.modeChange.emit({ view: true });
     }
     updateState(selControl: AbstractControl, reQuery: boolean = true) {
+        console.log("update state ", selControl, reQuery);
         if (selControl.valid) {
             const sublist = [];
             for (let i = 0; i < this.formTplVariables.controls.length; i++) {
@@ -365,7 +368,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             if (reQuery) {
                 this.interCom.requestSend({
                     action: 'ApplyTplVarValue',
-                    // payload: { tvars: sublist, from: 'edit' }
+                    payload: { tvars: sublist, from: 'edit' }
                 });
             }
         }
@@ -379,7 +382,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         this.tplVariables.viewTplVariables = varsList;
         this.interCom.requestSend({
             action: 'ApplyTplVarValue',
-            // payload: { tvars: varsList, from: 'view' }
+            payload: { tvars: varsList, from: 'view' }
         });
     }
 

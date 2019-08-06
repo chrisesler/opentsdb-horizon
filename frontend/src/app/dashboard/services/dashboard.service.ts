@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from '../../core/services/utils.service';
 import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
+import { environment } from '../../../environments/environment';
+
 
 @Injectable()
 export class DashboardService {
@@ -334,6 +336,61 @@ export class DashboardService {
         hSm: 1
       };
       widgets[i].gridPos = {...widgets[i].gridPos, ...gridResp};
+    }
+  }
+
+  updateTimeFromURL(dbstate) {
+    if (environment.url['time']) {
+      var urlTime = environment.url['time'];
+      if (!dbstate.content.settings.time)
+        dbstate.content.settings.time = {};
+      var dbTime = dbstate.content.settings.time;
+      if (urlTime.start) dbTime.start = urlTime.start;
+      if (urlTime.end) dbTime.end = urlTime.end;
+      if (urlTime.zone) dbTime.zone = urlTime.zone;
+    }
+  }
+
+  updateTplVariablesFromURL(dbstate) {
+    if (environment.url['tags']) {
+      var urlTags = environment.url['tags'];
+      if (!dbstate.content.settings.tplVariables)
+        dbstate.content.settings.tplVariables = [];
+      var dbTags = dbstate.content.settings.tplVariables;
+      for (var k in urlTags) {
+        var found = false;
+
+        // search for template variables using alias first
+        for (var j in dbTags) {
+          if (k === dbTags[j].alias) {
+            dbTags[j].filter = urlTags[k];
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          // try against tag keys
+          for (var j in dbTags) {
+            if (k === dbTags[j].tagk) {
+              dbTags[j].filter = urlTags[k];
+              found = true;
+              break;
+            }
+          }
+        }
+
+        if (!found) {
+          // dashboard does not have any template
+          // variables matching the url param.
+          // create one as a best effort
+          var newTag = {
+            tagk: k,
+            alias: k,
+            filter: urlTags[k] 
+          };
+          dbTags.push(newTag);
+        }
+      }
     }
   }
 
