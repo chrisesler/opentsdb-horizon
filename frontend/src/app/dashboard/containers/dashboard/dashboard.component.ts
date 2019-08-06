@@ -452,13 +452,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // the router url will point to previous path of clone dashboard
             // this.logger.log('dbPathSub', { currentLocation: this.location.path(), newPath: '/d' + path, rawPath: path});
             if (path !== '_new_' && path !== undefined) {
-                /*
-                if (environment.queryParams) {
-                    this.location.replaceState('/d' + path + '?' + environment.queryParams);
+                var fullPath = this.location.path();
+                var urlParts = fullPath.split('?');
+                if (urlParts.length > 1) {
+                    this.location.replaceState('/d' + path, urlParts[1]);
                 } else {
                     this.location.replaceState('/d' + path);
                 }
-                */
 
                 // possibly need to update the dbid
                 // necessary after saving a _new_ dashboard, so save dialog will not prompt again

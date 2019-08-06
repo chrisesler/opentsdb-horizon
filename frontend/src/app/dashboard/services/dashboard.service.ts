@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from '../../core/services/utils.service';
 import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
-import { environment } from '../../../environments/environment';
+import { URLOverrideService } from './urlOverride.service';
 
 
 @Injectable()
@@ -59,7 +59,10 @@ export class DashboardService {
 
   private widgetsConfig = {};
 
-  constructor(private utils: UtilsService, private dbConverterService: DashboardConverterService) { }
+  constructor(
+    private utils: UtilsService, 
+    private dbConverterService: DashboardConverterService,
+    private urlOverride: URLOverrideService) { }
 
 
   setWigetsConfig(conf) {
@@ -340,8 +343,8 @@ export class DashboardService {
   }
 
   updateTimeFromURL(dbstate) {
-    if (environment.url['time']) {
-      var urlTime = environment.url['time'];
+    if (this.urlOverride.getTimeOverrides()) {
+      var urlTime = this.urlOverride.getTimeOverrides();
       if (!dbstate.content.settings.time)
         dbstate.content.settings.time = {};
       var dbTime = dbstate.content.settings.time;
@@ -352,8 +355,8 @@ export class DashboardService {
   }
 
   updateTplVariablesFromURL(dbstate) {
-    if (environment.url['tags']) {
-      var urlTags = environment.url['tags'];
+    if (this.urlOverride.getTagOverrides()) {
+      var urlTags = this.urlOverride.getTagOverrides();
       if (!dbstate.content.settings.tplVariables)
         dbstate.content.settings.tplVariables = [];
       var dbTags = dbstate.content.settings.tplVariables;
