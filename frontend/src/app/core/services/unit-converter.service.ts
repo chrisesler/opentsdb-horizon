@@ -143,7 +143,7 @@ export class UnitConverterService {
         let dUnit = this.getDetails(destUnitKey);
         dUnit = !dUnit ? sUnit: dUnit;
 
-        let precision = options.precision ? options.precision : 0;
+        let precision = options.precision ? options.precision : ( options.precision === 'auto' || options.precision === '' ? 2 : 0);
         const prefix = options.unit === 'usd' ? '$' : '';
         const postfix =  options.unit && this.isCustomUnit(options.unit) ? options.unit : ''; // unknown units will be added as postfix
 
@@ -173,6 +173,12 @@ export class UnitConverterService {
             } else if( dUnit ) {
                 result =  value / dUnit.b ** (dUnit.power - sUnit.power);
             }
+        }
+
+        // takes care small values like 0.00001211 to 0.000012
+        if ( ( options.precision === 'auto' || options.precision === '')   && result && parseInt(result, 10) === 0 ) {
+            const nzeros = value.toString().match(/(\.0*)/)[0].length - 1;
+            precision = nzeros + 2;
         }
 
         precision = Number.isInteger(result) && !options.precisionStrict ? 0 : precision;

@@ -1,5 +1,6 @@
 import { Directive, ElementRef, AfterViewInit, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
+import { UtilsService } from '../../../../core/services/utils.service';
 
 
 import * as d3 from "d3";
@@ -14,7 +15,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
 
   private host;
   private svg;
-  constructor(private element: ElementRef, private unitService: UnitConverterService) { }
+  constructor(private element: ElementRef, private utils: UtilsService, private unitService: UnitConverterService) { }
 
   ngOnInit() {
   }
@@ -41,9 +42,9 @@ export class D3BarChartDirective implements OnInit, OnChanges {
     // const refValue = min >=0  ? Math.pow(10, Math.floor(Math.log10(max))) : 1;
     // const formatter = d3.formatPrefix(".2s", refValue);
     const unitOptions = this.options.format;
-    const tooltipUnitOptions = this.options.format;
+    const tooltipUnitOptions = this.utils.deepClone(this.options.format);
     unitOptions.precision = 2;
-    tooltipUnitOptions.precision = 2;
+    tooltipUnitOptions.precision = '';
     const dunit = this.unitService.getNormalizedUnit(max, unitOptions);
     const self = this;
     const mousemove = function (d) {

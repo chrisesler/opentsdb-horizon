@@ -4,6 +4,7 @@ import { IDygraphOptions } from '../IDygraphOptions';
 import Dygraph from 'dygraphs/src-es5/dygraph.js';
 import DygraphInteraction from '../../../dygraphs/misc/dygraph-interaction-model';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
+import { UtilsService } from '../../../../core/services/utils.service';
 import ThresholdsPlugin from '../../../dygraph-threshold-plugin/src/index';
 import * as moment from 'moment';
 import * as d3 from 'd3';
@@ -29,7 +30,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
   private gDimension: any;
   public dataLoading: boolean;
 
-  constructor(private element: ElementRef, private uConverter: UnitConverterService) { }
+  constructor(private element: ElementRef, private utils: UtilsService, private uConverter: UnitConverterService) { }
 
   ngOnInit() {
     // console.log('this chart type', this.options, this.chartType, this.element);
@@ -124,15 +125,14 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
     const _self = this;
     const tickFormatter = function(value, gran, opts) {
-            const format = opts('tickFormat');
+            const format = _self.utils.deepClone(opts('tickFormat'));
             const dunit = _self.uConverter.getNormalizedUnit(value, format);
-            return _self.uConverter.convert(value, format.unit, dunit, format );
+            return   _self.uConverter.convert(value, format.unit, dunit, format );
     };
     const valueFormatter = function(value, opts) {
-        const format = opts('tickFormat');
-        const precision = format.precision ? format.precision : 2;
+        const format = _self.utils.deepClone(opts('tickFormat'));
         const dunit = _self.uConverter.getNormalizedUnit(value, format);
-        return _self.uConverter.convert(value, format.unit, dunit, { unit: format.unit, precision: precision } );
+        return _self.uConverter.convert(value, format.unit, dunit, { unit: format.unit, precision: format.precision } );
     };
 
     const setHeatmapLegend = function(event, g, x, bucket) {
