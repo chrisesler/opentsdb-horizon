@@ -550,7 +550,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.subscription.add(this.tplVariables$.subscribe(tvars => {
             // whenever tplVariables$ trigger, we save to view too.
             if (tvars) {
-                console.log("tplvars changed", tvars);
                 this.tplVariables = {...this.tplVariables,
                     editTplVariables: this.utilService.deepClone(tvars),
                     viewTplVariables: this.utilService.deepClone(tvars)
@@ -783,7 +782,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 if ((!payload.settings.hasOwnProperty('useDBFilter') || payload.settings.useDBFilter)
                     && tplVars.length > 0) {
                     // modify query if needed
-                    console.log("payload: ", payload, " tplVars", tplVars, " rawdbtags", this.dashboardTags.rawDbTags);
                     this.dbService.applyWidgetDBFilter(payload, tplVars, this.dashboardTags.rawDbTags);
                 }
                 // sending each group to get data.

@@ -10,8 +10,6 @@ import { URLOverrideService } from '../services/urlOverride.service';
 import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
 import { map, catchError } from 'rxjs/operators';
 import { LoggerService } from '../../core/services/logger.service';
-import { environment } from '../../../environments/environment';
-
 
 export interface DBStateModel {
     id: string;

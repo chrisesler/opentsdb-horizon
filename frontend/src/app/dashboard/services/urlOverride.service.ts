@@ -96,14 +96,11 @@ export class URLOverrideService {
             }
         }
     }
-    
 
     constructor(
         private location: Location,
         private interCom: IntercomService
     ) {
-
-
         this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
             if ('updateURLTags' === message.action) {
                 var paramsChanged = false;

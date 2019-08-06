@@ -1,6 +1,6 @@
 import { Component, OnInit, HostBinding} from '@angular/core';
 import { AuthState } from './shared/state/auth.state';
-import { Subscription, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { MatDialog} from '@angular/material';
 import { LoginExpireDialogComponent } from './core/components/login-expire-dialog/login-expire-dialog.component';
 import { Select } from '@ngxs/store';
@@ -17,8 +17,6 @@ import { URLOverrideService } from './dashboard/services/urlOverride.service';
 export class AppComponent implements OnInit {
     @HostBinding('class.app-root') hostClass = true;
     @Select(AuthState.getAuth) auth$: Observable<string>;
-
-    private subscription: Subscription = new Subscription();
 
     /** Local variables */
     title = 'app';
@@ -37,8 +35,7 @@ export class AppComponent implements OnInit {
             this.fullUrlPath = event.urlAfterRedirects;
             const queryParams = this.router.routerState.root.queryParamMap;
 
-            queryParams.subscribe(
-                p => {
+            queryParams.subscribe( p => {
                     this.urlOverride.applyURLParamsToDB(p);
                 }
             );
@@ -95,7 +92,6 @@ export class AppComponent implements OnInit {
         }
     }
 
-
     ngOnInit() {
         this.auth$.subscribe(auth => {
             if (auth === 'invalid') {
@@ -107,7 +103,5 @@ export class AppComponent implements OnInit {
                 this.dialog.closeAll();
             }
         });
-        
-
     }
 }
