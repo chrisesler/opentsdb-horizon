@@ -6,6 +6,7 @@ import { WidgetsRawdataState } from './widgets-data.state';
 import { ClientSizeState } from './clientsize.state';
 import { HttpService } from '../../core/http/http.service';
 import { DashboardService } from '../services/dashboard.service';
+import { URLOverrideService } from '../services/urlOverride.service';
 import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
 import { map, catchError } from 'rxjs/operators';
 import { LoggerService } from '../../core/services/logger.service';
@@ -97,6 +98,7 @@ export class DBState {
     constructor(
         private httpService: HttpService,
         private dbService: DashboardService,
+        private urlOverrideService: URLOverrideService,
         private dbConverterService: DashboardConverterService,
         private logger: LoggerService
     ) {}
@@ -202,7 +204,6 @@ export class DBState {
             this.logger.action('State :: Save Dashboard', { id, payload });
             return this.httpService.saveDashboard(id, payload).pipe(
                 map( (res: any) => {
-                    // console.log('DASHBOARD after saved:', res);
                     ctx.dispatch(new SaveDashboardSuccess(res.body));
                 }),
                 catchError( error => ctx.dispatch(new SaveDashboardFail(error)))
@@ -220,6 +221,7 @@ export class DBState {
             fullPath: payload.fullPath,
             status: 'save-success'
         });
+        this.urlOverrideService.clearOverrides();
     }
 
     @Action(SaveDashboardFail)

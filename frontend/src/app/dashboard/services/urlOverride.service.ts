@@ -13,15 +13,24 @@ export class URLOverrideService {
     private overrides: any = {};
 
     getTimeOverrides() {
-        if (Object.keys(this.overrides['time']).length > 0) {
+        if (this.overrides['time']) {
             return this.overrides['time'];
         }
     }
 
     getTagOverrides() {
-        if (Object.keys(this.overrides['tags']).length > 0) {
+        if (this.overrides['tags']) {
             return this.overrides['tags'];
         }
+    }
+
+    clearOverrides() {
+        this.overrides = {};
+        var url = this.getLocationURLandQueryParams();
+        if (url['queryParams']) {
+            url['queryParams'] = {};
+        }
+        this.updateLocationURL(url);
     }
 
     applyURLParamsToDB(p) {

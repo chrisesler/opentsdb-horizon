@@ -76,7 +76,6 @@ export class DatatranformerService {
                     const tags = queryResults[i].data[j].tags;
                     const hash = JSON.stringify(tags);
                     dict[mid]['values'][hash] = queryResults[i].data[j].NumericType;
-                    // debugger;
                     const max = d3.max(queryResults[i].data[j].NumericType);
                     if ( ('area' === vConfig.type || 'bar' === vConfig.type) && undefined !== max) {
                         areaMax += Number(max);
