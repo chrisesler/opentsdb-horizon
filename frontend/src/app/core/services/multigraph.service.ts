@@ -30,7 +30,7 @@ export class MultigraphService {
             const key = tagKeys[k];
             if ( multiConf.x && x.indexOf(key) !== -1 ) {
               x = x.replace('{{' + key + '}}', tags[key]);
-              if (!multiConf.x[key].includes(tags[key])) {
+              if (multiConf.x[key] && !multiConf.x[key].includes(tags[key])) {
                 multiConf.x[key].push(tags[key]);
               }
             }
