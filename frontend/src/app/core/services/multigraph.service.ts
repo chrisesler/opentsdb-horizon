@@ -83,17 +83,18 @@ export class MultigraphService {
     for (let i = 0; i < yAll.length; i++) {
       yCombine = this.combineKeys(yCombine, yAll[i]);
     }
-
     for (let i = 0; i < yCombine.length; i++) {
-      for (let j = 0; j < xCombine.length; j++) {
-        if (!results[yCombine[i]]) { results[yCombine[i]] = {};}
-        if (!results[yCombine[i]][xCombine[j]]) {
-          results[yCombine[i]][xCombine[j]] = {};
+        for (let j = 0; j < xCombine.length; j++) {
+            if ((multiConf.layout === 'grid' || lookupData[yCombine[i]]) && !results[yCombine[i]]) { 
+                results[yCombine[i]] = {};
+            }
+            if (!results[yCombine[i]][xCombine[j]] && multiConf.layout === 'grid') {
+                results[yCombine[i]][xCombine[j]] = {};
+            }
+            if (lookupData[yCombine[i]] && lookupData[yCombine[i]][xCombine[j]]) {
+                results[yCombine[i]][xCombine[j]] = lookupData[yCombine[i]][xCombine[j]];
+            }
         }
-        if (lookupData[yCombine[i]] && lookupData[yCombine[i]][xCombine[j]]) {
-          results[yCombine[i]][xCombine[j]] = lookupData[yCombine[i]][xCombine[j]];
-        }
-      }
     }
     if ( !Object.keys(lookupData).length ) {
       results['y'] = {'x': rawdata };
@@ -103,7 +104,7 @@ export class MultigraphService {
 
   // build multigraph config
   buildMultiConf(multigraph: any): any {
-    const conf = {};
+    const conf: any = {};
     if (multigraph) {
       for (let i = 0; i < multigraph.chart.length; i++) {
         const chart = multigraph.chart[i];
@@ -118,6 +119,7 @@ export class MultigraphService {
           conf['g'][chart.key] = [];
         }
       }
+      conf.layout = multigraph.layout;
     }
     return conf;
   }
