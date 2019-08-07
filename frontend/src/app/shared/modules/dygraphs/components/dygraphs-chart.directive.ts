@@ -6,6 +6,7 @@ import { IDygraphOptions } from '../IDygraphOptions';
 import Dygraph from 'dygraphs/src-es5/dygraph.js';
 import DygraphInteraction from '../../../dygraphs/misc/dygraph-interaction-model';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
+import { UtilsService } from '../../../../core/services/utils.service';
 import ThresholdsPlugin from '../../../dygraph-threshold-plugin/src/index';
 import * as moment from 'moment';
 import * as d3 from 'd3';
@@ -37,6 +38,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
 
     constructor(
         private element: ElementRef,
+        private utils: UtilsService,
         private uConverter: UnitConverterService
     ) { }
 
@@ -51,7 +53,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
         // check for labels div
         // if not set, hard check dom...
         // if not in dom, create and inject an element
-        if (this.multigraph || !this.options.labelsDiv) {
+        if (!this.options.labelsDiv) {
             const parent = this.element.nativeElement.parentNode;
             const legendCheck = parent.querySelector('.dygraph-legend');
             if (legendCheck) {

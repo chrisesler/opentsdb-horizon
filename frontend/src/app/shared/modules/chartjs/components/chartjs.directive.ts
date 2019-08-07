@@ -73,12 +73,11 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
             if ( self.options.scales && self.options.scales[ axis + 'Axes' ][0].ticks.format ) {
                 const tickFormat = self.options.scales[axis + 'Axes'][0].ticks.format;
                 const unit = tickFormat.unit;
-                const precision = tickFormat.precision ? tickFormat.precision : 0;
                 const dunit = self.uConverter.getNormalizedUnit(item[axis + 'Label'], self.options.scales[axis + 'Axes'][0].ticks.format);
-                return 'Value: ' + self.uConverter.convert(item[axis + 'Label'], unit, dunit ,{ unit: unit, precision: precision } ) + taghtml;
+                return 'Value: ' + self.uConverter.convert(item[axis + 'Label'], unit, dunit ,{ unit: unit, precision: tickFormat.precision } ) + taghtml;
             } else {
                 const dunit = self.uConverter.getNormalizedUnit(data['datasets'][0]['data'][item['index']], self.options.scales[axis + 'Axes'][0].ticks.format);
-                return 'Value: ' +  self.uConverter.convert(data['datasets'][0]['data'][item['index']],'',dunit, { unit: '', precision: 2 }) + taghtml;
+                return 'Value: ' +  self.uConverter.convert(data['datasets'][0]['data'][item['index']],'',dunit, { unit: '', precision: '' }) + taghtml;
             }
         };
         this.defaultOptions.tooltips = {
@@ -101,9 +100,8 @@ export class ChartjsDirective implements OnInit, OnChanges, OnDestroy  {
             const tickFormatter = function(value) {
                 if ( this.options.ticks && this.options.ticks.format ) {
                     const unit = this.options.ticks.format.unit;
-                    const precision = this.options.ticks.format.precision ? this.options.ticks.format.precision : 0;
                     const dunit = self.uConverter.getNormalizedUnit(value, this.options.ticks.format );
-                    return self.uConverter.convert(value, unit, dunit, { unit: unit, precision: precision } );
+                    return self.uConverter.convert(value, unit, dunit, { unit: unit, precision: this.options.ticks.format.precision } );
                 } else {
                     return value;
                 }

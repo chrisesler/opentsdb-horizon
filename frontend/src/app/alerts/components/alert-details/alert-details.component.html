@@ -17,7 +17,7 @@
                     <mat-icon>error</mat-icon>
                 </div>
             </div>
-            <event-list [events]="events" [timezone]="'utc'" [startTime]="startTime" [endTime]="endTime" style="overflow: scroll">
+            <event-list [events]="events" [timezone]="'local'" [startTime]="startTime" [endTime]="endTime" style="overflow: scroll">
             </event-list>
         </div>
         <!-- 
@@ -39,7 +39,7 @@
                         </button>-->
                     </div>
                     <div class="splunk-link" *ngIf="data.id">
-                        <a [href]="getSplunkLink()" target="_blank">View in Splunk</a>
+                        <a [href]="getSplunkLink()" target="_blank">View Alert History</a>
                     </div>
                 </div>
                 <span class="flex-spacer"></span>
@@ -705,7 +705,7 @@
                         </div>
                     </div>
                     <div class="splunk-link" *ngIf="data.id">
-                        <a [href]="getSplunkLink()" target="_blank">View in Splunk</a>
+                        <a [href]="getSplunkLink()" target="_blank">View Alert History</a>
                     </div>
                 </div>
                 <span class="flex-spacer"></span>

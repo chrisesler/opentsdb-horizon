@@ -102,6 +102,14 @@ export class DatatranformerService {
         options.axes[axis].valueRange[1] = Math.ceil(areaMax + areaMax * 0.05);
     }
 
+    if ( options.axes.y.valueRange[0] !== null && options.axes.y.valueRange[0] >= yMax ) {
+        options.axes.y.valueRange[0] = null;
+    }
+
+    if ( options.axes.y2.valueRange[0] !== null && options.axes.y2.valueRange[0] >= y2Max ) {
+        options.axes.y2.valueRange[0] = null;
+    }
+
     let autoColors = this.util.getColors(null, wdQueryStats.nVisibleAutoColors);
     autoColors = wdQueryStats.nVisibleAutoColors > 1 ? autoColors : [autoColors];
 

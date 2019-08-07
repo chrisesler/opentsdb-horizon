@@ -5,7 +5,6 @@ import { TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
 import { QueryService } from '../../../core/services/query.service';
-
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { Store, Select } from '@ngxs/store';
