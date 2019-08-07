@@ -365,7 +365,7 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
             if (reQuery) {
                 this.interCom.requestSend({
                     action: 'ApplyTplVarValue',
-                    // payload: { tvars: sublist, from: 'edit' }
+                    payload: { tvars: sublist, from: 'edit' }
                 });
             }
         }
@@ -378,8 +378,14 @@ export class TemplateVariablePanelComponent implements OnInit, OnChanges, OnDest
         }
         this.tplVariables.viewTplVariables = varsList;
         this.interCom.requestSend({
+            action: 'updateTemplateVariables',
+            payload: {
+                variables: varsList
+            }
+        });
+        this.interCom.requestSend({
             action: 'ApplyTplVarValue',
-            // payload: { tvars: varsList, from: 'view' }
+            payload: { tvars: varsList, from: 'edit' }
         });
     }
 
