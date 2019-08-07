@@ -587,10 +587,11 @@
                                             <span>per</span>
                                         </div>
                                         <div class="sentence-item">
-                                            <dropdown-metric-tags
+                                            <dropdown-metric-tags 
                                                 [selected]="alertForm.get('queries').get('eventdb')['controls'][0].get('groupBy').value"
                                                 [tags]="tags"
                                                 [all]="false"
+                                                [multiple]="false"
                                                 (change)="setEventAlertGroupBy($event)"></dropdown-metric-tags>
                                         </div>
                                     </div>
