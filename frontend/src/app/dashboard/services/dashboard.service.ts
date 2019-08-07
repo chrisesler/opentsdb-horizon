@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from '../../core/services/utils.service';
 import { DashboardConverterService } from '../../core/services/dashboard-converter.service';
+import { URLOverrideService } from './urlOverride.service';
+
 
 @Injectable()
 export class DashboardService {
@@ -57,7 +59,10 @@ export class DashboardService {
 
   private widgetsConfig = {};
 
-  constructor(private utils: UtilsService, private dbConverterService: DashboardConverterService) { }
+  constructor(
+    private utils: UtilsService, 
+    private dbConverterService: DashboardConverterService,
+    private urlOverride: URLOverrideService) { }
 
 
   setWigetsConfig(conf) {
@@ -334,6 +339,61 @@ export class DashboardService {
         hSm: 1
       };
       widgets[i].gridPos = {...widgets[i].gridPos, ...gridResp};
+    }
+  }
+
+  updateTimeFromURL(dbstate) {
+    if (this.urlOverride.getTimeOverrides()) {
+      var urlTime = this.urlOverride.getTimeOverrides();
+      if (!dbstate.content.settings.time)
+        dbstate.content.settings.time = {};
+      var dbTime = dbstate.content.settings.time;
+      if (urlTime.start) dbTime.start = urlTime.start;
+      if (urlTime.end) dbTime.end = urlTime.end;
+      if (urlTime.zone) dbTime.zone = urlTime.zone;
+    }
+  }
+
+  updateTplVariablesFromURL(dbstate) {
+    if (this.urlOverride.getTagOverrides()) {
+      var urlTags = this.urlOverride.getTagOverrides();
+      if (!dbstate.content.settings.tplVariables)
+        dbstate.content.settings.tplVariables = [];
+      var dbTags = dbstate.content.settings.tplVariables;
+      for (var k in urlTags) {
+        var found = false;
+
+        // search for template variables using alias first
+        for (var j in dbTags) {
+          if (k === dbTags[j].alias) {
+            dbTags[j].filter = urlTags[k];
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          // try against tag keys
+          for (var j in dbTags) {
+            if (k === dbTags[j].tagk) {
+              dbTags[j].filter = urlTags[k];
+              found = true;
+              break;
+            }
+          }
+        }
+
+        if (!found) {
+          // dashboard does not have any template
+          // variables matching the url param.
+          // create one as a best effort
+          var newTag = {
+            tagk: k,
+            alias: k,
+            filter: urlTags[k] 
+          };
+          dbTags.push(newTag);
+        }
+      }
     }
   }
 

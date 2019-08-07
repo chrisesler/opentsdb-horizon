@@ -445,8 +445,6 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
                 this.refreshData(false);
                 break;
             case 'SetSelectedQuery':
-                // todo?
-                console.log('Todo', message.payload.data);
                 this.setSelectedQuery(message.payload.data);
                 break;
             case 'UpdateQuery':

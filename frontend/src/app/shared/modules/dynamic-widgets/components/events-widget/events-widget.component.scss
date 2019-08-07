@@ -11,9 +11,12 @@
         padding-top: 0px;
         overflow: hidden;
 
+        .flex {
+            display: flex;
+        }
+
         .main-container {
             height: 100%;
-            display: flex;
             flex-direction: row-reverse;
         }
 
