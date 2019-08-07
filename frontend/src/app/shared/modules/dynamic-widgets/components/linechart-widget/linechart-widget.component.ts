@@ -129,6 +129,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     freeflowBreak = 1;
 
     graphData: any = {};
+    graphRowLabelMarginLeft: 0;
 
 
     // EVENTS
@@ -238,6 +239,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             // this.multigraphEnabled = false;
                             if (this.multigraphEnabled) {
                                 this.multigraphMode = this.widget.settings.multigraph.layout;
+
+                                // result graphRowLabelMarginLeft since we have new data
+                                this.graphRowLabelMarginLeft = 0;
 
                                 // fill out tag values from rawdata
                                 // console.log('hill - rawdata', rawdata);
@@ -581,8 +585,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             const multigraphSettings = this.widget.settings.multigraph;
 
             if (this.multigraphMode === 'freeflow') {
-                this.freeflowBreak = multigraphSettings.gridOptions.custom.y;
+                // tslint:disable-next-line: max-line-length
+                this.freeflowBreak = (multigraphSettings.gridOptions.viewportDisplay === 'custom') ? multigraphSettings.gridOptions.custom.y : 3;
             }
+
+            this.logger.success('MULTIGRAPH STUFF', {mode: this.multigraphMode, freeflowBreak: this.freeflowBreak, multigraphSettings});
 
             const rowKeys = this.getGraphDataObjectKeys(this.graphData);
             const rowCount = rowKeys.length;
@@ -590,46 +597,113 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             const colKeys = this.getGraphDataObjectKeys(this.graphData[rowKeys[0]]);
             const colCount = colKeys.length;
 
+            // 15px for column header
+            const gridHeaderOffset = (this.multigraphMode === 'grid' && colKeys[0] !== 'x') ? 15 : 0;
+            // 17px for row header (15px for height, and 2px margin-top)
+            const rowHeaderOffset = (rowCount > 0 && rowKeys[0] !== 'y') ? 17 : 0;
+            // 6px for graph cell padding (3px left/right, or 3px top/bottom);
+            const paddingOffset = 6;
+
             let tWidth;
             let tHeight;
 
+            // if we try to autoFit
             if (multigraphSettings.gridOptions.viewportDisplay === 'fit') {
                 // calculate width and height, minus potential border widths
-                tWidth = (nWidth / ((colCount < 3) ? colCount : 3)) - ((colCount < 3) ? colCount : 3);
-                tHeight = (nHeight / ((rowCount < 3) ? rowCount : 3)) - ((colCount < 3) ? colCount : 3);
+                // default columns and rows is 3x3
+                tWidth = (((nWidth - paddingOffset) / ((colCount < 3) ? colCount : 3))) - paddingOffset;
+                tHeight = (nHeight / ((rowCount < 3) ? rowCount : 3)) - (paddingOffset + rowHeaderOffset);
 
-                if (rowCount === 1 && colKeys[0] !== 'x') {
-                    tHeight = tHeight - 15;
-                    this.logger.ng('SINGLE ROW / MULTIPLE COLUMNS', {tWidth, tHeight});
-                } else if (rowCount > 1 && rowCount <= 3) {
-                    tHeight = tHeight - (15 / ((rowCount > 3) ? 3 : rowCount));
-                    this.logger.ng('MULTIPLE ROWS ', {tWidth, tHeight});
+                // calculate grid header offset
+                //tHeight = tHeight - (gridHeaderOffset / ((rowCount > 3) ? 3 : rowCount));
+                if (colCount > 3) {
+                    tHeight = tHeight - (gridHeaderOffset / ((rowCount > 3) ? 3 : rowCount));
                 }
 
-                this.legendWidth = !widthOffset ? tWidth + 'px' : widthOffset + 'px';
-                this.legendHeight = !heightOffset ? tHeight + 'px' : heightOffset + 'px';
+                if (rowCount === 1 && rowKeys[0] === 'y') {
+                    tHeight = tHeight - gridHeaderOffset;
+                    this.logger.log('ONLY A SINGLE ROW, NO ROW LABEL');
+                }
 
-                this.size = {width: tWidth, height: tHeight };
+                if (this.multigraphMode === 'freeflow') {
+                    //tWidth = tWidth - (paddingOffset / ((colCount < 3) ? colCount : 3));
+                    tHeight = tHeight + gridHeaderOffset + paddingOffset;
+                }
+
+                /*if (rowCount === 1 && colKeys[0] !== 'x') {
+                    tHeight = tHeight - gridHeaderOffset;
+                    this.logger.ng('[FIT] SINGLE ROW / MULTIPLE COLUMNS', {tWidth, tHeight});
+                // } else if (rowCount > 1 && rowCount <= 3) {
+                } else if (rowCount > 1) {
+                    tHeight = tHeight - (gridHeaderOffset / ((rowCount > 3) ? 3 : rowCount));
+                    this.logger.ng('[FIT] MULTIPLE ROWS ', {tWidth, tHeight});
+                }*/
+
+                // this.legendWidth = !widthOffset ? tWidth + 'px' : widthOffset + 'px';
+                // this.legendHeight = !heightOffset ? tHeight + 'px' : heightOffset + 'px';
+
+                // this.size = {width: tWidth, height: tHeight };
                 this.logger.log('FIT SIZE', {tWidth, tHeight, multigraphSettings});
-                console.log('MULTIGRAPH FIT', this.size);
+                // console.log('MULTIGRAPH FIT', this.size);
+
+            // Otherwise, it is a custom fit
+            // multigraphSettings.gridOptions.viewportDisplay === 'custom'
             } else {
-                tWidth = (nWidth / multigraphSettings.gridOptions.custom.y) - 1;
-                tHeight = (nHeight / multigraphSettings.gridOptions.custom.x) - 1;
+                const customY = multigraphSettings.gridOptions.custom.y;
+                let customX = multigraphSettings.gridOptions.custom.x;
+
+                if (this.multigraphMode === 'freeflow') {
+                    customX = 3;
+                }
+
+                tWidth = (((nWidth - paddingOffset) / ((colCount < customY) ? colCount : customY))) - paddingOffset;
+                tHeight = (nHeight / ((rowCount < customX) ? rowCount : customX)) - (paddingOffset + rowHeaderOffset);
+
+                // calculate grid header offset
+                // tHeight = tHeight - (gridHeaderOffset / ((rowCount > customX) ? customX : rowCount));
+                if (colCount > customX) {
+                    tHeight = tHeight - (gridHeaderOffset / ((rowCount > customX) ? customX : rowCount));
+                }
+
+                if (rowCount === 1 && rowKeys[0] === 'y') {
+                    tHeight = tHeight - gridHeaderOffset;
+                    this.logger.log('ONLY A SINGLE ROW, NO ROW LABEL');
+                }
+
+                if (this.multigraphMode === 'freeflow') {
+                    console.log('freeflow custom tweak');
+                    //tWidth = tWidth - (paddingOffset / ((colCount < customY) ? colCount : customY));
+                    tHeight = tHeight + gridHeaderOffset + paddingOffset;
+                }
+
+                /*if (rowCount === 1 && colKeys[0] !== 'x') {
+                    tHeight = tHeight - gridHeaderOffset;
+                    this.logger.ng('[CUSTOM] SINGLE ROW / MULTIPLE COLUMNS', {tWidth, tHeight});
+                // } else if (rowCount > 1 && rowCount <= customX) {
+                } else if (rowCount > 1) {
+                    tHeight = tHeight - (gridHeaderOffset / ((rowCount > customX) ? customX : rowCount));
+                    this.logger.ng('[CUSTOM] MULTIPLE ROWS ', {tWidth, tHeight});
+                }*/
+
                 this.logger.log('CUSTOM SIZE', {tWidth, tHeight, multigraphSettings});
 
-                this.legendWidth = !widthOffset ? tWidth + 'px' : widthOffset + 'px';
-                this.legendHeight = !heightOffset ? tHeight + 'px' : heightOffset + 'px';
-
-                this.size = {width: ((tWidth >= 200) ? tWidth : 200), height: ((tHeight >= 200) ? tHeight : 200) };
-                console.log('MULTIGRAPH CUSTOM', this.size);
             }
+
+            // do we ned a minimum size?
+            // minimum size is 200x100
+            this.size = {width: ((tWidth >= 200) ? tWidth : 200), height: ((tHeight >= 100) ? tHeight : 100) };
+            // this.size = {width: tWidth, height: tHeight };
+            console.log('MULTIGRAPH SIZE', this.size);
+
+            this.legendWidth = !widthOffset ? this.size.width + 'px' : widthOffset + 'px';
+            this.legendHeight = !heightOffset ? this.size.height + 'px' : heightOffset + 'px';
         } else {
 
             this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
             this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
 
             this.size = { width: nWidth, height: nHeight };
-            console.log('NOT MULTIGRAPH', this.size);
+            console.log('NOT MULTIGRAPH SIZE', this.size);
         }
 
 
@@ -1202,9 +1276,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     multigraphContainerScroll(event: any) {
+        // column header row needs to update position
         if (this.multigraphHeaderRow) {
             this.multigraphHeaderRow.nativeElement.style.marginTop = event.target.scrollTop + 'px';
         }
+        // update row label marginLeft
+        this.graphRowLabelMarginLeft = event.target.scrollLeft;
     }
 
     ngOnDestroy() {
