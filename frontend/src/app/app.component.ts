@@ -7,7 +7,7 @@ import { Select } from '@ngxs/store';
 import { Router,  NavigationEnd } from '@angular/router';
 import { environment } from '../environments/environment';
 import { map } from 'rxjs/operators';
-import {Location} from '@angular/common';
+import { URLOverrideService } from './dashboard/services/urlOverride.service';
 
 @Component({
     selector: 'app-root',
@@ -26,7 +26,7 @@ export class AppComponent implements OnInit {
     constructor(
         private dialog: MatDialog,
         private router: Router,
-        private location: Location
+        private urlOverride: URLOverrideService
     ) { 
         // register this router events to capture url changes
         this.router.events.subscribe((event) => {
@@ -34,6 +34,12 @@ export class AppComponent implements OnInit {
             // after resolve path, this is the url the app uses
             this.fullUrlPath = event.urlAfterRedirects;
             const queryParams = this.router.routerState.root.queryParamMap;
+
+            queryParams.subscribe( p => {
+                    this.urlOverride.applyURLParamsToDB(p);
+                }
+            );
+
             queryParams.pipe(map(params => params.get('__tsdb_host'))).subscribe(
                 val => {
                     if (val) {
@@ -87,7 +93,6 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        console.log("location: ", location);
         this.auth$.subscribe(auth => {
             if (auth === 'invalid') {
                 // console.log('open auth dialog');
