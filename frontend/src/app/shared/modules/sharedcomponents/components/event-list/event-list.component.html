@@ -5,17 +5,29 @@
                 <mat-expansion-panel-header collapsedHeight="32px" expandedHeight="32px" >
                     <mat-panel-title>
                         <span class="event-time">{{util.buildDisplayTime(event.timestamp, startTime, endTime, true, timezone)}}</span>
-                        <span class="event-title"> {{event.title}} </span>
-                        <span class="event-source"> {{event.source}} </span>
+                        <!-- <span class="event-source"> {{event.source}} </span> -->
+                        <span class="event-title"> {{event.title}} </span> 
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div *ngIf="expandedBucketIndex === i" class="event-summary">
                     <div class="event-namespace">
-                        <span>Namespace:</span> <strong>{{event.namespace}}</strong>
+                        <span>namespace:</span> <strong>{{event.namespace}}</strong>
                     </div>
+
+                    <div class="event-source">
+                        <span>source:</span> <strong>{{event.source}}</strong>
+                    </div>
+
                     <div class="event-optionals">
                         <div class="event-priority" *ngIf="event.priority">
-                            <span>Priority:</span> <strong>{{event.priority}}</strong>
+                            <span>priority:</span> <strong>{{event.priority}}</strong>
+                        </div>
+
+                        <div *ngIf="event.additionalProps">
+                            <div class="event-property" *ngFor="let tag of util.transformTagMapToArray(event.additionalProps)">
+                                <span class="tag-key">{{ tag.key }}: </span>
+                                <strong class="tag-value">{{ tag.value }}</strong>
+                            </div>
                         </div>
     
                         <div *ngIf="event.tags" class="event-tags">
@@ -25,13 +37,6 @@
                             </span>
                         </div>
         
-                        <div *ngIf="event.additionalProps" class="event-tags">
-                            <span class="event-tag" *ngFor="let tag of util.transformTagMapToArray(event.additionalProps); let last = last">
-                                <span class="tag-key">{{ tag.key }}:</span>
-                                <strong class="tag-value">{{ tag.value }}{{last?'':','}}</strong>
-                            </span>
-                        </div>
-    
                         <div class="event-details-wrapper">
                             <div class="event-details">
                                 {{event.message}}   
