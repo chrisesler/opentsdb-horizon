@@ -185,7 +185,6 @@ export class WidgetConfigAxesComponent implements OnInit, OnDestroy, AfterViewIn
             decimals: 'auto',
             label: ''
         };
-        console.log(axis, defaultConfig);
 
         const widget = this.widget.settings;
         const wAxisConfig = widget.axes && widget.axes[axis] ? widget.axes[axis] : {};

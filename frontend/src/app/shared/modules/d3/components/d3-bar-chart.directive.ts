@@ -44,7 +44,7 @@ export class D3BarChartDirective implements OnInit, OnChanges {
     const unitOptions = this.options.format;
     const tooltipUnitOptions = this.utils.deepClone(this.options.format);
     unitOptions.precision = 2;
-    tooltipUnitOptions.precision = '';
+    tooltipUnitOptions.precision = 'auto';
     const dunit = this.unitService.getNormalizedUnit(max, unitOptions);
     const self = this;
     const mousemove = function (d) {

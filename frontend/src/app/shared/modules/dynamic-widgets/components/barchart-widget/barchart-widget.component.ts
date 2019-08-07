@@ -443,7 +443,7 @@ export class BarchartWidgetComponent implements OnInit, OnChanges, OnDestroy, Af
             axis.ticks.max = config.max;
         }
         const label = config.label ? config.label.trim() : '';
-        const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? '' : config.decimals;
+        const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 'auto' : config.decimals;
         axis.scaleLabel = label ? { labelString: label, display: true } : {};
         axis.ticks.format = { unit: config.unit, precision: decimals, unitDisplay: config.unit ? true : false };
     }

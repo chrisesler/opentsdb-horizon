@@ -579,7 +579,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.setAlertOption();
             }
 
-            const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? '' : config.decimals;
+            const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 'auto' : config.decimals;
             const unit = config.unit ? config.unit : 'auto';
             axis.tickFormat = { unit: unit, precision: decimals, unitDisplay: true };
             //}
