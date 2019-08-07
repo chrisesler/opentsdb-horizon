@@ -1,30 +1,15 @@
 // borrowed from Dygraphs for RStudio
 // https://github.com/rstudio/dygraphs/blob/master/inst/plotters/stackedbarchart.js
-
-
-
-
 "use strict";
 
 var DygraphLayout = require("dygraphs/src/dygraph-layout");
 
 var barChartPlotter = function(e) {
     // We need to handle all the series simultaneously.
-    // debugger;
-    // console.log("seriesIndex: ", e.seriesIndex);
-    // if (e.seriesIndex !== 0) return;
-
     var g = e.dygraph;
-    if (!g.attributes_.user_.barChartPlotter) {
-        g.attributes_.user_.barChartPlotter = {};
-    }
 
-    // console.log(g.attributes_.user_.barChartPlotter);
-
-    g.attributes_.user_.barChartPlotter.called = true;
-
-    var ctx = e.drawingContext;
     var sets = e.allSeriesPoints;
+    var ctx = e.drawingContext;
     var y_bottom = e.dygraph.toDomYCoord(0);
 
 
@@ -114,14 +99,21 @@ var barChartPlotter = function(e) {
     //e.dygraph.user_attrs_.series[].plotter.name;
     var seriesInfo = g.user_attrs_.series;
     var barChartSeries = {};
+    // console.log("seriesinfo", seriesInfo);
+    var firstSeriesIndex = -1;
     for (var i in seriesInfo) {
         if (seriesInfo[i].plotter !== undefined && 
-            seriesInfo[i].plotter.name === "barChartPlotter") {
+            seriesInfo[i].plotter === barChartPlotter) {
             barChartSeries[i-1] = i;
+            if (firstSeriesIndex === -1) {
+                firstSeriesIndex = i - 1;
+            }
         }
     }
 
-    // console.log(barChartSeries);
+    if (e.seriesIndex !== firstSeriesIndex) {
+        return;
+    }
 
     // Find the minimum separation between x-values.
     // This determines the bar width.
@@ -161,7 +153,6 @@ var barChartPlotter = function(e) {
         seriesName = setNames[j];
         connectSeparated = g.getOption('connectSeparatedPoints', seriesName);
         logscale = g.attributes_.getForSeries("logscale", seriesName);
-        // console.log("log scale: ", logscale, " series: ", seriesName);
 
         if (logscale) {
             y_bottom = e.dygraph.toDomYCoord(1);
@@ -171,6 +162,9 @@ var barChartPlotter = function(e) {
         points = sets[j];
         for (var i = 0; i < points.length; i++) {
             var point = points[i];
+            if (isNaN(point.yval) || point.yval === null) {
+                continue;
+            }
 
             point.y_stacked = DygraphLayoutCalcYNormal_(
                 axis, point.yval_stacked, logscale);

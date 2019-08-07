@@ -439,7 +439,7 @@ export class HttpService {
             'Content-Type': 'application/json'
         });
 
-        const apiUrl = environment.eventsApi + '/query/graph';
+        const apiUrl = environment.tsdb_hosts[Math.floor(Math.random() * (environment.tsdb_hosts.length - 1))] + '/api/query/graph';
 
         return this.http.post(apiUrl, query, { headers, withCredentials: true }).pipe(
             map((res: any) => {

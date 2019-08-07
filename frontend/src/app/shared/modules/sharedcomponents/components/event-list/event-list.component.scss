@@ -32,7 +32,16 @@
 
                 .event-time {
                     font-family: mat-font-family($mono-fontface);
-                    margin-right: 12px;
+                    margin-right: 5px;
+                    width: 80px;
+                }
+
+                .event-source {
+                    margin-right: 5px;
+                }
+
+                .event-title { 
+                    white-space: nowrap;
                 }
 
                 //.event-count {}
@@ -58,7 +67,9 @@
                 .event-header,
                 .event-description,
                 .event-namespace,
+                .event-source,
                 .event-priority,
+                .event-property,
                 .event-tag {
                     span:not(:last-child),
                     strong:not(:last-child) {

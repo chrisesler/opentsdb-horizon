@@ -84,6 +84,10 @@
                                     <mat-icon fontSet="denali" [fontIcon]="element.enabled ? 'd-notification-disable' : 'd-notification'"></mat-icon>
                                     <span>{{element.enabled ? 'Disable' : 'Enable'}}</span>
                                 </button>
+                                <button mat-button color="primary" (click)="cloneAlert(element)">
+                                    <mat-icon fontSet="denali" fontIcon="d-duplicate"></mat-icon>
+                                    <span>Clone</span>
+                                </button>
                                 <button mat-button color="primary" (click)="deleteItem(element)">
                                     <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
                                     <span>Delete</span>

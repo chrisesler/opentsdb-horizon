@@ -5,7 +5,6 @@ import { TemplatePortal } from '@angular/cdk/portal';
 
 import { CdkService } from '../../../core/services/cdk.service';
 import { QueryService } from '../../../core/services/query.service';
-
 import { DashboardService } from '../../services/dashboard.service';
 import { IntercomService, IMessage } from '../../../core/services/intercom.service';
 import { Store, Select } from '@ngxs/store';
@@ -452,8 +451,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // the router url will point to previous path of clone dashboard
             // this.logger.log('dbPathSub', { currentLocation: this.location.path(), newPath: '/d' + path, rawPath: path});
             if (path !== '_new_' && path !== undefined) {
-                if (environment.queryParams) {
-                    this.location.replaceState('/d' + path + '?' + environment.queryParams);
+                var fullPath = this.location.path();
+                var urlParts = fullPath.split('?');
+                if (urlParts.length > 1) {
+                    this.location.replaceState('/d' + path, urlParts[1]);
                 } else {
                     this.location.replaceState('/d' + path);
                 }
@@ -623,6 +624,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
            // put condition to not event send in.
            if (!this.widgets[i].settings.hasOwnProperty('useDBFilter') || this.widgets[i].settings.useDBFilter) {
                this.handleQueryPayload({id: this.widgets[i].id, payload: this.widgets[i]});
+               this.updateURLTags();
            }
        }
     }
@@ -697,6 +699,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }
     }
+
     // to passing raw data to widget
     updateWidgetGroup(wid, rawdata, error = null) {
         const clientSize = this.store.selectSnapshot(ClientSizeState);
@@ -747,6 +750,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
         } else {
             return of(true);
         }
+    }
+
+    updateURLTags() {
+        this.checkDbTagsLoaded().subscribe(loaded => {
+            const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
+            this.interCom.requestSend({
+                action: 'updateURLTags',
+                payload: tplVars
+            });
+        });
     }
 
     changeVarPanelMode(mode: any) {
