@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy,
-    HostBinding, Input, Output, EventEmitter, ViewChild, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
+    HostBinding, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 import { Subscription, Subject } from 'rxjs';
@@ -19,7 +19,7 @@ import { pairwise, startWith, distinctUntilChanged } from 'rxjs/operators';
     templateUrl: './widget-config-multigraph.component.html',
     styleUrls: []
 })
-export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnChanges {
+export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
 
     @ViewChild('chartTable') chartTable: MatTable<any>;
     @ViewChild('tagKeyInput', {read: ElementRef}) tagKeyInput: ElementRef;
@@ -94,19 +94,8 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
     ) { }
 
     ngOnInit() {
-        console.log('hill - widget', this.widget);
+        // console.log('hill - widget', this.widget);
         this.setupMultigraph();
-    }
-
-    ngOnChanges(changes: SimpleChanges) {
-        this.loggerService.log('SIMPLE CHANGES', changes);
-        if (changes['widget']) {
-            /*if (!deepEqual(this.widget, changes['widget'])) {
-                this.subscription.unsubscribe();
-                this.subscription = new Subscription();
-                this.setupMultigraph();
-            }*/
-        }
     }
 
     ngOnDestroy() {
@@ -163,7 +152,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
 
         this.setViewportDisplayValidators();
 
-        console.log('FORM', this.widgetConfigMultigraph);
+        // console.log('FORM', this.widgetConfigMultigraph);
     }
 
     setViewportDisplayValidators() {
@@ -175,9 +164,9 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
                     distinctUntilChanged(),
                     pairwise()
                 ).subscribe(([prev, changes]: [any, any]) => {
-                console.log('cesler - chart table', prev, changes);
+                // console.log('cesler - chart table', prev, changes);
                 if (this.chartTable && !deepEqual(prev, changes)) {
-                    console.log('hill - chart table', prev, changes);
+                    // console.log('hill - chart table', prev, changes);
                     /*if (changes.gridOptions.viewportDisplay === 'custom') {
                         this.FC_gridOpts_custom_x.setValidators([Validators.required]);
                         this.FC_gridOpts_custom_x.enable();
@@ -230,7 +219,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy, OnCha
     }
 
     selectLayoutTypeChange(event: any) {
-        console.log('SET LAYOUT TYPE CHANGE', event);
+        // console.log('SET LAYOUT TYPE CHANGE', event);
         this.FC_layout.setValue(event.value);
         //this.widgetConfigMultigraph.updateValueAndValidity({ onlySelf: false, emitEvent: true });
     }

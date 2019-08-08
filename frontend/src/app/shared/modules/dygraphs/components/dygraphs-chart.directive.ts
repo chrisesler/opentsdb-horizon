@@ -245,7 +245,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
                         }
                         this.options.legendFormatter = legendFormatter;
                         this.options.zoomCallback = function (minDate, maxDate, yRanges) {
-                            console.log('ZOOM CALLBACK');
+                            // console.log('ZOOM CALLBACK');
                             // we only handle xzoom
                             if (!yRanges) {
                                 _self.zoomed.emit({ start: minDate / 1000, end: maxDate / 1000, isZoomed: true });

@@ -9,7 +9,7 @@ export class MultigraphService {
 
   // fill up tag values from rawdata
   fillMultiTagValues(multiConf: any, rawdata: any): any {
-    console.log('hill - rawdata', rawdata);
+    // console.log('hill - rawdata', rawdata);
     const xTemp = multiConf.x ? '{{' + Object.keys(multiConf.x).join('}}/{{') + '}}' : 'x';
     const yTemp = multiConf.y ? '{{' + Object.keys(multiConf.y).join('}}/{{') + '}}' : 'y';
     let xCombine = [];

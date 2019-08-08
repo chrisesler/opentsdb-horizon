@@ -212,7 +212,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'InfoIslandClosed':
-                        this.logger.action('[widget sub] INFO ISLAND CLOSED');
+                        //this.logger.action('[widget sub] INFO ISLAND CLOSED');
                         this.updatedShowEventStream(false);
                         break;
                     case 'UpdateExpandedBucketIndex':
@@ -234,7 +234,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             // render multigraph or not is here
                             let graphs = {};
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
-                            console.log('hill - multiConf', multiConf);
+                            // console.log('hill - multiConf', multiConf);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
                             // this.multigraphEnabled = false;
                             if (this.multigraphEnabled) {
@@ -265,7 +265,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                     }
                                 }
                             } else {
-                                console.log('hill - rawdata', rawdata);
+                                // console.log('hill - rawdata', rawdata);
                                 this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                                 this.data = { ...this.data };
                                 graphs['y'] = {};
@@ -276,7 +276,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             this.setMultigraphColumns(graphs);
                             this.graphData = graphs;
 
-                            console.log('hill - graphs', graphs);
+                            // console.log('hill - graphs', graphs);
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
                                 environment.debugLevel.toUpperCase() === 'DEBUG' ||
                                 environment.debugLevel.toUpperCase() === 'INFO') {
@@ -496,7 +496,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 break;
             case 'UpdateMultigraph':
                 this.widget.settings.multigraph = message.payload;
-                console.log('hill - UpdateMultigraph', message.payload);
+                // console.log('hill - UpdateMultigraph', message.payload);
                 this.multigraphMode = this.widget.settings.multigraph.layout;
                 this.refreshData();
                 this.needRequery = true; // todo: check if we need requery cases
@@ -589,7 +589,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.freeflowBreak = (multigraphSettings.gridOptions.viewportDisplay === 'custom') ? multigraphSettings.gridOptions.custom.y : 3;
             }
 
-            this.logger.success('MULTIGRAPH STUFF', {mode: this.multigraphMode, freeflowBreak: this.freeflowBreak, multigraphSettings});
+            // this.logger.success('MULTIGRAPH STUFF', {mode: this.multigraphMode, freeflowBreak: this.freeflowBreak, multigraphSettings});
 
             const rowKeys = this.getGraphDataObjectKeys(this.graphData);
             const rowCount = rowKeys.length;
@@ -622,7 +622,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
                 if (rowCount === 1 && rowKeys[0] === 'y') {
                     tHeight = tHeight - gridHeaderOffset;
-                    this.logger.log('ONLY A SINGLE ROW, NO ROW LABEL');
+                    // this.logger.log('ONLY A SINGLE ROW, NO ROW LABEL');
                 }
 
                 if (this.multigraphMode === 'freeflow') {
@@ -643,7 +643,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 // this.legendHeight = !heightOffset ? tHeight + 'px' : heightOffset + 'px';
 
                 // this.size = {width: tWidth, height: tHeight };
-                this.logger.log('FIT SIZE', {tWidth, tHeight, multigraphSettings});
+                // this.logger.log('FIT SIZE', {tWidth, tHeight, multigraphSettings});
                 // console.log('MULTIGRAPH FIT', this.size);
 
             // Otherwise, it is a custom fit
@@ -667,11 +667,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
                 if (rowCount === 1 && rowKeys[0] === 'y') {
                     tHeight = tHeight - gridHeaderOffset;
-                    this.logger.log('ONLY A SINGLE ROW, NO ROW LABEL');
+                    // this.logger.log('ONLY A SINGLE ROW, NO ROW LABEL');
                 }
 
                 if (this.multigraphMode === 'freeflow') {
-                    console.log('freeflow custom tweak');
+                    //console.log('freeflow custom tweak');
                     //tWidth = tWidth - (paddingOffset / ((colCount < customY) ? colCount : customY));
                     tHeight = tHeight + gridHeaderOffset + paddingOffset;
                 }
@@ -693,7 +693,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             // minimum size is 200x100
             this.size = {width: ((tWidth >= 200) ? tWidth : 200), height: ((tHeight >= 100) ? tHeight : 100) };
             // this.size = {width: tWidth, height: tHeight };
-            console.log('MULTIGRAPH SIZE', this.size);
+            //console.log('MULTIGRAPH SIZE', this.size);
 
             this.legendWidth = !widthOffset ? this.size.width + 'px' : widthOffset + 'px';
             this.legendHeight = !heightOffset ? this.size.height + 'px' : heightOffset + 'px';
@@ -703,7 +703,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
 
             this.size = { width: nWidth, height: nHeight };
-            console.log('NOT MULTIGRAPH SIZE', this.size);
+            //console.log('NOT MULTIGRAPH SIZE', this.size);
         }
 
 
