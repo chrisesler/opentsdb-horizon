@@ -1,10 +1,11 @@
 import {
     Component, OnInit, HostBinding, Input,
-    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit
+    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, ViewChildren, QueryList
 } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
 import { UtilsService } from '../../../../../core/services/utils.service';
+import { MultigraphService } from '../../../../../core/services/multigraph.service';
 import { UnitConverterService } from '../../../../../core/services/unit-converter.service';
 import { Subscription, Observable } from 'rxjs';
 import { WidgetModel, Axis } from '../../../../../dashboard/state/widgets.state';
@@ -40,6 +41,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChild('graphLegend') private dygraphLegend: ElementRef;
     @ViewChild('dygraph') private dygraph: ElementRef;
     @ViewChild(MatSort) sort: MatSort;
+
+    @ViewChild('multigraphContainer', {read: ElementRef}) multigraphContainer: ElementRef;
+    @ViewChild('multigraphHeaderRow', {read: ElementRef}) multigraphHeaderRow: ElementRef;
+
+    @ViewChildren('graphLegend', {read: ElementRef}) graphLegends: QueryList<ElementRef>;
 
     private subscription: Subscription = new Subscription();
     private isDataLoaded = false;
@@ -113,6 +119,19 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     preventSingleClick: boolean;
     clickTimer: any;
 
+    // MULTIGRAPH
+    // TODO: These multigraph values need to be retrieved from widget settings
+    multigraphEnabled = true;
+    multigraphMode = 'grid'; // grid || freeflow
+    renderReady = false;
+    fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // eventually remove this
+    multigraphColumns: string[] = [];
+    freeflowBreak = 1;
+
+    graphData: any = {};
+    graphRowLabelMarginLeft: 0;
+
+
     // EVENTS
     buckets: any[] = []; // still need this, as dygraph was looking for it
     events: any[];
@@ -137,7 +156,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         private util: UtilsService,
         private elRef: ElementRef,
         private unit: UnitConverterService,
-        private logger: LoggerService
+        private logger: LoggerService,
+        private multiService: MultigraphService
     ) { }
 
     ngOnInit() {
@@ -192,7 +212,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'InfoIslandClosed':
-                        this.logger.action('[widget sub] INFO ISLAND CLOSED');
+                        //this.logger.action('[widget sub] INFO ISLAND CLOSED');
                         this.updatedShowEventStream(false);
                         break;
                     case 'UpdateExpandedBucketIndex':
@@ -211,17 +231,63 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
                             this.resetChart(); // need to reset this data
-                            this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
-                            this.data = { ...this.data };
+                            // render multigraph or not is here
+                            let graphs = {};
+                            const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
+                            // console.log('hill - multiConf', multiConf);
+                            this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
+                            // this.multigraphEnabled = false;
+                            if (this.multigraphEnabled) {
+                                this.multigraphMode = this.widget.settings.multigraph.layout;
+
+                                // result graphRowLabelMarginLeft since we have new data
+                                this.graphRowLabelMarginLeft = 0;
+
+                                // fill out tag values from rawdata
+                                // console.log('hill - rawdata', rawdata);
+                                const results = this.multiService.fillMultiTagValues(multiConf, rawdata);
+                                graphs = this.util.deepClone(results);
+                                // we need to convert to dygraph for these multigraph
+                                for (const ykey in results) {
+                                    if (results.hasOwnProperty(ykey)) {
+                                        for (const xkey in results[ykey]) {
+                                            if (results[ykey].hasOwnProperty(xkey)) {
+                                                graphs[ykey][xkey].ts = [[0]];
+                                                const options = this.util.deepClone(this.options);
+                                                // options.labelsDiv = false;
+                                                graphs[ykey][xkey].ts = this.dataTransformer.yamasToDygraph(
+                                                     this.widget, options, graphs[ykey][xkey].ts, results[ykey][xkey]
+                                                );
+                                                graphs[ykey][xkey].options = options;
+                                                // console.log('hill - ykey', results[ykey][xkey]);
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                // console.log('hill - rawdata', rawdata);
+                                this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
+                                this.data = { ...this.data };
+                                graphs['y'] = {};
+                                graphs['y']['x'] = this.options;
+                                graphs['y']['x'] = this.data;
+                                graphs['y']['x'].options = this.options;
+                            }
+                            this.setMultigraphColumns(graphs);
+                            this.graphData = graphs;
+
+                            // console.log('hill - graphs', graphs);
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
-                                environment.debugLevel.toUpperCase() == 'DEBUG' ||
-                                environment.debugLevel.toUpperCase() == 'INFO') {
+                                environment.debugLevel.toUpperCase() === 'DEBUG' ||
+                                environment.debugLevel.toUpperCase() === 'INFO') {
                                     this.debugData = rawdata.log; // debug log
                             }
                             setTimeout(() => {
                                 this.setSize();
                             });
-                            this.refreshLegendSource();
+                            if (!this.multigraphEnabled) {
+                                this.refreshLegendSource();
+                            }
                             this.cdRef.detectChanges();
                         }
                         break;
@@ -254,7 +320,36 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         // when the widget first loaded in dashboard, we request to get data
         // when in edit mode first time, we request to get cached raw data.
         setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
-        this.setOptions();
+
+        // Timing issue? trying to move to afterViewInit
+        setTimeout(() => {
+            this.setOptions();
+            this.renderReady = true;
+        }, 200);
+    }
+
+    ngAfterViewInit() {
+
+        ElementQueries.listen();
+        ElementQueries.init();
+        const initSize = {
+            width: this.widgetOutputElement.nativeElement.clientWidth,
+            height: this.widgetOutputElement.nativeElement.clientHeight
+        };
+        this.newSize$ = new BehaviorSubject(initSize);
+
+        this.newSizeSub = this.newSize$.subscribe(size => {
+            this.setSize();
+            // this.newSize = size;
+        });
+        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () => {
+             const newSize = {
+                width: this.widgetOutputElement.nativeElement.clientWidth,
+                height: this.widgetOutputElement.nativeElement.clientHeight
+            };
+            this.newSize$.next(newSize);
+        });
+
     }
 
     refreshLegendSource() {
@@ -270,7 +365,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             let config;
             if (series.hasOwnProperty(index)) {
                 config = series[index];
-            } else {continue;}
+            } else {continue; }
             const row = {};
             row['srcIndex'] = index;
             for (let column = 0; column < this.legendDisplayColumns.length; column++) {
@@ -399,6 +494,13 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.refreshData();
                 this.needRequery = message.payload.reQuery;
                 break;
+            case 'UpdateMultigraph':
+                this.widget.settings.multigraph = message.payload;
+                // console.log('hill - UpdateMultigraph', message.payload);
+                this.multigraphMode = this.widget.settings.multigraph.layout;
+                this.refreshData();
+                this.needRequery = true; // todo: check if we need requery cases
+                break;
         }
     }
 
@@ -411,28 +513,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         } else {
             this.widget.queries[qindex] = query;
         }
-    }
-
-    ngAfterViewInit() {
-        ElementQueries.listen();
-        ElementQueries.init();
-        const initSize = {
-            width: this.widgetOutputElement.nativeElement.clientWidth,
-            height: this.widgetOutputElement.nativeElement.clientHeight
-        };
-        this.newSize$ = new BehaviorSubject(initSize);
-
-        this.newSizeSub = this.newSize$.subscribe(size => {
-            this.setSize();
-            // this.newSize = size;
-        });
-        const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () => {
-             const newSize = {
-                width: this.widgetOutputElement.nativeElement.clientWidth,
-                height: this.widgetOutputElement.nativeElement.clientHeight
-            };
-            this.newSize$.next(newSize);
-        });
     }
 
     isApplyTpl(): boolean {
@@ -457,7 +537,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         let labelLen = 0;
         for ( const i in this.options.series ) {
             if (this.options.series.hasOwnProperty(i)) {
-            labelLen = labelLen < this.options.series[i].label.length ? this.options.series[i].label.length: labelLen ;
+            labelLen = labelLen < this.options.series[i].label.length ? this.options.series[i].label.length : labelLen ;
             }
         }
         if (legendSettings.display &&
@@ -498,9 +578,136 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             // nWidth = newSize.width - widthOffset  - (padding * 2);
             nWidth = newSize.width - widthOffset  - paddingSides;
         }
-        this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
-        this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
-        this.size = {width: nWidth, height: nHeight };
+
+        // TODO: need to figure out how to calculate a size if this is a multigraph render
+        // Not sure this is best place to determine size... might need helper function
+        if (this.multigraphEnabled && this.widget.settings.multigraph) {
+            const multigraphSettings = this.widget.settings.multigraph;
+
+            if (this.multigraphMode === 'freeflow') {
+                // tslint:disable-next-line: max-line-length
+                this.freeflowBreak = (multigraphSettings.gridOptions.viewportDisplay === 'custom') ? multigraphSettings.gridOptions.custom.y : 3;
+            }
+
+            // this.logger.success('MULTIGRAPH STUFF', {mode: this.multigraphMode, freeflowBreak: this.freeflowBreak, multigraphSettings});
+
+            const rowKeys = this.getGraphDataObjectKeys(this.graphData);
+            const rowCount = rowKeys.length;
+            // find max col count
+            const colKeys = this.getGraphDataObjectKeys(this.graphData[rowKeys[0]]);
+            const colCount = colKeys.length;
+
+            // 15px for column header
+            const gridHeaderOffset = (this.multigraphMode === 'grid' && colKeys[0] !== 'x') ? 15 : 0;
+            // 17px for row header (15px for height, and 2px margin-top)
+            const rowHeaderOffset = (rowCount > 0 && rowKeys[0] !== 'y') ? 17 : 0;
+            // 6px for graph cell padding (3px left/right, or 3px top/bottom);
+            const paddingOffset = 6;
+
+            let tWidth;
+            let tHeight;
+
+            // if we try to autoFit
+            if (multigraphSettings.gridOptions.viewportDisplay === 'fit') {
+                // calculate width and height, minus potential border widths
+                // default columns and rows is 3x3
+                tWidth = (((nWidth - paddingOffset) / ((colCount < 3) ? colCount : 3))) - paddingOffset;
+                tHeight = (nHeight / ((rowCount < 3) ? rowCount : 3)) - (paddingOffset + rowHeaderOffset);
+
+                // calculate grid header offset
+                //tHeight = tHeight - (gridHeaderOffset / ((rowCount > 3) ? 3 : rowCount));
+                if (colCount > 3) {
+                    tHeight = tHeight - (gridHeaderOffset / ((rowCount > 3) ? 3 : rowCount));
+                }
+
+                if (rowCount === 1 && rowKeys[0] === 'y') {
+                    tHeight = tHeight - gridHeaderOffset;
+                    // this.logger.log('ONLY A SINGLE ROW, NO ROW LABEL');
+                }
+
+                if (this.multigraphMode === 'freeflow') {
+                    //tWidth = tWidth - (paddingOffset / ((colCount < 3) ? colCount : 3));
+                    tHeight = tHeight + gridHeaderOffset + paddingOffset;
+                }
+
+                /*if (rowCount === 1 && colKeys[0] !== 'x') {
+                    tHeight = tHeight - gridHeaderOffset;
+                    this.logger.ng('[FIT] SINGLE ROW / MULTIPLE COLUMNS', {tWidth, tHeight});
+                // } else if (rowCount > 1 && rowCount <= 3) {
+                } else if (rowCount > 1) {
+                    tHeight = tHeight - (gridHeaderOffset / ((rowCount > 3) ? 3 : rowCount));
+                    this.logger.ng('[FIT] MULTIPLE ROWS ', {tWidth, tHeight});
+                }*/
+
+                // this.legendWidth = !widthOffset ? tWidth + 'px' : widthOffset + 'px';
+                // this.legendHeight = !heightOffset ? tHeight + 'px' : heightOffset + 'px';
+
+                // this.size = {width: tWidth, height: tHeight };
+                // this.logger.log('FIT SIZE', {tWidth, tHeight, multigraphSettings});
+                // console.log('MULTIGRAPH FIT', this.size);
+
+            // Otherwise, it is a custom fit
+            // multigraphSettings.gridOptions.viewportDisplay === 'custom'
+            } else {
+                const customY = multigraphSettings.gridOptions.custom.y;
+                let customX = multigraphSettings.gridOptions.custom.x;
+
+                if (this.multigraphMode === 'freeflow') {
+                    customX = 3;
+                }
+
+                tWidth = (((nWidth - paddingOffset) / ((colCount < customY) ? colCount : customY))) - paddingOffset;
+                tHeight = (nHeight / ((rowCount < customX) ? rowCount : customX)) - (paddingOffset + rowHeaderOffset);
+
+                // calculate grid header offset
+                // tHeight = tHeight - (gridHeaderOffset / ((rowCount > customX) ? customX : rowCount));
+                if (colCount > customX) {
+                    tHeight = tHeight - (gridHeaderOffset / ((rowCount > customX) ? customX : rowCount));
+                }
+
+                if (rowCount === 1 && rowKeys[0] === 'y') {
+                    tHeight = tHeight - gridHeaderOffset;
+                    // this.logger.log('ONLY A SINGLE ROW, NO ROW LABEL');
+                }
+
+                if (this.multigraphMode === 'freeflow') {
+                    //console.log('freeflow custom tweak');
+                    //tWidth = tWidth - (paddingOffset / ((colCount < customY) ? colCount : customY));
+                    tHeight = tHeight + gridHeaderOffset + paddingOffset;
+                }
+
+                /*if (rowCount === 1 && colKeys[0] !== 'x') {
+                    tHeight = tHeight - gridHeaderOffset;
+                    this.logger.ng('[CUSTOM] SINGLE ROW / MULTIPLE COLUMNS', {tWidth, tHeight});
+                // } else if (rowCount > 1 && rowCount <= customX) {
+                } else if (rowCount > 1) {
+                    tHeight = tHeight - (gridHeaderOffset / ((rowCount > customX) ? customX : rowCount));
+                    this.logger.ng('[CUSTOM] MULTIPLE ROWS ', {tWidth, tHeight});
+                }*/
+
+                this.logger.log('CUSTOM SIZE', {tWidth, tHeight, multigraphSettings});
+
+            }
+
+            // do we ned a minimum size?
+            // minimum size is 200x100
+            this.size = {width: ((tWidth >= 200) ? tWidth : 200), height: ((tHeight >= 100) ? tHeight : 100) };
+            // this.size = {width: tWidth, height: tHeight };
+            //console.log('MULTIGRAPH SIZE', this.size);
+
+            this.legendWidth = !widthOffset ? this.size.width + 'px' : widthOffset + 'px';
+            this.legendHeight = !heightOffset ? this.size.height + 'px' : heightOffset + 'px';
+        } else {
+
+            this.legendWidth = !widthOffset ? nWidth + 'px' : widthOffset + 'px';
+            this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
+
+            this.size = { width: nWidth, height: nHeight };
+            //console.log('NOT MULTIGRAPH SIZE', this.size);
+        }
+
+
+
 
         // Canvas Width resize
         this.eventsWidth = nWidth - 55;
@@ -699,8 +906,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     setLegendDiv() {
-        this.options.labelsDiv = this.dygraphLegend.nativeElement;
-        this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
+        if (this.multigraphEnabled) {
+            this.options.labelsDiv = false;
+        } else {
+            this.options.labelsDiv = (this.dygraphLegend) ? this.dygraphLegend.nativeElement : undefined;
+            this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
+        }
     }
 
     setDefaultEvents() {
@@ -777,6 +988,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleZoom(zConfig) {
+        // console.log('ZOOM ZOOM', zConfig);
         const n = this.data.ts.length;
         if ( zConfig.isZoomed && n > 0 ) {
             const startTime = new Date(this.data.ts[0][0]).getTime() / 1000;
@@ -985,9 +1197,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
         dialogConf.data = {
           log: this.debugData,
-          query: this.storeQuery 
+          query: this.storeQuery
         };
-        
         // re-use?
         this.debugDialog = this.dialog.open(DebugDialogComponent, dialogConf);
         this.debugDialog.afterClosed().subscribe((dialog_out: any) => {
@@ -1012,6 +1223,65 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             id: cloneWidget.id,
             payload: { widget: cloneWidget, needRequery: this.needRequery }
         });
+    }
+
+    // ctx should contain loop context... see template for details
+    getGraphTemplateContext(data: any, ctx: any = {}): any {
+        /*const graphContext = {
+            $implicit: this,
+            data: data
+        };*/
+        //console.log('CTX', ctx);
+        const graphContext = {
+            $implicit: this,
+            data: data,
+            ctx: ctx
+        };
+
+        return graphContext;
+    }
+
+    getGraphDataObjectKeys(obj: any): string[] {
+        if (!obj || obj === undefined || obj === null) {
+            return [];
+        }
+        const keys = Object.keys(obj);
+        return keys;
+    }
+
+    getMultigraphOptions(ctx: any): any {
+        const options = {...this.options};
+        const legend = this.findGraphLegend('graphlegend-' + ctx.yIdx + '-' + ctx.xIdx);
+        if (legend) {
+            options.labelsDiv = legend.nativeElement;
+        }
+        return options;
+    }
+
+    findGraphLegend(id: string): ElementRef {
+        const legend = this.graphLegends.find((item: ElementRef) => {
+            return item.nativeElement.getAttribute('data-id') === id;
+        });
+        return legend || null;
+    }
+
+    setMultigraphColumns(data) {
+        const ykeys = this.getGraphDataObjectKeys(data);
+        const colKeys = ykeys.length ? this.getGraphDataObjectKeys(data[ykeys[0]]) : [];
+        if (colKeys.length === 1 && colKeys[0] === 'x') {
+            this.multigraphColumns = [];
+        } else {
+            this.multigraphColumns = colKeys;
+        }
+    }
+
+    multigraphContainerScroll(event: any) {
+        // column header row needs to update position
+        if (this.multigraphHeaderRow) {
+            this.multigraphHeaderRow.nativeElement.style.marginTop = event.target.scrollTop + 'px';
+        }
+        // update row label marginLeft
+        this.graphRowLabelMarginLeft = event.target.scrollLeft;
     }
 
     ngOnDestroy() {

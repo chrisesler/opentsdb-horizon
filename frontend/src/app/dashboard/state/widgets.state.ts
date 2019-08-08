@@ -35,24 +35,25 @@ export interface WidgetModel {
         description?: string;
         useDBFilter?: boolean;
         time?: any;
-            visual?: {
-                type?: string;
-                stacks?: StackConfig[];
-                [x: string]: any;
-                showEvents?: boolean;
-            };
-            axes?: {
-                x?: Axis;
-                y1?: Axis;
-                y2?: Axis;
-            };
-            legend?: {
-                display: boolean;
-                position: string;
-                columns?: string[];
-                tags?: string[];
-            };
-            thresholds?: ThresholdConfig[];
+        visual?: {
+            type?: string;
+            stacks?: StackConfig[];
+            [x: string]: any;
+            showEvents?: boolean;
+        };
+        axes?: {
+            x?: Axis;
+            y1?: Axis;
+            y2?: Axis;
+        };
+        legend?: {
+            display: boolean;
+            position: string;
+            columns?: string[];
+            tags?: string[];
+        };
+        thresholds?: ThresholdConfig[];
+        multigraph?: any;
     };
     gridPos: {
         x: number;

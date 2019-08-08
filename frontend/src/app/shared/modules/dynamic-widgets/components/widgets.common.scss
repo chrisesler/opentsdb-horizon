@@ -154,35 +154,196 @@ $widgets-common-config: (
         }
     }
 
+    .multigraph-output {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: auto;
+    }
+
     .multi-graph-container {
+        position: relative;
         display: flex;
         flex-direction: column;
         justify-content: stretch;
         align-items: stretch;
 
-        .graph-row {
-            flex: 1;
+        padding: 0 3px;
+
+        /* column headers */
+        .graph-header-row {
+            position: absolute;
+            top: 0;
+            left: 0;
             display: flex;
             flex-direction: row;
             justify-content: stretch;
             align-items: stretch;
+            z-index: 200;
+        }
 
-            &:not(:last-child){
-                border-bottom: 1px solid #ccc;
+        .graph-header-cell {
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
+
+            padding: 0 3px;
+
+            &:first-child {
+                padding-left: 6px;
+            }
+
+            .graph-header-cell-inner {
+                font-family: mat-font-family(map-get($app-fontface-config, mono));
+                font-size: 10px;
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 15px;
+                white-space: nowrap;
             }
         }
 
-        .graph-cell {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px;
-            min-width: 200px;
-            min-height: 200px;
+        .graph-header-row + .graph-row{
+            margin-top: 15px;
+        }
 
-            &:not(:last-child){
-                border-right: 1px solid #ccc;
+        /* graph row/cells */
+
+        .graph-row {
+
+        }
+
+        .graph-row-label {
+            width: 100%;
+            position: relative;
+            height: 15px;
+            margin: 2px 3px 0 3px;
+
+            .graph-row-label-inner {
+                position: absolute;
+                left: 0;
+                top: 0;
+                font-family: mat-font-family(map-get($app-fontface-config, mono));
+                font-size: 10px;
+                line-height: 15px;
+                padding: 0 3px;
+            }
+        }
+
+        .graph-header-row + .graph-row-label {
+            margin-top: 17px;
+        }
+
+        .graph-cell {
+            position: relative;
+            padding: 3px;
+
+            .no-data {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                
+                span {
+                    font-family: mat-font-family(map-get($app-fontface-config, mono));
+                    font-size: 10px;
+                    padding: 0 6px;
+                    line-height: 12px;
+                    border-radius: 3px;
+                }
+            }
+
+            .graph-header {
+                @include mat-typography-level-to-styles(map-get($app-fontface-config, mono), caption);
+                padding: 0 3px;
+                display: flex;
+                align-items: stretch;
+                justify-content: stretch;
+                height: 15px;
+                white-space: nowrap;
+                /*position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1;*/
+
+                .graph-header-inner {
+                    font-family: mat-font-family(map-get($app-fontface-config, mono));
+                    font-size: 10px;
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    line-height: 15px;
+                    white-space: nowrap;
+                }
+            }
+
+            &:hover {
+                .graph-header {
+                    //display: none; 
+                    // NOTE: I don't agree with hiding it
+                }
+            }
+        }
+
+        &.multigraph-grid-mode {
+            display: flex;
+
+
+            .graph-cell {
+                //flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: flex-start;
+                //padding: 6px;
+                //min-width: 200px;
+                //min-height: 200px;
+            }
+
+            .graph-row {
+                flex: 1;
+                display: flex;
+                flex-direction: row;
+                justify-content: stretch;
+                align-items: stretch;
+            }
+        }
+
+        &.multigraph-freeflow-mode {
+            display: flex;
+
+            .graph-cell {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: flex-start;
+                //padding: 6px;
+                //min-width: 200px;
+                //max-width: 200px;
+                //min-height: 200px;
+            }
+
+            .freeflow-break {
+                flex: 1;
+                flex-basis: 100%;
+                height: 0;
+                min-width: 100%;
+            }
+
+            .graph-row {
+                width: 100%;
+                flex: 1;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
             }
         }
     }
@@ -224,6 +385,12 @@ $widgets-common-config: (
     $foreground: map-get($theme-config, foreground);
     $background: map-get($theme-config, background);
     $is-dark-theme: map-get($theme-config, is-dark);
+
+    $divider: map-get($foreground, divider);
+
+    // multigraph
+    $mg-background: #E6EDED;
+    $mg-text: #606060;
     
     .edit-view-container.is-active {
         .widget-output-container {
@@ -277,5 +444,62 @@ $widgets-common-config: (
         .widget-actions {
             border-top: 1px solid map-get($foreground, dividers);
         }
+    }
+
+    .multi-graph-container {
+
+        /* headers */
+        .graph-header-cell {
+            .graph-header-cell-inner {
+                background-color: $mg-background;
+                color: $mg-text;
+            }
+        }
+
+        // .graph-header-row {}
+
+        /* graph row/cells */
+
+        .graph-row-label {
+            box-shadow: inset 0 -1px 0 $mg-background;
+
+            .graph-row-label-inner {
+                background-color: $mg-background;
+                color: $mg-text;
+            }
+        }
+
+        // .graph-row { }
+
+        .graph-cell {
+            // box-shadow: inset 0 -1px 0 0 $divider, inset -1px 0 0 0 $divider;
+
+            .no-data {
+                span {
+                    border: 1px solid $divider;
+                }
+            }
+
+            .graph-header {
+                .graph-header-inner {
+                    background-color: $mg-background;
+                    color: $mg-text;
+                }
+            }
+        }
+
+        /*&.multigraph-grid-mode {
+
+            .graph-cell {}
+
+            .graph-row {}
+        }
+
+        &.multigraph-freeflow-mode {
+
+            .graph-cell { }
+
+            .graph-row {}
+        }*/
     }
 }
