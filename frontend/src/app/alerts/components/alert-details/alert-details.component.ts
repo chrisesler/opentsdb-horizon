@@ -814,9 +814,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                     this.tags = res;
             }
         } else if ( this.thresholdType === 'eventAlert' ) {
-            const namespace = this.alertForm.get('namespace').value;
+            const namespace = this.alertForm.get('queries').get('eventdb')['controls'][0].get('namespace').value;
             const query: any = { search: '', namespace: namespace, tags: [], metrics: [] };
-            if ( namespace !== null ) {
+            if ( namespace ) {
                 this.httpService.getNamespaceTagKeys(query, 'meta')
                                 .subscribe( res => {
                                     this.tags = res.map( d => d.name);
