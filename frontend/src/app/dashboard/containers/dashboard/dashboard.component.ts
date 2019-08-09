@@ -415,6 +415,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         action: 'ZoomDateRange',
                         payload: { zoomingWid: message.id, date: message.payload }
                     });
+                    this.updateURLParams(message.payload);
                     break;
                 default:
                     break;
@@ -538,6 +539,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     payload: t
                 });
             }
+            this.updateURLParams(t);
         }));
 
         this.subscription.add(this.dbSettings$.subscribe(settings => {
@@ -618,33 +620,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.updateEvents(result.wid, grawdata, time, error);
             }
         }));
+    }
 
-        // listen for events that require URL query args to be updated
-        this.subscription.add(this.interCom.responseGet().subscribe((message: IMessage) => {
-            var changedVars;
-            switch (message.action) {
-                case 'ZoomDateRange':
-                    changedVars = message.payload.date;
-                    break;
-                case 'TimeChanged':
-                    changedVars = message.payload;
-                    break;
-                case 'TimezoneChanged':
-                    changedVars = message.payload;  
-                    break;
-                case 'TplVariables':
-                    break;
-                case 'updateURLTags':
-                    if (Array.isArray(message.payload)) {
-                        changedVars = { tags: message.payload };
-                    }
-                    break;
-            }
-            if (changedVars) {
-                this.urlOverrideService.applyParamstoURL(changedVars);
-            }
-        }));
-
+    updateURLParams(p) {
+        this.urlOverrideService.applyParamstoURL(p);
     }
     // apply when custom tag value is changed
     applyTplVarValue() {
@@ -652,7 +631,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
            // put condition to not event send in.
            if (!this.widgets[i].settings.hasOwnProperty('useDBFilter') || this.widgets[i].settings.useDBFilter) {
                this.handleQueryPayload({id: this.widgets[i].id, payload: this.widgets[i]});
-               this.updateURLTags();
+               this.checkDbTagsLoaded().subscribe(loaded => {
+                   const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
+                   this.updateURLParams({ tags: tplVars });
+               });
            }
        }
     }
@@ -781,13 +763,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     updateURLTags() {
-        this.checkDbTagsLoaded().subscribe(loaded => {
-            const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
-            this.interCom.responsePut({
-                action: 'updateURLTags',
-                payload: tplVars
-            });
-        });
     }
 
     changeVarPanelMode(mode: any) {
