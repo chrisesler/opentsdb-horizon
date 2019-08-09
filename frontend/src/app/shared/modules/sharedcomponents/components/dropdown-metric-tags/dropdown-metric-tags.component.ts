@@ -29,7 +29,8 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     @Input() metric: any;
     @Input() selected: any[] = ['all'];
     @Input() tags: any = null;
-    @Input() all: boolean = true;
+    @Input() all = true;
+    @Input() multiple = true;
     @Input() enableGroupBy: boolean;
     @Output() change: EventEmitter<any> = new EventEmitter();
 
@@ -77,7 +78,9 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
     triggerMenu() {
         const self = this;
         setTimeout(function() {
-            self.trigger.openMenu();
+            if ( self.multiple ) {
+                self.trigger.openMenu();
+            }
         }, 100);
     }
 
@@ -98,7 +101,9 @@ export class DropdownMetricTagsComponent implements OnInit, OnChanges {
 
     onTagSelection(event, selected) {
         let value;
-        if (event.option.value === 'all' && event.option.selected) {
+        if ( !this.multiple ) {
+            value = event.value ? [event.value] : [];
+        } else if (event.option.value === 'all' && event.option.selected) {
             value = [];
         } else {
             value = selected.map(d => d.value);
