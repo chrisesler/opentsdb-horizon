@@ -109,7 +109,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     debugData: any; // debug data from the data source.
     debugDialog: MatDialogRef < DebugDialogComponent > | null;
     storeQuery: any;
-    legendDisplayColumns = ['color', 'min', 'max', 'avg', 'last', 'name'];
+    legendDisplayColumns = ['color', 'min', 'max', 'avg', 'name'];
     editQueryId = null;
     needRequery = false;
 
@@ -153,7 +153,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         private interCom: IntercomService,
         public dialog: MatDialog,
         private dataTransformer: DatatranformerService,
-        private util: UtilsService,
+        private utilService: UtilsService,
         private elRef: ElementRef,
         private unit: UnitConverterService,
         private logger: LoggerService,
@@ -246,14 +246,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 // fill out tag values from rawdata
                                 // console.log('hill - rawdata', rawdata);
                                 const results = this.multiService.fillMultiTagValues(multiConf, rawdata);
-                                graphs = this.util.deepClone(results);
+                                graphs = this.utilService.deepClone(results);
                                 // we need to convert to dygraph for these multigraph
                                 for (const ykey in results) {
                                     if (results.hasOwnProperty(ykey)) {
                                         for (const xkey in results[ykey]) {
                                             if (results[ykey].hasOwnProperty(xkey)) {
                                                 graphs[ykey][xkey].ts = [[0]];
-                                                const options = this.util.deepClone(this.options);
+                                                const options = this.utilService.deepClone(this.options);
                                                 // options.labelsDiv = false;
                                                 graphs[ykey][xkey].ts = this.dataTransformer.yamasToDygraph(
                                                      this.widget, options, graphs[ykey][xkey].ts, results[ykey][xkey]
@@ -284,6 +284,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             }
                             setTimeout(() => {
                                 this.setSize();
+                                this.setOptions();
                             });
                             if (!this.multigraphEnabled) {
                                 this.refreshLegendSource();
@@ -322,6 +323,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
 
         // Timing issue? trying to move to afterViewInit
+        
         setTimeout(() => {
             this.setOptions();
             this.renderReady = true;
@@ -458,34 +460,34 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             case 'ToggleQueryVisibility':
                 this.toggleQueryVisibility(message.id);
                 this.refreshData(false);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.widget.queries = this.utilService.deepClone(this.widget.queries);
                 break;
             case 'ToggleQueryMetricVisibility':
                 this.toggleQueryMetricVisibility(message.id, message.payload.mid);
                 this.refreshData(false);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.widget.queries = this.utilService.deepClone(this.widget.queries);
                 break;
             case 'CloneQuery':
                 this.cloneQuery(message.id);
-                this.widget = this.util.deepClone(this.widget);
+                this.widget = this.utilService.deepClone(this.widget);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQuery':
                 this.deleteQuery(message.id);
-                this.widget = this.util.deepClone(this.widget);
+                this.widget = this.utilService.deepClone(this.widget);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQueryMetric':
                 this.deleteQueryMetric(message.id, message.payload.mid);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.widget.queries = this.utilService.deepClone(this.widget.queries);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
             case 'DeleteQueryFilter':
                 this.deleteQueryFilter(message.id, message.payload.findex);
-                this.widget.queries = this.util.deepClone(this.widget.queries);
+                this.widget.queries = this.utilService.deepClone(this.widget.queries);
                 this.doRefreshData$.next(true);
                 this.needRequery = true;
                 break;
@@ -508,7 +510,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         const query = payload.query;
         const qindex = query.id ? this.widget.queries.findIndex(q => q.id === query.id ) : -1;
         if ( qindex === -1 ) {
-            query.id = this.util.generateId(6, this.util.getIDs(this.widget.queries));
+            query.id = this.utilService.generateId(6, this.utilService.getIDs(this.widget.queries));
             this.widget.queries.push(query);
         } else {
             this.widget.queries[qindex] = query;
@@ -915,7 +917,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     setDefaultEvents() {
-        this.widget = this.util.setDefaultEventsConfig(this.widget, false);
+        this.widget = this.utilService.setDefaultEventsConfig(this.widget, false);
     }
 
     getEvents() {
@@ -1090,6 +1092,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             return '-';
         }
         const config = this.options.series[index];
+        
         const format = config.axis === 'y' ? this.options.axes.y.tickFormat : this.options.axes.y2.tickFormat;
         const dunit = this.unit.getNormalizedUnit(value, format);
         return this.unit.convert(value, format.unit, dunit, format);
@@ -1138,7 +1141,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     cloneQuery(qid) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
         if ( qindex !== -1 ) {
-            const query = this.util.getQueryClone(this.widget.queries, qindex);
+            const query = this.utilService.getQueryClone(this.widget.queries, qindex);
             this.widget.queries.splice(qindex + 1, 0, query);
         }
     }
