@@ -104,7 +104,7 @@
                                             <ng-container >
                                                 <tr mat-header-row *matHeaderRowDef="legendDisplayColumns;sticky: true"></tr>
                                             </ng-container>
-                                            <tr mat-row *matRowDef="let element; columns: legendDisplayColumns" (click)="stoggleChartSeries(element.srcIndex-1, false)" (dblclick)="toggleChartSeries(element.srcIndex-1, true)"></tr>
+                                            <tr mat-row *matRowDef="let element; columns: legendDisplayColumns" (click)="toggleChartSeries(element.srcIndex-1, false)" (dblclick)="toggleChartSeries(element.srcIndex-1, true)"></tr>
                                         </table>
                                     </ng-container>
                                 </div>

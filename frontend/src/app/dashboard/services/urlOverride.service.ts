@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { Location } from '@angular/common';
 import { IntercomService, IMessage } from '../../core/services/intercom.service';
 import { Subscription, Observable } from 'rxjs';
+import { Router,  NavigationEnd } from '@angular/router';
+import { environment } from '../../../environments/environment';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -99,54 +102,70 @@ export class URLOverrideService {
 
     constructor(
         private location: Location,
+        private router: Router,
         private interCom: IntercomService
     ) {
-        this.subscription.add(this.interCom.requestListen().subscribe((message: IMessage) => {
-            if ('updateURLTags' === message.action) {
-                var paramsChanged = false;
-                var url = this.getLocationURLandQueryParams();
-                if (Array.isArray(message.payload)) {
-                    for (var i in message.payload) {
-                        var tk = message.payload[i].alias;
-                        var tv = message.payload[i].filter;
-                        if (tk && tv) {
-                            url['queryParams'][tk] = tv;
-                            paramsChanged = true;
-                        }
-                    }
-                }
-                if (paramsChanged) this.updateLocationURL(url);
-            }
-        }));
+        this.router.events.subscribe((event) => {
+            if (event instanceof NavigationEnd) {
+                // after resolve path, this is the url the app uses
+                const queryParams = this.router.routerState.root.queryParamMap;
 
-        this.subscription.add(this.interCom.responseGet().subscribe((message: IMessage) => {
-            var changedVars;
-            switch (message.action) {
-                case 'ZoomDateRange':
-                    changedVars = message.payload.date;
-                    break;
-                case 'TimeChanged':
-                    changedVars = message.payload;
-                    break;
-                case 'TimezoneChanged':
-                    changedVars = message.payload;  
-                    break;
-                case 'TplVariables':
-                    break;
+                queryParams.pipe(map(params => params.get('__tsdb_host'))).subscribe(
+                    val => {
+                        if (val) {
+                            environment.tsdb_host = val;
+                            environment.tsdb_hosts = [val];
+                        }
+                    });
+
+                queryParams.pipe(map(params => params.get('__config_host'))).subscribe(
+                    val => {
+                        if (val) {
+                            environment.configdb = val;
+                        }
+                    });
+
+                queryParams.pipe(map(params => params.get('__meta_host'))).subscribe(
+                    val => {
+                        if (val) {
+                            environment.metaApi = val;
+                        }
+                    });
+
+                queryParams.pipe(map(params => params.get('__debug_level'))).subscribe(
+                    val => {
+                        if (val) {
+                            environment.debugLevel = val;
+                        }
+                    });
+
+                queryParams.subscribe(p => {
+                    this.applyURLParamsToDB(p);
+                });
             }
-            if (changedVars) {
-                var url = this.getLocationURLandQueryParams();
-                if (changedVars.start) {
-                    url['queryParams']['__start'] = changedVars.start;
+        });
+    }
+
+    applyParamstoURL(params) {
+        var url = this.getLocationURLandQueryParams();
+        if (params.start) {
+            url['queryParams']['__start'] = params.start;
+        }
+        if (params.end) {
+            url['queryParams']['__end'] = params.end;
+        }
+        if (params.zone) {
+            url['queryParams']['__tz'] = params.zone;
+        }
+        if (params.tags) {
+            for (var i in params.tags) {
+                var tk = params.tags[i].alias;
+                var tv = params.tags[i].filter;
+                if (tk && tv) {
+                    url['queryParams'][tk] = tv;
                 }
-                if (changedVars.end) {
-                    url['queryParams']['__end'] = changedVars.end;
-                }
-                if (changedVars.zone) {
-                    url['queryParams']['__tz'] = changedVars.zone;
-                }
-                this.updateLocationURL(url);
             }
-        }));
-     }
+        }
+        this.updateLocationURL(url);
+    }
 }
