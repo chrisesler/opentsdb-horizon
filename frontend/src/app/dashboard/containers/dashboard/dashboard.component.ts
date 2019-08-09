@@ -51,7 +51,7 @@ import { HttpService } from '../../../core/http/http.service';
 import { ICommand, CmdManager } from '../../../core/services/CmdManager';
 import { DbfsUtilsService } from '../../../app-shell/services/dbfs-utils.service';
 import { EventsState, GetEvents } from '../../../dashboard/state/events.state';
-import { environment } from '../../../../environments/environment';
+import { URLOverrideService } from '../../services/urlOverride.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -207,7 +207,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private elRef: ElementRef,
         private logger: LoggerService,
         private httpService: HttpService,
-        private dbfsUtils: DbfsUtilsService
+        private dbfsUtils: DbfsUtilsService,
+        private urlOverrideService: URLOverrideService
     ) { }
     ngOnInit() {
         // handle route for dashboardModule
@@ -617,6 +618,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.updateEvents(result.wid, grawdata, time, error);
             }
         }));
+
+        // listen for events that require URL query args to be updated
+        this.subscription.add(this.interCom.responseGet().subscribe((message: IMessage) => {
+            var changedVars;
+            switch (message.action) {
+                case 'ZoomDateRange':
+                    changedVars = message.payload.date;
+                    break;
+                case 'TimeChanged':
+                    changedVars = message.payload;
+                    break;
+                case 'TimezoneChanged':
+                    changedVars = message.payload;  
+                    break;
+                case 'TplVariables':
+                    break;
+                case 'updateURLTags':
+                    if (Array.isArray(message.payload)) {
+                        changedVars = { tags: message.payload };
+                    }
+                    break;
+            }
+            if (changedVars) {
+                this.urlOverrideService.applyParamstoURL(changedVars);
+            }
+        }));
+
     }
     // apply when custom tag value is changed
     applyTplVarValue() {
@@ -755,7 +783,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     updateURLTags() {
         this.checkDbTagsLoaded().subscribe(loaded => {
             const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
-            this.interCom.requestSend({
+            this.interCom.responsePut({
                 action: 'updateURLTags',
                 payload: tplVars
             });
