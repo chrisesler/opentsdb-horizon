@@ -3,9 +3,7 @@ import { Location } from '@angular/common';
 import { Subscription, Observable } from 'rxjs';
 import { Router,  NavigationEnd } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { map } from 'rxjs/operators';
 import { UtilsService} from '../../core/services/utils.service';
-import { query } from '@angular/core/src/render3';
 
 @Injectable({
   providedIn: 'root'
