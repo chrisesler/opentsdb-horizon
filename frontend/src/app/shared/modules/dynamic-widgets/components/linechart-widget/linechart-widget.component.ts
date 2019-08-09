@@ -109,7 +109,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     debugData: any; // debug data from the data source.
     debugDialog: MatDialogRef < DebugDialogComponent > | null;
     storeQuery: any;
-    legendDisplayColumns = ['color', 'min', 'max', 'avg', 'name'];
+    legendDisplayColumns = [];
     editQueryId = null;
     needRequery = false;
 
@@ -236,8 +236,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
                             // console.log('hill - multiConf', multiConf);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
+
                             // this.multigraphEnabled = false;
                             if (this.multigraphEnabled) {
+
                                 this.multigraphMode = this.widget.settings.multigraph.layout;
 
                                 // result graphRowLabelMarginLeft since we have new data
@@ -265,6 +267,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                     }
                                 }
                             } else {
+       
                                 // console.log('hill - rawdata', rawdata);
                                 this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                                 this.data = { ...this.data };
@@ -273,8 +276,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'] = this.data;
                                 graphs['y']['x'].options = this.options;
                             }
+                            
                             this.setMultigraphColumns(graphs);
                             this.graphData = graphs;
+                            this.renderReady = true;
+
+                            //this.logger.ng('GRAPH DATA', {graphData: this.graphData});
 
                             // console.log('hill - graphs', graphs);
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
@@ -289,7 +296,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             if (!this.multigraphEnabled) {
                                 this.refreshLegendSource();
                             }
+
                             this.cdRef.detectChanges();
+
                         }
                         break;
                     case 'getUpdatedWidgetConfig':
@@ -323,9 +332,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         setTimeout(() => this.refreshData(this.editMode ? false : true), 0);
 
         // Timing issue? trying to move to afterViewInit
-        
+        this.setOptions();
         setTimeout(() => {
-            this.setOptions();
             this.renderReady = true;
         }, 200);
     }
@@ -362,6 +370,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     buildLegendData() {
         const series = this.options.series;
         const table = [];
+        this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
         // tslint:disable-next-line: forin
         for (const index in series) {
             let config;
@@ -687,7 +696,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     this.logger.ng('[CUSTOM] MULTIPLE ROWS ', {tWidth, tHeight});
                 }*/
 
-                this.logger.log('CUSTOM SIZE', {tWidth, tHeight, multigraphSettings});
+                //.log('CUSTOM SIZE', {tWidth, tHeight, multigraphSettings});
 
             }
 
