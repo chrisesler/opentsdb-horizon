@@ -220,7 +220,9 @@ export class SnoozeDetailsComponent implements OnInit, OnChanges {
     getMetaFilter() {
         const query: any = { search: '', namespace: this.queries[0].namespace, tags: this.queries[0].filters, metrics: [] };
         const metaQuery = this.metaService.getQuery('aurastatus:alert', 'TAG_KEYS', query);
-        return metaQuery.queries[0].filter;
+        const filter = metaQuery.queries[0].filter;
+        filter.filters = filter.filters.filter(d => d.key !== 'statusType' );
+        return filter;
     }
 
     validate() {
