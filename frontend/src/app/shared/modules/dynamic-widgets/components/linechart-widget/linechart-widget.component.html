@@ -9,6 +9,8 @@
     </div>
     <div class="widget-output" #widgetoutput
         [ngClass]="{
+            'multigraph-enabled': multigraphEnabled,
+            'singlegraph-enabled': !multigraphEnabled,
             'display-legend-top': widget.settings.legend.display && widget.settings.legend.position=='top' && options.labels.length > 1,
             'display-legend-right': widget.settings.legend.display && widget.settings.legend.position=='right' && options.labels.length > 1,
             'display-legend-bottom': widget.settings.legend.display && widget.settings.legend.position=='bottom' && options.labels.length > 1,
