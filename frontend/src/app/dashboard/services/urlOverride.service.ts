@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Location } from '@angular/common';
-import { IntercomService, IMessage } from '../../core/services/intercom.service';
 import { Subscription, Observable } from 'rxjs';
 import { Router,  NavigationEnd } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { map } from 'rxjs/operators';
+import { UtilsService} from '../../core/services/utils.service';
+import { query } from '@angular/core/src/render3';
 
 @Injectable({
   providedIn: 'root'
@@ -36,21 +37,20 @@ export class URLOverrideService {
         this.updateLocationURL(url);
     }
 
+
     applyURLParamsToDB(p) {
-        var urlParams = p.keys;
         var time = {};
         var tags = {};
-        for (var u in urlParams) {
-            var k = urlParams[u];
-            var v = p.get(k);
+        for (var k in p) {
+            var v = p[k];
             if (!v) continue;
             switch (k) {
                 case '__start':
-                    time['start'] = v; break;
+                    time['start'] = v.toLowerCase(); break;
                 case '__end':
-                    time['end'] = v; break;
+                    time['end'] = v.toLowerCase(); break;
                 case '__tz':
-                    time['zone'] = v; break;
+                    time['zone'] = v.toLowerCase(); break;
                 default:
                     if (k.startsWith('__'))
                         break;
@@ -75,7 +75,7 @@ export class URLOverrideService {
         urlObj['queryParams'] = queryParams;
         if (urlParts.length > 1) {
             // split query params
-            var qp = urlParts[1].split('&');
+            var qp = this.utils.decodeHTML(urlParts[1]).split('&');
             for(var p in qp) {
                 var s = qp[p].split('=');
                 if (s.length > 1) {
@@ -103,47 +103,33 @@ export class URLOverrideService {
     constructor(
         private location: Location,
         private router: Router,
-        private interCom: IntercomService
+        private utils: UtilsService
     ) {
-        this.router.events.subscribe((event) => {
-            if (event instanceof NavigationEnd) {
-                // after resolve path, this is the url the app uses
-                const queryParams = this.router.routerState.root.queryParamMap;
-
-                queryParams.pipe(map(params => params.get('__tsdb_host'))).subscribe(
-                    val => {
-                        if (val) {
-                            environment.tsdb_host = val;
-                            environment.tsdb_hosts = [val];
-                        }
-                    });
-
-                queryParams.pipe(map(params => params.get('__config_host'))).subscribe(
-                    val => {
-                        if (val) {
-                            environment.configdb = val;
-                        }
-                    });
-
-                queryParams.pipe(map(params => params.get('__meta_host'))).subscribe(
-                    val => {
-                        if (val) {
-                            environment.metaApi = val;
-                        }
-                    });
-
-                queryParams.pipe(map(params => params.get('__debug_level'))).subscribe(
-                    val => {
-                        if (val) {
-                            environment.debugLevel = val;
-                        }
-                    });
-
-                queryParams.subscribe(p => {
-                    this.applyURLParamsToDB(p);
-                });
+        var url = this.getLocationURLandQueryParams();
+        var otherParams = {};
+        for (var k in url['queryParams']) {
+            var v = url['queryParams'][k];
+            switch (k.toLowerCase()) {
+                case '__tsdb_host':
+                    environment.tsdb_host = v;
+                    environment.tsdb_hosts = [v];
+                    break;
+                case '__config_host':
+                    environment.configdb = v;
+                    break;
+                case '__meta_host':
+                    environment.metaApi = v;
+                    break;
+                case '__debug_level':
+                    environment.debugLevel = v;
+                    break;
+                default:
+                    otherParams[k] = v;
             }
-        });
+        }
+        if (Object.keys(otherParams).length > 0) {
+            this.applyURLParamsToDB(otherParams);
+        }
     }
 
     applyParamstoURL(params) {
