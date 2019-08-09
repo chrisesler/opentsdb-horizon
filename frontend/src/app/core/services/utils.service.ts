@@ -717,4 +717,15 @@ export class UtilsService {
     return newFilters;
   }
 
+  decodeHTML(s: string) {
+    if (!s) return s;
+    return s.replace("&amp;", "&")
+            .replace("&lt;", "<")
+            .replace("&gt;", ">")
+            .replace("&nbsp;", " ")
+            .replace("&quot", "\"")
+            .replace("&apos;","\'");
+
+  }
+
 }
