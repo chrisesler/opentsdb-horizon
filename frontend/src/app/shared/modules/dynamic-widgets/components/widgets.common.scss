@@ -154,6 +154,7 @@ $widgets-common-config: (
         }
     }
 
+    // MULTIGRAPH
     .multigraph-output {
         position: absolute;
         top: 0;
@@ -213,9 +214,7 @@ $widgets-common-config: (
 
         /* graph row/cells */
 
-        .graph-row {
-
-        }
+        // .graph-row { }
 
         .graph-row-label {
             width: 100%;
@@ -266,11 +265,6 @@ $widgets-common-config: (
                 justify-content: stretch;
                 height: 15px;
                 white-space: nowrap;
-                /*position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1;*/
 
                 .graph-header-inner {
                     font-family: mat-font-family(map-get($app-fontface-config, mono));
@@ -284,15 +278,11 @@ $widgets-common-config: (
                 }
             }
 
-            &:hover {
-                .graph-header {
-                    //display: none; 
-                    // NOTE: I don't agree with hiding it
-                }
-            }
-        }
+        }        
+    }
 
-        &.multigraph-grid-mode {
+    .widget-output.multigraph-enabled {
+        .multi-graph-container.multigraph-grid-mode {
             display: flex;
 
 
@@ -302,9 +292,7 @@ $widgets-common-config: (
                 flex-direction: column;
                 align-items: stretch;
                 justify-content: flex-start;
-                //padding: 6px;
-                //min-width: 200px;
-                //min-height: 200px;
+
             }
 
             .graph-row {
@@ -316,7 +304,7 @@ $widgets-common-config: (
             }
         }
 
-        &.multigraph-freeflow-mode {
+        .multi-graph-container.multigraph-freeflow-mode {
             display: flex;
 
             .graph-cell {
@@ -344,6 +332,16 @@ $widgets-common-config: (
                 display: flex;
                 flex-direction: row;
                 flex-wrap: wrap;
+            }
+        }
+    }
+
+    .widget-output.singlegraph-enabled {
+        .multigraph-container {
+            padding: 0;
+
+            .graph-cell {
+                padding: 0;
             }
         }
     }

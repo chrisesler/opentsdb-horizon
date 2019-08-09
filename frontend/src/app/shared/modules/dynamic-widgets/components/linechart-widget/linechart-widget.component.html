@@ -9,6 +9,8 @@
     </div>
     <div class="widget-output" #widgetoutput
         [ngClass]="{
+            'multigraph-enabled': multigraphEnabled,
+            'singlegraph-enabled': !multigraphEnabled,
             'display-legend-top': widget.settings.legend.display && widget.settings.legend.position=='top' && options.labels.length > 1,
             'display-legend-right': widget.settings.legend.display && widget.settings.legend.position=='right' && options.labels.length > 1,
             'display-legend-bottom': widget.settings.legend.display && widget.settings.legend.position=='bottom' && options.labels.length > 1,
@@ -42,7 +44,7 @@
                         <ng-container *ngFor="let xKey of getGraphDataObjectKeys(graphData[yKey]); let j = index;">
                             <div class="graph-cell" 
                                 [style.width.px]="size.width"
-                                [style.height.px]="(multigraphEnabled && multigraphMode === 'freeflow') ? size.height + 15 : size.height"
+                                [style.height.px]="(!multigraphEnabled) ? size.height + legendHeight : (multigraphEnabled && multigraphMode === 'freeflow') ? size.height + 15 : size.height"
                                 [style.maxWidth]="(multigraphEnabled && multigraphMode === 'freeflow') ? size.width + 'px' : 'initial'">
                                 <!--grid-cell-[{{i}},{{j}}]
                                 <ng-container *ngTemplateOutlet="graphRender;context:(getGraphTemplateContext(graphData[yKey][xKey],{yKey:yKey,xKey:xKey,yIdx:i,xIdx:j}))"></ng-container>
@@ -99,12 +101,12 @@
                                             </ng-container>
                                             <ng-container *ngFor="let column of widget.settings.legend.columns || [] " [matColumnDef]="column">
                                                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column }}</th>
-                                                <td mat-cell *matCellDef="let element"> {{ root.normalizeValue(element[column], element.srcIndex) }}</td>
+                                                <td mat-cell *matCellDef="let element"> {{ normalizeValue(element[column], element.srcIndex) }}</td>
                                             </ng-container>
                                             <ng-container >
                                                 <tr mat-header-row *matHeaderRowDef="legendDisplayColumns;sticky: true"></tr>
                                             </ng-container>
-                                            <tr mat-row *matRowDef="let element; columns: legendDisplayColumns" (click)="stoggleChartSeries(element.srcIndex-1, false)" (dblclick)="toggleChartSeries(element.srcIndex-1, true)"></tr>
+                                            <tr mat-row *matRowDef="let element; columns: legendDisplayColumns" (click)="toggleChartSeries(element.srcIndex-1, false)" (dblclick)="toggleChartSeries(element.srcIndex-1, true)"></tr>
                                         </table>
                                     </ng-container>
                                 </div>

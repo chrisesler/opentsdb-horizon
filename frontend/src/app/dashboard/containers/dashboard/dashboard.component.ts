@@ -51,7 +51,7 @@ import { HttpService } from '../../../core/http/http.service';
 import { ICommand, CmdManager } from '../../../core/services/CmdManager';
 import { DbfsUtilsService } from '../../../app-shell/services/dbfs-utils.service';
 import { EventsState, GetEvents } from '../../../dashboard/state/events.state';
-import { environment } from '../../../../environments/environment';
+import { URLOverrideService } from '../../services/urlOverride.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -207,7 +207,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private elRef: ElementRef,
         private logger: LoggerService,
         private httpService: HttpService,
-        private dbfsUtils: DbfsUtilsService
+        private dbfsUtils: DbfsUtilsService,
+        private urlOverrideService: URLOverrideService
     ) { }
     ngOnInit() {
         // handle route for dashboardModule
@@ -414,6 +415,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         action: 'ZoomDateRange',
                         payload: { zoomingWid: message.id, date: message.payload }
                     });
+                    this.updateURLParams(message.payload);
                     break;
                 default:
                     break;
@@ -537,6 +539,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     payload: t
                 });
             }
+            this.updateURLParams(t);
         }));
 
         this.subscription.add(this.dbSettings$.subscribe(settings => {
@@ -618,13 +621,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         }));
     }
+
+    updateURLParams(p) {
+        this.urlOverrideService.applyParamstoURL(p);
+    }
     // apply when custom tag value is changed
     applyTplVarValue() {
        for (let i = 0; i < this.widgets.length; i++) {
            // put condition to not event send in.
            if (!this.widgets[i].settings.hasOwnProperty('useDBFilter') || this.widgets[i].settings.useDBFilter) {
                this.handleQueryPayload({id: this.widgets[i].id, payload: this.widgets[i]});
-               this.updateURLTags();
+               this.checkDbTagsLoaded().subscribe(loaded => {
+                   const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
+                   this.updateURLParams({ tags: tplVars });
+               });
            }
        }
     }
@@ -753,13 +763,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     updateURLTags() {
-        this.checkDbTagsLoaded().subscribe(loaded => {
-            const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
-            this.interCom.requestSend({
-                action: 'updateURLTags',
-                payload: tplVars
-            });
-        });
     }
 
     changeVarPanelMode(mode: any) {

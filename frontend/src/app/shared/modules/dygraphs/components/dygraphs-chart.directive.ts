@@ -74,7 +74,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
 
     ngOnChanges(changes: SimpleChanges) {
 
-        if (this.renderReady) {
+        if (!this.multigraph || this.renderReady) {
 
             if (this.labelsDiv && this.multigraph) {
                 this.options.labelsDiv = this.labelsDiv;
