@@ -1,10 +1,12 @@
 import {
     Component,
     OnInit,
+    OnDestroy,
     Input,
     Output,
     EventEmitter,
     AfterContentInit,
+    ChangeDetectorRef,
     ViewChild,
     ElementRef,
     HostBinding,
@@ -23,7 +25,7 @@ import { HttpService } from '../../../../../core/http/http.service';
     styleUrls: []
 })
 
-export class NamespaceAutocompleteComponent implements OnInit {
+export class NamespaceAutocompleteComponent implements OnInit, OnDestroy {
 
     @HostBinding('class.namespace-autocomplete-component') private _hostClass = true;
 
@@ -35,6 +37,7 @@ export class NamespaceAutocompleteComponent implements OnInit {
     @ViewChild('namespaceAuto') nsAutoCompleteCntrl: MatAutocomplete;
 
     visible = false;
+    destroy = false;
     filteredNamespaceOptions = [];
     namespaces = [];
     namespaceControl: FormControl;
@@ -42,7 +45,7 @@ export class NamespaceAutocompleteComponent implements OnInit {
 
 
 
-    constructor(private httpService: HttpService, private elRef: ElementRef) { }
+    constructor(private httpService: HttpService, private cdRef: ChangeDetectorRef) { }
 
     ngOnInit() {
         let showFullList = true;
@@ -57,6 +60,9 @@ export class NamespaceAutocompleteComponent implements OnInit {
                 const regex = new RegExp( search );
                 for ( let i = 0; i < this.namespaces.length; i++ ) {
                     this.filteredNamespaceOptions = this.namespaces.filter(d => regex.test(d.toLowerCase()));
+                }
+                if ( !this.destroy ) {
+                    this.cdRef.detectChanges();
                 }
                 showFullList = false;
             });
@@ -120,6 +126,10 @@ export class NamespaceAutocompleteComponent implements OnInit {
             this.namespaceControl.setValue(this.value, {emitEvent: false});
             this.blur.emit('');
         }
+    }
+
+    ngOnDestroy() {
+        this.destroy = true;
     }
 
 }
