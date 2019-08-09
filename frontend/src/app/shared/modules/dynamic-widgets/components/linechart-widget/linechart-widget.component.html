@@ -43,7 +43,7 @@
                         <!-- graph loop -->
                         <ng-container *ngFor="let xKey of getGraphDataObjectKeys(graphData[yKey]); let j = index;">
                             <div class="graph-cell" 
-                                [style.width.px]="size.width"
+                                [style.width.px]="(!multigraphEnabled) ? size.width + legendWidth : size.width"
                                 [style.height.px]="(!multigraphEnabled) ? size.height + legendHeight : (multigraphEnabled && multigraphMode === 'freeflow') ? size.height + 15 : size.height"
                                 [style.maxWidth]="(multigraphEnabled && multigraphMode === 'freeflow') ? size.width + 'px' : 'initial'">
                                 <!--grid-cell-[{{i}},{{j}}]
@@ -88,7 +88,7 @@
                                     </div>
                                 </div>
                     
-                                <div class="graph-legend" [style.width]="legendWidth" [style.height]="legendHeight" *ngIf="!multigraphEnabled">
+                                <div class="graph-legend" [style.minWidth]="legendWidth" [style.minHeight]="legendHeight" *ngIf="!multigraphEnabled">
                                     <ng-container *ngIf="widget.settings.legend.display">
                                         <table mat-table matSort [dataSource]="legendDataSource">
                                             <ng-container matColumnDef="color">
