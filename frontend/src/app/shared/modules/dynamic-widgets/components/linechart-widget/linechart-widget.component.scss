@@ -115,6 +115,7 @@
             &.display-legend-left {
                 .graph-legend {
                     display: flex;
+                    flex: 1;
                     .line-series{
                         display: inline-flex;
                         width:10px;
@@ -125,24 +126,32 @@
             }
 
             &.display-legend-top{
-                flex-direction: column-reverse;
+                .graph-cell {
+                    flex-direction: column-reverse;
+                }
                 .graph-legend {
                     margin-bottom: 6px;
                 }
             }
 
             &.display-legend-right {
-                flex-direction: row;
-                align-items: flex-start;
+                .graph-cell {
+                    flex-direction: row;
+                    align-items: flex-start;
+                }
             }
 
             &.display-legend-bottom {
-                flex-direction: column;
+                .graph-cell {
+                    flex-direction: column;
+                }
             }
 
             &.display-legend-left {
-                flex-direction: row-reverse;
-                align-items: flex-start;
+                .graph-cell {
+                    flex-direction: row-reverse;
+                    align-items: flex-start;
+                }
             }
 
             &.display-legend-left,
