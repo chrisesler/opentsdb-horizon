@@ -214,7 +214,11 @@ $widgets-common-config: (
 
         /* graph row/cells */
 
-        // .graph-row { }
+        .graph-row {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+        }
 
         .graph-row-label {
             width: 100%;
@@ -238,6 +242,10 @@ $widgets-common-config: (
         }
 
         .graph-cell {
+            display: flex;
+            align-items: stretch;
+            justify-content: flex-start;
+
             position: relative;
             padding: 3px;
 
@@ -285,20 +293,11 @@ $widgets-common-config: (
         .multi-graph-container.multigraph-grid-mode {
             display: flex;
 
-
             .graph-cell {
-                //flex: 1;
-                display: flex;
                 flex-direction: column;
-                align-items: stretch;
-                justify-content: flex-start;
-
             }
 
             .graph-row {
-                flex: 1;
-                display: flex;
-                flex-direction: row;
                 justify-content: stretch;
                 align-items: stretch;
             }
@@ -309,14 +308,7 @@ $widgets-common-config: (
 
             .graph-cell {
                 flex: 1;
-                display: flex;
                 flex-direction: column;
-                align-items: stretch;
-                justify-content: flex-start;
-                //padding: 6px;
-                //min-width: 200px;
-                //max-width: 200px;
-                //min-height: 200px;
             }
 
             .freeflow-break {
@@ -328,20 +320,24 @@ $widgets-common-config: (
 
             .graph-row {
                 width: 100%;
-                flex: 1;
-                display: flex;
-                flex-direction: row;
                 flex-wrap: wrap;
             }
         }
     }
 
     .widget-output.singlegraph-enabled {
-        .multigraph-container {
+        .multi-graph-container {
             padding: 0;
+            min-height: 100%;
+
+            .multigraph-output {
+                overflow: initial;
+            }
 
             .graph-cell {
                 padding: 0;
+                min-width: 100%;
+                min-height: 100%;
             }
         }
     }
