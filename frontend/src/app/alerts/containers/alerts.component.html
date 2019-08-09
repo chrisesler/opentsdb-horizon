@@ -337,7 +337,7 @@
                 <mat-icon matSuffix fontSet="denali" fontIcon="d-search"></mat-icon>
             </mat-form-field>
         </div>
-        <button mat-menu-item *ngFor="let ns of allNamespacesDS.filteredData; let i = index;" (click)="handleNamespaceChange(namespace.name);">
+        <button mat-menu-item *ngFor="let ns of allNamespacesDS.filteredData; let i = index;" (click)="handleNamespaceChange(ns.name);">
             {{ns.name}}
         </button>
     </mat-menu>
