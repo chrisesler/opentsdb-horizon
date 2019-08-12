@@ -264,6 +264,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 case 'removeWidget':
                     this.store.dispatch(new DeleteWidget(message.payload.widgetId));
                     this.rerender = { 'reload': true };
+                    this.getDashboardTagKeys(false);
                     break;
                 case 'cloneWidget':
                     // widgets = this.widgets;
@@ -300,25 +301,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.handleEventQueryPayload(message);
                     break;
                 case 'updateWidgetConfig':
-                    const mIndex = this.widgets.findIndex(w => w.id === message.id);
+                    let mIndex = this.widgets.findIndex(w => w.id === message.id);
                     if (mIndex === -1) {
                         // do not save if no metrics added
                         // update position to put new on on top
                         const newWidgetY = message.payload.widget.gridPos.h;
                         this.widgets = this.dbService.positionWidgetY(this.widgets, newWidgetY);
-                        // change name to fist metric if name is not change
+                        // change name to first metric if name is not changed
                         if (message.payload.widget.settings.component_type !== 'MarkdownWidgetComponent' &&
                         message.payload.widget.settings.component_type !== 'EventsWidgetComponent') {
                             if (message.payload.widget.settings.title === 'my widget' && message.payload.widget.queries[0].metrics.length) {
                                 message.payload.widget.settings.title = message.payload.widget.queries[0].metrics[0].name;
                             }
                         }
-                        // this is the newly adding widget
+                        // this is the newly added widget
                         if (this.widgets.length === 1 && this.widgets[0].settings.component_type === 'PlaceholderWidgetComponent') {
                             this.widgets[0] = message.payload.widget;
                         } else {
                             this.widgets.unshift(message.payload.widget);
                         }
+                        mIndex = 0;
                         this.store.dispatch(new UpdateWidgets(this.widgets));
                     } else {
                         // check the component type is PlaceholderWidgetComponent.
@@ -342,6 +344,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             }));
                         }
                     }
+                    this.getDashboardTagKeys(false);
+                    this.handleQueryPayload({ id: message.id, payload: this.widgets[mIndex] });
                     break;
                 case 'dashboardSaveRequest':
                     // DashboardSaveRequest comes from the save button
@@ -453,8 +457,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             // the router url will point to previous path of clone dashboard
             // this.logger.log('dbPathSub', { currentLocation: this.location.path(), newPath: '/d' + path, rawPath: path});
             if (path !== '_new_' && path !== undefined) {
-                var fullPath = this.location.path();
-                var urlParts = fullPath.split('?');
+                let fullPath = this.location.path();
+                let urlParts = fullPath.split('?');
                 if (urlParts.length > 1) {
                     this.location.replaceState('/d' + path, urlParts[1]);
                 } else {
@@ -725,7 +729,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
     // get all dashboard tags
-    getDashboardTagKeys() {
+    getDashboardTagKeys(reloadData: boolean = true) {
+        // this.isDbTagsLoaded = false;
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
             this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
             for (let i = 0; res && i < res.results.length; i++) {
@@ -741,8 +746,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 ...keys.filter(k => this.dashboardTags.tags.indexOf(k) < 0)];
             }
             this.dashboardTags.tags.sort(this.utilService.sortAlphaNum);
-            this.isDbTagsLoaded = true;
-            this.isDbTagsLoaded$.next(true);
+            this.isDbTagsLoaded = reloadData;
+            this.isDbTagsLoaded$.next(reloadData);
         },
             error => {
                 this.isDbTagsLoaded = true;
@@ -760,9 +765,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         } else {
             return of(true);
         }
-    }
-
-    updateURLTags() {
     }
 
     changeVarPanelMode(mode: any) {
