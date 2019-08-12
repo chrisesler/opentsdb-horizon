@@ -930,6 +930,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     setShowEvents(showEvents: boolean) {
         this.widget.settings.visual.showEvents = showEvents;
         this.widget.settings = {... this.widget.settings};
+        this.setSize();
         if (showEvents) {
             this.getEvents();
         }
