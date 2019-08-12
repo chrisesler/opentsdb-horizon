@@ -103,9 +103,9 @@ export class DatatranformerService {
     }
 
     if (isStacked && 
-            (null === options.axes.y.valueRange[0] || 
-             isNaN(   options.axes.y.valueRange[0]))) {
-        options.axes.y.valueRange[0] = 0;
+            (null === options.axes[axis].valueRange[0] || 
+             isNaN(   options.axes[axis].valueRange[0]))) {
+        options.axes[axis].valueRange[0] = 0;
     }
 
     if ( options.axes.y.valueRange[0] !== null && options.axes.y.valueRange[0] >= yMax ) {
