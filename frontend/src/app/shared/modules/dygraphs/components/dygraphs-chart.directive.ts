@@ -53,6 +53,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
         // check for labels div
         // if not set, hard check dom...
         // if not in dom, create and inject an element
+        /*
         if (!this.options.labelsDiv) {
             const parent = this.element.nativeElement.parentNode;
             const legendCheck = parent.querySelector('.dygraph-legend');
@@ -65,6 +66,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
             }
             this.options.labelsDiv = this.labelsDiv;
         }
+        */
 
         if (!this.renderReady) {
             // console.log('RENDER NOT READY... CHANGING THAT');
@@ -74,16 +76,24 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
 
     ngOnChanges(changes: SimpleChanges) {
 
+        // by default the labelsDiv is an empty object as defined any in interface
+        // enforce to init labelsDiv if not there
+        if (!(this.options.labelsDiv && Object.keys(this.options.labelsDiv).length > 0)) {
+            const parent = this.element.nativeElement.parentNode;
+            const legendCheck = parent.querySelector('.dygraph-legend');
+            if (legendCheck) {
+                this.labelsDiv = legendCheck;
+            } else {
+                this.labelsDiv = document.createElement('div');
+                this.labelsDiv.classList.add('dygraph-legend');
+                this.element.nativeElement.parentNode.appendChild(this.labelsDiv);
+            }
+            this.options.labelsDiv = this.labelsDiv;
+        }
+
         if (!this.multigraph || this.renderReady) {
 
-            if (this.labelsDiv && this.multigraph) {
-                this.options.labelsDiv = this.labelsDiv;
-            }
-
-            // console.log('RUNNING DYGRAPH SETUP', this.size, this.options);
-
             const self = this;
-
             const mouseover = function (event, x, pts, row) {
                 // console.log('MOUSEOVER ', this.user_attrs_);
                 const labelsDiv = this.user_attrs_.labelsDiv;

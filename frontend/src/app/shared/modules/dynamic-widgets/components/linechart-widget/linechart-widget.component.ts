@@ -212,7 +212,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'InfoIslandClosed':
-                        //this.logger.action('[widget sub] INFO ISLAND CLOSED');
                         this.updatedShowEventStream(false);
                         break;
                     case 'UpdateExpandedBucketIndex':
@@ -234,7 +233,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             // render multigraph or not is here
                             let graphs = {};
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
-                            // console.log('hill - multiConf', multiConf);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
 
                             // this.multigraphEnabled = false;
@@ -246,7 +244,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 this.graphRowLabelMarginLeft = 0;
 
                                 // fill out tag values from rawdata
-                                // console.log('hill - rawdata', rawdata);
                                 const results = this.multiService.fillMultiTagValues(multiConf, rawdata);
                                 graphs = this.utilService.deepClone(results);
                                 // we need to convert to dygraph for these multigraph
@@ -256,19 +253,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                             if (results[ykey].hasOwnProperty(xkey)) {
                                                 graphs[ykey][xkey].ts = [[0]];
                                                 const options = this.utilService.deepClone(this.options);
-                                                // options.labelsDiv = false;
+
                                                 graphs[ykey][xkey].ts = this.dataTransformer.yamasToDygraph(
                                                      this.widget, options, graphs[ykey][xkey].ts, results[ykey][xkey]
                                                 );
                                                 graphs[ykey][xkey].options = options;
-                                                // console.log('hill - ykey', results[ykey][xkey]);
                                             }
                                         }
                                     }
                                 }
                             } else {
-       
-                                // console.log('hill - rawdata', rawdata);
                                 this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                                 this.data = { ...this.data };
                                 graphs['y'] = {};
@@ -276,14 +270,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'] = this.data;
                                 graphs['y']['x'].options = this.options;
                             }
-                            
                             this.setMultigraphColumns(graphs);
                             this.graphData = graphs;
                             this.renderReady = true;
-
-                            //this.logger.ng('GRAPH DATA', {graphData: this.graphData});
-
-                            // console.log('hill - graphs', graphs);
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
                                 environment.debugLevel.toUpperCase() === 'DEBUG' ||
                                 environment.debugLevel.toUpperCase() === 'INFO') {
@@ -507,7 +496,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 break;
             case 'UpdateMultigraph':
                 this.widget.settings.multigraph = message.payload;
-                // console.log('hill - UpdateMultigraph', message.payload);
                 this.multigraphMode = this.widget.settings.multigraph.layout;
                 this.refreshData();
                 this.needRequery = true; // todo: check if we need requery cases
@@ -918,9 +906,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     setLegendDiv() {
         if (this.multigraphEnabled) {
-            this.options.labelsDiv = false;
+            this.options.labelsDiv = {};
         } else {
-            this.options.labelsDiv = (this.dygraphLegend) ? this.dygraphLegend.nativeElement : undefined;
+            this.options.labelsDiv = (this.dygraphLegend) ? this.dygraphLegend.nativeElement : {};
             this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
         }
     }
@@ -1259,15 +1247,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
         const keys = Object.keys(obj);
         return keys;
-    }
-
-    getMultigraphOptions(ctx: any): any {
-        const options = {...this.options};
-        const legend = this.findGraphLegend('graphlegend-' + ctx.yIdx + '-' + ctx.xIdx);
-        if (legend) {
-            options.labelsDiv = legend.nativeElement;
-        }
-        return options;
     }
 
     findGraphLegend(id: string): ElementRef {
