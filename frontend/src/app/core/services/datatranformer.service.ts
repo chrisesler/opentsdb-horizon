@@ -102,6 +102,12 @@ export class DatatranformerService {
         options.axes[axis].valueRange[1] = Math.ceil(areaMax + areaMax * 0.05);
     }
 
+    if (isStacked && 
+            (null === options.axes.y.valueRange[0] || 
+             isNaN(   options.axes.y.valueRange[0]))) {
+        options.axes.y.valueRange[0] = 0;
+    }
+
     if ( options.axes.y.valueRange[0] !== null && options.axes.y.valueRange[0] >= yMax ) {
         options.axes.y.valueRange[0] = null;
     }
