@@ -28,6 +28,7 @@ export interface IDygraphOptions {
     connectSeparatedPoints?: boolean;
     drawPoints?: boolean;
     dateWindow?: any[];
+    hideOverlayOnMouseOut?: boolean;
     isCustomZoomed?: boolean;
     file?: any;
     legend?: "follow" | "always" | "never" | "onmouseover";
