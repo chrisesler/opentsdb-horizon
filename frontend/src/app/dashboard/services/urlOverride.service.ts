@@ -73,7 +73,7 @@ export class URLOverrideService {
         urlObj['queryParams'] = queryParams;
         if (urlParts.length > 1) {
             // split query params
-            var qp = this.utils.decodeHTML(urlParts[1]).split('&');
+            var qp = this.utils.decodeHTML(decodeURIComponent(urlParts[1])).split('&');
             for(var p in qp) {
                 var s = qp[p].split('=');
                 if (s.length > 1) {
