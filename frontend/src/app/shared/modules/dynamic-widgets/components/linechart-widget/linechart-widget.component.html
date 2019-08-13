@@ -46,11 +46,6 @@
                                 [style.width.px]="(!multigraphEnabled) ? size.width + legendWidth : size.width"
                                 [style.height.px]="(!multigraphEnabled) ? size.height + legendHeight : (multigraphEnabled && multigraphMode === 'freeflow') ? size.height + 15 : size.height"
                                 [style.maxWidth]="(multigraphEnabled && multigraphMode === 'freeflow') ? size.width + 'px' : 'initial'">
-                                <!--grid-cell-[{{i}},{{j}}]
-                                <ng-container *ngTemplateOutlet="graphRender;context:(getGraphTemplateContext(graphData[yKey][xKey],{yKey:yKey,xKey:xKey,yIdx:i,xIdx:j}))"></ng-container>
-                                <div class="graph-header" *ngIf="multigraphEnabled && yKey !== 'y' && multigraphMode === 'grid'">
-                                    <span>{{yKey}}</span>
-                                </div>-->
                                 <div class="graph-header" *ngIf="multigraphEnabled && multigraphMode === 'freeflow'">
                                     <div class="graph-header-inner">
                                         <span>{{(yKey !== 'y') ? yKey + ': ' : ''}}{{xKey}}</span>
