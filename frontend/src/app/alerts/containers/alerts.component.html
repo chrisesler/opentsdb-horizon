@@ -330,10 +330,10 @@
         <span class="menu-shim" style="display: block; height: 1px;" [ngStyle]="{'width':ensureMenuWidth(namespaceDropMenuTrigger)}"></span>
     </mat-menu>
 
-    <mat-menu #namespaceMenu="matMenu" class="namespace-selector-cdk-menu">
+    <mat-menu #namespaceMenu="matMenu" class="namespace-selector-cdk-menu submenu" [style.maxHeight.px]="500">
         <div class="filter-all-namespaces" (click)="$event.stopPropagation()">
             <mat-form-field appearance="fill" floatLabel="never">
-                <input matInput placeholder="Filter namespaces" autocomplete="off" (keydown)="applyAllNamespaceDataFilter($event.target.value)" #allNamespaceFilterInput>
+                <input matInput placeholder="Filter namespaces" autocomplete="off" (keydown)="applyAllNamespaceDataFilter($event.target.value, $event)" #allNamespaceFilterInput>
                 <mat-icon matSuffix fontSet="denali" fontIcon="d-search"></mat-icon>
             </mat-form-field>
         </div>

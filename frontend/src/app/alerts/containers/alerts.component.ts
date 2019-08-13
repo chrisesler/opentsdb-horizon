@@ -619,8 +619,9 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.alertsDataSource.filter = dataFilter;
     }
 
-    applyAllNamespaceDataFilter(dataFilter: string) {
+    applyAllNamespaceDataFilter(dataFilter: string, event: any) {
         this.allNamespacesDS.filter = dataFilter;
+        event.stopPropagation();
     }
 
     applySnoozeDataFilter(dataFilter: string) {
