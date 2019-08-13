@@ -1,6 +1,6 @@
 import {
     OnInit, OnChanges, OnDestroy, Directive,
-    Input, Output, EventEmitter, ElementRef, SimpleChanges, AfterViewInit, Renderer2
+    Input, Output, EventEmitter, ElementRef, SimpleChanges, AfterViewInit, Renderer2, HostListener
 } from '@angular/core';
 import { IDygraphOptions } from '../IDygraphOptions';
 import Dygraph from 'dygraphs/src-es5/dygraph.js';
@@ -35,6 +35,9 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
     public dataLoading: boolean;
 
     public labelsDiv: any;
+    /* Commenting out for now
+        will be part of next PR that will improve tooltip movement
+    public firstTickHighlight = false; */
 
     constructor(
         private element: ElementRef,
@@ -91,25 +94,65 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
             this.options.labelsDiv = this.labelsDiv;
         }
 
+        /* part of coming pr change
+        if (!this.options.hasOwnProperty('hideOverlayOnMouseOut ')) {
+            this.options.hideOverlayOnMouseOut = false;
+        }*/
+
         if (!this.multigraph || this.renderReady) {
 
             const self = this;
             const mouseover = function (event, x, pts, row) {
+
+                /* Commenting out for now
+                    will be part of next PR that will improve tooltip movement
+                if (!self.firstTickHighlight) {
+                    self.firstTickHighlight = true;
+                }*/
                 // console.log('MOUSEOVER ', this.user_attrs_);
                 const labelsDiv = this.user_attrs_.labelsDiv;
+                // widget output element
+                let wrapperEl;
+                if (self.multigraph) {
+                    wrapperEl = labelsDiv.closest('.graph-cell');
+                } else {
+                    wrapperEl = labelsDiv.closest('.multigraph-output');
+                }
+                // const widgetOutputEl = labelsDiv.closest('.multigraph-output');
+                // widget output el size
+                const wrapperSize = wrapperEl.getBoundingClientRect();
+ 
                 labelsDiv.style.display = 'block';
                 let xOffset = 0;
                 let yOffset = 0;
                 const labelDivWidth = labelsDiv.clientWidth;
                 const labelDivHeight = labelsDiv.clientHeight;
+
+                // edge detection
+                // TODO: working on top detection in scrollable portion of widget
                 if (event.clientX > (window.innerWidth - (labelDivWidth + 10))) {
                     xOffset = - (labelDivWidth + 10);
                 }
-                if (event.clientY > (window.innerHeight - (labelDivHeight + 30))) {
-                    yOffset = - (labelDivHeight + 40);
+                if (
+                    (event.clientY > (window.innerHeight - (labelDivHeight + 30))) ||
+                    (wrapperSize.height - event.offsetY) < (labelDivHeight + 30)
+                ) {
+                    yOffset = - (labelDivHeight + 60);
                 }
+
+
+                // set styles
                 labelsDiv.style.left = (event.offsetX + xOffset) + 'px';
                 labelsDiv.style.top = (event.offsetY + yOffset) + 'px';
+                /*console.log(
+                    '%cTIP MOVE',
+                    'color: white; font-weight: bold; background: mediumpurple; padding: 3px;',
+                    {
+                        event, x, pts, row,
+                        pscrollTop: (parentEl) ? parentEl.scrollTop : null,
+                        pscrollLeft: (parentEl) ? parentEl.scrollLeft : null,
+                        psize: (parentEl) ? parentEl.getBoundingClientRect() : null
+                    });*/
             };
 
             // needed to capture start and end times
@@ -381,6 +424,28 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy, Aft
             }
         }
     }
+    /* Commenting out for now
+        will be part of next PR that will improve tooltip movement
+    @HostListener('mouseenter', ['$event'])
+    onMouseEnter(event: any) {
+        console.log('MOUSE ENTER', event);
+        this.firstTickHighlight = false;
+    }
+
+    @HostListener('mousemove', ['$event'])
+    onMouseMove(event: any) {
+        console.log('MOUSE MOVE', event);
+        if (this.firstTickHighlight) {
+            this.labelsDiv.style.display = 'block';
+        }
+    }
+
+    @HostListener('mouseleave', ['$event'])
+    onMouseLeave(event: any) {
+        console.log('MOUSE LEAVE', event);
+        this.labelsDiv.style.display = 'none';
+        this.firstTickHighlight = false;
+    }*/
 
     ngOnDestroy() {
 
