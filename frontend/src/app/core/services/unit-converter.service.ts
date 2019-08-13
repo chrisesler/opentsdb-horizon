@@ -78,6 +78,11 @@ export class UnitConverterService {
         // get default unit if not defined. for usd follow KMBT units
         oUnit = !oUnit || options.unit === 'usd' ? this.getDefaultUnit(value, true): oUnit;
         let precision = options.precision ? options.precision : 0;
+        let sign = 1;
+        if (value < 0) {
+            value = -1 * value;
+            sign = -1;
+        }
 
         let result = value;
         if( oUnit && oUnit.type !== 'time' ) {
@@ -85,12 +90,18 @@ export class UnitConverterService {
         }
 
         precision = Number.isInteger(result) && !options.precisionStrict ? 0 : precision;
+        result = sign * result;
+
         return prefix + parseFloat(result.toFixed(precision)) + ( oUnit ? oUnit.unit: '') + postfix;
     }
 
     getNormalizedUnit(value, options) {
         let sUnit = this.getDetails(options.unit);
         sUnit = !sUnit || options.unit === 'usd' ? this.getDefaultUnit(value): sUnit;
+
+        if (value < 0) {
+            value = -1 * value;
+        }
 
         let destUnit = sUnit.key;
 
@@ -139,6 +150,12 @@ export class UnitConverterService {
     convert(value, srcUnitKey, destUnitKey, options) {
         let sUnit = this.getDetails(srcUnitKey);
         sUnit = !sUnit || options.unit === 'usd' ? this.getDefaultUnit(value): sUnit;
+
+        let sign = 1;
+        if (value < 0) {
+            sign = -1;
+            value = -1 * value;
+        }
         
         let dUnit = this.getDetails(destUnitKey);
         dUnit = !dUnit ? sUnit: dUnit;
@@ -182,11 +199,12 @@ export class UnitConverterService {
         }
 
         precision = Number.isInteger(result) && !options.precisionStrict ? 0 : precision;
-
+        result = sign * result;
         return prefix + parseFloat(result.toFixed(precision)) + ' ' + ( dUnit ? dUnit.unit: '') +  postfix;
     }
 
     getDefaultUnit(value, bigUnit=false) {
+        value = value < 0 ? -1 * value : value;
         const power = value === 0 ? 0 : Math.floor(Math.log(value)/Math.log(1000));
         const defaultUnits:any[] = this.units.filter( (d:any)=> d.type === 'default' );
         let oUnit = defaultUnits[0];
