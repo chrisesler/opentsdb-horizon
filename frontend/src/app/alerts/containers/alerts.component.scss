@@ -726,6 +726,10 @@
                 }
             }
         }
+
+        &.submenu {
+            max-height: 500px;
+        }
     }
 
     .sparkline-display-cdk-menu.mat-menu-panel {
