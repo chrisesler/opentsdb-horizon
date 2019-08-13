@@ -51,10 +51,10 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
             label: 'Grid',
             value: 'grid'
         },
-        {
+        /* {
             label: 'Freeflow',
             value: 'freeflow'
-        }
+        }*/
     ];
 
     // custom row/colum count select value options
