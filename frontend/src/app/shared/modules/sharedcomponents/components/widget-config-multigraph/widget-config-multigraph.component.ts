@@ -151,8 +151,6 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
         this.widgetConfigMultigraph.updateValueAndValidity({ onlySelf: false, emitEvent: true });
 
         this.setViewportDisplayValidators();
-
-        // console.log('FORM', this.widgetConfigMultigraph);
     }
 
     setViewportDisplayValidators() {
@@ -166,15 +164,6 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
                 ).subscribe(([prev, changes]: [any, any]) => {
                 // console.log('cesler - chart table', prev, changes);
                 if (this.chartTable && !deepEqual(prev, changes)) {
-                    // console.log('hill - chart table', prev, changes);
-                    /*if (changes.gridOptions.viewportDisplay === 'custom') {
-                        this.FC_gridOpts_custom_x.setValidators([Validators.required]);
-                        this.FC_gridOpts_custom_x.enable();
-                    } else {
-                        this.FC_gridOpts_custom_x.setValidators(null);
-                        this.FC_gridOpts_custom_x.disable();
-                    }*/
-
 
                     this.chartTable.renderRows();
                     this.widgetChange.emit({ action: 'UpdateMultigraph', payload: changes });
@@ -221,7 +210,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     selectLayoutTypeChange(event: any) {
         // console.log('SET LAYOUT TYPE CHANGE', event);
         this.FC_layout.setValue(event.value);
-        //this.widgetConfigMultigraph.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+        // this.widgetConfigMultigraph.updateValueAndValidity({ onlySelf: false, emitEvent: true });
     }
 
     selectCustomRows(event: any) {
