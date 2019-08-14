@@ -239,20 +239,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             if (this.multigraphEnabled) {
                                 // disable events and legend
                                 if (this.widget.settings.visual && this.widget.settings.visual.showEvents) {
-                                    this.interCom.requestSend({
-                                        id: this.widget.id,
-                                        action: 'SetShowEvents',
-                                        payload: {showEvents: false},
-                                    });
+                                    this.updateConfig({action: 'SetShowEvents', payload: {data: {showEvents: false}}});
                                 }
                                 if (this.widget.settings.legend && this.widget.settings.legend.display) {
                                     const legend = this.widget.settings.legend;
                                     legend.display = false;
-                                    this.interCom.requestSend({
-                                        id: this.widget.id,
-                                        action: 'SetLegend',
-                                        payload: {data: legend},
-                                    });
+                                    this.updateConfig({action: 'SetLegend', payload: {data: legend}});
                                 }
 
                                 this.multigraphMode = this.widget.settings.multigraph.layout;
