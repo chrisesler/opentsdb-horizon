@@ -223,6 +223,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             } else {
                 this.store.dispatch(new LoadDashboard(url[0].path));
             }
+            // remove system messages - TODO: when adding more apps, put this in app-shell and listen for router change.
+            this.interCom.requestSend({
+                action: 'clearSystemMessage',
+                payload: {}
+            });
         }));
         // setup navbar portal
         this.dashboardNavbarPortal = new TemplatePortal(this.dashboardNavbarTmpl, undefined, {});
