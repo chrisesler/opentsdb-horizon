@@ -29,7 +29,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     @HostBinding('class.multigraph-configuration') private _tabClass = true;
 
     @Input() widget: any = {};
-
+    @Input() isDataLoaded: boolean;
     /** Outputs */
     @Output() widgetChange = new EventEmitter();
 
@@ -40,7 +40,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     widgetTags = { rawWidgetTags: {}, totalQueries: 0, tags: [] };
     isWidgetTagsLoaded = false;
     isWidgetTagsLoaded$ = new Subject();
-
+    needRequery = true;
     tagKeyControlInput = new FormControl('');
 
     /** Form Group */
@@ -98,10 +98,6 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
         this.setupMultigraph();
     }
 
-    ngOnDestroy() {
-        this.subscription.unsubscribe();
-    }
-
     setupMultigraph() {
         // get widget tags
         this.getWidgetTagKeys();
@@ -155,21 +151,49 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
 
     setViewportDisplayValidators() {
 
+        // form changes for chart group
         this.subscription.add(
-            this.widgetConfigMultigraph.valueChanges
+            this.widgetConfigMultigraph.controls['chart'].valueChanges
                 .pipe(
-                    startWith(this.widgetConfigMultigraph.getRawValue()),
+                    startWith(''),
                     distinctUntilChanged(),
                     pairwise()
                 ).subscribe(([prev, changes]: [any, any]) => {
-                // console.log('cesler - chart table', prev, changes);
-                if (this.chartTable && !deepEqual(prev, changes)) {
+                    // console.log('hill - chart table', prev, changes);
+                    if (this.chartTable && !deepEqual(prev, changes)) {
+                        // console.log('hill - ', this.widgetConfigMultigraph.getRawValue());
+                        this.chartTable.renderRows();
+                        this.widgetChange.emit({
+                            action: 'UpdateMultigraph',
+                            payload: {
+                                from: 'chart',
+                                changes: this.widgetConfigMultigraph.getRawValue()
+                            }
+                        });
+                    }
+                })
+        );
 
-                    this.chartTable.renderRows();
-                    this.widgetChange.emit({ action: 'UpdateMultigraph', payload: changes });
-
-                }
-            })
+        // form change for viewport options
+        this.subscription.add(
+            this.widgetConfigMultigraph.controls['gridOptions'].valueChanges
+                .pipe(
+                    startWith(''),
+                    distinctUntilChanged(),
+                    pairwise()
+                ).subscribe(([prev, changes]: [any, any]) => {
+                    // console.log('hill - gridOptions', prev, changes);
+                    if (!deepEqual(prev, changes)) {
+                        // console.log('hill - ', this.widgetConfigMultigraph.getRawValue());
+                        this.widgetChange.emit({
+                            action: 'UpdateMultigraph',
+                            payload: {
+                                from: 'gridOptions',
+                                changes: this.widgetConfigMultigraph.getRawValue()
+                            }
+                        });
+                    }
+                })
         );
     }
 
@@ -214,11 +238,13 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     }
 
     selectCustomRows(event: any) {
-        this.FC_gridOpts_custom_x.setValue(event.value);
+        this.FC_gridOpts_custom_x.setValue(event.value, { emitEvent: false});
+        this.FC_gridOpts_viewportDisplay.setValue('custom');
     }
 
     selectCustomColumns(event: any) {
-        this.FC_gridOpts_custom_y.setValue(event.value);
+        this.FC_gridOpts_custom_y.setValue(event.value, { emitEvent: false});
+        this.FC_gridOpts_viewportDisplay.setValue('custom');
     }
 
     removeMultigraphTag(index: number) {
@@ -242,7 +268,6 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
             this.addTagKeyChartItem(this.widgetTags.tags[idx]);
             this.tagKeyControlInput.setValue('');
         }
-
     }
 
     onTagKeyInputFocus() {
@@ -309,6 +334,10 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
 
     get FC_gridOpts_custom_y() {
         return this.widgetConfigMultigraph.get('gridOptions').get('custom').get('y');
+    }
+
+    ngOnDestroy() {
+        this.subscription.unsubscribe();
     }
 
 }
