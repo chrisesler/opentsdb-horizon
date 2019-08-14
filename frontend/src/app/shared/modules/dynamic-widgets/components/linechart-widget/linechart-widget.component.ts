@@ -48,7 +48,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChildren('graphLegend', {read: ElementRef}) graphLegends: QueryList<ElementRef>;
 
     private subscription: Subscription = new Subscription();
-    private isDataLoaded = false;
+    isDataLoaded = false;
     private isStackedGraph = false;
     chartType = 'line';
 
@@ -123,12 +123,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     // TODO: These multigraph values need to be retrieved from widget settings
     multigraphEnabled = false;
     multigraphMode = 'grid'; // grid || freeflow
-    renderReady = false;
     fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // eventually remove this
     multigraphColumns: string[] = [];
     freeflowBreak = 1;
 
-    graphData: any = {};
+    graphData: any = {}; // { y: { x: { ts: [[0]] }}};
     graphRowLabelMarginLeft: 0;
 
 
@@ -280,8 +279,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'].options = this.options;
                             }
                             this.setMultigraphColumns(graphs);
-                            this.graphData = graphs;
-                            this.renderReady = true;
+                            this.graphData = {...graphs};
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
                                 environment.debugLevel.toUpperCase() === 'DEBUG' ||
                                 environment.debugLevel.toUpperCase() === 'INFO') {
@@ -331,9 +329,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
         // Timing issue? trying to move to afterViewInit
         this.setOptions();
-        setTimeout(() => {
-            this.renderReady = true;
-        }, 200);
     }
 
     ngAfterViewInit() {
@@ -504,10 +499,17 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.needRequery = message.payload.reQuery;
                 break;
             case 'UpdateMultigraph':
-                this.widget.settings.multigraph = message.payload;
+                this.widget.settings.multigraph = message.payload.changes;
                 this.multigraphMode = this.widget.settings.multigraph.layout;
-                this.refreshData();
-                this.needRequery = true; // todo: check if we need requery cases
+                // will depend on message.payload.from to handle requery or not
+                if (message.payload.from === 'gridOptions') {
+                    this.refreshData(false);
+                    this.needRequery = false;
+                } else {
+                    // come from chart x-y
+                    this.refreshData();
+                    this.needRequery = true;
+                }
                 break;
         }
     }
@@ -1099,7 +1101,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             return '-';
         }
         const config = this.options.series[index];
-        
         const format = config.axis === 'y' ? this.options.axes.y.tickFormat : this.options.axes.y2.tickFormat;
         const dunit = this.unit.getNormalizedUnit(value, format);
         return this.unit.convert(value, format.unit, dunit, format);
