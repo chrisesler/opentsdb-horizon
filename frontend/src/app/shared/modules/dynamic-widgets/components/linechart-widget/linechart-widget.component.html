@@ -63,7 +63,6 @@
                                         [options]="graphData[yKey][xKey].options"
                                         [eventBuckets]="buckets"
                                         [showEvents]="widget.settings.visual.showEvents"
-                                        [renderReady]="false"
                                         [multigraph]="multigraphEnabled"
                                         (dateWindow)="receivedDateWindow($event)"
                                         (zoomed)="handleZoom($event)">
@@ -167,7 +166,7 @@
         </mat-tab>
         <mat-tab label="Multigraph" [disabled]="editQueryId">
                 <ng-template matTabContent>
-                    <widget-config-multigraph [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-multigraph>
+                    <widget-config-multigraph [isDataLoaded]= "isDataLoaded" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-multigraph>
                 </ng-template>
         </mat-tab>
         <mat-tab label="Meta Data" [disabled]="editQueryId">
