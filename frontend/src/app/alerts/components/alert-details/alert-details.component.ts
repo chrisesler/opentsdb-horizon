@@ -607,6 +607,12 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.queries.splice(qindex, 1);
     }
 
+    deleteQueryMetric(qid, mid) {
+        const qindex = this.queries.findIndex(d => d.id === qid);
+        const mindex = this.queries[qindex].metrics.findIndex(d => d.id === mid);
+        this.queries[qindex].metrics.splice(mindex, 1);
+    }
+
     getNewQueryConfig() {
         const query: any = {
             id: this.utils.generateId(6, this.utils.getIDs(this.queries)),
@@ -1050,6 +1056,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 if ( this.queries.length === 0 ) {
                     this.addNewQuery();
                 }
+                this.reloadData();
+                break;
+            case 'DeleteQueryMetric':
+                this.deleteQueryMetric(message.id, message.payload.mid);
+                this.queries = this.utils.deepClone(this.queries);
                 this.reloadData();
                 break;
         }
