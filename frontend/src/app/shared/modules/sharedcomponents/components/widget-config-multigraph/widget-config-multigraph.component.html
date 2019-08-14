@@ -111,7 +111,7 @@
             </div>
         </div>
     </div>
-    <div class="config-control inline-controls">
+    <div class="config-control inline-controls" [ngStyle]="{ 'pointer-events': isDataLoaded ? 'initial' : 'none', 'opacity': isDataLoaded ? 1 : .5}">
         <label class="fixed-label">
             <strong>Display</strong>
         </label>
