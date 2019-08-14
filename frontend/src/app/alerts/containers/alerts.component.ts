@@ -118,6 +118,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     displayedColumns: string[] = [
         'select',
         'name',
+        'type',
         'alertGroupingRules',
         'contacts',
         'modified',
@@ -831,6 +832,19 @@ export class AlertsComponent implements OnInit, OnDestroy {
             return 'Email';
         }
         return '';
+    }
+
+    alertTypeToDisplayName(type: string) {
+        type = type.toLowerCase();
+        if (type === 'simple') {
+            return 'Metric';
+        } else if (type === 'healthcheck') {
+            return 'Health Check';
+        } else if (type === 'event') {
+            return 'Event';
+        } else {
+            return 'Unknown';
+        }
     }
 
     contactMenuEsc($event: any) {
