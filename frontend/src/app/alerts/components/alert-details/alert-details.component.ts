@@ -1035,7 +1035,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 // show threshold & notification section when metric is added first time
                 const metrics = this.utils.getAllMetrics(this.queries);
                 this.showDetail = this.showDetail === false ? metrics.length !== 0 : this.showDetail;
-                this.reloadData();
+                if (this.thresholdType !== 'healthCheck') { // no preview data for healthCheck
+                    this.reloadData();
+                }
                 this.setTags();
                 break;
             case 'CloneQuery':
