@@ -122,10 +122,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
         'alertGroupingRules',
         'contacts',
         'modified',
-        'counts.bad',
-        'counts.warn',
-        'counts.good',
-        'counts.snoozed',
+        // 'counts.bad',
+        // 'counts.warn',
+        // 'counts.good',
+        // 'counts.snoozed',
         // 'sparkline' // hidden for now
     ];
 
