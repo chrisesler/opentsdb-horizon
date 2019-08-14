@@ -121,7 +121,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     // MULTIGRAPH
     // TODO: These multigraph values need to be retrieved from widget settings
-    multigraphEnabled = true;
+    multigraphEnabled = false;
     multigraphMode = 'grid'; // grid || freeflow
     renderReady = false;
     fakeLoopData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // eventually remove this
@@ -237,6 +237,15 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
                             // this.multigraphEnabled = false;
                             if (this.multigraphEnabled) {
+                                // disable events and legend
+                                if (this.widget.settings.visual && this.widget.settings.visual.showEvents) {
+                                    this.updateConfig({action: 'SetShowEvents', payload: {data: {showEvents: false}}});
+                                }
+                                if (this.widget.settings.legend && this.widget.settings.legend.display) {
+                                    const legend = this.widget.settings.legend;
+                                    legend.display = false;
+                                    this.updateConfig({action: 'SetLegend', payload: {data: legend}});
+                                }
 
                                 this.multigraphMode = this.widget.settings.multigraph.layout;
 
@@ -918,7 +927,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     getEvents() {
-        if (this.widget.settings.visual.showEvents) {
+        if (this.widget.settings.visual.showEvents && !this.multigraphEnabled) {
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'getEventData',
