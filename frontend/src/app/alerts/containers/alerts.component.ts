@@ -709,7 +709,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     openEditMode(data: any) {
         if ( this.detailsMode === 'clone') {
             data.id = '';
-            data.name = 'Clone of ' + data.name + ' at ' + Date.now();
+            const nowInMillis = Date.now();
+            data.name = 'Clone of ' + data.name + ' on ' + this.utils.buildDisplayTime(nowInMillis, 0, nowInMillis, true);
         }
         this.configurationEditData = data;
         this.detailsView = true;
