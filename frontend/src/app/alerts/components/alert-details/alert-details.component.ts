@@ -602,8 +602,10 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     deleteQueryMetric(qid, mid) {
         const qindex = this.queries.findIndex(d => d.id === qid);
-        const mindex = this.queries[qindex].metrics.findIndex(d => d.id === mid);
-        this.queries[qindex].metrics.splice(mindex, 1);
+        if (this.queries[qindex]) {
+            const mindex = this.queries[qindex].metrics.findIndex(d => d.id === mid);
+            this.queries[qindex].metrics.splice(mindex, 1);
+        }
     }
 
     getNewQueryConfig() {
