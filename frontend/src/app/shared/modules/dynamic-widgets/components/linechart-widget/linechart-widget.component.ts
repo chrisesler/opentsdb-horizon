@@ -253,7 +253,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 this.graphRowLabelMarginLeft = 0;
 
                                 // fill out tag values from rawdata
-                                const results = this.multiService.fillMultiTagValues(multiConf, rawdata);
+                                const results = this.multiService.fillMultiTagValues(this.widget, multiConf, rawdata);
                                 graphs = this.utilService.deepClone(results);
                                 // we need to convert to dygraph for these multigraph
                                 for (const ykey in results) {
