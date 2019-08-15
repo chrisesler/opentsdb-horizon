@@ -6,6 +6,8 @@
     $default-padding: map-get($widgets-common-config, default-padding);
 
     .widget-config-tab.general-configuration {
+        padding-left: 10px;
+        padding-top: 5px;
 
         margin-top: ($default-padding * 2);
         
