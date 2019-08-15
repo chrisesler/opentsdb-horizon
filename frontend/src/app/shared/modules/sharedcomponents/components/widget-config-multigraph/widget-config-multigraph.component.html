@@ -106,7 +106,7 @@
                     </span>
                 </mat-form-field>
                 <mat-autocomplete #widgetTagAuto="matAutocomplete" (optionSelected)="tagKeyOptionSelected($event)">
-                    <mat-option *ngFor="let option of widgetTags.tags" [value]="option">{{option}}</mat-option>
+                    <mat-option *ngFor="let option of widgetTagOptions()" [value]="option">{{option}}</mat-option>
                 </mat-autocomplete>
             </div>
         </div>

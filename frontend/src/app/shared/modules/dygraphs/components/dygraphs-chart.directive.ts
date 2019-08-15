@@ -36,7 +36,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     public labelsDiv: any;
     /* Commenting out for now
         will be part of next PR that will improve tooltip movement*/
-    public firstTickHighlight = false; 
+    public firstTickHighlight = false;
 
     constructor(
         private element: ElementRef,
@@ -61,14 +61,8 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 // this.element.nativeElement.parentNode.appendChild(this.labelsDiv);
                 parent.appendChild(this.labelsDiv);
             }
-            this.labelsDiv.addEventListener('mouseover', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            });
 
             this.options.labelsDiv = this.labelsDiv;
-        } else {
-            this.labelsDiv = this.options.labelsDiv;
         }
 
         /* part of coming pr change*/
@@ -282,7 +276,9 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                             if (hasData) {
                                 setHeatmapLegend(event, g, ts, bucket);
                             } else {
-                                labelsDiv.style.display = 'none';
+                                if (labelsDiv) {
+                                    labelsDiv.style.display = 'none';
+                                }
                             }
 
                             if (cx >= plotArea.x && cy <= plotArea.h) {
@@ -366,7 +362,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     @HostListener('mousemove', ['$event'])
     onMouseMove(event: any) {
 
-        if (this.firstTickHighlight) {
+        if (this.firstTickHighlight && this.labelsDiv) {
             const tooltip = this.labelsDiv;
             tooltip.style.display = 'block';
 
