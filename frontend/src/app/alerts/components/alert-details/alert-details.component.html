@@ -47,7 +47,6 @@
                      <button mat-button color="primary" (click)="viewMode = 'view'">view mode</button>
                 </div>-->
             </mat-toolbar>
-            <div class="error" *ngIf="data.error"> {{ data.error.message }} </div>
             <div class="alert-control-steps has-scroller">
                 <div class="is-scroller">
                     <div class="step-section queries-section is-visible">
@@ -525,7 +524,6 @@
                 </div>
                 <span class="flex-spacer"></span>
             </mat-toolbar>
-            <div class="error" *ngIf="data.error"> {{ data.error.message }} </div>
             <div class="alert-control-steps has-scroller">
                 <div class="is-scroller">
                     <div class="step-section threshold-section is-visible" formGroupName="threshold">
@@ -716,7 +714,6 @@
                      <button mat-button color="primary" (click)="viewMode = 'edit'">edit alert</button>
                 </div>
             </mat-toolbar>
-            <div class="error" *ngIf="data.error"> {{ data.error.message }} </div>
             <div class="alert-control-steps has-scroller">
                 <div class="is-scroller">
                     <div class="step-section queries-section is-visible" *ngIf="['simple', 'healthcheck'].includes(data.type)">

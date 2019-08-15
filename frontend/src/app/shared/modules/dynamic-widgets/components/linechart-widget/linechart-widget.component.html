@@ -47,11 +47,6 @@
                                 [style.width.px]="(!multigraphEnabled) ? size.width + legendWidth : size.width"
                                 [style.height.px]="(!multigraphEnabled) ? size.height + legendHeight : (multigraphEnabled && multigraphMode === 'freeflow') ? size.height + 15 : size.height"
                                 [style.maxWidth]="(multigraphEnabled && multigraphMode === 'freeflow') ? size.width + 'px' : 'initial'">
-                                <!--grid-cell-[{{i}},{{j}}]
-                                <ng-container *ngTemplateOutlet="graphRender;context:(getGraphTemplateContext(graphData[yKey][xKey],{yKey:yKey,xKey:xKey,yIdx:i,xIdx:j}))"></ng-container>
-                                <div class="graph-header" *ngIf="multigraphEnabled && yKey !== 'y' && multigraphMode === 'grid'">
-                                    <span>{{yKey}}</span>
-                                </div>-->
                                 <div class="graph-header" *ngIf="multigraphEnabled && multigraphMode === 'freeflow'">
                                     <div class="graph-header-inner">
                                         <span>{{(yKey !== 'y') ? yKey + ': ' : ''}}{{xKey}}</span>
@@ -69,7 +64,6 @@
                                         [options]="graphData[yKey][xKey].options"
                                         [eventBuckets]="buckets"
                                         [showEvents]="widget.settings.visual.showEvents"
-                                        [renderReady]="false"
                                         [multigraph]="multigraphEnabled"
                                         (dateWindow)="receivedDateWindow($event)"
                                         (zoomed)="handleZoom($event)">
@@ -165,12 +159,15 @@
         </mat-tab>-->
         <mat-tab label="Legend" [disabled]="editQueryId">
                 <ng-template matTabContent>
-                    <widget-config-legend [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-legend>
+                    <widget-config-legend *ngIf="!multigraphEnabled" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-legend>
+                    <div *ngIf="multigraphEnabled" class="disabled-message">
+                        Legend <b>disabled</b> with multiple graphs.
+                    </div>
                 </ng-template>
         </mat-tab>
         <mat-tab label="Multigraph" [disabled]="editQueryId">
                 <ng-template matTabContent>
-                    <widget-config-multigraph [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-multigraph>
+                    <widget-config-multigraph [isDataLoaded]= "isDataLoaded" [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-multigraph>
                 </ng-template>
         </mat-tab>
         <mat-tab label="Meta Data" [disabled]="editQueryId">
@@ -180,11 +177,15 @@
         </mat-tab>
         <mat-tab label="Events" class="events" [disabled]="editQueryId">
                 <ng-template matTabContent class="events">
-                    <div class="events-config">
+                    <div class="events-config" *ngIf="!multigraphEnabled">
                         <widget-config-events [widget]="widget" (widgetChange)="updateConfig($event);"></widget-config-events>
                         <div *ngIf="widget.settings.visual.showEvents" class="event-result-title"> Preview </div>
                         <event-list *ngIf="widget.settings.visual.showEvents" class="events-list" [events]="events" [timezone]="timezone" [startTime]="startTime" [endTime]="endTime" [previewLimit]="previewEventsCount">
                         </event-list>
+                    </div>
+
+                    <div *ngIf="multigraphEnabled" class="disabled-message">
+                        Events <b>disabled</b> with multiple graphs.
                     </div>
                 </ng-template>
         </mat-tab>

@@ -16,8 +16,6 @@ export class MultigraphService {
     let yCombine = [];
     const lookupData = {};
     const results = {};
-    // const xValues = [];
-    // const yValues = [];
     for (let i = 0; i < rawdata.results.length; i++) {
       const dataSrc = rawdata.results[i];
       if (dataSrc.source && dataSrc.source.indexOf('summarizer:') === -1) {
@@ -28,30 +26,25 @@ export class MultigraphService {
           const tagKeys = Object.keys(tags);
           for ( let k = 0; k < tagKeys.length; k++ ) {
             const key = tagKeys[k];
+            const tagValue = key === 'metric_group' ? tags[key] : tags[key].toLowerCase();
             if ( multiConf.x && x.indexOf(key) !== -1 ) {
-              x = x.replace('{{' + key + '}}', tags[key]);
-              if (multiConf.x[key] && !multiConf.x[key].includes(tags[key])) {
-                multiConf.x[key].push(tags[key]);
+              x = x.replace('{{' + key + '}}', tagValue);
+              if (multiConf.x[key] && !multiConf.x[key].includes(tagValue)) {
+                multiConf.x[key].push(tagValue);
               }
             }
             if ( multiConf.y && y.indexOf(key) !== -1 ) {
-              y = y.replace('{{' + key + '}}', tags[key]);
-              if (!multiConf.y[key].includes(tags[key])) {
-                multiConf.y[key].push(tags[key]);
+              y = y.replace('{{' + key + '}}', tagValue);
+              if (multiConf.y[key] && !multiConf.y[key].includes(tagValue)) {
+                multiConf.y[key].push(tagValue);
               }
             }
           }
           // console.log("series" + j , "x="+x, "y="+y );
           if ( !lookupData[y] ) {
-            /* if ( !yValues.includes(y)) {
-              yValues.push(y);
-            } */
             lookupData[y] = {};
           }
           if ( !lookupData[y][x] ) {
-            /* if ( !xValues.includes( x)) {
-              xValues.push(x);
-            } */
             lookupData[y][x] = {
               results: [{
                 source: dataSrc.source,

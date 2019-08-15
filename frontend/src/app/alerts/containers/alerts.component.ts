@@ -445,6 +445,17 @@ export class AlertsComponent implements OnInit, OnDestroy {
             if ( this.list === 'snooze' && this.snoozeDetailsComp ) {
                 this.snoozeDetailsComp.data.error = error;
             }
+
+            if (error && error.message) {
+                // set system message bar
+                this.interCom.requestSend({
+                    action: 'systemMessage',
+                    payload: {
+                        type: 'error',
+                        message: 'Saving Error: ' + error.message
+                    }
+                });
+            }
         }));
 
 
@@ -542,6 +553,10 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     setNavbarPortal() {
+        this.interCom.requestSend({
+            action: 'clearSystemMessage',
+            payload: {}
+        });
         this.cdkService.setNavbarPortal(this.alertspageNavbarPortal);
     }
 
@@ -681,6 +696,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
     }
 
     createAlert(type: string) {
+        this.detailsMode = 'edit';
         const data = {
             type: type,
             namespace: this.selectedNamespace,
@@ -693,7 +709,8 @@ export class AlertsComponent implements OnInit, OnDestroy {
     openEditMode(data: any) {
         if ( this.detailsMode === 'clone') {
             data.id = '';
-            data.name = 'Clone of ' + data.name;
+            const nowInMillis = Date.now();
+            data.name = 'Clone of ' + data.name + ' on ' + this.utils.buildDisplayTime(nowInMillis, 0, nowInMillis, true);
         }
         this.configurationEditData = data;
         this.detailsView = true;
