@@ -35,8 +35,8 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
     public labelsDiv: any;
     /* Commenting out for now
-        will be part of next PR that will improve tooltip movement
-    public firstTickHighlight = false; */
+        will be part of next PR that will improve tooltip movement*/
+    public firstTickHighlight = false; 
 
     constructor(
         private element: ElementRef,
@@ -51,76 +51,41 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         // by default the labelsDiv is an empty object as defined any in interface
         // enforce to init labelsDiv if not there
         if (!(this.options.labelsDiv && Object.keys(this.options.labelsDiv).length > 0)) {
-            const parent = this.element.nativeElement.parentNode;
+            const parent = this.element.nativeElement.closest('.widget-output');
             const legendCheck = parent.querySelector('.dygraph-legend');
             if (legendCheck) {
                 this.labelsDiv = legendCheck;
             } else {
                 this.labelsDiv = document.createElement('div');
                 this.labelsDiv.classList.add('dygraph-legend');
-                this.element.nativeElement.parentNode.appendChild(this.labelsDiv);
+                // this.element.nativeElement.parentNode.appendChild(this.labelsDiv);
+                parent.appendChild(this.labelsDiv);
             }
+            this.labelsDiv.addEventListener('mouseover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
             this.options.labelsDiv = this.labelsDiv;
+        } else {
+            this.labelsDiv = this.options.labelsDiv;
         }
 
-        /* part of coming pr change
+        /* part of coming pr change*/
         if (!this.options.hasOwnProperty('hideOverlayOnMouseOut ')) {
             this.options.hideOverlayOnMouseOut = false;
-        }*/
+        }
 
 
         const self = this;
         const mouseover = function (event, x, pts, row) {
 
             /* Commenting out for now
-                will be part of next PR that will improve tooltip movement
+                will be part of next PR that will improve tooltip movement*/
             if (!self.firstTickHighlight) {
                 self.firstTickHighlight = true;
-            }*/
-            // console.log('MOUSEOVER ', this.user_attrs_);
-            const labelsDiv = this.user_attrs_.labelsDiv;
-            // widget output element
-            let wrapperEl;
-            if (self.multigraph) {
-                wrapperEl = labelsDiv.closest('.graph-cell');
-            } else {
-                wrapperEl = labelsDiv.closest('.multigraph-output');
-            }
-            // const widgetOutputEl = labelsDiv.closest('.multigraph-output');
-            // widget output el size
-            const wrapperSize = wrapperEl.getBoundingClientRect();
-
-            labelsDiv.style.display = 'block';
-            let xOffset = 0;
-            let yOffset = 0;
-            const labelDivWidth = labelsDiv.clientWidth;
-            const labelDivHeight = labelsDiv.clientHeight;
-
-            // edge detection
-            // TODO: working on top detection in scrollable portion of widget
-            if (event.clientX > (window.innerWidth - (labelDivWidth + 10))) {
-                xOffset = - (labelDivWidth + 10);
-            }
-            if (
-                (event.clientY > (window.innerHeight - (labelDivHeight + 30))) ||
-                (wrapperSize.height - event.offsetY) < (labelDivHeight + 30)
-            ) {
-                yOffset = - (labelDivHeight + 60);
             }
 
-
-            // set styles
-            labelsDiv.style.left = (event.offsetX + xOffset) + 'px';
-            labelsDiv.style.top = (event.offsetY + yOffset) + 'px';
-            /*console.log(
-                '%cTIP MOVE',
-                'color: white; font-weight: bold; background: mediumpurple; padding: 3px;',
-                {
-                    event, x, pts, row,
-                    pscrollTop: (parentEl) ? parentEl.scrollTop : null,
-                    pscrollLeft: (parentEl) ? parentEl.scrollLeft : null,
-                    psize: (parentEl) ? parentEl.getBoundingClientRect() : null
-                });*/
         };
 
         // needed to capture start and end times
@@ -391,27 +356,89 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         }
     }
     /* Commenting out for now
-        will be part of next PR that will improve tooltip movement
+        will be part of next PR that will improve tooltip movement*/
     @HostListener('mouseenter', ['$event'])
     onMouseEnter(event: any) {
-        console.log('MOUSE ENTER', event);
+        // reset tick highlight
         this.firstTickHighlight = false;
     }
 
     @HostListener('mousemove', ['$event'])
     onMouseMove(event: any) {
-        console.log('MOUSE MOVE', event);
+
         if (this.firstTickHighlight) {
-            this.labelsDiv.style.display = 'block';
+            const tooltip = this.labelsDiv;
+            tooltip.style.display = 'block';
+
+            // scroll containers
+            const widgetScrollContainer = tooltip.closest('.widget-output').querySelector('.multigraph-output');
+            // const dbScrollContainer = tooltip.closets('.gridster-stage').querySelector('.is-scroller');
+
+            // widget output element
+            let wrapperEl;
+            if (this.multigraph) {
+                wrapperEl = tooltip.closest('.widget-output').querySelector('.graph-cell');
+            } else {
+                wrapperEl = widgetScrollContainer;
+            }
+
+            // widget output el size
+            const wrapperSize = wrapperEl.getBoundingClientRect();
+
+            const coords = {
+                top: (event.clientY - wrapperSize.top) - widgetScrollContainer.scrollTop,
+                left: (event.clientX - wrapperSize.left) - widgetScrollContainer.scrollLeft
+            };
+
+            let xOffset = 0;
+            let yOffset = 0;
+
+            const tooltipSize = {
+                width: tooltip.clientWidth,
+                height: tooltip.clientHeight
+            };
+
+            // scroll container edge detection
+
+            // if close to the right edge, put it left of the cursor
+            if (coords.left > (wrapperSize.width - (tooltipSize.width - 30))) {
+                xOffset = - (tooltipSize.width + 10);
+                // check if it goes off the left edge of scrollContainer, then put back on right of cursor
+                if ((((coords.left + xOffset) - widgetScrollContainer.scrollLeft) + (xOffset)) < 0) {
+                    xOffset = 15;
+                }
+            } else {
+                // just ensure it is offset from cursor
+                xOffset = 15;
+            }
+
+            // if close to bottom edge, put it above the cursor
+            if (coords.top > (wrapperSize.height - (tooltipSize.height - 30))) {
+                yOffset = - (tooltipSize.height + 10);
+                // check if it goes off the top edge of scrollContainer, then put back below cursor
+                if ((((coords.top + yOffset) - widgetScrollContainer.scrollTop) + (yOffset)) < 0) {
+                    yOffset = 15;
+                }
+                // TODO: check if goes off bottom of dashboardScrollContainer
+                // i.e. scrolled down dashboard maybe half way, and hover over graph near bottom
+                // tooltip might go below the scroll. Need to detect so it can adjust. figure out the math
+            } else {
+                // just ensure it is offset from cursor
+                yOffset = 15;
+            }
+
+            // set styles
+            tooltip.style.left = (coords.left + xOffset) + 'px';
+            tooltip.style.top = (coords.top + yOffset) + 'px';
+
         }
     }
 
     @HostListener('mouseleave', ['$event'])
     onMouseLeave(event: any) {
-        console.log('MOUSE LEAVE', event);
         this.labelsDiv.style.display = 'none';
         this.firstTickHighlight = false;
-    }*/
+    }
 
     ngOnDestroy() {
 
