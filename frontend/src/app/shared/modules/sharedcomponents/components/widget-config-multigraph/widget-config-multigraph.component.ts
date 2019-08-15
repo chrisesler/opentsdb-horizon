@@ -197,6 +197,11 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
         );
     }
 
+    widgetTagOptions() {
+        const chartItems: string[] = this.widgetConfigMultigraph.getRawValue().chart.map(item => item.key);
+        return this.widgetTags.tags.filter(tag => !chartItems.includes(tag));
+    }
+
     addChartItem(data: any) {
         const chartItem = this.fb.group(data);
         const control = <FormArray>this.FC_chart;
