@@ -141,6 +141,8 @@ $widgets-common-config: (
                 //padding: $default-padding $edit-view-padding;
                 //padding-top: $default-padding;
                 display: flex;
+                position: relative;
+                overflow: auto;
             }
 
             // NOTE: The actual config tab content styles are located under sharedcomponents module
