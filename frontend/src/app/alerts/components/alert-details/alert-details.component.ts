@@ -10,13 +10,10 @@ import {
     Output,
     Input
 } from '@angular/core';
-
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, FormsModule, NgForm } from '@angular/forms';
 import { ElementQueries, ResizeSensor} from 'css-element-queries';
-
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent, MatTableDataSource } from '@angular/material';
-
 import {
     MatDialog,
     MatDialogConfig,
@@ -25,7 +22,6 @@ import {
 
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime, skip } from 'rxjs/operators';
-
 import { NameAlertDialogComponent } from '../name-alert-dialog/name-alert-dialog.component';
 import { IDygraphOptions } from '../../../shared/modules/dygraphs/IDygraphOptions';
 import { QueryService } from '../../../core/services/query.service';
@@ -39,9 +35,7 @@ import { IntercomService } from '../../../core/services/intercom.service';
 import { AlertConverterService } from '../../services/alert-converter.service';
 import { CdkService } from '../../../core/services/cdk.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
-
 import { TemplatePortal } from '@angular/cdk/portal';
-import * as d3 from 'd3';
 
 @Component({
 // tslint:disable-next-line: component-selector
@@ -215,10 +209,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         'modifiers'
     ];
 
-    events:any = [];
+    events: any = [];
     startTime;
     endTime;
     alertspageNavbarPortal: TemplatePortal;
+    alertEvaluationLink: string;
 
     doEventQuery$ = new BehaviorSubject(['list', 'count']);
     eventQuery: any = { namespace: '', search: ''};
@@ -248,8 +243,6 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         this.cdkService.setNavbarPortal(this.alertspageNavbarPortal);
 
         this.options.labelsDiv = this.dygraphLegend.nativeElement;
-
-
         this.subscription.add(this.doEventQuery$
             .pipe(
                 skip(1),
@@ -274,6 +267,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 this.setupEventForm(this.data);
                 break;
         }
+        this.setAlertEvaluationLink();
     }
 
     ngOnDestroy() {
@@ -281,7 +275,6 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     ngAfterContentInit() {
-
         ElementQueries.listen();
         ElementQueries.init();
         const resizeSensor = new ResizeSensor(this.elRef.nativeElement, (size) => {
@@ -690,6 +683,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 } else if ( this.data.type === 'simple' ) {
                     this.reloadData();
                 }
+                this.setAlertEvaluationLink();
                 break;
         }
     }
@@ -1353,9 +1347,15 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         return types[type];
     }
 
-    getSplunkLink() {
-        return 'https://logs.yms.yahoo.com:9999/splunk/en-US/app/search/search?q=search%20index%3Dcorona-alerts%20alert_id%3D'
-        + this.data.id;
+    setAlertEvaluationLink() {
+        // tslint:disable-next-line:max-line-length
+        let url = 'https://logs.yms.yahoo.com:9999/splunk/en-US/app/search/search?q=search%20index%3Dcorona-alerts%20alert_id%3D' + this.data.id;
+        if (this.startTime && this.endTime) {
+            const start =  Math.floor(this.dateUtil.timeToMoment(this.startTime, 'local').valueOf() / 1000);
+            const end =  Math.floor(this.dateUtil.timeToMoment(this.endTime, 'local').valueOf() / 1000);
+            url = url + '%20earliest%3D' + start + '%20latest%3D' + end;
+        }
+        this.alertEvaluationLink = url;
     }
 
     /** Privates */

@@ -39,7 +39,7 @@
                         </button>-->
                     </div>
                     <div class="splunk-link" *ngIf="data.id">
-                        <a [href]="getSplunkLink()" target="_blank">View Alert History</a>
+                        <a [href]="alertEvaluationLink" target="_blank">View Alert History</a>
                     </div>
                 </div>
                 <span class="flex-spacer"></span>
@@ -706,7 +706,7 @@
                         </div>
                     </div>
                     <div class="splunk-link" *ngIf="data.id">
-                        <a [href]="getSplunkLink()" target="_blank">View Alert History</a>
+                        <a [href]="alertEvaluationLink" target="_blank">View Alert History</a>
                     </div>
                 </div>
                 <span class="flex-spacer"></span>
