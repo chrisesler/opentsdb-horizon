@@ -905,12 +905,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     setLegendDiv() {
-        if (this.multigraphEnabled) {
-            this.options.labelsDiv = {};
-        } else {
+        // if (this.multigraphEnabled) {
+        //    this.options.labelsDiv = {};
+        // } else {
             this.options.labelsDiv = (this.dygraphLegend) ? this.dygraphLegend.nativeElement : {};
             this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
-        }
+        // }
     }
 
     setDefaultEvents() {
@@ -1276,6 +1276,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.graphRowLabelMarginLeft = event.target.scrollLeft;
     }
 
+    /* ON DESTROY */
     ngOnDestroy() {
         this.subscription.unsubscribe();
         this.newSizeSub.unsubscribe();
