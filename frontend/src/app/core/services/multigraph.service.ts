@@ -7,6 +7,11 @@ export class MultigraphService {
 
   constructor() { }
 
+  // this will based on widget config
+  filterRawData(rawdata: any, widgetConf: any) {
+
+  }
+
   // fill up tag values from rawdata
   fillMultiTagValues(multiConf: any, rawdata: any): any {
     // console.log('hill - rawdata', rawdata);

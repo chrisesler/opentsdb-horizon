@@ -232,6 +232,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             // render multigraph or not is here
                             let graphs = {};
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
+                            console.log('hill - multiconf', multiConf);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
 
                             // this.multigraphEnabled = false;
