@@ -572,7 +572,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             let grawdata = {};
             if (result !== undefined) {
                 if (result.rawdata !== undefined && !result.rawdata.error) {
-                    grawdata = result.rawdata;
+                    grawdata = this.utilService.deepClone(result.rawdata);
                 } else if (result.rawdata !== undefined) {
                     error = result.rawdata.error;
                 }

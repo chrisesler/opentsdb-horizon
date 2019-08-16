@@ -235,7 +235,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             let graphs = {};
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
-
                             // this.multigraphEnabled = false;
                             if (this.multigraphEnabled) {
                                 // disable events and legend
@@ -252,7 +251,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
                                 // result graphRowLabelMarginLeft since we have new data
                                 this.graphRowLabelMarginLeft = 0;
-
                                 // fill out tag values from rawdata
                                 const results = this.multiService.fillMultiTagValues(this.widget, multiConf, rawdata);
                                 graphs = this.utilService.deepClone(results);
@@ -281,7 +279,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'].options = this.options;
                             }
                             // limit the total graph to around 100
-                            const maxGraphs = 24;
+                            const maxGraphs = 50;
                             const rowKeys = this.getGraphDataObjectKeys(graphs);
                             const colKeys = rowKeys.length ? this.getGraphDataObjectKeys(graphs[rowKeys[0]]) : [];
                             const maxCols = colKeys.length <= maxGraphs ? colKeys.length : maxGraphs;
@@ -317,14 +315,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 environment.debugLevel.toUpperCase() === 'INFO') {
                                     this.debugData = rawdata.log; // debug log
                             }
-                            setTimeout(() => {
+                            // comment out time out, cause delay
+                            // setTimeout(() => {
                                 this.setSize();
                                 this.setOptions();
-                            });
+                            // });
                             if (!this.multigraphEnabled) {
                                 this.refreshLegendSource();
                             }
-
                             this.cdRef.detectChanges();
 
                         }
@@ -535,7 +533,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.multigraphMode = this.widget.settings.multigraph.layout;
                 // will depend on message.payload.requery to handle requery or not
                 if (message.payload.requery) {
-                    this.refreshData();
+                    this.doRefreshData$.next(true);
                     this.needRequery = true;
                 } else {
                     this.refreshData(false);
@@ -576,26 +574,26 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         let widthOffset = 0;
         let heightOffset = 0;
         let labelLen = 0;
-        for ( const i in this.options.series ) {
+        for (const i in this.options.series) {
             if (this.options.series.hasOwnProperty(i)) {
-            labelLen = labelLen < this.options.series[i].label.length ? this.options.series[i].label.length : labelLen ;
+                labelLen = labelLen < this.options.series[i].label.length ? this.options.series[i].label.length : labelLen;
             }
         }
         if (legendSettings.display &&
-                                    ( legendSettings.position === 'left' ||
-                                    legendSettings.position === 'right' ) ) {
+            (legendSettings.position === 'left' ||
+                legendSettings.position === 'right')) {
             widthOffset = 10 + labelLen * 6.5 + 60 * legendColumns;
         }
 
-        if ( legendSettings.display &&
-                                    ( legendSettings.position === 'top' ||
-                                    legendSettings.position === 'bottom' ) ) {
+        if (legendSettings.display &&
+            (legendSettings.position === 'top' ||
+                legendSettings.position === 'bottom')) {
             heightOffset = newSize.height * .25;
             heightOffset = heightOffset <= 80 ? 80 : heightOffset;
         }
 
         if (this.editMode) {
-            let titleSize = {width: 0, height: 0};
+            let titleSize = { width: 0, height: 0 };
             if (this.widgetTitle) {
                 titleSize = this.widgetTitle.nativeElement.getBoundingClientRect();
             }
@@ -606,7 +604,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 nHeight = nHeight - 45;
             }
 
-            nWidth = newSize.width - widthOffset  - (padding * 2) - 30;
+            nWidth = newSize.width - widthOffset - (padding * 2) - 30;
         } else {
             padding = 10; // 10px on the top
             const paddingSides = 1;
@@ -617,11 +615,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             // nWidth = newSize.width - widthOffset  - (padding * 2);
-            nWidth = newSize.width - widthOffset  - paddingSides;
+            nWidth = newSize.width - widthOffset - paddingSides;
         }
 
-        // TODO: need to figure out how to calculate a size if this is a multigraph render
-        // Not sure this is best place to determine size... might need helper function
         if (this.multigraphEnabled && this.widget.settings.multigraph) {
             const multigraphSettings = this.widget.settings.multigraph;
 
@@ -656,39 +652,17 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 tHeight = (nHeight / ((rowCount < 3) ? rowCount : 3)) - (paddingOffset + rowHeaderOffset);
 
                 // calculate grid header offset
-                //tHeight = tHeight - (gridHeaderOffset / ((rowCount > 3) ? 3 : rowCount));
                 if (colCount > 3) {
                     tHeight = tHeight - (gridHeaderOffset / ((rowCount > 3) ? 3 : rowCount));
                 }
 
                 if (rowCount === 1 && rowKeys[0] === 'y') {
                     tHeight = tHeight - gridHeaderOffset;
-                    // this.logger.log('ONLY A SINGLE ROW, NO ROW LABEL');
                 }
 
                 if (this.multigraphMode === 'freeflow') {
-                    //tWidth = tWidth - (paddingOffset / ((colCount < 3) ? colCount : 3));
                     tHeight = tHeight + gridHeaderOffset + paddingOffset;
                 }
-
-                /*if (rowCount === 1 && colKeys[0] !== 'x') {
-                    tHeight = tHeight - gridHeaderOffset;
-                    this.logger.ng('[FIT] SINGLE ROW / MULTIPLE COLUMNS', {tWidth, tHeight});
-                // } else if (rowCount > 1 && rowCount <= 3) {
-                } else if (rowCount > 1) {
-                    tHeight = tHeight - (gridHeaderOffset / ((rowCount > 3) ? 3 : rowCount));
-                    this.logger.ng('[FIT] MULTIPLE ROWS ', {tWidth, tHeight});
-                }*/
-
-                // this.legendWidth = !widthOffset ? tWidth + 'px' : widthOffset + 'px';
-                // this.legendHeight = !heightOffset ? tHeight + 'px' : heightOffset + 'px';
-
-                // this.size = {width: tWidth, height: tHeight };
-                // this.logger.log('FIT SIZE', {tWidth, tHeight, multigraphSettings});
-                // console.log('MULTIGRAPH FIT', this.size);
-
-            // Otherwise, it is a custom fit
-            // multigraphSettings.gridOptions.viewportDisplay === 'custom'
             } else {
                 const customY = multigraphSettings.gridOptions.custom.y;
                 let customX = multigraphSettings.gridOptions.custom.x;
@@ -712,30 +686,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 }
 
                 if (this.multigraphMode === 'freeflow') {
-                    //console.log('freeflow custom tweak');
-                    //tWidth = tWidth - (paddingOffset / ((colCount < customY) ? colCount : customY));
                     tHeight = tHeight + gridHeaderOffset + paddingOffset;
                 }
-
-                /*if (rowCount === 1 && colKeys[0] !== 'x') {
-                    tHeight = tHeight - gridHeaderOffset;
-                    this.logger.ng('[CUSTOM] SINGLE ROW / MULTIPLE COLUMNS', {tWidth, tHeight});
-                // } else if (rowCount > 1 && rowCount <= customX) {
-                } else if (rowCount > 1) {
-                    tHeight = tHeight - (gridHeaderOffset / ((rowCount > customX) ? customX : rowCount));
-                    this.logger.ng('[CUSTOM] MULTIPLE ROWS ', {tWidth, tHeight});
-                }*/
-
-                //.log('CUSTOM SIZE', {tWidth, tHeight, multigraphSettings});
 
             }
 
             // do we ned a minimum size?
             // minimum size is 200x100
-            this.size = {width: ((tWidth >= 200) ? tWidth : 200), height: ((tHeight >= 100) ? tHeight : 100) };
-            // this.size = {width: tWidth, height: tHeight };
-            //console.log('MULTIGRAPH SIZE', this.size);
-
+            this.size = { width: ((tWidth >= 200) ? tWidth : 200), height: ((tHeight >= 100) ? tHeight : 100) };
             this.legendWidth = !widthOffset ? this.size.width + 'px' : widthOffset + 'px';
             this.legendHeight = !heightOffset ? this.size.height + 'px' : heightOffset + 'px';
         } else {
@@ -744,17 +702,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             this.legendHeight = !heightOffset ? nHeight + 'px' : heightOffset + 'px';
 
             this.size = { width: nWidth, height: nHeight };
-            //console.log('NOT MULTIGRAPH SIZE', this.size);
         }
-
-
-
-
         // Canvas Width resize
         this.eventsWidth = nWidth - 55;
 
         // after size it set, tell Angular to check changes
-        this.cdRef.detectChanges();
+        // this.cdRef.detectChanges();
     }
 
     setTimezone(timezone) {
