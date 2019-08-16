@@ -755,8 +755,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.isDbTagsLoaded$.next(reloadData);
         },
             error => {
-                this.isDbTagsLoaded = true;
-                this.isDbTagsLoaded$.next(true);
+                this.isDbTagsLoaded = reloadData;
+                this.isDbTagsLoaded$.next(reloadData);
             });
     }
 
