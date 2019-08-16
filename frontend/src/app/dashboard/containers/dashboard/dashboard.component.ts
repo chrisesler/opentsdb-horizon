@@ -784,7 +784,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // make sure we modify the copy for tsdb query
         const payload = this.utilService.deepClone(message.payload);
         // tslint:disable-next-line:max-line-length
-        const groupby = payload.settings.multigraph ? payload.settings.multigraph.chart.filter(d=> d.key !== 'metric_group' && d.displayAs !== 'g').map(d => d.key) : [];
+        // const groupby = payload.settings.multigraph ? payload.settings.multigraph.chart.filter(d=> d.key !== 'metric_group' && d.displayAs !== 'g').map(d => d.key) : [];
+        const groupby = payload.settings.multigraph ?
+            payload.settings.multigraph.chart.filter(d=> d.key !== 'metric_group').map(d => d.key) : [];
         const dt = this.getDashboardDateRange();
         this.checkDbTagsLoaded().subscribe(loaded => {
             if (payload.queries.length) {
