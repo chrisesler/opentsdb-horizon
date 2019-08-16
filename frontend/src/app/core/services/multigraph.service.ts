@@ -1,23 +1,35 @@
 import { Injectable } from '@angular/core';
+import { UtilsService } from './utils.service';
+import { WidgetConfigAlertsComponent } from '../../shared/modules/sharedcomponents/components';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MultigraphService {
 
-  constructor() { }
+  REGDSID = /q?(\d+)?_?(m|e)(\d+).*/;
+
+  constructor(private utils: UtilsService) { }
 
   // fill up tag values from rawdata
-  fillMultiTagValues(multiConf: any, rawdata: any): any {
-    // console.log('hill - rawdata', rawdata);
+  fillMultiTagValues(widget: any, multiConf: any, rawdata: any): any {
     const xTemp = multiConf.x ? '{{' + Object.keys(multiConf.x).join('}}/{{') + '}}' : 'x';
     const yTemp = multiConf.y ? '{{' + Object.keys(multiConf.y).join('}}/{{') + '}}' : 'y';
     let xCombine = [];
     let yCombine = [];
     const lookupData = {};
     const results = {};
+    // we need to handle the case that query or metric is disable
     for (let i = 0; i < rawdata.results.length; i++) {
+      const [ source, mid ] = rawdata.results[i].source.split(':');
+      const qids = this.REGDSID.exec(mid);
+      const qIndex = qids[1] ? parseInt(qids[1], 10) - 1 : 0;
+      const mIndex = this.utils.getDSIndexToMetricIndex(widget.queries[qIndex], parseInt(qids[3], 10) - 1, qids[2] );
+      const gConfig = widget.queries[qIndex] ? widget.queries[qIndex] : null;
+      const mConfig = gConfig && gConfig.metrics[mIndex] ? gConfig.metrics[mIndex] : null;
+      const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
       const dataSrc = rawdata.results[i];
+      if (gConfig && gConfig.settings.visual.visible && vConfig.visible ) {
       if (dataSrc.source && dataSrc.source.indexOf('summarizer:') === -1) {
         for (let j = 0; j < dataSrc.data.length; j++) {
           const tags = { metric_group: dataSrc.data[j].metric, ...dataSrc.data[j].tags};
@@ -56,6 +68,7 @@ export class MultigraphService {
           lookupData[y][x].results[0].data.push(dataSrc.data[j]);
         }
       }
+    }
     }
     // let build the master results table
     const xAll = multiConf.x ? [] : [['x']];

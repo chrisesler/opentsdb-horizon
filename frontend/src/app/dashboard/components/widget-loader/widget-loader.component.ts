@@ -34,6 +34,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
     componentFactory: any = null;
     viewContainerRef: any;
     widgetDeleteDialog: MatDialogRef<WidgetDeleteDialogComponent> | null;
+    multiLimitMessage = '';
 
     private subscription: Subscription = new Subscription();
 
@@ -193,6 +194,9 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
 
         (<WidgetComponentModel>this._component.instance).widget = this.widget;
         (<WidgetComponentModel>this._component.instance).editMode = false;
+        this._component.instance.widgetOut.subscribe(event => {
+            this.multiLimitMessage = event.message;
+        });
     }
 
     // when user clicks on view-edit

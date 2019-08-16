@@ -1,6 +1,6 @@
 import {
-    Component, OnInit, HostBinding, Input,
-    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, ViewChildren, QueryList
+    Component, OnInit, HostBinding, Input, EventEmitter,
+    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, ViewChildren, QueryList, Output
 } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
@@ -34,6 +34,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     @Input() editMode: boolean;
     @Input() widget: WidgetModel;
+    @Output() widgetOut = new EventEmitter<any>();
 
     @ViewChild('widgetOutputContainer') private widgetOutputContainer: ElementRef;
     @ViewChild('widgetTitle') private widgetTitle: ElementRef;
@@ -51,6 +52,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     isDataLoaded = false;
     private isStackedGraph = false;
     chartType = 'line';
+    multiLimitMessage = '';
 
     doRefreshData$: BehaviorSubject<boolean>;
     doRefreshDataSub: Subscription;
@@ -252,7 +254,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 this.graphRowLabelMarginLeft = 0;
 
                                 // fill out tag values from rawdata
-                                const results = this.multiService.fillMultiTagValues(multiConf, rawdata);
+                                const results = this.multiService.fillMultiTagValues(this.widget, multiConf, rawdata);
                                 graphs = this.utilService.deepClone(results);
                                 // we need to convert to dygraph for these multigraph
                                 for (const ykey in results) {
@@ -278,8 +280,38 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'] = this.data;
                                 graphs['y']['x'].options = this.options;
                             }
-                            this.setMultigraphColumns(graphs);
-                            this.graphData = {...graphs};
+                            // limit the total graph to around 100
+                            const maxGraphs = 24;
+                            const rowKeys = this.getGraphDataObjectKeys(graphs);
+                            const colKeys = rowKeys.length ? this.getGraphDataObjectKeys(graphs[rowKeys[0]]) : [];
+                            const maxCols = colKeys.length <= maxGraphs ? colKeys.length : maxGraphs;
+                            let numOfRows = 1;
+                            let limitGraphs = {};
+                            if (rowKeys.length * colKeys.length > maxGraphs) {
+                                if (rowKeys.length < maxGraphs) {
+                                    numOfRows = Math.ceil(maxGraphs / colKeys.length);
+                                } else {
+                                    numOfRows = maxGraphs;
+                                }
+                                // let get maxGraphs
+                                for (let i = 0; i < numOfRows; i++) {
+                                    for (let j = 0; j < maxCols; j++) {
+                                        if (!limitGraphs[rowKeys[i]]) {
+                                            limitGraphs[rowKeys[i]] = {};
+                                        }
+                                        limitGraphs[rowKeys[i]][colKeys[j]] = graphs[rowKeys[i]][colKeys[j]];
+                                    }
+                                }
+                                this.multiLimitMessage = 'Display first ' + numOfRows * maxCols + ' of ' + rowKeys.length * colKeys.length;
+                                // emit message to display on widget header
+                                this.widgetOut.emit({
+                                    message: this.multiLimitMessage
+                                });
+                            } else {
+                                limitGraphs = graphs;
+                            }
+                            this.setMultigraphColumns(limitGraphs);
+                            this.graphData = {...limitGraphs};
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
                                 environment.debugLevel.toUpperCase() === 'DEBUG' ||
                                 environment.debugLevel.toUpperCase() === 'INFO') {
@@ -501,14 +533,13 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             case 'UpdateMultigraph':
                 this.widget.settings.multigraph = message.payload.changes;
                 this.multigraphMode = this.widget.settings.multigraph.layout;
-                // will depend on message.payload.from to handle requery or not
-                if (message.payload.from === 'gridOptions') {
-                    this.refreshData(false);
-                    this.needRequery = false;
-                } else {
-                    // come from chart x-y
+                // will depend on message.payload.requery to handle requery or not
+                if (message.payload.requery) {
                     this.refreshData();
                     this.needRequery = true;
+                } else {
+                    this.refreshData(false);
+                    this.needRequery = false;
                 }
                 break;
         }
