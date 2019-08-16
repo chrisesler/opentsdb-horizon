@@ -40,7 +40,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     widgetTags = { rawWidgetTags: {}, totalQueries: 0, tags: [] };
     isWidgetTagsLoaded = false;
     isWidgetTagsLoaded$ = new Subject();
-    needRequery = true;
+    needRequery = false;
     tagKeyControlInput = new FormControl('');
 
     /** Form Group */
@@ -75,7 +75,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
         ],
         layout: 'grid', // grid | freeflow
         gridOptions: {
-            viewportDisplay: 'fit', // fit | custom
+            viewportDisplay: 'custom', // fit | custom
             custom: {
                 x: 3,
                 y: 3
@@ -94,7 +94,6 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        // console.log('hill - widget', this.widget);
         this.setupMultigraph();
     }
 
@@ -104,6 +103,11 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
         // check of they have multigraph or not
         if (this.widget.settings.multigraph) {
             this.multigraph = this.utilService.deepClone(this.widget.settings.multigraph);
+            // we just set to custom if it used fit before then it can save later
+            // since we only support custom not auto for now
+            if (this.multigraph.gridOptions.viewportDisplay === 'fit') {
+                this.multigraph.gridOptions.viewportDisplay = 'custom';
+            }
         } else {
             const groupByTags = this.multiService.getGroupByTags(this.widget.queries);
             for (let i = 0; i < groupByTags.length; i++) {
@@ -159,17 +163,16 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
                     distinctUntilChanged(),
                     pairwise()
                 ).subscribe(([prev, changes]: [any, any]) => {
-                    // console.log('hill - chart table', prev, changes);
                     if (this.chartTable && !deepEqual(prev, changes)) {
-                        // console.log('hill - ', this.widgetConfigMultigraph.getRawValue());
                         this.chartTable.renderRows();
                         this.widgetChange.emit({
                             action: 'UpdateMultigraph',
                             payload: {
-                                from: 'chart',
+                                requery: this.needRequery,
                                 changes: this.widgetConfigMultigraph.getRawValue()
                             }
                         });
+                        this.needRequery = false;
                     }
                 })
         );
@@ -182,16 +185,15 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
                     distinctUntilChanged(),
                     pairwise()
                 ).subscribe(([prev, changes]: [any, any]) => {
-                    // console.log('hill - gridOptions', prev, changes);
                     if (!deepEqual(prev, changes)) {
-                        // console.log('hill - ', this.widgetConfigMultigraph.getRawValue());
                         this.widgetChange.emit({
                             action: 'UpdateMultigraph',
                             payload: {
-                                from: 'gridOptions',
+                                requery: this.needRequery,
                                 changes: this.widgetConfigMultigraph.getRawValue()
                             }
                         });
+                        this.needRequery = false;
                     }
                 })
         );
@@ -203,6 +205,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     }
 
     addChartItem(data: any) {
+        this.needRequery = true;
         const chartItem = this.fb.group(data);
         const control = <FormArray>this.FC_chart;
         control.push(chartItem);
@@ -253,6 +256,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     }
 
     removeMultigraphTag(index: number) {
+        this.needRequery = true;
         const control = <FormArray>this.FC_chart;
         control.removeAt(index);
         this.chartTable.renderRows();
