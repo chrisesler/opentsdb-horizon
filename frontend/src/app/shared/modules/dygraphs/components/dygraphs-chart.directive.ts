@@ -24,7 +24,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     @Input() size: any;
     @Input() eventBuckets: any[];
     @Input() showEvents: boolean;
-    @Input() multigraph = false;
+    @Input() multigraph: boolean;
     @Output() zoomed = new EventEmitter;
     @Output() dateWindow = new EventEmitter<any>();
 
