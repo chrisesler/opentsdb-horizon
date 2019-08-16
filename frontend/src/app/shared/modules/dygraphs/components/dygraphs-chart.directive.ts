@@ -48,7 +48,13 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
 
-        //console.log('%cCHANGES','color: red; background: skyblue; padding: 4px;', changes);
+        // NOTE:
+        // If changing to custom row/column after splitting metric by tag, it would cause the dygraph option.plugins error
+        // the options.plugins originally has one item that is a function
+        // but after the change to custom, the options.plugins item changes to null, set it to empty array
+        if (this.options.plugins && this.options.plugins.length === 1 && this.options.plugins[0] === null) {
+            this.options.plugins = [];
+        }
 
         // by default the labelsDiv is an empty object as defined any in interface
         // enforce to init labelsDiv if not there
@@ -72,14 +78,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             this.options.hideOverlayOnMouseOut = false;
         }
 
-        // NOTE:
-        // If changing to custom row/column after splitting metric by tag, it would cause the dygraph option.plugins error
-        // the options.plugins originally has one item that is a function
-        // but after the change to custom, the options.plugins item changes to null, causing dygraph to error
-        // not sure why the options is getting nulled. Consider this a temporary bandaid fix
-        if (this.options.plugins && this.options.plugins.length === 1 && this.options.plugins[0] === null) {
-            this.options.plugins = [];
-        }
 
         const self = this;
         const mouseover = function (event, x, pts, row) {

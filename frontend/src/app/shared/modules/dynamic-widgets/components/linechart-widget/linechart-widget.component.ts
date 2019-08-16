@@ -51,6 +51,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     isDataLoaded = false;
     private isStackedGraph = false;
     chartType = 'line';
+    multiLimitMessage = '';
 
     doRefreshData$: BehaviorSubject<boolean>;
     doRefreshDataSub: Subscription;
@@ -279,8 +280,32 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'] = this.data;
                                 graphs['y']['x'].options = this.options;
                             }
-                            this.setMultigraphColumns(graphs);
-                            this.graphData = {...graphs};
+                            // limit the total graph to around 100
+                            const maxGraphs = 100;
+                            const rowKeys = this.getGraphDataObjectKeys(graphs);
+                            const colKeys = rowKeys.length ? this.getGraphDataObjectKeys(graphs[rowKeys[0]]) : [];
+                            const maxCols = colKeys.length <= maxGraphs ? colKeys.length : maxGraphs;
+                            let numOfRows = 1;
+                            let limitGraphs = {};
+                            if (rowKeys.length * colKeys.length > maxGraphs) {
+                                if (rowKeys.length < maxGraphs) {
+                                    numOfRows = Math.ceil(100 / colKeys.length);
+                                }
+                                // let get maxGraphs
+                                for (let i = 0; i < numOfRows; i++) {
+                                    for (let j = 0; j < maxCols; j++) {
+                                        if (!limitGraphs[rowKeys[i]]) {
+                                            limitGraphs[rowKeys[i]] = {};
+                                        }
+                                        limitGraphs[rowKeys[i]][colKeys[j]] = graphs[rowKeys[i]][colKeys[j]];
+                                    }
+                                }
+                            } else {
+                                limitGraphs = graphs;
+                            }
+                            console.log('hill - limitgraph', limitGraphs);
+                            this.setMultigraphColumns(limitGraphs);
+                            this.graphData = {...limitGraphs};
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
                                 environment.debugLevel.toUpperCase() === 'DEBUG' ||
                                 environment.debugLevel.toUpperCase() === 'INFO') {
