@@ -662,13 +662,14 @@ export class BignumberWidgetComponent implements OnInit, OnDestroy, AfterViewIni
     deleteQueryMetric(qid, mid) {
         // toggle the individual query
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-        const resetVisbility = this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
-        this.widget.queries[qindex].metrics.splice(mindex, 1);
-
-        // only reindex visibility if there are metrics AND deleted metric is visible metric
-        if (resetVisbility && this.widget.queries[qindex].metrics.length !== 0) {
-            this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
+        if (this.widget.queries[qindex]) {
+            const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+            const resetVisbility = this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
+            this.widget.queries[qindex].metrics.splice(mindex, 1);
+            // only reindex visibility if there are metrics AND deleted metric is visible metric
+            if (resetVisbility && this.widget.queries[qindex].metrics.length !== 0) {
+                this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
+            }
         }
     }
 

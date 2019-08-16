@@ -356,8 +356,10 @@ export class DonutWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
     deleteQueryMetric(qid, mid) {
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-        this.widget.queries[qindex].metrics.splice(mindex, 1);
+        if (this.widget.queries[qindex]) {
+            const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+            this.widget.queries[qindex].metrics.splice(mindex, 1);
+        }
     }
 
     deleteQueryFilter(qid, findex) {
