@@ -153,7 +153,6 @@ export class HttpService {
         }
         if ( newQueries.length ) {
             const query = this.metaService.getQuery('meta', 'TAG_KEYS', newQueries);
-            // console.log('hill - query dashboard tag key', query);
             const apiUrl = environment.metaApi + '/search/timeseries';
             return this.http.post(apiUrl, query, { headers, withCredentials: true });
         } else {
