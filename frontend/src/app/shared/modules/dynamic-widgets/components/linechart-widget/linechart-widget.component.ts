@@ -1,6 +1,6 @@
 import {
-    Component, OnInit, HostBinding, Input,
-    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, ViewChildren, QueryList
+    Component, OnInit, HostBinding, Input, EventEmitter,
+    OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, ViewChildren, QueryList, Output
 } from '@angular/core';
 import { IntercomService, IMessage } from '../../../../../core/services/intercom.service';
 import { DatatranformerService } from '../../../../../core/services/datatranformer.service';
@@ -34,6 +34,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     @Input() editMode: boolean;
     @Input() widget: WidgetModel;
+    @Output() widgetOut = new EventEmitter<any>();
 
     @ViewChild('widgetOutputContainer') private widgetOutputContainer: ElementRef;
     @ViewChild('widgetTitle') private widgetTitle: ElementRef;
@@ -233,7 +234,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             // render multigraph or not is here
                             let graphs = {};
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
-                            console.log('hill - multiconf', multiConf);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
 
                             // this.multigraphEnabled = false;
@@ -281,7 +281,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 graphs['y']['x'].options = this.options;
                             }
                             // limit the total graph to around 100
-                            const maxGraphs = 100;
+                            const maxGraphs = 24;
                             const rowKeys = this.getGraphDataObjectKeys(graphs);
                             const colKeys = rowKeys.length ? this.getGraphDataObjectKeys(graphs[rowKeys[0]]) : [];
                             const maxCols = colKeys.length <= maxGraphs ? colKeys.length : maxGraphs;
@@ -289,7 +289,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             let limitGraphs = {};
                             if (rowKeys.length * colKeys.length > maxGraphs) {
                                 if (rowKeys.length < maxGraphs) {
-                                    numOfRows = Math.ceil(100 / colKeys.length);
+                                    numOfRows = Math.ceil(maxGraphs / colKeys.length);
+                                } else {
+                                    numOfRows = maxGraphs;
                                 }
                                 // let get maxGraphs
                                 for (let i = 0; i < numOfRows; i++) {
@@ -300,10 +302,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                         limitGraphs[rowKeys[i]][colKeys[j]] = graphs[rowKeys[i]][colKeys[j]];
                                     }
                                 }
+                                this.multiLimitMessage = 'Display first ' + numOfRows * maxCols + ' of ' + rowKeys.length * colKeys.length;
+                                // emit message to display on widget header
+                                this.widgetOut.emit({
+                                    message: this.multiLimitMessage
+                                });
                             } else {
                                 limitGraphs = graphs;
                             }
-                            console.log('hill - limitgraph', limitGraphs);
                             this.setMultigraphColumns(limitGraphs);
                             this.graphData = {...limitGraphs};
                             if (environment.debugLevel.toUpperCase() === 'TRACE' ||
@@ -527,14 +533,13 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             case 'UpdateMultigraph':
                 this.widget.settings.multigraph = message.payload.changes;
                 this.multigraphMode = this.widget.settings.multigraph.layout;
-                // will depend on message.payload.from to handle requery or not
-                if (message.payload.from === 'gridOptions') {
-                    this.refreshData(false);
-                    this.needRequery = false;
-                } else {
-                    // come from chart x-y
+                // will depend on message.payload.requery to handle requery or not
+                if (message.payload.requery) {
                     this.refreshData();
                     this.needRequery = true;
+                } else {
+                    this.refreshData(false);
+                    this.needRequery = false;
                 }
                 break;
         }
