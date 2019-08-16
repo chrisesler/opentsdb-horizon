@@ -83,7 +83,11 @@
                                     </div>
                                 </div>
                     
-                                <div class="graph-legend" [style.minWidth]="legendWidth" [style.minHeight]="legendHeight" *ngIf="!multigraphEnabled">
+                                <div class="graph-legend"
+                                    [style.minWidth]="legendWidth"
+                                    [style.height]="legendHeight"
+                                    [style.flex]="(widget.settings.legend.display && (widget.settings.legend.position=='top' || widget.settings.legend.position=='bottom')) ? '1 1 ' + legendHeight : '1 1 ' + legendWidth"
+                                    *ngIf="!multigraphEnabled">
                                     <ng-container *ngIf="widget.settings.legend.display">
                                         <table mat-table matSort [dataSource]="legendDataSource">
                                             <ng-container matColumnDef="color">
