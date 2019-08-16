@@ -1196,8 +1196,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     deleteQueryMetric(qid, mid) {
         // toggle the individual query
         const qindex = this.widget.queries.findIndex(d => d.id === qid);
-        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-        this.widget.queries[qindex].metrics.splice(mindex, 1);
+        if (this.widget.queries[qindex]) {
+            const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+            this.widget.queries[qindex].metrics.splice(mindex, 1);
+        }
     }
 
     deleteQueryFilter(qid, findex) {

@@ -59,7 +59,12 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         // by default the labelsDiv is an empty object as defined any in interface
         // enforce to init labelsDiv if not there
         if (!(this.options.labelsDiv && Object.keys(this.options.labelsDiv).length > 0)) {
-            const parent = this.element.nativeElement.closest('.widget-output');
+            let parent = this.element.nativeElement.closest('.widget-output');
+            if (!parent) {
+                // no widget-output (probably not a dashboard widget)
+                // so lets check for graph-output in alerts
+                parent = this.element.nativeElement.closest('.graph-output');
+            }
             const legendCheck = parent.querySelector('.dygraph-legend');
             if (legendCheck) {
                 this.labelsDiv = legendCheck;
@@ -374,14 +379,21 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             const tooltip = this.labelsDiv;
             tooltip.style.display = 'block';
 
-            // scroll containers
-            const widgetScrollContainer = tooltip.closest('.widget-output').querySelector('.multigraph-output');
-            // const dbScrollContainer = tooltip.closets('.gridster-stage').querySelector('.is-scroller');
+            let parent = tooltip.closest('.widget-output');
+            let widgetScrollContainer;
+            if (parent) {
+                widgetScrollContainer = parent.querySelector('.multigraph-output');
+            } else {
+                // no widget-output (probably not a dashboard widget)
+                // so lets check for graph-output in alerts
+                parent = tooltip.closest('.graph-output');
+                widgetScrollContainer = parent;
+            }
 
             // widget output element
             let wrapperEl;
             if (this.multigraph) {
-                wrapperEl = tooltip.closest('.widget-output').querySelector('.graph-cell');
+                wrapperEl = parent.querySelector('.graph-cell');
             } else {
                 wrapperEl = widgetScrollContainer;
             }

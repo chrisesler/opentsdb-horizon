@@ -351,14 +351,16 @@ export class TopnWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
     deleteQueryMetric(qid, mid) {
         let qindex = this.widget.queries.findIndex(d => d.id === qid);
-        const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
-        const delMetricVisibility = this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
-        this.widget.queries[qindex].metrics.splice(mindex, 1);
+        if (this.widget.queries[qindex]) {
+            const mindex = this.widget.queries[qindex].metrics.findIndex(d => d.id === mid);
+            const delMetricVisibility = this.widget.queries[qindex].metrics[mindex].settings.visual.visible;
+            this.widget.queries[qindex].metrics.splice(mindex, 1);
 
-        // find query with metrics in it
-        qindex = this.widget.queries.findIndex(d => d.metrics.length > 0);
-        if ( qindex !== -1 && delMetricVisibility ) {
-            this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
+            // find query with metrics in it
+            qindex = this.widget.queries.findIndex(d => d.metrics.length > 0);
+            if ( qindex !== -1 && delMetricVisibility ) {
+                this.widget.queries[qindex].metrics[0].settings.visual.visible = true;
+            }
         }
     }
 

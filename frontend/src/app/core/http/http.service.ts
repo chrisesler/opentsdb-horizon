@@ -54,7 +54,6 @@ export class HttpService {
     }
     /* will refactor later */
     getYamasData(payload: any): Observable<any> {
-        console.debug("------------ DSHBID: " + payload.dbid + "  WID: " + payload.wid + "  QUERY: " + payload.query);
         var headers = new HttpHeaders(
             { 'Content-Type': 'application/json' });
         headers = headers.set('X-Horizon-DSHBID', String(payload.dbid))

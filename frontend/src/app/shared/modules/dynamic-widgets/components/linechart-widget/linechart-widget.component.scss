@@ -63,6 +63,9 @@
                 .mat-table {
                     font-family: Monaco, monospace;
                     background-color: inherit;
+                    .nowrap {
+                        white-space: nowrap;
+                    }
                 }
             }
 
