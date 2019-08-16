@@ -184,8 +184,6 @@
             }
         }
 
-        
-
         // configuration area - config controls
         .controls-wrapper {
             padding: 0;
@@ -542,6 +540,23 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+
+        // dygraph tooltip
+        .dygraph-legend {
+            display: none;
+            z-index: 1000;
+            // margin-top:15px;
+            background: #f0f0f0;
+            border: 1px solid #cccccc;
+            padding: 4px;
+            min-width:250px;
+            width: 300px;
+            position: absolute;
+            border-radius: 5px;
+            font-size: 12px;
+            font-family: Monaco, monospace;
+            // font-family: Helvetica Neue, Helvetica;
         }
     }
 }
