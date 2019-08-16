@@ -194,9 +194,11 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
 
         (<WidgetComponentModel>this._component.instance).widget = this.widget;
         (<WidgetComponentModel>this._component.instance).editMode = false;
-        this._component.instance.widgetOut.subscribe(event => {
-            this.multiLimitMessage = event.message;
-        });
+        if (this._component.instance.widgetOut) {
+            this._component.instance.widgetOut.subscribe(event => {
+                this.multiLimitMessage = event.message;
+            });
+        }
     }
 
     // when user clicks on view-edit
