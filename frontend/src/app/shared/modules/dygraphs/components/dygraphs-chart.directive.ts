@@ -48,6 +48,8 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
 
+        //console.log('%cCHANGES','color: red; background: skyblue; padding: 4px;', changes);
+
         // by default the labelsDiv is an empty object as defined any in interface
         // enforce to init labelsDiv if not there
         if (!(this.options.labelsDiv && Object.keys(this.options.labelsDiv).length > 0)) {
@@ -70,6 +72,14 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             this.options.hideOverlayOnMouseOut = false;
         }
 
+        // NOTE:
+        // If changing to custom row/column after splitting metric by tag, it would cause the dygraph option.plugins error
+        // the options.plugins originally has one item that is a function
+        // but after the change to custom, the options.plugins item changes to null, causing dygraph to error
+        // not sure why the options is getting nulled. Consider this a temporary bandaid fix
+        if (this.options.plugins && this.options.plugins.length === 1 && this.options.plugins[0] === null) {
+            this.options.plugins = [];
+        }
 
         const self = this;
         const mouseover = function (event, x, pts, row) {
@@ -123,8 +133,10 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             const seriesConfig = this.user_attrs_.series;
             if (data.x == null) {
                 const labelsDiv = this.user_attrs_.labelsDiv;
-                // labelsDiv.style.display = 'none';
-                // return '';
+                if (labelsDiv) {
+                    labelsDiv.style.display = 'none';
+                }
+                return '';
             }
 
             let html = '<p>' + data.xHTML + '</p>';
@@ -149,17 +161,17 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             return html;
         };
 
-        const _self = this;
         const tickFormatter = function (value, gran, opts) {
             const format = opts('tickFormat');
-            const dunit = _self.uConverter.getNormalizedUnit(value, format);
-            return _self.uConverter.convert(value, format.unit, dunit, format);
+            const dunit = self.uConverter.getNormalizedUnit(value, format);
+            return self.uConverter.convert(value, format.unit, dunit, format);
         };
+
         const valueFormatter = function (value, opts) {
             const format = opts('tickFormat');
             const precision = format.precision ? format.precision : 2;
-            const dunit = _self.uConverter.getNormalizedUnit(value, format);
-            return _self.uConverter.convert(value, format.unit, dunit, { unit: format.unit, precision: precision });
+            const dunit = self.uConverter.getNormalizedUnit(value, format);
+            return self.uConverter.convert(value, format.unit, dunit, { unit: format.unit, precision: precision });
         };
 
         const setHeatmapLegend = function (event, g, x, bucket) {
@@ -175,20 +187,19 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 .range(Array.from(Array(options.heatmap.buckets), (x, index) => (index + 1)));
             const range: any = yScale.invertExtent(bucket);
             for (let i = 0; i < 2; i++) {
-                const dunit = _self.uConverter.getNormalizedUnit(range[i], format);
-                range[i] = _self.uConverter.convert(range[i], format.unit, dunit, { unit: format.unit, precision: precision });
+                const dunit = self.uConverter.getNormalizedUnit(range[i], format);
+                range[i] = self.uConverter.convert(range[i], format.unit, dunit, { unit: format.unit, precision: precision });
             }
-
 
             let html = '';
             html = options.labelsUTC ? moment(x).utc().format('YYYY/MM/DD HH:mm') : moment(x).format('YYYY/MM/DD HH:mm');
-            html += '<p>' + _self.uConverter.convert((tooltipData.length / options.heatmap.nseries) * 100, '', '', { unit: '', precision: precision }) + '% of Series, ' + tooltipData.length + ' of ' + options.heatmap.nseries + '</p>';
+            html += '<p>' + self.uConverter.convert((tooltipData.length / options.heatmap.nseries) * 100, '', '', { unit: '', precision: precision }) + '% of Series, ' + tooltipData.length + ' of ' + options.heatmap.nseries + '</p>';
             html += '<p>Bucket Range: [' + range[0] + ', ' + range[1] + ')</b><table>';
             tooltipData.sort((a, b) => b.v - a.v);
             const n = tooltipData.length < 5 ? tooltipData.length : 5;
             for (let i = 0; i < n; i++) {
-                const dunit = _self.uConverter.getNormalizedUnit(tooltipData[i].v, format);
-                const val = _self.uConverter.convert(tooltipData[i].v, format.unit, dunit, { unit: format.unit, precision: precision });
+                const dunit = self.uConverter.getNormalizedUnit(tooltipData[i].v, format);
+                const val = self.uConverter.convert(tooltipData[i].v, format.unit, dunit, { unit: format.unit, precision: precision });
 
                 html += '<tr><td>' + val + '</td><td>' + tooltipData[i].label + '</td></tr>';
             }
@@ -210,7 +221,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             labelsDiv.style.top = (event.offsetY + yOffset) + 'px';
         };
 
-
         if (!changes) {
             return;
         } else {
@@ -227,7 +237,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                         // console.log('ZOOM CALLBACK');
                         // we only handle xzoom
                         if (!yRanges) {
-                            _self.zoomed.emit({ start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
+                            self.zoomed.emit({ start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
                         }
                     };
                     this.options.drawCallback = drawCallback;
@@ -236,8 +246,8 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     this.options.interactionModel = DygraphInteraction.defaultModel;
                     this.options.interactionModel.dblclick = function (e, g, context) {
                         if (g.user_attrs_.isCustomZoomed) {
-                            _self.zoomed.emit({ start: null, end: null, isZoomed: false });
-                        } else if (_self._g.isZoomed()) {
+                            self.zoomed.emit({ start: null, end: null, isZoomed: false });
+                        } else if (self._g.isZoomed()) {
                             g.resetZoom();
                         }
                     };
