@@ -788,7 +788,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const groupby = payload.settings.multigraph ?
             payload.settings.multigraph.chart.filter(d=> d.key !== 'metric_group').map(d => d.key) : [];
         const dt = this.getDashboardDateRange();
-        this.checkDbTagsLoaded().subscribe(loaded => {
+        const subs = this.checkDbTagsLoaded().subscribe(loaded => {
             if (payload.queries.length) {
                 // should we modify the widget if using dashboard tag filter
                 const tplVars = this.variablePanelMode.view ? this.tplVariables.viewTplVariables : this.tplVariables.editTplVariables;
@@ -845,6 +845,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             } else {
                 this.store.dispatch(new ClearQueryData({ wid: message.id }));
             }
+            // very important to unsubscribe
+            subs.unsubscribe();
         });
     }
 
