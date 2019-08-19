@@ -846,7 +846,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.store.dispatch(new ClearQueryData({ wid: message.id }));
             }
             // very important to unsubscribe
-            subs.unsubscribe();
+            if (subs) {
+                subs.unsubscribe();
+            }
         });
     }
 
