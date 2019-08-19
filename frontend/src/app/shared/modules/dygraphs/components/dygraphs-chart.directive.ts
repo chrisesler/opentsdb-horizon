@@ -229,6 +229,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         } else {
             // if not then create it
             if (!this._g && this.data) {
+                
                 this.options.plugins = [ThresholdsPlugin];
 
                 if (this.chartType === 'line') {
@@ -237,7 +238,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     }
                     this.options.legendFormatter = legendFormatter;
                     this.options.zoomCallback = function (minDate, maxDate, yRanges) {
-                        // console.log('ZOOM CALLBACK');
                         // we only handle xzoom
                         if (!yRanges) {
                             self.zoomed.emit({ start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
@@ -308,13 +308,11 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                         }
                     };
                 }
-
-                // console.log('OPTIONS', this.options);
-
                 this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
             }
             // if new data
             if (this._g && changes.data && changes.data.currentValue) {
+                
                 const ndata = changes.data.currentValue;
                 if (this.options.axes) {
                     for (const k of Object.keys(this.options.axes)) {
@@ -333,12 +331,19 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 if (this.chartType === 'line' && this.options.labelsDiv) {
                     this.options.highlightCallback = mouseover;
                 }
+                if (!this.options.zoomCallback) {
+                    this.options.zoomCallback = function (minDate, maxDate, yRanges) {
+                        // we only handle xzoom
+                        if (!yRanges) {
+                            self.zoomed.emit({ start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
+                        }
+                    };
+                }
                 this._g = new Dygraph(this.element.nativeElement, ndata.ts, this.options);
             }
 
             if (this._g && changes.options && changes.options.currentValue) {
                 const options = changes.options.currentValue;
-
                 if (options.axes) {
                     for (const k of Object.keys(options.axes)) {
                         const axis = options.axes[k];
@@ -357,6 +362,14 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 if (this.chartType === 'line' && this.options.labelsDiv) {
                     this.options.highlightCallback = mouseover;
                 }
+                if (!this.options.zoomCallback) {
+                    this.options.zoomCallback = function (minDate, maxDate, yRanges) {
+                        // we only handle xzoom
+                        if (!yRanges) {
+                            self.zoomed.emit({ start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
+                        }
+                    };
+                }
                 this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
             }
             // resize when size be changed
@@ -372,6 +385,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             }
         }
     }
+
     /* Commenting out for now
         will be part of next PR that will improve tooltip movement*/
     @HostListener('mouseenter', ['$event'])

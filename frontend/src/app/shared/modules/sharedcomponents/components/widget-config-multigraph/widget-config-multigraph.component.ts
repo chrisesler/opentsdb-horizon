@@ -108,9 +108,11 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
             if (this.multigraph.gridOptions.viewportDisplay === 'fit') {
                 this.multigraph.gridOptions.viewportDisplay = 'custom';
             }
-        } else {
             const groupByTags = this.multiService.getGroupByTags(this.widget.queries);
             for (let i = 0; i < groupByTags.length; i++) {
+                if (this.multigraph.chart.findIndex((t: any) => t.key === groupByTags[i]) > -1) {
+                    continue;
+                }
                 const item = {
                     key: groupByTags[i],
                     displayAs: 'g'
@@ -300,7 +302,7 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
     /** network stuff */
 
     getWidgetTagKeys() {
-        this.httpService.getTagKeysForQueries([this.widget]).subscribe((res: any) => {
+        this.subscription.add(this.httpService.getTagKeysForQueries([this.widget]).subscribe((res: any) => {
             this.widgetTags = { rawWidgetTags: {}, totalQueries: 0, tags: [] };
             for (let i = 0; res && i < res.results.length; i++) {
                 const [wid, qid] = res.results[i].id ? res.results[i].id.split(':') : [null, null];
@@ -321,7 +323,8 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
             error => {
                 this.isWidgetTagsLoaded = true;
                 this.isWidgetTagsLoaded$.next(true);
-            });
+            })
+        );
     }
 
     /** FORM CONTROL QUICK ACCESSORS */
