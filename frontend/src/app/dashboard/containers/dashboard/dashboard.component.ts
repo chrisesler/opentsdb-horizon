@@ -349,6 +349,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             }));
                         }
                     }
+                    // case that widget is updated we need to get new set of dashboard tags
                     this.getDashboardTagKeys(false);
                     this.handleQueryPayload({ id: message.id, payload: this.widgets[mIndex] });
                     break;
@@ -735,7 +736,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     // get all dashboard tags
     getDashboardTagKeys(reloadData: boolean = true) {
-        // this.isDbTagsLoaded = false;
+        this.isDbTagsLoaded = false;
         this.httpService.getTagKeysForQueries(this.widgets).subscribe((res: any) => {
             this.dashboardTags = { rawDbTags: {}, totalQueries: 0, tags: [] };
             for (let i = 0; res && i < res.results.length; i++) {
@@ -751,11 +752,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 ...keys.filter(k => this.dashboardTags.tags.indexOf(k) < 0)];
             }
             this.dashboardTags.tags.sort(this.utilService.sortAlphaNum);
-            this.isDbTagsLoaded = reloadData;
+            this.isDbTagsLoaded = true;
             this.isDbTagsLoaded$.next(reloadData);
         },
             error => {
-                this.isDbTagsLoaded = reloadData;
+                this.isDbTagsLoaded = false;
                 this.isDbTagsLoaded$.next(reloadData);
             });
     }
