@@ -136,10 +136,10 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             const seriesConfig = this.user_attrs_.series;
             if (data.x == null) {
                 const labelsDiv = this.user_attrs_.labelsDiv;
-                if (labelsDiv) {
+                /*if (labelsDiv) {
                     labelsDiv.style.display = 'none';
                 }
-                return '';
+                return '';*/
             }
 
             let html = '<p>' + data.xHTML + '</p>';
@@ -329,6 +329,10 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     }
                 }
                 this._g.destroy();
+                this.options.legendFormatter = legendFormatter;
+                if (this.chartType === 'line' && this.options.labelsDiv) {
+                    this.options.highlightCallback = mouseover;
+                }
                 this._g = new Dygraph(this.element.nativeElement, ndata.ts, this.options);
             }
 
@@ -349,6 +353,10 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 }
                 // destroy only when y2 axis enabled
                 this._g.destroy();
+                this.options.legendFormatter = legendFormatter;
+                if (this.chartType === 'line' && this.options.labelsDiv) {
+                    this.options.highlightCallback = mouseover;
+                }
                 this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
             }
             // resize when size be changed
