@@ -113,9 +113,18 @@
 
         // navigator panel
         .navigator-panel {
+            max-height: 100%;
+
             .navigator-panel-wrapper {
                 display: flex;
                 height: 100%;
+                position: relative;
+
+                ul {
+                    position: absolute;
+                    top: 0;
+                    bottom: 0;
+                }
             }
 
             ul li {
