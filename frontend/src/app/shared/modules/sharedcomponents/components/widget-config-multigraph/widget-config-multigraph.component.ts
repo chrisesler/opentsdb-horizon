@@ -108,23 +108,22 @@ export class WidgetConfigMultigraphComponent implements OnInit, OnDestroy {
             if (this.multigraph.gridOptions.viewportDisplay === 'fit') {
                 this.multigraph.gridOptions.viewportDisplay = 'custom';
             }
-            const groupByTags = this.multiService.getGroupByTags(this.widget.queries);
-            for (let i = 0; i < groupByTags.length; i++) {
-                if (this.multigraph.chart.findIndex((t: any) => t.key === groupByTags[i]) > -1) {
-                    continue;
-                }
-                const item = {
-                    key: groupByTags[i],
-                    displayAs: 'g'
-                };
-                this.multigraph.chart.push(item);
+        }
+        const groupByTags = this.multiService.getGroupByTags(this.widget.queries);
+        for (let i = 0; i < groupByTags.length; i++) {
+            if (this.multigraph.chart.findIndex((t: any) => t.key === groupByTags[i]) > -1) {
+                continue;
             }
+            const item = {
+                key: groupByTags[i],
+                displayAs: 'g'
+            };
+            this.multigraph.chart.push(item);
         }
         this.createForm(this.multigraph);
     }
 
     createForm(multigraph: any) {
-
         // setup the group
         this.widgetConfigMultigraph = this.fb.group({
             chart: this.fb.array([]),
