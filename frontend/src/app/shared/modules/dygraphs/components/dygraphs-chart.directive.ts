@@ -327,6 +327,10 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     }
                 }
                 this._g.destroy();
+                this.options.legendFormatter = legendFormatter;
+                if (this.chartType === 'line' && this.options.labelsDiv) {
+                    this.options.highlightCallback = mouseover;
+                }
                 if (!this.options.zoomCallback) {
                     this.options.zoomCallback = function (minDate, maxDate, yRanges) {
                         // we only handle xzoom
@@ -354,14 +358,18 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 }
                 // destroy only when y2 axis enabled
                 this._g.destroy();
+                this.options.legendFormatter = legendFormatter;
+                if (this.chartType === 'line' && this.options.labelsDiv) {
+                    this.options.highlightCallback = mouseover;
+                }
                 if (!this.options.zoomCallback) {
-                this.options.zoomCallback = function (minDate, maxDate, yRanges) {
-                    // we only handle xzoom
-                    if (!yRanges) {
-                        self.zoomed.emit({ start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
-                    }
-                };
-            }
+                    this.options.zoomCallback = function (minDate, maxDate, yRanges) {
+                        // we only handle xzoom
+                        if (!yRanges) {
+                            self.zoomed.emit({ start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
+                        }
+                    };
+                }
                 this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
             }
             // resize when size be changed
