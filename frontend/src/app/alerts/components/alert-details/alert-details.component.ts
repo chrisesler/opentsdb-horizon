@@ -1028,7 +1028,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 min = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
                 break;
         }
-        this.options.axes.y.valueRange[0] = min !== null && min < this.options.axes.y.tickFormat.min ? (min -  min * 0.1) : null ;
+        this.options.axes.y.valueRange[0] = min < this.options.axes.y.tickFormat.min ? (min -  min * 0.1) : null ;
         this.options.axes.y.valueRange[1] = max && max > this.options.axes.y.tickFormat.max ? (max +  max * 0.1) : null ;
     }
 
