@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
-import { WidgetConfigAlertsComponent } from '../../shared/modules/sharedcomponents/components';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +12,7 @@ export class MultigraphService {
 
   // fill up tag values from rawdata
   fillMultiTagValues(widget: any, multiConf: any, rawdata: any): any {
+    // const startTime = new Date().getTime();
     const xTemp = multiConf.x ? '{{' + Object.keys(multiConf.x).join('}}/{{') + '}}' : 'x';
     const yTemp = multiConf.y ? '{{' + Object.keys(multiConf.y).join('}}/{{') + '}}' : 'y';
     let xCombine = [];
@@ -66,6 +66,11 @@ export class MultigraphService {
             };
           }
           lookupData[y][x].results[0].data.push(dataSrc.data[j]);
+          // we do need to get the summarizer for this set
+          const sumIndex = rawdata.results.findIndex(src => src.source === 'summarizer:' + mid);
+          if (sumIndex !== -1) {
+            lookupData[y][x].results.push(rawdata.results[sumIndex]);
+          }
         }
       }
     }
@@ -105,6 +110,8 @@ export class MultigraphService {
     if ( !Object.keys(lookupData).length ) {
       results['y'] = {'x': rawdata };
     }
+    // const timeDiff = new Date().getTime() - startTime; // mil sec
+    // console.log('hill - time exe for multiconf data', timeDiff);
     return results;
   }
 
