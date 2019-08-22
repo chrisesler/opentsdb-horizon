@@ -6,6 +6,7 @@ export interface DygraphOptionsAxis {
         unit?: string;
         precision?: number;
         unitDisplay?: boolean;
+        min?: number;
         max?: number;
     };
     valueRange?: number[];

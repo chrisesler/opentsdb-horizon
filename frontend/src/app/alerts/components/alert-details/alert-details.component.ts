@@ -36,6 +36,7 @@ import { AlertConverterService } from '../../services/alert-converter.service';
 import { CdkService } from '../../../core/services/cdk.service';
 import { DateUtilsService } from '../../../core/services/dateutils.service';
 import { TemplatePortal } from '@angular/cdk/portal';
+import * as d3 from 'd3';
 
 @Component({
 // tslint:disable-next-line: component-selector
@@ -1013,22 +1014,22 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     }
 
     setChartYMax() {
-        let max;
+        let max, min;
         switch ( this.data.type ) {
             case 'simple':
                 const bad = this.thresholdSingleMetricControls['badThreshold'].value;
                 const warning = this.thresholdSingleMetricControls['warnThreshold'].value;
                 const recovery = this.thresholdSingleMetricControls['recoveryThreshold'].value;
                 max = Math.max(bad, warning, recovery);
+                min = d3.min([bad, warning, recovery]);
                 break;
             case 'event':
                 max = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
+                min = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
                 break;
         }
-        if ( max && max > this.options.axes.y.tickFormat.max ) {
-            this.options.axes.y.valueRange[1] = max +  max * 0.1 ;
-        }
-
+        this.options.axes.y.valueRange[0] = min !== null && min < this.options.axes.y.tickFormat.min ? (min -  min * 0.1) : null ;
+        this.options.axes.y.valueRange[1] = max && max > this.options.axes.y.tickFormat.max ? (max +  max * 0.1) : null ;
     }
 
     updateQuery(message) {
