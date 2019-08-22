@@ -818,6 +818,14 @@ export class QueryEditorProtoComponent implements OnInit, OnDestroy {
         }
     }
 
+    setMissingMetrics(id, flag) {
+        const index = this.query.metrics.findIndex(item => item.id === id);
+        if (index !== -1) {
+            this.query.metrics[index].substituteMissing = flag;
+            this.queryChanges$.next(true);
+        }
+    }
+
     showMetricAC() {
 
     }
