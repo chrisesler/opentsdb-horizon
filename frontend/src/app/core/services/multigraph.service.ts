@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { UtilsService } from './utils.service';
-import { WidgetConfigAlertsComponent } from '../../shared/modules/sharedcomponents/components';
 
 @Injectable({
   providedIn: 'root'
@@ -66,6 +65,11 @@ export class MultigraphService {
             };
           }
           lookupData[y][x].results[0].data.push(dataSrc.data[j]);
+          // we do need to get the summarizer for this set
+          const sumIndex = rawdata.results.findIndex(src => src.source === 'summarizer:' + mid);
+          if (sumIndex !== -1) {
+            lookupData[y][x].results.push(rawdata.results[sumIndex]);
+          }
         }
       }
     }
