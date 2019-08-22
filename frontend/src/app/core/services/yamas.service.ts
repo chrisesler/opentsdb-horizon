@@ -483,7 +483,7 @@ export class YamasService {
                 realFillPolicy: 'NONE'
             }],
             infectiousNan: true,
-            substituteMissing: config.substituteMissing ? true : false,
+            substituteMissing: true,
             variableInterpolators: {},
             sources: sources
         };
