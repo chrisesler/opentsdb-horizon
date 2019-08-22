@@ -363,26 +363,18 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     ngAfterViewInit() {
 
+        // since we don't compute any size here just trigger the observal
         ElementQueries.listen();
         ElementQueries.init();
-        const initSize = {
-            width: this.widgetOutputElement.nativeElement.clientWidth,
-            height: this.widgetOutputElement.nativeElement.clientHeight
-        };
-        this.newSize$ = new BehaviorSubject(initSize);
-
-        this.newSizeSub = this.newSize$.subscribe(size => {
-            this.setSize();
-            // this.newSize = size;
+        // true is just a dummy value to trigger
+        const dummyFlag = 1;
+        this.newSize$ = new BehaviorSubject(dummyFlag);
+        this.newSizeSub = this.newSize$.subscribe(flag => {
+            this.setSize(true);
         });
         const resizeSensor = new ResizeSensor(this.widgetOutputElement.nativeElement, () => {
-             const newSize = {
-                width: this.widgetOutputElement.nativeElement.clientWidth,
-                height: this.widgetOutputElement.nativeElement.clientHeight
-            };
-            this.newSize$.next(newSize);
+            this.newSize$.next(dummyFlag);
         });
-
     }
 
     refreshLegendSource() {
@@ -558,7 +550,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         return (!this.widget.settings.hasOwnProperty('useDBFilter') || this.widget.settings.useDBFilter);
     }
 
-    setSize() {
+    // by default it should not call change detection unless we set it
+    setSize(cdCheck: boolean = false) {
         // if edit mode, use the widgetOutputEl. If in dashboard mode, go up out of the component,
         // and read the size of the first element above the componentHostEl
         const nativeEl = (this.editMode) ?
@@ -707,7 +700,9 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         this.eventsWidth = nWidth - 55;
 
         // after size it set, tell Angular to check changes
-        // this.cdRef.detectChanges();
+        if (cdCheck) {
+            this.cdRef.detectChanges();
+        }
     }
 
     setTimezone(timezone) {
