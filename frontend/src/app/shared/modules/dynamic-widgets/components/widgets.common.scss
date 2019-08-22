@@ -200,13 +200,14 @@ $widgets-common-config: (
 
             .graph-header-cell-inner {
                 font-family: mat-font-family(map-get($app-fontface-config, mono));
-                font-size: 10px;
+                font-size: 13px;
                 flex: 1;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 line-height: 15px;
                 white-space: nowrap;
+                font-weight: 600;
             }
         }
 
@@ -447,7 +448,6 @@ $widgets-common-config: (
         /* headers */
         .graph-header-cell {
             .graph-header-cell-inner {
-                background-color: $mg-background;
                 color: $mg-text;
             }
         }
