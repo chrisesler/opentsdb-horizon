@@ -83,6 +83,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         labelsUTC: false,
         labelsKMB: true,
         connectSeparatedPoints: true,
+        isCustomZoomed: false,
         drawPoints: false,
         //  labelsDivWidth: 0,
         // legend: 'follow',
@@ -213,6 +214,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     events: any = [];
     startTime;
     endTime;
+    prevDateRange: any = null;
     alertspageNavbarPortal: TemplatePortal;
     alertEvaluationLink: string;
 
@@ -658,7 +660,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 this.options.labels = ['x'];
                 const data = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], res.counts);
                 // we are expecting one series. the max logic needs to changed when we support group by
-                let max = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
+                let max = 0;
                 if ( res.counts.results.length && res.counts.results[0].data.length) {
                     for ( let i = 0; i < res.counts.results[0].data[0].NumericType.length - 1; i++ ) { // we ignore the last point
                         const d = res.counts.results[0].data[0].NumericType[i];
@@ -918,6 +920,30 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     /** methods */
 
+
+    handleZoom(zConfig) {
+        const n = this.chartData.ts.length;
+        this.options.isCustomZoomed = zConfig.isZoomed;
+        if ( zConfig.isZoomed && n > 0 ) {
+            if ( this.prevDateRange === null ) {
+                this.prevDateRange = { startTime: this.startTime, endTime: this.endTime };
+            }
+            const startTime = new Date(this.chartData.ts[0][0]).getTime() / 1000;
+            const endTime = new Date(this.chartData.ts[n - 1][0]).getTime() / 1000;
+            this.startTime = Math.floor(zConfig.start) <= startTime ? this.startTime : this.dateUtil.timestampToTime(zConfig.start, 'local');
+            this.endTime = Math.ceil(zConfig.end) >= endTime ? this.endTime : this.dateUtil.timestampToTime(zConfig.end, 'local');
+        } else if ( !zConfig.isZoomed) {
+            this.startTime = this.prevDateRange.startTime;
+            this.endTime = this.prevDateRange.endTime;
+            this.prevDateRange = null;
+        }
+        if ( this.data.type === 'event') {
+            this.doEventQuery$.next(['list', 'count']);
+        } else if ( this.data.type === 'simple' ) {
+            this.reloadData();
+        }
+        this.setAlertEvaluationLink();
+    }
 
     getData() {
         const settings = {

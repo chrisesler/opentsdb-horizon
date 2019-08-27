@@ -8,7 +8,8 @@
                         [chartType]="'line'"
                         [data]="chartData"
                         [size]="{'width': size.width - 50, 'height': size.height - 10}"
-                        [options]="options">
+                        [options]="options"
+                        (zoomed)="handleZoom($event)">
                     </div>
                     <div class="dygraph-legend" #graphLegend></div>
                 </div>
