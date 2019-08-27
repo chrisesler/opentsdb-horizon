@@ -153,6 +153,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         { label: 'P5', value: 'P5' }
     ];
 
+    defaultOpsGeniePriority = 'P5';
+    defaultOCSeverity = '5';
+
     alertOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     recoverOptions: any[] = [
                                 { label: 'Never', value: null },
@@ -337,11 +340,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 recipients: [ data.notification.recipients || {}],
                 subject: data.notification.subject  || '',
                 body: data.notification.body || '',
-                opsgeniePriority:  data.notification.opsgeniePriority || '',
+                opsgeniePriority:  data.notification.opsgeniePriority || this.defaultOpsGeniePriority,
                 // opsgenieTags: data.notification.opsgenieTags || '',
                 // OC conditional values
                 runbookId: data.notification.runbookId || '',
-                ocSeverity: data.notification.ocSeverity || '5'
+                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity
             })
         });
         this.setTags();
@@ -479,11 +482,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 recipients: [ data.notification.recipients || {}],
                 subject: data.notification.subject  || '',
                 body: data.notification.body || '',
-                opsgeniePriority:  data.notification.opsgeniePriority || 'P5',
+                opsgeniePriority:  data.notification.opsgeniePriority || this.defaultOpsGeniePriority,
                 // opsgenieTags: data.notification.opsgenieTags || '',
                 // OC conditional values
                 runbookId: data.notification.runbookId || '',
-                ocSeverity: data.notification.ocSeverity || '5'
+                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity
             })
         });
         this.setTags();
@@ -553,9 +556,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 recipients: [ data.notification.recipients || {}],
                 subject: data.notification.subject  || '',
                 body: data.notification.body || '',
-                opsgeniePriority:  data.notification.opsgeniePriority || '',
+                opsgeniePriority:  data.notification.opsgeniePriority || this.defaultOpsGeniePriority,
                 runbookId: data.notification.runbookId || '',
-                ocSeverity: data.notification.ocSeverity || '5'
+                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity
             })
         });
         this.options.axes.y.valueRange[0] = 0;
