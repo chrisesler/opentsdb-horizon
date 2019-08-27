@@ -186,7 +186,7 @@ export class DatatranformerService {
                             const secs = timeSpecification.start + (m * k * mSeconds[unit]);
                             const ms = secs * 1000;
                             const tsIndex = tsObj[ms];
-                            if ( tsIndex ) {
+                            if ( tsIndex !== undefined ) {
                                 normalizedData[tsIndex][seriesIndex] = !isNaN(data[k]) ? data[k] : NaN;
                             }
                         }
