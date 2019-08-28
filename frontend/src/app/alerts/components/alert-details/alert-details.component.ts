@@ -714,7 +714,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         // validate the warning value
         if ( this.alertForm.touched && badStateCntrl.value !== null && warningStateCntrl.value !== null ) {
             if ( (operator === 'above' || operator === 'above_or_equal_to') && warning >= bad ) {
-                warningStateCntrl.setErrors({ 'invalid': true }); 
+                warningStateCntrl.setErrors({ 'invalid': true });
             }
             if ( (operator === 'below' || operator === 'below_or_equal_to') && warning <= bad ) {
                 warningStateCntrl.setErrors({ 'invalid': true });
@@ -727,10 +727,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         // validate the recovery value
         const badOrWarning = warningStateCntrl.value !== null ? warning : bad;
         if ( recoveryMode === 'specific' && this.alertForm.touched && badOrWarning !== null && recoveryStateCntrl.value !== null ) {
-            if ( (operator === 'above' || operator === 'above_or_equal_to') && recovery >= badOrWarning ) {
-                recoveryStateCntrl.setErrors({ 'invalid': true }); 
-            }
-            if ( (operator === 'below' || operator === 'below_or_equal_to') && recovery <= badOrWarning ) {
+
+            if ((operator === 'above' && recovery > badOrWarning)               ||
+                (operator === 'below' && recovery < badOrWarning)               ||
+                (operator === 'above_or_equal_to' && recovery >= badOrWarning)  ||
+                (operator === 'below_or_equal_to' && recovery <= badOrWarning)) {
                 recoveryStateCntrl.setErrors({ 'invalid': true });
             }
         }
