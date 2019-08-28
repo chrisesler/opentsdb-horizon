@@ -251,7 +251,13 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                         if (g.user_attrs_.isCustomZoomed) {
                             self.zoomed.emit({ start: null, end: null, isZoomed: false });
                         } else if (self._g.isZoomed()) {
-                            g.resetZoom();
+                            g.axes_.forEach((axis, i) => {
+                                const axisKey = i === 0 ? 'y' : 'y2';
+                                if (axis.valueRange) {
+                                    axis.valueRange = g.user_attrs_.axes[axisKey].valueRange;
+                                }
+                            });
+                            g.drawGraph_();
                         }
                     };
                 } else if (this.chartType === 'heatmap') {

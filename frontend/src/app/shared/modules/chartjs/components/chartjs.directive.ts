@@ -4,7 +4,6 @@ import 'chart.js';
 import customTooltip from '../../../chart.js/tooltip/custom-tooltip';
 import * as thresholdPlugin from '../../../chartjs-threshold-plugin/src/index';
 import { UnitConverterService } from '../../../../core/services/unit-converter.service';
-import 'chartjs-plugin-labels';
 
 Chart.defaults.global.defaultFontColor = '#000000';
 // Chart.defaults.global.defaultFontFamily = 'Monaco, monospace';
