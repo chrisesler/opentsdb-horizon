@@ -44,7 +44,6 @@
     "@types/node": "^10.12.12",
     "angular2gridster": "^7.0.2",
     "chart.js": "^2.7.2",
-    "chartjs-plugin-labels": "^1.0.1",
     "codelyzer": "^4.5.0",
     "core-js": "^2.6.0",
     "css-element-queries": "1.1.1",

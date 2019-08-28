@@ -105,7 +105,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         axes: {
             y: {
                 valueRange: [null, null],
-                tickFormat: {}
+                tickFormat: { precision: 'auto'}
             },
             y2: {
                 valueRange: [null, null],

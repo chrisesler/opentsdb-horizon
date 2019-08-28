@@ -193,8 +193,9 @@ export class UnitConverterService {
         }
 
         // takes care small values like 0.00001211 to 0.000012
-        if ( ( options.precision === 'auto' || options.precision === '')   && result && parseInt(result, 10) === 0 ) {
-            const nzeros = value.toString().match(/(\.0*)/)[0].length - 1;
+        if ( ( options.precision === 'auto' || options.precision === '')   && result && !isNaN(parseInt(result, 10)) ) {
+            const sVal = value.toString();
+            const nzeros = sVal.indexOf('.') !== -1 ? sVal.match(/(\.0*)/)[0].length - 1 : 0;
             precision = nzeros + 2;
         }
 
