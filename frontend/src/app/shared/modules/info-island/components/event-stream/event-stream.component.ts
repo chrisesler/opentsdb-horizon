@@ -12,7 +12,7 @@ import { MatAccordion, MatExpansionPanel } from '@angular/material';
     // tslint:disable-next-line:component-selector
     selector: 'event-stream',
     templateUrl: './event-stream.component.html',
-    styleUrls: ['./event-stream.component.scss']
+    styleUrls: []
 })
 export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
     @HostBinding('class.event-stream') private _componentClass = true;
