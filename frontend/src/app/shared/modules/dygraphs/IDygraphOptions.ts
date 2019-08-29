@@ -4,7 +4,7 @@ export interface DygraphOptionsAxis {
     labelFormatter?: any;
     tickFormat?: {
         unit?: string;
-        precision?: number;
+        precision?: any;
         unitDisplay?: boolean;
         min?: number;
         max?: number;

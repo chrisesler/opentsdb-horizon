@@ -83,6 +83,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         labelsUTC: false,
         labelsKMB: true,
         connectSeparatedPoints: true,
+        isCustomZoomed: false,
         drawPoints: false,
         //  labelsDivWidth: 0,
         // legend: 'follow',
@@ -104,7 +105,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         axes: {
             y: {
                 valueRange: [null, null],
-                tickFormat: {}
+                tickFormat: { precision: 'auto'}
             },
             y2: {
                 valueRange: [null, null],
@@ -151,6 +152,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         { label: 'P4', value: 'P4' },
         { label: 'P5', value: 'P5' }
     ];
+
+    defaultOpsGeniePriority = 'P5';
+    defaultOCSeverity = '5';
 
     alertOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     recoverOptions: any[] = [
@@ -213,6 +217,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     events: any = [];
     startTime;
     endTime;
+    prevDateRange: any = null;
     alertspageNavbarPortal: TemplatePortal;
     alertEvaluationLink: string;
 
@@ -335,11 +340,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 recipients: [ data.notification.recipients || {}],
                 subject: data.notification.subject  || '',
                 body: data.notification.body || '',
-                opsgeniePriority:  data.notification.opsgeniePriority || '',
+                opsgeniePriority:  data.notification.opsgeniePriority || this.defaultOpsGeniePriority,
                 // opsgenieTags: data.notification.opsgenieTags || '',
                 // OC conditional values
                 runbookId: data.notification.runbookId || '',
-                ocSeverity: data.notification.ocSeverity || '5'
+                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity
             })
         });
         this.setTags();
@@ -477,11 +482,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 recipients: [ data.notification.recipients || {}],
                 subject: data.notification.subject  || '',
                 body: data.notification.body || '',
-                opsgeniePriority:  data.notification.opsgeniePriority || 'P5',
+                opsgeniePriority:  data.notification.opsgeniePriority || this.defaultOpsGeniePriority,
                 // opsgenieTags: data.notification.opsgenieTags || '',
                 // OC conditional values
                 runbookId: data.notification.runbookId || '',
-                ocSeverity: data.notification.ocSeverity || '5'
+                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity
             })
         });
         this.setTags();
@@ -551,9 +556,9 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 recipients: [ data.notification.recipients || {}],
                 subject: data.notification.subject  || '',
                 body: data.notification.body || '',
-                opsgeniePriority:  data.notification.opsgeniePriority || '',
+                opsgeniePriority:  data.notification.opsgeniePriority || this.defaultOpsGeniePriority,
                 runbookId: data.notification.runbookId || '',
-                ocSeverity: data.notification.ocSeverity || '5'
+                ocSeverity: data.notification.ocSeverity || this.defaultOCSeverity
             })
         });
         this.options.axes.y.valueRange[0] = 0;
@@ -658,14 +663,16 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 this.options.labels = ['x'];
                 const data = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], res.counts);
                 // we are expecting one series. the max logic needs to changed when we support group by
-                let max = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
+                let max = 0, min = Infinity;
                 if ( res.counts.results.length && res.counts.results[0].data.length) {
                     for ( let i = 0; i < res.counts.results[0].data[0].NumericType.length - 1; i++ ) { // we ignore the last point
                         const d = res.counts.results[0].data[0].NumericType[i];
                         max = !isNaN(d) && d > max ? d : max;
+                        min = !isNaN(d) && d < min ? d : min;
                     }
                 }
                 this.options.axes.y.tickFormat.max = max;
+                this.options.axes.y.tickFormat.min = min;
                 this.setChartYMax();
                 this.chartData = { ts: data };
                 this.nQueryDataLoading = 0;
@@ -709,7 +716,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         // validate the warning value
         if ( this.alertForm.touched && badStateCntrl.value !== null && warningStateCntrl.value !== null ) {
             if ( (operator === 'above' || operator === 'above_or_equal_to') && warning >= bad ) {
-                warningStateCntrl.setErrors({ 'invalid': true }); 
+                warningStateCntrl.setErrors({ 'invalid': true });
             }
             if ( (operator === 'below' || operator === 'below_or_equal_to') && warning <= bad ) {
                 warningStateCntrl.setErrors({ 'invalid': true });
@@ -722,10 +729,11 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
         // validate the recovery value
         const badOrWarning = warningStateCntrl.value !== null ? warning : bad;
         if ( recoveryMode === 'specific' && this.alertForm.touched && badOrWarning !== null && recoveryStateCntrl.value !== null ) {
-            if ( (operator === 'above' || operator === 'above_or_equal_to') && recovery >= badOrWarning ) {
-                recoveryStateCntrl.setErrors({ 'invalid': true }); 
-            }
-            if ( (operator === 'below' || operator === 'below_or_equal_to') && recovery <= badOrWarning ) {
+
+            if ((operator === 'above' && recovery > badOrWarning)               ||
+                (operator === 'below' && recovery < badOrWarning)               ||
+                (operator === 'above_or_equal_to' && recovery >= badOrWarning)  ||
+                (operator === 'below_or_equal_to' && recovery <= badOrWarning)) {
                 recoveryStateCntrl.setErrors({ 'invalid': true });
             }
         }
@@ -919,6 +927,30 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
     /** methods */
 
 
+    handleZoom(zConfig) {
+        const n = this.chartData.ts.length;
+        this.options.isCustomZoomed = zConfig.isZoomed;
+        if ( zConfig.isZoomed && n > 0 ) {
+            if ( this.prevDateRange === null ) {
+                this.prevDateRange = { startTime: this.startTime, endTime: this.endTime };
+            }
+            const startTime = new Date(this.chartData.ts[0][0]).getTime() / 1000;
+            const endTime = new Date(this.chartData.ts[n - 1][0]).getTime() / 1000;
+            this.startTime = Math.floor(zConfig.start) <= startTime ? this.startTime : this.dateUtil.timestampToTime(zConfig.start, 'local');
+            this.endTime = Math.ceil(zConfig.end) >= endTime ? this.endTime : this.dateUtil.timestampToTime(zConfig.end, 'local');
+        } else if ( !zConfig.isZoomed) {
+            this.startTime = this.prevDateRange.startTime;
+            this.endTime = this.prevDateRange.endTime;
+            this.prevDateRange = null;
+        }
+        if ( this.data.type === 'event') {
+            this.doEventQuery$.next(['list', 'count']);
+        } else if ( this.data.type === 'simple' ) {
+            this.reloadData();
+        }
+        this.setAlertEvaluationLink();
+    }
+
     getData() {
         const settings = {
             settings: {
@@ -1025,7 +1057,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 break;
             case 'event':
                 max = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
-                min = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
+                min = 0; // always start from zero
                 break;
         }
         this.options.axes.y.valueRange[0] = min < this.options.axes.y.tickFormat.min ? (min -  min * 0.1) : null ;
