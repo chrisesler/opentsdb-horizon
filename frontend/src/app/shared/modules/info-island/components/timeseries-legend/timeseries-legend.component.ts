@@ -61,8 +61,8 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         this.options.open = true;
 
         const widgetAxes = _islandData.widget.settings.axes;
-        this.logScaleY1 = (widgetAxes.y1.hasOwnProperty('logscale')) ? widgetAxes.y1.logscale : false;
-        this.logScaleY2 = (widgetAxes.y2.hasOwnProperty('logscale')) ? widgetAxes.y2.logscale : false;
+        this.logScaleY1 = (widgetAxes.y1 && widgetAxes.y1.hasOwnProperty('logscale')) ? widgetAxes.y1.logscale : false;
+        this.logScaleY2 = (widgetAxes.y2 && widgetAxes.y2.hasOwnProperty('logscale')) ? widgetAxes.y2.logscale : false;
 
         // set subscriptions
         this.subscription.add(this.interCom.requestListen().subscribe(message => {
