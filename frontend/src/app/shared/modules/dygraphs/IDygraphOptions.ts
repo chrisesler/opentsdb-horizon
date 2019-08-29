@@ -35,6 +35,7 @@ export interface IDygraphOptions {
     legend?: "follow" | "always" | "never" | "onmouseover";
     logscale?: boolean;
     stackedGraph: boolean;
+    stackedGraphNaNFill?: string;
     hightlightCircleSize?: number;
     highlightSeriesBackgroundAlpha?: number,
     strokeWidth?: number;
