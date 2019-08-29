@@ -663,14 +663,16 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 this.options.labels = ['x'];
                 const data = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], res.counts);
                 // we are expecting one series. the max logic needs to changed when we support group by
-                let max = 0;
+                let max = 0, min = Infinity;
                 if ( res.counts.results.length && res.counts.results[0].data.length) {
                     for ( let i = 0; i < res.counts.results[0].data[0].NumericType.length - 1; i++ ) { // we ignore the last point
                         const d = res.counts.results[0].data[0].NumericType[i];
                         max = !isNaN(d) && d > max ? d : max;
+                        min = !isNaN(d) && d < min ? d : min;
                     }
                 }
                 this.options.axes.y.tickFormat.max = max;
+                this.options.axes.y.tickFormat.min = min;
                 this.setChartYMax();
                 this.chartData = { ts: data };
                 this.nQueryDataLoading = 0;
@@ -1055,7 +1057,7 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
                 break;
             case 'event':
                 max = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
-                min = this.alertForm.get('threshold').get('eventAlert').get('threshold').value;
+                min = 0; // always start from zero
                 break;
         }
         this.options.axes.y.valueRange[0] = min < this.options.axes.y.tickFormat.min ? (min -  min * 0.1) : null ;
