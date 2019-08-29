@@ -20,6 +20,7 @@ import { ISLAND_DATA } from '../info-island.tokens';
 import { IslandTestComponent } from '../components/island-test/island-test.component';
 import { EventStreamComponent } from '../components/event-stream/event-stream.component';
 import { IntercomService } from '../../../../core/services/intercom.service';
+import { TimeseriesLegendComponent } from '../components/timeseries-legend/timeseries-legend.component';
 
 @Injectable()
 export class InfoIslandService {
@@ -50,6 +51,9 @@ export class InfoIslandService {
             case 'EventStreamComponent':
                 retComp = EventStreamComponent;
                 break;
+            case 'TimeseriesLegendComponent':
+                retComp = TimeseriesLegendComponent;
+                break;
             case 'IslandTestComponent':
             default:
                 retComp = IslandTestComponent;
@@ -66,18 +70,19 @@ export class InfoIslandService {
             this.closeIsland(); // in case there is one open
         }
 
-        this.createOverlayRef(widgetContainerRef);
+        // merge options
+        const optionsToPass = JSON.parse(JSON.stringify(this.DEFAULT_OPTIONS));
+        Object.assign(optionsToPass, options);
+
+        this.originId = options.originId;
+
+        // create overlay reference
+        this.createOverlayRef(widgetContainerRef, optionsToPass);
 
         const portal = new ComponentPortal(InfoIslandComponent);
         const componentRef = this.overlayRef.attach(portal);
 
         this.islandComp = componentRef.instance;
-        const optionsToPass = JSON.parse(JSON.stringify(this.DEFAULT_OPTIONS));
-
-        // merge options
-        Object.assign(optionsToPass, options);
-
-        this.originId = options.originId;
 
         /* Dynamic width from the opening widget - commented out for now
         const containerDims = widgetContainerRef.nativeElement.getBoundingClientRect();
@@ -107,12 +112,29 @@ export class InfoIslandService {
         }
     }
 
-    private createOverlayRef(elRef: ElementRef) {
+    private createOverlayRef(elRef: ElementRef, options: any) {
+
+        let positionStrategy;
+        if (options.positionStrategy && options.positionStrategy === 'global') {
+            positionStrategy = this.getGlobalPositionStrategy();
+        } else {
+            positionStrategy = this.getPositionStrategy(elRef);
+        }
+
         this.overlayRef = this.overlay.create({
             hasBackdrop: false,
             scrollStrategy: this.overlay.scrollStrategies.noop(),
-            positionStrategy: this.getPositionStrategy(elRef)
+            // positionStrategy: this.getPositionStrategy(elRef)
+            positionStrategy: positionStrategy
         });
+    }
+
+    private getGlobalPositionStrategy() {
+        const globalPositionStrategy = this.overlay.position()
+            .global()
+            .centerHorizontally()
+            .centerVertically();
+        return globalPositionStrategy;
     }
 
     private getPositionStrategy(elRef: ElementRef) {
