@@ -71,5 +71,6 @@ export interface IDygraphOptions {
     highlightCircleSize?: number;
     xAxisHeight?: number;
     xRangePad?: number;
+    clickCallback?: any;
 }
 
