@@ -132,6 +132,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     graphData: any = {}; // { y: { x: { ts: [[0]] }}};
     graphRowLabelMarginLeft: 0;
 
+    // TIMESERIES LEGEND
+    // tsHighlightData: any = {};
+    // private _tsTickData: BehaviorSubject<any> = new BehaviorSubject({});
+
+    tsLegendOptions: any = {
+        open: false,
+        trackMouse: false
+    };
 
     // EVENTS
     buckets: any[] = []; // still need this, as dygraph was looking for it
@@ -173,12 +181,14 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 }
             });
 
+        // subscribe to event stream
         this.subscription.add(this._buckets.pipe().subscribe( buckets => {
             this.buckets = buckets;
         }));
 
-        // subscribe to event stream
         this.subscription.add(this.interCom.responseGet().subscribe((message: IMessage) => {
+
+            this.logger.log('REQUEST GET [LINE CHART]', message);
             switch (message.action) {
                 case 'TimeChanged':
                     this.options.isCustomZoomed = false;
@@ -208,12 +218,37 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         this.cdRef.markForCheck();
                     }
                     break;
+                case 'tsLegendOptionsChange':
+                    this.tsLegendOptions = message.payload;
+                    break;
             }
 
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'InfoIslandClosed':
                         this.updatedShowEventStream(false);
+                        break;
+                    case 'tsLegendRequestWidgetSettings':
+                        this.interCom.requestSend({
+                            id: this.widget.id,
+                            action: 'tsLegendWidgetSettingsResponse',
+                            payload: this.widget.settings
+                        });
+                        break;
+                    case 'tsLegendLogscaleChange':
+                        const axes = {...this.widget.settings.axes};
+                        axes.y1.enabled = message.payload.y1;
+                        axes.y1.scale = (message.payload.y1 === true) ? 'logscale' : 'linear';
+
+                        axes.y2.enabled = message.payload.y2;
+                        axes.y2.scale = (message.payload.y2 === true) ? 'logscale' : 'linear';
+
+                        this.updateConfig({
+                            action: 'SetAxes',
+                            payload: {
+                                data: axes
+                            }
+                        });
                         break;
                     case 'UpdateExpandedBucketIndex':
                         this._expandedBucketIndex.next(message.payload.index);
@@ -1223,6 +1258,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     // ctx should contain loop context... see template for details
+    // TODO: see if this is still used
     getGraphTemplateContext(data: any, ctx: any = {}): any {
         /*const graphContext = {
             $implicit: this,
@@ -1238,6 +1274,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         return graphContext;
     }
 
+    // get keys from graph data object
     getGraphDataObjectKeys(obj: any): string[] {
         if (!obj || obj === undefined || obj === null) {
             return [];
@@ -1246,6 +1283,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         return keys;
     }
 
+    // TODO: see if this is still used
     findGraphLegend(id: string): ElementRef {
         const legend = this.graphLegends.find((item: ElementRef) => {
             return item.nativeElement.getAttribute('data-id') === id;
@@ -1253,6 +1291,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         return legend || null;
     }
 
+    // set columns based on multigraph data
     setMultigraphColumns(data) {
         const ykeys = this.getGraphDataObjectKeys(data);
         const colKeys = ykeys.length ? this.getGraphDataObjectKeys(data[ykeys[0]]) : [];
@@ -1263,6 +1302,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    // event listener to multigraph container scroll
+    // used to reposition column headers
     multigraphContainerScroll(event: any) {
         // column header row needs to update position
         if (this.multigraphHeaderRow) {
@@ -1270,6 +1311,45 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
         // update row label marginLeft
         this.graphRowLabelMarginLeft = event.target.scrollLeft;
+    }
+
+    /* TIMESERIES LEGEND */
+
+    // event listener for dygraph to get latest tick data
+    timeseriesTickListener(event: any) {
+        // console.log('TIMESERIES TICK LISTENER', event);
+
+        if (event.action === 'openLegend') {
+            // open the infoIsland with TimeseriesLegend
+            const payload = {
+                portalDef: {
+                    type: 'component',
+                    name: 'TimeseriesLegendComponent'
+                },
+                data: {
+                    tsTickData: event.tickData
+                },
+                options: {
+                    title: 'Timeseries Legend'
+                }
+            };
+            // this goes to widgetLoader
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'InfoIslandOpen',
+                payload: payload
+            });
+        }
+
+        if (event.action === 'tickDataChange') {
+            // update tickData from mouseover
+            // this goes to TimeseriesLegend
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'tsTickDataChange',
+                payload: event.tickData
+            });
+        }
     }
 
     /* ON DESTROY */

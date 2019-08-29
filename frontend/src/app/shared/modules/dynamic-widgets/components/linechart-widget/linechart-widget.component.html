@@ -65,6 +65,8 @@
                                         [eventBuckets]="buckets"
                                         [showEvents]="widget.settings.visual.showEvents"
                                         [multigraph]="multigraphEnabled"
+                                        [timeseriesLegend]="tsLegendOptions"
+                                        (currentTickEvent)="timeseriesTickListener($event)"
                                         (dateWindow)="receivedDateWindow($event)"
                                         (zoomed)="handleZoom($event)">
                                     </div>
