@@ -25,8 +25,10 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     @Input() eventBuckets: any[];
     @Input() showEvents: boolean;
     @Input() multigraph: boolean;
+    @Input() timeseriesLegend: any;
     @Output() zoomed = new EventEmitter;
     @Output() dateWindow = new EventEmitter<any>();
+    @Output() currentTickEvent = new EventEmitter<any>();
 
     private startTime = 0; // for icon placement
     private _g: any;
@@ -79,18 +81,81 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         }
 
         /* part of coming pr change*/
-        if (!this.options.hasOwnProperty('hideOverlayOnMouseOut ')) {
+        if (!this.options.hasOwnProperty('hideOverlayOnMouseOut')) {
             this.options.hideOverlayOnMouseOut = false;
         }
 
 
         const self = this;
-        const mouseover = function (event, x, pts, row) {
+        const mouseover = function (e, x, points, row) {
 
             /* Commenting out for now
                 will be part of next PR that will improve tooltip movement*/
             if (!self.firstTickHighlight) {
                 self.firstTickHighlight = true;
+            }
+
+            if (self.timeseriesLegend.open && self.timeseriesLegend.trackMouse) {
+                const options = this.user_attrs_;
+                const series = options.series;
+
+                // format tick data output
+                const tickDataOutput = {
+                    timestamp: x,
+                    when: options.labelsUTC ? moment(x).utc().format('YYYY/MM/DD HH:mm') : moment(x).format('YYYY/MM/DD HH:mm'),
+                    series: []
+                };
+
+                for (let i = 0; i < points.length; i++) {
+                    const data: any = {
+                        data: {...points[i]},
+                        series: {...series[points[i].name]}
+                    };
+                    tickDataOutput.series.push(data);
+                }
+
+                self.currentTickEvent.emit({
+                    action: 'tickDataChange',
+                    tickData: tickDataOutput
+                });
+            }
+
+            // console.log('MOUSEOVER', {event, x, points, row});
+
+        };
+
+        const clickCallback = function(e, x, points) {
+            // console.log('GRAPH CLICK', {e, x, points, _g: this});
+            // check if island open
+
+            const options = this.user_attrs_;
+            const series = options.series;
+
+            // format tick data output
+            const tickDataOutput = {
+                timestamp: x,
+                when: options.labelsUTC ? moment(x).utc().format('YYYY/MM/DD HH:mm') : moment(x).format('YYYY/MM/DD HH:mm'),
+                series: []
+            };
+
+            for (let i = 0; i < points.length; i++) {
+                const data: any = {
+                    data: {...points[i]},
+                    series: {...series[points[i].name]}
+                };
+                tickDataOutput.series.push(data);
+            }
+
+            if (!self.timeseriesLegend.open) {
+                self.currentTickEvent.emit({
+                    action: 'openLegend',
+                    tickData: tickDataOutput
+                });
+            } else {
+                self.currentTickEvent.emit({
+                    action: 'tickDataChange',
+                    tickData: tickDataOutput
+                });
             }
 
         };
@@ -254,6 +319,10 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                             g.resetZoom();
                         }
                     };
+
+                    if (this.timeseriesLegend) {
+                        this.options.clickCallback = clickCallback;
+;                    }
                 } else if (this.chartType === 'heatmap') {
                     this.options.interactionModel = {
                         'mousemove': function (event, g, context) {
