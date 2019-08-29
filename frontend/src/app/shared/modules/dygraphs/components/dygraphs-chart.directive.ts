@@ -25,7 +25,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     @Input() eventBuckets: any[];
     @Input() showEvents: boolean;
     @Input() multigraph: boolean;
-    @Output() zoomed = new EventEmitter;
+    @Output() zoomed = new EventEmitter<any>();
     @Output() dateWindow = new EventEmitter<any>();
 
     private startTime = 0; // for icon placement
@@ -47,7 +47,6 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
     ngOnInit() { }
 
     ngOnChanges(changes: SimpleChanges) {
-
         // NOTE:
         // If changing to custom row/column after splitting metric by tag, it would cause the dygraph option.plugins error
         // the options.plugins originally has one item that is a function
@@ -227,9 +226,8 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         if (!changes) {
             return;
         } else {
-            // if not then create it
-            if (!this._g && this.data) {
-                
+            // if new data
+            if (( changes.data && changes.data.currentValue || changes.options && changes.options.currentValue) ) {
                 this.options.plugins = [ThresholdsPlugin];
 
                 if (this.chartType === 'line') {
@@ -314,12 +312,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                         }
                     };
                 }
-                this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
-            }
-            // if new data
-            if (this._g && changes.data && changes.data.currentValue) {
-                
-                const ndata = changes.data.currentValue;
+
                 if (this.options.axes) {
                     for (const k of Object.keys(this.options.axes)) {
                         const axis = this.options.axes[k];
@@ -332,62 +325,18 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                         }
                     }
                 }
-                this._g.destroy();
-                this.options.legendFormatter = legendFormatter;
-                if (this.chartType === 'line' && this.options.labelsDiv) {
-                    this.options.highlightCallback = mouseover;
+                if ( this._g ) {
+                    this._g.destroy();
                 }
-                if (!this.options.zoomCallback) {
-                    this.options.zoomCallback = function (minDate, maxDate, yRanges) {
-                        // we only handle xzoom
-                        if (!yRanges) {
-                            self.zoomed.emit({ start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
-                        }
-                    };
-                }
-                this._g = new Dygraph(this.element.nativeElement, ndata.ts, this.options);
-            }
-
-            if (this._g && changes.options && changes.options.currentValue) {
-                const options = changes.options.currentValue;
-                if (options.axes) {
-                    for (const k of Object.keys(options.axes)) {
-                        const axis = options.axes[k];
-                        if (axis.tickFormat) {
-                            axis.axisLabelFormatter = tickFormatter;
-                            axis.valueFormatter = valueFormatter;
-                        } else {
-                            delete axis.axisLabelFormatter;
-                            delete axis.valueFormatter;
-                        }
-                    }
-                }
-                // destroy only when y2 axis enabled
-                this._g.destroy();
-                this.options.legendFormatter = legendFormatter;
-                if (this.chartType === 'line' && this.options.labelsDiv) {
-                    this.options.highlightCallback = mouseover;
-                }
-                if (!this.options.zoomCallback) {
-                    this.options.zoomCallback = function (minDate, maxDate, yRanges) {
-                        // we only handle xzoom
-                        if (!yRanges) {
-                            self.zoomed.emit({ start: minDate / 1000, end: maxDate / 1000, isZoomed: true });
-                        }
-                    };
-                }
+                this.options.width = this.size.width;
+                this.options.height = this.size.height;
                 this._g = new Dygraph(this.element.nativeElement, this.data.ts, this.options);
-            }
-            // resize when size be changed
-            if (this._g && changes.size && changes.size.currentValue) {
-                const nsize = changes.size.currentValue;
+            } else if (this._g && (changes.size || changes.eventBuckets || changes.showEvents) ) {
                 this._g.updateOptions(this.options);
-                this._g.resize(nsize.width, nsize.height);
-            }
-
-            if (this._g && (changes.eventBuckets || changes.showEvents)) {
-                // refresh underlay
-                this._g.updateOptions(this.options);
+                if ( changes.size ) {
+                    const nsize = changes.size.currentValue;
+                    this._g.resize(nsize.width, nsize.height);
+                }
             }
         }
     }
