@@ -1,8 +1,9 @@
 <div class="info-island-container"
+    cdkDrag
+    cdkDragRootElement=".cdk-overlay-pane"
     [ngStyle]="{'width.px': options.width, 'height.px': options.height}"
     [@infoIslandAnimation]="animationState"
     (@infoIslandAnimation.done)="animationDone()"
-    cdkDrag
     #islandContainer>
     <mat-card>
         <mat-card-header cdkDragHandle #dragHandle>
@@ -22,12 +23,11 @@
             <button mat-button (click)="animateClose()">Close</button>
         </mat-card-actions>
     </mat-card>
-    <!-- COMMENTING OUT FOR NOW TILL MATERIAL UPGRADE CAN HAPPEN
+    <!-- Window Resizing handlers -->
     <div class='resizers'>
         <div class='resizer top-left' #resizerEl cdkDrag (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
         <div class='resizer top-right' #resizerEl cdkDrag (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
         <div class='resizer bottom-left' #resizerEl cdkDrag (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
         <div class='resizer bottom-right' #resizerEl cdkDrag (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
-    </div>
-    -->
+    </div>  
 </div>

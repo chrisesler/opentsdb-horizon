@@ -1,15 +1,16 @@
 import { Component,OnInit, Inject, OnDestroy, HostBinding,
-    AfterViewInit, ViewChild, ElementRef, ViewChildren, QueryList } from '@angular/core';
+    AfterViewInit, ViewChild, ElementRef, ViewChildren, QueryList} from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 import { Subject, Observable, Subscription } from 'rxjs';
 import { InfoIslandOptions } from '../services/info-island-options';
 import { LoggerService } from '../../../../core/services/logger.service';
-import { CdkDrag } from '@angular/cdk/drag-drop';
+import { CdkDrag} from '@angular/cdk/drag-drop';
 import { Portal } from '@angular/cdk/portal';
 
 @Component({
-    selector: 'app-info-island',
+    // tslint:disable-next-line: component-selector
+    selector: 'info-island',
     templateUrl: './info-island.component.html',
     styleUrls: [],
     animations: [
@@ -32,12 +33,12 @@ import { Portal } from '@angular/cdk/portal';
         ])
     ]
 })
-export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
+export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit  {
 
     constructor(
         private logger: LoggerService,
         private hostEl: ElementRef
-    ) { }
+    ) {}
 
     @HostBinding('class.info-island-component') private _hostClass = true;
 
@@ -64,7 +65,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
         showActions: false
     };
 
-    minimum_size = {x: 150, y: 100};
+    minimum_size = {x: 500, y: 200};
     origDims: any = {
         width: 0,
         height: 0,
@@ -85,19 +86,21 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
 
     ngOnInit() { }
 
-    ngOnDestroy() {
-        this.onCloseIsland.unsubscribe();
-    }
-
     ngAfterViewInit() {
         this.hostPosition = this.hostEl.nativeElement.getBoundingClientRect();
         this.logger.log('ISLAND', { island: this.islandContainer });
         this.logger.log('ResizerEls', { resizers: this.resizers });
+        //this.hostEl.nativeElement.style.width = 0;
+        //this.hostEl.nativeElement.style.height = 0;
     }
 
     open(portalRef: Portal<any>, options: any) {
         // merge options
         Object.assign(this.options, options);
+
+        this.hostEl.nativeElement.style.width = options.width + 'px';
+        this.hostEl.nativeElement.style.height = options.height + 'px';
+        this.hostPosition = this.hostEl.nativeElement.getBoundingClientRect();
 
         this.portalRef = portalRef;
         this.animationState = '*';
@@ -114,10 +117,17 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
 
     animationDone() {
         if (this.animationState === 'void') {
+            this.hostEl.nativeElement.style.width = this.hostPosition.width;
+            this.hostEl.nativeElement.style.height = this.hostPosition.height;
             this.onCloseIsland.next();
         }
     }
 
+    /** window dragging */
+
+    dragIslandWindow(event: any) { }
+
+    /** Corner Resizing */
     private getTransformMatrix(el: any) {
         const transArr = [];
         if (!window.getComputedStyle) {
@@ -145,7 +155,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     dragResizeStart(e: any) {
-        this.logger.log('dragResizeStart', {event: e});
+        // this.logger.log('dragResizeStart', {event: e});
 
         const element = this.islandContainer.nativeElement;
         this.origDims.width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
@@ -159,7 +169,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     dragResizeMove(e: any) {
-        this.logger.log('dragResizeMove', {event: e, dragContainer: this.dragContainer});
+        // this.logger.log('dragResizeMove', {event: e, dragContainer: this.dragContainer});
         const currentResizer = e.source.element.nativeElement;
         const element = this.islandContainer.nativeElement;
 
@@ -181,7 +191,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
                 element.style.height = height + 'px';
             }
 
-            this.logger.log('BOTTOM-RIGHT', {origin: this.origDims, width, height});
+            // this.logger.log('BOTTOM-RIGHT', {origin: this.origDims, width, height});
         } else if (currentResizer.classList.contains('bottom-left')) {
             width = this.origDims.width - (e.pointerPosition.x - this.origDims.pointerPosition.x);
             height = this.origDims.height + (e.pointerPosition.y - this.origDims.pointerPosition.y);
@@ -196,7 +206,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
                 triggerTransform = true;
             }
 
-            this.logger.log('BOTTOM-LEFT', {origin: this.origDims, width, height, diff });
+            // this.logger.log('BOTTOM-LEFT', {origin: this.origDims, width, height, diff });
 
         } else if (currentResizer.classList.contains('top-right')) {
             width = this.origDims.width + (e.pointerPosition.x - this.origDims.pointerPosition.x);
@@ -212,7 +222,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
                 transform[1] = (e.delta.y === 1) ? transform[1] + diff : transform[1] - (diff * e.delta.y);
                 triggerTransform = true;
             }
-            this.logger.log('TOP-RIGHT', {origin: this.origDims, width, height, diff });
+            // this.logger.log('TOP-RIGHT', {origin: this.origDims, width, height, diff });
         } else {
 
             width = this.origDims.width - (e.pointerPosition.x - this.origDims.pointerPosition.x);
@@ -235,7 +245,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
                 triggerTransform = true;
             }
 
-            this.logger.log('TOP-LEFT', {origin: this.origDims, width, height, diffX, diffY });
+            // this.logger.log('TOP-LEFT', {origin: this.origDims, width, height, diffX, diffY });
 
         }
         if (triggerTransform) {
@@ -249,5 +259,10 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
         this.logger.log('dragResizeRelease', {event: e});
     }
 
+    /** On Destroy */
+
+    ngOnDestroy() {
+        this.onCloseIsland.unsubscribe();
+    }
 
 }
