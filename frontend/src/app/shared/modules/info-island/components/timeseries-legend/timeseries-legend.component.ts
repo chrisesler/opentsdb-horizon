@@ -1,11 +1,14 @@
 import {
-    Component, OnInit, HostBinding, Inject, OnDestroy, ViewChild
+    Component, OnInit, HostBinding, Inject, OnDestroy, ViewChild, Renderer2, ElementRef
 } from '@angular/core';
 import { ISLAND_DATA } from '../../info-island.tokens';
 import { IntercomService } from '../../../../../core/services/intercom.service';
 import { Subscription } from 'rxjs';
 import { MatTableDataSource, MatTable, MatSort } from '@angular/material';
 import { FormControl } from '@angular/forms';
+import { LoggerService } from '../../../../../core/services/logger.service';
+import { CdkObserveContent } from '@angular/cdk/observers';
+import { InfoIslandComponent } from '../../containers/info-island.component';
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -17,9 +20,12 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
 
     @HostBinding('class.timeseries-legend-component') private _hostClass = true;
 
-    @ViewChild('legendTable', {read: MatTable}) legendTable: MatTable<any>;
-
+    @ViewChild('legendTable', {read: MatTable}) private _legendTable: MatTable<any>;
+    @ViewChild('legendTable', {read: ElementRef}) private _legendTableEl: ElementRef<any>;
+    @ViewChild('legendTable', {read: CdkObserveContent}) private _legendTableObserve: CdkObserveContent;
     @ViewChild(MatSort) sort: MatSort;
+
+    islandRef: InfoIslandComponent;
 
     /** Subscription handler */
     private subscription: Subscription = new Subscription();
@@ -46,12 +52,16 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     tableDataSource: MatTableDataSource<any[]> = new MatTableDataSource<any[]>([]);
     resultTagKeys: string[] = [];
 
+    private tableListen;
+
     constructor(
+        private logger: LoggerService,
         private interCom: IntercomService,
+        private renderer: Renderer2,
         @Inject(ISLAND_DATA) private _islandData: any
     ) {
 
-        console.log('INITIAL DATA', _islandData);
+        console.log('INITIAL DATA', _islandData.data.tsTickData);
 
         // Set initial incoming data (data from first click that opens island)
         this.currentWidgetId = _islandData.originId;
@@ -60,12 +70,13 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         this.setTableData();
         this.options.open = true;
 
-        const widgetAxes = _islandData.widget.settings.axes;
+        const widgetAxes = _islandData.widget.settings.axes || {};
         this.logScaleY1 = (widgetAxes.y1 && widgetAxes.y1.hasOwnProperty('logscale')) ? widgetAxes.y1.logscale : false;
         this.logScaleY2 = (widgetAxes.y2 && widgetAxes.y2.hasOwnProperty('logscale')) ? widgetAxes.y2.logscale : false;
 
         // set subscriptions
         this.subscription.add(this.interCom.requestListen().subscribe(message => {
+            // this.logger.log('TSL INTERCOM LISTEN', message);
             switch (message.action) {
                 case 'tsLegendWidgetSettingsResponse':
                     console.log('tsLegendWidgetSettingsResponse', message);
@@ -81,9 +92,13 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                             id: message.id,
                             action: 'tsLegendRequestWidgetSettings'
                         });
+                        this._legendTableObserve.disabled = false;
+                    }
+                    if (message.payload.trackMouse) {
+                        this.trackmouseCheckboxChange(message.payload.trackMouse);
                     }
                     this.currentWidgetId = message.id;
-                    this.data = message.payload;
+                    this.data = message.payload.tickData;
                     this.setTableColumns();
                     this.setTableData();
                     break;
@@ -92,13 +107,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
             }
         }));
 
-        this.subscription.add(this.showAmount.valueChanges.subscribe(value => {
-            if (this.dataLimitType !== 'All') {
-                // console.log('show amount changes', value);
-                // trigger some data filtering
-                this.setTableData();
-            }
-        }));
+
 
         // interCom out the options
         this.interCom.responsePut({
@@ -121,7 +130,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
 
     /** Toolbar controls */
     trackmouseCheckboxChange(event: any) {
-        console.log('trackmouse', event);
+        // console.log('trackmouse', event);
 
         // update options, then interCom requestSend change
         this.options.trackMouse = event.checked;
@@ -159,21 +168,34 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
 
     /** Table controls & functions */
 
+    tableContentChanged(event: any) {
+        // console.log('TABLE CONTENT CHANGED', event);
+        // calculate size of table
+        const tableSize: DOMRect = this._legendTableEl.nativeElement.getBoundingClientRect();
+        // console.log('TABLE SIZE', tableSize);
+
+        // attempt to tell island window of potential minimum size to open with all data visible
+        this.islandRef.updateSize(tableSize);
+
+        // then disable this watcher
+        this._legendTableObserve.disabled = true;
+    }
+
     onMatSortChange(event: any) {
-        console.log('SORT CHANGE', event);
+        // console.log('SORT CHANGE', event);
         // trigger some sort of data filtering?
         this.setTableData();
     }
 
     private setTableColumns() {
         // columns always start with these
-        let columns = ['checkbox', 'metricName'];
+        let columns = ['checkbox', 'metric'];
 
-        // extract tags
+        // extract tags, excluding 'metric' as we already set it after 'checkbox'
         // NOTE: making assumption common tags are already in all data series
         let tagKeys = [];
         if (this.data.series.length > 0) {
-            tagKeys = Object.keys(this.data.series[0].series.tags);
+            tagKeys = Object.keys(this.data.series[0].series.tags).filter(tag => tag !== 'metric');
         }
 
         columns = columns.concat(tagKeys, ['value']);
@@ -205,8 +227,8 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                     break;
             }
         }
-        if (this.legendTable) {
-            this.legendTable.renderRows();
+        if (this._legendTable) {
+            this._legendTable.renderRows();
         }
     }
 
@@ -214,9 +236,10 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     // we have to use a sort accessor depending on column to
     // return correct data to sort against
     sortAccessor(item, property) {
-        console.log('SORT ACCESSOR', item, property);
+        // console.log('SORT ACCESSOR', item, property);
         if (property === 'value') {
-            return item.data.yval;
+            //return item.data.yval;
+            return item.formattedValue;
         } else {
             return item[property];
         }

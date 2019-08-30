@@ -1,6 +1,7 @@
 @mixin timeseries-legend-component-base() {
     .timeseries-legend-component {
         display: flex;
+        flex: 1;
         flex-direction: column;
         min-height: 100%;
 
@@ -12,83 +13,18 @@
             font-size: 12px;
 
             &.mat-toolbar-multiple-rows {
-                min-height: 56px;
+                min-height: initial;
             }
 
             .mat-toolbar-row {
                 padding: 0 6px;
             }
 
-            &,
-            .mat-toolbar-row:not(.detail-brief) {
-                height: 32px;
-            }
-
             .mat-toolbar-row.detail-brief {
                 font-weight: normal;
                 height: 24px;
                 font-size: 10px;
-            }
-
-            .toolbar-item {
-                &:not(:last-child) {
-                    margin-right: 6px;
-                }
-
-                &.show-limit-types {
-                    > span {
-                        margin-right: 6px;
-                    }
-
-                    .mat-flat-button {
-                        padding: 0 0 0 8px;
-                        line-height: 18px;
-                        font-size: 12px;
-
-                        .mat-button-wrapper {
-                            display: flex;
-                            text-align: left;
-
-                            > span {
-                                flex: 1;
-                            }
-                        }
-                    }
-                }
-
-                &.show-amount-controls {
-                    input {
-                        font-size: 12px;
-                        max-width: 50px;
-                    }
-                }
-
-                &.logscale-controls {
-                    > span {
-                        margin-right: 6px;
-                    }
-
-                    .mat-checkbox {
-                        margin-right: 8px;
-                    }
-                }
-            }
-
-            .mat-select-arrow-wrapper {
-                width: 24px;
-                display: flex;
-                align-items: center;
-
-                .mat-select-arrow {
-                    width: 0;
-                    height: 0;
-                    border-left: 5px solid transparent;
-                    border-right: 5px solid transparent;
-                    border-top: 5px solid;
-                    margin: 0 4px;
-                    color: rgba(0, 0, 0, .54);
-                }
-            }
+            }  
         }
 
         .ts-legend-table {
@@ -132,6 +68,15 @@
                 &:last-of-type {
                     padding-right: 8px;
                 }
+
+                // value column is right aligned
+                &.mat-column-value {
+                    text-align: right;
+                }
+            }
+
+            .mat-header-cell.mat-column-value .mat-sort-header-container {
+                justify-content: flex-end;
             }
 
             .mat-header-cell .mat-sort-header-container.mat-sort-header-sorted .mat-sort-header-arrow{ opacity: 1 !important; }
@@ -144,6 +89,69 @@
             background-color: currentColor;
             display: inline-block;
             margin-right: 4px;
+        }
+    }
+
+    // island toolbar
+    .info-island-toolbar.timeseries-legend-toolbar {
+        .toolbar-item {
+            &:not(:last-child) {
+                margin-right: 6px;
+            }
+
+            &.show-limit-types {
+                > span {
+                    margin-right: 6px;
+                }
+
+                .mat-flat-button {
+                    padding: 0 0 0 8px;
+                    line-height: 18px;
+                    font-size: 12px;
+
+                    .mat-button-wrapper {
+                        display: flex;
+                        text-align: left;
+
+                        > span {
+                            flex: 1;
+                        }
+                    }
+                }
+            }
+
+            &.show-amount-controls {
+                input {
+                    font-size: 12px;
+                    max-width: 50px;
+                }
+            }
+
+            &.logscale-controls {
+                > span {
+                    margin-right: 6px;
+                }
+
+                .mat-checkbox {
+                    margin-right: 8px;
+                }
+            }
+        }
+
+        .mat-select-arrow-wrapper {
+            width: 24px;
+            display: flex;
+            align-items: center;
+
+            .mat-select-arrow {
+                width: 0;
+                height: 0;
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 5px solid;
+                margin: 0 4px;
+                color: rgba(0, 0, 0, .54);
+            }
         }
     }
 
@@ -175,12 +183,6 @@
             color: white;
             background-color: black;
 
-            .mat-checkbox:not(.mat-checkbox-checked) {
-                .mat-checkbox-background {
-                    background-color: white;
-                }
-            }
-
             .mat-toolbar-row.detail-brief {
                 color: #3a87ad;
                 background-color: #ddeff9;
@@ -194,6 +196,15 @@
                 .mat-sort-header-arrow {
                     color: darken(#c09853, 15%);
                 }
+            }
+        }
+    }
+
+    // island toolbar
+    .info-island-toolbar.timeseries-legend-toolbar {
+        .mat-checkbox:not(.mat-checkbox-checked) {
+            .mat-checkbox-background {
+                background-color: white;
             }
         }
     }
