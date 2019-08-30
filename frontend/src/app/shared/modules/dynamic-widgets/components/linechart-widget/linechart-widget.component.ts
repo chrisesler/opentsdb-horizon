@@ -188,7 +188,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
         this.subscription.add(this.interCom.responseGet().subscribe((message: IMessage) => {
 
-            this.logger.log('REQUEST GET [LINE CHART]', message);
+            // this.logger.log('REQUEST GET [LINE CHART]', message);
             switch (message.action) {
                 case 'TimeChanged':
                     this.options.isCustomZoomed = false;
@@ -1042,6 +1042,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         if ( !this.showEventStream ) {
             // IF NOT OPEN, OPEN IT
 
+            const islandTitle = this.widget.eventQueries[0].search ?
+                                // tslint:disable-next-line:max-line-length
+                                this.getEventCountInBuckets() + ' Events: ' + this.widget.eventQueries[0].namespace + ' - ' + this.widget.eventQueries[0].search :
+                                this.getEventCountInBuckets() + ' Events: ' + this.widget.eventQueries[0].namespace;
+
             // to open info island
             const payload = {
                 portalDef: {
@@ -1052,13 +1057,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     buckets$: this._buckets.asObservable(),
                     timeRange$: this._timeRange.asObservable(),
                     timezone$: this._timezone.asObservable(),
-                    expandedBucketIndex$: this._expandedBucketIndex.asObservable()
+                    expandedBucketIndex$: this._expandedBucketIndex.asObservable(),
+                    title: islandTitle
                 },
                 options: {
-                    title: this.widget.eventQueries[0].search ?
-                       // tslint:disable-next-line:max-line-length
-                       this.getEventCountInBuckets() + ' Events: ' + this.widget.eventQueries[0].namespace + ' - ' + this.widget.eventQueries[0].search :
-                       this.getEventCountInBuckets() + ' Events: ' + this.widget.eventQueries[0].namespace
+                    title: islandTitle
                 }
             };
 
@@ -1344,10 +1347,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         if (event.action === 'tickDataChange') {
             // update tickData from mouseover
             // this goes to TimeseriesLegend
+            const payload: any = {
+                tickData: event.tickData
+            };
+            if (event.trackMouse) {
+                payload.trackMouse = event.trackMouse;
+            }
             this.interCom.requestSend({
                 id: this.widget.id,
                 action: 'tsTickDataChange',
-                payload: event.tickData
+                payload: payload
             });
         }
     }
