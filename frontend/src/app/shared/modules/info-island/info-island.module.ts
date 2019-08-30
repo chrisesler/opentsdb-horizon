@@ -14,6 +14,7 @@ import { EventStreamComponent } from './components/event-stream/event-stream.com
 
 import { TimeseriesLegendComponent } from './components/timeseries-legend/timeseries-legend.component';
 import { MatTableModule, MatSortModule } from '@angular/material';
+import { InfoIslandToolbarComponent } from './components/info-island-toolbar/info-island-toolbar.component';
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import { MatTableModule, MatSortModule } from '@angular/material';
         InfoIslandComponent,
         IslandTestComponent,
         EventStreamComponent,
-        TimeseriesLegendComponent
+        TimeseriesLegendComponent,
+        InfoIslandToolbarComponent
     ],
     providers: [
         InfoIslandService
