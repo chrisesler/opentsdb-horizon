@@ -7,11 +7,11 @@
     #islandContainer>
     <mat-card>
         <mat-card-header cdkDragHandle #dragHandle>
-            <mat-card-title fxLayout="row">
-                <div class="title">{{options.title || 'Info Island'}}</div>
+            <mat-card-title fxLayout="row" fxLayoutAlign="end center">
+                <ng-container #islandToolbar></ng-container>
                 <div class="close" *ngIf="options?.closable">
                     <button mat-icon-button class="close-button" (click)="animateClose()">
-                        <i class="material-icons">close</i>
+                        <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
                     </button>   
                 </div>
             </mat-card-title>

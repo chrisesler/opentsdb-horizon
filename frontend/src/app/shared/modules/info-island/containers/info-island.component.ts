@@ -1,5 +1,5 @@
 import { Component,OnInit, Inject, OnDestroy, HostBinding,
-    AfterViewInit, ViewChild, ElementRef, ViewChildren, QueryList} from '@angular/core';
+    AfterViewInit, ViewChild, ElementRef, ViewChildren, QueryList, ViewContainerRef} from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 import { Subject, Observable, Subscription } from 'rxjs';
@@ -42,13 +42,19 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit  {
 
     @HostBinding('class.info-island-component') private _hostClass = true;
 
-    @ViewChild('islandContainer', { read: ElementRef }) islandContainer: ElementRef;
+    @ViewChild('islandContainer', { read: ElementRef }) private _islandContainer: ElementRef;
 
-    @ViewChild('islandContainer', {read: CdkDrag }) dragContainer: CdkDrag;
+    @ViewChild('islandContainer', {read: CdkDrag }) private _dragContainer: CdkDrag;
 
-    @ViewChildren('resizerEl', { read: ElementRef }) resizers: QueryList<ElementRef>;
+    @ViewChild('islandToolbar', {read: ViewContainerRef}) private _islandToolbar: ViewContainerRef;
+    get islandToolbar(): ViewContainerRef {
+        return this._islandToolbar;
+    }
 
-    @ViewChildren('resizerEl', { read: CdkDrag }) dragHandles: QueryList<ElementRef>;
+    // resizers Elements
+    @ViewChildren('resizerEl', { read: ElementRef }) private _resizers: QueryList<ElementRef>;
+    // resizers CdkDrag instances
+    @ViewChildren('resizerEl', { read: CdkDrag }) private _dragHandles: QueryList<ElementRef>;
 
     private onCloseIsland = new Subject<void>();
     onCloseIsland$ = this.onCloseIsland.asObservable();
@@ -88,10 +94,9 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit  {
 
     ngAfterViewInit() {
         this.hostPosition = this.hostEl.nativeElement.getBoundingClientRect();
-        this.logger.log('ISLAND', { island: this.islandContainer });
-        this.logger.log('ResizerEls', { resizers: this.resizers });
-        //this.hostEl.nativeElement.style.width = 0;
-        //this.hostEl.nativeElement.style.height = 0;
+        // this.logger.log('ISLAND', { island: this._islandContainer });
+        // this.logger.log('ResizerEls', { resizers: this._resizers });
+        // this.logger.log('TOOLBAR', {toolbar: this._islandToolbar});
     }
 
     open(portalRef: Portal<any>, options: any) {
@@ -120,6 +125,19 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit  {
             this.hostEl.nativeElement.style.width = this.hostPosition.width;
             this.hostEl.nativeElement.style.height = this.hostPosition.height;
             this.onCloseIsland.next();
+        }
+    }
+
+    updateSize(size: DOMRect) {
+        if (size.width > this.options.width) {
+
+            // check against dashboard content size
+            const dbContent = document.querySelector('.app-dboard-content');
+            const dbSize = dbContent.getBoundingClientRect();
+
+            this.options.width = (size.width + 24 < dbSize.width - 24) ? size.width + 24 : dbSize.width - 24;
+            this.hostEl.nativeElement.style.width = this.options.width + 'px';
+            this.hostPosition = this.hostEl.nativeElement.getBoundingClientRect();
         }
     }
 
@@ -157,7 +175,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit  {
     dragResizeStart(e: any) {
         // this.logger.log('dragResizeStart', {event: e});
 
-        const element = this.islandContainer.nativeElement;
+        const element = this._islandContainer.nativeElement;
         this.origDims.width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
         this.origDims.height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
         this.origDims.x = element.getBoundingClientRect().left;
@@ -171,7 +189,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit  {
     dragResizeMove(e: any) {
         // this.logger.log('dragResizeMove', {event: e, dragContainer: this.dragContainer});
         const currentResizer = e.source.element.nativeElement;
-        const element = this.islandContainer.nativeElement;
+        const element = this._islandContainer.nativeElement;
 
         let width: any;
         let height: any;
