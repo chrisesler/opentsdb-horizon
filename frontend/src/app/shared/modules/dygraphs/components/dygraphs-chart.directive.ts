@@ -125,7 +125,7 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         };
 
         const clickCallback = function(e, x, points) {
-            // console.log('GRAPH CLICK', {e, x, points, _g: this});
+            console.log('GRAPH CLICK', {e, x, points, _g: this});
             // check if island open
 
             const options = this.user_attrs_;
@@ -143,6 +143,12 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     data: {...points[i]},
                     series: {...series[points[i].name]}
                 };
+                // format the value
+                const axis = series[points[i].name].axis;
+                const format = options.axes[axis].tickFormat;
+                const precision = format.precision ? format.precision : 2;
+                const dunit = self.uConverter.getNormalizedUnit(data.data.yval, format);
+                data.formattedValue = self.uConverter.convert(data.data.yval, format.unit, dunit, { unit: format.unit, precision: precision });
                 tickDataOutput.series.push(data);
             }
 
@@ -154,7 +160,10 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
             } else {
                 self.currentTickEvent.emit({
                     action: 'tickDataChange',
-                    tickData: tickDataOutput
+                    tickData: tickDataOutput,
+                    trackMouse: {
+                        checked: false
+                    }
                 });
             }
 
