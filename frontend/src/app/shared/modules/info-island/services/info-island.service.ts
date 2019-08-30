@@ -58,14 +58,39 @@ export class InfoIslandService {
             default:
                 retComp = IslandTestComponent;
                 break;
-
         }
 
         return retComp;
     }
 
+    get islandToolbarRef() {
+        if (this.islandComp) {
+            return <ViewContainerRef>this.islandComp.islandToolbar;
+        }
+        return null;
+    }
+
     /** ISLAND CREATION  */
-    openIsland(widgetContainerRef: ElementRef, portalRef: Portal<any>, options: Partial<InfoIslandOptions>) {
+
+    // new version... work in progress to simplify creation
+    openIsland2(componentName: string, widgetContainerRef: ElementRef, windowOptions: Partial<InfoIslandOptions>, dataToInject: any) {
+        if (this.overlayRef) {
+            this.closeIsland(); // in case there is one open
+        }
+
+        // merge options
+        const optionsToPass = JSON.parse(JSON.stringify(this.DEFAULT_OPTIONS));
+        Object.assign(optionsToPass, windowOptions);
+
+        this.originId = windowOptions.originId;
+
+        const compRef = this.getComponentToLoad(componentName);
+        let componentToLoad = new ComponentPortal(compRef, null, this.createInjector(dataToInject));
+
+        // more to come
+    }
+
+    openIsland(widgetContainerRef: ElementRef, portalRef: any, options: Partial<InfoIslandOptions>) {
         if (this.overlayRef) {
             this.closeIsland(); // in case there is one open
         }
@@ -79,10 +104,11 @@ export class InfoIslandService {
         // create overlay reference
         this.createOverlayRef(widgetContainerRef, optionsToPass);
 
-        const portal = new ComponentPortal(InfoIslandComponent);
-        const componentRef = this.overlayRef.attach(portal);
+        const portalOutlet = new ComponentPortal(InfoIslandComponent);
+        const componentRef = this.overlayRef.attach(portalOutlet);
 
         this.islandComp = componentRef.instance;
+        // console.log('ISLAND REF', this.islandComp);
 
         /* Dynamic width from the opening widget - commented out for now
         const containerDims = widgetContainerRef.nativeElement.getBoundingClientRect();
@@ -92,7 +118,10 @@ export class InfoIslandService {
         }
         */
 
-        this.islandComp.open(portalRef, optionsToPass);
+        portalRef.component.prototype.islandRef = this.islandComp;
+        // console.log('PORTAL REF', portalRef);
+
+        this.islandComp.open(<Portal<any>>portalRef, optionsToPass);
         this.islandComp.onCloseIsland$.subscribe(() => {
             this.overlayRef.detach();
             this.interCom.responsePut({
