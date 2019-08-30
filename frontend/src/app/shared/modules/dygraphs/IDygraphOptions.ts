@@ -4,8 +4,9 @@ export interface DygraphOptionsAxis {
     labelFormatter?: any;
     tickFormat?: {
         unit?: string;
-        precision?: number;
+        precision?: any;
         unitDisplay?: boolean;
+        min?: number;
         max?: number;
     };
     valueRange?: number[];
@@ -34,6 +35,7 @@ export interface IDygraphOptions {
     legend?: "follow" | "always" | "never" | "onmouseover";
     logscale?: boolean;
     stackedGraph: boolean;
+    stackedGraphNaNFill?: string;
     hightlightCircleSize?: number;
     highlightSeriesBackgroundAlpha?: number,
     strokeWidth?: number;

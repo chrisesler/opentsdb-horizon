@@ -719,12 +719,12 @@ export class UtilsService {
 
   decodeHTML(s: string) {
     if (!s) return s;
-    return s.replace("&amp;", "&")
-            .replace("&lt;", "<")
-            .replace("&gt;", ">")
-            .replace("&nbsp;", " ")
-            .replace("&quot", "\"")
-            .replace("&apos;","\'");
+    return s.replace(/&amp;/g, "&")
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">")
+            .replace(/&nbsp;/g, " ")
+            .replace(/&quot/g, "\"")
+            .replace(/&apos;/g,"\'");
 
   }
 

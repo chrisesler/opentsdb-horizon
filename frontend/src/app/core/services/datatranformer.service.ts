@@ -30,6 +30,7 @@ export class DatatranformerService {
     let isStacked = false;
     let areaAxis = 'y1';
     let yMax = 0, y2Max = 0;
+    let yMin = null, y2Min = null;
     let areaMax = 0;
     const mTimeConfigs = {};
     let totalSeries = 0;
@@ -62,8 +63,10 @@ export class DatatranformerService {
                     dict[mid]['summarizer'][hash] = aggData;
                     if (!vConfig.axis || vConfig.axis === 'y1') {
                         yMax = yMax < aggData['max'] ? aggData['max'] : yMax;
+                        yMin = yMin === null || yMin > aggData['min'] ? aggData['min'] : yMin;
                     } else {
                         y2Max = y2Max < aggData['max'] ? aggData['max'] : y2Max;
+                        y2Min = y2Min === null || y2Min > aggData['min'] ? aggData['min'] : y2Min;
                     }
                 }
             } else {
@@ -95,7 +98,9 @@ export class DatatranformerService {
 
     queryResults.sort((a, b) => a.visualType - b.visualType);
     options.axes.y.tickFormat.max = yMax;
+    options.axes.y.tickFormat.min = yMin;
     options.axes.y2.tickFormat.max = y2Max;
+    options.axes.y2.tickFormat.min = y2Min;
     const axis = areaAxis === 'y1' ? 'y' : 'y2';
     if (isStacked && options.axes[axis].valueRange[1] === null) {
         areaMax = areaMax < y2Max ? y2Max : areaMax;
@@ -181,7 +186,7 @@ export class DatatranformerService {
                             const secs = timeSpecification.start + (m * k * mSeconds[unit]);
                             const ms = secs * 1000;
                             const tsIndex = tsObj[ms];
-                            if ( tsIndex ) {
+                            if ( tsIndex !== undefined ) {
                                 normalizedData[tsIndex][seriesIndex] = !isNaN(data[k]) ? data[k] : NaN;
                             }
                         }
