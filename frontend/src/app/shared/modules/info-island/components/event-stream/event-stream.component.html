@@ -1,3 +1,6 @@
+<info-island-toolbar customClass="event-stream-toolbar">
+    <div class="title">{{title}}</div>
+</info-island-toolbar>
 <div class="event-stream-list" [ngClass]="{'not-ready': !displayReady}"> 
     <mat-accordion class="event-accordion" displayMode="flat" #eventAccordion>
         <ng-container *ngFor="let bucket of buckets; let i = index">
