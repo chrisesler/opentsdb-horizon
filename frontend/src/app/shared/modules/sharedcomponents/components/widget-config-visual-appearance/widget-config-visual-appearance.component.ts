@@ -145,16 +145,19 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
     }
 
     setVisualType(type, qIndex, index ) {
-        let areaAxis = null;
+        let axis = null;
         if (this.widget.settings.component_type === 'LinechartWidgetComponent') {
-            for ( let i = 0; i < this.widget.queries[qIndex].metrics.length; i++ ) {
-                if ( i !== index && this.widget.queries[qIndex].metrics[i].settings.visual.type === 'area' ) {
-                    areaAxis = this.widget.queries[qIndex].metrics[i].settings.visual.axis;
-                    break;
+            for ( let i = 0; i < this.widget.queries.length; i++ ) {
+                for ( let j = 0; j < this.widget.queries[i].metrics.length; j++ ) {
+                    // tslint:disable-next-line: max-line-length
+                    if ( (i !== qIndex || (i === qIndex && j !== index)) && this.widget.queries[i].metrics[j].settings.visual.type === type ) {
+                        axis = this.widget.queries[i].metrics[j].settings.visual.axis;
+                        break;
+                    }
                 }
             }
-            if ( areaAxis !== null ) {
-                this.gForms.controls[qIndex]['controls'][index]['controls'].axis.setValue(areaAxis, {emitEvent: false});
+            if ( axis !== null && (type === 'area' || type === 'bar') ) {
+                this.gForms.controls[qIndex]['controls'][index]['controls'].axis.setValue(axis, {emitEvent: false});
             }
         }
         this.gForms.controls[qIndex]['controls'][index]['controls'].type.setValue(type);
@@ -163,11 +166,17 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
 
     setAxis(axis, qIndex, index ) {
         const type = this.widget.queries[qIndex].metrics[index].settings.visual.type;
-        // make same axis for area type
-        if (this.widget.settings.component_type === 'LinechartWidgetComponent' && type === 'area') {
-            for ( let i = 0; i < this.widget.queries[qIndex].metrics.length; i++ ) {
-                if ( i !== index && this.widget.queries[qIndex].metrics[i].settings.visual.type === 'area' ) {
-                    this.gForms.controls[qIndex]['controls'][i]['controls'].axis.setValue(axis, {emitEvent: false});
+        // make same axis for area or bar type
+        if (this.widget.settings.component_type === 'LinechartWidgetComponent' && ( type === 'area' || type === 'bar' )) {
+            for ( let i = 0; i < this.widget.queries.length; i++ ) {
+                for ( let j = 0; j < this.widget.queries[i].metrics.length; j++ ) {
+                    // tslint:disable-next-line: max-line-length
+                    if ( (i !== qIndex || (i === qIndex && j !== index)) && this.widget.queries[i].metrics[j].settings.visual.type === type ) {
+                        this.gForms.controls[i]['controls'][j]['controls'].axis.setValue(axis, {emitEvent: false});
+                    }
+                }
+                if  (i !== qIndex ) {
+                    this.gForms.controls[i].updateValueAndValidity({ emitEvent: true });
                 }
             }
         }
