@@ -658,7 +658,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
             this.httpService.getEvents('123', time, eventQueries, 100).subscribe(res => {
                 this.events = res.events;
                 const config = {
-                    queries: [{ settings: { visual: {visible: true}}, metrics: [{name: 'count', settings: {visual: {type: 'bar', color:'#1aa3ff', visible: true}}}]}]
+                    queries: [{ settings: { visual: {visible: true}}, metrics: [{name: 'count', settings: {visual: {type: 'bar', color:'#1aa3ff', visible: true}}}]}],
+                    settings: {
+                        axes: {
+                            y1: {},
+                            y2: {}
+                        }
+                    }
                 };
                 this.options.labels = ['x'];
                 const data = this.dataTransformer.yamasToDygraph(config, this.options, [[0]], res.counts);
@@ -1026,7 +1032,13 @@ export class AlertDetailsComponent implements OnInit, OnDestroy, AfterContentIni
 
     refreshChart() {
         const config = {
-            queries: []
+            queries: [],
+            settings: {
+                axes: {
+                    y1: {},
+                    y2: {}
+                }
+            }
         };
         const v = this.thresholdSingleMetricControls.metricId.value;
         const [qIndex, mIndex] = v ? v.split(':') : [null, null];
