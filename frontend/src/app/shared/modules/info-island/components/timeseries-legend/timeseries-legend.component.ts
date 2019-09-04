@@ -67,9 +67,6 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         private renderer: Renderer2,
         @Inject(ISLAND_DATA) private _islandData: any
     ) {
-
-        // ('INITIAL DATA', _islandData);
-
         // Set initial incoming data (data from first click that opens island)
         this.currentWidgetId = _islandData.originId;
         this.currentWidgetType = _islandData.widget.settings.component_type;
@@ -100,14 +97,12 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
 
         // set subscriptions
         this.subscription.add(this.interCom.requestListen().subscribe(message => {
-            // this.logger.log('TSL INTERCOM LISTEN', message);
             switch (message.action) {
                 case 'tsLegendWidgetOptionsUpdate':
                     this.currentWidgetOptions = message.payload.options;
                     this.updateMasterCheckboxStates();
                     break;
                 case 'tsLegendWidgetSettingsResponse':
-                    // console.log('tsLegendWidgetSettingsResponse', message);
                     this.currentWidgetOptions = message.payload.options;
                     const settings = message.payload.settings;
                     this.currentWidgetType = settings.component_type;
@@ -118,7 +113,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                     break;
                 case 'tsTickDataChange':
                     // if the incoming message has a trackMouse property, it came from a click that is resetting it
-                    // otherwise if the local options.trackMouse is true, compare the widget ids
+                    // otherwise if the local options.trackMouse is true, compare the widget ids, and if multigraph, compare multigraph x/y
                     if (
                         (message.payload.trackMouse) ||
                         (this.options.trackMouse && (this.currentWidgetId === message.id) && (!this.multigraph || (this.multigraph && (this.multigraph.y === message.payload.multigraph.y) && (this.multigraph.x === message.payload.multigraph.x))))
@@ -135,7 +130,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                                 newOptionsNeeded = true;
                             }
                         }
-                        
+
                         if (message.payload.trackMouse) {
                             this.trackmouseCheckboxChange(message.payload.trackMouse);
                         }
@@ -144,9 +139,9 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                         this.data = message.payload.tickData;
                         this.setTableColumns();
                         this.setTableData();
+
                         // need new options
                         if (newOptionsNeeded) {
-                            // this.logger.error('DIFFERENT WIDGET', message);
                             // request widget settings
                             // need this for axis logscale settings
                             this.interCom.responsePut({
@@ -158,6 +153,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                             });
                             this._legendTableObserve.disabled = false;
                         }
+
                         // focus change
                         if (this.multigraph) {
                             this.interCom.responsePut({
@@ -243,10 +239,8 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     /** Table controls & functions */
 
     tableContentChanged(event: any) {
-        // console.log('TABLE CONTENT CHANGED', event);
         // calculate size of table
         const tableSize: DOMRect = this._legendTableEl.nativeElement.getBoundingClientRect();
-        // console.log('TABLE SIZE', tableSize);
 
         // attempt to tell island window of potential minimum size to open with all data visible
         this.islandRef.updateSize(tableSize);
@@ -256,7 +250,6 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     }
 
     onMatSortChange(event: any) {
-        // console.log('SORT CHANGE', event);
         // trigger some sort of data filtering?
         this.setTableData();
     }
@@ -319,9 +312,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     // we have to use a sort accessor depending on column to
     // return correct data to sort against
     sortAccessor(item, property) {
-        // console.log('SORT ACCESSOR', item, property);
         if (property === 'value') {
-            //return item.data.yval;
             return item.formattedValue;
         } else {
             return item[property];
@@ -331,11 +322,11 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     /* table checkbox controls */
     private updateMasterCheckboxStates() {
         let visCount = 0;
-        // console.log('UPDATE MASTER CHECKBOX STATES', this.tableDataSource.data);
+
         for (let i = 0; i < this.tableDataSource.data.length; i++) {
             const item: any = this.tableDataSource.data[i];
             const srcIndex = item.srcIndex;
-            //console.log('ITEM CHECK', srcIndex, item, this.currentWidgetOptions.visibility[srcIndex]);
+
             if (this.currentWidgetOptions.visibility[srcIndex] === true) {
                 visCount++;
             }
@@ -349,20 +340,11 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         setTimeout(() => {
             this.masterChecked = (visCount === 0) ? false : (visCount === this.tableDataSource.data.length) ? true : false;
         }, 50);
-        /*console.log ('FINAL CHECK', {
-            visCount,
-            tableLength: this.tableDataSource.data.length,
-            checked: this.masterChecked,
-            indeterminate: this.masterIndeterminate
-        });*/
+
     }
 
     // master checkbox change
     masterCheckboxClick($event) {
-        /*console.log('MASTER CHECKBOX CHANGE', {
-            checked: this.masterChecked,
-            indeterminate: this.masterIndeterminate
-        });*/
         const checked = this.masterChecked;
         const indeterminate = this.masterIndeterminate;
 
@@ -395,7 +377,6 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
             // partial not visible
             // need to turn those on
             const notVisible = this.tableDataSource.data.filter((item: any) => !this.currentWidgetOptions.visibility[item.srcIndex]);
-            //console.log('=== NOT VISIBLE ===', notVisible);
 
             this.interCom.responsePut({
                 id: this.currentWidgetId,
@@ -414,14 +395,6 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         const itemIndex = this.tableDataSource.data.findIndex((item: any) => item.srcIndex === srcIndex);
         (<any>this.tableDataSource.data[itemIndex]).visible = event.checked;
 
-        /*this.interCom.responsePut({
-            id: this.currentWidgetId,
-            action: 'tsLegendToggleSeries',
-            payload: {
-                srcIndex: srcIndex,
-                focusOnly: false
-            }
-        });*/
         this.interCom.responsePut({
             id: this.currentWidgetId,
             action: 'tsLegendToggleSeries',
@@ -443,6 +416,10 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         this.interCom.responsePut({
             action: 'tsLegendOptionsChange',
             payload: this.options
+        });
+        // should turn any focus off
+        this.interCom.responsePut({
+            action: 'tsLegendFocusChange'
         });
     }
 
