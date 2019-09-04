@@ -493,7 +493,7 @@
             <mat-icon fontSet="denali" fontIcon="d-folder-merge"></mat-icon>
             <span>Move folder</span>
         </button>
-        <button mat-menu-item (click)="folderMenuAction('deleteFolder', folder)">
+        <button mat-menu-item (click)="folderMenuAction('deleteFolder', folder)" *ngIf="!folder.parentPath.includes('/trash')">
             <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
             <span>Move to trash</span>
         </button>
@@ -513,7 +513,7 @@
             <mat-icon fontSet="denali" fontIcon="d-folder-merge"></mat-icon>
             <span>Move Dashboard</span>
         </button>
-        <button mat-menu-item (click)="fileMenuAction('deleteDashboard', file)" *ngIf="!file.locked">
+        <button mat-menu-item (click)="fileMenuAction('deleteDashboard', file)" *ngIf="!file.locked && !file.parentPath.includes('/trash')">
             <mat-icon fontSet="denali" fontIcon="d-trash"></mat-icon>
             <span>Move to trash</span>
         </button>
