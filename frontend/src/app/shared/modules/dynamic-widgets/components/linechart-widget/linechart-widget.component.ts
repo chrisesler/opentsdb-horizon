@@ -349,9 +349,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                                 this.data.ts = this.dataTransformer.yamasToDygraph(this.widget, this.options, this.data.ts, rawdata);
                                 this.data = { ...this.data };
                                 graphs['y'] = {};
-                                graphs['y']['x'] = this.options;
                                 graphs['y']['x'] = this.data;
-                                graphs['y']['x'].options = this.options;
                             }
                             // limit the total graph to around 100
                             const maxGraphs = 50;
@@ -392,7 +390,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             }
                             // we call cdRef detection after
                             this.setSize(false);
-                            this.setOptions();
+                            // we should not call setLegendDiv here as it's taken care in getUpdatedWidgetConfig
+                            this.setLegendDiv();
 
                             if (!this.multigraphEnabled) {
                                 this.refreshLegendSource();
@@ -490,7 +489,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     setOptions() {
         this.setLegendDiv();
         this.setAxesOption();
-        this.setAlertOption();
     }
 
     resetChart() {
@@ -805,7 +803,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
  //           if (Object.keys(config).length > 0) {
             const chartAxisID = axisKeys[i] === 'y1' ? 'y' : axisKeys[i] === 'y2' ? 'y2' : 'x';
             const axis = this.options.axes[chartAxisID];
-            axis.valueRange = [null, null];
             if ( !isNaN( config.min ) && config.min.trim() !== '' ) {
                 axis.valueRange[0] =  config.min;
             }
@@ -846,7 +843,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         thresholds[key].axis = 'y1';
                     }
                 }
-                this.setAlertOption();
+                // this.setAlertOption();
             }
 
             const decimals = !config.decimals || config.decimals.toString().trim() === 'auto' ? 'auto' : config.decimals;

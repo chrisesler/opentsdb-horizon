@@ -16,6 +16,10 @@ shared:
         YNPM_THREE: 1
 jobs:
     component:
+        steps:
+            postpublish:
+                description: dist
+                command: ynpm run postpublish        
         triggers: [sd@311249]
 
 # ---

@@ -29,9 +29,9 @@ export class DatatranformerService {
     const wdQueryStats = this.util.getWidgetQueryStatistics(widget.queries);
     let isStacked = false;
     let areaAxis = 'y1';
+    let barAxis = 'y1';
     let yMax = 0, y2Max = 0;
     let yMin = null, y2Min = null;
-    let areaMax = 0;
     const mTimeConfigs = {};
     let totalSeries = 0;
     for ( let i = 0;  i < result.results.length; i++ ) {
@@ -79,11 +79,15 @@ export class DatatranformerService {
                     const tags = queryResults[i].data[j].tags;
                     const hash = JSON.stringify(tags);
                     dict[mid]['values'][hash] = queryResults[i].data[j].NumericType;
-                    const max = d3.max(queryResults[i].data[j].NumericType);
-                    if ( ('area' === vConfig.type || 'bar' === vConfig.type) && undefined !== max) {
-                        areaMax += Number(max);
+                    if ( vConfig.type === 'area' || vConfig.type === 'bar' ) {
                         isStacked = true;
                         areaAxis = vConfig.axis || 'y1';
+                    }
+                    if ( vConfig.type === 'area' ) {
+                        areaAxis = vConfig.axis || 'y1';
+                    }
+                    if ( vConfig.type === 'bar' ) {
+                        barAxis = vConfig.axis || 'y1';
                     }
                 }
             }
@@ -91,6 +95,12 @@ export class DatatranformerService {
     }
     const tsObj = this.util.getTimestampsFromTimeSpecification(Object.values(mTimeConfigs));
     const ts = Object.keys(tsObj);
+    const tsn = Object.keys(tsObj).length;
+    const stackedYAxes = this.util.arrayUnique([areaAxis, barAxis]);
+    const xMaxes = {
+                        'area': { 'y' : Array( tsn ).fill(0), 'y2': Array( tsn ).fill(0) },
+                        'bar': { 'y' : Array( tsn ).fill(0), 'y2': Array( tsn ).fill(0) }
+                    };
     for ( let i = 0; i < ts.length; i++ ) {
         normalizedData[i] = Array( totalSeries + 1 ).fill(null);
         normalizedData[i][0] = new Date(parseInt(ts[i], 10));
@@ -101,25 +111,6 @@ export class DatatranformerService {
     options.axes.y.tickFormat.min = yMin;
     options.axes.y2.tickFormat.max = y2Max;
     options.axes.y2.tickFormat.min = y2Min;
-    const axis = areaAxis === 'y1' ? 'y' : 'y2';
-    if (isStacked && options.axes[axis].valueRange[1] === null) {
-        areaMax = areaMax < y2Max ? y2Max : areaMax;
-        options.axes[axis].valueRange[1] = Math.ceil(areaMax + areaMax * 0.05);
-    }
-
-    if (isStacked && 
-            (null === options.axes[axis].valueRange[0] || 
-             isNaN(   options.axes[axis].valueRange[0]))) {
-        options.axes[axis].valueRange[0] = 0;
-    }
-
-    if ( options.axes.y.valueRange[0] !== null && options.axes.y.valueRange[0] >= yMax ) {
-        options.axes.y.valueRange[0] = null;
-    }
-
-    if ( options.axes.y2.valueRange[0] !== null && options.axes.y2.valueRange[0] >= y2Max ) {
-        options.axes.y2.valueRange[0] = null;
-    }
 
     let autoColors = this.util.getColors(null, wdQueryStats.nVisibleAutoColors);
     autoColors = wdQueryStats.nVisibleAutoColors > 1 ? autoColors : [autoColors];
@@ -180,6 +171,7 @@ export class DatatranformerService {
                         }
                         options.series[label].label = this.getLableFromMetricTags(metric, options.series[label].tags);
                         const seriesIndex = options.labels.indexOf(label);
+                        const axis = options.series[label].axis;
                         const unit = timeSpecification.interval.replace(/[0-9]/g, '');
                         const m = parseInt(timeSpecification.interval, 10);
                         for (let k = 0; k < numPoints; k++) {
@@ -189,9 +181,39 @@ export class DatatranformerService {
                             if ( tsIndex !== undefined ) {
                                 normalizedData[tsIndex][seriesIndex] = !isNaN(data[k]) ? data[k] : NaN;
                             }
+                            if ( isStacked && !isNaN(data[k]) ) {
+                                xMaxes[vConfig.type][axis][k] += data[k];
+                            }
                         }
                 }
             }
+        }
+
+        if (isStacked) {
+
+            for ( let i = 0; i < stackedYAxes.length; i++ ) {
+                const axis = stackedYAxes[i] === 'y1' ? 'y' : 'y2';
+                const axisMax = d3.max([...xMaxes['area'][axis], ...xMaxes['bar'][axis]]);
+                const axisConfig = widget.settings.axes[stackedYAxes[i]];
+                yMax = stackedYAxes[i] === 'y1' ? axisMax : yMax;
+                y2Max = stackedYAxes[i] === 'y2' ? axisMax : y2Max;
+
+                if ( isNaN(parseFloat( axisConfig.max)) ) {
+                    options.axes[axis].valueRange[1] = Math.ceil(axisMax + axisMax * 0.05);
+                }
+
+                if ( options.axes[axis].valueRange[0] === null || isNaN(options.axes[axis].valueRange[0])) {
+                    options.axes[axis].valueRange[0] = 0;
+                }
+            }
+        }
+
+        if ( options.axes.y.valueRange[0] !== null && options.axes.y.valueRange[0] >= yMax ) {
+            options.axes.y.valueRange[0] = null;
+        }
+
+        if ( options.axes.y2.valueRange[0] !== null && options.axes.y2.valueRange[0] >= y2Max ) {
+            options.axes.y2.valueRange[0] = null;
         }
         return [...normalizedData];
     }
