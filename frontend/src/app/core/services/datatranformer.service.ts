@@ -181,7 +181,7 @@ export class DatatranformerService {
                             if ( tsIndex !== undefined ) {
                                 normalizedData[tsIndex][seriesIndex] = !isNaN(data[k]) ? data[k] : NaN;
                             }
-                            if ( isStacked && !isNaN(data[k]) ) {
+                            if ( isStacked && !isNaN(data[k]) && (vConfig.type === 'area' || vConfig.type === 'bar') ) {
                                 xMaxes[vConfig.type][axis][k] += data[k];
                             }
                         }
