@@ -12,17 +12,27 @@
             NOTE: Maybe build as normal table so we can use lazy loading
         -->
         <table #legendTable class="ts-legend-table"
-            mat-table [dataSource]="tableDataSource"
-            matSort matSortActive="value" matSortDirection="desc" matSortDisableClear="true" (matSortChange)="onMatSortChange($event)"
+            mat-table
+            [dataSource]="tableDataSource"
+            matSort
+            matSortActive="value"
+            matSortDirection="desc"
+            matSortDisableClear="true"
+            (matSortChange)="onMatSortChange($event)"
             (cdkObserveContent)="tableContentChanged($event)">
 
             <!-- Selection Column -->
             <ng-container matColumnDef="checkbox">
                 <th mat-header-cell *matHeaderCellDef class="mat-elevation-z1">
-                    <mat-checkbox value="" color="primary"></mat-checkbox>
+                    <mat-checkbox value="" color="primary" 
+                        [checked]="masterChecked" 
+                        [indeterminate]="masterIndeterminate"
+                        (click)="$event.stopPropagation(); masterCheckboxClick($event)"></mat-checkbox>
                 </th>
                 <td mat-cell *matCellDef="let element">
-                    <mat-checkbox value="" color="primary"></mat-checkbox>
+                    <mat-checkbox value="" color="primary"
+                        [checked]="currentWidgetOptions.visibility[element.srcIndex]"
+                        (change)="timeSeriesVisibilityToggle(element.srcIndex, $event);"></mat-checkbox>
                 </td>
             </ng-container>
         
