@@ -81,7 +81,7 @@
         </mat-menu>
     </div>
     <div class="toolbar-item show-amount-controls" *ngIf="dataLimitType !== 'All'">
-        <input type="number" [formControl]="showAmount" max-length="3" autocomplete="off">
+        <input type="number" [formControl]="showAmount" max-length="3" autocomplete="off" (mousedown)="$event.stopPropagation()" (mousemove)="$event.stopPropagation()">
     </div>
     <div class="toolbar-item logscale-controls">
         <span>Logscale:</span>
