@@ -1,4 +1,4 @@
-import { Component,OnInit, Inject, OnDestroy, HostBinding,
+import { Component, OnInit, Inject, OnDestroy, HostBinding,
     AfterViewInit, ViewChild, ElementRef, ViewChildren, QueryList, ViewContainerRef} from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
