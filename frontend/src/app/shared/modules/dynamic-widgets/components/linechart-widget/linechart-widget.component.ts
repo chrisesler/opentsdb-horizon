@@ -227,24 +227,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     }
                     break;
                 case 'tsLegendFocusChange':
-
                     if (message.id === this.widget.id) {
-                        // console.log('FOCUS CHANGE [ON]', message);
                         this.legendFocus = message.payload;
                     } else {
-                        // console.log('FOCUS CHANGE [OFF]', message);
                         this.legendFocus = false;
                     }
+                    this.cdRef.markForCheck();
                     break;
             }
 
             if (message && (message.id === this.widget.id)) {
-                /* this.logger.intercom('REQUEST GET [LINE CHART]', {widgetId: this.widget.id, message});
-                this.logger.ng('MULTIGRAPH ENABLED', {
-                    enabled: this.multigraphEnabled,
-                    graphData: this.graphData,
-                    widgetSettings: this.widget.settings
-                });*/
                 switch (message.action) {
                     case 'InfoIslandClosed':
                         this.updatedShowEventStream(false);
@@ -252,19 +244,18 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     case 'tsLegendRequestWidgetSettings':
                         const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
                         const multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
-                        let options;
+                        let tsLegendOptions;
                         if (multigraphEnabled && message.payload.multigraph) {
-                            // console.log('**** GRAPH DATA ****', multigraphEnabled, this.graphData);
-                            options = this.graphData[message.payload.multigraph.y][message.payload.multigraph.x].options;
+                            tsLegendOptions = this.graphData[message.payload.multigraph.y][message.payload.multigraph.x].options;
                         } else {
-                            options = this.options;
+                            tsLegendOptions = this.options;
                         }
                         this.interCom.requestSend({
                             id: this.widget.id,
                             action: 'tsLegendWidgetSettingsResponse',
                             payload: {
                                 settings: this.widget.settings,
-                                options: options
+                                options: tsLegendOptions
                             }
                         });
                         break;
@@ -284,11 +275,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         });
                         break;
                     case 'tsLegendToggleSeries':
-                        // if (message.payload.batch) {
-                            this.tsLegendToggleChartSeries(message.payload.batch, message.payload.visible, message.payload.multigraph);
-                        // } else {
-                        //    this.toggleChartSeries(message.payload.srcIndex, message.payload.focusOnly);
-                        // }
+                        this.tsLegendToggleChartSeries(message.payload.batch, message.payload.visible, message.payload.multigraph);
                         break;
                     case 'UpdateExpandedBucketIndex':
                         this._expandedBucketIndex.next(message.payload.index);
@@ -306,11 +293,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
                             this.resetChart(); // need to reset this data
+
                             // render multigraph or not is here
                             let graphs = {};
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
-                            // this.multigraphEnabled = false;
+
                             if (this.multigraphEnabled) {
                                 // disable events and legend
                                 if (this.widget.settings.visual && this.widget.settings.visual.showEvents) {
@@ -691,8 +679,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.freeflowBreak = (multigraphSettings.gridOptions.viewportDisplay === 'custom') ? multigraphSettings.gridOptions.custom.y : 3;
             }
 
-            // this.logger.success('MULTIGRAPH STUFF', {mode: this.multigraphMode, freeflowBreak: this.freeflowBreak, multigraphSettings});
-
             const rowKeys = this.getGraphDataObjectKeys(this.graphData);
             const rowCount = rowKeys.length;
             // find max col count
@@ -747,7 +733,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
                 if (rowCount === 1 && rowKeys[0] === 'y') {
                     tHeight = tHeight - gridHeaderOffset;
-                    // this.logger.log('ONLY A SINGLE ROW, NO ROW LABEL');
                 }
 
                 if (this.multigraphMode === 'freeflow') {
@@ -965,12 +950,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     setLegendDiv() {
-        // if (this.multigraphEnabled) {
-        //    this.options.labelsDiv = {};
-        // } else {
-            this.options.labelsDiv = (this.dygraphLegend) ? this.dygraphLegend.nativeElement : {};
-            this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
-        // }
+        this.options.labelsDiv = (this.dygraphLegend) ? this.dygraphLegend.nativeElement : {};
+        this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
     }
 
     setDefaultEvents() {
@@ -1013,7 +994,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     toggleChartSeries(index: number, focusOnly) {
-        // ('TOGGLE CHART SERIES', index, focusOnly);
+
         this.preventSingleClick = focusOnly;
         if (!focusOnly) {
             this.clickTimer = 0;
@@ -1055,20 +1036,23 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 payload: { options: this.options}
             });
         }
-
     }
 
+    // timeSeriesLegend series toggle
     tsLegendToggleChartSeries(batch: number[], visible: boolean, multigraph: any = false) {
-        // this.logger.action('BATCH TOGGLE CHART SERIES', {batch, visible, multigraph});
         clearTimeout(this.clickTimer);
         this.clickTimer = 0;
 
-        let options = (multigraph) ? this.graphData[multigraph.y][multigraph.x].options : this.options;
+        // get correct options depending on whether multigraph or not
+        const options = (multigraph) ? this.graphData[multigraph.y][multigraph.x].options : this.options;
 
+        // update visibility on batch items
         for (let i = 0; i < batch.length; i += 1) {
             const srcIndex = batch[i];
             options.visibility[srcIndex] = visible;
         }
+
+        // update main data options depending on whether multigraph
         if (multigraph) {
             this.graphData[multigraph.y][multigraph.x].options = { ...options };
         } else {
@@ -1076,6 +1060,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
         this.cdRef.markForCheck();
 
+        // interCom updated options
         this.interCom.requestSend({
             action: 'tsLegendWidgetOptionsUpdate',
             id: this.widget.id,
@@ -1326,23 +1311,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    // ctx should contain loop context... see template for details
-    // TODO: see if this is still used
-    getGraphTemplateContext(data: any, ctx: any = {}): any {
-        /*const graphContext = {
-            $implicit: this,
-            data: data
-        };*/
-        //console.log('CTX', ctx);
-        const graphContext = {
-            $implicit: this,
-            data: data,
-            ctx: ctx
-        };
-
-        return graphContext;
-    }
-
     // get keys from graph data object
     getGraphDataObjectKeys(obj: any): string[] {
         if (!obj || obj === undefined || obj === null) {
@@ -1350,14 +1318,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
         const keys = Object.keys(obj);
         return keys;
-    }
-
-    // TODO: see if this is still used
-    findGraphLegend(id: string): ElementRef {
-        const legend = this.graphLegends.find((item: ElementRef) => {
-            return item.nativeElement.getAttribute('data-id') === id;
-        });
-        return legend || null;
     }
 
     // set columns based on multigraph data
