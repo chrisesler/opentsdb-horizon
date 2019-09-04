@@ -43,7 +43,8 @@
                     <div class="graph-row">
                         <!-- graph loop -->
                         <ng-container *ngFor="let xKey of getGraphDataObjectKeys(graphData[yKey]); let j = index;">
-                            <div class="graph-cell" 
+                            <div class="graph-cell"
+                                [ngClass]="{'ts-legend-focus': (!multigraphEnabled) ? legendFocus : (legendFocus && (legendFocus.y === yKey && legendFocus.x === xKey))}" 
                                 [style.width.px]="(!multigraphEnabled) ? size.width + legendWidth : size.width"
                                 [style.height.px]="(!multigraphEnabled) ? size.height + legendHeight : (multigraphEnabled && multigraphMode === 'freeflow') ? size.height + 15 : size.height"
                                 [style.maxWidth]="(multigraphEnabled && multigraphMode === 'freeflow') ? size.width + 'px' : 'initial'">
@@ -66,7 +67,7 @@
                                         [showEvents]="widget.settings.visual.showEvents"
                                         [multigraph]="multigraphEnabled"
                                         [timeseriesLegend]="tsLegendOptions"
-                                        (currentTickEvent)="timeseriesTickListener($event)"
+                                        (currentTickEvent)="timeseriesTickListener(yKey, xKey, $event)"
                                         (dateWindow)="receivedDateWindow($event)"
                                         (zoomed)="handleZoom($event)">
                                     </div>
