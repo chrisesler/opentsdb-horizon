@@ -98,6 +98,11 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                 const options = this.user_attrs_;
                 const series = options.series;
 
+                // raw data row index
+                // need this because we want to populate the non-visible lines (if any)
+                // because 'points' only contains the visible points, but we still want data for rest of dataset
+                const rawRefIndex = this.rawData_.findIndex((d: any[]) => d[0] === x);
+
                 // format tick data output
                 const tickDataOutput = {
                     timestamp: x,
@@ -105,11 +110,29 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     series: []
                 };
 
-                for (let i = 0; i < points.length; i++) {
+                // format series data for timeSeriesLegend
+                for (let i = 0; i < Object.keys(series).length; i++) {
+                    const seriesIndex = i + 1;
+                    const seriesData = series[seriesIndex];
                     const data: any = {
-                        data: {...points[i]},
-                        series: {...series[points[i].name]}
+                        series: {...seriesData}
                     };
+                    // point data
+                    const pointIndex = points.findIndex((p: any) => p.name === seriesIndex.toString());
+                    // point exists, so lets use it
+                    if (pointIndex !== -1) {
+                        data.data = {...points[pointIndex]};
+                    } else {
+                        // this must be hidden line, so pull data from rawData
+                        const rawPointData = this.rawData_[rawRefIndex][seriesIndex];
+                        data.data = {yval: rawPointData};
+                    }
+                    // format the value
+                    const axis = series[seriesIndex].axis;
+                    const format = options.axes[axis].tickFormat;
+                    const precision = format.precision ? format.precision : 2;
+                    const dunit = self.uConverter.getNormalizedUnit(data.data.yval, format);
+                    data.formattedValue = self.uConverter.convert(data.data.yval, format.unit, dunit, { unit: format.unit, precision: precision });
                     tickDataOutput.series.push(data);
                 }
 
@@ -124,48 +147,68 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
         };
 
         const clickCallback = function(e, x, points) {
-            console.log('GRAPH CLICK', {e, x, points, _g: this});
-            // check if island open
+            // console.log('GRAPH CLICK', {e, x, points, _g: this});
 
-            const options = this.user_attrs_;
-            const series = options.series;
+            // check if tsLegend is configured
+            if (Object.keys(self.timeseriesLegend).length > 0) {
 
-            // format tick data output
-            const tickDataOutput = {
-                timestamp: x,
-                when: options.labelsUTC ? moment(x).utc().format('YYYY/MM/DD HH:mm') : moment(x).format('YYYY/MM/DD HH:mm'),
-                series: []
-            };
+                const options = this.user_attrs_;
+                const series = options.series;
 
-            for (let i = 0; i < points.length; i++) {
-                const data: any = {
-                    data: {...points[i]},
-                    series: {...series[points[i].name]}
+                // raw data row index
+                // need this because we want to populate the non-visible lines (if any)
+                // because 'points' only contains the visible points, but we still want data for rest of dataset
+                const rawRefIndex = this.rawData_.findIndex((d: any[]) => d[0] === x);
+
+                // format tick data output
+                const tickDataOutput = {
+                    timestamp: x,
+                    when: options.labelsUTC ? moment(x).utc().format('YYYY/MM/DD HH:mm') : moment(x).format('YYYY/MM/DD HH:mm'),
+                    series: []
                 };
-                // format the value
-                const axis = series[points[i].name].axis;
-                const format = options.axes[axis].tickFormat;
-                const precision = format.precision ? format.precision : 2;
-                const dunit = self.uConverter.getNormalizedUnit(data.data.yval, format);
-                data.formattedValue = self.uConverter.convert(data.data.yval, format.unit, dunit, { unit: format.unit, precision: precision });
-                tickDataOutput.series.push(data);
-            }
 
-            if (!self.timeseriesLegend.open) {
-                self.currentTickEvent.emit({
-                    action: 'openLegend',
-                    tickData: tickDataOutput
-                });
-            } else {
-                self.currentTickEvent.emit({
-                    action: 'tickDataChange',
-                    tickData: tickDataOutput,
-                    trackMouse: {
-                        checked: false
+                // format series data for timeSeriesLegend
+                for (let i = 0; i < Object.keys(series).length; i++) {
+                    const seriesIndex = i + 1;
+                    const seriesData = series[seriesIndex];
+                    const data: any = {
+                        series: {...seriesData}
+                    };
+                    // point data
+                    const pointIndex = points.findIndex((p: any) => p.name === seriesIndex.toString());
+                    // point exists, so lets use it
+                    if (pointIndex !== -1) {
+                        data.data = {...points[pointIndex]};
+                    } else {
+                        // this must be hidden line, so pull data from rawData
+                        const rawPointData = this.rawData_[rawRefIndex][seriesIndex];
+                        data.data = {yval: rawPointData};
                     }
-                });
-            }
+                    // format the value
+                    const axis = series[seriesIndex].axis;
+                    const format = options.axes[axis].tickFormat;
+                    const precision = format.precision ? format.precision : 2;
+                    const dunit = self.uConverter.getNormalizedUnit(data.data.yval, format);
+                    data.formattedValue = self.uConverter.convert(data.data.yval, format.unit, dunit, { unit: format.unit, precision: precision });
 
+                    tickDataOutput.series.push(data);
+                }
+
+                if (!self.timeseriesLegend.open) {
+                    self.currentTickEvent.emit({
+                        action: 'openLegend',
+                        tickData: tickDataOutput
+                    });
+                } else {
+                    self.currentTickEvent.emit({
+                        action: 'tickDataChange',
+                        tickData: tickDataOutput,
+                        trackMouse: {
+                            checked: false
+                        }
+                    });
+                }
+            }
         };
 
         // needed to capture start and end times
