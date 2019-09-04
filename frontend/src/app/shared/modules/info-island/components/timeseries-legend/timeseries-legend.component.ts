@@ -32,6 +32,8 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
 
     /** Local Variables */
     currentWidgetId: string = '';
+    currentWidgetOptions: any = {};
+    currentWidgetType: string = '';
 
     options: any = {
         trackMouse: false,
@@ -52,6 +54,11 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     tableDataSource: MatTableDataSource<any[]> = new MatTableDataSource<any[]>([]);
     resultTagKeys: string[] = [];
 
+    masterChecked = false;
+    masterIndeterminate = false;
+
+    multigraph: any = false;
+
     private tableListen;
 
     constructor(
@@ -61,14 +68,31 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         @Inject(ISLAND_DATA) private _islandData: any
     ) {
 
-        console.log('INITIAL DATA', _islandData.data.tsTickData);
+        // ('INITIAL DATA', _islandData);
 
         // Set initial incoming data (data from first click that opens island)
         this.currentWidgetId = _islandData.originId;
+        this.currentWidgetType = _islandData.widget.settings.component_type;
+        this.currentWidgetOptions = _islandData.data.options;
+        this.multigraph = _islandData.data.multigraph;
         this.data = _islandData.data.tsTickData;
         this.setTableColumns();
         this.setTableData();
         this.options.open = true;
+
+        if (this.multigraph) {
+            this.interCom.responsePut({
+                id: this.currentWidgetId,
+                action: 'tsLegendFocusChange',
+                payload: this.multigraph
+            });
+        } else {
+            this.interCom.responsePut({
+                id: this.currentWidgetId,
+                action: 'tsLegendFocusChange',
+                payload: true
+            });
+        }
 
         const widgetAxes = _islandData.widget.settings.axes || {};
         this.logScaleY1 = (widgetAxes.y1 && widgetAxes.y1.hasOwnProperty('logscale')) ? widgetAxes.y1.logscale : false;
@@ -78,36 +102,86 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         this.subscription.add(this.interCom.requestListen().subscribe(message => {
             // this.logger.log('TSL INTERCOM LISTEN', message);
             switch (message.action) {
+                case 'tsLegendWidgetOptionsUpdate':
+                    this.currentWidgetOptions = message.payload.options;
+                    this.updateMasterCheckboxStates();
+                    break;
                 case 'tsLegendWidgetSettingsResponse':
-                    console.log('tsLegendWidgetSettingsResponse', message);
-                    const axes = message.payload.axes;
+                    // console.log('tsLegendWidgetSettingsResponse', message);
+                    this.currentWidgetOptions = message.payload.options;
+                    const settings = message.payload.settings;
+                    this.currentWidgetType = settings.component_type;
+                    const axes = settings.axes;
                     this.logScaleY1 = (axes.y1.hasOwnProperty('logscale')) ? axes.y1.logscale : false;
                     this.logScaleY2 = (axes.y2.hasOwnProperty('logscale')) ? axes.y2.logscale : false;
+                    this.updateMasterCheckboxStates();
                     break;
                 case 'tsTickDataChange':
-                    if (this.currentWidgetId !== message.id) {
-                        // request widget settings
-                        // need this for axis logscale settings
-                        this.interCom.requestSend({
-                            id: message.id,
-                            action: 'tsLegendRequestWidgetSettings'
-                        });
-                        this._legendTableObserve.disabled = false;
+                    // if the incoming message has a trackMouse property, it came from a click that is resetting it
+                    // otherwise if the local options.trackMouse is true, compare the widget ids
+                    if (
+                        (message.payload.trackMouse) ||
+                        (this.options.trackMouse && (this.currentWidgetId === message.id) && (!this.multigraph || (this.multigraph && (this.multigraph.y === message.payload.multigraph.y) && (this.multigraph.x === message.payload.multigraph.x))))
+                    ) {
+                        let newOptionsNeeded = false;
+                        // if new widget, then get new options
+                        if (this.currentWidgetId !== message.id) {
+                            //this.masterIndeterminate = false;
+                            newOptionsNeeded = true;
+                        } else if (message.payload.multigraph) {
+                            if (this.multigraph && (this.multigraph.y !== message.payload.multigraph.y || this.multigraph.x !== message.payload.multigraph.x)) {
+                                this.masterIndeterminate = false;
+                                // this.logger.error('DIFFERENT MULTIGRAPH GRAPH', message);
+                                newOptionsNeeded = true;
+                            }
+                        }
+                        
+                        if (message.payload.trackMouse) {
+                            this.trackmouseCheckboxChange(message.payload.trackMouse);
+                        }
+                        this.currentWidgetId = message.id;
+                        this.multigraph = message.payload.multigraph;
+                        this.data = message.payload.tickData;
+                        this.setTableColumns();
+                        this.setTableData();
+                        // need new options
+                        if (newOptionsNeeded) {
+                            // this.logger.error('DIFFERENT WIDGET', message);
+                            // request widget settings
+                            // need this for axis logscale settings
+                            this.interCom.responsePut({
+                                id: message.id,
+                                action: 'tsLegendRequestWidgetSettings',
+                                payload: {
+                                    multigraph: this.multigraph
+                                }
+                            });
+                            this._legendTableObserve.disabled = false;
+                        }
+                        // focus change
+                        if (this.multigraph) {
+                            this.interCom.responsePut({
+                                id: this.currentWidgetId,
+                                action: 'tsLegendFocusChange',
+                                payload: this.multigraph
+                            });
+                        } else {
+                            this.interCom.responsePut({
+                                id: this.currentWidgetId,
+                                action: 'tsLegendFocusChange',
+                                payload: true
+                            });
+                        }
                     }
-                    if (message.payload.trackMouse) {
-                        this.trackmouseCheckboxChange(message.payload.trackMouse);
-                    }
-                    this.currentWidgetId = message.id;
-                    this.data = message.payload.tickData;
-                    this.setTableColumns();
-                    this.setTableData();
                     break;
                 default:
                     break;
             }
         }));
 
-
+        this.subscription.add(this.showAmount.valueChanges.subscribe(val =>{
+            this.setTableData();
+        }));
 
         // interCom out the options
         this.interCom.responsePut({
@@ -207,6 +281,14 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         if (this.data.series.length === 0) {
             this.tableDataSource.data = [];
         } else {
+            for (const index in this.data.series) {
+                if (this.data.series[index]) {
+                    // tslint:disable-next-line: radix
+                    this.data.series[index]['srcIndex'] = parseInt(index);
+                    this.data.series[index]['visible'] = this.currentWidgetOptions.visibility[this.data.series[index].srcIndex];
+                }
+            }
+
             // slice for quick array clone
             // go ahead and sort by value so showLimit will show correctly
             const isAsc = (this.sort) ? this.sort.direction === 'asc' : false;
@@ -227,6 +309,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                     break;
             }
         }
+        this.updateMasterCheckboxStates();
         if (this._legendTable) {
             this._legendTable.renderRows();
         }
@@ -245,9 +328,115 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         }
     }
 
+    /* table checkbox controls */
+    private updateMasterCheckboxStates() {
+        let visCount = 0;
+        // console.log('UPDATE MASTER CHECKBOX STATES', this.tableDataSource.data);
+        for (let i = 0; i < this.tableDataSource.data.length; i++) {
+            const item: any = this.tableDataSource.data[i];
+            const srcIndex = item.srcIndex;
+            //console.log('ITEM CHECK', srcIndex, item, this.currentWidgetOptions.visibility[srcIndex]);
+            if (this.currentWidgetOptions.visibility[srcIndex] === true) {
+                visCount++;
+            }
+        }
+
+        const indeterminateCheck = (visCount < this.tableDataSource.data.length && visCount > 0) ? true : false;
+        if (this.masterIndeterminate !== indeterminateCheck) {
+            this.masterIndeterminate = (visCount < this.tableDataSource.data.length && visCount > 0) ? true : false;
+        }
+        // need to timeout slightly to let indeterminate to set first, otherwise it would cancel out masterChecked (if true)
+        setTimeout(() => {
+            this.masterChecked = (visCount === 0) ? false : (visCount === this.tableDataSource.data.length) ? true : false;
+        }, 50);
+        /*console.log ('FINAL CHECK', {
+            visCount,
+            tableLength: this.tableDataSource.data.length,
+            checked: this.masterChecked,
+            indeterminate: this.masterIndeterminate
+        });*/
+    }
+
+    // master checkbox change
+    masterCheckboxClick($event) {
+        /*console.log('MASTER CHECKBOX CHANGE', {
+            checked: this.masterChecked,
+            indeterminate: this.masterIndeterminate
+        });*/
+        const checked = this.masterChecked;
+        const indeterminate = this.masterIndeterminate;
+
+        if (!checked && !indeterminate) {
+            // everything is not visible
+            // need to toggle everything to be turned on
+            this.interCom.responsePut({
+                id: this.currentWidgetId,
+                action: 'tsLegendToggleSeries',
+                payload: {
+                    visible: true,
+                    batch: <number[]>this.tableDataSource.data.map((item: any) => item.srcIndex),
+                    multigraph: this.multigraph
+                }
+            });
+        } else if (checked && !indeterminate) {
+            // everything is visible
+            // need to toggle everything to turn off
+            this.interCom.responsePut({
+                id: this.currentWidgetId,
+                action: 'tsLegendToggleSeries',
+                payload: {
+                    visible: false,
+                    batch: <number[]>this.tableDataSource.data.map((item: any) => item.srcIndex),
+                    multigraph: this.multigraph
+                }
+            });
+        } else {
+            // indeterminate
+            // partial not visible
+            // need to turn those on
+            const notVisible = this.tableDataSource.data.filter((item: any) => !this.currentWidgetOptions.visibility[item.srcIndex]);
+            //console.log('=== NOT VISIBLE ===', notVisible);
+
+            this.interCom.responsePut({
+                id: this.currentWidgetId,
+                action: 'tsLegendToggleSeries',
+                payload: {
+                    visible: true,
+                    batch: <number[]>notVisible.map((item: any) => item.srcIndex),
+                    multigraph: this.multigraph
+                }
+            });
+        }
+    }
+
+    // single table row checkbox
+    timeSeriesVisibilityToggle(srcIndex: any, event: any) {
+        const itemIndex = this.tableDataSource.data.findIndex((item: any) => item.srcIndex === srcIndex);
+        (<any>this.tableDataSource.data[itemIndex]).visible = event.checked;
+
+        /*this.interCom.responsePut({
+            id: this.currentWidgetId,
+            action: 'tsLegendToggleSeries',
+            payload: {
+                srcIndex: srcIndex,
+                focusOnly: false
+            }
+        });*/
+        this.interCom.responsePut({
+            id: this.currentWidgetId,
+            action: 'tsLegendToggleSeries',
+            payload: {
+                visible: event.checked,
+                batch: [srcIndex],
+                multigraph: this.multigraph
+            }
+        });
+    }
+
     /** OnDestory - Always Last */
     ngOnDestroy() {
         this.subscription.unsubscribe();
+        this._legendTableObserve.ngOnDestroy();
 
         // interCom options out that it has closed so graphs won't still be emitting tickdata
         this.options.open = false;
