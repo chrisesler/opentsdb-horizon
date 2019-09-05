@@ -1,6 +1,6 @@
 <mat-toolbar class="ts-legend-toolbar">
     <mat-toolbar-row class="detail-brief">
-        <span>Total Series: showing {{tableDataSource.data.length}} of {{data.series.length}}</span>
+        <span>Total Series: showing {{visibleDataCount}} of {{data.series.length}}</span>
         <span class="flex-spacer"></span>
         <span>Sort by value {{(sort && sort.direction === 'asc') ? 'ascending' : 'descending'}}</span>
     </mat-toolbar-row>

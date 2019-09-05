@@ -202,6 +202,11 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         };
     }
 
+    get visibleDataCount() {
+        const visible = this.currentWidgetOptions.visibility.filter(item => item === true);
+        return visible.length;
+    }
+
     /** Toolbar controls */
     trackmouseCheckboxChange(event: any) {
         // console.log('trackmouse', event);
