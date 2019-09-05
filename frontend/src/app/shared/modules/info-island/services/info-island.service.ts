@@ -146,8 +146,9 @@ export class InfoIslandService {
         let positionStrategy;
         if (options.positionStrategy && options.positionStrategy === 'global') {
             positionStrategy = this.getGlobalPositionStrategy();
+        // } else if (options.positionStrategy && options.positionStrategy === 'connected') {
         } else {
-            positionStrategy = this.getPositionStrategy(elRef);
+            positionStrategy = this.getFlexiblePositionStrategy(elRef);
         }
 
         this.overlayRef = this.overlay.create({
@@ -156,6 +157,11 @@ export class InfoIslandService {
             // positionStrategy: this.getPositionStrategy(elRef)
             positionStrategy: positionStrategy
         });
+
+    }
+
+    updatePositionStrategy(elRef: ElementRef) {
+        // WIP to update position strategy
     }
 
     private getGlobalPositionStrategy() {
@@ -166,7 +172,22 @@ export class InfoIslandService {
         return globalPositionStrategy;
     }
 
-    private getPositionStrategy(elRef: ElementRef) {
+    // WIP for connected position strategy 
+    /*private getConnectedPositionStrategy(elRef: ElementRef) {
+        const positionStrategy = this.overlay.position()
+        .flexibleConnectedTo(elRef)
+        .withPush(true)
+        .withPositions([
+            { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom' },
+            { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top' },
+            { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
+            { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
+            { originX: 'end', originY: 'bottom', overlayX: 'endt', overlayY: 'top' },
+            { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom' }
+        ]);
+    }*/
+
+    private getFlexiblePositionStrategy(elRef: ElementRef) {
 
         const origin = {
             topLeft: { originX: 'start', originY: 'top' } as OriginConnectionPosition,
