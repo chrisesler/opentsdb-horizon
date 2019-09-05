@@ -54,6 +54,8 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     tableDataSource: MatTableDataSource<any[]> = new MatTableDataSource<any[]>([]);
     resultTagKeys: string[] = [];
 
+    highlightTag: any = {key: '', value: ''};
+
     masterChecked = false;
     masterIndeterminate = false;
 
@@ -123,11 +125,13 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                         if (this.currentWidgetId !== message.id) {
                             //this.masterIndeterminate = false;
                             newOptionsNeeded = true;
+                            this.tableHighlightTag('', '');
                         } else if (message.payload.multigraph) {
                             if (this.multigraph && (this.multigraph.y !== message.payload.multigraph.y || this.multigraph.x !== message.payload.multigraph.x)) {
                                 this.masterIndeterminate = false;
                                 // this.logger.error('DIFFERENT MULTIGRAPH GRAPH', message);
                                 newOptionsNeeded = true;
+                                this.tableHighlightTag('', '');
                             }
                         }
 
@@ -404,6 +408,47 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                 multigraph: this.multigraph
             }
         });
+    }
+
+    timeseriesVisibilityBy(filter: string, data: any) {
+        this.logger.ng('TIMESERIES VISIBILITY BY', {filter, data});
+        let toHide: number[] = [];
+        let toShow: number[] = [];
+        if (filter === 'row' && data.srcIndex) {
+            toHide = (this.tableDataSource.data.filter((item: any) => item.srcIndex !== data.srcIndex)).map((item: any) => item.srcIndex);
+            toShow = [data.srcIndex];
+        }
+        if (filter === 'tag' && data.tag && data.value) {
+            toHide = (this.tableDataSource.data.filter((item: any) => item.series.tags[data.tag] !== data.value)).map((item: any) => item.srcIndex);
+            toShow = (this.tableDataSource.data.filter((item: any) => item.series.tags[data.tag] === data.value)).map((item: any) => item.srcIndex);
+        }
+        this.logger.ng('FILTER TARGETS', {toHide, toShow});
+        if (toHide.length > 0) {
+            this.interCom.responsePut({
+                id: this.currentWidgetId,
+                action: 'tsLegendToggleSeries',
+                payload: {
+                    visible: false,
+                    batch: toHide,
+                    multigraph: this.multigraph
+                }
+            });
+        }
+        if (toShow.length > 0) {
+            this.interCom.responsePut({
+                id: this.currentWidgetId,
+                action: 'tsLegendToggleSeries',
+                payload: {
+                    visible: true,
+                    batch: toShow,
+                    multigraph: this.multigraph
+                }
+            });
+        }
+    }
+
+    tableHighlightTag(key: any, value: any) {
+        this.highlightTag = {key, value};
     }
 
     /** OnDestory - Always Last */

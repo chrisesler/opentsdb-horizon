@@ -80,6 +80,10 @@
             }
 
             .mat-header-cell .mat-sort-header-container.mat-sort-header-sorted .mat-sort-header-arrow{ opacity: 1 !important; }
+
+            .mat-cell.tag-highlight {
+                cursor: pointer;
+            }
         }
 
         .color-chip {
@@ -196,6 +200,15 @@
                 .mat-sort-header-arrow {
                     color: darken(#c09853, 15%);
                 }
+            }
+
+            .mat-row:hover,
+            .mat-row.tag-highlight {
+                background-color: rgba(map-get($primary, default), .04);
+            }
+            .mat-cell:hover,
+            .mat-cell.tag-highlight {
+                background-color: rgba(map-get($primary, default), .15);
             }
         }
     }
