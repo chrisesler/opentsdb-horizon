@@ -231,8 +231,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         this.legendFocus = message.payload;
                     } else {
                         this.legendFocus = false;
+                        this.cdRef.markForCheck();
                     }
-                    this.cdRef.markForCheck();
                     break;
             }
 

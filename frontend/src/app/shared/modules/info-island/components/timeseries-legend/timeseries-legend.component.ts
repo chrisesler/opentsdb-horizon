@@ -416,7 +416,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     }
 
     timeseriesVisibilityBy(filter: string, data: any) {
-        this.logger.ng('TIMESERIES VISIBILITY BY', {filter, data});
+        // this.logger.ng('TIMESERIES VISIBILITY BY', {filter, data});
         let toHide: number[] = [];
         let toShow: number[] = [];
         if (filter === 'row' && data.srcIndex) {
@@ -427,7 +427,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
             toHide = (this.tableDataSource.data.filter((item: any) => item.series.tags[data.tag] !== data.value)).map((item: any) => item.srcIndex);
             toShow = (this.tableDataSource.data.filter((item: any) => item.series.tags[data.tag] === data.value)).map((item: any) => item.srcIndex);
         }
-        this.logger.ng('FILTER TARGETS', {toHide, toShow});
+        // this.logger.ng('FILTER TARGETS', {toHide, toShow});
         if (toHide.length > 0) {
             this.interCom.responsePut({
                 id: this.currentWidgetId,
