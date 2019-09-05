@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import { MaterialModule } from '../material/material.module';
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -11,18 +12,28 @@ import { InfoIslandComponent } from './containers/info-island.component';
 import { IslandTestComponent } from './components/island-test/island-test.component';
 import { EventStreamComponent } from './components/event-stream/event-stream.component';
 
+import { TimeseriesLegendComponent } from './components/timeseries-legend/timeseries-legend.component';
+import { MatTableModule, MatSortModule } from '@angular/material';
+import { InfoIslandToolbarComponent } from './components/info-island-toolbar/info-island-toolbar.component';
+
 
 @NgModule({
     imports: [
         CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
         DragDropModule,
         OverlayModule,
-        MaterialModule
+        MaterialModule,
+        MatTableModule,
+        MatSortModule
     ],
     declarations: [
         InfoIslandComponent,
         IslandTestComponent,
-        EventStreamComponent
+        EventStreamComponent,
+        TimeseriesLegendComponent,
+        InfoIslandToolbarComponent
     ],
     providers: [
         InfoIslandService
@@ -30,7 +41,8 @@ import { EventStreamComponent } from './components/event-stream/event-stream.com
     entryComponents: [
         InfoIslandComponent,
         IslandTestComponent,
-        EventStreamComponent
+        EventStreamComponent,
+        TimeseriesLegendComponent
     ]
 })
 export class InfoIslandModule { }

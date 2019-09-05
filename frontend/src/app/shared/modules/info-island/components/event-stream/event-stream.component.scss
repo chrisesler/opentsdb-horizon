@@ -3,9 +3,21 @@
     $mono-fontface: map-get($app-fontface-config, mono);
 
     .event-stream {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 100%;
+        position: relative;
+
         .event-stream-list {
-            min-width: 500px;
-            max-height: 100%;
+            //min-width: 500px;
+            //max-height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: auto;
 
             &.not-ready {
                 display: none;

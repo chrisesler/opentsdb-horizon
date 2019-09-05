@@ -498,4 +498,18 @@ $widgets-common-config: (
             .graph-row {}
         }*/
     }
+
+    .multigraph-enabled {
+        .graph-cell.ts-legend-focus {
+            box-shadow: 0 0 3px 3px rgba(0, 191, 255, 0.3);
+        }
+    }
+
+    .singlegraph-enabled {
+        .graph-cell.ts-legend-focus {
+            > div {
+                box-shadow: inset 0 0 3px 3px rgba(0, 191, 255, 0.3);
+            }
+        }
+    }
 }

@@ -133,6 +133,16 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     graphData: any = {}; // { y: { x: { ts: [[0]] }}};
     graphRowLabelMarginLeft: 0;
 
+    // TIMESERIES LEGEND
+    // tsHighlightData: any = {};
+    // private _tsTickData: BehaviorSubject<any> = new BehaviorSubject({});
+
+    tsLegendOptions: any = {
+        open: false,
+        trackMouse: false
+    };
+
+    legendFocus: any = false;
 
     // EVENTS
     buckets: any[] = []; // still need this, as dygraph was looking for it
@@ -174,12 +184,13 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 }
             });
 
+        // subscribe to event stream
         this.subscription.add(this._buckets.pipe().subscribe( buckets => {
             this.buckets = buckets;
         }));
 
-        // subscribe to event stream
         this.subscription.add(this.interCom.responseGet().subscribe((message: IMessage) => {
+
             switch (message.action) {
                 case 'TimeChanged':
                     this.options.isCustomZoomed = false;
@@ -209,12 +220,62 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         this.cdRef.markForCheck();
                     }
                     break;
+                case 'tsLegendOptionsChange':
+                    this.tsLegendOptions = message.payload;
+                    if (!this.tsLegendOptions.open) {
+                        this.legendFocus = false;
+                    }
+                    break;
+                case 'tsLegendFocusChange':
+                    if (message.id === this.widget.id) {
+                        this.legendFocus = message.payload;
+                    } else {
+                        this.legendFocus = false;
+                        this.cdRef.markForCheck();
+                    }
+                    break;
             }
 
             if (message && (message.id === this.widget.id)) {
                 switch (message.action) {
                     case 'InfoIslandClosed':
                         this.updatedShowEventStream(false);
+                        break;
+                    case 'tsLegendRequestWidgetSettings':
+                        const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
+                        const multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
+                        let tsLegendOptions;
+                        if (multigraphEnabled && message.payload.multigraph) {
+                            tsLegendOptions = this.graphData[message.payload.multigraph.y][message.payload.multigraph.x].options;
+                        } else {
+                            tsLegendOptions = this.options;
+                        }
+                        this.interCom.requestSend({
+                            id: this.widget.id,
+                            action: 'tsLegendWidgetSettingsResponse',
+                            payload: {
+                                settings: this.widget.settings,
+                                options: tsLegendOptions
+                            }
+                        });
+                        break;
+                    case 'tsLegendLogscaleChange':
+                        const axes = {...this.widget.settings.axes};
+                        axes.y1.enabled = message.payload.y1;
+                        axes.y1.scale = (message.payload.y1 === true) ? 'logscale' : 'linear';
+
+                        axes.y2.enabled = message.payload.y2;
+                        axes.y2.scale = (message.payload.y2 === true) ? 'logscale' : 'linear';
+
+                        this.updateConfig({
+                            action: 'SetAxes',
+                            payload: {
+                                data: axes
+                            }
+                        });
+                        break;
+                    case 'tsLegendToggleSeries':
+                        this.tsLegendToggleChartSeries(message.payload.batch, message.payload.visible, message.payload.multigraph);
                         break;
                     case 'UpdateExpandedBucketIndex':
                         this._expandedBucketIndex.next(message.payload.index);
@@ -232,11 +293,12 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                             const rawdata = message.payload.rawdata;
                             this.setTimezone(message.payload.timezone);
                             this.resetChart(); // need to reset this data
+
                             // render multigraph or not is here
                             let graphs = {};
                             const multiConf = this.multiService.buildMultiConf(this.widget.settings.multigraph);
                             this.multigraphEnabled = (multiConf.x || multiConf.y) ? true : false;
-                            // this.multigraphEnabled = false;
+
                             if (this.multigraphEnabled) {
                                 // disable events and legend
                                 if (this.widget.settings.visual && this.widget.settings.visual.showEvents) {
@@ -617,8 +679,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.freeflowBreak = (multigraphSettings.gridOptions.viewportDisplay === 'custom') ? multigraphSettings.gridOptions.custom.y : 3;
             }
 
-            // this.logger.success('MULTIGRAPH STUFF', {mode: this.multigraphMode, freeflowBreak: this.freeflowBreak, multigraphSettings});
-
             const rowKeys = this.getGraphDataObjectKeys(this.graphData);
             const rowCount = rowKeys.length;
             // find max col count
@@ -673,7 +733,6 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
                 if (rowCount === 1 && rowKeys[0] === 'y') {
                     tHeight = tHeight - gridHeaderOffset;
-                    // this.logger.log('ONLY A SINGLE ROW, NO ROW LABEL');
                 }
 
                 if (this.multigraphMode === 'freeflow') {
@@ -892,12 +951,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     setLegendDiv() {
-        // if (this.multigraphEnabled) {
-        //    this.options.labelsDiv = {};
-        // } else {
-            this.options.labelsDiv = (this.dygraphLegend) ? this.dygraphLegend.nativeElement : {};
-            this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
-        // }
+        this.options.labelsDiv = (this.dygraphLegend) ? this.dygraphLegend.nativeElement : {};
+        this.legendDisplayColumns = ['color'].concat(this.widget.settings.legend.columns || []).concat(['name']);
     }
 
     setDefaultEvents() {
@@ -940,6 +995,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     toggleChartSeries(index: number, focusOnly) {
+
         this.preventSingleClick = focusOnly;
         if (!focusOnly) {
             this.clickTimer = 0;
@@ -951,6 +1007,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 }
                 this.options = {...this.options};
                 this.cdRef.markForCheck();
+                this.interCom.requestSend({
+                    action: 'tsLegendWidgetOptionsUpdate',
+                    id: this.widget.id,
+                    payload: { options: this.options}
+                });
             }, delay);
         } else {
             clearTimeout(this.clickTimer);
@@ -970,8 +1031,42 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
             }
             this.options.visibility[index] = true;
             this.options = { ...this.options };
+            this.interCom.requestSend({
+                action: 'tsLegendWidgetOptionsUpdate',
+                id: this.widget.id,
+                payload: { options: this.options}
+            });
+        }
+    }
+
+    // timeSeriesLegend series toggle
+    tsLegendToggleChartSeries(batch: number[], visible: boolean, multigraph: any = false) {
+        clearTimeout(this.clickTimer);
+        this.clickTimer = 0;
+
+        // get correct options depending on whether multigraph or not
+        const options = (multigraph) ? this.graphData[multigraph.y][multigraph.x].options : this.options;
+
+        // update visibility on batch items
+        for (let i = 0; i < batch.length; i += 1) {
+            const srcIndex = batch[i];
+            options.visibility[srcIndex] = visible;
         }
 
+        // update main data options depending on whether multigraph
+        if (multigraph) {
+            this.graphData[multigraph.y][multigraph.x].options = { ...options };
+        } else {
+            this.options = { ...options };
+        }
+        this.cdRef.markForCheck();
+
+        // interCom updated options
+        this.interCom.requestSend({
+            action: 'tsLegendWidgetOptionsUpdate',
+            id: this.widget.id,
+            payload: { options: (multigraph) ? this.graphData[multigraph.y][multigraph.x].options : this.options}
+        });
     }
 
     handleZoom(zConfig) {
@@ -999,6 +1094,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         if ( !this.showEventStream ) {
             // IF NOT OPEN, OPEN IT
 
+            const islandTitle = this.widget.eventQueries[0].search ?
+                                // tslint:disable-next-line:max-line-length
+                                this.getEventCountInBuckets() + ' Events: ' + this.widget.eventQueries[0].namespace + ' - ' + this.widget.eventQueries[0].search :
+                                this.getEventCountInBuckets() + ' Events: ' + this.widget.eventQueries[0].namespace;
+
             // to open info island
             const payload = {
                 portalDef: {
@@ -1009,13 +1109,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     buckets$: this._buckets.asObservable(),
                     timeRange$: this._timeRange.asObservable(),
                     timezone$: this._timezone.asObservable(),
-                    expandedBucketIndex$: this._expandedBucketIndex.asObservable()
+                    expandedBucketIndex$: this._expandedBucketIndex.asObservable(),
+                    title: islandTitle
                 },
                 options: {
-                    title: this.widget.eventQueries[0].search ?
-                       // tslint:disable-next-line:max-line-length
-                       this.getEventCountInBuckets() + ' Events: ' + this.widget.eventQueries[0].namespace + ' - ' + this.widget.eventQueries[0].search :
-                       this.getEventCountInBuckets() + ' Events: ' + this.widget.eventQueries[0].namespace
+                    title: islandTitle
                 }
             };
 
@@ -1214,22 +1312,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    // ctx should contain loop context... see template for details
-    getGraphTemplateContext(data: any, ctx: any = {}): any {
-        /*const graphContext = {
-            $implicit: this,
-            data: data
-        };*/
-        //console.log('CTX', ctx);
-        const graphContext = {
-            $implicit: this,
-            data: data,
-            ctx: ctx
-        };
-
-        return graphContext;
-    }
-
+    // get keys from graph data object
     getGraphDataObjectKeys(obj: any): string[] {
         if (!obj || obj === undefined || obj === null) {
             return [];
@@ -1238,13 +1321,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         return keys;
     }
 
-    findGraphLegend(id: string): ElementRef {
-        const legend = this.graphLegends.find((item: ElementRef) => {
-            return item.nativeElement.getAttribute('data-id') === id;
-        });
-        return legend || null;
-    }
-
+    // set columns based on multigraph data
     setMultigraphColumns(data) {
         const ykeys = this.getGraphDataObjectKeys(data);
         const colKeys = ykeys.length ? this.getGraphDataObjectKeys(data[ykeys[0]]) : [];
@@ -1255,6 +1332,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    // event listener to multigraph container scroll
+    // used to reposition column headers
     multigraphContainerScroll(event: any) {
         // column header row needs to update position
         if (this.multigraphHeaderRow) {
@@ -1262,6 +1341,70 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         }
         // update row label marginLeft
         this.graphRowLabelMarginLeft = event.target.scrollLeft;
+    }
+
+    /* TIMESERIES LEGEND */
+
+    // event listener for dygraph to get latest tick data
+    timeseriesTickListener(yKey: any, xKey: any, event: any) {
+        // this.logger.state('TIMESERIES TICK LISTENER', {yKey, xKey, multigraph: this.multigraphEnabled, event});
+
+        let multigraph: any = false;
+        if (this.multigraphEnabled) {
+            multigraph = { y: yKey, x: xKey };
+        }
+
+        let options;
+        if (multigraph) {
+            options = this.graphData[yKey][xKey].options;
+        } else {
+            options = this.options;
+        }
+
+        if (event.action === 'openLegend') {
+            // open the infoIsland with TimeseriesLegend
+            const payload = {
+                portalDef: {
+                    type: 'component',
+                    name: 'TimeseriesLegendComponent'
+                },
+                data: {
+                    tsTickData: event.tickData,
+                    options: options,
+                    settings: this.widget.settings,
+                    multigraph: multigraph
+                },
+                options: {
+                    title: 'Timeseries Legend',
+                    height: 250
+                }
+            };
+            // this goes to widgetLoader
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'InfoIslandOpen',
+                payload: payload
+            });
+        }
+
+        if (event.action === 'tickDataChange') {
+            // update tickData from mouseover
+            // this goes to TimeseriesLegend
+            const payload: any = {
+                tickData: event.tickData,
+                multigraph: multigraph,
+                settings: this.widget.settings,
+                options: options
+            };
+            if (event.trackMouse) {
+                payload.trackMouse = event.trackMouse;
+            }
+            this.interCom.requestSend({
+                id: this.widget.id,
+                action: 'tsTickDataChange',
+                payload: payload
+            });
+        }
     }
 
     /* ON DESTROY */

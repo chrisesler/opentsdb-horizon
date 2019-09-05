@@ -9,7 +9,7 @@ import * as deepEqual from 'fast-deep-equal';
     // tslint:disable-next-line:component-selector
     selector: 'event-timeline',
     templateUrl: './event-timeline.component.html',
-    styleUrls: ['./event-timeline.component.scss']
+    styleUrls: []
 })
 
 export class EventTimelineComponent implements OnInit, OnChanges {
