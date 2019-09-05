@@ -380,6 +380,13 @@ export class DbfsResourcesState {
     loadResourcesSuccess(ctx: StateContext<DbfsResourcesModel>, { response }: DbfsLoadResourcesSuccess) {
         this.logger.success('State :: Load Navigation Resource List', response);
 
+        // in case the user doesn't have any member namespaces
+        // fixes issue when user doesn't belong to namespace, the sidebar throws error
+        // just ensures there is an empty array at least
+        if (!response.memberNamespaces) {
+            response.memberNamespaces = [];
+        }
+
         const state = ctx.getState();
 
         // initial data setup
