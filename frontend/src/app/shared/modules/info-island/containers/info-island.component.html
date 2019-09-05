@@ -29,5 +29,9 @@
         <div class='resizer top-right' #resizerEl cdkDrag (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
         <div class='resizer bottom-left' #resizerEl cdkDrag (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
         <div class='resizer bottom-right' #resizerEl cdkDrag (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
+        <div class='resizer top' #resizerEl cdkDrag cdkDragLockAxis="y" (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
+        <div class='resizer bottom' #resizerEl cdkDrag cdkDragLockAxis="y" (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
+        <div class='resizer left' #resizerEl cdkDrag cdkDragLockAxis="x" (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
+        <div class='resizer right' #resizerEl cdkDrag cdkDragLockAxis="x" (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
     </div>  
 </div>

@@ -197,7 +197,34 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit  {
         let triggerTransform = false;
         let diff: any;
 
-        if (currentResizer.classList.contains('bottom-right')) {
+        if (currentResizer.classList.contains('top')) {
+            height = this.origDims.height - (e.pointerPosition.y - this.origDims.pointerPosition.y);
+
+            if (height > this.minimum_size.y) {
+                element.style.height = height + 'px';
+                diff = (e.pointerPosition.y - this.origDims.pointerPosition.y);
+                transform[1] = (e.delta.y === 1) ? transform[1] + diff : transform[1] - (diff * e.delta.y);
+                triggerTransform = true;
+            }
+        } else if (currentResizer.classList.contains('bottom')) {
+            height = this.origDims.height + (e.pointerPosition.y - this.origDims.pointerPosition.y);
+            if (height > this.minimum_size.y) {
+                element.style.height = height + 'px';
+            }
+        } else if (currentResizer.classList.contains('left')) {
+            width = this.origDims.width - (e.pointerPosition.x - this.origDims.pointerPosition.x);
+            if (width > this.minimum_size.x) {
+                element.style.width = width + 'px';
+                diff = (e.pointerPosition.x - this.origDims.pointerPosition.x);
+                transform[0] = (e.delta.x === 1) ? transform[0] + diff : transform[0] - (diff * e.delta.x);
+                triggerTransform = true;
+            }
+        } else if (currentResizer.classList.contains('right')) {
+            width = this.origDims.width + (e.pointerPosition.x - this.origDims.pointerPosition.x);
+            if (width > this.minimum_size.x) {
+                element.style.width = width + 'px';
+            }
+        } else if (currentResizer.classList.contains('bottom-right')) {
 
             width = this.origDims.width + (e.pointerPosition.x - this.origDims.pointerPosition.x);
             height = this.origDims.height + (e.pointerPosition.y - this.origDims.pointerPosition.y);
