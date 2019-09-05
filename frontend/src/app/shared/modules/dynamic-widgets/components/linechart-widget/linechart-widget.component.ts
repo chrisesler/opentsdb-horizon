@@ -729,10 +729,11 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
  //           if (Object.keys(config).length > 0) {
             const chartAxisID = axisKeys[i] === 'y1' ? 'y' : axisKeys[i] === 'y2' ? 'y2' : 'x';
             const axis = this.options.axes[chartAxisID];
-            if ( !isNaN( config.min ) && config.min.trim() !== '' ) {
+            axis.valueRange = [null, null];
+            if ( !isNaN( parseFloat(config.min) ) ) {
                 axis.valueRange[0] =  config.min;
             }
-            if ( !isNaN( config.max)  && config.max.trim() !== '' ) {
+            if ( !isNaN(parseFloat(config.max)) ) {
                 axis.valueRange[1] = config.max;
             }
 
