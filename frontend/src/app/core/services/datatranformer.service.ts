@@ -28,10 +28,12 @@ export class DatatranformerService {
     const queryResults = [];
     const wdQueryStats = this.util.getWidgetQueryStatistics(widget.queries);
     let isStacked = false;
+    const stackedGroups = {};
+    const groups = {};
     let areaAxis = 'y1';
     let barAxis = 'y1';
     let yMax = 0, y2Max = 0;
-    let yMin = null, y2Min = null;
+    const min = { y1: null, y2: null };
     const mTimeConfigs = {};
     let totalSeries = 0;
     for ( let i = 0;  i < result.results.length; i++ ) {
@@ -63,10 +65,10 @@ export class DatatranformerService {
                     dict[mid]['summarizer'][hash] = aggData;
                     if (!vConfig.axis || vConfig.axis === 'y1') {
                         yMax = yMax < aggData['max'] ? aggData['max'] : yMax;
-                        yMin = yMin === null || yMin > aggData['min'] ? aggData['min'] : yMin;
+                        min['y1'] = min['y1'] === null || min['y1'] > aggData['min'] ? aggData['min'] : min['y1'];
                     } else {
                         y2Max = y2Max < aggData['max'] ? aggData['max'] : y2Max;
-                        y2Min = y2Min === null || y2Min > aggData['min'] ? aggData['min'] : y2Min;
+                        min['y2'] = min['y2'] === null || min['y2'] > aggData['min'] ? aggData['min'] : min['y2'];
                     }
                 }
             } else {
@@ -81,7 +83,6 @@ export class DatatranformerService {
                     dict[mid]['values'][hash] = queryResults[i].data[j].NumericType;
                     if ( vConfig.type === 'area' || vConfig.type === 'bar' ) {
                         isStacked = true;
-                        areaAxis = vConfig.axis || 'y1';
                     }
                     if ( vConfig.type === 'area' ) {
                         areaAxis = vConfig.axis || 'y1';
@@ -97,9 +98,15 @@ export class DatatranformerService {
     const ts = Object.keys(tsObj);
     const tsn = Object.keys(tsObj).length;
     const stackedYAxes = this.util.arrayUnique([areaAxis, barAxis]);
-    const xMaxes = {
-                        'area': { 'y' : Array( tsn ).fill(0), 'y2': Array( tsn ).fill(0) },
-                        'bar': { 'y' : Array( tsn ).fill(0), 'y2': Array( tsn ).fill(0) }
+    const xAggs = {
+                        max: {
+                            'area': { 'y' : Array( tsn ).fill(0), 'y2': Array( tsn ).fill(0) },
+                            'bar': { 'y' : Array( tsn ).fill(0), 'y2': Array( tsn ).fill(0) }
+                        },
+                        min: {
+                            'area': { 'y' : Array( tsn ).fill(0), 'y2': Array( tsn ).fill(0) },
+                            'bar': { 'y' : Array( tsn ).fill(0), 'y2': Array( tsn ).fill(0) }
+                        },
                     };
     for ( let i = 0; i < ts.length; i++ ) {
         normalizedData[i] = Array( totalSeries + 1 ).fill(null);
@@ -108,9 +115,9 @@ export class DatatranformerService {
 
     queryResults.sort((a, b) => a.visualType - b.visualType);
     options.axes.y.tickFormat.max = yMax;
-    options.axes.y.tickFormat.min = yMin;
+    options.axes.y.tickFormat.min = min['y1'];
     options.axes.y2.tickFormat.max = y2Max;
-    options.axes.y2.tickFormat.min = y2Min;
+    options.axes.y2.tickFormat.min = min['y2'];
 
     let autoColors = this.util.getColors(null, wdQueryStats.nVisibleAutoColors);
     autoColors = wdQueryStats.nVisibleAutoColors > 1 ? autoColors : [autoColors];
@@ -118,6 +125,7 @@ export class DatatranformerService {
             // sometimes opentsdb returns empty results
             // reset series in state
             options.series = {};
+            const dseries = [];
             for ( let i = 0;  i < queryResults.length; i++ ) {
                 const [ source, mid ] = queryResults[i].source.split(':');
                 if ( source === 'summarizer') {
@@ -142,49 +150,74 @@ export class DatatranformerService {
                     const hash = JSON.stringify(tags);
                     const mLabel = this.util.getWidgetMetricDefaultLabel(widget.queries, qIndex, mIndex);
                     const metric = vConfig.label ? vConfig.label : mConfig.expression ? mLabel : queryResults[i].data[j].metric;
-                    const numPoints = data.length;
-                    const label = options.labels.length.toString();
                     if ( gConfig && gConfig.settings.visual.visible && vConfig.visible ) {
                         const aggData = dict[mid]['summarizer'][hash];
-                        options.labels.push(label);
-                        options.visibility.push(true);
-                        if ( options.series ) {
-                            options.series[label] = {
-                                strokeWidth: vConfig.lineWeight ? parseFloat(vConfig.lineWeight) : 1,
-                                strokePattern: this.getStrokePattern(vConfig.lineType),
-                                color: colors[j],
-                                fillGraph: vConfig.type === 'area' ? true : false,
-                                isStacked: vConfig.type === 'area' ? true : false,
-                                axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
-                                metric: metric,
-                                tags: { metric: !mConfig.expression ?
-                                        queryResults[i].data[j].metric : mLabel, ...tags},
-                                aggregations: aggData,
-                                group: vConfig.type
-                            };
-                            if ( vConfig.type === 'bar') {
-                                options.series[label].plotter = barChartPlotter;
-                            } else if ( vConfig.type === 'area' ) {
-                                options.series[label].plotter = stackedAreaPlotter;
-                            }
-                            options.series[label].label = this.getLableFromMetricTags(metric, options.series[label].tags);
+                        const config: any = {
+                            strokeWidth: vConfig.lineWeight ? parseFloat(vConfig.lineWeight) : 1,
+                            strokePattern: this.getStrokePattern(vConfig.lineType),
+                            color: colors[j],
+                            fillGraph: vConfig.type === 'area' ? true : false,
+                            isStacked: vConfig.type === 'area' ? true : false,
+                            axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
+                            metric: metric,
+                            tags: { metric: !mConfig.expression ?
+                                    queryResults[i].data[j].metric : mLabel, ...tags},
+                            aggregations: aggData,
+                            group: vConfig.type ? vConfig.type : 'line'
+                        };
+                        if ( vConfig.type === 'bar') {
+                            config.plotter = barChartPlotter;
+                            stackedGroups['bar'] = true;
+                        } else if ( vConfig.type === 'area' ) {
+                            config.plotter = stackedAreaPlotter;
+                            stackedGroups['area'] = true;
+                        } else {
+                            groups['line'] = true;
                         }
-                        options.series[label].label = this.getLableFromMetricTags(metric, options.series[label].tags);
-                        const seriesIndex = options.labels.indexOf(label);
-                        const axis = options.series[label].axis;
-                        const unit = timeSpecification.interval.replace(/[0-9]/g, '');
-                        const m = parseInt(timeSpecification.interval, 10);
-                        for (let k = 0; k < numPoints; k++) {
-                            const secs = timeSpecification.start + (m * k * mSeconds[unit]);
-                            const ms = secs * 1000;
-                            const tsIndex = tsObj[ms];
-                            if ( tsIndex !== undefined ) {
-                                normalizedData[tsIndex][seriesIndex] = !isNaN(data[k]) ? data[k] : NaN;
-                            }
-                            if ( isStacked && !isNaN(data[k]) && (vConfig.type === 'area' || vConfig.type === 'bar') ) {
-                                xMaxes[vConfig.type][axis][k] += data[k];
-                            }
-                        }
+                        config.label = this.getLableFromMetricTags(metric, config.tags);
+                        dseries.push({  config: config,
+                                        data: data,
+                                        hash: this.getHashFromMetricAndTags(mConfig.expression ? mLabel : queryResults[i].data[j].metric, tags),
+                                        timeSpecification: timeSpecification});
+                }
+            }
+        }
+
+        // dseries.forEach((d,i)=> { console.log("data1 i=", widget.settings.title, i, d.config.group, d.hash)});
+        // sort the data
+        dseries.sort((a: any, b: any) => {
+            if ( a.config.group === b.config.group ) {
+                return this.util.sortAlphaNum(a.hash, b.hash);
+            }
+            return a.config.group < a.config.group ? 1 : -1;
+        });
+        // dseries.forEach((d,i)=> { console.log("data2 i=", i, d.config.group, d.hash)});
+        // fill the data
+        for ( let i = 0; i < dseries.length; i++ ) {
+            const label = options.labels.length.toString();
+            options.labels.push(label);
+            options.visibility.push(true);
+            options.series[label] = dseries[i].config;
+            const seriesIndex = options.labels.indexOf(label);
+            const axis = dseries[i].config.axis;
+            const unit = dseries[i].timeSpecification.interval.replace(/[0-9]/g, '');
+            const m = parseInt(dseries[i].timeSpecification.interval, 10);
+            const numPoints = dseries[i].data.length;
+            const type = dseries[i].config.group;
+            const data = dseries[i].data;
+            for (let k = 0; k < numPoints; k++) {
+                const secs = dseries[i].timeSpecification.start + (m * k * mSeconds[unit]);
+                const ms = secs * 1000;
+                const tsIndex = tsObj[ms];
+                if ( tsIndex !== undefined ) {
+                    normalizedData[tsIndex][seriesIndex] = !isNaN(data[k]) ? data[k] : NaN;
+                }
+                if ( isStacked && !isNaN(data[k]) && ( type === 'area' || type === 'bar') ) {
+                    if ( data[k] > 0) {
+                        xAggs['max'][type][axis][k] += data[k];
+                    } else {
+                        xAggs['min'][type][axis][k] += data[k];
+                    }
                 }
             }
         }
@@ -193,18 +226,28 @@ export class DatatranformerService {
 
             for ( let i = 0; i < stackedYAxes.length; i++ ) {
                 const axis = stackedYAxes[i] === 'y1' ? 'y' : 'y2';
-                const axisMax = d3.max([...xMaxes['area'][axis], ...xMaxes['bar'][axis]]);
+                let axisMax = d3.max([...xAggs['max']['area'][axis], ...xAggs['max']['bar'][axis]]);
+                let axisMin = d3.min([...xAggs['min']['area'][axis], ...xAggs['min']['bar'][axis]]);
                 const axisConfig = widget.settings.axes[stackedYAxes[i]];
-                yMax = stackedYAxes[i] === 'y1' ? axisMax : yMax;
-                y2Max = stackedYAxes[i] === 'y2' ? axisMax : y2Max;
+                if ( stackedYAxes[i] === 'y1' ) {
+                    axisMax = yMax > axisMax ? yMax : axisMax;
+                    axisMin = min['y1'] < axisMin ? min['y1'] : axisMin;
+                    yMax = axisMax;
+                }
+                if ( stackedYAxes[i] === 'y2' ) {
+                    axisMax = y2Max > axisMax ? y2Max : axisMax;
+                    axisMin = min['y2'] < axisMin ? min['y2'] : axisMin;
+                    y2Max = axisMax;
+                }
 
                 if ( isNaN(parseFloat( axisConfig.max)) ) {
                     options.axes[axis].valueRange[1] = Math.ceil(axisMax + axisMax * 0.05);
                 }
 
-                if ( options.axes[axis].valueRange[0] === null || isNaN(options.axes[axis].valueRange[0])) {
-                    options.axes[axis].valueRange[0] = 0;
+                if ( isNaN(parseFloat( axisConfig.min)) ) {
+                    options.axes[axis].valueRange[0] = axisMin < 0 && ( Object.keys(stackedGroups).length > 1 || Object.keys(groups).includes('line')) ? Math.ceil(axisMin + axisMin * 0.05) : 0;
                 }
+                console.log("axis-"+ axis, axisMin, options.axes[axis].valueRange)
             }
         }
 
@@ -216,6 +259,17 @@ export class DatatranformerService {
             options.axes.y2.valueRange[0] = null;
         }
         return [...normalizedData];
+    }
+
+    getHashFromMetricAndTags(metric, tags) {
+        let res = metric;
+        let keys = Object.keys(tags);
+        keys = keys.sort();
+        for ( let i = 0; i < keys.length; i++ ) {
+            const key = keys[i];
+            res += '-' + key + ':' + tags[keys[i]];
+        }
+        return res;
     }
 
   yamasToHeatmap(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
