@@ -43,7 +43,7 @@
                     <div class="graph-row">
                         <!-- graph loop -->
                         <ng-container *ngFor="let xKey of getGraphDataObjectKeys(graphData[yKey]); let j = index;">
-                            <div class="graph-cell"
+                            <div class="graph-cell graph-cell-{{yKey}}-{{xKey}}"
                                 [ngClass]="{'ts-legend-focus': (!multigraphEnabled) ? legendFocus : (legendFocus && (legendFocus.y === yKey && legendFocus.x === xKey))}" 
                                 [style.width.px]="(!multigraphEnabled) ? size.width + legendWidth : size.width"
                                 [style.height.px]="(!multigraphEnabled) ? size.height + legendHeight : (multigraphEnabled && multigraphMode === 'freeflow') ? size.height + 15 : size.height"
