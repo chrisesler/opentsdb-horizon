@@ -99,9 +99,6 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                             options
                         );
                         break;
-                    case 'InfoIslandUpdatePositionStrategy':
-                        this.infoIslandService.updatePositionStrategy(message.payload.overlayOriginRef, message.payload.positionStrategy);
-                        break;
                     default:
                         break;
                 }
