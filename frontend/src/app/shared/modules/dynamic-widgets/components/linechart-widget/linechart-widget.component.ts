@@ -73,6 +73,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         strokeBorderWidth: this.isStackedGraph ? 0 : 0,
         highlightSeriesBackgroundAlpha: 0.5,
         isZoomedIgnoreProgrammaticZoom: true,
+        hideOverlayOnMouseOut: true,
         isCustomZoomed: false,
         highlightSeriesOpts: {
             strokeWidth: 2,

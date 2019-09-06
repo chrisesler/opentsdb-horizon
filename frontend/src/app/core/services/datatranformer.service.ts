@@ -127,6 +127,7 @@ export class DatatranformerService {
             // sometimes opentsdb returns empty results
             // reset series in state
             options.series = {};
+            const colors = {};
             const dseries = [];
             for ( let i = 0;  i < queryResults.length; i++ ) {
                 const [ source, mid ] = queryResults[i].source.split(':');
@@ -144,7 +145,7 @@ export class DatatranformerService {
                 const n = queryResults[i].data.length;
                 const colorIndex = vConfig.color === 'auto' || !vConfig.color ? wdQueryStats.mVisibleAutoColorIds.indexOf( qid + '-' + mConfig.id ) : -1;
                 const color = vConfig.color === 'auto' || !vConfig.color ? autoColors[colorIndex] : mConfig.settings.visual.color;
-                const colors = n === 1 ?
+                colors[mid] = n === 1 ?
                     [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics === 1 && (vConfig.color === 'auto' || !vConfig.color) ? null : color , n ) ;
                 for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults[i].data[j].NumericType;
@@ -157,7 +158,7 @@ export class DatatranformerService {
                         const config: any = {
                             strokeWidth: vConfig.lineWeight ? parseFloat(vConfig.lineWeight) : 1,
                             strokePattern: this.getStrokePattern(vConfig.lineType),
-                            color: colors[j],
+                            // color: colors[j],
                             fillGraph: vConfig.type === 'area' ? true : false,
                             isStacked: vConfig.type === 'area' ? true : false,
                             axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
@@ -177,7 +178,8 @@ export class DatatranformerService {
                             groups['line'] = true;
                         }
                         config.label = this.getLableFromMetricTags(metric, config.tags);
-                        dseries.push({  config: config,
+                        dseries.push({  mid: mid,
+                                        config: config,
                                         data: data,
                                         hash: this.getHashFromMetricAndTags(mConfig.expression ? mLabel : queryResults[i].data[j].metric, tags),
                                         timeSpecification: timeSpecification});
@@ -197,15 +199,16 @@ export class DatatranformerService {
                 }
             }
             return a.config.group < a.config.group ? 1 : -1;
-        }).reverse();
+        });
         console.debug(widget.id, "time taken for sorting data series(ms) ", new Date().getTime() - intermediateTime );
         intermediateTime = new Date().getTime();
-        
+
         for ( let i = 0; i < dseries.length; i++ ) {
             const label = options.labels.length.toString();
             options.labels.push(label);
             options.visibility.push(true);
             options.series[label] = dseries[i].config;
+            options.series[label].color = colors[dseries[i].mid].pop();
             const seriesIndex = options.labels.indexOf(label);
             const axis = dseries[i].config.axis;
             const unit = dseries[i].timeSpecification.interval.replace(/[0-9]/g, '');
