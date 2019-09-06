@@ -20,6 +20,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { LoggerService } from '../../../../../core/services/logger.service';
 import { environment } from '../../../../../../environments/environment';
+import { InfoIslandService } from '../../../info-island/services/info-island.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -32,7 +33,17 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     @HostBinding('class.widget-panel-content') private _hostClass = true;
     @HostBinding('class.linechart-widget') private _componentClass = true;
 
-    @Input() editMode: boolean;
+    private _editMode: boolean = false;
+    @Input()
+    get editMode(): boolean {
+        return this._editMode;
+    }
+    set editMode(value: boolean) {
+        this._editMode = value;
+        if (value === true) {
+            this.iiService.closeIsland();
+        }
+    }
     @Input() widget: WidgetModel;
     @Output() widgetOut = new EventEmitter<any>();
 
@@ -169,7 +180,8 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         private elRef: ElementRef,
         private unit: UnitConverterService,
         private logger: LoggerService,
-        private multiService: MultigraphService
+        private multiService: MultigraphService,
+        private iiService: InfoIslandService
     ) { }
 
     ngOnInit() {
@@ -276,6 +288,15 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                         break;
                     case 'tsLegendToggleSeries':
                         this.tsLegendToggleChartSeries(message.payload.batch, message.payload.visible, message.payload.multigraph);
+                        break;
+                    case 'tsLegendRequestUpdatedOverlayOrigin':
+                        let tsOriginOverlayRef: any;
+                        if (message.payload.multigraph) {
+                            tsOriginOverlayRef = (this.multigraphContainer.nativeElement).querySelector('.graph-cell-' + message.payload.multigraph.y + '-' + message.payload.multigraph.x);
+                        } else {
+                            tsOriginOverlayRef = this.elRef.nativeElement.closest('.widget-loader');
+                        }
+                        this.iiService.updatePositionStrategy(tsOriginOverlayRef, 'connected');
                         break;
                     case 'UpdateExpandedBucketIndex':
                         this._expandedBucketIndex.next(message.payload.index);
@@ -1348,36 +1369,45 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     timeseriesTickListener(yKey: any, xKey: any, event: any) {
         // this.logger.state('TIMESERIES TICK LISTENER', {yKey, xKey, multigraph: this.multigraphEnabled, event});
 
+        if (this.editMode === true) {
+            return;
+        }
+
         let multigraph: any = false;
         if (this.multigraphEnabled) {
             multigraph = { y: yKey, x: xKey };
         }
 
-        let options;
+        let widgetOptions;
         if (multigraph) {
-            options = this.graphData[yKey][xKey].options;
+            widgetOptions = this.graphData[yKey][xKey].options;
         } else {
-            options = this.options;
+            widgetOptions = this.options;
         }
 
         if (event.action === 'openLegend') {
+
             // open the infoIsland with TimeseriesLegend
-            const payload = {
+            const payload: any = {
                 portalDef: {
                     type: 'component',
                     name: 'TimeseriesLegendComponent'
                 },
                 data: {
                     tsTickData: event.tickData,
-                    options: options,
+                    options: widgetOptions,
                     settings: this.widget.settings,
                     multigraph: multigraph
                 },
                 options: {
                     title: 'Timeseries Legend',
-                    height: 250
+                    height: 250,
+                    positionStrategy: 'connected'
                 }
             };
+            if (multigraph) {
+                payload.options.overlayRefEl = (this.multigraphContainer.nativeElement).querySelector('.graph-cell-' + yKey + '-' + xKey);
+            }
             // this goes to widgetLoader
             this.interCom.requestSend({
                 id: this.widget.id,
@@ -1393,7 +1423,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 tickData: event.tickData,
                 multigraph: multigraph,
                 settings: this.widget.settings,
-                options: options
+                options: widgetOptions
             };
             if (event.trackMouse) {
                 payload.trackMouse = event.trackMouse;
