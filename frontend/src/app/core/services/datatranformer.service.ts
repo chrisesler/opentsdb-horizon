@@ -15,6 +15,8 @@ export class DatatranformerService {
 
   // options will also be update of its labels array
   yamasToDygraph(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
+    const startTime = new Date().getTime();
+    let intermediateTime = startTime;
     result = { ...result };
     if ( normalizedData.length && normalizedData[0].length === 1 ) {
       // there is no data in here but default, reset it
@@ -183,16 +185,22 @@ export class DatatranformerService {
             }
         }
 
-        // dseries.forEach((d,i)=> { console.log("data1 i=", widget.settings.title, i, d.config.group, d.hash)});
         // sort the data
+        intermediateTime = new Date().getTime();
         dseries.sort((a: any, b: any) => {
             if ( a.config.group === b.config.group ) {
-                return this.util.sortAlphaNum(a.hash, b.hash);
+                if ( !widget.settings.visual.stackOrder || widget.settings.visual.stackOrder === 'metric') {
+                    return this.util.sortAlphaNum(a.hash, b.hash);
+                } else {
+                    const orderBy = widget.settings.visual.stackOrder;
+                    return a.config.aggregations[orderBy] - b.config.aggregations[orderBy];
+                }
             }
             return a.config.group < a.config.group ? 1 : -1;
-        });
-        // dseries.forEach((d,i)=> { console.log("data2 i=", i, d.config.group, d.hash)});
-        // fill the data
+        }).reverse();
+        console.debug(widget.id, "time taken for sorting data series(ms) ", new Date().getTime() - intermediateTime );
+        intermediateTime = new Date().getTime();
+        
         for ( let i = 0; i < dseries.length; i++ ) {
             const label = options.labels.length.toString();
             options.labels.push(label);
@@ -221,6 +229,7 @@ export class DatatranformerService {
                 }
             }
         }
+        console.debug(widget.id, "time taken for finding min, max(ms)", new Date().getTime() - intermediateTime );
 
         if (isStacked) {
 
@@ -247,7 +256,6 @@ export class DatatranformerService {
                 if ( isNaN(parseFloat( axisConfig.min)) ) {
                     options.axes[axis].valueRange[0] = axisMin < 0 && ( Object.keys(stackedGroups).length > 1 || Object.keys(groups).includes('line')) ? Math.ceil(axisMin + axisMin * 0.05) : 0;
                 }
-                console.log("axis-"+ axis, axisMin, options.axes[axis].valueRange)
             }
         }
 
@@ -258,6 +266,7 @@ export class DatatranformerService {
         if ( options.axes.y2.valueRange[0] !== null && options.axes.y2.valueRange[0] >= y2Max ) {
             options.axes.y2.valueRange[0] = null;
         }
+        console.debug(widget.id, "time taken on data transformer(ms) ", new Date().getTime() - startTime );
         return [...normalizedData];
     }
 

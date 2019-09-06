@@ -439,6 +439,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.refreshData(false);
                 this.cdRef.detectChanges();
                 break;
+            case 'SetStackOrder':
+                this.widget.settings.visual.stackOrder = message.payload.orderBy;
+                this.refreshData(false);
+                break;
             case 'SetAlerts':
                 this.widget.settings.thresholds = message.payload.data;
                 this.setAlertOption();
