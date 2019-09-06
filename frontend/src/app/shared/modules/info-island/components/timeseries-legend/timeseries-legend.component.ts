@@ -156,6 +156,14 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                                 }
                             });
                             this._legendTableObserve.disabled = false;
+                            // request new overlayOrginRef
+                            this.interCom.responsePut({
+                                id: message.id,
+                                action: 'tsLegendRequestUpdatedOverlayOrigin',
+                                payload: {
+                                    multigraph: this.multigraph
+                                }
+                            });
                         }
 
                         // focus change
