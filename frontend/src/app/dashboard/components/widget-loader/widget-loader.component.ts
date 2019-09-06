@@ -77,7 +77,11 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                         const tplRef = (portalDef.templateName) ? this[portalDef.name] : portalDef.reference;
                         componentOrTemplateRef = new TemplatePortal(tplRef, null, dataToInject);
                     }
-                    this.infoIslandService.openIsland(this.hostElRef, componentOrTemplateRef, options);
+                    this.infoIslandService.openIsland(
+                        this.hostElRef.nativeElement.closest('.app-dboard-content'),
+                        componentOrTemplateRef,
+                        options
+                    );
                     break;
                 default:
                     break;

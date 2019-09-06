@@ -1,16 +1,17 @@
 <div class="info-island-container"
+    cdkDrag
+    cdkDragRootElement=".cdk-overlay-pane"
     [ngStyle]="{'width.px': options.width, 'height.px': options.height}"
     [@infoIslandAnimation]="animationState"
     (@infoIslandAnimation.done)="animationDone()"
-    cdkDrag
     #islandContainer>
     <mat-card>
         <mat-card-header cdkDragHandle #dragHandle>
-            <mat-card-title fxLayout="row">
-                <div class="title">{{options.title || 'Info Island'}}</div>
+            <mat-card-title fxLayout="row" fxLayoutAlign="end center">
+                <ng-container #islandToolbar></ng-container>
                 <div class="close" *ngIf="options?.closable">
                     <button mat-icon-button class="close-button" (click)="animateClose()">
-                        <i class="material-icons">close</i>
+                        <mat-icon fontSet="denali" fontIcon="d-close-circle-solid"></mat-icon>
                     </button>   
                 </div>
             </mat-card-title>
@@ -22,12 +23,15 @@
             <button mat-button (click)="animateClose()">Close</button>
         </mat-card-actions>
     </mat-card>
-    <!-- COMMENTING OUT FOR NOW TILL MATERIAL UPGRADE CAN HAPPEN
+    <!-- Window Resizing handlers -->
     <div class='resizers'>
         <div class='resizer top-left' #resizerEl cdkDrag (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
         <div class='resizer top-right' #resizerEl cdkDrag (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
         <div class='resizer bottom-left' #resizerEl cdkDrag (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
         <div class='resizer bottom-right' #resizerEl cdkDrag (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
-    </div>
-    -->
+        <div class='resizer top' #resizerEl cdkDrag cdkDragLockAxis="y" (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
+        <div class='resizer bottom' #resizerEl cdkDrag cdkDragLockAxis="y" (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
+        <div class='resizer left' #resizerEl cdkDrag cdkDragLockAxis="x" (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
+        <div class='resizer right' #resizerEl cdkDrag cdkDragLockAxis="x" (cdkDragStarted)="dragResizeStart($event)" (cdkDragMoved)="dragResizeMove($event)" (cdkDragEnded)="dragResizeRelease($event)"></div>
+    </div>  
 </div>

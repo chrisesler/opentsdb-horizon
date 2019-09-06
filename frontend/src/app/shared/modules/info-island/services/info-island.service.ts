@@ -20,6 +20,7 @@ import { ISLAND_DATA } from '../info-island.tokens';
 import { IslandTestComponent } from '../components/island-test/island-test.component';
 import { EventStreamComponent } from '../components/event-stream/event-stream.component';
 import { IntercomService } from '../../../../core/services/intercom.service';
+import { TimeseriesLegendComponent } from '../components/timeseries-legend/timeseries-legend.component';
 
 @Injectable()
 export class InfoIslandService {
@@ -50,34 +51,64 @@ export class InfoIslandService {
             case 'EventStreamComponent':
                 retComp = EventStreamComponent;
                 break;
+            case 'TimeseriesLegendComponent':
+                retComp = TimeseriesLegendComponent;
+                break;
             case 'IslandTestComponent':
             default:
                 retComp = IslandTestComponent;
                 break;
-
         }
 
         return retComp;
     }
 
+    get islandToolbarRef() {
+        if (this.islandComp) {
+            return <ViewContainerRef>this.islandComp.islandToolbar;
+        }
+        return null;
+    }
+
     /** ISLAND CREATION  */
-    openIsland(widgetContainerRef: ElementRef, portalRef: Portal<any>, options: Partial<InfoIslandOptions>) {
+
+    // new version... work in progress to simplify creation
+    openIsland2(componentName: string, widgetContainerRef: ElementRef, windowOptions: Partial<InfoIslandOptions>, dataToInject: any) {
         if (this.overlayRef) {
             this.closeIsland(); // in case there is one open
         }
 
-        this.createOverlayRef(widgetContainerRef);
-
-        const portal = new ComponentPortal(InfoIslandComponent);
-        const componentRef = this.overlayRef.attach(portal);
-
-        this.islandComp = componentRef.instance;
+        // merge options
         const optionsToPass = JSON.parse(JSON.stringify(this.DEFAULT_OPTIONS));
+        Object.assign(optionsToPass, windowOptions);
+
+        this.originId = windowOptions.originId;
+
+        const compRef = this.getComponentToLoad(componentName);
+        let componentToLoad = new ComponentPortal(compRef, null, this.createInjector(dataToInject));
+
+        // more to come
+    }
+
+    openIsland(widgetContainerRef: ElementRef, portalRef: any, options: Partial<InfoIslandOptions>) {
+        if (this.overlayRef) {
+            this.closeIsland(); // in case there is one open
+        }
 
         // merge options
+        const optionsToPass = JSON.parse(JSON.stringify(this.DEFAULT_OPTIONS));
         Object.assign(optionsToPass, options);
 
         this.originId = options.originId;
+
+        // create overlay reference
+        this.createOverlayRef(widgetContainerRef, optionsToPass);
+
+        const portalOutlet = new ComponentPortal(InfoIslandComponent);
+        const componentRef = this.overlayRef.attach(portalOutlet);
+
+        this.islandComp = componentRef.instance;
+        // console.log('ISLAND REF', this.islandComp);
 
         /* Dynamic width from the opening widget - commented out for now
         const containerDims = widgetContainerRef.nativeElement.getBoundingClientRect();
@@ -87,7 +118,10 @@ export class InfoIslandService {
         }
         */
 
-        this.islandComp.open(portalRef, optionsToPass);
+        portalRef.component.prototype.islandRef = this.islandComp;
+        // console.log('PORTAL REF', portalRef);
+
+        this.islandComp.open(<Portal<any>>portalRef, optionsToPass);
         this.islandComp.onCloseIsland$.subscribe(() => {
             this.overlayRef.detach();
             this.interCom.responsePut({
@@ -107,15 +141,53 @@ export class InfoIslandService {
         }
     }
 
-    private createOverlayRef(elRef: ElementRef) {
+    private createOverlayRef(elRef: ElementRef, options: any) {
+
+        let positionStrategy;
+        if (options.positionStrategy && options.positionStrategy === 'global') {
+            positionStrategy = this.getGlobalPositionStrategy();
+        // } else if (options.positionStrategy && options.positionStrategy === 'connected') {
+        } else {
+            positionStrategy = this.getFlexiblePositionStrategy(elRef);
+        }
+
         this.overlayRef = this.overlay.create({
             hasBackdrop: false,
             scrollStrategy: this.overlay.scrollStrategies.noop(),
-            positionStrategy: this.getPositionStrategy(elRef)
+            // positionStrategy: this.getPositionStrategy(elRef)
+            positionStrategy: positionStrategy
         });
+
     }
 
-    private getPositionStrategy(elRef: ElementRef) {
+    updatePositionStrategy(elRef: ElementRef) {
+        // WIP to update position strategy
+    }
+
+    private getGlobalPositionStrategy() {
+        const globalPositionStrategy = this.overlay.position()
+            .global()
+            .centerHorizontally()
+            .centerVertically();
+        return globalPositionStrategy;
+    }
+
+    // WIP for connected position strategy 
+    /*private getConnectedPositionStrategy(elRef: ElementRef) {
+        const positionStrategy = this.overlay.position()
+        .flexibleConnectedTo(elRef)
+        .withPush(true)
+        .withPositions([
+            { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom' },
+            { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top' },
+            { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
+            { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
+            { originX: 'end', originY: 'bottom', overlayX: 'endt', overlayY: 'top' },
+            { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom' }
+        ]);
+    }*/
+
+    private getFlexiblePositionStrategy(elRef: ElementRef) {
 
         const origin = {
             topLeft: { originX: 'start', originY: 'top' } as OriginConnectionPosition,

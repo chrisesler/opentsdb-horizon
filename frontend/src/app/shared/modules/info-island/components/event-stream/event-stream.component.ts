@@ -12,7 +12,7 @@ import { MatAccordion, MatExpansionPanel } from '@angular/material';
     // tslint:disable-next-line:component-selector
     selector: 'event-stream',
     templateUrl: './event-stream.component.html',
-    styleUrls: ['./event-stream.component.scss']
+    styleUrls: []
 })
 export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
     @HostBinding('class.event-stream') private _componentClass = true;
@@ -26,6 +26,7 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
     timezone: string;
     expandedBucketIndex: number;
     maxEventsShown = 30;
+    title = '';
 
     private subscription: Subscription = new Subscription();
 
@@ -37,6 +38,9 @@ export class EventStreamComponent implements OnInit, OnChanges, OnDestroy, After
         private interCom: IntercomService,
         @Inject(ISLAND_DATA) private _data: any
     ) {
+
+        console.log('DATA', _data);
+        this.title = _data.data.title;
 
         this.subscription.add(_data.data.timeRange$.subscribe( time => {
             // this.logger.log('TIME RANGE RECEIVED', {time});

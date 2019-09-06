@@ -1,15 +1,16 @@
-import { Component,OnInit, Inject, OnDestroy, HostBinding,
-    AfterViewInit, ViewChild, ElementRef, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, Inject, OnDestroy, HostBinding,
+    AfterViewInit, ViewChild, ElementRef, ViewChildren, QueryList, ViewContainerRef} from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 import { Subject, Observable, Subscription } from 'rxjs';
 import { InfoIslandOptions } from '../services/info-island-options';
 import { LoggerService } from '../../../../core/services/logger.service';
-import { CdkDrag } from '@angular/cdk/drag-drop';
+import { CdkDrag} from '@angular/cdk/drag-drop';
 import { Portal } from '@angular/cdk/portal';
 
 @Component({
-    selector: 'app-info-island',
+    // tslint:disable-next-line: component-selector
+    selector: 'info-island',
     templateUrl: './info-island.component.html',
     styleUrls: [],
     animations: [
@@ -32,22 +33,28 @@ import { Portal } from '@angular/cdk/portal';
         ])
     ]
 })
-export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
+export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit  {
 
     constructor(
         private logger: LoggerService,
         private hostEl: ElementRef
-    ) { }
+    ) {}
 
     @HostBinding('class.info-island-component') private _hostClass = true;
 
-    @ViewChild('islandContainer', { read: ElementRef }) islandContainer: ElementRef;
+    @ViewChild('islandContainer', { read: ElementRef }) private _islandContainer: ElementRef;
 
-    @ViewChild('islandContainer', {read: CdkDrag }) dragContainer: CdkDrag;
+    @ViewChild('islandContainer', {read: CdkDrag }) private _dragContainer: CdkDrag;
 
-    @ViewChildren('resizerEl', { read: ElementRef }) resizers: QueryList<ElementRef>;
+    @ViewChild('islandToolbar', {read: ViewContainerRef}) private _islandToolbar: ViewContainerRef;
+    get islandToolbar(): ViewContainerRef {
+        return this._islandToolbar;
+    }
 
-    @ViewChildren('resizerEl', { read: CdkDrag }) dragHandles: QueryList<ElementRef>;
+    // resizers Elements
+    @ViewChildren('resizerEl', { read: ElementRef }) private _resizers: QueryList<ElementRef>;
+    // resizers CdkDrag instances
+    @ViewChildren('resizerEl', { read: CdkDrag }) private _dragHandles: QueryList<ElementRef>;
 
     private onCloseIsland = new Subject<void>();
     onCloseIsland$ = this.onCloseIsland.asObservable();
@@ -64,7 +71,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
         showActions: false
     };
 
-    minimum_size = {x: 150, y: 100};
+    minimum_size = {x: 500, y: 200};
     origDims: any = {
         width: 0,
         height: 0,
@@ -85,19 +92,20 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
 
     ngOnInit() { }
 
-    ngOnDestroy() {
-        this.onCloseIsland.unsubscribe();
-    }
-
     ngAfterViewInit() {
         this.hostPosition = this.hostEl.nativeElement.getBoundingClientRect();
-        this.logger.log('ISLAND', { island: this.islandContainer });
-        this.logger.log('ResizerEls', { resizers: this.resizers });
+        // this.logger.log('ISLAND', { island: this._islandContainer });
+        // this.logger.log('ResizerEls', { resizers: this._resizers });
+        // this.logger.log('TOOLBAR', {toolbar: this._islandToolbar});
     }
 
     open(portalRef: Portal<any>, options: any) {
         // merge options
         Object.assign(this.options, options);
+
+        this.hostEl.nativeElement.style.width = options.width + 'px';
+        this.hostEl.nativeElement.style.height = options.height + 'px';
+        this.hostPosition = this.hostEl.nativeElement.getBoundingClientRect();
 
         this.portalRef = portalRef;
         this.animationState = '*';
@@ -114,10 +122,30 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
 
     animationDone() {
         if (this.animationState === 'void') {
+            this.hostEl.nativeElement.style.width = this.hostPosition.width;
+            this.hostEl.nativeElement.style.height = this.hostPosition.height;
             this.onCloseIsland.next();
         }
     }
 
+    updateSize(size: DOMRect) {
+        if (size.width > this.options.width) {
+
+            // check against dashboard content size
+            const dbContent = document.querySelector('.app-dboard-content');
+            const dbSize = dbContent.getBoundingClientRect();
+
+            this.options.width = (size.width + 24 < dbSize.width - 24) ? size.width + 24 : dbSize.width - 24;
+            this.hostEl.nativeElement.style.width = this.options.width + 'px';
+            this.hostPosition = this.hostEl.nativeElement.getBoundingClientRect();
+        }
+    }
+
+    /** window dragging */
+
+    dragIslandWindow(event: any) { }
+
+    /** Corner Resizing */
     private getTransformMatrix(el: any) {
         const transArr = [];
         if (!window.getComputedStyle) {
@@ -145,9 +173,9 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     dragResizeStart(e: any) {
-        this.logger.log('dragResizeStart', {event: e});
+        // this.logger.log('dragResizeStart', {event: e});
 
-        const element = this.islandContainer.nativeElement;
+        const element = this._islandContainer.nativeElement;
         this.origDims.width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
         this.origDims.height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
         this.origDims.x = element.getBoundingClientRect().left;
@@ -159,9 +187,9 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     dragResizeMove(e: any) {
-        this.logger.log('dragResizeMove', {event: e, dragContainer: this.dragContainer});
+        // this.logger.log('dragResizeMove', {event: e, dragContainer: this.dragContainer});
         const currentResizer = e.source.element.nativeElement;
-        const element = this.islandContainer.nativeElement;
+        const element = this._islandContainer.nativeElement;
 
         let width: any;
         let height: any;
@@ -169,7 +197,34 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
         let triggerTransform = false;
         let diff: any;
 
-        if (currentResizer.classList.contains('bottom-right')) {
+        if (currentResizer.classList.contains('top')) {
+            height = this.origDims.height - (e.pointerPosition.y - this.origDims.pointerPosition.y);
+
+            if (height > this.minimum_size.y) {
+                element.style.height = height + 'px';
+                diff = (e.pointerPosition.y - this.origDims.pointerPosition.y);
+                transform[1] = (e.delta.y === 1) ? transform[1] + diff : transform[1] - (diff * e.delta.y);
+                triggerTransform = true;
+            }
+        } else if (currentResizer.classList.contains('bottom')) {
+            height = this.origDims.height + (e.pointerPosition.y - this.origDims.pointerPosition.y);
+            if (height > this.minimum_size.y) {
+                element.style.height = height + 'px';
+            }
+        } else if (currentResizer.classList.contains('left')) {
+            width = this.origDims.width - (e.pointerPosition.x - this.origDims.pointerPosition.x);
+            if (width > this.minimum_size.x) {
+                element.style.width = width + 'px';
+                diff = (e.pointerPosition.x - this.origDims.pointerPosition.x);
+                transform[0] = (e.delta.x === 1) ? transform[0] + diff : transform[0] - (diff * e.delta.x);
+                triggerTransform = true;
+            }
+        } else if (currentResizer.classList.contains('right')) {
+            width = this.origDims.width + (e.pointerPosition.x - this.origDims.pointerPosition.x);
+            if (width > this.minimum_size.x) {
+                element.style.width = width + 'px';
+            }
+        } else if (currentResizer.classList.contains('bottom-right')) {
 
             width = this.origDims.width + (e.pointerPosition.x - this.origDims.pointerPosition.x);
             height = this.origDims.height + (e.pointerPosition.y - this.origDims.pointerPosition.y);
@@ -181,7 +236,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
                 element.style.height = height + 'px';
             }
 
-            this.logger.log('BOTTOM-RIGHT', {origin: this.origDims, width, height});
+            // this.logger.log('BOTTOM-RIGHT', {origin: this.origDims, width, height});
         } else if (currentResizer.classList.contains('bottom-left')) {
             width = this.origDims.width - (e.pointerPosition.x - this.origDims.pointerPosition.x);
             height = this.origDims.height + (e.pointerPosition.y - this.origDims.pointerPosition.y);
@@ -196,7 +251,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
                 triggerTransform = true;
             }
 
-            this.logger.log('BOTTOM-LEFT', {origin: this.origDims, width, height, diff });
+            // this.logger.log('BOTTOM-LEFT', {origin: this.origDims, width, height, diff });
 
         } else if (currentResizer.classList.contains('top-right')) {
             width = this.origDims.width + (e.pointerPosition.x - this.origDims.pointerPosition.x);
@@ -212,7 +267,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
                 transform[1] = (e.delta.y === 1) ? transform[1] + diff : transform[1] - (diff * e.delta.y);
                 triggerTransform = true;
             }
-            this.logger.log('TOP-RIGHT', {origin: this.origDims, width, height, diff });
+            // this.logger.log('TOP-RIGHT', {origin: this.origDims, width, height, diff });
         } else {
 
             width = this.origDims.width - (e.pointerPosition.x - this.origDims.pointerPosition.x);
@@ -235,7 +290,7 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
                 triggerTransform = true;
             }
 
-            this.logger.log('TOP-LEFT', {origin: this.origDims, width, height, diffX, diffY });
+            // this.logger.log('TOP-LEFT', {origin: this.origDims, width, height, diffX, diffY });
 
         }
         if (triggerTransform) {
@@ -249,5 +304,10 @@ export class InfoIslandComponent implements OnInit, OnDestroy, AfterViewInit {
         this.logger.log('dragResizeRelease', {event: e});
     }
 
+    /** On Destroy */
+
+    ngOnDestroy() {
+        this.onCloseIsland.unsubscribe();
+    }
 
 }
