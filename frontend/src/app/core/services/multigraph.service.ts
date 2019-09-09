@@ -30,7 +30,7 @@ export class MultigraphService {
       const vConfig = mConfig && mConfig.settings ? mConfig.settings.visual : {};
       const dataSrc = rawdata.results[i];
       if (gConfig && gConfig.settings.visual.visible && vConfig.visible ) {
-      if (dataSrc.source && dataSrc.source.indexOf('summarizer:') === -1) {
+      if (dataSrc.source) {
         for (let j = 0; j < dataSrc.data.length; j++) {
           const tags = { metric_group: dataSrc.data[j].metric, ...dataSrc.data[j].tags};
           let x = xTemp;
@@ -58,19 +58,19 @@ export class MultigraphService {
           }
           if ( !lookupData[y][x] ) {
             lookupData[y][x] = {
-              results: [{
-                source: dataSrc.source,
-                timeSpecification: dataSrc.timeSpecification,
-                data: []
-              }]
+              results: []
             };
           }
-          lookupData[y][x].results[0].data.push(dataSrc.data[j]);
-          // we do need to get the summarizer for this set
-          const sumIndex = rawdata.results.findIndex(src => src.source === 'summarizer:' + mid);
-          if (sumIndex !== -1) {
-            lookupData[y][x].results.push(rawdata.results[sumIndex]);
+          let srcIndex = lookupData[y][x].results.findIndex(d => d.source === dataSrc.source);
+          if ( srcIndex === -1 ) {
+            lookupData[y][x].results.push({
+                                            source: dataSrc.source,
+                                            timeSpecification: dataSrc.timeSpecification,
+                                            data: []
+                                          });
+            srcIndex = lookupData[y][x].results.length - 1;
           }
+          lookupData[y][x].results[srcIndex].data.push(dataSrc.data[j]);
         }
       }
     }

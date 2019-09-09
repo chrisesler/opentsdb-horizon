@@ -32,14 +32,46 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
     gForms: FormGroup;
 
     displayControl: FormControl;
+    stackOrderControl: FormControl;
 
     gSubscriptions: Subscription[] = [];
+
+    stackOrderOptions: Array<object> = [
+        {
+            label: 'Metric',
+            value: 'metric'
+        },
+        {
+            label: 'AVG',
+            value: 'avg'
+        },
+        {
+            label: 'MIN',
+            value: 'min'
+        },
+        {
+            label: 'MAX',
+            value: 'max'
+        },
+        {
+            label: 'SUM',
+            value: 'sum'
+        },
+        {
+            label: 'FIRST',
+            value: 'first'
+        },
+        {
+            label: 'LAST',
+            value: 'last'
+        }
+    ];
 
     constructor(private fb: FormBuilder) { }
 
     ngOnInit() {
         this.gForms = new FormGroup({});
-
+        let enableStackOrderCntrl = false;
 
         if (this.widget.settings.component_type === 'StackedBarchartWidgetComponent') {
             this.gForms.addControl( 'bars', new FormArray(
@@ -69,6 +101,14 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
             this.widget.queries.forEach((query, index) => {
                 this.dataSources[index] = query.metrics;
                 this.gForms.addControl(index, this.createFormArray(this.dataSources[index]));
+                if (this.widget.settings.component_type !== 'LinechartWidgetComponent') {
+                    for ( let i = 0; i < query.metrics.length; i++ ) {
+                        const type = query.metrics[i].settings.visual.type;
+                        if ( type === 'area' || type === 'bar' ) {
+                            enableStackOrderCntrl = true;
+                        }
+                    }
+                }
             });
         }
         // console.log(this.gForms, 'this.gforms');
@@ -76,6 +116,12 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
         if (this.widget.settings.component_type !== 'LinechartWidgetComponent') {
             const displayControlDefault = (this.widget.settings.component_type === 'DonutWidgetComponent') ? 'doughnut' : 'vertical';
             this.displayControl = new FormControl(this.widget.settings.visual.type || displayControlDefault);
+        } else {
+            this.stackOrderControl = new FormControl( {
+                                                        value: this.widget.settings.visual.stackOrder || 'metric',
+                                                        disabled: enableStackOrderCntrl
+                                                        }
+                                                    );
         }
         /*
         switch ( this.widget.settings.component_type ) {
@@ -91,6 +137,12 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
             this.displayControl.valueChanges.subscribe( d => {
                 // console.log('display changed', d );
                 this.widgetChange.emit( {'action': 'ChangeVisualization', payload: { type: d }});
+            });
+        }
+
+        if ( this.stackOrderControl ) {
+            this.stackOrderControl.valueChanges.subscribe( d => {
+                this.widgetChange.emit( {'action': 'SetStackOrder', payload: { orderBy: d }});
             });
         }
 
@@ -146,22 +198,49 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
 
     setVisualType(type, qIndex, index ) {
         let axis = null;
+        let hasStackType = type === 'area' || type === 'bar';
         if (this.widget.settings.component_type === 'LinechartWidgetComponent') {
             for ( let i = 0; i < this.widget.queries.length; i++ ) {
                 for ( let j = 0; j < this.widget.queries[i].metrics.length; j++ ) {
-                    // tslint:disable-next-line: max-line-length
-                    if ( (i !== qIndex || (i === qIndex && j !== index)) && this.widget.queries[i].metrics[j].settings.visual.type === type ) {
-                        axis = this.widget.queries[i].metrics[j].settings.visual.axis;
-                        break;
+                    const vType = this.widget.queries[i].metrics[j].settings.visual.type;
+                    if ( (i !== qIndex || (i === qIndex && j !== index)) ) {
+                        if ( vType === type ) {
+                            axis = this.widget.queries[i].metrics[j].settings.visual.axis;
+                        }
+                        if ( vType === 'area' || vType === 'bar ' ) {
+                            hasStackType = true;
+                        }
                     }
                 }
             }
             if ( axis !== null && (type === 'area' || type === 'bar') ) {
                 this.gForms.controls[qIndex]['controls'][index]['controls'].axis.setValue(axis, {emitEvent: false});
             }
+
+            // move area or bar to new type
+            if ( type === 'area' || type === 'bar' ) {
+                const axis = this.gForms.controls[qIndex]['controls'][index]['controls'].axis.value;
+                for ( let i = 0; i < this.widget.queries.length; i++ ) {
+                    for ( let j = 0; j < this.widget.queries[i].metrics.length; j++ ) {
+                        const vType = this.widget.queries[i].metrics[j].settings.visual.type;
+                        if ( (i !== qIndex || (i === qIndex && j !== index)) && type !== vType && vType !== 'line') {
+                            this.gForms.controls[i]['controls'][j]['controls'].type.setValue(type, {emitEvent: false, emitModelToViewChange: true});
+                            this.gForms.controls[i]['controls'][j]['controls'].axis.setValue(axis, {emitEvent: false, emitModelToViewChange: true});
+                        }
+                    }
+                    if  (i !== qIndex ) {
+                        this.gForms.controls[i].updateValueAndValidity({ emitEvent: true });
+                    }
+                }
+            }
+            // enable the stackOrder control
+            if ( hasStackType ) {
+                this.stackOrderControl.enable();
+            } else {
+                this.stackOrderControl.disable();
+            }
         }
         this.gForms.controls[qIndex]['controls'][index]['controls'].type.setValue(type);
-
     }
 
     setAxis(axis, qIndex, index ) {
