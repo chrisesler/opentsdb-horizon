@@ -316,7 +316,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                     break;
             }
         }
-        console.log('DATA', this.tableDataSource.data);
+        //console.log('DATA', this.tableDataSource.data);
         this.updateMasterCheckboxStates();
         if (this._legendTable) {
             this._legendTable.renderRows();
@@ -343,7 +343,7 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
             // everything else
             value = item[property];
         }
-        console.log('SORT ACCESSOR', {item, property, value});
+        //console.log('SORT ACCESSOR', {item, property, value});
         return value;
     }
 
