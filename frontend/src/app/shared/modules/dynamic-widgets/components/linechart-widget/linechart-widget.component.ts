@@ -1367,7 +1367,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
     /* TIMESERIES LEGEND */
 
     // event listener for dygraph to get latest tick data
-    timeseriesTickListener(yKey: any, xKey: any, event: any) {
+    timeseriesTickListener(yIndex: number, xIndex: number, yKey: any, xKey: any, event: any) {
         // this.logger.state('TIMESERIES TICK LISTENER', {yKey, xKey, multigraph: this.multigraphEnabled, event});
 
         if (this.editMode === true) {
@@ -1407,7 +1407,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 }
             };
             if (multigraph) {
-                payload.options.overlayRefEl = (this.multigraphContainer.nativeElement).querySelector('.graph-cell-' + yKey + '-' + xKey);
+                payload.options.overlayRefEl = (this.multigraphContainer.nativeElement).querySelector('.graph-cell-' + yIndex + '-' + xIndex);
             }
             // this goes to widgetLoader
             this.interCom.requestSend({
