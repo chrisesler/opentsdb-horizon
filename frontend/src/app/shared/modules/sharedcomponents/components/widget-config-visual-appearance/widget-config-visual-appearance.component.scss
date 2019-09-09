@@ -91,6 +91,16 @@
             }
         }
 
+        .column.stack-order-container {
+            flex: 1 1 120px;
+            .config-control:first-child {
+                margin-bottom: 8px;
+                font-size: 12px;
+                font-weight: 500;
+                color: rgba(0, 0, 0, 0.54)
+            }
+        }
+
         .column.display-modifier-container {
             flex: 1 1 200px;
 

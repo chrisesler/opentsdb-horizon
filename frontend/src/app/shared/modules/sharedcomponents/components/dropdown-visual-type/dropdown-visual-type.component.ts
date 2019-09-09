@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostBinding, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, SimpleChanges, HostBinding, Input, Output, EventEmitter, forwardRef } from '@angular/core';
 import { FormControl, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
       multi: true,
     }]
 })
-export class DropdownVisualTypeComponent implements OnInit, OnDestroy, ControlValueAccessor {
+export class DropdownVisualTypeComponent implements OnInit, OnChanges, OnDestroy, ControlValueAccessor {
     @HostBinding('class.dropdown-visual-type') private _hostClass = true;
 
     @Input() value;
@@ -79,14 +79,21 @@ export class DropdownVisualTypeComponent implements OnInit, OnDestroy, ControlVa
 
     ngOnInit() {
         if ( !this.value ) {
-            this.value = this.defaultVisualType;
+            this.value = this.defaultVisualType;    
             this.propagateChange(this.value);
         }
         this.visualTypeControl = new FormControl( this.value );
+
         this.subscription = this.visualTypeControl.valueChanges.subscribe( data => {
             this.propagateChange(data);
             this.valueChange.emit(data);
         });
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if ( changes.value && changes.value.currentValue && this.visualTypeControl) {
+            this.visualTypeControl.setValue(this.value, {emitEvent: false});
+        }
     }
 
     ngOnDestroy() {

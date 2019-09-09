@@ -15,6 +15,8 @@ export class DatatranformerService {
 
   // options will also be update of its labels array
   yamasToDygraph(widget, options: IDygraphOptions, normalizedData: any[], result: any): any {
+    const startTime = new Date().getTime();
+    let intermediateTime = startTime;
     result = { ...result };
     if ( normalizedData.length && normalizedData[0].length === 1 ) {
       // there is no data in here but default, reset it
@@ -125,6 +127,7 @@ export class DatatranformerService {
             // sometimes opentsdb returns empty results
             // reset series in state
             options.series = {};
+            const colors = {};
             const dseries = [];
             for ( let i = 0;  i < queryResults.length; i++ ) {
                 const [ source, mid ] = queryResults[i].source.split(':');
@@ -142,7 +145,7 @@ export class DatatranformerService {
                 const n = queryResults[i].data.length;
                 const colorIndex = vConfig.color === 'auto' || !vConfig.color ? wdQueryStats.mVisibleAutoColorIds.indexOf( qid + '-' + mConfig.id ) : -1;
                 const color = vConfig.color === 'auto' || !vConfig.color ? autoColors[colorIndex] : mConfig.settings.visual.color;
-                const colors = n === 1 ?
+                colors[mid] = n === 1 ?
                     [color] :  this.util.getColors( wdQueryStats.nVisibleMetrics === 1 && (vConfig.color === 'auto' || !vConfig.color) ? null : color , n ) ;
                 for ( let j = 0; j < n; j ++ ) {
                     const data = queryResults[i].data[j].NumericType;
@@ -155,7 +158,7 @@ export class DatatranformerService {
                         const config: any = {
                             strokeWidth: vConfig.lineWeight ? parseFloat(vConfig.lineWeight) : 1,
                             strokePattern: this.getStrokePattern(vConfig.lineType),
-                            color: colors[j],
+                            // color: colors[j],
                             fillGraph: vConfig.type === 'area' ? true : false,
                             isStacked: vConfig.type === 'area' ? true : false,
                             axis: !vConfig.axis || vConfig.axis === 'y1' ? 'y' : 'y2',
@@ -175,7 +178,8 @@ export class DatatranformerService {
                             groups['line'] = true;
                         }
                         config.label = this.getLableFromMetricTags(metric, config.tags);
-                        dseries.push({  config: config,
+                        dseries.push({  mid: mid,
+                                        config: config,
                                         data: data,
                                         hash: this.getHashFromMetricAndTags(mConfig.expression ? mLabel : queryResults[i].data[j].metric, tags),
                                         timeSpecification: timeSpecification});
@@ -183,21 +187,25 @@ export class DatatranformerService {
             }
         }
 
-        // dseries.forEach((d,i)=> { console.log("data1 i=", widget.settings.title, i, d.config.group, d.hash)});
         // sort the data
+        intermediateTime = new Date().getTime();
         dseries.sort((a: any, b: any) => {
-            if ( a.config.group === b.config.group ) {
+            if ( !widget.settings.visual.stackOrder || widget.settings.visual.stackOrder === 'metric') {
                 return this.util.sortAlphaNum(a.hash, b.hash);
+            } else {
+                const orderBy = widget.settings.visual.stackOrder;
+                return a.config.aggregations[orderBy] - b.config.aggregations[orderBy];
             }
-            return a.config.group < a.config.group ? 1 : -1;
-        });
-        // dseries.forEach((d,i)=> { console.log("data2 i=", i, d.config.group, d.hash)});
-        // fill the data
+        }).reverse();
+        console.debug(widget.id, "time taken for sorting data series(ms) ", new Date().getTime() - intermediateTime );
+        intermediateTime = new Date().getTime();
+
         for ( let i = 0; i < dseries.length; i++ ) {
             const label = options.labels.length.toString();
             options.labels.push(label);
             options.visibility.push(true);
             options.series[label] = dseries[i].config;
+            options.series[label].color = colors[dseries[i].mid].pop();
             const seriesIndex = options.labels.indexOf(label);
             const axis = dseries[i].config.axis;
             const unit = dseries[i].timeSpecification.interval.replace(/[0-9]/g, '');
@@ -221,6 +229,7 @@ export class DatatranformerService {
                 }
             }
         }
+        console.debug(widget.id, "time taken for finding min, max(ms)", new Date().getTime() - intermediateTime );
 
         if (isStacked) {
 
@@ -247,7 +256,6 @@ export class DatatranformerService {
                 if ( isNaN(parseFloat( axisConfig.min)) ) {
                     options.axes[axis].valueRange[0] = axisMin < 0 && ( Object.keys(stackedGroups).length > 1 || Object.keys(groups).includes('line')) ? Math.ceil(axisMin + axisMin * 0.05) : 0;
                 }
-                console.log("axis-"+ axis, axisMin, options.axes[axis].valueRange)
             }
         }
 
@@ -258,6 +266,7 @@ export class DatatranformerService {
         if ( options.axes.y2.valueRange[0] !== null && options.axes.y2.valueRange[0] >= y2Max ) {
             options.axes.y2.valueRange[0] = null;
         }
+        console.debug(widget.id, "time taken on data transformer(ms) ", new Date().getTime() - startTime );
         return [...normalizedData];
     }
 

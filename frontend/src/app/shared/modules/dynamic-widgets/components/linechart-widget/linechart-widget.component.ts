@@ -84,6 +84,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
         strokeBorderWidth: this.isStackedGraph ? 0 : 0,
         highlightSeriesBackgroundAlpha: 0.5,
         isZoomedIgnoreProgrammaticZoom: true,
+        hideOverlayOnMouseOut: true,
         isCustomZoomed: false,
         highlightSeriesOpts: {
             strokeWidth: 2,
@@ -521,6 +522,10 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                 this.widget = { ...this.widget };
                 this.refreshData(false);
                 this.cdRef.detectChanges();
+                break;
+            case 'SetStackOrder':
+                this.widget.settings.visual.stackOrder = message.payload.orderBy;
+                this.refreshData(false);
                 break;
             case 'SetAlerts':
                 this.widget.settings.thresholds = message.payload.data;

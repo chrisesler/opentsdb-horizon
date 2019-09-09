@@ -1,5 +1,19 @@
 <!-- LINE CHART COMPONENT -->
 <ng-template [ngIf]="widget.settings.component_type==='LinechartWidgetComponent'">
+    <div class="column stack-order-container">
+        <div class="config-control">
+                <span class="mat-label mat-body-strong">Stack Order</span>
+        </div>
+        <div class="config-control">
+            <mat-form-field  [floatLabel]="'never'" appearance="fill">
+                <mat-select placeholder="Stack Order" [formControl]="stackOrderControl">
+                        <mat-option *ngFor="let option of stackOrderOptions" [value]="option.value">
+                        <span>{{ option.label }}</span>
+                        </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
     <div class="column linechart-container" [formGroup]="gForms">
         <table class="mat-table">
             <thead>
