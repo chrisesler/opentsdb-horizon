@@ -134,7 +134,7 @@ export class InfoIslandService {
     }
 
     closeIsland() {
-        if (this.overlayRef.hasAttached()) {
+        if (this.overlayRef && this.overlayRef.hasAttached()) {
             this.overlayRef.detach();
             this.interCom.responsePut({
                 id: this.originId ,
