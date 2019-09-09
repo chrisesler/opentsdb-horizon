@@ -293,7 +293,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
                     case 'tsLegendRequestUpdatedOverlayOrigin':
                         let tsOriginOverlayRef: any;
                         if (message.payload.multigraph) {
-                            tsOriginOverlayRef = (this.multigraphContainer.nativeElement).querySelector('.graph-cell-' + message.payload.multigraph.y + '-' + message.payload.multigraph.x);
+                            tsOriginOverlayRef = (this.multigraphContainer.nativeElement).querySelector('.graph-cell-' + message.payload.multigraph.yIndex + '-' + message.payload.multigraph.xIndex);
                         } else {
                             tsOriginOverlayRef = this.elRef.nativeElement.closest('.widget-loader');
                         }
@@ -1373,7 +1373,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
     // event listener for dygraph to get latest tick data
     timeseriesTickListener(yIndex: number, xIndex: number, yKey: any, xKey: any, event: any) {
-        // this.logger.state('TIMESERIES TICK LISTENER', {yKey, xKey, multigraph: this.multigraphEnabled, event});
+        //this.logger.state('TIMESERIES TICK LISTENER', {yKey, xKey, multigraph: this.multigraphEnabled, event});
 
         if (this.editMode === true) {
             return;
@@ -1381,7 +1381,7 @@ export class LinechartWidgetComponent implements OnInit, AfterViewInit, OnDestro
 
         let multigraph: any = false;
         if (this.multigraphEnabled) {
-            multigraph = { y: yKey, x: xKey };
+            multigraph = { yIndex, xIndex, y: yKey, x: xKey };
         }
 
         let widgetOptions;
