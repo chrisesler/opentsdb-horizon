@@ -210,6 +210,13 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
         return visible.length;
     }
 
+    get sortActiveText() {
+        if (this.sort) {
+            return this.sort.active;
+        }
+        return 'value';
+    }
+
     /** Toolbar controls */
     trackmouseCheckboxChange(event: any) {
         // console.log('trackmouse', event);
@@ -294,22 +301,9 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                 }
             }
 
-            // slice for quick array clone
             // go ahead and sort by value so showLimit will show correctly
-            const isAsc = (this.sort) ? this.sort.direction === 'asc' : false;
-            const nanValues = this.data.series.slice().filter((item: any) => isNaN(item.data.yval));
-            const sortValues = this.data.series.slice().filter((item: any) => !isNaN(item.data.yval));
-            let sortedValues: any[] = sortValues.sort((a: any , b: any) => {
-                const valA = this.sortingDataAccessor(a, 'value');
-                const valB = this.sortingDataAccessor(a, 'value');
-                return (isAsc) ? valA - valB : valB - valA;
-            });
-            let newDataArray: any[] = [];
-            if (isAsc) {
-                newDataArray = nanValues.concat(sortedValues);
-            } else {
-                newDataArray = sortedValues.concat(nanValues);
-            }
+            const newDataArray: any[] = this.sortData(this.data.series, (this.sort) ? this.sort : <MatSort>{active: 'value', direction: 'asc'});
+
             const showLimit = this.showAmount.value;
 
             switch (this.dataLimitType) {
@@ -322,6 +316,16 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                 default:
                     this.tableDataSource.data = newDataArray;
                     break;
+            }
+
+            // double check the sort if it is a tag (if not value or metric, it is a tag)
+            if (this.sort && this.sort.active !== 'value' && this.sort.active !== 'metric') {
+                // check if by changing data (and possibly changing graph)
+                // if the sort.active exists on the data
+                // if not, go back to default of 'value'
+                if (!(this.tableDataSource.data[0] as any).series.tags[this.sort.active]) {
+                    this.sort.active = 'value';
+                }
             }
         }
         //console.log('DATA', this.tableDataSource.data);

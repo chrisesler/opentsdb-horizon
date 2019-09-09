@@ -2,7 +2,7 @@
     <mat-toolbar-row class="detail-brief">
         <span>Total Series: showing {{visibleDataCount}} of {{data.series.length}}</span>
         <span class="flex-spacer"></span>
-        <span>Sort by value {{(sort && sort.direction === 'asc') ? 'ascending' : 'descending'}}</span>
+        <span>Sort by {{sortActiveText}} {{(sort && sort.direction === 'asc') ? 'ascending' : 'descending'}}</span>
     </mat-toolbar-row>
 </mat-toolbar>
 
@@ -38,7 +38,7 @@
         
             <!-- Metric Name Column -->
             <ng-container matColumnDef="metric">
-                <th mat-header-cell *matHeaderCellDef class="mat-elevation-z1">metric</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="mat-elevation-z1">metric</th>
                 <td mat-cell *matCellDef="let element" (click)="timeseriesVisibilityBy('row', element)">
                     <span class="color-chip" [style.color]="element.series.color"></span>
                     <span>{{element.series.metric}}</span>
@@ -47,7 +47,7 @@
         
             <!-- Tag Columns (dynamic) -->
             <ng-container *ngFor="let resultTag of resultTagKeys" [matColumnDef]="resultTag">
-                <th mat-header-cell *matHeaderCellDef class="mat-elevation-z1">{{resultTag}}</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="mat-elevation-z1">{{resultTag}}</th>
                 <td mat-cell *matCellDef="let element" [ngClass]="{'tag-highlight': !multigraph && highlightTag.key === resultTag && highlightTag.value === element.series.tags[resultTag]}" (click)="timeseriesVisibilityBy('tag', {'tag': resultTag, 'value': element.series.tags[resultTag]})" (mouseover)="tableHighlightTag(resultTag, element.series.tags[resultTag]);" (mouseout)="tableHighlightTag('', '')">
                     <span>{{element.series.tags[resultTag]}}</span>
                 </td>
