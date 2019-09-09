@@ -190,16 +190,13 @@ export class DatatranformerService {
         // sort the data
         intermediateTime = new Date().getTime();
         dseries.sort((a: any, b: any) => {
-            if ( a.config.group === b.config.group ) {
-                if ( !widget.settings.visual.stackOrder || widget.settings.visual.stackOrder === 'metric') {
-                    return this.util.sortAlphaNum(a.hash, b.hash);
-                } else {
-                    const orderBy = widget.settings.visual.stackOrder;
-                    return a.config.aggregations[orderBy] - b.config.aggregations[orderBy];
-                }
+            if ( !widget.settings.visual.stackOrder || widget.settings.visual.stackOrder === 'metric') {
+                return this.util.sortAlphaNum(a.hash, b.hash);
+            } else {
+                const orderBy = widget.settings.visual.stackOrder;
+                return a.config.aggregations[orderBy] - b.config.aggregations[orderBy];
             }
-            return a.config.group < a.config.group ? 1 : -1;
-        });
+        }).reverse();
         console.debug(widget.id, "time taken for sorting data series(ms) ", new Date().getTime() - intermediateTime );
         intermediateTime = new Date().getTime();
 
