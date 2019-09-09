@@ -156,6 +156,14 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
                                 }
                             });
                             this._legendTableObserve.disabled = false;
+                            // request new overlayOrginRef
+                            this.interCom.responsePut({
+                                id: message.id,
+                                action: 'tsLegendRequestUpdatedOverlayOrigin',
+                                payload: {
+                                    multigraph: this.multigraph
+                                }
+                            });
                         }
 
                         // focus change
@@ -322,8 +330,16 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
     // return correct data to sort against
     sortAccessor(item, property) {
         if (property === 'value') {
+            // formatted value
             return item.formattedValue;
+        } else if (property === 'metric') {
+            // metric name
+            return item.series.metric;
+        } else if (item.series.tags.hasOwnProperty(property)) {
+            // must be a tag
+            return item.series.tags[property];
         } else {
+            // everything else
             return item[property];
         }
     }
