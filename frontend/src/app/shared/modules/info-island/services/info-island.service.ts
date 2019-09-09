@@ -99,7 +99,7 @@ export class InfoIslandService {
         const optionsToPass = JSON.parse(JSON.stringify(this.DEFAULT_OPTIONS));
         Object.assign(optionsToPass, options);
 
-        console.log('OPTIONS TO PASS', optionsToPass);
+        //console.log('OPTIONS TO PASS', optionsToPass);
 
         this.originId = options.originId;
 
@@ -134,7 +134,7 @@ export class InfoIslandService {
     }
 
     closeIsland() {
-        if (this.overlayRef.hasAttached()) {
+        if (this.overlayRef && this.overlayRef.hasAttached()) {
             this.overlayRef.detach();
             this.interCom.responsePut({
                 id: this.originId ,
