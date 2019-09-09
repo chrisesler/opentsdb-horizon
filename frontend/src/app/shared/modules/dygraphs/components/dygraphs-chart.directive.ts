@@ -132,7 +132,12 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     const format = options.axes[axis].tickFormat;
                     const precision = format.precision ? format.precision : 2;
                     const dunit = self.uConverter.getNormalizedUnit(data.data.yval, format);
-                    data.formattedValue = self.uConverter.convert(data.data.yval, format.unit, dunit, { unit: format.unit, precision: precision });
+                    if (isNaN(data.data.yval)) {
+                        // don't format a NaN value
+                        data.formattedValue = data.data.yval;
+                    } else {
+                        data.formattedValue = self.uConverter.convert(data.data.yval, format.unit, dunit, { unit: format.unit, precision: precision });
+                    }
                     tickDataOutput.series.push(data);
                 }
 
@@ -189,8 +194,12 @@ export class DygraphsChartDirective implements OnInit, OnChanges, OnDestroy {
                     const format = options.axes[axis].tickFormat;
                     const precision = format.precision ? format.precision : 2;
                     const dunit = self.uConverter.getNormalizedUnit(data.data.yval, format);
-                    data.formattedValue = self.uConverter.convert(data.data.yval, format.unit, dunit, { unit: format.unit, precision: precision });
-
+                    if (isNaN(data.data.yval)) {
+                        // don't format a NaN value
+                        data.formattedValue = data.data.yval;
+                    } else {
+                        data.formattedValue = self.uConverter.convert(data.data.yval, format.unit, dunit, { unit: format.unit, precision: precision });
+                    }
                     tickDataOutput.series.push(data);
                 }
 
