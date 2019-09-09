@@ -81,7 +81,7 @@ export class WidgetLoaderComponent implements OnInit, OnChanges {
                             overlayOriginRef = this.hostElRef.nativeElement;
                         }
 
-                        console.log('OVERLAY ORIGIN REF', overlayOriginRef);
+                        //console.log('OVERLAY ORIGIN REF', overlayOriginRef);
 
                         if (portalDef.type === 'component') {
                             // component based

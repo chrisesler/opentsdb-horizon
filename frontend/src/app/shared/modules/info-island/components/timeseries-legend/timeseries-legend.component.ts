@@ -297,11 +297,19 @@ export class TimeseriesLegendComponent implements OnInit, OnDestroy {
             // slice for quick array clone
             // go ahead and sort by value so showLimit will show correctly
             const isAsc = (this.sort) ? this.sort.direction === 'asc' : false;
-            const newDataArray: any[] = this.data.series.slice().sort((a: any , b: any) => {
+            const nanValues = this.data.series.slice().filter((item: any) => isNaN(item.data.yval));
+            const sortValues = this.data.series.slice().filter((item: any) => !isNaN(item.data.yval));
+            let sortedValues: any[] = sortValues.sort((a: any , b: any) => {
                 const valA = this.sortingDataAccessor(a, 'value');
                 const valB = this.sortingDataAccessor(a, 'value');
-                return (valA < valB ? -1 : 1) * (isAsc ? 1 : -1);
+                return (isAsc) ? valA - valB : valB - valA;
             });
+            let newDataArray: any[] = [];
+            if (isAsc) {
+                newDataArray = nanValues.concat(sortedValues);
+            } else {
+                newDataArray = sortedValues.concat(nanValues);
+            }
             const showLimit = this.showAmount.value;
 
             switch (this.dataLimitType) {
