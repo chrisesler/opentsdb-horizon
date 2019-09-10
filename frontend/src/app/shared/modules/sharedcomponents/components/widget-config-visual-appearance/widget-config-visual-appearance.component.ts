@@ -101,7 +101,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
             this.widget.queries.forEach((query, index) => {
                 this.dataSources[index] = query.metrics;
                 this.gForms.addControl(index, this.createFormArray(this.dataSources[index]));
-                if (this.widget.settings.component_type !== 'LinechartWidgetComponent') {
+                if (this.widget.settings.component_type === 'LinechartWidgetComponent') {
                     for ( let i = 0; i < query.metrics.length; i++ ) {
                         const type = query.metrics[i].settings.visual.type;
                         if ( type === 'area' || type === 'bar' ) {
@@ -119,7 +119,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
         } else {
             this.stackOrderControl = new FormControl( {
                                                         value: this.widget.settings.visual.stackOrder || 'metric',
-                                                        disabled: enableStackOrderCntrl
+                                                        disabled: !enableStackOrderCntrl
                                                         }
                                                     );
         }
@@ -207,7 +207,7 @@ export class WidgetConfigVisualAppearanceComponent implements OnInit, OnChanges 
                         if ( vType === type ) {
                             axis = this.widget.queries[i].metrics[j].settings.visual.axis;
                         }
-                        if ( vType === 'area' || vType === 'bar ' ) {
+                        if ( vType === 'area' || vType === 'bar' ) {
                             hasStackType = true;
                         }
                     }
