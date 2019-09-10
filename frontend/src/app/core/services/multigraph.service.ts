@@ -12,7 +12,7 @@ export class MultigraphService {
 
   // fill up tag values from rawdata
   fillMultiTagValues(widget: any, multiConf: any, rawdata: any): any {
-    // const startTime = new Date().getTime();
+    const startTime = new Date().getTime();
     const xTemp = multiConf.x ? '{{' + Object.keys(multiConf.x).join('}}/{{') + '}}' : 'x';
     const yTemp = multiConf.y ? '{{' + Object.keys(multiConf.y).join('}}/{{') + '}}' : 'y';
     let xCombine = [];
@@ -110,8 +110,8 @@ export class MultigraphService {
     if ( !Object.keys(lookupData).length ) {
       results['y'] = {'x': rawdata };
     }
-    // const timeDiff = new Date().getTime() - startTime; // mil sec
-    // console.log('hill - time exe for multiconf data', timeDiff);
+    const timeDiff = new Date().getTime() - startTime; // mil sec
+    console.debug('execution time for multiconf data for widget', widget.id, timeDiff);
     return results;
   }
 
