@@ -250,7 +250,7 @@ export class DatatranformerService {
                 }
 
                 if ( isNaN(parseFloat( axisConfig.max)) ) {
-                    options.axes[axis].valueRange[1] = Math.ceil(axisMax + axisMax * 0.05);
+                    options.axes[axis].valueRange[1] = axisMax + axisMax * 0.05;
                 }
 
                 if ( isNaN(parseFloat( axisConfig.min)) ) {
