@@ -199,7 +199,7 @@ export class DatatranformerService {
         // sort the data
         intermediateTime = new Date().getTime();
         dseries.sort((a: any, b: any) => {
-            if ( !widget.settings.visual.stackOrder || widget.settings.visual.stackOrder === 'metric') {
+            if ( !widget.settings.visual || !widget.settings.visual.stackOrder || widget.settings.visual.stackOrder === 'metric') {
                 return this.util.sortAlphaNum(a.hash, b.hash);
             } else {
                 const orderBy = widget.settings.visual.stackOrder;
